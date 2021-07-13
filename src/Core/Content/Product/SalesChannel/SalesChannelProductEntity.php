@@ -6,6 +6,8 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CalculatedCheapestPrice;
+use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPrice;
+use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceContainer;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 
@@ -45,6 +47,19 @@ class SalesChannelProductEntity extends ProductEntity
      * @var CategoryEntity|null
      */
     protected $seoCategory;
+
+    /**
+     * The container will be resolved on product.loaded event and
+     * the detected cheapest price will be set for the current context rules
+     *
+     * @var CheapestPrice|CheapestPriceContainer|null
+     */
+    protected $cheapestPrice;
+
+    /**
+     * @var CheapestPriceContainer|null
+     */
+    protected $cheapestPriceContainer;
 
     public function setCalculatedPrices(PriceCollection $prices): void
     {
@@ -114,5 +129,25 @@ class SalesChannelProductEntity extends ProductEntity
     public function setCalculatedCheapestPrice(CalculatedCheapestPrice $calculatedCheapestPrice): void
     {
         $this->calculatedCheapestPrice = $calculatedCheapestPrice;
+    }
+
+    public function getCheapestPrice()
+    {
+        return $this->cheapestPrice;
+    }
+
+    public function setCheapestPrice(?CheapestPrice $cheapestPrice): void
+    {
+        $this->cheapestPrice = $cheapestPrice;
+    }
+
+    public function setCheapestPriceContainer(CheapestPriceContainer $container): void
+    {
+        $this->cheapestPriceContainer = $container;
+    }
+
+    public function getCheapestPriceContainer(): ?CheapestPriceContainer
+    {
+        return $this->cheapestPriceContainer;
     }
 }

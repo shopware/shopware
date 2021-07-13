@@ -86,10 +86,10 @@ class CheapestPriceTest extends TestCase
     v.13.2    190  | 210 | 200 | 210 | 200
      */
 
-    public function testIndexing()
+    public function testIndexing(?IdsCollection $ids = null)
     {
         try {
-            $ids = new IdsCollection();
+            $ids = $ids ?? new IdsCollection();
             $currency = [
                 'id' => $ids->get('currency'),
                 'factor' => 2,
@@ -399,6 +399,93 @@ class CheapestPriceTest extends TestCase
             static::tearDown();
 
             throw $e;
+        }
+    }
+
+    /**
+     * @depends testIndexing
+     */
+    public function testCalculatorBackwardsCompatibility(IdsCollection $ids): void
+    {
+        $connection = KernelLifecycleManager::getKernel()
+            ->getContainer()
+            ->get(Connection::class);
+
+        $cheapestPriceQuery = $connection->prepare('UPDATE product SET cheapest_price = :price WHERE id = :id AND version_id = :version');
+
+        /** @var string $prices */
+        $prices = file_get_contents(__DIR__ . '/_fixtures/serialized_prices.json');
+        foreach ($ids->all() as $key => $id) {
+            $prices = str_replace(sprintf('__id_placeholder_%s__', $key), $id, $prices);
+        }
+        foreach (\json_decode($prices, true) as $productName => $serializedPrice) {
+            $cheapestPriceQuery->execute([
+                'price' => $serializedPrice,
+                'id' => $ids->getBytes($productName),
+                'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+            ]);
+        }
+
+        try {
+            $cases = $this->calculationProvider($ids);
+
+            $default = $this->getContainer()->get(SalesChannelContextFactory::class)
+                ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+
+            $currency = $this->getContainer()->get(SalesChannelContextFactory::class)
+                ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL, ['currencyId' => $ids->get('currency')]);
+
+            $contexts = [
+                Defaults::CURRENCY => $default,
+                $ids->get('currency') => $currency,
+            ];
+            foreach ($cases as $message => $case) {
+                $context = $contexts[$case['currencyId']];
+
+                $context->setRuleIds($case['rules']);
+
+                $assertions = $case['assertions'];
+
+                $keys = array_keys($assertions);
+
+                $criteria = new Criteria($ids->getList($keys));
+
+                $products = $this->getContainer()->get('sales_channel.product.repository')
+                    ->search($criteria, $context);
+
+                foreach ($assertions as $key => $assertion) {
+                    $id = $ids->get($key);
+
+                    $product = $products->get($id);
+
+                    $error = sprintf('Case "%s": Product with key %s not found', $message, $key);
+                    static::assertInstanceOf(SalesChannelProductEntity::class, $product, $error);
+
+                    $error = sprintf('Case "%s": Product with key %s, no calculated price found', $message, $key);
+                    static::assertInstanceOf(CalculatedPrice::class, $product->getCalculatedPrice(), $error);
+
+                    $error = sprintf('Case "%s": Product with key %s, calculated price not match', $message, $key);
+                    static::assertEquals($assertion['price'], $product->getCalculatedPrice()->getUnitPrice(), $error);
+
+                    $error = sprintf('Case "%s": Product with key %s, advanced prices count not match', $message, $key);
+                    static::assertEquals(\count($assertion['prices']), \count($product->getCalculatedPrices()), $error);
+                    foreach ($assertion['prices'] as $index => $expected) {
+                        $price = $product->getCalculatedPrices()->get($index);
+
+                        $error = sprintf('Case "%s": Product with key %s, advanced prices with index %s not match', $message, $key, $index);
+                        static::assertInstanceOf(CalculatedPrice::class, $price, $error);
+                        static::assertEquals($expected, $price->getUnitPrice(), $error);
+                    }
+
+                    $error = sprintf('Case "%s": Product with key %s, cheapest price not match', $message, $key);
+                    static::assertEquals($assertion['cheapest'], $product->getCalculatedCheapestPrice()->getUnitPrice(), $error);
+                }
+            }
+        } finally {
+            // Manually handle state changes
+            static::stopTransactionAfter();
+            static::startTransactionBefore();
+            $this->testIndexing($ids);
         }
     }
 

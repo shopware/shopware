@@ -171,6 +171,63 @@ class RegisterControllerTest extends TestCase
         static::assertStringEndsWith('&redirectTo=frontend.checkout.confirm.page', $event->getConfirmUrl());
     }
 
+    public function testRegisterWithDoubleOptInDomainChanged(): void
+    {
+        $container = $this->getContainer();
+
+        /** @var EntityRepositoryInterface $customerRepository */
+        $customerRepository = $container->get('customer.repository');
+
+        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfigService->set('core.loginRegistration.doubleOptInRegistration', true);
+        $systemConfigService->set('core.loginRegistration.doubleOptInDomain', 'https://test.test.com');
+
+        /** @var CustomerDoubleOptInRegistrationEvent $event */
+        $event = null;
+        $this->catchEvent(CustomerDoubleOptInRegistrationEvent::class, $event);
+
+        $registerController = new RegisterController(
+            $container->get(AccountLoginPageLoader::class),
+            $container->get(RegisterRoute::class),
+            $container->get(RegisterConfirmRoute::class),
+            $container->get(CartService::class),
+            $container->get(CheckoutRegisterPageLoader::class),
+            $systemConfigService,
+            $customerRepository,
+            $this->createMock(CustomerGroupRegistrationPageLoader::class),
+            $container->get('sales_channel_domain.repository')
+        );
+
+        $registerController->setContainer($container);
+
+        $data = $this->getRegistrationData(false);
+        $data->add(['redirectTo' => 'frontend.checkout.confirm.page']);
+
+        $request = $this->createRequest();
+
+        /** @var RedirectResponse $response */
+        $response = $registerController->register($request, $data, $this->salesChannelContext);
+
+        static::assertEquals(302, $response->getStatusCode());
+        static::assertInstanceOf(RedirectResponse::class, $response);
+        static::assertEquals('/account/register', $response->getTargetUrl());
+
+        /** @var FlashBagInterface $flashbag */
+        $flashBag = $container->get('session')->getFlashBag();
+        $success = $flashBag->get('success');
+
+        static::assertNotEmpty($success);
+        static::assertEquals($container->get('translator')->trans('account.optInRegistrationAlert'), $success[0]);
+
+        static::assertNotEmpty($event);
+        static::assertMailEvent(CustomerDoubleOptInRegistrationEvent::class, $event, $this->salesChannelContext);
+        static::assertMailRecipientStructEvent($this->getMailRecipientStruct($data->all()), $event);
+
+        static::assertStringStartsWith('https://test.test.com', $event->getConfirmUrl());
+        $systemConfigService->set('core.loginRegistration.doubleOptInRegistration', false);
+        $systemConfigService->set('core.loginRegistration.doubleOptInDomain', null);
+    }
+
     public function testConfirmRegisterWithRedirectTo(): void
     {
         $container = $this->getContainer();

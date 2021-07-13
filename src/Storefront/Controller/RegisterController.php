@@ -178,16 +178,12 @@ class RegisterController extends StorefrontController
                 $data->remove('shippingAddress');
             }
 
-            $data->set('storefrontUrl', $request->attributes->get(RequestTransformer::STOREFRONT_URL));
+            $data->set('storefrontUrl', $this->getConfirmUrl($context, $request));
 
             $data = $this->prepareAffiliateTracking($data, $request->getSession());
 
             if ($data->has('guest')) {
                 $data->set('guest', $data->has('guest'));
-            }
-
-            if (!$data->has('storefrontUrl')) {
-                $data->set('storefrontUrl', $this->getConfirmUrl($context));
             }
 
             $this->registerRoute->register(
@@ -310,28 +306,34 @@ class RegisterController extends StorefrontController
         return $data;
     }
 
-    private function getConfirmUrl(SalesChannelContext $context): string
+    private function getConfirmUrl(SalesChannelContext $context, Request $request): string
     {
         /** @var string $domainUrl */
         $domainUrl = $this->systemConfigService
             ->get('core.loginRegistration.doubleOptInDomain', $context->getSalesChannel()->getId());
 
-        if (!$domainUrl) {
-            $criteria = new Criteria();
-            $criteria->addFilter(new EqualsFilter('salesChannelId', $context->getSalesChannel()->getId()));
-            $criteria->setLimit(1);
-
-            $domain = $this->domainRepository
-                ->search($criteria, $context->getContext())
-                ->first();
-
-            if (!$domain) {
-                throw new SalesChannelDomainNotFoundException($context->getSalesChannel());
-            }
-
-            $domainUrl = $domain->getUrl();
+        if ($domainUrl) {
+            return $domainUrl;
         }
 
-        return $domainUrl;
+        $domainUrl = $request->attributes->get(RequestTransformer::STOREFRONT_URL);
+
+        if ($domainUrl) {
+            return $domainUrl;
+        }
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('salesChannelId', $context->getSalesChannel()->getId()));
+        $criteria->setLimit(1);
+
+        $domain = $this->domainRepository
+            ->search($criteria, $context->getContext())
+            ->first();
+
+        if (!$domain) {
+            throw new SalesChannelDomainNotFoundException($context->getSalesChannel());
+        }
+
+        return $domain->getUrl();
     }
 }

@@ -22,7 +22,8 @@
             <sw-button
                 class="sw-import-export-view-profiles__create-action"
                 variant="ghost"
-                :disabled="isLoading"
+                :disabled="isLoading || isNotSystemLanguage"
+                v-tooltip="createTooltip"
                 size="small"
                 @click="onAddNewProfile"
             >

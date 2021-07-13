@@ -5,13 +5,11 @@ function checkOrderAccordingToSortIndicator() {
 
     cy.get('.sw-data-grid__sort-indicator').then(($indicator) => {
         if ($indicator.find('.icon--small-arrow-small-up').length > 0) {
-            // Sorting has wrong direction while sorting after Pound. Fix with NEXT-15851
-            cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--name').contains('Second product');
-            cy.get('.sw-data-grid__row--1 .sw-data-grid__cell--name').contains('Original product');
-        } else {
-            // Sorting has wrong direction while sorting after Pound. Fix with NEXT-15851
             cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--name').contains('Original product');
             cy.get('.sw-data-grid__row--1 .sw-data-grid__cell--name').contains('Second product');
+        } else {
+            cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--name').contains('Second product');
+            cy.get('.sw-data-grid__row--1 .sw-data-grid__cell--name').contains('Original product');
         }
     });
 }
@@ -99,6 +97,11 @@ describe('Product: Sort grid', () => {
 
         // sort products by gbp - first
         cy.get('.sw-data-grid__cell--9').click({ force: true });
+
+        // Verify search result
+        cy.wait('@search').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
 
         // check product order
         cy.get('.sw-data-grid-skeleton').should('not.exist');

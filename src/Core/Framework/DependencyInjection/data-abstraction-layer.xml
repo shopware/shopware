@@ -166,6 +166,8 @@
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\PriceFieldAccessorBuilder">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+
             <tag name="shopware.field_accessor_builder" priority="-100"/>
         </service>
 

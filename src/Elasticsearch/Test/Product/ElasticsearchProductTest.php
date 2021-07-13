@@ -101,6 +101,8 @@ class ElasticsearchProductTest extends TestCase
 
     private string $currencyId = '0fa91ce3e96a4bc2be4bd9ce752c3425';
 
+    private string $anotherCurrencyId = '2c962ddb7b3346f29c748a9d3b884302';
+
     private ElasticsearchProductDefinition $definition;
 
     protected function setUp(): void
@@ -189,21 +191,35 @@ class ElasticsearchProductTest extends TestCase
 
             $this->ids->getContext()->addState(Context::STATE_ELASTICSEARCH_AWARE);
             $this->ids->set('currency', $this->currencyId);
-            $currency = [
-                'id' => $this->currencyId,
-                'name' => 'test',
-                'factor' => 1,
-                'symbol' => 'A',
-                'decimalPrecision' => 2,
-                'shortName' => 'A',
-                'isoCode' => 'A',
-                'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.05, true)), true),
-                'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.05, true)), true),
+            $this->ids->set('anotherCurrency', $this->anotherCurrencyId);
+            $currencies = [
+                [
+                    'id' => $this->currencyId,
+                    'name' => 'test',
+                    'factor' => 1,
+                    'symbol' => 'A',
+                    'decimalPrecision' => 2,
+                    'shortName' => 'A',
+                    'isoCode' => 'A',
+                    'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.05, true)), true),
+                    'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.05, true)), true),
+                ],
+                [
+                    'id' => $this->anotherCurrencyId,
+                    'name' => 'test',
+                    'factor' => 0.001,
+                    'symbol' => 'B',
+                    'decimalPrecision' => 2,
+                    'shortName' => 'B',
+                    'isoCode' => 'B',
+                    'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.05, true)), true),
+                    'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.05, true)), true),
+                ],
             ];
 
             $this->getContainer()
                 ->get('currency.repository')
-                ->upsert([$currency], Context::createDefaultContext());
+                ->upsert($currencies, Context::createDefaultContext());
 
             $this->createData();
 
@@ -2214,6 +2230,33 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
+    public function testSortByCurrencyPrice(IdsCollection $ids): void
+    {
+        $context = $ids->getContext();
+
+        try {
+            $criteria = new Criteria();
+            $criteria->addSorting(new FieldSorting(sprintf('price.%s.gross', $this->anotherCurrencyId), FieldSorting::DESCENDING));
+
+            $searcher = $this->createEntitySearcher();
+
+            $result = $searcher->search($this->productDefinition, $criteria, $context)->getIds();
+
+            static::assertSame($ids->get('product-3'), $result[0]);
+            static::assertSame($ids->get('product-5'), $result[1]);
+            static::assertSame($ids->get('product-4'), $result[2]);
+            static::assertSame($ids->get('product-2'), $result[3]);
+            static::assertSame($ids->get('product-6'), $result[4]);
+        } catch (\Exception $e) {
+            static::tearDown();
+
+            throw $e;
+        }
+    }
+
+    /**
+     * @depends testIndexing
+     */
     public function testFetchFloatedCustomFieldIds(IdsCollection $ids): void
     {
         $context = $ids->getContext();
@@ -2389,6 +2432,7 @@ class ElasticsearchProductTest extends TestCase
                 ->tax('t1')
                 ->manufacturer('m2')
                 ->price(100)
+                ->price(300, null, 'anotherCurrency')
                 ->releaseDate('2019-01-01 10:13:00')
                 ->purchasePrice(0)
                 ->stock(10)
@@ -2407,6 +2451,7 @@ class ElasticsearchProductTest extends TestCase
                 ->tax('t2')
                 ->manufacturer('m2')
                 ->price(150)
+                ->price(800, null, 'anotherCurrency')
                 ->releaseDate('2019-06-15 13:00:00')
                 ->purchasePrice(100)
                 ->stock(100)
@@ -2422,6 +2467,7 @@ class ElasticsearchProductTest extends TestCase
                 ->tax('t2')
                 ->manufacturer('m2')
                 ->price(200)
+                ->price(500, null, 'anotherCurrency')
                 ->releaseDate('2020-09-30 15:00:00')
                 ->purchasePrice(100)
                 ->stock(300)
@@ -2435,6 +2481,7 @@ class ElasticsearchProductTest extends TestCase
                 ->tax('t3')
                 ->manufacturer('m3')
                 ->price(250)
+                ->price(600, null, 'anotherCurrency')
                 ->releaseDate('2021-12-10 11:59:00')
                 ->purchasePrice(100)
                 ->stock(300)
@@ -2447,6 +2494,7 @@ class ElasticsearchProductTest extends TestCase
                 ->tax('t3')
                 ->manufacturer('m3')
                 ->price(300)
+                ->price(200, null, 'anotherCurrency')
                 ->releaseDate('2021-12-10 11:59:00')
                 ->purchasePrice(200)
                 ->stock(300)

@@ -14,6 +14,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
@@ -26,6 +27,10 @@ class CacheResponseSubscriber implements EventSubscriberInterface
     public const CONTEXT_CACHE_COOKIE = 'sw-cache-hash';
     public const SYSTEM_STATE_COOKIE = 'sw-states';
     public const INVALIDATION_STATES_HEADER = 'sw-invalidation-states';
+
+    private const CORE_HTTP_CACHED_ROUTES = [
+        'api.acl.privileges.get',
+    ];
 
     private CartService $cartService;
 
@@ -50,10 +55,21 @@ class CacheResponseSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
+            KernelEvents::REQUEST => 'addHttpCacheToCoreRoutes',
             KernelEvents::RESPONSE => [
                 ['setResponseCache', -1500],
             ],
         ];
+    }
+
+    public function addHttpCacheToCoreRoutes(RequestEvent $event): void
+    {
+        $request = $event->getRequest();
+        $route = $request->attributes->get('_route');
+
+        if (\in_array($route, self::CORE_HTTP_CACHED_ROUTES, true)) {
+            $request->attributes->set('_' . HttpCache::ALIAS, [new HttpCache([])]);
+        }
     }
 
     public function setResponseCache(ResponseEvent $event): void

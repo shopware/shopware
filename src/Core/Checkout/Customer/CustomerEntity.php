@@ -177,6 +177,8 @@ class CustomerEntity extends Entity
      */
     protected $orderCount;
 
+    protected float $orderTotalAmount;
+
     /**
      * @var \DateTimeInterface|null
      */
@@ -600,6 +602,16 @@ class CustomerEntity extends Entity
     public function setOrderCount(int $orderCount): void
     {
         $this->orderCount = $orderCount;
+    }
+
+    public function getOrderTotalAmount(): float
+    {
+        return $this->orderTotalAmount;
+    }
+
+    public function setOrderTotalAmount(float $orderTotalAmount): void
+    {
+        $this->orderTotalAmount = $orderTotalAmount;
     }
 
     public function getLegacyEncoder(): ?string

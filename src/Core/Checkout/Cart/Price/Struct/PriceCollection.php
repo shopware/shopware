@@ -54,7 +54,7 @@ class PriceCollection extends Collection
         $taxes = new CalculatedTaxCollection([]);
 
         foreach ($this->getIterator() as $price) {
-            $taxes = $taxes->merge($price->getCalculatedTaxes());
+            $taxes->merge($price->getCalculatedTaxes(), true);
         }
 
         return $taxes;

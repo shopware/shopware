@@ -290,5 +290,11 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         scopes: ['lineItem'],
     });
 
+    ruleConditionService.addCondition('customerOrderTotalAmount', {
+        component: 'sw-condition-order-total-amount',
+        label: 'global.sw-condition.condition.orderTotalAmountRule',
+        scopes: ['checkout'],
+    });
+
     return ruleConditionService;
 });

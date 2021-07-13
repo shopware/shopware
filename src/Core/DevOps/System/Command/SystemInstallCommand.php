@@ -10,6 +10,9 @@ use Doctrine\DBAL\FetchMode;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Kernel;
+use Shopware\Storefront\Theme\Command\ThemeChangeCommand;
+use Shopware\Storefront\Theme\Command\ThemeCompileCommand;
+use Shopware\Storefront\Theme\Command\ThemeRefreshCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
@@ -147,14 +150,24 @@ class SystemInstallCommand extends Command
             [
                 'command' => 'dal:refresh:index',
             ],
-            [
-                'command' => 'theme:refresh',
-            ],
-            [
-                'command' => 'theme:compile',
-                'allowedToFail' => true,
-            ],
         ];
+
+        if (\class_exists(ThemeRefreshCommand::class)) {
+            $commands[] = [
+                [
+                    'command' => 'theme:refresh',
+                ],
+            ];
+        }
+
+        if (\class_exists(ThemeCompileCommand::class)) {
+            $commands[] = [
+                [
+                    'command' => 'theme:compile',
+                    'allowedToFail' => true,
+                ],
+            ];
+        }
 
         if ($input->getOption('basic-setup')) {
             $commands[] = [
@@ -170,7 +183,7 @@ class SystemInstallCommand extends Command
                 '--url' => (string) EnvironmentHelper::getVariable('APP_URL', 'http://localhost'),
             ];
 
-            if (!$input->getOption('no-assign-theme')) {
+            if (\class_exists(ThemeChangeCommand::class) && !$input->getOption('no-assign-theme')) {
                 $commands[] = [
                     'command' => 'theme:change',
                     'allowedToFail' => true,

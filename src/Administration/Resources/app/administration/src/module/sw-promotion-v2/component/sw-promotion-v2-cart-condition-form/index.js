@@ -34,12 +34,6 @@ Component.register('sw-promotion-v2-cart-condition-form', {
         ruleFilter() {
             const criteria = new Criteria();
 
-            criteria.addFilter(
-                Criteria.not('AND', [
-                    Criteria.equalsAny('conditions.type', ['cartCartAmount']),
-                ]),
-            );
-
             criteria.addSorting(Criteria.sort('name', 'ASC', false));
 
             return criteria;

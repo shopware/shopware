@@ -149,7 +149,8 @@ function createWrapper() {
             'sw-base-field': Shopware.Component.build('sw-base-field'),
             'sw-checkbox-field': Shopware.Component.build('sw-checkbox-field'),
             'sw-field-error': true,
-            'sw-highlight-text': true
+            'sw-highlight-text': true,
+            'sw-empty-state': true
         },
         provide: {
             repositoryFactory: {

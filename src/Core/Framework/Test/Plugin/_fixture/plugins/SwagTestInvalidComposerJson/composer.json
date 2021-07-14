@@ -1,0 +1,25 @@
+{
+    "name": "swag/test",
+    "description": "Test description",
+    "version": "v1.0.1",
+    "type": "shopware-platform-plugin",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "shopware AG",
+            "role": "Manufacturer"
+        },
+        {
+            "name": "John Doe",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "shopware/core": ">=6.0"
+    },
+    "autoload": {
+        "psr-4": {
+           "SwagTest\\": "src"
+        }
+    }
+}

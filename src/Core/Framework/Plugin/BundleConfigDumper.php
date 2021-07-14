@@ -2,10 +2,11 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
-use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
-use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivateEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @deprecated tag:v6.5.0.0 - Remove this class as not needed anymore
+ */
 class BundleConfigDumper implements EventSubscriberInterface
 {
     /**
@@ -28,10 +29,7 @@ class BundleConfigDumper implements EventSubscriberInterface
 
     public static function getSubscribedEvents(): array
     {
-        return [
-            PluginPostActivateEvent::class => 'dump',
-            PluginPostDeactivateEvent::class => 'dump',
-        ];
+        return [];
     }
 
     public function dump(): void

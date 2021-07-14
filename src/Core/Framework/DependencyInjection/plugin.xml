@@ -14,9 +14,15 @@
         </service>
 
         <service id="Shopware\Core\Framework\Plugin\Command\BundleDumpCommand">
-            <argument type="service" id="Shopware\Core\Framework\Plugin\BundleConfigDumper"/>
+            <argument type="service" id="Shopware\Core\Framework\Plugin\BundleConfigGenerator"/>
+            <argument>%kernel.project_dir%</argument>
 
             <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Plugin\BundleConfigGenerator">
+            <argument type="service" id="kernel" />
+            <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader" />
         </service>
 
         <service id="Shopware\Core\Framework\Plugin\BundleConfigDumper">
@@ -24,12 +30,6 @@
             <argument>%kernel.project_dir%</argument>
 
             <tag name="kernel.event_subscriber" />
-        </service>
-
-        <service id="Shopware\Core\Framework\Plugin\BundleConfigGenerator">
-            <argument type="service" id="kernel" />
-            <argument type="service" id="plugin.repository" />
-            <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader" />
         </service>
 
         <service id="Shopware\Core\Framework\Plugin\PluginDefinition">

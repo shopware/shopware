@@ -9,14 +9,14 @@ describe('Login / Registration: Test show operations on templates', () => {
             });
     });
 
-    it('@settings: Customer Scope', () => {
+    it('@settings: Customer scope', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
             url: `${Cypress.env('apiPath')}/_action/system-config/batch`,
             method: 'post'
         }).as('saveSettings');
-        
+
         cy.get('input[name="core.systemWideLoginRegistration.isCustomerBoundToSalesChannel"]').scrollIntoView();
         cy.get('input[name="core.systemWideLoginRegistration.isCustomerBoundToSalesChannel"]').should('be.visible');
 

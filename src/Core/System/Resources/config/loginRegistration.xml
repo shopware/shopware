@@ -14,7 +14,7 @@
         <input-field type="bool">
             <name>customerIpAddressesNotAnonymously</name>
             <label>Save customer IP addresses as plain text</label>
-            <label lang="de-DE">Kunden-IP-Adressen in Klartext speichern</label>
+            <label lang="de-DE">Kunden-IP-Adressen als Klartext speichern</label>
         </input-field>
 
         <input-field type="bool">
@@ -41,19 +41,19 @@
 
         <input-field type="bool">
             <name>doubleOptInGuestOrder</name>
-            <label>Double opt in guest order</label>
-            <label lang="de-DE">Double-Opt-In für Gast-Bestellungen</label>
-            <helpText>Activates double opt in for guest orders.</helpText>
+            <label>Double opt-in on guest orders</label>
+            <label lang="de-DE">Double-Opt-In bei Gast-Bestellungen</label>
+            <helpText>Activates double opt-in for guest orders.</helpText>
             <helpText lang="de-DE">Aktiviert Double-Opt-In für Gast-Bestellungen.</helpText>
         </input-field>
 
         <input-field type="text">
             <name>confirmationUrl</name>
-            <label>Confirmation url for double opt-in registration</label>
-            <label lang="de-DE">Bestätigungsurl für Double Opt-In Registrierung</label>
+            <label>Confirmation URL for double opt-in on sign-up</label>
+            <label lang="de-DE">Bestätigungs-URL für Double-Opt-In-Registrierung</label>
             <placeholder><![CDATA[/registration/confirm?em=%%HASHEDEMAIL%%&hash=%%SUBSCRIBEHASH%%]]></placeholder>
-            <helpText><![CDATA[Also the url for the double opt-in guest order.<br/>Available placeholders: <br/>%%HASHEDEMAIL%%<br/>%%SUBSCRIBEHASH%%]]></helpText>
-            <helpText><![CDATA[Ebenfalls die url für die Double-Opt-In für Gast-Bestellungen.<br/>Verfügbare Platzhalter: <br/>%%HASHEDEMAIL%%<br/>%%SUBSCRIBEHASH%%]]></helpText>
+            <helpText><![CDATA[Double opt-in URL for guest orders.<br/>Available placeholders: <br/>%%HASHEDEMAIL%%<br/>%%SUBSCRIBEHASH%%]]></helpText>
+            <helpText><![CDATA[Double-Opt-In-URL für Gast-Bestellungen.<br/>Verfügbare Platzhalter: <br/>%%HASHEDEMAIL%%<br/>%%SUBSCRIBEHASH%%]]></helpText>
         </input-field>
 
         <input-field type="bool">
@@ -122,8 +122,8 @@
             <name>invalidateSessionOnLogOut</name>
             <label>Clear and delete cart on log out</label>
             <label lang="de-DE">Warenkorb bei Abmeldung löschen</label>
-            <helpText>If activated, the cart won't be saved and can't be restored after login.</helpText>
-            <helpText lang="de-DE">Wenn die Einstellung aktiviert ist, wird der Warenkorb nicht gespeichert und kann nach der Anmeldung nicht wiederhergestellt werden.</helpText>
+            <helpText>If activated, the cart won't be saved and can't be restored after logout.</helpText>
+            <helpText lang="de-DE">Wenn die Einstellung aktiviert ist, wird der Warenkorb nicht gespeichert und kann nach der Abmeldung nicht wiederhergestellt werden.</helpText>
         </input-field>
 
         <input-field type="bool">
@@ -143,14 +143,14 @@
             <name>vatIdFieldRequired</name>
             <label>VAT Reg.No. required</label>
             <label lang="de-DE">Umsatzsteuer-ID ist Pflichtfeld</label>
-            <helpText>Please keep in mind there are similar switches for every individual country. (Settings > Countries).</helpText>
+            <helpText>Please keep in mind, there are similar switches for every individual country. (Settings > Countries).</helpText>
             <helpText lang="de-DE">Bitte beachte, dass es die gleichen Schalter auch für jedes individuelle Land gibt.(Einstellungen > Länder).</helpText>
         </input-field>
 
         <input-field type="text">
             <name>pwdRecoverUrl</name>
-            <label>Password Recover Url</label>
-            <label lang="de-DE">Passwort Wiederherstellungs-Url</label>
+            <label>Password recovery URL</label>
+            <label lang="de-DE">Passwort-Wiederherstellungs-URL</label>
             <placeholder><![CDATA[/account/recover/password?hash=%%RECOVERHASH%%]]></placeholder>
             <helpText><![CDATA[Available placeholders: <br/>%%RECOVERHASH%%]]></helpText>
             <helpText><![CDATA[Verfügbare Platzhalter: <br/>%%RECOVERHASH%%]]></helpText>
@@ -158,11 +158,11 @@
 
         <input-field type="text">
             <name>doubleOptInDomain</name>
-            <label>Double Opt-In Domain</label>
-            <label lang="de-DE">Double Opt-In Domain</label>
+            <label>Double opt-in domain</label>
+            <label lang="de-DE">Double-Opt-In-Domain</label>
             <placeholder><![CDATA[https://localhost]]></placeholder>
-            <helpText>Leave empty to use saleschannel domain.</helpText>
-            <helpText lang="de-DE">Leer lassen um die Domain des Saleschannels zu nutzen.</helpText>
+            <helpText>Leave empty to use this Sales Channel's domain.</helpText>
+            <helpText lang="de-DE">Leer lassen, um die Domain des Verkaufskanals zu verwenden.</helpText>
         </input-field>
     </card>
 </config>

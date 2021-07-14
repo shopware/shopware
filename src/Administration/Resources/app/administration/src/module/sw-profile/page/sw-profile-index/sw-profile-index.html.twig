@@ -70,7 +70,7 @@
                 @new-password-confirm-change="onChangeNewPasswordConfirm"
                 @media-upload="setMediaItem"
                 @media-remove="onUnlinkAvatar"
-                @media-open="openMediaSidebar"
+                @media-open="openMediaModal"
             />
             {% endblock %}
 
@@ -260,12 +260,24 @@
             {% endblock %}
         </sw-modal>
         {% endblock %}
+
+        {% block sw_profile_index_media_upload_actions_media_modal %}
+        <sw-media-modal-v2
+            v-if="showMediaModal"
+            :allow-multi-select="false"
+            :initial-folder-id="mediaDefaultFolderId"
+            :entity-context="user.getEntityName()"
+            @modal-close="showMediaModal = false"
+            @media-modal-selection-change="onMediaSelectionChange"
+        />
+        {% endblock %}
     </template>
 
+    {# @feature-deprecated (FEATURE_NEXT_6040) tag:v6.5.0 - Will be removed, use `sw-media-modal-v2` instead #}
     {% block sw_profile_index_sidebar %}
     <template #sidebar>
         <sw-sidebar
-            v-if="acl.can('media.editor')"
+            v-if="acl.can('media.editor') && !feature.isActive('FEATURE_NEXT_6040')"
             :propagate-width="true"
         >
             <sw-sidebar-media-item

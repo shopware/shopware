@@ -15,4 +15,13 @@
         padding: 0;
         min-height: 100px;
     }
+
+    .sw-data-grid tr th:last-child,
+    td:last-child {
+        display: none;
+    }
+
+    .sw-data-grid .sw-data-grid__wrapper {
+        overflow-x: hidden;
+    }
 }

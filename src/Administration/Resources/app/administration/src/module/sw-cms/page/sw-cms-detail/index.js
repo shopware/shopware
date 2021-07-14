@@ -649,7 +649,7 @@ Component.register('sw-cms-detail', {
         },
 
         onPageSave() {
-            this.onSaveEntity();
+            this.onSave();
         },
 
         onSave() {

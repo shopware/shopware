@@ -79,6 +79,8 @@ class PromotionEntity extends Entity
      */
     protected $customerRestriction = false;
 
+    protected bool $preventCombination = false;
+
     /**
      * @var bool
      */
@@ -373,6 +375,16 @@ class PromotionEntity extends Entity
     public function setCustomerRestriction(bool $customerRestriction): void
     {
         $this->customerRestriction = $customerRestriction;
+    }
+
+    public function isPreventCombination(): bool
+    {
+        return $this->preventCombination;
+    }
+
+    public function setPreventCombination(bool $preventCombination): void
+    {
+        $this->preventCombination = $preventCombination;
     }
 
     /**

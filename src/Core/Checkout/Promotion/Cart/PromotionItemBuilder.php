@@ -215,8 +215,12 @@ class PromotionItemBuilder
         // set the scope of the discount cart, delivery....
         $payload['discountScope'] = $discount->getScope();
 
-        // set a list of exclusion ids for later usage
-        $payload['exclusions'] = $promotion->getExclusionIds();
+        // specifies if the promotion is not combinable with any other promotion
+        $payload['preventCombination'] = $promotion->isPreventCombination();
+
+        // If all combinations are prevented the exclusions dont matter
+        // otherwise sets a list of excluded promotion ids
+        $payload['exclusions'] = $payload['preventCombination'] ? [] : $promotion->getExclusionIds();
 
         $payload['groupId'] = '';
         // if we have set a custom setgroup scope, then the group id

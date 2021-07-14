@@ -246,7 +246,7 @@ class RetryMiddlewareTest extends MiddlewareTestCase
         $deadMessageId = Uuid::randomHex();
         $webhookId = Uuid::randomHex();
         $webhookEventId = Uuid::randomHex();
-        $webhookEventMessage = new WebhookEventMessage($webhookEventId, [], null, $webhookId, '6.4', 'http://test.com');
+        $webhookEventMessage = new WebhookEventMessage($webhookEventId, [], null, $webhookId, '6.4', 'http://test.com', null);
         $envelope = new Envelope($webhookEventMessage);
 
         $response = new Response(404);

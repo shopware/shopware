@@ -43,7 +43,7 @@ class Migration1623828962ChangeColumnAppNameAndAppVersionInWebhookEventLogTest e
         $webhookEventId = Uuid::randomHex();
         $webhookId = Uuid::randomHex();
 
-        $webhookEventMessage = new WebhookEventMessage($webhookEventId, [], null, $webhookId, '6.4', 'http://test.com');
+        $webhookEventMessage = new WebhookEventMessage($webhookEventId, [], null, $webhookId, '6.4', 'http://test.com', null);
 
         $webhookEventLogRepo = $this->getContainer()->get('webhook_event_log.repository');
         $webhookEventLogRepo->create([[

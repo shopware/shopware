@@ -70,7 +70,7 @@ class WebhookEventMessageHandlerTest extends TestCase
         $webhookEventLogRepository = $this->getContainer()->get('webhook_event_log.repository');
 
         $webhookEventId = Uuid::randomHex();
-        $webhookEventMessage = new WebhookEventMessage($webhookEventId, ['body' => 'payload'], $appId, $webhookId, '6.4', 'https://test.com');
+        $webhookEventMessage = new WebhookEventMessage($webhookEventId, ['body' => 'payload'], $appId, $webhookId, '6.4', 'https://test.com', 's3cr3t');
 
         $webhookEventLogRepository->create([[
             'id' => $webhookEventId,
@@ -89,14 +89,19 @@ class WebhookEventMessageHandlerTest extends TestCase
 
         $timestamp = time();
         $request = $this->getLastRequest();
-        $body = $request->getBody()->getContents();
-        $body = json_decode($body);
+        $payload = $request->getBody()->getContents();
+        $body = json_decode($payload);
 
         static::assertEquals('POST', $request->getMethod());
         static::assertEquals($body->body, 'payload');
         static::assertGreaterThanOrEqual($body->timestamp, $timestamp);
         static::assertTrue($request->hasHeader('sw-version'));
         static::assertEquals($request->getHeaderLine('sw-version'), '6.4');
+        static::assertTrue($request->hasHeader('shopware-shop-signature'));
+        static::assertEquals(
+            hash_hmac('sha256', $payload, 's3cr3t'),
+            $request->getHeaderLine('shopware-shop-signature')
+        );
 
         $webhookEventLog = $webhookEventLogRepository->search(new Criteria([$webhookEventId]), Context::createDefaultContext())->first();
 

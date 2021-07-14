@@ -11,7 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class ProductSerializer extends EntitySerializer
 {
@@ -23,9 +25,14 @@ class ProductSerializer extends EntitySerializer
 
     private EntityRepositoryInterface $visibilityRepository;
 
-    public function __construct(EntityRepositoryInterface $visibilityRepository)
-    {
+    private EntityRepositoryInterface $salesChannelRepository;
+
+    public function __construct(
+        EntityRepositoryInterface $visibilityRepository,
+        EntityRepositoryInterface $salesChannelRepository
+    ) {
         $this->visibilityRepository = $visibilityRepository;
+        $this->salesChannelRepository = $salesChannelRepository;
     }
 
     /**
@@ -95,6 +102,9 @@ class ProductSerializer extends EntitySerializer
             }
 
             $ids = array_filter(explode('|', $entity['visibilities'][$key]));
+
+            $ids = $this->convertSalesChannelNamesToIds($ids);
+
             foreach ($ids as $salesChannelId) {
                 $visibility = [
                     'salesChannelId' => $salesChannelId,
@@ -139,5 +149,38 @@ class ProductSerializer extends EntitySerializer
         }
 
         return $visibilities;
+    }
+
+    private function convertSalesChannelNamesToIds(array $ids): array
+    {
+        $salesChannelNames = [];
+
+        foreach ($ids as $key => $id) {
+            if (!Uuid::isValid($id)) {
+                $salesChannelNames[] = $id;
+                unset($ids[$key]);
+            }
+        }
+
+        if (empty($salesChannelNames)) {
+            return $ids;
+        }
+
+        $salesChannelNames = array_unique($salesChannelNames);
+        $filters = [];
+
+        foreach ($salesChannelNames as $salesChannelName) {
+            $filters[] = new EqualsFilter('name', $salesChannelName);
+        }
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, $filters));
+
+        $additionalIds = $this->salesChannelRepository->searchIds(
+            $criteria,
+            Context::createDefaultContext()
+        )->getIds();
+
+        return array_unique(array_merge($ids, $additionalIds));
     }
 }

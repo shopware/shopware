@@ -6,9 +6,8 @@
          cacheResult="false"
          executionOrder="random"
          convertDeprecationsToExceptions="false">
-    <coverage cacheDirectory="var/cache/phpunit/">
-
-        <include>
+    <coverage cacheDirectory="var/cache/phpunit/" includeUncoveredFiles="false">
+        <include >
             <!--
                 DO NOT change this to a more generic structure.
                 The phpunit file traversal is really inefficient for our test structure. A naive definition results in
@@ -16,6 +15,7 @@
             -->
             <directory suffix=".php">src/Core/Framework</directory>
             <directory suffix=".php">src/Core/Content</directory>
+            <directory suffix=".php">src/Core/Checkout</directory>
             <directory suffix=".php">src/Core/DevOps</directory>
             <directory suffix=".php">src/Core/Profiling</directory>
             <directory suffix=".php">src/Core/System</directory>
@@ -49,6 +49,7 @@
             <directory suffix=".php">src/Core/Test</directory>
             <directory suffix=".php">src/Core/Framework/Test</directory>
             <directory suffix=".php">src/Core/Content/Test</directory>
+            <directory suffix=".php">src/Core/Checkout/Test</directory>
             <directory suffix=".php">src/Core/DevOps/Test</directory>
             <directory suffix=".php">src/Core/Migration</directory>
             <directory suffix=".php">src/Core/Profiling/Test</directory>

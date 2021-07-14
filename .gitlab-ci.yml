@@ -230,19 +230,18 @@ PHP Full:
                 MYSQL_CMD: 'mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON'
                 SKIP_ON_MR: 'true'
 
-PHP Unit coverage:
+PHP coverage:
     # TODOS: replace with minimal image - development is 2GB big! An alpine based one should be around 100MB
-    image: $DEV_IMAGE
+    image: shopware/development:7.4-composer-2
     stage: unit
     needs: []
     services:
-        -   name: $MYSQL_IMAGE
+        -   name: mariadb:10.4
             alias: database
             entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
     variables:
         APP_ENV: "test"
-        PARATEST_PROCESSES: 4
-        MAILER_URL: "null://localhost"
+        FEATURE_ALL: "major"
     rules:
         - if: '$CI_MERGE_REQUEST_LABELS =~ /.*unit::skip.*/'
           when: never
@@ -262,16 +261,14 @@ PHP Unit coverage:
         - composer install --optimize-autoloader
         - mkdir -p config/jwt || true
         - bin/console system:generate-jwt-secret
-        - COVERAGE_OPTIONS="--coverage-text --coverage-cobertura cobertura.xml"
         - PHP_OPTIONS="-d pcov.enabled=1 -d pcov.directory=$PWD/src -d pcov.exclude='~(vendor|Test|node_modules)~'"
-        - php $PHP_OPTIONS vendor/bin/paratest
-            --passthru-php="$PHP_OPTIONS"
+        - php $PHP_OPTIONS vendor/bin/phpunit
             --configuration phpunit.xml.dist
             --log-junit phpunit.junit.xml
-            --testsuite=paratest
             --exclude-group=skip-paratest,needsWebserver
-            --processes $PARATEST_PROCESSES
-            $COVERAGE_OPTIONS
+            --testsuite "$TESTSUITE"
+            --coverage-text
+            --coverage-cobertura cobertura.xml
     coverage: '/^\s*Lines:\s*(\d+(?:\.\d+)?%)/'
     artifacts:
         when: always
@@ -282,9 +279,7 @@ PHP Unit coverage:
             cobertura: cobertura.xml
     parallel:
         matrix:
-            -   MYSQL_IMAGE: mariadb:10.4
-                DEV_IMAGE: ["shopware/development:7.4-composer-2"]
-                FEATURE_ALL: ["major"]
+            - TESTSUITE: ["framework", "checkout", "content", "storefront,administration,system,elasticsearch,profiling", "migration"]
 
 Jest (Administration):
     stage: unit

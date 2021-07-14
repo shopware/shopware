@@ -10,8 +10,10 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @group skip-paratest
+ */
 class ApiAwareTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -19,7 +21,7 @@ class ApiAwareTest extends TestCase
 
     public function testApiAware(): void
     {
-        $kernel = KernelLifecycleManager::createKernel(null, true, Uuid::randomHex());
+        $kernel = KernelLifecycleManager::createKernel(null, true, hash_file('md5', __DIR__ . '/fixtures/api-aware-fields.json'));
         $kernel->boot();
         $registry = $kernel->getContainer()->get(DefinitionInstanceRegistry::class);
 

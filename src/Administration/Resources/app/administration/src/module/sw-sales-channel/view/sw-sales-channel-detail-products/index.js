@@ -27,7 +27,6 @@ Component.register('sw-sales-channel-detail-products', {
             isLoading: false,
             isBulkLoading: false,
             searchTerm: null,
-            skeletonItemAmount: 25,
             page: 1,
             limit: 25,
             total: 0,

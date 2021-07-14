@@ -29,7 +29,7 @@
                     :items="products"
                     :columns="productColumns"
                     :plain-appearance="true"
-                    :skeleton-item-amount="skeletonItemAmount"
+                    :skeleton-item-amount="limit"
                     :is-loading="isLoading"
                     :allow-column-edit="false"
                     :allow-inline-edit="false"
@@ -37,7 +37,18 @@
                     :show-actions="false"
                     :show-settings="false"
                     @selection-change="onSelectionChange"
-                />
+                >
+                    <template #pagination>
+                        {% block sw_sales_channel_products_assignment_single_products_primary_listing_pagination %}
+                        <sw-pagination
+                            v-bind="{ page, limit, total }"
+                            :total-visible="3"
+                            :auto-hide="false"
+                            @page-change="onChangePage"
+                        />
+                        {% endblock %}
+                    </template>
+                </sw-entity-listing>
                 {% endblock %}
 
                 {% block sw_sales_channel_products_assignment_single_products_primary_empty_state %}

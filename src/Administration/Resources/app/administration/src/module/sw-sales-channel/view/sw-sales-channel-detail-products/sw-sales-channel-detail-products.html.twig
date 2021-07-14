@@ -59,7 +59,7 @@
                     :data-source="products"
                     :columns="productColumns"
                     :plain-appearance="true"
-                    :skeleton-item-amount="skeletonItemAmount"
+                    :skeleton-item-amount="limit"
                     :is-loading="isLoading"
                     :allow-inline-edit="false"
                     :allow-view="acl.can('sales_channel.viewer')"
@@ -79,11 +79,9 @@
                     <template #pagination>
                         {% block sw_sales_channel_detail_products_listing_pagination %}
                         <sw-pagination
-                            :page="page"
-                            :limit="limit"
-                            :total="total"
-                            :total-visible="7"
-                            :steps="[10]"
+                            v-bind="{ page, limit, total }"
+                            :total-visible="5"
+                            :auto-hide="false"
                             @page-change="onChangePage"
                         />
                         {% endblock %}

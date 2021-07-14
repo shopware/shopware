@@ -1,7 +1,7 @@
 import template from './sw-sales-channel-products-assignment-single-products.html.twig';
 import './sw-sales-channel-products-assignment-single-products.scss';
 
-const { Component, Context, Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 Component.register('sw-sales-channel-products-assignment-single-products', {
@@ -24,8 +24,10 @@ Component.register('sw-sales-channel-products-assignment-single-products', {
         return {
             products: [],
             searchTerm: null,
-            skeletonItemAmount: 25,
             isLoading: false,
+            page: 1,
+            limit: 25,
+            total: 0,
         };
     },
 
@@ -37,6 +39,8 @@ Component.register('sw-sales-channel-products-assignment-single-products', {
         productCriteria() {
             const criteria = new Criteria();
 
+            criteria.setPage(this.page);
+            criteria.setLimit(this.limit);
             if (this.searchTerm) {
                 criteria.setTerm(this.searchTerm);
             }
@@ -73,14 +77,17 @@ Component.register('sw-sales-channel-products-assignment-single-products', {
     methods: {
         getProducts() {
             this.isLoading = true;
-            return this.productRepository.search(this.productCriteria, Context.api)
+
+            return this.productRepository.search(this.productCriteria)
                 .then((products) => {
                     this.products = products;
+                    this.total = products.total;
                 })
-                .catch(err => {
+                .catch((error) => {
                     this.products = [];
+                    this.total = 0;
                     this.createNotificationError({
-                        message: err.message,
+                        message: error.message,
                     });
                 })
                 .finally(() => {
@@ -96,6 +103,12 @@ Component.register('sw-sales-channel-products-assignment-single-products', {
         onSelectionChange(selection) {
             const products = Object.values(selection);
             this.$emit('selection-change', products, 'singleProducts');
+        },
+
+        onChangePage(data) {
+            this.page = data.page;
+            this.limit = data.limit;
+            this.getProducts();
         },
     },
 });

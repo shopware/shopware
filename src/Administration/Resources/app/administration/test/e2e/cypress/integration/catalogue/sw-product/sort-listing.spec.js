@@ -107,7 +107,7 @@ describe('Product: Sort grid', () => {
 
         // check product order
         cy.get('.sw-data-grid-skeleton').should('not.exist');
-        cy.contains('Pound');
+        cy.get('.sw-data-grid__cell--9').contains('Pound');
         checkOrderAccordingToSortIndicator();
 
         // sort products by gbp
@@ -119,7 +119,7 @@ describe('Product: Sort grid', () => {
         });
 
         cy.get('.sw-data-grid-skeleton').should('not.exist');
-        cy.contains('Pound');
+        cy.get('.sw-data-grid__cell--9').contains('Pound');
         checkOrderAccordingToSortIndicator();
     });
 });

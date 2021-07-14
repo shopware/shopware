@@ -243,13 +243,13 @@ describe('Product: Test variants', () => {
             .click();
         cy.get('.sw-product-modal-variant-generation').should('be.visible');
 
-        page.generateVariants('Size', [0, 1, 2], 6);
-
         // Request we want to wait for later
         cy.route({
             url: `${Cypress.env('apiPath')}/search/property-group`,
             method: 'post'
         }).as('loadPropertyGroup');
+
+        page.generateVariants('Size', [0, 1, 2], 6);
 
         // Reload the variant tab to avoid xhr timing issues from previous requests
         cy.get('.sw-product-detail__tab-variants').click();

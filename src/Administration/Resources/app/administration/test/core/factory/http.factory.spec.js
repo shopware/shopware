@@ -432,8 +432,8 @@ describe('core/factory/http.factory.js', () => {
     it('should not cache requests which are not in the allowUrlList', async () => {
         const cacheAdapter = cacheAdapterFactory(mockAdapter, requestCaches);
 
-        const mediaSearchRequest = {
-            url: '/search/media',
+        const nonCachedSearchRequest = {
+            url: '/search/do-not-cache',
             method: 'post',
             data: '{"page": 1, "limit": 25}',
             headers: {
@@ -452,7 +452,7 @@ describe('core/factory/http.factory.js', () => {
         };
 
         // do first request
-        cacheAdapter(mediaSearchRequest);
+        cacheAdapter(nonCachedSearchRequest);
 
         // expect that the original adapter was called only once
         expect(mockAdapter).toHaveBeenCalledTimes(1);
@@ -463,7 +463,7 @@ describe('core/factory/http.factory.js', () => {
         jest.advanceTimersByTime(1000);
 
         // do second request
-        cacheAdapter(mediaSearchRequest);
+        cacheAdapter(nonCachedSearchRequest);
 
         // expect that the original adapter was called twice
         // because the second request should not be cached because it is

@@ -21,6 +21,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * @group slow
+ * @group skip-paratest
  */
 class PluginManagementServiceTest extends TestCase
 {

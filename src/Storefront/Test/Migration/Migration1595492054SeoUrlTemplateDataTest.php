@@ -11,6 +11,9 @@ use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Shopware\Storefront\Migration\Migration1595492054SeoUrlTemplateData;
 
+/**
+ * @group skip-paratest
+ */
 class Migration1595492054SeoUrlTemplateDataTest extends TestCase
 {
     use IntegrationTestBehaviour;

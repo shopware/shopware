@@ -80,7 +80,7 @@
             {% endblock %}
             {% block sw_import_export_activity_listing_actions_download_file %}
             <a
-                class="sw-import-export-activity__download-action "
+                class="sw-import-export-activity__download-action sw-external-link"
                 :href="getDownloadUrl(item.fileId, item.file.accessToken)"
                 target="_blank"
             >
@@ -97,7 +97,7 @@
             {% block sw_import_export_activity_listing_actions_download_invalid %}
             <template v-if="item.invalidRecordsLog">
                 <a
-                    class="sw-import-export-activity__download-action"
+                    class="sw-import-export-activity__download-action sw-external-link"
                     :href="getDownloadUrl(item.invalidRecordsLog.fileId, item.invalidRecordsLog.file.accessToken)"
                     target="_blank"
                 >

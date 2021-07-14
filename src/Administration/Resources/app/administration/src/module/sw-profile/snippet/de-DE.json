@@ -36,6 +36,12 @@
       "placeholderConfirmPassword": "Gib Dein aktuelles Passwort ein ...",
       "labelButtonCancel": "Abbrechen",
       "labelButtonConfirm": "Bestätigen"
+    },
+    "tabGeneral": {
+      "title": "Allgemein"
+    },
+    "tabSearchPreferences": {
+      "title": "Such-Einstellungen"
     }
   },
   "sw-privileges": {

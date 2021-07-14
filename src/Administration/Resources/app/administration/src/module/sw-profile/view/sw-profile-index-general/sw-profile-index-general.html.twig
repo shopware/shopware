@@ -1,0 +1,121 @@
+{% block sw_profile_index_general %}
+<div class="sw-profile-index-general">
+    {% block sw_profile_index_general_information %}
+    <sw-card
+        :title="$tc('sw-profile.index.titleInfoCard')"
+        :is-loading="isUserLoading || !languageId"
+    >
+        <sw-container v-bind="{ columns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '0 30px' }">
+            {% block sw_profile_index_general_information_firstname %}
+            <sw-text-field
+                v-model="user.firstName"
+                :label="$tc('sw-profile.index.labelFirstNameField')"
+                :disabled="isDisabled || !acl.can('user.update_profile')"
+            />
+            {% endblock %}
+
+            {% block sw_profile_index_general_information_lastname %}
+            <sw-text-field
+                v-model="user.lastName"
+                :label="$tc('sw-profile.index.labelLastNameField')"
+                :disabled="isDisabled || !acl.can('user.update_profile')"
+            />
+            {% endblock %}
+        </sw-container>
+
+        <sw-container v-bind="{ columns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '0 30px' }">
+            {% block sw_profile_index_general_information_username %}
+            <sw-text-field
+                v-model="user.username"
+                :label="$tc('sw-profile.index.labelUsernameField')"
+                :disabled="isDisabled || !acl.can('user.update_profile')"
+            />
+            {% endblock %}
+
+            {% block sw_profile_index_general_information_language %}
+            <sw-select-field
+                v-model="user.localeId"
+                :label="$tc('sw-users-permissions.users.user-detail.labelLanguage')"
+                :disabled="!acl.can('user.update_profile')"
+                :placeholder="$tc('sw-users-permissions.users.user-detail.labelLanguagePlaceholder')"
+            >
+                <option
+                    v-for="language in languages"
+                    :key="language.locale.id"
+                    :value="language.locale.id"
+                    :selected="user.localeId === language.locale.id"
+                >
+                    {{ language.customLabel }}
+                </option>
+            </sw-select-field>
+            {% endblock %}
+        </sw-container>
+
+        {% block sw_profile_index_general_information_email %}
+        <sw-text-field
+            v-model="user.email"
+            validation="email"
+            name="sw-field--email"
+            required
+            :label="$tc('sw-profile.index.labelEmailField')"
+            :disabled="!acl.can('user.update_profile')"
+        />
+        {% endblock %}
+    </sw-card>
+    {% endblock %}
+
+    {% block sw_profile_index_general_image %}
+    <sw-card
+        v-if="acl.can('media.creator')"
+        :title="$tc('sw-profile.index.titleImageCard')"
+        :is-loading="isUserLoading || !languageId"
+    >
+        {% block sw_profile_index_general_image_content %}
+        <sw-upload-listener
+            auto-upload
+            upload-tag="sw-profile-upload-tag"
+            @media-upload-finish="onUploadMedia"
+        />
+        <sw-media-upload-v2
+            upload-tag="sw-profile-upload-tag"
+            :source="avatarMediaItem"
+            :source-context="user"
+            :default-folder="userRepository.schema.entity"
+            :label="$tc('sw-profile.index.labelUploadAvatar')"
+            :disabled="!acl.can('user.update_profile')"
+            :allow-multi-select="false"
+            @media-drop="onDropMedia"
+            @media-upload-sidebar-open="onOpenMedia"
+            @media-upload-remove-image="onRemoveMedia"
+        />
+        {% endblock %}
+    </sw-card>
+    {% endblock %}
+
+    {% block sw_profile_index_general_password %}
+    <sw-card
+        :title="$tc('sw-profile.index.titlePasswordCard')"
+        :is-loading="isUserLoading || !languageId"
+    >
+        {% block sw_profile_index_general_password_new_password %}
+        <sw-password-field
+            v-model="computedNewPassword"
+            :label="$tc('sw-profile.index.labelNewPassword')"
+            :disabled="!acl.can('user.update_profile')"
+            :placeholder="$tc('sw-profile.index.placeholderNewPassword')"
+        />
+        {% endblock %}
+
+        {% block sw_profile_index_general_password_new_password_confirm %}
+        <sw-password-field
+            v-model="computedNewPasswordConfirm"
+            :label="$tc('sw-profile.index.labelNewPasswordConfirm')"
+            :disabled="!acl.can('user.update_profile')"
+            :placeholder="$tc('sw-profile.index.placeholderNewPasswordConfirm')"
+            :validation="computedNewPassword === computedNewPasswordConfirm"
+        />
+        {% endblock %}
+    </sw-card>
+    {% endblock %}
+</div>
+{% endblock %}

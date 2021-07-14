@@ -1,5 +1,13 @@
 .sw-sales-channel-products-assignment-modal {
-    .sw-modal__body {
-        min-height: 550px;
+    &__tabs.sw-tabs.sw-tabs--small {
+        margin: 0 auto;
+    }
+
+    &__tabs.sw-tabs .sw-tabs__custom-content {
+        padding: 20px 0 0;
+    }
+
+    &__content {
+        position: relative;
     }
 }

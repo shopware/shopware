@@ -18,6 +18,11 @@ Component.register('sw-sales-channel-products-assignment-dynamic-product-groups'
             type: Object,
             required: true,
         },
+
+        containerStyle: {
+            type: Object,
+            required: true,
+        },
     },
 
     data() {
@@ -27,7 +32,7 @@ Component.register('sw-sales-channel-products-assignment-dynamic-product-groups'
             isProductStreamsLoading: false,
             isProductLoading: false,
             page: 1,
-            limit: 5,
+            limit: 10,
             total: 0,
             term: null,
         };

@@ -4,8 +4,25 @@ import './sw-sales-channel-products-assignment-modal.scss';
 const { Component } = Shopware;
 const { uniqBy } = Shopware.Utils.array;
 
+const updateElementVisibility = (element, binding) => {
+    element.style.visibility = (binding.value) ? 'visible' : 'hidden';
+    element.style.position = (binding.value) ? 'static' : 'absolute';
+    element.style.top = (binding.value) ? 'auto' : '0';
+    element.style.left = (binding.value) ? 'auto' : '0';
+    element.style.bottom = (binding.value) ? 'auto' : '0';
+    element.style.right = (binding.value) ? 'auto' : '0';
+    element.style.transform = (binding.value) ? 'translateX(0)' : 'translateX(100%)';
+};
+
 Component.register('sw-sales-channel-products-assignment-modal', {
     template,
+
+    directives: {
+        hide: {
+            bind: updateElementVisibility,
+            update: updateElementVisibility,
+        },
+    },
 
     props: {
         salesChannel: {
@@ -25,6 +42,19 @@ Component.register('sw-sales-channel-products-assignment-modal', {
             categoryProducts: [],
             groupProducts: [],
             isProductLoading: false,
+            tabContentHeight: '600px',
+            productContainerStyle: {
+                display: 'grid',
+                placeItems: 'stretch',
+            },
+            categoryContainerStyle: {
+                display: 'grid',
+                placeItems: 'stretch',
+            },
+            productGroupContainerStyle: {
+                display: 'grid',
+                placeItems: 'stretch',
+            },
         };
     },
 
@@ -38,7 +68,45 @@ Component.register('sw-sales-channel-products-assignment-modal', {
         },
     },
 
+    mounted() {
+        this.mountedComponent();
+    },
+
     methods: {
+        mountedComponent() {
+            this.getProductContainerStyle();
+            this.getCategoryContainerStyle();
+            this.getProductGroupContainerStyle();
+        },
+
+        getProductContainerStyle() {
+            const cardSectionSecondaryHeight = `${this.$refs.product.$refs?.cardSectionSecondary?.$el.offsetHeight}px`;
+
+            this.$set(this.productContainerStyle, 'grid-template-rows', `auto calc(
+                ${this.tabContentHeight} - ${cardSectionSecondaryHeight}
+            )`);
+        },
+
+        getCategoryContainerStyle() {
+            const tabContentGutter = '20px';
+            const alertHeight = `${this.$refs.category.$refs?.alert?.$el.offsetHeight}px`;
+            const cardSectionSecondaryHeight = `${this.$refs.category.$refs?.cardSectionSecondary?.$el.offsetHeight}px`;
+
+            this.$set(this.categoryContainerStyle, 'grid-template-rows', `auto calc(
+                ${this.tabContentHeight} - (${tabContentGutter} + ${alertHeight} + ${cardSectionSecondaryHeight})
+            )`);
+        },
+
+        getProductGroupContainerStyle() {
+            const tabContentGutter = '20px';
+            const alertHeight = `${this.$refs.productGroup.$refs?.alert?.$el.offsetHeight}px`;
+            const cardSectionSecondaryHeight = `${this.$refs.productGroup.$refs?.cardSectionSecondary?.$el.offsetHeight}px`;
+
+            this.$set(this.productGroupContainerStyle, 'grid-template-rows', `auto calc(
+                ${this.tabContentHeight} - (${tabContentGutter} + ${alertHeight} + ${cardSectionSecondaryHeight})
+            )`);
+        },
+
         onChangeSelection(products, type) {
             this[type] = products;
         },

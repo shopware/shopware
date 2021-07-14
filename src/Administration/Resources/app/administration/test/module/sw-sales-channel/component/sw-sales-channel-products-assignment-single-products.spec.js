@@ -83,7 +83,8 @@ function createWrapper() {
             salesChannel: {
                 id: 1,
                 name: 'Headless'
-            }
+            },
+            containerStyle: {}
         }
     });
 }

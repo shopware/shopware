@@ -32,7 +32,13 @@ function createWrapper() {
     return shallowMount(Shopware.Component.build('sw-sales-channel-products-assignment-dynamic-product-groups'), {
         stubs: {
             'sw-alert': true,
-            'sw-card': true
+            'sw-card': {
+                template: '<div><slot></slot><slot name="grid"></slot></div>'
+            },
+            'sw-card-section': true,
+            'sw-simple-search-field': true,
+            'sw-empty-state': true,
+            'sw-entity-listing': true
         },
         provide: {
             repositoryFactory: {
@@ -52,7 +58,8 @@ function createWrapper() {
             salesChannel: {
                 id: 1,
                 name: 'Headless'
-            }
+            },
+            containerStyle: {}
         }
     });
 }

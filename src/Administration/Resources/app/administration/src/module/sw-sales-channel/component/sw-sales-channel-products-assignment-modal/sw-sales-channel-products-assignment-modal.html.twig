@@ -4,57 +4,65 @@
     :title="$tc('sw-sales-channel.detail.productAssignmentModal.title')"
     @modal-close="onCloseModal"
 >
-
     <template #default>
-        <div class="sw-sales-channel-products-assignment-modal-tabs">
-            {% block sw_sales_channel_products_assignment_modal_tabs %}
-            <sw-tabs default-item="singleProducts">
+        {% block sw_sales_channel_products_assignment_modal_tabs %}
+        <sw-tabs
+            class="sw-sales-channel-products-assignment-modal__tabs"
+            default-item="singleProducts"
+        >
+            <template #default="{ active }">
+                {% block sw_sales_channel_products_assignment_modal_tabs_single_products %}
+                <sw-tabs-item
+                    name="singleProducts"
+                    :title="$tc('sw-sales-channel.detail.productAssignmentModal.singleProducts')"
+                    :active-tab="active"
+                >
+                    {{ $tc('sw-sales-channel.detail.productAssignmentModal.singleProducts') }}
+                </sw-tabs-item>
+                {% endblock %}
 
-                <template #default="{ active }">
-                    {% block sw_sales_channel_products_assignment_modal_tabs_single_products %}
-                    <sw-tabs-item
-                        name="singleProducts"
-                        :title="$tc('sw-sales-channel.detail.productAssignmentModal.singleProducts')"
-                        :active-tab="active"
-                    >
-                        {{ $tc('sw-sales-channel.detail.productAssignmentModal.singleProducts') }}
-                    </sw-tabs-item>
-                    {% endblock %}
+                {% block sw_sales_channel_products_assignment_modal_tabs_categories %}
+                <sw-tabs-item
+                    name="categories"
+                    :title="$tc('sw-sales-channel.detail.productAssignmentModal.categories.title')"
+                    :active-tab="active"
+                >
+                    {{ $tc('sw-sales-channel.detail.productAssignmentModal.categories.title') }}
+                </sw-tabs-item>
+                {% endblock %}
 
-                    {% block sw_sales_channel_products_assignment_modal_tabs_categories %}
-                    <sw-tabs-item
-                        name="categories"
-                        :title="$tc('sw-sales-channel.detail.productAssignmentModal.categories.title')"
-                        :active-tab="active"
-                    >
-                        {{ $tc('sw-sales-channel.detail.productAssignmentModal.categories.title') }}
-                    </sw-tabs-item>
-                    {% endblock %}
+                {% block sw_sales_channel_products_assignment_modal_tab_dynamic_product_groups %}
+                <sw-tabs-item
+                    name="dynamicProductGroups"
+                    :title="$tc('sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.title')"
+                    :active-tab="active"
+                >
+                    {{ $tc('sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.title') }}
+                </sw-tabs-item>
+                {% endblock %}
+            </template>
 
-                    {% block sw_sales_channel_products_assignment_modal_tab_dynamic_product_groups %}
-                    <sw-tabs-item
-                        name="dynamicProductGroups"
-                        :title="$tc('sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.title')"
-                        :active-tab="active"
-                    >
-                        {{ $tc('sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.title') }}
-                    </sw-tabs-item>
-                    {% endblock %}
-                </template>
-
-                <template #content="{ active }">
+            <template #content="{ active }">
+                <div
+                    class="sw-sales-channel-products-assignment-modal__content"
+                    :height="tabContentHeight"
+                >
                     {% block sw_sales_channel_products_assignment_modal_tab_content_single_products %}
                     <sw-sales-channel-products-assignment-single-products
-                        v-show="active === 'singleProducts'"
+                        ref="product"
+                        v-hide="active === 'singleProducts'"
                         :sales-channel="salesChannel"
+                        :container-style="productContainerStyle"
                         @selection-change="onChangeSelection"
                     />
                     {% endblock %}
 
                     {% block sw_sales_channel_products_assignment_modal_tab_content_categories %}
                     <sw-sales-channel-product-assignment-categories
-                        v-show="active === 'categories'"
+                        ref="category"
+                        v-hide="active === 'categories'"
                         :sales-channel="salesChannel"
+                        :container-style="categoryContainerStyle"
                         @selection-change="onChangeSelection"
                         @product-loading="setProductLoading"
                     />
@@ -62,26 +70,31 @@
 
                     {% block sw_sales_channel_products_assignment_modal_tab_content_dynamic_product_groups %}
                     <sw-sales-channel-products-assignment-dynamic-product-groups
-                        v-show="active === 'dynamicProductGroups'"
+                        ref="productGroup"
+                        v-hide="active === 'dynamicProductGroups'"
                         :sales-channel="salesChannel"
+                        :container-style="productGroupContainerStyle"
                         @selection-change="onChangeSelection"
                         @product-loading="setProductLoading"
                     />
                     {% endblock %}
-                </template>
-            </sw-tabs>
-            {% endblock %}
-        </div>
+                </div>
+            </template>
+        </sw-tabs>
+        {% endblock %}
     </template>
 
-    {% block sw_sales_channel_products_assignment_modal_footer %}
     <template #modal-footer>
+        {% block sw_sales_channel_products_assignment_modal_footer_cancel %}
         <sw-button
             size="small"
             @click="onCloseModal"
         >
             {{ $tc('global.default.cancel') }}
         </sw-button>
+        {% endblock %}
+
+        {% block sw_sales_channel_products_assignment_modal_footer_submit %}
         <sw-button
             size="small"
             variant="primary"
@@ -90,7 +103,7 @@
         >
             {{ $tc('sw-sales-channel.detail.products.buttonAddProducts', productCount, { productCount: productCount }) }}
         </sw-button>
+        {% endblock %}
     </template>
-    {% endblock %}
 </sw-modal>
 {% endblock %}

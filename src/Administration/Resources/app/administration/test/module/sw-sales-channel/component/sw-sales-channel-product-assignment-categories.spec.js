@@ -172,7 +172,8 @@ function createWrapper() {
             salesChannel: {
                 id: '1234',
                 name: 'Storefront'
-            }
+            },
+            containerStyle: {}
         }
     });
 }

@@ -1,6 +1,6 @@
-import { cacheAdapterFactory } from 'src/core/factory/http.factory';
+import cacheAdapterFactory from 'src/core/factory/cache-adapter.factory';
 
-describe('core/factory/http.factory.js', () => {
+describe('core/factory/cache-adapter.factory.js', () => {
     let requestCaches = {};
     let mockAdapter;
 

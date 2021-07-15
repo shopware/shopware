@@ -11,6 +11,14 @@
         position: relative;
     }
 
+    .sw-data-grid .sw-data-grid__bulk {
+        padding-left: 100px !important;
+    }
+
+    .sw-data-grid .sw-data-grid__bulk-selected {
+        margin: 12px 8px;
+    }
+
     .sw-card .sw-card__content {
         padding: 0;
         min-height: 100px;

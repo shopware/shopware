@@ -2,4 +2,12 @@
     &__link-open {
         cursor: pointer;
     }
+
+    .sw-data-grid .sw-data-grid__bulk {
+        padding-left: 100px !important;
+    }
+
+    .sw-data-grid .sw-data-grid__bulk-selected {
+        margin: 12px 8px;
+    }
 }

@@ -14,7 +14,7 @@
             {% block sw_sales_channel_detail_products_card_section_secondary %}
             <sw-card-section secondary>
                 <sw-container
-                    columns="1fr 100px"
+                    columns="1fr auto"
                     gap="0 15px"
                 >
                     {% block sw_sales_channel_detail_products_card_section_secondary_input %}
@@ -38,7 +38,7 @@
                         :disabled="!acl.can('sales_channel.editor')"
                         @click="openAddProductsModal"
                     >
-                        {{ $tc('sw-sales-channel.detail.products.buttonAddProducts') }}
+                        {{ $tc('sw-sales-channel.detail.products.buttonAddProducts', 0) }}
                     </sw-button>
                     {% endblock %}
                 </sw-container>
@@ -158,7 +158,7 @@
                 :disabled="!acl.can('sales_channel.editor')"
                 @click="openAddProductsModal"
             >
-                {{ $tc('sw-sales-channel.detail.products.buttonAddProducts') }}
+                {{ $tc('sw-sales-channel.detail.products.buttonAddProducts', 0) }}
             </sw-button>
             {% endblock %}
         </template>

@@ -27,9 +27,9 @@ class EntitySearchedEvent extends Event implements ShopwareEvent
 
     public function __construct(Criteria $criteria, EntityDefinition $definition, Context $context)
     {
-        $this->criteria = clone $criteria;
+        $this->criteria = $criteria;
         $this->definition = $definition;
-        $this->context = clone $context;
+        $this->context = $context;
     }
 
     public function getCriteria(): Criteria

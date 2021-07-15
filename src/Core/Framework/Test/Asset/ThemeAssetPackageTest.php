@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Adapter\Asset\ThemeAssetPackage;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
+use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -53,6 +54,25 @@ class ThemeAssetPackageTest extends TestCase
         $asset = new ThemeAssetPackage(['http://localhost'], new EmptyVersionStrategy(), $stack);
 
         static::assertSame('http://localhost/theme/440ac85892ca43ad26d44c7ad9d47d3e/all.js', $asset->getUrl('/all.js'));
+    }
+
+    public function testVersioningStrategyReceivesRelativeFilePath(): void
+    {
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, 'abc');
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_THEME_ID, 'abc');
+        $stack = new RequestStack();
+        $stack->push($request);
+
+        $versionStrategyMock = $this->createMock(VersionStrategyInterface::class);
+        $versionStrategyMock->expects(static::once())
+            ->method('applyVersion')
+            ->with('/theme/440ac85892ca43ad26d44c7ad9d47d3e/all.js')
+            ->willReturn('/theme/440ac85892ca43ad26d44c7ad9d47d3e/all.js?abc');
+
+        $asset = new ThemeAssetPackage(['http://localhost'], $versionStrategyMock, $stack);
+
+        static::assertSame('http://localhost/theme/440ac85892ca43ad26d44c7ad9d47d3e/all.js?abc', $asset->getUrl('/all.js'));
     }
 
     public function testStorefrontAllConditionsMatchingFallback(): void

@@ -36,7 +36,6 @@ default:
     timeout: 1h 00m
     interruptible: true
     before_script:
-        - env
         - composer run setup
         - chown -R application:application .
         - /entrypoint supervisord > /dev/null 2>&1 &

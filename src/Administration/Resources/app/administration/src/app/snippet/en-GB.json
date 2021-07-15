@@ -1060,7 +1060,11 @@
   "sw-app": {
     "component": {
       "sw-app-actions": {
-        "messageErrorFetchButtons": "An error occurred while fetching your app actions."
+        "messageErrorFetchButtons": "An error occurred while fetching your app actions.",
+        "closeWindow": "Close window",
+        "iframeModalConfirmMessage": "Are you sure you want to close \"{title}\"?",
+        "iframeModalConfirmMessageDescription": "Please make sure that all processes are completed.",
+        "dontAskMeAgain": "Don't ask me again"
       },
       "sw-app-app-url-changed-modal": {
         "move-shop-permanently": {

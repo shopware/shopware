@@ -222,11 +222,27 @@ To reload the data in the user's current page you can use the `reload` action ty
 }
 
 ```
-* `actionType`: The type of action the app want to be triggered, including `notification`, `reload`, `openNewTab`
+
+To open a modal with the embedded link in the iframe, you can use the `openModal` action type. You need to pass the url that should be opened as the `iframeUrl` property and the `size` property inside the payload.
+```json
+{
+  "actionType": "openModal",
+  "payload": {
+    "iframeUrl": "http://google.com",
+    "size": "medium",
+    "expand": true
+  }
+}
+
+```
+* `actionType`: The type of action the app want to be triggered, including `notification`, `reload`, `openNewTab`, `openModal`
 * `payload`: The needed data to perform the action
 * `redirectUrl`: The url to open new tab
+* `iframeUrl`: The embedded link in modal iframe
 * `status`: Notification status, including `success`, `error`, `info`, `warning`
 * `message`: The content of the notification
+* `size`: The size of the modal in `openModal` type, including `small`, `medium`, `large`, `fullscreen`, default `medium`
+* `expand`: The expansion of the modal in `openModal` type, including `true`, `false`, default `false`
 
 ### Create own module
 

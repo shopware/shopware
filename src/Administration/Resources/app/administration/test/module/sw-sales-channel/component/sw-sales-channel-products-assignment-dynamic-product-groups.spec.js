@@ -123,14 +123,21 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
         wrapper.vm.productStreamRepository.search.mockRestore();
     });
 
-    it('should get product streams when searching', () => {
+    it('should get product streams when searching', async () => {
         wrapper.vm.getProductStreams = jest.fn(() => {
             return Promise.resolve();
         });
 
-        wrapper.vm.onSearch('Standard prices');
+        await wrapper.setData({
+            page: 2
+        });
+
+        expect(wrapper.vm.page).toEqual(2);
+
+        await wrapper.vm.onSearch('Standard prices');
 
         expect(wrapper.vm.term).toBe('Standard prices');
+        expect(wrapper.vm.page).toEqual(1);
         expect(wrapper.vm.getProductStreams).toHaveBeenCalledTimes(1);
         expect(wrapper.vm.productStreamCriteria.term).toBe('Standard prices');
 

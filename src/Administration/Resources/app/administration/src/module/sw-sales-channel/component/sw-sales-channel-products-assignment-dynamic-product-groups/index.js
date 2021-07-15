@@ -106,6 +106,10 @@ Component.register('sw-sales-channel-products-assignment-dynamic-product-groups'
 
         onSearch(term) {
             this.term = term;
+            if (term) {
+                this.page = 1;
+            }
+
             this.getProductStreams();
         },
 

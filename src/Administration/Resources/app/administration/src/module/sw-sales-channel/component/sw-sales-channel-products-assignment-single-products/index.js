@@ -97,6 +97,10 @@ Component.register('sw-sales-channel-products-assignment-single-products', {
 
         onChangeSearchTerm(searchTerm) {
             this.searchTerm = searchTerm;
+            if (searchTerm) {
+                this.page = 1;
+            }
+
             this.getProducts();
         },
 

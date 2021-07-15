@@ -140,4 +140,25 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
             'singleProducts'
         ]);
     });
+
+    it('should get products when searching', async () => {
+        const wrapper = createWrapper();
+        wrapper.vm.getProducts = jest.fn(() => {
+            return Promise.resolve();
+        });
+
+        await wrapper.setData({
+            page: 2
+        });
+
+        expect(wrapper.vm.page).toEqual(2);
+
+        await wrapper.vm.onChangeSearchTerm('Standard prices');
+
+        expect(wrapper.vm.searchTerm).toBe('Standard prices');
+        expect(wrapper.vm.page).toEqual(1);
+        expect(wrapper.vm.getProducts).toHaveBeenCalledTimes(1);
+
+        wrapper.vm.getProducts.mockRestore();
+    });
 });

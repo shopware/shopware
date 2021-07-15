@@ -72,11 +72,7 @@ describe('Product: Sort grid', () => {
         cy.route({
             url: `${Cypress.env('apiPath')}/search/product`,
             method: 'post'
-        }).as('searchProduct');
-        cy.route({
-            url: `${Cypress.env('apiPath')}/search/currency`,
-            method: 'post'
-        }).as('searchCurrency');
+        }).as('search');
 
         // open context menu and display pound
         cy.get('.sw-data-grid__cell-settings .sw-data-grid-settings__trigger').click();
@@ -92,10 +88,8 @@ describe('Product: Sort grid', () => {
         cy.get('.sw-data-grid__cell--9').click({ force: true });
 
         // Verify search result
-        cy.wait(['@searchProduct', '@searchCurrency']).then((xhrs) => {
-            xhrs.forEach((xhr) => {
-                expect(xhr).to.have.property('status', 200);
-            });
+        cy.wait('@search').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
 
         // check product order
@@ -109,19 +103,12 @@ describe('Product: Sort grid', () => {
         cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--name').contains('Original product');
         cy.get('.sw-data-grid__row--1 .sw-data-grid__cell--name').contains('Second product');
 
-        cy.route({
-            url: `${Cypress.env('apiPath')}/search/user-config`,
-            method: 'post'
-        }).as('searchUserConfig');
-
         // sort products by gbp
         cy.get('.sw-data-grid__cell--9').click({ force: true });
 
         // Verify search result
-        cy.wait(['@searchProduct', '@searchCurrency', '@searchUserConfig']).then((xhrs) => {
-            xhrs.forEach((xhr) => {
-                expect(xhr).to.have.property('status', 200);
-            });
+        cy.wait('@search').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
 
         cy.get('.sw-data-grid-skeleton').should('not.exist');

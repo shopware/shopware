@@ -199,6 +199,12 @@ Component.register('sw-sales-channel-detail-products', {
         onChangePage(data) {
             this.page = data.page;
             this.limit = data.limit;
+            this.products.criteria.sortings.forEach(({ field, naturalSorting, order }) => {
+                this.productCriteria.addSorting(
+                    Criteria.sort(field, order, naturalSorting),
+                );
+            });
+
             this.getProducts();
         },
 

@@ -180,6 +180,10 @@ Component.register('sw-product-add-properties-modal', {
             }
 
             this.searchTerm = searchTerm;
+            if (searchTerm) {
+                this.propertiesPage = 1;
+            }
+
             this.getProperties();
         },
 

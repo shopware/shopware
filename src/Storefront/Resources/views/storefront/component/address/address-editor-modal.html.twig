@@ -60,6 +60,19 @@
                                                 </div>
                                             {% endblock %}
 
+                                            {% if feature('FEATURE_NEXT_15707') %}
+                                                {% block component_address_address_editor_modal_accordion_overview_shipping_card_warning %}
+                                                    {% set ableToShipToDefaultShippingAddress = context.customer.defaultShippingAddress.country.shippingAvailable %}
+
+                                                    {% if not ableToShipToDefaultShippingAddress %}
+                                                        {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
+                                                            type: 'warning',
+                                                            content: 'address.countryNoShippingAlert'|trans|sw_sanitize
+                                                        } %}
+                                                    {% endif %}
+                                                {% endblock %}
+                                            {% endif %}
+
                                             {% block component_address_address_editor_modal_accordion_overview_shipping_card_address %}
                                                 {% sw_include '@Storefront/storefront/component/address/address.html.twig' with {
                                                     'address': context.customer.defaultShippingAddress

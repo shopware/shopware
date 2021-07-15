@@ -1,3 +1,4 @@
+import './sw-shopware-updates-info.scss';
 import template from './sw-shopware-updates-info.html.twig';
 
 const { Component } = Shopware;

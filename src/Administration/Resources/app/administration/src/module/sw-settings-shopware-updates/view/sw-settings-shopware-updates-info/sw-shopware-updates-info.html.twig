@@ -4,7 +4,10 @@
     :is-loading="isLoading"
 >
     {% block sw_shopware_updates_info_content %}
-    <div v-html="changelog"></div>
+    <div
+        class="sw-changelog"
+        v-html="changelog"
+    ></div>
     {% endblock %}
 </sw-card>
 {% endblock %}

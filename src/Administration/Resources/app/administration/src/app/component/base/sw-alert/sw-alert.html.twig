@@ -18,7 +18,10 @@
     {% endblock %}
 
     {% block sw_alert_body %}
-    <div class="sw-alert__body">
+    <div
+        class="sw-alert__body"
+        :class="alertBodyClasses"
+    >
         {% block sw_alert_title %}
         <div
             v-if="title"

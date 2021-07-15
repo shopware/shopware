@@ -199,11 +199,7 @@ window.Feature = Feature;
 /*
 run plugins
 */
-document.addEventListener('readystatechange', (event) => {
-    if (event.target.readyState === 'complete') {
-        PluginManager.initializePlugins();
-    }
-}, false);
+document.addEventListener('DOMContentLoaded', () => PluginManager.initializePlugins(), false);
 
 /*
 run utils

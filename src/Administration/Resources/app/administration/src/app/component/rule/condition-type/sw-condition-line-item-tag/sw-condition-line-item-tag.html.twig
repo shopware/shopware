@@ -9,6 +9,7 @@
 
     {% block sw_condition_line_item_tag_field_identifiers %}
     <sw-entity-tag-select
+        v-if="!isEmpty"
         size="medium"
         entity="tag"
         :disabled="disabled"

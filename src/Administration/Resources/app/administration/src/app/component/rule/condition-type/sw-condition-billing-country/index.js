@@ -21,6 +21,7 @@ Component.extend('sw-condition-billing-country', 'sw-condition-base', {
     data() {
         return {
             billingCountries: null,
+            inputKey: 'countryIds',
         };
     },
 
@@ -30,7 +31,9 @@ Component.extend('sw-condition-billing-country', 'sw-condition-base', {
         },
 
         operators() {
-            return this.conditionDataProviderService.getOperatorSet('multiStore');
+            return this.conditionDataProviderService.addEmptyOperatorToOperatorSet(
+                this.conditionDataProviderService.getOperatorSet('multiStore'),
+            );
         },
 
         countryIds: {

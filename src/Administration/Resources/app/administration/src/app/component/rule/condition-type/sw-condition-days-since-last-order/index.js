@@ -6,9 +6,17 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 Component.extend('sw-condition-days-since-last-order', 'sw-condition-base', {
     template,
 
+    data() {
+        return {
+            inputKey: 'daysPassed',
+        };
+    },
+
     computed: {
         operators() {
-            return this.conditionDataProviderService.getOperatorSet('number');
+            return this.conditionDataProviderService.addEmptyOperatorToOperatorSet(
+                this.conditionDataProviderService.getOperatorSet('number'),
+            );
         },
 
         daysPassed: {

@@ -3,14 +3,20 @@
 namespace Shopware\Core\Checkout\Test\Customer\Rule;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
+use Shopware\Core\Checkout\CheckoutRuleScope;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\Rule\ShippingStreetRule;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
@@ -34,11 +40,14 @@ class ShippingStreetRuleTest extends TestCase
      */
     private $context;
 
+    private ShippingStreetRule $rule;
+
     protected function setUp(): void
     {
         $this->ruleRepository = $this->getContainer()->get('rule.repository');
         $this->conditionRepository = $this->getContainer()->get('rule_condition.repository');
         $this->context = Context::createDefaultContext();
+        $this->rule = new ShippingStreetRule();
     }
 
     public function testValidateWithoutValue(): void
@@ -54,11 +63,11 @@ class ShippingStreetRuleTest extends TestCase
         } catch (WriteException $stackException) {
             $exceptions = iterator_to_array($stackException->getErrors());
             static::assertCount(2, $exceptions);
-            static::assertSame('/0/value/streetName', $exceptions[0]['source']['pointer']);
-            static::assertSame(NotBlank::IS_BLANK_ERROR, $exceptions[0]['code']);
-
-            static::assertSame('/0/value/operator', $exceptions[1]['source']['pointer']);
+            static::assertSame('/0/value/streetName', $exceptions[1]['source']['pointer']);
             static::assertSame(NotBlank::IS_BLANK_ERROR, $exceptions[1]['code']);
+
+            static::assertSame('/0/value/operator', $exceptions[0]['source']['pointer']);
+            static::assertSame(NotBlank::IS_BLANK_ERROR, $exceptions[0]['code']);
         }
     }
 
@@ -128,5 +137,63 @@ class ShippingStreetRuleTest extends TestCase
         ], $this->context);
 
         static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
+    }
+
+    public function testConstraints(): void
+    {
+        $expectedOperators = [
+            Rule::OPERATOR_EQ,
+            Rule::OPERATOR_NEQ,
+            Rule::OPERATOR_EMPTY,
+        ];
+
+        $ruleConstraints = $this->rule->getConstraints();
+
+        static::assertArrayHasKey('operator', $ruleConstraints, 'Constraint operator not found in Rule');
+        $operators = $ruleConstraints['operator'];
+        static::assertEquals(new NotBlank(), $operators[0]);
+        static::assertEquals(new Choice($expectedOperators), $operators[1]);
+
+        $this->rule->assign(['operator' => Rule::OPERATOR_EQ]);
+        static::assertArrayHasKey('streetName', $ruleConstraints, 'Constraint streetName not found in Rule');
+        $streetName = $ruleConstraints['streetName'];
+        static::assertEquals(new NotBlank(), $streetName[0]);
+        static::assertEquals(new Type('string'), $streetName[1]);
+    }
+
+    /**
+     * @dataProvider getMatchValues
+     */
+    public function testRuleMatching(string $operator, bool $isMatching, string $shippingStreet): void
+    {
+        $streetName = 'kyln123';
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $location = $this->createMock(ShippingLocation::class);
+
+        $customerAddress = new CustomerAddressEntity();
+        $customerAddress->setStreet($shippingStreet);
+        $location->method('getAddress')->willReturn($customerAddress);
+        $salesChannelContext->method('getShippingLocation')->willReturn($location);
+        $scope = new CheckoutRuleScope($salesChannelContext);
+        $this->rule->assign(['streetName' => $streetName, 'operator' => $operator]);
+
+        $match = $this->rule->match($scope);
+        if ($isMatching) {
+            static::assertTrue($match);
+        } else {
+            static::assertFalse($match);
+        }
+    }
+
+    public function getMatchValues(): array
+    {
+        return [
+            'operator_oq / not match / street' => [Rule::OPERATOR_EQ, false, 'kyln000'],
+            'operator_oq / match / street' => [Rule::OPERATOR_EQ, true, 'kyln123'],
+            'operator_neq / match / street' => [Rule::OPERATOR_NEQ, true, 'kyln000'],
+            'operator_neq / not match / street' => [Rule::OPERATOR_NEQ, false, 'kyln123'],
+            'operator_empty / not match / street' => [Rule::OPERATOR_NEQ, false, 'kyln123'],
+            'operator_empty / match / street' => [Rule::OPERATOR_EMPTY, true, ' '],
+        ];
     }
 }

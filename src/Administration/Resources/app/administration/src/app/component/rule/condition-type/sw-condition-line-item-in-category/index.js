@@ -13,6 +13,7 @@ Component.extend('sw-condition-line-item-in-category', 'sw-condition-base', {
     data() {
         return {
             categories: null,
+            inputKey: 'categoryIds',
         };
     },
 
@@ -22,7 +23,9 @@ Component.extend('sw-condition-line-item-in-category', 'sw-condition-base', {
         },
 
         operators() {
-            return this.conditionDataProviderService.getOperatorSet('multiStore');
+            return this.conditionDataProviderService.addEmptyOperatorToOperatorSet(
+                this.conditionDataProviderService.getOperatorSet('multiStore'),
+            );
         },
 
         categoryIds: {

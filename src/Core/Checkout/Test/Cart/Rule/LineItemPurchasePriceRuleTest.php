@@ -112,6 +112,9 @@ class LineItemPurchasePriceRuleTest extends TestCase
             'match / operator lower than equals / lower price' => [Rule::OPERATOR_LTE, 100, 50, true],
             'match / operator lower than equals / same price' => [Rule::OPERATOR_LTE, 100, 100, true],
             'no match / operator lower than equals / higher price' => [Rule::OPERATOR_LTE, 100, 200, false],
+            // OPERATOR_EMPTY
+            'match / operator empty / no price' => [Rule::OPERATOR_EMPTY, 100, 0, true],
+            'no match / operator empty / higher price' => [Rule::OPERATOR_EMPTY, 100, 200, false],
         ];
     }
 

@@ -54,16 +54,20 @@ class LineItemInCategoryRule extends Rule
 
     public function getConstraints(): array
     {
-        return [
-            'categoryIds' => [new NotBlank(), new ArrayOfUuid()],
+        $constraints = [
             'operator' => [
                 new NotBlank(),
-                new Choice([
-                    self::OPERATOR_EQ,
-                    self::OPERATOR_NEQ,
-                ]),
+                new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ, self::OPERATOR_EMPTY]),
             ],
         ];
+
+        if ($this->operator === self::OPERATOR_EMPTY) {
+            return $constraints;
+        }
+
+        $constraints['categoryIds'] = [new NotBlank(), new ArrayOfUuid()];
+
+        return $constraints;
     }
 
     /**
@@ -82,6 +86,9 @@ class LineItemInCategoryRule extends Rule
 
             case self::OPERATOR_NEQ:
                 return empty($matches);
+
+            case self::OPERATOR_EMPTY:
+                return empty($categoryIds);
 
             default:
                 throw new UnsupportedOperatorException($this->operator, self::class);

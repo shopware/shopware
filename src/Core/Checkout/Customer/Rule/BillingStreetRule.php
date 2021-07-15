@@ -48,6 +48,9 @@ class BillingStreetRule extends Rule
             case self::OPERATOR_NEQ:
                 return strcasecmp($this->streetName, $street) !== 0;
 
+            case self::OPERATOR_EMPTY:
+                return empty(trim($street));
+
             default:
                 throw new UnsupportedOperatorException($this->operator, self::class);
         }
@@ -55,10 +58,20 @@ class BillingStreetRule extends Rule
 
     public function getConstraints(): array
     {
-        return [
-            'streetName' => [new NotBlank(), new Type('string')],
-            'operator' => [new NotBlank(), new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ])],
+        $constraints = [
+            'operator' => [
+                new NotBlank(),
+                new Choice([Rule::OPERATOR_EQ, Rule::OPERATOR_NEQ, Rule::OPERATOR_EMPTY]),
+            ],
         ];
+
+        if ($this->operator === self::OPERATOR_EMPTY) {
+            return $constraints;
+        }
+
+        $constraints['streetName'] = [new NotBlank(), new Type('string')];
+
+        return $constraints;
     }
 
     public function getName(): string

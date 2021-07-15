@@ -42,11 +42,10 @@ class ShippingZipCodeRule extends Rule
 
         $zipCode = trim($location->getZipCode());
 
-        if (!$zipCode || !$this->zipCodes) {
-            return false;
+        $compareZipCode = null;
+        if ($this->zipCodes) {
+            $compareZipCode = $this->zipCodes[0];
         }
-
-        $compareZipCode = $this->zipCodes[0];
 
         switch ($this->operator) {
             case self::OPERATOR_EQ:
@@ -67,6 +66,9 @@ class ShippingZipCodeRule extends Rule
             case self::OPERATOR_LT:
                 return is_numeric($zipCode) && is_numeric($compareZipCode) && FloatComparator::lessThan((float) $zipCode, (float) $compareZipCode);
 
+            case self::OPERATOR_EMPTY:
+                return empty($zipCode);
+
             default:
                 throw new UnsupportedOperatorException($this->operator, self::class);
         }
@@ -74,13 +76,28 @@ class ShippingZipCodeRule extends Rule
 
     public function getConstraints(): array
     {
-        return [
-            'zipCodes' => [new NotBlank(), new ArrayOfType('string')],
+        $constraints = [
             'operator' => [
                 new NotBlank(),
-                new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ, self::OPERATOR_GTE, self::OPERATOR_LTE, self::OPERATOR_GT, self::OPERATOR_LT]),
+                new Choice([
+                    self::OPERATOR_EQ,
+                    self::OPERATOR_NEQ,
+                    self::OPERATOR_EMPTY,
+                    self::OPERATOR_GTE,
+                    self::OPERATOR_LTE,
+                    self::OPERATOR_GT,
+                    self::OPERATOR_LT,
+                ]),
             ],
         ];
+
+        if ($this->operator === self::OPERATOR_EMPTY) {
+            return $constraints;
+        }
+
+        $constraints['zipCodes'] = [new NotBlank(), new ArrayOfType('string')];
+
+        return $constraints;
     }
 
     public function getName(): string

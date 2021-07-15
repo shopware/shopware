@@ -9,6 +9,7 @@
 
     {% block sw_condition_last_name_field_last_name %}
     <sw-text-field
+        v-if="!isEmpty"
         v-model="lastName"
         size="medium"
         :disabled="disabled"

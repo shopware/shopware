@@ -21,12 +21,15 @@ Component.extend('sw-condition-customer-tag', 'sw-condition-base', {
     data() {
         return {
             tags: null,
+            inputKey: 'identifiers',
         };
     },
 
     computed: {
         operators() {
-            return this.conditionDataProviderService.getOperatorSet('multiStore');
+            return this.conditionDataProviderService.addEmptyOperatorToOperatorSet(
+                this.conditionDataProviderService.getOperatorSet('multiStore'),
+            );
         },
 
         tagRepository() {

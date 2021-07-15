@@ -9,6 +9,7 @@
 
     {% block sw_condition_line_item_in_category_field_identifiers %}
     <sw-entity-multi-select
+        v-if="!isEmpty"
         size="medium"
         :disabled="disabled"
         entity="category"

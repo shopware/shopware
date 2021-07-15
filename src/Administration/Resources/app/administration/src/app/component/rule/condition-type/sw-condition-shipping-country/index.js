@@ -19,12 +19,15 @@ Component.extend('sw-condition-shipping-country', 'sw-condition-base', {
     data() {
         return {
             shippingCountries: null,
+            inputKey: 'countryIds',
         };
     },
 
     computed: {
         operators() {
-            return this.conditionDataProviderService.getOperatorSet('multiStore');
+            return this.conditionDataProviderService.addEmptyOperatorToOperatorSet(
+                this.conditionDataProviderService.getOperatorSet('multiStore'),
+            );
         },
 
         countryRepository() {

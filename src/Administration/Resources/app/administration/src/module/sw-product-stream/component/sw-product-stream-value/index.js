@@ -143,7 +143,7 @@ Component.register('sw-product-stream-value', {
 
         multiValue: {
             get() {
-                if (this.actualCondition.value === null || this.actualCondition.value === '') {
+                if (typeof this.actualCondition.value !== 'string' || this.actualCondition.value === '') {
                     return [];
                 }
                 return this.actualCondition.value.split('|');
@@ -196,6 +196,9 @@ Component.register('sw-product-stream-value', {
             get() {
                 if (['int', 'float'].includes(this.fieldType)) {
                     return Number.parseFloat(this.actualCondition.value);
+                }
+                if (typeof this.actualCondition.value !== 'string') {
+                    return null;
                 }
                 return this.actualCondition.value;
             },

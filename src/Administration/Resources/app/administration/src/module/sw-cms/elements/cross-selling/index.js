@@ -32,7 +32,7 @@ Shopware.Service('cmsService').registerCmsElement({
         },
         elMinWidth: {
             source: 'static',
-            value: '200px',
+            value: '300px',
         },
     },
     collect: function collect(elem) {

@@ -1,0 +1,160 @@
+# requires /.gitlab/base.yml
+
+# unit stage - This files contains all jobs belonging to the unit stage
+
+Jest (Administration):
+    extends: .base
+    stage: unit
+    needs: []
+    services:
+        -   name: mariadb:10.3
+            alias: database
+    rules:
+        - !reference [ .rules, skip ]
+        - !reference [ .rules, run ]
+        # always execute in merge train. PHP could in theory affect the admin jest tests
+        - !reference [ .rules, long-running ]
+        - changes:
+            - 'src/Administration/Resources/app/administration/**/*'
+    script:
+        - bin/console framework:schema -s 'entity-schema' $ADMIN_PATH/test/_mocks_/entity-schema.json
+        - npm --prefix $ADMIN_PATH run unit -- --silent
+    coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
+    artifacts:
+        when: always
+        paths:
+            - build/artifacts/jest
+        reports:
+            junit: build/artifacts/jest/administration.junit.xml
+            cobertura: build/artifacts/jest/cobertura-coverage.xml
+
+Jest (Storefront):
+    extends: .base
+    stage: unit
+    needs: []
+    services:
+        -   name: mariadb:10.3
+            alias: database
+    rules:
+        - !reference [.rules, skip]
+        - !reference [.rules, run]
+        - changes:
+            - 'src/Storefront/Resources/app/storefront/**/*'
+    script:
+        - npm --prefix "$STOREFRONT_PATH" run unit -- --silent
+    coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
+    artifacts:
+        when: always
+        paths:
+            - build/artifacts/jest
+        reports:
+            junit: build/artifacts/jest/storefront.junit.xml
+            cobertura: build/artifacts/jest/cobertura-coverage.xml
+
+PHP coverage:
+    extends: .base-no-setup
+    image: shopware/development:7.4-composer-2
+    stage: unit
+    needs: []
+    services:
+        -   name: mariadb:10.4
+            alias: database
+            entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
+    variables:
+        APP_ENV: "test"
+        FEATURE_ALL: "major"
+    rules:
+        - !reference [.rules, skip]
+        - !reference [.rules, run]
+        - changes:
+          - phpunit.xml.dist
+          - '**/Resources/views/*.html.twig'
+          - '**/*.{php,xml,yaml,json}'
+    before_script:
+        - composer install --optimize-autoloader
+        - mkdir -p config/jwt || true
+        - bin/console system:generate-jwt-secret
+    script:
+        - PHP_OPTIONS="-d pcov.enabled=1 -d pcov.directory=$PWD/src -d pcov.exclude='~(vendor|Test|node_modules)~'"
+        - php $PHP_OPTIONS vendor/bin/phpunit
+            --configuration phpunit.xml.dist
+            --log-junit phpunit.junit.xml
+            --exclude-group=skip-paratest,needsWebserver
+            --testsuite "$TESTSUITE"
+            --coverage-text
+            --coverage-cobertura cobertura.xml
+    coverage: '/^\s*Lines:\s*(\d+(?:\.\d+)?%)/'
+    artifacts:
+        when: always
+        paths:
+            - cobertura.xml
+        reports:
+            junit: phpunit.junit.xml
+            cobertura: cobertura.xml
+    parallel:
+        matrix:
+            - TESTSUITE: ["framework", "checkout", "content", "storefront,administration,system,elasticsearch,profiling", "migration"]
+
+PHP Full:
+    extends: .long-running
+    image: $DEV_IMAGE
+    stage: unit
+    needs: []
+    services:
+        -   name: $MYSQL_IMAGE
+            alias: database
+            entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
+        -   name: elasticsearch:7.8.0
+            alias: elasticsearch
+            command: [ "bin/elasticsearch", "-Expack.security.enabled=false", "-Ediscovery.type=single-node" ]
+        -   name: swaggerapi/swagger-validator-v2:v2.0.5
+            alias: swagger
+    variables:
+        TEST_SUITES: "docs administration storefront checkout content framework profiling migration system elasticsearch"
+        APP_ENV: test
+    rules:
+        - !reference [.rules, skip]
+        - !reference [.rules, run]
+        # run if it's merge train and has changes or scheduled
+        - if: !reference [.rules, long-running, if]
+          changes:
+            - phpunit.xml.dist
+            - '**/Resources/views/*.html.twig'
+            - '**/*.{php,xml,yaml,json}'
+    parallel:
+        matrix:
+            -   MYSQL_IMAGE: mariadb:10.4
+                DEV_IMAGE: shopware/development:8.0-composer-2
+                FEATURE_ALL: [ "false", "minor" ]
+            -   MYSQL_IMAGE:
+                    - mysql:5.7
+                    - mariadb:10.3
+                DEV_IMAGE: shopware/development:8.0-composer-2
+                FEATURE_ALL: [ "false", "minor", "major" ]
+            -   MYSQL_IMAGE:
+                    - mysql:8.0.19
+                DEV_IMAGE: [ "shopware/development:7.4-composer-2", "shopware/development:8.0-composer-2" ]
+                FEATURE_ALL: [ "false", "minor", "major" ]
+                MYSQL_CMD: 'mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON'
+            -   MYSQL_IMAGE: mariadb:10.4
+                DEV_IMAGE: shopware/development:7.4-composer-2
+                FEATURE_ALL: 'false'
+                PREFER_LOWEST: 'true'
+    script:
+        - >
+            if [ "$PREFER_LOWEST" == "true" ]; then
+                composer update --prefer-lowest
+            fi
+        - FAILED=0
+        - >
+            for SUITE in $TEST_SUITES; do
+                composer run phpunit -- --testsuite=$SUITE --log-junit phpunit.$SUITE.xml --colors=never || FAILED=1
+            done
+        - '[[ $FAILED -eq 0 ]]'
+    artifacts:
+        when: always
+        paths:
+            - phpunit.*.xml
+            - var/log/*
+        reports:
+            junit: phpunit.*.xml

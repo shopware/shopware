@@ -1,0 +1,54 @@
+variables:
+    MYSQL_ROOT_PASSWORD: app
+    WEB_DOCUMENT_ROOT: $CI_PROJECT_DIR/public
+    GIT_STRATEGY: fetch
+    LOG_STDOUT: $CI_PROJECT_DIR/var/log/stdout.log
+    MYSQL_CMD: mysqld
+    PROJECT_ROOT: $CI_PROJECT_DIR
+    ADMIN_PATH: $CI_PROJECT_DIR/src/Administration/Resources/app/administration
+    STOREFRONT_PATH: $CI_PROJECT_DIR/src/Storefront/Resources/app/storefront
+    COMPOSER_PROCESS_TIMEOUT: 7200 # 60s * 60 * 2 = 2 hours
+
+default:
+    image: shopware/development:7.4-composer-2
+    timeout: 1h 00m
+    interruptible: true
+    before_script:
+        - composer run setup
+        - chown -R application:application .
+        - /entrypoint supervisord > /dev/null 2>&1 &
+
+include:
+    - local: /.gitlab/lib/*.yml
+
+# for jobs which should run on each MR/Pipeline
+.base:
+    # we want our base pipeline to finish fast
+    timeout: 20m
+    # do not download assets from previous stages by default
+    dependencies: []
+    rules:
+        - !reference [.rules, skip]
+        - !reference [.rules, run]
+        - when: always
+
+# sames as .base just without initializing shopware and starting a web server
+.base-no-setup:
+    extends: .base
+    before_script: []
+
+# only run in `merge_train`s or if the $CI_STAGE::all label is set
+.long-running:
+    # this happens after the approve but before merge and may take longer
+    timeout: 2h
+    # do not download assets from previous stages by default
+    dependencies: []
+    rules:
+        - !reference [.rules, skip]
+        - !reference [.rules, run]
+        - !reference [.rules, long-running]
+
+# sames as .long-running just without initializing shopware and starting a web server
+.long-running-no-setup:
+    extends: .long-running
+    before_script: []

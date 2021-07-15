@@ -1,0 +1,49 @@
+# requires /.gitlab/base.yml
+
+Upload Component Library:
+    extends: .long-running-no-setup
+    stage: deploy
+    image: python:latest
+    rules:
+        - if: '$CI_COMMIT_BRANCH == "trunk" && $CI_PIPELINE_SOURCE == "schedule"'
+    dependencies:
+        - Component Library
+    environment:
+        name: Component Library
+        url: https://component-library.shopware.com
+    script:
+        - pip install awscli
+        - cd build/artifacts/component-library
+        - aws s3 sync --delete --acl public-read . s3://shopware-ui-component-library-docs/
+        - aws cloudfront create-invalidation --distribution-id E18U17118IAC82 --paths "/*"
+    interruptible: false
+
+Repository Split:
+    extends: .long-running-no-setup
+    stage: deploy
+    image: debian:buster-slim
+    rules:
+        # only split on protected branches, e.g.: nightly trunk, release versions or saas-release
+        - if: '$CI_COMMIT_REF_PROTECTED != "true"'
+          when: 'never'
+        - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH =~ /^(trunk|6\..+)$/'
+        - if: '$CI_COMMIT_BRANCH == "saas-release"'
+    environment:
+        name: Github
+        url: https://github.com/shopware
+    script:
+        - apt update && apt install -y wget git
+
+        # download tool
+        - wget https://github.com/splitsh/lite/releases/download/v1.0.1/lite_linux_amd64.tar.gz
+        - tar xvfz lite_linux_amd64.tar.gz
+        - chmod +x splitsh-lite
+
+        # split repositories
+        - >
+            for pkg in Administration Docs Storefront Core Elasticsearch Recovery; do
+              echo "Splitting ${pkg}"
+              SHA1=`./splitsh-lite --prefix=src/$pkg/ --target=refs/heads/$pkg`
+              git remote set-url origin https://bot:${PERSONAL_TOKEN}@gitlab.shopware.com/shopware/6/product/many-repositories/$(echo $pkg | awk '{print tolower($0)}').git
+              git push origin $SHA1:refs/heads/${CI_COMMIT_BRANCH} -f -u
+            done

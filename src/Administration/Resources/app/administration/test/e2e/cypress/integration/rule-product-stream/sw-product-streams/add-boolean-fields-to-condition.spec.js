@@ -171,7 +171,7 @@ describe('Dynamic product group: Add Boolean fields to condition', () => {
         });
 
         const productStreamPage = new ProductStreamObject();
-        cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/index`);
+        cy.visit(`${Cypress.env('admin')}#/sw/product/stream/index`);
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             productStreamPage.elements.contextMenuButton,

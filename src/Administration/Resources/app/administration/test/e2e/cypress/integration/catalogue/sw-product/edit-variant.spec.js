@@ -20,12 +20,12 @@ describe('Product: Test variants', () => {
     it('@base @catalogue: variants display corresponding name based on specific language', () => {
         const page = new PropertyPageObject();
 
-        cy.visit(`${Cypress.env('admin')}#/sw/property/index`);
-
         cy.route({
             url: `${Cypress.env('apiPath')}/search/user-config`,
             method: 'post'
         }).as('searchUserConfig');
+
+        cy.visit(`${Cypress.env('admin')}#/sw/property/index`);
 
         // Add option to property group
         cy.wait('@searchUserConfig').then((xhr) => {
@@ -243,13 +243,13 @@ describe('Product: Test variants', () => {
             .click();
         cy.get('.sw-product-modal-variant-generation').should('be.visible');
 
-        page.generateVariants('Size', [0, 1, 2], 6);
-
         // Request we want to wait for later
         cy.route({
             url: `${Cypress.env('apiPath')}/search/property-group`,
             method: 'post'
         }).as('loadPropertyGroup');
+
+        page.generateVariants('Size', [0, 1, 2], 6);
 
         // Reload the variant tab to avoid xhr timing issues from previous requests
         cy.get('.sw-product-detail__tab-variants').click();
@@ -258,7 +258,7 @@ describe('Product: Test variants', () => {
 
         // Wait for every needed xhr request to load the current product
         // `@searchCall` was defined in `page.generateVariants`
-        cy.wait(['@searchCall', '@searchCall', '@searchCall', '@loadPropertyGroup'])
+        cy.wait(['@searchCall', '@loadPropertyGroup'])
             .then((xhrs) => {
                 xhrs.forEach((xhr) => {
                     expect(xhr).to.have.property('status', 200);

@@ -3,6 +3,7 @@
  */
 import Axios from 'axios';
 import RefreshTokenHelper from 'src/core/helper/refresh-token.helper';
+import cacheAdapterFactory from 'src/core/factory/cache-adapter.factory';
 
 /**
  * Initializes the HTTP client with the provided context. The context provides the API end point and will be used as
@@ -38,7 +39,36 @@ function createClient() {
     refreshTokenInterceptor(client);
     globalErrorHandlingInterceptor(client);
 
+    /**
+     * Don´t use cache in unit tests because it is possible
+     * that the test uses the same route with different responses
+     * (e.g. error, success) in a short amount of time.
+     * So in test cases we are using the originalAdapter directly
+     * and skipping the caching mechanism.
+     */
+    if (process?.env?.NODE_ENV !== 'test') {
+        requestCacheAdapterInterceptor(client);
+    }
+
     return client;
+}
+
+/**
+ * Sets up an interceptor to handle automatic cache of same requests in short time amount
+ *
+ * @param {AxiosInstance} client
+ * @returns {AxiosInstance}
+ */
+function requestCacheAdapterInterceptor(client) {
+    const requestCaches = {};
+
+    client.interceptors.request.use((config) => {
+        const originalAdapter = config.adapter;
+
+        config.adapter = cacheAdapterFactory(originalAdapter, requestCaches);
+
+        return config;
+    });
 }
 
 /**

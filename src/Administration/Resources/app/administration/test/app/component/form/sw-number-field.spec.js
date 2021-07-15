@@ -5,7 +5,7 @@ import 'src/app/component/form/field-base/sw-contextual-field';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
 
-const createWrapper = () => {
+const createWrapper = (additionalOptions = {}) => {
     return shallowMount(Shopware.Component.build('sw-number-field'), {
         stubs: {
             'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
@@ -20,7 +20,8 @@ const createWrapper = () => {
         },
         propsData: {
             value: null
-        }
+        },
+        ...additionalOptions
     });
 };
 
@@ -78,5 +79,30 @@ describe('app/component/form/sw-number-field', () => {
         // expect null and empty input
         expect(wrapper.emitted('change')[1]).toEqual([null]);
         expect(input.element.value).toBe('');
+    });
+
+    it('should show the label from the property', () => {
+        const wrapper = createWrapper({
+            propsData: {
+                label: 'Label from prop',
+                value: null
+            }
+        });
+
+        expect(wrapper.find('label').text()).toEqual('Label from prop');
+    });
+
+    it('should show the value from the label slot', () => {
+        const wrapper = createWrapper({
+            propsData: {
+                label: 'Label from prop',
+                value: null
+            },
+            scopedSlots: {
+                label: '<template>Label from slot</template>'
+            }
+        });
+
+        expect(wrapper.find('label').text()).toEqual('Label from slot');
     });
 });

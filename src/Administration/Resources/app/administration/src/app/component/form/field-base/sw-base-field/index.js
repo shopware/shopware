@@ -110,7 +110,7 @@ Component.register('sw-base-field', {
         },
 
         showLabel() {
-            return !!this.label || !!this.$slots.label || !!this.$scopedSlots.label;
+            return !!this.label || !!this.$slots.label || !!this.$scopedSlots?.label?.();
         },
     },
 });

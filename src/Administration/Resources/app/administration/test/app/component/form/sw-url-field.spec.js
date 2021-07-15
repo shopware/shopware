@@ -8,29 +8,35 @@ import 'src/app/component/base/sw-icon';
 import 'src/app/component/form/field-base/sw-field-error';
 import 'src/app/filter/unicode-uri';
 
+function createWrapper(additionalOptions = {}) {
+    const localVue = createLocalVue();
+    localVue.filter('unicodeUri', Shopware.Filter.getByName('unicodeUri'));
+
+    return shallowMount(Shopware.Component.build('sw-url-field'), {
+        localVue,
+        stubs: {
+            'sw-text-field': Shopware.Component.build('sw-text-field'),
+            'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
+            'sw-block-field': Shopware.Component.build('sw-block-field'),
+            'sw-base-field': Shopware.Component.build('sw-base-field'),
+            'sw-field-error': Shopware.Component.build('sw-field-error'),
+            'sw-icon': Shopware.Component.build('sw-icon'),
+            'icons-default-lock-closed': true,
+            'icons-default-lock-open': true
+        },
+        provide: {
+            validationService: {}
+        },
+        ...additionalOptions
+    });
+}
+
 describe('components/form/sw-url-field', () => {
+    /** @type Wrapper */
     let wrapper;
 
     beforeEach(() => {
-        const localVue = createLocalVue();
-        localVue.filter('unicodeUri', Shopware.Filter.getByName('unicodeUri'));
-
-        wrapper = shallowMount(Shopware.Component.build('sw-url-field'), {
-            localVue,
-            stubs: {
-                'sw-text-field': Shopware.Component.build('sw-text-field'),
-                'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
-                'sw-block-field': Shopware.Component.build('sw-block-field'),
-                'sw-base-field': Shopware.Component.build('sw-base-field'),
-                'sw-field-error': Shopware.Component.build('sw-field-error'),
-                'sw-icon': Shopware.Component.build('sw-icon'),
-                'icons-default-lock-closed': true,
-                'icons-default-lock-open': true
-            },
-            provide: {
-                validationService: {}
-            }
-        });
+        wrapper = createWrapper();
     });
 
     afterEach(() => {
@@ -41,7 +47,7 @@ describe('components/form/sw-url-field', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it.only('should validate the url correctly', async () => {
+    it('should validate the url correctly', async () => {
         await wrapper.find('.sw-url-input-field__input').setValue('www.test-domain.de');
         await wrapper.find('.sw-url-input-field__input').trigger('blur');
         expect(wrapper.find('.sw-field__error').exists()).toBe(false);
@@ -135,5 +141,28 @@ describe('components/form/sw-url-field', () => {
 
         // reset component state
         await wrapper.setProps({ omitUrlSearch: false });
+    });
+
+    it('should show the label from the property', () => {
+        wrapper = createWrapper({
+            propsData: {
+                label: 'Label from prop'
+            }
+        });
+
+        expect(wrapper.find('label').text()).toEqual('Label from prop');
+    });
+
+    it('should show the value from the label slot', () => {
+        wrapper = createWrapper({
+            propsData: {
+                label: 'Label from prop'
+            },
+            scopedSlots: {
+                label: '<template>Label from slot</template>'
+            }
+        });
+
+        expect(wrapper.find('label').text()).toEqual('Label from slot');
     });
 });

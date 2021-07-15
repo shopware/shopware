@@ -73,7 +73,7 @@ class CachedProductDetailRouteTest extends TestCase
 
             $this->createProduct([
                 'id' => $variantId,
-                'parent_id' => $productId,
+                'parentId' => $productId,
                 'name' => 'test variant',
                 'productNumber' => 'test variant',
                 'options' => [

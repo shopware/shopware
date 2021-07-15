@@ -57,18 +57,6 @@ Component.register('sw-alert', {
         },
     },
     computed: {
-        alertClasses() {
-            return [
-                `sw-alert--${this.variant}`,
-                `sw-alert--${this.appearance}`,
-                {
-                    'sw-alert--no-icon': !this.showIcon,
-                    'sw-alert--closable': this.closable,
-                    'sw-alert--actions': this.hasActionSlot,
-                },
-            ];
-        },
-
         alertIcon() {
             const iconConfig = {
                 info: 'default-badge-info',
@@ -82,6 +70,26 @@ Component.register('sw-alert', {
 
         hasActionSlot() {
             return !!this.$slots.actions;
+        },
+
+        alertClasses() {
+            return [
+                `sw-alert--${this.variant}`,
+                `sw-alert--${this.appearance}`,
+                {
+                    'sw-alert--icon': this.showIcon,
+                    'sw-alert--no-icon': !this.showIcon,
+                    'sw-alert--closable': this.closable,
+                    'sw-alert--actions': this.hasActionSlot,
+                },
+            ];
+        },
+
+        alertBodyClasses() {
+            return {
+                'sw-alert__body--icon': this.showIcon,
+                'sw-alert__body--closable': this.closable,
+            };
         },
     },
 });

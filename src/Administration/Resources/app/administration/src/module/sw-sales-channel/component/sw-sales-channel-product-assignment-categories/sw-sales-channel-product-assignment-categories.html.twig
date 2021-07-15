@@ -8,7 +8,7 @@
 
     {% block sw_sales_channel_product_assignment_categories_content %}
     <sw-card :is-loading="!isComponentReady || isProductLoading">
-        <sw-container>
+        <sw-container rows="auto 412px">
             {% block sw_sales_channel_products_assignment_single_products_secondary %}
             <sw-card-section secondary>
                 {% block sw_sales_channel_product_assignment_categories_search_field %}
@@ -145,12 +145,14 @@
             {% endblock %}
 
             {% block sw_sales_channel_product_assignment_categories_search_results_empty %}
-            <p
+            <sw-empty-state
                 v-else
+                :show-description="false"
+                :absolute="false"
+                :title="$tc('sw-sales-channel.detail.productAssignmentModal.categories.emptySearchResults')"
+                :icon="'default-symbol-products'"
                 class="sw-sales-channel-product-assignment-categories__empty-state"
-            >
-                {{ $tc('sw-sales-channel.detail.productAssignmentModal.categories.emptySearchResults') }}
-            </p>
+            />
             {% endblock %}
             {% endblock %}
         </sw-container>

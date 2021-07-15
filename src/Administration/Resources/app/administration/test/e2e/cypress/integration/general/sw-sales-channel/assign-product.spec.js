@@ -40,7 +40,7 @@ describe('Sales Channel: Test product assignment operations', () => {
         cy.server();
 
         cy.route({
-            url: `${Cypress.env('apiPath')}/product`,
+            url: `${Cypress.env('apiPath')}/_action/sync`,
             method: 'post'
         }).as('saveProduct');
 
@@ -79,7 +79,7 @@ describe('Sales Channel: Test product assignment operations', () => {
 
         cy.get(productPage.elements.productSaveAction).click();
         cy.wait('@saveProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
+            expect(xhr).to.have.property('status', 200);
         });
 
         // Go to sales channel Storefront
@@ -124,7 +124,7 @@ describe('Sales Channel: Test product assignment operations', () => {
         cy.server();
 
         cy.route({
-            url: `${Cypress.env('apiPath')}/product`,
+            url: `${Cypress.env('apiPath')}/_action/sync`,
             method: 'post'
         }).as('saveProduct');
 
@@ -158,7 +158,7 @@ describe('Sales Channel: Test product assignment operations', () => {
 
         cy.get(productPage.elements.productSaveAction).click();
         cy.wait('@saveProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
+            expect(xhr).to.have.property('status', 200);
         });
 
         // Go to sales channel Storefront

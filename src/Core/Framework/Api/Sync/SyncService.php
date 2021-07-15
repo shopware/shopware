@@ -94,7 +94,7 @@ class SyncService implements SyncServiceInterface
                 return new SyncResult($ids, $notFound, $deleted);
             }
 
-            return new SyncResult($ids, empty($notFound), $notFound, $deleted);
+            return new SyncResult($ids, true, $notFound, $deleted);
         }
 
         //@internal (flag:FEATURE_NEXT_15815) - remove all code below and all functions which will are no longer used

@@ -113,6 +113,12 @@ describe('Dynamic product group: Add Boolean fields to condition', () => {
             url: `${Cypress.env('apiPath')}/search/custom-field-set`,
             method: 'post'
         }).as('saveCustomFieldSet');
+
+        cy.route({
+            url: `${Cypress.env('apiPath')}/_action/sync`,
+            method: 'post'
+        }).as('saveData');
+
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/custom/field/index`);
 
         // click on the custom field
@@ -160,14 +166,9 @@ describe('Dynamic product group: Add Boolean fields to condition', () => {
         cy.get('.sw-product-detail-specification__custom-fields').scrollIntoView();
         cy.get('.sw-form-field-renderer-input-field__my_custom_boolean_field input').scrollIntoView().click();
 
-        cy.route({
-            url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'patch'
-        }).as('saveProduct');
-
         cy.get('.sw-product-detail__save-button-group').click();
-        cy.wait('@saveProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
 
         const productStreamPage = new ProductStreamObject();

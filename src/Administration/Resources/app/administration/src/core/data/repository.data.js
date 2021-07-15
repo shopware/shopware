@@ -135,6 +135,11 @@ export default class Repository {
         }
 
         const operations = [];
+
+        if (deletionQueue.length > 0) {
+            operations.push(...this.buildDeleteOperations(deletionQueue));
+        }
+
         if (changes !== null) {
             operations.push({
                 key: 'write',
@@ -142,10 +147,6 @@ export default class Repository {
                 entity: entity.getEntityName(),
                 payload: [changes],
             });
-        }
-
-        if (deletionQueue.length > 0) {
-            operations.push(...this.buildDeleteOperations(deletionQueue));
         }
 
         const headers = this.buildHeaders(context);
@@ -621,5 +622,41 @@ export default class Repository {
         }
 
         return headers;
+    }
+
+    /**
+     * @private
+     * @param {Array} deletionQueue
+     */
+    buildDeleteOperations(deletionQueue) {
+        const grouped = {};
+
+        deletionQueue.forEach((deletion) => {
+            const entityName = deletion.entity;
+
+            if (!entityName) {
+                return;
+            }
+
+            if (!grouped.hasOwnProperty(entityName)) {
+                grouped[entityName] = [];
+            }
+
+            grouped[entityName].push(deletion.primary);
+        });
+
+        const operations = [];
+
+        Object.keys(grouped).forEach((entity) => {
+            const deletions = grouped[entity];
+
+            operations.push({
+                action: 'delete',
+                payload: deletions,
+                entity: entity,
+            });
+        });
+
+        return operations;
     }
 }

@@ -586,9 +586,7 @@ class ImportExportTest extends TestCase
      */
     public function testProductsWithVariantsCsv(): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_8097')) {
-            static::markTestSkipped();
-        }
+        Feature::skipTestIfInActive('FEATURE_NEXT_8097', $this);
 
         $connection = $this->getContainer()->get(Connection::class);
         $connection->executeUpdate('DELETE FROM `product`');

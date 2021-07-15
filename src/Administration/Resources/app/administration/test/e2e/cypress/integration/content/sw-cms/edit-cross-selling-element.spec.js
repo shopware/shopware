@@ -55,8 +55,8 @@ describe('CMS: Check usage and editing of cross selling element', () => {
         }).as('saveCategory');
 
         cy.route({
-            url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'patch'
+            url: `${Cypress.env('apiPath')}/_action/sync`,
+            method: 'post'
         }).as('saveProductData');
 
         // Open product and add cross selling
@@ -73,7 +73,7 @@ describe('CMS: Check usage and editing of cross selling element', () => {
         // Save and verify cross selling
         cy.get('.sw-button-process').click();
         cy.wait('@saveProductData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
+            expect(xhr).to.have.property('status', 200);
         });
 
         // Add products to cross selling
@@ -95,7 +95,7 @@ describe('CMS: Check usage and editing of cross selling element', () => {
         // Save and verify cross selling
         cy.get('.sw-button-process').click();
         cy.wait('@saveProductData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
+            expect(xhr).to.have.property('status', 200);
         });
 
         cy.visit(`${Cypress.env('admin')}#/sw/cms/index`);
@@ -173,8 +173,8 @@ describe('CMS: Check usage and editing of cross selling element', () => {
         }).as('saveCategory');
 
         cy.route({
-            url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'patch'
+            url: `${Cypress.env('apiPath')}/_action/sync`,
+            method: 'post'
         }).as('saveProductData');
 
         // Open product and add cross selling
@@ -191,7 +191,7 @@ describe('CMS: Check usage and editing of cross selling element', () => {
         // Save and verify cross selling
         cy.get('.sw-button-process').click();
         cy.wait('@saveProductData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
+            expect(xhr).to.have.property('status', 200);
         });
 
         // Add products to cross selling
@@ -213,7 +213,7 @@ describe('CMS: Check usage and editing of cross selling element', () => {
         // Save and verify cross selling
         cy.get('.sw-button-process').click();
         cy.wait('@saveProductData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
+            expect(xhr).to.have.property('status', 200);
         });
 
         cy.visit(`${Cypress.env('admin')}#/sw/cms/index`);

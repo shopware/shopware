@@ -19,7 +19,7 @@ describe('Mail templates: Test crud privileges', () => {
         // prepare api to create a mail template
         cy.server();
         cy.route({
-            url: `*/mail-template`,
+            url: '*/mail-template',
             method: 'post'
         }).as('createMailTemplate');
         cy.route({
@@ -84,17 +84,29 @@ describe('Mail templates: Test crud privileges', () => {
         // prepare api to update a mail template
         cy.server();
         cy.route({
-            url: `*/mail-template/*`,
+            url: '*/mail-template/*',
             method: 'patch'
         }).as('saveMailTemplate');
         cy.route({
-            url: `*/search/mail-template`,
+            url: '*/search/mail-template',
             method: 'post'
         }).as('searchMailTemplate');
 
         // go to mail template module
         cy.get('.sw-admin-menu__item--sw-settings').click();
         cy.get('#sw-mail-template').click();
+
+        // filter for updated email template
+        cy.get(page.elements.smartBarSearch)
+            .typeAndCheck('Contact form');
+
+        // wait until result of filtered mail templates has been loaded
+        cy.wait('@searchMailTemplate').then(xhr => {
+            expect(xhr).to.have.property('status', 200);
+        });
+        cy.get('.sw-data-grid-skeleton').should('not.exist');
+        cy.get(`${page.elements.dataGridRow}--1`).should('not.exist');
+        cy.get(`${page.elements.dataGridRow}--0`).should('be.visible');
 
         // open email template
         cy.clickContextMenuItem(
@@ -109,6 +121,7 @@ describe('Mail templates: Test crud privileges', () => {
         });
 
         // update fields
+        cy.get('#sw-field--mailTemplate-description').should('have.value', 'Contact form received');
         cy.get('#sw-field--mailTemplate-description').clearTypeAndCheck('Custom description');
         cy.get('#sw-field--mailTemplate-subject').clearTypeAndCheck('Subject');
         cy.get('#sw-field--mailTemplate-senderName').clearTypeAndCheck('DemoShop');
@@ -133,8 +146,10 @@ describe('Mail templates: Test crud privileges', () => {
         });
 
         // verify fields
-        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.mailTemplateColumnDescription}`)
-            .contains('Custom description');
+        cy.get('.sw-data-grid-skeleton').should('not.exist');
+        cy.get(`#mailTemplateGrid ${page.elements.dataGridRow}--1`).should('not.exist');
+        cy.contains(`#mailTemplateGrid ${page.elements.dataGridRow}--0`, 'Custom description')
+            .should('be.visible');
     });
 
     it('@settings: delete email template', () => {
@@ -143,7 +158,7 @@ describe('Mail templates: Test crud privileges', () => {
         // prepare api to update a mail template
         cy.server();
         cy.route({
-            url: `*/mail-template/*`,
+            url: '*/mail-template/*',
             method: 'delete'
         }).as('deleteMailTemplate');
         cy.route({
@@ -201,15 +216,15 @@ describe('Mail templates: Test crud privileges', () => {
         cy.server();
 
         cy.route({
-            url: `*/mail-template/*`,
+            url: '*/mail-template/*',
             method: 'patch'
         }).as('saveMailTemplate');
         cy.route({
-            url: `*/search/mail-template`,
+            url: '*/search/mail-template',
             method: 'post'
         }).as('searchMailTemplate');
         cy.route({
-            url: `*/_action/clone/mail-template/*`,
+            url: '*/_action/clone/mail-template/*',
             method: 'post'
         }).as('cloneMailTemplate');
 
@@ -276,11 +291,11 @@ describe('Mail templates: Test crud privileges', () => {
         // prepare api to create a mail header footer
         cy.server();
         cy.route({
-            url: `*/mail-header-footer`,
+            url: '*/mail-header-footer',
             method: 'post'
         }).as('createMailHeaderFooter');
         cy.route({
-            url: `*/search/mail-template`,
+            url: '*/search/mail-template',
             method: 'post'
         }).as('searchMailTemplate');
 
@@ -336,15 +351,15 @@ describe('Mail templates: Test crud privileges', () => {
         // prepare api to update a mail template
         cy.server();
         cy.route({
-            url: `*/mail-header-footer/*`,
+            url: '*/mail-header-footer/*',
             method: 'patch'
         }).as('saveMailHeaderFooter');
         cy.route({
-            url: `*/search/mail-template`,
+            url: '*/search/mail-template',
             method: 'post'
         }).as('searchMailTemplate');
         cy.route({
-            url: `*/search/mail-header-footer`,
+            url: '*/search/mail-header-footer',
             method: 'post'
         }).as('searchMailHeaderFooterTemplate');
 
@@ -406,11 +421,11 @@ describe('Mail templates: Test crud privileges', () => {
         // prepare api to update a mail template
         cy.server();
         cy.route({
-            url: `*/mail-header-footer/*`,
+            url: '*/mail-header-footer/*',
             method: 'delete'
         }).as('deleteMailHeaderFooter');
         cy.route({
-            url: `*/search/mail-template`,
+            url: '*/search/mail-template',
             method: 'post'
         }).as('searchMailTemplate');
 
@@ -456,15 +471,15 @@ describe('Mail templates: Test crud privileges', () => {
         cy.server();
 
         cy.route({
-            url: `*/mail-header-footer/*`,
+            url: '*/mail-header-footer/*',
             method: 'patch'
         }).as('saveMailHeaderFooter');
         cy.route({
-            url: `*/search/mail-template`,
+            url: '*/search/mail-template',
             method: 'post'
         }).as('searchMailTemplate');
         cy.route({
-            url: `*/_action/clone/mail-header-footer/*`,
+            url: '*/_action/clone/mail-header-footer/*',
             method: 'post'
         }).as('cloneMailTemplate');
 

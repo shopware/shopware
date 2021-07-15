@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import MediaPageObject from '../../../support/pages/module/sw-media.page-object';
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
@@ -85,8 +85,8 @@ describe('Media: Visual tests', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'patch'
+            url: `${Cypress.env('apiPath')}/_action/sync`,
+            method: 'post'
         }).as('saveProduct');
 
         // Open product
@@ -120,7 +120,7 @@ describe('Media: Visual tests', () => {
         // Save product
         cy.get(page.elements.productSaveAction).click();
         cy.wait('@saveProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
+            expect(xhr).to.have.property('status', 200);
         });
 
         // Verify in storefront

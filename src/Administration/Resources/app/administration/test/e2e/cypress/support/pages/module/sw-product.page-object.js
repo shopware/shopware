@@ -1,4 +1,3 @@
-/* global cy */
 import elements from '../sw-general.page-object';
 
 export default class ProductPageObject {
@@ -7,8 +6,8 @@ export default class ProductPageObject {
             ...elements,
             ...{
                 productSaveAction: '.sw-product-detail__save-action',
-                productListName: `${elements.dataGridColumn}--name`
-            }
+                productListName: `${elements.dataGridColumn}--name`,
+            },
         };
     }
 
@@ -39,12 +38,12 @@ export default class ProductPageObject {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'patch'
+            url: `${Cypress.env('apiPath')}/_action/sync`,
+            method: 'post',
         }).as('productCall');
         cy.route({
             url: `${Cypress.env('apiPath')}/search/product`,
-            method: 'post'
+            method: 'post',
         }).as('searchCall');
 
         cy.contains(propertyName).click();
@@ -52,7 +51,7 @@ export default class ProductPageObject {
         for (const entry in Object.values(optionPosition)) { // eslint-disable-line
             if (optionPosition.hasOwnProperty(entry)) {
                 cy.get(
-                    `.sw-property-search__tree-selection__option_grid .sw-grid__row--${entry} .sw-field__checkbox input`
+                    `.sw-property-search__tree-selection__option_grid .sw-grid__row--${entry} .sw-field__checkbox input`,
                 ).click();
             }
         }
@@ -71,7 +70,7 @@ export default class ProductPageObject {
             .click();
 
         cy.wait('@productCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
+            expect(xhr).to.have.property('status', 200);
         });
 
         cy.get('.sw-product-modal-variant-generation__notification-modal').should('not.exist');

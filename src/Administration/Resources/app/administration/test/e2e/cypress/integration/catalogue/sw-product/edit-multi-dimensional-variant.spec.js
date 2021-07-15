@@ -22,8 +22,8 @@ describe('Product: Test variants', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'patch'
+            url: `${Cypress.env('apiPath')}/_action/sync`,
+            method: 'post'
         }).as('saveData');
 
         // Navigate to variant generator listing and start
@@ -75,8 +75,8 @@ describe('Product: Test variants', () => {
             method: 'post'
         }).as('loadCategory');
         cy.route({
-            url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'patch'
+            url: `${Cypress.env('apiPath')}/_action/sync`,
+            method: 'post'
         }).as('saveData');
 
         // Navigate to variant generator listing and start
@@ -102,7 +102,7 @@ describe('Product: Test variants', () => {
         // Save product
         cy.get(page.elements.productSaveAction).click();
         cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
+            expect(xhr).to.have.property('status', 200);
         });
 
         cy.contains('.sw-label', 'Home').should('be.visible');
@@ -190,8 +190,8 @@ describe('Product: Test variants', () => {
             method: 'post'
         }).as('searchCall');
         cy.route({
-            url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'patch'
+            url: `${Cypress.env('apiPath')}/_action/sync`,
+            method: 'post'
         }).as('saveData');
 
         // Navigate to variant generator listing and start

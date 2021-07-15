@@ -58,8 +58,8 @@ describe('Product: Test variants visibilities', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'patch'
+            url: `${Cypress.env('apiPath')}/_action/sync`,
+            method: 'post'
         }).as('saveData');
 
         // Navigate to variant generator listing and start
@@ -76,7 +76,7 @@ describe('Product: Test variants visibilities', () => {
 
         cy.get(page.elements.productSaveAction).click();
         cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
+            expect(xhr).to.have.property('status', 200);
 
             cy.get('.sw-product-detail__select-visibility')
                 .scrollIntoView();
@@ -102,7 +102,7 @@ describe('Product: Test variants visibilities', () => {
         // Save product
         cy.get(page.elements.productSaveAction).click();
         cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
+            expect(xhr).to.have.property('status', 200);
 
             cy.get('.sw-product-detail__select-visibility')
                 .scrollIntoView();
@@ -112,7 +112,6 @@ describe('Product: Test variants visibilities', () => {
 
         cy.get('.sw-card__back-link').scrollIntoView();
         cy.get('.sw-card__back-link').should('be.visible');
-        // cy.wait(1);
         cy.get('.sw-card__back-link').click({ waitForAnimations: false });
 
         cy.get('.sw-product-detail__tab-general').click();

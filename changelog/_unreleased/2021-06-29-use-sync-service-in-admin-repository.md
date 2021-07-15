@@ -9,4 +9,4 @@ author_github: OliverSkroblin
 * Changed signature of `EntityWriterInterface::sync`, the function returns now a `\Shopware\Core\Framework\DataAbstractionLayer\Write\WriteResult`  
 ___
 # Administration
-* Changed internal requests of `repository.data.js`. The repository uses now the `/_action/sync` endpoint to commit all changes in a single transaction.
+* Added option `useSync: [bool]` to `repositoryFactory.create`, which causes the repository to store the data via the sync service 

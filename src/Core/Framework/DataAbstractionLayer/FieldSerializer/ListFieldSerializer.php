@@ -62,6 +62,10 @@ class ListFieldSerializer extends AbstractFieldSerializer
             return null;
         }
 
+        if ($field instanceof ListField && $field->isStrict()) {
+            return array_values(json_decode($value, true));
+        }
+
         return json_decode($value, true);
     }
 

@@ -333,6 +333,12 @@ Component.register('sw-entity-single-select', {
             this.$emit('option-select', Utils.string.camelCase(this.entity), null);
         },
 
+        clearInput() {
+            this.searchTerm = '';
+            this.clearSelection();
+            this.$refs.selectBase.collapse();
+        },
+
         resetActiveItem(pos = 0) {
             // Return if the result list is closed before the search request returns
             if (!this.$refs.resultsList) {

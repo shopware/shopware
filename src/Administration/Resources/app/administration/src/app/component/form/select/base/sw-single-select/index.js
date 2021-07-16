@@ -225,5 +225,9 @@ Component.register('sw-single-select', {
         getKey(object, keyPath, defaultValue) {
             return get(object, keyPath, defaultValue);
         },
+
+        clearSelection() {
+            this.setValue(null);
+        },
     },
 });

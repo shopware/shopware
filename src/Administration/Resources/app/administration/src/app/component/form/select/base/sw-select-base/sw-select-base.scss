@@ -28,8 +28,11 @@ $sw-select-focus-transition: all ease-in-out 0.2s;
     .sw-select__selection-indicators {
         position: absolute;
         display: flex;
-        top: 14px;
+        gap: 8px;
+        top: 50%;
         right: 16px;
+        transform: translate(0, -50%);
+        z-index: 1;
     }
 
     .sw-select__selection-indicators .sw-loader {
@@ -45,29 +48,42 @@ $sw-select-focus-transition: all ease-in-out 0.2s;
         }
     }
 
+    .sw-select__select-indicator-hitbox {
+        background-color: transparent;
+        border: 0 solid transparent;
+        color: $color-darkgray-200;
+        padding: 0 4px;
+        cursor: pointer;
+
+        .sw-select__select-indicator {
+            display: block;
+        }
+    }
+
     .sw-select__select-indicator {
         flex-shrink: 0;
         cursor: pointer;
     }
 
-    .sw-select__select-indicator + .sw-select__select-indicator {
-        margin-left: 8px;
+    .sw-select__select-indicator-clear {
+        transition: 0.1s opacity ease;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    &:hover .sw-select__select-indicator-clear,
+    &.has--focus .sw-select__select-indicator-clear, {
+        opacity: 1;
+        pointer-events: all;
+        cursor: pointer;
     }
 
     &.sw-field--medium .sw-select__selection {
         padding: 4px 6px 0;
-
-        .sw-select__selection-indicators {
-            top: 10px;
-        }
     }
 
     &.sw-field--small .sw-select__selection {
         padding: 4px 6px 0;
-
-        .sw-select__selection-indicators {
-            top: 6px;
-        }
     }
 
     &.is--disabled {

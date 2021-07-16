@@ -25,6 +25,12 @@ Component.register('sw-select-base', {
             required: false,
             default: false,
         },
+
+        clearable: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     data() {
@@ -91,6 +97,10 @@ Component.register('sw-select-base', {
             }
 
             return path;
+        },
+
+        emitClear() {
+            this.$emit('clear');
         },
     },
 });

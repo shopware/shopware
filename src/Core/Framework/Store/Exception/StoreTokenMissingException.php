@@ -19,6 +19,6 @@ class StoreTokenMissingException extends ShopwareHttpException
 
     public function getStatusCode(): int
     {
-        return Response::HTTP_UNAUTHORIZED;
+        return Response::HTTP_FORBIDDEN;
     }
 }

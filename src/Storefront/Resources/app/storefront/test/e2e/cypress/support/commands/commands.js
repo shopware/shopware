@@ -314,5 +314,5 @@ Cypress.Commands.overwrite('cleanUpPreviousState', (orig) => {
             .its('code').should('eq', 0);
     }
 
-    return orig;
+    return orig();
 });

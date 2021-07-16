@@ -39,7 +39,7 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackager;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\AdvancedPackagePicker;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\PackageFilter;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\SetGroupScopeFilter;
-use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotEligibleError;
+use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionExcludedError;
 use Shopware\Core\Checkout\Promotion\Exception\DiscountCalculatorNotFoundException;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidPriceDefinitionException;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidScopeDefinitionException;
@@ -158,7 +158,7 @@ class PromotionCalculator
             $promotionId = $discountItem->getPayloadValue('promotionId');
 
             if (\array_key_exists($promotionId, $exclusions)) {
-                $calculated->addErrors(new PromotionNotEligibleError($discountItem->getDescription() ?? $discountItem->getId()));
+                $calculated->addErrors(new PromotionExcludedError($discountItem->getDescription() ?? $discountItem->getId()));
 
                 continue;
             }
@@ -183,7 +183,7 @@ class PromotionCalculator
             );
 
             // add our discount item to the cart
-            $calculated->addLineItems(new LineItemCollection([$discountItem]));
+            $calculated->add($discountItem);
 
             $this->addPromotionAddedNotice($original, $calculated, $discountItem);
 
@@ -219,6 +219,24 @@ class PromotionCalculator
                 // this avoids cycles that both promotions exclude each other
                 if (isset($exclusions[$promotionId])) {
                     continue;
+                }
+
+                if ($discountItem->getPayloadValue('preventCombination')) {
+                    $payloadExclusions = [];
+                    foreach ($discountLineItems as $exclusionItem) {
+                        if (!$exclusionItem->hasPayloadValue('promotionId')) {
+                            continue;
+                        }
+
+                        $promotionIdToExclude = $exclusionItem->getPayloadValue('promotionId');
+                        if ($promotionIdToExclude === $promotionId) {
+                            continue;
+                        }
+
+                        $payloadExclusions[] = $promotionIdToExclude;
+                    }
+
+                    $discountItem->setPayloadValue('exclusions', $payloadExclusions);
                 }
             }
 

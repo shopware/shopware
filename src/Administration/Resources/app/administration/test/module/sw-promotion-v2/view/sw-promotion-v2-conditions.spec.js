@@ -29,6 +29,9 @@ function createWrapper(privileges = []) {
             'sw-promotion-v2-rule-select': {
                 template: '<div class="sw-promotion-v2-rule-select"></div>'
             },
+            'sw-switch-field': {
+                template: '<div class="sw-switch-field"></div>'
+            },
             'sw-promotion-v2-cart-condition-form': true
         },
         provide: {

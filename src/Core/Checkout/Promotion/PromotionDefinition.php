@@ -66,6 +66,7 @@ class PromotionDefinition extends EntityDefinition
             'useSetGroups' => false,
             'maxRedemptionsGlobal' => null,
             'maxRedemptionsPerCustomer' => null,
+            'preventCombination' => false,
         ];
     }
 
@@ -91,6 +92,7 @@ class PromotionDefinition extends EntityDefinition
             new StringField('individual_code_pattern', 'individualCodePattern'),
             (new BoolField('use_setgroups', 'useSetGroups'))->addFlags(new Required()),
             new BoolField('customer_restriction', 'customerRestriction'),
+            (new BoolField('prevent_combination', 'preventCombination'))->addFlags(new Required()),
 
             (new IntField('order_count', 'orderCount'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
             (new JsonField('orders_per_customer_count', 'ordersPerCustomerCount'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),

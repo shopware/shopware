@@ -97,6 +97,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
                 'pickerKey' => null,
             ],
             'exclusions' => [],
+            'preventCombination' => false,
         ];
 
         static::assertEquals($expected, $item->getPayload());
@@ -145,6 +146,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
                 'pickerKey' => null,
             ],
             'exclusions' => [],
+            'preventCombination' => false,
         ];
 
         static::assertEquals($expected, $item->getPayload());
@@ -196,6 +198,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
                 'pickerKey' => null,
             ],
             'exclusions' => [],
+            'preventCombination' => false,
         ];
 
         static::assertEquals($expected, $item->getPayload());
@@ -297,6 +300,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
                 'pickerKey' => null,
             ],
             'exclusions' => [],
+            'preventCombination' => false,
         ];
 
         static::assertEquals($expected, $item->getPayload());

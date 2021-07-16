@@ -226,10 +226,17 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
         await wrapper.vm.$nextTick();
         wrapper.vm.getProducts = jest.fn();
 
+        await wrapper.setData({
+            page: 2
+        });
+
+        expect(wrapper.vm.page).toEqual(2);
+
         await wrapper.vm.onChangeSearchTerm('Awesome Product');
 
         expect(wrapper.vm.searchTerm).toBe('Awesome Product');
         expect(wrapper.vm.productCriteria.term).toBe('Awesome Product');
+        expect(wrapper.vm.page).toEqual(1);
         expect(wrapper.vm.getProducts).toHaveBeenCalledTimes(1);
         wrapper.vm.getProducts.mockRestore();
     });

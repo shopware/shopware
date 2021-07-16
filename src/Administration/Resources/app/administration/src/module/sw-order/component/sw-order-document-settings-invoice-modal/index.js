@@ -15,6 +15,8 @@ Component.extend('sw-order-document-settings-invoice-modal', 'sw-order-document-
 
     methods: {
         onCreateDocument(additionalAction = false) {
+            this.$emit('loading-document');
+
             if (this.documentNumberPreview === this.documentConfig.documentNumber) {
                 this.numberRangeService.reserve(
                     `document_${this.currentDocumentType.technicalName}`,
@@ -38,6 +40,7 @@ Component.extend('sw-order-document-settings-invoice-modal', 'sw-order-document-
         },
 
         onPreview() {
+            this.$emit('loading-preview');
             this.documentConfig.custom.invoiceNumber = this.documentConfig.documentNumber;
             this.$super('onPreview');
         },

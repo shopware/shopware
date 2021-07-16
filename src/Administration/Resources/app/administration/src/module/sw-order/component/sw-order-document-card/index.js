@@ -54,6 +54,8 @@ Component.register('sw-order-document-card', {
             documentComment: '',
             term: '',
             attachment: {},
+            isLoadingDocument: false,
+            isLoadingPreview: false,
         };
     },
 
@@ -262,12 +264,14 @@ Component.register('sw-order-document-card', {
                     link.href = URL.createObjectURL(response.data);
                     link.download = filename;
                     link.dispatchEvent(new MouseEvent('click'));
-                    link.parentNode.removeChild(link);
+                    link.remove();
                 }
             });
         },
 
         onCreateDocument(params, additionalAction, referencedDocumentId = null, file = null) {
+            this.isLoadingDocument = true;
+
             this.$nextTick().then(() => {
                 return this.createDocument(
                     this.order.id,
@@ -284,6 +288,8 @@ Component.register('sw-order-document-card', {
         },
 
         onPreview(params) {
+            this.isLoadingPreview = true;
+
             this.documentService.getDocumentPreview(
                 this.order.id,
                 this.order.deepLinkCode,
@@ -296,13 +302,23 @@ Component.register('sw-order-document-card', {
                     link.href = URL.createObjectURL(response.data);
                     link.download = filename;
                     link.dispatchEvent(new MouseEvent('click'));
-                    link.parentNode.removeChild(link);
+                    link.remove();
                 }
+
+                this.isLoadingPreview = false;
             });
         },
 
         onDownload(id, deepLink) {
             this.downloadDocument(id, deepLink);
+        },
+
+        onLoadingDocument() {
+            this.isLoadingDocument = true;
+        },
+
+        onLoadingPreview() {
+            this.isLoadingPreview = true;
         },
     },
 });

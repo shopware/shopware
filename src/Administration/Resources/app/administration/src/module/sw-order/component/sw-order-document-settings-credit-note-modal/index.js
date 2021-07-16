@@ -49,6 +49,8 @@ Component.extend('sw-order-document-settings-credit-note-modal', 'sw-order-docum
         },
 
         onCreateDocument(additionalAction = false) {
+            this.$emit('loading-document');
+
             if (this.documentNumberPreview === this.documentConfig.documentNumber) {
                 this.numberRangeService.reserve(
                     `document_${this.currentDocumentType.technicalName}`,

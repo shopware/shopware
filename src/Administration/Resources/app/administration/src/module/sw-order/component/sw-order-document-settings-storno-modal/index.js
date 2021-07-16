@@ -60,6 +60,8 @@ Component.extend('sw-order-document-settings-storno-modal', 'sw-order-document-s
         },
 
         onCreateDocument(additionalAction = false) {
+            this.$emit('loading-document');
+
             const selectedInvoice = this.invoices.filter((item) => {
                 return item.config.custom.invoiceNumber === this.documentConfig.custom.invoiceNumber;
             })[0];
@@ -86,6 +88,7 @@ Component.extend('sw-order-document-settings-storno-modal', 'sw-order-document-s
         },
 
         onPreview() {
+            this.$emit('loading-preview');
             this.documentConfig.custom.stornoNumber = this.documentConfig.documentNumber;
             this.$super('onPreview');
         },

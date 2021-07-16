@@ -20,6 +20,14 @@ Component.register('sw-order-document-settings-modal', {
             type: Object,
             required: true,
         },
+        isLoadingDocument: {
+            type: Boolean,
+            required: true,
+        },
+        isLoadingPreview: {
+            type: Boolean,
+            required: true,
+        },
     },
 
     data() {

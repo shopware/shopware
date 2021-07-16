@@ -1913,7 +1913,7 @@ class ElasticsearchProductTest extends TestCase
         yield 'Test 70€ filter without rule' => ['from' => 70, 'to' => 71, 'expected' => ['p.1', 'v.4.2']];
         yield 'Test 79€ filter without rule' => ['from' => 79, 'to' => 80, 'expected' => ['v.2.1', 'v.2.2']];
         yield 'Test 90€ filter without rule' => ['from' => 90, 'to' => 91, 'expected' => ['v.3.1']];
-        yield 'Test 60€ filter without rule' => ['from' => 60, 'to' => 61, 'expected' => ['v.4.1']];
+        yield 'Test 60€ filter without rule' => ['from' => 60, 'to' => 61, 'expected' => ['v.dal-2.1', 'v.dal-2.2', 'v.4.1']];
         yield 'Test 110€ filter without rule' => ['from' => 110, 'to' => 111, 'expected' => ['p.5']];
         yield 'Test 120€ filter without rule' => ['from' => 120, 'to' => 121, 'expected' => ['v.6.1', 'v.6.2']];
         yield 'Test 130€ filter without rule' => ['from' => 130, 'to' => 131, 'expected' => ['v.7.1', 'v.7.2']];
@@ -1925,7 +1925,7 @@ class ElasticsearchProductTest extends TestCase
         yield 'Test 70€ filter with rule-a' => ['rules' => ['rule-a'], 'from' => 70, 'to' => 71, 'expected' => ['p.1', 'v.4.2']];
         yield 'Test 79€ filter with rule-a' => ['rules' => ['rule-a'], 'from' => 79, 'to' => 80, 'expected' => ['v.2.1', 'v.2.2']];
         yield 'Test 90€ filter with rule-a' => ['rules' => ['rule-a'], 'from' => 90, 'to' => 91, 'expected' => ['v.3.1']];
-        yield 'Test 60€ filter with rule-a' => ['rules' => ['rule-a'], 'from' => 60, 'to' => 61, 'expected' => ['v.4.1']];
+        yield 'Test 60€ filter with rule-a' => ['rules' => ['rule-a'], 'from' => 60, 'to' => 61, 'expected' => ['v.dal-2.1', 'v.dal-2.2', 'v.4.1']];
         yield 'Test 130€ filter with rule-a' => ['rules' => ['rule-a'], 'from' => 130, 'to' => 131, 'expected' => ['v.6.1']];
         yield 'Test 140€ filter with rule-a' => ['rules' => ['rule-a'], 'from' => 140, 'to' => 141, 'expected' => ['v.6.2', 'v.7.2']];
         yield 'Test 150€ filter/10 with rule-a' => ['rules' => ['rule-a'], 'from' => 150, 'to' => 151, 'expected' => ['v.7.1', 'v.10.2']];
@@ -1936,7 +1936,7 @@ class ElasticsearchProductTest extends TestCase
         yield 'Test 70€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 70, 'to' => 71, 'expected' => ['p.1', 'v.4.2']];
         yield 'Test 79€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 79, 'to' => 80, 'expected' => ['v.2.1', 'v.2.2']];
         yield 'Test 90€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 90, 'to' => 91, 'expected' => ['v.3.1']];
-        yield 'Test 60€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 60, 'to' => 61, 'expected' => ['v.4.1']];
+        yield 'Test 60€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 60, 'to' => 61, 'expected' => ['v.dal-2.1', 'v.dal-2.2', 'v.4.1']];
         yield 'Test 130€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 130, 'to' => 131, 'expected' => ['v.6.1']];
         yield 'Test 140€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 140, 'to' => 141, 'expected' => ['v.6.2', 'v.7.2']];
         yield 'Test 150€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 150, 'to' => 151, 'expected' => ['v.7.1', 'v.10.2']];
@@ -1976,27 +1976,27 @@ class ElasticsearchProductTest extends TestCase
     public function providerCheapestPriceSorting()
     {
         yield 'Test sorting without rules' => [
-            'ids' => ['v.4.1', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'v.3.1', 'v.3.2', 'p.5', 'v.6.1', 'v.6.2', 'v.7.1', 'v.7.2', 'v.8.1', 'v.8.2', 'v.10.2', 'v.9.1', 'v.10.1', 'v.9.2', 'v.11.1', 'v.11.2', 'v.12.1', 'v.12.2', 'v.13.1', 'v.13.2'],
+            'ids' => ['v.4.1', 'v.dal-2.1', 'v.dal-2.2', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'v.3.1', 'v.3.2', 'p.5', 'v.6.1', 'v.6.2', 'v.7.1', 'v.7.2', 'v.8.1', 'v.8.2', 'v.10.2', 'v.9.1', 'v.10.1', 'v.9.2', 'v.11.1', 'v.11.2', 'v.12.1', 'v.12.2', 'v.13.1', 'v.13.2'],
             'rules' => [],
         ];
 
         yield 'Test sorting with rule a' => [
-            'ids' => ['v.4.1', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'v.3.1', 'v.3.2', 'p.5', 'v.6.1', 'v.6.2', 'v.7.2', 'v.10.2', 'v.7.1', 'v.10.1', 'v.8.1', 'v.9.1', 'v.9.2', 'v.8.2', 'v.11.1', 'v.11.2', 'v.12.2', 'v.12.1', 'v.13.2', 'v.13.1'],
+            'ids' => ['v.4.1', 'v.dal-2.1', 'v.dal-2.2', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'v.3.1', 'v.3.2', 'p.5', 'v.6.1', 'v.6.2', 'v.7.2', 'v.10.2', 'v.7.1', 'v.10.1', 'v.8.1', 'v.9.1', 'v.9.2', 'v.8.2', 'v.11.1', 'v.11.2', 'v.12.2', 'v.12.1', 'v.13.2', 'v.13.1'],
             'rules' => ['rule-a'],
         ];
 
         yield 'Test sorting with rule b' => [
-            'ids' => ['v.4.1', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'v.3.1', 'v.3.2', 'p.5', 'v.6.1', 'v.6.2', 'v.7.1', 'v.7.2', 'v.8.1', 'v.8.2', 'v.10.2', 'v.9.1', 'v.10.1', 'v.9.2', 'v.12.1', 'v.11.1', 'v.11.2', 'v.12.2', 'v.13.1', 'v.13.2'],
+            'ids' => ['v.4.1', 'v.dal-2.1', 'v.dal-2.2', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'v.3.1', 'v.3.2', 'p.5', 'v.6.1', 'v.6.2', 'v.7.1', 'v.7.2', 'v.8.1', 'v.8.2', 'v.10.2', 'v.9.1', 'v.10.1', 'v.9.2', 'v.12.1', 'v.11.1', 'v.11.2', 'v.12.2', 'v.13.1', 'v.13.2'],
             'rules' => ['rule-b'],
         ];
 
         yield 'Test sorting with rule a+b' => [
-            'ids' => ['v.4.1', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'v.3.1', 'v.3.2', 'p.5', 'v.6.1', 'v.6.2', 'v.7.2', 'v.10.2', 'v.7.1', 'v.10.1', 'v.8.1', 'v.9.1', 'v.9.2', 'v.8.2', 'v.11.1', 'v.11.2', 'v.12.2', 'v.12.1', 'v.13.2', 'v.13.1'],
+            'ids' => ['v.4.1', 'v.dal-2.1', 'v.dal-2.2', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'v.3.1', 'v.3.2', 'p.5', 'v.6.1', 'v.6.2', 'v.7.2', 'v.10.2', 'v.7.1', 'v.10.1', 'v.8.1', 'v.9.1', 'v.9.2', 'v.8.2', 'v.11.1', 'v.11.2', 'v.12.2', 'v.12.1', 'v.13.2', 'v.13.1'],
             'rules' => ['rule-a', 'rule-b'],
         ];
 
         yield 'Test sorting with rule b+a' => [
-            'ids' => ['v.4.1', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'v.3.1', 'v.3.2', 'p.5', 'v.6.1', 'v.6.2', 'v.7.2', 'v.10.2', 'v.7.1', 'v.10.1', 'v.8.1', 'v.9.1', 'v.9.2', 'v.8.2', 'v.12.1', 'v.11.1', 'v.11.2', 'v.12.2', 'v.13.1', 'v.13.2'],
+            'ids' => ['v.4.1', 'v.dal-2.1', 'v.dal-2.2', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'v.3.1', 'v.3.2', 'p.5', 'v.6.1', 'v.6.2', 'v.7.2', 'v.10.2', 'v.7.1', 'v.10.1', 'v.8.1', 'v.9.1', 'v.9.2', 'v.8.2', 'v.12.1', 'v.11.1', 'v.11.2', 'v.12.2', 'v.13.1', 'v.13.2'],
             'rules' => ['rule-b', 'rule-a'],
         ];
     }
@@ -2086,6 +2086,48 @@ class ElasticsearchProductTest extends TestCase
         static::assertSame((string) $p->getTranslation('name'), $product['name']);
         static::assertSame((string) $p->getTranslation('description'), $product['description']);
         static::assertSame($p->getTranslation('customFields'), $product['customFields']);
+
+        // Fetch: Second language variant fallback to parent
+        $languageContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$ids->get('language-2'), $ids->get('language-1')]);
+        $languageContext->addExtensions($context->getExtensions());
+        $languageContext->setConsiderInheritance(true);
+        $products = $this->definition->fetch([$ids->getBytes('v.dal-2.1')], $languageContext);
+
+        $product = $products[$ids->get('v.dal-2.1')];
+
+        $p = $this->getContainer()->get('product.repository')->search(new Criteria([$ids->get('v.dal-2.1')]), $languageContext)->first();
+
+        static::assertSame((string) $p->getTranslation('name'), $product['name']);
+        static::assertSame((string) $p->getTranslation('description'), $product['description']);
+        static::assertSame($p->getTranslation('customFields'), $product['customFields']);
+
+        // Fetch: Fallback through parent to variant in other language
+        $languageContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$ids->get('language-3'), $ids->get('language-2')]);
+        $languageContext->addExtensions($context->getExtensions());
+        $languageContext->setConsiderInheritance(true);
+        $products = $this->definition->fetch([$ids->getBytes('v.dal-2.2')], $languageContext);
+
+        $product = $products[$ids->get('v.dal-2.2')];
+
+        $p = $this->getContainer()->get('product.repository')->search(new Criteria([$ids->get('v.dal-2.2')]), $languageContext)->first();
+
+        static::assertSame((string) $p->getTranslation('name'), $product['name']);
+        static::assertSame((string) $p->getTranslation('description'), $product['description']);
+        static::assertSame($p->getTranslation('customFields'), $product['customFields']);
+
+        // Fetch: Fallback to parent on null-entry
+        $languageContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$ids->get('language-1')]);
+        $languageContext->addExtensions($context->getExtensions());
+        $languageContext->setConsiderInheritance(true);
+        $products = $this->definition->fetch([$ids->getBytes('v.dal-2.2')], $languageContext);
+
+        $product = $products[$ids->get('v.dal-2.2')];
+
+        $p = $this->getContainer()->get('product.repository')->search(new Criteria([$ids->get('v.dal-2.2')]), $languageContext)->first();
+
+        static::assertSame((string) $p->getTranslation('name'), $product['name']);
+        static::assertSame((string) $p->getTranslation('description'), $product['description']);
+        static::assertSame($p->getTranslation('customFields'), $product['customFields']);
     }
 
     /**
@@ -2114,6 +2156,15 @@ class ElasticsearchProductTest extends TestCase
         static::assertSame(1.3, $product['width']);
         static::assertSame(2, $product['stock']);
         static::assertSame(0, $product['sales']);
+    }
+
+    /**
+     * @depends testIndexing
+     */
+    private function testLanguageFallback(IdsCollection $ids)
+    {
+        $products = $this->definition->fetch([$ids->getBytes('')], $this->createIndexingContext());
+
     }
 
     /**
@@ -2353,6 +2404,8 @@ class ElasticsearchProductTest extends TestCase
         $this->ids->set('language-1', $secondLanguage);
         $thirdLanguage = $this->createLanguage($secondLanguage);
         $this->ids->set('language-2', $thirdLanguage);
+        $fourthLanguage = $this->createLanguage();
+        $this->ids->set('language-3', $fourthLanguage);
 
         $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM custom_field');
 
@@ -2882,6 +2935,42 @@ class ElasticsearchProductTest extends TestCase
                 ->add('width', 1.3)
                 ->translation($secondLanguage, 'name', 'Second')
                 ->translation($thirdLanguage, 'name', 'Third')
+                ->build(),
+
+            (new ProductBuilder($this->ids, 'dal-2'))
+                ->name('Default')
+                ->category('pants')
+                ->customField('testField', 'Silk')
+                ->visibility(Defaults::SALES_CHANNEL)
+                ->tax('t1')
+                ->manufacturer('m1')
+                ->price(60)
+                ->releaseDate('2019-01-01 10:11:00')
+                ->purchasePrice(0)
+                ->stock(2)
+                ->category('c1')
+                ->category('c2')
+                ->property('red', 'color')
+                ->property('xl', 'size')
+                ->add('weight', 12.3)
+                ->add('height', 9.3)
+                ->add('width', 1.3)
+                ->translation($secondLanguage, 'name', 'Second')
+                ->translation($thirdLanguage, 'name', 'Third')
+                ->variant(
+                    (new ProductBuilder($this->ids, 'v.dal-2.1'))
+                        ->translation($secondLanguage, 'name', 'Variant 1 Second')
+                        ->translation($secondLanguage, 'description', 'Variant 1 Second Desc')
+                        ->build()
+                )
+                ->variant(
+                    (new ProductBuilder($this->ids, 'v.dal-2.2'))
+                        ->translation($secondLanguage, 'name', null)
+                        ->translation($secondLanguage, 'description', 'Variant 2 Second Desc')
+                        ->translation($thirdLanguage, 'name', 'Variant 2 Third')
+                        ->translation($thirdLanguage, 'description', 'Variant 2 Third Desc')
+                        ->build()
+                )
                 ->build(),
         ];
 

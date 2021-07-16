@@ -190,6 +190,11 @@ shopware:
               major: false
               description: "Groundwork for csv import"
               # issue: NEXT-8097
+            - name: FEATURE_NEXT_15917
+              default: false
+              major: true
+              description: "Move storefront script tags to head with defer"
+              # issue: NEXT-15917
 
     logger:
         file_rotation_count: 14

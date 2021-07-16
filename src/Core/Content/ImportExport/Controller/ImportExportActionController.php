@@ -10,9 +10,15 @@ use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
 use Shopware\Core\Content\ImportExport\Service\DownloadService;
 use Shopware\Core\Content\ImportExport\Service\ImportExportService;
 use Shopware\Core\Content\ImportExport\Service\SupportedFeaturesService;
+use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
+use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
@@ -49,6 +55,8 @@ class ImportExportActionController extends AbstractController
 
     private ImportExportFactory $importExportFactory;
 
+    private DefinitionInstanceRegistry $definitionInstanceRegistry;
+
     public function __construct(
         SupportedFeaturesService $supportedFeaturesService,
         ImportExportService $initiationService,
@@ -57,7 +65,8 @@ class ImportExportActionController extends AbstractController
         DataValidator $dataValidator,
         ImportExportLogDefinition $logDefinition,
         ApiVersionConverter $apiVersionConverter,
-        ImportExportFactory $importExportFactory
+        ImportExportFactory $importExportFactory,
+        DefinitionInstanceRegistry $definitionInstanceRegistry
     ) {
         $this->supportedFeaturesService = $supportedFeaturesService;
         $this->importExportService = $initiationService;
@@ -67,6 +76,7 @@ class ImportExportActionController extends AbstractController
         $this->logDefinition = $logDefinition;
         $this->apiVersionConverter = $apiVersionConverter;
         $this->importExportFactory = $importExportFactory;
+        $this->definitionInstanceRegistry = $definitionInstanceRegistry;
     }
 
     /**
@@ -107,6 +117,8 @@ class ImportExportActionController extends AbstractController
 
             unlink($file->getPathname());
         } else {
+            $this->checkAllowedReadPrivileges($profile, $context);
+
             $log = $this->importExportService->prepareExport(
                 $context,
                 $profile->getId(),
@@ -190,5 +202,61 @@ class ImportExportActionController extends AbstractController
         }
 
         throw new ProfileNotFoundException($profileId);
+    }
+
+    private function checkAllowedReadPrivileges(ImportExportProfileEntity $profile, Context $context): void
+    {
+        $missingPrivileges = [];
+
+        $sourceEntity = $profile->getSourceEntity();
+        $privilege = sprintf('%s:%s', $sourceEntity, AclRoleDefinition::PRIVILEGE_READ);
+
+        if (!$context->isAllowed($privilege)) {
+            $missingPrivileges[] = $privilege;
+        }
+
+        $definition = $this->definitionInstanceRegistry->getByEntityName($sourceEntity);
+        $mappings = $profile->getMapping() ?? [];
+
+        $mappedKeys = array_column($mappings, 'key');
+        $propertyPaths = array_map(function (string $key): array {
+            return explode('.', $key);
+        }, $mappedKeys);
+
+        foreach ($propertyPaths as $properties) {
+            $missingPrivileges = $this->getMissingPrivilges($properties, $definition, $context, $missingPrivileges);
+        }
+
+        if (!empty($missingPrivileges)) {
+            throw new MissingPrivilegeException($missingPrivileges);
+        }
+    }
+
+    private function getMissingPrivilges(
+        array $properties,
+        EntityDefinition $definition,
+        Context $context,
+        array $missingPrivileges
+    ): array {
+        $property = array_shift($properties);
+
+        $property = $definition->getField($property);
+
+        if (!$property instanceof AssociationField || $property instanceof TranslationsAssociationField) {
+            return $missingPrivileges;
+        }
+
+        $definition = $property->getReferenceDefinition();
+        $privilege = sprintf('%s:%s', $definition->getEntityName(), AclRoleDefinition::PRIVILEGE_READ);
+
+        if (!$context->isAllowed($privilege)) {
+            $missingPrivileges[] = $privilege;
+        }
+
+        if (!empty($properties)) {
+            $missingPrivileges = $this->getMissingPrivilges($properties, $definition, $context, $missingPrivileges);
+        }
+
+        return $missingPrivileges;
     }
 }

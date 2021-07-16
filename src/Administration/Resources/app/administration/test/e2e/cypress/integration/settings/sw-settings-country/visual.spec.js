@@ -37,6 +37,7 @@ describe('Country: Visual testing', () => {
 
         cy.contains('.sw-data-grid__cell--name a', 'Afghanistan').click();
         cy.get('.sw-loader').should('not.exist');
+        cy.get('input[name="sw-field--country-name"]').should('not.have.value', '');
         cy.takeSnapshot('[Country] Detail', '.sw-settings-country-detail');
     });
 });

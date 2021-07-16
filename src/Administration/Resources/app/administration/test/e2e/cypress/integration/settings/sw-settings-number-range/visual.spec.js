@@ -38,6 +38,7 @@ describe('Number range: Visual testing', () => {
         cy.contains('.sw-data-grid__cell--name a', 'Delivery notes').click();
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-loader__element').should('not.exist');
+        cy.get('#sw-field--preview').should('not.have.value', '');
 
         cy.takeSnapshot('[Number range] Details', '.sw-number_range-quickinfo__alert-global-type');
     });

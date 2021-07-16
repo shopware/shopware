@@ -82,6 +82,9 @@ describe('Snippets: Test crud operations', () => {
             `${page.elements.dataGridRow}--0`
         );
         cy.get(page.elements.smartBarHeader).contains('aWonderful.customSnip');
+        // sometimes vue renders really slow placeholder values and intercepts our typing… so we ensure that vue filled that value before
+        cy.get('.sw-settings-snippet-detail__translation-field--1 input[name=sw-field--snippet-value]')
+            .should('not.have.value', '');
         cy.get('.sw-settings-snippet-detail__translation-field--1 input[name=sw-field--snippet-value]')
             .clear();
         cy.get('.sw-settings-snippet-detail__translation-field--1 input[name=sw-field--snippet-value]')
@@ -106,13 +109,13 @@ describe('Snippets: Test crud operations', () => {
         cy.get(page.elements.smartBarHeader).contains('Snippets of "BASE en-GB"');
 
         // Search for snippet
-        cy.log("Search for snippet")
+        cy.log('Search for snippet');
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('account.addressCreateBtn');
         cy.get('.sw-data-grid-skeleton').should('not.exist');
 
 
         // Edit snippet
-        cy.log("Edit snippet")
+        cy.log('Edit snippet');
         cy.get(`${page.elements.dataGridRow}--0`).contains('account.addressCreateBtn');
 
         cy.clickContextMenuItem(
@@ -121,6 +124,9 @@ describe('Snippets: Test crud operations', () => {
             `${page.elements.dataGridRow}--0`
         );
         cy.get(page.elements.smartBarHeader).contains('account.addressCreateBtn');
+        // sometimes vue renders really slow placeholder values and intercepts our typing… so we ensure that vue filled that value before
+        cy.get('.sw-settings-snippet-detail__translation-field--1 input[name=sw-field--snippet-value]')
+            .should('not.have.value', '');
         cy.get('.sw-settings-snippet-detail__translation-field--1 input[name=sw-field--snippet-value]')
             .clear();
         cy.get('.sw-settings-snippet-detail__translation-field--1 input[name=sw-field--snippet-value]')
@@ -132,9 +138,8 @@ describe('Snippets: Test crud operations', () => {
         cy.get(page.elements.smartBarBack).click();
 
 
-
         // Reset snippet
-        cy.log("Reset snippet")
+        cy.log('Reset snippet');
         page.openAllSnippetSets();
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('account.addressCreateBtn');
         cy.get('.sw-data-grid-skeleton').should('exist');

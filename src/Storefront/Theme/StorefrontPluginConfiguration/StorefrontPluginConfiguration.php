@@ -2,39 +2,41 @@
 
 namespace Shopware\Storefront\Theme\StorefrontPluginConfiguration;
 
-class StorefrontPluginConfiguration
+use Shopware\Core\Framework\Struct\Struct;
+
+class StorefrontPluginConfiguration extends Struct
 {
-    private ?array $themeConfig = [];
+    protected ?array $themeConfig = [];
 
-    private string $technicalName;
+    protected string $technicalName;
 
-    private ?string $name = null;
+    protected ?string $name = null;
 
-    private ?string $previewMedia = null;
+    protected ?string $previewMedia = null;
 
-    private ?string $author = null;
+    protected ?string $author = null;
 
-    private ?bool $isTheme = null;
+    protected ?bool $isTheme = null;
 
-    private FileCollection $styleFiles;
+    protected FileCollection $styleFiles;
 
-    private FileCollection $scriptFiles;
+    protected FileCollection $scriptFiles;
 
-    private ?string $storefrontEntryFilepath = null;
+    protected ?string $storefrontEntryFilepath = null;
 
-    private ?string $basePath = null;
+    protected ?string $basePath = null;
 
-    private array $assetPaths = [];
+    protected array $assetPaths = [];
 
     /**
      * @var string[]
      */
-    private array $viewInheritance = [];
+    protected array $viewInheritance = [];
 
     /**
      * @var array<string, string>
      */
-    private array $iconSets = [];
+    protected array $iconSets = [];
 
     public function __construct(string $technicalName)
     {

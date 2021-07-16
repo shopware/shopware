@@ -104,6 +104,7 @@
 
         <service id="Shopware\Core\Framework\App\ActiveAppsLoader">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Template\TemplateStateService" public="true">

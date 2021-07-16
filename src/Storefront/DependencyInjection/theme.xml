@@ -23,9 +23,9 @@
             <argument>%kernel.debug%</argument>
             <argument type="service" id="Symfony\Component\EventDispatcher\EventDispatcherInterface" />
             <argument type="service" id="Shopware\Storefront\Theme\ThemeFileImporter"/>
-            <argument type="service" id="media.repository"/>
             <argument type="tagged" tag="shopware.asset"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
+            <argument type="service" id="Shopware\Storefront\Theme\AbstractThemePathBuilder"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeFileImporter"/>
@@ -44,6 +44,7 @@
 
         <service id="Shopware\Storefront\Theme\ThemeFileResolver">
             <argument type="service" id="Shopware\Storefront\Theme\ThemeFileImporter"/>
+            <argument>%kernel.project_dir%</argument>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeService">
@@ -52,6 +53,7 @@
             <argument type="service" id="theme_sales_channel.repository"/>
             <argument type="service" id="Shopware\Storefront\Theme\ThemeCompiler"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ConfigLoader\AbstractConfigLoader"/>
         </service>
 
         <service id="Shopware\Storefront\Theme\ResolvedConfigLoader">
@@ -85,6 +87,43 @@
             <argument type="service" id="Shopware\Storefront\Theme\ThemeLifecycleHandler"/>
 
             <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Storefront\Theme\ConfigLoader\DatabaseAvailableThemeProvider">
+            <argument type="service" id="sales_channel.repository"/>
+        </service>
+
+        <service id="Shopware\Storefront\Theme\ConfigLoader\DatabaseConfigLoader">
+            <argument type="service" id="theme.repository"/>
+            <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
+            <argument type="service" id="media.repository"/>
+        </service>
+
+        <service id="Shopware\Storefront\Theme\MD5ThemePathBuilder"/>
+
+        <service id="Shopware\Storefront\Theme\ConfigLoader\StaticFileConfigLoader">
+            <argument type="service" id="shopware.filesystem.private"/>
+        </service>
+
+        <service id="Shopware\Storefront\Theme\ConfigLoader\StaticFileAvailableThemeProvider">
+            <argument type="service" id="shopware.filesystem.private"/>
+        </service>
+
+        <service id="Shopware\Storefront\Theme\ConfigLoader\StaticFileConfigDumper">
+            <argument type="service" id="Shopware\Storefront\Theme\ConfigLoader\DatabaseConfigLoader"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ConfigLoader\DatabaseAvailableThemeProvider"/>
+            <argument type="service" id="shopware.filesystem.private"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="shopware.asset.theme" class="Shopware\Storefront\Theme\ThemeAssetPackage">
+            <argument type="collection">
+                <argument>%shopware.filesystem.theme.url%</argument>
+            </argument>
+            <argument type="service" id="shopware.asset.theme.version_strategy"/>
+            <argument type="service" id="request_stack"/>
+            <argument type="service" id="Shopware\Storefront\Theme\AbstractThemePathBuilder"/>
+            <tag name="shopware.asset" asset="theme"/>
         </service>
 
         <!-- Entity definitions -->
@@ -145,7 +184,7 @@
 
         <service id="Shopware\Storefront\Theme\Command\ThemeCompileCommand">
             <argument type="service" id="Shopware\Storefront\Theme\ThemeService"/>
-            <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ConfigLoader\AbstractAvailableThemeProvider"/>
 
             <tag name="console.command"/>
         </service>
@@ -155,6 +194,7 @@
             <argument type="service" id="Shopware\Storefront\Theme\ThemeFileResolver"/>
             <argument type="service" id="theme.repository"/>
             <argument>%kernel.project_dir%</argument>
+            <argument type="service" id="Shopware\Storefront\Theme\ConfigLoader\StaticFileConfigDumper"/>
 
             <tag name="console.command"/>
         </service>

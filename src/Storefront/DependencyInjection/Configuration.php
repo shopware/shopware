@@ -2,6 +2,9 @@
 
 namespace Shopware\Storefront\DependencyInjection;
 
+use Shopware\Storefront\Theme\ConfigLoader\DatabaseAvailableThemeProvider;
+use Shopware\Storefront\Theme\ConfigLoader\DatabaseConfigLoader;
+use Shopware\Storefront\Theme\MD5ThemePathBuilder;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
@@ -48,7 +51,16 @@ class Configuration implements ConfigurationInterface
                 ->end()
                 ->arrayNode('http_cache')
                     ->children()
-                    ->arrayNode('ignored_url_parameters')->scalarPrototype()->end()->end()
+                        ->arrayNode('ignored_url_parameters')->scalarPrototype()->end()
+                    ->end()
+                ->end()
+                ->end()
+                ->arrayNode('theme')
+                    ->children()
+                        ->scalarNode('config_loader_id')->defaultValue(DatabaseConfigLoader::class)->end()
+                        ->scalarNode('theme_path_builder_id')->defaultValue(MD5ThemePathBuilder::class)->end()
+                        ->scalarNode('available_theme_provider')->defaultValue(DatabaseAvailableThemeProvider::class)->end()
+                    ->end()
                 ->end()
             ->end();
 

@@ -103,6 +103,7 @@ src/Core/Framework/Test/Plugin/_fixture/SwagFashionTheme.zip
 config/jwt/
 config/packages/
 custom
+files/*
 install.lock
 docker-compose.override.yaml
 

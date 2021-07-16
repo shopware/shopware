@@ -3916,31 +3916,6 @@ parameters:
 			path: src/Storefront/Theme/StorefrontPluginConfiguration/StorefrontPluginConfiguration.php
 
 		-
-			message: "#^Parameter \\#1 \\$json of function json_decode expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Storefront/Theme/StorefrontPluginConfiguration/StorefrontPluginConfigurationFactory.php
-
-		-
-			message: "#^Parameter \\#1 \\$basePath of method Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\StorefrontPluginConfiguration\\:\\:setBasePath\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Storefront/Theme/StorefrontPluginConfiguration/StorefrontPluginConfigurationFactory.php
-
-		-
-			message: "#^Parameter \\#2 \\$basePath of method Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\StorefrontPluginConfigurationFactory\\:\\:addBasePath\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Storefront/Theme/StorefrontPluginConfiguration/StorefrontPluginConfigurationFactory.php
-
-		-
-			message: "#^Parameter \\#2 \\$basePath of method Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\StorefrontPluginConfigurationFactory\\:\\:addBasePathToCollection\\(\\) expects string, string\\|false given\\.$#"
-			count: 2
-			path: src/Storefront/Theme/StorefrontPluginConfiguration/StorefrontPluginConfigurationFactory.php
-
-		-
-			message: "#^Parameter \\#2 \\$basePath of method Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\StorefrontPluginConfigurationFactory\\:\\:addBasePathToArray\\(\\) expects string, string\\|false given\\.$#"
-			count: 1
-			path: src/Storefront/Theme/StorefrontPluginConfiguration/StorefrontPluginConfigurationFactory.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginRegistry\\:\\:getConfigurations\\(\\) should return Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\StorefrontPluginConfigurationCollection but returns Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\StorefrontPluginConfigurationCollection\\|null\\.$#"
 			count: 1
 			path: src/Storefront/Theme/StorefrontPluginRegistry.php
@@ -4029,11 +4004,6 @@ parameters:
 			message: "#^Cannot call method getCode\\(\\) on Shopware\\\\Core\\\\System\\\\Locale\\\\LocaleEntity\\|null\\.$#"
 			count: 1
 			path: src/Storefront/Theme/ThemeLifecycleService.php
-
-		-
-			message: "#^Parameter \\#1 \\$name of method Shopware\\\\Storefront\\\\Theme\\\\StorefrontPluginConfiguration\\\\StorefrontPluginConfigurationCollection\\:\\:getByTechnicalName\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeService.php
 
 		-
 			message: "#^Parameter \\#1 \\$arr1 of function array_replace_recursive expects array, array\\|null given\\.$#"

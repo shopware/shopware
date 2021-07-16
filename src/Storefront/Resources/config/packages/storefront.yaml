@@ -86,3 +86,4 @@ storefront:
             - 'dm_i' # dotdigital
             - 'epik' # Pinterest
             - 'pp'
+    theme:

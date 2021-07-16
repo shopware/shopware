@@ -35,6 +35,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
@@ -579,6 +580,121 @@ class ImportExportTest extends TestCase
         } while (!$progress->isFinished());
 
         static::assertSame(Progress::STATE_SUCCEEDED, $progress->getState());
+    }
+
+    /**
+     * @group slow
+     */
+    public function testProductsWithVariantsCsv(): void
+    {
+        if (!Feature::isActive('FEATURE_NEXT_8097')) {
+            static::markTestSkipped();
+        }
+
+        $connection = $this->getContainer()->get(Connection::class);
+        $connection->executeUpdate('DELETE FROM `product`');
+
+        $context = Context::createDefaultContext();
+        $context->addExtension(EntityIndexerRegistry::DISABLE_INDEXING, new ArrayEntity());
+
+        $factory = $this->getContainer()->get(ImportExportFactory::class);
+
+        $importExportService = $this->getContainer()->get(ImportExportService::class);
+
+        $profileId = $this->getDefaultProfileId(ProductDefinition::ENTITY_NAME);
+
+        $expireDate = new \DateTimeImmutable('2099-01-01');
+        $file = new UploadedFile(__DIR__ . '/fixtures/products_with_variants.csv', 'products_with_variants.csv', 'text/csv');
+
+        $logEntity = $importExportService->prepareImport(
+            $context,
+            $profileId,
+            $expireDate,
+            $file
+        );
+
+        $progress = new Progress($logEntity->getId(), Progress::STATE_PROGRESS, 0, null);
+        $importExport = $factory->create($logEntity->getId(), 5, 5);
+
+        do {
+            $progress = $importExport->import($context, $progress->getOffset());
+        } while (!$progress->isFinished());
+
+        static::assertSame(Progress::STATE_SUCCEEDED, $progress->getState());
+        static::assertEquals(2, $progress->getProcessedRecords());
+
+        $productRepository = $this->getContainer()->get('product.repository');
+        $criteria = new Criteria();
+        $criteria->addAssociation('options.group');
+        $criteria->addFilter(new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('parentId', null)]));
+
+        $result = $productRepository->search($criteria, Context::createDefaultContext());
+        static::assertEquals(32, $result->count());
+        static::assertCount(3, $result->first()->getVariation());
+        static::assertContains('color', array_column($result->first()->getVariation(), 'group'));
+        static::assertContains('size', array_column($result->first()->getVariation(), 'group'));
+        static::assertContains('material', array_column($result->first()->getVariation(), 'group'));
+
+        $criteria = new Criteria();
+        $criteria->addAssociation('configuratorSettings');
+        $criteria->addFilter(new EqualsFilter('parentId', null));
+
+        $result = $productRepository->search($criteria, Context::createDefaultContext());
+        static::assertEquals(10, $result->first()->getConfiguratorSettings()->count());
+    }
+
+    /**
+     * @group slow
+     */
+    public function testProductsWithInvalidVariantsCsv(): void
+    {
+        if (!Feature::isActive('FEATURE_NEXT_8097')) {
+            static::markTestSkipped();
+        }
+
+        $connection = $this->getContainer()->get(Connection::class);
+        $connection->executeUpdate('DELETE FROM `product`');
+
+        $context = Context::createDefaultContext();
+        $context->addExtension(EntityIndexerRegistry::DISABLE_INDEXING, new ArrayEntity());
+
+        $factory = $this->getContainer()->get(ImportExportFactory::class);
+
+        $importExportService = $this->getContainer()->get(ImportExportService::class);
+
+        $profileId = $this->getDefaultProfileId(ProductDefinition::ENTITY_NAME);
+
+        $expireDate = new \DateTimeImmutable('2099-01-01');
+        $file = new UploadedFile(__DIR__ . '/fixtures/products_with_invalid_variants.csv', 'products_with_invalid_variants.csv', 'text/csv');
+
+        $logEntity = $importExportService->prepareImport(
+            $context,
+            $profileId,
+            $expireDate,
+            $file
+        );
+
+        $progress = new Progress($logEntity->getId(), Progress::STATE_PROGRESS, 0, null);
+        $importExport = $factory->create($logEntity->getId(), 5, 5);
+
+        do {
+            $progress = $importExport->import($context, $progress->getOffset());
+        } while (!$progress->isFinished());
+
+        static::assertSame(Progress::STATE_FAILED, $progress->getState());
+
+        $config = Config::fromLog($importExport->getLogEntity()->getInvalidRecordsLog());
+        $reader = new CsvReader();
+        $filesystem = $this->getContainer()->get('shopware.filesystem.private');
+        $resource = $filesystem->readStream($logEntity->getFile()->getPath() . '_invalid');
+        $invalid = iterator_to_array($reader->read($config, $resource, 0));
+
+        static::assertCount(2, $invalid);
+
+        $first = $invalid[0];
+        static::assertStringContainsString('size: M, L, XL, XXL | oops', $first['_error']);
+        $second = $invalid[1];
+        static::assertStringContainsString('size: , | color: Green, White, Black, Purple', $second['_error']);
     }
 
     public function testProductsWithOwnIdentifier(): void

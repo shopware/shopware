@@ -201,7 +201,6 @@
 
                                                         {% sw_thumbnails 'gallery-slider-image-thumbnails' with {
                                                             media: mediaItems|first,
-
                                                         } %}
                                                     {% else %}
                                                         {% sw_icon 'placeholder' style {
@@ -376,7 +375,9 @@
                                                                                                                 'alt': (image.translated.alt ?: fallbackImageTitle),
                                                                                                                 'title': (image.translated.title ?: fallbackImageTitle)
                                                                                                             },
-                                                                                                            load: false
+                                                                                                            load: false,
+                                                                                                            loadOriginalImage: true,
+                                                                                                            autoColumnSizes: false
                                                                                                         } %}
                                                                                                     {% endblock %}
                                                                                                 </div>

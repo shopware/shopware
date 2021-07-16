@@ -3,9 +3,21 @@
     {% set load = true %}
 {% endif %}
 
+{# By default no original image will be loaded as soon as thumbnails are available. #}
+{# When set to true the orginal image will be loaded when the viewport is greater than the largest available thumbnail. #}
+{% if loadOriginalImage is not defined %}
+    {% set loadOriginalImage = false %}
+{% endif %}
+
+{# By default the srcset sizes will be calculated automatically if `columns` are present and no `sizes` are configured. #}
+{# When set to false the sizes attribute will not be generated automatically. #}
+{% if autoColumnSizes %}
+    {% set autoColumnSizes = true %}
+{% endif %}
+
 {# uses cms block column count and all available thumbnails to determine the correct image size for the current viewport #}
 {% if media.thumbnails|length > 0 %}
-    {% if columns and sizes is not defined %}
+    {% if autoColumnSizes and columns and sizes is not defined %}
         {# set image size for every viewport #}
         {% set sizes = {
             'xs': (theme_config('breakpoint.sm') - 1) ~'px',
@@ -28,7 +40,7 @@
 
     {# generate srcset with all available thumbnails #}
     {% set srcsetValue %}{% apply spaceless %}
-        {{ media|sw_encode_media_url }} {{ thumbnails|first.width + 1 }}w, {% for thumbnail in thumbnails %}{{ thumbnail.url | sw_encode_url }} {{ thumbnail.width }}w{% if not loop.last %}, {% endif %}{% endfor %}
+        {% if loadOriginalImage %}{{ media|sw_encode_media_url }} {{ thumbnails|first.width + 1 }}w, {% endif %}{% for thumbnail in thumbnails %}{{ thumbnail.url | sw_encode_url }} {{ thumbnail.width }}w{% if not loop.last %}, {% endif %}{% endfor %}
     {% endapply %}{% endset %}
 
     {# generate sizes #}
@@ -36,7 +48,7 @@
         {% set sizeFallback = 100 %}
 
         {# set largest size depending on column count of cms block #}
-        {% if columns %}
+        {% if autoColumnSizes and columns %}
             {% set sizeFallback = (sizeFallback / columns)|round(0, 'ceil') %}
         {% endif %}
 
@@ -49,10 +61,11 @@
         } %}
 
         {% if thumbnails|first.width > breakpoint|reverse|first %}
+            {# @deprecated tag:v6.5.0 - Variable `maxWidth` and parent condition will be removed #}
             {% set maxWidth = thumbnails|first.width %}
         {% endif %}
 
-        {% for key, value in breakpoint|reverse %}{% if maxWidth %}(max-width: {{ maxWidth }}px) and {% endif %}(min-width: {{ value }}px) {{ sizes[key] }}{% set maxWidth = value-1 %}{% if not loop.last %}, {% endif %}{% endfor %}, {{ sizeFallback }}vw
+        {% for key, value in breakpoint|reverse %}(min-width: {{ value }}px) {{ sizes[key] }}{% if not loop.last %}, {% endif %}{% endfor %}, {{ sizeFallback }}vw
     {% endapply %}{% endset %}
 {% endif %}
 <img {% if load %}src="{{ media|sw_encode_media_url }}" {% else %}data-src="{{ media|sw_encode_media_url }}" {% endif %}

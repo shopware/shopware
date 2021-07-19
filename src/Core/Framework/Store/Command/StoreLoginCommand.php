@@ -48,9 +48,6 @@ class StoreLoginCommand extends Command
         parent::__construct();
     }
 
-    /**
-     * @deprecated tag:v6.5.0 option language will be removed
-     */
     protected function configure(): void
     {
         $this->addOption('shopwareId', 'i', InputOption::VALUE_REQUIRED, 'Shopware ID')
@@ -73,6 +70,7 @@ class StoreLoginCommand extends Command
         $shopwareId = $input->getOption('shopwareId');
         $password = $input->getOption('password');
         $user = $input->getOption('user');
+        $language = (string) $input->getOption('language');
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('user.username', $user));
@@ -90,11 +88,19 @@ class StoreLoginCommand extends Command
         }
 
         try {
-            $this->storeClient->loginWithShopwareId($shopwareId, $password, $userContext);
+            $accessTokenStruct = $this->storeClient->loginWithShopwareId($shopwareId, $password, $language, $userContext);
         } catch (ClientException $exception) {
             throw new StoreApiException($exception);
         }
 
-        return Command::SUCCESS;
+        $this->configService->set('core.store.shopSecret', $accessTokenStruct->getShopSecret());
+        $this->configService->set('core.store.shopwareId', $shopwareId);
+
+        $newStoreToken = $accessTokenStruct->getShopUserToken()->getToken();
+        $context->scope(Context::SYSTEM_SCOPE, function ($context) use ($userId, $newStoreToken): void {
+            $this->userRepository->update([['id' => $userId, 'storeToken' => $newStoreToken]], $context);
+        });
+
+        return self::SUCCESS;
     }
 }

@@ -8,14 +8,10 @@ use Shopware\Core\Framework\Context;
 
 /**
  * @internal
- *
- * @deprecated tag:v6.5.0 - Will be removed use AbstractStoreRequestOptionsProvider instead
  */
 abstract class AbstractAuthenticationProvider
 {
     abstract public function getUserStoreToken(Context $context): string;
-
-    abstract public function getAuthenticationHeader(Context $context): array;
 
     protected function ensureAdminApiSource(Context $context): AdminApiSource
     {

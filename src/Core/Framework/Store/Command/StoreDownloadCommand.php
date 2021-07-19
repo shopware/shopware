@@ -3,17 +3,16 @@
 namespace Shopware\Core\Framework\Store\Command;
 
 use GuzzleHttp\Exception\ClientException;
-use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginManagementService;
 use Shopware\Core\Framework\Store\Exception\CanNotDownloadPluginManagedByComposerException;
 use Shopware\Core\Framework\Store\Exception\StoreApiException;
+use Shopware\Core\Framework\Store\Exception\StoreTokenMissingException;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\System\User\UserEntity;
 use Symfony\Component\Console\Command\Command;
@@ -79,78 +78,55 @@ class StoreDownloadCommand extends Command
         $context = Context::createDefaultContext();
 
         $pluginName = (string) $input->getOption('pluginName');
-        $user = $input->getOption('user');
+        $language = (string) $input->getOption('language');
 
-        $context = $this->getUserContextFromInput($user, $context);
-
-        $this->validatePluginIsNotManagedByComposer($pluginName, $context);
-
-        try {
-            $data = $this->storeClient->getDownloadDataForPlugin($pluginName, $context);
-        } catch (ClientException $exception) {
-            throw new StoreApiException($exception);
-        }
-
-        $this->pluginManagementService->downloadStorePlugin($data, $context);
-
-        try {
-            $plugin = $this->getPluginFromInput($pluginName, $context);
-
-            if ($plugin->getUpgradeVersion()) {
-                $this->pluginLifecycleService->updatePlugin($plugin, $context);
-            }
-        } catch (PluginNotFoundException $e) {
-            // don't update plugins that are not installed
-        }
-
-        return self::SUCCESS;
-    }
-
-    private function getUserContextFromInput(?string $userName, Context $context): Context
-    {
-        if (!$userName) {
-            return $context;
-        }
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('user.username', $userName));
-
-        /** @var UserEntity|null $userEntity */
-        $userEntity = $this->userRepository->search($criteria, $context)->first();
-
-        if ($userEntity === null) {
-            return $context;
-        }
-
-        return Context::createDefaultContext(new AdminApiSource($userEntity->getId()));
-    }
-
-    private function validatePluginIsNotManagedByComposer(string $pluginName, Context $context): void
-    {
-        try {
-            $plugin = $this->getPluginFromInput($pluginName, $context);
-        } catch (PluginNotFoundException $e) {
-            // plugins no installed can still be downloaded
-            return;
-        }
-
-        if ($plugin !== null && $plugin->getManagedByComposer()) {
-            throw new CanNotDownloadPluginManagedByComposerException('can not downloads plugins managed by composer from store api');
-        }
-    }
-
-    private function getPluginFromInput(string $pluginName, Context $context): PluginEntity
-    {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('plugin.name', $pluginName));
 
         /** @var PluginEntity|null $plugin */
         $plugin = $this->pluginRepo->search($criteria, $context)->first();
 
-        if ($plugin === null) {
-            throw new PluginNotFoundException($pluginName);
+        if ($plugin !== null && $plugin->getManagedByComposer()) {
+            throw new CanNotDownloadPluginManagedByComposerException('can not downloads plugins managed by composer from store api');
         }
 
-        return $plugin;
+        $user = $input->getOption('user');
+        $unauthenticated = !$user;
+        if ($unauthenticated) {
+            $storeToken = '';
+        } else {
+            $storeToken = $this->getUserStoreToken($context, $user);
+        }
+
+        try {
+            $data = $this->storeClient->getDownloadDataForPlugin($pluginName, $storeToken, $language, !$unauthenticated);
+        } catch (ClientException $exception) {
+            throw new StoreApiException($exception);
+        }
+
+        $this->pluginManagementService->downloadStorePlugin($data, $context);
+
+        /** @var PluginEntity|null $plugin */
+        $plugin = $this->pluginRepo->search($criteria, $context)->first();
+        if ($plugin && $plugin->getUpgradeVersion()) {
+            $this->pluginLifecycleService->updatePlugin($plugin, $context);
+        }
+
+        return self::SUCCESS;
+    }
+
+    private function getUserStoreToken(Context $context, string $user): string
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('user.username', $user));
+
+        /** @var UserEntity|null $userEntity */
+        $userEntity = $this->userRepository->search($criteria, $context)->first();
+
+        if ($userEntity === null || $userEntity->getStoreToken() === null) {
+            throw new StoreTokenMissingException();
+        }
+
+        return $userEntity->getStoreToken();
     }
 }

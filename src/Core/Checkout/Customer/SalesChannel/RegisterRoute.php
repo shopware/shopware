@@ -282,7 +282,12 @@ See the Guide ""Register a customer"" for more information on customer registrat
         $criteria = new Criteria([$customer['id']]);
         $criteria->addAssociation('addresses');
         $criteria->addAssociation('salutation');
-        $criteria->addAssociation('defaultBillingAddress');
+        $criteria->addAssociation('defaultBillingAddress.country');
+        $criteria->addAssociation('defaultBillingAddress.countryState');
+        $criteria->addAssociation('defaultBillingAddress.salutation');
+        $criteria->addAssociation('defaultShippingAddress.country');
+        $criteria->addAssociation('defaultShippingAddress.countryState');
+        $criteria->addAssociation('defaultShippingAddress.salutation');
 
         /** @var CustomerEntity $customerEntity */
         $customerEntity = $this->customerRepository->search($criteria, $context->getContext())->first();

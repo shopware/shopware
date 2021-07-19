@@ -117,7 +117,7 @@ class MyDecorator extends AbstractElasticsearchDefinition
     {
         $documents = $this->productDefinition->fetch($ids, $context);
 
-        $query = <<<SQL
+        $query = <<<'SQL'
 SELECT LOWER(HEX(mytable.product_id)) as id, GROUP_CONCAT(LOWER(HEX(mytable.myFkField)) SEPARATOR "|") as relationIds
 FROM mytable
 WHERE

@@ -56,8 +56,6 @@ if ($debug) {
 
 $pluginLoader = new ComposerPluginLoader($classLoader, null);
 
-$shopwareVersion = InstalledVersions::getVersion('shopware/core') . '@' . InstalledVersions::getReference('shopware/core');
-
 $kernel = new HttpKernel($env, $debug, $classLoader);
 $kernel->setPluginLoader($pluginLoader);
 

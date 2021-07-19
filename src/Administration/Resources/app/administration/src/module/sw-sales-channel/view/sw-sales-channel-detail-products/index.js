@@ -25,7 +25,6 @@ Component.register('sw-sales-channel-detail-products', {
         return {
             products: [],
             isLoading: false,
-            isBulkLoading: false,
             searchTerm: null,
             page: 1,
             limit: 25,
@@ -129,15 +128,11 @@ Component.register('sw-sales-channel-detail-products', {
         onDeleteProduct(product) {
             const deleteId = this.getDeleteId(product);
 
-            this.$refs.entityListing.deleteId = null;
             return this.productVisibilityRepository.delete(deleteId, Context.api)
                 .then(() => {
-                    this.$refs.entityListing.closeModal();
                     this.getProducts();
                 })
                 .catch((error) => {
-                    this.$refs.entityListing.closeModal();
-
                     if (error?.response?.data?.errors) {
                         this.showNotificationError(error.response.data.errors);
 
@@ -155,16 +150,14 @@ Component.register('sw-sales-channel-detail-products', {
                 return this.getDeleteId(product);
             });
 
-            this.isBulkLoading = true;
+            this.isLoading = true;
             return this.productVisibilityRepository.syncDeleted(deleteIds, Context.api)
                 .then(() => {
-                    this.isBulkLoading = false;
-                    this.$refs.entityListing.showBulkDeleteModal = false;
+                    this.isLoading = false;
                     this.getProducts();
                 })
                 .catch((error) => {
-                    this.isBulkLoading = false;
-                    this.$refs.entityListing.showBulkDeleteModal = false;
+                    this.isLoading = false;
 
                     if (error?.response?.data?.data?.product_visibility?.result) {
                         this.showNotificationError(error.response.data.data.product_visibility.result);

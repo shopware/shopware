@@ -90,6 +90,7 @@
                 <file name="src/Core/Framework/Test/TestCaseBase/KernelLifecycleManagerTest.php"/>
                 <file name="src/Core/Framework/Test/Plugin/KernelPluginLoader/DbalKernelPluginLoaderTest.php"/>
                 <file name="src/Core/Framework/Test/Plugin/KernelPluginLoader/StaticKernelPluginLoaderTest.php"/>
+                <file name="src/Core/Framework/Test/Plugin/KernelPluginLoader/ComposerPluginLoaderTest.php"/>
                 <file name="src/Core/Framework/Test/Plugin/KernelPluginIntegrationTest.php"/>
             </errorLevel>
         </UndefinedConstant>

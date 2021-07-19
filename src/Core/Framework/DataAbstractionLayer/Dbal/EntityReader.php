@@ -89,7 +89,7 @@ class EntityReader implements EntityReaderInterface
             $criteria,
             $definition,
             $context,
-            EntityHydrator::createClass($collectionClass),
+            new $collectionClass(),
             $definition->getFields()->getBasicFields()
         );
     }
@@ -430,7 +430,7 @@ class EntityReader implements EntityReaderInterface
             $fieldCriteria,
             $referenceClass,
             $context,
-            EntityHydrator::createClass($collectionClass),
+            new $collectionClass(),
             $referenceClass->getFields()->getBasicFields()
         );
 
@@ -443,7 +443,7 @@ class EntityReader implements EntityReaderInterface
 
         //assign loaded data to root entities
         foreach ($collection as $entity) {
-            $structData = EntityHydrator::createClass($collectionClass);
+            $structData = new $collectionClass();
             if (isset($grouped[$entity->getUniqueIdentifier()])) {
                 $structData->fill($grouped[$entity->getUniqueIdentifier()]);
             }
@@ -461,7 +461,7 @@ class EntityReader implements EntityReaderInterface
             }
 
             //if association can be inherited by the parent and the struct data is empty, filter again for the parent id
-            $structData = EntityHydrator::createClass($collectionClass);
+            $structData = new $collectionClass();
             if (isset($grouped[$entity->get('parentId')])) {
                 $structData->fill($grouped[$entity->get('parentId')]);
             }
@@ -516,7 +516,7 @@ class EntityReader implements EntityReaderInterface
             $fieldCriteria,
             $referenceClass,
             $context,
-            EntityHydrator::createClass($collectionClass),
+            new $collectionClass(),
             $referenceClass->getFields()->getBasicFields()
         );
 
@@ -572,7 +572,7 @@ class EntityReader implements EntityReaderInterface
             $criteria,
             $referenceClass,
             $context,
-            EntityHydrator::createClass($collectionClass),
+            new $collectionClass(),
             $referenceClass->getFields()->getBasicFields()
         );
 
@@ -711,13 +711,13 @@ class EntityReader implements EntityReaderInterface
             $fieldCriteria,
             $referenceClass,
             $context,
-            EntityHydrator::createClass($collectionClass),
+            new $collectionClass(),
             $referenceClass->getFields()->getBasicFields()
         );
 
         /** @var Entity $struct */
         foreach ($collection as $struct) {
-            $structData = EntityHydrator::createClass($collectionClass);
+            $structData = new $collectionClass();
 
             $id = $struct->getUniqueIdentifier();
 
@@ -987,8 +987,11 @@ class EntityReader implements EntityReaderInterface
         $fields = $this->addAssociationFieldsToCriteria($associationCriteria, $referenceDefinition, $fields);
 
         // This line removes duplicate entries, so after fetchAssociations the association must be reassigned
-        /** @var EntityCollection $relatedCollection */
-        $relatedCollection = EntityHydrator::createClass($collectionClass);
+        $relatedCollection = new $collectionClass();
+        if (!$relatedCollection instanceof EntityCollection) {
+            throw new \RuntimeException(sprintf('Collection class %s has to be an instance of EntityCollection', $collectionClass));
+        }
+
         $relatedCollection->fill($related);
 
         $this->fetchAssociations($associationCriteria, $referenceDefinition, $context, $relatedCollection, $fields);

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
@@ -59,7 +60,8 @@ class OneToOneAssociationFieldTest extends TestCase
             $this->getContainer()->get(VersionManager::class),
             $this->getContainer()->get(EntitySearcherInterface::class),
             $this->getContainer()->get(EntityAggregatorInterface::class),
-            $this->getContainer()->get('event_dispatcher')
+            $this->getContainer()->get('event_dispatcher'),
+            $this->getContainer()->get(EntityLoadedEventFactory::class)
         );
 
         $this->subRepository = new EntityRepository(
@@ -68,7 +70,8 @@ class OneToOneAssociationFieldTest extends TestCase
             $this->getContainer()->get(VersionManager::class),
             $this->getContainer()->get(EntitySearcherInterface::class),
             $this->getContainer()->get(EntityAggregatorInterface::class),
-            $this->getContainer()->get('event_dispatcher')
+            $this->getContainer()->get('event_dispatcher'),
+            $this->getContainer()->get(EntityLoadedEventFactory::class)
         );
 
         $this->registerDefinition(SubCascadeDefinition::class);

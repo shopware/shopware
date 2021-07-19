@@ -194,4 +194,9 @@ class Entity extends Struct
 
         return $this;
     }
+
+    public function getInternalEntityName(): ?string
+    {
+        return $this->_entityName;
+    }
 }

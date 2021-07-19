@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 describe('User: Visual testing', () => {
     // eslint-disable-next-line no-undef
@@ -63,7 +63,12 @@ describe('User: Visual testing', () => {
         cy.takeSnapshot('[User] Listing', '.sw-users-permissions-role-listing');
 
         cy.contains('.sw-data-grid__cell--username', 'admin').click();
+
+        // Ensure snapshot consistency
         cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-media-upload-v2__header .sw-context-button__button').should('be.visible');
+
+        // Take Snapshot
         cy.takeSnapshot('[User] Details', '.sw-settings-user-detail');
     });
 });

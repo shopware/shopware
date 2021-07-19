@@ -39,6 +39,7 @@ describe('Administration: Check module navigation in settings', () => {
 
         cy.contains('.sw-data-grid__cell--name a', 'Express').click();
         cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-media-upload-v2__header .sw-context-button__button').should('be.visible');
         cy.takeSnapshot('[Shipping] Details', '.sw-card__content');
     });
 });

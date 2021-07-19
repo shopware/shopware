@@ -48,7 +48,12 @@ describe('Snippets: Visual testing', () => {
             '.sw-settings-snippet-set-list');
 
         cy.contains('.sw-grid__cell-content a', 'BASE de-DE').click();
+
+        // Ensure snapshot consistency
         cy.get('.sw-data-grid__skeleton').should('not.exist');
+        cy.changeElementStyling('.sw-page__smart-bar-amount', 'color : #fff');
+
+        // Take Snapshot
         cy.takeSnapshot('[Snippets] Snippet listing itself',
             '.sw-settings-snippet-list__grid');
 

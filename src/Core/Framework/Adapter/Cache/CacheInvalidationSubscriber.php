@@ -544,7 +544,7 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
         }
 
         $rows = $this->connection->fetchAll(
-            'SELECT LOWER(HEX(category_id)) as category_id, LOWER(HEX(product.id)) as product_id
+            'SELECT LOWER(HEX(category_id)) as category_id, LOWER(HEX(COALESCE(product.parent_id, product.id))) as product_id
              FROM product
                 LEFT JOIN product_category_tree on product.id = product_category_tree.product_id AND product.version_id = product_category_tree.product_version_id
                 LEFT JOIN product_property ON product.id = product_property.product_id AND product_property.product_version_id = product.version_id

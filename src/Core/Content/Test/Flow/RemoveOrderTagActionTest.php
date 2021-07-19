@@ -12,38 +12,19 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Content\Flow\Action\FlowAction;
-use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @internal (FEATURE_NEXT_8225)
  */
 class RemoveOrderTagActionTest extends TestCase
 {
-    use IntegrationTestBehaviour;
-    use SalesChannelApiTestBehaviour;
-    use CountryAddToSalesChannelTestBehaviour;
-
-    private ?EntityRepositoryInterface $flowRepository;
-
-    private ?Connection $connection;
-
-    private KernelBrowser $browser;
-
-    private TestDataCollection $ids;
-
-    private ?EntityRepository $customerRepository;
+    use OrderActionTrait;
 
     protected function setUp(): void
     {
@@ -70,11 +51,7 @@ class RemoveOrderTagActionTest extends TestCase
     public function testRemoveCustomerTagAction(): void
     {
         $this->createDataTest();
-
-        $email = Uuid::randomHex() . '@example.com';
-        $password = 'shopware';
-        $this->createCustomer($password, $email);
-        $this->login($email, $password);
+        $this->createCustomerAndLogin();
         $orderId = $this->createOrder($this->ids->context);
 
         $sequenceId = Uuid::randomHex();
@@ -139,33 +116,7 @@ class RemoveOrderTagActionTest extends TestCase
 
         static::assertCount(2, $orderTag);
 
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/checkout/cart/line-item',
-                [
-                    'items' => [
-                        [
-                            'id' => $this->ids->get('p1'),
-                            'type' => 'product',
-                            'referencedId' => $this->ids->get('p1'),
-                        ],
-                    ],
-                ]
-            );
-
-        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
-
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/checkout/order',
-                [
-                    'affiliateCode' => 'test affiliate code',
-                ]
-            );
-
-        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+        $this->submitOrder();
 
         $orderTag = $this->connection->fetchAllAssociative(
             'SELECT * FROM order_tag WHERE order_id = (:orderId)',
@@ -175,75 +126,11 @@ class RemoveOrderTagActionTest extends TestCase
         static::assertCount(0, $orderTag);
     }
 
-    private function login(?string $email = null, ?string $password = null): void
-    {
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/account/login',
-                [
-                    'email' => $email,
-                    'password' => $password,
-                ]
-            );
-
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
-
-        static::assertArrayHasKey('contextToken', $response);
-
-        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
-    }
-
-    private function createCustomer(string $password, ?string $email = null): void
-    {
-        $this->customerRepository->create([
-            [
-                'id' => $this->ids->create('customer'),
-                'salesChannelId' => $this->ids->get('sales-channel'),
-                'defaultShippingAddress' => [
-                    'id' => $this->ids->create('address'),
-                    'firstName' => 'Max',
-                    'lastName' => 'Mustermann',
-                    'street' => 'Musterstraße 1',
-                    'city' => 'Schöppingen',
-                    'zipcode' => '12345',
-                    'salutationId' => $this->getValidSalutationId(),
-                    'countryId' => $this->getValidCountryId($this->ids->get('sales-channel')),
-                ],
-                'defaultBillingAddressId' => $this->ids->get('address'),
-                'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-                'email' => $email,
-                'password' => $password,
-                'firstName' => 'Max',
-                'lastName' => 'Mustermann',
-                'salutationId' => $this->getValidSalutationId(),
-                'customerNumber' => '12345',
-                'vatIds' => ['DE123456789'],
-                'company' => 'Test',
-            ],
-        ], $this->ids->context);
-    }
-
     private function createDataTest(): void
     {
         $this->addCountriesToSalesChannel();
 
-        $this->getContainer()->get('product.repository')->create([
-            [
-                'id' => $this->ids->create('p1'),
-                'productNumber' => $this->ids->get('p1'),
-                'stock' => 10,
-                'name' => 'Test',
-                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
-                'manufacturer' => ['id' => $this->ids->create('manufacturerId'), 'name' => 'test'],
-                'tax' => ['id' => $this->ids->create('tax'), 'taxRate' => 17, 'name' => 'with id'],
-                'active' => true,
-                'visibilities' => [
-                    ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
-                ],
-            ],
-        ], $this->ids->context);
+        $this->prepareProductTest();
 
         $this->getContainer()->get('tag.repository')->create([
             [

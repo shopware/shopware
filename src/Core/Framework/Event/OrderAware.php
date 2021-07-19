@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Event;
 /**
  * @internal (FEATURE_NEXT_8225)
  */
-interface OrderAware
+interface OrderAware extends ShopwareEvent
 {
     public function getOrderId(): string;
 }

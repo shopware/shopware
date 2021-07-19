@@ -106,6 +106,7 @@
             <directory>src/Elasticsearch/Test</directory>
         </testsuite>
         <testsuite name="docs">
+            <directory>src/Docs/Test</directory>
             <directory suffix="example.php">src/Docs/Resources/current/</directory>
         </testsuite>
 

@@ -31,5 +31,13 @@
         <service id="Shopware\Docs\Command\RemoveArticlesAndCategoriesCommand">
             <tag name="console.command"/>
         </service>
+
+        <service id="Shopware\Docs\Command\App\DocsAppEventCommand">
+            <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventCollector"/>
+            <argument type="service" id="Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector"/>
+            <argument type="service" id="twig"/>
+
+            <tag name="console.command"/>
+        </service>
     </services>
 </container>

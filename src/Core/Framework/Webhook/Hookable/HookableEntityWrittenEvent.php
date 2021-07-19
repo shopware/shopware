@@ -41,7 +41,7 @@ class HookableEntityWrittenEvent implements Hookable
         return $permissions->isAllowed($this->event->getEntityName(), AclRoleDefinition::PRIVILEGE_READ);
     }
 
-    private function getPayloadFromEvent(EntityWrittenEvent $event): array
+    public function getPayloadFromEvent(EntityWrittenEvent $event): array
     {
         $payload = [];
 

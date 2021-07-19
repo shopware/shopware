@@ -1133,10 +1133,11 @@ class WebhookDispatcherTest extends TestCase
                 static::assertEquals($appId, $message->getAppId());
                 static::assertEquals($webhookId, $message->getWebhookId());
                 static::assertEquals($shopwareVersion, $message->getShopwareVersion());
+                static::assertEquals('s3cr3t', $message->getSecret());
 
                 return true;
             }))
-            ->willReturn(new Envelope(new WebhookEventMessage($webhookEventId, $payload, $appId, $webhookId, $shopwareVersion, 'https://test.com')));
+            ->willReturn(new Envelope(new WebhookEventMessage($webhookEventId, $payload, $appId, $webhookId, $shopwareVersion, 'https://test.com', 's3cr3t')));
 
         $webhookDispatcher = new WebhookDispatcher(
             $this->getContainer()->get('event_dispatcher'),
@@ -1259,10 +1260,12 @@ class WebhookDispatcherTest extends TestCase
                 static::assertEquals($payload, $message->getPayload());
                 static::assertEquals($webhookId, $message->getWebhookId());
                 static::assertEquals($shopwareVersion, $message->getShopwareVersion());
+                static::assertNull($message->getAppId());
+                static::assertNull($message->getSecret());
 
                 return true;
             }))
-            ->willReturn(new Envelope(new WebhookEventMessage($webhookEventId, $payload, null, $webhookId, $shopwareVersion, 'https://test.com')));
+            ->willReturn(new Envelope(new WebhookEventMessage($webhookEventId, $payload, null, $webhookId, $shopwareVersion, 'https://test.com', null)));
 
         $webhookDispatcher = new WebhookDispatcher(
             $this->getContainer()->get('event_dispatcher'),

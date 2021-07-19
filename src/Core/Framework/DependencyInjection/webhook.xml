@@ -52,7 +52,6 @@
 
         <service id="Shopware\Core\Framework\Webhook\Handler\WebhookEventMessageHandler">
             <argument type="service" id="shopware.app_system.guzzle"/>
-            <argument type="service" id="app.repository"/>
             <argument type="service" id="webhook.repository"/>
             <argument type="service" id="webhook_event_log.repository"/>
 

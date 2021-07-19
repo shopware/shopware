@@ -220,7 +220,8 @@ class WebhookDispatcher implements EventDispatcherInterface
                 $webhookEventId = Uuid::randomHex();
 
                 $appId = $webhook->getApp() !== null ? $webhook->getApp()->getId() : null;
-                $webhookEventMessage = new WebhookEventMessage($webhookEventId, $payload, $appId, $webhook->getId(), $this->shopwareVersion, $webhook->getUrl());
+                $secret = $webhook->getApp() !== null ? $webhook->getApp()->getAppSecret() : null;
+                $webhookEventMessage = new WebhookEventMessage($webhookEventId, $payload, $appId, $webhook->getId(), $this->shopwareVersion, $webhook->getUrl(), $secret);
 
                 if (!$this->container->has('webhook_event_log.repository')) {
                     throw new ServiceNotFoundException('webhook_event_log.repository');

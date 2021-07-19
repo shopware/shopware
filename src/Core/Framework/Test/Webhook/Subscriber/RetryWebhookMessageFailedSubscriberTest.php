@@ -72,7 +72,7 @@ class RetryWebhookMessageFailedSubscriberTest extends TestCase
             ],
         ]], $this->context);
 
-        $webhookEventMessage = new WebhookEventMessage($webhookEventId, ['body' => 'payload'], $appId, $webhookId, '6.4', 'https://test.com');
+        $webhookEventMessage = new WebhookEventMessage($webhookEventId, ['body' => 'payload'], $appId, $webhookId, '6.4', 'https://test.com', 's3cr3t');
         $envelope = new Envelope($webhookEventMessage);
 
         $webhookEventLogRepository->create([[

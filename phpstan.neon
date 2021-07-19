@@ -112,6 +112,17 @@ parameters:
         -
             message: '#Method Shopware\\Core\\Framework\\DataAbstractionLayer\\Entity::\_\_.*\(\) has.*#'
             path: src/Core/Framework/DataAbstractionLayer/Entity.php
+        # Class behind feature flag - can be removed with feature flag
+        -
+            message: '#Parameter \#1 \$failOnError of class Shopware\\Core\\Framework\\Api\\Sync\\SyncBehavior constructor expects bool, string\|null given\.#'
+            path: src/Core/Framework/Api/Controller/SyncController.php
+        -
+            message: '#Class Shopware\\Core\\Framework\\Api\\Sync\\SyncBehavior constructor invoked with 0 parameters, 1-3 required\.#'
+            path: src/Core/Content/ImportExport/Event/Subscriber/ProductVariantsSubscriber.php
+        -
+            message: '#Parameter \#2 \$success of class Shopware\\Core\\Framework\\Api\\Sync\\SyncResult constructor expects bool, array given\.#'
+            path: src/Core/Framework/Api/Sync/SyncService.php
+
 services:
     -
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Decoratable\DecoratableImplementsInterfaceRule

@@ -114,6 +114,13 @@ class Feature
         }
     }
 
+    public static function throwException(string $flag, string $message): void
+    {
+        if (self::isActive($flag) || !self::has($flag)) {
+            throw new \RuntimeException($message);
+        }
+    }
+
     public static function has(string $flag): bool
     {
         return isset(self::$registeredFeatures[$flag]);

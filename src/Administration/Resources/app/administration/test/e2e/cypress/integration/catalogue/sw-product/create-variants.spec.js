@@ -34,8 +34,8 @@ describe('Product: Test variants', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'patch'
+            url: `${Cypress.env('apiPath')}/_action/sync`,
+            method: 'post'
         }).as('saveData');
 
         // Navigate to variant generator listing and start
@@ -70,7 +70,7 @@ describe('Product: Test variants', () => {
         cy.get(page.elements.productSaveAction).click();
         // Verify updated product
         cy.wait('@productCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
+            expect(xhr).to.have.property('status', 200);
         });
 
         // Verify in storefront

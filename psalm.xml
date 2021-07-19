@@ -94,17 +94,25 @@
             </errorLevel>
         </UndefinedConstant>
 
-        <DuplicateClass>
-            <errorLevel type="info">
-                <file name="src/Core/Framework/DataAbstractionLayer/Field/Flag/AllowHtml.php" />
-            </errorLevel>
-        </DuplicateClass>
-
         <UndefinedClass>
             <errorLevel type="info">
                 <referencedClass name="SwagTest\SwagTest"/>
             </errorLevel>
         </UndefinedClass>
+
+        <DuplicateClass>
+            <errorLevel type="info">
+                <file name="src/Core/Framework/Api/Sync/SyncBehavior.php"/>
+                <file name="src/Core/Framework/Api/Sync/SyncResult.php"/>
+                <file name="src/Core/Framework/DataAbstractionLayer/Field/Flag/AllowHtml.php" />
+            </errorLevel>
+        </DuplicateClass>
+
+        <UndefinedMethod>
+            <errorLevel type="suppress">
+                <referencedMethod name="Shopware\Core\Framework\Api\Sync\SyncBehavior::failOnError" />
+            </errorLevel>
+        </UndefinedMethod>
 
         <InaccessibleMethod>
             <errorLevel type="info">

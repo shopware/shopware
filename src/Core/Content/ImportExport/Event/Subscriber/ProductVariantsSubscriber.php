@@ -88,6 +88,12 @@ class ProductVariantsSubscriber implements EventSubscriberInterface
             ['ids' => Connection::PARAM_STR_ARRAY]
         );
 
+        if (Feature::isActive('FEATURE_NEXT_15815')) {
+            $behavior = new SyncBehavior();
+        } else {
+            $behavior = new SyncBehavior(true, true);
+        }
+
         $result = $this->syncService->sync([
             new SyncOperation(
                 'write',
@@ -101,7 +107,12 @@ class ProductVariantsSubscriber implements EventSubscriberInterface
                 SyncOperation::ACTION_UPSERT,
                 $configuratorSettingPayload
             ),
-        ], $event->getContext(), new SyncBehavior(true, true));
+        ], $event->getContext(), $behavior);
+
+        if (Feature::isActive('FEATURE_NEXT_15815')) {
+            // @internal (flag:FEATURE_NEXT_15815) - remove code below, "isSuccess" function will be removed, simply return because sync service would throw an exception in error case
+            return;
+        }
 
         if (!$result->isSuccess()) {
             $operation = $result->get('write');

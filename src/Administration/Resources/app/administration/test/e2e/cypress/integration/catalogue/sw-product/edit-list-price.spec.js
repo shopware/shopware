@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
 
@@ -26,8 +26,8 @@ describe('Product: Edit in various ways', () => {
             method: 'post'
         }).as('calculateData');
         cy.route({
-            url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'patch'
+            url: `${Cypress.env('apiPath')}/_action/sync`,
+            method: 'post'
         }).as('saveData');
 
         cy.clickContextMenuItem(
@@ -53,7 +53,7 @@ describe('Product: Edit in various ways', () => {
 
         // Verify updated product
         cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
+            expect(xhr).to.have.property('status', 200);
         });
 
         // Verify product's list price in Storefront

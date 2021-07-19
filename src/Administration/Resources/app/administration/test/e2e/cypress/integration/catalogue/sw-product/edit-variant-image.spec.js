@@ -79,9 +79,14 @@ describe('Product: Test variants', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
+            url: `${Cypress.env('apiPath')}/_action/sync`,
+            method: 'post'
+        }).as('saveData');
+
+        cy.route({
             url: `${Cypress.env('apiPath')}/product/*`,
             method: 'patch'
-        }).as('saveData');
+        }).as('saveProduct');
 
         cy.route({
             url: `${Cypress.env('apiPath')}/search/property-group`,
@@ -121,7 +126,7 @@ describe('Product: Test variants', () => {
         cy.get('.sw-data-grid__inline-edit-save').click();
 
         // Validate product
-        cy.wait('@productCall').then((xhr) => {
+        cy.wait('@saveProduct').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
             cy.awaitAndCheckNotification('Product "Green" has been saved.');
         });
@@ -178,9 +183,14 @@ describe('Product: Test variants', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
+            url: `${Cypress.env('apiPath')}/_action/sync`,
+            method: 'post'
+        }).as('saveData');
+
+        cy.route({
             url: `${Cypress.env('apiPath')}/product/*`,
             method: 'patch'
-        }).as('saveData');
+        }).as('saveProduct');
 
         cy.route({
             url: `${Cypress.env('apiPath')}/search/property-group`,
@@ -254,7 +264,7 @@ describe('Product: Test variants', () => {
         cy.get('.sw-data-grid__inline-edit-save').click();
 
         // Validate product
-        cy.wait('@productCall').then((xhr) => {
+        cy.wait('@saveProduct').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
             cy.awaitAndCheckNotification('Product "Green" has been saved.');
         });
@@ -297,16 +307,20 @@ describe('Product: Test variants', () => {
         });
     });
 
-
     it('@catalogue: view preview image modal', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
         cy.server();
         cy.route({
+            url: `${Cypress.env('apiPath')}/_action/sync`,
+            method: 'post'
+        }).as('saveData');
+
+        cy.route({
             url: `${Cypress.env('apiPath')}/product/*`,
             method: 'patch'
-        }).as('saveData');
+        }).as('saveProduct');
 
         cy.route({
             url: `${Cypress.env('apiPath')}/search/property-group`,
@@ -362,7 +376,7 @@ describe('Product: Test variants', () => {
         cy.get('.sw-data-grid__row--0 .sw-data-grid__inline-edit-save').click();
 
         // Validate product
-        cy.wait('@productCall').then((xhr) => {
+        cy.wait('@saveProduct').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
             cy.awaitAndCheckNotification('Product "Green" has been saved.');
             cy.get('.sw-data-grid-skeleton').should('not.exist');

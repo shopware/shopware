@@ -3,11 +3,13 @@
 namespace Shopware\Core\Framework\Api\Converter;
 
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\RequestStack;
 
+/**
+ * @deprecated tag:v6.5.0 - Will be removed. Api payloads will be no longer converted over the Deprecated flag
+ */
 class DefaultApiConverter
 {
     /**

@@ -334,6 +334,13 @@ describe('src/core/data/changeset-generator.data.js', () => {
 
             const { changes } = changesetGenerator.generate(testEntity);
 
+            if (changes !== null && changes.hasOwnProperty('id')) {
+                delete changes.id;
+            }
+            if (changes !== null && changes.hasOwnProperty('id')) {
+                delete changes.versionId;
+            }
+
             expect(changes).toEqual(expected);
         });
     });

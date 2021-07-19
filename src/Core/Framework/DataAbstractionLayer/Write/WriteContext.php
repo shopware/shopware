@@ -3,11 +3,14 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageDefinition;
 
 class WriteContext
 {
+    use StateAwareTrait;
+
     private const SPACER = '::';
 
     /**

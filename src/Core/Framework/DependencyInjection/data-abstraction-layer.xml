@@ -120,6 +120,12 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface"/>
             <argument type="service" id="Shopware\Core\System\Language\LanguageLoader"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteResultFactory"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteResultFactory">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Write\WriteCommandExtractor">
@@ -240,7 +246,6 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit\VersionCommitDefinition"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\CalculatedPriceFieldSerializer">

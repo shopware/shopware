@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
 
@@ -22,8 +22,8 @@ describe('Product: Edit in various ways', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'patch'
+            url: `${Cypress.env('apiPath')}/_action/sync`,
+            method: 'post'
         }).as('saveData');
 
         cy.clickContextMenuItem(
@@ -42,7 +42,7 @@ describe('Product: Edit in various ways', () => {
 
         // Verify updated product
         cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
+            expect(xhr).to.have.property('status', 200);
         });
 
         cy.get(page.elements.smartBarBack).click();
@@ -59,7 +59,13 @@ describe('Product: Edit in various ways', () => {
 
         // Inline edit customer
         cy.get('.sw-data-grid__cell--productNumber').dblclick();
-        cy.get('#sw-field--item-name').clearTypeAndCheck('That\'s not my name');
+        cy.get('#sw-field--item-name').should('be.visible');
+        cy.get('#sw-field--item-name').should('have.value', 'Product name');
+
+        cy.get('#sw-field--item-name')
+            .clear()
+            .should('have.value', '')
+            .typeAndCheck('That\'s not my name');
         cy.get('.sw-data-grid__inline-edit-save').click();
         cy.awaitAndCheckNotification('Product "That\'s not my name" has been saved.');
 

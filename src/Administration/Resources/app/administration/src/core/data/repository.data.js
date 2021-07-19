@@ -100,11 +100,78 @@ export default class Repository {
      * @returns {Promise<any>}
      */
     save(entity, context = Shopware.Context.api) {
+        if (this.options.useSync === true) {
+            return this.saveWithSync(entity, context);
+        }
+
+        return this.saveWithRest(entity, context);
+    }
+
+    /**
+     * @private
+     * @param {Entity} entity
+     * @param {Object} context
+     * @returns {Promise<Promise>}
+     */
+    saveWithRest(entity, context) {
         const { changes, deletionQueue } = this.changesetGenerator.generate(entity);
 
         return this.errorResolver.resetApiErrors()
             .then(() => this.sendDeletions(deletionQueue, context))
             .then(() => this.sendChanges(entity, changes, context));
+    }
+
+    /**
+     * @private
+     * @param {Entity} entity
+     * @param {Object} context
+     * @returns {Promise<void>|Promise<T>}
+     */
+    saveWithSync(entity, context) {
+        const { changes, deletionQueue } = this.changesetGenerator.generate(entity);
+
+        if (entity.isNew()) {
+            Object.assign(changes || {}, { id: entity.id });
+        }
+
+        const operations = [];
+
+        if (deletionQueue.length > 0) {
+            operations.push(...this.buildDeleteOperations(deletionQueue));
+        }
+
+        if (changes !== null) {
+            operations.push({
+                key: 'write',
+                action: 'upsert',
+                entity: entity.getEntityName(),
+                payload: [changes],
+            });
+        }
+
+        const headers = this.buildHeaders(context);
+        headers['single-operation'] = true;
+
+        if (operations.length <= 0) {
+            return Promise.resolve();
+        }
+
+        return this.errorResolver.resetApiErrors().then(() => {
+            return this.httpClient.post('_action/sync', operations, { headers, version: this.options.version }).catch((errorResponse) => {
+                const errors = [];
+                const result = errorResponse?.response?.data?.errors ?? [];
+
+                result.forEach((error) => {
+                    if (error.source.pointer.startsWith('/write/')) {
+                        error.source.pointer = error.source.pointer.substring(6);
+                        errors.push(error);
+                    }
+                });
+
+                this.errorResolver.handleWriteErrors({ errors }, [{ entity, changes }]);
+                throw errorResponse;
+            });
+        });
     }
 
     /**
@@ -555,5 +622,41 @@ export default class Repository {
         }
 
         return headers;
+    }
+
+    /**
+     * @private
+     * @param {Array} deletionQueue
+     */
+    buildDeleteOperations(deletionQueue) {
+        const grouped = {};
+
+        deletionQueue.forEach((deletion) => {
+            const entityName = deletion.entity;
+
+            if (!entityName) {
+                return;
+            }
+
+            if (!grouped.hasOwnProperty(entityName)) {
+                grouped[entityName] = [];
+            }
+
+            grouped[entityName].push(deletion.primary);
+        });
+
+        const operations = [];
+
+        Object.keys(grouped).forEach((entity) => {
+            const deletions = grouped[entity];
+
+            operations.push({
+                action: 'delete',
+                payload: deletions,
+                entity: entity,
+            });
+        });
+
+        return operations;
     }
 }

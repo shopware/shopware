@@ -1,4 +1,4 @@
-/// <reference types='Cypress' />
+// / <reference types='Cypress' />
 
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
 import ProductStreamObject from '../../../support/pages/module/sw-product-stream.page-object';
@@ -27,6 +27,11 @@ describe('Dynamic product group: Add custom fields to condition', () => {
             url: `${Cypress.env('apiPath')}/search/custom-field-set`,
             method: 'post'
         }).as('saveCustomFieldSet');
+        cy.route({
+            url: `${Cypress.env('apiPath')}/_action/sync`,
+            method: 'post'
+        }).as('saveProduct');
+
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/custom/field/index`);
 
         // click on the custom field
@@ -71,14 +76,10 @@ describe('Dynamic product group: Add custom fields to condition', () => {
         // type value
         cy.get('input[name=custom_field_set_property]').clear().type('custom field');
 
-        cy.route({
-            url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'patch'
-        }).as('saveProduct');
 
         cy.get('.sw-product-detail__save-button-group').click();
         cy.wait('@saveProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
+            expect(xhr).to.have.property('status', 200);
         });
 
         const productStreamPage = new ProductStreamObject();

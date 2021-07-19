@@ -5,11 +5,11 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Write;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 
 /**
- * @internal
+ * @internal use entity repository to write data
  */
 interface EntityWriterInterface
 {
-    public function sync(array $operations, WriteContext $context): array;
+    public function sync(array $operations, WriteContext $context): WriteResult;
 
     public function upsert(EntityDefinition $definition, array $rawData, WriteContext $writeContext): array;
 
@@ -17,5 +17,5 @@ interface EntityWriterInterface
 
     public function update(EntityDefinition $definition, array $rawData, WriteContext $writeContext);
 
-    public function delete(EntityDefinition $definition, array $ids, WriteContext $writeContext): DeleteResult;
+    public function delete(EntityDefinition $definition, array $ids, WriteContext $writeContext): WriteResult;
 }

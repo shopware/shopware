@@ -1,7 +1,7 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import SalesChannelPageObject from '../../../support/pages/module/sw-sales-channel.page-object';
-import ProductPageObject from "../../../support/pages/module/sw-product.page-object";
+import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
 
 describe('Sales Channel: Test product comparison', () => {
     beforeEach(() => {
@@ -31,8 +31,8 @@ describe('Sales Channel: Test product comparison', () => {
             method: 'post'
         }).as('saveData');
         cy.route({
-            url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'patch'
+            url: `${Cypress.env('apiPath')}/_action/sync`,
+            method: 'post'
         }).as('saveProductsData');
         cy.route({
             url: `${Cypress.env('apiPath')}/_action/product-export/validate`,
@@ -71,7 +71,7 @@ describe('Sales Channel: Test product comparison', () => {
 
         // Verify updated product
         cy.wait('@saveProductsData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
+            expect(xhr).to.have.property('status', 200);
         });
 
         // Open sales channel creation
@@ -90,7 +90,7 @@ describe('Sales Channel: Test product comparison', () => {
 
         cy.get('.sw-modal').should('be.visible');
         cy.get('.sw-modal__body')
-            .contains('If you apply the template, existing data in this Sales Channel will be overwritten')
+            .contains('If you apply the template, existing data in this Sales Channel will be overwritten');
         cy.get('.sw-modal__footer > .sw-button--primary').click();
         cy.awaitAndCheckNotification('Template data has been applied, but not yet saved. Please save this Sales Channel to keep the changes.');
 

@@ -78,7 +78,7 @@ describe('Product: Edit in various ways', () => {
 
         // checking if product got saved. 'product call' alias comes from the product.generateVariants method
         cy.wait('@productCall').then(xhr => {
-            expect(xhr).to.have.property('status', 204);
+            expect(xhr).to.have.property('status', 200);
         });
 
         cy.visit(`${Cypress.config('baseUrl')}/Product-name/RS-333.2`);
@@ -100,8 +100,8 @@ describe('Product: Edit in various ways', () => {
         cy.server();
 
         cy.route({
-            url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'patch'
+            url: `${Cypress.env('apiPath')}/_action/sync`,
+            method: 'post'
         }).as('updateProduct');
 
         // Navigate to variant generator listing and start
@@ -120,7 +120,7 @@ describe('Product: Edit in various ways', () => {
 
         // Verify updated product
         cy.wait('@updateProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
+            expect(xhr).to.have.property('status', 200);
         });
 
         // go back to seo tab
@@ -144,7 +144,7 @@ describe('Product: Edit in various ways', () => {
 
         // Verify updated product
         cy.wait('@updateProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
+            expect(xhr).to.have.property('status', 200);
         });
 
         cy.get('.sw-product-detail__tab-variants').click();
@@ -187,8 +187,8 @@ describe('Product: Edit in various ways', () => {
         cy.server();
 
         cy.route({
-            url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'patch'
+            url: `${Cypress.env('apiPath')}/_action/sync`,
+            method: 'post'
         }).as('updateProduct');
 
         // Navigate to variant generator listing and start
@@ -207,7 +207,7 @@ describe('Product: Edit in various ways', () => {
 
         // Verify updated product
         cy.wait('@updateProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
+            expect(xhr).to.have.property('status', 200);
         });
 
         // go back to seo tab
@@ -231,7 +231,7 @@ describe('Product: Edit in various ways', () => {
 
         // Verify updated product
         cy.wait('@updateProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
+            expect(xhr).to.have.property('status', 200);
         });
 
         cy.get('.sw-product-detail__tab-variants').click();
@@ -278,7 +278,7 @@ describe('Product: Edit in various ways', () => {
 
         // Verify updated product
         cy.wait('@productCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
+            expect(xhr).to.have.property('status', 200);
         });
 
         cy.get('.sw-seo-main-category').scrollIntoView().contains('Anime');
@@ -292,8 +292,8 @@ describe('Product: Edit in various ways', () => {
         cy.server();
 
         cy.route({
-            url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'patch'
+            url: `${Cypress.env('apiPath')}/_action/sync`,
+            method: 'post'
         }).as('updateProduct');
 
         // Navigate to variant generator listing and start
@@ -313,7 +313,7 @@ describe('Product: Edit in various ways', () => {
 
         // Verify updated product
         cy.wait('@updateProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
+            expect(xhr).to.have.property('status', 200);
         });
 
         // go back to seo tab
@@ -337,7 +337,7 @@ describe('Product: Edit in various ways', () => {
 
         // Verify updated product
         cy.wait('@updateProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
+            expect(xhr).to.have.property('status', 200);
         });
 
         cy.get('.sw-product-detail__tab-variants').click();
@@ -388,7 +388,7 @@ describe('Product: Edit in various ways', () => {
 
         // Verify updated product
         cy.wait('@productCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
+            expect(xhr).to.have.property('status', 200);
         });
 
         cy.get('.sw-seo-main-category').scrollIntoView().contains('Anime');

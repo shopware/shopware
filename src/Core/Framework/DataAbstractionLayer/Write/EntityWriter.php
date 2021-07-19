@@ -13,21 +13,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\CascadeDeleteCommand;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\ChangeSetAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\JsonUpdateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\SetNullOnDeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\UpdateCommand;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolation;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
-use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
-use Shopware\Core\Framework\Uuid\Exception\InvalidUuidLengthException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageLoaderInterface;
 
@@ -38,53 +32,46 @@ use Shopware\Core\System\Language\LanguageLoaderInterface;
  */
 class EntityWriter implements EntityWriterInterface
 {
-    /**
-     * @var EntityForeignKeyResolver
-     */
-    private $foreignKeyResolver;
+    private EntityForeignKeyResolver $foreignKeyResolver;
 
-    /**
-     * @var WriteCommandExtractor
-     */
-    private $commandExtractor;
+    private WriteCommandExtractor $commandExtractor;
 
-    /**
-     * @var EntityWriteGatewayInterface
-     */
-    private $gateway;
+    private EntityWriteGatewayInterface $gateway;
 
-    /**
-     * @var LanguageLoaderInterface
-     */
-    private $languageLoader;
+    private LanguageLoaderInterface $languageLoader;
 
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $registry;
+    private DefinitionInstanceRegistry $registry;
+
+    private EntityWriteResultFactory $factory;
 
     public function __construct(
         WriteCommandExtractor $writeResource,
         EntityForeignKeyResolver $foreignKeyResolver,
         EntityWriteGatewayInterface $gateway,
         LanguageLoaderInterface $languageLoader,
-        DefinitionInstanceRegistry $registry
+        DefinitionInstanceRegistry $registry,
+        EntityWriteResultFactory $factory
     ) {
         $this->foreignKeyResolver = $foreignKeyResolver;
         $this->commandExtractor = $writeResource;
         $this->gateway = $gateway;
         $this->languageLoader = $languageLoader;
         $this->registry = $registry;
+        $this->factory = $factory;
     }
 
     // TODO: prefetch
-    public function sync(array $operations, WriteContext $context): array
+    public function sync(array $operations, WriteContext $context): WriteResult
     {
         $commandQueue = new WriteCommandQueue();
 
         $context->setLanguages(
             $this->languageLoader->loadLanguages()
         );
+
+        $writes = [];
+        $notFound = [];
+        $deletes = [];
 
         foreach ($operations as $operation) {
             if (!$operation instanceof SyncOperation) {
@@ -96,22 +83,30 @@ class EntityWriter implements EntityWriterInterface
             $this->validateWriteInput($operation->getPayload());
 
             if ($operation->getAction() === SyncOperation::ACTION_DELETE) {
-                $this->extractDeleteCommands($definition, $operation->getPayload(), $context, $commandQueue);
+                $deletes[] = $this->factory->resolveDelete($definition, $operation->getPayload());
+
+                $notFound[] = $this->extractDeleteCommands($definition, $operation->getPayload(), $context, $commandQueue);
 
                 continue;
             }
 
-            $parameters = new WriteParameterBag($definition, $context, '', $commandQueue);
-            $rawData = $this->commandExtractor->normalize($definition, $operation->getPayload(), $parameters);
-            $this->gateway->prefetchExistences($parameters);
+            if ($operation->getAction() === SyncOperation::ACTION_UPSERT) {
+                $parameters = new WriteParameterBag($definition, $context, '', $commandQueue);
 
-            foreach ($rawData as $index => $row) {
-                $parameters->setPath('/' . $index);
-                $context->resetPaths();
+                $payload = $this->commandExtractor->normalize($definition, $operation->getPayload(), $parameters);
+                $this->gateway->prefetchExistences($parameters);
 
-                if ($operation->getAction() === SyncOperation::ACTION_UPSERT) {
+                $key = $operation->getKey();
+
+                foreach ($payload as $index => $row) {
+                    $parameters->setPath('/' . $key . '/' . $index);
+                    $context->resetPaths();
                     $this->commandExtractor->extract($row, $parameters);
                 }
+
+                $writes[] = $this->factory->resolveWrite($definition, $payload);
+
+                continue;
             }
         }
 
@@ -119,7 +114,19 @@ class EntityWriter implements EntityWriterInterface
 
         $this->gateway->execute($commandQueue->getCommandsInOrder(), $context);
 
-        return $this->getWriteResults($commandQueue);
+        $result = $this->factory->build($commandQueue);
+
+        $notFound = array_merge_recursive(...$notFound);
+
+        $writes = array_merge_recursive(...$writes);
+
+        $deletes = array_merge_recursive(...$deletes);
+
+        $result = $this->factory->addParentResults($result, $writes);
+
+        $result = $this->factory->addDeleteResults($result, $notFound, $deletes);
+
+        return $result;
     }
 
     public function upsert(EntityDefinition $definition, array $rawData, WriteContext $writeContext): array
@@ -141,123 +148,24 @@ class EntityWriter implements EntityWriterInterface
      * @throws IncompletePrimaryKeyException
      * @throws RestrictDeleteViolationException
      */
-    public function delete(EntityDefinition $definition, array $ids, WriteContext $writeContext): DeleteResult
+    public function delete(EntityDefinition $definition, array $ids, WriteContext $writeContext): WriteResult
     {
         $this->validateWriteInput($ids);
 
+        $parents = [];
+        if (!$writeContext->hasState('merge-scope')) {
+            $parents = $this->factory->resolveDelete($definition, $ids);
+        }
+
         $commandQueue = new WriteCommandQueue();
-        $skipped = $this->extractDeleteCommands($definition, $ids, $writeContext, $commandQueue);
+        $notFound = $this->extractDeleteCommands($definition, $ids, $writeContext, $commandQueue);
 
         $writeContext->setLanguages($this->languageLoader->loadLanguages());
         $this->gateway->execute($commandQueue->getCommandsInOrder(), $writeContext);
 
-        $identifiers = $this->getWriteResults($commandQueue);
+        $result = $this->factory->build($commandQueue);
 
-        $results = $this->splitResultsByOperation($identifiers);
-
-        return new DeleteResult($results['deleted'], $skipped, $results['updated']);
-    }
-
-    /**
-     * @throws InvalidUuidException
-     * @throws InvalidUuidLengthException
-     */
-    private function getWriteResults(WriteCommandQueue $queue): array
-    {
-        $identifiers = [];
-
-        $order = [];
-        // we have to create the written events in the written order, otherwise the version manager would
-        // trace the change sets in a wrong order
-        foreach ($queue->getCommandsInOrder() as $command) {
-            $class = $command->getDefinition()->getClass();
-            if (isset($order[$class])) {
-                continue;
-            }
-            $order[$class] = $command->getDefinition();
-        }
-
-        foreach ($order as $class => $definition) {
-            $commands = $queue->getCommands()[$class];
-
-            if (\count($commands) === 0) {
-                continue;
-            }
-
-            $primaryKeys = $definition->getPrimaryKeys()
-                ->filter(static function (Field $field) {
-                    return !$field instanceof VersionField && !$field instanceof ReferenceVersionField;
-                });
-
-            $identifiers[$definition->getEntityName()] = [];
-
-            $jsonUpdateCommands = [];
-            $writeResults = [];
-
-            foreach ($commands as $command) {
-                $primaryKey = $this->getCommandPrimaryKey($command, $primaryKeys);
-                $uniqueId = \is_array($primaryKey) ? implode('-', $primaryKey) : $primaryKey;
-
-                if ($command instanceof JsonUpdateCommand) {
-                    $jsonUpdateCommands[$uniqueId] = $command;
-
-                    continue;
-                }
-
-                $operation = EntityWriteResult::OPERATION_UPDATE;
-                if ($command instanceof InsertCommand) {
-                    $operation = EntityWriteResult::OPERATION_INSERT;
-                } elseif ($command instanceof DeleteCommand) {
-                    $operation = EntityWriteResult::OPERATION_DELETE;
-                }
-
-                $payload = $this->getCommandPayload($command);
-                $writeResults[$uniqueId] = new EntityWriteResult(
-                    $primaryKey,
-                    $payload,
-                    $command->getDefinition()->getEntityName(),
-                    $operation,
-                    $command->getEntityExistence(),
-                    $command instanceof ChangeSetAware ? $command->getChangeSet() : null
-                );
-            }
-
-            /*
-             * Updates for entities with attributes are split into two commands: an UpdateCommand and a JsonUpdateCommand.
-             * We need to merge the payloads here.
-             */
-            foreach ($jsonUpdateCommands as $uniqueId => $command) {
-                $payload = [];
-                if (isset($writeResults[$uniqueId])) {
-                    $payload = $writeResults[$uniqueId]->getPayload();
-                }
-
-                $field = $command->getDefinition()->getFields()->getByStorageName($command->getStorageName());
-                $decodedPayload = $field->getSerializer()->decode(
-                    $field,
-                    json_encode($command->getPayload(), \JSON_PRESERVE_ZERO_FRACTION | \JSON_THROW_ON_ERROR)
-                );
-                $mergedPayload = array_merge($payload, [$field->getPropertyName() => $decodedPayload]);
-
-                $changeSet = [];
-                if ($command instanceof ChangeSetAware) {
-                    $changeSet = $command->getChangeSet();
-                }
-
-                $writeResults[$uniqueId] = new EntityWriteResult(
-                    $this->getCommandPrimaryKey($command, $primaryKeys),
-                    $mergedPayload,
-                    $command->getDefinition()->getEntityName(),
-                    EntityWriteResult::OPERATION_UPDATE,
-                    $command->getEntityExistence(),
-                    $changeSet
-                );
-            }
-
-            $identifiers[$definition->getEntityName()] = array_values($writeResults);
-        }
-
-        return $identifiers;
+        return $this->factory->addDeleteResults($result, $notFound, $parents);
     }
 
     private function write(EntityDefinition $definition, array $rawData, WriteContext $writeContext, ?string $ensure = null): array
@@ -292,7 +200,14 @@ class EntityWriter implements EntityWriterInterface
 
         $this->gateway->execute($commandQueue->getCommandsInOrder(), $writeContext);
 
-        return $this->getWriteResults($commandQueue);
+        $result = $this->factory->build($commandQueue);
+
+        $parents = array_merge(
+            $this->factory->resolveWrite($definition, $rawData),
+            $this->factory->resolveMappings($result)
+        );
+
+        return $this->factory->addParentResults($result, $parents);
     }
 
     /**
@@ -305,79 +220,6 @@ class EntityWriter implements EntityWriterInterface
         if (!$valid) {
             throw new \InvalidArgumentException('Expected input to be non associative array.');
         }
-    }
-
-    /**
-     * @return array|string
-     */
-    private function getCommandPrimaryKey(WriteCommand $command, FieldCollection $fields)
-    {
-        $primaryKey = $command->getPrimaryKey();
-
-        $data = [];
-
-        if ($fields->count() === 1) {
-            /** @var StorageAware|Field $field */
-            $field = $fields->first();
-
-            return Uuid::fromBytesToHex($primaryKey[$field->getStorageName()]);
-        }
-
-        /** @var StorageAware|Field $field */
-        foreach ($fields as $field) {
-            $data[$field->getPropertyName()] = Uuid::fromBytesToHex($primaryKey[$field->getStorageName()]);
-        }
-
-        return $data;
-    }
-
-    /**
-     * @throws \RuntimeException
-     */
-    private function getCommandPayload(WriteCommand $command): array
-    {
-        $payload = [];
-        if ($command instanceof InsertCommand || $command instanceof UpdateCommand) {
-            $payload = $command->getPayload();
-        }
-
-        $fields = $command->getDefinition()->getFields();
-
-        $convertedPayload = [];
-        foreach ($payload as $key => $value) {
-            $field = $fields->getByStorageName($key);
-
-            if (!$field) {
-                continue;
-            }
-
-            $convertedPayload[$field->getPropertyName()] = $field->getSerializer()->decode($field, $value);
-        }
-
-        $primaryKeys = $command->getDefinition()->getPrimaryKeys();
-
-        /** @var Field|StorageAware $primaryKey */
-        foreach ($primaryKeys as $primaryKey) {
-            if (\array_key_exists($primaryKey->getPropertyName(), $payload)) {
-                continue;
-            }
-
-            if (!\array_key_exists($primaryKey->getStorageName(), $command->getPrimaryKey())) {
-                throw new \RuntimeException(
-                    sprintf(
-                        'Primary key field %s::%s not found in payload or command primary key',
-                        $command->getDefinition()->getClass(),
-                        $primaryKey->getStorageName()
-                    )
-                );
-            }
-
-            $key = $command->getPrimaryKey()[$primaryKey->getStorageName()];
-
-            $convertedPayload[$primaryKey->getPropertyName()] = Uuid::fromBytesToHex($key);
-        }
-
-        return $convertedPayload;
     }
 
     private function addDeleteCascadeCommands(WriteCommandQueue $queue, EntityDefinition $definition, WriteContext $writeContext, array $resolved): void
@@ -487,30 +329,6 @@ class EntityWriter implements EntityWriterInterface
         return $resolved;
     }
 
-    private function splitResultsByOperation(array $identifiers): array
-    {
-        $deleted = [];
-        $updated = [];
-        foreach ($identifiers as $entityName => $writeResults) {
-            $deletedEntities = array_filter($writeResults, function (EntityWriteResult $result): bool {
-                return $result->getOperation() === EntityWriteResult::OPERATION_DELETE;
-            });
-            if (!empty($deletedEntities)) {
-                $deleted[$entityName] = $deletedEntities;
-            }
-
-            $updatedEntities = array_filter($writeResults, function (EntityWriteResult $result): bool {
-                return $result->getOperation() === EntityWriteResult::OPERATION_UPDATE;
-            });
-
-            if (!empty($updatedEntities)) {
-                $updated[$entityName] = $updatedEntities;
-            }
-        }
-
-        return ['deleted' => $deleted, 'updated' => $updated];
-    }
-
     private function extractDeleteCommands(EntityDefinition $definition, array $ids, WriteContext $writeContext, WriteCommandQueue $commandQueue): array
     {
         $parameters = new WriteParameterBag($definition, $writeContext, '', $commandQueue);
@@ -535,19 +353,29 @@ class EntityWriter implements EntityWriterInterface
 
             $existence = $this->gateway->getExistence($definition, $mappedBytes, [], $commandQueue);
 
-            if (!$existence->exists()) {
-                $skipped[$definition->getEntityName()][] = new EntityWriteResult(
-                    $primaryKey,
-                    $primaryKey,
-                    $definition->getEntityName(),
-                    EntityWriteResult::OPERATION_DELETE,
-                    $existence
-                );
+            if ($existence->exists()) {
+                $commandQueue->add($definition, new DeleteCommand($definition, $mappedBytes, $existence));
 
                 continue;
             }
 
-            $commandQueue->add($definition, new DeleteCommand($definition, $mappedBytes, $existence));
+            $stripped = [];
+            foreach ($primaryKey as $key => $value) {
+                $field = $definition->getFields()->getByStorageName($key);
+
+                if ($field instanceof VersionField || $field instanceof ReferenceVersionField) {
+                    continue;
+                }
+                $stripped[$key] = $value;
+            }
+
+            $skipped[$definition->getEntityName()][] = new EntityWriteResult(
+                \count($stripped) === 1 ? array_shift($stripped) : $stripped,
+                $stripped,
+                $definition->getEntityName(),
+                EntityWriteResult::OPERATION_DELETE,
+                $existence
+            );
         }
 
         // we had some logic in the command layer (pre-validate, post-validate, indexer which listens to this events)

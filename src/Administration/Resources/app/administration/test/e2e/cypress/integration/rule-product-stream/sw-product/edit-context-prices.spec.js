@@ -33,8 +33,8 @@ describe('Product: Editing context prices', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'patch'
+            url: `${Cypress.env('apiPath')}/_action/sync`,
+            method: 'post'
         }).as('saveData');
 
         // Open the product
@@ -114,7 +114,7 @@ describe('Product: Editing context prices', () => {
 
         // Check if values matches the inputs
         cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
+            expect(xhr).to.have.property('status', 200);
 
             // second price group should be visible
             cy.get(`${priceGroup}-1`)

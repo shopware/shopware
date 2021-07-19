@@ -2,7 +2,7 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/trunk/src/Core/System/SystemConfig/Schema/config.xsd">
     <card>
-        <title>Customer Scope</title>
+        <title>Customer scope</title>
         <title lang="de-DE">Kunden-Zuweisung</title>
 
         <input-field type="bool">

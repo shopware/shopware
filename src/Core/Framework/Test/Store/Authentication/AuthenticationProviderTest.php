@@ -10,8 +10,6 @@ use Shopware\Core\Framework\Api\Context\ShopApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Store\Authentication\AbstractAuthenticationProvider;
-use Shopware\Core\Framework\Store\Authentication\AuthenticationProvider;
-use Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider;
 use Shopware\Core\Framework\Store\Exception\StoreTokenMissingException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -44,7 +42,7 @@ class AuthenticationProviderTest extends TestCase
 
         $context = Context::createDefaultContext(new AdminApiSource($userId));
 
-        $authenticationHeaderProvider = $this->getAuthProvider();
+        $authenticationHeaderProvider = $this->getContainer()->get(AbstractAuthenticationProvider::class);
 
         $header = $authenticationHeaderProvider->getUserStoreToken($context);
 
@@ -55,7 +53,7 @@ class AuthenticationProviderTest extends TestCase
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_12608', $this);
 
-        $authenticationHeaderProvider = $this->getAuthProvider();
+        $authenticationHeaderProvider = $this->getContainer()->get(AbstractAuthenticationProvider::class);
 
         static::expectException(InvalidContextSourceException::class);
 
@@ -66,7 +64,7 @@ class AuthenticationProviderTest extends TestCase
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_12608', $this);
 
-        $authenticationHeaderProvider = $this->getAuthProvider();
+        $authenticationHeaderProvider = $this->getContainer()->get(AbstractAuthenticationProvider::class);
 
         static::expectException(InvalidContextSourceUserException::class);
 
@@ -77,7 +75,7 @@ class AuthenticationProviderTest extends TestCase
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_12608', $this);
 
-        $authenticationHeaderProvider = $this->getAuthProvider();
+        $authenticationHeaderProvider = $this->getContainer()->get(AbstractAuthenticationProvider::class);
 
         static::expectException(StoreTokenMissingException::class);
 
@@ -106,7 +104,7 @@ class AuthenticationProviderTest extends TestCase
 
         $context = Context::createDefaultContext(new AdminApiSource($userId));
 
-        $authenticationHeaderProvider = $this->getAuthProvider();
+        $authenticationHeaderProvider = $this->getContainer()->get(AbstractAuthenticationProvider::class);
 
         static::expectException(StoreTokenMissingException::class);
         $authenticationHeaderProvider->getUserStoreToken($context);
@@ -132,7 +130,7 @@ class AuthenticationProviderTest extends TestCase
 
         $this->getContainer()->get('user.repository')->create($data, Context::createDefaultContext());
 
-        $authenticationHeaderProvider = $this->getAuthProvider();
+        $authenticationHeaderProvider = $this->getContainer()->get(AbstractAuthenticationProvider::class);
 
         static::expectException(StoreTokenMissingException::class);
         $authenticationHeaderProvider->getUserStoreToken(Context::createDefaultContext());
@@ -158,19 +156,9 @@ class AuthenticationProviderTest extends TestCase
 
         $this->getContainer()->get('user.repository')->create($data, Context::createDefaultContext());
 
-        $authenticationHeaderProvider = $this->getAuthProvider();
+        $authenticationHeaderProvider = $this->getContainer()->get(AbstractAuthenticationProvider::class);
 
         static::expectException(StoreTokenMissingException::class);
         $authenticationHeaderProvider->getUserStoreToken(Context::createDefaultContext());
-    }
-
-    /**
-     * because AbstractAuthenticationProvider service is deprecated it is inlined by symfony. We have to create an own service here
-     */
-    private function getAuthProvider(): AbstractAuthenticationProvider
-    {
-        return new AuthenticationProvider(
-            $this->getContainer()->get(StoreRequestOptionsProvider::class)
-        );
     }
 }

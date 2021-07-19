@@ -1,5 +1,10 @@
 {% block sw_profile_index %}
 <sw-page class="sw-profile-index">
+    <template #smart-bar-back>
+        {% block sw_profile_index_smart_bar_back %}
+        <span></span>
+        {% endblock %}
+    </template>
 
     <template #smart-bar-header>
         {% block sw_profile_index_headline %}

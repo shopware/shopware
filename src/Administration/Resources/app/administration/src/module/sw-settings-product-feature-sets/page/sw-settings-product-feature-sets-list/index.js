@@ -83,7 +83,9 @@ Component.register('sw-settings-product-feature-sets-list', {
                 return items;
             }).then((items) => {
                 const allFeatures = items.reduce((features, featureSet) => {
-                    features = [...features, ...(featureSet.features || [])];
+                    if (featureSet.features && featureSet.features.length) {
+                        features = [...features, ...(featureSet.features || [])];
+                    }
                     return features;
                 }, []);
 
@@ -157,6 +159,10 @@ Component.register('sw-settings-product-feature-sets-list', {
         },
 
         renderFeaturePreview(features) {
+            if (!features.length) {
+                return null;
+            }
+
             const preview = features
                 .slice(0, 4)
                 .map(feature => this.featureGridTranslationService.getNameTranslation(feature))

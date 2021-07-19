@@ -1,6 +1,99 @@
 UPGRADE FROM 6.3.x.x to 6.4
 =======================
 
+# 6.4.3.0
+## Update EntityIndexer implementation
+Two new methods have been added to the abstract `Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer`.
+* `getTotal` - Shall return the number of records to be processed by the indexer on a Full index.
+* `getDecorated` - Shall return the decorated service (see decoration pattern adr).
+
+These two methods are declared as `abstract` with the 6.5.0.0. Here is an example of how a possible implementation might look like:
+```
+
+    public function getTotal(): int
+    {
+        return $this
+            ->iteratorFactory
+            ->createIterator($this->repository->getDefinition(), $offset)
+            ->fetchCount();
+        
+        // alternate    
+        return $this->connection->fetchOne('SELECT COUNT(*) FROM product');
+    }
+
+    public function getDecorated(): EntityIndexer
+    {
+        // if you implement an own indexer
+        throw new DecorationPatternException(self::class);
+        
+        // if you decorate a core indexer
+        return $this->decorated;
+    }
+
+```
+## Storefront Controller needs Twig injected
+
+The `twig` service will be private in Symfony 6.0. To resolve this deprecation we added a new method `setTwig` to the `StorefrontController`.
+All controllers which extends from `StorefrontController` needs to have a method call in the dependency injection to set the twig instance using the `setTwig` method.
+See below an example how to add a method call for the service using xml definition.
+
+### Before
+
+```xml
+<service id="Shopware\Storefront\Controller\AccountPaymentController">
+    <call method="setContainer">
+        <argument type="service" id="service_container"/>
+    </call>
+</service>
+```
+
+### After
+
+```xml
+<service id="Shopware\Storefront\Controller\AccountPaymentController">
+    <call method="setContainer">
+        <argument type="service" id="service_container"/>
+    </call>
+    <call method="setTwig">
+        <argument type="service" id="twig"/>
+    </call>
+</service>
+```
+## ListField strict mode
+A `ListField` will now always return a non associative array if the strict mode is true. This will be the default in 6.5.0. Please ensure that the data is saved as non associative array or switch to `JsonField` instead.
+
+Valid `listField` before: 
+```
+Array
+(
+    [0] => baz
+    [foo] => bar
+    [1] => Array
+        (
+            [foo2] => Array
+                (
+                    [foo3] => bar2
+                )
+        )
+)
+```
+
+Valid `ListField` after:
+```
+Array
+(
+    [0] => baz
+    [1] => bar
+    [2] => Array
+        (
+            [foo2] => Array
+                (
+                    [foo3] => bar2
+                )
+        )
+)
+```
+
 # 6.4.2.0
 
 ## New Captcha Solution
@@ -525,7 +618,7 @@ class MyDecorator extends AbstractElasticsearchDefinition
         $documents = $this->productDefinition->extendDocuments($documents, $context);
         $productIds = array_column($documents, 'id');
 
-        $query = <<<SQL
+        $query = <<<'SQL'
 SELECT LOWER(HEX(mytable.product_id)) as id, GROUP_CONCAT(LOWER(HEX(mytable.myFkField)) SEPARATOR "|") as relationIds
 FROM mytable
 WHERE

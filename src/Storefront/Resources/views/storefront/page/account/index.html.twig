@@ -144,7 +144,11 @@
 
                             {% block page_account_overview_newsletter_content %}
                                 <div class="js-newsletter-wrapper">
-                                    {% sw_include "@Storefront/storefront/page/account/newsletter.html.twig" with { "customer": context.customer } %}
+                                    {% if feature('FEATURE_NEXT_14001') %}
+                                        {% sw_include "@Storefront/storefront/page/account/newsletter.html.twig" with { "newsletterAccountPagelet": page.getNewsletterAccountPagelet() } %}
+                                    {% else %}
+                                        {% sw_include "@Storefront/storefront/page/account/newsletter.html.twig" with { "customer": context.customer } %}
+                                    {% endif %}
                                 </div>
                             {% endblock %}
                         </div>

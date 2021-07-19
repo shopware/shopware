@@ -42,5 +42,6 @@
         "symfony/filesystem": "~5.3.0",
         "symfony/finder": "~5.3.0",
         "symfony/http-kernel": "~5.3.0"
-    }
+    },
+    "version": "6.4.3.0"
 }

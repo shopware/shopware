@@ -29,7 +29,7 @@ class ListDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new Required(), new PrimaryKey()),
-            (new ListField('data', 'data', StringField::class))->addFlags(new ApiAware()),
+            (new ListField('data', 'data', StringField::class))->setStrict(true)->addFlags(new ApiAware()),
         ]);
     }
 }

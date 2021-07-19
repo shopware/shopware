@@ -88,9 +88,9 @@ class AppDefinition extends EntityDefinition
             (new BlobField('icon', 'iconRaw'))->removeFlag(ApiAware::class),
             (new StringField('icon', 'icon'))->addFlags(new WriteProtected(), new Runtime()),
             (new StringField('app_secret', 'appSecret'))->removeFlag(ApiAware::class)->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
-            new ListField('modules', 'modules', JsonField::class),
+            (new ListField('modules', 'modules', JsonField::class))->setStrict(true),
             new JsonField('main_module', 'mainModule'),
-            new ListField('cookies', 'cookies', JsonField::class),
+            (new ListField('cookies', 'cookies', JsonField::class))->setStrict(true),
 
             (new TranslationsAssociationField(AppTranslationDefinition::class, 'app_id'))->addFlags(new Required(), new CascadeDelete()),
             new TranslatedField('label'),

@@ -206,7 +206,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-15797 - Simplified an internal check in `TaskScheduler`](/changelog/release-6-4-2-0/2021-06-15-simplify-internal-check.md) ([Jannik Zschiesche](https://github.com/apfelbox))
 *  [NEXT-15578 - Maintenance mode ships pages with cache headers](/changelog/release-6-4-2-0/2021-06-16-maintenance-mode-ships-pages-with-cache-headers.md)
 *  [NEXT-15735 - Fix snippet set copy without function](/changelog/release-6-4-2-0/2021-06-17-fix-snippet-set-copy-without-function.md)
-*  [NEXT-11418 - Fix that the checkboxes in the category tree don´t get hidden after closing](/changelog/release-6-4-2-0/2021-06-17-fix-that-the-checkboxes-in-the-category-tree-don´t-get-hidden-after-closing.md)
+*  [NEXT-11418 - Fix that the checkboxes in the category tree don´t get hidden after closing](/changelog/release-6-4-2-0/2021-06-17-fix-that-the-checkboxes-in-the-category-tree-dont-get-hidden-after-closing.md)
 *  [NEXT-15738 - Fix multi-select in product slider not correctly saved](/changelog/release-6-4-2-0/2021-06-17-multi-select-product-slider-not-correctly-saved.md)
 *  [NEXT-15728 - Add change button to aside checkout page](/changelog/release-6-4-2-0/2021-06-18-add-change-button-to-aside-checkout.md)
 *  [NEXT-15601 - Add event for buybox extensions](/changelog/release-6-4-2-0/2021-06-21-add-event-for-buybox-extensions.md)

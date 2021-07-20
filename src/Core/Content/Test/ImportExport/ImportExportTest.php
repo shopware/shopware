@@ -896,7 +896,10 @@ class ImportExportTest extends TestCase
         $importExport->export(Context::createDefaultContext(), new Criteria());
     }
 
-    public function testSalesChannelAssignment(): void
+    /**
+     * @dataProvider salesChannelAssignementCsvProvider
+     */
+    public function testSalesChannelAssignment($csvPath): void
     {
         $connection = $this->getContainer()->get(Connection::class);
         $connection->executeUpdate('DELETE FROM `product`');
@@ -911,6 +914,7 @@ class ImportExportTest extends TestCase
         $salesChannelAId = 'a8432def39fc4624b33213a56b8c944d';
         $this->createSalesChannel([
             'id' => $salesChannelAId,
+            'name' => 'First Sales Channel',
             'domains' => [[
                 'languageId' => Defaults::LANGUAGE_SYSTEM,
                 'currencyId' => Defaults::CURRENCY,
@@ -922,6 +926,7 @@ class ImportExportTest extends TestCase
         $salesChannelBId = 'b8432def39fc4624b33213a56b8c944d';
         $this->createSalesChannel([
             'id' => $salesChannelBId,
+            'name' => 'Second Sales Channel',
             'domains' => [[
                 'languageId' => Defaults::LANGUAGE_SYSTEM,
                 'currencyId' => Defaults::CURRENCY,
@@ -935,7 +940,7 @@ class ImportExportTest extends TestCase
         $profileId = $this->getDefaultProfileId(ProductDefinition::ENTITY_NAME);
 
         $expireDate = new \DateTimeImmutable('2099-01-01');
-        $uploadedFile = new UploadedFile(__DIR__ . '/fixtures/products_with_visibilities.csv', 'products_with_visibilities.csv', 'text/csv');
+        $uploadedFile = new UploadedFile($csvPath, 'products_with_visibilities.csv', 'text/csv');
         $logEntity = $importExportService->prepareImport(
             Context::createDefaultContext(),
             $profileId,
@@ -985,6 +990,17 @@ class ImportExportTest extends TestCase
         static::assertCount(0, $productC->getVisibilities());
         static::assertNull($productC->getVisibilities()->filterBySalesChannelId($salesChannelAId)->first());
         static::assertNull($productC->getVisibilities()->filterBySalesChannelId($salesChannelBId)->first());
+    }
+
+    /**
+     * @dataProvider
+     */
+    public function salesChannelAssignementCsvProvider()
+    {
+        return [
+            [__DIR__ . '/fixtures/products_with_visibilities.csv'],
+            [__DIR__ . '/fixtures/products_with_visibility_names.csv'],
+        ];
     }
 
     /**

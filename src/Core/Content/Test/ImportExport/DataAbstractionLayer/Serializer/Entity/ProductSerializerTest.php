@@ -24,8 +24,9 @@ class ProductSerializerTest extends TestCase
     public function testOnlySupportsProduct(): void
     {
         $visibilityRepository = $this->getContainer()->get('product_visibility.repository');
+        $salesChannelRepository = $this->getContainer()->get('product_visibility.repository');
 
-        $serializer = new ProductSerializer($visibilityRepository);
+        $serializer = new ProductSerializer($visibilityRepository, $salesChannelRepository);
 
         static::assertTrue($serializer->supports('product'), 'should support product');
 
@@ -46,10 +47,11 @@ class ProductSerializerTest extends TestCase
         $product = $this->getProduct();
 
         $visibilityRepository = $this->getContainer()->get('product_visibility.repository');
+        $salesChannelRepository = $this->getContainer()->get('product_visibility.repository');
 
         $productDefinition = $this->getContainer()->get(ProductDefinition::class);
 
-        $serializer = new ProductSerializer($visibilityRepository);
+        $serializer = new ProductSerializer($visibilityRepository, $salesChannelRepository);
         $serializer->setRegistry($this->getContainer()->get(SerializerRegistry::class));
 
         $serialized = iterator_to_array($serializer->serialize(new Config([], []), $productDefinition, $product));
@@ -73,7 +75,10 @@ class ProductSerializerTest extends TestCase
 
     public function testSupportsOnlyProduct(): void
     {
-        $serializer = new ProductSerializer($this->getContainer()->get('product_visibility.repository'));
+        $visibilityRepository = $this->getContainer()->get('product_visibility.repository');
+        $salesChannelRepository = $this->getContainer()->get('product_visibility.repository');
+
+        $serializer = new ProductSerializer($visibilityRepository, $salesChannelRepository);
 
         $definitionRegistry = $this->getContainer()->get(DefinitionInstanceRegistry::class);
         foreach ($definitionRegistry->getDefinitions() as $definition) {

@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\Store\Api;
 
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ConnectException;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
+use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceUserException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -21,8 +24,8 @@ use Shopware\Core\Framework\Store\Exception\StoreTokenMissingException;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\System\User\UserEntity;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -32,47 +35,29 @@ use Symfony\Component\Routing\Annotation\Route;
  * @internal
  * @RouteScope(scopes={"api"})
  */
-class StoreController extends AbstractStoreController
+class StoreController extends AbstractController
 {
-    /**
-     * @var StoreClient
-     */
-    private $storeClient;
+    private StoreClient $storeClient;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $pluginRepo;
+    private EntityRepositoryInterface $pluginRepo;
 
-    /**
-     * @var PluginManagementService
-     */
-    private $pluginManagementService;
+    private PluginManagementService $pluginManagementService;
 
-    /**
-     * @var SystemConfigService
-     */
-    private $configService;
+    private ?AbstractExtensionDataProvider $extensionDataProvider;
 
-    /**
-     * @var AbstractExtensionDataProvider|null
-     */
-    private $extensionDataProvider;
+    private EntityRepositoryInterface $userRepository;
 
     public function __construct(
         StoreClient $storeClient,
         EntityRepositoryInterface $pluginRepo,
         PluginManagementService $pluginManagementService,
         EntityRepositoryInterface $userRepository,
-        SystemConfigService $configService,
         ?AbstractExtensionDataProvider $extensionDataProvider
     ) {
         $this->storeClient = $storeClient;
         $this->pluginRepo = $pluginRepo;
         $this->pluginManagementService = $pluginManagementService;
         $this->userRepository = $userRepository;
-        $this->configService = $configService;
-        parent::__construct($userRepository);
         $this->extensionDataProvider = $extensionDataProvider;
     }
 
@@ -95,31 +80,20 @@ class StoreController extends AbstractStoreController
      * @Since("6.0.0.0")
      * @Route("/api/_action/store/login", name="api.custom.store.login", methods={"POST"})
      */
-    public function login(RequestDataBag $requestDataBag, QueryDataBag $queryDataBag, Context $context): JsonResponse
+    public function login(Request $request, Context $context): JsonResponse
     {
-        $shopwareId = $requestDataBag->get('shopwareId');
-        $password = $requestDataBag->get('password');
-        $language = $queryDataBag->get('language', '');
+        $shopwareId = $request->request->get('shopwareId');
+        $password = $request->request->get('password');
 
-        if ($shopwareId === null || $password === null) {
+        if (!\is_string($shopwareId) || !\is_string($password)) {
             throw new StoreInvalidCredentialsException();
         }
 
-        $this->ensureAdminApiSource($context);
-
         try {
-            $accessTokenStruct = $this->storeClient->loginWithShopwareId($shopwareId, $password, $language, $context);
+            $this->storeClient->loginWithShopwareId($shopwareId, $password, $context);
         } catch (ClientException $exception) {
             throw new StoreApiException($exception);
         }
-
-        $this->configService->set('core.store.shopSecret', $accessTokenStruct->getShopSecret());
-        $this->configService->set('core.store.shopwareId', $shopwareId);
-
-        $newStoreToken = $accessTokenStruct->getShopUserToken()->getToken();
-        $context->scope(Context::SYSTEM_SCOPE, function ($context) use ($newStoreToken): void {
-            $this->userRepository->update([['id' => $context->getSource()->getUserId(), 'storeToken' => $newStoreToken]], $context);
-        });
 
         return new JsonResponse();
     }
@@ -149,8 +123,6 @@ class StoreController extends AbstractStoreController
      */
     public function logout(Context $context): Response
     {
-        $this->ensureAdminApiSource($context);
-
         $context->scope(Context::SYSTEM_SCOPE, function ($context): void {
             $this->userRepository->update([['id' => $context->getSource()->getUserId(), 'storeToken' => null]], $context);
         });
@@ -162,13 +134,10 @@ class StoreController extends AbstractStoreController
      * @Since("6.0.0.0")
      * @Route("/api/_action/store/licenses", name="api.custom.store.licenses", methods={"GET"})
      */
-    public function getLicenseList(QueryDataBag $queryDataBag, Context $context): JsonResponse
+    public function getLicenseList(Context $context): JsonResponse
     {
-        $storeToken = $this->getUserStoreToken($context);
-        $language = $queryDataBag->get('language', '');
-
         try {
-            $licenseList = $this->storeClient->getLicenseList($storeToken, $language, $context);
+            $licenseList = $this->storeClient->getLicenseList($context);
         } catch (ClientException $exception) {
             throw new StoreApiException($exception);
         }
@@ -185,8 +154,6 @@ class StoreController extends AbstractStoreController
      */
     public function getUpdateList(Request $request, Context $context): JsonResponse
     {
-        $language = (string) $request->query->get('language', '');
-
         if ($this->extensionDataProvider) {
             $extensions = $this->extensionDataProvider->getInstalledExtensions($context, false);
 
@@ -200,13 +167,7 @@ class StoreController extends AbstractStoreController
             $plugins = $this->pluginRepo->search(new Criteria(), $context)->getEntities();
 
             try {
-                $storeToken = $this->getUserStoreToken($context);
-            } catch (StoreTokenMissingException $e) {
-                $storeToken = null;
-            }
-
-            try {
-                $updatesList = $this->storeClient->getUpdatesList($storeToken, $plugins, $language, $request->getHost(), $context);
+                $updatesList = $this->storeClient->getUpdatesList($plugins, $request->getHost(), $context);
             } catch (ClientException $exception) {
                 throw new StoreApiException($exception);
             }
@@ -225,7 +186,6 @@ class StoreController extends AbstractStoreController
     public function downloadPlugin(QueryDataBag $queryDataBag, Context $context): JsonResponse
     {
         $pluginName = (string) $queryDataBag->get('pluginName');
-        $language = $queryDataBag->get('language', '');
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('plugin.name', $pluginName));
@@ -237,15 +197,8 @@ class StoreController extends AbstractStoreController
             throw new CanNotDownloadPluginManagedByComposerException('can not downloads plugins managed by composer from store api');
         }
 
-        $unauthenticated = $queryDataBag->has('unauthenticated');
-        if ($unauthenticated) {
-            $storeToken = '';
-        } else {
-            $storeToken = $this->getUserStoreToken($context);
-        }
-
         try {
-            $data = $this->storeClient->getDownloadDataForPlugin($pluginName, $storeToken, $language, !$unauthenticated);
+            $data = $this->storeClient->getDownloadDataForPlugin($pluginName, $context);
         } catch (ClientException $exception) {
             throw new StoreApiException($exception);
         }
@@ -261,8 +214,6 @@ class StoreController extends AbstractStoreController
      */
     public function getLicenseViolations(Request $request, Context $context): JsonResponse
     {
-        $language = (string) $request->query->get('language', '');
-
         if ($this->extensionDataProvider) {
             $extensions = $this->extensionDataProvider->getInstalledExtensions($context, false);
         } else {
@@ -277,13 +228,7 @@ class StoreController extends AbstractStoreController
         }
 
         try {
-            $storeToken = $this->getUserStoreToken($context);
-        } catch (StoreTokenMissingException $e) {
-            $storeToken = null;
-        }
-
-        try {
-            $violations = $this->storeClient->getLicenseViolations($storeToken, $indexedExtensions, $language, $request->getHost());
+            $violations = $this->storeClient->getLicenseViolations($context, $indexedExtensions, $request->getHost());
         } catch (ClientException $exception) {
             throw new StoreApiException($exception);
         }
@@ -308,22 +253,41 @@ class StoreController extends AbstractStoreController
         }
 
         try {
-            $language = (string) $request->query->get('language', 'en-GB');
-
-            try {
-                $storeToken = $this->getUserStoreToken($context);
-            } catch (StoreTokenMissingException $e) {
-                $storeToken = null;
-            }
-
-            $this->storeClient->checkForViolations($storeToken, $extensions, $language, $request->getHost());
+            $this->storeClient->checkForViolations($context, $extensions, $request->getHost());
         } catch (\Exception $e) {
-            // extension list should always work
         }
 
         return new JsonResponse([
             'total' => $extensions->count(),
             'items' => $extensions,
         ]);
+    }
+
+    protected function getUserStoreToken(Context $context): string
+    {
+        $contextSource = $context->getSource();
+
+        if (!$contextSource instanceof AdminApiSource) {
+            throw new InvalidContextSourceException(AdminApiSource::class, \get_class($contextSource));
+        }
+
+        $userId = $contextSource->getUserId();
+        if ($userId === null) {
+            throw new InvalidContextSourceUserException(\get_class($contextSource));
+        }
+
+        /** @var UserEntity|null $user */
+        $user = $this->userRepository->search(new Criteria([$userId]), $context)->first();
+
+        if ($user === null) {
+            throw new StoreTokenMissingException();
+        }
+
+        $storeToken = $user->getStoreToken();
+        if ($storeToken === null) {
+            throw new StoreTokenMissingException();
+        }
+
+        return $storeToken;
     }
 }

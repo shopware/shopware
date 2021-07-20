@@ -1,0 +1,16 @@
+[
+    {
+        "id": 10303,
+        "name": "SendcloudShipping",
+        "iconPath": "https:\/\/sbp-plugin-images.s3.eu-west-1.amazonaws.com\/phpiDNxUL",
+        "localizedInfo": {
+            "name": "Sendcloud for Shopware 6 | Europe\u0027s number 1 shipping tool for online stores",
+            "shortDescription": "SendCloud is Europe\u2019s number 1 shipping tool for e-commerce. We provide an all-in-one solution that helps to optimize your whole shipping workflow. What are you waiting for?"
+        },
+        "producer": {
+            "name": "SendCloud"
+        },
+        "priority": 1,
+        "isCategoryLead": true
+    }
+]

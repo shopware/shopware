@@ -10,12 +10,10 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Store\Services\StoreService;
 use Shopware\Core\Framework\Test\Store\ExtensionBehaviour;
 use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SystemConfigTestBehaviour;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Filesystem\Filesystem;
 
 class DefaultAppUpdaterTest extends TestCase
@@ -44,7 +42,7 @@ class DefaultAppUpdaterTest extends TestCase
     public function testItUpdatesApps(): void
     {
         $this->installApp(__DIR__ . '/../_fixtures/SwagApp');
-        $this->getContainer()->get(SystemConfigService::class)->set(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN, 'not_null');
+        $this->setLicenseDomain('not_null');
 
         $this->getRequestHandler()->append(new Response(200, [], '{}'));
         $this->getRequestHandler()->append(new Response(200, [], file_get_contents(__DIR__ . '/../_fixtures/responses/my-licenses.json')));
@@ -69,7 +67,7 @@ class DefaultAppUpdaterTest extends TestCase
     public function testItDoesNotUpdateNewPermissions(): void
     {
         $this->installApp(__DIR__ . '/../_fixtures/SwagApp');
-        $this->getContainer()->get(SystemConfigService::class)->set(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN, 'not_null');
+        $this->setLicenseDomain('not_null');
 
         $this->getRequestHandler()->append(new Response(200, [], file_get_contents(__DIR__ . '/../_fixtures/responses/my-licenses.json')));
         $this->getRequestHandler()->append(new Response(200, [], '{"location": "http://localhost/my.zip", "type": "app"}'));

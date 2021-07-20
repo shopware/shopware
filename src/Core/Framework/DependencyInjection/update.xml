@@ -43,7 +43,6 @@
         <service id="Shopware\Core\Framework\Update\Services\PluginCompatibility">
             <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreClient"/>
             <argument type="service" id="plugin.repository"/>
-            <argument type="service" id="request_stack"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider" on-invalid="null"/>
         </service>
 

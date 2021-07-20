@@ -6,16 +6,14 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Context;
 
-/**
- * @internal
- *
- * @deprecated tag:v6.5.0 - Will be removed use AbstractStoreRequestOptionsProvider instead
- */
-abstract class AbstractAuthenticationProvider
+abstract class AbstractStoreRequestOptionsProvider
 {
-    abstract public function getUserStoreToken(Context $context): ?string;
-
     abstract public function getAuthenticationHeader(Context $context): array;
+
+    /**
+     * @deprecated tag:v6.5.0 - parameter $language will be removed and $context must not be null in the future
+     */
+    abstract public function getDefaultQueryParameters(?Context $context, ?string $language = null): array;
 
     protected function ensureAdminApiSource(Context $context): AdminApiSource
     {

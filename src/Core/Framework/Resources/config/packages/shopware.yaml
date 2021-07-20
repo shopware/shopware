@@ -111,6 +111,11 @@ shopware:
               major: true
               description: "Reduce database queries if all required data for the line items is already assign"
               # issue: NEXT-13250
+            - name: FEATURE_NEXT_16151
+              default: false
+              major: true
+              description: "Remove CheapestPriceField from product entity, to speed up entity hydration"
+              # issue: NEXT-16151
             - name: FEATURE_NEXT_14872
               default: false
               major: false

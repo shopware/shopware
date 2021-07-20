@@ -10,6 +10,7 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOp
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
+use Shopware\Core\Framework\Feature;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class ProductSubscriber implements EventSubscriberInterface
@@ -28,12 +29,15 @@ class ProductSubscriber implements EventSubscriberInterface
     {
         /** @var ProductEntity $product */
         foreach ($event->getEntities() as $product) {
-            $price = $product->getCheapestPrice();
+            // CheapestPrice will only be added to SalesChannelProductEntities in the Future
+            if (!Feature::isActive('FEATURE_NEXT_16151')) {
+                $price = $product->getCheapestPrice();
 
-            if ($price instanceof CheapestPriceContainer) {
-                $resolved = $price->resolve($event->getContext());
-                $product->setCheapestPriceContainer($price);
-                $product->setCheapestPrice($resolved);
+                if ($price instanceof CheapestPriceContainer) {
+                    $resolved = $price->resolve($event->getContext());
+                    $product->setCheapestPriceContainer($price);
+                    $product->setCheapestPrice($resolved);
+                }
             }
 
             $product->setVariation(
@@ -41,6 +45,15 @@ class ProductSubscriber implements EventSubscriberInterface
             );
 
             if ($product instanceof SalesChannelProductEntity) {
+                if (Feature::isActive('FEATURE_NEXT_16151')) {
+                    $price = $product->getCheapestPrice();
+
+                    if ($price instanceof CheapestPriceContainer) {
+                        $resolved = $price->resolve($event->getContext());
+                        $product->setCheapestPriceContainer($price);
+                        $product->setCheapestPrice($resolved);
+                    }
+                }
                 $product->setSortedProperties(
                     $this->sortProperties($product)
                 );

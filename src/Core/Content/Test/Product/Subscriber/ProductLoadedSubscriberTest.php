@@ -4,15 +4,18 @@ namespace Shopware\Core\Content\Test\Product\Subscriber;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPrice;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Product\Subscriber\ProductSubscriber;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -30,6 +33,30 @@ class ProductLoadedSubscriberTest extends TestCase
     {
         static::assertArrayHasKey(ProductEvents::PRODUCT_LOADED_EVENT, ProductSubscriber::getSubscribedEvents());
         static::assertCount(1, ProductSubscriber::getSubscribedEvents()[ProductEvents::PRODUCT_LOADED_EVENT]);
+    }
+
+    public function testCheapestPriceOnSalesChannelProductEntity(): void
+    {
+        $ids = new IdsCollection();
+
+        $this->getContainer()->get('product.repository')
+            ->create([
+                (new ProductBuilder($ids, 'p.1'))
+                    ->price(130)
+                    ->prices('rule-a', 150)
+                    ->visibility()
+                    ->build(),
+            ], Context::createDefaultContext());
+
+        $salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)
+            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        /** @var SalesChannelProductEntity $productEntity */
+        $productEntity = $this->getContainer()
+            ->get('sales_channel.product.repository')
+            ->search(new Criteria([$ids->get('p.1')]), $salesChannelContext)
+            ->first();
+
+        static::assertInstanceOf(CheapestPrice::class, $productEntity->getCheapestPrice());
     }
 
     /**

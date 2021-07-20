@@ -64,11 +64,9 @@ class CheapestPriceUpdater
                 'version' => $versionId,
             ]);
 
-            $grouped = $this->buildAccessor($container);
-
-            foreach ($grouped as $variantId => $accessor) {
+            foreach ($container->getVariantIds() as $variantId) {
                 $accessorQuery->execute([
-                    'accessor' => JsonFieldSerializer::encodeJson($accessor),
+                    'accessor' => JsonFieldSerializer::encodeJson($this->buildAccessor($container, $variantId)),
                     'id' => Uuid::fromHexToBytes($variantId),
                     'version' => $versionId,
                 ]);
@@ -76,38 +74,41 @@ class CheapestPriceUpdater
         }
     }
 
-    private function buildAccessor(CheapestPriceContainer $container): array
+    private function buildAccessor(CheapestPriceContainer $container, string $variantId): array
     {
-        $formatted = [];
         $rules = $container->getRuleIds();
         $rules[] = 'default';
 
-        foreach ($container->getValue() as $variantId => $prices) {
-            $variantPrices = [];
-            foreach ($rules as $ruleId) {
-                $cheapest = $this->getCheapest($ruleId, $prices);
+        $variantPrices = $container->getPricesForVariant($variantId);
+        $formattedPrices = [];
+        foreach ($rules as $ruleId) {
+            $cheapest = $this->getCheapest($ruleId, $variantPrices, $container->getDefault());
 
-                $mapped = [];
-                foreach ($cheapest['price'] as $price) {
-                    $mapped['currency' . $price['currencyId']] = $this->mapPrice($price);
-                }
-
-                $variantPrices['rule' . $ruleId] = $mapped;
+            if ($cheapest === null) {
+                throw new \RuntimeException(sprintf(
+                    'Could not find CheapestPrice for Variant "%s" for Rule "%s"',
+                    $variantId,
+                    $ruleId
+                ));
+            }
+            $mapped = [];
+            foreach ($cheapest['price'] as $price) {
+                $mapped['currency' . $price['currencyId']] = $this->mapPrice($price);
             }
 
-            $formatted[$variantId] = $variantPrices;
+            $formattedPrices['rule' . $ruleId] = $mapped;
         }
 
-        return $formatted;
+        return $formattedPrices;
     }
 
-    private function getCheapest(?string $ruleId, array $prices): array
+    private function getCheapest(?string $ruleId, array $prices, ?array $default): ?array
     {
         if (isset($prices[$ruleId])) {
             return $prices[$ruleId];
         }
 
-        return $prices['default'];
+        return $prices['default'] ?? $default;
     }
 
     private function mapPrice(array $price): array
@@ -155,10 +156,11 @@ class CheapestPriceUpdater
         $query->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY);
         $query->setParameter('version', Uuid::fromHexToBytes($context->getVersionId()));
 
-        $data = $query->execute()->fetchAll();
+        $data = $query->execute()->fetchAllAssociative();
 
         $grouped = [];
-        foreach ($data as &$row) {
+        /** @var array $row */
+        foreach ($data as $row) {
             $row['price'] = json_decode($row['price'], true);
             $grouped[$row['parent_id']][$row['variant_id']][$row['rule_id']] = $row;
         }
@@ -169,29 +171,42 @@ class CheapestPriceUpdater
             'LOWER(HEX(product.id)) as variant_id',
             'NULL as rule_id',
             '0 AS is_ranged',
-            'IFNULL(product.price, parent.price) as price',
+            'product.price as price',
             'IFNULL(product.min_purchase, parent.min_purchase) as min_purchase',
             'LOWER(HEX(IFNULL(product.unit_id, parent.unit_id))) as unit_id',
             'IFNULL(product.purchase_unit, parent.purchase_unit) as purchase_unit',
             'IFNULL(product.reference_unit, parent.reference_unit) as reference_unit',
+            'product.child_count as child_count',
         ]);
 
         $query->from('product', 'product');
         $query->leftJoin('product', 'product', 'parent', 'product.parent_id = parent.id');
-        $query->andWhere('(product.child_count = 0 OR product.parent_id IS NOT NULL)');
         $query->andWhere('product.id IN (:ids) OR product.parent_id IN (:ids)');
         $query->andWhere('product.version_id = :version');
-        $query->andWhere('product.available = 1');
+        $query->andWhere('product.available = 1 OR (product.parent_id IS NULL AND product.child_count > 0)');
         $query->andWhere('IFNULL(product.active, parent.active) = 1');
 
         $query->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY);
         $query->setParameter('version', Uuid::fromHexToBytes($context->getVersionId()));
 
-        $defaults = $query->execute()->fetchAll();
+        $defaults = $query->execute()->fetchAllAssociative();
 
+        /** @var array $row */
         foreach ($defaults as $row) {
+            if ($row['price'] === null) {
+                $grouped[$row['parent_id']][$row['variant_id']]['default'] = null;
+
+                continue;
+            }
+
             $row['price'] = json_decode($row['price'], true);
             $row['price'] = $this->normalizePrices($row['price']);
+            if ($row['child_count'] > 0) {
+                $grouped[$row['parent_id']]['default'] = $row;
+
+                continue;
+            }
+
             $grouped[$row['parent_id']][$row['variant_id']]['default'] = $row;
         }
 

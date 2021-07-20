@@ -14,28 +14,37 @@ class CheapestPriceContainer extends Struct
     /**
      * @var array[]
      */
-    protected $value;
+    protected array $value;
+
+    protected ?array $default = null;
 
     public function __construct(array $value)
     {
+        if (isset($value['default'])) {
+            $this->default = $value['default'];
+            unset($value['default']);
+        }
+
         $this->value = $value;
     }
 
     public function resolve(Context $context): ?CheapestPrice
     {
         $ruleIds = $context->getRuleIds();
-        $ruleIds[] = null;
+        $ruleIds[] = 'default';
 
         $prices = [];
-
-        foreach ($this->value as $group) {
+        $defaultWasAdded = false;
+        foreach ($this->value as $variantId => $group) {
             foreach ($ruleIds as $ruleId) {
-                $price = $this->filterByRuleId($group, $ruleId);
+                $price = $this->filterByRuleId($group, $ruleId, $defaultWasAdded);
 
                 if ($price === null) {
                     continue;
                 }
 
+                // overwrite the variantId in case the default price was added
+                $price['variant_id'] = $variantId;
                 $prices[] = $price;
 
                 break;
@@ -117,25 +126,46 @@ class CheapestPriceContainer extends Struct
         return $this->value;
     }
 
+    public function getPricesForVariant(string $variantId): array
+    {
+        return $this->value[$variantId] ?? [];
+    }
+
+    public function getVariantIds(): array
+    {
+        return \array_keys($this->value);
+    }
+
+    public function getDefault(): ?array
+    {
+        return $this->default;
+    }
+
     public function getRuleIds(): array
     {
         $ruleIds = [];
 
         foreach ($this->value as $group) {
             foreach ($group as $price) {
-                $ruleIds[] = $price['rule_id'];
+                $ruleIds[] = $price['rule_id'] ?? null;
             }
         }
 
         return array_filter(array_unique($ruleIds));
     }
 
-    private function filterByRuleId(array $prices, ?string $ruleId): ?array
+    private function filterByRuleId(array $prices, string $ruleId, bool &$defaultWasAdded): ?array
     {
-        foreach ($prices as $price) {
-            if ($price['rule_id'] === $ruleId) {
-                return $price;
+        if (\array_key_exists($ruleId, $prices)) {
+            // Null Price is the marker that the default price is inherited
+            if ($prices[$ruleId] === null && !$defaultWasAdded) {
+                // Make sure to add the default price only once, to not bloat up the intermediate prices array
+                $defaultWasAdded = true;
+
+                return $this->default;
             }
+
+            return $prices[$ruleId];
         }
 
         return null;

@@ -311,6 +311,10 @@ export default class Repository {
      * @returns {Array}
      */
     getSyncErrors(errorResponse) {
+        if (Shopware.Feature.isActive('FEATURE_NEXT_15815')) {
+            return errorResponse.response.data.errors;
+        }
+
         const operation = errorResponse.response.data.data[this.entityName];
         return operation.result.reduce((acc, result) => {
             acc.push(...result.errors);

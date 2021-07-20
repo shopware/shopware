@@ -32,7 +32,7 @@ services:
     ports: [8025]
 
   elasticsearch:
-    image: elasticsearch:7.3.0
+    image: elasticsearch:7.8.0
     ports: [9200]
     environment:
         - "ES_JAVA_OPTS=-Xms512m -Xmx512m"

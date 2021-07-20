@@ -150,11 +150,15 @@ class AccountEditOrderPageLoader
         $event = new PaymentMethodRouteRequestEvent($request, $routeRequest, $context, $criteria);
         $this->eventDispatcher->dispatch($event);
 
-        return $this->paymentMethodRoute->load(
+        $paymentMethods = $this->paymentMethodRoute->load(
             $event->getStoreApiRequest(),
             $this->orderConverter->assembleSalesChannelContext($order, $context->getContext()),
             $event->getCriteria()
         )->getPaymentMethods();
+
+        $paymentMethods->sortPaymentMethodsByPreference($context);
+
+        return $paymentMethods;
     }
 
     private function isOrderPaid(OrderEntity $order): bool

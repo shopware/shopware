@@ -130,6 +130,31 @@ class EditOrderPageTest extends TestCase
         static::assertCount(1, $page->getPaymentMethods());
     }
 
+    public function testShouldSortAvailablePaymentMethodsByPreference(): void
+    {
+        $request = new Request();
+        $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
+        $this->placeRandomOrder($context);
+
+        $selectedPaymentMethod = $this->createCustomPaymentMethod($context, ['position' => 1]);
+
+        // create some dummy methods to test sorting
+        $this->createCustomPaymentMethod($context, ['position' => 0]);
+        $this->createCustomPaymentMethod($context, ['position' => 4]);
+
+        // replace active payment method with a new one
+        $context->assign(['paymentMethod' => $selectedPaymentMethod]);
+
+        $page = $this->getPageLoader()->load($request, $context);
+        $paymentMethods = \array_values($page->getPaymentMethods()->getElements());
+
+        // selected payment method should be first
+        static::assertSame($selectedPaymentMethod->getId(), $paymentMethods[0]->getId());
+
+        // default payment method of customer should be second
+        static::assertSame($context->getCustomer()->getDefaultPaymentMethodId(), $paymentMethods[1]->getId());
+    }
+
     protected function getPageLoader(): AccountEditOrderPageLoader
     {
         return $this->getContainer()->get(AccountEditOrderPageLoader::class);
@@ -183,5 +208,35 @@ class EditOrderPageTest extends TestCase
         ], $context->getContext());
 
         return $paymentId;
+    }
+
+    private function createCustomPaymentMethod(SalesChannelContext $context, array $options): PaymentMethodEntity
+    {
+        $paymentId = Uuid::randomHex();
+
+        $data = \array_replace_recursive(
+            [
+                'id' => $paymentId,
+                'name' => 'Test Payment',
+                'description' => 'Payment test',
+                'active' => true,
+                'afterOrderEnabled' => true,
+                'salesChannels' => [
+                    [
+                        'id' => $context->getSalesChannelId(),
+                    ],
+                ],
+            ],
+            $options
+        );
+
+        $this->getContainer()
+            ->get('payment_method.repository')
+            ->create([$data], $context->getContext());
+
+        return $this->getContainer()
+            ->get('payment_method.repository')
+            ->search(new Criteria([$paymentId]), $context->getContext())
+            ->first();
     }
 }

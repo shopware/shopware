@@ -28,7 +28,7 @@ describe('Validation of theme and cache after auto update', () => {
         cy.contains('Theme-Zuweisung').should('be.visible');
         cy.contains('Theme ändern').click();
         cy.get('.sw-modal').should('be.visible');
-        cy.get('.sw-theme-modal__content-item:last-child input').click();
+        cy.get('.sw-theme-modal__content-item').contains('Shopware default theme').click();
         cy.get('.sw-modal__footer .sw-button--primary').click();
         cy.get('.sw-loader').should('not.exist');
 
@@ -48,7 +48,7 @@ describe('Validation of theme and cache after auto update', () => {
         cy.contains('Theme-Zuweisung').should('be.visible');
         cy.contains('Theme ändern').click();
         cy.get('.sw-modal').should('be.visible');
-        cy.get('.sw-theme-modal__content-item:first-child input').click();
+        cy.get('.sw-theme-modal__content-item').contains('Footwear Theme').click();
         cy.get('.sw-modal__footer .sw-button--primary').click();
         cy.get('.sw-loader').should('not.exist');
 

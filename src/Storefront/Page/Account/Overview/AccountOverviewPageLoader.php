@@ -112,6 +112,9 @@ class AccountOverviewPageLoader
             ->setLimit(1)
             ->addAssociation('orderCustomer');
 
+        $criteria->getAssociation('transactions')
+            ->addSorting(new FieldSorting('createdAt'));
+
         $apiRequest = new Request();
 
         $event = new OrderRouteRequestEvent($request, $apiRequest, $context, $criteria);

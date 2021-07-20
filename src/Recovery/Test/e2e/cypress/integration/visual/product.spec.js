@@ -18,7 +18,7 @@ describe('Product: Visual tests', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: '/api/product',
+            url: `${Cypress.env('apiPath')}/_action/sync`,
             method: 'post'
         }).as('saveData');
         cy.route({
@@ -55,7 +55,7 @@ describe('Product: Visual tests', () => {
 
         // Save product
         cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
+            expect(xhr).to.have.property('status', 200);
         });
 
         cy.get('.sw-loader').should('not.exist');

@@ -50,6 +50,7 @@ describe('Manufacturer: Visual tests', () => {
         cy.get('.sw-loader').should('not.exist');
 
         // Take snapshot for visual testing
+        cy.get('.sw-media-upload-v2__header .sw-context-button__button').should('be.visible');
         cy.takeSnapshot('[Manufacturer] Detail', '.sw-manufacturer-detail');
     });
 });

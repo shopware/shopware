@@ -1,10 +1,10 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 describe('Profile: Visual tests', () => {
     beforeEach(() => {
         cy.setToInitialState()
             .then(() => {
-                cy.loginViaApi()
+                cy.loginViaApi();
             }).then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/profile/index`);
             });
@@ -17,6 +17,7 @@ describe('Profile: Visual tests', () => {
             cy.get('.sw-tabs-item').contains(/General|Search preferences/g);
             cy.get('.sw-tabs-item[title="General"]').should('have.class', 'sw-tabs-item--active');
             cy.get('.sw-card__title').contains(/Profile information|Profile image|Password/g);
+            cy.get('.sw-media-upload-v2__header .sw-context-button__button').should('be.visible');
             cy.takeSnapshot('[Profile] Detail', '.sw-profile-index-general');
         });
         cy.skipOnFeature('FEATURE_NEXT_6040', () => {

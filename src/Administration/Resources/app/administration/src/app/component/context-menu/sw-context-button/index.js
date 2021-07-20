@@ -163,14 +163,12 @@ Component.register('sw-context-button', {
 
             // check if the user clicked inside the context menu
             const clickedInside = contextButton ? contextButton.contains(event.target) : false;
-            if (this.feature.isActive('FEATURE_NEXT_14114')) {
-                if (this.autoCloseOutsideClick && this.showMenu && !clickedInside) {
-                    const contextMenu = this.$refs.swContextMenu.$el;
-                    const clickedOutside = contextMenu?.contains(event.target) ?? false;
+            if (this.autoCloseOutsideClick && this.showMenu && !clickedInside) {
+                const contextMenu = this.$refs.swContextMenu.$el;
+                const clickedOutside = contextMenu?.contains(event.target) ?? false;
 
-                    if (!event?.target || !clickedOutside) {
-                        return this.closeMenu();
-                    }
+                if (!event?.target || !clickedOutside) {
+                    return this.closeMenu();
                 }
             }
 

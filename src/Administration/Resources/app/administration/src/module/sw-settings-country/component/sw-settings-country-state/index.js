@@ -5,12 +5,10 @@ const { Component, Mixin } = Shopware;
 
 Component.register('sw-settings-country-state', {
     template,
-    flag: 'FEATURE_NEXT_14114',
 
     inject: [
         'repositoryFactory',
         'acl',
-        'feature',
     ],
 
     mixins: [
@@ -104,8 +102,7 @@ Component.register('sw-settings-country-state', {
                 this.refreshCountryStateList();
                 this.currentCountryState = null;
             }).catch(errors => {
-                if (this.feature.isActive('FEATURE_NEXT_14114')
-                    && errors.response.data.errors[0].code === 'MISSING-SYSTEM-TRANSLATION') {
+                if (errors.response.data.errors[0].code === 'MISSING-SYSTEM-TRANSLATION') {
                     this.createNotificationError({
                         message: this.$tc('sw-country-state-detail.createNewStateError'),
                     });

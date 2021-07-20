@@ -17,7 +17,6 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class QuantityPriceCalculatorTest extends TestCase
@@ -30,8 +29,6 @@ class QuantityPriceCalculatorTest extends TestCase
         CalculatedPrice $expected,
         QuantityPriceDefinition $priceDefinition
     ): void {
-        Feature::skipTestIfInActive('FEATURE_NEXT_14114', $this);
-
         $taxCalculator = new TaxCalculator();
         $priceDefinition->setIsCalculated(false);
 
@@ -55,8 +52,6 @@ class QuantityPriceCalculatorTest extends TestCase
         CalculatedPrice $expected,
         QuantityPriceDefinition $priceDefinition
     ): void {
-        Feature::skipTestIfInActive('FEATURE_NEXT_14114', $this);
-
         $taxCalculator = new TaxCalculator();
 
         $calculator = new QuantityPriceCalculator(
@@ -81,8 +76,6 @@ class QuantityPriceCalculatorTest extends TestCase
         CalculatedPrice $expected,
         QuantityPriceDefinition $priceDefinition
     ): void {
-        Feature::skipTestIfInActive('FEATURE_NEXT_14114', $this);
-
         $priceRounding = new CashRounding();
 
         $taxCalculator = new TaxCalculator();

@@ -23,7 +23,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TaxFreeConfigField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateDefinition;
 use Shopware\Core\System\Country\Aggregate\CountryTranslation\CountryTranslationDefinition;
 use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCountryRoundingDefinition;
@@ -56,23 +55,17 @@ class CountryDefinition extends EntityDefinition
 
     public function getDefaults(): array
     {
-        $defaults = [];
+        $defaultTax = [
+            'enabled' => false,
+            'currencyId' => Defaults::CURRENCY,
+            'amount' => 0,
+        ];
 
-        if (Feature::isActive('FEATURE_NEXT_14114')) {
-            $defaultTax = [
-                'enabled' => false,
-                'currencyId' => Defaults::CURRENCY,
-                'amount' => 0,
-            ];
-
-            $defaults = [
-                'vatIdRequired' => false,
-                'customerTax' => $defaultTax,
-                'companyTax' => $defaultTax,
-            ];
-        }
-
-        return $defaults;
+        return [
+            'vatIdRequired' => false,
+            'customerTax' => $defaultTax,
+            'companyTax' => $defaultTax,
+        ];
     }
 
     public function since(): ?string
@@ -82,7 +75,7 @@ class CountryDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        $collection = new FieldCollection([
+        return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
 
             (new TranslatedField('name'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
@@ -96,8 +89,13 @@ class CountryDefinition extends EntityDefinition
             (new BoolField('force_state_in_registration', 'forceStateInRegistration'))->addFlags(new ApiAware()),
             (new BoolField('company_tax_free', 'companyTaxFree'))->addFlags(new ApiAware()),
             (new BoolField('check_vat_id_pattern', 'checkVatIdPattern'))->addFlags(new ApiAware()),
+            (new BoolField('vat_id_required', 'vatIdRequired'))->addFlags(new ApiAware()),
+            (new BoolField('tax_free', 'taxFree'))->addFlags(new ApiAware(), new Deprecated('v6.4.0', 'v6.5.0')),
+            (new BoolField('company_tax_free', 'companyTaxFree'))->addFlags(new ApiAware(), new Deprecated('v6.4.0', 'v6.5.0')),
             (new StringField('vat_id_pattern', 'vatIdPattern'))->addFlags(new ApiAware()),
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
+            (new TaxFreeConfigField('customer_tax', 'customerTax'))->addFlags(new ApiAware()),
+            (new TaxFreeConfigField('company_tax', 'companyTax'))->addFlags(new ApiAware()),
 
             (new OneToManyAssociationField('states', CountryStateDefinition::class, 'country_id', 'id'))
                 ->addFlags(new ApiAware(), new CascadeDelete()),
@@ -122,19 +120,5 @@ class CountryDefinition extends EntityDefinition
             (new OneToManyAssociationField('currencyCountryRoundings', CurrencyCountryRoundingDefinition::class, 'country_id'))
                 ->addFlags(new CascadeDelete()),
         ]);
-
-        if (Feature::isActive('FEATURE_NEXT_14114')) {
-            $collection->add((new BoolField('vat_id_required', 'vatIdRequired'))->addFlags(new ApiAware()));
-
-            $collection->add((new BoolField('tax_free', 'taxFree'))->addFlags(new ApiAware(), new Deprecated('v6.4.0', 'v6.5.0')));
-
-            $collection->add((new BoolField('company_tax_free', 'companyTaxFree'))->addFlags(new ApiAware(), new Deprecated('v6.4.0', 'v6.5.0')));
-
-            $collection->add((new TaxFreeConfigField('customer_tax', 'customerTax'))->addFlags(new ApiAware()));
-
-            $collection->add((new TaxFreeConfigField('company_tax', 'companyTax'))->addFlags(new ApiAware()));
-        }
-
-        return $collection;
     }
 }

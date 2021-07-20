@@ -1,7 +1,6 @@
 ---
 title: Add VAT id required to each country setting
 issue: NEXT-14118
-flag: FEATURE_NEXT_14114
 ---
 # Core
 * Added new property `vatIdRequired` in class `Shopware\Core\System\Country\CountryEntity`.

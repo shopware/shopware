@@ -16,44 +16,6 @@ describe('Country: Test crud operations', () => {
             });
     });
 
-    it('@settings: create and read country', () => {
-        cy.skipOnFeature('FEATURE_NEXT_14114');
-        const page = new SettingsPageObject();
-
-        // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/country`,
-            method: 'post'
-        }).as('saveData');
-
-        cy.get('a[href="#/sw/settings/country/create"]').click();
-
-        // Create country
-        cy.get('input[name=sw-field--country-name]').typeAndCheck('01.Niemandsland');
-
-        cy.window().then((win) => {
-            // Check tax free companies field exists and clicks
-            cy.get('.sw-settings-country-detail__field-tax-free-companies input').should('be.visible');
-            cy.get('.sw-settings-country-detail__field-tax-free-companies input').click();
-
-            // Check validate vat id for correct format field exists and clicks
-            cy.get('.sw-settings-country-detail__field-check-vatid-format input').should('be.visible');
-            cy.get('.sw-settings-country-detail__field-check-vatid-format input').click();
-        });
-
-        cy.get(page.elements.countrySaveAction).click();
-
-        // Verify creation
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
-
-        cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName}`).should('be.visible')
-            .contains('01.Niemandsland');
-    });
-
     it('@settings: update and read country', () => {
         const page = new SettingsPageObject();
 
@@ -115,7 +77,6 @@ describe('Country: Test crud operations', () => {
     });
 
     it('@settings: update currency dependent values and read country', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_14114');
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
@@ -194,7 +155,6 @@ describe('Country: Test crud operations', () => {
     });
 
     it('@settings: create and read country', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_14114');
         const page = new SettingsPageObject();
 
         // Request we want to wait for later

@@ -10,7 +10,6 @@ Component.register('sw-settings-country-list', {
     inject: [
         'repositoryFactory',
         'acl',
-        'feature',
     ],
 
     mixins: [
@@ -26,7 +25,6 @@ Component.register('sw-settings-country-list', {
             sortDirection: 'ASC',
             naturalSorting: true,
             showDeleteModal: false,
-            showSelection: false,
         };
     },
 
@@ -59,10 +57,6 @@ Component.register('sw-settings-country-list', {
             this.naturalSorting = this.sortBy === 'name';
             criteria.setTerm(this.term);
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
-
-            if (this.feature.isActive('FEATURE_NEXT_14114')) {
-                this.showSelection = true;
-            }
 
             this.countryRepository.search(criteria, Shopware.Context.api).then((items) => {
                 this.total = items.total;

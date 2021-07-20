@@ -24,7 +24,6 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceEntity;
 use Shopware\Core\Checkout\Shipping\Cart\Error\ShippingMethodBlockedError;
@@ -34,7 +33,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyEntity;
@@ -1304,14 +1302,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
 
-        if (Feature::isActive('FEATURE_NEXT_14114')) {
-            $context->expects(static::atLeastOnce())->method('getTaxState')->willReturn(CartPrice::TAX_STATE_GROSS);
-        } else {
-            $customerGroup = new CustomerGroupEntity();
-            $customerGroup->setDisplayGross(true);
-
-            $context->method('getCurrentCustomerGroup')->willReturn($customerGroup);
-        }
+        $context->expects(static::atLeastOnce())->method('getTaxState')->willReturn(CartPrice::TAX_STATE_GROSS);
 
         $context->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
 
@@ -1364,14 +1355,7 @@ class DeliveryCalculatorTest extends TestCase
 
         $context = $this->createMock(SalesChannelContext::class);
 
-        if (Feature::isActive('FEATURE_NEXT_14114')) {
-            $context->expects(static::atLeastOnce())->method('getTaxState')->willReturn(CartPrice::TAX_STATE_NET);
-        } else {
-            $customerGroup = new CustomerGroupEntity();
-            $customerGroup->setDisplayGross(false);
-
-            $context->expects(static::atLeastOnce())->method('getCurrentCustomerGroup')->willReturn($customerGroup);
-        }
+        $context->expects(static::atLeastOnce())->method('getTaxState')->willReturn(CartPrice::TAX_STATE_NET);
 
         $baseContext = $this->createMock(Context::class);
         $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);

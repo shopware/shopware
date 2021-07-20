@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 describe('Country: Visual testing', () => {
     // eslint-disable-next-line no-undef
@@ -39,5 +39,26 @@ describe('Country: Visual testing', () => {
         cy.get('.sw-loader').should('not.exist');
         cy.get('input[name="sw-field--country-name"]').should('not.have.value', '');
         cy.takeSnapshot('[Country] Detail', '.sw-settings-country-detail');
+
+        cy.get('.sw-loader').should('not.exist');
+
+        cy.get('input[name="sw-field--country-customerTax-enabled"]').should('be.visible');
+        cy.get('input[name="sw-field--country-customerTax-enabled"]').check().then(() => {
+            cy.get('.sw-settings-country-general-customer-tax').should('be.visible');
+            cy.get('input[name=sw-field--country-customerTax-amount]').should('be.visible');
+        });
+
+        cy.get('input[name=sw-field--country-customerTax-amount]').type('300');
+        cy.get('.sw-settings-country-general__currency-dependent-modal').should('be.visible');
+        cy.get('.sw-settings-country-general__currency-dependent-modal').click({ force: true }).then(() => {
+            cy.get('.sw-settings-country-currency-dependent-modal').should('be.visible');
+        });
+
+        cy.takeSnapshot('[Country] Currency dependent modal', '.sw-settings-country-currency-dependent-modal');
+
+        cy.get('.sw-settings-country-currency-hamburger-menu__button').click();
+        cy.get('.sw-settings-country-currency-hamburger-menu__wrapper').should('be.visible');
+
+        cy.takeSnapshot('[Country] Currency dependent modal', '.sw-settings-country-currency-dependent-modal');
     });
 });

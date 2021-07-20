@@ -1,7 +1,6 @@
 ---
 title: Ui change for brexit changes.
 issue: NEXT-14605
-flag: FEATURE_NEXT_14114
 ---
 # Administration
 * Changed the value of `showSelection` from `false` to `true` in `sw-setting-country-list` for able multiple delete countries in the country setting list screen.

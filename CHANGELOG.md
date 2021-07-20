@@ -2,6 +2,11 @@
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/2020-08-03-Implement-New-Changelog.md).
 
 ## 6.4.3.0
+*  [NEXT-14114 - Add the new field is tax-free from to table currency and country.](/changelog/release-6-4-3-0/2021-03-10-add-new-field-tax-free-from-to-table-currency-and-country.md)
+*  [NEXT-14118 - Add VAT id required to each country setting](/changelog/release-6-4-3-0/2021-03-21-add-vat-id-required-to-each-country-setting.md)
+*  [NEXT-14117 - Handling tax-free in storefront](/changelog/release-6-4-3-0/2021-03-26-handling-tax-free-in-storefront.md)
+*  [NEXT-14599 - Handling tax-free dependent values](/changelog/release-6-4-3-0/2021-05-11-handling-tax-free-dependent-values.md)
+*  [NEXT-14605 - Ui change for brexit changes.](/changelog/release-6-4-3-0/2021-05-21-ui-change-for-brexit-change.md)
 *  [NEXT-12482 - Add more isEmpty condition for Shipping postal cost](/changelog/release-6-4-3-0/2021-04-20-add-more-isempty-condition-for-shipping-postal-cost.md)
 *  [NEXT-15172 - Sanitize HTML contents of fields and CMS text elements](/changelog/release-6-4-3-0/2021-05-19-sanitize-html-content-of-fields-and-cms-text-elements.md)
 *  [NEXT-14362 - ACLs for app system](/changelog/release-6-4-3-0/2021-05-27-acls-for-app-system.md)

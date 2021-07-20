@@ -1,7 +1,6 @@
 ---
 title: Handling tax-free dependent values
 issue: NEXT-14599
-flag: FEATURE_NEXT_14114
 ---
 # Core
 * Deprecated `taxFree` from `Shopware/Core/System/Country/CountryEntity`, use `$customerTax->getEnabled()` instead.

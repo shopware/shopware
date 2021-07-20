@@ -8,7 +8,6 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -16,9 +15,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
-/**
- * @internal (FEATURE_NEXT_14114)
- */
 class CartTaxTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -55,8 +51,6 @@ class CartTaxTest extends TestCase
 
     protected function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_14114', $this);
-
         $this->ids = new TestDataCollection(Context::createDefaultContext());
 
         $this->connection = $this->getContainer()->get(Connection::class);

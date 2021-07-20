@@ -17,7 +17,6 @@ use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -34,8 +33,6 @@ class AmountCalculatorTest extends TestCase
      */
     public function testCalculateAmountWithGrossPrices(CartPrice $expected, PriceCollection $prices): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_14114', $this);
-
         $shop = $this->createMock(SalesChannelEntity::class);
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
@@ -62,8 +59,6 @@ class AmountCalculatorTest extends TestCase
      */
     public function testCalculateAmountWithNetPrices(CartPrice $expected, PriceCollection $prices): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_14114', $this);
-
         $shop = $this->createMock(SalesChannelEntity::class);
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
@@ -90,8 +85,6 @@ class AmountCalculatorTest extends TestCase
      */
     public function testCalculateAmountForNetDeliveries(CartPrice $expected, PriceCollection $prices): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_14114', $this);
-
         $shop = $this->createMock(SalesChannelEntity::class);
 
         $context = $this->createMock(SalesChannelContext::class);

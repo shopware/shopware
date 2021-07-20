@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @feature-deprecated (FEATURE_NEXT_14114) tag:v6.5.0 - Will be remove on version 6.5.0
+ * @deprecated tag:v6.5.0 - Will be remove on version 6.5.0
  */
 class CountryTaxFreeDeprecationUpdater implements EventSubscriberInterface
 {

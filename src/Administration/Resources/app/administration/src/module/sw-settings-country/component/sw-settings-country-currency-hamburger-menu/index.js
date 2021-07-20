@@ -5,12 +5,8 @@ const { Component } = Shopware;
 
 Component.register('sw-settings-country-currency-hamburger-menu', {
     template,
-    flag: 'FEATURE_NEXT_14114',
 
-    inject: [
-        'acl',
-        'feature',
-    ],
+    inject: ['acl'],
 
     props: {
         isLoading: {

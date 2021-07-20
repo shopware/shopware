@@ -8,12 +8,10 @@ const { Criteria } = Shopware.Data;
 
 Component.register('sw-settings-country-general', {
     template,
-    flag: 'FEATURE_NEXT_14114',
 
     inject: [
         'repositoryFactory',
         'acl',
-        'feature',
     ],
 
     mixins: [

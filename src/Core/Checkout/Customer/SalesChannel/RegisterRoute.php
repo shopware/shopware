@@ -21,7 +21,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Event\DataMappingEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -403,12 +402,7 @@ See the Guide ""Register a customer"" for more information on customer registrat
         }
 
         if ($data->get('vatIds') !== null && $accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
-            //@internal (flag:FEATURE_NEXT_14114) Remove with feature flag
-            if (!Feature::isActive('FEATURE_NEXT_14114') && $this->systemConfigService->get('core.loginRegistration.vatIdFieldRequired', $context->getSalesChannel()->getId())) {
-                $definition->add('vatIds', new NotBlank());
-            }
-
-            if (Feature::isActive('FEATURE_NEXT_14114') && $this->requiredVatIdField($billingAddress['countryId'], $context)) {
+            if ($this->requiredVatIdField($billingAddress['countryId'], $context)) {
                 $definition->add('vatIds', new NotBlank());
             }
 

@@ -1,7 +1,6 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import DomAccess from 'src/helper/dom-access.helper';
 import HttpClient from 'src/service/http-client.service';
-import Feature from 'src/helper/feature.helper';
 
 export default class CountryStateSelectPlugin extends Plugin {
 
@@ -42,14 +41,12 @@ export default class CountryStateSelectPlugin extends Plugin {
         const countryId = event.target.value;
 
         this.requestStateData(countryId);
-        if (Feature.isActive('FEATURE_NEXT_14114')) {
-            const countrySelect = event.target.options[event.target.selectedIndex];
-            const vatIdRequired = DomAccess.getDataAttribute(countrySelect, this.options.vatIdRequired);
-            const vatIdInput = document.querySelector(this.options.vatIdFieldInput);
+        const countrySelect = event.target.options[event.target.selectedIndex];
+        const vatIdRequired = DomAccess.getDataAttribute(countrySelect, this.options.vatIdRequired);
+        const vatIdInput = document.querySelector(this.options.vatIdFieldInput);
 
-            if (vatIdInput) {
-                this._updateRequiredVatId(vatIdInput, vatIdRequired);
-            }
+        if (vatIdInput) {
+            this._updateRequiredVatId(vatIdInput, vatIdRequired);
         }
     }
 

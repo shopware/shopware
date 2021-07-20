@@ -26,7 +26,6 @@
                 systemCurrencyISOCode: 'EUR',
         },
             apiContext: {
-                apiVersion: <%= apiVersion %>,
                 host: 'localhost',
                 basePath: '',
                 pathInfo: '/'

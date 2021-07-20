@@ -54,7 +54,6 @@ Shopware.Application.view = {
 Shopware.State.commit('context/setApiInstallationPath', 'installationPath');
 Shopware.State.commit('context/setApiApiPath', '/api');
 Shopware.State.commit('context/setApiApiResourcePath', '/api/v3');
-Shopware.State.commit('context/setApiApiVersion', 3);
 Shopware.State.commit('context/setApiAssetsPath', '');
 Shopware.State.commit('context/setApiLanguageId', '2fbb5fe2e29a4d70aa5854ce7ce3e20b');
 Shopware.State.commit('context/setApiInheritance', false);

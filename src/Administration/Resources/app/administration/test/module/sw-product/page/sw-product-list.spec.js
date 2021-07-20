@@ -20,7 +20,6 @@ function mockContext() {
     return {
         apiPath: 'http://shopware.local/api',
         apiResourcePath: 'http://shopware.local/api/v2',
-        apiVersion: 2,
         assetsPath: 'http://shopware.local/bundles/',
         basePath: '',
         host: 'shopware.local',

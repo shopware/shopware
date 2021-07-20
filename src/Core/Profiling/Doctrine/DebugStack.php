@@ -9,7 +9,7 @@ use Doctrine\DBAL\Logging\DebugStack as DoctrineDebugStack;
  */
 class DebugStack extends DoctrineDebugStack
 {
-    public static string $writeSqlRegex = '/^\s*(UPDATE|ALTER|BACKUP|CREATE|DELETE|DROP|EXEC|INSERT|TRUNCATE)/';
+    public static string $writeSqlRegex = '/^\s*(UPDATE|ALTER|BACKUP|CREATE|DELETE|DROP|EXEC|INSERT|TRUNCATE)/i';
 
     public function startQuery($sql, ?array $params = null, ?array $types = null): void
     {

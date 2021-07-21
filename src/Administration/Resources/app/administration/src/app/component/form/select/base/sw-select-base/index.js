@@ -68,10 +68,30 @@ Component.register('sw-select-base', {
             this.$emit('select-expanded');
         },
 
-        collapse() {
+        collapse(event) {
             document.removeEventListener('click', this.listenToClickOutside);
             this.expanded = false;
             this.$emit('select-collapsed');
+            // @see NEXT-16079 allow back tab-ing through form via SHIFT+TAB
+            if (event && event?.shiftKey) {
+                event.preventDefault();
+                this.focusPreviousFormElement();
+            }
+        },
+
+        focusPreviousFormElement() {
+            const focusableSelector = 'a, button, input, textarea, select, details,[tabindex]:not([tabindex="-1"])';
+            const myFocusable = this.$el.querySelector(focusableSelector);
+            const keyboardFocusable = [
+                ...document.querySelectorAll(focusableSelector),
+            ].filter(el => !el.hasAttribute('disabled'));
+
+            keyboardFocusable.forEach((element, index) => {
+                if (index > 0 && element === myFocusable) {
+                    keyboardFocusable[index - 1].click();
+                    keyboardFocusable[index - 1].focus();
+                }
+            });
         },
 
         listenToClickOutside(event) {

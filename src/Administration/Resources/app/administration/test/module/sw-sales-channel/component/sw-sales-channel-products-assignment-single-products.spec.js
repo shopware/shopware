@@ -14,6 +14,20 @@ import 'src/app/component/context-menu/sw-context-button';
 
 let productData = [];
 
+function mockCriteria() {
+    return {
+        limit: 25,
+        page: 1,
+        sortings: [{ field: 'name', naturalSorting: false, order: 'ASC' }],
+        resetSorting() {
+            this.sortings = [];
+        },
+        addSorting(sorting) {
+            this.sortings.push(sorting);
+        }
+    };
+}
+
 function setProductData(products) {
     productData = [...products];
     productData.total = 3;
@@ -159,6 +173,24 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
         expect(wrapper.vm.page).toEqual(1);
         expect(wrapper.vm.getProducts).toHaveBeenCalledTimes(1);
 
+        wrapper.vm.getProducts.mockRestore();
+    });
+
+    it('should get products when changing page', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+        wrapper.vm.getProducts = jest.fn();
+        expect(wrapper.vm.productCriteria.sortings).toEqual([]);
+        wrapper.vm.products.criteria = mockCriteria();
+
+        await wrapper.vm.onChangePage({ page: 2, limit: 25 });
+
+        expect(wrapper.vm.page).toBe(2);
+        expect(wrapper.vm.limit).toBe(25);
+        expect(wrapper.vm.productCriteria.sortings).toEqual([
+            { field: 'name', naturalSorting: false, order: 'ASC' }
+        ]);
+        expect(wrapper.vm.getProducts).toHaveBeenCalledTimes(1);
         wrapper.vm.getProducts.mockRestore();
     });
 });

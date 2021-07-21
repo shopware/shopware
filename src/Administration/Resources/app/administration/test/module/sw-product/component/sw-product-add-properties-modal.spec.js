@@ -381,7 +381,8 @@ describe('src/module/sw-product/component/sw-product-add-properties-modal', () =
     it('should get properties when changing search term', async () => {
         await wrapper.setData({
             $refs: $refsMock,
-            selectedProperty: {}
+            selectedProperty: {},
+            propertiesPage: 2
         });
 
         wrapper.vm.$refs.propertiesListing.selectItem = jest.fn();
@@ -389,11 +390,14 @@ describe('src/module/sw-product/component/sw-product-add-properties-modal', () =
             return Promise.resolve();
         });
 
+        expect(wrapper.vm.propertiesPage).toEqual(2);
+
         wrapper.vm.onChangeSearchTerm('Size');
 
         expect(wrapper.vm.$refs.propertiesListing.selectItem).toHaveBeenCalledWith(false, {});
         expect(wrapper.vm.selectedProperty).toBe(null);
         expect(wrapper.vm.searchTerm).toBe('Size');
+        expect(wrapper.vm.propertiesPage).toEqual(1);
         expect(wrapper.vm.propertyGroupCriteria.term).toBe('Size');
         wrapper.vm.getProperties.mockRestore();
     });

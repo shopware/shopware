@@ -2,6 +2,20 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-sales-channel/view/sw-sales-channel-detail-products';
 
+function mockCriteria() {
+    return {
+        limit: 25,
+        page: 1,
+        sortings: [{ field: 'name', naturalSorting: false, order: 'ASC' }],
+        resetSorting() {
+            this.sortings = [];
+        },
+        addSorting(sorting) {
+            this.sortings.push(sorting);
+        }
+    };
+}
+
 function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-sales-channel-detail-products'), {
         stubs: {
@@ -245,11 +259,16 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
         const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
         wrapper.vm.getProducts = jest.fn();
+        expect(wrapper.vm.productCriteria.sortings).toEqual([]);
+        wrapper.vm.products.criteria = mockCriteria();
 
         await wrapper.vm.onChangePage({ page: 2, limit: 25 });
 
         expect(wrapper.vm.page).toBe(2);
         expect(wrapper.vm.limit).toBe(25);
+        expect(wrapper.vm.productCriteria.sortings).toEqual([
+            { field: 'name', naturalSorting: false, order: 'ASC' }
+        ]);
         expect(wrapper.vm.getProducts).toHaveBeenCalledTimes(1);
         wrapper.vm.getProducts.mockRestore();
     });

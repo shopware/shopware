@@ -17,7 +17,6 @@ import initSvgIcons from 'src/app/init/svg-icons.init';
 import initShortcut from 'src/app/init/shortcut.init';
 import initFilterFactory from 'src/app/init/filter-factory.init';
 import initEntity from 'src/app/init/entity.init';
-import initMarketing from 'src/app/init/marketing.init';
 
 export default {
     coreMixin: initMixin,
@@ -35,5 +34,4 @@ export default {
     componentHelper: initComponentHelper,
     filterFactory: initFilterFactory,
     entity: initEntity,
-    marketing: initMarketing,
 };

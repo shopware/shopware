@@ -7,7 +7,11 @@ export default class MarketingService extends ApiService {
     }
 
     getActiveDiscountCampaigns() {
+        // to enable the mock you need to disable this line
+        return Promise.resolve({});
+
         // return mock value instead of value from the SBP
+        // eslint-disable-next-line no-unreachable
         return this._getActiveDiscountCampaignsMock();
 
         // eslint-disable-next-line no-unreachable
@@ -33,7 +37,7 @@ export default class MarketingService extends ApiService {
                     comingSoonStartDate: '2005-08-15T15:52:01',
                     startDate: '2005-08-15T15:52:01',
                     lastCallStartDate: '2005-08-15T15:52:01',
-                    endDate: '2005-08-15T15:52:01',
+                    endDate: '2025-08-15T15:52:01',
                     components: {
                         storeBanner: {
                             background: {
@@ -61,52 +65,89 @@ export default class MarketingService extends ApiService {
                         dashboardBanner: {
                             background: {
                                 color: '#ffffff',
-                                image: 'http://www.company.org/cum/sonoras',
-                                position: 'string',
+                                // eslint-disable-next-line max-len
+                                image: 'https://images.unsplash.com/photo-1493606278519-11aa9f86e40a?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80',
+                                position: '100% 75%',
                             },
                             leftImage: {
-                                srcEn: 'http://www.any.org/ventos/verrantque',
-                                srcDe: 'http://www.any.org/ventos/verrantque',
+                                src: {
+                                    // eslint-disable-next-line max-len
+                                    'en-GB': 'https://images.unsplash.com/photo-1587049016823-69ef9d68bd44?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+                                    // eslint-disable-next-line max-len
+                                    'de-DE': 'https://images.unsplash.com/photo-1527866959252-deab85ef7d1b?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80',
+                                },
                                 bgColor: '#ffffff',
                                 hideInSmallViewports: false,
                                 srcset: {
-                                    'de-DE': 'string',
-                                    'en-GB': 'string',
+                                    // eslint-disable-next-line max-len
+                                    'en-GB': 'https://images.unsplash.com/photo-1587049016823-69ef9d68bd44?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80 634w',
+                                    // eslint-disable-next-line max-len
+                                    'de-DE': 'https://images.unsplash.com/photo-1527866959252-deab85ef7d1b?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80 1050w',
                                 },
                             },
-                            description: {
-                                text: {
-                                    'de-DE': 'string (max 350 Zeichen)',
-                                    'en-GB': 'string (max 350 characters)',
+                            content: {
+                                textColor: '#171717',
+                                linkColor: '#26af44',
+                                headline: {
+                                    'de-DE': 'Tolle Kampagne',
+                                    'en-GB': 'Amazing campaign',
                                 },
-                                inlineAction: [
-                                    {
-                                        placeholder: 'goToExtensionStore',
-                                        text: {
-                                            'de-DE': 'string',
-                                            'en-GB': 'string',
-                                        },
-                                        route: 'sw.extension.store.index.extensions',
+                                description: {
+                                    text: {
+                                        'de-DE': 'Es ist {goToShopwareHomePage}, öffne den {goToExtensionStoreAndOpenCategory} oder gehe zum {goToExtensionStore}',
+                                        'en-GB': 'Its {goToShopwareHomePage}, open {goToExtensionStoreAndOpenCategory} or go to the {goToExtensionStore}',
                                     },
-                                ],
-                            },
-                            label: {
-                                bgColor: '#000000',
-                                textColor: '#ffffff',
-                                'de-DE': 'string (max 30 Zeichen)',
-                                'en-GB': 'string (max 30 characters)',
-                            },
-                            mainAction: {
-                                variant: 'internalLink',
-                                bannerIsClickable: false,
-                                cta: {
-                                    'de-DE': 'string (max 20)',
-                                    'en-GB': 'string (max 20)',
+                                    inlineActions: [
+                                        {
+                                            placeholder: 'goToExtensionStore',
+                                            text: {
+                                                'de-DE': 'Erweiterungs Store',
+                                                'en-GB': 'Extension Store',
+                                            },
+                                            route: 'sw.extension.store.index.extensions',
+                                        },
+                                        {
+                                            placeholder: 'goToExtensionStoreAndOpenCategory',
+                                            text: {
+                                                'de-DE': 'Sommer Sale',
+                                                'en-GB': 'Summer Sale',
+                                            },
+                                            execution: {
+                                                method: 'linkToExtensionStoreAndSelectCategory',
+                                                arguments: ['category', 'summerSale2021'],
+                                            },
+                                        },
+                                        {
+                                            placeholder: 'goToShopwareHomePage',
+                                            text: {
+                                                'de-DE': 'Shopware',
+                                                'en-GB': 'Shopware',
+                                            },
+                                            externalLink: {
+                                                'de-DE': 'https://www.shopware.de',
+                                                'en-GB': 'https://www.shopware.com',
+                                            },
+                                        },
+                                    ],
                                 },
-                                execution: {
-                                    text: 'linkToExtensionStoreAndSelectCategory',
-                                    arguments: {
-                                        category: 'CategoryXY',
+                                label: {
+                                    bgColor: '#ac2c2c',
+                                    textColor: '#ffffff',
+                                    text: {
+                                        'de-DE': 'Wichtig',
+                                        'en-GB': 'Important',
+                                    },
+                                },
+                                mainAction: {
+                                    variant: 'internalLink',
+                                    bannerIsClickable: false,
+                                    cta: {
+                                        'de-DE': 'Kampagne öffnen',
+                                        'en-GB': 'Open campaign',
+                                    },
+                                    execution: {
+                                        method: 'linkToExtensionStoreAndSelectCategory',
+                                        arguments: ['category', 'summerSale2021'],
                                     },
                                 },
                             },

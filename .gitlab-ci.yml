@@ -444,14 +444,6 @@ E2E:
                 cypress_usePercy: 'false'
                 SKIP_ON_MR: 'true'
 
-Visual Testing (Percy):
-    extends: .percy_integration
-    stage: E2E
-    rules:
-        - if: '$PERCY_TOKEN == null || $CYPRESS_PERCY_USAGE == null'
-          when: never
-        - if: '$CI_PIPELINE_SOURCE == "schedule"'
-
 Symfony security check:
     stage: security
     needs: []
@@ -576,9 +568,8 @@ Percy:
     rules:
         -   if: '$PERCY_TOKEN == null || $CYPRESS_PERCY_USAGE == null'
             when: never
-        -   if: '$CI_MERGE_REQUEST_LABELS =~ /.*E2E::skip.*/'
+        -   if: '$CI_MERGE_REQUEST_LABELS =~ /.*visual::skip.*/'
             when: never
         -   if: '$CI_PIPELINE_SOURCE == "pipeline"'
-        -   if: '$CI_MERGE_REQUEST_LABELS =~ /.*E2E::all.*/'
-        -   if: '$CI_MERGE_REQUEST_LABELS =~ /.*E2E::visual.*/'
-        -   if: '$CI_PIPELINE_SOURCE == "pipeline"'
+        -   if: '$CI_PIPELINE_SOURCE == "schedule"'
+        -   if: '$CI_MERGE_REQUEST_LABELS =~ /.*visual::all.*/'

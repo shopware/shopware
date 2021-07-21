@@ -45,6 +45,41 @@ class Migration1625304609UpdateRolePrivilegesTest extends TestCase
         }
     }
 
+    public function testCanHandleAclRoleWithObjectifiedPrivileges(): void
+    {
+        $aclRoleRepo = $this->getContainer()->get('acl_role.repository');
+        $connection = $this->getContainer()->get(Connection::class);
+        $context = Context::createDefaultContext();
+
+        $userId = Uuid::randomHex();
+        $this->createUser($userId);
+
+        $aclRoleId = Uuid::randomHex();
+        $this->createAclRole($aclRoleId);
+
+        $connection->executeStatement("
+            UPDATE `acl_role`
+            SET `privileges` = '{\"0\": \"users_and_permissions.viewer\"}'
+            WHERE id = :id
+        ", ['id' => $aclRoleId]);
+
+        $this->createAclUserRole($userId, $aclRoleId);
+
+        $migration = new Migration1625304609UpdateRolePrivileges();
+        $migration->update($connection);
+
+        $apps = $this->getAllApps($connection);
+        $appPrivileges = $this->getAppPrivileges($apps);
+
+        /** @var AclRoleEntity $role */
+        $role = $aclRoleRepo->search(new Criteria([$aclRoleId]), $context)->first();
+        static::assertNotNull($role);
+
+        foreach ($appPrivileges as $appPrivilege) {
+            static::assertContains($appPrivilege, $role->getPrivileges());
+        }
+    }
+
     private function createUser($userId): void
     {
         $this->getContainer()->get(Connection::class)->insert('user', [

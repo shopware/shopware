@@ -29,11 +29,15 @@ describe('Review: Test pagination and the corosponding URL parameters', () => {
                 let products = [];
 
                 for (let i = 1; i <= 26; i++) {
+                    let id = uuid().replace(/-/g, '');
+
+                    productIds.push(id);
                     products.push(
                         {
+                            id: id,
                             name: `product-${i}`,
                             stock: i,
-                            productNumber: uuid().replace(/-/g, ''),
+                            productNumber: id,
                             taxId: tax.id,
                             price: [
                                 {
@@ -67,8 +71,6 @@ describe('Review: Test pagination and the corosponding URL parameters', () => {
                     }
                 })
             }).then(products => {
-                productIds = products.body.data['write-product'].result.map(product => product.entities.product[0]);
-
                 return cy.searchViaAdminApi({
                     endpoint: 'sales-channel',
                     data: {

@@ -35,9 +35,8 @@
         <service id="Shopware\Core\Content\Flow\Action\AddOrderTagAction">
             <argument type="service" id="order.repository" />
             <tag name="kernel.event_subscriber" />
-            <tag name="flow.action" />
-            <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
             <tag name="flow.action" priority="1000" />
+            <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
         </service>
 
         <service id="Shopware\Core\Content\Flow\Action\AddCustomerTagAction">
@@ -47,17 +46,26 @@
             <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
         </service>
 
-        <service id="Shopware\Core\Content\Flow\Action\RemoveCustomerTagAction">
-            <argument type="service" id="customer_tag.repository" />
+        <service id="Shopware\Core\Content\Flow\Action\RemoveOrderTagAction">
+            <argument type="service" id="order_tag.repository" />
             <tag name="kernel.event_subscriber" />
             <tag name="flow.action" priority="800" />
             <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
         </service>
 
-        <service id="Shopware\Core\Content\Flow\Action\RemoveOrderTagAction">
-            <argument type="service" id="order_tag.repository" />
+        <service id="Shopware\Core\Content\Flow\Action\RemoveCustomerTagAction">
+            <argument type="service" id="customer_tag.repository" />
             <tag name="kernel.event_subscriber" />
             <tag name="flow.action" priority="700" />
+            <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
+        </service>
+
+        <service id="Shopware\Core\Content\Flow\Action\CallWebhookAction">
+            <argument type="service" id="shopware.app_system.guzzle" />
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer"/>
+            <argument type="service" id="logger"/>
+            <tag name="kernel.event_subscriber" />
+            <tag name="flow.action" priority="650" />
             <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
         </service>
 
@@ -75,14 +83,14 @@
             <argument type="service" id="language.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="kernel.event_subscriber"/>
-            <tag name="flow.action" priority="650" />
+            <tag name="flow.action" priority="500" />
             <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
         </service>
 
         <service id="Shopware\Core\Content\Flow\Action\SetOrderStateAction">
             <tag name="kernel.event_subscriber" />
+            <tag name="flow.action" priority="400" />
             <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
-            <tag name="flow.action" priority="600" />
         </service>
 
         <service id="Shopware\Core\Content\Flow\Action\StopFlowAction">

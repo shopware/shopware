@@ -4,7 +4,9 @@
     class="sw-entity-single-select"
     :is-loading="isLoading"
     :disable-auto-close="disableAutoClose"
+    clearable
     v-bind="$attrs"
+    @clear="clearInput"
     @select-expanded="onSelectExpanded"
     @select-collapsed="onSelectCollapsed"
     v-on="$listeners"

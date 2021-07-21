@@ -20,7 +20,7 @@ const createSingleSelect = (customOptions) => {
             'sw-block-field': Shopware.Component.build('sw-block-field'),
             'sw-base-field': Shopware.Component.build('sw-base-field'),
             'sw-icon': {
-                template: '<div></div>'
+                template: '<div @click="$emit(\'click\', $event)"></div>'
             },
             'sw-field-error': Shopware.Component.build('sw-field-error'),
             'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
@@ -183,5 +183,58 @@ describe('components/sw-single-select', () => {
         expect(wrapper.find('.sw-select-option--0').text()).toEqual('Entry 1');
         expect(wrapper.find('.sw-select-option--1').text()).toEqual('Entry 2');
         expect(wrapper.find('.sw-select-option--2').text()).toEqual('Entry 3');
+    });
+
+    it('should show the clearable icon in the single select', async () => {
+        const wrapper = await createSingleSelect();
+
+        const clearableIcon = wrapper.find('.sw-select__select-indicator-clear');
+        expect(clearableIcon.isVisible()).toBe(true);
+    });
+
+    it('should clear the selection when clicking on clear icon', async () => {
+        const wrapper = await createSingleSelect({
+            propsData: {
+                value: 'entryOneValue',
+                options: [
+                    {
+                        label: 'Entry 1',
+                        value: 'entryOneValue'
+                    },
+                    {
+                        label: 'Entry 2',
+                        value: 'entryTwoValue'
+                    },
+                    {
+                        label: 'Entry 3',
+                        value: 'entryThreeValue'
+                    }
+                ]
+            }
+        });
+
+        // expect entryOneValue selected
+        let selectionText = wrapper.find('.sw-single-select__selection-text');
+        expect(selectionText.text()).toEqual('Entry 1');
+
+        // expect no emitted value
+        expect(wrapper.emitted('change')).toEqual(undefined);
+
+        // click on clear
+        const clearableIcon = wrapper.find('.sw-select__select-indicator-clear');
+        await clearableIcon.trigger('click');
+
+        // expect emitting resetting value
+        const emittedChangeValue = wrapper.emitted('change')[0];
+        expect(emittedChangeValue).toEqual([undefined]);
+
+        // emulate v-model change
+        await wrapper.setProps({
+            value: emittedChangeValue[0]
+        });
+
+        // expect empty selection
+        selectionText = wrapper.find('.sw-single-select__selection-text');
+        expect(selectionText.text()).toEqual('');
     });
 });

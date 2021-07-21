@@ -25,6 +25,20 @@
                     class="sw-select__select-indicator"
                     size="16px"
                 />
+
+                <button
+                    v-if="clearable"
+                    class="sw-select__select-indicator-hitbox"
+                    tabindex="0"
+                    @click.prevent.stop="emitClear"
+                >
+                    <sw-icon
+                        class="sw-select__select-indicator sw-select__select-indicator-clear"
+                        name="small-default-x-line-medium"
+                        small
+                    />
+                </button>
+
                 <sw-icon
                     class="sw-select__select-indicator"
                     name="small-arrow-medium-down"

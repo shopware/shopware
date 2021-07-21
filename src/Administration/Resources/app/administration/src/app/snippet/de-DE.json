@@ -724,6 +724,7 @@
       "checkout_customer_logout": "Kunde meldet sich ab",
       "checkout_customer_register": "Kundenkonto wurde registriert",
       "checkout_order_placed": "Bestellung ist eingegangen",
+      "checkout_order_payment_method_changed": "Zahlungsmethode einer Bestellung wurde geändert",
       "contact_form_send": "Kontaktformular wurde verschickt",
       "customer_group_registration_accepted": "Kundengruppen-Registrierung wurde akzeptiert",
       "customer_group_registration_declined": "Kundengruppen-Registrierung wurde abgelehnt",

@@ -24,7 +24,7 @@ class Migration1625304609UpdateRolePrivileges extends MigrationStep
         $updatedAt = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT);
 
         foreach ($roles as $role) {
-            $currentPrivileges = json_decode($role['privileges']);
+            $currentPrivileges = json_decode($role['privileges'], true);
             $currentPrivileges = array_merge($currentPrivileges, $privileges);
             $currentPrivileges = array_unique($currentPrivileges);
 

@@ -312,7 +312,25 @@ export default class Repository {
      */
     getSyncErrors(errorResponse) {
         if (Shopware.Feature.isActive('FEATURE_NEXT_15815')) {
-            return errorResponse.response.data.errors;
+            const errors = errorResponse.response.data.errors;
+
+            errors.forEach((current) => {
+                if (!current.source || !current.source.pointer) {
+                    return;
+                }
+
+                const segments = current.source.pointer.split('/');
+
+                // remove first empty element in list
+                if (segments[0] === '') {
+                    segments.shift();
+                }
+                segments.shift();
+
+                current.source.pointer = segments.join('/');
+            });
+
+            return errors;
         }
 
         const operation = errorResponse.response.data.data[this.entityName];

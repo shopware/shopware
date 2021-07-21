@@ -55,10 +55,6 @@ export default class ErrorResolver {
                 segments.shift();
             }
 
-            if (Shopware.Feature.isActive('FEATURE_NEXT_15815')) {
-                segments.shift();
-            }
-
             const denormalized = {};
             const lastIndex = segments.length - 1;
 

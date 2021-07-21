@@ -11,10 +11,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Storefront\Controller\AddressController;
+use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Symfony\Component\HttpFoundation\Request;
 
 class AddressControllerTest extends TestCase
@@ -33,6 +35,114 @@ class AddressControllerTest extends TestCase
     }
 
     public function testDeleteAddressOfOtherCustomer(): void
+    {
+        [$id1, $id2] = $this->createCustomers();
+
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL, [SalesChannelContextService::CUSTOMER_ID => $id1]);
+
+        static::assertInstanceOf(CustomerEntity::class, $context->getCustomer());
+        static::assertSame($id1, $context->getCustomer()->getId());
+
+        $controller = $this->getContainer()->get(AddressController::class);
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
+        $this->getContainer()->get('request_stack')->push($request);
+
+        $controller->deleteAddress($id2, $context, $context->getCustomer());
+
+        $criteria = new Criteria([$id2]);
+
+        /** @var EntityRepositoryInterface $repository */
+        $repository = $this->getContainer()->get('customer_address.repository');
+        $address = $repository->search($criteria, $context->getContext())
+            ->get($id2);
+
+        static::assertInstanceOf(CustomerAddressEntity::class, $address);
+
+        $controller->deleteAddress($id1, $context, $context->getCustomer());
+
+        $criteria = new Criteria([$id1]);
+
+        /** @var EntityRepositoryInterface $repository */
+        $repository = $this->getContainer()->get('customer_address.repository');
+        $exists = $repository
+            ->search($criteria, $context->getContext())
+            ->has($id2);
+
+        static::assertFalse($exists);
+    }
+
+    public function testCreateBillingAddressIsNewSelectedAddress(): void
+    {
+        [$customerId, ] = $this->createCustomers();
+
+        $context = $this->getContainer()
+            ->get(SalesChannelContextFactory::class)
+            ->create(
+                Uuid::randomHex(),
+                Defaults::SALES_CHANNEL,
+                [
+                    SalesChannelContextService::CUSTOMER_ID => $customerId,
+                ]
+            );
+
+        $controller = $this->getContainer()->get(AddressController::class);
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
+        $request->attributes->set(RequestTransformer::STOREFRONT_URL, 'shopware.test');
+        $request->setSession($this->getContainer()->get('session'));
+
+        $this->getContainer()->get('request_stack')->push($request);
+
+        $oldBillingAddressId = $context->getCustomer()->getDefaultBillingAddressId();
+        $oldShippingAddressId = $context->getCustomer()->getDefaultShippingAddressId();
+
+        $dataBag = $this->getDataBag('billing');
+        $controller->addressBook($request, $dataBag, $context, $context->getCustomer());
+        $customer = $this->customerRepository->search(new Criteria([$customerId]), $context->getContext())->first();
+
+        static::assertNotSame($oldBillingAddressId, $customer->getDefaultBillingAddressId());
+        static::assertSame($oldShippingAddressId, $customer->getDefaultShippingAddressId());
+    }
+
+    public function testCreateShippingAddressIsNewSelectedAddress(): void
+    {
+        [$customerId, ] = $this->createCustomers();
+
+        $context = $this->getContainer()
+            ->get(SalesChannelContextFactory::class)
+            ->create(
+                Uuid::randomHex(),
+                Defaults::SALES_CHANNEL,
+                [
+                    SalesChannelContextService::CUSTOMER_ID => $customerId,
+                ]
+            );
+
+        $controller = $this->getContainer()->get(AddressController::class);
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
+        $request->attributes->set(RequestTransformer::STOREFRONT_URL, 'shopware.test');
+        $request->setSession($this->getContainer()->get('session'));
+
+        $this->getContainer()->get('request_stack')->push($request);
+
+        $oldBillingAddressId = $context->getCustomer()->getDefaultBillingAddressId();
+        $oldShippingAddressId = $context->getCustomer()->getDefaultShippingAddressId();
+
+        $dataBag = $this->getDataBag('shipping');
+        $controller->addressBook($request, $dataBag, $context, $context->getCustomer());
+        $customer = $this->customerRepository->search(new Criteria([$customerId]), $context->getContext())->first();
+
+        static::assertNotSame($oldShippingAddressId, $customer->getDefaultShippingAddressId());
+        static::assertSame($oldBillingAddressId, $customer->getDefaultBillingAddressId());
+    }
+
+    private function createCustomers(): array
     {
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
@@ -91,39 +201,29 @@ class AddressControllerTest extends TestCase
 
         $this->customerRepository->create($customers, Context::createDefaultContext());
 
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL, [SalesChannelContextService::CUSTOMER_ID => $id1]);
+        return [$id1, $id2];
+    }
 
-        static::assertInstanceOf(CustomerEntity::class, $context->getCustomer());
-        static::assertSame($id1, $context->getCustomer()->getId());
-
-        $controller = $this->getContainer()->get(AddressController::class);
-
-        $request = new Request();
-        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
-        $this->getContainer()->get('request_stack')->push($request);
-
-        $controller->deleteAddress($id2, $context, $context->getCustomer());
-
-        $criteria = new Criteria([$id2]);
-
-        /** @var EntityRepositoryInterface $repository */
-        $repository = $this->getContainer()->get('customer_address.repository');
-        $address = $repository->search($criteria, $context->getContext())
-            ->get($id2);
-
-        static::assertInstanceOf(CustomerAddressEntity::class, $address);
-
-        $controller->deleteAddress($id1, $context, $context->getCustomer());
-
-        $criteria = new Criteria([$id1]);
-
-        /** @var EntityRepositoryInterface $repository */
-        $repository = $this->getContainer()->get('customer_address.repository');
-        $exists = $repository
-            ->search($criteria, $context->getContext())
-            ->has($id2);
-
-        static::assertFalse($exists);
+    private function getDataBag(string $type): RequestDataBag
+    {
+        return new RequestDataBag([
+            'changeableAddresses' => new RequestDataBag([
+                'changeBilling' => ($type === 'billing') ? '1' : '',
+                'changeShipping' => ($type === 'shipping') ? '1' : '',
+            ]),
+            'addressId' => '',
+            'accountType' => '',
+            'address' => new RequestDataBag([
+                'salutationId' => $this->getValidSalutationId(),
+                'firstName' => 'not',
+                'lastName' => 'not',
+                'company' => 'not',
+                'department' => 'not',
+                'street' => 'not',
+                'zipcode' => 'not',
+                'city' => 'not',
+                'countryId' => $this->getValidCountryId(),
+            ]),
+        ]);
     }
 }

@@ -19,6 +19,12 @@ describe('Validation of theme and cache after auto update', () => {
     });
 
     it('@update: Check theme compile', () => {
+        cy.server();
+        cy.route({
+            url: '/api/_action/theme/**/assign/**',
+            method: 'POST'
+        }).as('themeAssign');
+
         cy.visit('/admin');
         cy.login();
 
@@ -28,12 +34,17 @@ describe('Validation of theme and cache after auto update', () => {
         cy.contains('Theme-Zuweisung').should('be.visible');
         cy.contains('Theme ändern').click();
         cy.get('.sw-modal').should('be.visible');
-        cy.get('.sw-theme-modal__content-item:last-child input').click();
+        cy.get('.sw-theme-modal__content-item').contains('Shopware default theme').click();
         cy.get('.sw-modal__footer .sw-button--primary').click();
         cy.get('.sw-loader').should('not.exist');
 
         cy.contains('Theme wechseln').should('be.visible');
         cy.contains('.sw-button--primary','Theme wechseln').click();
+
+        // Ensure theme assignment request is successful
+        cy.wait('@themeAssign').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
         cy.get('.sw-loader').should('not.exist');
 
         cy.contains('Shopware default theme');
@@ -48,12 +59,17 @@ describe('Validation of theme and cache after auto update', () => {
         cy.contains('Theme-Zuweisung').should('be.visible');
         cy.contains('Theme ändern').click();
         cy.get('.sw-modal').should('be.visible');
-        cy.get('.sw-theme-modal__content-item:first-child input').click();
+        cy.get('.sw-theme-modal__content-item').contains('Footwear Theme').click();
         cy.get('.sw-modal__footer .sw-button--primary').click();
         cy.get('.sw-loader').should('not.exist');
 
         cy.contains('Theme wechseln').should('be.visible');
         cy.contains('.sw-button--primary','Theme wechseln').click();
+
+        // Ensure theme assignment request is successful
+        cy.wait('@themeAssign').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
         cy.get('.sw-loader').should('not.exist');
 
         cy.contains('Footwear Theme');

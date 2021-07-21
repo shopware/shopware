@@ -239,12 +239,12 @@ Component.register('sw-settings-customer-group-detail', {
 
                 this.customerGroup = await this.createdComponent();
             } catch (err) {
+                this.isLoading = false;
+
                 this.createNotificationError({
                     message: this.$tc('sw-settings-customer-group.detail.notificationErrorMessage'),
                 });
             }
-
-            this.isLoading = false;
         },
     },
 });

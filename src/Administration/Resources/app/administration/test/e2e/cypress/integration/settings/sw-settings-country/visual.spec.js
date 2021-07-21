@@ -54,7 +54,7 @@ describe('Country: Visual testing', () => {
         });
 
         // Take Snapshot
-        cy.takeSnapshot('[Country] Detail', '.sw-country-state-list__content');
+        cy.takeSnapshot('[Country] Detail', '.sw-settings-country-general__options-container');
 
         cy.get('.sw-loader').should('not.exist');
 
@@ -70,6 +70,8 @@ describe('Country: Visual testing', () => {
             cy.get('.sw-settings-country-currency-dependent-modal').should('be.visible');
         });
 
+        cy.handleModalSnapshot('Currency dependent values');
+        cy.get('.sw-settings-country-currency-dependent-modal').should('be.visible');
         cy.takeSnapshot('[Country] Currency dependent modal', '.sw-settings-country-currency-dependent-modal');
     });
 });

@@ -33,7 +33,7 @@ describe('Order: Visual tests', () => {
         });
     });
 
-    it.only('@visual: check appearance of basic order workflow', () => {
+    it('@visual: check appearance of basic order workflow', () => {
         const page = new OrderPageObject();
 
         cy.server();

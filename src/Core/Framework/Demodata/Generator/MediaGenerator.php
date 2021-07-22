@@ -147,10 +147,10 @@ class MediaGenerator implements DemodataGeneratorInterface
         $text = $context->getFaker()->words(1, true);
 
         /*
-         * @deprecated tag:v6.5.0.0 remove and replace by importing \Maltyx\ImagesGenerator\ImagesGeneratorProvider
+         * @deprecated tag:v6.5.0.0 remove and replace by importing \Maltyxx\ImagesGenerator\ImagesGeneratorProvider
          */
-        if (\class_exists(\Maltyx\ImagesGenerator\ImagesGeneratorProvider::class)) {
-            $provider = \Maltyx\ImagesGenerator\ImagesGeneratorProvider::class;
+        if (\class_exists(\Maltyxx\ImagesGenerator\ImagesGeneratorProvider::class)) {
+            $provider = \Maltyxx\ImagesGenerator\ImagesGeneratorProvider::class;
         } else {
             $provider = \bheller\ImagesGenerator\ImagesGeneratorProvider::class;
         }

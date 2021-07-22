@@ -93,10 +93,10 @@ class DemodataService
         $faker->addProvider(new Commerce($faker));
 
         /*
-         * @deprecated tag:v6.5.0.0 remove and replace by importing \Maltyx\ImagesGenerator\ImagesGeneratorProvider
+         * @deprecated tag:v6.5.0.0 remove and replace by importing \Maltyxx\ImagesGenerator\ImagesGeneratorProvider
          */
-        if (\class_exists(\Maltyx\ImagesGenerator\ImagesGeneratorProvider::class)) {
-            $faker->addProvider(new \Maltyx\ImagesGenerator\ImagesGeneratorProvider($faker));
+        if (\class_exists(\Maltyxx\ImagesGenerator\ImagesGeneratorProvider::class)) {
+            $faker->addProvider(new \Maltyxx\ImagesGenerator\ImagesGeneratorProvider($faker));
         } else {
             $faker->addProvider(new \bheller\ImagesGenerator\ImagesGeneratorProvider($faker));
         }

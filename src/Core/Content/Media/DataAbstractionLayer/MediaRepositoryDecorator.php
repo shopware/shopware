@@ -71,6 +71,14 @@ class MediaRepositoryDecorator implements EntityRepositoryInterface
 
     public function delete(array $ids, Context $context): EntityWrittenContainerEvent
     {
+        $ids = array_filter($ids);
+        if (empty($ids)) {
+            $event = EntityWrittenContainerEvent::createWithDeletedEvents([], $context, []);
+            $this->eventDispatcher->dispatch($event);
+
+            return $event;
+        }
+
         $affectedMedia = $this->search(new Criteria($this->getRawIds($ids)), $context);
 
         if ($affectedMedia->count() === 0) {

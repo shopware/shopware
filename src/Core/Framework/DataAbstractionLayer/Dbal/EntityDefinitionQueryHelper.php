@@ -85,7 +85,7 @@ class EntityDefinitionQueryHelper
             }
         }
 
-        return $accessorFields;
+        return array_filter($accessorFields);
     }
 
     /**

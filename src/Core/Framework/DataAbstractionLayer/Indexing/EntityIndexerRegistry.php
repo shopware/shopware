@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IterateEntityIndexerMessage;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
@@ -14,7 +15,14 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubscriberInterface
 {
+    /**
+     * @deprecated tag:v6.5.0 - `$context->addExtension(EntityIndexerRegistry::USE_INDEXING_QUEUE, ...)` will be ignored, use `context->addState(EntityIndexerRegistry::USE_INDEXING_QUEUE)` instead
+     */
     public const USE_INDEXING_QUEUE = 'use-queue-indexing';
+
+    /**
+     * @deprecated tag:v6.5.0 - `$context->addExtension(EntityIndexerRegistry::DISABLE_INDEXING, ...)` will be ignored, use `context->addState(EntityIndexerRegistry::DISABLE_INDEXING)` instead
+     */
     public const DISABLE_INDEXING = 'disable-indexing';
 
     /**
@@ -89,13 +97,13 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
         }
         $this->working = true;
 
-        if ($event->getContext()->hasExtension(self::DISABLE_INDEXING)) {
+        if ($this->disabled($event->getContext())) {
             $this->working = false;
 
             return;
         }
 
-        $useQueue = $event->getContext()->hasExtension(self::USE_INDEXING_QUEUE);
+        $useQueue = $this->useQueue($event->getContext());
 
         foreach ($this->indexer as $indexer) {
             $message = $indexer->update($event);
@@ -173,6 +181,16 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
         }
 
         return null;
+    }
+
+    private function useQueue(Context $context): bool
+    {
+        return $context->hasExtension(self::USE_INDEXING_QUEUE) || $context->hasState(self::USE_INDEXING_QUEUE);
+    }
+
+    private function disabled(Context $context): bool
+    {
+        return $context->hasExtension(self::DISABLE_INDEXING) || $context->hasState(self::DISABLE_INDEXING);
     }
 
     private function sendOrHandle(EntityIndexingMessage $message, bool $useQueue): void

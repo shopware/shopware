@@ -4,10 +4,12 @@ namespace Shopware\Core\Content\Test\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\DataAbstractionLayer\SearchKeywordUpdater;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\IdsCollection;
@@ -61,6 +63,35 @@ class SearchKeywordUpdaterTest extends TestCase
         $expectedDictionary = array_merge($germanKeywords, $additionalDictionaries);
         sort($expectedDictionary);
         $this->assertDictionary($this->getDeDeLanguageId(), $expectedDictionary);
+    }
+
+    public function testCustomFields(): void
+    {
+        $ids = new IdsCollection();
+        $products = [
+            (new ProductBuilder($ids, 'p1'))->price(100)->build(),
+            (new ProductBuilder($ids, 'p2'))->price(100)->build(),
+        ];
+
+        $context = Context::createDefaultContext();
+        $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
+
+        $this->getContainer()->get('product.repository')
+            ->create($products, $context);
+
+        $id = $this->getContainer()->get(Connection::class)
+            ->fetchOne('SELECT LOWER(HEX(id)) FROM product_search_config WHERE language_id = :id', ['id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)]);
+
+        $fields = [
+            ['searchConfigId' => $id, 'searchable' => true, 'field' => 'customFields.field1', 'tokenize' => true, 'ranking' => 100, 'language_id' => Defaults::LANGUAGE_SYSTEM],
+            ['searchConfigId' => $id, 'searchable' => true, 'field' => 'manufacturer.customFields.field1', 'tokenize' => true, 'ranking' => 100, 'language_id' => Defaults::LANGUAGE_SYSTEM],
+        ];
+
+        $this->getContainer()->get('product_search_config_field.repository')
+            ->create($fields, $ids->getContext());
+
+        $this->getContainer()->get(SearchKeywordUpdater::class)
+            ->update($ids->getList(['p1', 'p2']), $ids->context);
     }
 
     public function testItSkipsKeywordGenerationForNotUsedLanguages(): void

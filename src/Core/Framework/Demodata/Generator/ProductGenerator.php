@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
-use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -181,11 +180,11 @@ class ProductGenerator implements DemodataGeneratorInterface
 
     private function write(array $payload, Context $context): void
     {
-        $context->addExtension(EntityIndexerRegistry::DISABLE_INDEXING, new ArrayStruct());
+        $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
 
         $this->registry->getRepository('product')->create($payload, $context);
 
-        $context->removeExtension(EntityIndexerRegistry::DISABLE_INDEXING);
+        $context->removeState(EntityIndexerRegistry::DISABLE_INDEXING);
     }
 
     private function getTaxes(Context $context): EntitySearchResult

@@ -86,6 +86,8 @@ $localeForLanguage = static function (string $language): string {
             return 'sv-SE';
         case 'cs':
             return 'cs-CZ';
+        case 'da':
+            return 'da-DK';
     }
 
     return mb_strtolower($language) . '-' . mb_strtoupper($language);

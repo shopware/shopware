@@ -32,6 +32,7 @@ return [
     'select_language_pl' => 'Polish',
     'select_language_cs' => 'Czech',
     'select_language_sv' => 'Swedish',
+    'select_language_da' => 'Danish',
 
     'select_country_jam' => 'Jamaica',
     'select_country_mmr' => 'Myanmar',

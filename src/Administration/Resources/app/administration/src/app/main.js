@@ -33,6 +33,7 @@ import FilterService from 'src/app/service/filter.service';
 import AppCmsService from 'src/app/service/app-cms.service';
 import MediaDefaultFolderService from 'src/app/service/media-default-folder.service';
 import AppAclService from 'src/app/service/app-acl.service';
+import ShopwareDiscountCampaignService from 'src/app/service/discount-campaign.service';
 
 /** Import Feature */
 import Feature from 'src/core/feature';
@@ -155,4 +156,7 @@ Application
     .addServiceProvider('appCmsService', (container) => {
         const appCmsBlocksService = container.appCmsBlocks;
         return new AppCmsService(appCmsBlocksService, adapter);
+    })
+    .addServiceProvider('shopwareDiscountCampaignService', () => {
+        return new ShopwareDiscountCampaignService();
     });

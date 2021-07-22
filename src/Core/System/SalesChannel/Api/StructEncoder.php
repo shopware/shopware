@@ -25,6 +25,8 @@ class StructEncoder
      */
     private $serializer;
 
+    private array $protections = [];
+
     public function __construct(
         DefinitionInstanceRegistry $definitionRegistry,
         Serializer $serializer
@@ -174,28 +176,33 @@ class StructEncoder
 
     private function isProtected(string $type, string $property): bool
     {
+        $key = $type . '.' . $property;
+        if (isset($this->protections[$key])) {
+            return $this->protections[$key];
+        }
+
         if (!$this->definitionRegistry->has($type)) {
-            return false;
+            return $this->protections[$key] = false;
         }
 
         $definition = $this->definitionRegistry->getByEntityName($type);
 
         $field = $definition->getField($property);
         if (!$field) {
-            return false;
+            return $this->protections[$key] = false;
         }
 
         /** @var ApiAware|null $flag */
         $flag = $field->getFlag(ApiAware::class);
         if ($flag === null) {
-            return true;
+            return $this->protections[$key] = true;
         }
 
         if (!$flag->isSourceAllowed(SalesChannelApiSource::class)) {
-            return true;
+            return $this->protections[$key] = true;
         }
 
-        return false;
+        return $this->protections[$key] = false;
     }
 
     private function encodeExtensions(Struct $struct, ResponseFields $fields, array $value): array

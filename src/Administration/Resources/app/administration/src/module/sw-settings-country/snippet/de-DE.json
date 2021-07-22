@@ -36,6 +36,7 @@
       "labelShippingAvailable": "Versand",
       "labelTaxFree": "Steuerfrei (B2C)",
       "labelCompanyTaxFree": "Steuerfrei (B2B)",
+      "helpTextCompanyTaxFree": "Damit B2B-Geschäfte steuerfrei abgewickelt werden können, müssen die jeweiligen Kundenaccounts über eine valide USt-ID verfügen.",
       "labelCheckVatIdFormat": "USt-ID-Format überprüfen",
       "helpTextCheckVatIdFormat": "Erlaubt eine Formatprüfung der USt-ID für alle Mitgliedsstaaten der EU.",
       "labelForceStateInRegistration": "Land/Region ist Pflichtfeld",

@@ -68,7 +68,8 @@ class BulkEditBaseHandler {
                 return;
             }
 
-            // mappingEntity indicates the change is a toMany association change, the value of it is the mapping relation, e.g product_category
+            // mappingEntity indicates the change is a toMany association change,
+            // the value of it is the mapping relation, e.g product_category
             const mappingEntity = change.mappingEntity;
 
             if (mappingEntity) {
@@ -98,7 +99,8 @@ class BulkEditBaseHandler {
                 }
             }
 
-            // If the change type is not a toMany association change, grouped the change by entity's id so each entity can have a same sync payload
+            // If the change type is not a toMany association change, grouped the
+            // change by entity's id so each entity can have a same sync payload
             const field = definition.getField(change.field);
 
             if (!field) {
@@ -163,12 +165,18 @@ class BulkEditBaseHandler {
     /**
      * @private
      *
-     * A handler to build upsert or delete payload of an association change depending on change's type and existing associations
+     * A handler to build upsert or delete payload of an association
+     * change depending on change's type and existing associations
      *
      * @param {Object} refDefinition
      * @param {Object} change
      * @example
-     * change =[{ type: 'overwrite', mappingEntity: 'product_category', field: 'categoryId', value: ['category_1', 'category_2']];
+     * change =[{
+     *   type: 'overwrite',
+     *   mappingEntity: 'product_category',
+     *   field: 'categoryId',
+     *   value: ['category_1', 'category_2'],
+     * }];
      */
     async _handleAssociationChange(refDefinition, change) {
         const localMappingKey = `${this.entityName}Id`;
@@ -304,7 +312,8 @@ class BulkEditBaseHandler {
             const { id, [localKey]: localId, [foreignKey]: foreignId } = association;
             const key = `${foreignId}.${localId}`;
 
-            // ManyToMany have 2 primary keys, e.g product_category. Meanwhile OneToMany have one id as primary key, e.g product_media
+            // ManyToMany have 2 primary keys, e.g product_category.
+            // Meanwhile OneToMany have one id as primary key, e.g product_media
             mappedExistAssociations[key] = isMappingDefinition ? {
                 [localMappingKey]: localId,
                 [referenceKey]: foreignId,

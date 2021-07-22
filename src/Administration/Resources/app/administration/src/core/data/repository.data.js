@@ -157,20 +157,22 @@ export default class Repository {
         }
 
         return this.errorResolver.resetApiErrors().then(() => {
-            return this.httpClient.post('_action/sync', operations, { headers, version: this.options.version }).catch((errorResponse) => {
-                const errors = [];
-                const result = errorResponse?.response?.data?.errors ?? [];
+            return this.httpClient
+                .post('_action/sync', operations, { headers, version: this.options.version })
+                .catch((errorResponse) => {
+                    const errors = [];
+                    const result = errorResponse?.response?.data?.errors ?? [];
 
-                result.forEach((error) => {
-                    if (error.source.pointer.startsWith('/write/')) {
-                        error.source.pointer = error.source.pointer.substring(6);
-                        errors.push(error);
-                    }
+                    result.forEach((error) => {
+                        if (error.source.pointer.startsWith('/write/')) {
+                            error.source.pointer = error.source.pointer.substring(6);
+                            errors.push(error);
+                        }
+                    });
+
+                    this.errorResolver.handleWriteErrors({ errors }, [{ entity, changes }]);
+                    throw errorResponse;
                 });
-
-                this.errorResolver.handleWriteErrors({ errors }, [{ entity, changes }]);
-                throw errorResponse;
-            });
         });
     }
 

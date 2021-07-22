@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import MediaPageObject from '../../../support/pages/module/sw-media.page-object';
 
@@ -23,9 +23,16 @@ describe('Search bar: Check search functionality withtags', () => {
             .should('not.exist');
 
         cy.get('input.sw-search-bar__input').click();
-        cy.get('.sw-search-bar__types_container').should('be.visible');
-        cy.contains('.sw-search-bar__type', 'Products').click();
-        cy.contains('.sw-search-bar__field .sw-search-bar__type', 'Products').should('be.visible');
+        cy.skipOnFeature('FEATURE_NEXT_6040', () => {
+            cy.get('.sw-search-bar__types_container').should('be.visible');
+            cy.contains('.sw-search-bar__type', 'Products').click();
+            cy.contains('.sw-search-bar__field .sw-search-bar__type', 'Products').should('be.visible');
+        });
+        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
+            cy.get('.sw-search-bar__types_container--v2').should('be.visible');
+            cy.contains('.sw-search-bar__type-item-name', 'Products').click();
+            cy.contains('.sw-search-bar__field .sw-search-bar__type--v2', 'Products').should('be.visible');
+        });
 
         cy.get('input.sw-search-bar__input').type('Product');
         cy.get('.sw-search-bar__results').should('be.visible');
@@ -49,9 +56,16 @@ describe('Search bar: Check search functionality withtags', () => {
             .should('not.exist');
 
         cy.get('input.sw-search-bar__input').click();
-        cy.get('.sw-search-bar__types_container').should('be.visible');
-        cy.contains('.sw-search-bar__type', 'Categories').click();
-        cy.contains('.sw-search-bar__field .sw-search-bar__type', 'Categories').should('be.visible');
+        cy.skipOnFeature('FEATURE_NEXT_6040', () => {
+            cy.get('.sw-search-bar__types_container').should('be.visible');
+            cy.contains('.sw-search-bar__type', 'Categories').click();
+            cy.contains('.sw-search-bar__field .sw-search-bar__type', 'Categories').should('be.visible');
+        });
+        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
+            cy.get('.sw-search-bar__types_container--v2').should('be.visible');
+            cy.contains('.sw-search-bar__type-item-name', 'Categories').click();
+            cy.contains('.sw-search-bar__field .sw-search-bar__type--v2', 'Categories').should('be.visible');
+        });
 
         cy.get('input.sw-search-bar__input').type('Home');
         cy.get('.sw-search-bar__results').should('be.visible');
@@ -78,9 +92,16 @@ describe('Search bar: Check search functionality withtags', () => {
             .should('not.exist');
 
         cy.get('input.sw-search-bar__input').click();
-        cy.get('.sw-search-bar__types_container').should('be.visible');
-        cy.contains('.sw-search-bar__type', 'Customers').click();
-        cy.contains('.sw-search-bar__field .sw-search-bar__type', 'Customers').should('be.visible');
+        cy.skipOnFeature('FEATURE_NEXT_6040', () => {
+            cy.get('.sw-search-bar__types_container').should('be.visible');
+            cy.contains('.sw-search-bar__type', 'Customers').click();
+            cy.contains('.sw-search-bar__field .sw-search-bar__type', 'Customers').should('be.visible');
+        });
+        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
+            cy.get('.sw-search-bar__types_container--v2').should('be.visible');
+            cy.contains('.sw-search-bar__type-item-name', 'Customers').click();
+            cy.contains('.sw-search-bar__field .sw-search-bar__type--v2', 'Customers').should('be.visible');
+        });
 
         cy.get('input.sw-search-bar__input').type('Pep Eroni');
         cy.get('.sw-search-bar__results').should('be.visible');
@@ -101,28 +122,29 @@ describe('Search bar: Check search functionality withtags', () => {
                     name: 'Awesome product',
                     productNumber: 'RS-1337',
                     description: 'l33t',
-                    "price": [
+                    price: [
                         {
-                            "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
-                            "net": 24,
-                            "linked": false,
-                            "gross": 128
+                            currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+                            net: 24,
+                            linked: false,
+                            gross: 128
                         }
                     ]
                 });
             }).then(() => {
-            return cy.searchViaAdminApi({
-                endpoint: 'product',
-                data: {
-                    field: 'name',
-                    value: 'Product name'
-                }
+                return cy.searchViaAdminApi({
+                    endpoint: 'product',
+                    data: {
+                        field: 'name',
+                        value: 'Product name'
+                    }
+                });
+            }).then((result) => {
+                return cy.createGuestOrder(result.id);
+            })
+            .then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
             });
-        }).then((result) => {
-            return cy.createGuestOrder(result.id);
-        }).then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
-        });
 
         cy.get('.sw-dashboard')
             .should('exist');
@@ -131,9 +153,16 @@ describe('Search bar: Check search functionality withtags', () => {
             .should('not.exist');
 
         cy.get('input.sw-search-bar__input').click();
-        cy.get('.sw-search-bar__types_container').should('be.visible');
-        cy.contains('.sw-search-bar__type', 'Orders').click();
-        cy.contains('.sw-search-bar__field .sw-search-bar__type', 'Orders').should('be.visible');
+        cy.skipOnFeature('FEATURE_NEXT_6040', () => {
+            cy.get('.sw-search-bar__types_container').should('be.visible');
+            cy.contains('.sw-search-bar__type', 'Orders').click();
+            cy.contains('.sw-search-bar__field .sw-search-bar__type', 'Orders').should('be.visible');
+        });
+        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
+            cy.get('.sw-search-bar__types_container--v2').should('be.visible');
+            cy.contains('.sw-search-bar__type-item-name', 'Orders').click();
+            cy.contains('.sw-search-bar__field .sw-search-bar__type--v2', 'Orders').should('be.visible');
+        });
 
         cy.get('input.sw-search-bar__input').type('Max Mustermann');
         cy.get('.sw-search-bar__results').should('be.visible');
@@ -189,9 +218,16 @@ describe('Search bar: Check search functionality withtags', () => {
             .should('not.exist');
 
         cy.get('input.sw-search-bar__input').click();
-        cy.get('.sw-search-bar__types_container').should('be.visible');
-        cy.contains('.sw-search-bar__type', 'Media').click();
-        cy.contains('.sw-search-bar__field .sw-search-bar__type', 'Media').should('be.visible');
+        cy.skipOnFeature('FEATURE_NEXT_6040', () => {
+            cy.get('.sw-search-bar__types_container').should('be.visible');
+            cy.contains('.sw-search-bar__type', 'Media').click();
+            cy.contains('.sw-search-bar__field .sw-search-bar__type', 'Media').should('be.visible');
+        });
+        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
+            cy.get('.sw-search-bar__types_container--v2').should('be.visible');
+            cy.contains('.sw-search-bar__type-item-name', 'Media').click();
+            cy.contains('.sw-search-bar__field .sw-search-bar__type--v2', 'Media').should('be.visible');
+        });
 
         cy.get('input.sw-search-bar__input').type('sw-login-background');
         cy.get('.sw-search-bar__results').should('be.visible');

@@ -500,7 +500,12 @@
       "messageNoTypeResults": "Es wurde kein passender Typ gefunden.",
       "placeholderSearchField": "Finde Produkte, Kunden, Bestellungen ...",
       "placeholderTypeSearchField": "Alle {entity} durchsuchen ...",
-      "placeholderShortcutInfo": "Tipp: Über die \"f\"-Taste, kannst Du die Suche schneller öffnen."
+      "placeholderShortcutInfo": "Tipp: Über die \"f\"-Taste, kannst Du die Suche schneller öffnen.",
+      "placeholderSearchShortcutInfo": "Tipp: Über die <span>f</span>-Taste, kannst Du die Suche schneller öffnen.",
+      "moduleFiltersHeadline": "Modulfilter",
+      "placeholderFilterShortcutInfo": "Type <span>#</span> in the search to quickly set a module filter.",
+      "searchTypeAll": "Alle",
+      "moduleFilter": "Modulfilter"
     },
     "sw-search-bar-item": {
       "typeLabelCustomer": "Kunde",
@@ -643,6 +648,7 @@
       "tooltipTabHasErrors": "Diese Seite enthält Fehler."
     },
     "entities": {
+      "all": "Alle",
       "custom_field": "Zusatzfeld | Zusatzfelder",
       "cart": "Warenkorb | Warenkörbe",
       "category": "Kategorie | Kategorien",

@@ -500,7 +500,12 @@
       "messageNoTypeResults": "No type found.",
       "placeholderSearchField": "Find products, customers, orders...",
       "placeholderTypeSearchField": "Search \"{entity}\"...",
-      "placeholderShortcutInfo": "Tip: Press the \"f\" key to get to the search bar faster."
+      "placeholderShortcutInfo": "Hint: Press the \"f\" key to get to the search bar faster.",
+      "placeholderSearchShortcutInfo": "Hint: Press the <span>f</span> key to get to the search bar faster.",
+      "moduleFiltersHeadline": "Module filters",
+      "placeholderFilterShortcutInfo": "Type <span>#</span> in the search to quickly set a module filter.",
+      "searchTypeAll": "All",
+      "moduleFilter": "Module filter"
     },
     "sw-search-bar-item": {
       "typeLabelCustomer": "Customer",
@@ -643,6 +648,7 @@
       "tooltipTabHasErrors": "This page contains errors."
     },
     "entities": {
+      "all": "All",
       "custom_field": "Custom field | Custom fields",
       "cart": "Cart | Carts",
       "category": "Category | Categories",

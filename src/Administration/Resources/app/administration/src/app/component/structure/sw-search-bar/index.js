@@ -53,6 +53,7 @@ Component.register('sw-search-bar', {
         return {
             currentSearchType: this.initialSearchType,
             showResultsContainer: false,
+            showModuleFiltersContainer: false,
             searchTerm: this.initialSearch,
             results: [],
             isActive: false,
@@ -88,6 +89,13 @@ Component.register('sw-search-bar', {
             }
 
             return placeholder;
+        },
+
+        searchBarTypesContainerClasses() {
+            return {
+                'sw-search-bar__types_container--v2': this.feature.isActive('FEATURE_NEXT_6040'),
+                'sw-search-bar__types_container': !this.feature.isActive('FEATURE_NEXT_6040'),
+            };
         },
     },
 
@@ -151,7 +159,11 @@ Component.register('sw-search-bar', {
         },
 
         getLabelSearchType(type) {
-            if (!type) {
+            if (!type && !this.currentSearchType && this.feature.isActive('FEATURE_NEXT_6040')) {
+                type = 'all';
+            }
+
+            if (!type && this.currentSearchType) {
                 type = this.currentSearchType;
             }
 
@@ -172,6 +184,7 @@ Component.register('sw-search-bar', {
             if (!target.closest('.sw-search-bar')) {
                 this.clearSearchTerm();
                 this.showTypeSelectContainer = false;
+                this.showModuleFiltersContainer = false;
             }
         },
 
@@ -252,6 +265,7 @@ Component.register('sw-search-bar', {
 
         showTypeContainer() {
             this.showTypeSelectContainer = true;
+            this.showModuleFiltersContainer = false;
             this.showResultsContainer = false;
             this.activeTypeListIndex = 0;
         },
@@ -274,6 +288,7 @@ Component.register('sw-search-bar', {
         setSearchType(type) {
             this.currentSearchType = type;
             this.showTypeSelectContainer = false;
+            this.showModuleFiltersContainer = false;
             this.searchTerm = '';
         },
 
@@ -561,12 +576,29 @@ Component.register('sw-search-bar', {
             return module.manifest.color || '#AEC4DA';
         },
 
+        getEntityIcon(entityName) {
+            const module = this.moduleFactory.getModuleByEntityName(entityName);
+            const defaultColor = '#AEC4DA';
+
+            if (!module) {
+                return defaultColor;
+            }
+
+            return module.manifest.icon || defaultColor;
+        },
+
         isResultEmpty() {
             return !this.results.some(result => result.total !== 0);
         },
 
         onMouseEnterSearchType(index) {
             this.activeTypeListIndex = index;
+        },
+
+        onOpenModuleFiltersDropDown() {
+            this.isActive = true;
+            this.showModuleFiltersContainer = true;
+            this.showTypeSelectContainer = false;
         },
     },
 });

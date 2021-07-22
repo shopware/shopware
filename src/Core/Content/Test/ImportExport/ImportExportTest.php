@@ -37,7 +37,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\FilesystemBehaviour;
@@ -458,7 +457,7 @@ class ImportExportTest extends TestCase
     public function importCategoryCsv(): void
     {
         $context = Context::createDefaultContext();
-        $context->addExtension(EntityIndexerRegistry::DISABLE_INDEXING, new ArrayEntity());
+        $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
         $factory = $this->getContainer()->get(ImportExportFactory::class);
 
         $importExportService = $this->getContainer()->get(ImportExportService::class);
@@ -485,7 +484,7 @@ class ImportExportTest extends TestCase
     public function importPropertyCsv(): void
     {
         $context = Context::createDefaultContext();
-        $context->addExtension(EntityIndexerRegistry::DISABLE_INDEXING, new ArrayEntity());
+        $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
         $factory = $this->getContainer()->get(ImportExportFactory::class);
 
         $importExportService = $this->getContainer()->get(ImportExportService::class);
@@ -512,7 +511,7 @@ class ImportExportTest extends TestCase
     public function importPropertyCsvWithoutIds(): void
     {
         $context = Context::createDefaultContext();
-        $context->addExtension(EntityIndexerRegistry::DISABLE_INDEXING, new ArrayEntity());
+        $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
         $factory = $this->getContainer()->get(ImportExportFactory::class);
 
         $importExportService = $this->getContainer()->get(ImportExportService::class);
@@ -550,7 +549,7 @@ class ImportExportTest extends TestCase
     public function testProductsCsv(): void
     {
         $context = Context::createDefaultContext();
-        $context->addExtension(EntityIndexerRegistry::DISABLE_INDEXING, new ArrayEntity());
+        $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
 
         $this->importCategoryCsv();
         $this->importPropertyCsv();
@@ -592,7 +591,7 @@ class ImportExportTest extends TestCase
         $connection->executeUpdate('DELETE FROM `product`');
 
         $context = Context::createDefaultContext();
-        $context->addExtension(EntityIndexerRegistry::DISABLE_INDEXING, new ArrayEntity());
+        $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
 
         $factory = $this->getContainer()->get(ImportExportFactory::class);
 
@@ -653,7 +652,7 @@ class ImportExportTest extends TestCase
         $connection->executeUpdate('DELETE FROM `product`');
 
         $context = Context::createDefaultContext();
-        $context->addExtension(EntityIndexerRegistry::DISABLE_INDEXING, new ArrayEntity());
+        $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
 
         $factory = $this->getContainer()->get(ImportExportFactory::class);
 
@@ -701,7 +700,7 @@ class ImportExportTest extends TestCase
         }
 
         $context = Context::createDefaultContext();
-        $context->addExtension(EntityIndexerRegistry::DISABLE_INDEXING, new ArrayEntity());
+        $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
 
         $productIds = [
             Uuid::fromStringToHex('product1'),
@@ -1009,7 +1008,7 @@ class ImportExportTest extends TestCase
     public function testCrossSellingCsv(): void
     {
         $context = Context::createDefaultContext();
-        $context->addExtension(EntityIndexerRegistry::DISABLE_INDEXING, new ArrayEntity());
+        $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
 
         $factory = $this->getContainer()->get(ImportExportFactory::class);
 

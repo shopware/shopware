@@ -311,6 +311,28 @@ export default class Repository {
      * @returns {Array}
      */
     getSyncErrors(errorResponse) {
+        if (Shopware.Feature.isActive('FEATURE_NEXT_15815')) {
+            const errors = errorResponse.response.data.errors;
+
+            errors.forEach((current) => {
+                if (!current.source || !current.source.pointer) {
+                    return;
+                }
+
+                const segments = current.source.pointer.split('/');
+
+                // remove first empty element in list
+                if (segments[0] === '') {
+                    segments.shift();
+                }
+                segments.shift();
+
+                current.source.pointer = segments.join('/');
+            });
+
+            return errors;
+        }
+
         const operation = errorResponse.response.data.data[this.entityName];
         return operation.result.reduce((acc, result) => {
             acc.push(...result.errors);

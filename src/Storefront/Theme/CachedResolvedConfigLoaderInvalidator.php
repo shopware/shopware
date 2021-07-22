@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Theme;
 
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
+use Shopware\Storefront\Framework\Routing\CachedDomainLoader;
 use Shopware\Storefront\Theme\Event\ThemeAssignedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigChangedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigResetEvent;
@@ -41,6 +42,7 @@ class CachedResolvedConfigLoaderInvalidator implements EventSubscriberInterface
     public function assigned(ThemeAssignedEvent $event): void
     {
         $this->logger->invalidate([CachedResolvedConfigLoader::buildName($event->getThemeId())]);
+        $this->logger->invalidate([CachedDomainLoader::CACHE_KEY]);
     }
 
     public function reset(ThemeConfigResetEvent $event): void

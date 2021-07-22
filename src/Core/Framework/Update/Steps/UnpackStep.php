@@ -48,7 +48,6 @@ class UnpackStep
         if ($this->testMode === true) {
             return new ValidResult($offset + 10, 100);
         }
-        // TestMode
 
         try {
             $source = new Zip($this->source);
@@ -60,7 +59,14 @@ class UnpackStep
             throw new UpdateFailedException(sprintf('Could not open update package:<br>%s', $e->getMessage()), 0, $e);
         }
 
-        while (list($position, $entry) = $source->each()) {
+        while (true) {
+            $iter = $source->each();
+            if ($iter === []) {
+                break;
+            }
+
+            [$position, $entry] = $iter;
+
             $name = $entry->getName();
             $targetName = $this->destinationDir . $name;
 

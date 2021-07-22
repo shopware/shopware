@@ -175,6 +175,10 @@ class BillingZipCodeRuleTest extends TestCase
             Rule::OPERATOR_EQ,
             Rule::OPERATOR_NEQ,
             Rule::OPERATOR_EMPTY,
+            Rule::OPERATOR_GTE,
+            Rule::OPERATOR_LTE,
+            Rule::OPERATOR_GT,
+            Rule::OPERATOR_LT,
         ];
 
         $ruleConstraints = $this->rule->getConstraints();
@@ -196,7 +200,7 @@ class BillingZipCodeRuleTest extends TestCase
      */
     public function testRuleMatching(string $operator, bool $isMatching, string $zipCode): void
     {
-        $zipCodes = ['kyln123', 'kyln456'];
+        $zipCodes = ['12345', '55555'];
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $customerAddress = new CustomerAddressEntity();
         $customerAddress->setZipcode($zipCode);
@@ -215,15 +219,70 @@ class BillingZipCodeRuleTest extends TestCase
         }
     }
 
+    public function testValidateWithInvalidGreaterThanCondition(): void
+    {
+        try {
+            $this->conditionRepository->create([
+                [
+                    'type' => (new BillingZipCodeRule())->getName(),
+                    'ruleId' => Uuid::randomHex(),
+                    'value' => [
+                        'zipCodes' => 12345,
+                        'operator' => BillingZipCodeRule::OPERATOR_GT,
+                    ],
+                ],
+            ], $this->context);
+            static::fail('Exception was not thrown');
+        } catch (WriteException $stackException) {
+            $exceptions = iterator_to_array($stackException->getErrors());
+            static::assertCount(1, $exceptions);
+            static::assertSame('/0/value/zipCodes', $exceptions[0]['source']['pointer']);
+
+            static::assertSame('This value should be of type array.', $exceptions[0]['detail']);
+        }
+    }
+
+    public function testValidateWithValidGreaterThanCondition(): void
+    {
+        $ruleId = Uuid::randomHex();
+        $this->ruleRepository->create(
+            [['id' => $ruleId, 'name' => 'Demo rule', 'priority' => 1]],
+            Context::createDefaultContext()
+        );
+
+        $id = Uuid::randomHex();
+        $this->conditionRepository->create([
+            [
+                'id' => $id,
+                'type' => (new BillingZipCodeRule())->getName(),
+                'ruleId' => $ruleId,
+                'value' => [
+                    'zipCodes' => ['12345'],
+                    'operator' => BillingZipCodeRule::OPERATOR_GT,
+                ],
+            ],
+        ], $this->context);
+
+        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
+    }
+
     public function getMatchValues(): array
     {
         return [
-            'operator_oq / not match / zip code' => [Rule::OPERATOR_EQ, false, 'kyln000'],
-            'operator_oq / match / zip code' => [Rule::OPERATOR_EQ, true, 'kyln123'],
-            'operator_neq / match / zip code' => [Rule::OPERATOR_NEQ, true, 'kyln000'],
-            'operator_neq / not match / zip code' => [Rule::OPERATOR_NEQ, false, 'kyln123'],
-            'operator_empty / not match / zip code' => [Rule::OPERATOR_NEQ, false, 'kyln123'],
+            'operator_oq / not match / zip code' => [Rule::OPERATOR_EQ, false, '22222'],
+            'operator_oq / match / zip code' => [Rule::OPERATOR_EQ, true, '12345'],
+            'operator_neq / match / zip code' => [Rule::OPERATOR_NEQ, true, '22222'],
+            'operator_neq / not match / zip code' => [Rule::OPERATOR_NEQ, false, '12345'],
+            'operator_empty / not match / zip code' => [Rule::OPERATOR_NEQ, false, '12345'],
             'operator_empty / match / zip code' => [Rule::OPERATOR_EMPTY, true, ' '],
+            'operator_gte / match / zip code' => [Rule::OPERATOR_GTE, true, '12345'],
+            'operator_gte / not match / zip code' => [Rule::OPERATOR_GTE, false, '10000'],
+            'operator_lte / match / zip code' => [Rule::OPERATOR_LTE, true, '12345'],
+            'operator_lte / not match / zip code' => [Rule::OPERATOR_LTE, false, '60000'],
+            'operator_gt / match / zip code' => [Rule::OPERATOR_GT, true, '60000'],
+            'operator_gt / not match / zip code' => [Rule::OPERATOR_GT, false, '10000'],
+            'operator_lt / match / zip code' => [Rule::OPERATOR_LT, true, '10000'],
+            'operator_lt / not match / zip code' => [Rule::OPERATOR_LT, false, '60000'],
         ];
     }
 }

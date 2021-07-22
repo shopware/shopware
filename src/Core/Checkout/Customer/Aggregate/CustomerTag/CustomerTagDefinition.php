@@ -21,11 +21,6 @@ class CustomerTagDefinition extends MappingEntityDefinition
         return self::ENTITY_NAME;
     }
 
-    public function isVersionAware(): bool
-    {
-        return true;
-    }
-
     public function since(): ?string
     {
         return '6.0.0.0';

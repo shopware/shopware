@@ -87,28 +87,25 @@
                         {% endblock %}
                     </template>
 
-                    <template #delete-modal-delete-item="{ item }">
-                        {% block sw_sales_channel_detail_products_listing_delete_modal_delete_item %}
-                        <sw-button
-                            variant="danger"
-                            size="small"
+                    <template #delete-action="{ item }">
+                        {% block sw_sales_channel_detail_products_listing_delete_action %}
+                        <sw-context-menu-item
+                            variant="warning"
                             @click="onDeleteProduct(item)"
                         >
-                            {{ $tc('global.default.delete') }}
-                        </sw-button>
+                            {{ $tc('global.default.remove') }}
+                        </sw-context-menu-item>
                         {% endblock %}
                     </template>
 
-                    <template #bulk-modal-delete-items>
-                        {% block sw_sales_channel_detail_products_listing_bulk_modal_delete_items %}
-                        <sw-button
-                            variant="danger"
-                            size="small"
-                            :is-loading="isBulkLoading"
+                    <template #bulk>
+                        {% block sw_sales_channel_detail_products_listing_bulk %}
+                        <a
+                            class="link link-warning"
                             @click="onDeleteProducts"
                         >
-                            {{ $tc('global.default.delete') }}
-                        </sw-button>
+                            {{ $tc('global.default.remove') }}
+                        </a>
                         {% endblock %}
                     </template>
                 </sw-entity-listing>

@@ -63,7 +63,8 @@ function createWrapper(privileges = []) {
             'sw-simple-search-field': true,
             'sw-button': true,
             'sw-icon': true,
-            'sw-sales-channel-products-assignment-modal': true
+            'sw-sales-channel-products-assignment-modal': true,
+            'sw-context-menu-item': true
         },
         provide: {
             repositoryFactory: {
@@ -121,8 +122,6 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
     ] };
 
     const $refsMock = { entityListing: {
-        deleteId: null,
-        closeModal: () => false,
         selection: {
             101: productMock
         }

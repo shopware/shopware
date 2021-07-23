@@ -1,3 +1,4 @@
+import { dom } from 'src/core/service/util.service';
 import template from './sw-mail-template-detail.html.twig';
 import './sw-mail-template-detail.scss';
 
@@ -314,17 +315,24 @@ Component.register('sw-mail-template-detail', {
         },
 
         onCopyVariable(variable) {
-            navigator.clipboard.writeText(variable).catch((error) => {
-                let errormsg = '';
-                if (error.response.data.errors.length > 0) {
-                    const errorDetailMsg = error.response.data.errors[0].detail;
-                    errormsg = `<br/> ${this.$tc('sw-mail-template.detail.textErrorMessage')}: "${errorDetailMsg}"`;
-                }
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(variable).catch((error) => {
+                    let errormsg = '';
+                    if (error.response.data.errors.length > 0) {
+                        const errorDetailMsg = error.response.data.errors[0].detail;
+                        errormsg = `<br/> ${this.$tc('sw-mail-template.detail.textErrorMessage')}: "${errorDetailMsg}"`;
+                    }
 
-                this.createNotificationError({
-                    message: errormsg,
+                    this.createNotificationError({
+                        message: errormsg,
+                    });
                 });
-            });
+
+                return;
+            }
+
+            // non-https polyfill
+            dom.copyToClipboard(variable);
         },
 
         async onChangeType(id) {

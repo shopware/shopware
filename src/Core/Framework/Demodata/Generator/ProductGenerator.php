@@ -9,7 +9,6 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -180,11 +179,7 @@ class ProductGenerator implements DemodataGeneratorInterface
 
     private function write(array $payload, Context $context): void
     {
-        $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
-
         $this->registry->getRepository('product')->create($payload, $context);
-
-        $context->removeState(EntityIndexerRegistry::DISABLE_INDEXING);
     }
 
     private function getTaxes(Context $context): EntitySearchResult

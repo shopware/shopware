@@ -146,6 +146,7 @@ SQL;
             $cart->setData($blueprint->getData());
             $cart->addLineItems($new);
             $cart->addExtension(OrderConverter::ORIGINAL_ORDER_NUMBER, new IdStruct(Uuid::randomHex()));
+            $cart->setTransactions($blueprint->getTransactions());
 
             $this->calculateAmount($salesChannelContext, $cart);
             $this->deliveryProcessor->process($cart->getData(), $cart, $cart, $salesChannelContext, new CartBehavior());

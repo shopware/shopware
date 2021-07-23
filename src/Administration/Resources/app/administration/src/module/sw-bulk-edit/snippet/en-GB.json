@@ -33,6 +33,31 @@
           "switchLabel": "Product promotion"
         }
       },
+      "prices": {
+        "cardTitle": "Prices",
+        "taxRate": {
+          "changeLabel": "Change: Tax rate",
+          "placeholderTax": "Select tax rate..."
+        },
+        "price": {
+          "changeLabel": "Change: Price"
+        },
+        "purchasePrices": {
+          "changeLabel": "Change: Purchase price"
+        },
+        "listPrice": {
+          "changeLabel": "Change: List price"
+        }
+      },
+      "advancedPrices": {
+        "cardTitle": "Advanced pricing",
+        "changeLabel": "Change: Advanced pricing",
+        "openModalButton": "Open advancing pricing"
+      },
+      "property": {
+        "cardTitle": "Property assignment",
+        "changeLabel": "Change: Property assignment"
+      },
       "deliverability": {
         "cardTitle": "Deliverability",
         "stock": {
@@ -62,6 +87,29 @@
         "maxOrderQuantity": {
           "changeLabel": "Change: Max order quantity"
         }
+      },
+      "assignment": {
+        "cardTitle": "Assignment",
+        "categories": {
+          "changeLabel": "Change: Category",
+          "placeholder": "Select category..."
+        },
+        "tags": {
+          "changeLabel": "Change: Tags",
+          "placeholder": "Enter a tag..."
+        },
+        "visibilities": {
+          "changeLabel": "Change: Sales Channel",
+          "placeholder": "Select Sales Channels..."
+        },
+        "searchKeywords": {
+          "changeLabel": "Change: Search keywords",
+          "placeholder": "Enter keywords that find your products..."
+        }
+      },
+      "media": {
+        "cardTitle": "Media",
+        "changeLabel": "Change: Media"
       },
       "labelling": {
         "cardTitle": "Labelling",
@@ -123,6 +171,11 @@
           "changeLabel": "Change: Basic unit",
           "placeholder": "Enter basic unit..."
         }
+      },
+      "featureSets": {
+        "cardTitle": "Essential Characteristics",
+        "changeLabel": "Change: Template",
+        "placeholder": "Select a template..."
       },
       "customFields": {
         "cardTitle": "Custom fields",

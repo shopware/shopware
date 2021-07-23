@@ -157,6 +157,12 @@ function createWrapper(isResponseError = false) {
             repositoryFactory: {
                 create: () => {
                     return {
+                        create: () => {
+                            return {
+                                id: '1a2b3c',
+                                name: 'Test order'
+                            };
+                        },
                         search: () => Promise.resolve([
                             {
                                 id: 1,

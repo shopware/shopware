@@ -1,0 +1,19 @@
+{% block sw_bulk_edit_product_media %}
+<div class="sw-bulk-edit-product-media">
+    {% block sw_bulk_edit_product_media_form %}
+    <sw-bulk-edit-product-media-form
+        @media-open="showMediaModal = true"
+    />
+    {% endblock %}
+
+    {% block sw_bulk_edit_product_media_modal %}
+    <sw-media-modal-v2
+        v-if="showMediaModal"
+        :initial-folder-id="mediaDefaultFolderId"
+        :entity-context="product.getEntityName()"
+        @media-modal-selection-change="onAddMedia"
+        @modal-close="showMediaModal = false"
+    />
+    {% endblock %}
+</div>
+{% endblock %}

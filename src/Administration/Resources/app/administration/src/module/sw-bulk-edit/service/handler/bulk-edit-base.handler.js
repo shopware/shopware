@@ -31,7 +31,12 @@ class BulkEditBaseHandler {
      * const changes = [
         { type: 'overwrite', field: 'description', value: 'test' },
         { type: 'clear', field: 'stock' },
-        { type: 'overwrite', field: 'visibilities', mappingReferenceField: 'salesChannelId', value: ProductVisibilitiesCollection },
+        {
+            type: 'overwrite',
+            field: 'visibilities',
+            mappingReferenceField: 'salesChannelId',
+            value: ProductVisibilitiesCollection
+        },
         { type: 'overwrite', field: 'categories', value: [{id: 'category_1'}, {id: 'category_2'}]}
      ];
      * const syncPayload = buildBulkSyncPayload(changes);
@@ -75,7 +80,10 @@ class BulkEditBaseHandler {
             const field = definition.getField(change.field);
 
             if (!field) {
-                console.warn('Entity factory', `Property ${this.entityName}.${change.field} not found`);
+                Shopware.Utils.debug.warn(
+                    'Entity factory',
+                    `Property ${this.entityName}.${change.field} not found`,
+                );
 
                 return;
             }
@@ -86,7 +94,7 @@ class BulkEditBaseHandler {
 
                     return;
                 } catch (e) {
-                    console.warn(e);
+                    Shopware.Utils.debug.warn(e);
 
                     // Ignore the failed change
                     return;
@@ -145,7 +153,7 @@ class BulkEditBaseHandler {
     /**
      * @private
      *
-     * A handler to build upsert or delete payload of an association change depending on change's type and existing associations
+     * Build upsert or delete payload of an association change depending on change's type and existing associations
      *
      * @param {Object} fieldDefinition
      * @param {Object} change
@@ -190,7 +198,9 @@ class BulkEditBaseHandler {
 
         // if change type is CLEAR or REMOVE Delete existing associations
         if ([bulkSyncTypes.CLEAR, bulkSyncTypes.REMOVE].includes(type)) {
-            this.groupedPayload.delete[referenceEntity] = { ...this._transformDeletePayload(existAssociations, localKey, referenceKey) };
+            this.groupedPayload.delete[referenceEntity] = {
+                ...this._transformDeletePayload(existAssociations, localKey, referenceKey),
+            };
 
             return;
         }
@@ -198,85 +208,118 @@ class BulkEditBaseHandler {
         // if change type is OVERWRITE, all existing associations should be removed by default
         // then we can filter the ones we want to keep by remove it from delete payload
         if (type === bulkSyncTypes.OVERWRITE) {
-            this.groupedPayload.delete[referenceEntity] = { ...this._transformDeletePayload(existAssociations, localKey, referenceKey) };
+            this.groupedPayload.delete[referenceEntity] = {
+                ...this._transformDeletePayload(existAssociations, localKey, referenceKey),
+            };
         }
 
         if (isMappingField) {
-            this._handleManyToManyChange(change, existAssociations);
+            this._detectManyToManyChange(change, existAssociations);
         } else {
-            this._handleOneToManyChange(change, existAssociations);
+            this._detectOneToManyChange(change, existAssociations);
         }
     }
 
-    _handleOneToManyChange(change, existAssociations) {
+    /**
+     * Handler for bulk edit a OneToMany association
+     * @param change
+     * @param existAssociations
+     * @private
+     */
+    _detectOneToManyChange(change, existAssociations) {
         const {
             referenceEntity,
             referenceKey,
             localKey,
             mappingReferenceField,
-            value: items,
+            value: changeItems,
         } = change;
         const editableProperties = this._getEditableProperties(referenceEntity);
 
-        items.forEach(fieldValue => {
-            const original = fieldValue;
+        if (mappingReferenceField) {
+            editableProperties.push(mappingReferenceField);
+        }
+
+        changeItems.forEach(changeItem => {
+            const original = changeItem;
             // Clean non-editable fields
-            fieldValue = object.pick(fieldValue, editableProperties);
+            changeItem = object.pick(changeItem, editableProperties);
 
             this.entityIds.forEach(entityId => {
-                const scopedFieldValue = Object.assign({}, fieldValue);
-                scopedFieldValue[referenceKey] = entityId;
+                const record = Object.assign({}, changeItem);
+                record[referenceKey] = entityId;
 
                 const identifyKey = mappingReferenceField ?? localKey;
                 const key = `${original[identifyKey]}.${entityId}`;
-                const association = existAssociations[key];
 
+                // Remove existing OneToMany association record from delete payload
                 delete this.groupedPayload.delete[referenceEntity][key];
 
-                const updatedFields = {
-                    [referenceKey]: entityId,
-                };
+                const association = existAssociations[key];
+                const actualChange = this._getOneToManyChange(record, localKey, mappingReferenceField, association);
 
-                if (mappingReferenceField) {
-                    updatedFields[mappingReferenceField] = original[mappingReferenceField];
-                }
-
-                if (association) {
-                    scopedFieldValue[localKey] = association[localKey];
-                    updatedFields[localKey] = association[localKey];
-
-                    delete scopedFieldValue[referenceKey];
-                    delete scopedFieldValue[mappingReferenceField];
-                    delete association[referenceKey];
-                }
-
-                let hasChanged = false;
-
-                // Detect if there is any change in oneToMany association so we should update it, otherwise we can skip it
-                Object.keys(scopedFieldValue).forEach(field => {
-                    if (!association || (scopedFieldValue[field] !== undefined && scopedFieldValue[field] !== association[field])) {
-                        updatedFields[field] = scopedFieldValue[field];
-                        hasChanged = true;
-                    }
-                });
-
-                // the fields are not updated, skip it
-                if (association && !hasChanged) {
+                if (actualChange === null || Object.keys(actualChange).length === 0) {
                     return;
                 }
 
-                // Reduce request payload
-                if (association) {
-                    delete updatedFields[referenceKey];
-                    delete updatedFields[mappingReferenceField];
-                }
-
-                this.groupedPayload.upsert[referenceEntity][key] = updatedFields;
+                this.groupedPayload.upsert[referenceEntity][key] = actualChange;
             });
         });
     }
 
-    _handleManyToManyChange(change, existAssociations) {
+    /**
+     * get actual changes of a OneToMany association, if existedRecord means a new record will be inserted
+     * @private
+     */
+    _getOneToManyChange(updatePayload, localKey, mappingReferenceField, existedRecord = null) {
+        const actualChange = {};
+
+        if (mappingReferenceField) {
+            actualChange[mappingReferenceField] = updatePayload[mappingReferenceField];
+        }
+
+        if (existedRecord) {
+            actualChange[localKey] = existedRecord[localKey];
+
+            // These fields are fixed if the oneToMany association exists
+            delete updatePayload[localKey];
+            delete updatePayload[mappingReferenceField];
+        }
+
+        // Detect if there is any change in oneToMany association so we should update it, otherwise we can skip it
+        Object.keys(updatePayload).forEach(field => {
+            if (
+                !existedRecord
+                || (updatePayload[field] !== undefined && updatePayload[field] !== existedRecord[field])
+            ) {
+                actualChange[field] = updatePayload[field];
+            }
+        });
+
+        // Reduce request payload
+        if (existedRecord) {
+            delete actualChange[mappingReferenceField];
+        }
+
+        // If the change payload has any properties other than localKey (id) we should update it
+        const hasChanged = Object.keys(actualChange).some(key => key !== localKey);
+
+        // the fields are not updated, skip it
+        if (existedRecord && !hasChanged) {
+            return null;
+        }
+
+        return actualChange;
+    }
+
+    /**
+     * Handler for bulk edit a ManyToMany association
+     *
+     * @param change
+     * @param existAssociations
+     * @private
+     */
+    _detectManyToManyChange(change, existAssociations) {
         const {
             referenceEntity,
             referenceKey,
@@ -339,7 +382,8 @@ class BulkEditBaseHandler {
         /**
          * change.mappingReferenceField to handle special cases like product.visibilities, it will be salesChannelId
          * It's OneToMany association but behave similar to a ManyToMany association
-         * We need to prefetch the OneToMany associations to avoid unique constraint. e.g `product_visibility`.`product_id_sales_channel_id`
+         * We need to prefetch the OneToMany associations to avoid unique constraint.
+         * e.g `product_visibility`.`product_id_sales_channel_id`
          */
         if (change.mappingReferenceField && change.type === bulkSyncTypes.REMOVE) {
             const referenceIds = change.value.map(value => value[change.mappingReferenceField]);
@@ -363,7 +407,7 @@ class BulkEditBaseHandler {
             mappedExistAssociations[key] = association;
         });
 
-        if (existAssociations.total > Object.keys(mappedExistAssociations).length) {
+        if (existAssociations.total > existAssociations.length) {
             return this._fetchOneToManyAssociated(fieldDefinition, change, page + 1, mappedExistAssociations);
         }
 
@@ -383,7 +427,9 @@ class BulkEditBaseHandler {
             reference,
         } = fieldDefinition;
 
-        const referenceIds = change.type === bulkSyncTypes.REMOVE ? change.value.map(value => value[referenceField]) : null;
+        const referenceIds = change.type === bulkSyncTypes.REMOVE
+            ? change.value.map(value => value[referenceField])
+            : null;
 
         const criteria = new Criteria(page, 500);
         criteria.addFilter(Criteria.equalsAny(local, this.entityIds));
@@ -410,7 +456,7 @@ class BulkEditBaseHandler {
             mappedExistAssociations[key] = association;
         });
 
-        if (mappingIds.total > Object.keys(mappedExistAssociations).length) {
+        if (mappingIds.total > existAssociations.length) {
             return this._fetchOneToManyAssociated(fieldDefinition, change, page + 1, mappedExistAssociations);
         }
 

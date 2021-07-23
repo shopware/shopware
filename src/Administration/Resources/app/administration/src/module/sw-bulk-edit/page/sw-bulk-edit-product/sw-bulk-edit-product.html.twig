@@ -39,17 +39,97 @@
 
     {% block sw_bulk_edit_product_content %}
     <template #content>
-        <sw-card-view v-if="selectedIds.length > 0">
+        <sw-card-view v-if="selectedIds.length > 0 && isLoadedData">
             {% block sw_bulk_edit_product_content_gereral_information_card %}
             <sw-card
                 class="sw-bulk-edit-product-base__info"
                 :title="$tc('sw-bulk-edit.product.generalInformation.cardTitle')"
-                :is-loading="isLoading"
             >
                 {% block sw_bulk_edit_product_content_gereral_information %}
                 <sw-bulk-edit-change-type-field-renderer
                     :form-fields="generalFormFields"
                     :bulk-edit-data="bulkEditProduct"
+                    :entity="product"
+                />
+                {% endblock %}
+            </sw-card>
+            {% endblock %}
+
+            {% block sw_bulk_edit_product_content_prices_card %}
+            <sw-card
+                class="sw-bulk-edit-product-base__prices"
+                :title="$tc('sw-bulk-edit.product.prices.cardTitle')"
+            >
+                {% block sw_bulk_edit_product_content_prices %}
+                <sw-bulk-edit-change-type-field-renderer
+                    :form-fields="pricesFormFields"
+                    :bulk-edit-data="bulkEditProduct"
+                    :entity="product"
+                    @change-value="onChangePrices"
+                />
+                {% endblock %}
+            </sw-card>
+            {% endblock %}
+
+            {% block sw_bulk_edit_product_content_advanced_prices_card %}
+            <sw-card
+                class="sw-bulk-edit-product-base__advanced-prices"
+                :title="$tc('sw-bulk-edit.product.advancedPrices.cardTitle')"
+            >
+                {% block sw_bulk_edit_product_content_advanced_prices %}
+                <sw-bulk-edit-change-type-field-renderer
+                    :form-fields="advancedPricesFormFields"
+                    :bulk-edit-data="bulkEditProduct"
+                    :entity="product"
+                >
+                    <template #valueFieldWithBoxType>
+                        <sw-button
+                            variant="primary"
+                            @click="displayAdvancePricesModal = true"
+                        >
+                            {{ $tc('sw-bulk-edit.product.advancedPrices.openModalButton') }}
+                        </sw-button>
+                    </template>
+                </sw-bulk-edit-change-type-field-renderer>
+                {% endblock %}
+
+                {% block sw_bulk_edit_product_content_advanced_prices_modal %}
+                <sw-modal
+                    v-if="displayAdvancePricesModal"
+                    variant="large"
+                    :title="$tc('sw-bulk-edit.product.advancedPrices.cardTitle')"
+                    @modal-close="displayAdvancePricesModal = false"
+                >
+                    <sw-product-detail-context-prices />
+
+                    {% block sw_bulk_edit_product_content_advanced_prices_modal_footer %}
+                    <template #modal-footer>
+                        <slot name="sw-bulk-edit-modal-cancel">
+                            <sw-button
+                                size="small"
+                                @click="displayAdvancePricesModal = false"
+                            >
+                                {{ $tc('global.default.close') }}
+                            </sw-button>
+                        </slot>
+                    </template>
+                    {% endblock %}
+                </sw-modal>
+                {% endblock %}
+            </sw-card>
+            {% endblock %}
+
+            {% block sw_bulk_edit_product_content_property_card %}
+            <sw-card
+                class="sw-bulk-edit-product-base__property"
+                :title="$tc('sw-bulk-edit.product.property.cardTitle')"
+                :is-loading="isLoading"
+            >
+                {% block sw_bulk_edit_product_content_property %}
+                <sw-bulk-edit-change-type-field-renderer
+                    :form-fields="propertyFormFields"
+                    :bulk-edit-data="bulkEditProduct"
+                    :entity="product"
                 />
                 {% endblock %}
             </sw-card>
@@ -65,6 +145,39 @@
                 <sw-bulk-edit-change-type-field-renderer
                     :form-fields="deliverabilityFormFields"
                     :bulk-edit-data="bulkEditProduct"
+                    :entity="product"
+                />
+                {% endblock %}
+            </sw-card>
+            {% endblock %}
+
+            {% block sw_bulk_edit_product_content_assignments_card %}
+            <sw-card
+                class="sw-bulk-edit-product-base__assignment"
+                :title="$tc('sw-bulk-edit.product.assignment.cardTitle')"
+                :is-loading="isLoading"
+            >
+                {% block sw_bulk_edit_product_content_assignments %}
+                <sw-bulk-edit-change-type-field-renderer
+                    :form-fields="assignmentFormFields"
+                    :bulk-edit-data="bulkEditProduct"
+                    :entity="product"
+                />
+                {% endblock %}
+            </sw-card>
+            {% endblock %}
+
+            {% block sw_bulk_edit_product_content_media_card %}
+            <sw-card
+                class="sw-bulk-edit-product-base__media"
+                :title="$tc('sw-bulk-edit.product.media.cardTitle')"
+                :is-loading="isLoading"
+            >
+                {% block media %}
+                <sw-bulk-edit-change-type-field-renderer
+                    :form-fields="mediaFormFields"
+                    :bulk-edit-data="bulkEditProduct"
+                    :entity="product"
                 />
                 {% endblock %}
             </sw-card>
@@ -76,10 +189,13 @@
                 :title="$tc('sw-bulk-edit.product.labelling.cardTitle')"
                 :is-loading="isLoading"
             >
+                {% block sw_bulk_edit_product_content_labelling %}
                 <sw-bulk-edit-change-type-field-renderer
                     :form-fields="labellingFormFields"
                     :bulk-edit-data="bulkEditProduct"
+                    :entity="product"
                 />
+                {% endblock %}
             </sw-card>
             {% endblock %}
 
@@ -89,10 +205,13 @@
                 :title="$tc('sw-bulk-edit.product.seo.cardTitle')"
                 :is-loading="isLoading"
             >
+                {% block sw_bulk_edit_product_content_seo %}
                 <sw-bulk-edit-change-type-field-renderer
                     :form-fields="seoFormFields"
                     :bulk-edit-data="bulkEditProduct"
+                    :entity="product"
                 />
+                {% endblock %}
             </sw-card>
             {% endblock %}
 
@@ -105,6 +224,21 @@
                 <sw-bulk-edit-change-type-field-renderer
                     :form-fields="measuresPackagingFields"
                     :bulk-edit-data="bulkEditProduct"
+                    :entity="product"
+                />
+            </sw-card>
+            {% endblock %}
+
+            {% block sw_bulk_edit_product_content_essential_card %}
+            <sw-card
+                class="sw-bulk-edit-product-base___essential"
+                :title="$tc('sw-bulk-edit.product.featureSets.cardTitle')"
+                :is-loading="isLoading"
+            >
+                <sw-bulk-edit-change-type-field-renderer
+                    :form-fields="essentialCharacteristicsFormFields"
+                    :bulk-edit-data="bulkEditProduct"
+                    :entity="product"
                 />
             </sw-card>
             {% endblock %}
@@ -126,7 +260,7 @@
             {% endblock %}
         </sw-card-view>
         <sw-empty-state
-            v-else
+            v-if="!isLoading && selectedIds.length == 0"
             :title="$tc('sw-bulk-edit.product.messageEmptyTitle')"
             :subline="$tc('sw-bulk-edit.product.messageEmptySubline')"
         />

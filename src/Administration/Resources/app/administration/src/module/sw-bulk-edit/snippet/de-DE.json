@@ -33,6 +33,31 @@
           "switchLabel": "Produkt hervorheben"
         }
       },
+      "prices": {
+        "cardTitle": "Preise",
+        "taxRate": {
+          "changeLabel": "Ändern: Steuersatz",
+          "placeholderTax": "Wähle einen Steuersatz aus ..."
+        },
+        "price": {
+          "changeLabel": "Ändern: Preis"
+        },
+        "purchasePrices": {
+          "changeLabel": "Ändern: Einkaufspreis"
+        },
+        "listPrice": {
+          "changeLabel": "Ändern: Streichpreis"
+        }
+      },
+      "advancedPrices": {
+        "cardTitle": "Erweiterte Preis",
+        "changeLabel": "Ändern: Erweiterte Preise",
+        "openModalButton": "Erweiterte Preise anzeigen"
+      },
+      "property": {
+        "cardTitle": "Eigenschaften zuweisen",
+        "changeLabel": "Ändern: Eigenschaften zuweisen"
+      },
       "deliverability": {
         "cardTitle": "Lieferbarkeit",
         "stock": {
@@ -44,7 +69,7 @@
         },
         "deliveryTime": {
           "changeLabel": "Ändern: Lieferzeit",
-          "placeholderDeliveryTime": "Gib die Lieferzeit an..."
+          "placeholderDeliveryTime": "Gib die Lieferzeit an ..."
         },
         "restockTime": {
           "changeLabel": "Ändern: Wiederauffüllzeit"
@@ -63,6 +88,29 @@
           "changeLabel": "Ändern: Maximalabnahme"
         }
       },
+      "assignment": {
+        "cardTitle": "Zuordnungen",
+        "categories": {
+          "changeLabel": "Ändern: Kategorie",
+          "placeholder": "Gib einen Kategorie ein ..."
+        },
+        "tags": {
+          "changeLabel": "Ändern: Tags",
+          "placeholder": "Gib einen Tag ein ..."
+        },
+        "visibilities": {
+          "changeLabel": "Ändern: Verkaufskanal",
+          "placeholder": "Wähle Verkaufskanäle aus ..."
+        },
+        "searchKeywords": {
+          "changeLabel": "Ändern: Suchbegriffe",
+          "placeholder": "Gib Suchbegriffe ein, mit denen Deine Produkte gefunden werden sollen"
+        }
+      },
+      "media": {
+        "cardTitle": "Medien",
+        "changeLabel": "Ändern: Medien"
+      },
       "labelling": {
         "cardTitle": "Auszeichnung",
         "releaseDate": {
@@ -74,15 +122,15 @@
         "cardTitle": "SEO",
         "metaTitle": {
           "changeLabel": "Ändern: Meta-Titel",
-          "placeholderMetaTitle": "Gib einen Meta-Titel ein..."
+          "placeholderMetaTitle": "Gib einen Meta-Titel ein ..."
         },
         "metaDescription": {
           "changeLabel": "Ändern: Meta-Beschreibung",
-          "placeholderMetaDescription": "Gib eine Beschreibung ein..."
+          "placeholderMetaDescription": "Gib eine Beschreibung ein ..."
         },
         "seoKeywords": {
           "changeLabel": "Ändern: Schlüsselwörter",
-          "placeholderSeoKeywords": "Gib ein oder mehrere Schlüsselwörter ein..."
+          "placeholderSeoKeywords": "Gib ein oder mehrere Schlüsselwörter ein ..."
         }
       },
       "measuresAndPackaging": {
@@ -105,24 +153,29 @@
         },
         "sellingUnitTitle": {
           "changeLabel": "Ändern: Verkaufseinheit",
-          "placeholder": "Verkaufseinheit eingeben..."
+          "placeholder": "Verkaufseinheit eingeben ..."
         },
         "scaleUnitTitle": {
           "changeLabel": "Ändern: Maßeinheit",
-          "placeholder": "Maßeinheit eingeben..."
+          "placeholder": "Maßeinheit eingeben ..."
         },
         "packUnitTitle": {
           "changeLabel": "Ändern: Packaging unit",
-          "placeholder": "Verpackungseinheit eingeben..."
+          "placeholder": "Verpackungseinheit eingeben ..."
         },
         "packUnitPluralTitle": {
           "changeLabel": "Ändern: Packaging unit plural",
-          "placeholder": "Verpackungseinheit-Mehrzahl eingeben..."
+          "placeholder": "Verpackungseinheit-Mehrzahl eingeben ..."
         },
         "basicUnitTitle": {
           "changeLabel": "Ändern: Grundeinheit",
-          "placeholder": "Grundeinheit eingeben..."
+          "placeholder": "Grundeinheit eingeben ..."
         }
+      },
+      "featureSets": {
+        "cardTitle": "Wesentliche Merkmale",
+        "changeLabel": "Ändern: Template",
+        "placeholder": "Wähle eine Template aus ..."
       },
       "customFields": {
         "cardTitle": "Freitextfelder",

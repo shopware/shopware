@@ -128,7 +128,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-13172 - Empty states for properties and property values overlay each other](/changelog/release-6-4-2-0/2021-05-21-empty-states-for-properties-and-property-values-overlay-each-other.md)
 *  [NEXT-15473 - Fixes calculating an equivalent ChangeSet for multiple WriteResults](/changelog/release-6-4-2-0/2021-05-21-fix-same-changeset-in-writeresults-with-same-entity-type.md)
 *  [NEXT-15399 - Improve the performance of calculating the exact total count of a query](/changelog/release-6-4-2-0/2021-05-21-improve-exact-total-count-in-dal.md)
-*  [NEXT-7205 - Make path relative in bundle:dump](/changelog/release-6-4-2-0/2021-05-21-make-path-relative-in-bundle:dump.md)
+*  [NEXT-7205 - Make path relative in bundle:dump](/changelog/release-6-4-2-0/2021-05-21-make-path-relative-in-bundle-dump.md)
 *  [NEXT-15343 - Sorting variants by price ends in infinity loading](/changelog/release-6-4-2-0/2021-05-21-sorting-variants-by-price-ends-in-infinity-loading.md)
 *  [NEXT-14973 - Prepare several methods to be native typed](/changelog/release-6-4-2-0/2021-05-22-prepare-several-methods-to-be-native-typed.md)
 *  [NEXT-6850 - Able to show zero value in condition of rule builder](/changelog/release-6-4-2-0/2021-05-24-able-to-show-zero-value-in-condition-of-rule-builder.md)

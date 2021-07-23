@@ -75,7 +75,11 @@
 |`category.deleted` | Triggers when a category is deleted | `category:read` | {"entity":"category","operation":"update insert","primaryKey":"array string","payload":"array"}
 |`sales_channel.written` | Triggers when a sales_channel is written | `sales_channel:read` | {"entity":"sales_channel","operation":true,"primaryKey":"array string","payload":"array"}
 |`sales_channel.deleted` | Triggers when a sales_channel is deleted | `sales_channel:read` | {"entity":"sales_channel","operation":"update insert","primaryKey":"array string","payload":"array"}
+|`sales_channel_domain.written` | Triggers when a sales_channel_domain is written | `sales_channel_domain:read` | {"entity":"sales_channel_domain","operation":true,"primaryKey":"array string","payload":"array"}
+|`sales_channel_domain.deleted` | Triggers when a sales_channel_domain is deleted | `sales_channel_domain:read` | {"entity":"sales_channel_domain","operation":"update insert","primaryKey":"array string","payload":"array"}
 |`customer.written` | Triggers when a customer is written | `customer:read` | {"entity":"customer","operation":true,"primaryKey":"array string","payload":"array"}
 |`customer.deleted` | Triggers when a customer is deleted | `customer:read` | {"entity":"customer","operation":"update insert","primaryKey":"array string","payload":"array"}
 |`customer_address.written` | Triggers when a customer_address is written | `customer_address:read` | {"entity":"customer_address","operation":true,"primaryKey":"array string","payload":"array"}
 |`customer_address.deleted` | Triggers when a customer_address is deleted | `customer_address:read` | {"entity":"customer_address","operation":"update insert","primaryKey":"array string","payload":"array"}
+|`order.written` | Triggers when a order is written | `order:read` | {"entity":"order","operation":true,"primaryKey":"array string","payload":"array"}
+|`order.deleted` | Triggers when a order is deleted | `order:read` | {"entity":"order","operation":"update insert","primaryKey":"array string","payload":"array"}

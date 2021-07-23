@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Webhook\Hookable;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
+use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventDefinition;
 use Shopware\Core\Framework\Webhook\Hookable;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 /**
@@ -25,8 +27,10 @@ class HookableEventCollector
         ProductPriceDefinition::ENTITY_NAME,
         CategoryDefinition::ENTITY_NAME,
         SalesChannelDefinition::ENTITY_NAME,
+        SalesChannelDomainDefinition::ENTITY_NAME,
         CustomerDefinition::ENTITY_NAME,
         CustomerAddressDefinition::ENTITY_NAME,
+        OrderDefinition::ENTITY_NAME,
     ];
 
     private const PRIVILEGES = 'privileges';

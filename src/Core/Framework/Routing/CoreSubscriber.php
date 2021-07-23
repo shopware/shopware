@@ -46,6 +46,7 @@ class CoreSubscriber implements EventSubscriberInterface
         }
         $response->headers->set('X-Frame-Options', 'deny');
         $response->headers->set('X-Content-Type-Options', 'nosniff');
+        $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
 
         $cspTemplate = $this->cspTemplates['default'] ?? '';
 

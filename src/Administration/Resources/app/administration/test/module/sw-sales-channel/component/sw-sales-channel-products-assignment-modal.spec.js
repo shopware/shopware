@@ -4,6 +4,9 @@ import 'src/app/component/base/sw-button';
 
 function createWrapper(activeTab = 'singleProducts') {
     return shallowMount(Shopware.Component.build('sw-sales-channel-products-assignment-modal'), {
+        directives: {
+            hide: {}
+        },
         stubs: {
             'sw-sales-channel-products-assignment-single-products': true,
             'sw-sales-channel-product-assignment-categories': true,

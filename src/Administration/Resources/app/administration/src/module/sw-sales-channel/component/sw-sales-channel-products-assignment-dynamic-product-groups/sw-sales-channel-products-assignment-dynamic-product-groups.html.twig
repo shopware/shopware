@@ -4,7 +4,7 @@
     class="sw-sales-channel-products-assignment-dynamic-product-groups"
 >
     {% block sw_sales_channel_products_assignment_dynamic_product_groups_info_text %}
-    <sw-alert variant="info">
+    <sw-alert ref="alert">
         {{ $tc('sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.infoText') }}
     </sw-alert>
     {% endblock %}
@@ -13,9 +13,10 @@
     <sw-card :is-loading="isProductLoading">
         <template #grid>
             {% block sw_sales_channel_products_assignment_dynamic_product_groups_listing_container %}
-            <sw-container rows="auto auto">
+            <div :style="containerStyle">
                 {% block sw_sales_channel_products_assignment_dynamic_product_groups_listing_section %}
                 <sw-card-section
+                    ref="cardSectionSecondary"
                     secondary
                     divider="bottom"
                 >
@@ -31,75 +32,74 @@
                 </sw-card-section>
                 {% endblock %}
 
-                {% block sw_sales_channel_products_assignment_dynamic_product_groups_listing_entity %}
-                <sw-entity-listing
-                    v-if="productStreams.length > 0"
-                    ref="productStreamListing"
-                    identifier="sw-sales-channel-products-assignment-dynamic-product-groups-listing"
-                    :items="productStreams"
-                    :data-source="productStreams"
-                    :columns="productStreamColumns"
-                    :repository="productStreamRepository"
-                    :is-loading="isProductStreamsLoading"
-                    :skeleton-item-amount="limit"
-                    :plain-appearance="true"
-                    :full-page="false"
-                    :show-settings="false"
-                    :allow-column-edit="false"
-                    :allow-inline-edit="false"
-                    @selection-change="onSelect"
-                >
-                    <template #bulk>
-                        {% block sw_sales_channel_products_assignment_dynamic_product_groups_listing_bulk %}
-                        <span></span>
-                        {% endblock %}
-                    </template>
+                {% block sw_sales_channel_products_assignment_dynamic_product_groups_card_section_primary %}
+                <sw-card-section class="sw-sales-channel-products-assignment-dynamic-product-groups__card-section-primary">
+                    {% block sw_sales_channel_products_assignment_dynamic_product_groups_listing_entity %}
+                    <sw-entity-listing
+                        v-if="productStreams.length > 0"
+                        ref="productStreamListing"
+                        identifier="sw-sales-channel-products-assignment-dynamic-product-groups-listing"
+                        :items="productStreams"
+                        :data-source="productStreams"
+                        :columns="productStreamColumns"
+                        :repository="productStreamRepository"
+                        :is-loading="isProductStreamsLoading"
+                        :skeleton-item-amount="limit"
+                        :plain-appearance="true"
+                        :show-settings="false"
+                        :allow-column-edit="false"
+                        :allow-inline-edit="false"
+                        @selection-change="onSelect"
+                    >
+                        <template #bulk>
+                            {% block sw_sales_channel_products_assignment_dynamic_product_groups_listing_bulk %}
+                            <span></span>
+                            {% endblock %}
+                        </template>
 
-                    <template #delete-action="{ item }">
-                        {% block sw_sales_channel_products_assignment_dynamic_product_groups_listing_delete_action %}
-                        <span
-                            class="sw-sales-channel-products-assignment-dynamic-product-groups__link-open"
-                            @click="onOpen(item)"
-                        >
-                            {{ $tc('global.default.open') }}
-                        </span>
-                        {% endblock %}
-                    </template>
+                        <template #delete-action="{ item }">
+                            {% block sw_sales_channel_products_assignment_dynamic_product_groups_listing_delete_action %}
+                            <span
+                                class="sw-sales-channel-products-assignment-dynamic-product-groups__link-open"
+                                @click="onOpen(item)"
+                            >
+                                {{ $tc('global.default.open') }}
+                            </span>
+                            {% endblock %}
+                        </template>
 
-                    <template #pagination>
-                        {% block sw_sales_channel_products_assignment_dynamic_product_groups_listing_pagination %}
-                        <sw-pagination
-                            :page="page"
-                            :limit="limit"
-                            :total="total"
-                            :total-visible="7"
-                            :auto-hide="false"
-                            :steps="[10]"
-                            @page-change="onPaginate"
-                        />
-                        {% endblock %}
-                    </template>
-                </sw-entity-listing>
+                        <template #pagination>
+                            {% block sw_sales_channel_products_assignment_dynamic_product_groups_listing_pagination %}
+                            <sw-pagination
+                                v-bind="{ page, limit, total }"
+                                :total-visible="3"
+                                :auto-hide="false"
+                                @page-change="onPaginate"
+                            />
+                            {% endblock %}
+                        </template>
+                    </sw-entity-listing>
+                    {% endblock %}
+
+                    {% block sw_sales_channel_products_assignment_dynamic_product_groups_listing_empty %}
+                    <sw-empty-state
+                        v-if="productStreams.length <= 0"
+                        :show-description="false"
+                        :title="productStreams.length <= 0 && term
+                            ? $tc('sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.titleNoProductStreamsMatching')
+                            : $tc('sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.titleNoProductStreamsAvailable')
+                        "
+                    >
+                        <template #icon>
+                            {% block sw_sales_channel_products_assignment_dynamic_product_groups_listing_empty_icon %}
+                            <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
+                            {% endblock %}
+                        </template>
+                    </sw-empty-state>
+                    {% endblock %}
+                </sw-card-section>
                 {% endblock %}
-
-                {% block sw_sales_channel_products_assignment_dynamic_product_groups_listing_empty %}
-                <sw-empty-state
-                    v-if="productStreams.length <= 0"
-                    :absolute="false"
-                    :show-description="false"
-                    :title="productStreams.length <= 0 && term
-                        ? $tc('sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.titleNoProductStreamsMatching')
-                        : $tc('sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.titleNoProductStreamsAvailable')
-                    "
-                >
-                    <template #icon>
-                        {% block sw_sales_channel_products_assignment_dynamic_product_groups_listing_empty_icon %}
-                        <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
-                        {% endblock %}
-                    </template>
-                </sw-empty-state>
-                {% endblock %}
-            </sw-container>
+            </div>
             {% endblock %}
         </template>
     </sw-card>

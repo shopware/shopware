@@ -7,7 +7,6 @@
 
     .sw-card .sw-card__content {
         padding: 0;
-        min-height: 100px;
     }
 
     &__results {
@@ -29,6 +28,7 @@
 
     .sw-tree .sw-tree__content {
         height: 100%;
+        min-height: 0;
     }
 
     .sw-tree-item .sw-field--checkbox {

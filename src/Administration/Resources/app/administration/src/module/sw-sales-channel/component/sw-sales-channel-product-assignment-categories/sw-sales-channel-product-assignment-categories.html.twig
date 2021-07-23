@@ -1,16 +1,20 @@
 {% block sw_sales_channel_product_assignment_categories %}
 <div class="sw-sales-channel-product-assignment-categories">
     {% block sw_sales_channel_product_assignment_categories_info %}
-    <sw-alert>
+    <sw-alert ref="alert">
         {{ $tc('sw-sales-channel.detail.productAssignmentModal.categories.textInfo') }}
     </sw-alert>
     {% endblock %}
 
     {% block sw_sales_channel_product_assignment_categories_content %}
     <sw-card :is-loading="!isComponentReady || isProductLoading">
-        <sw-container rows="auto 412px">
+        <div :style="containerStyle">
             {% block sw_sales_channel_products_assignment_single_products_secondary %}
-            <sw-card-section secondary>
+            <sw-card-section
+                ref="cardSectionSecondary"
+                secondary
+                divider="bottom"
+            >
                 {% block sw_sales_channel_product_assignment_categories_search_field %}
                 <sw-simple-search-field
                     v-model="searchTerm"
@@ -155,7 +159,7 @@
             />
             {% endblock %}
             {% endblock %}
-        </sw-container>
+        </div>
     </sw-card>
     {% endblock %}
 </div>

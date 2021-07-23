@@ -18,6 +18,11 @@ Component.register('sw-sales-channel-products-assignment-single-products', {
             type: Object,
             required: true,
         },
+
+        containerStyle: {
+            type: Object,
+            required: true,
+        },
     },
 
     data() {

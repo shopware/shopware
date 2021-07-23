@@ -1,18 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Test\Theme;
+namespace Shopware\Storefront\Test\Theme\ConfigLoader;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Storefront\Theme\ConfigLoader\DatabaseConfigLoader;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
-use Shopware\Storefront\Theme\ThemeCompiler;
-use Shopware\Storefront\Theme\ThemeService;
 
-class ThemeServiceTest extends TestCase
+class DatabaseConfigLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
@@ -61,9 +60,6 @@ class ThemeServiceTest extends TestCase
         $this->getContainer()->get('theme.repository')
             ->create($themes, Context::createDefaultContext());
 
-        $method = (new \ReflectionClass(ThemeService::class))
-            ->getMethod('getPluginConfiguration');
-
         $collection = new StorefrontPluginConfigurationCollection([
             new StorefrontPluginConfiguration('base'),
             new StorefrontPluginConfiguration('parent'),
@@ -75,18 +71,14 @@ class ThemeServiceTest extends TestCase
         $registry->method('getConfigurations')
             ->willReturn($collection);
 
-        $service = new ThemeService(
-            $registry,
+        $service = new DatabaseConfigLoader(
             $this->getContainer()->get('theme.repository'),
-            $this->getContainer()->get('theme_sales_channel.repository'),
-            $this->getContainer()->get(ThemeCompiler::class),
-            $this->getContainer()->get('event_dispatcher')
+            $registry,
+            $this->getContainer()->get('media.repository'),
         );
 
-        $method->setAccessible(true);
-        $config = $method->invoke($service, $ids->get($key), Context::createDefaultContext());
+        $config = $service->load($ids->get($key), Context::createDefaultContext());
 
-        /** @var StorefrontPluginConfiguration $config */
         static::assertInstanceOf(StorefrontPluginConfiguration::class, $config);
 
         $fields = $config->getThemeConfig()['fields'];

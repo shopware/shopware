@@ -2,6 +2,9 @@
 
 namespace Shopware\Storefront\DependencyInjection;
 
+use Shopware\Storefront\Theme\AbstractThemePathBuilder;
+use Shopware\Storefront\Theme\ConfigLoader\AbstractAvailableThemeProvider;
+use Shopware\Storefront\Theme\ConfigLoader\AbstractConfigLoader;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 
@@ -19,6 +22,7 @@ class StorefrontExtension extends Extension
         $config = $this->processConfiguration($configuration, $configs);
 
         $this->addConfig($container, 'storefront', $config);
+        $this->registerThemeServiceAliases($config['theme'], $container);
     }
 
     private function addConfig(ContainerBuilder $container, string $alias, array $options): void
@@ -30,5 +34,12 @@ class StorefrontExtension extends Extension
                 $this->addConfig($container, $alias . '.' . $key, $option);
             }
         }
+    }
+
+    private function registerThemeServiceAliases(array $theme, ContainerBuilder $container): void
+    {
+        $container->setAlias(AbstractThemePathBuilder::class, $theme['theme_path_builder_id']);
+        $container->setAlias(AbstractConfigLoader::class, $theme['config_loader_id']);
+        $container->setAlias(AbstractAvailableThemeProvider::class, $theme['available_theme_provider']);
     }
 }

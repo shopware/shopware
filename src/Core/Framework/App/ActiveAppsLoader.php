@@ -4,25 +4,24 @@ namespace Shopware\Core\Framework\App;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
+use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
+use Shopware\Core\Framework\App\Manifest\Manifest;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  */
 class ActiveAppsLoader
 {
-    /**
-     * @var array|null
-     */
-    private $activeApps;
+    private ?array $activeApps = null;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    public function __construct(Connection $connection)
+    private AbstractAppLoader $appLoader;
+
+    public function __construct(Connection $connection, AbstractAppLoader $appLoader)
     {
         $this->connection = $connection;
+        $this->appLoader = $appLoader;
     }
 
     public function getActiveApps(): array
@@ -49,10 +48,16 @@ class ActiveAppsLoader
             ')->fetchAll(FetchMode::ASSOCIATIVE);
         } catch (\Throwable $e) {
             if (\defined('\STDERR')) {
-                fwrite(\STDERR, 'Warning: Failed to load apps. Message: ' . $e->getMessage() . \PHP_EOL);
+                fwrite(\STDERR, 'Warning: Failed to load apps. Loading apps from local. Message: ' . $e->getMessage() . \PHP_EOL);
             }
-        }
 
-        return [];
+            return array_map(function (Manifest $manifest) {
+                return [
+                    'name' => $manifest->getMetadata()->getName(),
+                    'path' => $manifest->getPath(),
+                    'author' => $manifest->getMetadata()->getAuthor(),
+                ];
+            }, $this->appLoader->load());
+        }
     }
 }

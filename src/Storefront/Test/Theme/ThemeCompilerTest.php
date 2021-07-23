@@ -14,6 +14,7 @@ use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
 use Shopware\Storefront\Event\ThemeCompilerEnrichScssVariablesEvent;
 use Shopware\Storefront\Test\Theme\fixtures\MockThemeCompilerConcatenatedSubscriber;
 use Shopware\Storefront\Test\Theme\fixtures\MockThemeVariablesSubscriber;
+use Shopware\Storefront\Theme\MD5ThemePathBuilder;
 use Shopware\Storefront\Theme\ThemeCompiler;
 use Shopware\Storefront\Theme\ThemeFileImporter;
 use Shopware\Storefront\Theme\ThemeFileResolver;
@@ -70,9 +71,9 @@ class ThemeCompilerTest extends TestCase
             true,
             $eventDispatcher,
             $this->getContainer()->get(ThemeFileImporter::class),
-            $mediaRepository,
             ['theme' => new UrlPackage(['http://localhost'], new EmptyVersionStrategy())],
-            $this->getContainer()->get(CacheInvalidator::class)
+            $this->getContainer()->get(CacheInvalidator::class),
+            new MD5ThemePathBuilder()
         );
     }
 
@@ -331,33 +332,5 @@ PHP_EOL;
         $expected = $scripts . MockThemeCompilerConcatenatedSubscriber::SCRIPTS_CONCAT;
 
         static::assertEquals($expected, $actual);
-    }
-
-    public function testMediaIdsInThemeConfigGetResolvedToPaths(): void
-    {
-        $themeCompilerReflection = new \ReflectionClass(ThemeCompiler::class);
-        $dumpVariables = $themeCompilerReflection->getMethod('dumpVariables');
-        $dumpVariables->setAccessible(true);
-
-        $mockConfig = [
-            'fields' => [
-                'sw-color-brand-primary' => [
-                    'name' => 'sw-color-brand-primary',
-                    'type' => 'color',
-                    'value' => '#008490',
-                ],
-                // Should be resolved to media URL
-                'sw-logo-desktop' => [
-                    'name' => 'sw-logo-desktop',
-                    'type' => 'media',
-                    'value' => $this->mockMediaId,
-                ],
-            ],
-        ];
-
-        $actual = $dumpVariables->invoke($this->themeCompiler, $mockConfig, $this->mockSalesChannelId);
-
-        $re = '/\$sw-logo-desktop:\s*\'.*\/testImage\.png\'\s*;/m';
-        static::assertMatchesRegularExpression($re, $actual);
     }
 }

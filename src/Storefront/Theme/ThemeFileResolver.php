@@ -14,14 +14,14 @@ class ThemeFileResolver
     public const SCRIPT_FILES = 'script';
     public const STYLE_FILES = 'style';
 
-    /**
-     * @var ThemeFileImporterInterface|null will be required in v6.3.0
-     */
-    private $themeFileImporter;
+    private ThemeFileImporterInterface $themeFileImporter;
 
-    public function __construct(?ThemeFileImporterInterface $themeFileImporter = null)
+    private string $projectDir;
+
+    public function __construct(ThemeFileImporterInterface $themeFileImporter, string $projectDir)
     {
         $this->themeFileImporter = $themeFileImporter;
+        $this->projectDir = $projectDir;
     }
 
     public function resolveFiles(
@@ -75,9 +75,13 @@ class ThemeFileResolver
     ): FileCollection {
         /** @var FileCollection $files */
         $files = $configFileResolver($themeConfig, $onlySourceFiles);
+
         if ($files->count() === 0) {
             return $files;
         }
+
+        $this->convertPathsToAbsolute($files);
+
         $resolvedFiles = new FileCollection();
         $nextIncluded = $included;
         foreach ($files as $file) {
@@ -89,7 +93,7 @@ class ThemeFileResolver
         foreach ($files as $file) {
             $filepath = $file->getFilepath();
             if (!$this->isInclude($filepath)) {
-                if ($this->fileExists($filepath)) {
+                if ($this->themeFileImporter->fileExists($filepath)) {
                     $resolvedFiles->add($file);
 
                     continue;
@@ -139,15 +143,35 @@ class ThemeFileResolver
 
     private function isInclude(string $file): bool
     {
-        return mb_strpos($file, '@') === 0;
+        return strpos($file, '@') === 0;
     }
 
-    private function fileExists(string $filepath): bool
+    private function convertPathsToAbsolute(FileCollection $files): void
     {
-        if (!$this->themeFileImporter) {
-            return file_exists($filepath);
-        }
+        foreach ($files->getElements() as $file) {
+            if ($this->isInclude($file->getFilepath())) {
+                continue;
+            }
 
-        return $this->themeFileImporter->fileExists($filepath);
+            $path = $file->getFilepath();
+
+            // Is already absolute
+            if ($path[0] === '/' || !file_exists($this->projectDir . '/' . $path)) {
+                continue;
+            }
+
+            $file->setFilepath($this->projectDir . '/' . $path);
+            $mapping = $file->getResolveMapping();
+
+            foreach ($mapping as $key => $val) {
+                if ($val[0] === '/' || !file_exists($this->projectDir . '/' . $val)) {
+                    continue;
+                }
+
+                $mapping[$key] = $this->projectDir . '/' . $val;
+            }
+
+            $file->setResolveMapping($mapping);
+        }
     }
 }

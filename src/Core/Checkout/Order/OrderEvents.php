@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Checkout\Order;
 
+use Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedEvent;
+
 class OrderEvents
 {
     /**
@@ -303,4 +305,9 @@ class OrderEvents
      * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityIdSearchResultLoadedEvent")
      */
     public const ORDER_TRANSACTION_STATE_TRANSLATION_ID_SEARCH_RESULT_LOADED_EVENT = 'order_transaction_state_translation.id.search.result.loaded';
+
+    /**
+     * @Event("Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedEvent")
+     */
+    public const ORDER_PAYMENT_METHOD_CHANGED = OrderPaymentMethodChangedEvent::EVENT_NAME;
 }

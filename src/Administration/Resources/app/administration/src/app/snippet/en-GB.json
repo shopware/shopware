@@ -724,6 +724,7 @@
       "checkout_customer_logout": "Customer logs off",
       "checkout_customer_register": "Customer account registered",
       "checkout_order_placed": "Order placed",
+      "checkout_order_payment_method_changed": "Order payment method changed",
       "contact_form_send": "Contact form sent",
       "customer_group_registration_accepted": "Customer group registration request accepted",
       "customer_group_registration_declined": "Customer group registration request declined",

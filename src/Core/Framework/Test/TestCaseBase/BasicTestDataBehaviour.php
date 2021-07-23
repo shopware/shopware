@@ -61,17 +61,17 @@ trait BasicTestDataBehaviour
         $repository = $this->getContainer()->get('payment_method.repository');
 
         $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('active', true));
-        $paymentMethods = $repository->search($criteria, Context::createDefaultContext())->getEntities();
+            ->setLimit(1)
+            ->addFilter(new EqualsFilter('active', true))
+            ->addFilter(new EqualsFilter('availabilityRuleId', null));
 
-        /** @var PaymentMethodEntity $paymentMethod */
-        foreach ($paymentMethods as $paymentMethod) {
-            if ($paymentMethod->getAvailabilityRuleId() === null) {
-                return $paymentMethod;
-            }
+        $paymentMethod = $repository->search($criteria, Context::createDefaultContext())->getEntities()->first();
+
+        if ($paymentMethod === null) {
+            throw new \LogicException('No available Payment method configured');
         }
 
-        throw new \LogicException('No available Payment method configured');
+        return $paymentMethod;
     }
 
     protected function getValidShippingMethodId(): string

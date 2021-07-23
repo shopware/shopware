@@ -15,6 +15,7 @@ use Shopware\Core\Checkout\Customer\Event\CustomerLogoutEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
 use Shopware\Core\Checkout\Customer\Event\DoubleOptInGuestOrderEvent;
 use Shopware\Core\Checkout\Customer\Event\GuestCustomerRegisterEvent;
+use Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedEvent;
 use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
@@ -67,6 +68,11 @@ final class BusinessEvents
      * @Event("Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent")
      */
     public const CHECKOUT_ORDER_PLACED = CheckoutOrderPlacedEvent::EVENT_NAME;
+
+    /**
+     * @Event("Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedEvent")
+     */
+    public const CHECKOUT_ORDER_PAYMENT_METHOD_CHANGED = OrderPaymentMethodChangedEvent::EVENT_NAME;
 
     /**
      * @Event("Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent")

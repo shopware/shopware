@@ -32,12 +32,7 @@ class ThemeAssetPackage extends FallbackUrlPackage
             return $path;
         }
 
-        $url = $this->getVersionStrategy()->applyVersion($path);
-
-        if ($this->isAbsoluteUrl($url)) {
-            return $url;
-        }
-
+        $url = $path;
         if ($url && $url[0] !== '/') {
             $url = '/' . $url;
         }
@@ -45,10 +40,22 @@ class ThemeAssetPackage extends FallbackUrlPackage
         if (str_starts_with($url, '/bundles') || str_starts_with($url, '/theme/')) {
             Feature::triggerDeprecated('FEATURE_NEXT_14699', '6.4.2.0', '6.5.0.0', 'Accessing "theme" asset with "/bundles" or "/themes" prefixed path will be removed with 6.5.0.0');
 
+            $url = $this->getVersionStrategy()->applyVersion($url);
+
+            if ($this->isAbsoluteUrl($url)) {
+                return $url;
+            }
+
             return $this->getBaseUrl($path) . $url;
         }
 
-        return $this->getBaseUrl($path) . $this->appendThemePath() . $url;
+        $url = $this->getVersionStrategy()->applyVersion($this->appendThemePath() . $url);
+
+        if ($this->isAbsoluteUrl($url)) {
+            return $url;
+        }
+
+        return $this->getBaseUrl($path) . $url;
     }
 
     private function appendThemePath(): string

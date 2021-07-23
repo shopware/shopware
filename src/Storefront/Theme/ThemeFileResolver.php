@@ -156,7 +156,7 @@ class ThemeFileResolver
             $path = $file->getFilepath();
 
             // Is already absolute
-            if ($path[0] === '/') {
+            if ($path[0] === '/' || !file_exists($this->projectDir . '/' . $path)) {
                 continue;
             }
 
@@ -164,7 +164,7 @@ class ThemeFileResolver
             $mapping = $file->getResolveMapping();
 
             foreach ($mapping as $key => $val) {
-                if ($val[0] === '/') {
+                if ($val[0] === '/' || !file_exists($this->projectDir . '/' . $val)) {
                     continue;
                 }
 

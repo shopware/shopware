@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
@@ -36,7 +37,8 @@ trait DataAbstractionLayerFieldTestBehaviour
                         $this->getContainer()->get(VersionManager::class),
                         $this->getContainer()->get(EntitySearcherInterface::class),
                         $this->getContainer()->get(EntityAggregatorInterface::class),
-                        $this->getContainer()->get('event_dispatcher')
+                        $this->getContainer()->get('event_dispatcher'),
+                        $this->getContainer()->get(EntityLoadedEventFactory::class)
                     );
 
                     $this->getContainer()->set($definition->getEntityName() . '.repository', $repository);

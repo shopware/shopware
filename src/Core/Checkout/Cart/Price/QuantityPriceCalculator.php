@@ -31,22 +31,13 @@ class QuantityPriceCalculator
             $price = $this->netPriceCalculator->calculate($definition, $context->getItemRounding());
         }
 
-        $taxRules = $price->getTaxRules();
-        $calculatedTaxes = $price->getCalculatedTaxes();
-
         if ($context->getTaxState() === CartPrice::TAX_STATE_FREE) {
-            $taxRules = new TaxRuleCollection();
-            $calculatedTaxes = new CalculatedTaxCollection();
+            $price->assign([
+                'taxRules' => new TaxRuleCollection(),
+                'calculatedTaxes' => new CalculatedTaxCollection(),
+            ]);
         }
 
-        return new CalculatedPrice(
-            $price->getUnitPrice(),
-            $price->getTotalPrice(),
-            $calculatedTaxes,
-            $taxRules,
-            $price->getQuantity(),
-            $price->getReferencePrice(),
-            $price->getListPrice()
-        );
+        return $price;
     }
 }

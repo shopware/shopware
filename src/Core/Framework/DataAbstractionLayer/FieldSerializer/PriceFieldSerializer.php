@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -27,17 +26,11 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class PriceFieldSerializer extends AbstractFieldSerializer
 {
-    /**
-     * @var Price
-     */
-    private $blueprint;
-
     public function __construct(
         DefinitionInstanceRegistry $definitionRegistry,
         ValidatorInterface $validator
     ) {
         parent::__construct($validator, $definitionRegistry);
-        $this->blueprint = new Price('', 0, 0, true, null);
     }
 
     public function encode(
@@ -108,27 +101,33 @@ class PriceFieldSerializer extends AbstractFieldSerializer
             $value = json_decode($value, true);
         }
 
-        $collection = EntityHydrator::createClass(PriceCollection::class);
+        $collection = new PriceCollection();
 
         foreach ($value as $row) {
-            $price = clone $this->blueprint;
-            $price->setCurrencyId($row['currencyId']);
-            $price->setNet((float) $row['net']);
-            $price->setGross((float) $row['gross']);
-            $price->setLinked((bool) $row['linked']);
+            if (!isset($row['listPrice']) || !isset($row['listPrice']['gross'])) {
+                $collection->add(
+                    new Price($row['currencyId'], (float) $row['net'], (float) $row['gross'], (bool) $row['linked'])
+                );
 
-            if (isset($row['listPrice']) && isset($row['listPrice']['gross'])) {
-                $data = $row['listPrice'];
-
-                $listPrice = clone $this->blueprint;
-                $listPrice->setCurrencyId($row['currencyId']);
-                $listPrice->setNet((float) $data['net']);
-                $listPrice->setGross((float) $data['gross']);
-                $listPrice->setLinked((bool) $data['linked']);
-                $price->setListPrice($listPrice);
+                continue;
             }
 
-            $collection->add($price);
+            $data = $row['listPrice'];
+
+            $collection->add(
+                new Price(
+                    $row['currencyId'],
+                    (float) $row['net'],
+                    (float) $row['gross'],
+                    (bool) $row['linked'],
+                    new Price(
+                        $row['currencyId'],
+                        (float) $data['net'],
+                        (float) $data['gross'],
+                        (bool) $data['linked'],
+                    )
+                )
+            );
         }
 
         return $collection;

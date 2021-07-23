@@ -65,12 +65,7 @@ class EntityHydrator
 
     final public static function createClass(string $class)
     {
-        if (!isset(self::$instances[$class])) {
-            self::$instances[$class] = new $class();
-        }
-
-        // cloning instances is much faster than creating the class
-        return clone self::$instances[$class];
+        return new $class();
     }
 
     final public static function buildUniqueIdentifier(EntityDefinition $definition, array $row, string $root): array
@@ -430,16 +425,20 @@ class EntityHydrator
 
         $identifier = implode('-', self::buildUniqueIdentifier($definition, $row, $root));
 
-        $cacheKey = $root . $definition->getEntityName() . '::' . $identifier;
+        $cacheKey = $root . '::' . $identifier;
 
         if (isset(self::$hydrated[$cacheKey])) {
             return self::$hydrated[$cacheKey];
         }
 
-        $entity = self::createClass($entityClass);
+        $entity = new $entityClass();
 
-        $entity->addExtension(EntityReader::FOREIGN_KEYS, self::createClass(ArrayStruct::class));
-        $entity->addExtension(EntityReader::INTERNAL_MAPPING_STORAGE, self::createClass(ArrayStruct::class));
+        if (!$entity instanceof Entity) {
+            throw new \RuntimeException(sprintf('Expected instance of Entity.php, got %s', \get_class($entity)));
+        }
+
+        $entity->addExtension(EntityReader::FOREIGN_KEYS, new ArrayStruct());
+        $entity->addExtension(EntityReader::INTERNAL_MAPPING_STORAGE, new ArrayStruct());
 
         $entity->setUniqueIdentifier($identifier);
         $entity->internalSetEntityName($definition->getEntityName());

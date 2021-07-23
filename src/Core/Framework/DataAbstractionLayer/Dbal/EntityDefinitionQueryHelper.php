@@ -220,6 +220,25 @@ class EntityDefinitionQueryHelper
         );
     }
 
+    public static function getAssociationPath(string $accessor, EntityDefinition $definition): ?string
+    {
+        $fields = self::getFieldsOfAccessor($definition, $accessor, true);
+
+        $path = [];
+        foreach ($fields as $field) {
+            if (!$field instanceof AssociationField) {
+                break;
+            }
+            $path[] = $field->getPropertyName();
+        }
+
+        if (empty($path)) {
+            return null;
+        }
+
+        return implode('.', $path);
+    }
+
     /**
      * Creates the basic root query for the provided entity definition and application context.
      * It considers the current context version.

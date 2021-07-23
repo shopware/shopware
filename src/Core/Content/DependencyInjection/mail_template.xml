@@ -53,15 +53,6 @@
         </service>
 
         <!-- Header Footer Repository -->
-        <service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="mail_header_footer.repository" public="true">
-            <argument type="service" id="Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterDefinition"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface"/>
-            <argument type="service" id="event_dispatcher"/>
-        </service>
-
         <service id="Shopware\Core\Content\Mail\Service\MailService">
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator" />
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer" />

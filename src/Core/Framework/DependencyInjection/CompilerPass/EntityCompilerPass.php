@@ -6,6 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
@@ -54,7 +55,10 @@ class EntityCompilerPass implements CompilerPassInterface
             $repositoryId = $instance->getEntityName() . '.repository';
 
             try {
-                $container->getDefinition($repositoryId);
+                $repository = $container->getDefinition($repositoryId);
+                //@deprecated tag:v6.5.0 (flag:FEATURE_NEXT_16155) - remove add method call
+                $repository->addMethodCall('setEntityLoadedEventFactory', [new Reference(EntityLoadedEventFactory::class)]);
+                $repository->setPublic(true);
             } catch (ServiceNotFoundException $exception) {
                 $repository = new Definition(
                     EntityRepository::class,
@@ -65,6 +69,7 @@ class EntityCompilerPass implements CompilerPassInterface
                         new Reference(EntitySearcherInterface::class),
                         new Reference(EntityAggregatorInterface::class),
                         new Reference('event_dispatcher'),
+                        new Reference(EntityLoadedEventFactory::class),
                     ]
                 );
                 $repository->setPublic(true);

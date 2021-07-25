@@ -89,6 +89,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                     'type' => 'nested',
                     'properties' => [
                         'id' => EntityMapper::KEYWORD_FIELD,
+                        'groupId' => EntityMapper::KEYWORD_FIELD,
                     ],
                 ],
                 'productNumber' => EntityMapper::KEYWORD_FIELD,
@@ -96,6 +97,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                     'type' => 'nested',
                     'properties' => [
                         'id' => EntityMapper::KEYWORD_FIELD,
+                        'groupId' => EntityMapper::KEYWORD_FIELD,
                     ],
                 ],
                 'ratingAverage' => EntityMapper::FLOAT_FIELD,
@@ -160,6 +162,8 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
     public function fetch(array $ids, Context $context): array
     {
         $data = $this->fetchProducts($ids, $context);
+
+        $propertyGroups = $this->fetchPropertyGroups(array_unique(array_merge(...array_map(fn ($item) => array_merge(json_decode($item['propertyIds'] ?? '[]', true), json_decode($item['optionIds'] ?? '[]', true)), array_values($data)))));
 
         $currencies = $context->getExtension('currencies');
 
@@ -493,6 +497,18 @@ SQL;
         }
 
         return $customFields;
+    }
+
+    private function fetchPropertyGroups($propertyIds = array()): array
+    {
+        $sql = "SELECT id, property_group_id FROM property_group_option WHERE id in (?)";
+
+        $data = $this->connection->fetchAll($sql, [Uuid::fromHexToBytesList($propertyIds)], [Connection::PARAM_STR_ARRAY]);
+        $propertyGroups = [];
+        foreach($data as $item) {
+            $propertyGroups[Uuid::fromBytesToHex($item['id'])] = Uuid::fromBytesToHex($item['property_group_id']);
+        }
+        return $propertyGroups;
     }
 
     private function getCustomFieldTypes(): array

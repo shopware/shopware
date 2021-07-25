@@ -135,7 +135,7 @@ class CriteriaParser
 
         $esAggregation = $this->createAggregation($aggregation, $fieldName, $definition, $context);
 
-        if (!$path) {
+        if (!$path || $aggregation instanceof FilterAggregation) {
             return $esAggregation;
         }
 
@@ -182,9 +182,6 @@ class CriteriaParser
         $query = new BoolQuery();
         foreach ($aggregation->getFilter() as $filter) {
             $parsed = $this->parseFilter($filter, $definition, $definition->getEntityName(), $context);
-            if ($parsed instanceof NestedQuery) {
-                $parsed = $parsed->getQuery();
-            }
             $query->add($parsed);
         }
 
@@ -197,7 +194,7 @@ class CriteriaParser
         }
 
         $filter->addAggregation(
-            $this->parseNestedAggregation($nested, $definition, $context)
+            $this->parseAggregation($nested, $definition, $context)
         );
 
         return $filter;

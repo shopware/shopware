@@ -14,6 +14,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\DateHistogramAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
@@ -1350,6 +1351,63 @@ class ElasticsearchProductTest extends TestCase
             static::assertInstanceOf(AvgResult::class, $result);
 
             static::assertEquals(75, $result->getAvg());
+
+
+            // Assert that property is contained in aggregation if we filter for manufacturer
+            $criteria = new Criteria($data->prefixed('product-'));
+            $criteria->addAggregation(
+                new FilterAggregation(
+                    'properties-filtered',
+                    new TermsAggregation('properties', 'product.properties.id'),
+                    [new EqualsAnyFilter('product.manufacturerId', [$data->get('m1')])]
+                )
+            );
+            $aggregations = $aggregator->aggregate($this->productDefinition, $criteria, $data->getContext());
+            $result = $aggregations->get('properties');
+            static::assertContains($data->get('red'), $result->getKeys());
+            static::assertContains($data->get('xl'), $result->getKeys());
+
+            // Assert that property is not contained in aggregation if we filter for manufacturer
+            $criteria = new Criteria($data->prefixed('product-'));
+            $criteria->addAggregation(
+                new FilterAggregation(
+                    'properties-filtered',
+                    new TermsAggregation('properties', 'product.properties.id'),
+                    [new EqualsAnyFilter('product.manufacturerId', [$data->get('m2')])]
+                )
+            );
+            $aggregations = $aggregator->aggregate($this->productDefinition, $criteria, $data->getContext());
+            $result = $aggregations->get('properties');
+            static::assertNotContains($data->get('xl'), $result->getKeys());
+            static::assertContains($data->get('l'), $result->getKeys());
+
+            // Assert that property is not contained in aggregation if we filter for different property
+            $criteria = new Criteria($data->prefixed('product-'));
+            $criteria->addAggregation(
+                new FilterAggregation(
+                    'properties-filtered',
+                    new TermsAggregation('properties', 'product.properties.id'),
+                    [new EqualsAnyFilter('product.properties.id', [$data->get('red')])]
+                )
+            );
+            $aggregations = $aggregator->aggregate($this->productDefinition, $criteria, $data->getContext());
+            $result = $aggregations->get('properties');
+            static::assertNotContains($data->get('green'), $result->getKeys());
+            static::assertContains($data->get('red'), $result->getKeys());
+
+            // Test that property is contained in aggregation if we filter for groups
+            $criteria = new Criteria($data->prefixed('product-'));
+            $criteria->addAggregation(
+                new FilterAggregation(
+                    'properties-filter',
+                    new TermsAggregation('properties', 'product.properties.id'),
+                    [new EqualsAnyFilter('product.properties.groupId', [$data->get('color')])]
+                )
+            );
+            $aggregations = $aggregator->aggregate($this->productDefinition, $criteria, $data->getContext());
+            $result = $aggregations->get('properties');
+            static::assertContains($data->get('red'), $result->getKeys());
+            static::assertNotContains($data->get('xl'), $result->getKeys());
         } catch (\Exception $e) {
             static::tearDown();
 

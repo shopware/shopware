@@ -89,6 +89,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                     'type' => 'nested',
                     'properties' => [
                         'id' => EntityMapper::KEYWORD_FIELD,
+                        'groupId' => EntityMapper::KEYWORD_FIELD,
                     ],
                 ],
                 'productNumber' => EntityMapper::KEYWORD_FIELD,
@@ -96,6 +97,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                     'type' => 'nested',
                     'properties' => [
                         'id' => EntityMapper::KEYWORD_FIELD,
+                        'groupId' => EntityMapper::KEYWORD_FIELD,
                     ],
                 ],
                 'ratingAverage' => EntityMapper::FLOAT_FIELD,
@@ -164,6 +166,8 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
     {
         $data = $this->fetchProducts($ids, $context);
 
+        $propertyGroups = $this->fetchPropertyGroups(array_unique(array_merge(...array_map(fn ($item) => array_merge(json_decode($item['propertyIds'] ?? '[]', true), json_decode($item['optionIds'] ?? '[]', true)), array_values($data)))));
+
         $currencies = $context->getExtension('currencies');
 
         if (!$currencies instanceof EntityCollection) {
@@ -226,9 +230,9 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'releaseDate' => isset($item['releaseDate']) ? (new \DateTime($item['releaseDate']))->format('c') : null,
                 'createdAt' => isset($item['createdAt']) ? (new \DateTime($item['createdAt']))->format('c') : null,
                 'optionIds' => json_decode($item['optionIds'] ?? '[]', true),
-                'options' => array_map(fn (string $optionId) => ['id' => $optionId], json_decode($item['optionIds'] ?? '[]', true)),
+                'options' => array_map(fn (string $optionId) => ['id' => $optionId, 'groupId' => $propertyGroups[$optionId]], json_decode($item['optionIds'] ?? '[]', true)),
                 'categoriesRo' => array_map(fn (string $categoryId) => ['id' => $categoryId], json_decode($item['categoryIds'] ?? '[]', true)),
-                'properties' => array_map(fn (string $propertyId) => ['id' => $propertyId], json_decode($item['propertyIds'] ?? '[]', true)),
+                'properties' => array_map(fn (string $propertyId) => ['id' => $propertyId, 'groupId' => $propertyGroups[$propertyId]], json_decode($item['propertyIds'] ?? '[]', true)),
                 'propertyIds' => json_decode($item['propertyIds'] ?? '[]', true),
                 'taxId' => $item['taxId'],
                 'tags' => array_map(fn (string $tagId) => ['id' => $tagId], json_decode($item['tagIds'] ?? '[]', true)),
@@ -498,6 +502,13 @@ SQL;
         }
 
         return $customFields;
+    }
+
+    private function fetchPropertyGroups(array $propertyIds = []): array
+    {
+        $sql = "SELECT LOWER(HEX(id)), LOWER(HEX(property_group_id)) FROM property_group_option WHERE id in (?)";
+
+        return $this->connection->fetchAllKeyValue($sql, [Uuid::fromHexToBytesList($propertyIds)], [Connection::PARAM_STR_ARRAY]);
     }
 
     private function getCustomFieldTypes(): array

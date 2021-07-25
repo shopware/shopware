@@ -85,6 +85,7 @@
                                 <sw-context-menu-item
                                     v-if="isNotStopFlow(item)"
                                     class="sw-flow-sequence-action__edit-action"
+                                    @click="onEditAction(item)"
                                 >
                                     {{ $tc('sw-flow.actions.contextButton.editAction') }}
                                 </sw-context-menu-item>
@@ -104,8 +105,10 @@
                         </div>
                         {% endblock %}
 
-                        <div class="sw-flow-sequence-action__action-description">
-                            {{ getActionDescription(item) }}
+                        <div
+                            class="sw-flow-sequence-action__action-description"
+                            v-html="getActionDescription(item)"
+                        >
                         </div>
                     </li>
                     {% endblock %}
@@ -158,7 +161,7 @@
                         :options="actionOptions"
                         :popover-classes="['sw-flow-sequence-action__popover']"
                         :error="fieldError"
-                        @change="openModal"
+                        @change="openDynamicModal"
                     >
 
                         <template #result-item="{ item, index, labelProperty, highlightSearchTerm, isSelected, setValue, getKey }">
@@ -195,6 +198,15 @@
         </div>
         {% endblock %}
     </div>
+    {% endblock %}
+
+    {% block sw_flow_sequence_action_modal %}
+    <sw-flow-sequence-modal
+        :sequence="currentSequence"
+        :modal-name="modalName"
+        @process-finish="onSaveActionSuccess"
+        @modal-close="onCloseModal"
+    />
     {% endblock %}
 </div>
 {% endblock %}

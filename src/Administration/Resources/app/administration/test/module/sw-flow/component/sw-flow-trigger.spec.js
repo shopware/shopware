@@ -58,8 +58,7 @@ function createWrapper(propsData) {
                     return Promise.resolve(mockBusinessEvents);
                 })
             },
-            repositoryFactory: {},
-            validationService: {}
+            repositoryFactory: {}
         },
         propsData: {
             eventName: '',

@@ -1,7 +1,7 @@
 import template from './sw-flow-trigger.html.twig';
 import './sw-flow-trigger.scss';
 
-const { Component } = Shopware;
+const { Component, State } = Shopware;
 const { mapPropertyErrors, mapState } = Component.getComponentHelper();
 const utils = Shopware.Utils;
 
@@ -500,6 +500,7 @@ Component.register('sw-flow-trigger', {
 
             const { id } = item.data;
 
+            State.commit('swFlowState/setTriggerEvent', this.getDataByEvent(item.id));
             this.$emit('option-select', id);
         },
 
@@ -510,6 +511,7 @@ Component.register('sw-flow-trigger', {
             return this.businessEventService.getBusinessEvents()
                 .then(events => {
                     this.events = events;
+                    State.commit('swFlowState/setTriggerEvent', this.getDataByEvent(this.eventName));
                 }).finally(() => {
                     this.isLoading = false;
                 });
@@ -520,6 +522,10 @@ Component.register('sw-flow-trigger', {
 
             // Replace '_' or '-' to blank space.
             return eventName.replace(/_|-/g, ' ');
+        },
+
+        getDataByEvent(event) {
+            return this.events.find(item => item.name === event);
         },
 
         // Generate tree data which is compatible with sw-tree from business events
@@ -599,6 +605,7 @@ Component.register('sw-flow-trigger', {
 
         onClickSearchItem(item) {
             this.$emit('option-select', item.name);
+            State.commit('swFlowState/setTriggerEvent', item);
             this.searchTerm = this.formatEventName;
             this.searchResult = [];
         },

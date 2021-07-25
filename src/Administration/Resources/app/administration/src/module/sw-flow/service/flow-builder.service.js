@@ -79,6 +79,11 @@ export default function flowBuilderService() {
             return '';
         }
 
+        if (actionName.includes('tag') &&
+           (actionName.includes('add') || actionName.includes('remove'))) {
+            return 'sw-flow-tag-modal';
+        }
+
         return `${actionName.replace(/\./g, '-').replace('action', 'sw-flow')}-modal`;
     }
 }

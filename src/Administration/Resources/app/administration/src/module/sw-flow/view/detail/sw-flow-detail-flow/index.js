@@ -9,7 +9,7 @@ const { mapGetters, mapState } = Component.getComponentHelper();
 Component.register('sw-flow-detail-flow', {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: ['repositoryFactory', 'acl', 'flowActionService'],
 
     props: {
         isLoading: {
@@ -37,7 +37,7 @@ Component.register('sw-flow-detail-flow', {
             return this.sequences.filter(sequence => !sequence.parentId);
         },
 
-        ...mapState('swFlowState', ['flow']),
+        ...mapState('swFlowState', ['flow', 'triggerActions']),
         ...mapGetters('swFlowState', ['sequences']),
     },
 
@@ -57,7 +57,23 @@ Component.register('sw-flow-detail-flow', {
         },
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     methods: {
+        createdComponent() {
+            if (!this.triggerActions?.length) {
+                this.getTriggerActions();
+            }
+        },
+
+        getTriggerActions() {
+            return this.flowActionService.getActions().then((actions) => {
+                State.commit('swFlowState/setTriggerActions', actions);
+            });
+        },
+
         convertSequenceData() {
             if (!this.sequences) {
                 return [];

@@ -1,0 +1,59 @@
+{% block sw_flow_tag_modal %}
+<sw-modal
+    class="sw-flow-tag-modal"
+    :title="$tc('sw-flow.modals.tag.labelAddTag')"
+    @modal-close="onClose"
+>
+    {% block sw_flow_tag_modal_content %}
+    <div class="sw-flow-tag-modal__content">
+        {% block sw_flow_tag_modal_to_field %}
+        <sw-single-select
+            v-model="entity"
+            class="sw-flow-tag-modal__to-field"
+            required
+            :label="$tc('sw-flow.modals.tag.labelToField')"
+            :placeholder="$tc('sw-flow.modals.tag.placeholderToField')"
+            :error="entityError"
+            :options="entityOptions"
+        />
+        {% endblock %}
+
+        {% block sw_flow_tag_modal_tags_field %}
+        <sw-entity-tag-select
+            v-model="tagCollection"
+            class="sw-flow-tag-modal__tags-field"
+            required
+            :label="$tc('sw-flow.modals.tag.labelTagsField')"
+            :placeholder="$tc('sw-flow.modals.tag.placeholderTagsField')"
+            :error="tagError"
+            @item-add="onAddTag"
+            @item-remove="onRemoveTag"
+        />
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    <template #modal-footer>
+        {% block sw_flow_tag_modal_footer_cancel_button %}
+        <sw-button
+            class="sw-flow-tag-modal__cancel-button"
+            @click="onClose"
+        >
+            {{ $tc('global.default.cancel') }}
+        </sw-button>
+        {% endblock %}
+
+        {% block sw_flow_tag_modal_footer_save_button %}
+        <sw-button
+            class="sw-flow-tag-modal__save-button"
+            variant="primary"
+            @click="onSaveTag"
+        >
+            {{ isNewTag
+                ? $tc('sw-flow.modals.buttonAddAction')
+                : $tc('sw-flow.modals.buttonSaveAction') }}
+        </sw-button>
+        {% endblock %}
+    </template>
+</sw-modal>
+{% endblock %}

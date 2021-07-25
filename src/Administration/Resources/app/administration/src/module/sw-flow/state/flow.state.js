@@ -8,12 +8,22 @@ export default {
             eventName: '',
             sequences: [],
         },
+        triggerEvent: {},
+        triggerActions: [],
         invalidSequences: [],
     },
 
     mutations: {
         setFlow(state, flow) {
             state.flow = flow;
+        },
+
+        setTriggerActions(state, actions) {
+            state.triggerActions = actions;
+        },
+
+        setTriggerEvent(state, event) {
+            state.triggerEvent = event;
         },
 
         setEventName(state, eventName) {
@@ -66,6 +76,36 @@ export default {
     getters: {
         sequences(state) {
             return state.flow.sequences;
+        },
+
+        availableActions(state) {
+            if (!state.triggerEvent || !state.triggerActions) return [];
+
+            const activeActions = [];
+            Object.entries(state.triggerEvent).forEach(([key, value]) => {
+                if (value === true) {
+                    activeActions.push(key);
+                }
+            });
+
+            const availableAction = [];
+
+            state.triggerActions.forEach((action) => {
+                if (Array.isArray(action.requirements)) {
+                    availableAction.push(action.name);
+                    return;
+                }
+
+                const keys = Object.keys(action.requirements);
+                // check if the current active action contains any required keys from an action option.
+                const isActive = activeActions.some(item => keys.includes(item));
+
+                if (isActive) {
+                    availableAction.push(action.name);
+                }
+            });
+
+            return availableAction;
         },
     },
 };

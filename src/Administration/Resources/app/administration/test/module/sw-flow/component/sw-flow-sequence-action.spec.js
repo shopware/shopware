@@ -21,7 +21,10 @@ const sequenceFixture = {
     position: 1,
     displayGroup: 1,
     trueCase: false,
-    config: {}
+    config: {
+        entity: 'Customer',
+        tagIds: ['123']
+    }
 };
 
 const sequencesFixture = [
@@ -86,8 +89,28 @@ function createWrapper(propsData = {}) {
                     }
                 }
             },
-            'sw-highlight-text': true,
-            'sw-field-error': true
+            'sw-highlight-text': {
+                props: ['text'],
+                template: '<div class="sw-highlight-text">{{ this.text }}</div>'
+            },
+            'sw-field-error': true,
+            'sw-flow-sequence-modal': {
+                props: ['sequence'],
+                template: `<div class="sw-flow-sequence-modal" @click="onSaveActionSuccess">
+                             <slot></slot>
+                           </div>`,
+                methods: {
+                    onSaveActionSuccess() {
+                        this.$emit('process-finish', {
+                            ...this.sequence,
+                            config: {
+                                entity: 'Customer',
+                                tagIds: ['123']
+                            }
+                        });
+                    }
+                }
+            }
         },
         propsData: {
             sequence: sequenceFixture,
@@ -109,6 +132,10 @@ function createWrapper(propsData = {}) {
                     return {
                         value: actionName
                     };
+                },
+
+                getActionModalName() {
+                    return 'sw-flow-modal-name';
                 }
             }
         }
@@ -126,7 +153,31 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                     eventName: '',
                     sequences: getSequencesCollection([{ ...sequenceFixture }])
                 },
-                invalidSequences: []
+                invalidSequences: [],
+                triggerEvent: {
+                    data: {
+                        customer: '',
+                        order: ''
+                    },
+                    customerAware: true,
+                    extensions: [],
+                    logAware: false,
+                    mailAware: true,
+                    name: 'checkout.customer.login',
+                    orderAware: false,
+                    salesChannelAware: true,
+                    userAware: false,
+                    webhookAware: true
+                },
+                triggerActions: [
+                    { name: 'action.add.customer.tag', requirements: { customerAware: 'Shopware\\Core\\Framework\\Event\\CustomerAware' }, extensions: [] },
+                    { name: 'action.remove.customer.tag', requirements: { customerAware: 'Shopware\\Core\\Framework\\Event\\CustomerAware' }, extensions: [] },
+                    { name: 'action.remove.order.tag', requirements: { orderAware: 'Shopware\\Core\\Framework\\Event\\OrderAware' }, extensions: [] },
+                    { name: 'action.mail.send', requirements: { mailAware: 'Shopware\\Core\\Framework\\Event\\MailAware' }, extensions: [] },
+                    { name: 'action.set.order.state', requirements: { orderAware: 'Shopware\\Core\\Framework\\Event\\OrderAware' }, extensions: [] },
+                    { name: 'action.stop.flow', requirements: [], extensions: [] },
+                    { name: 'action.add.order.tag', requirements: { orderAware: 'Shopware\\Core\\Framework\\Event\\OrderAware' }, extensions: [] }
+                ]
             }
         });
     });
@@ -139,6 +190,9 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
 
         const actionItems = wrapper.findAll('.sw-select-result');
         await actionItems.at(0).trigger('click');
+
+        const modal = wrapper.find('.sw-flow-sequence-modal');
+        await modal.trigger('click');
 
         const sequencesState = Shopware.State.getters['swFlowState/sequences'];
 
@@ -171,9 +225,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
         expect(actionItems.length).toEqual(2);
     });
 
-    it('should able to add more actions', async () => {
-        Shopware.State.commit('swFlowState/setSequences', getSequencesCollection(sequencesFixture));
-
+    it('should show dynamic modal', async () => {
         const wrapper = createWrapper({
             sequence: {
                 2: {
@@ -193,15 +245,13 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
         const actionSelect = wrapper.find('.sw-single-select__selection');
         await actionSelect.trigger('click');
 
+        expect(wrapper.vm.$data.actionModal).toEqual('');
         const actionItems = wrapper.findAll('.sw-select-result');
-        await actionItems.at(1).trigger('click');
+        await actionItems.at(0).trigger('click');
+        const modalElement = wrapper.find('.sw-flow-sequence-modal');
 
-
-        const sequencesState = Shopware.State.getters['swFlowState/sequences'];
-
-        expect(sequencesState.length).toEqual(3);
-        expect(sequencesState[2].position).toEqual(3);
-        expect(sequencesState[2].actionName).toEqual(ACTION.REMOVE_TAG);
+        expect(wrapper.vm.$data.actionModal).toEqual(ACTION.ADD_CUSTOMER_TAG);
+        expect(modalElement.exists()).toBeTruthy();
     });
 
     it('should not able to add more actions if existing action is stop flow', async () => {
@@ -306,6 +356,9 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
 
         const actionItems = wrapper.findAll('.sw-select-result');
         await actionItems.at(0).trigger('click');
+
+        const modal = wrapper.find('.sw-flow-sequence-modal');
+        await modal.trigger('click');
 
         invalidSequences = Shopware.State.get('swFlowState').invalidSequences;
         expect(invalidSequences).toEqual([]);

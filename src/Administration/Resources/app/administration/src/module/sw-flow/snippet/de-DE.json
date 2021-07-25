@@ -88,7 +88,8 @@
         "editAction": "Aktion bearbeiten",
         "deleteAction": "Aktion entfernen"
       },
-      "addAction": "Aktion hinzufügen"
+      "addAction": "Aktion hinzufügen",
+      "tagDescription": "<div class='sw-flow-sequence-action__tags-description'><div>To: <span>{entity}<span></div><p>Tag: {tagNames}</p></div>"
     },
     "rule": {
       "addRule": "Regel hinzufügen",
@@ -99,6 +100,8 @@
       }
     },
     "modals": {
+      "buttonAddAction": "Aktion hinzufügen",
+      "buttonSaveAction": "Save action",
       "rule": {
         "labelAddNewRule": "Neue Regel hinzufügen",
         "tabRule": "Regel",
@@ -112,6 +115,14 @@
         "placeholderDescription": "Beschreibung eingeben ...",
         "labelType": "Typ",
         "placeholderType": "Regel-Typ auswählen ..."
+      },
+      "tag": {
+        "labelAddTag": "Tag information",
+        "buttonApplyAction": "Add action",
+        "labelToField": "To",
+        "placeholderToField": "Select to to...",
+        "labelTagsField": "Tags",
+        "placeholderTagsField": "Enter tags..."
       }
     }
   },

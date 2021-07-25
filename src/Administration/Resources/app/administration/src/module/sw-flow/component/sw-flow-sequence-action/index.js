@@ -5,7 +5,7 @@ import { ACTION } from '../../constant/flow.constant';
 const { Component, State } = Shopware;
 const utils = Shopware.Utils;
 const { ShopwareError } = Shopware.Classes;
-const { mapState } = Component.getComponentHelper();
+const { mapState, mapGetters } = Component.getComponentHelper();
 
 Component.register('sw-flow-sequence-action', {
     template,
@@ -29,6 +29,8 @@ Component.register('sw-flow-sequence-action', {
             showModal: false,
             showAddButton: true,
             fieldError: null,
+            actionModal: '',
+            currentSequence: {},
         };
     },
 
@@ -38,10 +40,7 @@ Component.register('sw-flow-sequence-action', {
         },
 
         actionOptions() {
-            // TODO: NEXT-15781 - Handle specific action, the line below will be removed
-            return Object.values(ACTION).map(actionName => {
-                return this.getActionTitle(actionName);
-            });
+            return this.convertAction(this.availableActions);
         },
 
         sequenceData() {
@@ -75,7 +74,12 @@ Component.register('sw-flow-sequence-action', {
             };
         },
 
+        modalName() {
+            return this.flowBuilderService.getActionModalName(this.actionModal);
+        },
+
         ...mapState('swFlowState', ['invalidSequences']),
+        ...mapGetters('swFlowState', ['availableActions']),
     },
 
     watch: {
@@ -95,21 +99,59 @@ Component.register('sw-flow-sequence-action', {
             this.showAddButton = this.sequenceData.length > 1 || !!this.sequence?.actionName;
         },
 
-        openModal(value) {
-            this.showModal = true;
-
-            this.addAction(value);
+        openDynamicModal(value) {
+            if (value === ACTION.STOP_FLOW) {
+                this.addAction({
+                    name: ACTION.STOP_FLOW,
+                    config: null,
+                });
+                return;
+            }
+            this.actionModal = value;
         },
 
-        addAction(value) {
-            if (!value) {
+        onSaveActionSuccess(sequence) {
+            const { config, id } = sequence;
+            const entity = config?.entity;
+            let actionName = this.actionModal;
+            if (this.actionModal === ACTION.ADD_TAG && entity) {
+                actionName = `action.add.${entity}.tag`;
+            }
+
+            if (this.actionModal === ACTION.REMOVE_TAG && entity) {
+                actionName = `action.remove.${entity}.tag`;
+            }
+
+            if (!id) {
+                this.addAction({
+                    name: actionName,
+                    config: config,
+                });
+            } else {
+                this.editAction({
+                    name: actionName,
+                    config: config,
+                });
+            }
+
+            this.onCloseModal();
+        },
+
+        onCloseModal() {
+            this.currentSequence = {};
+            this.actionModal = '';
+        },
+
+        addAction(action) {
+            if (!action.name) {
                 return;
             }
 
             if (!this.sequence.actionName && this.sequence.id) {
                 State.commit('swFlowState/updateSequence', {
                     id: this.sequence.id,
-                    actionName: value,
+                    actionName: action.name,
+                    config: action.config,
                 });
             } else {
                 const lastSequence = this.sequenceData[this.sequenceData.length - 1];
@@ -121,9 +163,9 @@ Component.register('sw-flow-sequence-action', {
                     trueCase: lastSequence.trueCase,
                     displayGroup: lastSequence.displayGroup,
                     ruleId: null,
-                    actionName: value,
+                    actionName: action.name,
                     position: lastSequence.position + 1,
-                    config: {},
+                    config: action.config,
                     id: utils.createId(),
                 };
 
@@ -135,8 +177,29 @@ Component.register('sw-flow-sequence-action', {
             this.toggleAddButton();
         },
 
+        editAction(action) {
+            if (!action.name) {
+                return;
+            }
+
+            State.commit('swFlowState/updateSequence', {
+                id: this.currentSequence.id,
+                actionName: action.name,
+                config: action.config,
+            });
+        },
+
         removeAction(id) {
             State.commit('swFlowState/removeSequences', [id]);
+        },
+
+        onEditAction(sequence) {
+            if (!sequence?.actionName) {
+                return;
+            }
+
+            this.currentSequence = sequence;
+            this.actionModal = sequence.actionName;
         },
 
         removeActionContainer() {
@@ -157,6 +220,12 @@ Component.register('sw-flow-sequence-action', {
             };
         },
 
+        convertAction(actions) {
+            return actions.map((action) => {
+                return this.getActionTitle(action);
+            });
+        },
+
         toggleAddButton() {
             this.showAddButton = !this.showAddButton;
         },
@@ -173,13 +242,31 @@ Component.register('sw-flow-sequence-action', {
             };
         },
 
+        convertTagString(tagsString) {
+            return tagsString.toString().replace(/,/g, ', ');
+        },
+
         getActionDescription(sequence) {
-            if (sequence.actionName === ACTION.STOP_FLOW) {
-                return this.$tc('sw-flow.actions.textStopFlowDescription');
+            const { actionName } = sequence;
+
+            if (!actionName) return '';
+
+            if (actionName.includes('tag') &&
+                (actionName.includes('add') || actionName.includes('remove'))) {
+                const { config } = sequence;
+                return this.$tc('sw-flow.actions.tagDescription', 0, {
+                    entity: config.entity,
+                    tagNames: this.convertTagString(Object.values(config.tagIds)),
+                });
             }
 
-            // TODO: NEXT-15781 - Generate action description
-            return 'Description';
+            switch (actionName) {
+                case ACTION.STOP_FLOW:
+                    return this.$tc('sw-flow.actions.textStopFlowDescription');
+                default: {
+                    return '';
+                }
+            }
         },
 
         setFieldError() {

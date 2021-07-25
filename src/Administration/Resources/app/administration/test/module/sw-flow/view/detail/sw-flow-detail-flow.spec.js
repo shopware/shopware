@@ -132,6 +132,11 @@ function createWrapper(privileges = []) {
 
                     return privileges.includes(identifier);
                 }
+            },
+            flowActionService: {
+                getActions: jest.fn(() => {
+                    return Promise.resolve([]);
+                })
             }
         },
 

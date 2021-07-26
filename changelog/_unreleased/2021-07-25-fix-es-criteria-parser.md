@@ -1,10 +1,10 @@
 ---
-flag:
+title: Fix Elasticsearch CriteriaParser
 author: Pascal Josephy
 author_email: pascal.josephy@jkweb.ch
 author_github: pascaljosephy
 ---
-# Elasticsearch
+# Core
 *  Added method `src/Elasticsearch/Product/ElasticsearchProductDefinition:fetchPropertyGroups`
 *  Changed method `src/Elasticsearch/Product/ElasticsearchProductDefinition:fetch`
 *  Changed method `src/Elasticsearch/Product/ElasticsearchProductDefinition:getMapping`

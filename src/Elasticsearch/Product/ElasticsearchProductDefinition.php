@@ -226,9 +226,9 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 ],
                 'releaseDate' => isset($item['releaseDate']) ? (new \DateTime($item['releaseDate']))->format('c') : null,
                 'optionIds' => json_decode($item['optionIds'] ?? '[]', true),
-                'options' => array_map(fn (string $optionId) => ['id' => $optionId], json_decode($item['optionIds'] ?? '[]', true)),
+                'options' => array_map(fn (string $optionId) => ['id' => $optionId, 'groupId' => $propertyGroups[$optionId]], json_decode($item['optionIds'] ?? '[]', true)),
                 'categoriesRo' => array_map(fn (string $categoryId) => ['id' => $categoryId], json_decode($item['categoryIds'] ?? '[]', true)),
-                'properties' => array_map(fn (string $propertyId) => ['id' => $propertyId], json_decode($item['propertyIds'] ?? '[]', true)),
+                'properties' => array_map(fn (string $propertyId) => ['id' => $propertyId, 'groupId' => $propertyGroups[$propertyId]], json_decode($item['propertyIds'] ?? '[]', true)),
                 'propertyIds' => json_decode($item['propertyIds'] ?? '[]', true),
                 'taxId' => $item['taxId'],
                 'tags' => array_map(fn (string $tagId) => ['id' => $tagId], json_decode($item['tagIds'] ?? '[]', true)),
@@ -499,16 +499,11 @@ SQL;
         return $customFields;
     }
 
-    private function fetchPropertyGroups($propertyIds = array()): array
+    private function fetchPropertyGroups(array $propertyIds = []): array
     {
-        $sql = "SELECT id, property_group_id FROM property_group_option WHERE id in (?)";
+        $sql = "SELECT LOWER(HEX(id)), LOWER(HEX(property_group_id)) FROM property_group_option WHERE id in (?)";
 
-        $data = $this->connection->fetchAll($sql, [Uuid::fromHexToBytesList($propertyIds)], [Connection::PARAM_STR_ARRAY]);
-        $propertyGroups = [];
-        foreach($data as $item) {
-            $propertyGroups[Uuid::fromBytesToHex($item['id'])] = Uuid::fromBytesToHex($item['property_group_id']);
-        }
-        return $propertyGroups;
+        return $this->connection->fetchAllKeyValue($sql, [Uuid::fromHexToBytesList($propertyIds)], [Connection::PARAM_STR_ARRAY]);
     }
 
     private function getCustomFieldTypes(): array

@@ -70,6 +70,8 @@ class HtmlSanitizer
             $config->set('Cache.DefinitionImpl', null);
         }
 
+        $config->set('Cache.SerializerPermissions', 0775 & ~umask());
+
         return $config;
     }
 

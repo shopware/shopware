@@ -113,4 +113,35 @@ class HtmlSanitizerTest extends TestCase
 
         static::assertSame('<input /><div>test</div>', $filteredString);
     }
+
+    public function testConfigHasRightCachePermissions(): void
+    {
+        $currentUmask = umask();
+        umask(0002);
+
+        $cacheDir = $this->getContainer()->getParameter('kernel.cache_dir');
+
+        $sanitizer = new HtmlSanitizer(
+            $cacheDir,
+            true
+        );
+
+        $sanitizer->sanitize($this->unfilteredString);
+
+        $reflObj = new \ReflectionObject($sanitizer);
+        $reflProp = $reflObj->getProperty('purifiers');
+        $reflProp->setAccessible(true);
+
+        $purifiers = $reflProp->getValue($sanitizer);
+
+        static::assertCount(1, $purifiers);
+
+        /** @var \HTMLPurifier $newPurifier */
+        $newPurifier = array_pop($purifiers);
+
+        $expectedPermissions = 0775 & ~umask();
+
+        static::assertSame($expectedPermissions, $newPurifier->config->get('Cache.SerializerPermissions'));
+        umask($currentUmask);
+    }
 }

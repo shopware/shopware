@@ -72,7 +72,8 @@ $sw-select-focus-transition: all ease-in-out 0.2s;
     }
 
     &:hover .sw-select__select-indicator-clear,
-    &.has--focus .sw-select__select-indicator-clear, {
+    &:focus-within .sw-select__select-indicator-clear,
+    &.has--focus .sw-select__select-indicator-clear {
         opacity: 1;
         pointer-events: all;
         cursor: pointer;

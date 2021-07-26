@@ -29,7 +29,7 @@
                 <button
                     v-if="clearable"
                     class="sw-select__select-indicator-hitbox"
-                    tabindex="0"
+                    data-clearable-button
                     @click.prevent.stop="emitClear"
                 >
                     <sw-icon

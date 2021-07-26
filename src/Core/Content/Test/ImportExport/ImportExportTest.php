@@ -886,7 +886,7 @@ class ImportExportTest extends TestCase
         }
 
         $context = Context::createDefaultContext();
-        $context->addExtension(EntityIndexerRegistry::DISABLE_INDEXING, new ArrayEntity());
+        $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
 
         /** @var EntityRepositoryInterface $categoryRepository */
         $categoryRepository = $this->getContainer()->get(CategoryDefinition::ENTITY_NAME . '.repository');
@@ -1280,7 +1280,7 @@ class ImportExportTest extends TestCase
         $salesChannel = $this->createSalesChannel();
 
         $context = Context::createDefaultContext();
-        $context->addExtension(EntityIndexerRegistry::DISABLE_INDEXING, new ArrayEntity());
+        $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
 
         $factory = $this->getContainer()->get(ImportExportFactory::class);
 

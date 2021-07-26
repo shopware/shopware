@@ -115,6 +115,37 @@
                         :system-required-fields="systemRequiredFields"
                     />
                     {% endblock %}
+
+                    {% block sw_import_export_edit_profile_modal_tabs_general_import_settings %}
+                    <div
+                        v-if="feature.isActive('FEATURE_NEXT_8097')"
+                        class="sw-import-export-edit-profile-modal__general-import-settings"
+                    >
+                        {% block sw_import_export_edit_profile_modal_tabs_general_import_settings_headline %}
+                        <h3 class="sw-import-export-edit-profile-modal__general-import-settings-headline">
+                            {{ $tc('sw-import-export.profile.importSettingsHeadline') }}
+                        </h3>
+                        {% endblock %}
+                        {% block sw_import_export_edit_profile_modal_tabs_general_import_settings_create_switch %}
+                        <sw-switch-field
+                            v-model="profile.config.createEntities"
+                            @change="onCreateEntitiesChanged"
+                            class="sw-import-export-edit-profile-modal__general-import-settings-create-switch"
+                            :label="$tc('sw-import-export.profile.createEntitiesLabel')"
+                            :disabled="profile.systemDefault"
+                        />
+                        {% endblock %}
+                        {% block sw_import_export_edit_profile_modal_tabs_general_import_settings_update_switch %}
+                        <sw-switch-field
+                            v-model="profile.config.updateEntities"
+                            @change="onUpdateEntitiesChanged"
+                            class="sw-import-export-edit-profile-modal__general-import-settings-update-switch"
+                            :label="$tc('sw-import-export.profile.updateEntitiesLabel')"
+                            :disabled="profile.systemDefault"
+                        />
+                        {% endblock %}
+                    </div>
+                    {% endblock %}
                 </template>
 
                 <template v-if="active === 'mappings' && feature.isActive('FEATURE_NEXT_8097')">

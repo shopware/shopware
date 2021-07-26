@@ -39,7 +39,11 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
                 key: 'productNumber',
                 mappedKey: 'product_number'
             }
-        ]
+        ],
+        config: {
+            createEntities: true,
+            updateEntities: true
+        }
     };
 
     beforeEach(() => {
@@ -179,5 +183,32 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         wrapper.setProps({ profile: { isNew: () => {} } });
 
         expect(wrapper.vm.profile.isNew).toBeTruthy();
+    });
+
+    it('should set the updateEntities and createEntities config options', async () => {
+        await wrapper.setProps({ profile: mockProfile });
+        // create and update should be true from the mockProfile inside the component
+        expect(wrapper.vm.profile.config.createEntities).toBeTruthy();
+        expect(wrapper.vm.profile.config.updateEntities).toBeTruthy();
+
+        // switch create to false (simulate v-model)
+        wrapper.vm.profile.config.createEntities = false;
+        // simulate @change event
+        wrapper.vm.onCreateEntitiesChanged(wrapper.vm.profile.config.createEntities);
+        await wrapper.vm.$nextTick();
+        expect(wrapper.vm.profile.config.createEntities).toBeFalsy();
+
+        // also switch update to false (one must stay true -> this should switch create back to true)
+        wrapper.vm.profile.config.updateEntities = false;
+        wrapper.vm.onUpdateEntitiesChanged(wrapper.vm.profile.config.updateEntities);
+        await wrapper.vm.$nextTick();
+        expect(wrapper.vm.profile.config.updateEntities).toBeFalsy();
+        expect(wrapper.vm.profile.config.createEntities).toBeTruthy();
+
+        // now switch create back to false (which should also switch update back to true)
+        wrapper.vm.profile.config.createEntities = false;
+        wrapper.vm.onCreateEntitiesChanged(wrapper.vm.profile.config.createEntities);
+        await wrapper.vm.$nextTick();
+        expect(wrapper.vm.profile.config.updateEntities).toBeTruthy();
     });
 });

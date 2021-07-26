@@ -196,5 +196,17 @@ Shopware.Component.register('sw-import-export-edit-profile-modal', {
         loadSystemRequiredFieldsForEntity(entityName) {
             this.systemRequiredFields = this.importExportProfileMapping.getSystemRequiredFields(entityName);
         },
+
+        onCreateEntitiesChanged(newValue) {
+            if (newValue === false) {
+                this.profile.config.updateEntities = true;
+            }
+        },
+
+        onUpdateEntitiesChanged(newValue) {
+            if (newValue === false) {
+                this.profile.config.createEntities = true;
+            }
+        },
     },
 });

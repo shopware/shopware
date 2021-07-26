@@ -10,7 +10,7 @@ const { Criteria } = Shopware.Data;
 Shopware.Component.register('sw-import-export-view-profiles', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'feature'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -106,21 +106,38 @@ Shopware.Component.register('sw-import-export-view-profiles', {
         },
 
         onAddNewProfile() {
-            this.selectedProfile = this.profileRepository.create();
-            this.selectedProfile.fileType = 'text/csv';
-            this.selectedProfile.mapping = [];
-            this.$set(this.selectedProfile, 'config', {});
-            this.$set(this.selectedProfile, 'translated', {});
-            this.selectedProfile.delimiter = ';';
-            this.selectedProfile.enclosure = '"';
+            const profile = this.profileRepository.create();
+            profile.fileType = 'text/csv';
+            profile.mapping = [];
+            this.$set(profile, 'config', {});
+            if (this.feature.isActive('FEATURE_NEXT_8097')) {
+                profile.config.createEntities = true;
+                profile.config.updateEntities = true;
+            }
+            this.$set(profile, 'translated', {});
+            profile.delimiter = ';';
+            profile.enclosure = '"';
+
+            this.selectedProfile = profile;
         },
 
         async onEditProfile(id) {
-            this.selectedProfile = await this.profileRepository.get(id);
+            const profile = await this.profileRepository.get(id);
 
-            if (Array.isArray(this.selectedProfile.config) && this.selectedProfile.config.length <= 0) {
-                this.$set(this.selectedProfile, 'config', {});
+            if (Array.isArray(profile.config) && profile.config.length <= 0) {
+                this.$set(profile, 'config', {});
             }
+
+            if (this.feature.isActive('FEATURE_NEXT_8097')) {
+                if (profile.config?.createEntities === undefined) {
+                    profile.config.createEntities = true;
+                }
+                if (profile.config?.updateEntities === undefined) {
+                    profile.config.updateEntities = true;
+                }
+            }
+
+            this.selectedProfile = profile;
         },
 
         onDuplicateProfile(item) {
@@ -137,7 +154,17 @@ Shopware.Component.register('sw-import-export-view-profiles', {
                 criteria.setIds([clone.id]);
                 return this.profileRepository.search(criteria);
             }).then((profiles) => {
-                this.selectedProfile = profiles[0];
+                const profile = profiles[0];
+                if (this.feature.isActive('FEATURE_NEXT_8097')) {
+                    if (profile.config?.createEntities === undefined) {
+                        profile.config.createEntities = true;
+                    }
+                    if (profile.config?.updateEntities === undefined) {
+                        profile.config.updateEntities = true;
+                    }
+                }
+
+                this.selectedProfile = profile;
                 return this.loadProfiles(); // refresh the list in any case (even if the modal is canceled)
                 // because the duplicate already exists.
             }).catch(() => {

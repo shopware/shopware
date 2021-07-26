@@ -95,6 +95,7 @@ Component.register('sw-users-permissions-user-detail', {
 
             // Roles created by apps should not be assignable in the admin
             criteria.addFilter(Criteria.equals('app.id', null));
+            criteria.addFilter(Criteria.equals('deletedAt', null));
 
             return criteria;
         },

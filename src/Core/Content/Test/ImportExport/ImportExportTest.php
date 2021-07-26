@@ -4,6 +4,8 @@ namespace Shopware\Core\Content\Test\ImportExport;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
@@ -1098,6 +1100,82 @@ class ImportExportTest extends TestCase
             'c1ace7586faa4342a4d3b33e6dd33b7c|f26b0d8f252a76f2f99337cced08314b|cf682b73be1afad47d0f32559ac34627',
             $csv
         );
+    }
+
+    /**
+     * @group slow
+     */
+    public function testCustomersCsv(): void
+    {
+        $connection = $this->getContainer()->get(Connection::class);
+        $connection->executeUpdate('DELETE FROM `customer`');
+
+        $salesChannel = $this->createSalesChannel();
+
+        $context = Context::createDefaultContext();
+        $context->addExtension(EntityIndexerRegistry::DISABLE_INDEXING, new ArrayEntity());
+
+        $factory = $this->getContainer()->get(ImportExportFactory::class);
+
+        $importExportService = $this->getContainer()->get(ImportExportService::class);
+
+        $profileId = $this->getDefaultProfileId(CustomerDefinition::ENTITY_NAME);
+
+        $expireDate = new \DateTimeImmutable('2099-01-01');
+        $file = new UploadedFile(__DIR__ . '/fixtures/customers.csv', 'customers.csv', 'text/csv');
+
+        $logEntity = $importExportService->prepareImport(
+            $context,
+            $profileId,
+            $expireDate,
+            $file
+        );
+
+        $progress = new Progress($logEntity->getId(), Progress::STATE_PROGRESS, 0, null);
+        $importExport = $factory->create($logEntity->getId(), 5, 5);
+        do {
+            $progress = $importExport->import($context, $progress->getOffset());
+        } while (!$progress->isFinished());
+
+        static::assertSame(Progress::STATE_SUCCEEDED, $progress->getState());
+
+        $criteria = new Criteria();
+        $criteria->addAssociation('addresses');
+        $criteria->addAssociation('defaultBillingAddress');
+        $criteria->addAssociation('defaultShippingAddress');
+        $repository = $this->getContainer()->get('customer.repository');
+        $result = $repository->search($criteria, Context::createDefaultContext());
+
+        static::assertSame(3, $result->count());
+
+        /** @var CustomerEntity $customerWithMultipleAddresses */
+        $customerWithMultipleAddresses = $result->get('0a1dea4bd2de43929ac210fd17339dde');
+
+        static::assertSame(4, $customerWithMultipleAddresses->getAddresses()->count());
+        static::assertSame('shopware AG', $customerWithMultipleAddresses->getDefaultBillingAddress()->getCompany());
+
+        /** @var CustomerEntity $customerWithUpdatedAddresses */
+        $customerWithUpdatedAddresses = $result->get('f3bb913bc8cc48479c3834a75e82920b');
+
+        static::assertSame(2, $customerWithUpdatedAddresses->getAddresses()->count());
+        static::assertSame('shopware AG', $customerWithUpdatedAddresses->getDefaultShippingAddress()->getCompany());
+
+        $logEntity = $importExportService->prepareExport(Context::createDefaultContext(), $profileId, $expireDate);
+        $progress = new Progress($logEntity->getId(), Progress::STATE_PROGRESS, 0, null);
+        do {
+            $importExport = $factory->create($logEntity->getId(), 5, 5);
+            $progress = $importExport->export(Context::createDefaultContext(), new Criteria(), $progress->getOffset());
+        } while (!$progress->isFinished());
+
+        static::assertSame(Progress::STATE_SUCCEEDED, $progress->getState());
+
+        $filesystem = $this->getContainer()->get('shopware.filesystem.private');
+        $csv = $filesystem->read($logEntity->getFile()->getPath());
+
+        static::assertStringContainsString($salesChannel['name'], $csv);
+        static::assertStringContainsString('shopware AG', $csv);
+        static::assertStringContainsString('en-GB', $csv);
+        static::assertStringContainsString('Standard customer group', $csv);
     }
 
     private function getDefaultProfileId(string $entity): string

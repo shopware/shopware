@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\Salutation\SalutationEntity;
 
@@ -15,7 +16,7 @@ class SalutationSerializer extends EntitySerializer
     private EntityRepositoryInterface $salutationRepository;
 
     /**
-     * @var string[]
+     * @var string[]|null[]
      */
     private array $salutations = [];
 
@@ -41,6 +42,7 @@ class SalutationSerializer extends EntitySerializer
             // if we dont find it by salutationKey, only set the id to the fallback if we dont have any other data
             if (!$id && \count($deserialized) === 1) {
                 $id = $this->getSalutationId('not_specified');
+                unset($deserialized['salutationKey']);
             }
 
             if ($id) {
@@ -58,15 +60,19 @@ class SalutationSerializer extends EntitySerializer
 
     private function getSalutationId(string $salutationKey): ?string
     {
-        if (empty($this->salutations)) {
-            $salutations = $this->salutationRepository->search(new Criteria(), Context::createDefaultContext());
-
-            /** @var SalutationEntity $salutation */
-            foreach ($salutations as $salutation) {
-                $this->salutations[$salutation->getSalutationKey()] = $salutation->getId();
-            }
+        if (\array_key_exists($salutationKey, $this->salutations)) {
+            return $this->salutations[$salutationKey];
         }
 
-        return $this->salutations[$salutationKey] ?? null;
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('salutationKey', $salutationKey));
+        $salutation = $this->salutationRepository->search($criteria, Context::createDefaultContext())->first();
+
+        $this->salutations[$salutationKey] = null;
+        if ($salutation instanceof SalutationEntity) {
+            $this->salutations[$salutationKey] = $salutation->getId();
+        }
+
+        return $this->salutations[$salutationKey];
     }
 }

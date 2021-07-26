@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Webhook\Handler;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
+use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\MessageQueue\Exception\MessageFailedException;
@@ -35,30 +36,29 @@ class WebhookEventMessageHandler extends AbstractMessageHandler
     public function handle($message): void
     {
         $shopwareVersion = $message->getShopwareVersion();
+
         $payload = $message->getPayload();
         $url = $message->getUrl();
 
         $timestamp = time();
         $payload['timestamp'] = $timestamp;
 
-        $header = [
-            'Content-Type' => 'application/json',
-            'sw-version' => $shopwareVersion,
-        ];
-
         /** @var string $jsonPayload */
         $jsonPayload = json_encode($payload);
 
-        if ($message->getSecret()) {
-            $header['shopware-shop-signature'] = hash_hmac('sha256', $jsonPayload, $message->getSecret());
-        }
-
         $requestContent = [
-            'headers' => $header,
+            'headers' => ['Content-Type' => 'application/json', 'sw-version' => $shopwareVersion],
             'body' => $jsonPayload,
             'connect_timeout' => self::CONNECT_TIMEOUT,
             'timeout' => self::TIMEOUT,
         ];
+
+        if ($message->getSecret()) {
+            $requestContent[AuthMiddleware::APP_REQUEST_TYPE]
+                        = [
+                            AuthMiddleware::APP_SECRET => $message->getSecret(),
+                        ];
+        }
 
         $context = Context::createDefaultContext();
 

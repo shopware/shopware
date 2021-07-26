@@ -10,6 +10,7 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Event\AppChangedEvent;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
+use Shopware\Core\Framework\App\Hmac\RequestSigner;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -210,8 +211,8 @@ class WebhookDispatcher implements EventDispatcherInterface
 
                 if ($webhook->getApp() !== null && $webhook->getApp()->getAppSecret() !== null) {
                     $request = $request->withHeader(
-                        'shopware-shop-signature',
-                        hash_hmac('sha256', $jsonPayload, $webhook->getApp()->getAppSecret())
+                        RequestSigner::SHOPWARE_SHOP_SIGNATURE,
+                        (new RequestSigner())->signPayload($jsonPayload, $webhook->getApp()->getAppSecret())
                     );
                 }
 

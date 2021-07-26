@@ -139,6 +139,9 @@
                         <factory class="GuzzleHttp\HandlerStack" method="create" />
                         <argument type="service" id="Shopware\Core\Framework\Test\App\TestAppServer"/>
                         <call method="push">
+                            <argument type="service" id="shopware.app_system.guzzle.middleware"/>
+                        </call>
+                        <call method="push">
                             <argument type="service" id="test.guzzle.history.middleware"/>
                         </call>
                     </service>

@@ -55,7 +55,7 @@ Component.register('sw-product-clone-modal', {
                 cloneChildren: false,
                 overwrites: {
                     productNumber: number.number,
-                    name: `${this.product.name} ${this.$tc('sw-product.general.copy')}`,
+                    name: `${this.product.name} ${this.$tc('global.default.copy')}`,
                     active: false,
                     mainVariantId: null,
                 },

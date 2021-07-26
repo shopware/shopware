@@ -57,7 +57,15 @@ Component.register('sw-settings-rule-list', {
         },
 
         onDuplicate(referenceRule) {
-            this.ruleRepository.clone(referenceRule.id).then((duplicatedData) => {
+            const behaviour = {
+                overwrites: {
+                    name: `${referenceRule.name} ${this.$tc('global.default.copy')}`,
+                    // setting the createdAt to null, so that api does set a new date
+                    createdAt: null,
+                },
+            };
+
+            this.ruleRepository.clone(referenceRule.id, Shopware.Context.api, behaviour).then((duplicatedData) => {
                 this.$router.push(
                     {
                         name: 'sw.settings.rule.detail',

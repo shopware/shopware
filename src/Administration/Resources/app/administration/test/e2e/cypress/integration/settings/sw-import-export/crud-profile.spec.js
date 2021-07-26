@@ -126,8 +126,16 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get('.sw-import-export-view-profiles__listing').should('be.visible');
 
         // Search for given profile
-        cy.get('.sw-import-export-view-profiles__search input[type="text"]').click();
-        cy.get('.sw-import-export-view-profiles__search input[type="text"]').clearTypeAndCheck('E2E');
+        cy.get('.sw-import-export-view-profiles__search input[type="text"]').should('be.visible');
+        cy.get('.sw-import-export-view-profiles__search input[type="text"]').clear();
+        cy.get('.sw-import-export-view-profiles__search input[type="text"]').type('E2E', {
+            delay: 400
+        });
+
+        cy.get('.sw-import-export-view-profiles__search input[type="text"]')
+            .invoke('val', 'E2E')
+            .should('have.value', 'E2E');
+
         cy.get(`${page.elements.dataGridRow}--0`).should('contain', 'E2E');
         cy.get(`${page.elements.dataGridRow}--1`).should('not.exist');
 

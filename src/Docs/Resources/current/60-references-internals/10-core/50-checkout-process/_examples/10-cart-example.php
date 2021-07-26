@@ -223,7 +223,7 @@ namespace DocsTest {
         {
             static::assertSame(
                 'd8f923b265f3e772c7570b3ee2b5aaed35654383',
-                sha1_file(TEST_PROJECT_DIR . '/platform/src/Core/Checkout/Cart/LineItem/LineItem.php'),
+                sha1_file($this->getContainer()->getParameter('kernel.shopware_core_dir') . '/Checkout/Cart/LineItem/LineItem.php'),
                 'The line item class changed apparently, ensure the docs are up to date'
             );
         }

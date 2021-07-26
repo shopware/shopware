@@ -31,7 +31,8 @@
         "platform": {
             "php": "7.4.3"
         },
-        "sort-packages": true
+        "sort-packages": true,
+        "process-timeout": 7200
     },
     "require": {
         "php": "^7.4.3 || ^8.0",

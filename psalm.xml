@@ -116,6 +116,7 @@
         <UndefinedMethod>
             <errorLevel type="suppress">
                 <referencedMethod name="Shopware\Core\Framework\Api\Sync\SyncBehavior::failOnError" />
+                <referencedMethod name="Composer\InstalledVersions::getallrawdata"/>
             </errorLevel>
         </UndefinedMethod>
 

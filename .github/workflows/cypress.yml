@@ -2,148 +2,93 @@ name: Cypress
 
 on:
     push:
-      branches:
-          - trunk
+        branches:
+            - trunk
     pull_request:
 
 jobs:
-  Administration:
-    runs-on: ubuntu-latest
-    container: shopware/development:7.4-composer-2
-    continue-on-error: true
-    strategy:
-        matrix:
-            test-directory: ["cypress/integration/content/**/*", "cypress/integration/catalogue/**/*", "cypress/integration/customer/**/*", "cypress/integration/media-marketing/**/*", "cypress/integration/general/**/*", "cypress/integration/order/**/*", "cypress/integration/rule-product-stream/**/*", "cypress/integration/settings/**/*"]
-    env:
-      DEVELOPMENT_BRANCH: trunk
+    Administration:
+        runs-on: ubuntu-latest
+        container: shopware/development:7.4-composer-2
+        continue-on-error: true
+        strategy:
+            matrix:
+                test-directory: [ "cypress/integration/content/**/*", "cypress/integration/catalogue/**/*", "cypress/integration/customer/**/*", "cypress/integration/media-marketing/**/*", "cypress/integration/general/**/*", "cypress/integration/order/**/*", "cypress/integration/rule-product-stream/**/*", "cypress/integration/settings/**/*" ]
+        env:
+            SHOPWARE_HTTP_CACHE_ENABLED: 0
+            APP_ENV: e2e
+            CYPRESS_baseUrl: http://localhost:8000
 
-    services:
-        mysql:
-         image: mysql:5.7
-         env:
-             MYSQL_ROOT_PASSWORD: shopware
-             MYSQL_DATABASE: shopware
+        services:
+            database:
+                image: mysql:5.7
+                env:
+                    MYSQL_ROOT_PASSWORD: root
+                    MYSQL_DATABASE: root
 
-    steps:
-    - name: Clone development
-      run: git clone -b $DEVELOPMENT_BRANCH https://github.com/shopware/development.git && cd development && rm -rf platform
+        steps:
+            -   name: Clone platform
+                uses: actions/checkout@v2
 
-    - name: Clone platform
-      uses: actions/checkout@v2
-      with:
-        path: development/platform
+            -   name: Install Shopware
+                run: |
+                    composer run setup
+                    composer run init:e2e:admin
+                    composer run e2e:prepare
+                    chown -R application:application .
+                    export WEB_DOCUMENT_ROOT=$(pwd)/public
+                    /entrypoint supervisord > /dev/null 2>&1 &
 
-    - name: Fix platform for composer
-      run: |
-        apt-get update && apt-get install -y xvfb
-        export WEB_DOCUMENT_ROOT=$(pwd)/development/public
-        /entrypoint supervisord > /dev/null 2>&1 &
-        cd development/platform
-        git fetch --prune --unshallow
-        git checkout trunk
-        git checkout -
-        cd ..
-        git reset --hard @
+            -   name: Cypress run
+                run: |
+                    composer run e2e:admin:cypress -- run --browser chrome --spec "${{ matrix.test-directory }}" --headless --env grep=@base
 
-    - name: Install Shopware
-      run: |
-        cd development
-        cp platform/.github/.psh.yaml.override .
-        ./psh.phar init-composer
-        if [[ ! -h vendor/shopware/platform ]]; then echo 'vendor/shopware/platform should be a symlink'; exit 1; fi
-        php dev-ops/generate_ssl.php
-        ./psh.phar init-composer
-        ./psh.phar init-database
-        ./psh.phar init-shopware
-        ./psh.phar administration:init
-        ./psh.phar storefront:init
-        npm install --prefix vendor/shopware/platform/src/Administration/Resources/app/administration/test/e2e
-        forever start vendor/shopware/platform/src/Administration/Resources/app/administration/test/e2e/node_modules/@shopware-ag/e2e-testsuite-platform/routes/cypress.js
-        ./psh.phar init-test-databases
-        ./psh.phar e2e:dump-db
-        bin/console theme:change --all Storefront
-        bin/console cache:clear
+            -   uses: actions/upload-artifact@v2
+                if: failure()
+                with:
+                    name: cypress
+                    path: |
+                        src/Administration/Resources/app/administration/test/app/build
+                        var/logs
 
-    - name: Cypress run
-      run: |
-          cd development
-          chown -R 1000:1000 .
-          export CYPRESS_baseUrl=http://localhost:8000
-          npm --prefix vendor/shopware/platform/src/Administration/Resources/app/administration/test/e2e run cy:run:chrome -- --spec "${{ matrix.test-directory }}" --config numTestsKeptInMemory=0 --env grep=@base --headless
+    Storefront:
+        runs-on: ubuntu-latest
+        container: shopware/development:7.4-composer-2
+        continue-on-error: true
+        env:
+            SHOPWARE_HTTP_CACHE_ENABLED: 0
+            APP_ENV: e2e
+            CYPRESS_baseUrl: http://localhost:8000
+            CYPRESS_grep: '@base'
 
-    - uses: actions/upload-artifact@v2
-      if: failure()
-      with:
-        name: cypress
-        path: |
-            development/platform/src/Administration/Resources/app/administration/test/app/build
-            development/var/logs
+        services:
+            database:
+                image: mysql:5.7
+                env:
+                    MYSQL_ROOT_PASSWORD: root
+                    MYSQL_DATABASE: root
 
-  Storefront:
-    runs-on: ubuntu-latest
-    container: shopware/development:7.4-composer-2
-    continue-on-error: true
-    env:
-      DEVELOPMENT_BRANCH: trunk
+        steps:
+            -   name: Clone platform
+                uses: actions/checkout@v2
 
-    services:
-        mysql:
-         image: mysql:5.7
-         env:
-             MYSQL_ROOT_PASSWORD: shopware
-             MYSQL_DATABASE: shopware
+            -   name: Install Shopware
+                run: |
+                    composer run setup
+                    composer run init:e2e:storefront
+                    composer run e2e:prepare
+                    chown -R application:application .
+                    export WEB_DOCUMENT_ROOT=$(pwd)/public
+                    /entrypoint supervisord > /dev/null 2>&1 &
 
-    steps:
-    - name: Clone development
-      run: git clone -b $DEVELOPMENT_BRANCH https://github.com/shopware/development.git && cd development && rm -rf platform
+            -   name: Cypress run
+                run: |
+                    composer run e2e:storefront:cypress -- run --browser chrome --headless
 
-    - name: Clone platform
-      uses: actions/checkout@v2
-      with:
-        path: development/platform
-
-    - name: Fix platform for composer
-      run: |
-        apt-get update && apt-get install -y xvfb
-        export WEB_DOCUMENT_ROOT=$(pwd)/development/public
-        /entrypoint supervisord > /dev/null 2>&1 &
-        cd development/platform
-        git fetch --prune --unshallow
-        git checkout trunk
-        git checkout -
-        cd ..
-        git reset --hard @
-
-    - name: Install Shopware
-      run: |
-        cd development
-        cp platform/.github/.psh.yaml.override .
-        ./psh.phar init-composer
-        if [[ ! -h vendor/shopware/platform ]]; then echo 'vendor/shopware/platform should be a symlink'; exit 1; fi
-        php dev-ops/generate_ssl.php
-        ./psh.phar init-composer
-        ./psh.phar init-database
-        ./psh.phar init-shopware
-        ./psh.phar administration:init
-        ./psh.phar storefront:init
-        npm install --prefix vendor/shopware/platform/src/Storefront/Resources/app/storefront/test/e2e
-        forever start vendor/shopware/platform/src/Storefront/Resources/app/storefront/test/e2e/node_modules/@shopware-ag/e2e-testsuite-platform/routes/cypress.js
-        ./psh.phar init-test-databases
-        ./psh.phar e2e:dump-db
-        bin/console theme:change --all Storefront
-        bin/console cache:clear
-
-    - name: Cypress run
-      run: |
-          cd development
-          chown -R 1000:1000 .
-          export CYPRESS_baseUrl=http://localhost:8000
-          npm --prefix vendor/shopware/platform/src/Storefront/Resources/app/storefront/test/e2e run cy:run:chrome -- --config numTestsKeptInMemory=0 --env grep=@base --headless
-
-    - uses: actions/upload-artifact@v2
-      if: failure()
-      with:
-        name: cypress
-        path: |
-            development/platform/src/Storefront/Resources/app/storefront/test/app/build
-            development/var/logs
+            -   uses: actions/upload-artifact@v2
+                if: failure()
+                with:
+                    name: cypress
+                    path: |
+                        src/Storefront/Resources/app/storefront/test/app/build
+                        var/logs

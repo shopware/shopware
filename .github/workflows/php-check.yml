@@ -10,50 +10,17 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container: shopware/development:7.4-composer-2
-    env:
-      DEVELOPMENT_BRANCH: trunk
-
-    services:
-      mysql:
-        image: mysql:5.7
-        env:
-            MYSQL_ROOT_PASSWORD: shopware
-            MYSQL_DATABASE: shopware
-      elasticsearch:
-        image: elasticsearch:7.8.0
-        env:
-          discovery.type: single-node
 
     steps:
-    - name: Clone development
-      run: git clone -b $DEVELOPMENT_BRANCH https://github.com/shopware/development.git && cd development && rm -rf platform
-
     - name: Clone platform
       uses: actions/checkout@v2
-      with:
-        path: development/platform
-
-    - name: Fix platform for composer
-      run: |
-        cd development/platform
-        git fetch --prune --unshallow
-        git checkout trunk
-        git checkout -
-        cd ..
-        git reset --hard @
 
     - name: Install Shopware
       run: |
-        cd development
-        cp platform/.github/.psh.yaml.override .
-        ./psh.phar init
+        composer install
 
     - name: Check Code
       run: |
-        cd development
-        php dev-ops/analyze/generate-composer.php
-        php dev-ops/analyze/vendor/bin/ecs check platform/src --config platform/easy-coding-standard.php
-        php dev-ops/analyze/phpstan-config-generator.php
-        php dev-ops/analyze/vendor/bin/phpstan analyze --autoload-file=dev-ops/analyze/vendor/autoload.php --configuration platform/phpstan.neon --error-format gitlab | tee phpstan-report.json
-        php dev-ops/analyze/vendor/bin/psalm --config=platform/psalm.xml --threads=$(nproc) --show-info=false
-
+        composer run ecs -- src --no-progress-bar
+        composer run phpstan -- --error-format=gitlab --no-progress | tee phpstan-report.json
+        composer run psalm -- --threads=$(nproc) --show-info=false --no-progress

@@ -34,7 +34,7 @@ class DefaultSalutationValidatorTest extends TestCase
 
     public function eventProvider(): \Generator
     {
-        yield 'oder delete event' => [
+        yield 'order delete event' => [
             $this->getEvent(new OrderDefinition(), 'c5d8b53e80824ea28416d56d8d7c1e43', true),
         ];
 

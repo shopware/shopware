@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\App\Lifecycle\Registration;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\RequestException;
 use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
@@ -53,17 +54,34 @@ class AppRegistrationService
             return;
         }
 
-        $appResponse = $this->registerWithApp($manifest);
+        try {
+            $appResponse = $this->registerWithApp($manifest);
 
-        $secret = $appResponse['secret'];
-        $confirmationUrl = $appResponse['confirmation_url'];
+            $secret = $appResponse['secret'];
+            $confirmationUrl = $appResponse['confirmation_url'];
 
-        $this->saveAppSecret($id, $context, $secret);
+            $this->saveAppSecret($id, $context, $secret);
 
-        $this->confirmRegistration($id, $context, $secret, $secretAccessKey, $confirmationUrl);
+            $this->confirmRegistration($id, $context, $secret, $secretAccessKey, $confirmationUrl);
+        } catch (RequestException $e) {
+            if ($e->hasResponse() && $e->getResponse() !== null) {
+                $response = $e->getResponse();
+                $data = json_decode($response->getBody()->getContents(), true);
+
+                if (isset($data['error']) && \is_string($data['error'])) {
+                    throw new AppRegistrationException($data['error']);
+                }
+            }
+
+            throw new AppRegistrationException($e->getMessage(), 0, $e);
+        } catch (GuzzleException $e) {
+            throw new AppRegistrationException($e->getMessage(), 0, $e);
+        }
     }
 
     /**
+     * @throws GuzzleException
+     *
      * @return array<string,string>
      */
     private function registerWithApp(Manifest $manifest): array
@@ -71,12 +89,7 @@ class AppRegistrationService
         $handshake = $this->handshakeFactory->create($manifest);
 
         $request = $handshake->assembleRequest();
-
-        try {
-            $response = $this->httpClient->send($request);
-        } catch (GuzzleException $e) {
-            throw new AppRegistrationException($e->getMessage(), 0, $e);
-        }
+        $response = $this->httpClient->send($request);
 
         return $this->parseResponse($handshake, $response);
     }
@@ -101,17 +114,13 @@ class AppRegistrationService
 
         $signature = $this->signPayload($payload, $secret);
 
-        try {
-            $this->httpClient->post($confirmationUrl, [
-                'headers' => [
-                    'shopware-shop-signature' => $signature,
-                    'sw-version' => $this->shopwareVersion,
-                ],
-                'json' => $payload,
-            ]);
-        } catch (GuzzleException $e) {
-            throw new AppRegistrationException($e->getMessage(), 0, $e);
-        }
+        $this->httpClient->post($confirmationUrl, [
+            'headers' => [
+                'shopware-shop-signature' => $signature,
+                'sw-version' => $this->shopwareVersion,
+            ],
+            'json' => $payload,
+        ]);
     }
 
     /**
@@ -120,6 +129,10 @@ class AppRegistrationService
     private function parseResponse(AppHandshakeInterface $handshake, ResponseInterface $response): array
     {
         $data = json_decode($response->getBody()->getContents(), true);
+
+        if (isset($data['error']) && \is_string($data['error'])) {
+            throw new AppRegistrationException($data['error']);
+        }
 
         $proof = $data['proof'] ?? '';
 

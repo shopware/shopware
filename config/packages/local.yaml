@@ -1,3 +1,0 @@
-framework:
-    cache:
-        app: cache.adapter.filesystem

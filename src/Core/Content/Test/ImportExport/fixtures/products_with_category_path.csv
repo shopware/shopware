@@ -1,0 +1,2 @@
+id;name;price_net;price_gross;stock;product_number;tax_id;tax_rate;tax_name;propertyIds;categories;category_paths
+meinhappyproduct;Happy Produkt;100;122;10000;PTfdsfsdfsdf;taxId;23;Eins Rate;;106a6c241b8797f52e1e77317b96a201;Main>First>Second|Main>Second|Main|Main>First New>Second New;

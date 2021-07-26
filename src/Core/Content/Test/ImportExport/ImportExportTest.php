@@ -40,6 +40,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\FilesystemBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\RequestStackTestBehaviour;
@@ -57,6 +58,7 @@ class ImportExportTest extends TestCase
     use KernelTestBehaviour;
     use FilesystemBehaviour;
     use CacheTestBehaviour;
+    use DatabaseTransactionBehaviour;
     use BasicTestDataBehaviour;
     use SessionTestBehaviour;
     use RequestStackTestBehaviour;
@@ -80,32 +82,6 @@ class ImportExportTest extends TestCase
         $this->productRepository = $this->getContainer()->get('product.repository');
 
         $this->listener = $this->getContainer()->get(EventDispatcherInterface::class);
-
-        $connection = $this->getContainer()->get(Connection::class);
-
-        // required for the testInvalidFile test
-        $connection->setNestTransactionsWithSavepoints(true);
-
-        $connection->beginTransaction();
-    }
-
-    public function tearDown(): void
-    {
-        $connection = $this->getContainer()
-            ->get(Connection::class);
-
-        static::assertEquals(
-            1,
-            $connection->getTransactionNestingLevel(),
-            'Too many Nesting Levels.
-            Probably one transaction was not closed properly.
-            This may affect following Tests in an unpredictable manner!
-            Current nesting level: "' . $connection->getTransactionNestingLevel() . '".'
-        );
-
-        $connection->rollBack();
-
-        $connection->setNestTransactionsWithSavepoints(false);
     }
 
     public function testExportEvents(): void
@@ -792,6 +768,90 @@ class ImportExportTest extends TestCase
         static::assertSame($category1Id, $product->getCategories()->get($category1Id)->getId());
         static::assertSame($category2Id, $product->getCategories()->get($category2Id)->getId());
         static::assertSame($category3Id, $product->getCategories()->get($category3Id)->getId());
+    }
+
+    public function testProductsWithCategoryPaths(): void
+    {
+        if (!Feature::isActive('FEATURE_NEXT_8097')) {
+            static::markTestSkipped('NEXT-8097');
+        }
+
+        $context = Context::createDefaultContext();
+        $context->addExtension(EntityIndexerRegistry::DISABLE_INDEXING, new ArrayEntity());
+
+        /** @var EntityRepositoryInterface $categoryRepository */
+        $categoryRepository = $this->getContainer()->get(CategoryDefinition::ENTITY_NAME . '.repository');
+        $categoryHome = Uuid::fromStringToHex('home');
+        $categoryHomeFirst = Uuid::fromStringToHex('homeFirst');
+        $categoryHomeSecond = Uuid::fromStringToHex('homeSecond');
+        $categoryHomeFirstSecond = Uuid::fromStringToHex('homeFirstSecond');
+        $categoryHomeFirstNewSecondNew = Uuid::fromStringToHex('Main>First New>Second New');
+
+        $categoryRepository->upsert([
+            [
+                'id' => $categoryHome,
+                'name' => 'Main',
+            ],
+
+            [
+                'id' => $categoryHomeFirst,
+                'name' => 'First',
+                'parentId' => $categoryHome,
+            ],
+
+            [
+                'id' => $categoryHomeFirstSecond,
+                'name' => 'Second',
+                'parentId' => $categoryHomeFirst,
+            ],
+
+            [
+                'id' => $categoryHomeSecond,
+                'name' => 'Second',
+                'parentId' => $categoryHome,
+            ],
+        ], $context);
+
+        $factory = $this->getContainer()->get(ImportExportFactory::class);
+        $importExportService = $this->getContainer()->get(ImportExportService::class);
+        $profileId = $this->getDefaultProfileId(ProductDefinition::ENTITY_NAME);
+
+        $expireDate = new \DateTimeImmutable('2099-01-01');
+        $file = new UploadedFile(__DIR__ . '/fixtures/products_with_category_path.csv', 'products.csv', 'text/csv');
+
+        $logEntity = $importExportService->prepareImport(
+            $context,
+            $profileId,
+            $expireDate,
+            $file
+        );
+
+        $progress = new Progress($logEntity->getId(), Progress::STATE_PROGRESS, 0, null);
+        $importExport = $factory->create($logEntity->getId(), 5, 5);
+        do {
+            $progress = $importExport->import($context, $progress->getOffset());
+        } while (!$progress->isFinished());
+
+        static::assertSame(Progress::STATE_SUCCEEDED, $progress->getState());
+
+        $criteria = new Criteria([Uuid::fromStringToHex('meinhappyproduct')]);
+        $criteria->addAssociation('categories');
+
+        /** @var EntityRepositoryInterface $productRepository */
+        $productRepository = $this->getContainer()->get(ProductDefinition::ENTITY_NAME . '.repository');
+
+        /** @var ProductEntity $product */
+        $product = $productRepository->search($criteria, $context)->first();
+
+        $categories = $product->getCategories()->getElements();
+        static::assertSame(4, $product->getCategories()->count());
+        static::assertArrayHasKey($categoryHome, $categories);
+        static::assertArrayHasKey($categoryHomeFirstSecond, $categories);
+        static::assertArrayHasKey($categoryHomeSecond, $categories);
+        static::assertArrayHasKey($categoryHomeFirstNewSecondNew, $categories);
+
+        $newCategoryLeaf = $product->getCategories()->get($categoryHomeFirstNewSecondNew);
+        static::assertSame(Uuid::fromStringToHex('Main>First New'), $newCategoryLeaf->getParentId());
     }
 
     public function testInvalidFile(): void

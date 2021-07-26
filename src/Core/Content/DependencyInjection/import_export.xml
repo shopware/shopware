@@ -192,6 +192,13 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Content\ImportExport\Event\Subscriber\ProductCategoryPathsSubscriber">
+            <argument type="service" id="category.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\Sync\SyncService"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Content\ImportExport\Event\Subscriber\ProductCriteriaSubscriber">
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -199,6 +206,8 @@
         <service id="Shopware\Core\Content\ImportExport\Event\Subscriber\ProductVariantsSubscriber">
             <argument type="service" id="Shopware\Core\Framework\Api\Sync\SyncService"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="property_group.repository"/>
+            <argument type="service" id="property_group_option.repository"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>

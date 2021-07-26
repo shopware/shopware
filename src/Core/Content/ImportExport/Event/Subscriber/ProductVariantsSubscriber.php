@@ -10,7 +10,11 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Api\Sync\SyncBehavior;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Api\Sync\SyncService;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -21,10 +25,24 @@ class ProductVariantsSubscriber implements EventSubscriberInterface
 
     private Connection $connection;
 
-    public function __construct(SyncService $syncService, Connection $connection)
-    {
+    private EntityRepositoryInterface $groupRepository;
+
+    private EntityRepositoryInterface $optionRepository;
+
+    private array $groupIdCache = [];
+
+    private array $optionIdCache = [];
+
+    public function __construct(
+        SyncService $syncService,
+        Connection $connection,
+        EntityRepositoryInterface $groupRepository,
+        EntityRepositoryInterface $optionRepository
+    ) {
         $this->syncService = $syncService;
         $this->connection = $connection;
+        $this->groupRepository = $groupRepository;
+        $this->optionRepository = $optionRepository;
     }
 
     public static function getSubscribedEvents()
@@ -107,7 +125,7 @@ class ProductVariantsSubscriber implements EventSubscriberInterface
                 SyncOperation::ACTION_UPSERT,
                 $configuratorSettingPayload
             ),
-        ], $event->getContext(), $behavior);
+        ], Context::createDefaultContext(), $behavior);
 
         if (Feature::isActive('FEATURE_NEXT_15815')) {
             // @internal (flag:FEATURE_NEXT_15815) - remove code below, "isSuccess" function will be removed, simply return because sync service would throw an exception in error case
@@ -177,8 +195,8 @@ class ProductVariantsSubscriber implements EventSubscriberInterface
             foreach ($combination as $option) {
                 list($group, $option) = explode('|', $option);
 
-                $optionId = Uuid::fromStringToHex(sprintf('%s.%s', $group, $option));
-                $groupId = Uuid::fromStringToHex($group);
+                $optionId = $this->getOptionId($group, $option);
+                $groupId = $this->getGroupId($group);
 
                 $options[] = [
                     'id' => $optionId,
@@ -250,5 +268,54 @@ class ProductVariantsSubscriber implements EventSubscriberInterface
         }
 
         return $payload;
+    }
+
+    private function getGroupId(string $groupName): string
+    {
+        $groupId = Uuid::fromStringToHex($groupName);
+
+        if (isset($this->groupIdCache[$groupId])) {
+            return $this->groupIdCache[$groupId];
+        }
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('name', $groupName));
+
+        $group = $this->groupRepository->search($criteria, Context::createDefaultContext())->first();
+
+        if ($group !== null) {
+            $this->groupIdCache[$groupId] = $group->getId();
+
+            return $group->getId();
+        }
+
+        $this->groupIdCache[$groupId] = $groupId;
+
+        return $groupId;
+    }
+
+    private function getOptionId(string $groupName, string $optionName): string
+    {
+        $optionId = Uuid::fromStringToHex(sprintf('%s.%s', $groupName, $optionName));
+
+        if (isset($this->optionIdCache[$optionId])) {
+            return $this->optionIdCache[$optionId];
+        }
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('name', $optionName));
+        $criteria->addFilter(new EqualsFilter('group.name', $groupName));
+
+        $option = $this->optionRepository->search($criteria, Context::createDefaultContext())->first();
+
+        if ($option !== null) {
+            $this->optionIdCache[$optionId] = $option->getId();
+
+            return $option->getId();
+        }
+
+        $this->optionIdCache[$optionId] = $optionId;
+
+        return $optionId;
     }
 }

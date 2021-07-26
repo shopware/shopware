@@ -1,7 +1,7 @@
 <div style="font-family:arial; font-size:12px;">
 
 {% set currencyIsoCode = order.currency.isoCode %}
-{{ order.orderCustomer.salutation.translated.letterName }} {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br>
+{% if order.orderCustomer.salutation %}{{ order.orderCustomer.salutation.translated.letterName ~ ' ' }}{% endif %}{{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br>
 <br>
 We have received your order from {{ order.orderDateTime|format_datetime('medium', 'short', locale='en-GB') }}.<br>
 <br>

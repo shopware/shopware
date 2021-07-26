@@ -88,7 +88,6 @@ class ChangeProfileRouteTest extends TestCase
         $sources = array_column(array_column($response['errors'], 'source'), 'pointer');
         static::assertContains('/firstName', $sources);
         static::assertContains('/lastName', $sources);
-        static::assertContains('/salutationId', $sources);
     }
 
     public function testChangeName(): void

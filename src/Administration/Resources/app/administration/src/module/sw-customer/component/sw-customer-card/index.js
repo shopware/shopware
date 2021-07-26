@@ -2,8 +2,9 @@ import template from './sw-customer-card.html.twig';
 import './sw-customer-card.scss';
 import errorConfig from '../../error-config.json';
 
-const { Component, Mixin } = Shopware;
+const { Component, Mixin, Defaults } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-customer-card', {
     template,
@@ -62,6 +63,16 @@ Component.register('sw-customer-card', {
             };
 
             return Object.values(name).filter(item => item !== null).join(' - ').trim();
+        },
+
+        salutationCriteria() {
+            const criteria = new Criteria();
+
+            criteria.addFilter(Criteria.not('or', [
+                Criteria.equals('id', Defaults.defaultSalutationId),
+            ]));
+
+            return criteria;
         },
 
         ...mapPropertyErrors('customer', errorConfig['sw.customer.detail.base'].customer),

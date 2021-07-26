@@ -295,6 +295,7 @@ const Shopware = function Shopware() {
         storefrontSalesChannelTypeId: '8a243080f92e4c719546314b577cf82b',
         productComparisonTypeId: 'ed535e5722134ac1aa6524f73e26881b',
         apiSalesChannelTypeId: 'f183ee5650cf4bdb8a774337575067a6',
+        defaultSalutationId: 'ed643807c9f84cc8b50132ea3ccb1c3b',
     };
 
     /**

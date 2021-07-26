@@ -62,7 +62,7 @@
 
                                         {% block page_account_overview_profile_content %}
                                             <p>
-                                                {% if context.customer.salutation.salutationKey != 'not_specified' %}
+                                                {% if context.customer.salutation and context.customer.salutation.salutationKey != 'not_specified' %}
                                                     {{ context.customer.salutation.translated.displayName }}
                                                 {% endif %}
                                                 {% if context.customer.title %}

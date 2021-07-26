@@ -3,7 +3,10 @@
 namespace Shopware\Core\System\Salutation\SalesChannel;
 
 use OpenApi\Annotations as OA;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -66,6 +69,10 @@ class SalutationRoute extends AbstractSalutationRoute
      */
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): SalutationRouteResponse
     {
+        $criteria->addFilter(new NotFilter('or', [
+            new EqualsFilter('id', Defaults::SALUTATION),
+        ]));
+
         return new SalutationRouteResponse($this->salesChannelRepository->search($criteria, $context));
     }
 }

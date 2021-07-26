@@ -273,6 +273,8 @@ class RegisterController extends StorefrontController
     {
         $definition = new DataValidationDefinition('storefront.confirmation');
 
+        $definition->add('salutationId', new NotBlank());
+
         if ($this->systemConfigService->get('core.loginRegistration.requireEmailConfirmation', $context->getSalesChannel()->getId())) {
             $definition->add('emailConfirmation', new NotBlank(), new EqualTo([
                 'value' => $data->get('email'),

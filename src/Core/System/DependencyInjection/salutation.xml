@@ -30,5 +30,9 @@
             <argument>%shopware.cache.invalidation.salutation_route%</argument>
             <argument type="service" id="logger" />
         </service>
+
+        <service id="Shopware\Core\System\Salutation\DefaultSalutationValidator">
+            <tag name="kernel.event_subscriber" />
+        </service>
     </services>
 </container>

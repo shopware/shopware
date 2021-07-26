@@ -1,7 +1,7 @@
 <div style="font-family:arial; font-size:12px;">
     <br/>
     <p>
-        {{ order.orderCustomer.salutation.translated.letterName }} {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br/>
+        {% if order.orderCustomer.salutation %}{{ order.orderCustomer.salutation.translated.letterName ~ ' ' }}{% endif %}{{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br/>
         <br/>
         der Bestellstatus für Ihre Bestellung bei {{ salesChannel.translated.name }} (Number: {{ order.orderNumber }}) vom {{ order.orderDateTime|format_datetime('medium', 'short', locale='de-DE') }} hat sich geändert.<br/>
         <strong>Die Bestellung hat jetzt den Bestellstatus: {{ order.stateMachineState.translated.name }}.</strong><br/>

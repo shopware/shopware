@@ -294,6 +294,11 @@
             <tag name="shopware.cart.line_item.factory"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerDefaultSalutationSubscriber">
+            <argument type="service" id="salutation.repository"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <!-- LINE ITEM GROUPS -->
         <!-- ==================================================================================================================== -->
 

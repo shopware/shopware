@@ -68,7 +68,7 @@ class CustomerEntity extends Entity
     protected $customerNumber;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $salutationId;
 
@@ -406,7 +406,7 @@ class CustomerEntity extends Entity
         $this->customerNumber = $customerNumber;
     }
 
-    public function getSalutationId(): string
+    public function getSalutationId(): ?string
     {
         return $this->salutationId;
     }

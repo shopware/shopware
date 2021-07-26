@@ -62,7 +62,6 @@ class AddressValidationFactory implements DataValidationFactoryInterface
             ->add('salutationId', new EntityExists(['entity' => 'salutation', 'context' => $frameworkContext]))
             ->add('countryId', new EntityExists(['entity' => 'country', 'context' => $frameworkContext]))
             ->add('countryStateId', new EntityExists(['entity' => 'country_state', 'context' => $frameworkContext]))
-            ->add('salutationId', new NotBlank())
             ->add('firstName', new NotBlank())
             ->add('lastName', new NotBlank())
             ->add('street', new NotBlank())

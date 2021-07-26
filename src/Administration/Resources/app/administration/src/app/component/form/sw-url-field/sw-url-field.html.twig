@@ -30,8 +30,8 @@
 
     <template #sw-field-input="{ identification, error, disabled, size, setFocusClass, removeFocusClass }">
         <input
-            type="url"
             :id="identification"
+            type="url"
             class="sw-url-input-field__input"
             :name="identification"
             :value="currentValue|unicodeUri"

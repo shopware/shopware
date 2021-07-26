@@ -1,7 +1,7 @@
 import template from './sw-customer-address-form.html.twig';
 import './sw-customer-address-form.scss';
 
-const { Component } = Shopware;
+const { Component, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
@@ -94,6 +94,16 @@ Component.register('sw-customer-address-form', {
 
             const criteria = new Criteria();
             criteria.addFilter(Criteria.equals('countryId', this.countryId));
+            return criteria;
+        },
+
+        salutationCriteria() {
+            const criteria = new Criteria();
+
+            criteria.addFilter(Criteria.not('or', [
+                Criteria.equals('id', Defaults.defaultSalutationId),
+            ]));
+
             return criteria;
         },
     },

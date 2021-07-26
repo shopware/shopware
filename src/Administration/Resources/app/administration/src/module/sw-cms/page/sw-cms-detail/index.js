@@ -2,9 +2,11 @@ import template from './sw-cms-detail.html.twig';
 import './sw-cms-detail.scss';
 
 const { Component, Mixin } = Shopware;
+const { debounce } = Shopware.Utils;
 const { cloneDeep, getObjectDiff } = Shopware.Utils.object;
 const { warn } = Shopware.Utils.debug;
 const Criteria = Shopware.Data.Criteria;
+const debounceTimeout = 800;
 
 Component.register('sw-cms-detail', {
     template,
@@ -347,6 +349,7 @@ Component.register('sw-cms-detail', {
             }
 
             this.onPageUpdate();
+            this.debouncedPageSave();
         },
 
         loadPage(pageId) {
@@ -648,9 +651,18 @@ Component.register('sw-cms-detail', {
             return Object.keys(elements).filter((key) => elements[key] === 0);
         },
 
-        onPageSave() {
+        onPageSave(debounced = false) {
+            if (debounced) {
+                this.debouncedPageSave();
+                return;
+            }
+
             this.onSave();
         },
+
+        debouncedPageSave: debounce(function debouncedOnSave() {
+            this.onSave();
+        }, debounceTimeout),
 
         onSave() {
             this.isSaveSuccessful = false;
@@ -792,6 +804,8 @@ Component.register('sw-cms-detail', {
         onBlockDuplicate(block, section) {
             this.cloneBlockInSection(block, section);
             this.updateSectionAndBlockPositions();
+
+            this.debouncedPageSave();
         },
 
         cloneBlockInSection(block, section) {
@@ -841,6 +855,8 @@ Component.register('sw-cms-detail', {
 
             this.page.sections.splice(newSection.position, 0, newSection);
             this.updateSectionAndBlockPositions();
+
+            this.onSave();
         },
 
         onPageTypeChange() {

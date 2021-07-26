@@ -53,7 +53,7 @@ class MailerTransportFactory extends Transport
             case 'smtp':
                 return $this->createSmtpTransport($configService);
             case 'local':
-                return new SendmailTransport('/usr/sbin/sendmail ' . ($configService->getString('core.mailerSettings.sendMailOptions') ?: '-bs'));
+                return new SendmailTransport($this->getSendMailCommandLineArgument($configService));
             default:
                 throw new \RuntimeException(sprintf('Invalid mail agent given "%s"', $emailAgent));
         }
@@ -85,5 +85,22 @@ class MailerTransportFactory extends Transport
             default:
                 return null;
         }
+    }
+
+    private function getSendMailCommandLineArgument(SystemConfigService $configService): string
+    {
+        $command = '/usr/sbin/sendmail ';
+
+        $option = $configService->getString('core.mailerSettings.sendMailOptions');
+
+        if ($option === '') {
+            $option = '-t';
+        }
+
+        if ($option !== '-bs' && $option !== '-t') {
+            throw new \RuntimeException(sprintf('Given sendmail option "%s" is invalid', $option));
+        }
+
+        return $command . $option;
     }
 }

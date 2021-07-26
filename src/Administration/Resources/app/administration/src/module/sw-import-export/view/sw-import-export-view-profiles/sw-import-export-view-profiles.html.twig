@@ -20,10 +20,10 @@
 
             {% block sw_import_export_view_profile_profiles_toolbar_add_new_profile %}
             <sw-button
+                v-tooltip="createTooltip"
                 class="sw-import-export-view-profiles__create-action"
                 variant="ghost"
                 :disabled="isLoading || isNotSystemLanguage"
-                v-tooltip="createTooltip"
                 size="small"
                 @click="onAddNewProfile"
             >

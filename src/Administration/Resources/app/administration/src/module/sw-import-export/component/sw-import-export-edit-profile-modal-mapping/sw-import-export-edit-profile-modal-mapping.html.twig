@@ -8,6 +8,7 @@
             v-model="searchTerm"
             size="small"
             variant="form"
+            :disabled="!mappingsExist"
             @search-term-change="onSearch"
         />
         {% endblock %}
@@ -33,11 +34,14 @@
 
     {% block sw_import_export_edit_profile_modal_mapping_grid %}
     <sw-data-grid
+        v-if="mappingsExist"
         :data-source="mappings"
         :compact-mode="false"
         :show-selection="false"
         :show-actions="!profile.systemDefault"
         :columns="mappingColumns"
+        plain-appearance
+        class="sw-import-export-edit-profile-modal-mapping__grid"
     >
 
         {% block sw_import_export_edit_profile_modal_mapping_grid_csv_name_column %}
@@ -63,6 +67,45 @@
         </template>
         {% endblock %}
 
+        {% block sw_import_export_edit_profile_modal_mapping_grid_required_column %}
+        <template
+            v-if="feature.isActive('FEATURE_NEXT_8097')"
+            #column-required="{ item }"
+        >
+            <sw-switch-field
+                v-show="isRequiredBySystem(item)"
+                class="sw-import-export-edit-profile-modal-mapping__required-by-user-switch"
+                :value="true"
+                :disabled="true"
+                @change="() => {}"
+            />
+            <sw-switch-field
+                v-show="!isRequiredBySystem(item)"
+                class="sw-import-export-edit-profile-modal-mapping__required-by-user-switch"
+                v-model="item.requiredByUser"
+                :disabled="profile.systemDefault"
+            />
+        </template>
+        {% endblock %}
+
+        {% block sw_import_export_edit_profile_modal_mapping_grid_default_value_column %}
+        <template
+            v-if="feature.isActive('FEATURE_NEXT_8097')"
+            #column-defaultValue="{ item }"
+        >
+            <sw-switch-field
+                v-model="item.useDefaultValue"
+                :disabled="isDefaultValueCheckboxDisabled()"
+                class="sw-import-export-edit-profile-modal-mapping__default-value-switch"
+            />
+
+            <sw-text-field
+                v-model="item.defaultValue"
+                :disabled="isDefaultValueTextFieldDisabled(item)"
+            />
+        </template>
+        {% endblock %}
+
         {% block sw_import_export_edit_profile_modal_mapping_grid_context_menu_delete %}
         <template #actions="{ item }">
             <sw-context-menu-item
@@ -76,6 +119,15 @@
         {% endblock %}
 
     </sw-data-grid>
+    {% endblock %}
+
+    {% block sw_import_export_edit_profile_modal_mapping_empty_state %}
+    <sw-empty-state
+        v-else
+        class="sw-import-export-edit-profile-modal-mapping__empty-state"
+        :title="$tc('sw-import-export.profile.mappingEmptyState')"
+        :absolute="false"
+    />
     {% endblock %}
 </div>
 {% endblock %}

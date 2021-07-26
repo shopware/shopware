@@ -11,7 +11,11 @@ const { Mixin } = Shopware;
 Shopware.Component.register('sw-import-export-edit-profile-modal', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [
+        'repositoryFactory',
+        'feature',
+        'importExportProfileMapping',
+    ],
 
     mixins: [Mixin.getByName('notification')],
 
@@ -82,6 +86,7 @@ Shopware.Component.register('sw-import-export-edit-profile-modal', {
                 },
             ],
             missingRequiredFields: [],
+            systemRequiredFields: {},
         };
     },
 
@@ -132,6 +137,16 @@ Shopware.Component.register('sw-import-export-edit-profile-modal', {
         },
     },
 
+    watch: {
+        'profile.sourceEntity': {
+            handler(value) {
+                if (value) {
+                    this.loadSystemRequiredFieldsForEntity(value);
+                }
+            },
+        },
+    },
+
     methods: {
         saveProfile() {
             this.getParentProfileSelected().then((parentProfile) => {
@@ -163,7 +178,7 @@ Shopware.Component.register('sw-import-export-edit-profile-modal', {
         checkValidation(parentProfile) {
             const parentMapping = parentProfile ? parentProfile.mapping : [];
 
-            const validationErrors = Shopware.Service('importExportProfileMapping').validate(
+            const validationErrors = this.importExportProfileMapping.validate(
                 this.profile.sourceEntity,
                 this.profile.mapping,
                 parentMapping,
@@ -176,6 +191,10 @@ Shopware.Component.register('sw-import-export-edit-profile-modal', {
 
         resetViolations() {
             this.missingRequiredFields = [];
+        },
+
+        loadSystemRequiredFieldsForEntity(entityName) {
+            this.systemRequiredFields = this.importExportProfileMapping.getSystemRequiredFields(entityName);
         },
     },
 });

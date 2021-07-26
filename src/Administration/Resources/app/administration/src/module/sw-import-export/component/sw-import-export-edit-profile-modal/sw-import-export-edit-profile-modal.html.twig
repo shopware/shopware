@@ -4,6 +4,7 @@
         v-if="profile"
         class="sw-import-export-edit-profile-modal"
         :title="modalTitle"
+        variant="full"
         @modal-close="$emit('profile-close')"
     >
 
@@ -17,30 +18,43 @@
         {% endblock %}
 
         {% block sw_import_export_edit_profile_modal_tabs %}
-        <sw-tabs default-item="general">
+        <sw-tabs
+            :small="false"
+            default-item="general"
+        >
 
             <template #default="{ active }">
 
                 {% block sw_import_export_edit_profile_modal_tabs_general %}
                 <sw-tabs-item
                     :title="$tc('sw-import-export.profile.generalTab')"
-                    name="general"
                     :active-tab="active"
+                    name="general"
                 >
                     {{ $tc('sw-import-export.profile.generalTab') }}
+                </sw-tabs-item>
+                {% endblock %}
+
+                {% block sw_import_export_edit_profile_modal_tabs_field_mappings %}
+                <sw-tabs-item
+                    v-if="feature.isActive('FEATURE_NEXT_8097')"
+                    :title="$tc('sw-import-export.profile.mappingsTab')"
+                    :active-tab="active"
+                    name="mappings"
+                >
+                    {{ $tc('sw-import-export.profile.mappingsTab') }}
                 </sw-tabs-item>
                 {% endblock %}
 
                 {% block sw_import_export_edit_profile_modal_tabs_field_indicators %}
                 <sw-tabs-item
                     :title="$tc('sw-import-export.profile.fieldIndicatorsTab')"
-                    name="fieldIndicators"
                     :active-tab="active"
+                    name="fieldIndicators"
                 >
                     {{ $tc('sw-import-export.profile.fieldIndicatorsTab') }}
                 </sw-tabs-item>
                 {% endblock %}
-
             </template>
 
             <template #content="{ active }">
@@ -93,12 +107,32 @@
                         {{ $tc('sw-import-export.profile.mappingDescriptionBlock') }}
                     </p>
 
+                    {# @deprecated tag:v6.5.0 - block will removed use "sw_import_export_edit_profile_modal_tabs_mappings" instead #}
                     {% block sw_import_export_edit_profile_modal_tabs_mapping %}
                     <sw-import-export-edit-profile-modal-mapping
+                        v-if="!feature.isActive('FEATURE_NEXT_8097')"
                         :profile="profile"
+                        :system-required-fields="systemRequiredFields"
                     />
                     {% endblock %}
+                </template>
 
+                <template v-if="active === 'mappings' && feature.isActive('FEATURE_NEXT_8097')">
+                    {% block sw_import_export_edit_profile_modal_tabs_mappings %}
+
+                    {% block sw_import_export_edit_profile_modal_tabs_mappings_text %}
+                    <p class="sw-import-export-edit-profile-modal__text">
+                        {{ $tc('sw-import-export.profile.mappingDescription') }}
+                    </p>
+                    {% endblock %}
+
+                    {% block sw_import_export_edit_profile_modal_tabs_mappings_mapping %}
+                    <sw-import-export-edit-profile-modal-mapping
+                        :profile="profile"
+                        :system-required-fields="systemRequiredFields"
+                    />
+                    {% endblock %}
+                    {% endblock %}
                 </template>
 
                 <template v-if="active === 'fieldIndicators'">

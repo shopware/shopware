@@ -31,10 +31,23 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get('.sw-import-export-view-profiles__listing').should('be.visible');
         cy.get('.sw-import-export-view-profiles__create-action').click();
 
-        // Expect modal to be displayed and add mapping button to be disabled first
+        // Expect modal to be open with content
+        cy.get('.sw-import-export-edit-profile-modal__text').should('be.visible');
 
-        cy.get('.sw-import-export-edit-profile-modal-mapping').should('be.visible');
+        cy.onlyOnFeature('FEATURE_NEXT_8097', () => {
+            // switch to mapping tab
+            cy.contains('.sw-import-export-edit-profile-modal .sw-tabs-item', 'Mappings').click();
+        });
+
+        // Expect modal to be displayed and add mapping button to be disabled first
         cy.get('.sw-import-export-edit-profile-modal-mapping__add-action').should('be.disabled');
+
+        cy.onlyOnFeature('FEATURE_NEXT_8097', () => {
+            // switch back to general tab
+            cy.contains('.sw-import-export-edit-profile-modal .sw-tabs-item', 'General').click();
+            // expect to see the general tab content
+            cy.get('.sw-import-export-edit-profile-modal__text').should('be.visible');
+        });
 
         // Fill in name and object type
         cy.get('#sw-field--profile-label').type('Basic');
@@ -44,7 +57,12 @@ describe('Import/Export - Profiles: Test crud operations', () => {
                 '.sw-import-export-edit-profile-modal__object-type-select'
             );
 
-        // Fill in all required mappings
+        cy.onlyOnFeature('FEATURE_NEXT_8097', () => {
+            // switch to mapping tab
+            cy.contains('.sw-import-export-edit-profile-modal .sw-tabs-item', 'Mappings').click();
+        });
+
+        // Fill in all required mappings (add mapping button should be enabled now)
         cy.get('.sw-import-export-edit-profile-modal-mapping__add-action').should('be.enabled');
 
         cy.get('.sw-import-export-edit-profile-modal-mapping__add-action').click();
@@ -55,6 +73,12 @@ describe('Import/Export - Profiles: Test crud operations', () => {
                 '.sw-data-grid__row--0 .sw-import-export-entity-path-select:nth-of-type(1)'
             );
 
+        cy.onlyOnFeature('FEATURE_NEXT_8097', () => {
+            // check that the required id field is system required and the requirement can't be unchecked
+            cy.get('.sw-data-grid__row--0 .sw-import-export-edit-profile-modal-mapping__required-by-user-switch:not([style*="display: none"]) input')
+                .should('be.disabled');
+        });
+
         cy.get('.sw-import-export-edit-profile-modal-mapping__add-action').click();
         cy.get('#mappedKey-1').should('exist');
         cy.get('#mappedKey-0').type('createdAt');
@@ -63,6 +87,19 @@ describe('Import/Export - Profiles: Test crud operations', () => {
                 'createdAt',
                 '.sw-data-grid__row--0 .sw-import-export-entity-path-select:nth-of-type(1)'
             );
+
+        cy.onlyOnFeature('FEATURE_NEXT_8097', () => {
+            // check that the createdAt field is can be required by the user
+            cy.get('.sw-data-grid__row--0 .sw-import-export-edit-profile-modal-mapping__required-by-user-switch:not([style*="display: none"]) input')
+                .should('be.enabled')
+                .click();
+            // add a default value for this mapping
+            cy.get('.sw-data-grid__row--0 input[name="sw-field--item-useDefaultValue"]').click();
+            cy.get('.sw-data-grid__row--0 input[name="sw-field--item-defaultValue"]')
+                .should('be.enabled')
+                .type('default')
+                .should('have.value', 'default');
+        });
 
         // Perform add new mapping
         cy.get('.sw-import-export-edit-profile-modal-mapping__add-action').click();

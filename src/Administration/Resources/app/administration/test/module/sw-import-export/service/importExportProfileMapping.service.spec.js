@@ -130,4 +130,225 @@ describe('module/sw-import-export/service/importExportProfileMapping.service.spe
         expect(invalidFields.missingRequiredFields.length).toEqual(1);
         expect(invalidFields.missingRequiredFields).toContain('createdAt');
     });
+
+    it('category: should list all required fields with depth 1', async () => {
+        const systemRequiredFields = importExportProfileMappingService.getSystemRequiredFields('category', 1);
+
+        expect(Object.keys(systemRequiredFields)).toEqual([
+            'id',
+            'displayNestedProducts',
+            'type',
+            'productAssignmentType',
+            'translations.DEFAULT.name'
+        ]);
+    });
+
+    it('category: should list all required fields with depth 3', async () => {
+        const systemRequiredFields = importExportProfileMappingService.getSystemRequiredFields('category', 3);
+
+        expect(Object.keys(systemRequiredFields)).toEqual([
+            'id',
+            'displayNestedProducts',
+            'type',
+            'productAssignmentType',
+            'translations.DEFAULT.name'
+        ]);
+    });
+
+    it('product_cross_selling: should list all required fields with depth 1', async () => {
+        const systemRequiredFields = importExportProfileMappingService.getSystemRequiredFields('product_cross_selling', 1);
+
+        expect(Object.keys(systemRequiredFields)).toEqual([
+            'id',
+            'position',
+            'type',
+            'product.id',
+            'translations.DEFAULT.name'
+        ]);
+    });
+
+    it('product_cross_selling: should list all required fields with depth 3', async () => {
+        const systemRequiredFields = importExportProfileMappingService.getSystemRequiredFields('product_cross_selling', 3);
+
+        expect(Object.keys(systemRequiredFields)).toEqual([
+            'id',
+            'position',
+            'type',
+            'product.id',
+            'product.price.DEFAULT.net',
+            'product.price.DEFAULT.gross',
+            'product.productNumber',
+            'product.stock',
+            'product.tax.id',
+            'product.tax.taxRate',
+            'product.tax.name',
+            'product.tax.position',
+            'product.translations.DEFAULT.name',
+            'translations.DEFAULT.name'
+        ]);
+    });
+
+    it('media: should list all required fields with depth 1', async () => {
+        const systemRequiredFields = importExportProfileMappingService.getSystemRequiredFields('media', 1);
+
+        expect(Object.keys(systemRequiredFields)).toEqual([
+            'id'
+        ]);
+    });
+
+    it('media: should list all required fields with depth 3', async () => {
+        const systemRequiredFields = importExportProfileMappingService.getSystemRequiredFields('media', 3);
+
+        expect(Object.keys(systemRequiredFields)).toEqual([
+            'id'
+        ]);
+    });
+
+    it('newsletter_recipient: should list all required fields with depth 1', async () => {
+        const systemRequiredFields = importExportProfileMappingService.getSystemRequiredFields('newsletter_recipient', 1);
+
+        expect(Object.keys(systemRequiredFields)).toEqual([
+            'id',
+            'email',
+            'status',
+            'hash',
+            'language.id',
+            'salesChannel.id'
+        ]);
+    });
+
+    it('newsletter_recipient: should list all required fields with depth 3', async () => {
+        const systemRequiredFields = importExportProfileMappingService.getSystemRequiredFields('newsletter_recipient', 3);
+
+        expect(Object.keys(systemRequiredFields)).toEqual([
+            'id',
+            'email',
+            'status',
+            'hash',
+            'language.id',
+            'language.name',
+            'language.locale.id',
+            'language.locale.code',
+            'language.locale.translations.DEFAULT.name',
+            'language.locale.translations.DEFAULT.territory',
+            'salesChannel.id',
+            'salesChannel.accessKey',
+            'salesChannel.translations.DEFAULT.name',
+            'salesChannel.translations.DEFAULT.homeEnabled',
+            'salesChannel.type.id',
+            'salesChannel.type.translations.DEFAULT.name',
+            'salesChannel.customerGroup.id',
+            'salesChannel.customerGroup.translations.DEFAULT.name',
+            'salesChannel.currency.id',
+            'salesChannel.currency.factor',
+            'salesChannel.currency.symbol',
+            'salesChannel.currency.isoCode',
+            'salesChannel.currency.translations.DEFAULT.shortName',
+            'salesChannel.currency.translations.DEFAULT.name',
+            'salesChannel.currency.itemRounding',
+            'salesChannel.currency.totalRounding',
+            'salesChannel.paymentMethod.id',
+            'salesChannel.paymentMethod.translations.DEFAULT.name',
+            'salesChannel.shippingMethod.id',
+            'salesChannel.shippingMethod.taxType',
+            'salesChannel.shippingMethod.deliveryTime.id',
+            'salesChannel.shippingMethod.translations.DEFAULT.name',
+            'salesChannel.shippingMethod.availabilityRule.id',
+            'salesChannel.country.id',
+            'salesChannel.country.translations.DEFAULT.name',
+            'salesChannel.navigationCategory.id',
+            'salesChannel.navigationCategory.displayNestedProducts',
+            'salesChannel.navigationCategory.type',
+            'salesChannel.navigationCategory.productAssignmentType',
+            'salesChannel.navigationCategory.translations.DEFAULT.name'
+        ]);
+    });
+
+    it('product: should list all required fields with depth 1', async () => {
+        const systemRequiredFields = importExportProfileMappingService.getSystemRequiredFields('product', 1);
+
+        expect(Object.keys(systemRequiredFields)).toEqual([
+            'id',
+            'price.DEFAULT.net',
+            'price.DEFAULT.gross',
+            'productNumber',
+            'stock',
+            'tax.id',
+            'translations.DEFAULT.name'
+        ]);
+    });
+
+    it('product: should list all required fields with depth 3', async () => {
+        const systemRequiredFields = importExportProfileMappingService.getSystemRequiredFields('product', 3);
+
+        expect(Object.keys(systemRequiredFields)).toEqual([
+            'id',
+            'price.DEFAULT.net',
+            'price.DEFAULT.gross',
+            'productNumber',
+            'stock',
+            'tax.id',
+            'tax.taxRate',
+            'tax.name',
+            'tax.position',
+            'translations.DEFAULT.name'
+        ]);
+    });
+
+    it('property_group_option: should list all required fields with depth 1', async () => {
+        const systemRequiredFields = importExportProfileMappingService.getSystemRequiredFields('property_group_option', 1);
+
+        expect(Object.keys(systemRequiredFields)).toEqual([
+            'id',
+            'group.id',
+            'translations.DEFAULT.name'
+        ]);
+    });
+
+    it('property_group_option: should list all required fields with depth 3', async () => {
+        const systemRequiredFields = importExportProfileMappingService.getSystemRequiredFields('property_group_option', 3);
+
+        expect(Object.keys(systemRequiredFields)).toEqual([
+            'id',
+            'group.id',
+            'group.displayType',
+            'group.sortingType',
+            'group.translations.DEFAULT.name',
+            'translations.DEFAULT.name'
+        ]);
+    });
+
+    it('product_configurator_setting: should list all required fields with depth 1', async () => {
+        const systemRequiredFields = importExportProfileMappingService.getSystemRequiredFields('product_configurator_setting', 1);
+
+        expect(Object.keys(systemRequiredFields)).toEqual([
+            'id',
+            'product.id',
+            'option.id'
+        ]);
+    });
+
+    it('product_configurator_setting: should list all required fields with depth 3', async () => {
+        const systemRequiredFields = importExportProfileMappingService.getSystemRequiredFields('product_configurator_setting', 3);
+
+        expect(Object.keys(systemRequiredFields)).toEqual([
+            'id',
+            'product.id',
+            'product.price.DEFAULT.net',
+            'product.price.DEFAULT.gross',
+            'product.productNumber',
+            'product.stock',
+            'product.tax.id',
+            'product.tax.taxRate',
+            'product.tax.name',
+            'product.tax.position',
+            'product.translations.DEFAULT.name',
+            'option.id',
+            'option.group.id',
+            'option.group.displayType',
+            'option.group.sortingType',
+            'option.group.translations.DEFAULT.name',
+            'option.translations.DEFAULT.name'
+        ]);
+    });
 });

@@ -125,6 +125,7 @@ $sw-modal-transition-timing-function: cubic-bezier(0.68, -0.55, 0.26, 1.55);
         padding: 20px 30px;
         position: relative;
         word-break: break-word;
+        flex-grow: 1;
 
         .sw-data-grid .sw-data-grid__bulk {
             padding-left: 126px;

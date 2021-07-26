@@ -27,6 +27,7 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
     let wrapper;
     let localVue;
     let missingRequiredFieldsLength;
+    const systemRequiredFields = {};
     let parentProfileTotal = 1;
     let searchError = false;
 
@@ -65,6 +66,18 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
                             }
                         };
                     }
+                },
+                importExportProfileMapping: {
+                    validate: () => {
+                        return {
+                            missingRequiredFields: {
+                                length: missingRequiredFieldsLength
+                            }
+                        };
+                    },
+                    getSystemRequiredFields: () => {
+                        return systemRequiredFields;
+                    }
                 }
             }
         });
@@ -73,20 +86,6 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
     afterEach(() => {
         localVue = null;
         wrapper.destroy();
-    });
-
-    beforeAll(() => {
-        Shopware.Service().register('importExportProfileMapping', () => {
-            return {
-                validate: () => {
-                    return {
-                        missingRequiredFields: {
-                            length: missingRequiredFieldsLength
-                        }
-                    };
-                }
-            };
-        });
     });
 
     it('should be a Vue.js component', async () => {

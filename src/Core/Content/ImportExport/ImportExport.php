@@ -8,8 +8,10 @@ use Shopware\Core\Content\ImportExport\Event\EnrichExportCriteriaEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportAfterImportRecordEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeExportRecordEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeImportRecordEvent;
+use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeImportRowEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportExceptionImportRecordEvent;
 use Shopware\Core\Content\ImportExport\Exception\ProcessingException;
+use Shopware\Core\Content\ImportExport\Exception\RequiredByUserException;
 use Shopware\Core\Content\ImportExport\Processing\Mapping\CriteriaBuilder;
 use Shopware\Core\Content\ImportExport\Processing\Pipe\AbstractPipe;
 use Shopware\Core\Content\ImportExport\Processing\Reader\AbstractReader;
@@ -23,6 +25,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -130,8 +133,17 @@ class ImportExport
         $config = Config::fromLog($this->logEntity);
 
         foreach ($this->reader->read($config, $resource, $offset) as $row) {
-            $record = [];
+            if (Feature::isActive('FEATURE_NEXT_8097')) {
+                $event = new ImportExportBeforeImportRowEvent($row, $config, $context);
+                $this->eventDispatcher->dispatch($event);
+                $row = $event->getRow();
 
+                // empty csv lines were already skipped by the reader.
+                // defaults are added to the raw csv row
+                $this->addUserDefaults($row, $config);
+            }
+
+            $record = [];
             foreach ($this->pipe->out($config, $row) as $key => $value) {
                 $record[$key] = $value;
             }
@@ -141,6 +153,11 @@ class ImportExport
             }
 
             try {
+                if (Feature::isActive('FEATURE_NEXT_8097')) {
+                    // ensure that the raw csv row has all the fields, which are marked as required by the user.
+                    $this->ensureUserRequiredFields($row, $config);
+                }
+
                 $record = $this->ensurePrimaryKeys($record);
 
                 $event = new ImportExportBeforeImportRecordEvent($record, $row, $config, $context);
@@ -438,5 +455,39 @@ class ImportExport
         }
 
         return $data;
+    }
+
+    private function addUserDefaults(array &$row, Config $config): void
+    {
+        $mappings = $config->getMapping()->getElements();
+
+        foreach ($mappings as $mapping) {
+            $csvKey = $mapping->getMappedKey();
+
+            if (!$mapping->isUseDefaultValue()) {
+                continue;
+            }
+
+            if (!\array_key_exists($csvKey, $row) || empty($row[$csvKey])) {
+                $row[$csvKey] = $mapping->getDefaultValue();
+            }
+        }
+    }
+
+    private function ensureUserRequiredFields(array &$row, Config $config): void
+    {
+        $mappings = $config->getMapping()->getElements();
+
+        foreach ($mappings as $mapping) {
+            $csvKey = $mapping->getMappedKey();
+
+            if (!$mapping->isRequiredByUser()) {
+                continue;
+            }
+
+            if (!\array_key_exists($csvKey, $row) || empty($row[$csvKey])) {
+                throw new RequiredByUserException($csvKey);
+            }
+        }
     }
 }

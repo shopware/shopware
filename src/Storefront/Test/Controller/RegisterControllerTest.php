@@ -54,6 +54,8 @@ class RegisterControllerTest extends TestCase
 
         $token = Uuid::randomHex();
         $this->salesChannelContext = $salesChannelContextFactory->create($token, Defaults::SALES_CHANNEL);
+
+        $this->getContainer()->get('session')->getFlashBag()->clear();
     }
 
     public function testGuestRegisterWithRequirePasswordConfirmation(): void

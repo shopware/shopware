@@ -179,6 +179,10 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
             right: 15px;
             left: 15px;
         }
+
+        &--v2 {
+            display: block;
+        }
     }
 
     .sw-search-bar__results-list {

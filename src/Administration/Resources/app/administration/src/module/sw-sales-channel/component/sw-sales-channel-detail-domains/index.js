@@ -3,6 +3,7 @@ import './sw-sales-channel-detail-domains.scss';
 
 const { Component, Context } = Shopware;
 const { Criteria } = Shopware.Data;
+const { ShopwareError } = Shopware.Classes;
 
 Component.register('sw-sales-channel-detail-domains', {
     template,
@@ -41,6 +42,7 @@ Component.register('sw-sales-channel-detail-domains', {
             deleteDomain: null,
             sortBy: 'url',
             sortDirection: 'ASC',
+            error: null,
         };
     },
 
@@ -110,7 +112,8 @@ Component.register('sw-sales-channel-detail-domains', {
                 !this.currentDomain.snippetSetId ||
                 !this.currentDomain.url ||
                 !this.currentDomain.languageId ||
-                this.disableEdit;
+                this.disableEdit ||
+                this.error !== null;
         },
 
         sortedDomains() {
@@ -160,6 +163,35 @@ Component.register('sw-sales-channel-detail-domains', {
             return val[column];
         },
 
+        onInput() {
+            this.error = null;
+        },
+
+        async verifyUrl(url) {
+            return !(this.domainExistsLocal(url) || await this.domainExistsInDatabase(url));
+        },
+
+        domainExistsLocal(url) {
+            return this.salesChannel.domains.filter((domain) => domain.url === url).length > 0;
+        },
+
+        async domainExistsInDatabase(url) {
+            const globalDomainRepository = this.repositoryFactory.create(this.salesChannel.domains.entity);
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.equals('url', url));
+
+            const items = await globalDomainRepository.search(criteria);
+
+            if (items.total === 0) {
+                return false;
+            }
+
+            // Edge case: Delete domain, which is in database already, and then try to re-add it.
+            // In that case a database entry is still available, yet locally it's not available anymore.
+            // We don't want to prevent re-adding this domain in that case.
+            return items.first().salesChannelId !== this.salesChannel.id;
+        },
+
         setCurrentDomainBackup(domain) {
             this.currentDomainBackup = {
                 url: domain.url,
@@ -187,10 +219,19 @@ Component.register('sw-sales-channel-detail-domains', {
             this.setCurrentDomainBackup(this.currentDomain);
         },
 
-        onClickAddNewDomain() {
+        async onClickAddNewDomain() {
             const currentDomainId = this.currentDomain.id;
 
             if (this.currentDomain.isNew() && !this.salesChannel.domains.has(currentDomainId)) {
+                const isValidDomain = await this.verifyUrl(this.currentDomain.url);
+
+                if (!isValidDomain) {
+                    this.error = new ShopwareError({
+                        code: 'DUPLICATED_URL',
+                    });
+                    return;
+                }
+
                 this.salesChannel.domains.add(this.currentDomain);
             }
             this.currentDomain = null;

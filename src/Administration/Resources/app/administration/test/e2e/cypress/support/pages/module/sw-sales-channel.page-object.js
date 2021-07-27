@@ -74,4 +74,26 @@ export default class SalesChannelPageObject {
         cy.get(`${this.elements.modal}__footer button${this.elements.dangerButton}`).click();
         cy.get(this.elements.modal).should('not.exist');
     }
+
+    addExampleDomain(clickAddButton) {
+        clickAddButton = clickAddButton === undefined ? true : clickAddButton;
+
+        cy.get('button').contains('Add domain').click();
+        cy.get('.sw-modal__title').contains('Create domain');
+
+        cy.get('#sw-field--currentDomain-url').type('example.org');
+
+        cy.get('.sw-sales-channel-detail-domains__domain-language-select').find('.sw-single-select__selection').click();
+        cy.contains('.sw-select-result', 'Deutsch').click();
+
+        cy.get('.sw-sales-channel-detail-domains__domain-currency-select').find('.sw-single-select__selection').click();
+        cy.contains('.sw-select-result', 'Euro').click();
+
+        cy.contains('.sw-entity-single-select', 'Snippet').find('.sw-entity-single-select__selection').click();
+        cy.contains('.sw-select-result', 'BASE de-DE').click();
+
+        if (clickAddButton) {
+            cy.contains('.sw-button--primary', 'Add domain').click();
+        }
+    }
 }

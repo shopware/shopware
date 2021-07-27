@@ -71,7 +71,12 @@ Component.register('sw-select-base', {
         collapse(event) {
             document.removeEventListener('click', this.listenToClickOutside);
             this.expanded = false;
-            this.$emit('select-collapsed');
+
+            // do not let clearable button trigger change event
+            if (event?.target?.dataset.clearableButton === undefined) {
+                this.$emit('select-collapsed');
+            }
+
             // @see NEXT-16079 allow back tab-ing through form via SHIFT+TAB
             if (event && event?.shiftKey) {
                 event.preventDefault();
@@ -80,16 +85,17 @@ Component.register('sw-select-base', {
         },
 
         focusPreviousFormElement() {
-            const focusableSelector = 'a, button, input, textarea, select, details,[tabindex]:not([tabindex="-1"])';
+            const focusableSelector = 'a, button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])';
             const myFocusable = this.$el.querySelector(focusableSelector);
             const keyboardFocusable = [
                 ...document.querySelectorAll(focusableSelector),
-            ].filter(el => !el.hasAttribute('disabled'));
+            ].filter(el => !el.hasAttribute('disabled') && el.dataset.clearableButton === undefined);
 
             keyboardFocusable.forEach((element, index) => {
                 if (index > 0 && element === myFocusable) {
-                    keyboardFocusable[index - 1].click();
-                    keyboardFocusable[index - 1].focus();
+                    const kbFocusable = keyboardFocusable[index - 1];
+                    kbFocusable.click();
+                    kbFocusable.focus();
                 }
             });
         },

@@ -179,7 +179,7 @@ PHP Full:
         -   name: swaggerapi/swagger-validator-v2:v2.0.5
             alias: swagger
     variables:
-        TEST_SUITES: "administration storefront checkout content framework profiling migration system elasticsearch"
+        TEST_SUITES: "docs administration storefront checkout content framework profiling migration system elasticsearch"
         APP_ENV: test
     script:
         - FAILED=0

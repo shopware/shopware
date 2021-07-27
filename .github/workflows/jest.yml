@@ -10,94 +10,52 @@ jobs:
   admin:
     runs-on: ubuntu-latest
     container: shopware/development:7.4-composer-2
-    env:
-      DEVELOPMENT_BRANCH: trunk
-
     services:
-      mysql:
+      database:
         image: mysql:5.7
         env:
-            MYSQL_ROOT_PASSWORD: shopware
-            MYSQL_DATABASE: shopware
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: root
       elasticsearch:
         image: elasticsearch:7.8.0
         env:
           discovery.type: single-node
 
     steps:
-    - name: Clone development
-      run: git clone -b $DEVELOPMENT_BRANCH https://github.com/shopware/development.git && cd development && rm -rf platform
-
     - name: Clone platform
       uses: actions/checkout@v2
-      with:
-        path: development/platform
-
-    - name: Fix platform for composer
-      run: |
-        cd development/platform
-        git fetch --prune --unshallow
-        git checkout trunk
-        git checkout -
-        cd ..
-        git reset --hard @
 
     - name: Install Shopware
       run: |
-        cd development
-        cp platform/.github/.psh.yaml.override .
-        ./psh.phar init
+        composer run setup
 
     - name: Run Jest Admin
       run: |
-        cd development
-        ./psh.phar administration:install-dependencies
-        ./psh.phar administration:unit
+        bin/console framework:schema -s 'entity-schema' src/Administration/Resources/app/administration/test/_mocks_/entity-schema.json
+        npm --prefix src/Administration/Resources/app/administration run unit -- --silent
 
   storefront:
     runs-on: ubuntu-latest
     container: shopware/development:7.4-composer-2
-    env:
-      DEVELOPMENT_BRANCH: trunk
-
     services:
-      mysql:
+      database:
         image: mysql:5.7
         env:
-            MYSQL_ROOT_PASSWORD: shopware
-            MYSQL_DATABASE: shopware
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: root
       elasticsearch:
         image: elasticsearch:7.8.0
         env:
           discovery.type: single-node
 
     steps:
-    - name: Clone development
-      run: git clone -b $DEVELOPMENT_BRANCH https://github.com/shopware/development.git && cd development && rm -rf platform
-
     - name: Clone platform
       uses: actions/checkout@v2
-      with:
-        path: development/platform
-
-    - name: Fix platform for composer
-      run: |
-        cd development/platform
-        git fetch --prune --unshallow
-        git checkout trunk
-        git checkout -
-        cd ..
-        git reset --hard @
 
     - name: Install Shopware
       run: |
-        cd development
-        cp platform/.github/.psh.yaml.override .
-        ./psh.phar init
+        composer run setup
 
-    - name: Run Jest Admin
+    - name: Run Jest Storefront
       run: |
-        cd development
-        export PROJECT_ROOT=$(pwd)
-        ./psh.phar storefront:install-dependencies
-        npm --prefix vendor/shopware/platform/src/Storefront/Resources/app/storefront/ run unit
+        npm --prefix src/Storefront/Resources/app/storefront run unit -- --silent

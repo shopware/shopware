@@ -211,7 +211,7 @@ const webpackConfig = {
                     include: [
                         path.resolve(__dirname, 'src'),
                         path.resolve(__dirname, 'test'),
-                        ...pluginEntries.map(plugin => plugin.filePath)
+                        ...pluginEntries.map(plugin => fs.realpathSync(plugin.filePath))
                     ],
                     options: {
                         configFile: path.join(__dirname, '.eslintrc.js'),
@@ -229,7 +229,7 @@ const webpackConfig = {
                 include: [
                     path.resolve(__dirname, 'src'),
                     path.resolve(__dirname, 'test'),
-                    ...pluginEntries.map(plugin => plugin.path)
+                    ...pluginEntries.map(plugin => fs.realpathSync(plugin.path))
                 ],
                 options: {
                     compact: true,

@@ -58,6 +58,9 @@ class BusinessEventDispatcher implements EventDispatcherInterface
         return $event;
     }
 
+    /**
+     * @param callable $listener can not use native type declaration @see https://github.com/symfony/symfony/issues/42283
+     */
     public function addListener(string $eventName, $listener, int $priority = 0): void
     {
         $this->dispatcher->addListener($eventName, $listener, $priority);
@@ -68,7 +71,7 @@ class BusinessEventDispatcher implements EventDispatcherInterface
         $this->dispatcher->addSubscriber($subscriber);
     }
 
-    public function removeListener(string $eventName, $listener): void
+    public function removeListener(string $eventName, callable $listener): void
     {
         $this->dispatcher->removeListener($eventName, $listener);
     }
@@ -83,7 +86,7 @@ class BusinessEventDispatcher implements EventDispatcherInterface
         return $this->dispatcher->getListeners($eventName);
     }
 
-    public function getListenerPriority(string $eventName, $listener): ?int
+    public function getListenerPriority(string $eventName, callable $listener): ?int
     {
         return $this->dispatcher->getListenerPriority($eventName, $listener);
     }

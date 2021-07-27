@@ -15,6 +15,10 @@
             <file name="src/Docs/Resources/deprecated/2-internals/1-core/50-checkout-process/_examples/10-cart-example.php"/>
             <!-- Would otherwise inspect node_modules directories of JS applications -->
             <directory name="src/*/Resources/app" />
+
+            <!-- Compatibility fixes for doctrine annotation parser https://github.com/doctrine/annotations/issues/421 -->
+            <file name="src/Core/Framework/Compatibility/AnnotationReader.php"/>
+            <file name="src/Core/Framework/Compatibility/DocParser.php"/>
         </ignoreFiles>
     </projectFiles>
 

@@ -518,7 +518,30 @@
       "typeLabelOrder": "Bestellung",
       "typeLabelMedia": "Medium",
       "typeLabelCategory": "Kategorie",
-      "typeLabelCms": "CMS"
+      "typeLabelCms": "CMS",
+      "typeLabelModule": "Modul",
+      "typeLabelAction": "Aktion",
+      "addNewEntity": "Neue {entity} hinzufügen",
+      "shortcuts": {
+        "product": "G P | A P",
+        "category": "G C | ",
+        "customers": "G U | A U",
+        "property": "G P R | A P R",
+        "manufacturer": "G M | A M",
+        "settings-rule": "G S R | A R",
+        "sales-channel": " | A S",
+        "cms": "G E | A E",
+        "dashboard": "G H | ",
+        "product-stream": "G D | ",
+        "order": "G O | ",
+        "media": "G M E | ",
+        "promotion-v2": "G P O | ",
+        "settings": "G S | ",
+        "newsletter-recipient": "G N | ",
+        "settings-snippet": "G S | ",
+        "settings-payment": "G S P | ",
+        "settings-shipping": "G S S | "
+      }
     },
     "sw-search-more-results": {
       "labelShowResultsInModule": "Ergebnisse im Modul anzeigen ({count})",
@@ -719,7 +742,12 @@
       "feature_set": "Template | Templates",
       "event_action": "Business-Events",
       "property_group": "Eigenschaftsgruppe | Eigenschaftsgruppen",
-      "document_base_config": "Dokumenten-Grundeinstellung | Dokumenten-Grundeinstellungen"
+      "document_base_config": "Dokumenten-Grundeinstellung | Dokumenten-Grundeinstellungen",
+      "product_feature_set": "Neues Template | Neue Templates",
+      "custom-field-set": "Zusatzfeld-Set",
+      "store_settings": "Produkt-Sortierung",
+      "flow": "Flow builder",
+      "module": "Modul"
     },
     "day-of-week": {
       "monday": "Montag",

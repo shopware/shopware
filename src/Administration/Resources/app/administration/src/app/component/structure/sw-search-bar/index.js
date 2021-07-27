@@ -19,6 +19,7 @@ Component.register('sw-search-bar', {
         'searchService',
         'searchTypeService',
         'repositoryFactory',
+        'acl',
         'feature',
     ],
 
@@ -67,6 +68,8 @@ Component.register('sw-search-bar', {
             showTypeSelectContainer: false,
             typeSelectResults: [],
             moduleFactory: {},
+            salesChannels: [],
+            salesChannelTypes: [],
         };
     },
 
@@ -96,6 +99,49 @@ Component.register('sw-search-bar', {
                 'sw-search-bar__types_container--v2': this.feature.isActive('FEATURE_NEXT_6040'),
                 'sw-search-bar__types_container': !this.feature.isActive('FEATURE_NEXT_6040'),
             };
+        },
+
+        salesChannelRepository() {
+            return this.repositoryFactory.create('sales_channel');
+        },
+
+        salesChannelTypeRepository() {
+            return this.repositoryFactory.create('sales_channel_type');
+        },
+
+        salesChannelCriteria() {
+            const criteria = new Criteria();
+            criteria.addAssociation('type');
+
+            return criteria;
+        },
+
+        canViewSalesChannels() {
+            return this.acl.can('sales_channel.viewer');
+        },
+
+        canCreateSalesChannels() {
+            return this.acl.can('sales_channel.creator');
+        },
+
+        moduleRegistry() {
+            return this.moduleFactory.getModuleRegistry();
+        },
+
+        searchableModules() {
+            const modules = [];
+
+            this.moduleRegistry.forEach((module) => {
+                const privilege = module.manifest.routes?.index?.meta?.privilege;
+
+                if (!module.manifest?.title || (privilege && !this.acl.can(privilege))) {
+                    return;
+                }
+
+                modules.push(module);
+            });
+
+            return modules;
         },
     },
 
@@ -145,6 +191,13 @@ Component.register('sw-search-bar', {
             this.typeSelectResults = Object.values(this.searchTypes);
 
             this.registerListener();
+            if (this.feature.isActive('FEATURE_NEXT_6040') && this.canViewSalesChannels) {
+                this.loadSalesChannel();
+            }
+
+            if (this.feature.isActive('FEATURE_NEXT_6040') && this.canCreateSalesChannels) {
+                this.loadSalesChannelType();
+            }
 
             this.moduleFactory = Application.getContainer('factory').module;
         },
@@ -330,12 +383,36 @@ Component.register('sw-search-bar', {
         loadResults(searchTerm) {
             this.isLoading = true;
             this.results = [];
+            if (this.feature.isActive('FEATURE_NEXT_6040')) {
+                const entities = this.getModuleEntities(searchTerm);
+
+                // eslint-disable-next-line no-unused-expressions
+                entities?.length && this.results.unshift({
+                    entity: 'module',
+                    total: entities.length,
+                    entities,
+                });
+            }
+
             this.searchService.search({ term: searchTerm }).then((response) => {
                 response.data.forEach((item) => {
                     item.entities = Object.values(item.entities);
                 });
 
-                this.results = response.data.filter(item => this.searchTypes.hasOwnProperty(item.entity) && item.total > 0);
+                if (!this.feature.isActive('FEATURE_NEXT_6040')) {
+                    this.results = response.data.filter(
+                        item => this.searchTypes.hasOwnProperty(item.entity) && item.total > 0,
+                    );
+                }
+
+                if (this.feature.isActive('FEATURE_NEXT_6040')) {
+                    this.results = [
+                        ...this.results,
+                        ...response.data.filter(
+                            item => this.searchTypes.hasOwnProperty(item.entity) && item.total > 0,
+                        ),
+                    ];
+                }
                 this.activeResultColumn = 0;
                 this.activeResultIndex = 0;
                 this.isLoading = false;
@@ -599,6 +676,134 @@ Component.register('sw-search-bar', {
             this.isActive = true;
             this.showModuleFiltersContainer = true;
             this.showTypeSelectContainer = false;
+        },
+
+        loadSalesChannel() {
+            return new Promise(resolve => {
+                this.salesChannelRepository
+                    .search(this.salesChannelCriteria)
+                    .then(response => {
+                        this.salesChannels = response;
+                        resolve(response);
+                    });
+            });
+        },
+
+        loadSalesChannelType() {
+            return new Promise(resolve => {
+                this.salesChannelTypeRepository
+                    .search(new Criteria())
+                    .then((response) => {
+                        this.salesChannelTypes = response;
+                        resolve(response);
+                    });
+            });
+        },
+
+        getModuleEntities(searchTerm) {
+            const minSearch = 3;
+            const regex = new RegExp(`^${searchTerm.toLowerCase()}(.*)`);
+
+            if (!searchTerm || searchTerm.length < minSearch) {
+                return [];
+            }
+
+            const moduleEntities = [...this.getSalesChannelsBySearchTerm(regex)];
+
+            this.searchableModules.forEach((module) => {
+                const matcher = typeof module.manifest.searchMatcher === 'function'
+                    ? module.manifest.searchMatcher
+                    : this.getDefaultMatchSearchableModules;
+
+                const moduleType = this.$te((`${module.manifest.title}`))
+                    && this.$tc(`${module.manifest.title}`, 2);
+
+                if (!moduleType) {
+                    return;
+                }
+
+                const matches = matcher(regex, moduleType, module.manifest);
+
+                if (!matches || matches.length === 0) {
+                    return;
+                }
+
+                moduleEntities.push(
+                    ...matches.filter(item => !item.privilege || this.acl.can(item.privilege)),
+                );
+            });
+
+            return moduleEntities;
+        },
+
+        getDefaultMatchSearchableModules(regex, label, manifest) {
+            const match = label.toLowerCase().match(regex);
+
+            if (!match || !manifest?.routes?.index) {
+                return false;
+            }
+
+            const { name, icon, color, entity, routes } = manifest;
+
+            const entities = [{
+                name,
+                icon,
+                color,
+                label,
+                entity,
+                route: routes.index,
+                privilege: routes.index?.meta?.privilege,
+            }];
+
+            if (routes.create) {
+                entities.push({
+                    name,
+                    icon,
+                    color,
+                    entity,
+                    route: routes.create,
+                    privilege: routes.create?.meta?.privilege,
+                    action: true,
+                });
+            }
+
+            return entities;
+        },
+
+        getSalesChannelsBySearchTerm(regex) {
+            return [...this.salesChannels, ...this.salesChannelTypes]
+                .reduce((salesChannels, saleChannel) => {
+                    if (!saleChannel?.translated.name.toLowerCase().match(regex)) {
+                        return salesChannels;
+                    }
+
+                    if (this.canCreateSalesChannels && !saleChannel?.type) {
+                        return [
+                            ...salesChannels,
+                            {
+                                name: 'sales-channel',
+                                icon: saleChannel?.iconName ?? 'default-device-server',
+                                color: '#14D7A5',
+                                entity: 'sales_channel',
+                                label: saleChannel?.translated.name,
+                                route: { name: 'sw.sales.channel.create', params: { typeId: saleChannel.id } },
+                                action: true,
+                            },
+                        ];
+                    }
+
+                    return [
+                        ...salesChannels,
+                        {
+                            name: 'sales-channel',
+                            icon: 'default-device-server',
+                            color: '#14D7A5',
+                            entity: 'sales_channel',
+                            route: { name: 'sw.sales.channel.detail', params: { id: saleChannel.id } },
+                            label: saleChannel?.translated.name,
+                        },
+                    ];
+                }, []);
         },
     },
 });

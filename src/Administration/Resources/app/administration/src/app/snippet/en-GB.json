@@ -518,7 +518,30 @@
       "typeLabelOrder": "Order",
       "typeLabelMedia": "Media",
       "typeLabelCategory": "Category",
-      "typeLabelCms": "CMS"
+      "typeLabelCms": "CMS",
+      "typeLabelModule": "Module",
+      "typeLabelAction": "Action",
+      "addNewEntity": "Add new {entity}",
+      "shortcuts": {
+        "product": "G P | A P",
+        "category": "G C | ",
+        "customers": "G U | A U",
+        "property": "G P R | A P R",
+        "manufacturer": "G M | A M",
+        "settings-rule": "G S R | A R",
+        "sales-channel": " | A S",
+        "cms": "G E | A E",
+        "dashboard": "G H | ",
+        "product-stream": "G D | ",
+        "order": "G O | ",
+        "media": "G M E | ",
+        "promotion-v2": "G P O | ",
+        "settings": "G S | ",
+        "newsletter-recipient": "G N | ",
+        "settings-snippet": "G S | ",
+        "settings-payment": "G S P | ",
+        "settings-shipping": "G S S | "
+      }
     },
     "sw-search-more-results": {
       "labelShowResultsInModule": "Show results in module({count})",
@@ -719,7 +742,12 @@
       "feature_set": "Template | Templates",
       "event_action": "Business events",
       "property_group": "Property group | Property groups",
-      "document_base_config": "Document base config | Document base configs"
+      "document_base_config": "Document base config | Document base configs",
+      "product_feature_set": "New Template | New Templates",
+      "custom-field-set": "Custom field set",
+      "store_settings": "Product sorting",
+      "flow": "Flow builder",
+      "module": "Module"
     },
     "day-of-week": {
       "monday": "Monday",

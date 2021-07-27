@@ -66,6 +66,41 @@ Component.register('sw-search-bar-item', {
                 },
             ];
         },
+
+        moduleName() {
+            const { action, label, entity } = this.item;
+
+            return action ? this.$tc(
+                'global.sw-search-bar-item.addNewEntity',
+                0,
+                { entity: label?.toLowerCase() ?? this.$tc(`global.entities.${entity}`).toLowerCase() },
+            ) : label;
+        },
+
+        routeName() {
+            return typeof this.item.route === 'object' ? this.item.route : { name: this.item.route };
+        },
+
+        iconName() {
+            return this.type === 'module' && this.item?.icon ? this.item.icon : this.entityIconName;
+        },
+
+        iconColor() {
+            return this.type === 'module' && this.item?.color ? this.item.color : this.entityIconColor;
+        },
+
+        shortcut() {
+            const { action, name } = this.item;
+
+            if (!this.$te(`global.sw-search-bar-item.shortcuts.${name}`)) {
+                return false;
+            }
+
+            return this.$tc(
+                `global.sw-search-bar-item.shortcuts.${name}`,
+                action ? 2 : 1,
+            );
+        },
     },
 
     created() {

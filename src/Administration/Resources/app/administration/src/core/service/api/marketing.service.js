@@ -139,8 +139,8 @@ export default class MarketingService extends ApiService {
                                     },
                                 },
                                 mainAction: {
-                                    variant: 'internalLink',
-                                    bannerIsClickable: false,
+                                    variant: 'buttonVariantGhost',
+                                    bannerIsClickable: true,
                                     cta: {
                                         'de-DE': 'Kampagne öffnen',
                                         'en-GB': 'Open campaign',

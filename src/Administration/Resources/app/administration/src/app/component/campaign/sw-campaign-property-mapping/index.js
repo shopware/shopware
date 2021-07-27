@@ -28,8 +28,7 @@ Shopware.Component.register('sw-campaign-property-mapping', {
             const propMapping = {
                 // required properties
                 campaignName: '', // campaign.name
-                headline: bannerInfo.content?.headline?.[this.currentLocale]
-                    ?? bannerInfo.content?.headline?.['en-GB'],
+                headline: this.getTranslatedProp(bannerInfo.content?.headline),
                 mainAction: bannerInfo?.content?.mainAction,
                 inlineActions: bannerInfo?.content?.description?.inlineActions,
                 // optional properties
@@ -38,13 +37,10 @@ Shopware.Component.register('sw-campaign-property-mapping', {
                 bgColor: bannerInfo?.background?.color,
                 bgImage: bannerInfo?.background?.image,
                 bgPosition: bannerInfo?.background?.position,
-                leftImage: bannerInfo?.leftImage?.src?.[this.currentLocale]
-                    ?? bannerInfo?.leftImage?.src?.['en-GB'],
-                leftImageSourceSet: bannerInfo?.leftImage?.srcset?.[this.currentLocale]
-                    ?? bannerInfo?.leftImage?.srcset?.['en-GB'],
+                leftImage: this.getTranslatedProp(bannerInfo?.leftImage?.src),
+                leftImageSourceSet: this.getTranslatedProp(bannerInfo?.leftImage?.srcset),
                 leftImageBgColor: bannerInfo?.leftImage?.bgColor,
-                labelText: bannerInfo?.content?.label?.text?.[this.currentLocale]
-                    ?? bannerInfo?.content?.label?.text?.['en-GB'],
+                labelText: this.getTranslatedProp(bannerInfo?.content?.label?.text),
                 labelTextColor: bannerInfo?.content?.label?.textColor,
                 labelBgColor: bannerInfo?.content?.label?.bgColor,
                 bannerIsClickable: bannerInfo.content?.mainAction?.bannerIsClickable,
@@ -53,6 +49,16 @@ Shopware.Component.register('sw-campaign-property-mapping', {
             };
 
             return propMapping;
+        },
+    },
+
+    methods: {
+        getTranslatedProp(translations) {
+            if (!translations) {
+                return undefined;
+            }
+
+            return translations[this.currentLocale] ?? translations['en-GB'];
         },
     },
 });

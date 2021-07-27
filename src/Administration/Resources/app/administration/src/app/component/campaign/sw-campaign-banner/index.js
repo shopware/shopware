@@ -1,6 +1,76 @@
 import template from './sw-campaign-banner.html.twig';
 import './sw-campaign-banner.scss';
 
+/**
+ * @private
+ * @status ready
+ * @example-type code-only
+ * @component-example
+ * <sw-campaign-banner
+ *     campaignName="Your campaign name"
+ *     componentName="dashboardBanner"
+ *     headline="Awesome offer"
+ *     :inlineActions="[
+ *                {
+ *                    "placeholder": "goToExtensionStore",
+ *                    "text": {
+ *                        "de-DE": "string",
+ *                        "en-GB": "string"
+ *                    },
+ *                    "route": "sw.extension.store.index.extensions",
+ *                },
+ *                {
+ *                   "placeholder": "goToExtensionStore",
+ *                   "text": {
+ *                       "de-DE": "string",
+ *                       "en-GB": "string"
+ *                   },
+ *                   "execution": {
+ *                       "arguments": ['category', 'summerSale2021'],
+ *                       "method": 'linkToExtensionStoreAndSelectCategory',
+ *                   },
+ *               },
+ *               {
+ *                   "placeholder": "goToExtensionStore",
+ *                   "text": {
+ *                       "de-DE": "string",
+ *                       "en-GB": "string"
+ *                   },
+ *                   "externalLink": {
+ *                       'de-DE': 'https://www.shopware.de',
+ *                       'en-GB': 'https://www.shopware.com',
+ *                   },
+ *               }
+ *          ]"
+ *          :mainAction="{
+ *                // Possible variants:
+ *                //    - 'buttonVariantPrimary',
+ *                //    - 'buttonVariantGhost',
+ *                //    - 'buttonVariantContrast',
+ *                //    - 'buttonVariantContext',
+ *                //    - 'buttonVariantDefault',
+ *                "variant":"buttonVariantGhost",
+ *                "cta": {
+ *                        "de-DE":"string (max 20)",
+ *                        "en-GB":"string (max 20)"
+ *                },
+ *                // only one of these properties is available
+ *                "execution": {
+ *                    "arguments": ['category', 'summerSale2021'],
+ *                    "method": 'linkToExtensionStoreAndSelectCategory',
+ *                }
+ *                // or
+ *                "route": "sw.extension.store.index.extensions",
+ *                // or
+ *                "externalLink": {
+ *                    'de-DE': 'https://www.shopware.de',
+ *                    'en-GB': 'https://www.shopware.com',
+ *                }
+ *            }"
+ *            leftImage="http://www.your-left.image/test.jpg"
+ *     >
+ * <sw-campaign-banner>
+ */
 Shopware.Component.register('sw-campaign-banner', {
     template,
 
@@ -21,87 +91,10 @@ Shopware.Component.register('sw-campaign-banner', {
         },
 
         inlineActions: {
-            /*
-            Data structure:
-
-                [
-                    {
-                        "placeholder": "goToExtensionStore",
-                        "text": {
-                            "de-DE": "string",
-                            "en-GB": "string"
-                        },
-                        "route": "sw.extension.store.index.extensions",
-                    },
-                    {
-                        "placeholder": "goToExtensionStore",
-                        "text": {
-                            "de-DE": "string",
-                            "en-GB": "string"
-                        },
-                        "execution": {
-                            "arguments": ['category', 'summerSale2021'],
-                            "method": 'linkToExtensionStoreAndSelectCategory',
-                        },
-                    },
-                    {
-                        "placeholder": "goToExtensionStore",
-                        "text": {
-                            "de-DE": "string",
-                            "en-GB": "string"
-                        },
-                        "externalLink": {
-                            'de-DE': 'https://www.shopware.de',
-                            'en-GB': 'https://www.shopware.com',
-                        },
-                    },
-                    ...
-                ]
-
-            */
             type: Array,
             required: false,
             default: () => [],
         },
-        /**
-         {
-            Possible variants:
-                - 'buttonVariantPrimary',
-                - 'buttonVariantGhost',
-                - 'buttonVariantContrast',
-                - 'buttonVariantContext',
-                - 'buttonVariantDefault',
-                - 'internalLink',
-                - 'externalLink',
-
-            "variant":"internalLink",
-            "bannerIsClickable":false,
-            "cta": {
-                    "de-DE":"string (max 20)",
-                    "en-GB":"string (max 20)"
-            },
-
-            // last property can be "execution", "route" or "externalLink"
-
-            "execution": {
-                "arguments": ['category', 'summerSale2021'],
-                "method": 'linkToExtensionStoreAndSelectCategory',
-            }
-
-            // or
-
-            {
-                "route": "sw.extension.store.index.extensions",
-            }
-
-            // or
-
-            "externalLink": {
-                'de-DE': 'https://www.shopware.de',
-                'en-GB': 'https://www.shopware.com',
-            }
-        }
-         */
         mainAction: {
             type: Object,
             required: true,
@@ -173,12 +166,6 @@ Shopware.Component.register('sw-campaign-banner', {
             required: false,
             default: false,
         },
-        // action should be executed if banner was clicked
-        bannerIsClickable: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
         // whether the leftImage should be shown in smaller viewports
         alwaysShowLeftImage: {
             type: Boolean,
@@ -188,6 +175,10 @@ Shopware.Component.register('sw-campaign-banner', {
     },
 
     computed: {
+        bannerIsClickable() {
+            return this.mainAction?.bannerIsClickable;
+        },
+
         containerStyles() {
             const cursorValue = this.bannerIsClickable ? 'pointer' : 'default';
 
@@ -216,12 +207,12 @@ Shopware.Component.register('sw-campaign-banner', {
 
         imageClasses() {
             return {
-                'is--hidden-responsive': !this.alwaysShowLeftImage,
+                'sw-campaign-banner__image--hidden-responsive': !this.alwaysShowLeftImage,
             };
         },
 
         actionComponent() {
-            const actionVariant = this.mainAction?.variant;
+            const actionVariant = this.mainAction?.variant ?? '';
 
             const isButtonVariant = actionVariant.startsWith('buttonVariant');
             let variant = actionVariant.replace('buttonVariant', '').toLowerCase();
@@ -233,7 +224,7 @@ Shopware.Component.register('sw-campaign-banner', {
 
             return {
                 name: 'sw-button',
-                text: this.mainAction?.cta?.['en-GB'], // TODO: add translation
+                text: this.getTranslatedProp(this.mainAction?.cta),
                 props: {
                     variant: isButtonVariant ? variant : undefined,
                 },
@@ -252,28 +243,23 @@ Shopware.Component.register('sw-campaign-banner', {
                 return {
                     placeholder: inlineAction.placeholder,
                     clickHandler: this.getActionHandler(inlineAction),
-                    // TODO: add translation
-                    text: inlineAction.text['en-GB'],
+                    text: this.getTranslatedProp(inlineAction.text),
                 };
             });
         },
     },
 
     methods: {
-        emitExecuteAction() {
-            if (this.saveClick) {
-                localStorage.setItem('hasClickedCampaign', this.campaignName);
-            }
-
-            this.$emit('execute-action');
-        },
-
         handleBannerClick() {
             if (!this.bannerIsClickable) {
                 return;
             }
 
-            this.emitExecuteAction();
+            // get handler for mainAction
+            const action = this.getActionHandler(this.mainAction);
+
+            // execute main action
+            action?.();
         },
 
         getActionHandler(action) {
@@ -298,15 +284,19 @@ Shopware.Component.register('sw-campaign-banner', {
 
         externalLinkAction(externalLinks) {
             // get link for active language
-            const externalLink = externalLinks?.[this.currentLocale] ?? externalLinks?.['en-GB'];
+            const externalLink = this.getTranslatedProp(externalLinks);
 
             // open external link
             window.open(externalLink);
         },
 
         executionAction(execution) {
-            // execute the defined method in "method" with the given "arguments"
-            this[execution.method](...execution.arguments);
+            try {
+                // execute the defined method in "method" with the given "arguments"
+                this[execution.method](...execution.arguments);
+            } catch (error) {
+                Shopware.Utils.debug.error(error);
+            }
         },
 
         linkToExtensionStoreAndSelectCategory(filterProperty, filterValue) {
@@ -319,6 +309,14 @@ Shopware.Component.register('sw-campaign-banner', {
             this.$router.push({
                 name: 'sw.extension.store.listing.app',
             });
+        },
+
+        getTranslatedProp(translations) {
+            if (!translations) {
+                return undefined;
+            }
+
+            return translations[this.currentLocale] ?? translations['en-GB'];
         },
     },
 });

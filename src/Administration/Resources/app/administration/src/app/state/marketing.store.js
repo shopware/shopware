@@ -23,33 +23,18 @@ export default {
 
                 if (descriptionText) {
                     Object.entries(descriptionText).forEach(([langIsoCode, snippet]) => {
-                        if (!translations[langIsoCode]) {
-                            translations[langIsoCode] = {};
-                        }
-
-                        if (!translations[langIsoCode].marketing) {
-                            translations[langIsoCode].marketing = {};
-                        }
-
-                        if (!translations[langIsoCode].marketing[componentName]) {
-                            translations[langIsoCode].marketing[componentName] = {};
-                        }
-
-                        if (!translations[langIsoCode].marketing[componentName].content) {
-                            translations[langIsoCode].marketing[componentName].content = {};
-                        }
-
-                        if (!translations[langIsoCode].marketing[componentName].content.description) {
-                            translations[langIsoCode].marketing[componentName].content.description = {};
-                        }
-
+                        translations[langIsoCode] ??= {};
+                        translations[langIsoCode].marketing ??= {};
+                        translations[langIsoCode].marketing[componentName] ??= {};
+                        translations[langIsoCode].marketing[componentName].content ??= {};
+                        translations[langIsoCode].marketing[componentName].content.description ??= {};
                         translations[langIsoCode].marketing[componentName].content.description.text = snippet;
                     });
                 }
             });
 
             // add translations to i18n messages
-            const i18n = Shopware.Application.view.i18n;
+            const { i18n } = Shopware.Application.view;
 
             Object.entries(translations).forEach(([langIsoCode, snippets]) => {
                 i18n.mergeLocaleMessage(langIsoCode, snippets);

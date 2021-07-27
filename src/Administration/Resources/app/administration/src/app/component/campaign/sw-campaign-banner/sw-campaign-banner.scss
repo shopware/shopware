@@ -33,7 +33,7 @@ $height: 204px;
             object-fit: cover;
         }
 
-        &.is--hidden-responsive {
+        &--hidden-responsive {
             @media screen and (max-width: 1009px) { // regarding the opened admin menu
                 display: none;
             }
@@ -77,16 +77,6 @@ $height: 204px;
 
         @media screen and (max-width: 1009px) { // regarding the opened admin menu
             margin-top: 12px;
-        }
-
-        .is--link {
-            border: none;
-            background: transparent;
-            padding: 0;
-
-            &:hover {
-                background: transparent;
-            }
         }
     }
 }

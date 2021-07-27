@@ -43,7 +43,7 @@
                                 :class="'sw-campaign-banner__description-action-' + slot.placeholder"
                                 :style="{ color: linkColor }"
                                 href="#"
-                                @click.prevent="slot.clickHandler"
+                                @click.prevent.stop="slot.clickHandler"
                             >{{ slot.text }}</a>
                         </template>
                     </i18n>

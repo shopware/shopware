@@ -23,6 +23,7 @@ use Shopware\Core\System\StateMachine\Exception\StateMachineInvalidEntityIdExcep
 use Shopware\Core\System\StateMachine\Exception\StateMachineInvalidStateFieldException;
 use Shopware\Core\System\StateMachine\Exception\StateMachineNotFoundException;
 use Shopware\Core\System\StateMachine\Exception\StateMachineWithoutInitialStateException;
+use Shopware\Core\System\StateMachine\Exception\UnnecessaryTransitionException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class StateMachineRegistry
@@ -171,12 +172,22 @@ class StateMachineRegistry
             throw new IllegalTransitionException($fromPlace->getId(), '', $transitionNames);
         }
 
-        $toPlace = $this->getTransitionDestinationById(
-            $stateMachine->getTechnicalName(),
-            $fromPlace->getId(),
-            $transition->getTransitionName(),
-            $context
-        );
+        try {
+            $toPlace = $this->getTransitionDestinationById(
+                $stateMachine->getTechnicalName(),
+                $fromPlace->getId(),
+                $transition->getTransitionName(),
+                $context
+            );
+        } catch (UnnecessaryTransitionException $e) {
+            // No transition needed, therefore don't create a history entry and return
+            $stateMachineStateCollection = new StateMachineStateCollection();
+
+            $stateMachineStateCollection->set('fromPlace', $fromPlace);
+            $stateMachineStateCollection->set('toPlace', $fromPlace);
+
+            return $stateMachineStateCollection;
+        }
 
         $this->stateMachineHistoryRepository->create([
             [
@@ -269,17 +280,23 @@ class StateMachineRegistry
         $stateMachine = $this->getStateMachine($stateMachineName, $context);
 
         foreach ($stateMachine->getTransitions() as $transition) {
-            //always allow to cancel a payment
-            if (
-                (
-                    $transition->getActionName() === 'cancel'
-                    && $transitionName === 'cancel'
-                )
-                || (
-                    $transition->getActionName() === $transitionName
-                    && $transition->getFromStateMachineState()->getId() === $fromStateId
-                )
-            ) {
+            // Always allow to cancel a payment whether its a valid transition or not
+            if ($transition->getActionName() === 'cancel' && $transitionName === 'cancel') {
+                return $transition->getToStateMachineState();
+            }
+
+            // Not the transition that was requested step over
+            if ($transition->getActionName() !== $transitionName) {
+                continue;
+            }
+
+            // Already transitioned, this exception is handled by StateMachineRegistry::transition
+            if ($transition->getToStateMachineState()->getId() === $fromStateId) {
+                throw new UnnecessaryTransitionException($transitionName);
+            }
+
+            // Desired transition found
+            if ($transition->getFromStateMachineState()->getId() === $fromStateId) {
                 return $transition->getToStateMachineState();
             }
         }

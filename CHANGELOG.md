@@ -88,6 +88,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-16241 - Updated snippets](/changelog/release-6-4-3-0/2021-07-15-updated-snippets.md)
 *  [NEXT-15170 - Add strict mode for list fields](/changelog/release-6-4-3-0/2021-07-16-add-strict-mode-for-list-fields.md)
 *  [NEXT-16024 - Document creation button disable](/changelog/release-6-4-3-0/2021-07-16-document-creation-button-disable.md)
+*  [NEXT-16397 - Add compatibility layer for breaking change in Doctrine annotation parser](/changelog/release-6-4-3-0/2021-07-26-deprecation-of-case-insensitive-annotation-parsing.md)
 
 ## 6.4.2.1
 *  [NEXT-16091 - Fix cart deserialize](/changelog/release-6-4-2-1/2021-07-07-fix-cart-deserialize.md)

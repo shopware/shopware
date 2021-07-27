@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @group store-api
@@ -118,6 +119,39 @@ class ProductReviewSaveRouteTest extends TestCase
 
         static::assertEquals($response['errors'][0]['source']['pointer'], '/title');
         static::assertEquals($response['errors'][1]['source']['pointer'], '/content');
+    }
+
+    public function testCustomerValidation(): void
+    {
+        $this->login();
+
+        $this->assertReviewCount(0);
+
+        $id = Uuid::randomHex();
+
+        // Create review
+        $this->browser->request('POST', $this->getUrl(), [
+            'id' => $id,
+            'title' => 'Lorem ipsum dolor sit amet',
+            'content' => 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna',
+        ]);
+
+        // Re-login as another user
+        $this->login();
+
+        // Try to use the id from previous review which is not attached to this customer
+        $this->browser->request('POST', $this->getUrl(), [
+            'id' => $id,
+            'title' => 'Lorem ipsum dolor sit amet',
+            'content' => 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna',
+        ]);
+
+        $response = $this->browser->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        $content = json_decode($response->getContent(), true);
+
+        static::assertSame('VIOLATION::ENTITY_DOES_NOT_EXISTS', $content['errors'][0]['code']);
     }
 
     private function assertReviewCount(int $expected): void

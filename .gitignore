@@ -102,6 +102,8 @@ src/Core/Framework/Test/Plugin/_fixture/SwagFashionTheme.zip
 .gitkeep
 config/jwt/
 config/packages/
+config/services*
+
 custom
 files/*
 install.lock

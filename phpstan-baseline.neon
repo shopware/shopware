@@ -1651,11 +1651,6 @@ parameters:
 			path: src/Core/Framework/Api/EventListener/ResponseExceptionListener.php
 
 		-
-			message: "#^Parameter \\#2 \\$values of method Symfony\\\\Component\\\\HttpFoundation\\\\ResponseHeaderBag\\:\\:set\\(\\) expects array\\<string\\>\\|string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/EventListener/ResponseHeaderListener.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\OAuth\\\\AccessToken\\:\\:__construct\\(\\) has parameter \\$userIdentifier with no typehint specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/OAuth/AccessToken.php

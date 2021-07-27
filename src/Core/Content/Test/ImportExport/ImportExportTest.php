@@ -40,7 +40,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;

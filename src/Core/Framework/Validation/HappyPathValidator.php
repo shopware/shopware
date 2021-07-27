@@ -61,7 +61,7 @@ class HappyPathValidator implements ValidatorInterface
         return $this->inner->hasMetadataFor($value);
     }
 
-    public function validateProperty($object, $propertyName, $groups = null)
+    public function validateProperty(object $object, $propertyName, $groups = null)
     {
         return $this->inner->validateProperty($object, $propertyName, $groups);
     }

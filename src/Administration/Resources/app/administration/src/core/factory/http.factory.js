@@ -228,6 +228,7 @@ function refreshTokenInterceptor(client) {
         const originalRequest = config;
         const resource = originalRequest.url.replace(originalRequest.baseURL, '');
 
+        // eslint-disable-next-line inclusive-language/use-inclusive-words
         if (tokenHandler.whitelist.includes(resource)) {
             return Promise.reject(error);
         }

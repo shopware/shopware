@@ -85,7 +85,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
             setModuleFavicon(to, assetPath);
             const loggedIn = LoginService.isLoggedIn();
             const tokenHandler = new Shopware.Helper.RefreshTokenHelper();
-            const loginWhitelist = [
+            const loginAllowlist = [
                 '/login', '/login/info', '/login/recovery',
             ];
 
@@ -95,7 +95,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
 
             // The login route will be called and the user is not logged in, let him see the login.
             if ((to.name === 'login' ||
-                loginWhitelist.includes(to.path) ||
+                loginAllowlist.includes(to.path) ||
                 to.path.startsWith('/login/user-recovery/'))
                 && !loggedIn
             ) {
@@ -104,7 +104,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
 
             // The login route will be called and the user is logged in, redirect to the dashboard.
             if ((to.name === 'login' ||
-                loginWhitelist.includes(to.path) ||
+                loginAllowlist.includes(to.path) ||
                 to.path.startsWith('/login/user-recovery/'))
                 && loggedIn
             ) {

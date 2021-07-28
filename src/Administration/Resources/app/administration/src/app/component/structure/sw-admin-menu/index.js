@@ -479,6 +479,7 @@ Component.register('sw-admin-menu', {
         },
 
         isPositionInPolygon(x, y, polygon) {
+            // eslint-disable-next-line inclusive-language/use-inclusive-words
             // Inspired by https://github.com/substack/point-in-polygon/blob/master/index.js
             let inside = false;
 

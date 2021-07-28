@@ -31,7 +31,7 @@ export default function createLicenseViolationsService(storeService) {
 
     function checkForLicenseViolations() {
         const topLevelDomain = window.location.hostname.split('.').pop();
-        const whitelistDomains = [
+        const allowlistDomains = [
             'localhost',
             'test',
             'local',
@@ -42,8 +42,8 @@ export default function createLicenseViolationsService(storeService) {
             'example',
         ];
 
-        // if the user is on a whitelisted domain
-        if (whitelistDomains.includes(topLevelDomain)) {
+        // if the user is on a allowlisted domain
+        if (allowlistDomains.includes(topLevelDomain)) {
             return Promise.resolve({
                 warnings: [],
                 violations: [],

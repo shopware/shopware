@@ -21,6 +21,7 @@ module.exports = {
     plugins: [
         'jest',
         'twig-vue',
+        'inclusive-language',
     ],
 
     settings: {
@@ -55,6 +56,7 @@ module.exports = {
             vue: 'never',
         }],
         'no-console': ['error', { allow: ['warn', 'error'] }],
+        'inclusive-language/use-inclusive-words': 'error',
     },
 
     overrides: [
@@ -143,8 +145,13 @@ module.exports = {
             files: ['**/*.spec.js', '**/fixtures/*.js'],
             rules: {
                 'max-len': 0,
+                'inclusive-language/use-inclusive-words': 0,
+            },
+        }, {
+            files: ['**/snippet/*.json'],
+            rules: {
+                'inclusive-language/use-inclusive-words': 'error',
             },
         },
-
     ],
 };

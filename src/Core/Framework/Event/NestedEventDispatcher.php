@@ -45,7 +45,10 @@ class NestedEventDispatcher implements EventDispatcherInterface
         $this->dispatcher->addSubscriber($subscriber);
     }
 
-    public function removeListener(string $eventName, callable $listener): void
+    /**
+     * @param callable $listener can not use native type hint as it is incompatible with symfony <5.3.4
+     */
+    public function removeListener(string $eventName, $listener): void
     {
         $this->dispatcher->removeListener($eventName, $listener);
     }
@@ -60,7 +63,10 @@ class NestedEventDispatcher implements EventDispatcherInterface
         return $this->dispatcher->getListeners($eventName);
     }
 
-    public function getListenerPriority(string $eventName, callable $listener): ?int
+    /**
+     * @param callable $listener can not use native type hint as it is incompatible with symfony <5.3.4
+     */
+    public function getListenerPriority(string $eventName, $listener): ?int
     {
         return $this->dispatcher->getListenerPriority($eventName, $listener);
     }

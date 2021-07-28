@@ -74,8 +74,8 @@ class ImportExportTest extends TestCase
     use BasicTestDataBehaviour;
     use SessionTestBehaviour;
     use RequestStackTestBehaviour;
-
     use SalesChannelApiTestBehaviour;
+    use SerializerCacheTestBehaviour;
 
     public const TEST_IMAGE = __DIR__ . '/fixtures/shopware-logo.png';
 

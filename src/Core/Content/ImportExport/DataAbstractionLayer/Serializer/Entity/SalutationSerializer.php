@@ -18,7 +18,7 @@ class SalutationSerializer extends EntitySerializer
     /**
      * @var string[]|null[]
      */
-    private array $salutations = [];
+    private array $cacheSalutations = [];
 
     public function __construct(EntityRepositoryInterface $salutationRepository)
     {
@@ -60,19 +60,19 @@ class SalutationSerializer extends EntitySerializer
 
     private function getSalutationId(string $salutationKey): ?string
     {
-        if (\array_key_exists($salutationKey, $this->salutations)) {
-            return $this->salutations[$salutationKey];
+        if (\array_key_exists($salutationKey, $this->cacheSalutations)) {
+            return $this->cacheSalutations[$salutationKey];
         }
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('salutationKey', $salutationKey));
         $salutation = $this->salutationRepository->search($criteria, Context::createDefaultContext())->first();
 
-        $this->salutations[$salutationKey] = null;
+        $this->cacheSalutations[$salutationKey] = null;
         if ($salutation instanceof SalutationEntity) {
-            $this->salutations[$salutationKey] = $salutation->getId();
+            $this->cacheSalutations[$salutationKey] = $salutation->getId();
         }
 
-        return $this->salutations[$salutationKey];
+        return $this->cacheSalutations[$salutationKey];
     }
 }

@@ -18,7 +18,7 @@ class CountrySerializer extends EntitySerializer
     /**
      * @var string[]|null[]
      */
-    private array $countries = [];
+    private array $cacheCountries = [];
 
     public function __construct(EntityRepositoryInterface $countryRepository)
     {
@@ -54,19 +54,19 @@ class CountrySerializer extends EntitySerializer
 
     private function getCountryId(string $iso): ?string
     {
-        if (\array_key_exists($iso, $this->countries)) {
-            return $this->countries[$iso];
+        if (\array_key_exists($iso, $this->cacheCountries)) {
+            return $this->cacheCountries[$iso];
         }
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('iso', $iso));
         $country = $this->countryRepository->search($criteria, Context::createDefaultContext())->first();
 
-        $this->countries[$iso] = null;
+        $this->cacheCountries[$iso] = null;
         if ($country instanceof CountryEntity) {
-            $this->countries[$iso] = $country->getId();
+            $this->cacheCountries[$iso] = $country->getId();
         }
 
-        return $this->countries[$iso];
+        return $this->cacheCountries[$iso];
     }
 }

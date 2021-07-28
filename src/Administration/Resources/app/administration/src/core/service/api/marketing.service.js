@@ -31,7 +31,7 @@ export default class MarketingService extends ApiService {
         return new Promise(resolve => {
             setTimeout(() => {
                 resolve({
-                    name: 'string',
+                    name: 'An example campaign',
                     title: 'string',
                     phase: 'comingSoonPhase',
                     comingSoonStartDate: '2005-08-15T15:52:01',
@@ -114,7 +114,7 @@ export default class MarketingService extends ApiService {
                                             },
                                             execution: {
                                                 method: 'linkToExtensionStoreAndSelectCategory',
-                                                arguments: ['category', 'summerSale2021'],
+                                                arguments: ['category', 'summerSale'],
                                             },
                                         },
                                         {
@@ -147,7 +147,7 @@ export default class MarketingService extends ApiService {
                                     },
                                     execution: {
                                         method: 'linkToExtensionStoreAndSelectCategory',
-                                        arguments: ['category', 'summerSale2021'],
+                                        arguments: ['category', 'summerSale'],
                                     },
                                 },
                             },

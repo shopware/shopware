@@ -19,33 +19,36 @@ Shopware.Component.register('sw-campaign-property-mapping', {
         },
 
         mappedProperties() {
-            const bannerInfo = Shopware.State.getters['marketing/getActiveCampaignDataForComponent'](this.componentName);
+            const {
+                component,
+                campaignName,
+            } = Shopware.State.getters['marketing/getActiveCampaignDataForComponent'](this.componentName);
 
-            if (!bannerInfo) {
+            if (!component) {
                 return null;
             }
 
             const propMapping = {
                 // required properties
-                campaignName: '', // campaign.name
-                headline: this.getTranslatedProp(bannerInfo.content?.headline),
-                mainAction: bannerInfo?.content?.mainAction,
-                inlineActions: bannerInfo?.content?.description?.inlineActions,
-                // optional properties
-                textColor: bannerInfo?.content?.textColor,
-                linkColor: bannerInfo?.content?.linkColor,
-                bgColor: bannerInfo?.background?.color,
-                bgImage: bannerInfo?.background?.image,
-                bgPosition: bannerInfo?.background?.position,
-                leftImage: this.getTranslatedProp(bannerInfo?.leftImage?.src),
-                leftImageSourceSet: this.getTranslatedProp(bannerInfo?.leftImage?.srcset),
-                leftImageBgColor: bannerInfo?.leftImage?.bgColor,
-                labelText: this.getTranslatedProp(bannerInfo?.content?.label?.text),
-                labelTextColor: bannerInfo?.content?.label?.textColor,
-                labelBgColor: bannerInfo?.content?.label?.bgColor,
-                bannerIsClickable: bannerInfo.content?.mainAction?.bannerIsClickable,
-                alwaysShowLeftImage: !bannerInfo?.leftImage?.hideInSmallViewports,
+                campaignName: campaignName,
+                headline: this.getTranslatedProp(component.content?.headline),
+                mainAction: component?.content?.mainAction,
+                inlineActions: component?.content?.description?.inlineActions,
+                leftImage: this.getTranslatedProp(component?.leftImage?.src),
                 componentName: this.componentName,
+                // optional properties
+                textColor: component?.content?.textColor,
+                linkColor: component?.content?.linkColor,
+                bgColor: component?.background?.color,
+                bgImage: component?.background?.image,
+                bgPosition: component?.background?.position,
+                leftImageSourceSet: this.getTranslatedProp(component?.leftImage?.srcset),
+                leftImageBgColor: component?.leftImage?.bgColor,
+                labelText: this.getTranslatedProp(component?.content?.label?.text),
+                labelTextColor: component?.content?.label?.textColor,
+                labelBgColor: component?.content?.label?.bgColor,
+                bannerIsClickable: component.content?.mainAction?.bannerIsClickable,
+                alwaysShowLeftImage: !component?.leftImage?.hideInSmallViewports,
             };
 
             return propMapping;

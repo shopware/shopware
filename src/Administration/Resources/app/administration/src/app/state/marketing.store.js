@@ -53,7 +53,10 @@ export default {
 
         getActiveCampaignDataForComponent(state, getters) {
             return (componentName) => {
-                return getters.getActiveCampaign?.components?.[componentName] ?? null;
+                return {
+                    component: getters.getActiveCampaign?.components?.[componentName] ?? null,
+                    campaignName: getters.getActiveCampaign?.name,
+                };
             };
         },
     },

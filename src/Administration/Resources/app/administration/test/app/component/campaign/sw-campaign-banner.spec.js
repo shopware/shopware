@@ -154,7 +154,7 @@ function createExampleCampaign() {
                         }
                     },
                     mainAction: {
-                        variant: 'internalLink',
+                        variant: 'buttonVariantPrimary',
                         bannerIsClickable: false,
                         cta: {
                             'de-DE': 'Kampagne öffnen',
@@ -560,7 +560,7 @@ describe('src/app/component/campaign/sw-campaign-banner', () => {
     it('should map the main action correctly [external link]', async () => {
         const campaign = createExampleCampaign();
         campaign.components.dashboardBanner.content.mainAction = {
-            variant: 'internalLink',
+            variant: 'buttonVariantPrimary',
             bannerIsClickable: false,
             cta: {
                 'en-GB': 'Open campaign'
@@ -584,7 +584,7 @@ describe('src/app/component/campaign/sw-campaign-banner', () => {
     it('should map the main action correctly [execution]', async () => {
         const campaign = createExampleCampaign();
         campaign.components.dashboardBanner.content.mainAction = {
-            variant: 'internalLink',
+            variant: 'buttonVariantPrimary',
             bannerIsClickable: false,
             cta: {
                 'en-GB': 'Open campaign'
@@ -617,7 +617,7 @@ describe('src/app/component/campaign/sw-campaign-banner', () => {
     it('should map the main action correctly [route]', async () => {
         const campaign = createExampleCampaign();
         campaign.components.dashboardBanner.content.mainAction = {
-            variant: 'internalLink',
+            variant: 'buttonVariantPrimary',
             bannerIsClickable: false,
             cta: {
                 'en-GB': 'Open campaign'
@@ -659,14 +659,6 @@ describe('src/app/component/campaign/sw-campaign-banner', () => {
         },
         {
             variant: 'buttonVariantDefault',
-            matchingClasses: ['sw-button']
-        },
-        {
-            variant: 'internalLink',
-            matchingClasses: ['sw-button']
-        },
-        {
-            variant: 'externalLink',
             matchingClasses: ['sw-button']
         }
     ].forEach((scenario) => {

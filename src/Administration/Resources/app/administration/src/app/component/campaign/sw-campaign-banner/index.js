@@ -12,62 +12,62 @@ import './sw-campaign-banner.scss';
  *     headline="Awesome offer"
  *     :inlineActions="[
  *                {
- *                    "placeholder": "goToExtensionStore",
- *                    "text": {
- *                        "de-DE": "string",
- *                        "en-GB": "string"
+ *                    placeholder: 'goToExtensionStore',
+ *                    text: {
+ *                        'de-DE': 'string',
+ *                        'en-GB': 'string'
  *                    },
- *                    "route": "sw.extension.store.index.extensions",
+ *                    route: 'sw.extension.store.index.extensions',
  *                },
  *                {
- *                   "placeholder": "goToExtensionStore",
- *                   "text": {
- *                       "de-DE": "string",
- *                       "en-GB": "string"
+ *                   placeholder: 'goToExtensionStore',
+ *                   text: {
+ *                       'de-DE': 'string',
+ *                       'en-GB': 'string'
  *                   },
- *                   "execution": {
- *                       "arguments": ['category', 'summerSale2021'],
- *                       "method": 'linkToExtensionStoreAndSelectCategory',
+ *                   execution: {
+ *                       arguments: ['category', 'summerSale2021'],
+ *                       method: 'linkToExtensionStoreAndSelectCategory',
  *                   },
  *               },
  *               {
- *                   "placeholder": "goToExtensionStore",
- *                   "text": {
- *                       "de-DE": "string",
- *                       "en-GB": "string"
+ *                   placeholder: 'goToExtensionStore',
+ *                   text: {
+ *                       'de-DE': 'string',
+ *                       'en-GB': 'string'
  *                   },
- *                   "externalLink": {
+ *                   externalLink: {
  *                       'de-DE': 'https://www.shopware.de',
  *                       'en-GB': 'https://www.shopware.com',
  *                   },
  *               }
  *          ]"
- *          :mainAction="{
- *                // Possible variants:
- *                //    - 'buttonVariantPrimary',
- *                //    - 'buttonVariantGhost',
- *                //    - 'buttonVariantContrast',
- *                //    - 'buttonVariantContext',
- *                //    - 'buttonVariantDefault',
- *                "variant":"buttonVariantGhost",
- *                "cta": {
- *                        "de-DE":"string (max 20)",
- *                        "en-GB":"string (max 20)"
- *                },
- *                // only one of these properties is available
- *                "execution": {
- *                    "arguments": ['category', 'summerSale2021'],
- *                    "method": 'linkToExtensionStoreAndSelectCategory',
- *                }
- *                // or
- *                "route": "sw.extension.store.index.extensions",
- *                // or
- *                "externalLink": {
- *                    'de-DE': 'https://www.shopware.de',
- *                    'en-GB': 'https://www.shopware.com',
- *                }
- *            }"
- *            leftImage="http://www.your-left.image/test.jpg"
+ *     :mainAction="{
+ *           // Possible variants:
+ *           //    - 'buttonVariantPrimary',
+ *           //    - 'buttonVariantGhost',
+ *           //    - 'buttonVariantContrast',
+ *           //    - 'buttonVariantContext',
+ *           //    - 'buttonVariantDefault',
+ *           variant: 'buttonVariantGhost',
+ *           cta: {
+ *               'de-DE': 'string (max 20)',
+ *               'en-GB': 'string (max 20)'
+ *           },
+ *           // only one of these properties is available
+ *           execution: {
+ *               arguments: ['category', 'summerSale2021'],
+ *               method: 'linkToExtensionStoreAndSelectCategory',
+ *           }
+ *           // or
+ *           route: 'sw.extension.store.index.extensions',
+ *           // or
+ *           externalLink: {
+ *               'de-DE': 'https://www.shopware.de',
+ *               'en-GB': 'https://www.shopware.com',
+ *           }
+ *     }"
+ *     leftImage="http://www.your-left.image/test.jpg"
  *     >
  * <sw-campaign-banner>
  */
@@ -79,17 +79,14 @@ Shopware.Component.register('sw-campaign-banner', {
             type: String,
             required: true,
         },
-
         componentName: {
             type: String,
             required: true,
         },
-
         headline: {
             type: String,
             required: true,
         },
-
         inlineActions: {
             type: Array,
             required: false,
@@ -99,13 +96,11 @@ Shopware.Component.register('sw-campaign-banner', {
             type: Object,
             required: true,
         },
-
         textColor: {
             type: String,
             required: false,
             default: '#52667a',
         },
-
         linkColor: {
             type: String,
             required: false,
@@ -122,7 +117,6 @@ Shopware.Component.register('sw-campaign-banner', {
             required: false,
             default: null,
         },
-
         bgPosition: {
             type: String,
             required: false,
@@ -214,7 +208,6 @@ Shopware.Component.register('sw-campaign-banner', {
         actionComponent() {
             const actionVariant = this.mainAction?.variant ?? '';
 
-            const isButtonVariant = actionVariant.startsWith('buttonVariant');
             let variant = actionVariant.replace('buttonVariant', '').toLowerCase();
 
             // remove variant when it should use the default variant
@@ -226,7 +219,7 @@ Shopware.Component.register('sw-campaign-banner', {
                 name: 'sw-button',
                 text: this.getTranslatedProp(this.mainAction?.cta),
                 props: {
-                    variant: isButtonVariant ? variant : undefined,
+                    variant: variant,
                 },
                 handlers: {
                     click: this.getActionHandler(this.mainAction),

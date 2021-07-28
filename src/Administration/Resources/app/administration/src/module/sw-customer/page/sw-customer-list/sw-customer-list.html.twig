@@ -116,7 +116,7 @@
                     {% block sw_customer_list_grid_columns_name_link %}
                     <router-link
                         v-else
-                        :to="{ name: 'sw.customer.detail', params: { id: item.id } }"
+                        :to="{ name: 'sw.customer.detail', params: { id: item.id }, query: { edit: false } }"
                     >
                         {{ item.lastName }}, {{ item.firstName }}
                     </router-link>

@@ -365,11 +365,25 @@
                     v-if="filterCriteria.length"
                     :title="$tc('sw-order.filters.messageEmptyTitle')"
                     :subline="$tc('sw-order.filters.messageEmptySubline')"
-                />
+                >
+                    <template #icon>
+                        <img
+                            :src="'/administration/static/img/empty-states/order-empty-state.svg' | asset"
+                            :alt="$tc('sw-order.filters.messageEmptyTitle')"
+                        >
+                    </template>
+                </sw-empty-state>
                 <sw-empty-state
                     v-else
                     :title="$tc('sw-order.list.messageEmpty')"
-                />
+                >
+                    <template #icon>
+                        <img
+                            :src="'/administration/static/img/empty-states/order-empty-state.svg' | asset"
+                            :alt="$tc('sw-order.list.messageEmpty')"
+                        >
+                    </template>
+                </sw-empty-state>
             </template>
             {% endblock %}
         </div>

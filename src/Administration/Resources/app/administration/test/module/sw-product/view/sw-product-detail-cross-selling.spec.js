@@ -40,7 +40,8 @@ function createWrapper() {
         stubs: {
             'sw-card': true,
             'sw-button': true,
-            'sw-product-cross-selling-form': true
+            'sw-product-cross-selling-form': true,
+            'sw-empty-state': true
         },
         mocks: {
             $store: store

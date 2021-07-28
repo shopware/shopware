@@ -40,6 +40,11 @@ Component.register('sw-empty-state', {
             default: true,
             required: false,
         },
+        emptyModule: {
+            type: Boolean,
+            default: false,
+            required: false,
+        },
     },
 
     computed: {
@@ -62,6 +67,7 @@ Component.register('sw-empty-state', {
         classes() {
             return {
                 'sw-empty-state--absolute': this.absolute,
+                'sw-empty-state--empty-module': this.emptyModule,
             };
         },
     },

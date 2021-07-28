@@ -1,14 +1,6 @@
 @import "~scss/variables";
 
 .sw-product-detail-reviews {
-    &.sw-card {
-        .sw-card__content {
-            overflow: hidden;
-            min-height: 250px;
-            padding: 0;
-        }
-    }
-
     &__stars {
         font-size: 0;
 

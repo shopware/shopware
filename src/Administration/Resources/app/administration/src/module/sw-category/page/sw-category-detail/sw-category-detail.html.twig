@@ -259,7 +259,14 @@
         <sw-empty-state
             v-if="showEmptyState"
             :title="$tc('sw-category.general.emptyStateHeadline')"
-        />
+        >
+            <template #icon>
+                <img
+                    :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                    :alt="$tc('sw-category.general.emptyStateHeadline')"
+                >
+            </template>
+        </sw-empty-state>
         {% endblock %}
     </template>
 

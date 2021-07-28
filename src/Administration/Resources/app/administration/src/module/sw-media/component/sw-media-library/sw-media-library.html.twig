@@ -42,11 +42,10 @@
             :title="$tc('sw-media.mediaLibrary.titleEmptyState')"
         >
             <template slot="icon">
-                <sw-icon
-                    name="default-object-image"
-                    size="60px"
-                    color="#ff68b4"
-                />
+                <img
+                    :src="'/administration/static/img/empty-states/media-empty-state.svg' | asset"
+                    :alt="$tc('sw-media.mediaLibrary.descriptionEmptyState')"
+                >
             </template>
             {{ $tc('sw-media.mediaLibrary.descriptionEmptyState') }}
         </sw-empty-state>

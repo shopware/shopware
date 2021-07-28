@@ -7,7 +7,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Storefront\Theme\Event\ThemeAssignedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigChangedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigResetEvent;
@@ -158,7 +157,7 @@ class ThemeService
         $childThemeConfig = $this->mergeStaticConfig($childTheme);
 
         $parentThemeId = $childTheme->getParentThemeId();
-        if (null !== $parentThemeId) {
+        if ($parentThemeId !== null) {
             /** @var ThemeEntity $parentTheme */
             $parentThemeSearchResult = $this->getThemeById($parentThemeId, $context);
             $parentTheme = $parentThemeSearchResult->first();
@@ -178,7 +177,7 @@ class ThemeService
             $configFields[$name] = $themeConfigFieldFactory->create($name, $item);
         }
 
-        $configFields = json_decode((string)json_encode($configFields), true);
+        $configFields = json_decode((string) json_encode($configFields), true);
 
         $labels = array_replace_recursive($baseTheme->getLabels() ?? [], $childTheme->getLabels() ?? []);
         if ($translate && !empty($labels)) {

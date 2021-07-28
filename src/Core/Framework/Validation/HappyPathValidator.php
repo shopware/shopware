@@ -61,7 +61,10 @@ class HappyPathValidator implements ValidatorInterface
         return $this->inner->hasMetadataFor($value);
     }
 
-    public function validateProperty(object $object, $propertyName, $groups = null)
+    /**
+     * @param object $object can not use native type hint as it is incompatible with symfony <5.3.4
+     */
+    public function validateProperty($object, $propertyName, $groups = null)
     {
         return $this->inner->validateProperty($object, $propertyName, $groups);
     }

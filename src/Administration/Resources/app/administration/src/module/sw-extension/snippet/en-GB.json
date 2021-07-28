@@ -243,7 +243,8 @@
           "updateLabel": "Update to {version}",
           "rateLabel": "Rate",
           "policyExtensions": "Privacy policy extensions",
-          "permissions": "Permissions"
+          "permissions": "Permissions",
+          "openExtension": "Open extension"
         }
       },
       "sw-extension-card-bought": {

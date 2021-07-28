@@ -243,7 +243,8 @@
           "updateLabel": "Aktualisieren auf {version}",
           "rateLabel": "Bewerten",
           "policyExtensions": "Datenschutz-Erweiterungen",
-          "permissions": "Berechtigungen"
+          "permissions": "Berechtigungen",
+          "openExtension": "Erweiterung öffnen"
         }
       },
       "sw-extension-card-bought": {

@@ -260,11 +260,25 @@
                     v-if="filterCriteria.length"
                     :title="$tc('sw-product.filters.messageEmptyTitle')"
                     :subline="$tc('sw-product.filters.messageEmptySubline')"
-                />
+                >
+                    <template #icon>
+                        <img
+                            :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                            :alt="$tc('sw-product.filters.messageEmptyTitle')"
+                        >
+                    </template>
+                </sw-empty-state>
                 <sw-empty-state
                     v-else
                     :title="$tc('sw-product.list.messageEmpty')"
-                />
+                >
+                    <template #icon>
+                        <img
+                            :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                            :alt="$tc('sw-product.list.messageEmpty')"
+                        >
+                    </template>
+                </sw-empty-state>
             </template>
             {% endblock %}
 

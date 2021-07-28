@@ -66,11 +66,17 @@
     {% block sw_customer_detail_order_card_grid_empty_state %}
     <template v-if="(!orders || orders.total === 0) && !isLoading && !term">
         <sw-empty-state
-            :icon="orderIcon"
             :title="emptyTitle"
             :absolute="false"
             :subline="$tc('sw-customer.detailOrder.emptySubline')"
-        />
+        >
+            <template #icon>
+                <img
+                    :src="'/administration/static/img/empty-states/order-empty-state.svg' | asset"
+                    :alt="emptyTitle"
+                >
+            </template>
+        </sw-empty-state>
     </template>
     {% endblock %}
 </sw-card>

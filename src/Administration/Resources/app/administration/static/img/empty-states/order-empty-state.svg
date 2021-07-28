@@ -1,12 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="88" height="88" viewBox="0 0 88 88">
-  <defs>
-    <circle id="order_spotillustration-a" cx="44" cy="44" r="44"/>
-  </defs>
-  <g fill="none" fill-rule="evenodd">
-    <mask id="order_spotillustration-b" fill="#fff">
-      <use xlink:href="#order_spotillustration-a"/>
-    </mask>
-    <use fill="#F4F2FD" fill-rule="nonzero" xlink:href="#order_spotillustration-a"/>
-    <path fill="#AEA2F2" fill-rule="nonzero" d="M47.8707396,35 L47.8707396,30 C47.8707396,25.0294373 52.2359633,21 57.6207396,21 L64.1207396,21 C69.5055159,21 73.8707396,25.0294373 73.8707396,30 L73.8707396,35 L86.6707245,35 C87.7267216,35 88.6007605,35.8209789 88.6668086,36.8749085 L91.7375634,85.8749085 C91.8066495,86.9773153 90.9689776,87.926998 89.8665707,87.9960842 C89.8249246,87.9986941 89.783207,88 89.7414792,88 L32,88 C30.8954305,88 30,87.1045695 30,86 C30,85.9582722 30.0013059,85.9165546 30.0039158,85.8749085 L33.0746705,36.8749085 C33.1407187,35.8209789 34.0147576,35 35.0707547,35 L47.8707396,35 Z M54.3707396,35 L67.3707396,35 L67.3707396,30 C67.3707396,28.3431458 65.915665,27 64.1207396,27 L57.6207396,27 C55.8258141,27 54.3707396,28.3431458 54.3707396,30 L54.3707396,35 Z" mask="url(#order_spotillustration-b)"/>
-  </g>
+<svg width="88" height="88" viewBox="0 0 88 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+<circle cx="44" cy="44" r="44" fill="#E3DEFB"/>
+<mask id="mask0" mask-type="alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="88" height="88">
+<circle cx="44" cy="44" r="44" fill="white"/>
+</mask>
+<g mask="url(#mask0)">
+<rect x="41.5" y="66.5" width="5" height="24" fill="#AEA2F2" stroke="#A092F0"/>
+<line x1="37" y1="67" x2="5" y2="67" stroke="#A092F0" stroke-width="2" stroke-linecap="round"/>
+</g>
+<mask id="path-5-inside-1" fill="white">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M62 34H26V67H52H62H72C73.1046 67 74 66.1046 74 65V46C74 39.3726 68.6274 34 62 34Z"/>
+</mask>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M62 34H26V67H52H62H72C73.1046 67 74 66.1046 74 65V46C74 39.3726 68.6274 34 62 34Z" fill="#D0C9F8"/>
+<path d="M26 34V33H25V34H26ZM26 67H25V68H26V67ZM26 35H62V33H26V35ZM27 67V34H25V67H27ZM52 66H26V68H52V66ZM62 66H52V68H62V66ZM72 66H62V68H72V66ZM73 65C73 65.5523 72.5523 66 72 66V68C73.6569 68 75 66.6569 75 65H73ZM73 46V65H75V46H73ZM62 35C68.0751 35 73 39.9249 73 46H75C75 38.8203 69.1797 33 62 33V35Z" fill="#A092F0" mask="url(#path-5-inside-1)"/>
+<path d="M14.5 46C14.5 39.6487 19.6487 34.5 26 34.5C32.3513 34.5 37.5 39.6487 37.5 46V66.5H14.5V46Z" fill="#F4F2FD" stroke="#A092F0"/>
+<line x1="47" y1="45" x2="47" y2="24" stroke="#A092F0" stroke-width="2" stroke-linecap="round"/>
+<path d="M36.5 23C36.5 22.1716 37.1716 21.5 38 21.5H46C46.8284 21.5 47.5 22.1716 47.5 23V26.5H38C37.1716 26.5 36.5 25.8284 36.5 25V23Z" fill="#BDB3F5" stroke="#A092F0"/>
 </svg>

@@ -54,7 +54,7 @@ describe('Product: Test ACL privileges', () => {
             cy.get('.sw-product-properties').should('be.visible');
         });
         cy.skipOnFeature('FEATURE_NEXT_12437', () => {
-            cy.get('.sw-product-detail-properties__empty-state').should('be.visible');
+            cy.get('.sw-empty-state').should('be.visible');
         });
 
         cy.get('.sw-product-detail__tab-variants')
@@ -66,7 +66,7 @@ describe('Product: Test ACL privileges', () => {
         cy.get('.sw-product-detail__tab-cross-selling')
             .scrollIntoView()
             .click();
-        cy.get('.sw-product-detail-cross-selling__empty-state-inner')
+        cy.get('.sw-empty-state')
             .should('be.visible');
     });
 

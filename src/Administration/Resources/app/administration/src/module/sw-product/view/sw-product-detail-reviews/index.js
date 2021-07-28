@@ -30,6 +30,10 @@ Component.register('sw-product-detail-reviews', {
             'isLoading',
         ]),
 
+        cardTitle() {
+            return this.total ? this.$tc('sw-product.reviews.cardTitleReviews') : null;
+        },
+
         reviewRepository() {
             return this.repositoryFactory.create('product_review');
         },

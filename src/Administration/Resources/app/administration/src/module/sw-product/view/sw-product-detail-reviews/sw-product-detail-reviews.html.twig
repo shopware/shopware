@@ -1,7 +1,7 @@
 {% block sw_product_detail_reviews %}
 <sw-card
     class="sw-product-detail-reviews"
-    :title="$tc('sw-product.reviews.cardTitleReviews')"
+    :title="cardTitle"
     :is-loading="isLoading"
 >
     {% block sw_product_detail_reviews_data %}
@@ -100,12 +100,18 @@
     {% endblock %}
 
     {% block sw_product_detail_reviews_empty_state %}
+
     <sw-empty-state
         v-if="!total"
-        icon="default-documentation-file"
         :title="$tc('sw-product.reviewForm.messageEmptyTitle')"
         :subline="$tc('sw-product.reviewForm.messageEmptySubline')"
-    />
+        :absolute="false"
+        empty-module
+    >
+        <template #icon>
+            <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
+        </template>
+    </sw-empty-state>
     {% endblock %}
 
     {% block sw_product_detail_reviews_modal_delete %}

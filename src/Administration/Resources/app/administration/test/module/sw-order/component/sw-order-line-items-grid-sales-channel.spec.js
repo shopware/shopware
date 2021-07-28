@@ -162,7 +162,8 @@ function createWrapper() {
             'sw-data-grid': Shopware.Component.build('sw-data-grid'),
             'sw-product-variant-info': true,
             'sw-order-product-select': true,
-            'router-link': true
+            'router-link': true,
+            'sw-empty-state': true
         },
         mocks: {
             $tc: (t, count, value) => {
@@ -195,11 +196,8 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
     it('should show empty state when there is not item', async () => {
         const wrapper = createWrapper({});
 
-        const emptyState = wrapper.find('.sw-order-line-items-grid-sales-channel__empty-container');
-        const itemGrid = wrapper.find('img');
-
+        const emptyState = wrapper.find('sw-empty-state-stub');
         expect(emptyState.exists()).toBeTruthy();
-        expect(itemGrid.exists()).toBeTruthy();
     });
 
     it('only product item should have redirect link', async () => {

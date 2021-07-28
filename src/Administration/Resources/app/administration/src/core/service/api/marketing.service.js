@@ -8,7 +8,7 @@ export default class MarketingService extends ApiService {
 
     getActiveDiscountCampaigns() {
         // to enable the mock you need to disable this line
-        // return Promise.resolve({});
+        return Promise.resolve({});
 
         // return mock value instead of value from the SBP
         // eslint-disable-next-line no-unreachable

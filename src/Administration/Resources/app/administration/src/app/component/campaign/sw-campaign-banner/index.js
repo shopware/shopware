@@ -49,7 +49,7 @@ import './sw-campaign-banner.scss';
  *           //    - 'contrast',
  *           //    - 'context',
  *           //    - 'default',
- *           variant: 'ghost',
+ *           buttonVariant: 'ghost',
  *           cta: {
  *               'de-DE': 'string (max 20)',
  *               'en-GB': 'string (max 20)'
@@ -206,7 +206,7 @@ Shopware.Component.register('sw-campaign-banner', {
         },
 
         actionComponent() {
-            const actionVariant = this.mainAction?.variant ?? '';
+            const actionVariant = this.mainAction?.buttonVariant ?? 'default';
 
             return {
                 name: 'sw-button',

@@ -154,7 +154,7 @@ function createExampleCampaign() {
                         }
                     },
                     mainAction: {
-                        variant: 'buttonVariantPrimary',
+                        buttonVariant: 'primary',
                         bannerIsClickable: false,
                         cta: {
                             'de-DE': 'Kampagne öffnen',
@@ -560,7 +560,7 @@ describe('src/app/component/campaign/sw-campaign-banner', () => {
     it('should map the main action correctly [external link]', async () => {
         const campaign = createExampleCampaign();
         campaign.components.dashboardBanner.content.mainAction = {
-            variant: 'buttonVariantPrimary',
+            buttonVariant: 'primary',
             bannerIsClickable: false,
             cta: {
                 'en-GB': 'Open campaign'
@@ -584,7 +584,7 @@ describe('src/app/component/campaign/sw-campaign-banner', () => {
     it('should map the main action correctly [execution]', async () => {
         const campaign = createExampleCampaign();
         campaign.components.dashboardBanner.content.mainAction = {
-            variant: 'buttonVariantPrimary',
+            buttonVariant: 'primary',
             bannerIsClickable: false,
             cta: {
                 'en-GB': 'Open campaign'
@@ -617,7 +617,7 @@ describe('src/app/component/campaign/sw-campaign-banner', () => {
     it('should map the main action correctly [route]', async () => {
         const campaign = createExampleCampaign();
         campaign.components.dashboardBanner.content.mainAction = {
-            variant: 'buttonVariantPrimary',
+            buttonVariant: 'primary',
             bannerIsClickable: false,
             cta: {
                 'en-GB': 'Open campaign'
@@ -642,30 +642,30 @@ describe('src/app/component/campaign/sw-campaign-banner', () => {
 
     [
         {
-            variant: 'buttonVariantPrimary',
+            buttonVariant: 'primary',
             matchingClasses: ['sw-button', 'sw-button--primary']
         },
         {
-            variant: 'buttonVariantGhost',
+            buttonVariant: 'ghost',
             matchingClasses: ['sw-button', 'sw-button--ghost']
         },
         {
-            variant: 'buttonVariantContrast',
+            buttonVariant: 'contrast',
             matchingClasses: ['sw-button', 'sw-button--contrast']
         },
         {
-            variant: 'buttonVariantContext',
+            buttonVariant: 'context',
             matchingClasses: ['sw-button', 'sw-button--context']
         },
         {
-            variant: 'buttonVariantDefault',
+            buttonVariant: 'default',
             matchingClasses: ['sw-button']
         }
     ].forEach((scenario) => {
-        it(`should show the correct main action variant ${scenario.variant}`, async () => {
+        it(`should show the correct main action buttonVariant ${scenario.buttonVariant}`, async () => {
             const campaign = createExampleCampaign();
             campaign.components.dashboardBanner.content.mainAction = {
-                variant: scenario.variant,
+                buttonVariant: scenario.buttonVariant,
                 bannerIsClickable: false,
                 cta: {
                     'en-GB': 'Open campaign'

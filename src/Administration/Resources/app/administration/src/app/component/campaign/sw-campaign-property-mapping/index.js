@@ -30,7 +30,7 @@ Shopware.Component.register('sw-campaign-property-mapping', {
 
             if (this.componentName === 'storeBanner') {
                 return {
-                    campaignName: '',
+                    campaignName: campaignName,
                     headline: this.getTranslatedProp(component.content?.headline),
                     text: this.getTranslatedProp(component.content?.description),
                     bgImage: component?.background?.image,
@@ -38,11 +38,11 @@ Shopware.Component.register('sw-campaign-property-mapping', {
                     bgPosition: component?.background?.position,
                     textColor: component?.content?.textColor,
                     textAction: this.getTranslatedProp(component?.content?.cta?.text),
-                    nameForOpenCategory: component?.content?.cta?.category,
+                    toBeOpenedCategory: component?.content?.cta?.category,
                 };
             }
 
-            const propMapping = {
+            return {
                 // required properties
                 campaignName: campaignName,
                 headline: this.getTranslatedProp(component.content?.headline),
@@ -64,8 +64,6 @@ Shopware.Component.register('sw-campaign-property-mapping', {
                 bannerIsClickable: component.content?.mainAction?.bannerIsClickable,
                 alwaysShowLeftImage: !component?.leftImage?.hideInSmallViewports,
             };
-
-            return propMapping;
         },
     },
 

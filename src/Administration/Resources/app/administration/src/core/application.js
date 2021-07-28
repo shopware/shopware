@@ -411,8 +411,23 @@ class ApplicationBootstrapper {
             });
         }
 
+        if (typeof this._resolveViewInitialized === 'function') {
+            this._resolveViewInitialized();
+        }
+
         return Promise.resolve(this);
     }
+
+    _resolveViewInitialized;
+
+    /**
+     * You can use this Promise to do things after the view
+     * was initialized.
+     * @type {Promise<undefined>}
+     */
+    viewInitialized = new Promise((resolve) => {
+        this._resolveViewInitialized = resolve;
+    })
 
     /**
      * Creates the application root and show the error message.

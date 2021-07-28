@@ -182,6 +182,10 @@ PHP Full:
         TEST_SUITES: "docs administration storefront checkout content framework profiling migration system elasticsearch"
         APP_ENV: test
     script:
+        - >
+            if [ "$PREFER_LOWEST" == "true" ]; then
+                composer update --prefer-lowest
+            fi
         - FAILED=0
         - >
             for SUITE in $TEST_SUITES; do
@@ -227,6 +231,11 @@ PHP Full:
                 DEV_IMAGE: ["shopware/development:7.4-composer-2", "shopware/development:8.0-composer-2"]
                 FEATURE_ALL: ["false", "minor", "major"]
                 MYSQL_CMD: 'mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON'
+                SKIP_ON_MR: 'true'
+            -   MYSQL_IMAGE: mariadb:10.4
+                DEV_IMAGE: shopware/development:7.4-composer-2
+                FEATURE_ALL: 'false'
+                PREFER_LOWEST: 'true'
                 SKIP_ON_MR: 'true'
 
 PHP coverage:

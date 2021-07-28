@@ -390,7 +390,7 @@ Component.register('sw-text-editor-toolbar', {
         },
 
         addProtocol(link) {
-            if (/^(\w+):\/\//.test(link)) {
+            if (/(^(\w+):\/\/)|(mailto:)|(fax:)|(tel:)/.test(link)) {
                 return link;
             }
 

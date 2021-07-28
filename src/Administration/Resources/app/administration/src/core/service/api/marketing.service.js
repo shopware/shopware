@@ -42,23 +42,26 @@ export default class MarketingService extends ApiService {
                         storeBanner: {
                             background: {
                                 color: '#ffffff',
-                                image: 'http://www.company.org/cum/sonoras',
-                                position: 'string',
+                                // eslint-disable-next-line max-len
+                                image: 'https://images.unsplash.com/photo-1518695075031-b83a29bf0012?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=1050&q=80',
+                                position: '50% 70%',
                             },
                             content: {
-                                textColor: '#000000',
+                                textColor: '#fff',
                                 headline: {
-                                    'de-DE': 'string (max 40 Zeichen)',
-                                    'en-GB': 'string (max 40 characters)',
+                                    'de-DE': 'Super Angebot',
+                                    'en-GB': 'Amazing offer',
                                 },
                                 description: {
-                                    'de-DE': 'string (max 90 Zeichen)',
-                                    'en-GB': 'string (max 90 characters)',
+                                    'de-DE': 'Günstiger geht es nicht',
+                                    'en-GB': 'It will not get cheaper',
                                 },
                                 cta: {
-                                    category: 'CategoryXY',
-                                    'de-DE': 'string (max 40 Zeichen)',
-                                    'en-GB': 'string (max 40 characters)',
+                                    category: 'GitHub',
+                                    text: {
+                                        'de-DE': 'Zeige GitHub',
+                                        'en-GB': 'Show GitHub',
+                                    },
                                 },
                             },
                         },

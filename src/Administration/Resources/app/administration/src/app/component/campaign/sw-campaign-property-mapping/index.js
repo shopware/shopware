@@ -28,6 +28,20 @@ Shopware.Component.register('sw-campaign-property-mapping', {
                 return null;
             }
 
+            if (this.componentName === 'storeBanner') {
+                return {
+                    campaignName: '',
+                    headline: this.getTranslatedProp(component.content?.headline),
+                    text: this.getTranslatedProp(component.content?.description),
+                    bgImage: component?.background?.image,
+                    bgColor: component?.background?.color,
+                    bgPosition: component?.background?.position,
+                    textColor: component?.content?.textColor,
+                    textAction: this.getTranslatedProp(component?.content?.cta?.text),
+                    nameForOpenCategory: component?.content?.cta?.category,
+                };
+            }
+
             const propMapping = {
                 // required properties
                 campaignName: campaignName,

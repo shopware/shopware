@@ -1,0 +1,81 @@
+@import "~scss/variables";
+
+$height: 204px;
+
+.sw-campaign-banner {
+    font-size: $font-size-small;
+    line-height: 22px;
+
+    .sw-meteor-card__content .sw-meteor-card__content-wrapper {
+        padding: 0;
+    }
+
+    &__container {
+        display: grid;
+        grid-template-columns: $height 1fr;
+        max-height: $height;
+
+        @media screen and (max-width: 1009px) { // regarding the opened admin menu
+            grid-template-columns: 1fr;
+        }
+    }
+
+    &__image {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        max-height: $height;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        &--hidden-responsive {
+            @media screen and (max-width: 1009px) { // regarding the opened admin menu
+                display: none;
+            }
+        }
+    }
+
+    &__content {
+        padding: 24px 32px 24px 28px;
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        grid-column-gap: 32px;
+        align-items: center;
+
+        @media screen and (max-width: 768px) {
+            grid-template-columns: 1fr;
+        }
+
+        h2,
+        h3,
+        h4 {
+            font-size: $font-size-large;
+            margin-bottom: 8px;
+        }
+
+        a {
+            color: $color-shopware-brand-500;
+        }
+    }
+
+    &__label {
+        border-radius: 4px;
+        padding: 0 8px;
+        font-weight: $font-weight-semi-bold;
+        margin-bottom: 16px;
+        display: inline-block;
+    }
+
+    &__action {
+        align-self: center;
+
+        @media screen and (max-width: 1009px) { // regarding the opened admin menu
+            margin-top: 12px;
+        }
+    }
+}

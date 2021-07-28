@@ -30,6 +30,21 @@
         {% endblock %}
         {% endblock %}
 
+        {% block sw_dashboard_index_content_campaign_banner %}
+        <sw-campaign-property-mapping component-name="dashboardBanner">
+            <template #default="{ mappedProperties }">
+                <div
+                    v-if="mappedProperties"
+                    class="sw-dashboard-index__campaign-banner"
+                >
+                    <sw-campaign-banner
+                        v-bind="mappedProperties"
+                    />
+                </div>
+            </template>
+        </sw-campaign-property-mapping>
+        {% endblock %}
+
         {% block sw_dashboard_index_content_info_grid %}
         <div class="sw-dashboard-index__card-grid">
             {% block sw_dashboard_index_content_info_grid_inner %}

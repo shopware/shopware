@@ -90,7 +90,10 @@ describe('src/app/state/marketing.store', () => {
         });
 
         const storeComponent = Shopware.State.getters['marketing/getActiveCampaignDataForComponent']('storeBanner');
-        expect(storeComponent).toEqual(storeBanner);
+        expect(storeComponent).toEqual({
+            campaignName: 'Active campaign',
+            component: storeBanner
+        });
     });
 
     it('should return null for the store banner when time does not match', async () => {
@@ -131,6 +134,9 @@ describe('src/app/state/marketing.store', () => {
         });
 
         const storeComponent = Shopware.State.getters['marketing/getActiveCampaignDataForComponent']('storeBanner');
-        expect(storeComponent).toEqual(null);
+        expect(storeComponent).toEqual({
+            campaignName: undefined,
+            component: null
+        });
     });
 });

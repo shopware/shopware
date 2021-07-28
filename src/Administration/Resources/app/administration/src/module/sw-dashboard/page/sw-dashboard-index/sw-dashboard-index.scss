@@ -197,4 +197,8 @@ $content-max-width: 960px;
             font-size: ($font-size-large * 2.5);
         }
     }
+
+    &__campaign-banner {
+        margin-top: 24px;
+    }
 }

@@ -37,6 +37,7 @@ Shopware.Service('cmsService').registerCmsElement({
             source: 'static',
             value: 'manufacturer-filter,rating-filter,price-filter,shipping-free-filter,property-filter',
         },
+        // eslint-disable-next-line inclusive-language/use-inclusive-words
         propertyWhitelist: {
             source: 'static',
             value: [],

@@ -2,9 +2,9 @@
 <div class="sw-bulk-edit-change-type">
     {% block sw_bulk_edit_change_type_select_field %}
     <sw-single-select
+        v-model="currentValue"
         class="sw-bulk-edit-change-type__selection"
         :options="options"
-        v-model="currentValue"
         @change="onChangeType"
     />
     {% endblock %}
@@ -12,7 +12,8 @@
     {% block sw_bulk_edit_change_type_value_field %}
     <slot
         name="value-field"
-        v-bind="{ isDisplayingValue }">
+        v-bind="{ isDisplayingValue }"
+    >
     </slot>
     {% endblock %}
 </div>

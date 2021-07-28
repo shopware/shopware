@@ -110,6 +110,7 @@
     "eslint-loader": "2.2.1",
     "eslint-plugin-html": "6.0.0",
     "eslint-plugin-import": "2.22.1",
+    "eslint-plugin-inclusive-language": "2.1.1",
     "eslint-plugin-jest": "22.14.0",
     "eslint-plugin-promise": "4.2.1",
     "eslint-plugin-twig-vue": "file:twigVuePlugin",

@@ -160,17 +160,17 @@ function getEntityMappingTypes(entityName = null) {
 }
 
 function handlePropertyMappings(propertyDefinitions, mappings, pathPrefix, deep = true) {
-    const blacklist = ['parent', 'cmsPage'];
-    const formatBlacklist = ['uuid'];
+    const blocklist = ['parent', 'cmsPage'];
+    const formatBlocklist = ['uuid'];
 
     Object.keys(propertyDefinitions).forEach((property) => {
         const propSchema = propertyDefinitions[property];
 
-        if (blacklist.includes(property) || propSchema.readOnly === true) {
+        if (blocklist.includes(property) || propSchema.readOnly === true) {
             return;
         }
 
-        if (propSchema.format && formatBlacklist.includes(propSchema.format)) {
+        if (propSchema.format && formatBlocklist.includes(propSchema.format)) {
             return;
         }
 

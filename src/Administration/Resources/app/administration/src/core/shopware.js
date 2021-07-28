@@ -148,6 +148,7 @@ const Shopware = function Shopware() {
         getDefinition: EntityFactory.getEntityDefinition,
         getDefinitionRegistry: EntityFactory.getDefinitionRegistry,
         getRawEntityObject: EntityFactory.getRawEntityObject,
+        // eslint-disable-next-line inclusive-language/use-inclusive-words
         getPropertyBlacklist: EntityFactory.getPropertyBlacklist,
         getRequiredProperties: EntityFactory.getRequiredProperties,
         getAssociatedProperties: EntityFactory.getAssociatedProperties,

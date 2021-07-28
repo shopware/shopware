@@ -259,6 +259,7 @@ Component.register('sw-cms-el-config-product-listing', {
                     return;
                 }
 
+                // eslint-disable-next-line inclusive-language/use-inclusive-words
                 property.active = this.element.config.propertyWhitelist.value.includes(property.id);
             });
 
@@ -341,15 +342,18 @@ Component.register('sw-cms-el-config-product-listing', {
         },
 
         propertyStatusChanged(id) {
-            const whitelist = this.element.config.propertyWhitelist.value;
+            // eslint-disable-next-line inclusive-language/use-inclusive-words
+            const allowlist = this.element.config.propertyWhitelist.value;
 
-            if (!whitelist.includes(id)) {
-                this.element.config.propertyWhitelist.value = [...whitelist, id];
+            if (!allowlist.includes(id)) {
+                // eslint-disable-next-line inclusive-language/use-inclusive-words
+                this.element.config.propertyWhitelist.value = [...allowlist, id];
 
                 return;
             }
 
-            this.element.config.propertyWhitelist.value = whitelist
+            // eslint-disable-next-line inclusive-language/use-inclusive-words
+            this.element.config.propertyWhitelist.value = allowlist
                 .reduce((acc, current) => {
                     if (current === id) {
                         return acc;

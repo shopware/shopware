@@ -8,7 +8,14 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 Component.register('sw-profile-index', {
     template,
 
-    inject: ['userService', 'loginService', 'repositoryFactory', 'acl', 'feature'],
+    inject: [
+        'userService',
+        'loginService',
+        'mediaDefaultFolderService',
+        'repositoryFactory',
+        'acl',
+        'feature',
+    ],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -28,6 +35,8 @@ Component.register('sw-profile-index', {
             isUserLoading: true,
             isSaveSuccessful: false,
             confirmPasswordModal: false,
+            mediaDefaultFolderId: null,
+            showMediaModal: false,
         };
     },
 
@@ -79,10 +88,12 @@ Component.register('sw-profile-index', {
     },
 
     watch: {
-        'user.avatarMedia'() {
-            if (this.user.avatarMedia.id) {
-                this.setMediaItem({ targetId: this.user.avatarMedia.id });
+        'user.avatarMedia.id'() {
+            if (!this.user.avatarMedia?.id) {
+                return;
             }
+
+            this.setMediaItem({ targetId: this.user.avatarMedia.id });
         },
 
         languageId() {
@@ -112,6 +123,16 @@ Component.register('sw-profile-index', {
                 languagePromise,
                 this.userPromise,
             ];
+
+            if (this.feature.isActive('FEATURE_NEXT_6040')) {
+                this.getMediaDefaultFolderId()
+                    .then((id) => {
+                        this.mediaDefaultFolderId = id;
+                    })
+                    .catch(() => {
+                        this.mediaDefaultFolderId = null;
+                    });
+            }
 
             Promise.all(promises).then(() => {
                 this.loadLanguages();
@@ -239,7 +260,10 @@ Component.register('sw-profile-index', {
             context.authToken.access = authToken;
 
             this.userRepository.save(this.user, context).then(() => {
-                this.$refs.mediaSidebarItem.getList();
+                // @feature-deprecated (FEATURE_NEXT_6040) tag:v6.5.0 - can be removed
+                if (this.$refs.mediaSidebarItem) {
+                    this.$refs.mediaSidebarItem.getList();
+                }
 
                 Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
 
@@ -308,6 +332,7 @@ Component.register('sw-profile-index', {
             this.confirmPasswordModal = false;
         },
 
+        /* @feature-deprecated (FEATURE_NEXT_6040) tag:v6.5.0 - Will be removed */
         setMediaFromSidebar(mediaEntity) {
             this.avatarMediaItem = mediaEntity;
             this.user.avatarId = mediaEntity.id;
@@ -318,8 +343,13 @@ Component.register('sw-profile-index', {
             this.user.avatarId = null;
         },
 
+        /* @feature-deprecated (FEATURE_NEXT_6040) tag:v6.5.0 - Will be removed */
         openMediaSidebar() {
             this.$refs.mediaSidebarItem.openContent();
+        },
+
+        openMediaModal() {
+            this.showMediaModal = true;
         },
 
         handleUserSaveError() {
@@ -335,6 +365,15 @@ Component.register('sw-profile-index', {
 
         onChangeNewPasswordConfirm(newPasswordConfirm) {
             this.newPasswordConfirm = newPasswordConfirm;
+        },
+
+        onMediaSelectionChange([mediaEntity]) {
+            this.avatarMediaItem = mediaEntity;
+            this.user.avatarId = mediaEntity.id;
+        },
+
+        getMediaDefaultFolderId() {
+            return this.mediaDefaultFolderService.getDefaultFolderId('user');
         },
     },
 });

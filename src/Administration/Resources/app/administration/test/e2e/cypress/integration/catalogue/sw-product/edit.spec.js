@@ -1,4 +1,4 @@
-// / <reference types="Cypress" />
+/// <reference types="Cypress" />
 
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
 
@@ -10,6 +10,9 @@ describe('Product: Edit in various ways', () => {
             })
             .then(() => {
                 return cy.createProductFixture();
+            })
+            .then(() => {
+                return cy.createDefaultFixture('custom-field-set');
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
@@ -74,5 +77,67 @@ describe('Product: Edit in various ways', () => {
             expect(xhr).to.have.property('status', 204);
         });
         cy.get('.sw-data-grid__cell--name').contains('That\'s not my name');
+    });
+
+    it('@base @catalogue: edit a product\'s custom field translation', () => {
+        const page = new ProductPageObject();
+
+        // Request we want to wait for later
+        cy.server();
+        cy.route({
+            url: `${Cypress.env('apiPath')}/_action/sync`,
+            method: 'post'
+        }).as('saveData');
+
+
+        // Access custom field
+        cy.visit(`${Cypress.env('admin')}#/sw/settings/custom/field/index`);
+        cy.contains('.sw-grid__cell-content a', 'My custom field').should('be.visible');
+        cy.contains('.sw-grid__cell-content a', 'My custom field').click();
+
+        // Assign custom field to products
+        cy.get('#sw-field--set-name').should('be.visible');
+        cy.get('.sw-settings-custom-field-set-detail-base__label-entities').typeMultiSelectAndCheck('Products');
+        cy.contains('.sw-label', 'Products').should('be.visible');
+
+        cy.get('.sw-settings-set-detail__save-action').click();
+        cy.get('.sw-loader').should('not.exist');
+
+        // Open product
+        cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.clickContextMenuItem(
+            '.sw-entity-listing__context-menu-edit-action',
+            page.elements.contextMenuButton,
+            `${page.elements.dataGridRow}--0`
+        );
+
+        cy.get('.sw-product-detail__tab-specifications').should('be.visible');
+        cy.get('.sw-product-detail__tab-specifications').click();
+
+        // Fill custom field in english
+        cy.get('#custom_field_set_property').scrollIntoView();
+        cy.get('#custom_field_set_property').type('EN');
+
+        // Change
+        page.changeTranslation('Deutsch', 0);
+        cy.get(page.elements.loader).should('not.exist');
+
+        cy.get('.sw-modal__body').should('be.visible');
+        cy.get('.sw-modal__body > p')
+            .contains('There are unsaved changes in the current language. Do you want to save them now?');
+        cy.get('#sw-language-switch-save-changes-button').click();
+        cy.get('.sw_modal').should('not.exist');
+        cy.get(page.elements.loader).should('not.exist');
+
+        // Fill custom field in german
+        cy.get('#custom_field_set_property').scrollIntoView();
+        cy.get('#custom_field_set_property').type('DE');
+
+        cy.get(page.elements.productSaveAction).click();
+
+        // Verify updated product
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
     });
 });

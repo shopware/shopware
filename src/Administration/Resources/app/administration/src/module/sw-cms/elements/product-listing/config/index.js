@@ -20,6 +20,7 @@ Component.register('sw-cms-el-config-product-listing', {
             filters: [],
             filterPropertiesTerm: '',
             properties: [],
+            page: 1,
         };
     },
 
@@ -54,7 +55,8 @@ Component.register('sw-cms-el-config-product-listing', {
 
             criteria.addSorting(Criteria.sort('name', 'ASC', false));
             criteria.addFilter(Criteria.equals('filterable', true));
-            criteria.setLimit(null);
+            criteria.setLimit(6);
+            criteria.setPage(this.page);
 
             return criteria;
         },
@@ -337,7 +339,9 @@ Component.register('sw-cms-el-config-product-listing', {
             return this.loadFilterableProperties();
         },
 
-        onPageChange() {
+        onPageChange({ page }) {
+            this.page = page;
+
             return this.loadFilterableProperties();
         },
 

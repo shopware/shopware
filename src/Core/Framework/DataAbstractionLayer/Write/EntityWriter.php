@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityHydrator;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWritePayloadEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
@@ -24,6 +25,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDelete
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageLoaderInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Handles all write operations in the system.
@@ -44,13 +46,16 @@ class EntityWriter implements EntityWriterInterface
 
     private EntityWriteResultFactory $factory;
 
+    private EventDispatcherInterface $eventDispatcher;
+
     public function __construct(
         WriteCommandExtractor $writeResource,
         EntityForeignKeyResolver $foreignKeyResolver,
         EntityWriteGatewayInterface $gateway,
         LanguageLoaderInterface $languageLoader,
         DefinitionInstanceRegistry $registry,
-        EntityWriteResultFactory $factory
+        EntityWriteResultFactory $factory,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->foreignKeyResolver = $foreignKeyResolver;
         $this->commandExtractor = $writeResource;
@@ -58,6 +63,7 @@ class EntityWriter implements EntityWriterInterface
         $this->languageLoader = $languageLoader;
         $this->registry = $registry;
         $this->factory = $factory;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     // TODO: prefetch
@@ -97,6 +103,11 @@ class EntityWriter implements EntityWriterInterface
                 $this->gateway->prefetchExistences($parameters);
 
                 $key = $operation->getKey();
+
+                $event = new EntityWritePayloadEvent($definition, $payload, $context->getContext());
+                $this->eventDispatcher->dispatch($event);
+
+                $payload = $event->getPayload();
 
                 foreach ($payload as $index => $row) {
                     $parameters->setPath('/' . $key . '/' . $index);
@@ -171,6 +182,11 @@ class EntityWriter implements EntityWriterInterface
     private function write(EntityDefinition $definition, array $rawData, WriteContext $writeContext, ?string $ensure = null): array
     {
         $this->validateWriteInput($rawData);
+
+        $event = new EntityWritePayloadEvent($definition, $rawData, $writeContext->getContext());
+        $this->eventDispatcher->dispatch($event);
+
+        $rawData = $event->getPayload();
 
         if (!$rawData) {
             return [];

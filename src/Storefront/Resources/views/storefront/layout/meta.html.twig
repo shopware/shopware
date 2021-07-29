@@ -160,10 +160,11 @@
                 {# Register the available viewport breakpoints the window.breakpoints object #}
                 <script>
                     {% set breakpoint = {
-                        'xs': theme_config('breakpoint.sm'),
-                        'sm': theme_config('breakpoint.md'),
-                        'md': theme_config('breakpoint.lg'),
-                        'lg': theme_config('breakpoint.xl')
+                        'xs': theme_config('breakpoint.xs'),
+                        'sm': theme_config('breakpoint.sm'),
+                        'md': theme_config('breakpoint.md'),
+                        'lg': theme_config('breakpoint.lg'),
+                        'xl': theme_config('breakpoint.xl')
                     } %}
 
                     window.breakpoints = {{ breakpoint|json_encode()|raw }};

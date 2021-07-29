@@ -32,7 +32,7 @@ Module.register('sw-settings-custom-field', {
             component: 'sw-settings-custom-field-set-list',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.index',
+                parentPath: 'sw.settings.index.system',
                 privilege: 'custom_field.viewer',
             },
         },

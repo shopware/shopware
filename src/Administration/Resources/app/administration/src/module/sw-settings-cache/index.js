@@ -20,7 +20,7 @@ Module.register('sw-settings-cache', {
             component: 'sw-settings-cache-index',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.index',
+                parentPath: 'sw.settings.index.system',
                 privilege: 'system.clear_cache',
             },
         },

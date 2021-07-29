@@ -19,6 +19,32 @@ Module.register('sw-settings', {
             component: 'sw-settings-index',
             path: 'index',
             icon: 'default-action-settings',
+            redirect: {
+                name: 'sw.settings.index.shop',
+            },
+            children: {
+                shop: {
+                    path: 'shop',
+                    meta: {
+                        component: 'sw-settings-index',
+                        parentPath: 'sw.product.index',
+                    },
+                },
+                system: {
+                    path: 'system',
+                    meta: {
+                        component: 'sw-settings-index',
+                        parentPath: 'sw.product.index',
+                    },
+                },
+                plugins: {
+                    path: 'plugins',
+                    meta: {
+                        component: 'sw-settings-index',
+                        parentPath: 'sw.product.index',
+                    },
+                },
+            },
         },
     },
 

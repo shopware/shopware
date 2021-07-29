@@ -48,6 +48,7 @@
         "symfony/http-foundation": "~5.3.0",
         "symfony/http-kernel": "~5.3.0",
         "symfony/routing": "~5.3.0",
+        "symfony/polyfill-php80": "~1.16.0",
         "symfony/security-csrf": "~5.3.0",
         "symfony/service-contracts": "2.2.0",
         "symfony/validator": "~5.3.0",

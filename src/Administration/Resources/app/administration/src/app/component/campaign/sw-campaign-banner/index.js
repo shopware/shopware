@@ -44,12 +44,12 @@ import './sw-campaign-banner.scss';
  *          ]"
  *     :mainAction="{
  *           // Possible variants:
- *           //    - 'buttonVariantPrimary',
- *           //    - 'buttonVariantGhost',
- *           //    - 'buttonVariantContrast',
- *           //    - 'buttonVariantContext',
- *           //    - 'buttonVariantDefault',
- *           variant: 'buttonVariantGhost',
+ *           //    - 'primary',
+ *           //    - 'ghost',
+ *           //    - 'contrast',
+ *           //    - 'context',
+ *           //    - 'default',
+ *           buttonVariant: 'ghost',
  *           cta: {
  *               'de-DE': 'string (max 20)',
  *               'en-GB': 'string (max 20)'
@@ -206,20 +206,13 @@ Shopware.Component.register('sw-campaign-banner', {
         },
 
         actionComponent() {
-            const actionVariant = this.mainAction?.variant ?? '';
-
-            let variant = actionVariant.replace('buttonVariant', '').toLowerCase();
-
-            // remove variant when it should use the default variant
-            if (variant === 'default') {
-                variant = undefined;
-            }
+            const actionVariant = this.mainAction?.buttonVariant ?? 'default';
 
             return {
                 name: 'sw-button',
                 text: this.getTranslatedProp(this.mainAction?.cta),
                 props: {
-                    variant: variant,
+                    variant: actionVariant !== 'default' ? actionVariant : undefined,
                 },
                 handlers: {
                     click: this.getActionHandler(this.mainAction),

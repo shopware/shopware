@@ -106,7 +106,10 @@
             "configuratorSettingLabel": "Varianten-Konfiguration",
             "productCrossSellingLabel": "Cross-Selling",
             "closeViolation": "Schließen",
-            "violationMessage": "Dein Profil ist noch nicht gültig. Du musst Zuordnungen zu den unten angezeigten Pflichtfeldern hinzufügen, um das Profil zu speichern:"
+            "violationMessage": "Dein Profil ist noch nicht gültig. Du musst Zuordnungen zu den unten angezeigten Pflichtfeldern hinzufügen, um das Profil zu speichern:",
+            "importSettingsHeadline": "Import-Einstellungen",
+            "createEntitiesLabel": "Neue Entitäten erstellen",
+            "updateEntitiesLabel": "Vorhandene Daten aktualisieren"
         },
         "exporter": {
             "messageExportSuccess": "Der Export wurde erfolgreich abgeschlossen.",

@@ -16,7 +16,7 @@ class LanguageSerializer extends EntitySerializer
 {
     private EntityRepositoryInterface $languageRepository;
 
-    private array $languages = [];
+    private array $cacheLanguages = [];
 
     public function __construct(EntityRepositoryInterface $languageRepository)
     {
@@ -58,8 +58,8 @@ class LanguageSerializer extends EntitySerializer
 
     private function getLanguageSerialized(string $code): ?array
     {
-        if (\array_key_exists($code, $this->languages)) {
-            return $this->languages[$code];
+        if (\array_key_exists($code, $this->cacheLanguages)) {
+            return $this->cacheLanguages[$code];
         }
 
         $criteria = new Criteria();
@@ -67,14 +67,14 @@ class LanguageSerializer extends EntitySerializer
         $criteria->addAssociation('locale');
         $language = $this->languageRepository->search($criteria, Context::createDefaultContext())->first();
 
-        $this->languages[$code] = null;
+        $this->cacheLanguages[$code] = null;
         if ($language instanceof LanguageEntity && $language->getLocale() !== null) {
-            $this->languages[$code] = [
+            $this->cacheLanguages[$code] = [
                 'id' => $language->getId(),
                 'locale' => ['id' => $language->getLocale()->getId()],
             ];
         }
 
-        return $this->languages[$code];
+        return $this->cacheLanguages[$code];
     }
 }

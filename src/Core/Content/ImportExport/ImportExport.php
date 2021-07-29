@@ -132,6 +132,13 @@ class ImportExport
         $resource = $this->filesystem->readStream($path);
         $config = Config::fromLog($this->logEntity);
 
+        $createEntities = true;
+        $updateEntities = true;
+        if (Feature::isActive('FEATURE_NEXT_8097')) {
+            $createEntities = $config->get('createEntities') ?? true;
+            $updateEntities = $config->get('updateEntities') ?? true;
+        }
+
         foreach ($this->reader->read($config, $resource, $offset) as $row) {
             if (Feature::isActive('FEATURE_NEXT_8097')) {
                 $event = new ImportExportBeforeImportRowEvent($row, $config, $context);
@@ -165,7 +172,16 @@ class ImportExport
 
                 $record = $event->getRecord();
 
-                $result = $this->repository->upsert([$record], $context);
+                if ($createEntities === true && $updateEntities === false) {
+                    $result = $this->repository->create([$record], $context);
+                } elseif ($createEntities === false && $updateEntities === true) {
+                    $result = $this->repository->update([$record], $context);
+                } else {
+                    // expect that both create and update are true -> upsert
+                    // both false isn't possible via admin (but still results in an upsert)
+                    $result = $this->repository->upsert([$record], $context);
+                }
+
                 $progress->addProcessedRecords(1);
 
                 $afterRecord = new ImportExportAfterImportRecordEvent($result, $record, $row, $config, $context);

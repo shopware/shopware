@@ -18,6 +18,18 @@
     .sw-modal__footer {
         border-top: 1px solid $color-gray-300;
     }
+
+    .sw-import-export-edit-profile-modal__general-import-settings-headline {
+        margin-top: 48px;
+        font-size: $font-size-large;
+        font-weight: $font-weight-semi-bold;
+    }
+
+    .sw-import-export-edit-profile-modal__general-import-settings-create-switch,
+    .sw-import-export-edit-profile-modal__general-import-settings-update-switch {
+        margin-top: 0;
+        margin-bottom: 0;
+    }
 }
 
 .sw-import-export-edit-profile-modal__violation-modal {

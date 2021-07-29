@@ -24,17 +24,17 @@ class CustomerSerializer extends EntitySerializer
     /**
      * @var string[]|null[]
      */
-    private array $customerGroups = [];
+    private array $cacheCustomerGroups = [];
 
     /**
      * @var string[]|null[]
      */
-    private array $paymentMethods = [];
+    private array $cachePaymentMethods = [];
 
     /**
      * @var string[]|null[]
      */
-    private array $salesChannels = [];
+    private array $cacheSalesChannels = [];
 
     public function __construct(
         EntityRepositoryInterface $customerGroupRepository,
@@ -103,20 +103,20 @@ class CustomerSerializer extends EntitySerializer
             return null;
         }
 
-        if (\array_key_exists($name, $this->customerGroups)) {
-            return $this->customerGroups[$name];
+        if (\array_key_exists($name, $this->cacheCustomerGroups)) {
+            return $this->cacheCustomerGroups[$name];
         }
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $name));
         $group = $this->customerGroupRepository->search($criteria, Context::createDefaultContext())->first();
 
-        $this->customerGroups[$name] = null;
+        $this->cacheCustomerGroups[$name] = null;
         if ($group instanceof CustomerGroupEntity) {
-            $this->customerGroups[$name] = $group->getId();
+            $this->cacheCustomerGroups[$name] = $group->getId();
         }
 
-        return $this->customerGroups[$name];
+        return $this->cacheCustomerGroups[$name];
     }
 
     private function getDefaultPaymentMethodId(?string $name): ?string
@@ -125,20 +125,20 @@ class CustomerSerializer extends EntitySerializer
             return null;
         }
 
-        if (\array_key_exists($name, $this->paymentMethods)) {
-            return $this->paymentMethods[$name];
+        if (\array_key_exists($name, $this->cachePaymentMethods)) {
+            return $this->cachePaymentMethods[$name];
         }
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $name));
         $paymentMethod = $this->paymentMethodRepository->search($criteria, Context::createDefaultContext())->first();
 
-        $this->paymentMethods[$name] = null;
+        $this->cachePaymentMethods[$name] = null;
         if ($paymentMethod instanceof PaymentMethodEntity) {
-            $this->paymentMethods[$name] = $paymentMethod->getId();
+            $this->cachePaymentMethods[$name] = $paymentMethod->getId();
         }
 
-        return $this->paymentMethods[$name];
+        return $this->cachePaymentMethods[$name];
     }
 
     private function getSalesChannelId(?string $name): ?string
@@ -147,19 +147,19 @@ class CustomerSerializer extends EntitySerializer
             return null;
         }
 
-        if (\array_key_exists($name, $this->salesChannels)) {
-            return $this->salesChannels[$name];
+        if (\array_key_exists($name, $this->cacheSalesChannels)) {
+            return $this->cacheSalesChannels[$name];
         }
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', $name));
         $salesChannel = $this->salesChannelRepository->search($criteria, Context::createDefaultContext())->first();
 
-        $this->salesChannels[$name] = null;
+        $this->cacheSalesChannels[$name] = null;
         if ($salesChannel instanceof SalesChannelEntity) {
-            $this->salesChannels[$name] = $salesChannel->getId();
+            $this->cacheSalesChannels[$name] = $salesChannel->getId();
         }
 
-        return $this->salesChannels[$name];
+        return $this->cacheSalesChannels[$name];
     }
 }

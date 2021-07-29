@@ -17,9 +17,12 @@ use Shopware\Core\Content\ImportExport\ImportExport;
 use Shopware\Core\Content\ImportExport\ImportExportFactory;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
 use Shopware\Core\Content\ImportExport\Processing\Pipe\AbstractPipe;
+use Shopware\Core\Content\ImportExport\Processing\Pipe\PipeFactory;
 use Shopware\Core\Content\ImportExport\Processing\Reader\AbstractReader;
 use Shopware\Core\Content\ImportExport\Processing\Reader\CsvReader;
+use Shopware\Core\Content\ImportExport\Processing\Reader\CsvReaderFactory;
 use Shopware\Core\Content\ImportExport\Processing\Writer\AbstractWriter;
+use Shopware\Core\Content\ImportExport\Processing\Writer\CsvFileWriterFactory;
 use Shopware\Core\Content\ImportExport\Service\ImportExportService;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
@@ -34,11 +37,18 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
+use Shopware\Core\Framework\Event\NestedEventCollection;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
@@ -64,8 +74,8 @@ class ImportExportTest extends TestCase
     use BasicTestDataBehaviour;
     use SessionTestBehaviour;
     use RequestStackTestBehaviour;
-
     use SalesChannelApiTestBehaviour;
+    use SerializerCacheTestBehaviour;
 
     public const TEST_IMAGE = __DIR__ . '/fixtures/shopware-logo.png';
 
@@ -1345,6 +1355,100 @@ class ImportExportTest extends TestCase
         static::assertStringContainsString('Standard customer group', $csv);
     }
 
+    public function testImportWithCreateAndUpdateConfig(): void
+    {
+        if (!Feature::isActive('FEATURE_NEXT_8097')) {
+            static::markTestSkipped('FEATURE_NEXT_8097');
+        }
+
+        // expect default upsert
+        $mockRepo = $this->runCustomerImportWithConfigAndMockedRepository([
+            'createEntities' => true,
+            'updateEntities' => true,
+        ]);
+        static::assertEquals(5, $mockRepo->upsertCalls);
+        static::assertEquals(0, $mockRepo->createCalls);
+        static::assertEquals(0, $mockRepo->updateCalls);
+
+        // expect create
+        $mockRepo = $this->runCustomerImportWithConfigAndMockedRepository([
+            'createEntities' => true,
+            'updateEntities' => false,
+        ]);
+        static::assertEquals(0, $mockRepo->upsertCalls);
+        static::assertEquals(5, $mockRepo->createCalls);
+        static::assertEquals(0, $mockRepo->updateCalls);
+
+        // expect update
+        $mockRepo = $this->runCustomerImportWithConfigAndMockedRepository([
+            'createEntities' => false,
+            'updateEntities' => true,
+        ]);
+        static::assertEquals(0, $mockRepo->upsertCalls);
+        static::assertEquals(0, $mockRepo->createCalls);
+        static::assertEquals(5, $mockRepo->updateCalls);
+
+        // expect upsert if both flags are false
+        $mockRepo = $this->runCustomerImportWithConfigAndMockedRepository([
+            'createEntities' => false,
+            'updateEntities' => false,
+        ]);
+        static::assertEquals(5, $mockRepo->upsertCalls);
+        static::assertEquals(0, $mockRepo->createCalls);
+        static::assertEquals(0, $mockRepo->updateCalls);
+    }
+
+    private function runCustomerImportWithConfigAndMockedRepository(array $configOverrides): MockRepository
+    {
+        $context = Context::createDefaultContext();
+        $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
+
+        $importExportService = $this->getContainer()->get(ImportExportService::class);
+        $expireDate = new \DateTimeImmutable('2099-01-01');
+
+        // setup profile
+        $clonedCustomerProfile = $this->cloneDefaultProfile(CustomerDefinition::ENTITY_NAME);
+        $config = array_merge($clonedCustomerProfile->getConfig(), $configOverrides);
+        $this->updateProfileConfig($clonedCustomerProfile->getId(), $config);
+
+        $file = new UploadedFile(__DIR__ . '/fixtures/customers.csv', 'customers_used_with_config.csv', 'text/csv');
+        $logEntity = $importExportService->prepareImport(
+            $context,
+            $clonedCustomerProfile->getId(),
+            $expireDate,
+            $file
+        );
+
+        $progress = new Progress($logEntity->getId(), Progress::STATE_PROGRESS, 0, null);
+
+        $pipeFactory = $this->getContainer()->get(PipeFactory::class);
+        $readerFactory = $this->getContainer()->get(CsvReaderFactory::class);
+        $writerFactory = $this->getContainer()->get(CsvFileWriterFactory::class);
+
+        $mockRepository = new MockRepository($this->getContainer()->get(CustomerDefinition::class));
+
+        $importExport = new ImportExport(
+            $importExportService,
+            $logEntity,
+            $this->getContainer()->get('shopware.filesystem.private'),
+            $this->getContainer()->get('event_dispatcher'),
+            $mockRepository,
+            $pipeFactory->create($logEntity),
+            $readerFactory->create($logEntity),
+            $writerFactory->create($logEntity),
+            5,
+            5
+        );
+
+        do {
+            $progress = $importExport->import($context, $progress->getOffset());
+        } while (!$progress->isFinished());
+
+        static::assertSame(Progress::STATE_SUCCEEDED, $progress->getState(), 'Import with MockRepository failed. Maybe check for mock errors.');
+
+        return $mockRepository;
+    }
+
     private function getDefaultProfileId(string $entity): string
     {
         /** @var EntityRepositoryInterface $profileRepository */
@@ -1378,6 +1482,19 @@ class ImportExportTest extends TestCase
             [
                 'id' => $profileId,
                 'mapping' => $mappings,
+            ],
+        ], Context::createDefaultContext());
+    }
+
+    private function updateProfileConfig(string $profileId, array $config): void
+    {
+        /** @var EntityRepositoryInterface $profileRepository */
+        $profileRepository = $this->getContainer()->get('import_export_profile.repository');
+
+        $profileRepository->update([
+            [
+                'id' => $profileId,
+                'config' => $config,
             ],
         ], Context::createDefaultContext());
     }
@@ -1588,3 +1705,83 @@ class StockSubscriber implements EventSubscriberInterface
     }
 }
 // phpcs:enable
+
+class MockRepository implements EntityRepositoryInterface
+{
+    public $createCalls = 0;
+
+    public $updateCalls = 0;
+
+    public $upsertCalls = 0;
+
+    /**
+     * @var EntityDefinition
+     */
+    private $definition;
+
+    public function __construct(EntityDefinition $definition)
+    {
+        $this->definition = $definition;
+    }
+
+    public function getDefinition(): EntityDefinition
+    {
+        return $this->definition;
+    }
+
+    public function aggregate(Criteria $criteria, Context $context): AggregationResultCollection
+    {
+        throw new \Error('MockRepository->aggregate: Not implemented');
+    }
+
+    public function searchIds(Criteria $criteria, Context $context): IdSearchResult
+    {
+        throw new \Error('MockRepository->searchIds: Not implemented');
+    }
+
+    public function clone(string $id, Context $context, ?string $newId = null, ?CloneBehavior $behavior = null): EntityWrittenContainerEvent
+    {
+        throw new \Error('MockRepository->clone: Not implemented');
+    }
+
+    public function search(Criteria $criteria, Context $context): EntitySearchResult
+    {
+        throw new \Error('MockRepository->search: Not implemented');
+    }
+
+    public function update(array $data, Context $context): EntityWrittenContainerEvent
+    {
+        ++$this->updateCalls;
+
+        return new EntityWrittenContainerEvent($context, new NestedEventCollection(), []);
+    }
+
+    public function upsert(array $data, Context $context): EntityWrittenContainerEvent
+    {
+        ++$this->upsertCalls;
+
+        return new EntityWrittenContainerEvent($context, new NestedEventCollection(), []);
+    }
+
+    public function create(array $data, Context $context): EntityWrittenContainerEvent
+    {
+        ++$this->createCalls;
+
+        return new EntityWrittenContainerEvent($context, new NestedEventCollection(), []);
+    }
+
+    public function delete(array $ids, Context $context): EntityWrittenContainerEvent
+    {
+        throw new \Error('MockRepository->delete: Not implemented');
+    }
+
+    public function createVersion(string $id, Context $context, ?string $name = null, ?string $versionId = null): string
+    {
+        throw new \Error('MockRepository->createVersion: Not implemented');
+    }
+
+    public function merge(string $versionId, Context $context): void
+    {
+        throw new \Error('MockRepository->merge: Not implemented');
+    }
+}

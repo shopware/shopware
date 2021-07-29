@@ -16,19 +16,23 @@ exports[`module/sw-settings/page/sw-settings-index should render correctly 1`] =
         <a
           class="sw-tabs-item sw-settings__tab-shop"
           title="sw-settings.index.tabShop"
+          to="[object Object]"
         >
           
                         sw-settings.index.tabShop
-                    
+                     
+          <!---->
         </a>
          
         <a
           class="sw-tabs-item sw-settings__tab-system"
           title="sw-settings.index.tabSystem"
+          to="[object Object]"
         >
           
                         sw-settings.index.tabSystem
-                    
+                     
+          <!---->
         </a>
          
         <!---->
@@ -129,6 +133,7 @@ exports[`module/sw-settings/page/sw-settings-index should render correctly 1`] =
           <div
             class="sw-settings__content-grid"
             id="sw-settings__content-grid-shop"
+            style="display: none;"
           >
             <a
               class="sw-settings-item"

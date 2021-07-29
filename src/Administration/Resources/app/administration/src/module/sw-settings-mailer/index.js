@@ -15,7 +15,7 @@ Shopware.Module.register('sw-settings-mailer', {
             component: 'sw-settings-mailer',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.index',
+                parentPath: 'sw.settings.index.system',
                 privilege: 'system.system_config',
             },
         },

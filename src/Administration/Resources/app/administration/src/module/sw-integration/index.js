@@ -20,7 +20,7 @@ Module.register('sw-integration', {
             component: 'sw-integration-list',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.index',
+                parentPath: 'sw.settings.index.system',
                 privilege: 'integration.viewer',
             },
         },

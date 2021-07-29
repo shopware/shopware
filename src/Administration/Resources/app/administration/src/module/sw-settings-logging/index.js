@@ -21,7 +21,7 @@ Module.register('sw-settings-logging', {
             component: 'sw-settings-logging-list',
             path: 'list',
             meta: {
-                parentPath: 'sw.settings.index',
+                parentPath: 'sw.settings.index.system',
                 privilege: 'system.logging',
             },
         },

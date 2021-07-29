@@ -29,7 +29,7 @@ Shopware.Module.register('sw-users-permissions', {
             component: 'sw-users-permissions',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.index',
+                parentPath: 'sw.settings.index.system',
                 privilege: 'users_and_permissions.viewer',
             },
         },

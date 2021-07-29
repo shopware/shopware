@@ -16,7 +16,7 @@ Module.register('sw-settings-store', {
             component: 'sw-settings-store',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.index',
+                parentPath: 'sw.settings.index.system',
                 privilege: 'system.system_config',
             },
         },

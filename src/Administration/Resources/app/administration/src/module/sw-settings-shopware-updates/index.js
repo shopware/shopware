@@ -24,7 +24,7 @@ Module.register('sw-settings-shopware-updates', {
             component: 'sw-settings-shopware-updates-index',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.index',
+                parentPath: 'sw.settings.index.system',
                 privilege: 'system.core_update',
             },
         },
@@ -32,7 +32,7 @@ Module.register('sw-settings-shopware-updates', {
             component: 'sw-settings-shopware-updates-wizard',
             path: 'wizard',
             meta: {
-                parentPath: 'sw.settings.index',
+                parentPath: 'sw.settings.index.system',
                 privilege: 'system.core_update',
             },
         },

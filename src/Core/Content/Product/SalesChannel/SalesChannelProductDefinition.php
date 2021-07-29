@@ -14,6 +14,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
@@ -37,6 +39,16 @@ class SalesChannelProductDefinition extends ProductDefinition implements SalesCh
             $criteria->addFilter(
                 new ProductAvailableFilter($context->getSalesChannel()->getId(), ProductVisibilityDefinition::VISIBILITY_LINK)
             );
+        }
+
+        if ($criteria->hasAssociation('productReviews')) {
+            $association = $criteria->getAssociation('productReviews');
+            $activeReviewsFilter = new MultiFilter(MultiFilter::CONNECTION_OR, [new EqualsFilter('status', true)]);
+            if ($customer = $context->getCustomer()) {
+                $activeReviewsFilter->addQuery(new EqualsFilter('customerId', $customer->getId()));
+            }
+
+            $association->addFilter($activeReviewsFilter);
         }
     }
 

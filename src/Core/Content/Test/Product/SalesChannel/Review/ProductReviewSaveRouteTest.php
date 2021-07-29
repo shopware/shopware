@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Test\Product\SalesChannel\Review;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -161,84 +160,6 @@ class ProductReviewSaveRouteTest extends TestCase
             ->fetchColumn('SELECT COUNT(*) FROM product_review WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($this->ids->get('product'))]);
 
         static::assertEquals($expected, $count);
-    }
-
-    private function login(): void
-    {
-        $email = Uuid::randomHex() . '@example.com';
-        $this->createCustomer('shopware', $email);
-
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/account/login',
-                [
-                    'email' => $email,
-                    'password' => 'shopware',
-                ]
-            );
-
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
-
-        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
-    }
-
-    private function createCustomer(string $password, ?string $email = null): string
-    {
-        $customerId = Uuid::randomHex();
-        $addressId = Uuid::randomHex();
-
-        $this->getContainer()->get('customer.repository')->create([
-            [
-                'id' => $customerId,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
-                'defaultShippingAddress' => [
-                    'id' => $addressId,
-                    'firstName' => 'Max',
-                    'lastName' => 'Mustermann',
-                    'street' => 'Musterstraße 1',
-                    'city' => 'Schoöppingen',
-                    'zipcode' => '12345',
-                    'salutationId' => $this->getValidSalutationId(),
-                    'countryId' => $this->getValidCountryId(),
-                ],
-                'defaultBillingAddressId' => $addressId,
-                'defaultPaymentMethod' => [
-                    'name' => 'Invoice',
-                    'active' => true,
-                    'description' => 'Default payment method',
-                    'handlerIdentifier' => SyncTestPaymentHandler::class,
-                    'availabilityRule' => [
-                        'id' => Uuid::randomHex(),
-                        'name' => 'true',
-                        'priority' => 0,
-                        'conditions' => [
-                            [
-                                'type' => 'cartCartAmount',
-                                'value' => [
-                                    'operator' => '>=',
-                                    'amount' => 0,
-                                ],
-                            ],
-                        ],
-                    ],
-                    'salesChannels' => [
-                        [
-                            'id' => Defaults::SALES_CHANNEL,
-                        ],
-                    ],
-                ],
-                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-                'email' => $email,
-                'password' => $password,
-                'firstName' => 'Fooo',
-                'lastName' => 'Barr',
-                'salutationId' => $this->getValidSalutationId(),
-                'customerNumber' => '12345',
-            ],
-        ], $this->ids->context);
-
-        return $customerId;
     }
 
     private function createData(): void

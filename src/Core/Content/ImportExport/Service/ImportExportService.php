@@ -219,7 +219,7 @@ class ImportExportService
             'path' => $path,
             'size' => $this->filesystem->getSize($path),
             'expireDate' => $expireDate,
-            'accessToken' => ImportExportFileEntity::generateAccessToken(),
+            'accessToken' => null,
         ];
 
         $this->fileRepository->create([$fileData], $context);

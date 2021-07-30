@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\App\Manifest\Xml;
 
+use Shopware\Core\Framework\App\Exception\InvalidArgumentException;
+
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
  */
@@ -54,6 +56,10 @@ class Admin extends XmlElement
 
     private static function parseChilds(\DOMElement $element): array
     {
+        if (\count($element->getElementsByTagName('main-module')) > 1) {
+            throw new InvalidArgumentException('Main module must only appear once');
+        }
+
         $actionButtons = [];
         foreach ($element->getElementsByTagName('action-button') as $actionButton) {
             $actionButtons[] = ActionButton::fromXml($actionButton);

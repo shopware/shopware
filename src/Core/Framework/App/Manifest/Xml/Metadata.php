@@ -15,6 +15,15 @@ class Metadata extends XmlElement
         'privacyPolicyExtensions',
     ];
 
+    public const REQUIRED_FIELDS = [
+        'label',
+        'name',
+        'author',
+        'copyright',
+        'license',
+        'version',
+    ];
+
     /**
      * @var array
      */
@@ -67,6 +76,8 @@ class Metadata extends XmlElement
 
     private function __construct(array $data)
     {
+        $this->validateRequiredElements($data, self::REQUIRED_FIELDS);
+
         foreach ($data as $property => $value) {
             $this->$property = $value;
         }

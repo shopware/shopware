@@ -31,7 +31,7 @@ Shopware.Component.register('sw-cms-el-config-product-listing-config-filter-prop
         },
 
         visibleProperties() {
-            return this.properties.slice((this.page - 1) * this.limit, (this.page - 1) * this.limit + this.limit);
+            return this.properties;
         },
 
         paginationVisible() {
@@ -39,7 +39,7 @@ Shopware.Component.register('sw-cms-el-config-product-listing-config-filter-prop
         },
 
         total() {
-            return this.properties.length;
+            return this.properties.total;
         },
 
         gridColumns() {
@@ -62,7 +62,7 @@ Shopware.Component.register('sw-cms-el-config-product-listing-config-filter-prop
         onPageChange({ page, limit }) {
             this.page = page;
             this.limit = limit;
-            this.$emit('page-change');
+            this.$emit('page-change', { page, limit });
         },
 
         onChangePropertyStatus(item) {

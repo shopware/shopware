@@ -96,13 +96,17 @@ class SalesChannelContextRestorer
 
     private function mergeCart(Cart $customerCart, Cart $guestCart, SalesChannelContext $customerContext): Cart
     {
+        $customerCartAlreadyContainedItems = $customerCart->getLineItems()->count() > 0;
+
         $mergeableLineItems = $guestCart->getLineItems()->filter(function (LineItem $item) use ($customerCart) {
             return ($item->getQuantity() > 0 && $item->isStackable()) || !$customerCart->has($item->getId());
         });
 
         $mergedCart = $this->cartService->add($customerCart, $mergeableLineItems->getElements(), $customerContext);
 
-        $this->eventDispatcher->dispatch(new CartMergedEvent($mergedCart, $customerContext));
+        if ($customerCartAlreadyContainedItems) {
+            $this->eventDispatcher->dispatch(new CartMergedEvent($mergedCart, $customerContext));
+        }
 
         return $mergedCart;
     }

@@ -6,6 +6,8 @@ import template from './sw-extension-my-extensions-index.html.twig';
 Shopware.Component.register('sw-extension-my-extensions-index', {
     template,
 
+    inject: ['acl'],
+
     computed: {
         searchValue: {
             get() {

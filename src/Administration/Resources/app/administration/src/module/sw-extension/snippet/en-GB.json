@@ -50,7 +50,10 @@
       },
       "fileUpload": {
         "buttonFileUpload": "Upload extension",
-        "messageUploadSuccess": "Extension uploaded."
+        "messageUploadSuccess": "Extension uploaded.",
+        "titleWarningModal": "Warning",
+        "descriptionWarningModal": "Extensions from outside the Shopware Store have not been reviewed by us and could potentially pose a risk to your store. We recommend using extensions from the Shopware Store whenever possible.",
+        "textHideWarning": "Do not show again"
       }
     },
     "errors": {

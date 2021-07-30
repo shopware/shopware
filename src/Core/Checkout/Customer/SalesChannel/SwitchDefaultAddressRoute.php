@@ -97,7 +97,7 @@ class SwitchDefaultAddressRoute extends AbstractSwitchDefaultAddressRoute
         $this->validateAddress($addressId, $context, $customer);
 
         switch ($type) {
-            case 'billing':
+            case self::TYPE_BILLING:
                 $data = [
                     'id' => $customer->getId(),
                     'defaultBillingAddressId' => $addressId,

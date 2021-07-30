@@ -64,7 +64,7 @@ Component.register('sw-login-login', {
                 if (shouldReload) {
                     sessionStorage.removeItem('sw-login-should-reload');
                     // reload page to rebuild the administration with all dependencies
-                    this.$router.go();
+                    window.location.reload(true);
                 }
             });
         },

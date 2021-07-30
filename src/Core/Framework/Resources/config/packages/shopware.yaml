@@ -208,6 +208,11 @@ shopware:
               default: false
               major: true
               description: "Optional salutation"
+            - name: FEATURE_NEXT_16200
+              default: false
+              major: false
+              description: "Register Doi Domain"
+              # issue: NEXT-16200
             - name: FEATURE_NEXT_8097
               default: false
               major: false

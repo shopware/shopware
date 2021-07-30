@@ -25,10 +25,21 @@
         <input-field type="bool">
             <name>doubleOptInRegistered</name>
             <flag>FEATURE_NEXT_14001</flag>
-            <label>Double Opt-in for registered customers</label>
+            <label>Double opt-in for registered customers</label>
             <label lang="de-DE">Double Opt-in für registrierte Kunden</label>
             <helpText>Use Double Opt-in for newsletter subscriptions for registered Customers.</helpText>
             <helpText lang="de-DE">Nutze das Double Opt-In Verfahren für Newsletter Anmeldungen für registrierte Kunden.</helpText>
+        </input-field>
+
+        <!-- @internal (FEATURE_NEXT_16200) remove this comment -->
+        <input-field type="text">
+            <name>doubleOptInDomain</name>
+            <flag>FEATURE_NEXT_16200</flag>
+            <label>Double opt-in Domain</label>
+            <label lang="de-DE">Double Opt-In Domain</label>
+            <placeholder><![CDATA[https://localhost]]></placeholder>
+            <helpText>Leave empty to use saleschannel domain.</helpText>
+            <helpText lang="de-DE">Leer lassen um die Domain des Saleschannels zu nutzen.</helpText>
         </input-field>
 
     </card>

@@ -8,6 +8,7 @@ use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterSubscribeUrlEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
@@ -223,45 +224,89 @@ class NewsletterSubscribeRouteTest extends TestCase
 
     public function testSubscribeChangedConfirmUrl(): void
     {
-        $systemConfig = $this->getContainer()->get(SystemConfigService::class);
+        try {
+            $systemConfig = $this->getContainer()->get(SystemConfigService::class);
 
-        $systemConfig->set('core.newsletter.doubleOptIn', true);
-        $systemConfig->set('core.newsletter.subscribeUrl', '/custom-newsletter/confirm/%%HASHEDEMAIL%%/%%SUBSCRIBEHASH%%');
+            $systemConfig->set('core.newsletter.doubleOptIn', true);
+            $systemConfig->set('core.newsletter.subscribeUrl', '/custom-newsletter/confirm/%%HASHEDEMAIL%%/%%SUBSCRIBEHASH%%');
 
-        /** @var EventDispatcherInterface $dispatcher */
-        $dispatcher = $this->getContainer()->get('event_dispatcher');
+            /** @var EventDispatcherInterface $dispatcher */
+            $dispatcher = $this->getContainer()->get('event_dispatcher');
 
-        $dispatcher->addListener(
-            NewsletterSubscribeUrlEvent::class,
-            static function (NewsletterSubscribeUrlEvent $event): void {
-                $event->setSubscribeUrl($event->getSubscribeUrl() . '?specialParam=false');
-            }
-        );
-
-        $caughtEvent = null;
-        $dispatcher->addListener(
-            NewsletterRegisterEvent::class,
-            static function (NewsletterRegisterEvent $event) use (&$caughtEvent): void {
-                $caughtEvent = $event;
-            }
-        );
-
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/newsletter/subscribe',
-                [
-                    'status' => 'optIn',
-                    'email' => 'test@example.com',
-                    'option' => 'subscribe',
-                    'storefrontUrl' => 'http://localhost',
-                ]
+            $dispatcher->addListener(
+                NewsletterSubscribeUrlEvent::class,
+                static function (NewsletterSubscribeUrlEvent $event): void {
+                    $event->setSubscribeUrl($event->getSubscribeUrl() . '?specialParam=false');
+                }
             );
 
-        /** @var NewsletterRegisterEvent $caughtEvent */
-        static::assertInstanceOf(NewsletterRegisterEvent::class, $caughtEvent);
-        static::assertStringStartsWith('http://localhost/custom-newsletter/confirm/', $caughtEvent->getUrl());
-        static::assertStringEndsWith('?specialParam=false', $caughtEvent->getUrl());
+            $caughtEvent = null;
+            $dispatcher->addListener(
+                NewsletterRegisterEvent::class,
+                static function (NewsletterRegisterEvent $event) use (&$caughtEvent): void {
+                    $caughtEvent = $event;
+                }
+            );
+
+            $this->browser
+                ->request(
+                    'POST',
+                    '/store-api/newsletter/subscribe',
+                    [
+                        'status' => 'optIn',
+                        'email' => 'test@example.com',
+                        'option' => 'subscribe',
+                        'storefrontUrl' => 'http://localhost',
+                    ]
+                );
+
+            /** @var NewsletterRegisterEvent $caughtEvent */
+            static::assertInstanceOf(NewsletterRegisterEvent::class, $caughtEvent);
+            static::assertStringStartsWith('http://localhost/custom-newsletter/confirm/', $caughtEvent->getUrl());
+            static::assertStringEndsWith('?specialParam=false', $caughtEvent->getUrl());
+        } finally {
+            $systemConfig->set('core.newsletter.doubleOptIn', false);
+            $systemConfig->set('core.newsletter.subscribeUrl', null);
+        }
+    }
+
+    public function testSubscribeChangedConfirmDomain(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_16200', $this);
+
+        try {
+            $systemConfig = $this->getContainer()->get(SystemConfigService::class);
+
+            $systemConfig->set('core.newsletter.doubleOptInDomain', 'http://test.test');
+
+            /** @var EventDispatcherInterface $dispatcher */
+            $dispatcher = $this->getContainer()->get('event_dispatcher');
+
+            $caughtEvent = null;
+            $dispatcher->addListener(
+                NewsletterRegisterEvent::class,
+                static function (NewsletterRegisterEvent $event) use (&$caughtEvent): void {
+                    $caughtEvent = $event;
+                }
+            );
+
+            $this->browser
+                ->request(
+                    'POST',
+                    '/store-api/newsletter/subscribe',
+                    [
+                        'status' => 'optIn',
+                        'email' => 'test@example.com',
+                        'option' => 'subscribe',
+                    ]
+                );
+
+            /** @var NewsletterRegisterEvent $caughtEvent */
+            static::assertInstanceOf(NewsletterRegisterEvent::class, $caughtEvent);
+            static::assertStringStartsWith('http://test.test/newsletter-subscribe?em=', $caughtEvent->getUrl());
+        } finally {
+            $systemConfig->set('core.newsletter.doubleOptInDomain', null, $this->salesChannelId);
+        }
     }
 
     /**

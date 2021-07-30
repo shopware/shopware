@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
@@ -196,6 +197,18 @@ The subscription is only successful, if the /newsletter/confirm route is called 
      */
     public function subscribe(RequestDataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl = true): NoContentResponse
     {
+        /* @feature-deprecated (flag:FEATURE_NEXT_16200) remove the if conditio, keep its body */
+        if (Feature::isActive('FEATURE_NEXT_16200')) {
+            $doubleOptInDomain = $this->systemConfigService->getString(
+                'core.newsletter.doubleOptInDomain',
+                $context->getSalesChannelId()
+            );
+            if ($doubleOptInDomain !== '') {
+                $dataBag->set('storefrontUrl', $doubleOptInDomain);
+                $validateStorefrontUrl = false;
+            }
+        }
+
         $validator = $this->getOptInValidator($context, $validateStorefrontUrl);
         $this->validator->validate($dataBag->all(), $validator);
 

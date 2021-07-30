@@ -374,6 +374,7 @@ Component.register('sw-data-grid', {
                         visible: column.visible,
                         align: column.visible,
                         naturalSorting: column.naturalSorting,
+                        position: Object.keys(obj).length,
                     },
                 };
             }, {});
@@ -391,6 +392,12 @@ Component.register('sw-data-grid', {
 
                         return localValue;
                     });
+            }).sort((columnA, columnB) => {
+                const positionA = userColumnSettings[columnA.dataIndex] !== undefined ?
+                    userColumnSettings[columnA.dataIndex].position : -1;
+                const positionB = userColumnSettings[columnB.dataIndex] !== undefined ?
+                    userColumnSettings[columnB.dataIndex].position : -1;
+                return positionA - positionB;
             });
         },
 

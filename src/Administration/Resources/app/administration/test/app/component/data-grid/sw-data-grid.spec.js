@@ -182,8 +182,8 @@ describe('components/data-grid/sw-data-grid', () => {
 
 
         // check default columns
-        expect(wrapper.vm.currentColumns[0].visible).toBe(defaultUserConfig.value.columns[0].visible);
-        expect(wrapper.vm.currentColumns[1].visible).toBe(defaultUserConfig.value.columns[1].visible);
+        expect(wrapper.vm.currentColumns.find(e => e.dataIndex === 'name').visible).toBe(defaultUserConfig.value.columns[0].visible);
+        expect(wrapper.vm.currentColumns.find(e => e.dataIndex === 'company').visible).toBe(defaultUserConfig.value.columns[1].visible);
 
         expect(wrapper.vm.compact).toBe(defaultUserConfig.value.compact);
         expect(wrapper.vm.previews).toBe(defaultUserConfig.value.previews);
@@ -194,7 +194,7 @@ describe('components/data-grid/sw-data-grid', () => {
         const name = wrapper.find('.sw-data-grid__settings-item--0 input');
         await name.setChecked(valueChecked);
 
-        expect(wrapper.vm.currentColumns[0].visible).toBe(valueChecked);
+        expect(wrapper.vm.currentColumns.find(e => e.dataIndex === 'name').visible).toBe(valueChecked);
     });
 
     it('remove property in client', async () => {
@@ -252,8 +252,8 @@ describe('components/data-grid/sw-data-grid', () => {
 
 
         // check default columns
-        expect(wrapper.vm.currentColumns[0].visible).toBe(false);
-        expect(wrapper.vm.currentColumns[1]).toBe(undefined);
+        expect(wrapper.vm.currentColumns.find(e => e.dataIndex === 'name').visible).toBe(false);
+        expect(wrapper.vm.currentColumns.find(e => e.dataIndex === 'company')).toBe(undefined);
 
         expect(wrapper.vm.compact).toBe(true);
         expect(wrapper.vm.previews).toBe(true);
@@ -309,8 +309,8 @@ describe('components/data-grid/sw-data-grid', () => {
 
 
         // check default columns
-        expect(wrapper.vm.currentColumns[0].visible).toBe(false);
-        expect(wrapper.vm.currentColumns[1].visible).toBe(true);
+        expect(wrapper.vm.currentColumns.find(e => e.dataIndex === 'name').visible).toBe(false);
+        expect(wrapper.vm.currentColumns.find(e => e.dataIndex === 'company').visible).toBe(true);
 
         expect(wrapper.vm.compact).toBe(true);
         expect(wrapper.vm.previews).toBe(true);
@@ -370,8 +370,8 @@ describe('components/data-grid/sw-data-grid', () => {
 
 
         // check default columns
-        expect(wrapper.vm.currentColumns[0].visible).toBe(false);
-        expect(wrapper.vm.currentColumns[0].mockProperty).toBe(true);
+        expect(wrapper.vm.currentColumns.find(e => e.dataIndex === 'name').visible).toBe(false);
+        expect(wrapper.vm.currentColumns.find(e => e.dataIndex === 'name').mockProperty).toBe(true);
 
         expect(wrapper.vm.compact).toBe(true);
         expect(wrapper.vm.previews).toBe(true);
@@ -427,8 +427,8 @@ describe('components/data-grid/sw-data-grid', () => {
 
 
         // check default columns
-        expect(wrapper.vm.currentColumns[0].visible).toBe(false);
-        expect(wrapper.vm.currentColumns[0].mockProperty).toBe(undefined);
+        expect(wrapper.vm.currentColumns.find(e => e.dataIndex === 'name').visible).toBe(false);
+        expect(wrapper.vm.currentColumns.find(e => e.dataIndex === 'name').mockProperty).toBe(undefined);
 
 
         expect(wrapper.vm.compact).toBe(true);

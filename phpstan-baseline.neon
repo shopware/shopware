@@ -1666,11 +1666,6 @@ parameters:
 			path: src/Core/Framework/Api/OAuth/RefreshTokenRepository.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Api\\\\OAuth\\\\ScopeRepository\\:\\:getScopeEntityByIdentifier\\(\\) should return League\\\\OAuth2\\\\Server\\\\Entities\\\\ScopeEntityInterface but returns League\\\\OAuth2\\\\Server\\\\Entities\\\\ScopeEntityInterface\\|null\\.$#"
-			count: 1
-			path: src/Core/Framework/Api/OAuth/ScopeRepository.php
-
-		-
 			message: "#^Parameter \\#1 \\$str of function mb_strtolower expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Framework/Api/Response/Type/JsonFactoryBase.php

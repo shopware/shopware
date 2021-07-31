@@ -211,7 +211,7 @@ const webpackConfig = {
                     include: [
                         path.resolve(__dirname, 'src'),
                         path.resolve(__dirname, 'test'),
-                        ...pluginEntries.map(plugin => fs.realpathSync(plugin.filePath))
+                        ...pluginEntries.filter(plugin => !plugin.basePath.includes('vendor')).map(plugin => fs.realpathSync(plugin.filePath))
                     ],
                     options: {
                         configFile: path.join(__dirname, '.eslintrc.js'),

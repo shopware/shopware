@@ -42,6 +42,8 @@ class ThemeCompiler implements ThemeCompilerInterface
 
     private AbstractThemePathBuilder $themePathBuilder;
 
+    private bool $debug;
+
     public function __construct(
         FilesystemInterface $filesystem,
         FilesystemInterface $tempFilesystem,
@@ -66,6 +68,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         $this->packages = $packages;
         $this->logger = $logger;
         $this->themePathBuilder = $themePathBuilder;
+        $this->debug = $debug;
     }
 
     public function compileTheme(
@@ -194,7 +197,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         }
         $autoPreFixer = new Autoprefixer($cssOutput);
         /** @var string|false $compiled */
-        $compiled = $autoPreFixer->compile();
+        $compiled = $autoPreFixer->compile($this->debug);
         if ($compiled === false) {
             throw new ThemeCompileException(
                 $configuration->getTechnicalName(),

@@ -172,9 +172,8 @@ class SalesChannelContextPersister
             ->update('sales_channel_api_context')
             ->set('payload', ':payload')
             ->set('customer_id', 'NULL')
-            ->where('JSON_EXTRACT(payload, :customerPath) = :customerId')
+            ->where('customer_id = :customerId')
             ->setParameter(':payload', json_encode($revokeParams))
-            ->setParameter(':customerPath', '$.customerId')
             ->setParameter(':customerId', $customerId);
 
         // keep tokens valid, which are given in $preserveTokens

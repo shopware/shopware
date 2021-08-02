@@ -261,12 +261,17 @@ describe('Country: Test acl privileges', () => {
         // choose "state tab"
         cy.get('.sw-settings-country__state-tab').click();
 
+        cy.get('.sw-data-grid.sw-settings-country-state-list__content')
+            .should('be.visible');
+
         // click on the first element in grid
         cy.get(`
-            .sw-settings-country-state-list__content
             ${page.elements.dataGridRow}--0
-            .sw-settings-country-state__link
+            .sw-context-button__button
         `).click();
+
+        cy.get('.sw-context-menu__content').should('be.visible');
+        cy.get('.sw-context-menu-item.sw-settings-country-state__edit-country-state-action').click();
 
         // assert that modal appears
         cy.get('.sw-modal__body').should('be.visible');
@@ -294,13 +299,18 @@ describe('Country: Test acl privileges', () => {
         // assert that state is updated successfully
         cy.get(`${page.elements.countryStateListContent}`).should('be.visible');
         cy.get(`
-        ${page.elements.countryStateListContent}
-        ${page.elements.dataGridRow}--0
-        ${page.elements.countryStateColumnName}`).should('be.visible').contains('000');
+            ${page.elements.countryStateListContent}
+            ${page.elements.dataGridRow}--0
+            ${page.elements.countryStateColumnName}`
+        ).should('be.visible').contains('000');
 
         // assert that state is updated successfully
         cy.get('.sw-settings-country-state-list__content').should('be.visible');
-        cy.get(`.sw-settings-country-state-list__content ${page.elements.dataGridRow}--0 ${page.elements.countryStateColumnName}`).should('be.visible').contains('000');
+        cy.get(`
+            .sw-settings-country-state-list__content
+            ${page.elements.dataGridRow}--0
+            ${page.elements.countryStateColumnName}`
+        ).should('be.visible').contains('000');
     });
 
     it('@settings: can create a state', () => {
@@ -366,8 +376,7 @@ describe('Country: Test acl privileges', () => {
         `).should('be.visible').contains('000');
 
         // assert that state is created successfully
-        cy.get('.sw-settings-country-state-list__content').should('be.visible');
-        cy.get('.sw-settings-country-state-list__content .sw-settings-country-state__link')
+        cy.get(`.sw-settings-country-state-list__content ${page.elements.countryStateColumnName}`)
             .should('be.visible').contains('000');
     });
 

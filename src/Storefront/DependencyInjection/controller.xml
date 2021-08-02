@@ -18,6 +18,8 @@
             <argument type="service" id="Shopware\Storefront\Page\Account\Order\AccountOrderDetailPageLoader"/>
             <argument type="service" id="order.repository"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderService"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

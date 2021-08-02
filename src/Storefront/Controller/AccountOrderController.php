@@ -4,11 +4,14 @@ namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
+use Shopware\Core\Checkout\Cart\Exception\OrderPaymentMethodNotChangeable;
 use Shopware\Core\Checkout\Customer\Exception\CustomerAuthThrottledException;
 use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
 use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\AbstractCancelOrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\AbstractSetPaymentOrderRoute;
+use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\Exception\PaymentProcessException;
 use Shopware\Core\Checkout\Payment\SalesChannel\AbstractHandlePaymentMethodRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -22,6 +25,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterfac
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\SalesChannel\AbstractContextSwitchRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Event\RouteRequest\CancelOrderRouteRequestEvent;
 use Shopware\Storefront\Event\RouteRequest\HandlePaymentMethodRouteRequestEvent;
 use Shopware\Storefront\Event\RouteRequest\SetPaymentOrderRouteRequestEvent;
@@ -38,55 +42,29 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class AccountOrderController extends StorefrontController
 {
-    /**
-     * @var AccountOrderPageLoader
-     */
-    private $orderPageLoader;
+    private AccountOrderPageLoader $orderPageLoader;
 
-    /**
-     * @var AbstractContextSwitchRoute
-     */
-    private $contextSwitchRoute;
+    private AbstractContextSwitchRoute $contextSwitchRoute;
 
-    /**
-     * @var AccountEditOrderPageLoader
-     */
-    private $accountEditOrderPageLoader;
+    private AccountEditOrderPageLoader $accountEditOrderPageLoader;
 
-    /**
-     * @var AbstractCancelOrderRoute
-     */
-    private $cancelOrderRoute;
+    private AbstractCancelOrderRoute $cancelOrderRoute;
 
-    /**
-     * @var AbstractSetPaymentOrderRoute
-     */
-    private $setPaymentOrderRoute;
+    private AbstractSetPaymentOrderRoute $setPaymentOrderRoute;
 
-    /**
-     * @var AbstractHandlePaymentMethodRoute
-     */
-    private $handlePaymentMethodRoute;
+    private AbstractHandlePaymentMethodRoute $handlePaymentMethodRoute;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var AccountOrderDetailPageLoader
-     */
-    private $orderDetailPageLoader;
+    private AccountOrderDetailPageLoader $orderDetailPageLoader;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $orderRepository;
+    private EntityRepositoryInterface $orderRepository;
 
-    /**
-     * @var SalesChannelContextServiceInterface
-     */
-    private $contextService;
+    private SalesChannelContextServiceInterface $contextService;
+
+    private SystemConfigService $systemConfigService;
+
+    private OrderService $orderService;
 
     public function __construct(
         AccountOrderPageLoader $orderPageLoader,
@@ -98,7 +76,9 @@ class AccountOrderController extends StorefrontController
         EventDispatcherInterface $eventDispatcher,
         AccountOrderDetailPageLoader $orderDetailPageLoader,
         EntityRepositoryInterface $orderRepository,
-        SalesChannelContextServiceInterface $contextService
+        SalesChannelContextServiceInterface $contextService,
+        SystemConfigService $systemConfigService,
+        OrderService $orderService
     ) {
         $this->orderPageLoader = $orderPageLoader;
         $this->contextSwitchRoute = $contextSwitchRoute;
@@ -110,6 +90,8 @@ class AccountOrderController extends StorefrontController
         $this->orderDetailPageLoader = $orderDetailPageLoader;
         $this->orderRepository = $orderRepository;
         $this->contextService = $contextService;
+        $this->systemConfigService = $systemConfigService;
+        $this->orderService = $orderService;
     }
 
     /**
@@ -225,7 +207,13 @@ class AccountOrderController extends StorefrontController
         $page = $this->accountEditOrderPageLoader->load($request, $context);
 
         if ($page->isPaymentChangeable() === false) {
-            $this->addFlash(self::DANGER, $this->trans('account.editOrderPaymentNotChangeable'));
+            $refundsEnabled = $this->systemConfigService->get('core.cart.enableOrderRefunds');
+
+            if ($refundsEnabled) {
+                $this->addFlash(self::DANGER, $this->trans('account.editOrderPaymentNotChangeableWithRefunds'));
+            } else {
+                $this->addFlash(self::DANGER, $this->trans('account.editOrderPaymentNotChangeable'));
+            }
         }
 
         $page->setErrorCode($request->get('error-code'));
@@ -262,12 +250,17 @@ class AccountOrderController extends StorefrontController
             'changedPayment' => true,
         ]);
 
+        /** @var OrderEntity|null $order */
         $order = $this->orderRepository
             ->search(new Criteria([$orderId]), $context->getContext())
             ->first();
 
         if ($order === null) {
             throw new OrderNotFoundException($orderId);
+        }
+
+        if (!$this->orderService->isPaymentChangeableByTransactionState($order)) {
+            throw new OrderPaymentMethodNotChangeable();
         }
 
         if ($context->getCurrency()->getId() !== $order->getCurrencyId()) {

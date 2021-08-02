@@ -4,7 +4,9 @@ namespace Shopware\Core\Checkout\Order\SalesChannel;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\Exception\PaymentMethodNotAvailableException;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -29,35 +31,25 @@ class OrderService
     public const AFFILIATE_CODE_KEY = 'affiliateCode';
     public const CAMPAIGN_CODE_KEY = 'campaignCode';
 
-    /**
-     * @var DataValidator
-     */
-    private $dataValidator;
+    public const ALLOWED_TRANSACTION_STATES = [
+        OrderTransactionStates::STATE_OPEN,
+        OrderTransactionStates::STATE_CANCELLED,
+        OrderTransactionStates::STATE_REMINDED,
+        OrderTransactionStates::STATE_FAILED,
+        OrderTransactionStates::STATE_CHARGEBACK,
+    ];
 
-    /**
-     * @var DataValidationFactoryInterface
-     */
-    private $orderValidationFactory;
+    private DataValidator $dataValidator;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private DataValidationFactoryInterface $orderValidationFactory;
 
-    /**
-     * @var CartService
-     */
-    private $cartService;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $paymentMethodRepository;
+    private CartService $cartService;
 
-    /**
-     * @var StateMachineRegistry
-     */
-    private $stateMachineRegistry;
+    private EntityRepositoryInterface $paymentMethodRepository;
+
+    private StateMachineRegistry $stateMachineRegistry;
 
     public function __construct(
         DataValidator $dataValidator,
@@ -177,6 +169,27 @@ class OrderService
         }
 
         return $toPlace;
+    }
+
+    public function isPaymentChangeableByTransactionState(OrderEntity $order): bool
+    {
+        if ($order->getTransactions() === null) {
+            return true;
+        }
+
+        $transaction = $order->getTransactions()->last();
+
+        if ($transaction === null || $transaction->getStateMachineState() === null) {
+            return true;
+        }
+
+        $state = $transaction->getStateMachineState()->getTechnicalName();
+
+        if (\in_array($state, self::ALLOWED_TRANSACTION_STATES, true)) {
+            return true;
+        }
+
+        return false;
     }
 
     private function validateCart(Cart $cart, Context $context): void

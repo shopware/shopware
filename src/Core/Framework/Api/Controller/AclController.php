@@ -79,6 +79,7 @@ class AclController extends AbstractController
         $annotationReader = new AnnotationReader();
         $routes = $this->container->get('router')->getRouteCollection()->all();
 
+        $seenServices = [];
         foreach ($routes as $param) {
             $defaults = $param->getDefaults();
 
@@ -86,14 +87,17 @@ class AclController extends AbstractController
                 list($controllerService, $controllerMethod) = explode('::', $defaults['_controller']);
                 if ($this->container->has($controllerService)) {
                     $reflectedMethod = new \ReflectionMethod(\get_class($this->container->get($controllerService)), $controllerMethod);
-                    $annotations = $annotationReader->getMethodAnnotations($reflectedMethod);
-                    /** @var Acl|null $aclAnnotation */
-                    $aclAnnotation = current(array_filter($annotations, static function ($annotation) {
-                        return $annotation instanceof Acl;
-                    }));
-                    if ($aclAnnotation instanceof Acl) {
-                        $privileges = array_merge($privileges, $aclAnnotation->getValue());
+                    $annotation = $annotationReader->getMethodAnnotation($reflectedMethod, Acl::class);
+                    $privileges = array_merge($privileges, $annotation ? $annotation->getValue() : []);
+
+                    if (\in_array($controllerService, $seenServices, true)) {
+                        continue;
                     }
+
+                    $reflectedClass = new \ReflectionClass(\get_class($this->container->get($controllerService)));
+                    $annotation = $annotationReader->getClassAnnotation($reflectedClass, Acl::class);
+                    $privileges = array_merge($privileges, $annotation ? $annotation->getValue() : []);
+                    $seenServices[] = $controllerService;
                 }
             }
         }

@@ -91,11 +91,15 @@ class LineItemCustomFieldRule extends Rule
         }
 
         $actual = $this->getValue($customFields, $this->renderedField);
+        $expected = $this->getExpectedValue($this->renderedFieldValue, $this->renderedField);
+
         if ($actual === null) {
+            if ($this->operator === self::OPERATOR_NEQ) {
+                return $actual !== $expected;
+            }
+
             return false;
         }
-
-        $expected = $this->getExpectedValue($this->renderedFieldValue, $this->renderedField);
 
         switch ($this->operator) {
             case self::OPERATOR_NEQ:

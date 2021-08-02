@@ -70,6 +70,20 @@ class LineItemCustomFieldRuleTest extends TestCase
         static::assertTrue($this->rule->match($scope));
     }
 
+    public function testTextCustomFieldUnequalOperator(): void
+    {
+        // Case: the rule checks for some text but the line item custom field value is null
+        // 'testValue' != null -> true
+        $this->setupRule('testValue', 'text');
+        $this->rule->assign(
+            [
+                'operator' => $this->rule::OPERATOR_NEQ,
+            ]
+        );
+        $scope = new LineItemScope($this->createLineItemWithCustomFields([self::CUSTOM_FIELD_NAME => null]), $this->salesChannelContext);
+        static::assertTrue($this->rule->match($scope));
+    }
+
     public function testBooleanCustomFieldInvalid(): void
     {
         $this->setupRule(false, 'bool');

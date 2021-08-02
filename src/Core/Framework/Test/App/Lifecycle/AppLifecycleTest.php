@@ -885,6 +885,58 @@ class AppLifecycleTest extends TestCase
         static::assertCount(0, $apps);
     }
 
+    public function testDeleteAppDeletesConfigWhenUserDataShouldNotBeKept(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/withConfig/manifest.xml');
+        $this->appLifecycle->install($manifest, true, $this->context);
+
+        /** @var AppCollection $apps */
+        $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
+
+        static::assertCount(1, $apps);
+        static::assertEquals('withConfig', $apps->first()->getName());
+        /** @var AppEntity $app */
+        $app = $apps->first();
+
+        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $this->resetInternalSystemConfigCache();
+        static::assertEquals([
+            'withConfig.config.email' => 'no-reply@shopware.de',
+        ], $systemConfigService->getDomain('withConfig.config'));
+
+        $this->appLifecycle->delete('withConfig', ['id' => $app->getId()], $this->context);
+
+        $this->resetInternalSystemConfigCache();
+        static::assertEquals([], $systemConfigService->getDomain('withConfig.config'));
+    }
+
+    public function testDeleteAppDoesNotDeleteConfigWhenUserDataShouldBeKept(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/withConfig/manifest.xml');
+        $this->appLifecycle->install($manifest, true, $this->context);
+
+        /** @var AppCollection $apps */
+        $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
+
+        static::assertCount(1, $apps);
+        static::assertEquals('withConfig', $apps->first()->getName());
+        /** @var AppEntity $app */
+        $app = $apps->first();
+
+        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $this->resetInternalSystemConfigCache();
+        static::assertEquals([
+            'withConfig.config.email' => 'no-reply@shopware.de',
+        ], $systemConfigService->getDomain('withConfig.config'));
+
+        $this->appLifecycle->delete('withConfig', ['id' => $app->getId()], $this->context, true);
+
+        $this->resetInternalSystemConfigCache();
+        static::assertEquals([
+            'withConfig.config.email' => 'no-reply@shopware.de',
+        ], $systemConfigService->getDomain('withConfig.config'));
+    }
+
     public function testInstallWithUpdateAclRole(): void
     {
         $connection = $this->getContainer()->get(Connection::class);

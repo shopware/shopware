@@ -265,8 +265,17 @@ class AppLifecycle extends AbstractAppLifecycle
             new AppDeletedEvent($app->getId(), $context, $keepUserData)
         );
 
-        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($app, $softDelete): void {
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($app, $softDelete, $keepUserData): void {
+            if (!$keepUserData) {
+                $config = $this->appLoader->getConfiguration($app);
+
+                if ($config) {
+                    $this->systemConfigService->deleteExtensionConfiguration($app->getName(), $config);
+                }
+            }
+
             $this->appRepository->delete([['id' => $app->getId()]], $context);
+
             if ($softDelete) {
                 $this->integrationRepository->update([[
                     'id' => $app->getIntegrationId(),

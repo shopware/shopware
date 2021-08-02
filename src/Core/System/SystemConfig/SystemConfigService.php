@@ -306,7 +306,12 @@ class SystemConfigService
             return;
         }
 
-        $prefix = $bundle->getName() . '.config.';
+        $this->deleteExtensionConfiguration($bundle->getName(), $config);
+    }
+
+    public function deleteExtensionConfiguration(string $extensionName, array $config): void
+    {
+        $prefix = $extensionName . '.config.';
 
         $configKeys = [];
         foreach ($config as $card) {

@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\App\ActionButton;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonCollection;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonEntity;
 use Shopware\Core\Framework\App\Aggregate\ActionButtonTranslation\ActionButtonTranslationEntity;
+use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -30,6 +31,8 @@ class ActionButtonLoader
         $criteria = new Criteria();
         $criteria
             ->addAssociation('app')
+            ->addAssociation('app.translations')
+            ->addAssociation('app.translations.language.locale')
             ->addAssociation('translations.language.locale')
             ->addFilter(
                 new EqualsFilter('entity', $entity),
@@ -48,8 +51,9 @@ class ActionButtonLoader
         return array_values(array_map(function (ActionButtonEntity $button): array {
             return [
                 'app' => $button->getApp()->getName(),
+                'appLabel' => $this->mapTranslatedAppLabels($button->getApp()),
                 'id' => $button->getId(),
-                'label' => $this->mapTranslatedLabels($button),
+                'label' => $this->mapTranslatedActionButtonLabels($button),
                 'action' => $button->getAction(),
                 'url' => $button->getUrl(),
                 /*
@@ -63,12 +67,24 @@ class ActionButtonLoader
         }, $actionButtons->getElements()));
     }
 
-    private function mapTranslatedLabels(ActionButtonEntity $button): array
+    private function mapTranslatedActionButtonLabels(ActionButtonEntity $button): array
     {
         $labels = [];
 
         /** @var ActionButtonTranslationEntity $translation */
         foreach ($button->getTranslations() as $translation) {
+            $labels[$translation->getLanguage()->getLocale()->getCode()] = $translation->getLabel();
+        }
+
+        return $labels;
+    }
+
+    private function mapTranslatedAppLabels(AppEntity $app): array
+    {
+        $labels = [];
+
+        /** @var ActionButtonTranslationEntity $translation */
+        foreach ($app->getTranslations()->getElements() as $translation) {
             $labels[$translation->getLanguage()->getLocale()->getCode()] = $translation->getLabel();
         }
 

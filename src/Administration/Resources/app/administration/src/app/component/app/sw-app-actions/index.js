@@ -1,7 +1,7 @@
 import template from './sw-app-actions.html.twig';
 import './sw-app-actions.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component, Context, Mixin, State } = Shopware;
 const { Criteria } = Shopware.Data;
 
 const actionTypeConstants = Object.freeze({
@@ -81,6 +81,17 @@ Component.register('sw-app-actions', {
             criteria.addFilter(Criteria.equals('userId', this.currentUser?.id));
 
             return criteria;
+        },
+
+        appLabel() {
+            if (!this.action) {
+                return '';
+            }
+
+            const currentLocale = State.get('session').currentLocale;
+            const fallbackLocale = Context.app.fallbackLocale;
+
+            return this.action.appLabel[currentLocale] || this.action.appLabel[fallbackLocale] || '';
         },
     },
 

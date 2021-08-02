@@ -80,6 +80,13 @@ class ScheduledTaskEntity extends Entity
         return $this->status;
     }
 
+    public function isExecutionAllowed(): bool
+    {
+        // If the status is failed execution is still allowed so retries are possible
+        return $this->status === ScheduledTaskDefinition::STATUS_QUEUED
+            || $this->status === ScheduledTaskDefinition::STATUS_FAILED;
+    }
+
     public function setStatus(string $status): void
     {
         $this->status = $status;

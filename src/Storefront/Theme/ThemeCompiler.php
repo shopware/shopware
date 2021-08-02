@@ -44,6 +44,8 @@ class ThemeCompiler implements ThemeCompilerInterface
 
     private bool $debug;
 
+    private string $projectDir;
+
     public function __construct(
         FilesystemInterface $filesystem,
         FilesystemInterface $tempFilesystem,
@@ -53,7 +55,8 @@ class ThemeCompiler implements ThemeCompilerInterface
         ThemeFileImporterInterface $themeFileImporter,
         iterable $packages,
         CacheInvalidator $logger,
-        AbstractThemePathBuilder $themePathBuilder
+        AbstractThemePathBuilder $themePathBuilder,
+        string $projectDir
     ) {
         $this->filesystem = $filesystem;
         $this->tempFilesystem = $tempFilesystem;
@@ -69,6 +72,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         $this->logger = $logger;
         $this->themePathBuilder = $themePathBuilder;
         $this->debug = $debug;
+        $this->projectDir = $projectDir;
     }
 
     public function compileTheme(
@@ -148,6 +152,10 @@ class ThemeCompiler implements ThemeCompilerInterface
                 $this->copyAssets($config, $configurationCollection, $outputPath);
 
                 continue;
+            }
+
+            if ($asset[0] !== '/' && file_exists($this->projectDir . '/' . $asset)) {
+                $asset = $this->projectDir . '/' . $asset;
             }
 
             $assets = $this->themeFileImporter->getCopyBatchInputsForAssets($asset, $outputPath, $configuration);

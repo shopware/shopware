@@ -176,7 +176,7 @@ class ProductIndexer extends EntityIndexer
         }
 
         if ($message->allow(self::MANY_TO_MANY_ID_FIELD_UPDATER)) {
-            $this->manyToManyIdFieldUpdater->update(ProductDefinition::ENTITY_NAME, $ids, $context);
+            $this->manyToManyIdFieldUpdater->update(ProductDefinition::ENTITY_NAME, $all, $context);
         }
 
         if ($message->allow(self::CATEGORY_DENORMALIZER_UPDATER)) {

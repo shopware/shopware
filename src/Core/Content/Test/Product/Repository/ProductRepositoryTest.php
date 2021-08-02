@@ -2955,6 +2955,138 @@ class ProductRepositoryTest extends TestCase
         static::assertNull($product->getDescription());
     }
 
+    public function testUpdatePropertyIdsForVariantsWhenUpdateFromParents(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $productId = Uuid::randomHex();
+        $variantA = Uuid::randomHex();
+        $variantB = Uuid::randomHex();
+        $propertyIds = [
+            'f1d2554b0ce847cd82f3ac9bd1c0dfba',
+            'f1d2554b0ce847cd82f3ac9bd1c0dfbb',
+            'f1d2554b0ce847cd82f3ac9bd1c0dfbc',
+        ];
+
+        $data = [
+            'id' => $productId,
+            'name' => 'Master product',
+            'productNumber' => 'TEST',
+            'price' => [
+                [
+                    'gross' => 111,
+                    'net' => 111,
+                    'currencyId' => 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+                    'linked' => false,
+                ],
+            ],
+            'stock' => 1234,
+            'tax' => [
+                'taxRate' => 0,
+                'name' => 'foo',
+            ],
+            'manufacturer' => [
+                'id' => 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+                'name' => 'Test variant manufacturer',
+            ],
+            'manufacturerId' => 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+            'properties' => [
+                [
+                    'id' => $propertyIds[0],
+                    'name' => 'red',
+                    'colorHexCode' => '#ff0000',
+                    'group' => [
+                        'id' => 'adf2554b0ce847cd82f3ac9bd1c0dfba',
+                        'name' => 'color',
+                        'displayType' => 'color',
+                    ],
+                ],
+                [
+                    'id' => $propertyIds[1],
+                    'name' => 'green',
+                    'colorHexCode' => '#00ff00',
+                    'groupId' => 'adf2554b0ce847cd82f3ac9bd1c0dfba',
+                ],
+            ],
+            'children' => [
+                [
+                    'productNumber' => 'TEST.1',
+                    'id' => $variantA,
+                    'stock' => 10,
+                    'options' => [
+                        ['id' => $propertyIds[0]],
+                    ],
+                ],
+                [
+                    'productNumber' => 'TEST.2',
+                    'id' => $variantB,
+                    'stock' => 10,
+                    'options' => [
+                        ['id' => $propertyIds[1]],
+                    ],
+                ],
+            ],
+            'configuratorSettings' => [
+                [
+                    'id' => 'f1d2554b0ce847cd82f3ac9bd1c0dfaa',
+                    'optionId' => $propertyIds[0],
+                ],
+                [
+                    'id' => 'f1d2554b0ce847cd82f3ac9bd1c0dfab',
+                    'optionId' => $propertyIds[1],
+                ],
+            ],
+        ];
+
+        $this->repository->upsert([$data], $context);
+
+        $variants = $this->repository->search(new Criteria([$variantB, $variantA]), $context)->getElements();
+        $product = $this->repository->search(new Criteria([$productId]), $context)->first();
+
+        static::assertCount(2, $variants);
+        static::assertNotNull($product);
+
+        $productProperties = $product->getPropertyIds();
+        $variantAProperties = $variants[$variantA]->getPropertyIds();
+        $variantBProperties = $variants[$variantB]->getPropertyIds();
+        sort($productProperties);
+        sort($variantAProperties);
+        sort($variantBProperties);
+
+        static::assertEquals($productProperties, $variantAProperties);
+        static::assertEquals($productProperties, $variantBProperties);
+
+        $data = [
+            'properties' => [
+                [
+                    'id' => $propertyIds[2],
+                    'name' => 'green',
+                    'colorHexCode' => '#00ff00',
+                    'groupId' => 'adf2554b0ce847cd82f3ac9bd1c0dfba',
+                ],
+            ],
+            'id' => $productId,
+        ];
+
+        $this->repository->upsert([$data], $this->context);
+
+        $variants = $this->repository->search(new Criteria([$variantB, $variantA]), $context)->getElements();
+        $product = $this->repository->search(new Criteria([$productId]), $context)->first();
+
+        static::assertCount(2, $variants);
+        static::assertNotNull($product);
+
+        $productProperties = $product->getPropertyIds();
+        $variantAProperties = $variants[$variantA]->getPropertyIds();
+        $variantBProperties = $variants[$variantB]->getPropertyIds();
+        sort($productProperties);
+        sort($variantAProperties);
+        sort($variantBProperties);
+
+        static::assertEquals($productProperties, $variantAProperties);
+        static::assertEquals($productProperties, $variantBProperties);
+    }
+
     private function createLanguageContext(array $languages, bool $inheritance)
     {
         return new Context(new SystemSource(), [], Defaults::CURRENCY, $languages, Defaults::LIVE_VERSION, 1.0, $inheritance);

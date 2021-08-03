@@ -10,7 +10,7 @@ const { Criteria } = Shopware.Data;
 Shopware.Component.register('sw-import-export-exporter', {
     template,
 
-    inject: ['importExport', 'repositoryFactory'],
+    inject: ['importExport', 'repositoryFactory', 'feature'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -49,6 +49,9 @@ Shopware.Component.register('sw-import-export-exporter', {
                 criteria.addFilter(
                     Criteria.equals('sourceEntity', this.sourceEntity),
                 );
+            }
+            if (this.feature.isActive('FEATURE_NEXT_8097')) {
+                criteria.addFilter(Criteria.not('AND', [Criteria.equals('type', 'import')]));
             }
 
             return criteria;

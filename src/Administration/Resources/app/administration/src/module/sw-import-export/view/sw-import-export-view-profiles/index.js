@@ -117,6 +117,7 @@ Shopware.Component.register('sw-import-export-view-profiles', {
             this.$set(profile, 'translated', {});
             profile.delimiter = ';';
             profile.enclosure = '"';
+            profile.type = 'import-export';
 
             this.selectedProfile = profile;
         },

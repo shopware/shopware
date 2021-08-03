@@ -36,6 +36,18 @@
       "addRecipientButton": "Add recipient",
       "placeholderRecipientEmailAddress": "Enter email address...",
       "placeholderRecipientName": "Enter recipient name..."
+    },
+    "deprecatedModal": {
+      "titleModal": "Flow Builder replaces Business Events",
+      "titleFlowBuilder": "What is the Flow Builder?",
+      "linkLearnMore": "Learn more about Flow Builder",
+      "textFlowBuilderDescription": "<p>Our latest tool - the all new Flow Builder - enables you to take event based actions to a whole new level. The Flow Builder allows to specify event triggers even further with the help of rules. Of course you will still be able to associate actions and events to automate email delivery and even make URL calls or order status changes. </p><p>All business events have already been migrated to the new Flow Builder. The Business events module will still be here, parallely to the new flow Builder, but prepare for the module to be gone after the next Shopware major release (6.5.0.0). Business events that have been added by external apps won't be migrated and will have to be integrated into the Flow Builder with new versions of these respective apps.</p> ",
+      "buttonStartBuilding": "Start building"
+    },
+    "deprecatedAlert": {
+      "textBusinessEvent": "Business event will be replaced with the <a href=\"#/sw/flow/index\" class=\"sw-event-action-deprecated-alert__link\">Flow Builder</a> with the next Major release.",
+      "linkMoreInfo": "More info",
+      "textHide": "Hide"
     }
   },
   "sw-privileges": {

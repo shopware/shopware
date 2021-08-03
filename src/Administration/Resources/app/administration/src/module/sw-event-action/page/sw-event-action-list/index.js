@@ -4,12 +4,16 @@ import './sw-event-action-list.scss';
 const snakeCase = Shopware.Utils.string.snakeCase;
 const { Component, Mixin, Data: { Criteria } } = Shopware;
 
+/**
+ * @major-deprecated (flag:FEATURE_NEXT_8225) - will be removed. Please use `sw-flow` - Flow builder instead.
+ */
 Component.register('sw-event-action-list', {
     template,
 
     inject: [
         'repositoryFactory',
         'acl',
+        'feature',
     ],
 
     mixins: [

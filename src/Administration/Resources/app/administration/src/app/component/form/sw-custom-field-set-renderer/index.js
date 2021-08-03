@@ -164,6 +164,13 @@ Component.register('sw-custom-field-set-renderer', {
                 this.onChangeCustomFieldSets();
             },
         },
+
+        entity: {
+            handler() {
+                this.initializeCustomFields();
+            },
+            deep: true,
+        },
     },
 
     created() {

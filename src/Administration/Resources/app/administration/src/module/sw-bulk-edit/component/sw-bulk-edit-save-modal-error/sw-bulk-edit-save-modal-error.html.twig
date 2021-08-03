@@ -1,0 +1,23 @@
+{% block sw_bulk_edit_save_modal_error %}
+<div class="sw-bulk-edit-save-modal-error">
+    {% block sw_bulk_edit_save_modal_error_icon %}
+    <sw-label
+        class="sw-bulk-edit-save-modal__icon"
+        appearance="pill"
+        variant="danger"
+    >
+        <sw-icon
+            name="default-badge-error"
+            size="30px"
+        />
+    </sw-label>
+    {% endblock %}
+
+    {% block sw_bulk_edit_save_modal_error_content %}
+    <p class="sw-bulk-edit-save-modal__help-text">
+        {{ $tc('sw-bulk-edit.modal.error.description') }}
+    </p>
+    {% endblock %}
+
+</div>
+{% endblock %}

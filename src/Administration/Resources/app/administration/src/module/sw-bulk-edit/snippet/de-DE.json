@@ -128,6 +128,35 @@
         "cardTitle": "Freitextfelder",
         "changeLabel": "Ändern: {name}"
       }
+    },
+    "modal": {
+      "confirm": {
+        "title": "Mehrfachbearbeitung - Änderungen anwenden?",
+        "description": "Bist Du sicher, dass Du die Änderungen auf {itemCount} ausgewählte Entität anwenden möchtest? Die Änderungen können nicht rückgängig gemacht werden. | Bist Du sicher, dass Du die Änderungen auf die {itemCount} ausgewählten Entitäten anwenden möchtest? Die Änderungen können nicht rückgängig gemacht werden.",
+        "buttons": {
+          "applyChanges": "Änderungen anwenden"
+        }
+      },
+      "process": {
+        "title": "Mehrfachbearbeitung - Prozess gestartet",
+        "description": "Abhängig von der Anzahl ausgewählter Entitäten und den jeweiligen Änderungen, kann dieser Vorgang einige Zeit in Anspruch nehmen.",
+        "helpText": "Bitte beachte, dass Du während des Mehrfachbearbeitungsvorgangs keine manuellen Änderungen an den Entitäten vornimmst, da dies unvorhergesehene Effekte haben kann.",
+        "buttons": {
+          "cancel": "Abbrechen"
+        }
+      },
+      "success": {
+        "title": "Mehrfachbearbeitung - Abgeschlossen",
+        "description": "Die Mehrfachbearbeitung der ausgewählten Entitäten ist abgeschlossen."
+      },
+      "error": {
+        "title": "Mehrfachbearbeitung - Fehler",
+        "description": "Die Mehrfachbearbeitung der ausgewählten Entitäten ist abgeschlossen, aber es sind Fehler aufgetreten. Details hierzu findest Du in der Log-Datei.",
+        "buttons": {
+          "openLog": "Log-Datei öffnen"
+        }
+      },
+      "warningText": "Wenn Du die Mehrfachbearbeitung abbrichts oder während des Prozesses den Browser-Tab schließt, werden die Änderungen u.U. nicht vollständig umgesetzt und es kann zu irreversiblen und ungewünschten Datenzuständen kommen."
     }
   }
 }

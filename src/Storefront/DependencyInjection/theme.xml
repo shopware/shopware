@@ -26,6 +26,7 @@
             <argument type="tagged" tag="shopware.asset"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
             <argument type="service" id="Shopware\Storefront\Theme\AbstractThemePathBuilder"/>
+            <argument>%kernel.project_dir%</argument>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeFileImporter"/>

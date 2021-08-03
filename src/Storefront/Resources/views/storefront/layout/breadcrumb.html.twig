@@ -27,7 +27,7 @@
                                     itemscope
                                     itemtype="https://schema.org/ListItem">
                                     {% if breadcrumbCategory.type == 'folder' %}
-                                        <div>{{ name }}</div>
+                                        <div itemprop="name">{{ name }}</div>
                                     {% else %}
                                         <a href="{{ category_url(breadcrumbCategory) }}"
                                            class="breadcrumb-link {% if key is same as(categoryId) %} is-active{% endif %}"
@@ -38,8 +38,8 @@
                                                   href="{{ category_url(breadcrumbCategory) }}"/>
                                             <span class="breadcrumb-title" itemprop="name">{{ name }}</span>
                                         </a>
-                                        <meta itemprop="position" content="{{ breadcrumbCategory.id }}"/>
                                     {% endif %}
+                                    <meta itemprop="position" content="{{ loop.index }}"/>
                                 </li>
                             {% endblock %}
 

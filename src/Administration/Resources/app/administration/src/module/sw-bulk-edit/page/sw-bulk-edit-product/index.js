@@ -23,7 +23,6 @@ Component.register('sw-bulk-edit-product', {
             isSaveSuccessful: false,
             bulkEditProduct: {},
             customFieldSets: [],
-            showModal: false,
             processStatus: '',
         };
     },

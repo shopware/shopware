@@ -67,6 +67,33 @@ Module.register('sw-bulk-edit', {
             meta: {
                 parentPath: 'sw.order.index',
             },
+            children: {
+                save: {
+                    component: 'sw-bulk-edit-save-modal',
+                    path: 'save',
+                    redirect: {
+                        name: 'sw.bulk.edit.order.save.confirm',
+                    },
+                    children: {
+                        confirm: {
+                            component: 'sw-bulk-edit-save-modal-confirm',
+                            path: 'confirm',
+                        },
+                        process: {
+                            component: 'sw-bulk-edit-save-modal-process',
+                            path: 'process',
+                        },
+                        success: {
+                            component: 'sw-bulk-edit-save-modal-success',
+                            path: 'success',
+                        },
+                        error: {
+                            component: 'sw-bulk-edit-save-modal-error',
+                            path: 'error',
+                        },
+                    },
+                },
+            },
         },
     },
 });

@@ -14,25 +14,16 @@ class CreateMigrationCommand extends Command
 {
     protected static $defaultName = 'database:create-migration';
 
-    /**
-     * @var string
-     */
-    private $projectDir;
+    private string $coreDir;
 
-    /**
-     * @var KernelPluginCollection
-     */
-    private $kernelPluginCollection;
+    private KernelPluginCollection $kernelPluginCollection;
 
-    /**
-     * @var string
-     */
-    private $shopwareVersion;
+    private string $shopwareVersion;
 
-    public function __construct(KernelPluginCollection $kernelPluginCollection, string $projectDir, string $shopwareVersion)
+    public function __construct(KernelPluginCollection $kernelPluginCollection, string $coreDir, string $shopwareVersion)
     {
         parent::__construct();
-        $this->projectDir = $projectDir;
+        $this->coreDir = $coreDir;
         $this->kernelPluginCollection = $kernelPluginCollection;
         $this->shopwareVersion = $shopwareVersion;
     }
@@ -117,11 +108,11 @@ class CreateMigrationCommand extends Command
         } else {
             [$_, $major] = explode('.', $this->shopwareVersion);
             // We create a core-migration in case no plugin was given
-            $directory = $this->projectDir . '/vendor/shopware/platform/src/Core/Migration/V6_' . $major;
+            $directory = $this->coreDir . '/Migration/V6_' . $major;
             $namespace = 'Shopware\\Core\\Migration\\V6_' . $major;
 
             // create legacy migration
-            $legacyDirectory = $this->projectDir . '/vendor/shopware/platform/src/Core/Migration';
+            $legacyDirectory = $this->coreDir . '/Migration';
             $legacyNamespace = 'Shopware\\Core\\Migration';
 
             // @deprecated tag:v6.5.0 - Only necessary until 6.5.0.0

@@ -178,6 +178,7 @@
             <argument type="service" id="shopware.filesystem.private"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="import_export_log.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
 
             <argument type="tagged" tag="shopware.import_export.reader_factory"/>
             <argument type="tagged" tag="shopware.import_export.writer_factory"/>
@@ -237,6 +238,8 @@
             <argument type="service" id="Shopware\Core\Content\ImportExport\Service\ImportExportService"/>
             <argument type="service" id="import_export_profile.repository"/>
             <argument type="service" id="Shopware\Core\Content\ImportExport\ImportExportFactory"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="shopware.filesystem.private"/>
 
             <tag name="console.command"/>
         </service>

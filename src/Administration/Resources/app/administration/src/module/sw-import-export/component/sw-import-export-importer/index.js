@@ -103,7 +103,7 @@ Shopware.Component.register('sw-import-export-importer', {
             this.progressLogEntry = null;
         },
 
-        onStartProcess() {
+        onStartProcess(dryRun = false) {
             this.isLoading = true;
 
             this.resetProgressStats();
@@ -111,9 +111,11 @@ Shopware.Component.register('sw-import-export-importer', {
 
             const profile = this.selectedProfileId;
 
-            this.importExport.import(profile, this.importFile, this.handleProgress, this.config).then((result) => {
+            this.importExport.import(profile, this.importFile, this.handleProgress, this.config, dryRun).then((result) => {
                 const logEntry = result.data.log;
-                this.importFile = null;
+                if (!dryRun) {
+                    this.importFile = null;
+                }
 
                 this.logRepository.get(logEntry.id, Shopware.Context.api, this.logCriteria).then((entry) => {
                     this.progressLogEntry = entry;
@@ -134,6 +136,10 @@ Shopware.Component.register('sw-import-export-importer', {
                 this.resetProgressStats();
                 this.isLoading = false;
             });
+        },
+
+        onStartDryRunProcess() {
+            this.onStartProcess(true);
         },
 
         handleProgress(progress) {

@@ -59,11 +59,11 @@ use Shopware\Core\Framework\Test\TestCaseBase\RequestStackTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SessionTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
 use Symfony\Contracts\EventDispatcher\Event;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class ImportExportTest extends TestCase
 {
@@ -1049,6 +1049,7 @@ class ImportExportTest extends TestCase
             $logEntity,
             $this->getContainer()->get('shopware.filesystem.private'),
             $this->createMock(EventDispatcherInterface::class),
+            $this->getContainer()->get(Connection::class),
             $this->createMock(EntityRepositoryInterface::class),
             $pipe,
             $reader,
@@ -1073,6 +1074,54 @@ class ImportExportTest extends TestCase
         $logEntity->setState(Progress::STATE_FAILED);
         $importExport->import(Context::createDefaultContext());
         $importExport->export(Context::createDefaultContext(), new Criteria());
+    }
+
+    public function testDryRunImport(): void
+    {
+        if (!Feature::isActive('FEATURE_NEXT_8097')) {
+            static::markTestSkipped('NEXT-8097');
+        }
+
+        $connection = $this->getContainer()->get(Connection::class);
+        $factory = $this->getContainer()->get(ImportExportFactory::class);
+        $importExportService = $this->getContainer()->get(ImportExportService::class);
+        $profileId = $this->getDefaultProfileId(ProductDefinition::ENTITY_NAME);
+        $expireDate = new \DateTimeImmutable('2099-01-01');
+        $uploadedFile = new UploadedFile(__DIR__ . '/fixtures/products_with_invalid.csv', 'products_with_invalid.csv', 'text/csv');
+
+        $connection->rollBack();
+        $connection->executeUpdate('DELETE FROM `product`');
+
+        $logEntity = $importExportService->prepareImport(
+            Context::createDefaultContext(),
+            $profileId,
+            $expireDate,
+            $uploadedFile,
+            [],
+            true
+        );
+        static::assertSame(ImportExportLogEntity::ACTIVITY_DRYRUN, $logEntity->getActivity());
+
+        $progress = $importExportService->getProgress($logEntity->getId(), 0);
+        do {
+            // simulate multiple requests
+            $progress = $importExportService->getProgress($logEntity->getId(), $progress->getOffset());
+            $importExport = $factory->create($logEntity->getId(), 2, 2);
+            $progress = $importExport->import(Context::createDefaultContext(), $progress->getOffset());
+        } while (!$progress->isFinished());
+        static::assertSame(Progress::STATE_FAILED, $progress->getState());
+
+        $ids = $this->productRepository->searchIds(new Criteria(), Context::createDefaultContext());
+        static::assertCount(0, $ids->getIds());
+
+        $importExport = $factory->create($logEntity->getId());
+        $result = $importExport->getLogEntity()->getResult();
+        static::assertEquals(2, $result['product_category']['insertError']);
+        static::assertEquals(8, $result['product']['insert']);
+
+        $connection->executeUpdate('DELETE FROM `import_export_log`');
+        $connection->executeUpdate('DELETE FROM `import_export_file`');
+        $connection->beginTransaction();
     }
 
     /**

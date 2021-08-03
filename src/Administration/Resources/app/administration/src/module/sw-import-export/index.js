@@ -5,6 +5,7 @@ import './component/sw-import-export-exporter';
 import './component/sw-import-export-importer';
 import './component/sw-import-export-activity';
 import './component/sw-import-export-activity-detail-modal';
+import './component/sw-import-export-activity-result-modal';
 import './component/sw-import-export-edit-profile-modal';
 import './component/sw-import-export-edit-profile-modal-mapping';
 import './component/sw-import-export-entity-path-select';

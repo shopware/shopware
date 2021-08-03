@@ -42,6 +42,13 @@
         {% endblock %}
         {% block sw_import_export_activity_listing_createdAt %}
         <template #column-createdAt="{ item }">
+            <sw-label
+                v-if="item.activity === 'dryrun' && feature.isActive('FEATURE_NEXT_8097')"
+                size="small"
+                appearance="pill"
+            >
+                {{ $tc('sw-import-export.activity.dryrun') }}
+            </sw-label>
             <a
                 href="#"
                 @click.prevent="onShowLog(item)"
@@ -107,6 +114,15 @@
                 </a>
             </template>
             {% endblock %}
+            {% block sw_import_export_activity_listing_actions_show_results %}
+            <sw-context-menu-item
+                v-if="item.result && Object.keys(item.result).length && feature.isActive('FEATURE_NEXT_8097')"
+                class="sw-import-export-activity__results-action"
+                @click="onShowResult(item.result)"
+            >
+                {{ $tc('sw-import-export.activity.contextMenu.showResults') }}
+            </sw-context-menu-item>
+            {% endblock %}
         </template>
         {% endblock %}
     </sw-entity-listing>
@@ -116,6 +132,14 @@
     <sw-import-export-activity-detail-modal
         :log-entity="selectedLog"
         @log-close="closeSelectedLog"
+    />
+    {% endblock %}
+
+    {% block sw_import_export_activity_result_modal %}
+    <sw-import-export-activity-result-modal
+        v-if="feature.isActive('FEATURE_NEXT_8097')"
+        :result="selectedResult"
+        @result-close="closeSelectedResult"
     />
     {% endblock %}
 

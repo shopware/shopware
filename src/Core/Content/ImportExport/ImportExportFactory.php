@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport;
 
+use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\Exception\ProcessingException;
@@ -16,7 +17,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ImportExportFactory
 {
@@ -29,6 +30,8 @@ class ImportExportFactory
     private EventDispatcherInterface $eventDispatcher;
 
     private EntityRepositoryInterface $logRepository;
+
+    private Connection $connection;
 
     /**
      * @var \IteratorAggregate<AbstractReaderFactory>
@@ -51,6 +54,7 @@ class ImportExportFactory
         FilesystemInterface $filesystem,
         EventDispatcherInterface $eventDispatcher,
         EntityRepositoryInterface $logRepository,
+        Connection $connection,
         \IteratorAggregate $readerFactories,
         \IteratorAggregate $writerFactories,
         \IteratorAggregate $pipeFactories
@@ -60,6 +64,7 @@ class ImportExportFactory
         $this->filesystem = $filesystem;
         $this->eventDispatcher = $eventDispatcher;
         $this->logRepository = $logRepository;
+        $this->connection = $connection;
         $this->readerFactories = $readerFactories;
         $this->writerFactories = $writerFactories;
         $this->pipeFactories = $pipeFactories;
@@ -75,6 +80,7 @@ class ImportExportFactory
             $logEntity,
             $this->filesystem,
             $this->eventDispatcher,
+            $this->connection,
             $repository,
             $this->getPipe($logEntity),
             $this->getReader($logEntity),

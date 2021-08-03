@@ -6,6 +6,7 @@
         },
         "activity": {
             "invalidHelpText": "Invalid records can be downloaded via the context menu",
+            "dryrun": "Dry run",
             "columns": {
                 "size": "Size",
                 "profile": "Profile",
@@ -19,7 +20,8 @@
                 "showLog": "Open log entry",
                 "downloadFile": "Download file",
                 "showProfile": "Show profile",
-                "downloadInvalidFile": "Download invalid records"
+                "downloadInvalidFile": "Download invalid records",
+                "showResults": "Show result table"
             },
             "detail": {
                 "modalTitle": "Log information",
@@ -38,6 +40,16 @@
                 "labelDownloadFile": "Download file",
                 "helpTextFailedRecords": "Failed records can be downloaded, edited and re-imported.",
                 "labelDownloadInvalidFile": "Download failed records"
+            },
+            "result": {
+              "modalTitle": "Result table",
+              "entityName": "Object type name",
+              "insert": "Created",
+              "update": "Updated",
+              "insertError": "Creation error",
+              "updateError": "Update error",
+              "insertSkip": "Creation skipped",
+              "updateSkip": "Update skipped"
             },
             "status": {
                 "progress": "Processing",
@@ -150,6 +162,7 @@
         },
         "progress": {
             "startImportLabel": "Start import",
+            "startImportDryrunLabel": "Start dry run",
             "startExportLabel": "Start export",
             "entriesLabel": "Entries",
             "fileSizeLabel": "kB",

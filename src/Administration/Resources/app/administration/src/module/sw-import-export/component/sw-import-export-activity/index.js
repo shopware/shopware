@@ -11,7 +11,7 @@ const { format } = Shopware.Utils;
 Shopware.Component.register('sw-import-export-activity', {
     template,
 
-    inject: ['repositoryFactory', 'importExport'],
+    inject: ['repositoryFactory', 'importExport', 'feature'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -41,6 +41,7 @@ Shopware.Component.register('sw-import-export-activity', {
             isLoading: false,
             selectedProfile: null,
             selectedLog: null,
+            selectedResult: null,
         };
     },
 
@@ -57,7 +58,13 @@ Shopware.Component.register('sw-import-export-activity', {
             const criteria = new Shopware.Data.Criteria();
 
             if (this.type === 'import') {
-                criteria.addFilter(Criteria.equals('activity', 'import'));
+                criteria.addFilter(Criteria.multi(
+                    'OR',
+                    [
+                        Criteria.equals('activity', 'import'),
+                        Criteria.equals('activity', 'dryrun'),
+                    ],
+                ));
                 criteria.addAssociation('invalidRecordsLog');
             } else if (this.type === 'export') {
                 criteria.addFilter(Criteria.equals('activity', 'export'));
@@ -154,8 +161,22 @@ Shopware.Component.register('sw-import-export-activity', {
             this.selectedLog = item;
         },
 
+        onShowResult(result) {
+            const items = [];
+
+            Object.keys(result).forEach((entityName) => {
+                items.push({ ...{ entityName }, ...result[entityName] });
+            });
+
+            this.selectedResult = items;
+        },
+
         closeSelectedLog() {
             this.selectedLog = null;
+        },
+
+        closeSelectedResult() {
+            this.selectedResult = null;
         },
 
         getDownloadUrl(id, accessToken) {

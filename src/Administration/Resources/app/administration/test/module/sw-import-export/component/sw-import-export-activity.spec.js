@@ -1,7 +1,12 @@
 import ImportExportService from 'src/module/sw-import-export/service/importExport.service';
 import { shallowMount } from '@vue/test-utils';
+import 'src/app/component/base/sw-modal';
+import 'src/app/component/grid/sw-grid';
+import 'src/app/component/grid/sw-grid-row';
+import 'src/app/component/grid/sw-grid-column';
 import 'src/module/sw-import-export/component/sw-import-export-activity';
 import 'src/module/sw-import-export/component/sw-import-export-activity-detail-modal';
+import 'src/module/sw-import-export/component/sw-import-export-activity-result-modal';
 
 describe('module/sw-import-export/components/sw-import-export-activity', () => {
     const createWrapper = (options = {}) => {
@@ -11,12 +16,18 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
                     template: '<div></div>'
                 },
                 'sw-import-export-activity-detail-modal': Shopware.Component.build('sw-import-export-activity-detail-modal'),
+                'sw-import-export-activity-result-modal': Shopware.Component.build('sw-import-export-activity-result-modal'),
                 'sw-import-export-edit-profile-modal': {
                     template: '<div></div>'
                 },
-                'sw-modal': {
-                    template: '<div></div>'
-                }
+                'sw-modal': Shopware.Component.build('sw-modal'),
+                'sw-grid': Shopware.Component.build('sw-grid'),
+                'sw-grid-row': Shopware.Component.build('sw-grid-row'),
+                'sw-grid-column': Shopware.Component.build('sw-grid-column'),
+                'sw-icon': true,
+                'sw-description-list': true,
+                'sw-color-badge': true,
+                'sw-button': true
             },
             mocks: {
                 $tc: (key) => {
@@ -67,6 +78,10 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
                             }
                         };
                     }
+                },
+                shortcutService: {
+                    startEventListener: () => {},
+                    stopEventListener: () => {}
                 }
             }
         };
@@ -108,6 +123,47 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         expect(wrapper.vm).toBeTruthy();
         expect(detailModal.vm).toBeTruthy();
         expect(detailModal.vm.logEntity).toEqual(logEntity);
+    });
+
+    it('should open the activity result modal', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_8097'];
+
+        const { wrapper } = createWrapper();
+        const logResult = {
+            product: {
+                insert: 1,
+                update: 2,
+                insertError: 3,
+                updateError: 4,
+                insertSkip: 5,
+                updateSkip: 6
+            }
+        };
+
+        await wrapper.vm.onShowResult(logResult);
+
+        const resultModal = wrapper.find('.sw-import-export-activity-result-modal');
+
+        expect(wrapper.vm).toBeTruthy();
+        expect(resultModal.vm).toBeTruthy();
+        expect(resultModal.vm.result).toEqual([{
+            entityName: 'product',
+            insert: 1,
+            update: 2,
+            insertError: 3,
+            updateError: 4,
+            insertSkip: 5,
+            updateSkip: 6
+        }]);
+
+        const columnClassPrefix = '.sw-import-export-activity-result-modal__column-product';
+        expect(resultModal.find(`${columnClassPrefix}-label`).text()).toBe('product');
+        expect(resultModal.find(`${columnClassPrefix}-insert`).text()).toBe('1');
+        expect(resultModal.find(`${columnClassPrefix}-update`).text()).toBe('2');
+        expect(resultModal.find(`${columnClassPrefix}-insert-error`).text()).toBe('3');
+        expect(resultModal.find(`${columnClassPrefix}-update-error`).text()).toBe('4');
+        expect(resultModal.find(`${columnClassPrefix}-insert-skip`).text()).toBe('5');
+        expect(resultModal.find(`${columnClassPrefix}-update-skip`).text()).toBe('6');
     });
 
     it('should show the correct label', async () => {

@@ -10,4 +10,9 @@ abstract class RuleScope
     abstract public function getContext(): Context;
 
     abstract public function getSalesChannelContext(): SalesChannelContext;
+
+    public function getCurrentTime(): \DateTimeImmutable
+    {
+        return new \DateTimeImmutable();
+    }
 }

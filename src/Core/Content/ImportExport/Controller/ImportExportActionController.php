@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ImportExport\Controller;
 
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogDefinition;
+use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\Exception\ProcessingException;
 use Shopware\Core\Content\ImportExport\Exception\ProfileNotFoundException;
 use Shopware\Core\Content\ImportExport\ImportExportFactory;
@@ -18,9 +19,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
@@ -113,7 +114,8 @@ class ImportExportActionController extends AbstractController
                 $profile->getId(),
                 $expireDate,
                 $file,
-                $request->request->all('config')
+                $request->request->all('config'),
+                Feature::isActive('FEATURE_NEXT_8097') && $request->request->has('dryRun')
             );
 
             unlink($file->getPathname());
@@ -144,9 +146,12 @@ class ImportExportActionController extends AbstractController
         $importExport = $this->importExportFactory->create($logId, 50, 50);
         $logEntity = $importExport->getLogEntity();
 
-        if ($logEntity->getActivity() === 'import') {
+        if (
+            $logEntity->getActivity() === ImportExportLogEntity::ACTIVITY_IMPORT
+            || $logEntity->getActivity() === ImportExportLogEntity::ACTIVITY_DRYRUN
+        ) {
             $progress = $importExport->import($context, $offset);
-        } elseif ($logEntity->getActivity() === 'export') {
+        } elseif ($logEntity->getActivity() === ImportExportLogEntity::ACTIVITY_EXPORT) {
             $progress = $importExport->export($context, new Criteria(), $offset);
         } else {
             throw new ProcessingException('Unknown activity');

@@ -18,6 +18,19 @@
         </sw-button>
         {% endblock %}
 
+        {% block sw_import_export_progress_start_process_dryrun %}
+        <sw-button
+            v-if="activityType === 'import' && feature.isActive('FEATURE_NEXT_8097')"
+            :disabled="disableButton"
+            class="sw-import-export-progress__start-process-dryrun-action"
+            size="small"
+            variant="secondary"
+            @click="$emit('process-start-dryrun')"
+        >
+            {{ $tc('sw-import-export.progress.startImportDryrunLabel') }}
+        </sw-button>
+        {% endblock %}
+
         {% block sw_import_export_progress_bar %}
         <div
             v-if="total !== null"

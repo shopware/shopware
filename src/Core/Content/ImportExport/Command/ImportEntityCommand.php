@@ -2,17 +2,25 @@
 
 namespace Shopware\Core\Content\ImportExport\Command;
 
+use Doctrine\DBAL\Connection;
+use League\Flysystem\FilesystemInterface;
+use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
+use Shopware\Core\Content\ImportExport\ImportExport;
 use Shopware\Core\Content\ImportExport\ImportExportFactory;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
+use Shopware\Core\Content\ImportExport\Processing\Reader\CsvReader;
 use Shopware\Core\Content\ImportExport\Service\ImportExportService;
+use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -21,30 +29,29 @@ class ImportEntityCommand extends Command
 {
     protected static $defaultName = 'import:entity';
 
-    /**
-     * @var ImportExportService
-     */
-    private $initiationService;
+    private ImportExportService $initiationService;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $profileRepository;
+    private EntityRepositoryInterface $profileRepository;
 
-    /**
-     * @var ImportExportFactory
-     */
-    private $importExportFactory;
+    private ImportExportFactory $importExportFactory;
+
+    private Connection $connection;
+
+    private FilesystemInterface $filesystem;
 
     public function __construct(
         ImportExportService $initiationService,
         EntityRepositoryInterface $profileRepository,
-        ImportExportFactory $importExportFactory
+        ImportExportFactory $importExportFactory,
+        Connection $connection,
+        FilesystemInterface $filesystem
     ) {
         parent::__construct();
         $this->initiationService = $initiationService;
         $this->profileRepository = $profileRepository;
         $this->importExportFactory = $importExportFactory;
+        $this->connection = $connection;
+        $this->filesystem = $filesystem;
     }
 
     protected function configure(): void
@@ -57,6 +64,13 @@ class ImportEntityCommand extends Command
                 InputArgument::OPTIONAL,
                 'Wrap profile names with whitespaces into quotation marks, like \'Default Category\''
             );
+
+        if (Feature::isActive('FEATURE_NEXT_8097')) {
+            $this
+                ->addOption('rollbackOnError', 'r', InputOption::VALUE_NONE, 'Rollback database transaction on error')
+                ->addOption('printErrors', 'p', InputOption::VALUE_NONE, 'Print errors occured during import')
+                ->addOption('dryRun', 'd', InputOption::VALUE_NONE, 'Do a dry run of import without persisting data');
+        }
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -69,6 +83,9 @@ class ImportEntityCommand extends Command
             ? $this->chooseProfile($context, $io)
             : $this->profileByName($profileName, $context);
         $filePath = $input->getArgument('file');
+        $rollbackOnError = Feature::isActive('FEATURE_NEXT_8097') && $input->getOption('rollbackOnError');
+        $dryRun = Feature::isActive('FEATURE_NEXT_8097') && $input->getOption('dryRun');
+        $printErrors = Feature::isActive('FEATURE_NEXT_8097') && $input->getOption('printErrors');
 
         $expireDateString = $input->getArgument('expireDate');
 
@@ -82,11 +99,19 @@ class ImportEntityCommand extends Command
 
         $file = new UploadedFile($filePath, basename($filePath), $profile->getFileType());
 
+        $doRollback = $rollbackOnError && !$dryRun;
+        if ($doRollback) {
+            $this->connection->setNestTransactionsWithSavepoints(true);
+            $this->connection->beginTransaction();
+        }
+
         $log = $this->initiationService->prepareImport(
             $context,
             $profile->getId(),
             $expireDate,
-            $file
+            $file,
+            [],
+            $dryRun
         );
 
         $startTime = time();
@@ -112,9 +137,35 @@ class ImportEntityCommand extends Command
 
         $elapsed = time() - $startTime;
         $io->newLine(2);
-        $io->success(sprintf('Successfully imported %d records in %d seconds', $records, $elapsed));
 
-        return self::SUCCESS;
+        if ($printErrors) {
+            $this->printErrors($importExport, $log, $io, $doRollback && $progress->getState() === Progress::STATE_FAILED);
+        }
+
+        if (Feature::isActive('FEATURE_NEXT_8097')) {
+            $this->printResults($log, $io);
+        }
+
+        if ($dryRun) {
+            $io->info(sprintf('Dry run completed in %d seconds', $elapsed));
+
+            return self::SUCCESS;
+        }
+
+        if (!$doRollback || $progress->getState() === Progress::STATE_SUCCEEDED) {
+            if ($progress->getState() === Progress::STATE_FAILED) {
+                $io->warning('Not all records could be imported due to errors');
+            }
+            $io->success(sprintf('Successfully imported %d records in %d seconds', $records, $elapsed));
+
+            return self::SUCCESS;
+        }
+
+        $this->connection->rollBack();
+
+        $io->error(sprintf('Errors on import. Rolling back transactions for %d records. Time elapsed: %d seconds', $records, $elapsed));
+
+        return self::FAILURE;
     }
 
     private function chooseProfile(Context $context, SymfonyStyle $io): ImportExportProfileEntity
@@ -145,5 +196,51 @@ class ImportEntityCommand extends Command
         }
 
         return $result->first();
+    }
+
+    private function printErrors(ImportExport $importExport, ImportExportLogEntity $log, SymfonyStyle $io, bool $deleteLog): void
+    {
+        if (!$importExport->getLogEntity()->getInvalidRecordsLog() || !$log->getFile()) {
+            return;
+        }
+
+        $config = Config::fromLog($importExport->getLogEntity()->getInvalidRecordsLog());
+        $reader = new CsvReader();
+        $invalidLogFilePath = $log->getFile()->getPath() . '_invalid';
+        $resource = $this->filesystem->readStream($invalidLogFilePath);
+
+        if (!$resource) {
+            return;
+        }
+
+        $invalidRows = $reader->read($config, $resource, 0);
+
+        foreach ($invalidRows as $invalidRow) {
+            $io->note($invalidRow['_error']);
+            $io->newLine();
+        }
+
+        if ($deleteLog) {
+            $this->filesystem->delete($invalidLogFilePath);
+            $this->filesystem->delete($log->getFile()->getPath());
+        }
+    }
+
+    private function printResults(ImportExportLogEntity $log, SymfonyStyle $io): void
+    {
+        $importExport = $this->importExportFactory->create($log->getId());
+        $results = $importExport->getLogEntity()->getResult();
+
+        if (empty($results)) {
+            return;
+        }
+
+        $rows = [];
+        foreach ($results as $entity => $values) {
+            $rows[] = array_merge(['entity' => $entity], $values);
+        }
+        $headers = array_keys(reset($rows));
+
+        $io->table($headers, $rows);
     }
 }

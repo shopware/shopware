@@ -6,6 +6,7 @@
         },
         "activity": {
             "invalidHelpText": "Fehlerhafte Einträge können über das Kontext-Menü heruntergeladen werden.",
+            "dryrun": "Testlauf",
             "columns": {
                 "size": "Größe",
                 "profile": "Profil",
@@ -19,7 +20,8 @@
                 "showLog": "Öffne Logeintrag",
                 "downloadFile": "Datei herunterladen",
                 "showProfile": "Profil anzeigen",
-                "downloadInvalidFile": "Fehlerhafte Einträge herunterladen"
+                "downloadInvalidFile": "Fehlerhafte Einträge herunterladen",
+                "showResults": "Ergebnistabelle anzeigen"
             },
             "detail": {
                 "modalTitle": "Log-Informationen",
@@ -38,6 +40,16 @@
                 "labelDownloadFile": "Datei herunterladen",
                 "labelDownloadInvalidFile": "Fehlerhafte Einträge herunterladen",
                 "helpTextFailedRecords": "Fehlgeschlagene Einträge können runtergeladen, bearbeitet und neu importiert werden."
+            },
+            "result": {
+              "modalTitle": "Ergebnistabelle",
+              "entityName": "Objekt-Typ Name",
+              "insert": "Erstellt",
+              "update": "Aktualisiert",
+              "insertError": "Erstellungsfehler",
+              "updateError": "Aktualisierungsfehler",
+              "insertSkip": "Erstellung übersprungen",
+              "updateSkip": "Aktualisierung übersprungen"
             },
             "status": {
                 "progress": "Importiere ...",
@@ -150,6 +162,7 @@
         },
         "progress": {
             "startImportLabel": "Import starten",
+            "startImportDryrunLabel": "Testlauf starten",
             "startExportLabel": "Export starten",
             "entriesLabel": "Einträge",
             "fileSizeLabel": "kB",

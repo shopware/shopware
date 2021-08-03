@@ -4,8 +4,10 @@ namespace Shopware\Core\Content\Test\ImportExport\Api;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -124,6 +126,34 @@ class ImportExportActionControllerTest extends TestCase
 
             $response = $client->getResponse();
             static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        }
+    }
+
+    public function testStartingDryRunImport(): void
+    {
+        if (!Feature::isActive('FEATURE_NEXT_8097')) {
+            static::markTestSkipped('FEATURE_NEXT_8097');
+        }
+
+        $data = $this->prepareImportExportActionControllerTestData(1);
+
+        $this->repository->create(array_values($data), $this->context);
+
+        foreach ($data as $entry) {
+            $client = $this->getBrowser();
+            $client->request(
+                'POST',
+                '/api/_action/import-export/prepare',
+                ['profileId' => $entry['id'], 'expireDate' => date('Y-m-d H:i:s'), 'dryRun' => true],
+                ['file' => $this->getUploadFile($entry['fileType'])],
+                ['Content-Type' => 'multipart/formdata']
+            );
+
+            $response = $client->getResponse();
+            static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+            $content = json_decode($response->getContent(), true);
+            static::assertSame(ImportExportLogEntity::ACTIVITY_DRYRUN, $content['log']['activity']);
         }
     }
 

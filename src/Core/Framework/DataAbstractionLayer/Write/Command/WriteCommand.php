@@ -32,6 +32,8 @@ abstract class WriteCommand
      */
     protected $path;
 
+    protected bool $failed = false;
+
     public function __construct(EntityDefinition $definition, array $payload, array $primaryKey, EntityExistence $existence, string $path)
     {
         $this->payload = $payload;
@@ -76,5 +78,15 @@ abstract class WriteCommand
     public function hasField(string $storageName): bool
     {
         return \array_key_exists($storageName, $this->getPayload());
+    }
+
+    public function setFailed(bool $failed): void
+    {
+        $this->failed = $failed;
+    }
+
+    public function isFailed(): bool
+    {
+        return $this->failed;
     }
 }

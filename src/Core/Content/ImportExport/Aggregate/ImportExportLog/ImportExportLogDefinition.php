@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\User\UserDefinition;
 
 class ImportExportLogDefinition extends EntityDefinition
@@ -48,7 +49,7 @@ class ImportExportLogDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        return new FieldCollection([
+        $fields = [
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new StringField('activity', 'activity'))->addFlags(new Required()),
             (new StringField('state', 'state'))->addFlags(new Required()),
@@ -65,6 +66,12 @@ class ImportExportLogDefinition extends EntityDefinition
             new OneToOneAssociationField('file', 'file_id', 'id', ImportExportFileDefinition::class, true),
             new OneToOneAssociationField('invalidRecordsLog', 'invalid_records_log_id', 'id', ImportExportLogDefinition::class, false),
             new OneToOneAssociationField('failedImportLog', 'id', 'invalid_records_log_id', ImportExportLogDefinition::class),
-        ]);
+        ];
+
+        if (Feature::isActive('FEATURE_NEXT_8097')) {
+            $fields[] = new JsonField('result', 'result', [], []);
+        }
+
+        return new FieldCollection($fields);
     }
 }

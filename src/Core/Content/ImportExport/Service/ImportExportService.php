@@ -87,7 +87,8 @@ class ImportExportService
         string $profileId,
         \DateTimeInterface $expireDate,
         UploadedFile $file,
-        array $config = []
+        array $config = [],
+        bool $dryRun = false
     ): ImportExportLogEntity {
         $profileEntity = $this->findProfile($context, $profileId);
 
@@ -96,8 +97,9 @@ class ImportExportService
             throw new UnexpectedFileTypeException($file->getClientMimeType(), $profileEntity->getFileType());
         }
 
-        $fileEntity = $this->storeFile($context, $expireDate, $file->getPathname(), $file->getClientOriginalName(), 'import');
-        $logEntity = $this->createLog($context, 'import', $fileEntity, $profileEntity, $config);
+        $fileEntity = $this->storeFile($context, $expireDate, $file->getPathname(), $file->getClientOriginalName(), ImportExportLogEntity::ACTIVITY_IMPORT);
+        $activity = $dryRun ? ImportExportLogEntity::ACTIVITY_DRYRUN : ImportExportLogEntity::ACTIVITY_IMPORT;
+        $logEntity = $this->createLog($context, $activity, $fileEntity, $profileEntity, $config);
 
         return $logEntity;
     }
@@ -135,7 +137,7 @@ class ImportExportService
         return $progress;
     }
 
-    public function saveProgress(Progress $progress): void
+    public function saveProgress(Progress $progress, ?array $result = null): void
     {
         $logData = [
             'id' => $progress->getLogId(),
@@ -144,6 +146,9 @@ class ImportExportService
         ];
         if ($progress->getInvalidRecordsLogId()) {
             $logData['invalidRecordsLogId'] = $progress->getInvalidRecordsLogId();
+        }
+        if ($result) {
+            $logData['result'] = $result;
         }
 
         $context = Context::createDefaultContext();

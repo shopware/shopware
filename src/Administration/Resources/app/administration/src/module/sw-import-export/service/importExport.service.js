@@ -52,9 +52,10 @@ export default class ImportExportService extends ApiService {
      * @param file {File} The csv file
      * @param callback {Function} Callback for progress
      * @param config {Object} Additional config for profile
+     * @param dryRun {Boolean} Set if import is a dry run
      * @returns {Promise<void>}
      */
-    async import(profileId, file, callback, config = {}) {
+    async import(profileId, file, callback, config = {}, dryRun = false) {
         const expireDate = new Date();
         expireDate.setDate(expireDate.getDate() + 30);
 
@@ -64,6 +65,9 @@ export default class ImportExportService extends ApiService {
         }
         formData.append('profileId', profileId);
         formData.append('expireDate', expireDate.toDateString());
+        if (dryRun) {
+            formData.append('dryRun', true);
+        }
 
         Object.entries(config).forEach(([key, value]) => {
             formData.append(`config[${key}]`, JSON.stringify(value));

@@ -47,17 +47,23 @@ class DateRangeRule extends Rule
 
     public function match(RuleScope $scope): bool
     {
-        $now = new \DateTime();
+        if (\is_string($this->toDate) || \is_string($this->fromDate)) {
+            throw new \LogicException('fromDate or toDate cannot be a string at this point.');
+        }
+        $toDate = $this->toDate;
+        $now = $scope->getCurrentTime();
 
-        if (!$this->useTime) {
-            $now->setTime(0, 0);
+        if (!$this->useTime && $toDate) {
+            $toDate = (new \DateTime())
+                ->setTimestamp($toDate->getTimestamp())
+                ->add(new \DateInterval('P1D'));
         }
 
-        if ($this->fromDate && $this->fromDate >= $now) {
+        if ($this->fromDate && $this->fromDate > $now) {
             return false;
         }
 
-        if ($this->toDate && $this->toDate < $now) {
+        if ($toDate && $toDate <= $now) {
             return false;
         }
 

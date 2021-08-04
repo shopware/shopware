@@ -205,7 +205,8 @@
       "addTrackingCode": "Zum Hinzufügen hier klicken",
       "enterValidTrackingCode": "Tracking-Code eingeben",
       "textCreditTax": "auto",
-      "taxDetail": "{taxRate}%: {tax}"
+      "taxDetail": "{taxRate}%: {tax}",
+      "textPromotionRemoved": "Rabatt {promotion} wurde entfernt"
     },
     "nestedLineItemsModal": {
       "titlePrefix": "Position: {lineItemLabel} - {price}",

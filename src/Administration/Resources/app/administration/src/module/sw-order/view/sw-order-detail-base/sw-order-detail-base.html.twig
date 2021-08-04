@@ -137,8 +137,32 @@
             >
                 <sw-container
                     class="sw-order-detail__summary"
+                    gap="14px"
                     columns="1fr 440px"
                 >
+                    <div>
+                        {% block sw_order_detail_base_line_items_switch_promotions %}
+                        <sw-switch-field
+                            v-if="isEditing"
+                            v-model="disabledAutoPromotionVisibility"
+                            class="sw-order-detail-summary__switch-promotions"
+                            :label="$tc('sw-order.promotionModal.labelTitle')"
+                        />
+                        {% endblock %}
+                        {% block sw_order_detail_base_line_items_voucher_field %}
+                        <sw-order-promotion-tag-field
+                            v-if="isEditing"
+                            v-model="promotionCodeTags"
+                            :disabled="!hasLineItem"
+                            :currency="currency"
+                            :label="$tc('sw-order.createBase.labelAddPromotion')"
+                            :placeholder="$tc('sw-order.createBase.placeholderAddPromotion')"
+                            :error="promotionError"
+                            @on-remove-code="onRemoveExistingCode"
+                        />
+                        {% endblock %}
+                    </div>
+
                     <sw-description-list
                         v-if="!isLoading"
                         class="sw-order-detail__summary-data"

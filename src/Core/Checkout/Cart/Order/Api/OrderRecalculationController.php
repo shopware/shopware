@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\Cart\Order\RecalculationService;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Rule\LineItemOfTypeRule;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartResponse;
 use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
@@ -163,6 +164,32 @@ class OrderRecalculationController extends AbstractController
         $this->recalculationService->addCustomLineItem($orderId, $lineItem, $context);
 
         return new Response(null, Response::HTTP_NO_CONTENT);
+    }
+
+    /**
+     * @Since("6.4.4.0")
+     * @Route("/api/_action/order/{orderId}/promotion-item", name="api.action.order.add-promotion-item", methods={"POST"})
+     */
+    public function addPromotionItemToOrder(string $orderId, Request $request, Context $context): Response
+    {
+        $code = (string) $request->request->get('code');
+
+        $cart = $this->recalculationService->addPromotionLineItem($orderId, $code, $context);
+
+        return new CartResponse($cart);
+    }
+
+    /**
+     * @Since("6.4.4.0")
+     * @Route("/api/_action/order/{orderId}/toggleAutomaticPromotions", name="api.action.order.toggle-automatic-promotions", methods={"POST"})
+     */
+    public function toggleAutomaticPromotions(string $orderId, Request $request, Context $context): Response
+    {
+        $skipAutomaticPromotions = (bool) $request->request->get('skipAutomaticPromotions', true);
+
+        $cart = $this->recalculationService->toggleAutomaticPromotion($orderId, $context, $skipAutomaticPromotions);
+
+        return new CartResponse($cart);
     }
 
     /**

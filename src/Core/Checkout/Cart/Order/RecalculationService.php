@@ -22,6 +22,7 @@ use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
+use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -30,49 +31,28 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class RecalculationService
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    protected $orderRepository;
+    protected EntityRepositoryInterface $orderRepository;
 
-    /**
-     * @var OrderConverter
-     */
-    protected $orderConverter;
+    protected OrderConverter $orderConverter;
 
-    /**
-     * @var CartService
-     */
-    protected $cartService;
+    protected CartService $cartService;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    protected $productRepository;
+    protected EntityRepositoryInterface $productRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    protected $orderAddressRepository;
+    protected EntityRepositoryInterface $orderAddressRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    protected $customerAddressRepository;
+    protected EntityRepositoryInterface $customerAddressRepository;
 
-    /**
-     * @var Processor
-     */
-    protected $processor;
+    protected Processor $processor;
 
-    /**
-     * @var CartRuleLoader
-     */
-    private $cartRuleLoader;
+    private CartRuleLoader $cartRuleLoader;
+
+    private PromotionItemBuilder $promotionItemBuilder;
 
     public function __construct(
         EntityRepositoryInterface $orderRepository,
@@ -82,7 +62,8 @@ class RecalculationService
         EntityRepositoryInterface $orderAddressRepository,
         EntityRepositoryInterface $customerAddressRepository,
         Processor $processor,
-        CartRuleLoader $cartRuleLoader
+        CartRuleLoader $cartRuleLoader,
+        PromotionItemBuilder $promotionItemBuilder
     ) {
         $this->orderRepository = $orderRepository;
         $this->orderConverter = $orderConverter;
@@ -92,6 +73,7 @@ class RecalculationService
         $this->customerAddressRepository = $customerAddressRepository;
         $this->processor = $processor;
         $this->cartRuleLoader = $cartRuleLoader;
+        $this->promotionItemBuilder = $promotionItemBuilder;
     }
 
     /**
@@ -213,6 +195,96 @@ class RecalculationService
         $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($orderData): void {
             $this->orderRepository->upsert([$orderData], $context);
         });
+    }
+
+    public function addPromotionLineItem(string $orderId, string $code, Context $context): Cart
+    {
+        $order = $this->fetchOrder($orderId, $context);
+
+        $this->validateOrder($order, $orderId);
+
+        $options = [
+            SalesChannelContextService::PERMISSIONS => OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS,
+        ];
+
+        $options[SalesChannelContextService::PERMISSIONS] = \array_merge(
+            OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS,
+            [
+                'skipPromotion' => false,
+                'skipAutomaticPromotions' => true,
+            ]
+        );
+
+        $salesChannelContext = $this->orderConverter->assembleSalesChannelContext(
+            $order,
+            $context,
+            $options,
+        );
+        $cart = $this->orderConverter->convertToCart($order, $context);
+
+        $promotionLineItem = $this->promotionItemBuilder->buildPlaceholderItem($code);
+
+        $cart->add($promotionLineItem);
+        $recalculatedCart = $this->recalculateCart($cart, $salesChannelContext);
+
+        $conversionContext = (new OrderConversionContext())
+            ->setIncludeCustomer(false)
+            ->setIncludeBillingAddress(false)
+            ->setIncludeDeliveries(false)
+            ->setIncludeTransactions(false);
+
+        $orderData = $this->orderConverter->convertToOrder($recalculatedCart, $salesChannelContext, $conversionContext);
+        $orderData['id'] = $order->getId();
+
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($orderData): void {
+            $this->orderRepository->upsert([$orderData], $context);
+        });
+
+        return $recalculatedCart;
+    }
+
+    public function toggleAutomaticPromotion(string $orderId, Context $context, bool $skipAutomaticPromotions = true): Cart
+    {
+        $order = $this->fetchOrder($orderId, $context);
+
+        $this->validateOrder($order, $orderId);
+
+        $options = [
+            SalesChannelContextService::PERMISSIONS => OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS,
+        ];
+
+        $options[SalesChannelContextService::PERMISSIONS] = \array_merge(
+            OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS,
+            [
+                'skipPromotion' => false,
+                'skipAutomaticPromotions' => $skipAutomaticPromotions,
+            ]
+        );
+
+        $salesChannelContext = $this->orderConverter->assembleSalesChannelContext(
+            $order,
+            $context,
+            $options,
+        );
+
+        $cart = $this->orderConverter->convertToCart($order, $context);
+
+        $recalculatedCart = $this->recalculateCart($cart, $salesChannelContext);
+
+        $conversionContext = (new OrderConversionContext())
+            ->setIncludeCustomer(false)
+            ->setIncludeBillingAddress(false)
+            ->setIncludeDeliveries(false)
+            ->setIncludeTransactions(false);
+
+        $orderData = $this->orderConverter->convertToOrder($recalculatedCart, $salesChannelContext, $conversionContext);
+
+        $orderData['id'] = $order->getId();
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($orderData): void {
+            $this->orderRepository->upsert([$orderData], $context);
+        });
+
+        return $recalculatedCart;
     }
 
     /**

@@ -187,5 +187,8 @@
             <tag name="messenger.message_handler"/>
         </service>
 
+        <service id="Shopware\Core\System\SalesChannel\Validation\SalesChannelValidator">
+            <tag name="kernel.event_subscriber"/>
+        </service>
     </services>
 </container>

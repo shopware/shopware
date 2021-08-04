@@ -1,11 +1,11 @@
 @import "~scss/variables";
 
-.sw-dashboard-external-link {
+.sw-external-link.sw-dashboard-external-link {
     display: block;
     margin-bottom: 16px;
     color: $color-darkgray-200;
     text-decoration: none;
-    font-size: 18px;
+    font-size: $font-size-large;
 
     .sw-icon svg {
         color: $color-shopware-brand-500;

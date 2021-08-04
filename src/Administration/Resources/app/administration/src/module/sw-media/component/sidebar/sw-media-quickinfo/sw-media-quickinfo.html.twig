@@ -47,11 +47,9 @@
                     v-if="item.hasFile"
                     class="sw-media-sidebar__quickaction quickaction--download"
                 >
-                    <a
+                    <sw-external-link
                         class="sw-media-sidebar__quickaction"
                         :href="item.url"
-                        target="_blank"
-                        rel="noopener"
                         download
                     >
 
@@ -61,7 +59,7 @@
                             class="sw-media-sidebar__quickactions-icon"
                         />
                         {{ $tc('sw-media.sidebar.actions.download') }}
-                    </a>
+                    </sw-external-link>
                 </li>
                 {% endblock %}
                 {% block sw_media_quickinfo_quickactions_move %}

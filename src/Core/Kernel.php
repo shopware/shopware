@@ -12,6 +12,8 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\Loader\LoaderInterface;
+use Symfony\Component\DependencyInjection\Compiler\DecoratorServicePass;
+use Symfony\Component\DependencyInjection\Compiler\ServiceLocatorTagPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\Kernel as HttpKernel;
@@ -391,6 +393,34 @@ class Kernel extends HttpKernel
             $connection->executeQuery(implode(';', $connectionVariables));
         } catch (\Throwable $_) {
         }
+    }
+
+    /**
+     * @deprecated Remove when Symfony 5.3.7 is released and we bumped up the minimum version
+     * @see https://github.com/symfony/symfony/pull/42347
+     */
+    protected function getContainerBuilder()
+    {
+        $c = parent::getContainerBuilder();
+
+        $passes = $c->getCompilerPassConfig()->getOptimizationPasses();
+        $newPasses = [];
+
+        foreach ($passes as $pass) {
+            if ($pass instanceof DecoratorServicePass) {
+                continue;
+            }
+
+            $newPasses[] = $pass;
+
+            if ($pass instanceof ServiceLocatorTagPass) {
+                $newPasses[] = new DecoratorServicePass();
+            }
+        }
+
+        $c->getCompilerPassConfig()->setOptimizationPasses($newPasses);
+
+        return $c;
     }
 
     private function addApiRoutes(RoutingConfigurator $routes): void

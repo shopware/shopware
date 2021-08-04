@@ -163,6 +163,12 @@
         </service>
 
         <service id="Shopware\Core\Framework\Test\Api\Acl\fixtures\AclTestController" public="true"/>
+
+        <service id="test_payment_decoration" class="Shopware\Core\Framework\App\Payment\Handler\AppAsyncPaymentHandler" decorates="Shopware\Core\Framework\App\Payment\Handler\AppAsyncPaymentHandler">
+            <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
+            <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Payment\Payload\PayloadService"/>
+        </service>
     </services>
 
 </container>

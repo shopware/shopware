@@ -151,10 +151,12 @@ class ExportController
                 break;
         }
 
-        $event = new StorefrontProductExportContentTypeEvent($fileFormat, $contentType);
-        $this->eventDispatcher->dispatch($event);
+        if (\class_exists(StorefrontProductExportContentTypeEvent::class)) {
+            $event = new StorefrontProductExportContentTypeEvent($fileFormat, $contentType);
+            $this->eventDispatcher->dispatch($event);
+        }
 
-        $event = new ProductExportContentTypeEvent($fileFormat, $event->getContentType());
+        $event = new ProductExportContentTypeEvent($fileFormat, $contentType);
         $this->eventDispatcher->dispatch($event);
 
         return $event->getContentType();

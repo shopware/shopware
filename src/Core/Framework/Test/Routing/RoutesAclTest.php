@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Api\Route\ApiRouteLoader;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Storefront\Framework\Routing\Router;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\LoaderResolver;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,13 +31,8 @@ class RoutesAclTest extends TestCase
 
     private \Symfony\Component\Routing\RouteCollection $routes;
 
-    private Router $router;
-
     public function setUp(): void
     {
-        /** @var Router $router */
-        $router = $this->getContainer()->get('router');
-        $this->router = $router;
         /** @var AnnotationDirectoryLoader $annotDirLoader */
         $annotDirLoader = $this->getContainer()->get('routing.loader.annotation.directory');
         /** @var FileLocator $fileLocator */

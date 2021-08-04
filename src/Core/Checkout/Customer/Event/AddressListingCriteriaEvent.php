@@ -10,15 +10,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class AddressListingCriteriaEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
-    /**
-     * @var Criteria
-     */
-    private $criteria;
+    private Criteria $criteria;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
+    private SalesChannelContext $salesChannelContext;
 
     public function __construct(Criteria $criteria, SalesChannelContext $salesChannelContext)
     {

@@ -362,7 +362,7 @@
         <service id="Shopware\Core\Framework\App\AppUrlChangeResolver\UninstallAppsStrategy">
             <argument type="service" id="app.repository"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-            <argument type="service" id="Shopware\Core\Framework\App\AppStateService"/>
+            <argument type="service" id="Shopware\Storefront\Theme\ThemeAppLifecycleHandler" on-invalid="null"/>
 
             <tag name="shopware.app_url_changed_resolver"/>
         </service>

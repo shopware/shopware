@@ -215,7 +215,7 @@ class ExtensionLoader
             return $this->installedThemeNames = $themeNameAggregation->getKeys();
         }
 
-        return $this->installedThemeNames;
+        return $this->installedThemeNames ?? [];
     }
 
     private function loadLocalAppsCollection(Context $context): ExtensionCollection

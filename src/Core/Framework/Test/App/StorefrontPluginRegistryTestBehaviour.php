@@ -14,6 +14,9 @@ trait StorefrontPluginRegistryTestBehaviour
      */
     public function clearStorefrontAppRegistryCache(): void
     {
+        if (!$this->getContainer()->has(StorefrontPluginRegistry::class)) {
+            return;
+        }
         $registry = $this->getContainer()
             ->get(StorefrontPluginRegistry::class);
 

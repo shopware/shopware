@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\LandingPage\Aggregate\LandingPageTranslation\LandingPageTranslationDefinition;
 use Shopware\Core\Content\LandingPage\LandingPageDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Migration\Migration1612184092AddUrlLandingPage;
+use Shopware\Core\Migration\V6_4\Migration1612184092AddUrlLandingPage;
 
 class Migration1612184092AddUrlLandingPageTest extends TestCase
 {
@@ -23,10 +23,7 @@ class Migration1612184092AddUrlLandingPageTest extends TestCase
      */
     private const DEFAULT_TEMPLATE = '{{ landingPage.translated.url }}';
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     protected function setUp(): void
     {

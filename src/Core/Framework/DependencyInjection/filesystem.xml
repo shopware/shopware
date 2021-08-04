@@ -89,6 +89,7 @@
             </argument>
             <argument type="service" id="shopware.asset.theme.version_strategy"/>
             <argument type="service" id="request_stack"/>
+            <argument type="service" id="Shopware\Storefront\Theme\AbstractThemePathBuilder" on-invalid="null"/>
             <tag name="shopware.asset" asset="theme"/>
         </service>
 

@@ -6,15 +6,9 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 class ProductExportContentTypeEvent extends Event
 {
-    /**
-     * @var string
-     */
-    private $fileFormat;
+    private string $fileFormat;
 
-    /**
-     * @var string
-     */
-    private $contentType;
+    private string $contentType;
 
     public function __construct(string $fileFormat, string $contentType)
     {

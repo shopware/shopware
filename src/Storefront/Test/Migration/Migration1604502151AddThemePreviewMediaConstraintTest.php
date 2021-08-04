@@ -1,14 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Migration\Test;
+namespace Shopware\Storefront\Test\Migration;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Storefront\Migration\Migration1604502151AddThemePreviewMediaConstraint;
+use Shopware\Storefront\Migration\V6_3\Migration1604502151AddThemePreviewMediaConstraint;
 
+/**
+ * @group skip-paratest
+ */
 class Migration1604502151AddThemePreviewMediaConstraintTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -79,10 +82,12 @@ class Migration1604502151AddThemePreviewMediaConstraintTest extends TestCase
             $exception = $e;
         }
 
-        $this->connection->beginTransaction();
-
         // Expect the migration to have taken care of the invalid references
         static::assertNull($exception);
+
+        $this->connection->delete(self::FK_THEME_TABLE, ['name' => self::class]);
+
+        $this->connection->beginTransaction();
     }
 
     private function removeForeignKeyConstraintIfExists(): void

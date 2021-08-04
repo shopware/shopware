@@ -3,13 +3,14 @@
 namespace Shopware\Core\Framework\App\AppUrlChangeResolver;
 
 use Shopware\Core\Framework\App\AppCollection;
-use Shopware\Core\Framework\App\AppStateService;
+use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Storefront\Theme\ThemeAppLifecycleHandler;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
@@ -22,26 +23,20 @@ class UninstallAppsStrategy extends AbstractAppUrlChangeStrategy
 {
     public const STRATEGY_NAME = 'uninstall-apps';
 
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
+    private SystemConfigService $systemConfigService;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $appRepository;
+    private EntityRepositoryInterface $appRepository;
 
-    private AppStateService $appStateService;
+    private ?ThemeAppLifecycleHandler $themeLifecycleHandler;
 
     public function __construct(
         EntityRepositoryInterface $appRepository,
         SystemConfigService $systemConfigService,
-        AppStateService $appStateService
+        ?ThemeAppLifecycleHandler $themeLifecycleHandler
     ) {
         $this->systemConfigService = $systemConfigService;
         $this->appRepository = $appRepository;
-        $this->appStateService = $appStateService;
+        $this->themeLifecycleHandler = $themeLifecycleHandler;
     }
 
     public function getDecorated(): AbstractAppUrlChangeStrategy
@@ -68,7 +63,11 @@ class UninstallAppsStrategy extends AbstractAppUrlChangeStrategy
         $apps = $this->appRepository->search(new Criteria(), $context)->getEntities();
 
         foreach ($apps as $app) {
-            $this->appStateService->deactivateApp($app->getId(), $context);
+            // Delete app manually, to not inform the app backend about the deactivation
+            // as the app is still running in the old shop with the same shopId
+            if ($this->themeLifecycleHandler) {
+                $this->themeLifecycleHandler->handleUninstall(new AppDeactivatedEvent($app, $context));
+            }
             $this->appRepository->delete([['id' => $app->getId()]], $context);
         }
 

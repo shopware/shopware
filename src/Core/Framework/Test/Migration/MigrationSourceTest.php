@@ -94,41 +94,6 @@ class MigrationSourceTest extends TestCase
         static::assertSame($expected, $sourceAb->getSourceDirectories());
     }
 
-    public function provideCoreRegexData(): array
-    {
-        return [
-            ['Shopware\Core\Migration\Migration1565270366PromotionSetGroupRule', true],
-            ['Shopware\Core\Migration\Migration1565346846Promotion', true],
-            ['Shopware\Core\Migration\Migration1566293076AddAutoIncrement', true],
-            ['Shopware\Core\Migration\Migration1566460168UpdateTexts', true],
-            ['Shopware\Core\Migration\Migration1566817701AddDisplayGroup', true],
-            ['Shopware\Core\Migration\Migration1567431050ContactFormTemplate', true],
-            ['Shopware\Core\Migration\Migration1568120239CmsSection', true],
-            ['Shopware\Core\Migration\Migration1568120302CmsBlockUpdate', true],
-            ['Shopware\Core\Migration\Migration1568645037AddEnqueueDbal', true],
-            ['Shopware\Core\Migration\Migration1568901713PromotionDiscount', true],
-            ['Shopware\Core\Migration\Migration1569403146ProductVisibilityUnique', true],
-            ['Shopware\Core\Migration\Migration1570187167AddedAppConfig', true],
-            ['Shopware\Core\Migration\Migration1570459127AddCmsSidebarLayout', true],
-            ['Shopware\Core\Migration\Migration1570621541UpdateDefaultMailTemplates', true],
-            ['Shopware\Core\Migration\Migration1570622696CustomerPasswordRecovery', true],
-            ['Shopware\Core\Migration\Migration1570629862ClearCategoryBreadcrumbs', true],
-            ['Shopware\Core\Migration\Migration1570684913ScheduleIndexer', true],
-            ['Shopware\Core\Migration\Migration1571059598ChangeGreatBritainToUnitedKingdom', true],
-            ['Shopware\Storefront\Migration\Migration1555406153SalesChannelTheme', true],
-            ['Shopware\Storefront\Migration\Migration1563785071AddThemeHelpText', true],
-            ['Shopware\Storefront\Migration\Migration1564385954ThemeMedia', true],
-            ['Shopware\Storefront\Migration\Migration1564385960ThemeAddActiveFlag', true],
-            ['Shopware\Storefront\Migration\Migration1565640170ThemeMigrateMedia', true],
-            ['Shopware\Storefront\Migration\Migration1565640175RemoveSalesChannelTheme', true],
-            ['Shopware\Storefront\Migration\Migration1568787535AddSeoUrlConstraints', true],
-            ['Shopware\Storefront\Migration\Migration1595919251MainCategory', true],
-            ['Shopware\Storefront\Migration\Migration1569907970RemoveUnusedSeoColumns', true],
-            ['Shopware\Storefront\Migration\Migration1572858066UpdateDefaultCategorySeoUrlTemplate', true],
-            ['Shopware\Core\Migration\Something\Migration1571059598ChangeGreatBritainToUnitedKingdom', false],
-        ];
-    }
-
     public function provideCoreRegexDataV6_3(): array
     {
         return [

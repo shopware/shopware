@@ -20,7 +20,6 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
 
 class SeoUrlGeneratorTest extends TestCase
 {
@@ -28,34 +27,26 @@ class SeoUrlGeneratorTest extends TestCase
     use SalesChannelApiTestBehaviour;
 
     /**
-     * @var SalesChannelContext
+     * @see \Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute::ROUTE_NAME
      */
-    private $salesChannelContext;
+    private const NAVIGATION_SEO_URL_ROUTE_NAME = 'frontend.navigation.page';
 
     /**
-     * @var SeoUrlGenerator
+     * @see \Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute::DEFAULT_TEMPLATE
      */
-    private $seoUrlGenerator;
+    private const NAVIGATION_SEO_URL_TEMPLATE = '{% for part in category.seoBreadcrumb %}{{ part }}/{% endfor %}';
 
-    /**
-     * @var SeoUrlRouteRegistry
-     */
-    private $seoUrlRouteRegistry;
+    private SalesChannelContext $salesChannelContext;
 
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
+    private SeoUrlGenerator $seoUrlGenerator;
 
-    /**
-     * @var string
-     */
-    private $deLanguageId;
+    private SeoUrlRouteRegistry $seoUrlRouteRegistry;
 
-    /**
-     * @var string
-     */
-    private $salesChannelId;
+    private TestDataCollection $ids;
+
+    private string $deLanguageId;
+
+    private string $salesChannelId;
 
     protected function setUp(): void
     {
@@ -94,7 +85,7 @@ class SeoUrlGeneratorTest extends TestCase
         $urls = $this->seoUrlGenerator->generate(
             [$id],
             $template,
-            $this->seoUrlRouteRegistry->findByRouteName(NavigationPageSeoUrlRoute::ROUTE_NAME),
+            $this->seoUrlRouteRegistry->findByRouteName(self::NAVIGATION_SEO_URL_ROUTE_NAME),
             $this->salesChannelContext->getContext(),
             $this->salesChannelContext->getSalesChannel()
         );
@@ -114,7 +105,7 @@ class SeoUrlGeneratorTest extends TestCase
         $urls = $this->seoUrlGenerator->generate(
             [$id],
             $template,
-            $this->seoUrlRouteRegistry->findByRouteName(NavigationPageSeoUrlRoute::ROUTE_NAME),
+            $this->seoUrlRouteRegistry->findByRouteName(self::NAVIGATION_SEO_URL_ROUTE_NAME),
             $this->salesChannelContext->getContext(),
             $this->salesChannelContext->getSalesChannel()
         );
@@ -142,8 +133,8 @@ class SeoUrlGeneratorTest extends TestCase
         /** @var SeoUrlEntity[] $urls */
         $urls = $this->seoUrlGenerator->generate(
             [$this->ids->get('childCategory')],
-            NavigationPageSeoUrlRoute::DEFAULT_TEMPLATE,
-            $this->seoUrlRouteRegistry->findByRouteName(NavigationPageSeoUrlRoute::ROUTE_NAME),
+            self::NAVIGATION_SEO_URL_TEMPLATE,
+            $this->seoUrlRouteRegistry->findByRouteName(self::NAVIGATION_SEO_URL_ROUTE_NAME),
             $context,
             $this->salesChannelContext->getSalesChannel()
         );

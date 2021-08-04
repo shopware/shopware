@@ -67,14 +67,17 @@ class UninstallAppsStrategyTest extends TestCase
 
         $shopId = $this->changeAppUrl();
 
-        $themeLifecycleHandler = $this->createMock(ThemeAppLifecycleHandler::class);
-        $themeLifecycleHandler->expects(static::once())
-            ->method('handleUninstall')
-            ->with(
-                static::callback(function (AppDeactivatedEvent $event) use ($app) {
-                    return $event->getApp()->getName() === $app->getName();
-                })
-            );
+        $themeLifecycleHandler = null;
+        if (class_exists(ThemeAppLifecycleHandler::class)) {
+            $themeLifecycleHandler = $this->createMock(ThemeAppLifecycleHandler::class);
+            $themeLifecycleHandler->expects(static::once())
+                ->method('handleUninstall')
+                ->with(
+                    static::callback(function (AppDeactivatedEvent $event) use ($app) {
+                        return $event->getApp()->getName() === $app->getName();
+                    })
+                );
+        }
 
         $uninstallAppsResolver = new UninstallAppsStrategy(
             $this->getContainer()->get('app.repository'),

@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Storefront\Theme\ThemeService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class AppStateServiceTest extends TestCase
@@ -24,44 +23,20 @@ class AppStateServiceTest extends TestCase
     use AppSystemTestBehaviour;
     use StorefrontPluginRegistryTestBehaviour;
 
-    /**
-     * @var ThemeService
-     */
-    private $themeService;
+    private EntityRepository $appRepository;
 
-    /**
-     * @var EntityRepository
-     */
-    private $appRepository;
+    private EntityRepository $themeRepo;
 
-    /**
-     * @var EntityRepository
-     */
-    private $themeRepo;
+    private AppStateService $appStateService;
 
-    /**
-     * @var AppStateService
-     */
-    private $appStateService;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private AppLifecycle $appLifecycle;
 
-    /**
-     * @var AppLifecycle
-     */
-    private $appLifecycle;
-
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     public function setUp(): void
     {
-        $this->themeService = $this->getContainer()->get(ThemeService::class);
         $this->appRepository = $this->getContainer()->get('app.repository');
         $this->themeRepo = $this->getContainer()->get('theme.repository');
         $this->appStateService = $this->getContainer()->get(AppStateService::class);

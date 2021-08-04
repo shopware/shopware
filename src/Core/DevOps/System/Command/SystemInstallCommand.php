@@ -154,18 +154,14 @@ class SystemInstallCommand extends Command
 
         if (\class_exists(ThemeRefreshCommand::class)) {
             $commands[] = [
-                [
-                    'command' => 'theme:refresh',
-                ],
+                'command' => 'theme:refresh',
             ];
         }
 
         if (\class_exists(ThemeCompileCommand::class)) {
             $commands[] = [
-                [
-                    'command' => 'theme:compile',
-                    'allowedToFail' => true,
-                ],
+                'command' => 'theme:compile',
+                'allowedToFail' => true,
             ];
         }
 

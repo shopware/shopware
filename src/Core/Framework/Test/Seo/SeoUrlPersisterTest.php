@@ -23,25 +23,13 @@ class SeoUrlPersisterTest extends TestCase
     use IntegrationTestBehaviour;
     use StorefrontSalesChannelTestHelper;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $seoUrlRepository;
+    private EntityRepositoryInterface $seoUrlRepository;
 
-    /**
-     * @var SeoUrlPersister
-     */
-    private $seoUrlPersister;
+    private SeoUrlPersister $seoUrlPersister;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $categoryRepository;
+    private EntityRepositoryInterface $categoryRepository;
 
-    /**
-     * @var SeoUrlGenerator
-     */
-    private $seoUrlGenerator;
+    private SeoUrlGenerator $seoUrlGenerator;
 
     public function setUp(): void
     {
@@ -395,6 +383,10 @@ class SeoUrlPersisterTest extends TestCase
 
     private function generateSeoUrls(string $categoryId): iterable
     {
+        if (!$this->getContainer()->has(NavigationPageSeoUrlRoute::class)) {
+            static::markTestSkipped('Test needs StorefrontBundle to be installed');
+        }
+
         return $this->seoUrlGenerator->generate(
             [$categoryId],
             'mytemplate',

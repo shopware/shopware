@@ -5,18 +5,29 @@ namespace Shopware\Core\Framework\Adapter\Asset;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
-use Shopware\Storefront\Theme\ThemeCompiler;
+use Shopware\Storefront\Theme\AbstractThemePathBuilder;
 use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
+/**
+ * @deprecated tag:v6.5.0 use
+ * @see \Shopware\Storefront\Theme\ThemeAssetPackage instead
+ */
 class ThemeAssetPackage extends FallbackUrlPackage
 {
     private RequestStack $requestStack;
 
-    public function __construct($baseUrls, VersionStrategyInterface $versionStrategy, RequestStack $requestStack)
-    {
+    private ?AbstractThemePathBuilder $themePathBuilder;
+
+    public function __construct(
+        $baseUrls,
+        VersionStrategyInterface $versionStrategy,
+        RequestStack $requestStack,
+        AbstractThemePathBuilder $themePathBuilder
+    ) {
         parent::__construct($baseUrls, $versionStrategy);
         $this->requestStack = $requestStack;
+        $this->themePathBuilder = $themePathBuilder;
     }
 
     public function getUrl(string $path)
@@ -66,6 +77,10 @@ class ThemeAssetPackage extends FallbackUrlPackage
             return '';
         }
 
-        return '/theme/' . ThemeCompiler::getThemePrefix($salesChannelId, $themeId);
+        if (!$this->themePathBuilder) {
+            return '/theme';
+        }
+
+        return '/theme/' . $this->themePathBuilder->assemblePath($salesChannelId, $themeId);
     }
 }

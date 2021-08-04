@@ -177,13 +177,21 @@ class PermissionCategorization
     private const CATEGORY_SOCIAL_SHOPPING = 'social_shopping';
     private const CATEGORY_TAG = 'tag';
     private const CATEGORY_THEME = 'theme';
-    /** @see \Shopware\Storefront\Theme\ThemeDefinition::ENTITY_NAME */
+    /**
+     * @see \Shopware\Storefront\Theme\ThemeDefinition::ENTITY_NAME
+     */
     private const THEME_ENTITY_NAME = 'theme';
-    /** @see \Shopware\Storefront\Theme\Aggregate\ThemeTranslationDefinition::ENTITY_NAME  */
+    /**
+     * @see \Shopware\Storefront\Theme\Aggregate\ThemeTranslationDefinition::ENTITY_NAME
+     */
     private const THEME_TRANSLATION_ENTITY_NAME = 'theme_translation';
-    /** @see \Shopware\Storefront\Theme\Aggregate\ThemeMediaDefinition::ENTITY_NAME */
+    /**
+     * @see \Shopware\Storefront\Theme\Aggregate\ThemeMediaDefinition::ENTITY_NAME
+     */
     private const THEME_MEDIA_ENTITY_NAME = 'theme_media';
-    /** @see \Shopware\Storefront\Theme\Aggregate\ThemeSalesChannelDefinition::ENTITY_NAME  */
+    /**
+     * @see \Shopware\Storefront\Theme\Aggregate\ThemeSalesChannelDefinition::ENTITY_NAME
+     */
     private const THEME_SALES_CHANNEL_ENTITY_NAME = 'theme_sales_channel';
 
     private const PERMISSION_CATEGORIES = [

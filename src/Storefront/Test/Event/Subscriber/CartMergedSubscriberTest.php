@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Test\Cart\Subscriber;
+namespace Shopware\Storefront\Test\Event\Subscriber;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -20,6 +20,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CartMergedSubscriberTest extends TestCase
 {
@@ -33,7 +34,13 @@ class CartMergedSubscriberTest extends TestCase
         $requestStack = new RequestStack();
         $requestStack->push($request);
 
-        $subscriber = new CartMergedSubscriber($this->getContainer()->get('translator'), $requestStack);
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->expects(static::once())
+            ->method('trans')
+            ->with('checkout.cart-merged-hint')
+            ->willReturn('checkout.cart-merged-hint');
+
+        $subscriber = new CartMergedSubscriber($translator, $requestStack);
 
         $currentContextToken = 'currentToken';
         $currentContext = $this->createSalesChannelContext($currentContextToken, []);

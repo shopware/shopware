@@ -69,7 +69,9 @@ class ListAddressRoute extends AbstractListAddressRoute
             ->addAssociation('country')
             ->addFilter(new EqualsFilter('customer_address.customerId', $customer->getId()));
 
-        $this->eventDispatcher->dispatch(new StorefrontAddressListingCriteriaEvent($criteria, $context));
+        if (\class_exists(StorefrontAddressListingCriteriaEvent::class)) {
+            $this->eventDispatcher->dispatch(new StorefrontAddressListingCriteriaEvent($criteria, $context));
+        }
         $this->eventDispatcher->dispatch(new AddressListingCriteriaEvent($criteria, $context));
 
         return new ListAddressRouteResponse($this->addressRepository->search($criteria, $context->getContext()));

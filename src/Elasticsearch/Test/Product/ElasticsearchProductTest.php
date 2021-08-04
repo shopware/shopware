@@ -1351,36 +1351,21 @@ class ElasticsearchProductTest extends TestCase
             static::assertInstanceOf(AvgResult::class, $result);
 
             static::assertEquals(75, $result->getAvg());
+        } catch (\Exception $e) {
+            static::tearDown();
 
+            throw $e;
+        }
+    }
 
-            // Assert that property is contained in aggregation if we filter for manufacturer
-            $criteria = new Criteria($data->prefixed('product-'));
-            $criteria->addAggregation(
-                new FilterAggregation(
-                    'properties-filtered',
-                    new TermsAggregation('properties', 'product.properties.id'),
-                    [new EqualsAnyFilter('product.manufacturerId', [$data->get('m1')])]
-                )
-            );
-            $aggregations = $aggregator->aggregate($this->productDefinition, $criteria, $data->getContext());
-            $result = $aggregations->get('properties');
-            static::assertContains($data->get('red'), $result->getKeys());
-            static::assertContains($data->get('xl'), $result->getKeys());
+    /**
+     * @depends testIndexing
+     */
+    public function testFilterAggregationWithNestedFilterAndAggregation(IdsCollection $data): void
+    {
+        $aggregator = $this->createEntityAggregator();
 
-            // Assert that property is not contained in aggregation if we filter for manufacturer
-            $criteria = new Criteria($data->prefixed('product-'));
-            $criteria->addAggregation(
-                new FilterAggregation(
-                    'properties-filtered',
-                    new TermsAggregation('properties', 'product.properties.id'),
-                    [new EqualsAnyFilter('product.manufacturerId', [$data->get('m2')])]
-                )
-            );
-            $aggregations = $aggregator->aggregate($this->productDefinition, $criteria, $data->getContext());
-            $result = $aggregations->get('properties');
-            static::assertNotContains($data->get('xl'), $result->getKeys());
-            static::assertContains($data->get('l'), $result->getKeys());
-
+        try {
             // Assert that property is not contained in aggregation if we filter for different property
             $criteria = new Criteria($data->prefixed('product-'));
             $criteria->addAggregation(
@@ -1390,8 +1375,10 @@ class ElasticsearchProductTest extends TestCase
                     [new EqualsAnyFilter('product.properties.id', [$data->get('red')])]
                 )
             );
+
             $aggregations = $aggregator->aggregate($this->productDefinition, $criteria, $data->getContext());
             $result = $aggregations->get('properties');
+            /** @var TermsResult $result */
             static::assertNotContains($data->get('green'), $result->getKeys());
             static::assertContains($data->get('red'), $result->getKeys());
 
@@ -1406,6 +1393,8 @@ class ElasticsearchProductTest extends TestCase
             );
             $aggregations = $aggregator->aggregate($this->productDefinition, $criteria, $data->getContext());
             $result = $aggregations->get('properties');
+
+            /** @var TermsResult $result */
             static::assertContains($data->get('red'), $result->getKeys());
             static::assertNotContains($data->get('xl'), $result->getKeys());
         } catch (\Exception $e) {
@@ -2358,6 +2347,35 @@ class ElasticsearchProductTest extends TestCase
 
             throw $e;
         }
+    }
+
+    /**
+     * @depends testIndexing
+     */
+    public function testEmptyEntityAggregation(IdsCollection $ids): void
+    {
+        $criteria = new Criteria();
+        $criteria->addAggregation(new EntityAggregation('manufacturer', 'manufacturerId', 'product_manufacturer'));
+        $result = $this->createEntityAggregator()->aggregate($this->productDefinition, $criteria, $ids->getContext());
+
+        static::assertTrue($result->has('manufacturer'));
+        static::assertInstanceOf(EntityResult::class, $result->get('manufacturer'));
+        /** @var EntityResult $agg */
+        $agg = $result->get('manufacturer');
+        static::assertNotEmpty($agg->getEntities());
+
+        $criteria = new Criteria();
+        // p.13 has no assigned manufacturer, the aggregation should now return no manufacturers inside the collection
+        $criteria->addFilter(new EqualsFilter('id', $ids->get('p.13')));
+        $criteria->addAggregation(new EntityAggregation('manufacturer', 'manufacturerId', 'product_manufacturer'));
+        $result = $this->createEntityAggregator()->aggregate($this->productDefinition, $criteria, $ids->getContext());
+
+        static::assertTrue($result->has('manufacturer'));
+        static::assertInstanceOf(EntityResult::class, $result->get('manufacturer'));
+
+        /** @var EntityResult $agg */
+        $agg = $result->get('manufacturer');
+        static::assertEmpty($agg->getEntities());
     }
 
     protected function getDiContainer(): ContainerInterface

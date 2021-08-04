@@ -31,10 +31,12 @@ trait OrderFixture
         $orderLineItemId = Uuid::randomHex();
         $countryStateId = Uuid::randomHex();
         $customerId = Uuid::randomHex();
+        $orderNumber = Uuid::randomHex();
 
         $order = [
             [
                 'id' => $orderId,
+                'orderNumber' => $orderNumber,
                 'price' => new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
                 'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
                 'stateId' => $stateMachineRegistry->getInitialState(OrderStates::STATE_MACHINE, $context)->getId(),

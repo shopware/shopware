@@ -280,6 +280,10 @@ shopware:
               major: false
               description: "Groundwork for csv import"
               # issue: NEXT-8097
+            - name: FEATURE_NEXT_16119
+              default: false
+              major: false
+              description: "Allow additional entities for import and export"
             - name: FEATURE_NEXT_15917
               default: false
               major: true

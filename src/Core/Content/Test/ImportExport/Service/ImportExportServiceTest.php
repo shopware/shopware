@@ -12,6 +12,8 @@ use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -109,7 +111,20 @@ class ImportExportServiceTest extends TestCase
             $profileRepository
         );
 
-        $profileId = $profileRepository->searchIds(new Criteria(), Context::createDefaultContext())->firstId();
+        $criteria = new Criteria();
+        if (!Feature::isActive('FEATURE_NEXT_16119') || !Feature::isActive('FEATURE_NEXT_8097')) {
+            $criteria->addFilter(new NotFilter('AND', [
+                new EqualsFilter('sourceEntity', 'order'),
+            ]));
+        }
+
+        if (Feature::isActive('FEATURE_NEXT_8097')) {
+            $criteria->addFilter(new NotFilter('AND', [
+                new EqualsFilter('type', 'export'),
+            ]));
+        }
+
+        $profileId = $profileRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
 
         static::assertNotnUll($profileId);
 

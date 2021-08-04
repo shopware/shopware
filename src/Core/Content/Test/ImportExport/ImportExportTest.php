@@ -6,8 +6,10 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeDefinition;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeEntity;
+use Shopware\Core\Checkout\Test\Customer\Rule\OrderFixture;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
@@ -78,6 +80,8 @@ class ImportExportTest extends TestCase
     use RequestStackTestBehaviour;
     use SalesChannelApiTestBehaviour;
     use SerializerCacheTestBehaviour;
+
+    use OrderFixture;
 
     public const TEST_IMAGE = __DIR__ . '/fixtures/shopware-logo.png';
 
@@ -1531,6 +1535,33 @@ class ImportExportTest extends TestCase
         }
     }
 
+    public function testExportOrders(): void
+    {
+        $orderId = Uuid::randomHex();
+        $testOrder = $this->getOrderData($orderId, Context::createDefaultContext())[0];
+        /** @var EntityRepositoryInterface $orderRepository */
+        $orderRepository = $this->getContainer()->get('order.repository');
+
+        $context = Context::createDefaultContext();
+        $orderRepository->upsert([$testOrder], $context);
+
+        $factory = $this->getContainer()->get(ImportExportFactory::class);
+
+        $importExportService = $this->getContainer()->get(ImportExportService::class);
+
+        $profileId = $this->getDefaultProfileId(OrderDefinition::ENTITY_NAME);
+
+        $expireDate = new \DateTimeImmutable('2099-01-01');
+        $logEntity = $importExportService->prepareExport($context, $profileId, $expireDate);
+
+        $importExport = $factory->create($logEntity->getId());
+
+        $criteria = new Criteria([$testOrder['id']]);
+        $progress = $importExport->export(Context::createDefaultContext(), $criteria, 0);
+        static::assertTrue($progress->isFinished());
+        static::assertSame(Progress::STATE_SUCCEEDED, $progress->getState());
+    }
+
     private function runCustomerImportWithConfigAndMockedRepository(array $configOverrides): MockRepository
     {
         $context = Context::createDefaultContext();
@@ -1581,6 +1612,14 @@ class ImportExportTest extends TestCase
         static::assertSame(Progress::STATE_SUCCEEDED, $progress->getState(), 'Import with MockRepository failed. Maybe check for mock errors.');
 
         return $mockRepository;
+    }
+
+    private function createOrder(array $order): void
+    {
+        /** @var EntityRepositoryInterface $orderRepository */
+        $orderRepository = $this->getContainer()->get('order.repository');
+
+        $orderRepository->create([$order], Context::createDefaultContext());
     }
 
     private function createPromotion(array $promotionOverride = []): array

@@ -45,6 +45,10 @@ Shopware.Component.register('sw-import-export-edit-profile-modal', {
                     label: this.$tc('sw-import-export.profile.categoriesLabel'),
                 },
                 {
+                    value: 'order',
+                    label: this.$tc('sw-import-export.profile.orderLabel'),
+                },
+                {
                     value: 'media',
                     label: this.$tc('sw-import-export.profile.mediaLabel'),
                 },

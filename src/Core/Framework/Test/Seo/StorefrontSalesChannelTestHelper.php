@@ -78,6 +78,7 @@ trait StorefrontSalesChannelTestHelper
         $shippingMethod = $this->getValidShippingMethodId();
         $country = $this->getValidCountryId(null);
 
+        $languages[] = ['id' => Defaults::LANGUAGE_SYSTEM];
         foreach ($languageIds as $langId) {
             $languages[] = ['id' => $langId];
             $domains[] = [

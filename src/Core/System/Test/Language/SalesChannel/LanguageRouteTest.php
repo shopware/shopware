@@ -39,6 +39,7 @@ class LanguageRouteTest extends TestCase
             'id' => $this->ids->create('sales-channel'),
             'languageId' => $this->ids->get('language'),
             'languages' => [
+                ['id' => Defaults::LANGUAGE_SYSTEM],
                 ['id' => $this->ids->get('language')],
                 ['id' => $this->ids->get('language2')],
             ],
@@ -74,7 +75,7 @@ class LanguageRouteTest extends TestCase
         $ids = array_column($response['elements'], 'id');
         $names = array_column($response['elements'], 'name');
 
-        static::assertSame(2, $response['total']);
+        static::assertSame(3, $response['total']);
         static::assertContains($this->ids->get('language'), $ids);
         static::assertContains($this->ids->get('language2'), $ids);
         static::assertContains($this->ids->get('language2'), $ids);
@@ -98,7 +99,7 @@ class LanguageRouteTest extends TestCase
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
-        static::assertSame(2, $response['total']);
+        static::assertSame(3, $response['total']);
         static::assertArrayHasKey('name', $response['elements'][0]);
         static::assertArrayNotHasKey('id', $response['elements'][0]);
     }
@@ -118,7 +119,7 @@ class LanguageRouteTest extends TestCase
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
-        static::assertSame(2, $response['total']);
+        static::assertSame(3, $response['total']);
         static::assertArrayHasKey('locale', $response['elements'][0]);
         static::assertNotEmpty($response['elements'][0]['locale']);
         static::assertArrayHasKey('id', $response['elements'][0]['locale']);

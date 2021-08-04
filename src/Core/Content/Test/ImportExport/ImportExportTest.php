@@ -1481,6 +1481,7 @@ class ImportExportTest extends TestCase
             $logEntity,
             $this->getContainer()->get('shopware.filesystem.private'),
             $this->getContainer()->get('event_dispatcher'),
+            $this->getContainer()->get(Connection::class),
             $mockRepository,
             $pipeFactory->create($logEntity),
             $readerFactory->create($logEntity),

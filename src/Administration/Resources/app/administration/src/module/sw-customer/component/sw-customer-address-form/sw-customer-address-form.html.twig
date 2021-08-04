@@ -144,6 +144,7 @@
             v-model="countryId"
             class="sw-customer-address-form__country-select"
             entity="country"
+            :criteria="countryCriteria"
             :label="$tc('sw-customer.addressForm.labelCountry')"
             :placeholder="$tc('sw-customer.addressForm.placeholderCountry')"
             validation="required"

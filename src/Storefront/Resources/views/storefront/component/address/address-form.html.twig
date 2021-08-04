@@ -356,7 +356,7 @@
                                 </option>
                             {% endif %}
                             {% for country in page.countries %}
-                                <option {% if country.id == data.get('countryId') %}
+                                <option {% if country.id == data.get('countryId') or page.countries|length == 1 %}
                                         selected="selected"
                                         {% endif %}
                                         value="{{ country.id }}"

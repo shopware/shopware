@@ -48,8 +48,12 @@ E2E:
             --headless
     after_script:
         - mkdir $CI_PROJECT_DIR/var/log/e2e
+        - composer run npm:e2e:$E2E_PROJECT -- run combine-reports
+        - composer run npm:e2e:$E2E_PROJECT -- run generate-report
         - mv $ADMIN_PATH/test/e2e/cypress/results/*.xml var/log/e2e/ || true
         - mv $STOREFRONT_PATH/test/e2e/cypress/results/*.xml var/log/e2e/ || true
+        - mv $ADMIN_PATH/test/e2e/mochareports/ var/log/e2e/ || true
+        - mv $STOREFRONT_PATH/test/e2e/mochareports/ var/log/e2e/ || true
     artifacts:
         when: always
         paths:

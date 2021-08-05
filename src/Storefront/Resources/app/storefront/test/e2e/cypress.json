@@ -30,5 +30,16 @@
   "firefoxGcInterval": {
     "runMode": null,
     "openMode": null
-  }
+  },
+  "reporter": "cypress-multi-reporters",
+    "reporterOptions": {
+        "reporterEnabled": "mochawesome",
+        "mochawesomeReporterOptions": {
+            "reportDir": "cypress/results/mocha",
+            "quite": true,
+            "overwrite": false,
+            "html": false,
+            "json": true
+        }
+    }
 }

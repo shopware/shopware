@@ -11,19 +11,21 @@
     "cypress": "./node_modules/.bin/cypress",
     "open": "./node_modules/.bin/cypress open",
     "cy:run:chrome": "cypress run --browser chrome",
-    "cy:run:firefox": "cypress run --browser firefox"
+    "cy:run:firefox": "cypress run --browser firefox",
+    "combine-reports": "mochawesome-merge cypress/results/mocha/*.json > cypress/mochareports/report.json",
+    "generate-report": "marge cypress/mochareports/*.json -f report -o mochareports"
   },
   "dependencies": {
     "@babel/core": "^7.7.7",
     "@shopware-ag/e2e-testsuite-platform": "2.0.0-beta.4",
-    "cypress-multi-reporters": "^1.2.3",
-    "mocha": "^7.0.0",
     "mocha-junit-reporter": "^1.23.1",
-    "mochawesome": "^4.1.0",
     "uuid": "3.3.3"
   },
   "devDependencies": {
     "cypress": "5.6.0",
+    "cypress-multi-reporters": "^1.5.0",
+    "mocha": "^7.2.0",
+    "mochawesome": "^4.1.0",
     "mochawesome-merge": "^4.0.0",
     "mochawesome-report-generator": "^4.1.0"
   }

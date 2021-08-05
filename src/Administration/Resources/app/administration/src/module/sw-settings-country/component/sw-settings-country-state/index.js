@@ -50,7 +50,7 @@ Component.register('sw-settings-country-state', {
     methods: {
         getStateColumns() {
             return [{
-                property: 'name',
+                property: 'translated.name',
                 label: this.$tc('sw-settings-country.detail.columnStateNameLabel'),
                 inlineEdit: 'string',
                 primary: true,

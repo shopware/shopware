@@ -1,0 +1,71 @@
+{% block sw_import_export_activity_result_modal %}
+<sw-modal
+    v-if="result"
+    class="sw-import-export-activity-result-modal"
+    :title="$tc('sw-import-export.activity.result.modalTitle')"
+    variant="full"
+    @modal-close="$emit('result-close')"
+>
+    {% block sw_import_export_activity_result_modal_table %}
+    <sw-grid
+        table
+        :items="result"
+        :selectable="false"
+    >
+        {% block sw_import_export_activity_result_modal_table_columns %}
+        <template #columns="{ item }">
+            <sw-grid-column
+                flex="minmax(100px, 2fr)"
+                :label="$tc('sw-import-export.activity.result.entityName')"
+                :class="`sw-import-export-activity-result-modal__column-${item.entityName}-label`"
+            >
+                {{ item.entityName }}
+            </sw-grid-column>
+            <sw-grid-column
+                flex="minmax(50px, 1fr)"
+                :label="$tc('sw-import-export.activity.result.insert')"
+                :class="`sw-import-export-activity-result-modal__column-${item.entityName}-insert`"
+            >
+                {{ item.insert }}
+            </sw-grid-column>
+            <sw-grid-column
+                flex="minmax(50px, 1fr)"
+                :label="$tc('sw-import-export.activity.result.update')"
+                :class="`sw-import-export-activity-result-modal__column-${item.entityName}-update`"
+            >
+                {{ item.update }}
+            </sw-grid-column>
+            <sw-grid-column
+                flex="minmax(50px, 1fr)"
+                :label="$tc('sw-import-export.activity.result.insertError')"
+                :class="`sw-import-export-activity-result-modal__column-${item.entityName}-insert-error`"
+            >
+                {{ item.insertError }}
+            </sw-grid-column>
+            <sw-grid-column
+                flex="minmax(50px, 1fr)"
+                :label="$tc('sw-import-export.activity.result.updateError')"
+                :class="`sw-import-export-activity-result-modal__column-${item.entityName}-update-error`"
+            >
+                {{ item.updateError }}
+            </sw-grid-column>
+            <sw-grid-column
+                flex="minmax(50px, 1fr)"
+                :label="$tc('sw-import-export.activity.result.insertSkip')"
+                :class="`sw-import-export-activity-result-modal__column-${item.entityName}-insert-skip`"
+            >
+                {{ item.insertSkip }}
+            </sw-grid-column>
+            <sw-grid-column
+                flex="minmax(50px, 1fr)"
+                :label="$tc('sw-import-export.activity.result.updateSkip')"
+                :class="`sw-import-export-activity-result-modal__column-${item.entityName}-update-skip`"
+            >
+                {{ item.updateSkip }}
+            </sw-grid-column>
+        </template>
+        {% endblock %}
+    </sw-grid>
+    {% endblock %}
+</sw-modal>
+{% endblock %}

@@ -29,7 +29,7 @@
             :is-loading="isLoading"
             :process-success="isSaveSuccessful"
             :disabled="isLoading"
-            @click="onSave"
+            @click="openModal"
         >
             {{ $tc('sw-settings-basic-information.general.buttonSave') }}
         </sw-button-process>
@@ -130,6 +130,16 @@
             :title="$tc('sw-bulk-edit.product.messageEmptyTitle')"
             :subline="$tc('sw-bulk-edit.product.messageEmptySubline')"
         />
+
+        {% block sw_bulk_edit_product_save_modal %}
+        <router-view
+            :item-total="selectedIds.length"
+            :is-loading="isLoading"
+            :process-status="processStatus"
+            @modal-close="closeModal"
+            @bulk-save="onSave"
+        />
+        {% endblock %}
     </template>
     {% endblock %}
 </sw-page>

@@ -134,7 +134,7 @@ base-uri 'self';
 
         <service id="Shopware\Core\Framework\Migration\Command\CreateMigrationCommand">
             <argument type="service" id="Shopware\Core\Framework\Plugin\KernelPluginCollection"/>
-            <argument>%kernel.project_dir%</argument>
+            <argument>%kernel.shopware_core_dir%</argument>
             <argument>%kernel.shopware_version%</argument>
             <tag name="console.command"/>
         </service>

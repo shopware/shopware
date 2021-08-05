@@ -1,4 +1,5 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { config, createLocalVue, mount } from '@vue/test-utils';
+import VueRouter from 'vue-router';
 import 'src/app/component/structure/sw-page';
 import 'src/app/component/structure/sw-card-view';
 import 'src/app/component/utils/sw-loader';
@@ -28,12 +29,85 @@ import 'src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields';
 import 'src/module/sw-bulk-edit/component/sw-bulk-edit-change-type-field-renderer';
 import 'src/module/sw-bulk-edit/component/sw-bulk-edit-form-field-renderer';
 import 'src/module/sw-bulk-edit/component/sw-bulk-edit-change-type';
+import 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal';
+import 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-confirm';
+import 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-process';
+import 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-success';
+import 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-error';
+import 'src/app/component/base/sw-modal';
+
+
+const routes = [
+    {
+        name: 'sw.bulk.edit.product',
+        path: 'index'
+    },
+    {
+        name: 'sw.bulk.edit.product.save',
+        path: '',
+        component: Shopware.Component.build('sw-bulk-edit-save-modal'),
+        meta: { $module: {
+            title: 'sw-bulk-edit-product.general.mainMenuTitle'
+        } },
+        redirect: {
+            name: 'sw.bulk.edit.product.save.confirm'
+        },
+        children: [
+            {
+                name: 'sw.bulk.edit.product.save.confirm',
+                path: 'confirm',
+                component: Shopware.Component.build('sw-bulk-edit-save-modal-confirm'),
+                meta: { $module: {
+                    title: 'sw-bulk-edit-product.general.mainMenuTitle'
+                } }
+            },
+            {
+                name: 'sw.bulk.edit.product.save.process',
+                path: 'process',
+                component: Shopware.Component.build('sw-bulk-edit-save-modal-process'),
+                meta: { $module: {
+                    title: 'sw-bulk-edit-product.general.mainMenuTitle'
+                } }
+            },
+            {
+                name: 'sw.bulk.edit.product.save.success',
+                path: 'success',
+                component: Shopware.Component.build('sw-bulk-edit-save-modal-success'),
+                meta: { $module: {
+                    title: 'sw-bulk-edit-product.general.mainMenuTitle'
+                } }
+            },
+            {
+                name: 'sw.bulk.edit.product.save.error',
+                path: 'error',
+                component: Shopware.Component.build('sw-bulk-edit-save-modal-error'),
+                meta: { $module: {
+                    title: 'sw-bulk-edit-product.general.mainMenuTitle'
+                } }
+            }
+        ]
+    }
+];
+
+const router = new VueRouter({
+    routes
+});
+
+let bulkEditResponse = {
+    success: true
+};
 
 function createWrapper() {
-    const localVue = createLocalVue();
+    // delete global $router and $routes mocks
+    delete config.mocks.$router;
+    delete config.mocks.$route;
 
-    return shallowMount(Shopware.Component.build('sw-bulk-edit-product'), {
+    const localVue = createLocalVue();
+    localVue.use(VueRouter);
+
+    return mount(Shopware.Component.build('sw-bulk-edit-product'), {
         localVue,
+        router,
         stubs: {
             'sw-page': Shopware.Component.build('sw-page'),
             'sw-loader': Shopware.Component.build('sw-loader'),
@@ -47,6 +121,7 @@ function createWrapper() {
             'sw-button-process': Shopware.Component.build('sw-button-process'),
             'sw-card': Shopware.Component.build('sw-card'),
             'sw-field': Shopware.Component.build('sw-field'),
+            'sw-modal': Shopware.Component.build('sw-modal'),
             'sw-select-base': Shopware.Component.build('sw-select-base'),
             'sw-single-select': Shopware.Component.build('sw-single-select'),
             'sw-number-field': Shopware.Component.build('sw-number-field'),
@@ -61,6 +136,7 @@ function createWrapper() {
             'sw-field-error': Shopware.Component.build('sw-field-error'),
             'sw-entity-single-select': Shopware.Component.build('sw-entity-single-select'),
             'sw-card-view': Shopware.Component.build('sw-card-view'),
+            'sw-bulk-edit-save-modal': Shopware.Component.build('sw-bulk-edit-save-modal'),
             'sw-custom-field-set-renderer': true,
             'sw-text-editor-toolbar': true,
             'sw-app-actions': true,
@@ -69,17 +145,12 @@ function createWrapper() {
             'sw-text-editor': true,
             'sw-language-switch': true,
             'sw-notification-center': true,
-            'sw-icon': true
+            'sw-icon': true,
+            'sw-alert': true,
+            'sw-label': true
         },
         props: {
             title: 'Foo bar'
-        },
-        mocks: {
-            $route: {
-                meta: { $module: {
-                    title: 'sw-bulk-edit-product.general.mainMenuTitle'
-                } }
-            }
         },
         provide: {
             validationService: {},
@@ -91,10 +162,14 @@ function createWrapper() {
                                 return Promise.reject();
                             }
 
-                            return Promise.resolve();
+                            return Promise.resolve(bulkEditResponse);
                         }
                     };
                 }
+            },
+            shortcutService: {
+                startEventListener: () => {},
+                stopEventListener: () => {}
             }
         }
     });
@@ -127,13 +202,14 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
     afterEach(() => {
         wrapper.destroy();
+        wrapper.vm.$router.push({ path: 'confirm' });
     });
 
     it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should be handled change data', async () => {
+    it('should open confirm modal', async () => {
         const infoForm = wrapper.find('.sw-bulk-edit-product-base__info');
         const activeField = infoForm.find('.sw-bulk-edit-change-field-active');
         await activeField.find('.sw-bulk-edit-change-field__change input').trigger('click');
@@ -154,16 +230,79 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         await wrapper.vm.$nextTick();
 
-        wrapper.vm.createNotificationSuccess = jest.fn();
+        await wrapper.find('.sw-bulk-edit-product__save-action').trigger('click');
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.sw-bulk-edit-save-modal-confirm').exists()).toBeTruthy();
+        expect(wrapper.vm.$route.path).toEqual('/confirm');
+    });
+
+    it('should close confirm modal', async () => {
+        await wrapper.find('.sw-bulk-edit-product__save-action').trigger('click');
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.sw-bulk-edit-save-modal-confirm').exists()).toBeTruthy();
+
+        const footerLeft = wrapper.find('.footer-left');
+        footerLeft.find('button').trigger('click');
+
+        expect(wrapper.vm.$route.path).toEqual('index');
+    });
+
+    it('should open process modal', async () => {
+        await wrapper.find('.sw-bulk-edit-product__save-action').trigger('click');
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.sw-bulk-edit-save-modal-confirm').exists()).toBeTruthy();
+
+        const footerRight = wrapper.find('.footer-right');
+        footerRight.find('button').trigger('click');
+
+        expect(wrapper.vm.$route.path).toEqual('/process');
+    });
+
+    it('should open success modal', async () => {
+        await wrapper.find('.sw-bulk-edit-product__save-action').trigger('click');
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.sw-bulk-edit-save-modal-confirm').exists()).toBeTruthy();
+
+        const footerRight = wrapper.find('.footer-right');
+        footerRight.find('button').trigger('click');
+
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.$route.path).toEqual('/success');
+    });
+
+    it('should open fail modal', async () => {
+        bulkEditResponse = {
+            success: false
+        };
+
+        await wrapper.destroy();
+        wrapper = await createWrapper();
 
         await wrapper.find('.sw-bulk-edit-product__save-action').trigger('click');
 
-        expect(wrapper.vm.isLoading).toBeFalsy();
-        expect(wrapper.vm.createNotificationSuccess).toHaveBeenCalledWith({
-            message: 'Edit successful'
-        });
+        await wrapper.vm.$nextTick();
 
-        wrapper.vm.createNotificationSuccess.mockRestore();
+        expect(wrapper.find('.sw-bulk-edit-save-modal-confirm').exists()).toBeTruthy();
+
+        const footerRight = wrapper.find('.footer-right');
+        footerRight.find('button').trigger('click');
+
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.$route.path).toEqual('/error');
     });
 
     it('should be show empty state', async () => {
@@ -172,22 +311,5 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         const emptyState = wrapper.find('.sw-empty-state');
         expect(emptyState.find('.sw-empty-state__title').text()).toBe('sw-bulk-edit.product.messageEmptyTitle');
-    });
-
-    it('should be error data', async () => {
-        Shopware.State.commit('shopwareApps/setSelectedIds', []);
-        wrapper = createWrapper();
-
-        wrapper.vm.createNotificationError = jest.fn();
-
-        await wrapper.vm.onSave();
-
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm.createNotificationError).toHaveBeenCalledWith({
-            message: 'Error'
-        });
-
-        wrapper.vm.createNotificationError.mockRestore();
     });
 });

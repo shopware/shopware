@@ -200,14 +200,14 @@
             "@php bin/console theme:change --all Storefront",
             "@php bin/console assets:install"
         ],
-        "npm:admin": "export PROJECT_ROOT=\"$PWD\"; cd src/Administration/Resources/app/administration && npm",
-        "npm:admin:bin": "cd src/Administration/Resources/app/administration; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; ",
-        "npm:storefront": "export PROJECT_ROOT=\"$PWD\"; cd src/Storefront/Resources/app/storefront && npm",
-        "npm:storefront:bin": "cd src/Storefront/Resources/app/storefront; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; ",
-        "npm:e2e:admin": "export PROJECT_ROOT=\"$PWD\"; cd src/Administration/Resources/app/administration/test/e2e && npm",
-        "npm:e2e:admin:bin": "export CYPRESS_shopwareRoot=\"$PWD\"; cd src/Administration/Resources/app/administration/test/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; ",
-        "npm:e2e:storefront": "cd src/Storefront/Resources/app/storefront/test/e2e && npm",
-        "npm:e2e:storefront:bin": "export CYPRESS_shopwareRoot=\"$PWD\"; cd src/Storefront/Resources/app/storefront/test/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; ",
+        "npm:admin:bin": "export PROJECT_ROOT=\"$PWD\"; cd src/Administration/Resources/app/administration; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$PROJECT_ROOT\"/bin/exec-with-env ",
+        "npm:admin": "@npm:admin:bin npm",
+        "npm:storefront:bin": "export PROJECT_ROOT=\"$PWD\"; cd src/Storefront/Resources/app/storefront; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$PROJECT_ROOT\"/bin/exec-with-env ",
+        "npm:storefront": "@npm:storefront:bin npm",
+        "npm:e2e:admin:bin": "export CYPRESS_shopwareRoot=\"$PWD\"; cd src/Administration/Resources/app/administration/test/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$CYPRESS_shopwareRoot\"/bin/exec-with-env ",
+        "npm:e2e:admin": "@npm:e2e:admin:bin npm",
+        "npm:e2e:storefront:bin": "export CYPRESS_shopwareRoot=\"$PWD\"; cd src/Storefront/Resources/app/storefront/test/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$CYPRESS_shopwareRoot\"/bin/exec-with-env ",
+        "npm:e2e:storefront": "@npm:e2e:storefront:bin npm",
         "build:js:admin": [
             "@npm:admin run build"
         ],
@@ -219,6 +219,16 @@
             "@php bin/console bundle:dump",
             "@build:js:admin",
             "@build:js:storefront"
+        ],
+        "watch:admin": [
+            "@php bin/console feature:dump",
+            "@php bin/console bundle:dump",
+            "@npm:admin run dev"
+        ],
+        "watch:storefront": [
+            "@php bin/console feature:dump",
+            "@php bin/console theme:dump",
+            "@npm:storefront run hot-proxy"
         ],
         "stylelint:admin": "@npm:admin:bin stylelint --syntax scss",
         "stylelint:storefront": "@npm:storefront:bin stylelint --syntax scss --config stylelint.config.js",
@@ -232,8 +242,8 @@
             "@eslint:admin",
             "@eslint:storefront"
         ],
-        "ecs": "@php vendor/bin/ecs check",
-        "ecs-fix": "@php vendor/bin/ecs check --fix",
+        "ecs": "ecs check",
+        "ecs-fix": "ecs check --fix",
         "lint:changelog": "@php bin/shopware changelog:check",
         "lint:snippets": "@php bin/shopware snippets:validate",
         "lint": [
@@ -270,20 +280,20 @@
             "@putenv CYPRESS_localUsage=1",
             "@php bin/console e2e:dump-db"
         ],
+        "e2e:admin:cypress": [
+            "export APP_ENV=e2e; export CYPRESS_localUsage=1; export CYPRESS_shopwareRoot=\"$PWD\"; cd src/Administration/Resources/app/administration/test/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$CYPRESS_shopwareRoot\"/bin/exec-with-env cypress"
+        ],
+        "e2e:admin:percy": [
+            "export APP_ENV=e2e; export CYPRESS_localUsage=1; export CYPRESS_shopwareRoot=\"$PWD\"; cd src/Administration/Resources/app/administration/test/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$CYPRESS_shopwareRoot\"/bin/exec-with-env percy"
+        ],
+        "e2e:storefront:cypress": [
+            "export APP_ENV=e2e; export CYPRESS_localUsage=1; export CYPRESS_shopwareRoot=\"$PWD\"; cd src/Storefront/Resources/app/storefront/test/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$CYPRESS_shopwareRoot\"/bin/exec-with-env cypress"
+        ],
         "e2e:admin:run": [
             "@e2e:admin:cypress run --browser chrome --headless"
         ],
         "e2e:storefront:run": [
             "@e2e:storefront:cypress run --browser chrome --headless"
-        ],
-        "e2e:admin:cypress": [
-            "export APP_ENV=e2e; export CYPRESS_localUsage=1; export CYPRESS_shopwareRoot=\"$PWD\"; cd src/Administration/Resources/app/administration/test/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; cypress"
-        ],
-        "e2e:admin:percy": [
-            "export APP_ENV=e2e; export CYPRESS_localUsage=1; export CYPRESS_shopwareRoot=\"$PWD\"; cd src/Administration/Resources/app/administration/test/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; percy"
-        ],
-        "e2e:storefront:cypress": [
-            "export APP_ENV=e2e; export CYPRESS_localUsage=1; export CYPRESS_shopwareRoot=\"$PWD\"; cd src/Storefront/Resources/app/storefront/test/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; cypress"
         ],
         "e2e:admin:open": [
             "@e2e:admin:cypress open"

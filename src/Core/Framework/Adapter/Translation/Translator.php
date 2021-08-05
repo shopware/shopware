@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Translation;
 
+use Doctrine\DBAL\Exception\ConnectionException;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -286,14 +287,19 @@ class Translator extends AbstractTranslator
             return $this->fallbackLocale;
         }
 
-        $criteria = new Criteria();
-        $criteria->setTitle('snippet-translator::load-fallback');
+        try {
+            $criteria = new Criteria();
+            $criteria->setTitle('snippet-translator::load-fallback');
 
-        $criteria->addFilter(new EqualsFilter('id', Defaults::LANGUAGE_SYSTEM));
-        $criteria->addAssociation('locale');
+            $criteria->addFilter(new EqualsFilter('id', Defaults::LANGUAGE_SYSTEM));
+            $criteria->addAssociation('locale');
 
-        $defaultLanguage = $this->languageRepository->search($criteria, Context::createDefaultContext())->get(Defaults::LANGUAGE_SYSTEM);
+            $defaultLanguage = $this->languageRepository->search($criteria, Context::createDefaultContext())->get(Defaults::LANGUAGE_SYSTEM);
 
-        return $this->fallbackLocale = $defaultLanguage->getLocale()->getCode();
+            return $this->fallbackLocale = $defaultLanguage->getLocale()->getCode();
+        } catch (ConnectionException $_) {
+            // this allows us to use the translator even if there's no db connection yet
+            return 'en-GB';
+        }
     }
 }

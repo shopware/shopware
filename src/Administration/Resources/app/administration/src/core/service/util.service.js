@@ -9,6 +9,7 @@ import uuidV4 from 'uuid/v4';
 import remove from 'lodash/remove';
 import slice from 'lodash/slice';
 import uniqBy from 'lodash/uniqBy';
+import chunk from 'lodash/chunk';
 
 import {
     deepCopyObject,
@@ -106,6 +107,7 @@ export const array = {
     remove: remove,
     slice: slice,
     uniqBy: uniqBy,
+    chunk: chunk,
 };
 
 export default {

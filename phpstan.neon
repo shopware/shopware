@@ -133,6 +133,18 @@ parameters:
         -
             message: '#Parameter \#2 \$success of class Shopware\\Core\\Framework\\Api\\Sync\\SyncResult constructor expects bool, array given\.#'
             path: src/Core/Framework/Api/Sync/SyncService.php
+        # can be removed with feature flag FEATURE_NEXT_12455
+        -
+            message: '#Command \"import:entity\" does not define option \"rollbackOnError\".#'
+            path: src/Core/Content/ImportExport/Command/ImportEntityCommand.php
+        # can be removed with feature flag FEATURE_NEXT_12455
+        -
+            message: '#Command \"import:entity\" does not define option \"dryRun\".#'
+            path: src/Core/Content/ImportExport/Command/ImportEntityCommand.php
+        # can be removed with feature flag FEATURE_NEXT_12455
+        -
+            message: '#Command \"import:entity\" does not define option \"printErrors\".#'
+            path: src/Core/Content/ImportExport/Command/ImportEntityCommand.php
 
 services:
     -

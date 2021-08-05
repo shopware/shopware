@@ -3311,11 +3311,6 @@ parameters:
 			path: src/Core/System/Currency/Rule/CurrencyRule.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\System\\\\DeliveryTime\\\\DeliveryTimeEntity\\:\\:getName\\(\\) should return string but returns string\\|null\\.$#"
-			count: 1
-			path: src/Core/System/DeliveryTime/DeliveryTimeEntity.php
-
-		-
 			message: "#^Parameter \\#1 \\$id of class Symfony\\\\Component\\\\DependencyInjection\\\\Reference constructor expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/System/DependencyInjection/CompilerPass/SalesChannelEntityCompilerPass.php

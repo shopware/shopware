@@ -9,7 +9,7 @@ const { Mixin } = Shopware;
 Shopware.Component.register('sw-import-export-progress', {
     template,
 
-    inject: ['importExport'],
+    inject: ['importExport', 'feature'],
 
     mixins: [
         Mixin.getByName('notification'),

@@ -4,7 +4,6 @@ import './sw-sales-channel-detail-domains.scss';
 const { Component, Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
-
 Component.register('sw-sales-channel-detail-domains', {
     template,
 
@@ -40,6 +39,8 @@ Component.register('sw-sales-channel-detail-domains', {
             },
             isLoadingDomains: false,
             deleteDomain: null,
+            sortBy: 'url',
+            sortDirection: 'ASC',
         };
     },
 
@@ -111,9 +112,54 @@ Component.register('sw-sales-channel-detail-domains', {
                 !this.currentDomain.languageId ||
                 this.disableEdit;
         },
+
+        sortedDomains() {
+            const domains = [...this.salesChannel.domains];
+
+            return this.localSortDomains(domains);
+        },
     },
 
     methods: {
+        sortColumns(column) {
+            if (this.sortBy === column.dataIndex) {
+                // If the same column, that is already being sorted, is clicked again, change direction
+                this.sortDirection = this.sortDirection === 'ASC' ? 'DESC' : 'ASC';
+            } else {
+                // We clicked on a new column to be sorted, therefore set the sort field and the direction to 'ASC'
+                this.sortBy = column.dataIndex;
+                this.sortDirection = 'ASC';
+            }
+        },
+
+        localSortDomains(domains) {
+            domains.sort((a, b) => {
+                const valA = this.getSortValue(a, this.sortBy).toString();
+                const valB = this.getSortValue(b, this.sortBy).toString();
+
+                const compareVal = valA.localeCompare(valB, undefined, { numeric: true, sensitivity: 'base' });
+
+                if (this.sortDirection === 'ASC') {
+                    return compareVal;
+                }
+
+                return compareVal * -1;
+            });
+
+            return domains;
+        },
+
+        getSortValue(val, column) {
+            // Removes 'Id' from fields like 'languageId', so we're accessing 'language' instead
+            column = column.replace('Id', '');
+
+            if (val.hasOwnProperty(column) && typeof val[column] === 'object' && val[column].hasOwnProperty('name')) {
+                return val[column].name;
+            }
+
+            return val[column];
+        },
+
         setCurrentDomainBackup(domain) {
             this.currentDomainBackup = {
                 url: domain.url,

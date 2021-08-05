@@ -510,7 +510,8 @@
       "typeLabelCms": "CMS"
     },
     "sw-search-more-results": {
-      "labelShowResultsInModule": "Ergebnisse im Modul anzeigen ({count})"
+      "labelShowResultsInModule": "Ergebnisse im Modul anzeigen ({count})",
+      "labelShowResultsInModuleV2": "Alle {count} Suchtreffer in {entityName} anzeigen..."
     },
     "sw-tagged-field": {
       "text-default-placeholder": "Enter-Taste benutzen, um die Werte einzufügen."

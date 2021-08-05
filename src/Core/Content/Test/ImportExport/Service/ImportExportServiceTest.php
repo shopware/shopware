@@ -3,13 +3,16 @@
 namespace Shopware\Core\Content\Test\ImportExport\Service;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\ImportExport\Exception\ProfileWrongTypeException;
 use Shopware\Core\Content\ImportExport\Exception\UnexpectedFileTypeException;
+use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
 use Shopware\Core\Content\ImportExport\Processing\Mapping\MappingCollection;
 use Shopware\Core\Content\ImportExport\Service\ImportExportService;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -207,5 +210,154 @@ class ImportExportServiceTest extends TestCase
 
         $expectedMapping = MappingCollection::fromIterable($overrides['mapping']);
         static::assertEquals($expectedMapping, $actualConfig->getMapping());
+    }
+
+    /**
+     * @dataProvider profileProvider
+     */
+    public function testExportProfileShouldThrowExceptionInImport($profile, $task, $shouldThrowException): void
+    {
+        if (!Feature::isActive('FEATURE_NEXT_8097')) {
+            static::markTestSkipped('NEXT-8097');
+        }
+
+        /** @var EntityRepositoryInterface $profileRepository */
+        $profileRepository = $this->getContainer()->get('import_export_profile.repository');
+
+        $importExportService = new ImportExportService(
+            $this->getContainer()->get('shopware.filesystem.private'),
+            $this->getContainer()->get('import_export_file.repository'),
+            $this->getContainer()->get('import_export_log.repository'),
+            $this->getContainer()->get('user.repository'),
+            $profileRepository
+        );
+
+        $profileRepository->create([$profile], Context::createDefaultContext());
+        $path = tempnam(sys_get_temp_dir(), '');
+        $uploadedFile = new UploadedFile($path, 'test', 'text/csv');
+
+        if ($shouldThrowException) {
+            static::expectException(ProfileWrongTypeException::class);
+        }
+
+        if ($task === 'import') {
+            $importExportService->prepareImport(Context::createDefaultContext(), $profile['id'], new \DateTimeImmutable(), $uploadedFile);
+        } else {
+            $importExportService->prepareExport(Context::createDefaultContext(), $profile['id'], new \DateTimeImmutable());
+        }
+    }
+
+    public function profileProvider(): array
+    {
+        return [
+            [
+                [
+                    'id' => Uuid::randomHex(),
+                    'name' => 'Test Profile',
+                    'label' => 'Test Profile',
+                    'sourceEntity' => 'product',
+                    'type' => ImportExportProfileEntity::TYPE_EXPORT,
+                    'fileType' => 'text/csv',
+                    'delimiter' => ';',
+                    'enclosure' => '"',
+                    'config' => [],
+                    'mapping' => [
+                        ['key' => 'foo', 'mappedKey' => 'bar'],
+                    ],
+                ],
+                'import',
+                true,
+            ],
+            [
+                [
+                    'id' => Uuid::randomHex(),
+                    'name' => 'Test Profile',
+                    'label' => 'Test Profile',
+                    'sourceEntity' => 'product',
+                    'type' => ImportExportProfileEntity::TYPE_EXPORT,
+                    'fileType' => 'text/csv',
+                    'delimiter' => ';',
+                    'enclosure' => '"',
+                    'config' => [],
+                    'mapping' => [
+                        ['key' => 'foo', 'mappedKey' => 'bar'],
+                    ],
+                ],
+                'export',
+                false,
+            ],
+            [
+                [
+                    'id' => Uuid::randomHex(),
+                    'name' => 'Test Profile',
+                    'label' => 'Test Profile',
+                    'sourceEntity' => 'product',
+                    'type' => ImportExportProfileEntity::TYPE_IMPORT_EXPORT,
+                    'fileType' => 'text/csv',
+                    'delimiter' => ';',
+                    'enclosure' => '"',
+                    'config' => [],
+                    'mapping' => [
+                        ['key' => 'foo', 'mappedKey' => 'bar'],
+                    ],
+                ],
+                'import',
+                false,
+            ],
+            [
+                [
+                    'id' => Uuid::randomHex(),
+                    'name' => 'Test Profile',
+                    'label' => 'Test Profile',
+                    'sourceEntity' => 'product',
+                    'type' => ImportExportProfileEntity::TYPE_IMPORT_EXPORT,
+                    'fileType' => 'text/csv',
+                    'delimiter' => ';',
+                    'enclosure' => '"',
+                    'config' => [],
+                    'mapping' => [
+                        ['key' => 'foo', 'mappedKey' => 'bar'],
+                    ],
+                ],
+                'export',
+                false,
+            ],
+            [
+                [
+                    'id' => Uuid::randomHex(),
+                    'name' => 'Test Profile',
+                    'label' => 'Test Profile',
+                    'sourceEntity' => 'product',
+                    'type' => ImportExportProfileEntity::TYPE_IMPORT,
+                    'fileType' => 'text/csv',
+                    'delimiter' => ';',
+                    'enclosure' => '"',
+                    'config' => [],
+                    'mapping' => [
+                        ['key' => 'foo', 'mappedKey' => 'bar'],
+                    ],
+                ],
+                'import',
+                false,
+            ],
+            [
+                [
+                    'id' => Uuid::randomHex(),
+                    'name' => 'Test Profile',
+                    'label' => 'Test Profile',
+                    'sourceEntity' => 'product',
+                    'type' => ImportExportProfileEntity::TYPE_IMPORT,
+                    'fileType' => 'text/csv',
+                    'delimiter' => ';',
+                    'enclosure' => '"',
+                    'config' => [],
+                    'mapping' => [
+                        ['key' => 'foo', 'mappedKey' => 'bar'],
+                    ],
+                ],
+                'export',
+                true,
+            ],
+        ];
     }
 }

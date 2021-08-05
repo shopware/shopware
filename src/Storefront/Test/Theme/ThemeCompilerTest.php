@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Test\Theme;
 
 use League\Flysystem\Filesystem;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -15,11 +16,15 @@ use Shopware\Storefront\Event\ThemeCompilerEnrichScssVariablesEvent;
 use Shopware\Storefront\Test\Theme\fixtures\MockThemeCompilerConcatenatedSubscriber;
 use Shopware\Storefront\Test\Theme\fixtures\MockThemeVariablesSubscriber;
 use Shopware\Storefront\Theme\MD5ThemePathBuilder;
+use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
+use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
+use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\ThemeCompiler;
 use Shopware\Storefront\Theme\ThemeFileImporter;
 use Shopware\Storefront\Theme\ThemeFileResolver;
 use Symfony\Component\Asset\UrlPackage;
 use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ThemeCompilerTest extends TestCase
@@ -73,7 +78,8 @@ class ThemeCompilerTest extends TestCase
             $this->getContainer()->get(ThemeFileImporter::class),
             ['theme' => new UrlPackage(['http://localhost'], new EmptyVersionStrategy())],
             $this->getContainer()->get(CacheInvalidator::class),
-            new MD5ThemePathBuilder()
+            new MD5ThemePathBuilder(),
+            $this->getContainer()->getParameter('kernel.project_dir')
         );
     }
 
@@ -332,5 +338,46 @@ PHP_EOL;
         $expected = $scripts . MockThemeCompilerConcatenatedSubscriber::SCRIPTS_CONCAT;
 
         static::assertEquals($expected, $actual);
+    }
+
+    public function testAssetPathWillBeAbsoluteConverted(): void
+    {
+        $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
+        $testFolder = $projectDir . '/bla';
+
+        if (!file_exists($testFolder)) {
+            mkdir($testFolder);
+        }
+
+        $resolver = $this->createMock(ThemeFileResolver::class);
+        $resolver->method('resolveFiles')->willReturn([ThemeFileResolver::SCRIPT_FILES => new FileCollection(), ThemeFileResolver::STYLE_FILES => new FileCollection()]);
+
+        $importer = $this->createMock(ThemeFileImporter::class);
+        $importer->method('getCopyBatchInputsForAssets')->with($testFolder);
+
+        $compiler = new ThemeCompiler(
+            $this->createMock(Filesystem::class),
+            $this->createMock(Filesystem::class),
+            $resolver,
+            true,
+            $this->createMock(EventDispatcher::class),
+            $importer,
+            [],
+            $this->createMock(CacheInvalidator::class),
+            new MD5ThemePathBuilder(),
+            $this->getContainer()->getParameter('kernel.project_dir')
+        );
+
+        $config = new StorefrontPluginConfiguration('test');
+        $config->setAssetPaths(['bla']);
+
+        $compiler->compileTheme(
+            Defaults::SALES_CHANNEL,
+            'test',
+            $config,
+            new StorefrontPluginConfigurationCollection()
+        );
+
+        rmdir($testFolder);
     }
 }

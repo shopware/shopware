@@ -42,6 +42,10 @@ class ThemeCompiler implements ThemeCompilerInterface
 
     private AbstractThemePathBuilder $themePathBuilder;
 
+    private bool $debug;
+
+    private string $projectDir;
+
     public function __construct(
         FilesystemInterface $filesystem,
         FilesystemInterface $tempFilesystem,
@@ -51,7 +55,8 @@ class ThemeCompiler implements ThemeCompilerInterface
         ThemeFileImporterInterface $themeFileImporter,
         iterable $packages,
         CacheInvalidator $logger,
-        AbstractThemePathBuilder $themePathBuilder
+        AbstractThemePathBuilder $themePathBuilder,
+        string $projectDir
     ) {
         $this->filesystem = $filesystem;
         $this->tempFilesystem = $tempFilesystem;
@@ -66,6 +71,8 @@ class ThemeCompiler implements ThemeCompilerInterface
         $this->packages = $packages;
         $this->logger = $logger;
         $this->themePathBuilder = $themePathBuilder;
+        $this->debug = $debug;
+        $this->projectDir = $projectDir;
     }
 
     public function compileTheme(
@@ -147,6 +154,10 @@ class ThemeCompiler implements ThemeCompilerInterface
                 continue;
             }
 
+            if ($asset[0] !== '/' && file_exists($this->projectDir . '/' . $asset)) {
+                $asset = $this->projectDir . '/' . $asset;
+            }
+
             $assets = $this->themeFileImporter->getCopyBatchInputsForAssets($asset, $outputPath, $configuration);
 
             // method copyBatch is provided by copyBatch filesystem plugin
@@ -194,7 +205,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         }
         $autoPreFixer = new Autoprefixer($cssOutput);
         /** @var string|false $compiled */
-        $compiled = $autoPreFixer->compile();
+        $compiled = $autoPreFixer->compile($this->debug);
         if ($compiled === false) {
             throw new ThemeCompileException(
                 $configuration->getTechnicalName(),

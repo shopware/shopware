@@ -36,6 +36,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterfa
 use Shopware\Core\Framework\DataAbstractionLayer\Write\PrimaryKeyBag;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PostWriteValidationEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteCommandExceptionEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -135,6 +136,9 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                 $this->connection->rollBack();
             }
         } catch (\Throwable $e) {
+            $event = new WriteCommandExceptionEvent($e, $commands, $context->getContext());
+            $this->eventDispatcher->dispatch($event);
+
             $this->connection->rollBack();
 
             throw $e;
@@ -159,6 +163,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             if (!$command->isValid()) {
                 continue;
             }
+            $command->setFailed(false);
             $current = $command->getDefinition()->getEntityName();
 
             if ($current !== $previous) {
@@ -231,6 +236,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
                 throw new UnsupportedCommandTypeException($command);
             } catch (\Exception $e) {
+                $command->setFailed(true);
                 $innerException = $this->exceptionHandlerRegistry->matchException($e, $command);
                 if ($innerException instanceof \Exception) {
                     $e = $innerException;

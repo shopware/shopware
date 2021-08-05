@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Feature;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -170,11 +171,17 @@ class ImportEntityCommand extends Command
 
     private function chooseProfile(Context $context, SymfonyStyle $io): ImportExportProfileEntity
     {
-        $result = $this->profileRepository->search(new Criteria(), $context);
+        $criteria = new Criteria();
+        if (Feature::isActive('FEATURE_NEXT_8097')) {
+            $criteria->addFilter(
+                new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('type', ImportExportProfileEntity::TYPE_EXPORT)])
+            );
+        }
+        $result = $this->profileRepository->search($criteria, $context);
 
         $byName = [];
         foreach ($result->getEntities() as $profile) {
-            $byName[$profile->getName()] = $profile;
+            $byName[$profile->getName() ?? $profile->getLabel()] = $profile;
         }
 
         $answer = $io->choice('Please choose a profile', array_keys($byName));

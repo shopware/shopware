@@ -79,7 +79,7 @@ Shopware.Component.register('sw-import-export-edit-profile-modal-mapping', {
                 },
             ];
 
-            if (this.feature.isActive('FEATURE_NEXT_8097')) {
+            if (this.feature.isActive('FEATURE_NEXT_8097') && this.profile.type !== 'export') {
                 columns = [...columns, {
                     property: 'required',
                     label: 'sw-import-export.profile.mapping.isRequired',

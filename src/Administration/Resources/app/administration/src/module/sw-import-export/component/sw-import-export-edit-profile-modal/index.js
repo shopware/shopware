@@ -89,6 +89,20 @@ Shopware.Component.register('sw-import-export-edit-profile-modal', {
                     label: this.$tc('sw-import-export.profile.doubleQuoteLabel'),
                 },
             ],
+            supportedProfileTypes: [
+                {
+                    value: 'import-export',
+                    label: this.$tc('sw-import-export.profile.types.importExportLabel'),
+                },
+                {
+                    value: 'import',
+                    label: this.$tc('sw-import-export.profile.types.importLabel'),
+                },
+                {
+                    value: 'export',
+                    label: this.$tc('sw-import-export.profile.types.exportLabel'),
+                },
+            ],
             missingRequiredFields: [],
             systemRequiredFields: {},
         };
@@ -101,6 +115,7 @@ Shopware.Component.register('sw-import-export-edit-profile-modal', {
                 'sourceEntity',
                 'delimiter',
                 'enclosure',
+                'type',
             ]),
 
         isNew() {
@@ -180,8 +195,11 @@ Shopware.Component.register('sw-import-export-edit-profile-modal', {
         },
 
         checkValidation(parentProfile) {
+            // Skip validation for only export profiles
+            if (this.feature.isActive('FEATURE_NEXT_8097') && this.profile.type === 'export') {
+                return;
+            }
             const parentMapping = parentProfile ? parentProfile.mapping : [];
-
             const validationErrors = this.importExportProfileMapping.validate(
                 this.profile.sourceEntity,
                 this.profile.mapping,

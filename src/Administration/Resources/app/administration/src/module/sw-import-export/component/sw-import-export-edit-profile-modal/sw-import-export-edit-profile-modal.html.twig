@@ -80,6 +80,20 @@
                         />
                         {% endblock %}
 
+                        {% block sw_import_export_edit_profile_modal_tabs_type_field %}
+                        <sw-single-select
+                            v-if="feature.isActive('FEATURE_NEXT_8097')"
+                            v-model="profile.type"
+                            class="sw-import-export-edit-profile-modal__type-select"
+                            :label="$tc('sw-import-export.profile.typeFieldLabel')"
+                            required
+                            :options="supportedProfileTypes"
+                            :disabled="profile.systemDefault"
+                            :error="profileTypeError"
+                            :clearable="!profile.systemDefault"
+                        />
+                        {% endblock %}
+
                         {% block sw_import_export_edit_profile_modal_tabs_object_type_field %}
                         <span
                             v-tooltip="{
@@ -98,6 +112,7 @@
                                 :options="supportedEntities"
                                 :disabled="profile.systemDefault || mappingLength > 0"
                                 :error="profileSourceEntityError"
+                                :clearable="!(profile.systemDefault || mappingLength > 0)"
                             />
                         </span>
                         {% endblock %}
@@ -129,19 +144,19 @@
                         {% block sw_import_export_edit_profile_modal_tabs_general_import_settings_create_switch %}
                         <sw-switch-field
                             v-model="profile.config.createEntities"
-                            @change="onCreateEntitiesChanged"
                             class="sw-import-export-edit-profile-modal__general-import-settings-create-switch"
                             :label="$tc('sw-import-export.profile.createEntitiesLabel')"
                             :disabled="profile.systemDefault"
+                            @change="onCreateEntitiesChanged"
                         />
                         {% endblock %}
                         {% block sw_import_export_edit_profile_modal_tabs_general_import_settings_update_switch %}
                         <sw-switch-field
                             v-model="profile.config.updateEntities"
-                            @change="onUpdateEntitiesChanged"
                             class="sw-import-export-edit-profile-modal__general-import-settings-update-switch"
                             :label="$tc('sw-import-export.profile.updateEntitiesLabel')"
                             :disabled="profile.systemDefault"
+                            @change="onUpdateEntitiesChanged"
                         />
                         {% endblock %}
                     </div>

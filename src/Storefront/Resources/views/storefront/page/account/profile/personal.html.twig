@@ -5,9 +5,14 @@
 {% block component_address_personal_fields_birthday_selects %}
     {% block page_account_profile_personal_fields_birthday_selects %}
         <div class="form-row">
-            {% set birthday = data.birthday|date('d') %}
-            {% set birthmonth = data.birthday|date('m') %}
-            {% set birthyear = data.birthday|date('Y') %}
+            {% set birthday = false %}
+            {% set birthmonth = false %}
+            {% set birthyear = false %}
+            {% if data.birthday %}
+                {% set birthday = data.birthday|date('d') %}
+                {% set birthmonth = data.birthday|date('m') %}
+                {% set birthyear = data.birthday|date('Y') %}
+            {% endif %}
 
             {% block page_account_profile_personal_fields_birthday_select_day %}
                 <div class="form-group col-4 col-md-2">

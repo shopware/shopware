@@ -164,6 +164,6 @@ Mixin.register('position', {
             });
 
             return collection;
-        }
-    }
+        },
+    },
 });

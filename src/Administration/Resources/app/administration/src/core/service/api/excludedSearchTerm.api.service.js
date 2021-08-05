@@ -15,7 +15,7 @@ export default class ExcludedSearchTermService extends ApiService {
     _getHeader() {
         return {
             ...super.getBasicHeaders(),
-            'sw-language-id': Shopware.Context.api.languageId
+            'sw-language-id': Shopware.Context.api.languageId,
         };
     }
 }

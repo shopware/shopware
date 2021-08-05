@@ -4,7 +4,7 @@ Component.extend('sw-cms-el-config-manufacturer-logo', 'sw-cms-el-config-image',
     computed: {
         isProductPage() {
             return this.cmsPageState?.currentPage?.type ?? '' === 'product_detail';
-        }
+        },
     },
 
     methods: {
@@ -17,6 +17,6 @@ Component.extend('sw-cms-el-config-manufacturer-logo', 'sw-cms-el-config-image',
                 this.element.config.media.source = 'mapped';
                 this.element.config.media.value = 'product.manufacturer.media';
             }
-        }
-    }
+        },
+    },
 });

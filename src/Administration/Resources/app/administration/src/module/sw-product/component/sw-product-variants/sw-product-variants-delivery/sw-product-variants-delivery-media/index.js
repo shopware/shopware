@@ -11,19 +11,19 @@ Component.register('sw-product-variants-delivery-media', {
     props: {
         product: {
             type: Object,
-            required: true
+            required: true,
         },
 
         selectedGroups: {
             type: Array,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
         return {
             activeGroup: {},
-            isLoading: false
+            isLoading: false,
         };
     },
 
@@ -61,13 +61,13 @@ Component.register('sw-product-variants-delivery-media', {
                 {
                     property: 'name',
                     label: 'sw-product.variations.deliveryModal.mediaOptions',
-                    rawData: true
+                    rawData: true,
                 },
                 {
                     property: 'option.media',
                     label: 'sw-product.variations.deliveryModal.media',
-                    rawData: true
-                }
+                    rawData: true,
+                },
             ];
         },
 
@@ -75,7 +75,7 @@ Component.register('sw-product-variants-delivery-media', {
             return this.product.configuratorSettings.filter((element) => {
                 return !element.isDeleted && element.option.groupId === this.activeGroup.id;
             });
-        }
+        },
     },
 
     watch: {
@@ -93,8 +93,8 @@ Component.register('sw-product-variants-delivery-media', {
                 this.product.configuratorGroupConfig.find((group) => {
                     return group.id === this.activeGroup.id;
                 });
-            }
-        }
+            },
+        },
     },
 
     methods: {
@@ -140,15 +140,15 @@ Component.register('sw-product-variants-delivery-media', {
                 this.product.configuratorGroupConfig[existingIndex] = {
                     id: existingConfig.id,
                     expressionForListings: value,
-                    representation: existingConfig.representation
+                    representation: existingConfig.representation,
                 };
             } else {
                 this.product.configuratorGroupConfig = [...this.product.configuratorGroupConfig, {
                     id: this.activeGroup.id,
                     expressionForListings: value,
-                    representation: 'box'
+                    representation: 'box',
                 }];
             }
-        }
-    }
+        },
+    },
 });

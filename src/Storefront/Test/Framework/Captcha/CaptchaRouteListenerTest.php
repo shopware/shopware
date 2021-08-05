@@ -5,13 +5,13 @@ namespace Shopware\Storefront\Test\Framework\Captcha;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Storefront\Controller\ErrorController;
 use Shopware\Storefront\Framework\Captcha\AbstractCaptcha;
 use Shopware\Storefront\Framework\Captcha\Annotation\Captcha as CaptchaAnnotation;
 use Shopware\Storefront\Framework\Captcha\BasicCaptcha;
@@ -53,7 +53,7 @@ class CaptchaRouteListenerTest extends TestCase
 
         (new CaptchaRouteListener(
             $this->getCaptchas(true, false),
-            null,
+            $this->getContainer()->get(ErrorController::class),
             $this->getContainer()->get(SystemConfigService::class)
         ))->validateCaptcha($event);
     }
@@ -69,8 +69,6 @@ class CaptchaRouteListenerTest extends TestCase
 
     public function testJsonResponseWhenCaptchaValidationFails(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_12455', $this);
-
         $systemConfig = $this->getContainer()->get(SystemConfigService::class);
 
         $systemConfig->set('core.basicInformation.activeCaptchasV2', [
@@ -117,8 +115,6 @@ class CaptchaRouteListenerTest extends TestCase
 
     public function testResponseWhenCaptchaValidationFails(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_12455', $this);
-
         $systemConfig = $this->getContainer()->get(SystemConfigService::class);
 
         $systemConfig->set('core.basicInformation.activeCaptchasV2', [
@@ -159,11 +155,9 @@ class CaptchaRouteListenerTest extends TestCase
             ->method('isValid')
             ->willReturn($isValid);
 
-        if (Feature::isActive('FEATURE_NEXT_12455')) {
-            $captcha->expects($supports ? static::once() : static::never())
-                ->method('shouldBreak')
-                ->willReturn(true);
-        }
+        $captcha->expects($supports ? static::once() : static::never())
+            ->method('shouldBreak')
+            ->willReturn(true);
 
         return [$captcha];
     }

@@ -68,7 +68,7 @@ class CustomerEntity extends Entity
     protected $customerNumber;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $salutationId;
 
@@ -159,6 +159,8 @@ class CustomerEntity extends Entity
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.5.0 (flag:FEATURE_NEXT_16106) $newsletter will be removed use the newsletterRecipents instead
      */
     protected $newsletter;
 
@@ -176,6 +178,8 @@ class CustomerEntity extends Entity
      * @var int
      */
     protected $orderCount;
+
+    protected float $orderTotalAmount;
 
     /**
      * @var \DateTimeInterface|null
@@ -402,7 +406,7 @@ class CustomerEntity extends Entity
         $this->customerNumber = $customerNumber;
     }
 
-    public function getSalutationId(): string
+    public function getSalutationId(): ?string
     {
         return $this->salutationId;
     }
@@ -562,11 +566,17 @@ class CustomerEntity extends Entity
         $this->lastLogin = $lastLogin;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 (flag:FEATURE_NEXT_16106) getNewsletter will be removed use the newsletterRecipents instead
+     */
     public function getNewsletter(): bool
     {
         return $this->newsletter;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 (flag:FEATURE_NEXT_16106) getNewsletter will be removed use the newsletterRecipents instead
+     */
     public function setNewsletter(bool $newsletter): void
     {
         $this->newsletter = $newsletter;
@@ -600,6 +610,16 @@ class CustomerEntity extends Entity
     public function setOrderCount(int $orderCount): void
     {
         $this->orderCount = $orderCount;
+    }
+
+    public function getOrderTotalAmount(): float
+    {
+        return $this->orderTotalAmount;
+    }
+
+    public function setOrderTotalAmount(float $orderTotalAmount): void
+    {
+        $this->orderTotalAmount = $orderTotalAmount;
     }
 
     public function getLegacyEncoder(): ?string

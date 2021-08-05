@@ -7,6 +7,7 @@ namespace Shopware\Core\DevOps\System\Command;
 use Defuse\Crypto\Key;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\DriverManager;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
@@ -51,7 +52,7 @@ class SystemSetupCommand extends Command
             'SHOPWARE_CDN_STRATEGY_DEFAULT' => 'id',
             'BLUE_GREEN_DEPLOYMENT' => 1,
             'MAILER_URL' => 'smtp://localhost:25?encryption=&auth_mode=',
-            'COMPOSER_HOME' => $input->getOption('composer-home') ?: $_SERVER['COMPOSER_HOME'] ?: "{$this->projectDir}/var/cache/composer",
+            'COMPOSER_HOME' => $input->getOption('composer-home') ?: EnvironmentHelper::getVariable('COMPOSER_HOME') ?: "{$this->projectDir}/var/cache/composer",
         ];
 
         $io = new SymfonyStyle($input, $output);

@@ -28,6 +28,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\CountAggregation;
@@ -182,7 +183,7 @@ class VersioningTest extends TestCase
         $priceRepository->delete([['id' => $id]], $version);
 
         $commits = $this->getCommits('product', $id, $versionId);
-        static::assertCount(2, $commits);
+        static::assertCount(1, $commits);
 
         /** @var EntityRepositoryInterface $mappingRepository */
         $mappingRepository = $this->getContainer()->get('product_category.repository');
@@ -365,7 +366,8 @@ class VersioningTest extends TestCase
             $this->getContainer()->get(VersionManager::class),
             $this->getContainer()->get(EntitySearcherInterface::class),
             $this->getContainer()->get(EntityAggregatorInterface::class),
-            $this->getContainer()->get('event_dispatcher')
+            $this->getContainer()->get('event_dispatcher'),
+            $this->getContainer()->get(EntityLoadedEventFactory::class)
         );
 
         $context = Context::createDefaultContext();
@@ -1908,19 +1910,6 @@ class VersioningTest extends TestCase
         $this->customerRepository->upsert([$customer], Context::createDefaultContext());
 
         return $customerId;
-    }
-
-    private function dump(): void
-    {
-        $commits = $this->connection->fetchAllAssociativeIndexed('SELECT LOWER(HEX(id)) as array_key, LOWER(HEX(id)) as id, is_merge, message, LOWER(HEX(version_id)) as version_id FROM version_commit ORDER BY auto_increment');
-
-        $data = $this->connection->fetchAllAssociative('SELECT LOWER(HEX(id)) as id, auto_increment, LOWER(HEX(version_commit_id)) as version_commit_id, action, entity_name, entity_id, payload FROM version_commit_data ORDER BY auto_increment');
-
-        foreach ($data as $row) {
-            $commits[$row['version_commit_id']]['data'][] = $row;
-        }
-
-        dump($commits);
     }
 
     private function getCommits(string $entity, string $id, string $versionId): array

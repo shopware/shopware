@@ -12,38 +12,38 @@ Component.register('sw-product-stream-value', {
         'conditionDataProviderService',
         'productCustomFields',
         'acl',
-        'feature'
+        'feature',
     ],
 
     props: {
         condition: {
             type: Object,
-            required: true
+            required: true,
         },
 
         fieldName: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         definition: {
             type: Object,
-            required: true
+            required: true,
         },
 
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
         return {
             value: null,
             childComponents: null,
-            searchTerm: ''
+            searchTerm: '',
         };
     },
 
@@ -55,7 +55,7 @@ Component.register('sw-product-stream-value', {
         componentClasses() {
             return [
                 this.growthClass,
-                this.disabledClass
+                this.disabledClass,
             ];
         },
 
@@ -95,7 +95,7 @@ Component.register('sw-product-stream-value', {
                 }
 
                 this.onChangeType(type, null);
-            }
+            },
         },
 
         fieldDefinition() {
@@ -117,7 +117,7 @@ Component.register('sw-product-stream-value', {
                 .map((operator) => {
                     return {
                         label: this.$tc(operator.label),
-                        value: operator.identifier
+                        value: operator.identifier,
                     };
                 });
         },
@@ -137,20 +137,20 @@ Component.register('sw-product-stream-value', {
         booleanOptions() {
             return [
                 { label: this.$tc('global.default.yes'), value: '1' },
-                { label: this.$tc('global.default.no'), value: '0' }
+                { label: this.$tc('global.default.no'), value: '0' },
             ];
         },
 
         multiValue: {
             get() {
-                if (this.actualCondition.value === null || this.actualCondition.value === '') {
+                if (typeof this.actualCondition.value !== 'string' || this.actualCondition.value === '') {
                     return [];
                 }
                 return this.actualCondition.value.split('|');
             },
             set(values) {
                 this.actualCondition.value = values.join('|');
-            }
+            },
         },
 
         inputComponent() {
@@ -179,17 +179,17 @@ Component.register('sw-product-stream-value', {
             set(value) {
                 const param = this.getParameterName(this.filterType);
                 this.actualCondition.parameters = { [param]: value };
-            }
+            },
         },
 
         gte: {
             get() { return this.actualCondition.parameters ? this.actualCondition.parameters.gte : null; },
-            set(value) { this.actualCondition.parameters.gte = value; }
+            set(value) { this.actualCondition.parameters.gte = value; },
         },
 
         lte: {
             get() { return this.actualCondition.parameters ? this.actualCondition.parameters.lte : null; },
-            set(value) { this.actualCondition.parameters.lte = value; }
+            set(value) { this.actualCondition.parameters.lte = value; },
         },
 
         stringValue: {
@@ -197,11 +197,14 @@ Component.register('sw-product-stream-value', {
                 if (['int', 'float'].includes(this.fieldType)) {
                     return Number.parseFloat(this.actualCondition.value);
                 }
+                if (typeof this.actualCondition.value !== 'string') {
+                    return null;
+                }
                 return this.actualCondition.value;
             },
             set(value) {
                 this.actualCondition.value = value.toString();
-            }
+            },
         },
 
         context() {
@@ -229,12 +232,39 @@ Component.register('sw-product-stream-value', {
             return criteria;
         },
 
+        visibilitiesCriteria() {
+            const criteria = new Criteria();
+            criteria.addAssociation('salesChannel');
+            criteria.addAssociation('product');
+
+            if (typeof this.searchTerm === 'string' && this.searchTerm.length > 0) {
+                criteria.addQuery(Criteria.contains('salesChannel.name', this.searchTerm), 400);
+                criteria.addQuery(Criteria.contains('product.name', this.searchTerm), 500);
+            }
+
+            return criteria;
+        },
+
         resultCriteria() {
             const criteria = new Criteria();
             criteria.addAssociation('options.group');
 
             return criteria;
-        }
+        },
+
+        visibilitiesLabelCallback() {
+            return (item) => {
+                if (!item) {
+                    return '';
+                }
+
+                if (!item.salesChannel || !item.product) {
+                    return item.id;
+                }
+
+                return `${item.salesChannel.translated.name}: ${item.product.translated.name}`;
+            };
+        },
     },
 
     mounted() {
@@ -312,8 +342,7 @@ Component.register('sw-product-stream-value', {
         },
 
         setBooleanValue(value) {
-            this.condition.value = value;
-            this.condition.type = 'equals';
+            this.$emit('boolean-change', { type: +value ? 'equals' : 'notEquals', value });
         },
 
         setSearchTerm(value) {
@@ -322,6 +351,6 @@ Component.register('sw-product-stream-value', {
 
         onSelectCollapsed() {
             this.searchTerm = '';
-        }
-    }
+        },
+    },
 });

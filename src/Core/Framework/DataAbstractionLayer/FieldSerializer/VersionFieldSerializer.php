@@ -42,7 +42,6 @@ class VersionFieldSerializer implements FieldSerializerInterface
             $data->setValue($result[$field->getPropertyName()]);
         }
 
-        /* @var VersionField $field */
         yield $field->getStorageName() => Uuid::fromHexToBytes($data->getValue());
     }
 

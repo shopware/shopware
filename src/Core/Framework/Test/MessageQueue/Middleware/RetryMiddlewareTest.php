@@ -8,7 +8,6 @@ use GuzzleHttp\Psr7\Response;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\MessageQueue\DeadMessage\DeadMessageEntity;
 use Shopware\Core\Framework\MessageQueue\Exception\MessageFailedException;
 use Shopware\Core\Framework\MessageQueue\Handler\RetryMessageHandler;
@@ -244,12 +243,10 @@ class RetryMiddlewareTest extends MiddlewareTestCase
 
     public function testCanDispatchRetryWebhookMessageFailedEvent(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_14363', $this);
-
         $deadMessageId = Uuid::randomHex();
         $webhookId = Uuid::randomHex();
         $webhookEventId = Uuid::randomHex();
-        $webhookEventMessage = new WebhookEventMessage($webhookEventId, [], null, $webhookId, '6.4', 'http://test.com');
+        $webhookEventMessage = new WebhookEventMessage($webhookEventId, [], null, $webhookId, '6.4', 'http://test.com', null);
         $envelope = new Envelope($webhookEventMessage);
 
         $response = new Response(404);

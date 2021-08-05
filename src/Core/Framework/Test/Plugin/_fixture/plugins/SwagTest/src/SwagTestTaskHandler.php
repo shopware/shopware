@@ -13,6 +13,5 @@ class SwagTestTaskHandler extends ScheduledTaskHandler
 
     public function run(): void
     {
-        dump(date('c'));
     }
 }

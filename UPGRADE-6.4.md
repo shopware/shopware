@@ -1,6 +1,224 @@
 UPGRADE FROM 6.3.x.x to 6.4
 =======================
 
+# 6.4.3.0
+## Change tax-free get and set in CountryEntity
+Deprecated `taxFree` and `companyTaxFree` in `Shopware/Core/System/Country/CountryEntity`, use `customerTax` and `companyTax` instead.
+
+## If you are writing the fields directly, the tax-free of the country will be used:
+### Before
+```php
+$countryRepository->create([
+        [
+            'id' => Uuid::randomHex(),
+            'taxFree' => true,
+            'companyTaxFree' => true,
+            ...
+        ]
+    ],
+    $context
+);
+```
+### After 
+```php
+$countryRepository->create([
+        [
+            'id' => Uuid::randomHex(),
+            'customerTax' => [
+                'enabled' => true, // enabled is taxFree value in old version
+                'currencyId' => $currencyId,
+                'amount' => 0,
+            ],
+            'companyTax' => [
+                'enabled' => true, // enabled is companyTaxFree value in old version
+                'currencyId' => $currencyId,
+                'amount' => 0,
+            ],
+            ...
+        ]
+    ],
+    $context
+);
+```
+## How to use the new getter and setter of tax-free in country:
+### Before
+* To get tax-free
+```php
+$country->getTaxFree();
+$country->getCompanyTaxFree();
+```
+* To set tax-free
+```php
+$country->setTaxFree($isTaxFree);
+$country->setCompanyTaxFree($isTaxFree);
+```
+### After
+* To get tax-free
+```php
+$country->getCustomerTax()->getEnabled(); // enabled is taxFree value in old version
+$country->getCompanyTax()->getEnabled(); // enabled is companyTaxFree value in old version
+```
+* To set tax-free
+```php
+// TaxFreeConfig::__construct(bool $enabled, string $currencyId, float $amount);
+$country->setCusotmerTax(new TaxFreeConfig($isTaxFree, $currencyId, $amount));
+$country->setCompanyTax(new TaxFreeConfig($isTaxFree, $currencyId, $amount));
+```
+## Update EntityIndexer implementation
+Two new methods have been added to the abstract `Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer`.
+* `getTotal` - Shall return the number of records to be processed by the indexer on a Full index.
+* `getDecorated` - Shall return the decorated service (see decoration pattern adr).
+
+These two methods are declared as `abstract` with the 6.5.0.0. Here is an example of how a possible implementation might look like:
+```
+
+    public function getTotal(): int
+    {
+        return $this
+            ->iteratorFactory
+            ->createIterator($this->repository->getDefinition(), $offset)
+            ->fetchCount();
+        
+        // alternate    
+        return $this->connection->fetchOne('SELECT COUNT(*) FROM product');
+    }
+
+    public function getDecorated(): EntityIndexer
+    {
+        // if you implement an own indexer
+        throw new DecorationPatternException(self::class);
+        
+        // if you decorate a core indexer
+        return $this->decorated;
+    }
+
+```
+## Storefront Controller need to have Twig injected in future versions
+
+The `twig` service will be private with upcoming Symfony 6.0. To resolve this deprecation, a new method `setTwig` was added to the `StorefrontController`.
+All controllers which extends from `StorefrontController` need to call this method in the dependency injection definition file (services.xml) to set the Twig instance.
+The controllers will work like before until the Symfony 6.0 update will be done, but they will create a deprecation message on each usage.
+Below is an example how to add a method call for the service using the XML definition.
+
+### Before
+
+```xml
+<service id="Shopware\Storefront\Controller\AccountPaymentController">
+    <call method="setContainer">
+        <argument type="service" id="service_container"/>
+    </call>
+</service>
+```
+
+### After
+
+```xml
+<service id="Shopware\Storefront\Controller\AccountPaymentController">
+    <call method="setContainer">
+        <argument type="service" id="service_container"/>
+    </call>
+    <call method="setTwig">
+        <argument type="service" id="twig"/>
+    </call>
+</service>
+```
+## ListField strict mode
+A `ListField` will now always return a non associative array if the strict mode is true. This will be the default in 6.5.0. Please ensure that the data is saved as non associative array or switch to `JsonField` instead.
+
+Valid `listField` before: 
+```
+Array
+(
+    [0] => baz
+    [foo] => bar
+    [1] => Array
+        (
+            [foo2] => Array
+                (
+                    [foo3] => bar2
+                )
+        )
+)
+```
+
+Valid `ListField` after:
+```
+Array
+(
+    [0] => baz
+    [1] => bar
+    [2] => Array
+        (
+            [foo2] => Array
+                (
+                    [foo3] => bar2
+                )
+        )
+)
+```
+
+
+## Deprecated of case-insensitive annotation parsing
+
+With Shopware 6.5.0.0 the annotation parsing will be case-sensitive.
+Make sure to check that all your annotation properties fit their respective name case.
+E.g.: In case of the `Route` annotation you can have a look into the name case of the constructor parameters of the `\Symfony\Component\Routing\Annotation\Route` class.
+
+Before:
+
+```
+@Route("/", name="frontend.home.page", Options={"seo"="true"}, Methods={"GET"})
+```
+
+After:
+
+```
+@Route("/", name="frontend.home.page", options={"seo"="true"}, methods={"GET"})
+```
+
+
+# 6.4.2.0
+
+## New Captcha Solution
+* We deprecated the system config `core.basicInformation.activeCaptchas` with only honeypot captcha and upgraded to system config `core.basicInformation.activeCaptchasV2` with honeypot, basic captcha, Google reCaptcha v2, Google reCaptcha v3
+### Setting captcha in administration basic information
+* Honeypot captcha is activated by default
+* Select to active more basic captcha, Google reCaptcha
+* With Google reCaptcha v2 checkbox:
+  Configure the correct site key and secret key for reCaptcha v2 checkbox
+  Turn off option `Invisible Google reCAPTCHA v2`
+* With Google reCaptcha v2 invisible:
+  Configure the correct site key and secret key for reCaptcha v2 invisible
+  Turn on option `Invisible Google reCAPTCHA v2`
+* With Google reCaptcha v3:
+  Configure the correct site key and secret key for reCaptcha v3
+  Configure `Google reCAPTCHA v3 threshold score`, default by 0.5
+### How to adapt the captcha solution upgrade?
+* Add `Shopware\Storefront\Framework\Captcha\Annotation\Captcha` annotation to StorefrontController-Routes to apply captcha protection.
+* Due to captcha forms will be displayed when activated, be aware that the captcha input might break your layout
+#### Before
+```php
+{% sw_include '@Storefront/storefront/component/captcha/base.html.twig' with { captchas: config('core.basicInformation.activeCaptchas') } %}
+```
+#### After
+```php
+{% sw_include '@Storefront/storefront/component/captcha/base.html.twig'
+    with {
+        additionalClass : string,
+        formId: string,
+        preCheck: boolean
+    }
+%}
+```
+
+We have a default captchas config, so now you don't need to provide a captchas parameter to the component, if you provide the captchas parameter, they will be overridden
+
+Options:
+- `additionalClass`: (optional) default is `col-md-6`,
+- `formId`: (optional) - you can add the custom `formId`,
+- `preCheck`: (optional) default is `false` - if true it will call an ajax-route to pre-validate the captcha, before the form is submitted. When using a native form, instead of an ajax-form, the `precheck` should be `true`.
+
+
 # 6.4.1.0
 
 ## Default messenger routing
@@ -483,7 +701,7 @@ class MyDecorator extends AbstractElasticsearchDefinition
         $documents = $this->productDefinition->extendDocuments($documents, $context);
         $productIds = array_column($documents, 'id');
 
-        $query = <<<SQL
+        $query = <<<'SQL'
 SELECT LOWER(HEX(mytable.product_id)) as id, GROUP_CONCAT(LOWER(HEX(mytable.myFkField)) SEPARATOR "|") as relationIds
 FROM mytable
 WHERE

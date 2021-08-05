@@ -31,11 +31,14 @@
         {% block sw_sales_channel_detail_domains_grid %}
         <sw-data-grid
             ref="gridDomains"
-            :data-source="salesChannel.domains"
+            :data-source="sortedDomains"
             :columns="getDomainColumns()"
             :show-selection="false"
             :is-loading="isLoadingDomains"
             :show-actions="true"
+            :sort-by="sortBy"
+            :sort-direction="sortDirection"
+            @column-sort="sortColumns"
         >
             {% block sw_sales_channel_detail_domains_columns_template %}
 
@@ -62,7 +65,7 @@
                 slot="column-currencyId"
                 slot-scope="{ item, isInlineEdit}"
             >
-                {{ item.currency.name }}
+                {{ item.currency.translated.name }}
             </template>
             {% endblock %}
 
@@ -118,6 +121,8 @@
             <sw-url-field
                 v-model="currentDomain.url"
                 type="text"
+                omit-url-hash
+                omit-url-search
                 label="Url"
             />
             {% endblock %}

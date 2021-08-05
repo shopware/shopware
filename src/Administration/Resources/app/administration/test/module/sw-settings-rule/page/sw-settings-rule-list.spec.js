@@ -1,5 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-rule/page/sw-settings-rule-list';
+import 'src/app/component/context-menu/sw-context-menu';
+import 'src/app/component/context-menu/sw-context-menu-item';
 
 function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-settings-rule-list'), {
@@ -21,7 +23,7 @@ function createWrapper(privileges = []) {
     </div>
     `
             },
-            'sw-context-menu-item': true
+            'sw-context-menu-item': Shopware.Component.build('sw-context-menu-item')
         },
         provide: {
             repositoryFactory: {
@@ -61,13 +63,13 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
 
         const buttonAddRule = wrapper.find('sw-button-stub');
         const entityListing = wrapper.find('.sw-entity-listing');
-        const contextMenuItemDuplicate = wrapper.find('sw-context-menu-item-stub');
+        const contextMenuItemDuplicate = wrapper.find('.sw-context-menu-item');
 
         expect(buttonAddRule.attributes().disabled).toBe('true');
         expect(entityListing.attributes()['show-selection']).toBeUndefined();
         expect(entityListing.attributes()['allow-edit']).toBeUndefined();
         expect(entityListing.attributes()['allow-delete']).toBeUndefined();
-        expect(contextMenuItemDuplicate.attributes().disabled).toBe('true');
+        expect(contextMenuItemDuplicate.attributes().class).toContain('is--disabled');
     });
 
     it('should have enabled fields for creator', async () => {
@@ -78,16 +80,16 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
 
         const buttonAddRule = wrapper.find('sw-button-stub');
         const entityListing = wrapper.find('.sw-entity-listing');
-        const contextMenuItemDuplicate = wrapper.find('sw-context-menu-item-stub');
+        const contextMenuItemDuplicate = wrapper.find('.sw-context-menu-item');
 
         expect(buttonAddRule.attributes().disabled).toBeUndefined();
         expect(entityListing.attributes()['show-selection']).toBeUndefined();
         expect(entityListing.attributes()['allow-edit']).toBeUndefined();
         expect(entityListing.attributes()['allow-delete']).toBeUndefined();
-        expect(contextMenuItemDuplicate.attributes().disabled).toBeUndefined();
+        expect(contextMenuItemDuplicate.attributes().class).not.toContain('is--disabled');
     });
 
-    it.only('should have enabled fields for editor', async () => {
+    it('only should have enabled fields for editor', async () => {
         const wrapper = createWrapper([
             'rule.editor'
         ]);
@@ -95,13 +97,13 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
 
         const buttonAddRule = wrapper.find('sw-button-stub');
         const entityListing = wrapper.find('.sw-entity-listing');
-        const contextMenuItemDuplicate = wrapper.find('sw-context-menu-item-stub');
+        const contextMenuItemDuplicate = wrapper.find('.sw-context-menu-item');
 
         expect(buttonAddRule.attributes().disabled).toBe('true');
         expect(entityListing.attributes()['show-selection']).toBeUndefined();
         expect(entityListing.attributes()['allow-edit']).toBe('true');
         expect(entityListing.attributes()['allow-delete']).toBeUndefined();
-        expect(contextMenuItemDuplicate.attributes().disabled).toBe('true');
+        expect(contextMenuItemDuplicate.attributes().class).toContain('is--disabled');
     });
 
     it('should have enabled fields for deleter', async () => {
@@ -112,12 +114,26 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
 
         const buttonAddRule = wrapper.find('sw-button-stub');
         const entityListing = wrapper.find('.sw-entity-listing');
-        const contextMenuItemDuplicate = wrapper.find('sw-context-menu-item-stub');
+        const contextMenuItemDuplicate = wrapper.find('.sw-context-menu-item');
 
         expect(buttonAddRule.attributes().disabled).toBe('true');
         expect(entityListing.attributes()['show-selection']).toBe('true');
         expect(entityListing.attributes()['allow-edit']).toBeUndefined();
         expect(entityListing.attributes()['allow-delete']).toBe('true');
-        expect(contextMenuItemDuplicate.attributes().disabled).toBe('true');
+        expect(contextMenuItemDuplicate.attributes().class).toContain('is--disabled');
+    });
+
+    it('should duplicate a rule and should overwrite name and createdAt values', async () => {
+        const wrapper = await createWrapper(['rule.creator']);
+        wrapper.vm.onDuplicate = jest.fn();
+        wrapper.vm.onDuplicate.mockReturnValueOnce('hi');
+
+        await wrapper.vm.$nextTick();
+
+        const contextMenuItemDuplicate = wrapper.find('.sw-context-menu-item');
+        await contextMenuItemDuplicate.trigger('click');
+
+        expect(wrapper.vm.onDuplicate)
+            .toHaveBeenCalledTimes(1);
     });
 });

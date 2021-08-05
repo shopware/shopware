@@ -30,8 +30,8 @@ export default class DatePickerPlugin extends Plugin {
         selectors: {
             openButton: null,
             closeButton: null,
-            clearButton: null
-        }
+            clearButton: null,
+        },
     };
 
     /**
@@ -55,7 +55,7 @@ export default class DatePickerPlugin extends Plugin {
 
         this.flatpickrElement = flatpickr(this.inputElement, {
             ...this.options,
-            ...this.generateFlatpickrOptions()
+            ...this.generateFlatpickrOptions(),
         });
 
         this.registerEventListeners();
@@ -134,7 +134,7 @@ export default class DatePickerPlugin extends Plugin {
         return {
             altFormat: this.getAltFormat(localeIndex),
             locale: Locales[localeIndex],
-            time_24hr: Locales[localeIndex].time_24hr
+            time_24hr: Locales[localeIndex].time_24hr,
         };
     }
 

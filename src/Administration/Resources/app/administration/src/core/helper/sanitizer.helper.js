@@ -13,10 +13,11 @@ const middlewareNames = [
     'afterSanitizeAttributes',
     'beforeSanitizeShadowDOM',
     'uponSanitizeShadowNode',
-    'afterSanitizeShadowDOM'
+    'afterSanitizeShadowDOM',
 ];
 
 export default class Sanitizer {
+    // eslint-disable-next-line inclusive-language/use-inclusive-words
     /**
      * Sets the domPurify config globally until {@link Sanitizer#clearConfig} will get called.
      * See <https://github.com/cure53/DOMPurify/tree/master/demos#what-is-this> for all configuration options.
@@ -52,7 +53,7 @@ export default class Sanitizer {
             Shopware.Utils.debug.warn(
                 'Sanitizer',
                 `No middleware found for name "${middlewareName}", 
-                the following are available: ${middlewareNames.join(', ')}`
+                the following are available: ${middlewareNames.join(', ')}`,
             );
             return false;
         }
@@ -73,7 +74,7 @@ export default class Sanitizer {
             Shopware.Utils.debug.warn(
                 'Sanitizer',
                 `No middleware found for name "${middlewareName}", 
-                the following are available: ${middlewareNames.join(', ')}`
+                the following are available: ${middlewareNames.join(', ')}`,
             );
             return false;
         }

@@ -8,18 +8,26 @@ Component.register('sw-order-document-settings-modal', {
     inject: ['numberRangeService'],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     props: {
         order: {
             type: Object,
-            required: true
+            required: true,
         },
         currentDocumentType: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
+        isLoadingDocument: {
+            type: Boolean,
+            required: true,
+        },
+        isLoadingPreview: {
+            type: Boolean,
+            required: true,
+        },
     },
 
     data() {
@@ -31,13 +39,13 @@ Component.register('sw-order-document-settings-modal', {
                 custom: {},
                 documentNumber: 0,
                 documentComment: '',
-                documentDate: ''
+                documentDate: '',
             },
             documentNumberPreview: false,
             features: {
                 uploadFileSizeLimit: 52428800,
-                fileTypes: ['application/pdf']
-            }
+                fileTypes: ['application/pdf'],
+            },
         };
     },
 
@@ -45,7 +53,7 @@ Component.register('sw-order-document-settings-modal', {
         documentPreconditionsFulfilled() {
             // can be overwritten in extending component
             return true;
-        }
+        },
     },
 
     created() {
@@ -57,7 +65,7 @@ Component.register('sw-order-document-settings-modal', {
             this.numberRangeService.reserve(
                 `document_${this.currentDocumentType.technicalName}`,
                 this.order.salesChannelId,
-                true
+                true,
             ).then((response) => {
                 this.documentConfig.documentNumber = response.number;
                 this.documentNumberPreview = this.documentConfig.documentNumber;
@@ -75,7 +83,7 @@ Component.register('sw-order-document-settings-modal', {
                 this.documentConfig,
                 additionalAction,
                 referencedDocumentId,
-                (this.uploadDocument ? this.selectedDocumentFile : null)
+                (this.uploadDocument ? this.selectedDocumentFile : null),
             );
         },
 
@@ -89,7 +97,7 @@ Component.register('sw-order-document-settings-modal', {
 
         onCancel() {
             this.$emit('page-leave');
-        }
+        },
 
-    }
+    },
 });

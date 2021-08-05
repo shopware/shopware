@@ -12,5 +12,5 @@ const { Component } = Shopware;
  * <sw-overlay></sw-overlay>
  */
 Component.register('sw-overlay', {
-    template
+    template,
 });

@@ -14,7 +14,7 @@ class Migration1536233360Document extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             CREATE TABLE `document_type` (
               `id` BINARY(16) NOT NULL,
               `technical_name` VARCHAR(255) NOT NULL,
@@ -25,7 +25,7 @@ class Migration1536233360Document extends MigrationStep
 SQL;
         $connection->executeUpdate($sql);
 
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             CREATE TABLE `document_type_translation` (
               `document_type_id` BINARY(16) NOT NULL,
               `language_id` BINARY(16) NOT NULL,
@@ -43,7 +43,7 @@ SQL;
 SQL;
         $connection->executeUpdate($sql);
 
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             CREATE TABLE `document` (
               `id` BINARY(16) NOT NULL,
               `document_type_id` BINARY(16) NOT NULL,

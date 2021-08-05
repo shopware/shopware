@@ -132,22 +132,32 @@ class SalesChannelProductSubscriberTest extends TestCase
             // create a new product for this case
             $id = $ids->create('product-' . $i);
 
+            $price = [
+                [
+                    'currencyId' => $case->currencyId,
+                    'gross' => $case->gross,
+                    'net' => $case->net,
+                    'linked' => false,
+                    'listPrice' => [
+                        'gross' => $case->wasGross,
+                        'net' => $case->wasNet,
+                        'linked' => false,
+                    ],
+                ],
+            ];
+            if ($case->currencyId !== Defaults::CURRENCY) {
+                $price[] = [
+                    'currencyId' => Defaults::CURRENCY,
+                    'gross' => 1,
+                    'net' => 1,
+                    'linked' => false,
+                ];
+            }
+
             $data = array_merge($defaults, [
                 'id' => $id,
                 'productNumber' => $id,
-                'price' => [
-                    [
-                        'currencyId' => $case->currencyId,
-                        'gross' => $case->gross,
-                        'net' => $case->net,
-                        'linked' => false,
-                        'listPrice' => [
-                            'gross' => $case->wasGross,
-                            'net' => $case->wasNet,
-                            'linked' => false,
-                        ],
-                    ],
-                ],
+                'price' => $price,
             ]);
 
             $this->getContainer()->get('product.repository')

@@ -1,8 +1,53 @@
-import { shallowMount } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-product-stream/component/sw-product-stream-value';
 import 'src/app/component/rule/sw-condition-base';
+import 'src/app/component/base/sw-highlight-text';
+import 'src/app/component/utils/sw-popover';
+import 'src/app/component/form/field-base/sw-base-field';
+import 'src/app/component/form/field-base/sw-block-field';
+import 'src/app/component/form/select/base/sw-select-base';
+import 'src/app/component/form/select/base/sw-single-select';
+import 'src/app/component/form/select/base/sw-select-result';
+import 'src/app/component/form/select/base/sw-select-result-list';
+import 'src/app/component/form/field-base/sw-field-error';
+import 'src/app/component/base/sw-icon';
 
-function createWrapper(privileges = [], fieldType = null, conditionType = '', entity = '') {
+
+function createWrapper(privileges = [], fieldType = null, conditionType = '', entity = '', render = false) {
+    const localVue = createLocalVue();
+    localVue.directive('tooltip', {});
+    localVue.directive('popover', {});
+
+    let stubs = {
+        'sw-container': {
+            template: '<div class="sw-container"><slot></slot></div>'
+        },
+        'sw-single-select': true,
+        'sw-text-field': true,
+        'sw-arrow-field': {
+            template: '<div class="sw-arrow-field"><slot></slot></div>'
+        },
+        'sw-entity-single-select': true
+    };
+
+    if (render) {
+        stubs = {
+            ...stubs,
+            'sw-single-select': Shopware.Component.build('sw-single-select'),
+            'sw-select-base': Shopware.Component.build('sw-select-base'),
+            'sw-block-field': Shopware.Component.build('sw-block-field'),
+            'sw-base-field': Shopware.Component.build('sw-base-field'),
+            'sw-select-result': Shopware.Component.build('sw-select-result'),
+            'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
+            'sw-popover': Shopware.Component.build('sw-popover'),
+            'sw-highlight-text': Shopware.Component.build('sw-highlight-text'),
+            'sw-field-error': Shopware.Component.build('sw-field-error'),
+            'sw-icon': {
+                template: '<div class="sw-icon" @click="$emit(\'click\')"></div>'
+            }
+        };
+    }
+
     return shallowMount(Shopware.Component.build('sw-product-stream-value'), {
         provide: {
             repositoryFactory: {
@@ -35,17 +80,7 @@ function createWrapper(privileges = [], fieldType = null, conditionType = '', en
                 type: conditionType
             }
         },
-        stubs: {
-            'sw-container': {
-                template: '<div class="sw-container"><slot></slot></div>'
-            },
-            'sw-single-select': true,
-            'sw-text-field': true,
-            'sw-arrow-field': {
-                template: '<div class="sw-arrow-field"><slot></slot></div>'
-            },
-            'sw-entity-single-select': true
-        }
+        stubs: stubs
     });
 }
 
@@ -91,6 +126,57 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
         wrapper.vm.$nextTick();
 
         expect(wrapper.vm.fieldDefinition).toEqual('customFields.test');
+    });
+
+    it('should fire event when trigger value for boolean type', async () => {
+        const wrapper = createWrapper(['product_stream.viewer'], 'boolean', 'equals', '', true);
+        wrapper.vm.$nextTick();
+
+        const productStreamValueSwitch = wrapper.find('.sw-product-stream-value');
+        await productStreamValueSwitch.find('.sw-select__selection').trigger('click');
+        await wrapper.vm.$nextTick();
+
+        productStreamValueSwitch.find('.sw-select-option--1').trigger('click');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.emitted('boolean-change')).toBeTruthy();
+    });
+
+    it('should fire event with type \`equals\` when trigger value for boolean type YES', async () => {
+        const wrapper = createWrapper(['product_stream.viewer'], 'boolean', 'equals', '', true);
+        wrapper.vm.$nextTick();
+
+        const productStreamValueSwitch = wrapper.find('.sw-product-stream-value');
+        await productStreamValueSwitch.find('.sw-select__selection').trigger('click');
+        await wrapper.vm.$nextTick();
+
+        const productStreamValueYes = productStreamValueSwitch.findAll('.sw-select-result').at(0);
+
+        expect(productStreamValueYes.text()).toBe('global.default.yes');
+        productStreamValueYes.trigger('click');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.emitted('boolean-change')).toBeTruthy();
+        expect(wrapper.emitted('boolean-change')[0][0].type).toEqual('equals');
+        expect(wrapper.emitted('boolean-change')[0][0].value).toEqual('1');
+    });
+
+    it('should fire event with type \`not\` when trigger value for boolean type No', async () => {
+        const wrapper = createWrapper(['product_stream.viewer'], 'boolean', 'equals', '', true);
+        wrapper.vm.$nextTick();
+
+        const productStreamValueSwitch = wrapper.find('.sw-product-stream-value');
+        await productStreamValueSwitch.find('.sw-select__selection').trigger('click');
+        await wrapper.vm.$nextTick();
+
+        const productStreamValueNo = productStreamValueSwitch.findAll('.sw-select-result').at(1);
+
+        expect(productStreamValueNo.text()).toBe('global.default.no');
+        productStreamValueNo.trigger('click');
+
+        expect(wrapper.emitted('boolean-change')).toBeTruthy();
+        expect(wrapper.emitted('boolean-change')[0][0].type).toEqual('notEquals');
+        expect(wrapper.emitted('boolean-change')[0][0].value).toEqual('0');
     });
 });
 

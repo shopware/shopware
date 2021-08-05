@@ -1,11 +1,10 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
 import ProductStreamObject from '../../../support/pages/module/sw-product-stream.page-object';
 
 describe('Product: Visual tests', () => {
-    // eslint-disable-next-line no-undef
-    before(() => {
+    beforeEach(() => {
         cy.setToInitialState()
             .then(() => {
                 return cy.createProductFixture();
@@ -15,27 +14,27 @@ describe('Product: Visual tests', () => {
             })
             .then(() => {
                 return cy.createPropertyFixture({
-                    options: [{ name: 'Red' }]
+                    options: [{
+                        name: 'Red'
+                    }]
                 });
-            });
-    });
-
-    beforeEach(() => {
-        cy.loginViaApi()
+            })
+            .then(() => {
+                cy.loginViaApi();
+            })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
             });
     });
 
     it('@visual: check appearance of basic product workflow', () => {
-        const page = new ProductPageObject();
-
         cy.server();
         cy.route({
             url: `${Cypress.env('apiPath')}/search/product`,
             method: 'post'
         }).as('getData');
 
+        cy.get('.sw-product-list-grid').should('be.visible');
         cy.clickMainMenuItem({
             targetPath: '#/sw/product/index',
             mainMenuId: 'sw-catalogue',
@@ -49,13 +48,14 @@ describe('Product: Visual tests', () => {
         cy.get('.sw-data-grid__skeleton').should('not.exist');
         cy.takeSnapshot('[Product] Listing');
 
-        // Edit base data of product
-        cy.clickContextMenuItem(
-            '.sw-entity-listing__context-menu-edit-action',
-            page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
-        );
+        cy.get('.sw-data-grid__row--0 .sw-context-button').click();
+        cy.get('.sw-context-menu__content').should('be.visible');
 
+        cy.takeSnapshot('[Product] Listing, context menu open');
+
+        cy.get('.sw-entity-listing__context-menu-edit-action').click();
+
+        // Edit base data of product
         cy.get('.sw-select-product__select_manufacturer')
             .typeSingleSelectAndCheck('shopware AG', '.sw-select-product__select_manufacturer');
         cy.takeSnapshot('[Product] Detail, base', '.sw-product-detail-base');
@@ -64,6 +64,7 @@ describe('Product: Visual tests', () => {
     it('@visual: check appearance of basic product pricing', () => {
         const page = new ProductPageObject();
 
+        cy.get('.sw-product-list-grid').should('be.visible');
         // Edit base data of product
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
@@ -85,8 +86,16 @@ describe('Product: Visual tests', () => {
         cy.takeSnapshot('[Product] Detail, advanced prices', '.sw-product-detail-context-prices');
     });
 
+    /**
+     * @deprecated tag:v6.5.0 - Will be removed, use `sw-product-properties` instead
+     * @feature-deprecated (flag:FEATURE_NEXT_12437)
+     */
     it('@catalogue @percy: check product property appearance', () => {
+        cy.skipOnFeature('FEATURE_NEXT_12437');
+
         const page = new ProductPageObject();
+
+        cy.get('.sw-product-list-grid').should('be.visible');
 
         // Edit base data of product
         cy.clickContextMenuItem(
@@ -102,10 +111,28 @@ describe('Product: Visual tests', () => {
         cy.get('#sw-field--searchTerm').click();
         cy.get('.sw-property-search__tree-selection').should('be.visible');
         cy.contains('.sw-grid__cell-content', 'Color').click();
-        cy.contains('.sw-grid__row--0 .sw-grid__cell-content', 'Red').should('be.visible');
+        cy.contains('.sw-grid__cell-content', 'Red').should('be.visible');
         cy.get('.sw-grid__row--0 input').click();
 
         cy.takeSnapshot('[Product] Detail, Properties', '.sw-property-assignment__label-content');
+    });
+
+    it('@catalogue @percy: check product property appearance', () => {
+        cy.onlyOnFeature('FEATURE_NEXT_12437');
+
+        const page = new ProductPageObject();
+
+        // Edit base data of product
+        cy.clickContextMenuItem(
+            '.sw-entity-listing__context-menu-edit-action',
+            page.elements.contextMenuButton,
+            `${page.elements.dataGridRow}--0`
+        );
+
+        cy.get('.sw-product-detail__tab-specifications').should('be.visible');
+        cy.get('.sw-product-detail__tab-specifications').click();
+
+        cy.get('.sw-product-properties').should('be.visible');
     });
 
     it('@visual: check appearance of product variant workflow', () => {
@@ -114,9 +141,15 @@ describe('Product: Visual tests', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'patch'
+            url: `${Cypress.env('apiPath')}/_action/sync`,
+            method: 'post'
         }).as('saveData');
+        cy.route({
+            url: `${Cypress.env('apiPath')}/search/property-group`,
+            method: 'post'
+        }).as('getPropertyGroups');
+
+        cy.get('.sw-product-list-grid').should('be.visible');
 
         // Navigate to variant generator listing and start
         cy.clickContextMenuItem(
@@ -132,13 +165,22 @@ describe('Product: Visual tests', () => {
             .click();
 
         // Take snapshot for visual testing
+        cy.wait('@getPropertyGroups').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
+
+        cy.handleModalSnapshot('Generate variants');
+        cy.contains('.group_grid__column-name', 'Color').should('be.visible');
         cy.takeSnapshot('[Product] Detail, Variant generation', '.sw-product-modal-variant-generation');
 
         // Create and verify one-dimensional variant
         page.generateVariants('Color', [0], 1);
 
         // Take snapshot for visual testing
-        cy.takeSnapshot('Product - Variants in admin', '.sw-product-variants-overview');
+        cy.get('.sw-modal').should('not.exist');
+        cy.get('.sw-data-grid__row--0').should('be.visible');
+        cy.get('.sw-product-variants-media-upload').should('be.visible');
+        cy.takeSnapshot('[Product] Variants in admin', '.sw-product-variants-overview');
 
         // Verify in storefront
         cy.visit('/');
@@ -158,8 +200,8 @@ describe('Product: Visual tests', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'patch'
+            url: `${Cypress.env('apiPath')}/_action/sync`,
+            method: 'post'
         }).as('saveData');
         cy.route({
             url: `${Cypress.env('apiPath')}/search/product-stream`,
@@ -185,14 +227,18 @@ describe('Product: Visual tests', () => {
         });
 
         // Open product and add cross selling
+
+
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
+        cy.get('.sw-product-list-grid').should('be.visible');
+
         cy.contains('Original product').click();
 
         cy.get('.sw-product-detail__tab-cross-selling').click();
         cy.get(page.elements.loader).should('not.exist');
 
         cy.contains(
-            `.sw-product-detail-cross-selling__empty-state ${page.elements.ghostButton}`,
+            `.sw-empty-state ${page.elements.ghostButton}`,
             'Add new Cross Selling'
         ).should('be.visible').click();
         cy.get('.product-detail-cross-selling-form').should('be.visible');
@@ -212,7 +258,7 @@ describe('Product: Visual tests', () => {
         // Save and verify cross selling stream
         cy.get('.sw-button-process').click();
         cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
+            expect(xhr).to.have.property('status', 200);
         });
 
         // Verify in storefront

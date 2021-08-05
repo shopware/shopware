@@ -8,6 +8,6 @@ export default {
                 .forEach((notification) => {
                     this.createNotificationError(notification);
                 });
-        }
-    }
+        },
+    },
 };

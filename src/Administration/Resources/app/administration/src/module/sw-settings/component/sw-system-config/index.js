@@ -12,30 +12,30 @@ Component.register('sw-system-config', {
 
     mixins: [
         Mixin.getByName('notification'),
-        Mixin.getByName('sw-inline-snippet')
+        Mixin.getByName('sw-inline-snippet'),
     ],
 
     props: {
         domain: {
             required: true,
-            type: String
+            type: String,
         },
         salesChannelId: {
             required: false,
             type: String,
-            default: null
+            default: null,
         },
         salesChannelSwitchable: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
         // Shows the value of salesChannel=null as placeholder when the salesChannelSwitchable prop is true
         inherit: {
             type: Boolean,
             required: false,
-            default: true
-        }
+            default: true,
+        },
     },
 
     data() {
@@ -44,7 +44,7 @@ Component.register('sw-system-config', {
             isLoading: false,
             config: {},
             actualConfigData: {},
-            salesChannelModel: null
+            salesChannelModel: null,
         };
     },
 
@@ -63,9 +63,9 @@ Component.register('sw-system-config', {
                 'float',
                 'bool',
                 'checkbox',
-                'colorpicker'
+                'colorpicker',
             ];
-        }
+        },
     },
 
     watch: {
@@ -73,8 +73,8 @@ Component.register('sw-system-config', {
             handler() {
                 this.emitConfig();
             },
-            deep: true
-        }
+            deep: true,
+        },
     },
 
     created() {
@@ -136,7 +136,7 @@ Component.register('sw-system-config', {
         createErrorNotification(errors) {
             let message = `<div>${this.$tc(
                 'sw-config-form-renderer.configLoadErrorMessage',
-                errors.length
+                errors.length,
             )}</div><ul>`;
 
             errors.forEach((error) => {
@@ -146,7 +146,7 @@ Component.register('sw-system-config', {
 
             this.createNotificationError({
                 message: message,
-                autoClose: false
+                autoClose: false,
             });
         },
         onSalesChannelChanged(salesChannelId) {
@@ -194,7 +194,7 @@ Component.register('sw-system-config', {
 
             return {
                 label: this.getInlineSnippet(element.config.label),
-                helpText: this.getInlineSnippet(element.config.helpText)
+                helpText: this.getInlineSnippet(element.config.helpText),
             };
         },
 
@@ -252,6 +252,6 @@ Component.register('sw-system-config', {
 
         kebabCase(value) {
             return kebabCase(value);
-        }
-    }
+        },
+    },
 });

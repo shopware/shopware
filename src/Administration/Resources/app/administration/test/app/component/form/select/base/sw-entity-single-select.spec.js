@@ -79,7 +79,7 @@ const createEntitySingleSelect = (customOptions) => {
             'sw-block-field': Shopware.Component.build('sw-block-field'),
             'sw-base-field': Shopware.Component.build('sw-base-field'),
             'sw-icon': {
-                template: '<div></div>'
+                template: '<div @click="$emit(\'click\', $event)"></div>'
             },
             'sw-field-error': Shopware.Component.build('sw-field-error'),
             'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
@@ -396,5 +396,60 @@ describe('components/sw-entity-single-select', () => {
 
         expect(swEntitySingleSelect.find('input').element.value).toBe('test');
         expect(swEntitySingleSelect.find('.sw-select-result__result-item-text').text()).toBe('test');
+    });
+
+    it('should show the clearable icon in the single select', async () => {
+        const wrapper = await createEntitySingleSelect();
+
+        const clearableIcon = wrapper.find('.sw-select__select-indicator-clear');
+        expect(clearableIcon.isVisible()).toBe(true);
+    });
+
+    it('should clear the selection when clicking on clear icon', async () => {
+        const wrapper = await createEntitySingleSelect({
+            propsData: {
+                value: fixture[0].id,
+                entity: 'test',
+                labelCallback: () => 'test'
+            },
+            provide: {
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            get: () => Promise.resolve(fixture[0]),
+                            search: () => Promise.resolve(getCollection())
+                        };
+                    }
+                }
+            }
+        });
+
+        // wait until fetched data gets rendered
+        await wrapper.vm.$nextTick();
+
+        // expect test value selected
+        let selectionText = wrapper.find('.sw-entity-single-select__selection-text');
+        expect(selectionText.text())
+            .toEqual('test');
+
+        // expect no emitted value
+        expect(wrapper.emitted('change')).toEqual(undefined);
+
+        // click on clear
+        const clearableIcon = wrapper.find('.sw-select__select-indicator-clear');
+        await clearableIcon.trigger('click');
+
+        // expect emitting resetting value
+        const emittedChangeValue = wrapper.emitted('change')[0];
+        expect(emittedChangeValue).toEqual([null]);
+
+        // emulate v-model change
+        await wrapper.setProps({
+            value: emittedChangeValue[0]
+        });
+
+        // expect empty selection
+        selectionText = wrapper.find('.sw-entity-single-select__selection-text');
+        expect(selectionText.text()).toEqual('');
     });
 });

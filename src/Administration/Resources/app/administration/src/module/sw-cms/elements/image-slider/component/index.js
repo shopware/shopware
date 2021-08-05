@@ -9,15 +9,15 @@ Component.register('sw-cms-el-image-slider', {
     inject: ['feature'],
 
     mixins: [
-        Mixin.getByName('cms-element')
+        Mixin.getByName('cms-element'),
     ],
 
     props: {
         activeMedia: {
             type: [Object, null],
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
@@ -26,7 +26,7 @@ Component.register('sw-cms-el-image-slider', {
             columnWidth: 90,
             sliderPos: 0,
             imgPath: '/administration/static/img/cms/preview_mountain_large.jpg',
-            imgSrc: ''
+            imgSrc: '',
         };
     },
 
@@ -64,7 +64,7 @@ Component.register('sw-cms-el-image-slider', {
                 this.element.config.minHeight.value &&
                 this.element.config.minHeight.value !== 0) {
                 return {
-                    'min-height': this.element.config.minHeight.value
+                    'min-height': this.element.config.minHeight.value,
                 };
             }
 
@@ -105,7 +105,7 @@ Component.register('sw-cms-el-image-slider', {
 
         assetFilter() {
             return Filter.getByName('asset');
-        }
+        },
     },
 
     watch: {
@@ -114,7 +114,7 @@ Component.register('sw-cms-el-image-slider', {
             handler() {
                 return null;
             },
-            deep: true
+            deep: true,
         },
 
         sliderItems: {
@@ -126,13 +126,13 @@ Component.register('sw-cms-el-image-slider', {
                     this.imgSrc = this.assetFilter(this.imgPath);
                 }
             },
-            deep: true
+            deep: true,
         },
 
         activeMedia() {
             this.sliderPos = this.activeMedia.sliderIndex;
             this.imgSrc = this.activeMedia.url;
-        }
+        },
     },
 
     created() {
@@ -160,7 +160,7 @@ Component.register('sw-cms-el-image-slider', {
 
         activeButtonClass(url) {
             return {
-                'is--active': this.imgSrc === url
+                'is--active': this.imgSrc === url,
             };
         },
 
@@ -181,6 +181,6 @@ Component.register('sw-cms-el-image-slider', {
 
             this.imgSrc = this.sliderItems[this.sliderPos].media.url;
             this.$emit('active-image-change', this.sliderItems[this.sliderPos].media, this.sliderPos);
-        }
-    }
+        },
+    },
 });

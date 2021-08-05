@@ -82,13 +82,21 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
                 }
             },
             stubs: {
-                'sw-page': '<div class="sw-page"><slot name="content"></slot></div>',
+                'sw-page': {
+                    template: '<div class="sw-page"><slot name="content"></slot></div>'
+                },
                 'sw-icon': true,
                 'sw-button': true,
-                'sw-card': '<div><slot></slot><slot name="grid"></slot></div>',
-                'sw-card-view': '<div><slot></slot></div>',
+                'sw-card': {
+                    template: '<div><slot></slot><slot name="grid"></slot></div>'
+                },
+                'sw-card-view': {
+                    template: '<div><slot></slot></div>'
+                },
                 'sw-button-group': true,
-                'sw-container': '<div><slot></slot></div>',
+                'sw-container': {
+                    template: '<div><slot></slot></div>'
+                },
                 'sw-context-menu-item': Shopware.Component.build('sw-context-menu-item'),
                 'sw-context-menu': Shopware.Component.build('sw-context-menu'),
                 'sw-context-button': Shopware.Component.build('sw-context-button'),

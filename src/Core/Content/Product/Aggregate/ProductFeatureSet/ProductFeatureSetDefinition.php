@@ -45,6 +45,11 @@ class ProductFeatureSetDefinition extends EntityDefinition
         return '6.3.0.0';
     }
 
+    public function getHydratorClass(): string
+    {
+        return ProductFeatureSetHydrator::class;
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([

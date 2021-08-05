@@ -53,6 +53,9 @@ class CreateAliasTaskHandler extends ScheduledTaskHandler
         $exist = $this->client->indices()->existsAlias(['name' => $alias]);
 
         if (!$exist) {
+            $this->client->indices()->refresh([
+                'index' => $index,
+            ]);
             $this->client->indices()->putAlias(['index' => $index, 'name' => $alias]);
 
             return;

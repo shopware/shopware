@@ -10,22 +10,22 @@ Component.register('sw-mail-header-footer-list', {
 
     mixins: [
         Mixin.getByName('listing'),
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     props: {
         searchTerm: {
             type: String,
             required: false,
-            default: ''
-        }
+            default: '',
+        },
     },
 
     data() {
         return {
             mailHeaderFooters: null,
             showDeleteModal: null,
-            isLoading: false
+            isLoading: false,
         };
     },
 
@@ -40,13 +40,13 @@ Component.register('sw-mail-header-footer-list', {
 
         showListing() {
             return !!this.mailHeaderFooters && this.mailHeaderFooters.length !== 0;
-        }
+        },
     },
 
     watch: {
         searchTerm() {
             this.getList();
-        }
+        },
     },
 
     methods: {
@@ -55,8 +55,8 @@ Component.register('sw-mail-header-footer-list', {
                 this.$router.push({
                     name: 'sw.mail.template.detail_head_foot',
                     params: {
-                        id: mailHeaderFooter.id
-                    }
+                        id: mailHeaderFooter.id,
+                    },
                 });
             }
         },
@@ -86,18 +86,18 @@ Component.register('sw-mail-header-footer-list', {
                 dataIndex: 'name',
                 label: 'sw-mail-header-footer.list.columnName',
                 allowResize: true,
-                primary: true
+                primary: true,
             }, {
                 property: 'description',
                 dataIndex: 'description',
                 label: 'sw-mail-header-footer.list.columnDescription',
-                allowResize: true
+                allowResize: true,
             }, {
                 property: 'salesChannels.name',
                 dataIndex: 'salesChannels.name',
                 label: 'sw-mail-header-footer.list.columnSalesChannels',
                 allowResize: true,
-                sortable: false
+                sortable: false,
             }];
         },
 
@@ -126,8 +126,8 @@ Component.register('sw-mail-header-footer-list', {
                 this.$router.push(
                     {
                         name: 'sw.mail.template.detail_head_foot',
-                        params: { id: mailHeaderFooter.id }
-                    }
+                        params: { id: mailHeaderFooter.id },
+                    },
                 );
             });
         },
@@ -154,7 +154,7 @@ Component.register('sw-mail-header-footer-list', {
             const criteria = new Criteria();
 
             criteria.addFilter(
-                Criteria.equalsAny('id', mailHeaderFooter)
+                Criteria.equalsAny('id', mailHeaderFooter),
             );
 
             criteria.addAssociation('salesChannels');
@@ -182,12 +182,12 @@ Component.register('sw-mail-header-footer-list', {
 
         showDeleteErrorNotification(item) {
             return this.createNotificationError({
-                message: this.$tc('sw-mail-header-footer.list.messageDeleteError', 0, { name: item.name })
+                message: this.$tc('sw-mail-header-footer.list.messageDeleteError', 0, { name: item.name }),
             });
         },
 
         updateRecords(result) {
             this.mailHeaderFooters = result;
-        }
-    }
+        },
+    },
 });

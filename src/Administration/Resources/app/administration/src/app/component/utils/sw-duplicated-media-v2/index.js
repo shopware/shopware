@@ -25,7 +25,7 @@ Component.register('sw-duplicated-media-v2', {
             existingMedia: null,
             targetEntity: null,
             failedUploadTasks: [],
-            postponedFailedUploads: []
+            postponedFailedUploads: [],
         };
     },
 
@@ -63,7 +63,7 @@ Component.register('sw-duplicated-media-v2', {
                 return '';
             }
             const metadata = [
-                this.dateFilter(new Date(), { month: 'long' })
+                this.dateFilter(new Date(), { month: 'long' }),
             ];
 
             if (this.currentTask.src instanceof File) {
@@ -85,18 +85,18 @@ Component.register('sw-duplicated-media-v2', {
             return [
                 {
                     value: 'Replace',
-                    name: this.$tc('global.sw-duplicated-media-v2.labelOptionReplace')
+                    name: this.$tc('global.sw-duplicated-media-v2.labelOptionReplace'),
                 },
                 {
                     value: 'Rename',
-                    name: this.$tc('global.sw-duplicated-media-v2.labelOptionRename')
+                    name: this.$tc('global.sw-duplicated-media-v2.labelOptionRename'),
                 },
                 {
                     value: 'Skip',
-                    name: this.$tc('global.sw-duplicated-media-v2.labelOptionSkip')
-                }
+                    name: this.$tc('global.sw-duplicated-media-v2.labelOptionSkip'),
+                },
             ];
-        }
+        },
     },
 
     watch: {
@@ -119,7 +119,7 @@ Component.register('sw-duplicated-media-v2', {
             }
 
             this.failedUploadTasks.push(...this.postponedFailedUploads.splice(0, this.postponedFailedUploads.length));
-        }
+        },
     },
 
     created() {
@@ -196,9 +196,9 @@ Component.register('sw-duplicated-media-v2', {
                         'AND',
                         [
                             Criteria.equals('fileName', this.currentTask.fileName),
-                            Criteria.equals('fileExtension', this.currentTask.extension)
-                        ]
-                    )
+                            Criteria.equals('fileExtension', this.currentTask.extension),
+                        ],
+                    ),
                 );
 
             const searchResult = await this.mediaRepository.search(criteria, Context.api);
@@ -285,7 +285,7 @@ Component.register('sw-duplicated-media-v2', {
                 .addFilter(Criteria.multi('AND',
                     [
                         Criteria.equals('fileName', uploadTask.fileName),
-                        Criteria.equals('fileExtension', uploadTask.extension)
+                        Criteria.equals('fileExtension', uploadTask.extension),
                     ]));
 
             const searchResult = await this.mediaRepository.search(criteria, Context.api);
@@ -303,6 +303,6 @@ Component.register('sw-duplicated-media-v2', {
             }
 
             await this.mediaRepository.get(uploadTask.targetId, Context.api);
-        }
-    }
+        },
+    },
 });

@@ -24,7 +24,7 @@ export default class Entity {
                 that._isDirty = true;
 
                 return true;
-            }
+            },
         });
     }
 

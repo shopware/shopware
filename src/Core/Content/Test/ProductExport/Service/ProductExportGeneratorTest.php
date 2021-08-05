@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Test\ProductExport\Service;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\ProductExport\Event\ProductExportChangeEncodingEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportProductCriteriaEvent;
@@ -17,8 +18,10 @@ use Shopware\Core\Content\ProductExport\Service\ProductExportRenderer;
 use Shopware\Core\Content\ProductExport\Service\ProductExportValidator;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
+use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
+use Shopware\Core\Framework\Adapter\Twig\TwigVariableParser;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -137,7 +140,10 @@ class ProductExportGeneratorTest extends TestCase
             $this->getContainer()->get(Translator::class),
             $this->getContainer()->get(SalesChannelContextPersister::class),
             $this->getContainer()->get(Connection::class),
-            100
+            100,
+            $this->getContainer()->get(SeoUrlPlaceholderHandlerInterface::class),
+            $this->getContainer()->get(TwigVariableParser::class),
+            $this->getContainer()->get(ProductDefinition::class),
         );
 
         $exportGenerator->generate($productExport, $exportBehavior);
@@ -200,7 +206,10 @@ class ProductExportGeneratorTest extends TestCase
             $this->getContainer()->get(Translator::class),
             $this->getContainer()->get(SalesChannelContextPersister::class),
             $this->getContainer()->get(Connection::class),
-            100
+            100,
+            $this->getContainer()->get(SeoUrlPlaceholderHandlerInterface::class),
+            $this->getContainer()->get(TwigVariableParser::class),
+            $this->getContainer()->get(ProductDefinition::class),
         );
 
         try {

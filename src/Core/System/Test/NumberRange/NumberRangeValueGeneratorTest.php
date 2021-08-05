@@ -9,6 +9,8 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\NumberRange\NumberRangeDefinition;
 use Shopware\Core\System\NumberRange\NumberRangeEntity;
@@ -102,6 +104,31 @@ class NumberRangeValueGeneratorTest extends TestCase
         static::assertEquals('10002', $value);
     }
 
+    public function testIncreaseStartNumberInConfiguration(): void
+    {
+        /** @var NumberRangeValueGenerator $realGenerator */
+        $realGenerator = $this->getContainer()->get(NumberRangeValueGeneratorInterface::class);
+
+        $value = $realGenerator->getValue('order', $this->context, Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
+        static::assertEquals('10000', $value);
+
+        $typeId = $this->getContainer()->get('number_range_type.repository')
+            ->search((new Criteria())->addFilter(new EqualsFilter('technicalName', 'order')), $this->context)
+            ->first()
+            ->getId();
+        $numberRange = $this->getContainer()->get('number_range.repository')
+            ->search((new Criteria())->addFilter(new EqualsFilter('typeId', $typeId)), $this->context)
+            ->first();
+
+        $this->getContainer()->get('number_range.repository')->update([[
+            'id' => $numberRange->getId(),
+            'start' => 20000,
+        ]], $this->context);
+
+        $value = $realGenerator->getValue('order', $this->context, Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
+        static::assertEquals('20000', $value);
+    }
+
     private function getGenerator(string $pattern): NumberRangeValueGenerator
     {
         $patternReg = $this->getContainer()->get(ValueGeneratorPatternRegistry::class);
@@ -142,7 +169,7 @@ class NumberRangeValueGeneratorTest extends TestCase
 
     private function setupDatabase(): void
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             DELETE FROM `number_range_state`;
 SQL;
         $this->connection->executeUpdate($sql);

@@ -21,9 +21,9 @@ Shopware.Service('privileges')
                     'custom_field:read',
                     'custom_field_set_relation:read',
                     'product_stream:read',
-                    'currency:read'
+                    'currency:read',
                 ],
-                dependencies: []
+                dependencies: [],
             },
             editor: {
                 privileges: [
@@ -35,30 +35,30 @@ Shopware.Service('privileges')
                     'product_category:create',
                     'tag:create',
                     'category_tag:create',
-                    'category_tag:delete'
-                ],
-                dependencies: [
-                    'category.viewer'
-                ]
-            },
-            creator: {
-                privileges: [
-                    'category:create'
+                    'category_tag:delete',
                 ],
                 dependencies: [
                     'category.viewer',
-                    'category.editor'
-                ]
+                ],
+            },
+            creator: {
+                privileges: [
+                    'category:create',
+                ],
+                dependencies: [
+                    'category.viewer',
+                    'category.editor',
+                ],
             },
             deleter: {
                 privileges: [
-                    'category:delete'
+                    'category:delete',
                 ],
                 dependencies: [
-                    'category.viewer'
-                ]
-            }
-        }
+                    'category.viewer',
+                ],
+            },
+        },
     })
     .addPrivilegeMappingEntry({
         category: 'permissions',
@@ -78,9 +78,9 @@ Shopware.Service('privileges')
                     Shopware.Service('privileges').getPrivileges('cms.viewer'),
                     'custom_field_set:read',
                     'custom_field:read',
-                    'custom_field_set_relation:read'
+                    'custom_field_set_relation:read',
                 ],
-                dependencies: []
+                dependencies: [],
             },
             editor: {
                 privileges: [
@@ -93,28 +93,28 @@ Shopware.Service('privileges')
                     'landing_page_tag:create',
                     'landing_page_tag:delete',
                     'landing_page_sales_channel:create',
-                    'landing_page_sales_channel:delete'
+                    'landing_page_sales_channel:delete',
                 ],
                 dependencies: [
-                    'category.viewer'
-                ]
+                    'category.viewer',
+                ],
             },
             creator: {
                 privileges: [
-                    'landing_page:create'
+                    'landing_page:create',
                 ],
                 dependencies: [
                     'landing_page.viewer',
-                    'landing_page.editor'
-                ]
+                    'landing_page.editor',
+                ],
             },
             deleter: {
                 privileges: [
-                    'landing_page:delete'
+                    'landing_page:delete',
                 ],
                 dependencies: [
-                    'landing_page.viewer'
-                ]
-            }
-        }
+                    'landing_page.viewer',
+                ],
+            },
+        },
     });

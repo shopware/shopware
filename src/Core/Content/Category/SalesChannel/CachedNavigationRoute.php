@@ -148,7 +148,7 @@ Instead of passing uuids, you can also use one of the following aliases for the 
         $response = $this->loadNavigation($request, $rootId, $rootId, $depth, $context, $criteria, [self::ALL_TAG, self::BASE_NAVIGATION_TAG]);
 
         // no we have to check if the active category is loaded and the children of the active category are loaded
-        if ($this->isActiveLoaded($response->getCategories(), $activeId)) {
+        if ($this->isActiveLoaded($rootId, $response->getCategories(), $activeId)) {
             return $response;
         }
 
@@ -200,8 +200,12 @@ Instead of passing uuids, you can also use one of the following aliases for the 
         return $response;
     }
 
-    private function isActiveLoaded(CategoryCollection $categories, string $activeId): bool
+    private function isActiveLoaded(string $root, CategoryCollection $categories, string $activeId): bool
     {
+        if ($root === $activeId) {
+            return true;
+        }
+
         $active = $categories->get($activeId);
         if ($active === null) {
             return false;
@@ -226,7 +230,6 @@ Instead of passing uuids, you can also use one of the following aliases for the 
             self::buildName($active),
             $rootId,
             $depth,
-            $request->get('buildTree', true),
             $this->generator->getCriteriaHash($criteria),
             $this->generator->getSalesChannelContextHash($context),
         ];

@@ -7,11 +7,11 @@ Shopware.Service('privileges')
             core_update: {
                 privileges: [
                     'system:core:update',
-                    'system_config:read'
+                    'system_config:read',
                 ],
-                dependencies: []
-            }
-        }
+                dependencies: [],
+            },
+        },
     })
     .addPrivilegeMappingEntry({
         category: 'additional_permissions',
@@ -23,9 +23,9 @@ Shopware.Service('privileges')
                     'system:plugin:maintain',
                     'plugin:update',
                     'system:clear:cache',
-                    'system_config:read'
+                    'system_config:read',
                 ],
-                dependencies: []
-            }
-        }
+                dependencies: [],
+            },
+        },
     });

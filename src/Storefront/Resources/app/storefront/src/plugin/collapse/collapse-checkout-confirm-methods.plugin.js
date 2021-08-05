@@ -9,7 +9,7 @@ export default class CollapseCheckoutConfirmMethodsPlugin extends Plugin {
         collapseTriggerLabelSelector: '.confirm-checkout-collapse-trigger-label',
         collapseTriggerChevronSelector: '.icon-confirm-checkout-chevron',
         collapseTriggerMoreLabel: 'Show more',
-        collapseTriggerLessLabel: 'Show less'
+        collapseTriggerLessLabel: 'Show less',
     };
 
     init() {

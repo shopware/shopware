@@ -2,110 +2,135 @@
 
 namespace Shopware\Core\Checkout\Customer\Subscriber;
 
-use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
-use Shopware\Core\Checkout\Order\OrderEntity;
-use Shopware\Core\Checkout\Order\OrderEvents;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Checkout\Order\OrderStates;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\StateMachine\Event\StateMachineTransitionEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class CustomerMetaFieldSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $orderRepository;
+    private Connection $connection;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $customerRepository;
-
-    public function __construct(EntityRepositoryInterface $orderRepository, EntityRepositoryInterface $customerRepository)
+    public function __construct(Connection $connection)
     {
-        $this->orderRepository = $orderRepository;
-        $this->customerRepository = $customerRepository;
+        $this->connection = $connection;
     }
 
     public static function getSubscribedEvents(): array
     {
         return [
-            OrderEvents::ORDER_WRITTEN_EVENT => 'fillCustomerMetaDataFields',
+            StateMachineTransitionEvent::class => 'fillCustomerMetaDataFields',
+            PreWriteValidationEvent::class => 'deleteOrder',
         ];
     }
 
-    public function fillCustomerMetaDataFields(EntityWrittenEvent $event): void
+    public function fillCustomerMetaDataFields(StateMachineTransitionEvent $event): void
     {
-        if ($event->getEntityName() !== OrderDefinition::ENTITY_NAME) {
+        if ($event->getContext()->getVersionId() !== Defaults::LIVE_VERSION) {
             return;
         }
 
-        $context = $event->getContext();
+        if ($event->getEntityName() !== 'order') {
+            return;
+        }
 
-        foreach ($event->getWriteResults() as $writeResult) {
-            if ($writeResult->getExistence() !== null && $writeResult->getExistence()->exists()) {
-                break;
+        if ($event->getToPlace()->getTechnicalName() !== OrderStates::STATE_COMPLETED && $event->getFromPlace()->getTechnicalName() !== OrderStates::STATE_COMPLETED) {
+            return;
+        }
+
+        $this->updateCustomer([$event->getEntityId()]);
+    }
+
+    public function deleteOrder(PreWriteValidationEvent $event): void
+    {
+        if ($event->getContext()->getVersionId() !== Defaults::LIVE_VERSION) {
+            return;
+        }
+
+        $orderIds = [];
+        foreach ($event->getCommands() as $command) {
+            if ($command->getDefinition()->getClass() === OrderDefinition::class
+                && $command instanceof DeleteCommand
+            ) {
+                $orderIds[] = Uuid::fromBytesToHex($command->getPrimaryKey()['id']);
             }
+        }
 
-            $payload = $writeResult->getPayload();
-            if (empty($payload)) {
-                continue;
+        $this->updateCustomer($orderIds, true);
+    }
+
+    private function updateCustomer(array $orderIds, bool $isDelete = false): void
+    {
+        if (empty($orderIds)) {
+            return;
+        }
+
+        $customerIds = $this->connection->fetchFirstColumn(
+            'SELECT DISTINCT LOWER(HEX(customer_id)) FROM `order_customer` WHERE order_id IN (:ids) AND order_version_id = :version',
+            ['ids' => Uuid::fromHexToBytesList($orderIds), 'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)],
+            ['ids' => Connection::PARAM_STR_ARRAY]
+        );
+
+        if (empty($customerIds)) {
+            return;
+        }
+
+        $whereOrder = $isDelete ? 'AND `order`.id NOT IN (:exceptOrderIds)' : '';
+        $select = '
+            SELECT `order_customer`.customer_id as id,
+                   COUNT(`order`.id) as order_count,
+                   SUM(`order`.amount_total) as order_total_amount,
+                   MAX(`order`.order_date_time) as last_order_date
+
+            FROM `order_customer`
+
+            INNER JOIN `order`
+                ON `order`.id = `order_customer`.order_id
+                AND `order`.version_id = `order_customer`.order_version_id
+                AND `order`.version_id = :version
+                ' . $whereOrder . '
+
+            INNER JOIN `state_machine_state`
+                ON `state_machine_state`.id = `order`.state_id
+                AND `state_machine_state`.technical_name = :state
+
+            WHERE `order_customer`.customer_id IN (:customerIds)
+            GROUP BY `order_customer`.customer_id
+        ';
+
+        $data = $this->connection->fetchAllAssociative($select, [
+            'customerIds' => Uuid::fromHexToBytesList($customerIds),
+            'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+            'state' => OrderStates::STATE_COMPLETED,
+            'exceptOrderIds' => Uuid::fromHexToBytesList($orderIds),
+        ], [
+            'customerIds' => Connection::PARAM_STR_ARRAY,
+            'exceptOrderIds' => Connection::PARAM_STR_ARRAY,
+        ]);
+
+        if (empty($data)) {
+            foreach ($customerIds as $customerId) {
+                $data[] = [
+                    'id' => Uuid::fromHexToBytes($customerId),
+                    'order_count' => 0,
+                    'order_total_amount' => 0,
+                    'last_order_date' => null,
+                ];
             }
+        }
 
-            /** @var \DateTimeInterface $orderDate */
-            $orderDate = $payload['orderDateTime'];
+        $update = new RetryableQuery(
+            $this->connection->prepare('UPDATE `customer` SET order_count = :order_count, order_total_amount = :order_total_amount, last_order_date = :last_order_date WHERE id = :id')
+        );
 
-            $orderResult = $this->orderRepository->search(
-                (new Criteria([$payload['id']]))->addAssociation('orderCustomer'),
-                $context
-            );
-
-            /** @var OrderEntity|null $order */
-            $order = $orderResult->first();
-
-            if (!($order instanceof OrderEntity)) {
-                continue;
-            }
-
-            $orderCustomer = $order->getOrderCustomer();
-            if ($orderCustomer === null) {
-                continue;
-            }
-            $customerId = $orderCustomer->getCustomerId();
-
-            // happens if the customer was deleted
-            if (!$customerId) {
-                continue;
-            }
-
-            $orderCount = 0;
-
-            $customerResult = $this->customerRepository->search(
-                (new Criteria([$customerId]))->addAssociation('orderCustomers'),
-                $context
-            );
-
-            /** @var CustomerEntity $customer */
-            $customer = $customerResult->first();
-
-            if ($customer !== null && $customer->getOrderCustomers()) {
-                $orderCount = $customer->getOrderCustomers()->count();
-            }
-
-            $data = [
-                [
-                    'id' => $customerId,
-                    'orderCount' => $orderCount,
-                    'lastOrderDate' => $orderDate->format('Y-m-d H:i:s.v'),
-                ],
-            ];
-
-            $context->scope(Context::SYSTEM_SCOPE, function () use ($data, $context): void {
-                $this->customerRepository->update($data, $context);
-            });
+        foreach ($data as $record) {
+            $update->execute($record);
         }
     }
 }

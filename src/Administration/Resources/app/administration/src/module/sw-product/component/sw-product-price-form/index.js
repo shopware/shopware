@@ -8,20 +8,20 @@ Component.register('sw-product-price-form', {
     template,
 
     mixins: [
-        Mixin.getByName('placeholder')
+        Mixin.getByName('placeholder'),
     ],
 
     props: {
         allowEdit: {
             type: Boolean,
             required: false,
-            default: true
-        }
+            default: true,
+        },
     },
 
     data() {
         return {
-            displayMaintainCurrencies: false
+            displayMaintainCurrencies: false,
         };
     },
 
@@ -31,21 +31,21 @@ Component.register('sw-product-price-form', {
             'defaultPrice',
             'defaultCurrency',
             'productTaxRate',
-            'showModeSetting'
+            'showModeSetting',
         ]),
 
         ...mapState('swProductDetail', [
             'product',
             'parentProduct',
             'taxes',
-            'currencies'
+            'currencies',
         ]),
 
         ...mapPropertyErrors('product', ['taxId', 'price', 'purchasePrices']),
 
         taxRateHelpText() {
             const link = {
-                name: 'sw.settings.tax.index'
+                name: 'sw.settings.tax.index',
             };
 
             return this.$tc('sw-product.priceForm.taxRateHelpText.label', 0, {
@@ -53,7 +53,7 @@ Component.register('sw-product-price-form', {
                            :router-link=${JSON.stringify(link)}
                            :inline="true">
                            ${this.$tc('sw-product.priceForm.taxRateHelpText.linkText')}
-                      </sw-internal-link>`
+                      </sw-internal-link>`,
             });
         },
 
@@ -61,14 +61,14 @@ Component.register('sw-product-price-form', {
             get() {
                 const prices = {
                     price: [],
-                    purchasePrices: []
+                    purchasePrices: [],
                 };
 
-                if (this.product && this.product.price) {
+                if (this.product && Array.isArray(this.product.price)) {
                     prices.price = [...this.product.price];
                 }
 
-                if (this.product && this.product.purchasePrices) {
+                if (this.product && Array.isArray(this.product.purchasePrices)) {
                     prices.purchasePrices = [...this.product.purchasePrices];
                 }
 
@@ -78,38 +78,48 @@ Component.register('sw-product-price-form', {
             set(newValue) {
                 this.product.price = (newValue?.price) || null;
                 this.product.purchasePrices = (newValue?.purchasePrices) || null;
-            }
+            },
         },
 
         parentPrices() {
             return {
                 price: this.product.price || this.parentProduct.price,
-                purchasePrices: this.product.purchasePrices || this.parentProduct.purchasePrices
+                purchasePrices: this.product.purchasePrices || this.parentProduct.purchasePrices,
             };
-        }
+        },
     },
 
     methods: {
         removePriceInheritation(refPrice) {
-            const defaultRefPrice = refPrice.price.find((price) => price.currencyId === this.defaultCurrency.id);
-            const defaultRefPurchasePrice = refPrice.purchasePrices.find(
-                (price) => price.currencyId === this.defaultCurrency.id
+            const defaultRefPrice = refPrice.price?.find((price) => price.currencyId === this.defaultCurrency.id);
+            const defaultRefPurchasePrice = refPrice.purchasePrices?.find(
+                (price) => price.currencyId === this.defaultCurrency.id,
             );
 
-            return {
-                price: [{
+            const prices = {
+                price: [],
+                purchasePrices: [],
+            };
+
+            if (defaultRefPrice) {
+                prices.price.push({
                     currencyId: defaultRefPrice.currencyId,
                     gross: defaultRefPrice.gross,
                     net: defaultRefPrice.net,
-                    linked: defaultRefPrice.linked
-                }],
-                purchasePrices: [{
+                    linked: defaultRefPrice.linked,
+                });
+            }
+
+            if (defaultRefPurchasePrice) {
+                prices.purchasePrices.push({
                     currencyId: defaultRefPurchasePrice.currencyId,
                     gross: defaultRefPurchasePrice.gross,
                     net: defaultRefPurchasePrice.net,
-                    linked: defaultRefPurchasePrice.linked
-                }]
-            };
+                    linked: defaultRefPurchasePrice.linked,
+                });
+            }
+
+            return prices;
         },
 
         inheritationCheckFunction() {
@@ -135,6 +145,6 @@ Component.register('sw-product-price-form', {
             }
 
             return tax.name;
-        }
-    }
+        },
+    },
 });

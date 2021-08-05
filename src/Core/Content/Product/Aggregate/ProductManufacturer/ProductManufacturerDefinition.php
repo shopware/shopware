@@ -10,9 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ReverseInherited;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SetNullOnDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -46,6 +46,11 @@ class ProductManufacturerDefinition extends EntityDefinition
         return '6.0.0.0';
     }
 
+    public function getHydratorClass(): string
+    {
+        return ProductManufacturerHydrator::class;
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
@@ -57,7 +62,7 @@ class ProductManufacturerDefinition extends EntityDefinition
             (new TranslatedField('description'))->addFlags(new ApiAware()),
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
             (new ManyToOneAssociationField('media', 'media_id', MediaDefinition::class, 'id', false))->addFlags(new ApiAware()),
-            (new OneToManyAssociationField('products', ProductDefinition::class, 'product_manufacturer_id', 'id'))->addFlags(new RestrictDelete(), new ReverseInherited('manufacturer')),
+            (new OneToManyAssociationField('products', ProductDefinition::class, 'product_manufacturer_id', 'id'))->addFlags(new SetNullOnDelete(), new ReverseInherited('manufacturer')),
             (new TranslationsAssociationField(ProductManufacturerTranslationDefinition::class, 'product_manufacturer_id'))->addFlags(new ApiAware(), new Required()),
         ]);
     }

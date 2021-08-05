@@ -7,35 +7,35 @@ Shopware.Component.register('sw-event-action-list-expand-labels', {
     props: {
         items: {
             type: Array,
-            required: true
+            required: true,
         },
         increaseBy: {
             type: Number,
             required: false,
-            default: 3
+            default: 3,
         },
         defaultLimit: {
             type: Number,
             required: false,
-            default: 2
+            default: 2,
         },
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
         return {
-            limit: this.defaultLimit
+            limit: this.defaultLimit,
         };
     },
 
     computed: {
         classes() {
             return {
-                'is--disabled': this.disabled
+                'is--disabled': this.disabled,
             };
         },
 
@@ -45,7 +45,7 @@ Shopware.Component.register('sw-event-action-list-expand-labels', {
 
         remainingItemsAmount() {
             return this.items.length - this.limitedItems.length;
-        }
+        },
     },
 
     methods: {
@@ -54,6 +54,6 @@ Shopware.Component.register('sw-event-action-list-expand-labels', {
                 return;
             }
             this.limit += this.increaseBy;
-        }
-    }
+        },
+    },
 });

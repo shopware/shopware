@@ -10,7 +10,7 @@ Component.register('sw-flow-list', {
     data() {
         return {
             total: 0,
-            isLoading: false
+            isLoading: false,
         };
-    }
+    },
 });

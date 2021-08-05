@@ -70,7 +70,7 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
      *              @OA\Property(
      *                  property="elements",
      *                  type="array",
-     *                  @OA\Items(ref="#/components/schemas/shipping_method_flat")
+     *                  @OA\Items(ref="#/components/schemas/ShippingMethod")
      *              )
      *          )
      *     )
@@ -97,7 +97,7 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
             $shippingMethods = $shippingMethods->filterByActiveRules($context);
         }
 
-        $result->assign(['entities' => $shippingMethods]);
+        $result->assign(['entities' => $shippingMethods, 'elements' => $shippingMethods, 'total' => $shippingMethods->count()]);
 
         return new ShippingMethodRouteResponse($result);
     }

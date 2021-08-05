@@ -11,30 +11,30 @@ Component.register('sw-filter-panel', {
     props: {
         entity: {
             type: String,
-            required: true
+            required: true,
         },
 
         filters: {
             type: Array,
-            required: true
+            required: true,
         },
 
         defaults: {
             type: Array,
-            required: true
+            required: true,
         },
 
         storeKey: {
             type: String,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
         return {
             activeFilters: {},
             filterChanged: false,
-            storedFilters: null
+            storedFilters: null,
         };
     },
 
@@ -71,7 +71,7 @@ Component.register('sw-filter-panel', {
             });
 
             return filters;
-        }
+        },
     },
 
     watch: {
@@ -84,13 +84,13 @@ Component.register('sw-filter-panel', {
                     });
                 }
             },
-            deep: true
+            deep: true,
         },
 
         '$route'() {
             this.filterChanged = false;
             this.createdComponent();
-        }
+        },
     },
 
     created() {
@@ -151,6 +151,6 @@ Component.register('sw-filter-panel', {
             }
 
             return item.translated.name || item.name;
-        }
-    }
+        },
+    },
 });

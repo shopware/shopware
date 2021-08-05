@@ -1,0 +1,22 @@
+{% block sw_bulk_edit_save_modal_success %}
+<div class="sw-bulk-edit-save-modal-success">
+    {% block sw_bulk_edit_save_modal_success_icon %}
+    <sw-label
+        class="sw-bulk-edit-save-modal__icon"
+        appearance="pill"
+        variant="success"
+    >
+        <sw-icon
+            name="default-basic-checkmark-circle"
+            size="30px"
+        />
+    </sw-label>
+    {% endblock %}
+
+    {% block sw_bulk_edit_save_modal_error_content %}
+    <p class="sw-bulk-edit-save-modal__help-text">
+        {{ $tc('sw-bulk-edit.modal.success.description') }}
+    </p>
+    {% endblock %}
+</div>
+{% endblock %}

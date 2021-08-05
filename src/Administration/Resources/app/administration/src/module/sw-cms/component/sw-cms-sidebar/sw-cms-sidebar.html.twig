@@ -279,6 +279,7 @@
         icon="default-os-layers"
         :title="$tc('sw-cms.detail.sidebar.titleNavigator')"
         :disabled="!page.sections.length === 0 || currentDeviceView === 'form' || page.locked || disabled"
+        @click="onSidebarNavigatorClick"
     >
         {% block sw_cms_sidebar_navigator_content %}
         <div class="sw-cms-sidebar__navigator">
@@ -383,7 +384,7 @@
                 {% endblock %}
 
                 <template v-if="section.type === 'sidebar'">
-                    <div class="sw-cms-sidebar__navigator-section-spacer" />
+                    <div class="sw-cms-sidebar__navigator-section-spacer"></div>
 
                     {% block sw_cms_sidebar_navigator_sidebar_elements %}
                     <template v-if="getSidebarContentBlocks(section.blocks).length > 0">
@@ -460,6 +461,56 @@
         </div>
         {% endblock %}
     </sw-sidebar-item>
+    {% endblock %}
+
+    {% block sw_cms_sidebar_navigator_confirm_modal %}
+    <sw-modal
+        v-if="showSidebarNavigatorModal"
+        class="sw-cms-sidebar__navigator-confirm-modal"
+        :title="$tc('global.default.warning')"
+        variant="small"
+        @modal-close="onSidebarNavigationCancel"
+    >
+
+        {% block sw_cms_sidebar_navigator_confirm_modal_content %}
+        <p class="sw-confirm-modal__text">
+            {{ $tc('sw-cms.detail.sidebar.confirmTextNavigator') }}
+
+            {% block sw_cms_sidebar_navigator_confirm_modal_content_input_reminder %}
+            <sw-checkbox-field
+                v-model="navigatorDontRemind"
+                class="sw-cms-sidebar__navigator-confirm-modal-reminder"
+                :label="$tc('sw-cms.detail.sidebar.confirmReminderNavigator')"
+            />
+            {% endblock %}
+        </p>
+        {% endblock %}
+
+        <template #modal-footer>
+            {% block sw_cms_sidebar_navigator_confirm_modal_content_footer %}
+            {% block sw_cms_sidebar_navigator_confirm_modal_content_footer_cancel %}
+            <sw-button
+                class="sw-cms-sidebar__navigator-confirm-modal-cancel"
+                size="small"
+                @click="onSidebarNavigationCancel"
+            >
+                {{ $tc('global.default.cancel') }}
+            </sw-button>
+            {% endblock %}
+
+            {% block sw_cms_sidebar_navigator_confirm_modal_content_footer_confirm %}
+            <sw-button
+                class="sw-cms-sidebar__navigator-confirm-modal-confirm"
+                variant="primary"
+                size="small"
+                @click="onSidebarNavigationConfirm"
+            >
+                {{ $tc('global.default.confirm') }}
+            </sw-button>
+            {% endblock %}
+            {% endblock %}
+        </template>
+    </sw-modal>
     {% endblock %}
 </sw-sidebar>
 {% endblock %}

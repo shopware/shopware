@@ -40,6 +40,10 @@ class ActionButtonEntity extends Entity
     protected $url;
 
     /**
+     * @feature-deprecated (FEATURE_NEXT_14360) tag:v6.5.0 - Will be remove on version 6.5.0.
+     * It will no longer be used in the manifest.xml file
+     * and will be processed in the Executor with an OpenNewTabResponse response instead.
+     *
      * @var bool
      */
     protected $openNewTab = false;
@@ -84,6 +88,11 @@ class ActionButtonEntity extends Entity
         return $this->url;
     }
 
+    /**
+     * @feature-deprecated (FEATURE_NEXT_14360) tag:v6.5.0 - Will be remove on version 6.5.0.
+     * It will no longer be used in the manifest.xml file
+     * and will be processed in the Executor with an OpenNewTabResponse response instead.
+     */
     public function isOpenNewTab(): bool
     {
         return $this->openNewTab;
@@ -134,6 +143,11 @@ class ActionButtonEntity extends Entity
         $this->url = $url;
     }
 
+    /**
+     * @feature-deprecated (FEATURE_NEXT_14360) tag:v6.5.0 - Will be remove on version 6.5.0.
+     * It will no longer be used in the manifest.xml file
+     * and will be processed in the Executor with an OpenNewTabResponse response instead.
+     */
     public function setOpenNewTab(bool $openNewTab): void
     {
         $this->openNewTab = $openNewTab;

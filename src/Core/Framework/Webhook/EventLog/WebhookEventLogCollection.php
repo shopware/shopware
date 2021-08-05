@@ -5,8 +5,6 @@ namespace Shopware\Core\Framework\Webhook\EventLog;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @internal (FEATURE_NEXT_14363)
- *
  * @method void                       add(WebhookEventLogEntity $entity)
  * @method void                       set(string $key, WebhookEventLogEntity $entity)
  * @method WebhookEventLogEntity[]    getIterator()

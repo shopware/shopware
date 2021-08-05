@@ -83,7 +83,7 @@
                         v-model="currentIntegration.admin"
                         class="sw-settings-user-detail__grid-is-admin"
                         :label="$tc('sw-users-permissions.users.user-detail.labelAdministrator')"
-                        :disabled="!acl.can('integration.editor')"
+                        :disabled="!acl.can('admin')"
                     />
                     {% endblock %}
                 </sw-container>
@@ -225,17 +225,18 @@
                         {{ $tc('sw-users-permissions.users.user-detail.labelAdministrator') }}
                     </sw-label>
 
-                    <sw-label
-                        v-for="role in item.aclRoles"
-                        v-else
-                        :key="role.name"
-                        size="medium"
-                        ghost
-                        caps
-                        light
-                    >
-                        {{ role.name }}
-                    </sw-label>
+                    <span v-if="!item.admin && item.aclRoles && item.aclRoles.length">
+                        <sw-label
+                            v-for="role in item.aclRoles"
+                            :key="role.name"
+                            size="medium"
+                            ghost
+                            caps
+                            light
+                        >
+                            {{ role.name }}
+                        </sw-label>
+                    </span>
                 </template>
                 {% endblock %}
 

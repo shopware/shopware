@@ -9,12 +9,12 @@ Component.register('sw-cms-el-product-slider', {
     inject: ['feature'],
 
     mixins: [
-        Mixin.getByName('cms-element')
+        Mixin.getByName('cms-element'),
     ],
 
     data() {
         return {
-            sliderBoxLimit: 3
+            sliderBoxLimit: 3,
         };
     },
 
@@ -24,14 +24,14 @@ Component.register('sw-cms-el-product-slider', {
                 config: {
                     boxLayout: {
                         source: 'static',
-                        value: this.element.config.boxLayout.value
+                        value: this.element.config.boxLayout.value,
                     },
                     displayMode: {
                         source: 'static',
-                        value: this.element.config.displayMode.value
-                    }
+                        value: this.element.config.displayMode.value,
+                    },
                 },
-                data: null
+                data: null,
             };
         },
 
@@ -42,7 +42,7 @@ Component.register('sw-cms-el-product-slider', {
         classes() {
             return {
                 'has--navigation': this.hasNavigation,
-                'has--border': !!this.element.config.border.value
+                'has--border': !!this.element.config.border.value,
             };
         },
 
@@ -64,21 +64,21 @@ Component.register('sw-cms-el-product-slider', {
             }
 
             return `align-self: ${this.element.config.verticalAlign.value};`;
-        }
+        },
     },
 
     watch: {
         'element.config.elMinWidth.value': {
             handler() {
                 this.setSliderRowLimit();
-            }
+            },
         },
 
         currentDeviceView() {
             setTimeout(() => {
                 this.setSliderRowLimit();
             }, 400);
-        }
+        },
     },
 
     created() {
@@ -134,17 +134,17 @@ Component.register('sw-cms-el-product-slider', {
                 config: {
                     boxLayout: {
                         source: 'static',
-                        value: this.element.config.boxLayout.value
+                        value: this.element.config.boxLayout.value,
                     },
                     displayMode: {
                         source: 'static',
-                        value: this.element.config.displayMode.value
-                    }
+                        value: this.element.config.displayMode.value,
+                    },
                 },
                 data: {
-                    product
-                }
+                    product,
+                },
             };
-        }
-    }
+        },
+    },
 });

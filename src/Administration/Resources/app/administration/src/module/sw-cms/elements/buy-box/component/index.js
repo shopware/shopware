@@ -8,7 +8,7 @@ Component.register('sw-cms-el-buy-box', {
 
     mixins: [
         Mixin.getByName('cms-element'),
-        Mixin.getByName('placeholder')
+        Mixin.getByName('placeholder'),
     ],
 
     computed: {
@@ -23,11 +23,11 @@ Component.register('sw-cms-el-buy-box', {
                     productNumber: 'XXXXXX',
                     minPurchase: 1,
                     deliveryTime: {
-                        name: '1-3 days'
+                        name: '1-3 days',
                     },
                     price: [
-                        { gross: 0.00 }
-                    ]
+                        { gross: 0.00 },
+                    ],
                 };
             }
 
@@ -56,13 +56,13 @@ Component.register('sw-cms-el-buy-box', {
             }
 
             return null;
-        }
+        },
     },
 
     watch: {
         pageType(newPageType) {
             this.$set(this.element, 'locked', newPageType === 'product_detail');
-        }
+        },
     },
 
     created() {
@@ -74,6 +74,6 @@ Component.register('sw-cms-el-buy-box', {
             this.initElementConfig('buy-box');
             this.initElementData('buy-box');
             this.$set(this.element, 'locked', this.isProductPageType);
-        }
-    }
+        },
+    },
 });

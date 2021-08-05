@@ -102,7 +102,7 @@ class CartOrderRoute extends AbstractCartOrderRoute
      *      @OA\Response(
      *          response="200",
      *          description="Order",
-     *          @OA\JsonContent(ref="#/components/schemas/order_flat")
+     *          @OA\JsonContent(ref="#/components/schemas/Order")
      *     )
      * )
      * @LoginRequired(allowGuest=true)

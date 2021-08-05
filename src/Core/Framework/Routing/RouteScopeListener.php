@@ -57,7 +57,7 @@ class RouteScopeListener implements EventSubscriberInterface
         }
 
         $currentRouteScopeAnnotation = $this->extractCurrentScopeAnnotation($event);
-        $masterRequest = $this->getMasterRequest();
+        $masterRequest = $this->getMainRequest();
 
         foreach ($currentRouteScopeAnnotation->getScopes() as $routeScopeName) {
             $routeScope = $this->routeScopeRegistry->getRouteScope($routeScopeName);
@@ -110,9 +110,9 @@ class RouteScopeListener implements EventSubscriberInterface
         return $currentRouteScopeAnnotation;
     }
 
-    private function getMasterRequest(): Request
+    private function getMainRequest(): Request
     {
-        $masterRequest = $this->requestStack->getMasterRequest();
+        $masterRequest = $this->requestStack->getMainRequest();
 
         if (!$masterRequest) {
             throw new \InvalidArgumentException('Unable to check the request scope without master request');

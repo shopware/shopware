@@ -24,11 +24,19 @@
             </call>
         </service>
 
+        <service id="Shopware\Core\Framework\Update\Services\UpdateApiHttpClientFactory">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+        </service>
+
+        <service id="shopware.update.http.client" class="GuzzleHttp\Client">
+            <factory service="Shopware\Core\Framework\Update\Services\UpdateApiHttpClientFactory" />
+        </service>
+
         <service id="Shopware\Core\Framework\Update\Services\ApiClient">
             <argument>%kernel.shopware_version%</argument>
-            <argument type="service" id="cache.object"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\OpenSSLVerifier"/>
+            <argument type="service" id="shopware.update.http.client"/>
             <argument>%shopware.auto_update.enabled%</argument>
         </service>
 
@@ -68,6 +76,11 @@
 
         <service id="Shopware\Core\Framework\Update\Services\UpdateHtaccess">
             <argument>%kernel.project_dir%/public/.htaccess</argument>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\Update\Services\CreateCustomAppsDir">
+            <argument>%kernel.app_dir%</argument>
             <tag name="kernel.event_subscriber"/>
         </service>
     </services>

@@ -1,9 +1,10 @@
 {% block sw_bulk_edit_modal %}
 <sw-modal
     class="sw-bulk-edit-modal"
-    :title="$tc('global.default.bulkEditModalTitle', itemCount, { count: itemCount })"
+    :title="$tc('global.sw-bulk-edit-modal.bulkEditModalTitle', itemCount, { count: itemCount })"
     variant="full"
     @modal-close="$emit('modal-close')"
+    @edit-items="$emit('edit-items')"
 >
 
     {% block sw_bulk_edit_modal_grid %}
@@ -26,7 +27,7 @@
             <slot
                 :name="slot"
                 v-bind="props"
-            />
+            ></slot>
         </template>
         {% endblock %}
 
@@ -61,7 +62,7 @@
                 size="small"
                 @click="editItems"
             >
-                {{ $tc('global.default.startBulkEdit') }}
+                {{ $tc('global.sw-bulk-edit-modal.startBulkEdit') }}
             </sw-button>
         </slot>
     </template>

@@ -31,6 +31,7 @@
     <template #sw-field-input="{ identification, error, disabled, size, setFocusClass, removeFocusClass }">
         <input
             :id="identification"
+            type="url"
             class="sw-url-input-field__input"
             :name="identification"
             :value="currentValue|unicodeUri"
@@ -38,7 +39,7 @@
             :disabled="disabled"
             @input="onInput"
             @focus="setFocusClass"
-            @blur="removeFocusClass"
+            @blur="onBlur($event); removeFocusClass();"
         >
     </template>
 
@@ -53,6 +54,11 @@
             :tooltip="copyableTooltip"
         />
     </template>
+
+    <template #label>
+        <slot name="label"></slot>
+    </template>
+
 </sw-contextual-field>
     {% endblock %}
 {% endblock %}

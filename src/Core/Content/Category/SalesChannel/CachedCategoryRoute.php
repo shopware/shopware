@@ -99,7 +99,7 @@ class CachedCategoryRoute extends AbstractCategoryRoute
      *     @OA\Response(
      *          response="200",
      *          description="The loaded category with cms page",
-     *          @OA\JsonContent(ref="#/components/schemas/category_flat")
+     *          @OA\JsonContent(ref="#/components/schemas/Category")
      *     )
      * )
      *

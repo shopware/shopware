@@ -20,23 +20,28 @@ const utils = Shopware.Utils;
 Component.register('sw-code-editor', {
     template,
 
+    inject: [
+        'feature',
+        'userInputSanitizeService',
+    ],
+
     props: {
         value: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
 
         label: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
 
         completerFunction: {
             type: Function,
             required: false,
-            default: null
+            default: null,
         },
 
         editorConfig: {
@@ -44,7 +49,7 @@ Component.register('sw-code-editor', {
             required: false,
             default() {
                 return {};
-            }
+            },
         },
 
         completionMode: {
@@ -57,7 +62,7 @@ Component.register('sw-code-editor', {
                     return true;
                 }
                 return ['entity', 'text'].includes(value);
-            }
+            },
         },
 
         mode: {
@@ -70,33 +75,46 @@ Component.register('sw-code-editor', {
                     return true;
                 }
                 return ['twig', 'text'].includes(value);
-            }
+            },
         },
 
         softWraps: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
 
         // set focus to the component when initially mounted
         setFocus: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
+
+        sanitizeInput: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
+        sanitizeFieldName: {
+            type: String,
+            required: false,
+            default: null,
+        },
     },
 
     data() {
         return {
             editor: {},
-            editorId: utils.createId()
+            editorId: utils.createId(),
+            contentWasSanitized: false,
         };
     },
 
@@ -107,11 +125,11 @@ Component.register('sw-code-editor', {
                     mode: `ace/mode/${this.mode}`,
                     showPrintMargin: false,
                     wrap: this.softWraps,
-                    readOnly: this.disabled
+                    readOnly: this.disabled,
                 },
-                ...this.editorConfig
+                ...this.editorConfig,
             };
-        }
+        },
     },
 
     watch: {
@@ -123,7 +141,7 @@ Component.register('sw-code-editor', {
 
         softWraps() {
             this.editor.session.setOption('wrap', this.softWraps);
-        }
+        },
     },
 
     mounted() {
@@ -161,9 +179,36 @@ Component.register('sw-code-editor', {
             }
         },
 
-        onBlur() {
-            const value = this.editor.getValue();
+        async onBlur() {
+            const value = await this.sanitizeEditorInput(this.editor.getValue());
+
             this.$emit('blur', value);
+        },
+
+        async sanitizeEditorInput(value) {
+            if (
+                this.feature.isActive('FEATURE_NEXT_15172') &&
+                this.sanitizeInput
+            ) {
+                this.contentWasSanitized = false;
+
+                if (this.value !== value) {
+                    try {
+                        const sanitizedValue = await this.userInputSanitizeService.sanitizeInput({
+                            html: value,
+                            field: this.sanitizeFieldName,
+                        });
+
+                        this.contentWasSanitized = sanitizedValue?.preview !== value;
+
+                        if (this.contentWasSanitized) {
+                            this.editor.setValue(sanitizedValue?.preview ?? value, 1);
+                            return this.editor.getValue();
+                        }
+                    } catch (ignore) { /* api endpoint did not work, keep user entry */ }
+                }
+            }
+            return value;
         },
 
         defineAutocompletion(completerFunction) {
@@ -212,6 +257,6 @@ Component.register('sw-code-editor', {
             } else {
                 this.editor.completers = [];
             }
-        }
-    }
+        },
+    },
 });

@@ -20,7 +20,7 @@ export default class FormAutoSubmitPlugin extends Plugin {
          *
          * @type null|[]String
          */
-        changeTriggerSelectors: null
+        changeTriggerSelectors: null,
     };
 
     init() {

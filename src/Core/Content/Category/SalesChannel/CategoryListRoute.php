@@ -53,7 +53,7 @@ class CategoryListRoute extends AbstractCategoryListRoute
      *                      @OA\Property(
      *                          type="array",
      *                          property="elements",
-     *                          @OA\Items(ref="#/components/schemas/category_flat")
+     *                          @OA\Items(ref="#/components/schemas/Category")
      *                      )
      *                  )
      *              }

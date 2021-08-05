@@ -194,14 +194,14 @@ describe('components/sw-filter-panel', () => {
             filter3: {
                 value: [
                     {
-                        id: '5e59f3ea47a342dd8ff1a0af2cda4753'
+                        id: '5e59f3ea47a342dd8ff1a0af2cda475'
                     }
                 ],
-                criteria: {
+                criteria: [{
                     type: 'equalsAny',
                     field: 'salutation.id',
-                    value: '5e59f3ea47a342dd8ff1a0af2cda4753'
-                }
+                    value: '5e59f3ea47a342dd8ff1a0af2cda475'
+                }]
             }
         };
 

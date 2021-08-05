@@ -11,14 +11,14 @@ Component.register('sw-media-index', {
     props: {
         routeFolderId: {
             type: String,
-            default: null
+            default: null,
         },
 
         fileAccept: {
             type: String,
             required: false,
-            default: '*/*'
-        }
+            default: '*/*',
+        },
     },
 
     data() {
@@ -29,13 +29,13 @@ Component.register('sw-media-index', {
             term: this.$route.query ? this.$route.query.term : '',
             uploadTag: 'upload-tag-sw-media-index',
             parentFolder: null,
-            currentFolder: null
+            currentFolder: null,
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle()
+            title: this.$createTitle(),
         };
     },
 
@@ -51,13 +51,13 @@ Component.register('sw-media-index', {
             root.name = this.$tc('sw-media.index.rootFolderName');
             root.id = null;
             return root;
-        }
+        },
     },
 
     watch: {
         routeFolderId() {
             this.updateFolder();
-        }
+        },
     },
 
     created() {
@@ -133,8 +133,8 @@ Component.register('sw-media-index', {
                 this.$router.push({
                     name: 'sw.media.index',
                     params: {
-                        folderId: routeId
-                    }
+                        folderId: routeId,
+                    },
                 });
                 return;
             }
@@ -165,9 +165,9 @@ Component.register('sw-media-index', {
             this.$router.push({
                 name: 'sw.media.index',
                 params: {
-                    folderId: newFolderId
-                }
+                    folderId: newFolderId,
+                },
             });
-        }
-    }
+        },
+    },
 });

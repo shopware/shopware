@@ -20,16 +20,16 @@ Module.register('sw-integration', {
             component: 'sw-integration-list',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.index',
-                privilege: 'integration.viewer'
-            }
-        }
+                parentPath: 'sw.settings.index.system',
+                privilege: 'integration.viewer',
+            },
+        },
     },
 
     settingsItem: {
         group: 'system',
         to: 'sw.integration.index',
         icon: 'default-action-settings',
-        privilege: 'integration.viewer'
-    }
+        privilege: 'integration.viewer',
+    },
 });

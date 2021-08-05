@@ -11,11 +11,11 @@ Component.register('sw-settings-snippet-detail', {
     inject: [
         'snippetSetService',
         'repositoryFactory',
-        'acl'
+        'acl',
     ],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     data() {
@@ -34,13 +34,13 @@ Component.register('sw-settings-snippet-detail', {
             snippets: [],
             sets: {},
             isSaveSuccessful: false,
-            pushParams: null
+            pushParams: null,
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle(this.identifier)
+            title: this.$createTitle(this.identifier),
         };
     },
 
@@ -72,8 +72,8 @@ Component.register('sw-settings-snippet-detail', {
                     query: {
                         ids: this.$route.query.ids,
                         limit: this.$route.query.limit,
-                        page: this.$route.query.page
-                    }
+                        page: this.$route.query.page,
+                    },
                 };
             }
             return { name: 'sw.settings.snippet.index' };
@@ -90,8 +90,8 @@ Component.register('sw-settings-snippet-detail', {
             get() {
                 return this._currentAuthor ||
                     `user/${Shopware.State.get('session').currentUser.username}`;
-            }
-        }
+            },
+        },
     },
 
     created() {
@@ -184,8 +184,8 @@ Component.register('sw-settings-snippet-detail', {
                 query: {
                     ids: this.queryIds,
                     page: this.page,
-                    limit: this.limit
-                }
+                    limit: this.limit,
+                },
             });
         },
 
@@ -203,8 +203,8 @@ Component.register('sw-settings-snippet-detail', {
                     message: this.$tc(
                         'sw-settings-snippet.detail.messageSaveError',
                         0,
-                        { key: this.translationKey }
-                    )
+                        { key: this.translationKey },
+                    ),
                 });
             }
 
@@ -223,7 +223,7 @@ Component.register('sw-settings-snippet-detail', {
                     // On TranslationKey change, delete old snippets, but insert a copy with the new translationKey
                     if (snippet.id !== null) {
                         responses.push(
-                            this.snippetRepository.delete(snippet.id)
+                            this.snippetRepository.delete(snippet.id),
                         );
                     }
 
@@ -235,17 +235,17 @@ Component.register('sw-settings-snippet-detail', {
                     snippet.id = null;
 
                     responses.push(
-                        this.snippetRepository.save(snippet)
+                        this.snippetRepository.save(snippet),
                     );
                 } else if (snippet.origin !== snippet.value) {
                     // Only save if values differs from origin
                     responses.push(
-                        this.snippetRepository.save(snippet)
+                        this.snippetRepository.save(snippet),
                     );
                 } else if (snippet.hasOwnProperty('id') && snippet.id !== null) {
                     // There's no need to keep a snippet which is exactly like the file-snippet, so delete
                     responses.push(
-                        this.snippetRepository.delete(snippet.id)
+                        this.snippetRepository.delete(snippet.id),
                     );
                 }
             });
@@ -266,8 +266,8 @@ Component.register('sw-settings-snippet-detail', {
                     message: this.$tc(
                         'sw-settings-snippet.detail.messageSaveError',
                         0,
-                        { key: this.translationKey }
-                    ) + errormsg
+                        { key: this.translationKey },
+                    ) + errormsg,
                 });
             });
         },
@@ -307,7 +307,7 @@ Component.register('sw-settings-snippet-detail', {
         onNewKeyRedirect(isNewOrigin = false) {
             this.isSaveSuccessful = true;
             const params = {
-                key: this.translationKey
+                key: this.translationKey,
             };
 
             if (isNewOrigin) {
@@ -347,8 +347,8 @@ Component.register('sw-settings-snippet-detail', {
                 appearance: 'dark',
                 showOnDisabledElements,
                 disabled: this.acl.can(role),
-                message: this.$tc('sw-privileges.tooltip.warning')
+                message: this.$tc('sw-privileges.tooltip.warning'),
             };
-        }
-    }
+        },
+    },
 });

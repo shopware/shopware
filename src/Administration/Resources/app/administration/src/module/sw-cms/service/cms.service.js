@@ -10,7 +10,7 @@ Application.addServiceProvider('cmsService', () => {
         getCmsElementRegistry,
         getCmsBlockRegistry,
         getEntityMappingTypes,
-        getPropertyByMappingPath
+        getPropertyByMappingPath,
     };
 });
 
@@ -104,13 +104,13 @@ function getEntityData(element, configKey) {
         entityData = {
             value: entityIds,
             key: configKey,
-            ...entity
+            ...entity,
         };
     } else {
         entityData = {
             value: [configValue],
             key: configKey,
-            ...entity
+            ...entity,
         };
     }
 
@@ -160,17 +160,17 @@ function getEntityMappingTypes(entityName = null) {
 }
 
 function handlePropertyMappings(propertyDefinitions, mappings, pathPrefix, deep = true) {
-    const blacklist = ['parent', 'cmsPage'];
-    const formatBlacklist = ['uuid'];
+    const blocklist = ['parent', 'cmsPage'];
+    const formatBlocklist = ['uuid'];
 
     Object.keys(propertyDefinitions).forEach((property) => {
         const propSchema = propertyDefinitions[property];
 
-        if (blacklist.includes(property) || propSchema.readOnly === true) {
+        if (blocklist.includes(property) || propSchema.readOnly === true) {
             return;
         }
 
-        if (propSchema.format && formatBlacklist.includes(propSchema.format)) {
+        if (propSchema.format && formatBlocklist.includes(propSchema.format)) {
             return;
         }
 
@@ -198,7 +198,7 @@ function handlePropertyMappings(propertyDefinitions, mappings, pathPrefix, deep 
                     propSchema.properties,
                     mappings,
                     `${pathPrefix}.${property}`,
-                    false
+                    false,
                 );
             }
         } else if (propSchema.type === 'array') {

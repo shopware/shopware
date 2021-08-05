@@ -1,0 +1,17 @@
+.sw-bulk-edit-product {
+    .sw-card .sw-card__content {
+        padding: 0;
+    }
+
+    .sw-text-editor {
+        &.is--boxed {
+            .sw-text-editor__content {
+                height: 105px;
+            }
+        }
+
+        .sw-text-editor-buttons.is--middle {
+            display: none;
+        }
+    }
+}

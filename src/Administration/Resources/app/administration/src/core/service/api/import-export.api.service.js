@@ -17,8 +17,8 @@ class ImportExportApiService extends ApiService {
         return this.httpClient.get(
             apiRoute,
             {
-                headers: this.getBasicHeaders()
-            }
+                headers: this.getBasicHeaders(),
+            },
         ).then((response) => {
             return ApiService.handleResponse(response);
         });
@@ -37,8 +37,8 @@ class ImportExportApiService extends ApiService {
             apiRoute,
             formData,
             {
-                headers: this.getBasicHeaders()
-            }
+                headers: this.getBasicHeaders(),
+            },
         ).then((response) => {
             return ApiService.handleResponse(response);
         });
@@ -51,11 +51,11 @@ class ImportExportApiService extends ApiService {
             apiRoute,
             {
                 logId: logId,
-                offset: offset
+                offset: offset,
             },
             {
-                headers: this.getBasicHeaders()
-            }
+                headers: this.getBasicHeaders(),
+            },
         ).then((response) => {
             return ApiService.handleResponse(response);
         });
@@ -67,11 +67,11 @@ class ImportExportApiService extends ApiService {
         return this.httpClient.post(
             apiRoute,
             {
-                logId: logId
+                logId: logId,
             },
             {
-                headers: this.getBasicHeaders()
-            }
+                headers: this.getBasicHeaders(),
+            },
         ).then((response) => {
             return ApiService.handleResponse(response);
         });

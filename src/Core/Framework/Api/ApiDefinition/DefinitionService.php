@@ -12,6 +12,9 @@ class DefinitionService
     public const API = 'api';
     public const STORE_API = 'store-api';
 
+    public const TypeJsonApi = 'jsonapi';
+    public const TypeJson = 'json';
+
     /**
      * @var ApiDefinitionGeneratorInterface[]
      */
@@ -37,9 +40,9 @@ class DefinitionService
         $this->definitionRegistry = $definitionRegistry;
     }
 
-    public function generate(string $format = 'openapi-3', string $type = self::API): array
+    public function generate(string $format = 'openapi-3', string $type = self::API, string $apiType = self::TypeJsonApi): array
     {
-        return $this->getGenerator($format, $type)->generate($this->getDefinitions($type), $type);
+        return $this->getGenerator($format, $type)->generate($this->getDefinitions($type), $type, $apiType);
     }
 
     public function getSchema(string $format = 'openapi-3', string $type = self::API): array

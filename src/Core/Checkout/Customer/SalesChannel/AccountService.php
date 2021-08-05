@@ -8,16 +8,18 @@ use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
+use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByIdException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\InactiveCustomerException;
 use Shopware\Core\Checkout\Customer\Password\LegacyPasswordVerifier;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -99,17 +101,33 @@ class AccountService
 
         try {
             $customer = $this->getCustomerByEmail($email, $context, $includeGuest);
-        } catch (CustomerNotFoundException | BadCredentialsException $exception) {
+        } catch (CustomerNotFoundException $exception) {
             throw new UnauthorizedHttpException('json', $exception->getMessage());
         }
 
-        $context = $this->contextRestorer->restore($customer->getId(), $context);
-        $newToken = $context->getToken();
+        return $this->loginByCustomer($customer, $context);
+    }
 
-        $event = new CustomerLoginEvent($context, $customer, $newToken);
+    /**
+     * @throws BadCredentialsException
+     * @throws UnauthorizedHttpException
+     */
+    public function loginById(string $id, SalesChannelContext $context): string
+    {
+        if (!Uuid::isValid($id)) {
+            throw new BadCredentialsException();
+        }
+
+        try {
+            $customer = $this->getCustomerById($id, $context);
+        } catch (CustomerNotFoundByIdException $exception) {
+            throw new UnauthorizedHttpException('json', $exception->getMessage());
+        }
+
+        $event = new CustomerBeforeLoginEvent($context, $customer->getEmail());
         $this->eventDispatcher->dispatch($event);
 
-        return $newToken;
+        return $this->loginByCustomer($customer, $context);
     }
 
     /**
@@ -139,42 +157,68 @@ class AccountService
     }
 
     /**
+     * @throws InactiveCustomerException
+     */
+    private function loginByCustomer(CustomerEntity $customer, SalesChannelContext $context): string
+    {
+        $this->customerRepository->update([
+            [
+                'id' => $customer->getId(),
+                'lastLogin' => new \DateTimeImmutable(),
+            ],
+        ], $context->getContext());
+
+        $context = $this->contextRestorer->restore($customer->getId(), $context);
+        $newToken = $context->getToken();
+
+        $event = new CustomerLoginEvent($context, $customer, $newToken);
+        $this->eventDispatcher->dispatch($event);
+
+        return $newToken;
+    }
+
+    /**
      * @throws CustomerNotFoundException
      */
     private function getCustomerByEmail(string $email, SalesChannelContext $context, bool $includeGuest = false): CustomerEntity
     {
-        $customers = $this->getCustomersByEmail($email, $context, $includeGuest);
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('email', $email));
+        if (!$includeGuest) {
+            $criteria->addFilter(new EqualsFilter('guest', false));
+        }
+        $criteria->addSorting(new FieldSorting('createdAt'));
+        $criteria->setLimit(1);
 
-        $customerCount = $customers->count();
-        if ($customerCount === 1) {
-            return $customers->first();
+        $customer = $this->fetchCustomer($criteria, $context);
+
+        if ($customer === null) {
+            throw new CustomerNotFoundException($email);
         }
 
-        if ($includeGuest && $customerCount) {
-            $customers->sort(static function (CustomerEntity $a, CustomerEntity $b) {
-                return $a->getCreatedAt() <=> $b->getCreatedAt();
-            });
-
-            return $customers->last();
-        }
-
-        throw new CustomerNotFoundException($email);
+        return $customer;
     }
 
-    private function getCustomersByEmail(string $email, SalesChannelContext $context, bool $includeGuests = true): EntitySearchResult
+    private function getCustomerById(string $id, SalesChannelContext $context): CustomerEntity
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('customer.email', $email));
-        if (!$includeGuests) {
-            $criteria->addFilter(new EqualsFilter('customer.guest', 0));
+        $criteria = new Criteria([$id]);
+        $customer = $this->fetchCustomer($criteria, $context);
+
+        if ($customer === null) {
+            throw new CustomerNotFoundByIdException($id);
         }
 
+        return $customer;
+    }
+
+    private function fetchCustomer(Criteria $criteria, SalesChannelContext $context): ?CustomerEntity
+    {
         $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
-            new EqualsFilter('customer.boundSalesChannelId', null),
-            new EqualsFilter('customer.boundSalesChannelId', $context->getSalesChannel()->getId()),
+            new EqualsFilter('boundSalesChannelId', null),
+            new EqualsFilter('boundSalesChannelId', $context->getSalesChannel()->getId()),
         ]));
 
-        return $this->customerRepository->search($criteria, $context->getContext());
+        return $this->customerRepository->search($criteria, $context->getContext())->first();
     }
 
     private function updatePasswordHash(string $password, CustomerEntity $customer, Context $context): void

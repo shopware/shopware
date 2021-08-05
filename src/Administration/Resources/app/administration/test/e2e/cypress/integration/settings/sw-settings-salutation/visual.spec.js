@@ -33,6 +33,6 @@ describe('Salutation: Visual tesing', () => {
 
         cy.contains('.sw-data-grid__cell--salutationKey', 'mr').click();
         cy.get('.sw-loader').should('not.exist');
-        cy.takeSnapshot('[Salutation] Details', '.sw-settings-shipping-detail');
+        cy.takeSnapshot('[Salutation] Details', '.sw-card__content');
     });
 });

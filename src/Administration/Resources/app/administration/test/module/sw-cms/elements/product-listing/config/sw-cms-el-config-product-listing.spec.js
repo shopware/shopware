@@ -97,6 +97,7 @@ function createWrapper(activeTab = 'sorting') {
                     filters: {
                         value: 'manufacturer-filter,rating-filter,price-filter,shipping-free-filter,property-filter'
                     },
+                    // eslint-disable-next-line inclusive-language/use-inclusive-words
                     propertyWhitelist: {
                         value: []
                     }
@@ -300,6 +301,7 @@ describe('src/module/sw-cms/elements/product-listing/config', () => {
 
         expect(expectedOrderWhenNoPropertiesAreActive).toEqual(propertiesOrderByAPI);
 
+        // eslint-disable-next-line inclusive-language/use-inclusive-words
         wrapper.vm.element.config.propertyWhitelist.value = ['x03']; // activate proptery_group 'baz'
         wrapper.vm.loadFilterableProperties();
 

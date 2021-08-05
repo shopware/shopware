@@ -34,7 +34,6 @@ class CartPersisterTest extends TestCase
         } catch (\Exception $e) {
         }
 
-        /* @var CartTokenNotFoundException $e */
         static::assertInstanceOf(CartTokenNotFoundException::class, $e);
         static::assertSame('not_existing_token', $e->getToken());
     }
@@ -123,5 +122,11 @@ class CartPersisterTest extends TestCase
         $firstLineItem = $caughtEvent->getCart()->getLineItems()->first();
         static::assertNotNull($firstLineItem);
         static::assertSame('test', $firstLineItem->getLabel());
+    }
+
+    public function testCartCanBeUnserialized(): void
+    {
+        $cart = unserialize(file_get_contents(__DIR__ . '/fixtures/cart.blob'));
+        static::assertInstanceOf(Cart::class, $cart);
     }
 }

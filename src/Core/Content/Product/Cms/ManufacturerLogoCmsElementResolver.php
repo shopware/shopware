@@ -24,14 +24,12 @@ class ManufacturerLogoCmsElementResolver extends AbstractProductDetailCmsElement
 
     public function collect(CmsSlotEntity $slot, ResolverContext $resolverContext): ?CriteriaCollection
     {
-        $config = $slot->getFieldConfig();
-        $mediaConfig = $config->get('media');
-
-        if (!$mediaConfig || $mediaConfig->isMapped() || $mediaConfig->getValue() === null) {
+        $mediaConfig = $slot->getFieldConfig()->get('media');
+        if ($mediaConfig === null || $mediaConfig->isMapped() || $mediaConfig->getValue() === null) {
             return parent::collect($slot, $resolverContext);
         }
 
-        $criteria = new Criteria([$mediaConfig->getValue()]);
+        $criteria = new Criteria([$mediaConfig->getStringValue()]);
 
         $criteriaCollection = parent::collect($slot, $resolverContext) ?? new CriteriaCollection();
         $criteriaCollection->add('media_' . $slot->getUniqueIdentifier(), MediaDefinition::class, $criteria);
@@ -45,19 +43,24 @@ class ManufacturerLogoCmsElementResolver extends AbstractProductDetailCmsElement
         $manufacturerStruct = new ManufacturerLogoStruct();
         $slot->setData($manufacturerStruct);
 
-        if ($urlConfig = $config->get('url')) {
+        $urlConfig = $config->get('url');
+        if ($urlConfig !== null) {
             $manufacturerStruct->setUrl($this->getConfigUrl($urlConfig, $resolverContext));
         }
 
-        if ($newTabConfig = $config->get('newTab')) {
-            $manufacturerStruct->setNewTab($newTabConfig->getValue());
+        $newTabConfig = $config->get('newTab');
+        if ($newTabConfig !== null) {
+            $manufacturerStruct->setNewTab($newTabConfig->getBoolValue());
         }
 
         $mediaConfig = $config->get('media');
 
-        if ($mediaConfig && $media = $this->getMedia($slot, $result, $mediaConfig, $resolverContext)) {
-            $manufacturerStruct->setMedia($media);
-            $manufacturerStruct->setMediaId($media->getId());
+        if ($mediaConfig !== null) {
+            $media = $this->getMedia($slot, $result, $mediaConfig, $resolverContext);
+            if ($media !== null) {
+                $manufacturerStruct->setMedia($media);
+                $manufacturerStruct->setMediaId($media->getId());
+            }
         }
 
         if ($resolverContext instanceof EntityResolverContext && $resolverContext->getDefinition() instanceof SalesChannelProductDefinition) {
@@ -70,14 +73,14 @@ class ManufacturerLogoCmsElementResolver extends AbstractProductDetailCmsElement
     private function getConfigUrl(FieldConfig $config, ResolverContext $resolverContext): ?string
     {
         if ($config->isStatic()) {
-            return $config->getValue();
+            return $config->getStringValue();
         }
 
         if (!$resolverContext instanceof EntityResolverContext) {
             return null;
         }
 
-        return $this->resolveEntityValue($resolverContext->getEntity(), $config->getValue());
+        return $this->resolveEntityValue($resolverContext->getEntity(), $config->getStringValue());
     }
 
     private function getMedia(CmsSlotEntity $slot, ElementDataCollection $result, FieldConfig $config, ResolverContext $resolverContext): ?MediaEntity
@@ -99,7 +102,7 @@ class ManufacturerLogoCmsElementResolver extends AbstractProductDetailCmsElement
         }
 
         /** @var MediaEntity|null $media */
-        $media = $this->resolveEntityValue($resolverContext->getEntity(), $config->getValue());
+        $media = $this->resolveEntityValue($resolverContext->getEntity(), $config->getStringValue());
 
         return $media;
     }

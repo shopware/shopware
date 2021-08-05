@@ -20,16 +20,16 @@ export default class AddToCartByNumberEvent extends AnalyticsEvent
         if (!this.active) {
             return;
         }
-        
+
         const input = DomAccessHelper.querySelector(event.currentTarget, '.form-control');
 
         gtag('event', 'add_to_cart', {
             'items': [
                 {
                     'id': input.value,
-                    'quantity': 1
-                }
-            ]
+                    'quantity': 1,
+                },
+            ],
         });
     }
 }

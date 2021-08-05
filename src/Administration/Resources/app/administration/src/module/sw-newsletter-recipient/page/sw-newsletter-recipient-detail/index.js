@@ -11,7 +11,7 @@ Component.register('sw-newsletter-recipient-detail', {
 
     mixins: [
         Mixin.getByName('notification'),
-        Mixin.getByName('salutation')
+        Mixin.getByName('salutation'),
     ],
 
     data() {
@@ -20,13 +20,13 @@ Component.register('sw-newsletter-recipient-detail', {
             salutations: [],
             languages: [],
             salesChannels: [],
-            isLoading: false
+            isLoading: false,
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle(this.identifier)
+            title: this.$createTitle(this.identifier),
         };
     },
 
@@ -37,7 +37,7 @@ Component.register('sw-newsletter-recipient-detail', {
 
         newsletterRecipientStore() {
             return this.repositoryFactory.create('newsletter_recipient');
-        }
+        },
     },
 
     created() {
@@ -63,10 +63,10 @@ Component.register('sw-newsletter-recipient-detail', {
                     message: this.$tc(
                         'sw-newsletter-recipient.detail.messageSaveSuccess',
                         0,
-                        { key: this.newsletterRecipient.email }
-                    )
+                        { key: this.newsletterRecipient.email },
+                    ),
                 });
             });
-        }
-    }
+        },
+    },
 });

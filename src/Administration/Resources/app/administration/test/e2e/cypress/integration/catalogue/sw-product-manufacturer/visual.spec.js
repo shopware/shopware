@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import ManufacturerPageObject from '../../../support/pages/module/sw-manufacturer.page-object';
 
@@ -41,13 +41,8 @@ describe('Manufacturer: Visual tests', () => {
         });
         cy.get('.sw-manufacturer-list__content').should('exist');
 
-        cy.sortListingViaColumn('Manufacturer', 'shopware AG');
-
         // Take snapshot for visual testing
         cy.get('.sw-data-grid__skeleton').should('not.exist');
-        cy.get('.sw-data-grid__sort-indicator').should('be.visible');
-
-        cy.sortListingViaColumn('Manufacturer', 'MAN-U-FACTURE', '.sw-data-grid__row--0')
         cy.takeSnapshot('[Manufacturer] Listing', '.sw-data-grid--full-page');
 
         // Edit base data
@@ -55,6 +50,7 @@ describe('Manufacturer: Visual tests', () => {
         cy.get('.sw-loader').should('not.exist');
 
         // Take snapshot for visual testing
+        cy.get('.sw-media-upload-v2__header .sw-context-button__button').should('be.visible');
         cy.takeSnapshot('[Manufacturer] Detail', '.sw-manufacturer-detail');
     });
 });

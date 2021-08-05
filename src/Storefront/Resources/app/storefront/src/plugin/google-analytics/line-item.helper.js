@@ -16,7 +16,7 @@ export default class LineItemHelper
                 name: DomAccessHelper.getDataAttribute(itemEl, 'name'),
                 quantity: DomAccessHelper.getDataAttribute(itemEl, 'quantity'),
                 price: DomAccessHelper.getDataAttribute(itemEl, 'price'),
-                currency: DomAccessHelper.getDataAttribute(lineItemsContainer, 'currency')
+                currency: DomAccessHelper.getDataAttribute(lineItemsContainer, 'currency'),
             });
         });
 
@@ -33,7 +33,7 @@ export default class LineItemHelper
             currency: DomAccessHelper.getDataAttribute(lineItemsContainer, 'currency'),
             shipping: DomAccessHelper.getDataAttribute(lineItemsContainer, 'shipping'),
             value: DomAccessHelper.getDataAttribute(lineItemsContainer, 'value'),
-            tax: DomAccessHelper.getDataAttribute(lineItemsContainer, 'tax')
+            tax: DomAccessHelper.getDataAttribute(lineItemsContainer, 'tax'),
         };
     }
 }

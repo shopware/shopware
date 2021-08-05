@@ -7,9 +7,9 @@ Shopware.Service('privileges')
             update_profile: {
                 privileges: [
                     'user_change_me',
-                    'user:read'
+                    'user:read',
                 ],
-                dependencies: []
-            }
-        }
+                dependencies: [],
+            },
+        },
     });

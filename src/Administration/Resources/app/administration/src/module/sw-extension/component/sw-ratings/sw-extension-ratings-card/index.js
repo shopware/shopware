@@ -12,17 +12,17 @@ Shopware.Component.register('sw-extension-ratings-card', {
     props: {
         extension: {
             type: Object,
-            required: true
+            required: true,
         },
         producerName: {
             type: String,
-            required: true
+            required: true,
         },
         isInstalledAndLicensed: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
@@ -32,7 +32,7 @@ Shopware.Component.register('sw-extension-ratings-card', {
             criteriaPage: 1,
             criteriaLimit: 4,
             summary: null,
-            numberOfRatings: 0
+            numberOfRatings: 0,
         };
     },
 
@@ -51,13 +51,13 @@ Shopware.Component.register('sw-extension-ratings-card', {
 
         hasReviews() {
             return this.reviews.length > 0;
-        }
+        },
     },
 
     watch: {
         extension() {
             this.fetchReviews();
-        }
+        },
     },
 
     created() {
@@ -103,8 +103,8 @@ Shopware.Component.register('sw-extension-ratings-card', {
             return this.extensionStoreDataService.getReviews(
                 this.criteriaPage,
                 this.criteriaLimit,
-                this.extension.id
+                this.extension.id,
             );
-        }
-    }
+        },
+    },
 });

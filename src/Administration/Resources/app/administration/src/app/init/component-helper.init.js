@@ -6,7 +6,7 @@ const componentHelper = {
     mapMutations,
     mapGetters,
     mapActions,
-    ...mapErrors
+    ...mapErrors,
 };
 
 // Register each component helper

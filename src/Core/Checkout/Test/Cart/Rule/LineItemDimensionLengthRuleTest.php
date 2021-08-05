@@ -46,7 +46,7 @@ class LineItemDimensionLengthRuleTest extends TestCase
     public function testIfMatchesCorrectWithLineItem(
         string $operator,
         float $amount,
-        float $lineItemAmount,
+        ?float $lineItemAmount,
         bool $expected
     ): void {
         $this->rule->assign([
@@ -87,6 +87,9 @@ class LineItemDimensionLengthRuleTest extends TestCase
             'match / operator lower than equals / lower length' => [Rule::OPERATOR_LTE, 100, 50, true],
             'match / operator lower than equals / same length' => [Rule::OPERATOR_LTE, 100, 100, true],
             'no match / operator lower than equals / higher length' => [Rule::OPERATOR_LTE, 100, 200, false],
+            // OPERATOR_EMPTY
+            'match / operator empty / null length' => [Rule::OPERATOR_EMPTY, 100, null, true],
+            'no match / operator empty / length' => [Rule::OPERATOR_EMPTY, 100, 200, false],
         ];
     }
 
@@ -96,8 +99,8 @@ class LineItemDimensionLengthRuleTest extends TestCase
     public function testIfMatchesCorrectWithCartRuleScope(
         string $operator,
         float $amount,
-        float $lineItemAmount1,
-        float $lineItemAmount2,
+        ?float $lineItemAmount1,
+        ?float $lineItemAmount2,
         bool $expected
     ): void {
         $this->rule->assign([
@@ -126,8 +129,8 @@ class LineItemDimensionLengthRuleTest extends TestCase
     public function testIfMatchesCorrectWithCartRuleScopeNested(
         string $operator,
         float $amount,
-        float $lineItemAmount1,
-        float $lineItemAmount2,
+        ?float $lineItemAmount1,
+        ?float $lineItemAmount2,
         bool $expected
     ): void {
         $this->rule->assign([
@@ -177,6 +180,10 @@ class LineItemDimensionLengthRuleTest extends TestCase
             'match / operator lower than equals / lower length' => [Rule::OPERATOR_LTE, 100, 50, 120, true],
             'match / operator lower than equals / same length' => [Rule::OPERATOR_LTE, 100, 100, 120, true],
             'no match / operator lower than equals / higher length' => [Rule::OPERATOR_LTE, 100, 200, 120, false],
+            // OPERATOR_EMPTY
+            'match / operator empty / null length 1' => [Rule::OPERATOR_EMPTY, 100, null, 120, true],
+            'match / operator empty / null length 2' => [Rule::OPERATOR_EMPTY, 100, 100, null, true],
+            'no match / operator empty / length' => [Rule::OPERATOR_EMPTY, 100, 200, 120, false],
         ];
     }
 
@@ -195,7 +202,7 @@ class LineItemDimensionLengthRuleTest extends TestCase
         static::assertFalse($match);
     }
 
-    private function createLineItemWithLength(float $length): LineItem
+    private function createLineItemWithLength(?float $length): LineItem
     {
         return $this->createLineItemWithDeliveryInfo(false, 1, 50.0, null, null, $length);
     }

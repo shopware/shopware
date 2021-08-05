@@ -8,15 +8,27 @@
 
     &__text {
         font-size: $font-size-small;
-        margin-bottom: 20px;
+        margin: 12px 0 32px;
     }
 
-    .sw-modal__body {
-        height: 700px;
+    .sw-tabs .sw-tabs__custom-content {
+        padding-bottom: 0;
     }
 
     .sw-modal__footer {
         border-top: 1px solid $color-gray-300;
+    }
+
+    .sw-import-export-edit-profile-modal__general-import-settings-headline {
+        margin-top: 48px;
+        font-size: $font-size-large;
+        font-weight: $font-weight-semi-bold;
+    }
+
+    .sw-import-export-edit-profile-modal__general-import-settings-create-switch,
+    .sw-import-export-edit-profile-modal__general-import-settings-update-switch {
+        margin-top: 0;
+        margin-bottom: 0;
     }
 }
 

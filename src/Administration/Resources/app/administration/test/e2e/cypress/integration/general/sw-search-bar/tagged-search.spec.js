@@ -138,10 +138,19 @@ describe('Search bar: Check search functionality withtags', () => {
         cy.get('input.sw-search-bar__input').type('Max Mustermann');
         cy.get('.sw-search-bar__results').should('be.visible');
 
-        cy.get('.sw-search-bar-item')
-            .should('be.visible')
-            .contains('10000 - Max Mustermann')
-            .click();
+        cy.skipOnFeature('FEATURE_NEXT_6040', () => {
+            cy.get('.sw-search-bar-item')
+                .should('be.visible')
+                .contains('10000 - Max Mustermann')
+                .click();
+        });
+
+        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
+            cy.get('.sw-search-bar-item')
+                .should('be.visible')
+                .contains('Max Mustermann 10000')
+                .click();
+        });
 
         cy.get('.smart-bar__header h2')
             .should('be.visible')

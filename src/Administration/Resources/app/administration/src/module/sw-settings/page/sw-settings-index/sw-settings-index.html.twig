@@ -12,13 +12,13 @@
                 class="sw-settings__tabs"
                 :is-vertical="true"
                 :small="false"
-                default-item="shop"
             >
                 <template #default="{ active }">
                     {% block sw_settings_content_tab_shop %}
                     <sw-tabs-item
                         v-if="settingsGroups['shop']"
                         class="sw-settings__tab-shop"
+                        :route="{ name: 'sw.settings.index.shop'}"
                         name="shop"
                         :active-tab="active"
                         :title="$tc('sw-settings.index.tabShop')"
@@ -32,6 +32,7 @@
                         v-if="settingsGroups['system']"
                         class="sw-settings__tab-system"
                         name="system"
+                        :route="{ name: 'sw.settings.index.system'}"
                         :active-tab="active"
                         :title="$tc('sw-settings.index.tabSystem')"
                     >
@@ -44,6 +45,7 @@
                         v-if="hasPluginConfig()"
                         class="sw-settings__tab-plugins"
                         name="plugins"
+                        :route="{ name: 'sw.settings.index.plugins'}"
                         :active-tab="active"
                         :title="$tc('sw-settings.index.tabPlugins')"
                     >

@@ -128,7 +128,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
     public function startSession(): void
     {
-        $master = $this->requestStack->getMasterRequest();
+        $master = $this->requestStack->getMainRequest();
 
         if (!$master) {
             return;
@@ -142,10 +142,9 @@ class StorefrontSubscriber implements EventSubscriberInterface
         }
 
         $session = $master->getSession();
-        $applicationId = $master->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID);
 
         if (!$session->isStarted()) {
-            $session->setName('session-' . $applicationId);
+            $session->setName('session-');
             $session->start();
             $session->set('sessionId', $session->getId());
         }
@@ -187,7 +186,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
     public function updateSession(string $token, bool $destroyOldSession = false): void
     {
-        $master = $this->requestStack->getMasterRequest();
+        $master = $this->requestStack->getMainRequest();
         if (!$master) {
             return;
         }
@@ -222,7 +221,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
             $event->stopPropagation();
             $response = $this->errorController->error(
                 $event->getThrowable(),
-                $this->requestStack->getMasterRequest(),
+                $this->requestStack->getMainRequest(),
                 $event->getRequest()->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT)
             );
             $event->setResponse($response);

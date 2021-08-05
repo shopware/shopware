@@ -114,7 +114,7 @@ $content-max-width: 960px;
         &:active,
         &:hover,
         &:focus {
-            color: $color-darkgray-200;
+            color: $color-darkgray-300 !important;
             text-decoration: none;
             font-size: $font-size-small;
         }
@@ -196,5 +196,9 @@ $content-max-width: 960px;
         .sw-dashboard-index__intro-stats-today-single-stat-number-value {
             font-size: ($font-size-large * 2.5);
         }
+    }
+
+    &__campaign-banner {
+        margin-top: 24px;
     }
 }

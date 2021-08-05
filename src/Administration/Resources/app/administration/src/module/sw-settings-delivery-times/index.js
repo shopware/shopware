@@ -22,31 +22,31 @@ Module.register('sw-settings-delivery-time', {
             path: 'index',
             meta: {
                 parentPath: 'sw.settings.index',
-                privilege: 'delivery_times.viewer'
-            }
+                privilege: 'delivery_times.viewer',
+            },
         },
         detail: {
             component: 'sw-settings-delivery-time-detail',
             path: 'detail/:id',
             meta: {
                 parentPath: 'sw.settings.delivery.time.index',
-                privilege: 'delivery_times.viewer'
-            }
+                privilege: 'delivery_times.viewer',
+            },
         },
         create: {
             component: 'sw-settings-delivery-time-create',
             path: 'create',
             meta: {
                 parentPath: 'sw.settings.delivery.time.index',
-                privilege: 'delivery_times.creator'
-            }
-        }
+                privilege: 'delivery_times.creator',
+            },
+        },
     },
 
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.delivery.time.index',
         icon: 'default-time-clock',
-        privilege: 'delivery_times.viewer'
-    }
+        privilege: 'delivery_times.viewer',
+    },
 });

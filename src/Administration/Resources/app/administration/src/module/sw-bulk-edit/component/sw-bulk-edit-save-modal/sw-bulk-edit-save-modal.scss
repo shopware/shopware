@@ -1,0 +1,53 @@
+@import "~scss/variables.scss";
+
+.sw-bulk-edit-save-modal {
+    &.sw-modal .sw-modal__footer {
+        justify-content: space-between;
+        grid-auto-columns: max-content;
+    }
+
+    &__help-text {
+        font-size: $font-size-small;
+        padding-bottom: 20px;
+    }
+
+    &-success,
+    &-error {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .sw-bulk-edit-save-modal__icon {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 72px;
+        height: 72px;
+        margin: 15px auto 40px;
+    }
+
+    .sw-label .sw-label__caption {
+        text-align: center;
+    }
+
+    .footer-right {
+        display: flex;
+        gap: 10px;
+    }
+
+    &__loading-icon {
+        animation: loading 2s linear infinite;
+    }
+
+    @keyframes loading {
+        from {
+            transform: translate(0%, 0%) rotate(0deg);
+        }
+
+        to {
+            transform: translate(0%, 0%) rotate(360deg);
+        }
+    }
+}

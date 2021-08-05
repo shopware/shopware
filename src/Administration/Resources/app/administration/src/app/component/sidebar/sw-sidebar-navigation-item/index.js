@@ -12,13 +12,13 @@ Component.register('sw-sidebar-navigation-item', {
     props: {
         sidebarItem: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
     },
 
     methods: {
         emitButtonClicked() {
             this.$emit('item-click', this.sidebarItem);
-        }
-    }
+        },
+    },
 });

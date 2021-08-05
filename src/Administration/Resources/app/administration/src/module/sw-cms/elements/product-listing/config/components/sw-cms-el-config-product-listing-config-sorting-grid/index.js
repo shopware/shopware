@@ -7,18 +7,18 @@ Shopware.Component.register('sw-cms-el-config-product-listing-config-sorting-gri
     props: {
         productSortings: {
             type: Array,
-            required: true
+            required: true,
         },
         defaultSorting: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
         return {
             limit: 10,
-            page: 1
+            page: 1,
         };
     },
 
@@ -39,20 +39,20 @@ Shopware.Component.register('sw-cms-el-config-product-listing-config-sorting-gri
             return [
                 {
                     property: 'label',
-                    label: 'sw-cms.elements.productListing.config.sorting.gridHeaderName'
+                    label: 'sw-cms.elements.productListing.config.sorting.gridHeaderName',
                 },
                 {
                     property: 'fields',
                     label: 'sw-cms.elements.productListing.config.sorting.gridHeaderFields',
-                    multiLine: true
+                    multiLine: true,
                 },
                 {
                     property: 'priority',
                     label: 'sw-cms.elements.productListing.config.sorting.gridHeaderPriority',
-                    inlineEdit: 'number'
-                }
+                    inlineEdit: 'number',
+                },
             ];
-        }
+        },
     },
 
     methods: {
@@ -79,6 +79,6 @@ Shopware.Component.register('sw-cms-el-config-product-listing-config-sorting-gri
         onPageChange({ page, limit }) {
             this.page = page;
             this.limit = limit;
-        }
-    }
+        },
+    },
 });

@@ -4,5 +4,5 @@ import './sw-cms-el-preview-buy-box.scss';
 const { Component } = Shopware;
 
 Component.register('sw-cms-el-preview-buy-box', {
-    template
+    template,
 });

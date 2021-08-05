@@ -18,7 +18,12 @@ class QueryBuilder extends DBALQueryBuilder
 
     public function addState(string $state): void
     {
-        $this->states[] = $state;
+        $this->states[$state] = $state;
+    }
+
+    public function removeState(string $state): void
+    {
+        unset($this->states[$state]);
     }
 
     public function hasState(string $state): bool

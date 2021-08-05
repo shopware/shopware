@@ -14,25 +14,25 @@ Component.register('sw-cms-block', {
             required: true,
             default() {
                 return {};
-            }
+            },
         },
 
         active: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
         return {
-            backgroundUrl: null
+            backgroundUrl: null,
         };
     },
 
@@ -55,7 +55,7 @@ Component.register('sw-cms-block', {
             return {
                 'background-color': this.block.backgroundColor || 'transparent',
                 'background-image': backgroundMedia,
-                'background-size': this.block.backgroundMediaMode
+                'background-size': this.block.backgroundMediaMode,
             };
         },
 
@@ -64,25 +64,25 @@ Component.register('sw-cms-block', {
                 'padding-top': this.block.marginTop || '0px',
                 'padding-bottom': this.block.marginBottom || '0px',
                 'padding-left': this.block.marginLeft || '0px',
-                'padding-right': this.block.marginRight || '0px'
+                'padding-right': this.block.marginRight || '0px',
             };
         },
 
         overlayClasses() {
             return {
-                'is--active': this.active
+                'is--active': this.active,
             };
         },
 
         toolbarClasses() {
             return {
-                'is--active': this.active
+                'is--active': this.active,
             };
         },
 
         assetFilter() {
             return Filter.getByName('asset');
-        }
+        },
     },
 
     created() {
@@ -100,6 +100,6 @@ Component.register('sw-cms-block', {
             if (!this.block.locked) {
                 this.$emit('block-overlay-click');
             }
-        }
-    }
+        },
+    },
 });

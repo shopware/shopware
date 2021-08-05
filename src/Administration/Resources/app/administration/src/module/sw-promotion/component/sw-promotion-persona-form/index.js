@@ -17,8 +17,8 @@ Component.register('sw-promotion-persona-form', {
         promotion: {
             type: Object,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
@@ -30,7 +30,7 @@ Component.register('sw-promotion-persona-form', {
             gridCustomersPageDataSource: [],
             gridCustomersPageNr: 1,
             gridCustomersPageLimit: 10,
-            customerModel: null
+            customerModel: null,
         };
     },
 
@@ -48,8 +48,8 @@ Component.register('sw-promotion-persona-form', {
                     'customerBillingCountry', 'customerBillingStreet', 'customerBillingZipCode', 'customerIsNewCustomer',
                     'customerCustomerGroup', 'customerCustomerNumber', 'customerDaysSinceLastOrder',
                     'customerDifferentAddresses', 'customerLastName', 'customerOrderCount', 'customerShippingCountry',
-                    'customerShippingStreet', 'customerShippingZipCode'
-                ])
+                    'customerShippingStreet', 'customerShippingZipCode',
+                ]),
             ]));
 
             criteria.addSorting(Criteria.sort('name', 'ASC', false));
@@ -91,7 +91,7 @@ Component.register('sw-promotion-persona-form', {
             }
 
             return !PromotionPermissions.isEditingAllowed(this.promotion);
-        }
+        },
     },
     watch: {
         promotion() {
@@ -100,7 +100,7 @@ Component.register('sw-promotion-persona-form', {
                 // we load our real data (async handling)
                 this.createdComponent();
             }
-        }
+        },
     },
     created() {
         if (this.promotion) {
@@ -116,7 +116,7 @@ Component.register('sw-promotion-persona-form', {
             // promotion-customer many-to-many
             this.customerPersonaRepository = this.repositoryFactory.create(
                 this.promotion.personaCustomers.entity,
-                this.promotion.personaCustomers.source
+                this.promotion.personaCustomers.source,
             );
 
             // create our customer grid object
@@ -125,7 +125,7 @@ Component.register('sw-promotion-persona-form', {
                 this,
                 this.repositoryFactory.create('customer'),
                 this.customerPersonaRepository,
-                Shopware.Context.api
+                Shopware.Context.api,
             );
 
             this.customerService.reloadCustomers().then(() => {
@@ -197,7 +197,7 @@ Component.register('sw-promotion-persona-form', {
         refreshGridDataSource() {
             this.gridCustomersPageDataSource = this.customerService.getPageDataSource(
                 this.gridCustomersPageNr,
-                this.gridCustomersPageLimit
+                this.gridCustomersPageLimit,
             );
 
             // if we have no data on the current page
@@ -216,8 +216,8 @@ Component.register('sw-promotion-persona-form', {
             Shopware.State.commit('swPromotionDetail/setPersonaCustomerIdsAdd', this.customerService.getCustomerIdsToAdd());
             Shopware.State.commit(
                 'swPromotionDetail/setPersonaCustomerIdsDelete',
-                this.customerService.getCustomerIdsToDelete()
+                this.customerService.getCustomerIdsToDelete(),
             );
-        }
-    }
+        },
+    },
 });

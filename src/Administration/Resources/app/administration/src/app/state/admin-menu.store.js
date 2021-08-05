@@ -3,7 +3,7 @@ export default {
     state: {
         isExpanded: true,
         expandedEntries: [],
-        adminModuleNavigation: []
+        adminModuleNavigation: [],
     },
 
     mutations: {
@@ -31,7 +31,7 @@ export default {
 
         setAdminModuleNavigation(state, navigation) {
             state.adminModuleNavigation = navigation;
-        }
+        },
     },
 
     getters: {
@@ -39,6 +39,6 @@ export default {
             const menuService = Shopware.Service('menuService');
 
             return menuService?.getNavigationFromApps(rootState.shopwareApps.apps);
-        }
-    }
+        },
+    },
 };

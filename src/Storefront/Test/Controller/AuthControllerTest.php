@@ -265,6 +265,7 @@ class AuthControllerTest extends TestCase
 
         $request = new Request();
         $request->setSession($this->getContainer()->get('session'));
+        $this->getContainer()->get('request_stack')->push($request);
 
         $requestDataBag = new RequestDataBag();
         $requestDataBag->set('username', $customer->getEmail());

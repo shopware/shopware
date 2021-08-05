@@ -6,7 +6,7 @@ const UploadEvents = {
     UPLOAD_ADDED: 'media-upload-add',
     UPLOAD_FINISHED: 'media-upload-finish',
     UPLOAD_FAILED: 'media-upload-fail',
-    UPLOAD_CANCELED: 'media-upload-cancel'
+    UPLOAD_CANCELED: 'media-upload-cancel',
 };
 
 /**
@@ -90,7 +90,7 @@ class MediaApiService extends ApiService {
             listener(this._createUploadEvent(
                 UploadEvents.UPLOAD_ADDED,
                 uploadTag,
-                { data: tasks }
+                { data: tasks },
             ));
         });
     }
@@ -101,7 +101,7 @@ class MediaApiService extends ApiService {
             listener(this._createUploadEvent(
                 UploadEvents.UPLOAD_CANCELED,
                 uploadTag,
-                { data: tasks }
+                { data: tasks },
             ));
         });
     }
@@ -142,8 +142,8 @@ class MediaApiService extends ApiService {
                             targetId: task.targetId,
                             successAmount: successUploads,
                             failureAmount: failureUploads,
-                            totalAmount: totalUploads
-                        }
+                            totalAmount: totalUploads,
+                        },
                     ));
                 });
             }).catch((cause) => {
@@ -157,7 +157,7 @@ class MediaApiService extends ApiService {
                     listener(this._createUploadEvent(
                         UploadEvents.UPLOAD_FAILED,
                         tag,
-                        task
+                        task,
                     ));
                 });
             });
@@ -172,7 +172,7 @@ class MediaApiService extends ApiService {
                     task.src.type,
                     buffer,
                     task.extension,
-                    task.fileName
+                    task.fileName,
                 );
             });
         }
@@ -182,7 +182,7 @@ class MediaApiService extends ApiService {
                 task.targetId,
                 task.src.href,
                 task.extension,
-                task.fileName
+                task.fileName,
             );
         }
 
@@ -194,13 +194,13 @@ class MediaApiService extends ApiService {
         const headers = this.getBasicHeaders({ 'Content-Type': mimeType });
         const params = {
             extension,
-            fileName
+            fileName,
         };
 
         return this.httpClient.post(
             apiRoute,
             data,
-            { params, headers }
+            { params, headers },
         ).then((response) => {
             return ApiService.handleResponse(response);
         });
@@ -211,7 +211,7 @@ class MediaApiService extends ApiService {
         const headers = this.getBasicHeaders({ 'Content-Type': 'application/json' });
         const params = {
             extension,
-            fileName
+            fileName,
         };
 
         const body = JSON.stringify({ url });
@@ -219,7 +219,7 @@ class MediaApiService extends ApiService {
         return this.httpClient.post(
             apiRoute,
             body,
-            { params, headers }
+            { params, headers },
         ).then((response) => {
             return ApiService.handleResponse(response);
         });
@@ -230,12 +230,12 @@ class MediaApiService extends ApiService {
         return this.httpClient.post(
             apiRoute,
             JSON.stringify({
-                fileName
+                fileName,
             }),
             {
                 params: {},
-                headers: this.getBasicHeaders()
-            }
+                headers: this.getBasicHeaders(),
+            },
         ).then((response) => {
             return ApiService.handleResponse(response);
         });
@@ -247,8 +247,8 @@ class MediaApiService extends ApiService {
             apiRoute,
             {
                 params: { fileName, extension, mediaId },
-                headers: this.getBasicHeaders()
-            }
+                headers: this.getBasicHeaders(),
+            },
         ).then((response) => {
             return ApiService.handleResponse(response);
         });

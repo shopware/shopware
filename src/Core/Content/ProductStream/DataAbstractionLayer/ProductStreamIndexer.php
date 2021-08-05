@@ -128,7 +128,7 @@ class ProductStreamIndexer extends EntityIndexer
             }
         }
 
-        $this->eventDispatcher->dispatch(new ProductStreamIndexerEvent($ids, $message->getContext()));
+        $this->eventDispatcher->dispatch(new ProductStreamIndexerEvent($ids, $message->getContext(), $message->getSkip()));
     }
 
     private function buildPayload(array $filter): string

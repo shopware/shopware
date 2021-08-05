@@ -56,9 +56,7 @@ class LineItemPurchasePriceRule extends Rule
 
     public function getConstraints(): array
     {
-        return [
-            'isNet' => [new NotNull(), new Type('bool')],
-            'amount' => [new NotBlank(), new Type('numeric')],
+        $constraints = [
             'operator' => [
                 new NotBlank(),
                 new Choice(
@@ -69,10 +67,23 @@ class LineItemPurchasePriceRule extends Rule
                         self::OPERATOR_EQ,
                         self::OPERATOR_GT,
                         self::OPERATOR_LT,
+                        self::OPERATOR_EMPTY,
                     ]
                 ),
+                'isNet' => [
+                    new NotNull(),
+                    new Type('bool'),
+                ],
             ],
         ];
+
+        if ($this->operator === self::OPERATOR_EMPTY) {
+            return $constraints;
+        }
+
+        $constraints['amount'] = [new NotBlank(), new Type('numeric')];
+
+        return $constraints;
     }
 
     /**
@@ -84,12 +95,11 @@ class LineItemPurchasePriceRule extends Rule
         $purchasePriceAmount = $this->getPurchasePriceAmount($lineItem);
 
         if (!$purchasePriceAmount) {
-            return false;
+            return $this->operator === self::OPERATOR_EMPTY;
         }
 
         $this->amount = (float) $this->amount;
 
-        /* @var float $purchasePriceAmount */
         switch ($this->operator) {
             case self::OPERATOR_GTE:
                 return FloatComparator::greaterThanOrEquals($purchasePriceAmount, $this->amount);
@@ -108,6 +118,9 @@ class LineItemPurchasePriceRule extends Rule
 
             case self::OPERATOR_NEQ:
                 return FloatComparator::notEquals($purchasePriceAmount, $this->amount);
+
+            case self::OPERATOR_EMPTY:
+                return false;
 
             default:
                 throw new UnsupportedOperatorException($this->operator, self::class);

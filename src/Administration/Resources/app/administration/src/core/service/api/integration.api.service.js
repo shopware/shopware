@@ -25,7 +25,7 @@ class IntegrationApiService extends ApiService {
         return this.httpClient
             .get('/_action/access-key/intergration', {
                 params,
-                headers
+                headers,
             })
             .then((response) => {
                 return ApiService.handleResponse(response);

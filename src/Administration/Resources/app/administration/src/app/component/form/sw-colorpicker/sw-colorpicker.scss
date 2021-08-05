@@ -327,8 +327,6 @@
 
 .sw-popover__wrapper {
     &.--placement-bottom-outside {
-        transform: translate(0, calc(-100% - 57px));
-
         .sw-colorpicker__colorpicker::before {
             top: calc(100% - 7px);
             transform: rotate(225deg);

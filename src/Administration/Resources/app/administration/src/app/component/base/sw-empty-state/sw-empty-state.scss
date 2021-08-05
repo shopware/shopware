@@ -7,11 +7,15 @@
     overflow-x: hidden;
     overflow-y: auto;
 
-    &.sw-empty-state--absolute {
+    &--absolute {
         position: absolute;
     }
 
-    .sw-empty-state__element {
+    &--empty-module {
+        height: 400px;
+    }
+
+    &__element {
         max-width: 600px;
         padding: 20px;
         margin: 0 auto;
@@ -19,19 +23,22 @@
         text-align: center;
     }
 
-    .sw-empty-state__title {
-        font-size: 25px;
-        margin-bottom: 15px;
+    &__title {
+        font-size: 18px;
+        margin-bottom: 4px;
         color: $color-darkgray-200;
     }
 
-    .sw-empty-state__description {
+    &__description {
         color: $color-darkgray-200;
-        margin-bottom: 15px;
         font-size: 14px;
     }
 
-    .sw-empty-state__icon {
-        margin-bottom: 20px;
+    &__icon {
+        margin-bottom: 24px;
+    }
+
+    &__actions {
+        margin-top: 16px;
     }
 }

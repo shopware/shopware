@@ -1,7 +1,7 @@
 import template from './sw-sales-channel-products-assignment-single-products.html.twig';
 import './sw-sales-channel-products-assignment-single-products.scss';
 
-const { Component, Context, Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 Component.register('sw-sales-channel-products-assignment-single-products', {
@@ -10,22 +10,29 @@ Component.register('sw-sales-channel-products-assignment-single-products', {
     inject: ['repositoryFactory'],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     props: {
         salesChannel: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
+
+        containerStyle: {
+            type: Object,
+            required: true,
+        },
     },
 
     data() {
         return {
             products: [],
             searchTerm: null,
-            skeletonItemAmount: 25,
-            isLoading: false
+            isLoading: false,
+            page: 1,
+            limit: 25,
+            total: 0,
         };
     },
 
@@ -37,13 +44,15 @@ Component.register('sw-sales-channel-products-assignment-single-products', {
         productCriteria() {
             const criteria = new Criteria();
 
+            criteria.setPage(this.page);
+            criteria.setLimit(this.limit);
             if (this.searchTerm) {
                 criteria.setTerm(this.searchTerm);
             }
 
             criteria.addAssociation('visibilities.salesChannel');
             criteria.addFilter(Criteria.not('and', [
-                Criteria.equals('product.visibilities.salesChannelId', this.salesChannel.id)
+                Criteria.equals('product.visibilities.salesChannelId', this.salesChannel.id),
             ]));
             criteria.addFilter(Criteria.equals('parentId', null));
 
@@ -56,15 +65,14 @@ Component.register('sw-sales-channel-products-assignment-single-products', {
                     property: 'name',
                     label: this.$tc('sw-sales-channel.detail.products.columnProductName'),
                     allowResize: true,
-                    primary: true
                 },
                 {
                     property: 'productNumber',
                     label: this.$tc('sw-sales-channel.detail.products.columnProductNumber'),
-                    allowResize: true
-                }
+                    allowResize: true,
+                },
             ];
-        }
+        },
     },
 
     created() {
@@ -74,14 +82,17 @@ Component.register('sw-sales-channel-products-assignment-single-products', {
     methods: {
         getProducts() {
             this.isLoading = true;
-            return this.productRepository.search(this.productCriteria, Context.api)
+
+            return this.productRepository.search(this.productCriteria)
                 .then((products) => {
                     this.products = products;
+                    this.total = products.total;
                 })
-                .catch(err => {
+                .catch((error) => {
                     this.products = [];
+                    this.total = 0;
                     this.createNotificationError({
-                        message: err.message
+                        message: error.message,
                     });
                 })
                 .finally(() => {
@@ -91,11 +102,28 @@ Component.register('sw-sales-channel-products-assignment-single-products', {
 
         onChangeSearchTerm(searchTerm) {
             this.searchTerm = searchTerm;
+            if (searchTerm) {
+                this.page = 1;
+            }
+
             this.getProducts();
         },
 
         onSelectionChange(selection) {
-            this.$emit('selection-change', selection);
-        }
-    }
+            const products = Object.values(selection);
+            this.$emit('selection-change', products, 'singleProducts');
+        },
+
+        onChangePage(data) {
+            this.page = data.page;
+            this.limit = data.limit;
+            this.products.criteria.sortings.forEach(({ field, naturalSorting, order }) => {
+                this.productCriteria.addSorting(
+                    Criteria.sort(field, order, naturalSorting),
+                );
+            });
+
+            this.getProducts();
+        },
+    },
 });

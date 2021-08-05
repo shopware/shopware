@@ -14,18 +14,18 @@ Component.register('sw-category-detail', {
         'acl',
         'cmsService',
         'repositoryFactory',
-        'seoUrlService'
+        'seoUrlService',
     ],
 
     provide() {
         return {
-            openMediaSidebar: this.openMediaSidebar
+            openMediaSidebar: this.openMediaSidebar,
         };
     },
 
     mixins: [
         Mixin.getByName('notification'),
-        Mixin.getByName('placeholder')
+        Mixin.getByName('placeholder'),
     ],
 
     shortcuts: {
@@ -33,22 +33,22 @@ Component.register('sw-category-detail', {
             active() {
                 return this.acl.can('category.editor');
             },
-            method: 'onSave'
+            method: 'onSave',
         },
-        ESCAPE: 'cancelEdit'
+        ESCAPE: 'cancelEdit',
     },
 
     props: {
         categoryId: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
         landingPageId: {
             type: String,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
@@ -66,13 +66,13 @@ Component.register('sw-category-detail', {
             categoryCheckedItem: 0,
             landingPageCheckedItem: 0,
             entryPointOverwriteConfirmed: false,
-            entryPointOverwriteSalesChannels: null
+            entryPointOverwriteSalesChannels: null,
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle(this.identifier)
+            title: this.$createTitle(this.identifier),
         };
     },
 
@@ -162,7 +162,7 @@ Component.register('sw-category-detail', {
         pageClasses() {
             return {
                 'has--category': !!this.category,
-                'is--mobile': !!this.isMobileViewport
+                'is--mobile': !!this.isMobileViewport,
             };
         },
 
@@ -171,7 +171,7 @@ Component.register('sw-category-detail', {
                 return {
                     message: this.$tc('sw-privileges.tooltip.warning'),
                     disabled: this.acl.can('category.editor'),
-                    showOnDisabledElements: true
+                    showOnDisabledElements: true,
                 };
             }
 
@@ -179,7 +179,7 @@ Component.register('sw-category-detail', {
 
             return {
                 message: `${systemKey} + S`,
-                appearance: 'light'
+                appearance: 'light',
             };
         },
 
@@ -188,7 +188,7 @@ Component.register('sw-category-detail', {
                 return {
                     message: this.$tc('sw-privileges.tooltip.warning'),
                     disabled: this.acl.can('landing_page.editor'),
-                    showOnDisabledElements: true
+                    showOnDisabledElements: true,
                 };
             }
 
@@ -196,16 +196,39 @@ Component.register('sw-category-detail', {
 
             return {
                 message: `${systemKey} + S`,
-                appearance: 'light'
+                appearance: 'light',
             };
         },
 
         tooltipCancel() {
             return {
                 message: 'ESC',
-                appearance: 'light'
+                appearance: 'light',
             };
-        }
+        },
+
+        categoryCriteria() {
+            const criteria = new Criteria(1, 1);
+            criteria.getAssociation('seoUrls')
+                .addFilter(Criteria.equals('isCanonical', true));
+
+            criteria.addAssociation('tags')
+                .addAssociation('media')
+                .addAssociation('navigationSalesChannels.homeCmsPage.previewMedia')
+                .addAssociation('serviceSalesChannels')
+                .addAssociation('footerSalesChannels');
+
+            return criteria;
+        },
+
+        landingPageCriteria() {
+            const criteria = new Criteria(1, 1);
+
+            criteria.addAssociation('tags');
+            criteria.addAssociation('salesChannels');
+
+            return criteria;
+        },
     },
 
     watch: {
@@ -233,7 +256,7 @@ Component.register('sw-category-detail', {
                 Shopware.State.dispatch('cmsPageState/resetCmsPageState')
                     .then(this.getAssignedCmsPageForLandingPage);
             }
-        }
+        },
     },
 
     beforeCreate() {
@@ -291,7 +314,7 @@ Component.register('sw-category-detail', {
 
         registerListener() {
             this.$device.onResize({
-                listener: this.checkViewport
+                listener: this.checkViewport,
             });
         },
 
@@ -355,7 +378,7 @@ Component.register('sw-category-detail', {
             Shopware.State.commit('cmsPageState/setCurrentMappingEntity', 'category');
             Shopware.State.commit(
                 'cmsPageState/setCurrentMappingTypes',
-                this.cmsService.getEntityMappingTypes('category')
+                this.cmsService.getEntityMappingTypes('category'),
             );
             Shopware.State.commit('cmsPageState/setCurrentDemoEntity', this.category);
         },
@@ -408,7 +431,7 @@ Component.register('sw-category-detail', {
             Shopware.State.commit('cmsPageState/setCurrentMappingEntity', 'landing_page');
             Shopware.State.commit(
                 'cmsPageState/setCurrentMappingTypes',
-                this.cmsService.getEntityMappingTypes('landing_page')
+                this.cmsService.getEntityMappingTypes('landing_page'),
             );
             Shopware.State.commit('cmsPageState/setCurrentDemoEntity', this.landingPage);
         },
@@ -431,7 +454,8 @@ Component.register('sw-category-detail', {
                 await Shopware.State.dispatch('swCategoryDetail/loadActiveLandingPage', {
                     repository: this.landingPageRepository,
                     apiContext: Shopware.Context.api,
-                    id: this.landingPageId
+                    id: this.landingPageId,
+                    criteria: this.landingPageCriteria,
                 });
 
                 await Shopware.State.dispatch('cmsPageState/resetCmsPageState');
@@ -440,7 +464,7 @@ Component.register('sw-category-detail', {
             } catch {
                 this.createNotificationError({
                     title: this.$tc('global.default.error'),
-                    message: this.$tc('global.notification.unspecifiedSaveErrorMessage')
+                    message: this.$tc('global.notification.unspecifiedSaveErrorMessage'),
                 });
             } finally {
                 this.isLoading = false;
@@ -463,12 +487,13 @@ Component.register('sw-category-detail', {
 
             return Shopware.State.dispatch(
                 'shopwareApps/setSelectedIds',
-                [this.categoryId]
+                [this.categoryId],
             ).then(() => {
                 return Shopware.State.dispatch('swCategoryDetail/loadActiveCategory', {
                     repository: this.categoryRepository,
                     apiContext: Shopware.Context.api,
-                    id: this.categoryId
+                    id: this.categoryId,
+                    criteria: this.categoryCriteria,
                 });
             }).then(() => Shopware.State.dispatch('cmsPageState/resetCmsPageState'))
                 .then(this.getAssignedCmsPage)
@@ -602,8 +627,8 @@ Component.register('sw-category-detail', {
 
                 this.createNotificationError({
                     message: this.$tc(
-                        'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'
-                    )
+                        'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid',
+                    ),
                 });
             });
         },
@@ -680,8 +705,8 @@ Component.register('sw-category-detail', {
 
                 this.createNotificationError({
                     message: this.$tc(
-                        'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'
-                    )
+                        'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid',
+                    ),
                 });
             });
         },
@@ -691,20 +716,20 @@ Component.register('sw-category-detail', {
                 {
                     code: 'landing_page_sales_channel_blank',
                     detail: 'This value should not be blank.',
-                    status: '400'
-                }
+                    status: '400',
+                },
             );
 
             Shopware.State.dispatch('error/addApiError',
                 {
                     expression: `landing_page.${this.landingPage.id}.salesChannels`,
-                    error: shopwareError
+                    error: shopwareError,
                 });
 
             this.createNotificationError({
                 message: this.$tc(
-                    'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'
-                )
+                    'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid',
+                ),
             });
         },
 
@@ -795,14 +820,14 @@ Component.register('sw-category-detail', {
 
         onLandingPageDelete() {
             Shopware.State.commit('swCategoryDetail/setLandingPagesToDelete', {
-                landingPagesToDelete: null
+                landingPagesToDelete: null,
             });
         },
 
         onCategoryDelete() {
             Shopware.State.commit('swCategoryDetail/setCategoriesToDelete', {
-                categoriesToDelete: null
+                categoriesToDelete: null,
             });
-        }
-    }
+        },
+    },
 });

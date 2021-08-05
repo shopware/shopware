@@ -38,6 +38,11 @@ class ProductKeywordDictionaryDefinition extends EntityDefinition
         return '6.0.0.0';
     }
 
+    public function getHydratorClass(): string
+    {
+        return ProductKeywordDictionaryHydrator::class;
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([

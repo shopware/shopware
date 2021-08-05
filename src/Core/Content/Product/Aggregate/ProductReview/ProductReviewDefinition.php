@@ -47,6 +47,11 @@ class ProductReviewDefinition extends EntityDefinition
         return '6.0.0.0';
     }
 
+    public function getHydratorClass(): string
+    {
+        return ProductReviewHydrator::class;
+    }
+
     protected function getParentDefinitionClass(): ?string
     {
         return ProductDefinition::class;

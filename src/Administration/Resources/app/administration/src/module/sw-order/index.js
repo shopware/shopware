@@ -53,25 +53,25 @@ Module.register('sw-order', {
     routes: {
         index: {
             components: {
-                default: 'sw-order-list'
+                default: 'sw-order-list',
             },
             path: 'index',
             meta: {
                 privilege: 'order.viewer',
                 appSystem: {
-                    view: 'list'
-                }
-            }
+                    view: 'list',
+                },
+            },
         },
 
         create: {
             component: 'sw-order-create',
             path: 'create',
             redirect: {
-                name: 'sw.order.create.base'
+                name: 'sw.order.create.base',
             },
             meta: {
-                privilege: 'order.creator'
+                privilege: 'order.creator',
             },
             children: {
                 base: {
@@ -79,23 +79,23 @@ Module.register('sw-order', {
                     path: 'base',
                     meta: {
                         parentPath: 'sw.order.index',
-                        privilege: 'order.creator'
-                    }
-                }
-            }
+                        privilege: 'order.creator',
+                    },
+                },
+            },
         },
 
         detail: {
             component: 'sw-order-detail',
             path: 'detail/:id',
             redirect: {
-                name: 'sw.order.detail.base'
+                name: 'sw.order.detail.base',
             },
             meta: {
                 privilege: 'order.viewer',
                 appSystem: {
-                    view: 'detail'
-                }
+                    view: 'detail',
+                },
             },
             children: {
                 base: {
@@ -103,16 +103,16 @@ Module.register('sw-order', {
                     path: 'base',
                     meta: {
                         parentPath: 'sw.order.index',
-                        privilege: 'order.viewer'
-                    }
-                }
+                        privilege: 'order.viewer',
+                    },
+                },
             },
             props: {
                 default: ($route) => {
                     return { orderId: $route.params.id };
-                }
-            }
-        }
+                },
+            },
+        },
     },
 
     navigation: [{
@@ -121,11 +121,11 @@ Module.register('sw-order', {
         color: '#A092F0',
         icon: 'default-shopping-paper-bag',
         position: 30,
-        privilege: 'order.viewer'
+        privilege: 'order.viewer',
     }, {
         path: 'sw.order.index',
         label: 'sw-order.general.mainMenuItemList',
         parent: 'sw-order',
-        privilege: 'order.viewer'
-    }]
+        privilege: 'order.viewer',
+    }],
 });

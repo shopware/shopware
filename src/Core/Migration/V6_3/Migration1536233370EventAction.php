@@ -14,7 +14,7 @@ class Migration1536233370EventAction extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             CREATE TABLE `event_action` (
               `id` BINARY(16) NOT NULL PRIMARY KEY,
               `event_name` VARCHAR(500) NOT NULL,

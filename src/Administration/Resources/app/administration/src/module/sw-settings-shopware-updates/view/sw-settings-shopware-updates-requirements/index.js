@@ -9,16 +9,16 @@ Component.register('sw-settings-shopware-updates-requirements', {
         updateInfo: {
             type: Object,
             required: true,
-            default: () => {}
+            default: () => {},
         },
         requirements: {
             type: Array,
             required: true,
-            default: () => []
+            default: () => [],
         },
         isLoading: {
-            type: Boolean
-        }
+            type: Boolean,
+        },
     },
 
     data() {
@@ -27,14 +27,14 @@ Component.register('sw-settings-shopware-updates-requirements', {
                 {
                     property: 'message',
                     label: this.$t('sw-settings-shopware-updates.requirements.columns.message'),
-                    rawData: true
+                    rawData: true,
                 },
                 {
                     property: 'result',
                     label: this.$t('sw-settings-shopware-updates.requirements.columns.status'),
-                    rawData: true
-                }
-            ]
+                    rawData: true,
+                },
+            ],
         };
-    }
+    },
 });

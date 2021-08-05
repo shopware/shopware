@@ -47,7 +47,7 @@ class MailTemplateTranslationDefinition extends EntityTranslationDefinition
             (new StringField('sender_name', 'senderName'))->addFlags(new ApiAware()),
             (new LongTextField('description', 'description'))->addFlags(new ApiAware()),
             (new StringField('subject', 'subject'))->addFlags(new Required()),
-            (new LongTextField('content_html', 'contentHtml'))->addFlags(new Required(), new AllowHtml()),
+            (new LongTextField('content_html', 'contentHtml'))->addFlags(new Required(), new AllowHtml(false)),
             (new LongTextField('content_plain', 'contentPlain'))->addFlags(new Required()),
             (new CustomFields())->addFlags(new ApiAware()),
         ]);

@@ -3,19 +3,33 @@ declare(strict_types=1);
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSerializerFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowEmptyString;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class LongTextFieldSerializer extends AbstractFieldSerializer
 {
+    private HtmlSanitizer $sanitizer;
+
+    public function __construct(
+        ValidatorInterface $validator,
+        DefinitionInstanceRegistry $definitionRegistry,
+        HtmlSanitizer $sanitizer
+    ) {
+        parent::__construct($validator, $definitionRegistry);
+
+        $this->sanitizer = $sanitizer;
+    }
+
     public function encode(
         Field $field,
         EntityExistence $existence,
@@ -32,9 +46,7 @@ class LongTextFieldSerializer extends AbstractFieldSerializer
 
         $this->validateIfNeeded($field, $existence, $data, $parameters);
 
-        if ($data->getValue() !== null && !$field->is(AllowHtml::class)) {
-            $data->setValue(strip_tags((string) $data->getValue()));
-        }
+        $data->setValue($this->sanitize($this->sanitizer, $data, $field, $existence));
 
         $this->validateIfNeeded($field, $existence, $data, $parameters);
 

@@ -11,6 +11,7 @@ use Shopware\Storefront\Controller\FormController;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class FormControllerTest extends TestCase
 {
@@ -31,9 +32,12 @@ class FormControllerTest extends TestCase
             '/form/newsletter',
             $this->tokenize('frontend.form.newsletter.register.handle', $data)
         );
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
+
         $responseContent = $response->getContent();
-        $content = (array) json_decode($responseContent);
-        $type = $content[0]->type;
+        $content = json_decode($responseContent, true);
+        $type = $content[0]['type'];
 
         static::assertInstanceOf(JsonResponse::class, $response);
         static::assertSame(200, $response->getStatusCode());
@@ -95,15 +99,22 @@ class FormControllerTest extends TestCase
             'phone' => '+4920 3920173',
         ];
 
+        $request = new Request();
+        $request->setSession($this->getContainer()->get('session'));
+        $this->getContainer()->get('request_stack')->push($request);
+
+        $token = $this->tokenize('frontend.form.contact.send', $data);
+        $this->getContainer()->get('request_stack')->pop();
+
         $response = $this->request(
             'POST',
             '/form/contact',
-            $this->tokenize('frontend.form.contact.send', $data)
+            $token
         );
 
         $responseContent = $response->getContent();
-        $content = (array) json_decode($responseContent);
-        $type = $content[0]->type;
+        $content = json_decode($responseContent, true);
+        $type = $content[0]['type'];
 
         static::assertInstanceOf(JsonResponse::class, $response);
         static::assertSame(200, $response->getStatusCode());

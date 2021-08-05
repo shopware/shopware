@@ -12,7 +12,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -49,13 +48,8 @@ class TaxDetectorTest extends TestCase
 
         $country = new CountryEntity();
 
-        if (Feature::isActive('FEATURE_NEXT_14114')) {
-            $country->setCustomerTax(new TaxFreeConfig(true, Defaults::CURRENCY, 0));
-            $country->setCompanyTax(new TaxFreeConfig(true, Defaults::CURRENCY, 0));
-        } else {
-            $country->setTaxFree(true);
-            $country->setCompanyTaxFree(true);
-        }
+        $country->setCustomerTax(new TaxFreeConfig(true, Defaults::CURRENCY, 0));
+        $country->setCompanyTax(new TaxFreeConfig(true, Defaults::CURRENCY, 0));
 
         $context->expects(static::once())->method('getShippingLocation')->willReturn(
             ShippingLocation::createFromCountry($country)
@@ -75,29 +69,20 @@ class TaxDetectorTest extends TestCase
         $criteria->setLimit(1);
 
         $country = $countryRepository->search($criteria, Context::createDefaultContext())->first();
-        if (Feature::isActive('FEATURE_NEXT_14114')) {
-            $data = [
-                'id' => $country->getId(),
-                'customerTax' => [
-                    'enabled' => false,
-                    'currencyId' => Defaults::CURRENCY,
-                    'amount' => 0,
-                ],
-                'companyTax' => [
-                    'enabled' => true,
-                    'currencyId' => Defaults::CURRENCY,
-                    'amount' => 0,
-                ],
-                'vatIdPattern' => '(DE)?[0-9]{9}',
-            ];
-        } else {
-            $data = [
-                'id' => $country->getId(),
-                'taxFree' => false,
-                'companyTaxFree' => true,
-                'vatIdPattern' => '(DE)?[0-9]{9}',
-            ];
-        }
+        $data = [
+            'id' => $country->getId(),
+            'customerTax' => [
+                'enabled' => false,
+                'currencyId' => Defaults::CURRENCY,
+                'amount' => 0,
+            ],
+            'companyTax' => [
+                'enabled' => true,
+                'currencyId' => Defaults::CURRENCY,
+                'amount' => 0,
+            ],
+            'vatIdPattern' => '(DE)?[0-9]{9}',
+        ];
 
         $countryRepository->update([$data], Context::createDefaultContext());
         $country = $countryRepository->search($criteria, Context::createDefaultContext())->first();
@@ -158,31 +143,22 @@ class TaxDetectorTest extends TestCase
         $criteria->setLimit(1);
 
         $deCountry = $countryRepository->search($criteria, Context::createDefaultContext())->first();
-        if (Feature::isActive('FEATURE_NEXT_14114')) {
-            $data = [
-                'id' => $deCountry->getId(),
-                'customerTax' => [
-                    'enabled' => false,
-                    'currencyId' => Defaults::CURRENCY,
-                    'amount' => 0,
-                ],
-                'companyTax' => [
-                    'enabled' => true,
-                    'currencyId' => Defaults::CURRENCY,
-                    'amount' => 0,
-                ],
-                'vatIdPattern' => '(DE)?[0-9]{9}',
-                'checkVatIdPattern' => false,
-            ];
-        } else {
-            $data = [
-                'id' => $deCountry->getId(),
-                'taxFree' => false,
-                'companyTaxFree' => true,
-                'vatIdPattern' => '(DE)?[0-9]{9}',
-                'checkVatIdPattern' => false,
-            ];
-        }
+        $data = [
+            'id' => $deCountry->getId(),
+            'customerTax' => [
+                'enabled' => false,
+                'currencyId' => Defaults::CURRENCY,
+                'amount' => 0,
+            ],
+            'companyTax' => [
+                'enabled' => true,
+                'currencyId' => Defaults::CURRENCY,
+                'amount' => 0,
+            ],
+            'vatIdPattern' => '(DE)?[0-9]{9}',
+            'checkVatIdPattern' => false,
+        ];
+
         $countryRepository->update([$data], Context::createDefaultContext());
         $deCountry = $countryRepository->search($criteria, Context::createDefaultContext())->first();
 

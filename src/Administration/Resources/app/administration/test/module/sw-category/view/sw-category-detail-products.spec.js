@@ -37,7 +37,9 @@ describe('module/sw-category/view/sw-category-detail-products.spec', () => {
         wrapper = shallowMount(Shopware.Component.build('sw-category-detail-products'), {
             localVue,
             stubs: {
+                'sw-icon': true,
                 'sw-card': true,
+                'router-link': true,
                 'sw-container': true,
                 'sw-text-field': true,
                 'sw-switch-field': true,

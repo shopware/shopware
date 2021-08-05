@@ -25,6 +25,6 @@ Component.register('sw-discard-changes-modal', {
 
         discardChanges() {
             this.$emit('discard-changes');
-        }
-    }
+        },
+    },
 });

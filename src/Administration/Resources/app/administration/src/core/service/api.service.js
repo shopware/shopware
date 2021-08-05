@@ -50,7 +50,7 @@ class ApiService {
         const basicHeaders = {
             Accept: this.contentType,
             Authorization: `Bearer ${this.loginService.getToken()}`,
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
         };
 
         return Object.assign({}, basicHeaders, additionalHeaders);

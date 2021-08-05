@@ -76,4 +76,59 @@ describe('Profile module', () => {
                 cy.awaitAndCheckNotification('Please submit your current password correctly.');
             });
     });
+
+    it('@base @general: profile change avatar', () => {
+        cy.onlyOnFeature('FEATURE_NEXT_6040');
+
+        cy.get('.sw-media-upload-v2 .sw-media-upload-v2__button')
+            .first()
+            .click()
+
+        // Add avatar to profile
+        cy.fixture('img/sw-test-image.png').then(fileContent => {
+            cy.get('#files').upload(
+                {
+                    fileContent,
+                    fileName: 'sw-test-image.png',
+                    mimeType: 'image/png'
+                }, {
+                    subjectType: 'input'
+                }
+            );
+        });
+
+        cy.get('.sw-media-preview-v2__item')
+            .should('have.attr', 'src')
+            .and('match', /sw-test-image/);
+        cy.awaitAndCheckNotification('File has been saved.');
+
+        cy.get('.sw-profile__save-action')
+            .should('be.visible')
+            .click();
+
+        // expect modal to be open
+        cy.get('.sw-modal')
+            .should('be.visible');
+        cy.get('.sw-modal__title')
+            .contains('Enter your current password to confirm');
+
+        cy.get('.sw-modal__footer > .sw-button--primary')
+            .should('be.disabled');
+
+        cy.get('.sw-modal__body input[name="sw-field--confirm-password"]')
+            .should('be.visible')
+            .typeAndCheck('shopware');
+
+        cy.get('.sw-modal__footer > .sw-button--primary > .sw-button__content')
+            .should('not.be.disabled')
+            .click()
+            .then(() => {
+                cy.get('.sw-modal')
+                    .should('not.be.visible');
+
+                cy.get('.sw-media-preview-v2__item')
+                    .should('have.attr', 'src')
+                    .and('match', /sw-test-image/);
+            });
+    });
 });

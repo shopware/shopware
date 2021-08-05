@@ -7,13 +7,13 @@ Component.register('sw-cms-el-text', {
     template,
 
     mixins: [
-        Mixin.getByName('cms-element')
+        Mixin.getByName('cms-element'),
     ],
 
     data() {
         return {
             editable: true,
-            demoValue: ''
+            demoValue: '',
         };
     },
 
@@ -22,14 +22,14 @@ Component.register('sw-cms-el-text', {
             deep: true,
             handler() {
                 this.updateDemoValue();
-            }
+            },
         },
 
         'element.config.content.source': {
             handler() {
                 this.updateDemoValue();
-            }
-        }
+            },
+        },
     },
 
     created() {
@@ -60,6 +60,6 @@ Component.register('sw-cms-el-text', {
                 this.element.config.content.value = content;
                 this.$emit('element-update', this.element);
             }
-        }
-    }
+        },
+    },
 });

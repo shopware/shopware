@@ -9,8 +9,8 @@ Component.register('sw-landing-page-detail-cms', {
     props: {
         isLoading: {
             type: Boolean,
-            required: true
-        }
+            required: true,
+        },
     },
 
     computed: {
@@ -20,6 +20,6 @@ Component.register('sw-landing-page-detail-cms', {
 
         cmsPage() {
             return Shopware.State.get('cmsPageState').currentPage;
-        }
-    }
+        },
+    },
 });

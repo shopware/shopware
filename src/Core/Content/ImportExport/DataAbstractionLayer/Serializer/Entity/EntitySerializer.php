@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Ent
 
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\Struct\Struct;
 
 class EntitySerializer extends AbstractEntitySerializer
@@ -26,7 +25,6 @@ class EntitySerializer extends AbstractEntitySerializer
 
         $fields = $definition->getFields();
 
-        /* @var Field $field */
         foreach ($entity as $key => $value) {
             $field = $fields->get($key);
             if ($field === null) {
@@ -50,7 +48,6 @@ class EntitySerializer extends AbstractEntitySerializer
         $entity = \is_array($entity) ? $entity : iterator_to_array($entity);
         $fields = $definition->getFields();
 
-        /* @var Field $field */
         foreach ($entity as $key => $value) {
             $field = $fields->get($key);
             if ($field === null) {

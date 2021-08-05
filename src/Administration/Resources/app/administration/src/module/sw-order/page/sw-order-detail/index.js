@@ -9,15 +9,15 @@ Component.register('sw-order-detail', {
     inject: ['repositoryFactory', 'acl'],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     props: {
         orderId: {
             type: String,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
@@ -26,26 +26,26 @@ Component.register('sw-order-detail', {
             isEditing: false,
             isLoading: true,
             isSaveSuccessful: false,
-            createdById: ''
+            createdById: '',
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle(this.identifier)
+            title: this.$createTitle(this.identifier),
         };
     },
 
     computed: {
         showTabs() {
             return this.$route.meta.$module.routes.detail.children.length > 1;
-        }
+        },
     },
 
     watch: {
         orderId() {
             this.createdComponent();
-        }
+        },
     },
 
     created() {
@@ -56,7 +56,7 @@ Component.register('sw-order-detail', {
         createdComponent() {
             Shopware.State.commit(
                 'shopwareApps/setSelectedIds',
-                this.orderId ? [this.orderId] : []
+                this.orderId ? [this.orderId] : [],
             );
         },
 
@@ -107,8 +107,8 @@ Component.register('sw-order-detail', {
             }
 
             this.createNotificationError({
-                message: this.$tc('sw-order.detail.messageRecalculationError') + errorDetails
+                message: this.$tc('sw-order.detail.messageRecalculationError') + errorDetails,
             });
-        }
-    }
+        },
+    },
 });

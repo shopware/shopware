@@ -48,6 +48,7 @@ Directive.register('popover', {
             targetElement = element.closest(config.targetSelector);
         }
 
+        targetElement.appendChild(element);
         setElementPosition(element, vnode.context.$el, config);
 
         // Resize the width of the element
@@ -56,7 +57,6 @@ Directive.register('popover', {
         }
 
         // append to target element
-        targetElement.appendChild(element);
         calculateOutsideEdges(element);
 
         registerVirtualScrollingElement(element, vnode.context, config);

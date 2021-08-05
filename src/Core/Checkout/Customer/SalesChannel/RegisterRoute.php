@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerEvents;
+use Shopware\Core\Checkout\Customer\Event\CustomerConfirmRegisterUrlEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerDoubleOptInRegistrationEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
@@ -20,7 +21,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Event\DataMappingEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -181,11 +181,11 @@ See the Guide ""Register a customer"" for more information on customer registrat
      *                  description="URL of the storefront for that registration. Used in confirmation emails. Has to be one of the configured domains of the sales channel."),
      *              @OA\Property(
      *                  property="billingAddress",
-     *                  ref="#/components/schemas/customer_address_flat",
+     *                  ref="#/components/schemas/CustomerAddress",
      *                  description="Billing address of the customer. Values will be reused for shipping address if not provided explicitly."),
      *              @OA\Property(
      *                  property="shippingAddress",
-     *                  ref="#/components/schemas/customer_address_flat",
+     *                  ref="#/components/schemas/CustomerAddress",
      *                  description="Shipping address of the customer. If not set, billing address will be used."),
      *              @OA\Property(
      *                  property="accountType",
@@ -226,7 +226,7 @@ See the Guide ""Register a customer"" for more information on customer registrat
      *      @OA\Response(
      *          response="200",
      *          description="Success",
-     *          @OA\JsonContent(ref="#/components/schemas/customer_flat")
+     *          @OA\JsonContent(ref="#/components/schemas/Customer")
      *     )
      * )
      * @Route("/store-api/account/register", name="store-api.account.register", methods={"POST"})
@@ -267,7 +267,6 @@ See the Guide ""Register a customer"" for more information on customer registrat
             $customer['company'] = $billingAddress['company'];
 
             if ($data->get('vatIds')) {
-                /* @var array $vatIds */
                 $vatIds = $data->get('vatIds');
                 $customer['vatIds'] = empty($vatIds) ? null : $vatIds;
             }
@@ -282,6 +281,12 @@ See the Guide ""Register a customer"" for more information on customer registrat
         $criteria = new Criteria([$customer['id']]);
         $criteria->addAssociation('addresses');
         $criteria->addAssociation('salutation');
+        $criteria->addAssociation('defaultBillingAddress.country');
+        $criteria->addAssociation('defaultBillingAddress.countryState');
+        $criteria->addAssociation('defaultBillingAddress.salutation');
+        $criteria->addAssociation('defaultShippingAddress.country');
+        $criteria->addAssociation('defaultShippingAddress.countryState');
+        $criteria->addAssociation('defaultShippingAddress.salutation');
 
         /** @var CustomerEntity $customerEntity */
         $customerEntity = $this->customerRepository->search($criteria, $context->getContext())->first();
@@ -324,7 +329,7 @@ See the Guide ""Register a customer"" for more information on customer registrat
 
     private function getDoubleOptInEvent(CustomerEntity $customer, SalesChannelContext $context, string $url, ?string $redirectTo = null): Event
     {
-        $url .= sprintf('/registration/confirm?em=%s&hash=%s', hash('sha1', $customer->getEmail()), $customer->getHash());
+        $url .= $this->getConfirmUrl($context, $customer);
 
         if ($redirectTo) {
             $url .= '&redirectTo=' . $redirectTo;
@@ -397,12 +402,7 @@ See the Guide ""Register a customer"" for more information on customer registrat
         }
 
         if ($data->get('vatIds') !== null && $accountType === CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
-            //@internal (flag:FEATURE_NEXT_14114) Remove with feature flag
-            if (!Feature::isActive('FEATURE_NEXT_14114') && $this->systemConfigService->get('core.loginRegistration.vatIdFieldRequired', $context->getSalesChannel()->getId())) {
-                $definition->add('vatIds', new NotBlank());
-            }
-
-            if (Feature::isActive('FEATURE_NEXT_14114') && $this->requiredVatIdField($billingAddress['countryId'], $context)) {
+            if ($this->requiredVatIdField($billingAddress['countryId'], $context)) {
                 $definition->add('vatIds', new NotBlank());
             }
 
@@ -614,5 +614,27 @@ See the Guide ""Register a customer"" for more information on customer registrat
         }
 
         return $country->getVatIdRequired();
+    }
+
+    private function getConfirmUrl(SalesChannelContext $context, CustomerEntity $customer): string
+    {
+        $urlTemplate = $this->systemConfigService->get(
+            'core.loginRegistration.confirmationUrl',
+            $context->getSalesChannelId()
+        );
+        if (!\is_string($urlTemplate)) {
+            $urlTemplate = '/registration/confirm?em=%%HASHEDEMAIL%%&hash=%%SUBSCRIBEHASH%%';
+        }
+
+        $emailHash = hash('sha1', $customer->getEmail());
+
+        $urlEvent = new CustomerConfirmRegisterUrlEvent($context, $urlTemplate, $emailHash, $customer->getHash(), $customer);
+        $this->eventDispatcher->dispatch($urlEvent);
+
+        return str_replace(
+            ['%%HASHEDEMAIL%%', '%%SUBSCRIBEHASH%%'],
+            [$emailHash, $customer->getHash()],
+            $urlEvent->getConfirmUrl()
+        );
     }
 }

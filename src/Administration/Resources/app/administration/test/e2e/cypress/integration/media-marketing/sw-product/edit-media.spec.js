@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
 
@@ -19,14 +19,15 @@ describe('Product: Edit product media', () => {
     it('@catalogue: change media sorting', () => {
         const page = new ProductPageObject();
 
-            // Request we want to wait for later
-            cy.server();
-            cy.route({
-                url: `${Cypress.env('apiPath')}/product/*`,
-                method: 'patch'
-            }).as('saveProduct');
+        // Request we want to wait for later
+        cy.server();
+        cy.route({
+            url: `${Cypress.env('apiPath')}/_action/sync`,
+            method: 'post'
+        }).as('saveProduct');
 
         // Open product
+        cy.get('.sw-product-list-grid').should('be.visible');
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
@@ -78,7 +79,7 @@ describe('Product: Edit product media', () => {
         // Save product
         cy.get(page.elements.productSaveAction).click();
         cy.wait('@saveProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
+            expect(xhr).to.have.property('status', 200);
         });
 
         // Verify in storefront
@@ -93,14 +94,15 @@ describe('Product: Edit product media', () => {
     it('@base @catalogue: set another cover image', () => {
         const page = new ProductPageObject();
 
-            // Request we want to wait for later
-            cy.server();
-            cy.route({
-                url: `${Cypress.env('apiPath')}/product/*`,
-                method: 'patch'
-            }).as('saveProduct');
+        // Request we want to wait for later
+        cy.server();
+        cy.route({
+            url: `${Cypress.env('apiPath')}/_action/sync`,
+            method: 'post'
+        }).as('saveProduct');
 
         // Open product
+        cy.get('.sw-product-list-grid').should('be.visible');
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
@@ -156,7 +158,7 @@ describe('Product: Edit product media', () => {
         // Save product
         cy.get(page.elements.productSaveAction).click();
         cy.wait('@saveProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
+            expect(xhr).to.have.property('status', 200);
         });
 
         // Verify in storefront
@@ -178,13 +180,9 @@ describe('Product: Edit product media', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'patch'
+            url: `${Cypress.env('apiPath')}/_action/sync`,
+            method: 'post'
         }).as('saveProduct');
-        cy.route({
-            url: `${Cypress.env('apiPath')}/product/**/media/*`,
-            method: 'delete'
-        }).as('removeProductMedia');
 
         // Open product
         cy.clickContextMenuItem(
@@ -235,7 +233,7 @@ describe('Product: Edit product media', () => {
         // Save product
         cy.get(page.elements.productSaveAction).click();
         cy.wait('@saveProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
+            expect(xhr).to.have.property('status', 200);
         });
 
         // Remove image
@@ -248,9 +246,6 @@ describe('Product: Edit product media', () => {
         cy.get(page.elements.productSaveAction).click();
 
         // Verify removal
-        cy.wait('@removeProductMedia').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
         cy.get(page.elements.smartBarBack).click();
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
             .contains('Product name').click();

@@ -16,7 +16,6 @@ use Shopware\Core\Migration\Traits\Translations;
 class ImportTranslationTraitTest extends TestCase
 {
     use IntegrationTestBehaviour;
-
     use ImportTranslationsTrait;
 
     public function testEnglishDefault(): void

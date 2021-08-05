@@ -6,13 +6,10 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
-/**
- * @internal (flag:FEATURE_NEXT_12455)
- */
 class BasicCaptcha extends AbstractCaptcha
 {
     public const CAPTCHA_NAME = 'basicCaptcha';
@@ -20,13 +17,13 @@ class BasicCaptcha extends AbstractCaptcha
     public const BASIC_CAPTCHA_SESSION = 'basic_captcha_session';
     public const INVALID_CAPTCHA_CODE = 'captcha.basic-captcha-invalid';
 
-    private Session $session;
+    private RequestStack $requestStack;
 
     private SystemConfigService $systemConfigService;
 
-    public function __construct(Session $session, SystemConfigService $systemConfigService)
+    public function __construct(RequestStack $requestStack, SystemConfigService $systemConfigService)
     {
-        $this->session = $session;
+        $this->requestStack = $requestStack;
         $this->systemConfigService = $systemConfigService;
     }
 
@@ -61,8 +58,9 @@ class BasicCaptcha extends AbstractCaptcha
             return false;
         }
 
-        $captchaSession = $this->session->get($request->get('formId') . self::BASIC_CAPTCHA_SESSION);
-        $this->session->remove(self::BASIC_CAPTCHA_SESSION);
+        $session = $this->requestStack->getSession();
+        $captchaSession = $session->get($request->get('formId') . self::BASIC_CAPTCHA_SESSION);
+        $session->remove($request->get('formId') . self::BASIC_CAPTCHA_SESSION);
 
         if ($captchaSession === null) {
             return false;

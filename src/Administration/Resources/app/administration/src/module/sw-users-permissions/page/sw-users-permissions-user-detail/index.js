@@ -16,17 +16,17 @@ Component.register('sw-users-permissions-user-detail', {
         'userValidationService',
         'integrationService',
         'repositoryFactory',
-        'acl'
+        'acl',
     ],
 
     mixins: [
         Mixin.getByName('notification'),
-        Mixin.getByName('salutation')
+        Mixin.getByName('salutation'),
     ],
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
-        ESCAPE: 'onCancel'
+        ESCAPE: 'onCancel',
     },
 
     data() {
@@ -49,13 +49,13 @@ Component.register('sw-users-permissions-user-detail', {
             showSecretAccessKey: false,
             showDeleteModal: null,
             skeletonItemAmount: 3,
-            confirmPasswordModal: false
+            confirmPasswordModal: false,
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle(this.identifier)
+            title: this.$createTitle(this.identifier),
         };
     },
 
@@ -65,7 +65,7 @@ Component.register('sw-users-permissions-user-detail', {
             'lastName',
             'email',
             'username',
-            'localeId'
+            'localeId',
         ]),
 
         identifier() {
@@ -95,6 +95,7 @@ Component.register('sw-users-permissions-user-detail', {
 
             // Roles created by apps should not be assignable in the admin
             criteria.addFilter(Criteria.equals('app.id', null));
+            criteria.addFilter(Criteria.equals('deletedAt', null));
 
             return criteria;
         },
@@ -149,7 +150,7 @@ Component.register('sw-users-permissions-user-detail', {
         integrationColumns() {
             return [{
                 property: 'accessKey',
-                label: this.$tc('sw-users-permissions.users.user-detail.labelAccessKey')
+                label: this.$tc('sw-users-permissions.users.user-detail.labelAccessKey'),
             }];
         },
 
@@ -166,22 +167,22 @@ Component.register('sw-users-permissions-user-detail', {
 
             return {
                 message: `${systemKey} + S`,
-                appearance: 'light'
+                appearance: 'light',
             };
         },
 
         tooltipCancel() {
             return {
                 message: 'ESC',
-                appearance: 'light'
+                appearance: 'light',
             };
-        }
+        },
     },
 
     watch: {
         languageId() {
             this.createdComponent();
-        }
+        },
     },
 
     created() {
@@ -206,7 +207,7 @@ Component.register('sw-users-permissions-user-detail', {
                 languagePromise,
                 this.loadLanguages(),
                 this.loadUser(),
-                this.loadCurrentUser()
+                this.loadCurrentUser(),
             ];
 
             Promise.all(promises).then(() => {
@@ -274,15 +275,15 @@ Component.register('sw-users-permissions-user-detail', {
                 this.createNotificationError({
                     title: this.$tc('global.default.error'),
                     message: this.$tc(
-                        'sw-users-permissions.users.user-detail.notification.invalidEmailErrorMessage'
-                    )
+                        'sw-users-permissions.users.user-detail.notification.invalidEmailErrorMessage',
+                    ),
                 });
                 return Promise.reject();
             }
 
             return this.userValidationService.checkUserEmail({
                 email: this.user.email,
-                id: this.user.id
+                id: this.user.id,
             }).then(({ emailIsUnique }) => {
                 this.isEmailUsed = !emailIsUnique;
             });
@@ -291,7 +292,7 @@ Component.register('sw-users-permissions-user-detail', {
         checkUsername() {
             return this.userValidationService.checkUserUsername({
                 username: this.user.username,
-                id: this.user.id
+                id: this.user.id,
             }).then(({ usernameIsUnique }) => {
                 this.isUsernameUsed = !usernameIsUnique;
             });
@@ -342,7 +343,7 @@ Component.register('sw-users-permissions-user-detail', {
                             const messageSaveError = this.$tc(
                                 'sw-users-permissions.users.user-detail.notification.saveError.message',
                                 0,
-                                { name: this.fullName }
+                                { name: this.fullName },
                             );
 
                             return this.userRepository.save(this.user, context).then(() => {
@@ -355,7 +356,7 @@ Component.register('sw-users-permissions-user-detail', {
                             }).catch((exception) => {
                                 this.createNotificationError({
                                     title: titleSaveError,
-                                    message: messageSaveError
+                                    message: messageSaveError,
                                 });
                                 warn(this._name, exception.message, exception.response);
                                 this.isLoading = false;
@@ -368,8 +369,8 @@ Component.register('sw-users-permissions-user-detail', {
 
                         this.createNotificationError({
                             message: this.$tc(
-                                'sw-users-permissions.users.user-detail.notification.duplicateEmailErrorMessage'
-                            )
+                                'sw-users-permissions.users.user-detail.notification.duplicateEmailErrorMessage',
+                            ),
                         });
 
                         return Promise.resolve();
@@ -377,7 +378,7 @@ Component.register('sw-users-permissions-user-detail', {
                     .catch(() => Promise.reject())
                     .finally(() => {
                         this.isLoading = false;
-                    })
+                    }),
             );
         },
 
@@ -445,6 +446,6 @@ Component.register('sw-users-permissions-user-detail', {
 
         onCloseConfirmPasswordModal() {
             this.confirmPasswordModal = false;
-        }
-    }
+        },
+    },
 });

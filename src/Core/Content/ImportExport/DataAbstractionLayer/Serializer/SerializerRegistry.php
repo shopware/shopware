@@ -49,4 +49,20 @@ class SerializerRegistry
 
         throw new \RuntimeException('There should be a fallback serializer');
     }
+
+    /**
+     * @return AbstractEntitySerializer[]
+     */
+    public function getAllEntitySerializers(): array
+    {
+        return $this->entitySerializers;
+    }
+
+    /**
+     * @return AbstractFieldSerializer[]
+     */
+    public function getAllFieldSerializers(): array
+    {
+        return $this->fieldSerializers;
+    }
 }

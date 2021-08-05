@@ -8,26 +8,26 @@ Component.register('sw-settings-logging-entry-info', {
     props: {
         logEntry: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
         return {
-            activeTab: 'raw'
+            activeTab: 'raw',
         };
     },
 
     computed: {
         displayString() {
             return JSON.stringify(this.logEntry.context, null, 2);
-        }
+        },
     },
 
     methods: {
 
         onClose() {
             this.$emit('close');
-        }
-    }
+        },
+    },
 });

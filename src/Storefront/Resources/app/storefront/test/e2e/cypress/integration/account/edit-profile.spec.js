@@ -5,8 +5,7 @@ describe('Account: Edit profile', () => {
         return cy.createCustomerFixtureStorefront();
     });
 
-    // TODO: NEXT-15498 - Need to implement API first
-    it.skip('@base @customer: Update profile', () => {
+    it('@base @customer: Update profile', () => {
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {

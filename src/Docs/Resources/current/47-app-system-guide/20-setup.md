@@ -132,6 +132,14 @@ $signature = hash_hmac('sha256', $queryString, $this->secret);
 You can take a look at the code [here](https://github.com/shopware/app-system/blob/6d2ed40f575392b8991a7c4bd36e64dae5f56b62/src/Core/Content/App/Lifecycle/Registration/PrivateHandshake.php#L53)
 
 
+There may be valid cases where the app installation fails, because the domain is blocked,
+or some other prerequisite in that shop is not met, in which case you can return the message error as follows
+```json
+{
+  "error": "Shop url is not met"
+}
+```
+
 The response is expected to contain a json object as follows
 ```json
 {

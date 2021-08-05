@@ -41,6 +41,10 @@ describe('Property: Visual tests', () => {
             url: `${Cypress.env('apiPath')}/search/property-group`,
             method: 'post'
         }).as('getData');
+        cy.route({
+            url: `${Cypress.env('apiPath')}/search/media-default-folder`,
+            method: 'post'
+        }).as('getMediaFolder');
 
         cy.clickMainMenuItem({
             targetPath: '#/sw/property/index',
@@ -57,6 +61,9 @@ describe('Property: Visual tests', () => {
 
         // Change color of the element to ensure consistent snapshots
         cy.changeElementStyling('.sw-data-grid__cell--options', 'color: #fff');
+
+        cy.get('.sw-data-grid__cell--options')
+            .should('have.css', 'color', 'rgb(255, 255, 255)');
         cy.takeSnapshot('[Property] Listing', '.sw-property-list');
 
         // Add option to property group
@@ -68,13 +75,21 @@ describe('Property: Visual tests', () => {
         cy.get(page.elements.cardTitle).contains('Basic information');
 
         // Take snapshot for visual testing
-        cy.sortListingViaColumn('Position', 'Green', '.sw-data-grid__cell--name');
+        cy.sortAndCheckListingAscViaColumn('Position', '1', '.sw-data-grid__cell--position');
+        cy.contains('.sw-data-grid__row--0 .sw-data-grid__cell--position', '1').should('be.visible');
+        cy.contains('.sw-data-grid__row--1 .sw-data-grid__cell--position', '2').should('be.visible');
+        cy.contains('.sw-data-grid__row--2 .sw-data-grid__cell--position', '3').should('be.visible');
         cy.takeSnapshot('[Property] Detail, Group', '.sw-property-option-list');
 
         cy.get('.sw-property-option-list').scrollIntoView();
         cy.get('.sw-property-option-list__add-button').click();
 
+        cy.wait('@getMediaFolder').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
+
         // Take snapshot for visual testing
-        cy.takeSnapshot('[Property] Detail, Option modal', '.sw-property-option-list');
+        cy.handleModalSnapshot('New value');
+        cy.takeSnapshot('[Property] Detail, Option modal', '#sw-field--currentOption-name');
     });
 });

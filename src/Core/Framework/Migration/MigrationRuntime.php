@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Migration\Exception\MigrateException;
 
 class MigrationRuntime
 {
@@ -46,9 +46,10 @@ class MigrationRuntime
 
             try {
                 $migration->update($this->connection);
-                $this->workaroundMariaDBBugMDEV25672();
             } catch (\Exception $e) {
                 $this->logError($migration, $e->getMessage());
+
+                $this->enrichException($e);
 
                 throw $e;
             }
@@ -76,7 +77,6 @@ class MigrationRuntime
 
             try {
                 $migration->updateDestructive($this->connection);
-                $this->workaroundMariaDBBugMDEV25672();
             } catch (\Exception $e) {
                 $this->logError($migration, $e->getMessage());
 
@@ -108,33 +108,6 @@ class MigrationRuntime
     protected function setDefaultStorageEngine(): void
     {
         $this->connection->exec('SET default_storage_engine=InnoDB');
-    }
-
-    /**
-     * @see https://jira.mariadb.org/browse/MDEV-25672
-     */
-    private function workaroundMariaDBBugMDEV25672(): void
-    {
-        if (!$this->hasBugMDEV25672()) {
-            return;
-        }
-
-        $nonExistingKey = '`' . Uuid::randomHex() . '`';
-        $tables = $this->connection->fetchFirstColumn('SHOW TABLES');
-        foreach ($tables as $table) {
-            try {
-                // this invalid insert commits/flushs the table so that the bug does not trigger
-                $this->connection->insert($table, [$nonExistingKey => null]);
-            } catch (\Throwable $_) {
-            }
-        }
-    }
-
-    private function hasBugMDEV25672(): bool
-    {
-        $version = (string) $this->connection->fetchOne('SELECT VERSION()');
-
-        return (bool) preg_match('/^10\.(2\.38|3\.29|4\.19|5\.10)/', $version);
     }
 
     private function getExecutableMigrationsBaseQuery(MigrationSource $source, ?int $until = null, ?int $limit = null): QueryBuilder
@@ -194,5 +167,35 @@ class MigrationRuntime
              WHERE `class` = :class',
             ['class' => \get_class($migrationStep)]
         );
+    }
+
+    private function enrichException(\Exception $e): void
+    {
+        if ($e->getCode() !== 0) {
+            return;
+        }
+
+        if (preg_match('/SQLSTATE\[23000\]:.*(1452).*a foreign key constraint/', $e->getMessage())) {
+            $matches = [];
+            preg_match(
+                '/TABLE.*?`(.*?)`.*? (REFERENCES|constraint).*?`(.*?)`/',
+                (string) preg_replace(["/\r|\n/", '/ +/'], ['', ' '], $e->getMessage()),
+                $matches
+            );
+
+            if (isset($matches[1]) && isset($matches[2]) && $matches[2] === 'REFERENCES' && isset($matches[3])) {
+                throw new MigrateException(
+                    'The migration failed due to inconsistent data. You can try to check the table `' . $matches[1]
+                    . '` for entries that do not match the entries in table `' . $matches[3] . '`.',
+                    $e
+                );
+            } elseif (isset($matches[1])) {
+                throw new MigrateException(
+                    'The migration failed due to inconsistent data. You can try to check the table `' . $matches[1]
+                    . '` for entries that do not match the entries in the table referenced in the foreign key.',
+                    $e
+                );
+            }
+        }
     }
 }

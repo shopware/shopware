@@ -8,6 +8,7 @@ import error from './error.store';
 import settingsItems from './settings-item.store';
 import shopwareApps from './shopware-apps.store';
 import extensionEntryRoutes from './extension-entry-routes';
+import marketing from './marketing.store';
 
 export default {
     notification,
@@ -19,5 +20,6 @@ export default {
     error,
     settingsItems,
     shopwareApps,
-    extensionEntryRoutes
+    extensionEntryRoutes,
+    marketing,
 };

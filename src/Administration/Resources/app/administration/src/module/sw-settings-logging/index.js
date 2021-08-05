@@ -21,16 +21,16 @@ Module.register('sw-settings-logging', {
             component: 'sw-settings-logging-list',
             path: 'list',
             meta: {
-                parentPath: 'sw.settings.index',
-                privilege: 'system.logging'
-            }
-        }
+                parentPath: 'sw.settings.index.system',
+                privilege: 'system.logging',
+            },
+        },
     },
 
     settingsItem: {
         group: 'system',
         to: 'sw.settings.logging.index',
         icon: 'default-device-server',
-        privilege: 'system.logging'
-    }
+        privilege: 'system.logging',
+    },
 });

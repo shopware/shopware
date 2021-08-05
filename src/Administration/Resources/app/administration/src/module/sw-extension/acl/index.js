@@ -7,8 +7,8 @@ Shopware.Service('privileges')
             extension_store: {
                 privileges: [],
                 dependencies: [
-                    'system.plugin_maintain'
-                ]
-            }
-        }
+                    'system.plugin_maintain',
+                ],
+            },
+        },
     });

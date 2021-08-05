@@ -10,7 +10,7 @@ export default {
             personaCustomerIdsAdd: null,
             personaCustomerIdsDelete: null,
             setGroupIdsDelete: [],
-            isLoading: false
+            isLoading: false,
         };
     },
 
@@ -33,6 +33,6 @@ export default {
 
         setIsLoading(state, isLoading) {
             state.isLoading = isLoading;
-        }
-    }
+        },
+    },
 };

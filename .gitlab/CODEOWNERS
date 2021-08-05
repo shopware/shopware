@@ -1,0 +1,49 @@
+[Core]
+/src/Core/Checkout/Cart/              @product/engineering/platform-group/core
+/src/Core/DevOps/                     @product/engineering/platform-group/core
+/src/Core/Framework/                  @product/engineering/platform-group/core
+/src/Core/Migration/                  @product/engineering/platform-group/core
+/src/Core/System/SalesChannel/        @product/engineering/platform-group/core
+/src/Core/*.php                       @product/engineering/platform-group/core
+/src/Elasticsearch/                   @product/engineering/platform-group/core
+/src/Recovery/                        @product/engineering/platform-group/core
+/src/Storefront/Migration/            @product/engineering/platform-group/core
+/bin/                                 @product/engineering/platform-group/core
+/public/                              @product/engineering/platform-group/core
+/config/bundles.php                   @product/engineering/platform-group/core
+composer.json                         @product/engineering/platform-group/core
+/vendor-bin/*/composer.json           @product/engineering/platform-group/core
+ecs.php                               @product/engineering/platform-group/core
+phpstan.neon                          @product/engineering/platform-group/core
+psalm.xml                             @product/engineering/platform-group/core
+phpunit.xml.dist                      @product/engineering/platform-group/core
+
+[Admin]
+/src/Administration/Resources/*                                                         @product/engineering/platform-group/admin
+/src/Administration/Resources/app/administration/*                                      @product/engineering/platform-group/admin
+/src/Administration/Resources/app/administration/build/                                 @product/engineering/platform-group/admin
+/src/Administration/Resources/app/administration/config/                                @product/engineering/platform-group/admin
+/src/Administration/Resources/app/administration/patches/                               @product/engineering/platform-group/admin
+/src/Administration/Resources/app/administration/src/*                                  @product/engineering/platform-group/admin
+/src/Administration/Resources/app/administration/src/app/                               @product/engineering/platform-group/admin
+/src/Administration/Resources/app/administration/src/core/                              @product/engineering/platform-group/admin
+/src/Administration/Resources/app/administration/src/module/sw-first-run-wizard/        @product/engineering/platform-group/admin
+/src/Administration/Resources/app/administration/src/module/sw-login/                   @product/engineering/platform-group/admin
+/src/Administration/Resources/app/administration/src/module/sw-settings/                @product/engineering/platform-group/admin
+/src/Administration/Resources/app/administration/static/                                @product/engineering/platform-group/admin
+/src/Administration/Resources/app/administration/twigViewPlugin/                        @product/engineering/platform-group/admin
+/src/Administration/Resources/views/                                                    @product/engineering/platform-group/admin
+/src/Administration/Resources/config/                                                   @product/engineering/platform-group/admin
+
+[Storefront]
+/src/Storefront/        @product/engineering/platform-group/storefront
+
+[Operations]
+/.github/               @product/engineering/operations
+/.gitlab/               @product/engineering/operations
+/src/Core/DevOps/       @product/engineering/operations
+.gitlab-ci.yml          @product/engineering/operations
+
+[Main]
+/adr/                   @product/engineering/platform-group/core @product/engineering/platform-group/admin @product/engineering/platform-group/storefront
+/.gitlab/CODEOWNERS     @product/engineering/platform-group/core @product/engineering/platform-group/admin @product/engineering/platform-group/storefront

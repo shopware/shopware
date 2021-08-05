@@ -8,34 +8,34 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'salutation:read',
                 'custom_field_set:read',
                 'custom_field:read',
-                'custom_field_set_relation:read'
+                'custom_field_set_relation:read',
             ],
-            dependencies: []
+            dependencies: [],
         },
         editor: {
             privileges: [
-                'salutation:update'
-            ],
-            dependencies: [
-                'salutation.viewer'
-            ]
-        },
-        creator: {
-            privileges: [
-                'salutation:create'
+                'salutation:update',
             ],
             dependencies: [
                 'salutation.viewer',
-                'salutation.editor'
-            ]
+            ],
+        },
+        creator: {
+            privileges: [
+                'salutation:create',
+            ],
+            dependencies: [
+                'salutation.viewer',
+                'salutation.editor',
+            ],
         },
         deleter: {
             privileges: [
-                'salutation:delete'
+                'salutation:delete',
             ],
             dependencies: [
-                'salutation.viewer'
-            ]
-        }
-    }
+                'salutation.viewer',
+            ],
+        },
+    },
 });

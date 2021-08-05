@@ -5,7 +5,7 @@ import deepmerge from 'deepmerge';
 export default class ListingSortingPlugin extends FilterBasePlugin {
 
     static options = deepmerge(FilterBasePlugin.options, {
-        sorting: null
+        sorting: null,
     });
 
     init() {
@@ -47,7 +47,7 @@ export default class ListingSortingPlugin extends FilterBasePlugin {
         }
 
         return {
-            order: this.options.sorting
+            order: this.options.sorting,
         };
     }
 

@@ -26,11 +26,11 @@ class MaintenanceModeResolver
      */
     public function shouldRedirect(Request $request): bool
     {
-        return $this->isSalesChannelRequest($this->requestStack->getMasterRequest())
+        return $this->isSalesChannelRequest($this->requestStack->getMainRequest())
             && !$this->isMaintenancePageRequest($request)
             && !$this->isXmlHttpRequest($request)
             && !$this->isErrorControllerRequest($request)
-            && $this->isMaintenanceModeActive($this->requestStack->getMasterRequest())
+            && $this->isMaintenanceModeActive($this->requestStack->getMainRequest())
             && !$this->isClientAllowed($request);
     }
 
@@ -38,7 +38,7 @@ class MaintenanceModeResolver
     {
         return !$this->isXmlHttpRequest($request)
             && !$this->isErrorControllerRequest($request)
-            && (!$this->isMaintenanceModeActive($this->requestStack->getMasterRequest())
+            && (!$this->isMaintenanceModeActive($this->requestStack->getMainRequest())
                 || $this->isClientAllowed($request));
     }
 
@@ -89,7 +89,7 @@ class MaintenanceModeResolver
     {
         return IpUtils::checkIp(
             (string) $request->getClientIp(),
-            $this->getMaintenanceWhitelist($this->requestStack->getMasterRequest())
+            $this->getMaintenanceWhitelist($this->requestStack->getMainRequest())
         );
     }
 

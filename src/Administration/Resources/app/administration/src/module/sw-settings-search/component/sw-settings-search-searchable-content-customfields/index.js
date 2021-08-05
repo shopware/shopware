@@ -8,28 +8,28 @@ Component.register('sw-settings-search-searchable-content-customfields', {
 
     inject: [
         'repositoryFactory',
-        'acl'
+        'acl',
     ],
 
     mixins: [
         Mixin.getByName('notification'),
-        Mixin.getByName('sw-inline-snippet')
+        Mixin.getByName('sw-inline-snippet'),
     ],
 
     props: {
         isEmpty: {
             type: Boolean,
-            required: true
+            required: true,
         },
 
         columns: {
             type: Array,
-            required: true
+            required: true,
         },
 
         repository: {
             type: Object,
-            required: true
+            required: true,
         },
 
         searchConfigs: {
@@ -37,21 +37,21 @@ Component.register('sw-settings-search-searchable-content-customfields', {
             required: false,
             default() {
                 return null;
-            }
+            },
         },
 
         isLoading: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
         return {
             customFields: [],
             currentCustomFieldId: null,
-            addedCustomFieldIds: []
+            addedCustomFieldIds: [],
         };
     },
 
@@ -81,8 +81,8 @@ Component.register('sw-settings-search-searchable-content-customfields', {
             criteria.addFilter(Criteria.not(
                 'AND',
                 [
-                    Criteria.equalsAny('id', this.addedCustomFieldIds)
-                ]
+                    Criteria.equalsAny('id', this.addedCustomFieldIds),
+                ],
             ));
 
             return criteria;
@@ -93,7 +93,16 @@ Component.register('sw-settings-search-searchable-content-customfields', {
             criteria.addAssociation('customFieldSet');
 
             return criteria;
-        }
+        },
+    },
+
+    watch: {
+        searchConfigs(newData) {
+            if (newData[0] && newData[0]._isNew) {
+                this.$refs.customGrid.enableInlineEdit();
+                this.$refs.customGrid.onDbClickCell(this.$refs.customGrid.records[0]);
+            }
+        },
     },
 
     created() {
@@ -108,7 +117,7 @@ Component.register('sw-settings-search-searchable-content-customfields', {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-search.notification.loadError')
+                        message: this.$tc('sw-settings-search.notification.loadError'),
                     });
                 });
         },
@@ -150,12 +159,12 @@ Component.register('sw-settings-search-searchable-content-customfields', {
             promise
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-settings-search.notification.saveSuccess')
+                        message: this.$tc('sw-settings-search.notification.saveSuccess'),
                     });
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-search.notification.saveError')
+                        message: this.$tc('sw-settings-search.notification.saveError'),
                     });
                 })
                 .finally(() => {
@@ -172,7 +181,7 @@ Component.register('sw-settings-search-searchable-content-customfields', {
         onResetRanking(currentField) {
             if (!currentField.field) {
                 this.createNotificationError({
-                    message: this.$tc('sw-settings-search.notification.saveError')
+                    message: this.$tc('sw-settings-search.notification.saveError'),
                 });
 
                 this.$emit('data-load');
@@ -182,7 +191,7 @@ Component.register('sw-settings-search-searchable-content-customfields', {
             const currentItem = this.searchConfigs.find((item) => item.field === currentField.field);
             if (!currentItem) {
                 this.createNotificationError({
-                    message: this.$tc('sw-settings-search.notification.saveError')
+                    message: this.$tc('sw-settings-search.notification.saveError'),
                 });
 
                 return;
@@ -199,6 +208,6 @@ Component.register('sw-settings-search-searchable-content-customfields', {
             }
 
             this.$emit('config-delete', currentField.id);
-        }
-    }
+        },
+    },
 });

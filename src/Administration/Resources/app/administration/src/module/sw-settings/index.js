@@ -18,8 +18,34 @@ Module.register('sw-settings', {
         index: {
             component: 'sw-settings-index',
             path: 'index',
-            icon: 'default-action-settings'
-        }
+            icon: 'default-action-settings',
+            redirect: {
+                name: 'sw.settings.index.shop',
+            },
+            children: {
+                shop: {
+                    path: 'shop',
+                    meta: {
+                        component: 'sw-settings-index',
+                        parentPath: 'sw.product.index',
+                    },
+                },
+                system: {
+                    path: 'system',
+                    meta: {
+                        component: 'sw-settings-index',
+                        parentPath: 'sw.product.index',
+                    },
+                },
+                plugins: {
+                    path: 'plugins',
+                    meta: {
+                        component: 'sw-settings-index',
+                        parentPath: 'sw.product.index',
+                    },
+                },
+            },
+        },
     },
 
     navigation: [{
@@ -28,6 +54,6 @@ Module.register('sw-settings', {
         color: '#9AA8B5',
         icon: 'default-action-settings',
         path: 'sw.settings.index',
-        position: 80
-    }]
+        position: 80,
+    }],
 });

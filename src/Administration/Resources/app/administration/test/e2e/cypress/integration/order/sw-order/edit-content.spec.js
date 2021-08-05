@@ -163,10 +163,14 @@ describe('Order: Read order', () => {
 
         // Get correct quantity of both items
         cy.get('.sw-data-grid__row--1')
-            .within(() => { cy.get('.sw-data-grid__cell--quantity .sw-data-grid__cell-content').contains('10'); });
+            .within(() => {
+                cy.get('.sw-data-grid__cell--quantity .sw-data-grid__cell-content').contains('10');
+            });
 
         cy.get('.sw-data-grid__row--0')
-            .within(() => { cy.get('.sw-data-grid__cell--quantity .sw-data-grid__cell-content').contains('1'); });
+            .within(() => {
+                cy.get('.sw-data-grid__cell--quantity .sw-data-grid__cell-content').contains('1');
+            });
     });
 
     it('@base @order: can add custom products', () => {
@@ -289,8 +293,7 @@ describe('Order: Read order', () => {
         });
     });
 
-    // TODO: Unskip with NEXT-15481, all checks after line item dbclick are not working because of change detection modal
-    it.skip('@base @order: can edit existing line items', () => {
+    it('@base @order: can edit existing line items', () => {
         const page = new OrderPageObject();
 
         navigateToOrder(page);
@@ -298,7 +301,7 @@ describe('Order: Read order', () => {
         cy.get('.sw-order-detail-base__line-item-grid-card').scrollIntoView();
 
         // enter edit state
-        cy.get('.sw-data-grid__row--0 > .sw-data-grid__cell--label').dblclick().click();
+        cy.get('.sw-data-grid__row--0 > .sw-data-grid__cell--unitPrice').dblclick().click();
 
         // change item price ...
         cy.get('#sw-field--item-priceDefinition-price').clear().type('1337');
@@ -321,10 +324,13 @@ describe('Order: Read order', () => {
         });
 
         // check that the changes have been persisted
-        cy.get('.sw-data-grid__cell--unitPrice').contains(/1\.337,00.€/);
-        cy.get('.sw-data-grid__cell--quantity').contains('10');
-        cy.get('.sw-data-grid__cell--price-taxRules\\[0\\]').contains(/10.%/);
+        // currency and formatting independently regex for the price
+        cy.get('.sw-data-grid__cell--unitPrice').contains(/1[,.]?337/);
 
-        assertPriceBreakdownContains(/^\s*plus 10% VAT\s*$/, /121,55.€/);
+        cy.get('.sw-data-grid__cell--quantity').contains('10');
+        cy.get('.sw-data-grid__cell--price-taxRules\\[0\\]').contains(/10\s%/);
+
+        // currency and formatting independently regex for the price
+        assertPriceBreakdownContains(/^\s*plus 10% VAT\s*$/, /1[,.]?215[.,]45/);
     });
 });

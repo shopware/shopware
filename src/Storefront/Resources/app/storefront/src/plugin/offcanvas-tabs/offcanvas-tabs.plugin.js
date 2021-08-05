@@ -11,7 +11,7 @@ export default class OffCanvasTabs extends Plugin {
          * from which direction the
          * offcanvas opens
          */
-        offcanvasPostion: 'right'
+        offcanvasPostion: 'right',
     };
 
     init() {

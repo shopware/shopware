@@ -1,4 +1,4 @@
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount, config } from '@vue/test-utils';
 import VueAdapter from 'src/app/adapter/view/vue.adapter';
 import ViewAdapter from 'src/core/adapter/view.adapter';
 import ComponentFactory from 'src/core/factory/component.factory';
@@ -14,6 +14,10 @@ describe('app/adapter/view/vue.adapter.js', () => {
     let vueAdapter;
 
     beforeEach(() => {
+        // delete global $router and $routes mocks
+        delete config.mocks.$router;
+        delete config.mocks.$route;
+
         // mock vue adapter
         vueAdapter = new VueAdapter({
             getContainer: () => ({
@@ -336,5 +340,23 @@ describe('app/adapter/view/vue.adapter.js', () => {
         expect(wrapper.vm.bar()).toBe('bar');
 
         expect(lifecycleSpy).toBeCalledTimes(1);
+    });
+
+    it('should build & create a vue.js component', () => {
+        const componentDefinition = {
+            name: 'sw-foo',
+
+            render(h) {
+                return h('div', {
+                    class: {
+                        'sw-foo': true
+                    }
+                }, ['Some text']);
+            }
+        };
+
+        const component = vueAdapter.buildAndCreateComponent(componentDefinition);
+        const mountedComponent = shallowMount(component);
+        expect(mountedComponent.vm).toBeTruthy();
     });
 });

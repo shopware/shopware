@@ -8,24 +8,24 @@ Component.register('sw-order-nested-line-items-modal', {
     template,
 
     inject: [
-        'repositoryFactory'
+        'repositoryFactory',
     ],
 
     props: {
         lineItem: {
             type: Object,
-            required: true
+            required: true,
         },
 
         order: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
         return {
-            isLoading: false
+            isLoading: false,
         };
     },
 
@@ -39,9 +39,9 @@ Component.register('sw-order-nested-line-items-modal', {
 
             return this.$tc('sw-order.nestedLineItemsModal.titlePrefix', 0, {
                 lineItemLabel: this.lineItem.label,
-                price
+                price,
             });
-        }
+        },
     },
 
     created() {
@@ -101,13 +101,13 @@ Component.register('sw-order-nested-line-items-modal', {
                 'en-GB',
                 {
                     numeric: true,
-                    ignorePunctuation: true
-                }
+                    ignorePunctuation: true,
+                },
             );
         },
 
         onCloseModal() {
             this.$emit('modal-close');
-        }
-    }
+        },
+    },
 });

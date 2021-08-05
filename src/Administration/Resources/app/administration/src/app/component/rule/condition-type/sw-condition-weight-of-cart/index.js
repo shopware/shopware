@@ -27,13 +27,13 @@ Component.extend('sw-condition-weight-of-cart', 'sw-condition-base', {
             set(weight) {
                 this.ensureValueExist();
                 this.condition.value = { ...this.condition.value, weight };
-            }
+            },
         },
 
         ...mapPropertyErrors('condition', ['value.operator', 'value.weight']),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueWeightError;
-        }
-    }
+        },
+    },
 });

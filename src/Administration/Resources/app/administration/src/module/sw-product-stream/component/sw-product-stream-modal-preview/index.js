@@ -12,8 +12,8 @@ Component.register('sw-product-stream-modal-preview', {
     props: {
         filters: {
             type: Array,
-            required: true
-        }
+            required: true,
+        },
     },
     data() {
         return {
@@ -24,7 +24,7 @@ Component.register('sw-product-stream-modal-preview', {
             page: 1,
             total: false,
             limit: 25,
-            isLoading: false
+            isLoading: false,
         };
     },
 
@@ -43,25 +43,25 @@ Component.register('sw-product-stream-modal-preview', {
                     property: 'name',
                     label: this.$tc('sw-product-stream.filter.values.product'),
                     type: 'text',
-                    routerLink: 'sw.product.detail'
+                    routerLink: 'sw.product.detail',
                 }, {
                     property: 'manufacturer.name',
-                    label: this.$tc('sw-product-stream.filter.values.manufacturerId')
+                    label: this.$tc('sw-product-stream.filter.values.manufacturerId'),
                 }, {
                     property: 'active',
                     label: this.$tc('sw-product-stream.filter.values.active'),
                     align: 'center',
-                    type: 'bool'
+                    type: 'bool',
                 }, {
                     property: 'price',
-                    label: this.$tc('sw-product-stream.filter.values.price')
+                    label: this.$tc('sw-product-stream.filter.values.price'),
                 }, {
                     property: 'stock',
                     label: this.$tc('sw-product-stream.filter.values.stock'),
-                    align: 'right'
-                }
+                    align: 'right',
+                },
             ];
-        }
+        },
     },
 
     watch: {
@@ -72,7 +72,7 @@ Component.register('sw-product-stream-modal-preview', {
                 .then(() => {
                     this.isLoading = false;
                 });
-        }
+        },
     },
 
     created() {
@@ -99,7 +99,7 @@ Component.register('sw-product-stream-modal-preview', {
 
             return this.productRepository.search(criteria, {
                 ...Context.api,
-                inheritance: true
+                inheritance: true,
             }).then((products) => {
                 this.products = products;
                 this.total = products.total;
@@ -144,6 +144,6 @@ Component.register('sw-product-stream-modal-preview', {
                 .then(() => {
                     this.isLoading = false;
                 });
-        }
-    }
+        },
+    },
 });

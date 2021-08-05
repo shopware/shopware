@@ -15,22 +15,22 @@ Component.register('sw-desktop', {
     data() {
         return {
             noNavigation: false,
-            urlDiff: null
+            urlDiff: null,
         };
     },
 
     computed: {
         desktopClasses() {
             return {
-                'sw-desktop--no-nav': this.noNavigation
+                'sw-desktop--no-nav': this.noNavigation,
             };
-        }
+        },
     },
 
     watch: {
         $route() {
             this.checkRouteSettings();
-        }
+        },
     },
 
     created() {
@@ -59,6 +59,6 @@ Component.register('sw-desktop', {
 
         closeModal() {
             this.urlDiff = null;
-        }
-    }
+        },
+    },
 });

@@ -15,12 +15,13 @@ use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Development\Kernel;
+use Shopware\Core\Kernel;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * @group slow
+ * @group skip-paratest
  */
 class PluginManagementServiceTest extends TestCase
 {
@@ -62,7 +63,7 @@ class PluginManagementServiceTest extends TestCase
         $this->filesystem->remove(self::PLUGIN_ZIP_FIXTURE_PATH);
         $this->filesystem->remove($this->cacheDir);
 
-        \Shopware\Core\Kernel::getConnection()->executeUpdate('DELETE FROM plugin');
+        Kernel::getConnection()->executeUpdate('DELETE FROM plugin');
     }
 
     public function testUploadPlugin(): void

@@ -3,6 +3,8 @@ import 'src/module/sw-settings-country/page/sw-settings-country-detail';
 import 'src/app/component/structure/sw-card-view';
 import 'src/app/component/base/sw-card';
 import 'src/app/component/base/sw-container';
+import 'src/app/component/base/sw-tabs';
+import 'src/app/component/base/sw-tabs-item';
 
 function createWrapper(privileges = []) {
     const localVue = createLocalVue();
@@ -12,10 +14,15 @@ function createWrapper(privileges = []) {
         localVue,
 
         mocks: {
+            $tc: key => key,
             $route: {
                 params: {
                     id: 'id'
                 }
+            },
+            $device: {
+                getSystemKey: () => {},
+                onResize: () => {}
             }
         },
 
@@ -55,6 +62,13 @@ function createWrapper(privileges = []) {
                         return Promise.resolve({
                             systemCurrency: {
                                 symbol: '€'
+                            }
+                        });
+                    },
+                    search: () => {
+                        return Promise.resolve({
+                            userConfigs: {
+                                first: () => ({})
                             }
                         });
                     }
@@ -119,14 +133,18 @@ function createWrapper(privileges = []) {
                         </template>
                     </div>
                 `
-            }
+            },
+            'sw-tabs': Shopware.Component.build('sw-tabs'),
+            'sw-tabs-item': Shopware.Component.build('sw-tabs-item'),
+            'router-link': true,
+            'router-view': true
         }
     });
 }
 
 describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
     beforeAll(() => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_14114'];
+        Shopware.State.get('session').currentUser = {};
     });
 
     it('should be a Vue.JS component', async () => {
@@ -134,6 +152,19 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm).toBeTruthy();
+    });
+
+    it('should be render tab', async () => {
+        const wrapper = createWrapper([
+            'country.editor'
+        ]);
+
+        await wrapper.vm.$nextTick();
+        const generalTab = wrapper.find('.sw-settings-country__setting-tab');
+        const stateTab = wrapper.find('.sw-settings-country__state-tab');
+
+        expect(generalTab.exists()).toBeTruthy();
+        expect(stateTab.exists()).toBeTruthy();
     });
 
     it('should be able to save the country', async () => {
@@ -145,170 +176,18 @@ describe('module/sw-settings-country/page/sw-settings-country-detail', () => {
         const saveButton = wrapper.find(
             '.sw-settings-country-detail__save-action'
         );
-        const countryNameField = wrapper.find(
-            'sw-field-stub[label="sw-settings-country.detail.labelName"]'
-        );
-        const countryPositionField = wrapper.find(
-            'sw-field-stub[label="sw-settings-country.detail.labelPosition"]'
-        );
-        const countryIsoField = wrapper.find(
-            'sw-field-stub[label="sw-settings-country.detail.labelIso"]'
-        );
-        const countryIso3Field = wrapper.find(
-            'sw-field-stub[label="sw-settings-country.detail.labelIso3"]'
-        );
-        const countryActiveField = wrapper.find(
-            'sw-field-stub[label="sw-settings-country.detail.labelActive"]'
-        );
-        const countryShippingAvailableField = wrapper.find(
-            'sw-field-stub[label="sw-settings-country.detail.labelShippingAvailable"]'
-        );
-        const countryTaxFreeField = wrapper.find(
-            'sw-field-stub[label="sw-settings-country.detail.labelTaxFree"]'
-        );
-        const countryCompaniesTaxFreeField = wrapper.find(
-            'sw-switch-field-stub[label="sw-settings-country.detail.labelCompanyTaxFree"]'
-        );
-        const countryCheckVatIdFormatField = wrapper.find(
-            'sw-switch-field-stub[label="sw-settings-country.detail.labelCheckVatIdFormat"]'
-        );
-        const countryForceStateInRegistrationField = wrapper.find(
-            'sw-field-stub[label="sw-settings-country.detail.labelForceStateInRegistration"]'
-        );
-        const countryTaxFreeFromField = wrapper.find(
-            'sw-number-field-stub[label="sw-settings-country.detail.taxFreeFrom"]'
-        );
-        const countryVatIdRequiredField = wrapper.find(
-            'sw-switch-field-stub[label="sw-settings-country.detail.labelVatIdRequired"]'
-        );
 
         expect(saveButton.attributes().disabled).toBeFalsy();
-        expect(countryNameField.attributes().disabled).toBeUndefined();
-        expect(countryPositionField.attributes().disabled).toBeUndefined();
-        expect(countryIsoField.attributes().disabled).toBeUndefined();
-        expect(countryIso3Field.attributes().disabled).toBeUndefined();
-        expect(countryActiveField.attributes().disabled).toBeUndefined();
-        expect(countryShippingAvailableField.attributes().disabled).toBeUndefined();
-        expect(countryTaxFreeField.attributes().disabled).toBeUndefined();
-        expect(countryCompaniesTaxFreeField.attributes().disabled).toBeUndefined();
-        expect(countryCheckVatIdFormatField.attributes().disabled).toBeUndefined();
-        expect(countryForceStateInRegistrationField.attributes().disabled).toBeUndefined();
-        expect(countryTaxFreeFromField.attributes().disabled).toBeDefined();
-        expect(countryVatIdRequiredField.attributes().disabled).toBeUndefined();
     });
 
     it('should not be able to save the country', async () => {
-        const wrapper = createWrapper();
+        const wrapper = createWrapper([]);
         await wrapper.vm.$nextTick();
 
         const saveButton = wrapper.find(
             '.sw-settings-country-detail__save-action'
         );
-        const countryNameField = wrapper.find(
-            'sw-field-stub[label="sw-settings-country.detail.labelName"]'
-        );
-        const countryPositionField = wrapper.find(
-            'sw-field-stub[label="sw-settings-country.detail.labelPosition"]'
-        );
-        const countryIsoField = wrapper.find(
-            'sw-field-stub[label="sw-settings-country.detail.labelIso"]'
-        );
-        const countryIso3Field = wrapper.find(
-            'sw-field-stub[label="sw-settings-country.detail.labelIso3"]'
-        );
-        const countryActiveField = wrapper.find(
-            'sw-field-stub[label="sw-settings-country.detail.labelActive"]'
-        );
-        const countryShippingAvailableField = wrapper.find(
-            'sw-field-stub[label="sw-settings-country.detail.labelShippingAvailable"]'
-        );
-        const countryTaxFreeField = wrapper.find(
-            'sw-field-stub[label="sw-settings-country.detail.labelTaxFree"]'
-        );
-        const countryCompaniesTaxFreeField = wrapper.find(
-            'sw-switch-field-stub[label="sw-settings-country.detail.labelCompanyTaxFree"]'
-        );
-        const countryCheckVatIdFormatField = wrapper.find(
-            'sw-switch-field-stub[label="sw-settings-country.detail.labelCheckVatIdFormat"]'
-        );
-        const countryForceStateInRegistrationField = wrapper.find(
-            'sw-field-stub[label="sw-settings-country.detail.labelForceStateInRegistration"]'
-        );
-        const countryTaxFreeFromField = wrapper.find(
-            'sw-number-field-stub[label="sw-settings-country.detail.taxFreeFrom"]'
-        );
-        const countryVatIdRequiredField = wrapper.find(
-            'sw-switch-field-stub[label="sw-settings-country.detail.labelVatIdRequired"]'
-        );
 
         expect(saveButton.attributes().disabled).toBeTruthy();
-        expect(countryNameField.attributes().disabled).toBeTruthy();
-        expect(countryPositionField.attributes().disabled).toBeTruthy();
-        expect(countryIsoField.attributes().disabled).toBeTruthy();
-        expect(countryIso3Field.attributes().disabled).toBeTruthy();
-        expect(countryActiveField.attributes().disabled).toBeTruthy();
-        expect(countryShippingAvailableField.attributes().disabled).toBeTruthy();
-        expect(countryTaxFreeField.attributes().disabled).toBeTruthy();
-        expect(countryCompaniesTaxFreeField.attributes().disabled).toBeTruthy();
-        expect(countryCheckVatIdFormatField.attributes().disabled).toBeTruthy();
-        expect(countryForceStateInRegistrationField.attributes().disabled).toBeTruthy();
-        expect(countryTaxFreeFromField.attributes().disabled).toBeDefined();
-        expect(countryVatIdRequiredField.attributes().disabled).toBeTruthy();
-    });
-
-    it('should be able to create a new country state', async () => {
-        const wrapper = createWrapper([
-            'country.editor'
-        ]);
-        await wrapper.vm.$nextTick();
-
-        const createButton = wrapper.find('.sw-settings-country-detail__add-country-state-button');
-
-        expect(createButton.attributes().disabled).toBeFalsy();
-    });
-
-    it('should not be able to create a new country state', async () => {
-        const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
-
-        const createButton = wrapper.find('.sw-settings-country-detail__add-country-state-button');
-
-        expect(createButton.attributes().disabled).toBeTruthy();
-    });
-
-    it('should be able to edit a country state', async () => {
-        const wrapper = createWrapper([
-            'country.editor'
-        ]);
-        await wrapper.vm.$nextTick();
-
-        const editMenuItem = wrapper.find('.sw-settings-country-detail__edit-country-state-action');
-        expect(editMenuItem.attributes().disabled).toBeFalsy();
-    });
-
-    it('should not be able to edit a country state', async () => {
-        const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
-
-        const editMenuItem = wrapper.find('.sw-settings-country-detail__edit-country-state-action');
-        expect(editMenuItem.attributes().disabled).toBeTruthy();
-    });
-
-    it('should be able to delete a country state', async () => {
-        const wrapper = createWrapper([
-            'country.editor'
-        ]);
-        await wrapper.vm.$nextTick();
-
-        const editMenuItem = wrapper.find('.sw-one-to-many-grid__delete-action');
-        expect(editMenuItem.attributes().disabled).toBeFalsy();
-    });
-
-    it('should not be able to delete a country state', async () => {
-        const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
-
-        const editMenuItem = wrapper.find('.sw-one-to-many-grid__delete-action');
-        expect(editMenuItem.attributes().disabled).toBeTruthy();
     });
 });

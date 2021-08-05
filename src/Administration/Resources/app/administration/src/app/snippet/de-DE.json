@@ -15,8 +15,10 @@
       "apply": "Anwenden",
       "cancel": "Abbrechen",
       "delete": "Löschen",
+      "remove": "Entfernen",
       "edit": "Bearbeiten",
       "duplicate": "Duplizieren",
+      "copy": "Kopie",
       "error": "Fehler",
       "warning": "Warnung",
       "save": "Speichern",
@@ -29,12 +31,10 @@
       "ascending": "Aufsteigend",
       "descending": "Absteigend",
       "xTimesIn": "{n} mal in",
+      "open": "Öffnen",
       "close": "Schließen",
       "from": "Von",
-      "to": "Bis",
-      "bulkEdit": "Mehrfach-Bearbeitung",
-      "startBulkEdit": "Beginne die Mehrfach-Bearbeitung",
-      "bulkEditModalTitle": "Mehrfach-Bearbeitung - {count} Element ausgewählt | Mehrfach-Bearbeitung - {count} Elemente ausgewählt"
+      "to": "Bis"
     },
     "notification": {
       "notificationSaveErrorMessage": "Beim Speichern der Entität \"{entityName}\" ist ein Fehler aufgetreten.",
@@ -182,6 +182,10 @@
     },
     "sw-text-editor": {
       "labelTextLength": "{count} Zeichen | {count} Zeichen"
+    },
+    "sw-code-editor": {
+      "sanitizeInfo": "Potenziell gefährlicher Code wird bereinigt und automatisch aus dem Editor entfernt.",
+      "sanitizedHint": "Einige Deiner Eingaben wurden bereinigt. Bitte prüfe Deine Inhalte."
     },
     "sw-tag-field": {
       "title": "Tags",
@@ -490,9 +494,6 @@
     "sw-entity-many-to-many-select": {
       "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden."
     },
-    "sw-label": {
-      "buttonDismiss": "Entfernen"
-    },
     "sw-search-bar": {
       "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden.",
       "messageNoTypeResults": "Es wurde kein passender Typ gefunden.",
@@ -509,7 +510,8 @@
       "typeLabelCms": "CMS"
     },
     "sw-search-more-results": {
-      "labelShowResultsInModule": "Ergebnisse im Modul anzeigen ({count})"
+      "labelShowResultsInModule": "Ergebnisse im Modul anzeigen ({count})",
+      "labelShowResultsInModuleV2": "Alle {count} Suchtreffer in {entityName} anzeigen..."
     },
     "sw-tagged-field": {
       "text-default-placeholder": "Enter-Taste benutzen, um die Werte einzufügen."
@@ -525,7 +527,8 @@
         "isOneOf": "Ist eine von",
         "isNoneOf": "Ist keine von",
         "gross": "Brutto",
-        "net": "Netto"
+        "net": "Netto",
+        "empty": "Ist leer"
       },
       "placeholderErrorMessage": "Platzhalter können nicht gespeichert werden.",
       "dataErrorMessage": "Es wurden nicht alle Pflichtfelder befüllt.",
@@ -554,8 +557,8 @@
         "shippingZipCodeRule": "Lieferadresse-PLZ",
         "customerLoggedInRule": "Angemeldeter Kunde",
         "cartAmountRule": "Warenkorbwert",
-        "goodsCountRule": "Anzahl Warenkorbgüter",
-        "goodsPriceRule": "Preis Warenkorbgüter",
+        "goodsCountRule": "Unterschiedliche Produkte im Warenkorb",
+        "goodsPriceRule": "Gesamtpreis Produkte im Warenkorb",
         "lineItemOfTypeRule": {
           "label": "Position des Typs",
           "product": "Produkt",
@@ -611,6 +614,8 @@
         "lineItemListPriceRule": "Positionen mit Streichpreis",
         "paymentMethodRule": "Zahlungsart",
         "shippingMethodRule": "Versandart",
+        "lineItemGoodsTotalRule": "Gesamtanzahl Produkte im Warenkorb",
+        "orderTotalAmountRule": "Gesamtsumme aller abgeschlossenen Bestellungen",
         "lineItemCustomField": {
           "field": {
             "fieldSetSelect": {
@@ -721,6 +726,7 @@
       "checkout_customer_logout": "Kunde meldet sich ab",
       "checkout_customer_register": "Kundenkonto wurde registriert",
       "checkout_order_placed": "Bestellung ist eingegangen",
+      "checkout_order_payment_method_changed": "Zahlungsmethode einer Bestellung wurde geändert",
       "contact_form_send": "Kontaktformular wurde verschickt",
       "customer_group_registration_accepted": "Kundengruppen-Registrierung wurde akzeptiert",
       "customer_group_registration_declined": "Kundengruppen-Registrierung wurde abgelehnt",
@@ -781,6 +787,11 @@
       "Standard rate": "Standard-Satz",
       "Reduced rate": "Ermäßigter Satz",
       "Reduced rate 2": "Stark ermäßigter Satz"
+    },
+    "sw-bulk-edit-modal": {
+      "bulkEdit": "Mehrfach-Bearbeitung",
+      "startBulkEdit": "Beginne die Mehrfach-Bearbeitung",
+      "bulkEditModalTitle": "Mehrfach-Bearbeitung - {count} Element ausgewählt | Mehrfach-Bearbeitung - {count} Elemente ausgewählt"
     }
   },
   "sw-text-editor-toolbar": {
@@ -1053,7 +1064,11 @@
   "sw-app": {
     "component": {
       "sw-app-actions": {
-        "messageErrorFetchButtons": "Es ist ein Fehler beim Laden der App-Actions aufgetreten."
+        "messageErrorFetchButtons": "Es ist ein Fehler beim Laden der App-Actions aufgetreten.",
+        "closeWindow": "Fenster schließen",
+        "iframeModalConfirmMessage": "Möchten Sie \"{title}\" wirklich schließen?",
+        "iframeModalConfirmMessageDescription": "Bitte stellen Sie sicher, dass alle Prozesse abgeschlossen sind.",
+        "dontAskMeAgain": "Mich nicht erneut fragen"
       },
       "sw-app-app-url-changed-modal": {
         "move-shop-permanently": {

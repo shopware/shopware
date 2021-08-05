@@ -16,6 +16,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @group store-api
+ */
 class ResetPasswordRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -198,7 +201,6 @@ class ResetPasswordRouteTest extends TestCase
                 'street' => 'Musterstraße 1',
                 'city' => 'Schoöppingen',
                 'zipcode' => '12345',
-                'salutationId' => $this->getValidSalutationId(),
                 'countryId' => $this->getValidCountryId(),
             ],
             'defaultBillingAddressId' => $addressId,
@@ -232,7 +234,6 @@ class ResetPasswordRouteTest extends TestCase
             'password' => $password,
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
-            'salutationId' => $this->getValidSalutationId(),
             'customerNumber' => '12345',
         ];
 

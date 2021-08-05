@@ -14,7 +14,7 @@
         <input-field type="bool">
             <name>customerIpAddressesNotAnonymously</name>
             <label>Save customer IP addresses as plain text</label>
-            <label lang="de-DE">Kunden-IP-Adressen in Klartext speichern</label>
+            <label lang="de-DE">Kunden-IP-Adressen als Klartext speichern</label>
         </input-field>
 
         <input-field type="bool">
@@ -41,10 +41,19 @@
 
         <input-field type="bool">
             <name>doubleOptInGuestOrder</name>
-            <label>Double opt in guest order</label>
-            <label lang="de-DE">Double-Opt-In für Gast-Bestellungen</label>
-            <helpText>Activates double opt in for guest orders.</helpText>
+            <label>Double opt-in on guest orders</label>
+            <label lang="de-DE">Double-Opt-In bei Gast-Bestellungen</label>
+            <helpText>Activates double opt-in for guest orders.</helpText>
             <helpText lang="de-DE">Aktiviert Double-Opt-In für Gast-Bestellungen.</helpText>
+        </input-field>
+
+        <input-field type="text">
+            <name>confirmationUrl</name>
+            <label>Confirmation URL for double opt-in on sign-up</label>
+            <label lang="de-DE">Bestätigungs-URL für Double-Opt-In-Registrierung</label>
+            <placeholder><![CDATA[/registration/confirm?em=%%HASHEDEMAIL%%&hash=%%SUBSCRIBEHASH%%]]></placeholder>
+            <helpText><![CDATA[Double opt-in URL for guest orders.<br/>Available placeholders: <br/>%%HASHEDEMAIL%%<br/>%%SUBSCRIBEHASH%%]]></helpText>
+            <helpText><![CDATA[Double-Opt-In-URL für Gast-Bestellungen.<br/>Verfügbare Platzhalter: <br/>%%HASHEDEMAIL%%<br/>%%SUBSCRIBEHASH%%]]></helpText>
         </input-field>
 
         <input-field type="bool">
@@ -64,7 +73,7 @@
         <input-field type="bool">
             <name>phoneNumberFieldRequired</name>
             <label>Phone number field required</label>
-            <label lang="de-DE">Telefonnummer als Pflichtfeld behandeln</label>
+            <label lang="de-DE">Telefonnummer ist Pflichtfeld</label>
         </input-field>
 
         <input-field type="bool">
@@ -76,7 +85,7 @@
         <input-field type="bool">
             <name>birthdayFieldRequired</name>
             <label>Birthday field required</label>
-            <label lang="de-DE">Geburtstag als Pflichtfeld behandeln</label>
+            <label lang="de-DE">Geburtstag ist Pflichtfeld</label>
         </input-field>
 
         <input-field type="bool">
@@ -94,7 +103,7 @@
         <input-field type="bool">
             <name>additionalAddressField1Required</name>
             <label>Additional address 1 field required</label>
-            <label lang="de-DE">Adresszusatzzeile 1 als Pflichtfeld behandeln</label>
+            <label lang="de-DE">Adresszusatzzeile 1 ist Pflichtfeld</label>
         </input-field>
 
         <input-field type="bool">
@@ -106,21 +115,21 @@
         <input-field type="bool">
             <name>additionalAddressField2Required</name>
             <label>Additional address 2 field required</label>
-            <label lang="de-DE">Adresszusatzzeile 2 als Pflichtfeld behandeln</label>
+            <label lang="de-DE">Adresszusatzzeile 2 ist Pflichtfeld</label>
         </input-field>
 
         <input-field type="bool">
             <name>invalidateSessionOnLogOut</name>
             <label>Clear and delete cart on log out</label>
             <label lang="de-DE">Warenkorb bei Abmeldung löschen</label>
-            <helpText>If activated, the cart won't be saved and can't be restored after login.</helpText>
-            <helpText lang="de-DE">Wenn die Einstellung aktiviert ist, wird der Warenkorb nicht gespeichert und kann nach der Anmeldung nicht wiederhergestellt werden.</helpText>
+            <helpText>If activated, the cart won't be saved and can't be restored after logout.</helpText>
+            <helpText lang="de-DE">Wenn die Einstellung aktiviert ist, wird der Warenkorb nicht gespeichert und kann nach der Abmeldung nicht wiederhergestellt werden.</helpText>
         </input-field>
 
         <input-field type="bool">
             <name>allowCustomerDeletion</name>
             <label>Allow customer deletion</label>
-            <label lang="de-DE">Löschen des Kunden zulassen</label>
+            <label lang="de-DE">Löschen von Kunden zulassen</label>
         </input-field>
 
         <input-field type="bool">
@@ -129,11 +138,22 @@
             <label lang="de-DE">Datenschutzbestimmungen müssen über eine Checkbox akzeptiert werden</label>
         </input-field>
 
-        <!-- @internal (FEATURE_NEXT_14114) remove this entry -->
-        <input-field type="bool">
-            <name>vatIdFieldRequired</name>
-            <label>VAT Reg.No. required</label>
-            <label lang="de-DE">Umsatzsteuer-ID als Pflichtfeld behandeln</label>
+        <input-field type="text">
+            <name>pwdRecoverUrl</name>
+            <label>Password recovery URL</label>
+            <label lang="de-DE">Passwort-Wiederherstellungs-URL</label>
+            <placeholder><![CDATA[/account/recover/password?hash=%%RECOVERHASH%%]]></placeholder>
+            <helpText><![CDATA[Available placeholders: <br/>%%RECOVERHASH%%]]></helpText>
+            <helpText><![CDATA[Verfügbare Platzhalter: <br/>%%RECOVERHASH%%]]></helpText>
+        </input-field>
+
+        <input-field type="text">
+            <name>doubleOptInDomain</name>
+            <label>Double opt-in domain</label>
+            <label lang="de-DE">Double-Opt-In-Domain</label>
+            <placeholder><![CDATA[https://localhost]]></placeholder>
+            <helpText>Leave empty to use this Sales Channel's domain.</helpText>
+            <helpText lang="de-DE">Leer lassen, um die Domain des Verkaufskanals zu verwenden.</helpText>
         </input-field>
     </card>
 </config>

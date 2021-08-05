@@ -31,7 +31,7 @@
         <p
             class="sw-notification-center-item__message"
             v-html="$sanitize(notification.message, { ALLOWED_TAGS: ['a', 'b', 'i', 'u', 'br'], ALLOWED_ATTR: ['href', 'target'] })"
-        />
+        ></p>
         {% endblock %}
         {% block sw_notification_center_item_loader %}
         <sw-loader

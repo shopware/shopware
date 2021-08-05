@@ -8,7 +8,7 @@ Component.register('sw-settings-shopware-updates-index', {
 
     inject: ['updateService'],
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
     data() {
         return {
@@ -16,20 +16,20 @@ Component.register('sw-settings-shopware-updates-index', {
             isSaveSuccessful: false,
             isSearchingForUpdates: false,
             updateModalShown: false,
-            updateInfo: null
+            updateInfo: null,
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle()
+            title: this.$createTitle(),
         };
     },
 
     computed: {
         shopwareVersion() {
             return Shopware.Context.app.config.version;
-        }
+        },
     },
 
     methods: {
@@ -43,7 +43,7 @@ Component.register('sw-settings-shopware-updates-index', {
                     this.updateModalShown = true;
                 } else {
                     this.createNotificationInfo({
-                        message: this.$tc('sw-settings-shopware-updates.notifications.alreadyUpToDate')
+                        message: this.$tc('sw-settings-shopware-updates.notifications.alreadyUpToDate'),
                     });
                 }
             });
@@ -71,9 +71,9 @@ Component.register('sw-settings-shopware-updates-index', {
             }).catch((err) => {
                 this.isLoading = false;
                 this.createNotificationError({
-                    message: err
+                    message: err,
                 });
             });
-        }
-    }
+        },
+    },
 });

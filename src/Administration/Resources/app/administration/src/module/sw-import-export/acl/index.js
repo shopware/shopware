@@ -13,9 +13,9 @@ Shopware.Service('privileges')
                     'import_export_profile:read',
                     'import_export_profile:create',
                     'import_export_profile:delete',
-                    'currency:read'
+                    'currency:read',
                 ],
-                dependencies: []
-            }
-        }
+                dependencies: [],
+            },
+        },
     });

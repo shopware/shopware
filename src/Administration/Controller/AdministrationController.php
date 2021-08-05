@@ -9,8 +9,10 @@ use Shopware\Administration\Snippet\SnippetFinderInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
@@ -19,8 +21,10 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Store\Services\FirstRunWizardClient;
+use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\PlatformRequest;
@@ -56,6 +60,10 @@ class AdministrationController extends AbstractController
 
     private EntityRepositoryInterface $currencyRepository;
 
+    private HtmlSanitizer $htmlSanitizer;
+
+    private DefinitionInstanceRegistry $definitionInstanceRegistry;
+
     public function __construct(
         TemplateFinder $finder,
         FirstRunWizardClient $firstRunWizardClient,
@@ -66,7 +74,9 @@ class AdministrationController extends AbstractController
         EventDispatcherInterface $eventDispatcher,
         string $shopwareCoreDir,
         EntityRepositoryInterface $customerRepo,
-        EntityRepositoryInterface $currencyRepository
+        EntityRepositoryInterface $currencyRepository,
+        HtmlSanitizer $htmlSanitizer,
+        DefinitionInstanceRegistry $definitionInstanceRegistry
     ) {
         $this->finder = $finder;
         $this->firstRunWizardClient = $firstRunWizardClient;
@@ -78,12 +88,14 @@ class AdministrationController extends AbstractController
         $this->shopwareCoreDir = $shopwareCoreDir;
         $this->customerRepo = $customerRepo;
         $this->currencyRepository = $currencyRepository;
+        $this->htmlSanitizer = $htmlSanitizer;
+        $this->definitionInstanceRegistry = $definitionInstanceRegistry;
     }
 
     /**
      * @Since("6.3.3.0")
      * @RouteScope(scopes={"administration"})
-     * @Route("/admin", defaults={"auth_required"=false}, name="administration.index", methods={"GET"})
+     * @Route("/%shopware_administration.path_name%", defaults={"auth_required"=false}, name="administration.index", methods={"GET"})
      */
     public function index(Request $request, Context $context): Response
     {
@@ -113,7 +125,7 @@ class AdministrationController extends AbstractController
     public function snippets(Request $request): Response
     {
         $locale = $request->query->get('locale', 'en-GB');
-        $snippets[$locale] = $this->snippetFinder->findSnippets($locale);
+        $snippets[$locale] = $this->snippetFinder->findSnippets((string) $locale);
 
         if ($locale !== 'en-GB') {
             $snippets['en-GB'] = $this->snippetFinder->findSnippets('en-GB');
@@ -203,10 +215,14 @@ class AdministrationController extends AbstractController
             throw new \InvalidArgumentException('Parameter "email" is missing.');
         }
 
-        $email = $request->request->get('email');
+        $email = (string) $request->request->get('email');
         $boundSalesChannelId = $request->request->get('bound_sales_channel_id');
 
-        if ($this->isEmailValid($request->request->get('id'), $email, $context, $boundSalesChannelId)) {
+        if ($boundSalesChannelId !== null && !\is_string($boundSalesChannelId)) {
+            throw new InvalidRequestParameterException('bound_sales_channel_id');
+        }
+
+        if ($this->isEmailValid((string) $request->request->get('id'), $email, $context, $boundSalesChannelId)) {
             return new JsonResponse(
                 ['isValid' => true]
             );
@@ -233,6 +249,54 @@ class AdministrationController extends AbstractController
         ));
 
         throw new ConstraintViolationException($violations, $request->request->all());
+    }
+
+    /**
+     * @Since("6.4.2.0")
+     * @RouteScope(scopes={"administration"})
+     * @Route("/api/_admin/sanitize-html", name="api.admin.sanitize-html", methods={"POST"})
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function sanitizeHtml(Request $request, Context $context): JsonResponse
+    {
+        if (!$request->request->has('html')) {
+            throw new \InvalidArgumentException('Parameter "html" is missing.');
+        }
+
+        $html = (string) $request->request->get('html');
+        $field = (string) $request->request->get('field');
+
+        if ($field === '') {
+            return new JsonResponse(
+                ['preview' => $this->htmlSanitizer->sanitize($html)]
+            );
+        }
+
+        list($entityName, $propertyName) = explode('.', $field);
+        $property = $this->definitionInstanceRegistry->getByEntityName($entityName)->getField($propertyName);
+
+        if ($property === null) {
+            throw new \InvalidArgumentException('Invalid field property provided.');
+        }
+
+        $flag = $property->getFlag(AllowHtml::class);
+
+        if ($flag === null) {
+            return new JsonResponse(
+                ['preview' => strip_tags($html)]
+            );
+        }
+
+        if ($flag instanceof AllowHtml && !$flag->isSanitized()) {
+            return new JsonResponse(
+                ['preview' => $html]
+            );
+        }
+
+        return new JsonResponse(
+            ['preview' => $this->htmlSanitizer->sanitize($html, [], false, $field)]
+        );
     }
 
     private function fetchLanguageIdByName(string $isoCode, Connection $connection): ?string

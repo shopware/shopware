@@ -40,15 +40,29 @@ describe('Category: Visual tests', () => {
             expect(xhr).to.have.property('status', 200);
         });
         cy.get('.sw-loader').should('not.exist');
+
+        // Change color of the element to ensure consistent snapshots
+        cy.changeElementStyling(
+            '.sw-category-entry-point-card__navigation-list .sw-category-entry-point-card__navigation-entry',
+            'color: #fff'
+        );
+        cy.get('.sw-category-entry-point-card__navigation-list .sw-category-entry-point-card__navigation-entry')
+            .should('have.css', 'color', 'rgb(255, 255, 255)');
         cy.takeSnapshot('[Category] Listing', '.sw-card');
 
-        cy.contains('.sw-category-detail__tab-products', 'Products');
+        cy.contains('.sw-category-detail__tab-products', 'Products').click();
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-data-grid__skeleton').should('not.exist');
+
+        cy.get('.sw-many-to-many-assignment-card__select-container').should('be.visible');
         cy.takeSnapshot('[Category] Detail, Products', '.sw-card');
 
-        cy.contains('.sw-category-detail__tab-cms', 'Layout');
-        cy.get('.sw-loader').should('not.exist');
-        cy.takeSnapshot('[Category] Detail, Products', '.sw-card');
+        cy.get('.sw-tree-item__actions .sw-context-button')
+            .click();
+
+        cy.get('.sw-context-menu')
+            .should('be.visible');
+
+        cy.takeSnapshot('[Category] Detail, Open context menu', '.sw-page');
     });
 });

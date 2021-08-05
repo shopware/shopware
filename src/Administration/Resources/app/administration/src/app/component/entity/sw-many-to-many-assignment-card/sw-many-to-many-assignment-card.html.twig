@@ -9,7 +9,7 @@
         <div class="sw-many-to-many-assignment-card__select-container">
 
             {% block sw_entity_many_to_many_assignment_card_pre_select %}
-            <slot name="prepend-select" />
+            <slot name="prepend-select"></slot>
             {% endblock %}
 
             {% block sw_entity_many_to_many_assignment_card_select %}
@@ -53,7 +53,7 @@
 
                             <template #before-item-list>
                                 {% block sw_entity_many_to_many_assignment_card_results_list_before %}
-                                <slot name="before-item-list" />
+                                <slot name="before-item-list"></slot>
                                 {% endblock %}
                             </template>
 
@@ -97,7 +97,7 @@
 
                             <template #after-item-list>
                                 {% block sw_entity_many_to_many_assignment_card_results_list_after %}
-                                <slot name="after-item-list" />
+                                <slot name="after-item-list"></slot>
                                 {% endblock %}
                             </template>
 
@@ -133,7 +133,7 @@
                     <slot
                         :name="`column-${column.property}`"
                         v-bind="{ ...columnProps, searchTerm, highlightSearchTerm }"
-                    />
+                    ></slot>
                     {% endblock %}
                 </template>
 
@@ -175,7 +175,7 @@
                             v-else
                             class="sw-many-to-many-assignment-card__empty-state"
                         >
-                            <slot name="empty-state" />
+                            <slot name="empty-state"></slot>
                         </div>
                     </template>
                     {% endblock %}
@@ -186,7 +186,7 @@
                             v-if="total === 0"
                             class="sw-many-to-many-assignment-card__empty-state"
                         >
-                            <slot name="empty-state" />
+                            <slot name="empty-state"></slot>
                         </div>
                     </template>
                     {% endblock %}

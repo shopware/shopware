@@ -11,50 +11,40 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class ChangelogProcessor
 {
-    /**
-     * @var Filesystem
-     */
-    protected $filesystem;
+    protected Filesystem $filesystem;
 
-    /**
-     * @var string
-     */
-    protected $changelogDir;
+    protected ChangelogParser $parser;
 
-    /**
-     * @var string
-     */
-    protected $unreleasedDir;
+    protected ValidatorInterface $validator;
 
-    /**
-     * @var string
-     */
-    protected $changelogGlobal;
-
-    /**
-     * @var string
-     */
-    protected $upgradeDir;
-
-    /**
-     * @var ChangelogParser
-     */
-    protected $parser;
-
-    /**
-     * @var ValidatorInterface
-     */
-    protected $validator;
+    private string $projectDir;
 
     public function __construct(ChangelogParser $parser, ValidatorInterface $validator, Filesystem $filesystem, string $projectDir)
     {
-        $this->changelogDir = $projectDir . '/platform/changelog';
-        $this->unreleasedDir = $this->changelogDir . '/_unreleased';
-        $this->changelogGlobal = $projectDir . '/platform/CHANGELOG.md';
-        $this->upgradeDir = $projectDir . '/platform';
         $this->parser = $parser;
         $this->validator = $validator;
         $this->filesystem = $filesystem;
+        $this->projectDir = $projectDir;
+    }
+
+    protected function getUnreleasedDir(): string
+    {
+        return $this->getChangelogDir() . '/_unreleased';
+    }
+
+    protected function getChangelogDir(): string
+    {
+        return $this->getPlatformRoot() . '/changelog';
+    }
+
+    protected function getChangelogGlobal(): string
+    {
+        return $this->getPlatformRoot() . '/CHANGELOG.md';
+    }
+
+    protected function getUpgradeDir(): string
+    {
+        return $this->getPlatformRoot();
     }
 
     protected function existedRelease(string $version): bool
@@ -64,7 +54,7 @@ class ChangelogProcessor
 
     protected function getTargetReleaseDir(string $version, bool $realPath = true): string
     {
-        return ($realPath ? $this->changelogDir . '/' : '') . 'release-' . str_replace('.', '-', $version);
+        return ($realPath ? $this->getChangelogDir() . '/' : '') . 'release-' . str_replace('.', '-', $version);
     }
 
     protected function getMajorVersion(string $version): string
@@ -74,7 +64,7 @@ class ChangelogProcessor
 
     protected function getTargetUpgradeFile(string $version, bool $realPath = true): string
     {
-        return ($realPath ? $this->upgradeDir . '/' : '') . sprintf('UPGRADE-%s.md', $this->getMajorVersion($version));
+        return ($realPath ? $this->getUpgradeDir() . '/' : '') . sprintf('UPGRADE-%s.md', $this->getMajorVersion($version));
     }
 
     /**
@@ -85,7 +75,7 @@ class ChangelogProcessor
         $entries = new ChangelogFileCollection();
 
         $finder = new Finder();
-        $finder->in($version ? $this->getTargetReleaseDir($version) : $this->unreleasedDir)->files()->sortByName()->depth('0')->name('*.md');
+        $finder->in($version ? $this->getTargetReleaseDir($version) : $this->getUnreleasedDir())->files()->sortByName()->depth('0')->name('*.md');
         if ($finder->hasResults()) {
             foreach ($finder as $file) {
                 $definition = $this->parser->parse($file->getContents());
@@ -105,5 +95,17 @@ class ChangelogProcessor
         }
 
         return $entries;
+    }
+
+    private function getPlatformRoot(): string
+    {
+        $platformRoot = $this->projectDir;
+        $composerJson = json_decode((string) file_get_contents($this->projectDir . '/composer.json'), true);
+
+        if ($composerJson === null || $composerJson['name'] !== 'shopware/platform') {
+            $platformRoot .= '/platform';
+        }
+
+        return $platformRoot;
     }
 }

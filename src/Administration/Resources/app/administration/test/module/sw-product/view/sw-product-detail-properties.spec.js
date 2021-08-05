@@ -1,4 +1,4 @@
-import { shallowMount, createLocalVue, Wrapper } from '@vue/test-utils';
+import { shallowMount, createLocalVue, config } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import productStore from 'src/module/sw-product/page/sw-product-detail/state';
 import 'src/module/sw-product/view/sw-product-detail-properties';
@@ -11,10 +11,18 @@ import 'src/app/component/form/sw-switch-field';
 import 'src/app/component/form/sw-checkbox-field';
 import Vuex from 'vuex';
 
+/**
+ * @deprecated tag:v6.5.0 - Will be removed, use `sw-product-properties` instead
+ * @feature-deprecated (flag:FEATURE_NEXT_12437)
+ */
 describe('src/module/sw-product/view/sw-product-detail-properties', () => {
     Shopware.State.registerModule('swProductDetail', productStore);
 
     const createWrapper = () => {
+        // delete global $router and $routes mocks
+        delete config.mocks.$router;
+        delete config.mocks.$route;
+
         const localVue = createLocalVue();
 
         localVue.use(VueRouter);
@@ -59,21 +67,6 @@ describe('src/module/sw-product/view/sw-product-detail-properties', () => {
         });
     };
 
-    /*
-     * Workaround, since the current vue-test-utils version doesn't support get()
-     *
-     * @see https://vue-test-utils.vuejs.org/api/wrapper/#get
-     */
-    const findSecure = (wrapperEl, findArg) => {
-        const el = wrapperEl.find(findArg);
-
-        if (el instanceof Wrapper) {
-            return el;
-        }
-
-        throw new Error(`Could not find element ${findArg}.`);
-    };
-
     it('should be able to instantiate', async () => {
         const wrapper = createWrapper();
         expect(wrapper.vm).toBeTruthy();
@@ -92,12 +85,12 @@ describe('src/module/sw-product/view/sw-product-detail-properties', () => {
         const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
 
-        const emptyStateElement = findSecure(wrapper, '.sw-product-detail-properties__empty-state-card');
-        const routerLink = findSecure(emptyStateElement, '.sw-product-detail-properties__parent-properties-link');
+        const emptyStateElement = wrapper.get('.sw-product-detail-properties__empty-state-card');
+        const routerLink = emptyStateElement.find('.sw-product-detail-properties__parent-properties-link');
 
-        expect(routerLink.exists()).toBeTruthy();
-        expect(wrapper.vm.isChild).toBeTruthy();
-        expect(wrapper.vm.isInherited).toBeTruthy();
+        expect(routerLink.exists()).toBe(true);
+        expect(wrapper.vm.isChild).toBe(true);
+        expect(wrapper.vm.isInherited).toBe(true);
     });
 
     it('should show empty state for main product', async () => {

@@ -19,8 +19,8 @@ class CustomerGroupRegistrationApiService extends ApiService {
             {},
             {
                 params: additionalParams,
-                headers: this.getBasicHeaders(additionalHeaders)
-            }
+                headers: this.getBasicHeaders(additionalHeaders),
+            },
         ).then((response) => {
             return ApiService.handleResponse(response);
         });
@@ -34,8 +34,8 @@ class CustomerGroupRegistrationApiService extends ApiService {
             {},
             {
                 params: additionalParams,
-                headers: this.getBasicHeaders(additionalHeaders)
-            }
+                headers: this.getBasicHeaders(additionalHeaders),
+            },
         ).then((response) => {
             return ApiService.handleResponse(response);
         });

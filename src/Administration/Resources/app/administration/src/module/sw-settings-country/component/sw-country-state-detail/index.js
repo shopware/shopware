@@ -8,14 +8,14 @@ Component.register('sw-country-state-detail', {
     inject: ['acl'],
 
     mixins: [
-        Mixin.getByName('placeholder')
+        Mixin.getByName('placeholder'),
     ],
 
     props: {
         countryState: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
     },
 
     computed: {
@@ -32,15 +32,15 @@ Component.register('sw-country-state-detail', {
                 return {
                     message: this.$tc('sw-privileges.tooltip.warning'),
                     disabled: this.acl.can('country.editor'),
-                    showOnDisabledElements: true
+                    showOnDisabledElements: true,
                 };
             }
 
             return {
                 message: '',
-                disabled: true
+                disabled: true,
             };
-        }
+        },
     },
 
     methods: {
@@ -49,6 +49,6 @@ Component.register('sw-country-state-detail', {
         },
         onSave() {
             this.$emit('attribute-edit-save', this.countryState);
-        }
-    }
+        },
+    },
 });

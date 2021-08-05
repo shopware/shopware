@@ -10,10 +10,10 @@ const { Criteria } = Shopware.Data;
 Shopware.Component.register('sw-import-export-view-profiles', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'feature'],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     data() {
@@ -23,13 +23,13 @@ Shopware.Component.register('sw-import-export-view-profiles', {
             profiles: null,
             searchTerm: null,
             sortBy: 'name',
-            sortDirection: 'ASC'
+            sortDirection: 'ASC',
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle()
+            title: this.$createTitle(),
         };
     },
 
@@ -56,16 +56,28 @@ Shopware.Component.register('sw-import-export-view-profiles', {
                     dataIndex: 'label',
                     label: 'sw-import-export.profile.nameColumn',
                     allowResize: true,
-                    primary: true
+                    primary: true,
                 },
                 {
                     property: 'systemDefault',
                     dataIndex: 'systemDefault',
                     label: 'sw-import-export.profile.typeColumn',
-                    allowResize: true
-                }
+                    allowResize: true,
+                },
             ];
-        }
+        },
+
+        isNotSystemLanguage() {
+            return Shopware.Context.api.systemLanguageId !== Shopware.Context.api.languageId;
+        },
+
+        createTooltip() {
+            return {
+                showDelay: 300,
+                message: this.$tc('sw-import-export.profile.addNewProfileTooltipLanguage'),
+                disabled: !this.isNotSystemLanguage,
+            };
+        },
     },
 
     created() {
@@ -94,35 +106,73 @@ Shopware.Component.register('sw-import-export-view-profiles', {
         },
 
         onAddNewProfile() {
-            this.selectedProfile = this.profileRepository.create();
-            this.selectedProfile.fileType = 'text/csv';
-            this.selectedProfile.mapping = [];
-            this.$set(this.selectedProfile, 'config', {});
-            this.$set(this.selectedProfile, 'translated', {});
-            this.selectedProfile.delimiter = ';';
-            this.selectedProfile.enclosure = '"';
+            const profile = this.profileRepository.create();
+            profile.fileType = 'text/csv';
+            profile.mapping = [];
+            this.$set(profile, 'config', {});
+            if (this.feature.isActive('FEATURE_NEXT_8097')) {
+                profile.config.createEntities = true;
+                profile.config.updateEntities = true;
+            }
+            this.$set(profile, 'translated', {});
+            profile.delimiter = ';';
+            profile.enclosure = '"';
+            profile.type = 'import-export';
+
+            this.selectedProfile = profile;
         },
 
         async onEditProfile(id) {
-            this.selectedProfile = await this.profileRepository.get(id);
+            const profile = await this.profileRepository.get(id);
 
-            if (Array.isArray(this.selectedProfile.config) && this.selectedProfile.config.length <= 0) {
-                this.$set(this.selectedProfile, 'config', {});
+            if (Array.isArray(profile.config) && profile.config.length <= 0) {
+                this.$set(profile, 'config', {});
             }
+
+            if (this.feature.isActive('FEATURE_NEXT_8097')) {
+                if (profile.config?.createEntities === undefined) {
+                    profile.config.createEntities = true;
+                }
+                if (profile.config?.updateEntities === undefined) {
+                    profile.config.updateEntities = true;
+                }
+            }
+
+            this.selectedProfile = profile;
         },
 
         onDuplicateProfile(item) {
-            this.selectedProfile = this.profileRepository.create();
+            const behavior = {
+                cloneChildren: false,
+                overwrites: {
+                    label: `${this.$tc('sw-import-export.profile.copyOfLabel')} ${item.label || item.translated.label}`,
+                    systemDefault: false,
+                },
+            };
 
-            this.selectedProfile.label = `${this.$tc('sw-import-export.profile.copyOfLabel')} ${item.label || ''}`;
-            this.$set(this.selectedProfile, 'translated', {});
-            this.selectedProfile.systemDefault = false;
-            this.$set(this.selectedProfile, 'config', Array.isArray(item.config) ? {} : item.config);
-            this.selectedProfile.fileType = item.fileType;
-            this.selectedProfile.mapping = item.mapping;
-            this.selectedProfile.delimiter = item.delimiter;
-            this.selectedProfile.enclosure = item.enclosure;
-            this.selectedProfile.sourceEntity = item.sourceEntity;
+            return this.profileRepository.clone(item.id, Shopware.Context.api, behavior).then((clone) => {
+                const criteria = new Criteria();
+                criteria.setIds([clone.id]);
+                return this.profileRepository.search(criteria);
+            }).then((profiles) => {
+                const profile = profiles[0];
+                if (this.feature.isActive('FEATURE_NEXT_8097')) {
+                    if (profile.config?.createEntities === undefined) {
+                        profile.config.createEntities = true;
+                    }
+                    if (profile.config?.updateEntities === undefined) {
+                        profile.config.updateEntities = true;
+                    }
+                }
+
+                this.selectedProfile = profile;
+                return this.loadProfiles(); // refresh the list in any case (even if the modal is canceled)
+                // because the duplicate already exists.
+            }).catch(() => {
+                this.createNotificationError({
+                    message: this.$tc('global.notification.unspecifiedSaveErrorMessage'),
+                });
+            });
         },
 
         onDeleteProfile(id) {
@@ -135,15 +185,15 @@ Shopware.Component.register('sw-import-export-view-profiles', {
 
         saveSelectedProfile() {
             this.isLoading = true;
-            this.profileRepository.save(this.selectedProfile).then(() => {
+            return this.profileRepository.save(this.selectedProfile, Shopware.Context.api).then(() => {
                 this.selectedProfile = null;
                 this.createNotificationSuccess({
-                    message: this.$tc('sw-import-export.profile.messageSaveSuccess', 0)
+                    message: this.$tc('sw-import-export.profile.messageSaveSuccess', 0),
                 });
                 return this.loadProfiles();
             }).catch(() => {
                 this.createNotificationError({
-                    message: this.$tc('sw-import-export.profile.messageSaveError', 0)
+                    message: this.$tc('sw-import-export.profile.messageSaveError', 0),
                 });
             }).finally(() => {
                 this.isLoading = false;
@@ -154,6 +204,6 @@ Shopware.Component.register('sw-import-export-view-profiles', {
             return isSystemDefault ?
                 this.$tc('sw-import-export.profile.defaultTypeLabel') :
                 this.$tc('sw-import-export.profile.customTypeLabel');
-        }
-    }
+        },
+    },
 });

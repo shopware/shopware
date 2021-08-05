@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\Api\Controller;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IterateEntityIndexerMessage;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -106,6 +107,41 @@ class CacheControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($response->getContent(), true));
+    }
+
+    public function testCacheIndexEndpointWithSkipParameter(): void
+    {
+        $this->getContainer()->get('messenger.bus.shopware')->reset();
+
+        $this->getBrowser()->request(
+            'POST',
+            '/api/_action/index',
+            [],
+            [],
+            [
+                'HTTP_CONTENT_TYPE' => 'application/json',
+            ],
+            json_encode(['skip' => ['category.indexer']])
+        );
+
+        /** @var JsonResponse $response */
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), print_r($response->getContent(), true));
+
+        $messages = $this->getContainer()->get('messenger.bus.shopware')->getDispatchedMessages();
+
+        $hasSalesChannelIndexerMessage = false;
+        $hasCategoryIndexerMessage = false;
+        foreach ($messages as $message) {
+            if (isset($message['message']) && $message['message'] instanceof IterateEntityIndexerMessage) {
+                $hasSalesChannelIndexerMessage = $hasSalesChannelIndexerMessage ?: $message['message']->getIndexer() === 'sales_channel.indexer';
+                $hasCategoryIndexerMessage = $hasCategoryIndexerMessage ?: $message['message']->getIndexer() === 'category.indexer';
+            }
+        }
+
+        static::assertTrue($hasSalesChannelIndexerMessage);
+        static::assertFalse($hasCategoryIndexerMessage);
     }
 
     public function testCacheIndexEndpointNoPermissions(): void

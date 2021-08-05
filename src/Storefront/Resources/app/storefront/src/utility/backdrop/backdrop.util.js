@@ -8,7 +8,7 @@ const NO_SCROLL_CLASS = 'no-scroll';
 export const REMOVE_BACKDROP_DELAY = 350;
 
 export const BACKDROP_EVENT = {
-    ON_CLICK: 'backdrop/onclick'
+    ON_CLICK: 'backdrop/onclick',
 };
 
 class BackdropSingleton {

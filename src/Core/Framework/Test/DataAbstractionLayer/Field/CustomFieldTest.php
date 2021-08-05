@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
@@ -958,7 +959,6 @@ class CustomFieldTest extends TestCase
 
         //#####
 
-        /* @var ArrayEntity $child */
         $context->setConsiderInheritance(false);
         $child = $repo->search(new Criteria([$childId]), $context)->first();
         static::assertNotNull($child);
@@ -1145,7 +1145,8 @@ class CustomFieldTest extends TestCase
             $this->getContainer()->get(VersionManager::class),
             $this->getContainer()->get(EntitySearcherInterface::class),
             $this->getContainer()->get(EntityAggregatorInterface::class),
-            $this->getContainer()->get(EventDispatcherInterface::class)
+            $this->getContainer()->get(EventDispatcherInterface::class),
+            $this->getContainer()->get(EntityLoadedEventFactory::class)
         );
     }
 }

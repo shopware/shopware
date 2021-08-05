@@ -9,9 +9,9 @@ Shopware.Service('privileges')
                     'log_entry:read',
                     'log_entry:create',
                     'log_entry:update',
-                    'log_entry:delete'
+                    'log_entry:delete',
                 ],
-                dependencies: []
-            }
-        }
+                dependencies: [],
+            },
+        },
     });

@@ -10,6 +10,10 @@ class ImportExportProfileEntity extends Entity
 {
     use EntityIdTrait;
 
+    public const TYPE_IMPORT = 'import';
+    public const TYPE_EXPORT = 'export';
+    public const TYPE_IMPORT_EXPORT = 'import-export';
+
     /**
      * @var string|null
      */
@@ -44,6 +48,13 @@ class ImportExportProfileEntity extends Entity
      * @var string|null
      */
     protected $enclosure;
+
+    /**
+     * @internal (flag:FEATURE_NEXT_8097)
+     *
+     * @var string
+     */
+    protected $type;
 
     /**
      * @var array|null
@@ -173,5 +184,21 @@ class ImportExportProfileEntity extends Entity
     public function setTranslations(ImportExportProfileTranslationCollection $translations): void
     {
         $this->translations = $translations;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_8097)
+     */
+    public function getType(): string
+    {
+        return $this->type;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_8097)
+     */
+    public function setType(string $type): void
+    {
+        $this->type = $type;
     }
 }

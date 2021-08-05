@@ -16,16 +16,16 @@ Module.register('sw-settings-store', {
             component: 'sw-settings-store',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.index',
-                privilege: 'system.system_config'
-            }
-        }
+                parentPath: 'sw.settings.index.system',
+                privilege: 'system.system_config',
+            },
+        },
     },
 
     settingsItem: {
         group: 'system',
         to: 'sw.settings.store.index',
         icon: 'default-device-laptop',
-        privilege: 'system.system_config'
-    }
+        privilege: 'system.system_config',
+    },
 });

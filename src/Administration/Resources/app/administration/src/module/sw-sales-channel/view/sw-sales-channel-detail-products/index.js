@@ -10,28 +10,27 @@ Component.register('sw-sales-channel-detail-products', {
     inject: ['repositoryFactory', 'feature', 'acl'],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     props: {
         salesChannel: {
             type: Object,
             required: false,
-            default: () => {}
-        }
+            default: () => {},
+        },
     },
 
     data() {
         return {
             products: [],
             isLoading: false,
-            isBulkLoading: false,
             searchTerm: null,
-            skeletonItemAmount: 25,
             page: 1,
             limit: 25,
             total: 0,
-            showProductsModal: false
+            showProductsModal: false,
+            isAssignProductLoading: false,
         };
     },
 
@@ -53,7 +52,7 @@ Component.register('sw-sales-channel-detail-products', {
 
             criteria.addAssociation('visibilities.salesChannel');
             criteria.addFilter(
-                Criteria.equals('product.visibilities.salesChannelId', this.salesChannel.id)
+                Criteria.equals('product.visibilities.salesChannelId', this.salesChannel.id),
             );
 
             if (this.searchTerm) {
@@ -70,21 +69,21 @@ Component.register('sw-sales-channel-detail-products', {
                     label: this.$tc('sw-sales-channel.detail.products.columnProductName'),
                     allowResize: true,
                     primary: true,
-                    routerLink: 'sw.product.detail'
+                    routerLink: 'sw.product.detail',
                 },
                 {
                     property: 'active',
                     label: this.$tc('sw-sales-channel.detail.products.columnActive'),
                     allowResize: true,
-                    align: 'center'
+                    align: 'center',
                 },
                 {
                     property: 'productNumber',
                     label: this.$tc('sw-sales-channel.detail.products.columnProductNumber'),
-                    allowResize: true
-                }
+                    allowResize: true,
+                },
             ];
-        }
+        },
     },
 
     watch: {
@@ -97,8 +96,8 @@ Component.register('sw-sales-channel-detail-products', {
                 }
 
                 this.getProducts();
-            }
-        }
+            },
+        },
     },
 
     methods: {
@@ -129,15 +128,11 @@ Component.register('sw-sales-channel-detail-products', {
         onDeleteProduct(product) {
             const deleteId = this.getDeleteId(product);
 
-            this.$refs.entityListing.deleteId = null;
             return this.productVisibilityRepository.delete(deleteId, Context.api)
                 .then(() => {
-                    this.$refs.entityListing.closeModal();
                     this.getProducts();
                 })
                 .catch((error) => {
-                    this.$refs.entityListing.closeModal();
-
                     if (error?.response?.data?.errors) {
                         this.showNotificationError(error.response.data.errors);
 
@@ -145,7 +140,7 @@ Component.register('sw-sales-channel-detail-products', {
                     }
 
                     this.createNotificationError({
-                        message: error.message
+                        message: error.message,
                     });
                 });
         },
@@ -155,16 +150,14 @@ Component.register('sw-sales-channel-detail-products', {
                 return this.getDeleteId(product);
             });
 
-            this.isBulkLoading = true;
+            this.isLoading = true;
             return this.productVisibilityRepository.syncDeleted(deleteIds, Context.api)
                 .then(() => {
-                    this.isBulkLoading = false;
-                    this.$refs.entityListing.showBulkDeleteModal = false;
+                    this.isLoading = false;
                     this.getProducts();
                 })
                 .catch((error) => {
-                    this.isBulkLoading = false;
-                    this.$refs.entityListing.showBulkDeleteModal = false;
+                    this.isLoading = false;
 
                     if (error?.response?.data?.data?.product_visibility?.result) {
                         this.showNotificationError(error.response.data.data.product_visibility.result);
@@ -173,7 +166,7 @@ Component.register('sw-sales-channel-detail-products', {
                     }
 
                     this.createNotificationError({
-                        message: error.message
+                        message: error.message,
                     });
                 });
         },
@@ -190,7 +183,7 @@ Component.register('sw-sales-channel-detail-products', {
                     this.showNotificationError(error.errors);
                 } else {
                     this.createNotificationError({
-                        message: `${error.code}: ${error.detail}`
+                        message: `${error.code}: ${error.detail}`,
                     });
                 }
             });
@@ -199,11 +192,21 @@ Component.register('sw-sales-channel-detail-products', {
         onChangePage(data) {
             this.page = data.page;
             this.limit = data.limit;
+            this.products.criteria.sortings.forEach(({ field, naturalSorting, order }) => {
+                this.productCriteria.addSorting(
+                    Criteria.sort(field, order, naturalSorting),
+                );
+            });
+
             this.getProducts();
         },
 
         onChangeSearchTerm(searchTerm) {
             this.searchTerm = searchTerm;
+            if (searchTerm) {
+                this.page = 1;
+            }
+
             this.getProducts();
         },
 
@@ -212,30 +215,47 @@ Component.register('sw-sales-channel-detail-products', {
         },
 
         onAddProducts(products) {
-            this.showProductsModal = false;
+            if (products.length <= 0) {
+                this.showProductsModal = false;
+                return Promise.reject();
+            }
 
             const visibilities = new EntityCollection(
                 this.productVisibilityRepository.route,
                 this.productVisibilityRepository.entityName,
-                Context.api
+                Context.api,
             );
 
-            Object.values(products).forEach(el => {
+            products.forEach(el => {
+                if (this.products?.has(el.id)) {
+                    return;
+                }
+
                 const visibility = this.productVisibilityRepository.create(Context.api);
                 Object.assign(visibility, {
                     visibility: 30,
                     productId: el.id,
                     salesChannelId: this.salesChannel.id,
-                    salesChannel: this.salesChannel
+                    salesChannel: this.salesChannel,
                 });
 
                 visibilities.add(visibility);
             });
 
+            this.isAssignProductLoading = true;
+
             return this.saveProductVisibilities(visibilities)
-                .then(() => this.getProducts())
+                .then(() => {
+                    this.getProducts();
+                })
+                .catch((error) => {
+                    this.createNotificationError({
+                        message: error,
+                    });
+                })
                 .finally(() => {
-                    this.isLoading = false;
+                    this.showProductsModal = false;
+                    this.isAssignProductLoading = false;
                 });
         },
 
@@ -244,9 +264,7 @@ Component.register('sw-sales-channel-detail-products', {
                 return Promise.resolve();
             }
 
-            this.isLoading = true;
-
             return this.productVisibilityRepository.saveAll(data, Context.api);
-        }
-    }
+        },
+    },
 });

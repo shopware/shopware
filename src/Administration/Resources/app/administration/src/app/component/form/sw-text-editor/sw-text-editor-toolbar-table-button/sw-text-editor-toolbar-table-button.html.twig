@@ -64,7 +64,7 @@
                     :key="colIndex"
                     class="sw-text-editor-toolbar-table-button__col"
                 >
-                    <div class="sw-text-editor-toolbar-table-button__col-placeholder" />
+                    <div class="sw-text-editor-toolbar-table-button__col-placeholder"></div>
                 </td>
                 {% endblock %}
             </tr>
@@ -91,7 +91,7 @@
                     v-on="colIndex === tableCols ? { mouseleave: (event) => onLastColMouseOut(event) } : null"
                     @mouseover="onMouseOverColumn($event, { rows: rowIndex, cols: colIndex })"
                 >
-                    <div class="sw-text-editor-toolbar-table-button__col-placeholder" />
+                    <div class="sw-text-editor-toolbar-table-button__col-placeholder"></div>
                 </td>
                 {% endblock %}
             </tr>

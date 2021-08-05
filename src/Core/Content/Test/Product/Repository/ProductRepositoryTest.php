@@ -14,6 +14,7 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\SearchKeywordUpdater;
 use Shopware\Core\Content\Product\Exception\DuplicateProductNumberException;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
@@ -471,7 +472,6 @@ class ProductRepositoryTest extends TestCase
 
         $product = $products->get($ids[0]);
 
-        /* @var ProductEntity $product */
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertInstanceOf(TaxEntity::class, $product->getTax());
         static::assertSame('without id', $product->getTax()->getName());
@@ -554,7 +554,6 @@ class ProductRepositoryTest extends TestCase
 
         $product = $products->get($ids[0]);
 
-        /* @var ProductEntity $product */
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertInstanceOf(ProductManufacturerEntity::class, $product->getManufacturer());
         static::assertSame('without id', $product->getManufacturer()->getName());
@@ -684,7 +683,6 @@ class ProductRepositoryTest extends TestCase
 
         $product = $products->get($id);
 
-        /* @var ProductEntity $product */
         static::assertSame($id, $product->getId());
 
         static::assertEquals(new Price(Defaults::CURRENCY, 10, 15, false), $product->getCurrencyPrice(Defaults::CURRENCY));
@@ -1005,7 +1003,6 @@ class ProductRepositoryTest extends TestCase
         $products = $this->repository->search($criteria, Context::createDefaultContext());
         $product = $products->get($child);
 
-        /* @var ProductEntity $product */
         static::assertSame('Child transformed to parent', $product->getName());
         static::assertSame(13.0, $product->getCurrencyPrice(Defaults::CURRENCY)->getGross());
         static::assertSame('test3', $product->getManufacturer()->getName());
@@ -1103,7 +1100,6 @@ class ProductRepositoryTest extends TestCase
         $products = $this->repository->search($criteria, Context::createDefaultContext());
         $product = $products->get($child);
 
-        /* @var ProductEntity $product */
         static::assertSame('Child transformed to parent', $product->getName());
         static::assertSame(13.0, $product->getCurrencyPrice(Defaults::CURRENCY)->getGross());
         static::assertSame('test3', $product->getManufacturer()->getName());
@@ -2392,6 +2388,76 @@ class ProductRepositoryTest extends TestCase
         );
     }
 
+    public function testPriceSortingWithDifferentCurrencyNoFallback(): void
+    {
+        $ids = new TestDataCollection();
+        $isoCode = 'DEM';
+        $currencyFactor = 0.5;
+        $ids->create($isoCode);
+
+        $this->getContainer()->get('currency.repository')->create(
+            [
+                [
+                    'id' => $ids->get($isoCode),
+                    'factor' => $currencyFactor,
+                    'shortName' => 'test',
+                    'name' => 'name',
+                    'symbol' => 'DM',
+                    'isoCode' => $isoCode,
+                    'decimalPrecision' => 2,
+                    'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+                    'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+                ],
+            ],
+            Context::createDefaultContext()
+        );
+
+        $data = [
+            (new ProductBuilder($ids, 'a'))->price(99.94, null, 'default', 99.94)->build(),
+            (new ProductBuilder($ids, 'b'))->price(15, 10)->price(99.93, null, $isoCode, 99.93)->build(),
+            (new ProductBuilder($ids, 'c'))->price(15, 10)->price(99.97, null, $isoCode, 99.97)->build(),
+            (new ProductBuilder($ids, 'd'))->price(15, 10)->price(99.91, null, $isoCode, 99.91)->build(),
+            (new ProductBuilder($ids, 'e'))->price(15, 10)->price(99.95, null, $isoCode, 99.95)->build(),
+        ];
+
+        $this->repository->create($data, Context::createDefaultContext());
+
+        foreach (['', '.listPrice'] as $priceType) {
+            $criteria = new Criteria($ids->all());
+            $criteria->addSorting(new FieldSorting(sprintf('price.%s%s.gross', $ids->get($isoCode), $priceType)));
+
+            $result = $this->repository->searchIds($criteria, Context::createDefaultContext());
+
+            static::assertEquals(
+                array_values($ids->getList(['a', 'd', 'b', 'e', 'c'])),
+                $result->getIds()
+            );
+
+            $criteria = new Criteria($ids->all());
+            $criteria->addSorting(new FieldSorting(sprintf('price.%s%s.gross', $ids->get($isoCode), $priceType), 'DESC'));
+
+            $result = $this->repository->searchIds($criteria, Context::createDefaultContext());
+
+            static::assertEquals(
+                array_values($ids->getList(['c', 'e', 'b', 'd', 'a'])),
+                $result->getIds()
+            );
+        }
+
+        // test context with currency id
+        $context = new Context(new SystemSource(), [], $ids->get($isoCode), [Defaults::LANGUAGE_SYSTEM], Defaults::LIVE_VERSION, $currencyFactor);
+
+        $criteria = new Criteria($ids->all());
+        $criteria->addSorting(new FieldSorting('price'));
+
+        $result = $this->repository->searchIds($criteria, $context);
+
+        static::assertEquals(
+            array_values($ids->getList(['a', 'd', 'b', 'e', 'c'])),
+            $result->getIds()
+        );
+    }
+
     public function customFieldVariantsProvider(): array
     {
         return [
@@ -2889,6 +2955,138 @@ class ProductRepositoryTest extends TestCase
         static::assertNull($product->getDescription());
     }
 
+    public function testUpdatePropertyIdsForVariantsWhenUpdateFromParents(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $productId = Uuid::randomHex();
+        $variantA = Uuid::randomHex();
+        $variantB = Uuid::randomHex();
+        $propertyIds = [
+            'f1d2554b0ce847cd82f3ac9bd1c0dfba',
+            'f1d2554b0ce847cd82f3ac9bd1c0dfbb',
+            'f1d2554b0ce847cd82f3ac9bd1c0dfbc',
+        ];
+
+        $data = [
+            'id' => $productId,
+            'name' => 'Master product',
+            'productNumber' => 'TEST',
+            'price' => [
+                [
+                    'gross' => 111,
+                    'net' => 111,
+                    'currencyId' => 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+                    'linked' => false,
+                ],
+            ],
+            'stock' => 1234,
+            'tax' => [
+                'taxRate' => 0,
+                'name' => 'foo',
+            ],
+            'manufacturer' => [
+                'id' => 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+                'name' => 'Test variant manufacturer',
+            ],
+            'manufacturerId' => 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+            'properties' => [
+                [
+                    'id' => $propertyIds[0],
+                    'name' => 'red',
+                    'colorHexCode' => '#ff0000',
+                    'group' => [
+                        'id' => 'adf2554b0ce847cd82f3ac9bd1c0dfba',
+                        'name' => 'color',
+                        'displayType' => 'color',
+                    ],
+                ],
+                [
+                    'id' => $propertyIds[1],
+                    'name' => 'green',
+                    'colorHexCode' => '#00ff00',
+                    'groupId' => 'adf2554b0ce847cd82f3ac9bd1c0dfba',
+                ],
+            ],
+            'children' => [
+                [
+                    'productNumber' => 'TEST.1',
+                    'id' => $variantA,
+                    'stock' => 10,
+                    'options' => [
+                        ['id' => $propertyIds[0]],
+                    ],
+                ],
+                [
+                    'productNumber' => 'TEST.2',
+                    'id' => $variantB,
+                    'stock' => 10,
+                    'options' => [
+                        ['id' => $propertyIds[1]],
+                    ],
+                ],
+            ],
+            'configuratorSettings' => [
+                [
+                    'id' => 'f1d2554b0ce847cd82f3ac9bd1c0dfaa',
+                    'optionId' => $propertyIds[0],
+                ],
+                [
+                    'id' => 'f1d2554b0ce847cd82f3ac9bd1c0dfab',
+                    'optionId' => $propertyIds[1],
+                ],
+            ],
+        ];
+
+        $this->repository->upsert([$data], $context);
+
+        $variants = $this->repository->search(new Criteria([$variantB, $variantA]), $context)->getElements();
+        $product = $this->repository->search(new Criteria([$productId]), $context)->first();
+
+        static::assertCount(2, $variants);
+        static::assertNotNull($product);
+
+        $productProperties = $product->getPropertyIds();
+        $variantAProperties = $variants[$variantA]->getPropertyIds();
+        $variantBProperties = $variants[$variantB]->getPropertyIds();
+        sort($productProperties);
+        sort($variantAProperties);
+        sort($variantBProperties);
+
+        static::assertEquals($productProperties, $variantAProperties);
+        static::assertEquals($productProperties, $variantBProperties);
+
+        $data = [
+            'properties' => [
+                [
+                    'id' => $propertyIds[2],
+                    'name' => 'green',
+                    'colorHexCode' => '#00ff00',
+                    'groupId' => 'adf2554b0ce847cd82f3ac9bd1c0dfba',
+                ],
+            ],
+            'id' => $productId,
+        ];
+
+        $this->repository->upsert([$data], $this->context);
+
+        $variants = $this->repository->search(new Criteria([$variantB, $variantA]), $context)->getElements();
+        $product = $this->repository->search(new Criteria([$productId]), $context)->first();
+
+        static::assertCount(2, $variants);
+        static::assertNotNull($product);
+
+        $productProperties = $product->getPropertyIds();
+        $variantAProperties = $variants[$variantA]->getPropertyIds();
+        $variantBProperties = $variants[$variantB]->getPropertyIds();
+        sort($productProperties);
+        sort($variantAProperties);
+        sort($variantBProperties);
+
+        static::assertEquals($productProperties, $variantAProperties);
+        static::assertEquals($productProperties, $variantBProperties);
+    }
+
     private function createLanguageContext(array $languages, bool $inheritance)
     {
         return new Context(new SystemSource(), [], Defaults::CURRENCY, $languages, Defaults::LIVE_VERSION, 1.0, $inheritance);
@@ -2901,7 +3099,6 @@ class ProductRepositoryTest extends TestCase
 
     private function createLanguage(string $id, ?string $parentId = Defaults::LANGUAGE_SYSTEM): void
     {
-        /* @var EntityRepositoryInterface $languageRepository */
         $languageRepository = $this->getContainer()->get('language.repository');
 
         $languageRepository->upsert(

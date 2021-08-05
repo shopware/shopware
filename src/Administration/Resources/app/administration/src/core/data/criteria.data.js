@@ -244,7 +244,7 @@ export default class Criteria {
             if (!criteria.hasAssociation(part)) {
                 criteria.associations.push({
                     association: part,
-                    criteria: new Criteria(null, null)
+                    criteria: new Criteria(null, null),
                 });
             }
 
@@ -402,10 +402,11 @@ export default class Criteria {
      * @param {String|null} interval
      * @param {String|null} format
      * @param {Object|null} aggregation
+     * @param {String|null} timeZone
      * @returns {Object}
      */
-    static histogram(name, field, interval, format, aggregation) {
-        return { type: 'histogram', name, field, interval, format, aggregation };
+    static histogram(name, field, interval, format, aggregation, timeZone) {
+        return { type: 'histogram', name, field, interval, format, aggregation, timeZone };
     }
 
     /**

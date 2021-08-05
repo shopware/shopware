@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 describe('Integration: Visual testing', () => {
     // eslint-disable-next-line no-undef
@@ -8,17 +8,7 @@ describe('Integration: Visual testing', () => {
                 cy.loginViaApi();
             })
             .then(() => {
-                return cy.createDefaultFixture('integration');
-            })
-    });
-
-    beforeEach(() => {
-        cy.setToInitialState()
-            .then(() => {
-                cy.loginViaApi();
-            })
-            .then(() => {
-                return cy.createDefaultFixture('integration');
+                return cy.createDefaultFixture('integration', { admin: true });
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
@@ -50,7 +40,9 @@ describe('Integration: Visual testing', () => {
         cy.takeSnapshot('[Integration] Listing', '.sw-integration-list__overview');
 
         cy.contains('.sw-data-grid__cell-content a', 'chat-key').click();
+        cy.handleModalSnapshot('Edit: chat-key');
+
         cy.get('.sw-loader').should('not.exist');
-        cy.takeSnapshot('[Integration] Detail', '.sw-integration-list__detail');
+        cy.takeSnapshot('[Integration] Detail', '#sw-field--currentIntegration-label');
     });
 });

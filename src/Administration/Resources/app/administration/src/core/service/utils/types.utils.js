@@ -26,7 +26,7 @@ export default {
     isBoolean,
     isEqual,
     isNumber,
-    isUndefined
+    isUndefined,
 };
 
 

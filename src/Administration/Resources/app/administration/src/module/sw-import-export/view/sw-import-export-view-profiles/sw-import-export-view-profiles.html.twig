@@ -20,9 +20,10 @@
 
             {% block sw_import_export_view_profile_profiles_toolbar_add_new_profile %}
             <sw-button
+                v-tooltip="createTooltip"
                 class="sw-import-export-view-profiles__create-action"
                 variant="ghost"
-                :disabled="isLoading"
+                :disabled="isLoading || isNotSystemLanguage"
                 size="small"
                 @click="onAddNewProfile"
             >
@@ -54,7 +55,7 @@
                     href="#"
                     @click.prevent="onEditProfile(item.id)"
                 >
-                    {{ item.translated.label }}
+                    {{ item.translated.label || item.label }}
                 </a>
             </template>
             {% endblock %}

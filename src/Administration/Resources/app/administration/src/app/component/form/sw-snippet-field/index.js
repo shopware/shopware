@@ -16,13 +16,13 @@ Component.register('sw-snippet-field', {
 
     inject: [
         'snippetSetService',
-        'repositoryFactory'
+        'repositoryFactory',
     ],
 
     props: {
         snippet: {
             type: String,
-            required: true
+            required: true,
         },
 
         fieldType: {
@@ -32,8 +32,8 @@ Component.register('sw-snippet-field', {
             validValues: ['text', 'textarea'],
             validator(value) {
                 return ['text', 'textarea'].includes(value);
-            }
-        }
+            },
+        },
     },
 
     data() {
@@ -42,7 +42,7 @@ Component.register('sw-snippet-field', {
             snippets: [],
             snippetSets: [],
             showEditModal: false,
-            isLoading: false
+            isLoading: false,
         };
     },
 
@@ -62,7 +62,7 @@ Component.register('sw-snippet-field', {
             criteria.addAssociation('locale');
 
             return criteria;
-        }
+        },
     },
 
     created() {
@@ -144,6 +144,6 @@ Component.register('sw-snippet-field', {
         onSave() {
             this.createdComponent();
             this.closeEditModal();
-        }
-    }
+        },
+    },
 });

@@ -9,13 +9,13 @@ Component.register('sw-login-login', {
     inject: ['loginService', 'userService', 'licenseViolationService'],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     data() {
         return {
             username: '',
-            password: ''
+            password: '',
         };
     },
 
@@ -64,7 +64,7 @@ Component.register('sw-login-login', {
                 if (shouldReload) {
                     sessionStorage.removeItem('sw-login-should-reload');
                     // reload page to rebuild the administration with all dependencies
-                    this.$router.go();
+                    window.location.reload(true);
                 }
             });
         },
@@ -102,7 +102,7 @@ Component.register('sw-login-login', {
         createNotificationFromResponse(response) {
             if (!response.response) {
                 this.createNotificationError({
-                    message: this.$tc('sw-login.index.messageGeneralRequestError')
+                    message: this.$tc('sw-login.index.messageGeneralRequestError'),
                 });
                 return;
             }
@@ -116,9 +116,9 @@ Component.register('sw-login-login', {
 
                 this.createNotificationError({
                     title: this.$tc(title),
-                    message: this.$tc(message, 0, { url })
+                    message: this.$tc(message, 0, { url }),
                 });
             }
-        }
-    }
+        },
+    },
 });

@@ -137,7 +137,7 @@
 
                         {% block sw_cms_section_content_block_component %}
                         <component :is="`sw-cms-block-${block.type}`">
-                            {% block sw_cms_section_content_block_slot %}
+                            {% block sw_cms_section_content_block_component_slot %}
                             <sw-cms-slot
                                 v-for="el in block.slots"
                                 :slot="el.slot"

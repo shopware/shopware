@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 describe('CMS: Visual tests', () => {
     // eslint-disable-next-line no-undef
@@ -52,10 +52,14 @@ describe('CMS: Visual tests', () => {
         // Save new page layout
         cy.get('.sw-cms-detail__save-action').click();
         cy.wait('@saveData').then((xhr) => {
+            cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
             expect(xhr).to.have.property('status', 204);
+            cy.get('.icon--small-default-checkmark-line-medium').should('not.exist');
 
             // Take snapshot for visual testing
             cy.get('.sw-loader').should('not.exist');
+            cy.contains('Vierte Wand').click();
+            cy.get('.sw-tooltip').should('not.exist');
             cy.takeSnapshot('[CMS] Detail, Layout with text', '.sw-cms-detail__stage');
         });
         cy.get('.sw-cms-detail__back-btn').click();

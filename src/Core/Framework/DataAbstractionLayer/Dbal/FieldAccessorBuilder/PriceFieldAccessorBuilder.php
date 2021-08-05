@@ -2,20 +2,31 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
 {
+    private Connection $connection;
+
+    public function __construct(Connection $connection)
+    {
+        $this->connection = $connection;
+    }
+
     public function buildAccessor(string $root, Field $field, Context $context, string $accessor): ?string
     {
         if (!$field instanceof PriceField) {
             return null;
         }
 
+        $currencyId = $context->getCurrencyId();
+        $currencyFactor = sprintf('* %F', $context->getCurrencyFactor());
         $jsonAccessor = 'net';
         if ($context->getTaxState() === CartPrice::TAX_STATE_GROSS) {
             $jsonAccessor = 'gross';
@@ -23,10 +34,25 @@ class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
 
         $parts = explode('.', $accessor);
 
+        // is tax state explicitly requested? => overwrite selector
+        if (\in_array(end($parts), ['net', 'gross'], true)) {
+            $jsonAccessor = end($parts);
+            array_pop($parts);
+        }
+
         // filter / search / sort for list prices? => extend selector
-        $listPrice = array_pop($parts) === 'listPrice';
-        if ($listPrice) {
+        if (end($parts) === 'listPrice') {
             $jsonAccessor = 'listPrice.' . $jsonAccessor;
+            array_pop($parts);
+        }
+
+        // is specific currency id provided? => overwrite currency id and currency factor
+        if (Uuid::isValid((string) end($parts))) {
+            $currencyId = end($parts);
+            $currencyFactor = sprintf(
+                '* (SELECT `factor` FROM `currency` WHERE `id` = %s)',
+                $this->connection->quote($currencyId)
+            );
         }
 
         $select = [];
@@ -43,20 +69,20 @@ class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
         $variables = [
             '#root#' => $root,
             '#field#' => $field->getStorageName(),
-            '#currencyId#' => $context->getCurrencyId(),
+            '#currencyId#' => $currencyId,
             '#property#' => $jsonAccessor,
             '#factor#' => '+ 0.0',
         ];
 
         $select[] = str_replace(array_keys($variables), array_values($variables), $template);
 
-        if ($context->getCurrencyId() !== Defaults::CURRENCY) {
+        if ($currencyId !== Defaults::CURRENCY) {
             $variables = [
                 '#root#' => $root,
                 '#field#' => $field->getStorageName(),
                 '#currencyId#' => Defaults::CURRENCY,
                 '#property#' => $jsonAccessor,
-                '#factor#' => sprintf('* %F', $context->getCurrencyFactor()),
+                '#factor#' => $currencyFactor,
             ];
 
             $select[] = str_replace(array_keys($variables), array_values($variables), $template);

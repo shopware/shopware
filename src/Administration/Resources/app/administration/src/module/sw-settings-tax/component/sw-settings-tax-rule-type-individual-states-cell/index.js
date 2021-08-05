@@ -11,26 +11,26 @@ Component.register('sw-settings-tax-rule-type-individual-states-cell', {
     props: {
         taxRule: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
         return {
-            individualStates: null
+            individualStates: null,
         };
     },
 
     computed: {
         stateRepository() {
             return this.repositoryFactory.create('country_state');
-        }
+        },
     },
 
     watch: {
         'taxRule.data.states'() {
             this.loadStates();
-        }
+        },
     },
 
     created() {
@@ -56,6 +56,6 @@ Component.register('sw-settings-tax-rule-type-individual-states-cell', {
             this.stateRepository.search(criteria, Context.api).then(states => {
                 this.individualStates = states.map(state => state.name);
             });
-        }
-    }
+        },
+    },
 });

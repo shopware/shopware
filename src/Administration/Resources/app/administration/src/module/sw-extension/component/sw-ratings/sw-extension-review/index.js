@@ -13,13 +13,13 @@ Component.register('sw-extension-review', {
     props: {
         review: {
             type: Object,
-            required: true
+            required: true,
         },
 
         producerName: {
             type: String,
-            required: true
-        }
+            required: true,
+        },
     },
 
     computed: {
@@ -29,6 +29,6 @@ Component.register('sw-extension-review', {
 
         reviewHasReplies() {
             return this.review.replies && this.review.replies.length > 0;
-        }
-    }
+        },
+    },
 });

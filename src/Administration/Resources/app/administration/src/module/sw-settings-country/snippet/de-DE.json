@@ -1,15 +1,19 @@
 {
   "sw-settings-country": {
+    "page": {
+      "generalTab": "Einstellungen",
+      "stateTab": "Länder/Regionen"
+    },
     "general": {
       "mainMenuItemGeneral": "Länder",
-      "placeholderSearchBar": "Durchsuche alle Länder ..."
+      "placeholderSearchBar": "Durchsuche Länder ..."
     },
     "list": {
       "textHeadline": "Länder",
-      "textDeleteConfirm": "Bist Du sicher, dass Du dieses Land \"{name}\" löschen möchtest?",
+      "textDeleteConfirm": "Bist Du sicher, dass Du das Land \"{name}\" löschen möchtest?",
       "columnName": "Name",
       "columnPosition": "Position",
-      "columnIso": "ISO",
+      "columnIso": "ISO2",
       "columnIso3": "ISO3",
       "columnActive": "Aktiv",
       "buttonAddCountry": "Land anlegen",
@@ -21,49 +25,56 @@
     },
     "detail": {
       "textHeadline": "Neues Land",
-      "titleCard": "Einstellungen",
-      "messageSaveSuccess": "Das Land \"{name}\" wurde erfolgreich gespeichert.",
-      "messageSaveError": "Das Land \"{name}\" konnte nicht gespeichert werden.",
+      "titleCard": "Allgemein",
+      "messageSaveSuccess": "Das/die Land/Region \"{name}\" wurde erfolgreich gespeichert.",
+      "messageSaveError": "Das/die Land/Region \"{name}\" konnte nicht gespeichert werden.",
       "labelName": "Name",
       "labelPosition": "Position",
-      "labelIso": "ISO",
+      "labelIso": "ISO2",
       "labelIso3": "ISO3",
       "labelActive": "Aktiv",
-      "labelShippingAvailable": "Versand verfügbar",
-      "labelTaxFree": "Steuerfrei",
-      "labelCompanyTaxFree": "Steuerfrei für Unternehmen",
+      "labelShippingAvailable": "Versand",
+      "labelTaxFree": "Steuerfrei (B2C)",
+      "labelCompanyTaxFree": "Steuerfrei (B2B)",
+      "helpTextCompanyTaxFree": "Damit B2B-Geschäfte steuerfrei abgewickelt werden können, müssen die jeweiligen Kundenaccounts über eine valide USt-ID verfügen.",
       "labelCheckVatIdFormat": "USt-ID-Format überprüfen",
-      "helpTextCheckVatIdFormat": "Erlaubt eine Formatprüfung der USt-Id für alle Mitgliedsstaaten der EU.",
-      "labelForceStateInRegistration": "Bundesland bei Registrierung erforderlich",
+      "helpTextCheckVatIdFormat": "Erlaubt eine Formatprüfung der USt-ID für alle Mitgliedsstaaten der EU.",
+      "labelForceStateInRegistration": "Land/Region ist Pflichtfeld",
       "placeholderName": "Namen eingeben ...",
       "placeholderPosition": "1",
-      "placeholderIso": "ISO-Code eingeben ...",
+      "placeholderStateSearch": "Durchsuche Länder/Regionen ...",
+      "placeholderIso": "Zweistelligen ISO-Code eingeben ...",
       "placeholderIso3": "Dreistelligen ISO-Code eingeben ...",
       "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern",
-      "buttonAddCountryState": "Bundesland hinzufügen",
+      "buttonAddCountryState": "Land/Region hinzufügen",
       "editAction": "Editieren",
       "columnStateNameLabel": "Name",
-      "columnStateShortCodeLabel": "Kürzel",
+      "columnStateShortCodeLabel": "ISO",
       "taxFreeFrom": "Steuerfrei ab",
+      "baseCurrency": "Bezugswährung",
       "taxFreeFromHelpText": "Wenn die Gesamtsumme des Warenkorbs größer ist als der Wert in \"Steuerfrei ab\", ist der gesamte Warenkorb steuerfrei.",
-      "labelVatIdRequired": "Umsatzsteuer-ID als Pflichtfeld behandeln"
+      "labelVatIdRequired": "USt-ID ist Pflichtfeld",
+      "helpTextLabelVatIdRequired": "Bitte den globalen Schalter unter \"Einstellungen > Login/Registrierung\" beachten.",
+      "titleOptions": "Optionen",
+      "currencyDependentValues": "Währungsabhängige Werte"
     }
   },
   "sw-country-state-detail": {
-    "titleNew": "Neues Bundesland",
-    "titleEdit": "Bundesland bearbeiten",
+    "titleNew": "Neues Land/Region",
+    "titleEdit": "Land/Region bearbeiten",
     "buttonSave": "Speichern",
     "buttonCancel": "Abbrechen",
     "labelName": "Name",
     "labelPosition": "Position",
-    "labelShortCode": "ISO-Code",
-    "tooltipPosition": "Steuert die Position des Bundeslandes bei der Ausgabe in Listen usw."
+    "labelShortCode": "ISO",
+    "tooltipPosition": "Bestimmt die Position des/der Landes/Region bei der Ausgabe in Listen.",
+    "createNewStateError": "Erstellen einer neuen Region / eines neuen Landes in der ausgewählten Sprache nicht möglich. Bitte erstelle die Region / das Land erst in der Standardsprache!"
   },
   "sw-privileges": {
     "permissions": {
       "country": {
-        "label": "Länder"
+        "label": "Länder/Regionen"
       }
     }
   }

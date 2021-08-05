@@ -10,19 +10,19 @@ Component.register('sw-card-filter', {
         placeholder: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
 
         delay: {
             type: Number,
             required: false,
-            default: 500
-        }
+            default: 500,
+        },
     },
 
     data() {
         return {
-            term: ''
+            term: '',
         };
     },
 
@@ -38,12 +38,12 @@ Component.register('sw-card-filter', {
             }
 
             return classCollection.join(' ');
-        }
+        },
     },
 
     watch: {
         term() {
             this.$emit('sw-card-filter-term-change', this.term);
-        }
-    }
+        },
+    },
 });

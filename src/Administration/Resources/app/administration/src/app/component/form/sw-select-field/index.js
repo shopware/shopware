@@ -24,43 +24,43 @@ Component.register('sw-select-field', {
 
     mixins: [
         Mixin.getByName('sw-form-field'),
-        Mixin.getByName('remove-api-error')
+        Mixin.getByName('remove-api-error'),
     ],
 
     model: {
         prop: 'value',
-        event: 'change'
+        event: 'change',
     },
 
     props: {
         value: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         placeholder: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         options: {
             type: Array,
             required: false,
-            default: null
+            default: null,
         },
 
         aside: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
         return {
-            currentValue: this.value
+            currentValue: this.value,
         };
     },
 
@@ -75,17 +75,17 @@ Component.register('sw-select-field', {
 
         swFieldSelectClasses() {
             return {
-                'sw-field--select-aside': this.aside && this.$attrs.label
+                'sw-field--select-aside': this.aside && this.$attrs.label,
             };
         },
 
         hasOptions() {
             return this.options && this.options.length;
-        }
+        },
     },
 
     watch: {
-        value() { this.currentValue = this.value; }
+        value() { this.currentValue = this.value; },
     },
 
     methods: {
@@ -112,6 +112,6 @@ Component.register('sw-select-field', {
             }
 
             this.$emit('change', this.currentValue);
-        }
-    }
+        },
+    },
 });

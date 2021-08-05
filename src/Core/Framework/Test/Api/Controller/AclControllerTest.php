@@ -30,6 +30,7 @@ class AclControllerTest extends TestCase
 
         static::assertNotContains('unit:read', $privileges);
         static::assertContains('system:clear:cache', $privileges);
+        static::assertContains('system.plugin_maintain', $privileges);
     }
 
     public function testGetAdditionalPrivilegesEvent(): void

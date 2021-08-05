@@ -18,7 +18,10 @@
     {% endblock %}
 
     {% block sw_alert_body %}
-    <div class="sw-alert__body">
+    <div
+        class="sw-alert__body"
+        :class="alertBodyClasses"
+    >
         {% block sw_alert_title %}
         <div
             v-if="title"
@@ -41,7 +44,7 @@
         v-if="hasActionSlot"
         class="sw-alert__actions"
     >
-        <slot name="actions" />
+        <slot name="actions"></slot>
     </div>
     {% endblock %}
 

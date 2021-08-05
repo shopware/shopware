@@ -61,4 +61,52 @@ class Migration1620733405UpdateRolePrivilegesForDistinguishablePaymentNameTest e
 
         static::assertSame($before, $after);
     }
+
+    public function testStringKeysInPrivilegesDontBreakMigration(): void
+    {
+        $repo = $this->getContainer()->get('acl_role.repository');
+        $connection = $this->getContainer()->get(Connection::class);
+
+        $id = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+        $repo->create([[
+            'id' => $id,
+            'name' => 'test',
+            'privileges' => ['property.editor'],
+        ]], $context);
+        // Privileges may have this structure if they are created from a mysql dump
+        $connection->executeStatement('UPDATE `acl_role` SET `privileges` = "{\"0\": \"property.editor\"}"');
+
+        $before = $connection->fetchAssociative('SELECT * FROM `acl_role` WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
+
+        $migration = new Migration1620733405UpdateRolePrivilegesForDistinguishablePaymentName();
+        $migration->update($connection);
+
+        $after = $connection->fetchAssociative('SELECT * FROM `acl_role` WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
+
+        static::assertSame($before, $after);
+    }
+
+    public function testEmptyPrivilegesDontBreakMigration(): void
+    {
+        $repo = $this->getContainer()->get('acl_role.repository');
+        $connection = $this->getContainer()->get(Connection::class);
+
+        $id = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+        $repo->create([[
+            'id' => $id,
+            'name' => 'test',
+            'privileges' => [],
+        ]], $context);
+
+        $before = $connection->fetchAssociative('SELECT * FROM `acl_role` WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
+
+        $migration = new Migration1620733405UpdateRolePrivilegesForDistinguishablePaymentName();
+        $migration->update($connection);
+
+        $after = $connection->fetchAssociative('SELECT * FROM `acl_role` WHERE id = :id', ['id' => Uuid::fromHexToBytes($id)]);
+
+        static::assertSame($before, $after);
+    }
 }

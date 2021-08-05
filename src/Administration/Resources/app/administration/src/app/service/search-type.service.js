@@ -14,40 +14,40 @@ export default function createSearchTypeService() {
         product: {
             entityName: 'product',
             placeholderSnippet: 'sw-product.general.placeholderSearchBar',
-            listingRoute: 'sw.product.index'
+            listingRoute: 'sw.product.index',
         },
         category: {
             entityName: 'category',
             placeholderSnippet: 'sw-category.general.placeholderSearchBar',
-            listingRoute: 'sw.category.index'
+            listingRoute: 'sw.category.index',
         },
         landing_page: {
             entityName: 'landing_page',
             placeholderSnippet: 'sw-landing-page.general.placeholderSearchBar',
-            listingRoute: 'sw.category.index'
+            listingRoute: 'sw.category.index',
         },
         customer: {
             entityName: 'customer',
             placeholderSnippet: 'sw-customer.general.placeholderSearchBar',
-            listingRoute: 'sw.customer.index'
+            listingRoute: 'sw.customer.index',
         },
         order: {
             entityName: 'order',
             placeholderSnippet: 'sw-order.general.placeholderSearchBar',
-            listingRoute: 'sw.order.index'
+            listingRoute: 'sw.order.index',
         },
         media: {
             entityName: 'media',
             placeholderSnippet: 'sw-media.general.placeholderSearchBar',
-            listingRoute: 'sw.media.index'
-        }
+            listingRoute: 'sw.media.index',
+        },
     };
 
     return {
         getTypeByName,
         upsertType,
         getTypes,
-        removeType
+        removeType,
     };
 
     function getTypeByName(type) {

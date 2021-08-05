@@ -3,6 +3,7 @@
  */
 import Axios from 'axios';
 import RefreshTokenHelper from 'src/core/helper/refresh-token.helper';
+import cacheAdapterFactory from 'src/core/factory/cache-adapter.factory';
 
 /**
  * Initializes the HTTP client with the provided context. The context provides the API end point and will be used as
@@ -32,13 +33,42 @@ export const { CancelToken, isCancel, Cancel } = Axios;
  */
 function createClient() {
     const client = Axios.create({
-        baseURL: Shopware.Context.api.apiPath
+        baseURL: Shopware.Context.api.apiPath,
     });
 
     refreshTokenInterceptor(client);
     globalErrorHandlingInterceptor(client);
 
+    /**
+     * Don´t use cache in unit tests because it is possible
+     * that the test uses the same route with different responses
+     * (e.g. error, success) in a short amount of time.
+     * So in test cases we are using the originalAdapter directly
+     * and skipping the caching mechanism.
+     */
+    if (process?.env?.NODE_ENV !== 'test') {
+        requestCacheAdapterInterceptor(client);
+    }
+
     return client;
+}
+
+/**
+ * Sets up an interceptor to handle automatic cache of same requests in short time amount
+ *
+ * @param {AxiosInstance} client
+ * @returns {AxiosInstance}
+ */
+function requestCacheAdapterInterceptor(client) {
+    const requestCaches = {};
+
+    client.interceptors.request.use((config) => {
+        const originalAdapter = config.adapter;
+
+        config.adapter = cacheAdapterFactory(originalAdapter, requestCaches);
+
+        return config;
+    });
 }
 
 /**
@@ -60,7 +90,7 @@ function globalErrorHandlingInterceptor(client) {
                     Shopware.State.dispatch('notification/createNotification', {
                         variant: 'error',
                         title: singleError.title,
-                        message: singleError.detail
+                        message: singleError.detail,
                     });
                 });
             }
@@ -126,7 +156,7 @@ function handleErrorStates({ status, errors, error = null, data }) {
                 autoClose: false,
                 growl: true,
                 title: $tc('global.error-codes.FRAMEWORK__MISSING_PRIVILEGE_ERROR'),
-                message: `${$tc('sw-privileges.error.description')} <br> ${missingPrivilegesMessage}`
+                message: `${$tc('sw-privileges.error.description')} <br> ${missingPrivilegesMessage}`,
             });
         });
     }
@@ -151,9 +181,9 @@ function handleErrorStates({ status, errors, error = null, data }) {
                 message: `${$tc(
                     'global.notification.messageDeleteFailed',
                     3,
-                    { entityName: $tc(`global.entities.${entityName}`) }
+                    { entityName: $tc(`global.entities.${entityName}`) },
                 )
-                }${blockingEntities}`
+                }${blockingEntities}`,
             });
         }
     }
@@ -174,9 +204,9 @@ function handleErrorStates({ status, errors, error = null, data }) {
                 actions: [
                     {
                         label: 'Reload administration',
-                        method: () => window.location.reload()
-                    }
-                ]
+                        method: () => window.location.reload(),
+                    },
+                ],
             });
         }
     }
@@ -198,6 +228,7 @@ function refreshTokenInterceptor(client) {
         const originalRequest = config;
         const resource = originalRequest.url.replace(originalRequest.baseURL, '');
 
+        // eslint-disable-next-line inclusive-language/use-inclusive-words
         if (tokenHandler.whitelist.includes(resource)) {
             return Promise.reject(error);
         }

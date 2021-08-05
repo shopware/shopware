@@ -17,6 +17,10 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
+use Shopware\Core\System\StateMachine\StateMachineRegistry;
+use Shopware\Core\System\StateMachine\Transition;
+use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
@@ -41,11 +45,20 @@ class DaysSinceLastOrderRuleTest extends TestCase
      */
     private $context;
 
+    /**
+     * @var StateMachineRegistry
+     */
+    private $stateMachineRegistry;
+
+    private DaysSinceLastOrderRule $rule;
+
     protected function setUp(): void
     {
         $this->ruleRepository = $this->getContainer()->get('rule.repository');
         $this->conditionRepository = $this->getContainer()->get('rule_condition.repository');
         $this->context = Context::createDefaultContext();
+        $this->stateMachineRegistry = $this->getContainer()->get(StateMachineRegistry::class);
+        $this->rule = new DaysSinceLastOrderRule(self::getTestTimestamp());
     }
 
     public function testValidateWithMissingValues(): void
@@ -61,11 +74,11 @@ class DaysSinceLastOrderRuleTest extends TestCase
         } catch (WriteException $stackException) {
             $exceptions = iterator_to_array($stackException->getErrors());
             static::assertCount(2, $exceptions);
-            static::assertSame('/0/value/daysPassed', $exceptions[0]['source']['pointer']);
-            static::assertSame(NotBlank::IS_BLANK_ERROR, $exceptions[0]['code']);
-
-            static::assertSame('/0/value/operator', $exceptions[1]['source']['pointer']);
+            static::assertSame('/0/value/daysPassed', $exceptions[1]['source']['pointer']);
             static::assertSame(NotBlank::IS_BLANK_ERROR, $exceptions[1]['code']);
+
+            static::assertSame('/0/value/operator', $exceptions[0]['source']['pointer']);
+            static::assertSame(NotBlank::IS_BLANK_ERROR, $exceptions[0]['code']);
         }
     }
 
@@ -292,6 +305,26 @@ class DaysSinceLastOrderRuleTest extends TestCase
 
         $orderRepository->create($orderData, $defaultContext);
 
+        $this->stateMachineRegistry->transition(
+            new Transition(
+                'order',
+                $orderId,
+                StateMachineTransitionActions::ACTION_PROCESS,
+                'stateId',
+            ),
+            Context::createDefaultContext()
+        );
+
+        $this->stateMachineRegistry->transition(
+            new Transition(
+                'order',
+                $orderId,
+                StateMachineTransitionActions::ACTION_COMPLETE,
+                'stateId',
+            ),
+            Context::createDefaultContext()
+        );
+
         /** @var CustomerCollection|CustomerEntity[] $result */
         $result = $customerRepository->search(
             new Criteria([$orderData[0]['orderCustomer']['customer']['id']]),
@@ -300,6 +333,79 @@ class DaysSinceLastOrderRuleTest extends TestCase
 
         static::assertSame(1, $result->first()->getOrderCount());
         static::assertNotNull($result->first()->getLastOrderDate());
+    }
+
+    public function testConstraints(): void
+    {
+        $expectedOperators = [
+            Rule::OPERATOR_EQ,
+            Rule::OPERATOR_LTE,
+            Rule::OPERATOR_GTE,
+            Rule::OPERATOR_NEQ,
+            Rule::OPERATOR_GT,
+            Rule::OPERATOR_LT,
+            Rule::OPERATOR_EMPTY,
+        ];
+
+        $ruleConstraints = $this->rule->getConstraints();
+
+        static::assertArrayHasKey('operator', $ruleConstraints, 'Constraint operator not found in Rule');
+        $operators = $ruleConstraints['operator'];
+        static::assertEquals(new NotBlank(), $operators[0]);
+        static::assertEquals(new Choice($expectedOperators), $operators[1]);
+
+        $this->rule->assign(['operator' => Rule::OPERATOR_EQ]);
+        static::assertArrayHasKey('daysPassed', $ruleConstraints, 'Constraint daysPassed not found in Rule');
+        $daysPassed = $ruleConstraints['daysPassed'];
+        static::assertEquals(new NotBlank(), $daysPassed[0]);
+        static::assertEquals(new Type('int'), $daysPassed[1]);
+    }
+
+    /**
+     * @dataProvider getMatchValues
+     */
+    public function testRuleMatching(string $operator, bool $isMatching, int $daysPassed, ?\DateTime $day): void
+    {
+        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $customer = $this->createMock(CustomerEntity::class);
+
+        $salesChannelContext->method('getCustomer')
+            ->willReturn($customer);
+        $customer->method('getLastOrderDate')
+            ->willReturn($day);
+        $scope = new CheckoutRuleScope($salesChannelContext);
+        $this->rule->assign(['daysPassed' => $daysPassed, 'operator' => $operator]);
+
+        $match = $this->rule->match($scope);
+        if ($isMatching) {
+            static::assertTrue($match);
+        } else {
+            static::assertFalse($match);
+        }
+    }
+
+    public function getMatchValues(): array
+    {
+        $dayTest = self::getTestTimestamp()->modify('-30 minutes');
+
+        return [
+            'operator_oq / not match / day passed / day' => [Rule::OPERATOR_EQ, false, 1, $dayTest],
+            'operator_oq / match / day passed / day' => [Rule::OPERATOR_EQ, true, 0, $dayTest],
+            'operator_neq / match / day passed / day' => [Rule::OPERATOR_NEQ, true, 1, $dayTest],
+            'operator_neq / not match / day passed/ day' => [Rule::OPERATOR_NEQ, false, 0, $dayTest],
+            'operator_lte_lt / not match / day passed / day' => [Rule::OPERATOR_LTE, false, -1, $dayTest],
+            'operator_lte_lt / match / day passed/ day ' => [Rule::OPERATOR_LTE, true, 1,  $dayTest],
+            'operator_lte_e / match / day passed/ day ' => [Rule::OPERATOR_LTE, true, 0, $dayTest],
+            'operator_gte_gt / not match / day passed/ day' => [Rule::OPERATOR_GTE, false, 1, $dayTest],
+            'operator_gte_gt / match / day passed / day' => [Rule::OPERATOR_GTE, true, -1, $dayTest],
+            'operator_gte_e / match / day passed / day' => [Rule::OPERATOR_GTE, true, 0, $dayTest],
+            'operator_lt / not match / day passed / day' => [Rule::OPERATOR_LT, false, 0, $dayTest],
+            'operator_lt / match / day passed / day' => [Rule::OPERATOR_LT, true, 1,  $dayTest],
+            'operator_gt / not match / day passed / day' => [Rule::OPERATOR_GT, false, 1, $dayTest],
+            'operator_gt / match / day passed / day' => [Rule::OPERATOR_GT, true, -1, $dayTest],
+            'operator_empty / not match / day passed/ day' => [Rule::OPERATOR_EMPTY, false, 0, $dayTest],
+            'operator_empty / match / day passed / day' => [Rule::OPERATOR_EMPTY, true, 0, null],
+        ];
     }
 
     private function createRealTestScope(): CheckoutRuleScope

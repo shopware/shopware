@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Test\ProductExport\ScheduledTask;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception;
 use League\Flysystem\FilesystemInterface;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 /**
  * @group slow
@@ -31,7 +33,7 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
     /**
      * @var EntityRepositoryInterface
      */
-    private $repository;
+    private $productExportRepository;
 
     /**
      * @var Context
@@ -50,7 +52,7 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->repository = $this->getContainer()->get('product_export.repository');
+        $this->productExportRepository = $this->getContainer()->get('product_export.repository');
         $this->context = Context::createDefaultContext();
         $this->fileSystem = $this->getContainer()->get('shopware.filesystem.private');
 
@@ -60,7 +62,10 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
 
     public function testRun(): void
     {
+        // Add a second storefront sales channel, to check if all sales channels will be recognized for the product export
+        $this->createSecondStorefrontSalesChannel();
         $this->createProductStream();
+
         // only get seconds, not microseconds, for better comparison to DB
         $previousGeneratedAt = \DateTime::createFromFormat('U', (string) time());
         $exportId = $this->createTestEntity($previousGeneratedAt);
@@ -87,7 +92,7 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         static::assertCount(4, $csvRows);
 
         /** @var ProductExportEntity|null $newExport */
-        $newExport = $this->repository->search(new Criteria([$exportId]), $this->context)->first();
+        $newExport = $this->productExportRepository->search(new Criteria([$exportId]), $this->context)->first();
         static::assertNotNull($newExport);
         static::assertGreaterThan($previousGeneratedAt, $newExport->getGeneratedAt());
     }
@@ -115,7 +120,7 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         static::assertFalse($this->fileSystem->has($filePath));
 
         /** @var ProductExportEntity|null $newExport */
-        $newExport = $this->repository->search(new Criteria([$exportId]), $this->context)->first();
+        $newExport = $this->productExportRepository->search(new Criteria([$exportId]), $this->context)->first();
         static::assertNotNull($newExport);
         static::assertEquals($previousGeneratedAt, $newExport->getGeneratedAt());
     }
@@ -164,6 +169,37 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         static::assertCount(\count($messagesBefore) + 1, $messagesAfter);
     }
 
+    protected function createSecondStorefrontSalesChannel(): void
+    {
+        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+        $criteria = (new Criteria())
+            ->setIds([$this->getSalesChannelDomain()->getSalesChannelId()])
+            ->addAssociation('languages');
+
+        /** @var SalesChannelEntity $originalSalesChannel */
+        $originalSalesChannel = $salesChannelRepository->search($criteria, $this->context)->first();
+        $languages = array_map(static function ($language) {
+            return ['id' => $language->getId()];
+        }, $originalSalesChannel->getLanguages()->jsonSerialize());
+
+        $id = '000000009276457086da48d5b5628f3c';
+        $data = [
+            'id' => $id,
+            'accessKey' => $id,
+            'name' => 'A totally fake Storefront SalesChannel',
+            'typeId' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
+            'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+            'currencyId' => Defaults::CURRENCY,
+            'languages' => $languages,
+            'languageId' => $originalSalesChannel->getLanguageId(),
+            'paymentMethodId' => $this->getValidPaymentMethodId(),
+            'shippingMethodId' => $this->getValidShippingMethodId(),
+            'navigationCategoryId' => $this->getValidCategoryId(),
+            'countryId' => $this->getValidCountryId(),
+        ];
+        $salesChannelRepository->create([$data], $this->context);
+    }
+
     private function getTaskHandler(): ProductExportGenerateTaskHandler
     {
         return new ProductExportGenerateTaskHandler(
@@ -202,7 +238,7 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
     private function createTestEntity(?\DateTimeInterface $generatedAt = null, int $interval = 0, string $filename = 'Testexport.csv', bool $generateByCronjob = true): string
     {
         $id = Uuid::randomHex();
-        $this->repository->upsert([
+        $this->productExportRepository->upsert([
             [
                 'id' => $id,
                 'fileName' => $filename,
@@ -225,19 +261,22 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         return $id;
     }
 
+    /**
+     * @throws Exception
+     */
     private function createProductStream(): void
     {
         $connection = $this->getContainer()->get(Connection::class);
 
         $randomProductIds = implode('|', \array_slice(array_column($this->createProducts(), 'id'), 0, 2));
 
-        $connection->exec("
+        $connection->executeStatement("
             INSERT INTO `product_stream` (`id`, `api_filter`, `invalid`, `created_at`, `updated_at`)
             VALUES
                 (UNHEX('137B079935714281BA80B40F83F8D7EB'), '[{\"type\": \"multi\", \"queries\": [{\"type\": \"multi\", \"queries\": [{\"type\": \"equalsAny\", \"field\": \"product.id\", \"value\": \"{$randomProductIds}\"}], \"operator\": \"AND\"}, {\"type\": \"multi\", \"queries\": [{\"type\": \"range\", \"field\": \"product.width\", \"parameters\": {\"gte\": 221, \"lte\": 932}}], \"operator\": \"AND\"}, {\"type\": \"multi\", \"queries\": [{\"type\": \"range\", \"field\": \"product.width\", \"parameters\": {\"lte\": 245}}], \"operator\": \"AND\"}, {\"type\": \"multi\", \"queries\": [{\"type\": \"equals\", \"field\": \"product.manufacturer.id\", \"value\": \"02f6b9aa385d4f40aaf573661b2cf919\"}, {\"type\": \"range\", \"field\": \"product.height\", \"parameters\": {\"gte\": 182}}], \"operator\": \"AND\"}], \"operator\": \"OR\"}]', 0, '2019-08-16 08:43:57.488', NULL);
         ");
 
-        $connection->exec("
+        $connection->executeStatement("
             INSERT INTO `product_stream_filter` (`id`, `product_stream_id`, `parent_id`, `type`, `field`, `operator`, `value`, `parameters`, `position`, `custom_fields`, `created_at`, `updated_at`)
             VALUES
                 (UNHEX('DA6CD9776BC84463B25D5B6210DDB57B'), UNHEX('137B079935714281BA80B40F83F8D7EB'), NULL, 'multi', NULL, 'OR', NULL, NULL, 0, NULL, '2019-08-16 08:43:57.469', NULL),
@@ -282,8 +321,8 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
 
     private function clearProductExports(): void
     {
-        $this->repository->delete(
-            $this->repository->searchIds(new Criteria(), $this->context)->getIds(),
+        $this->productExportRepository->delete(
+            $this->productExportRepository->searchIds(new Criteria(), $this->context)->getIds(),
             $this->context
         );
     }

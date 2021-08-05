@@ -33,6 +33,7 @@ typings/
 # temp
 cypress/screenshots/*
 cypress/videos/*
+/cypress/results/*
 build/
 
 .idea/

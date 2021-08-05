@@ -7,6 +7,7 @@ namespace Shopware\Core\DevOps\System\Command;
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\FetchMode;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Kernel;
 use Symfony\Component\Console\Command\Command;
@@ -42,13 +43,11 @@ class SystemInstallCommand extends Command
         $output = new ShopwareStyle($input, $output);
 
         // set default
-        $_ENV['BLUE_GREEN_DEPLOYMENT'] = $_SERVER['BLUE_GREEN_DEPLOYMENT']
-               = $_ENV['BLUE_GREEN_DEPLOYMENT']
-            ?? $_SERVER['BLUE_GREEN_DEPLOYMENT']
-            ?? '1';
-        putenv('BLUE_GREEN_DEPLOYMENT=' . $_SERVER['BLUE_GREEN_DEPLOYMENT']);
+        $isBlueGreen = EnvironmentHelper::getVariable('BLUE_GREEN_DEPLOYMENT', '1');
+        $_ENV['BLUE_GREEN_DEPLOYMENT'] = $_SERVER['BLUE_GREEN_DEPLOYMENT'] = $isBlueGreen;
+        putenv('BLUE_GREEN_DEPLOYMENT=' . $isBlueGreen);
 
-        $dsn = trim((string) ($_ENV['DATABASE_URL'] ?? $_SERVER['DATABASE_URL'] ?? getenv('DATABASE_URL')));
+        $dsn = trim((string) (EnvironmentHelper::getVariable('DATABASE_URL', getenv('DATABASE_URL'))));
         if ($dsn === '') {
             $output->error("Environment variable 'DATABASE_URL' not defined.");
 
@@ -88,6 +87,22 @@ class SystemInstallCommand extends Command
             'url' => $dsnWithoutDb,
             'charset' => 'utf8mb4',
         ];
+
+        if ($sslCa = EnvironmentHelper::getVariable('DATABASE_SSL_CA')) {
+            $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_CA] = $sslCa;
+        }
+
+        if ($sslCert = EnvironmentHelper::getVariable('DATABASE_SSL_CERT')) {
+            $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_CERT] = $sslCert;
+        }
+
+        if ($sslCertKey = EnvironmentHelper::getVariable('DATABASE_SSL_KEY')) {
+            $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_KEY] = $sslCertKey;
+        }
+
+        if (EnvironmentHelper::getVariable('DATABASE_SSL_DONT_VERIFY_SERVER_CERT')) {
+            $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
+        }
 
         $connection = DriverManager::getConnection($parameters, new Configuration());
 
@@ -152,7 +167,7 @@ class SystemInstallCommand extends Command
             $commands[] = [
                 'command' => 'sales-channel:create:storefront',
                 '--name' => 'Storefront',
-                '--url' => $_SERVER['APP_URL'] ?? 'http://localhost',
+                '--url' => (string) EnvironmentHelper::getVariable('APP_URL', 'http://localhost'),
             ];
 
             if (!$input->getOption('no-assign-theme')) {

@@ -19,15 +19,15 @@ Module.register('sw-settings-sitemap', {
             path: 'index',
             meta: {
                 parentPath: 'sw.settings.index',
-                privilege: 'system.system_config'
-            }
-        }
+                privilege: 'system.system_config',
+            },
+        },
     },
 
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.sitemap.index',
         icon: 'default-location-map',
-        privilege: 'system.system_config'
-    }
+        privilege: 'system.system_config',
+    },
 });

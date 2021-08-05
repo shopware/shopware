@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 describe('Customer group: Visual testing', () => {
     // eslint-disable-next-line no-undef
@@ -34,10 +34,10 @@ describe('Customer group: Visual testing', () => {
         });
         cy.get('.sw-settings-customer-group-list-grid').should('be.visible');
         cy.get('.sw-data-grid-skeleton').should('not.exist');
-        cy.takeSnapshot('[Language] Listing', '.sw-settings-customer-group-list');
+        cy.takeSnapshot('[Customer group] Listing', '.sw-settings-customer-group-list');
 
         cy.contains('.sw-data-grid__cell--name a', 'Standard customer group').click();
         cy.get('.sw-loader').should('not.exist');
-        cy.takeSnapshot('[Language] Details', '.sw-settings-customer-group-detail');
+        cy.takeSnapshot('[Customer group] Details', '.sw-settings-customer-group-detail');
     });
 });

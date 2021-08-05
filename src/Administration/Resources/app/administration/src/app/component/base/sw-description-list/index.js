@@ -25,15 +25,15 @@ Component.register('sw-description-list', {
         grid: {
             type: String,
             required: false,
-            default: '1fr'
-        }
+            default: '1fr',
+        },
     },
 
     computed: {
         descriptionListStyles() {
             return {
-                'grid-template-columns': this.grid
+                'grid-template-columns': this.grid,
             };
-        }
-    }
+        },
+    },
 });

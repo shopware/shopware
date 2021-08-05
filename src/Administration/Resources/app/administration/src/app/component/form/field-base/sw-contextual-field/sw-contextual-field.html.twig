@@ -13,13 +13,13 @@
             <slot
                 name="sw-contextual-field-prefix"
                 v-bind="{ disabled, identification }"
-            />
+            ></slot>
         </div>
 
         <slot
             name="sw-field-input"
             v-bind="{ identification, error, disabled, size, setFocusClass, removeFocusClass, hasSuffix, hasPrefix }"
-        />
+        ></slot>
 
         <div
             v-if="hasSuffix"
@@ -28,8 +28,13 @@
             <slot
                 name="sw-contextual-field-suffix"
                 v-bind="{ disabled, identification }"
-            />
+            ></slot>
         </div>
     </template>
+
+    <template #label>
+        <slot name="label"></slot>
+    </template>
+
 </sw-block-field>
 {% endblock %}

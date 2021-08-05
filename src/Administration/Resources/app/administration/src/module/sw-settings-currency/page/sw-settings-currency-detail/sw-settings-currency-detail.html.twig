@@ -127,7 +127,6 @@
 
                 {% block sw_settings_currency_detail_content_field_tax_free_from %}
                 <sw-number-field
-                    v-if="feature.isActive('FEATURE_NEXT_14114')"
                     v-model="currency.taxFreeFrom"
                     :min="0"
                     :label="$tc('sw-settings-currency.detail.taxFreeFrom')"

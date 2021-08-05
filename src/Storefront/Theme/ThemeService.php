@@ -8,51 +8,43 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Storefront\Theme\ConfigLoader\AbstractConfigLoader;
 use Shopware\Storefront\Theme\Event\ThemeAssignedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigChangedEvent;
 use Shopware\Storefront\Theme\Event\ThemeConfigResetEvent;
 use Shopware\Storefront\Theme\Exception\InvalidThemeConfigException;
 use Shopware\Storefront\Theme\Exception\InvalidThemeException;
-use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class ThemeService
 {
-    /**
-     * @var StorefrontPluginRegistryInterface
-     */
-    private $pluginRegistry;
+    private StorefrontPluginRegistryInterface $extensionRegistery;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $themeRepository;
+    private EntityRepositoryInterface $themeRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $themeSalesChannelRepository;
+    private EntityRepositoryInterface $themeSalesChannelRepository;
 
-    /**
-     * @var ThemeCompilerInterface
-     */
-    private $themeCompiler;
+    private ThemeCompilerInterface $themeCompiler;
 
     private EventDispatcherInterface $dispatcher;
 
+    private AbstractConfigLoader $configLoader;
+
     public function __construct(
-        StorefrontPluginRegistryInterface $pluginRegistry,
+        StorefrontPluginRegistryInterface $extensionRegistry,
         EntityRepositoryInterface $themeRepository,
         EntityRepositoryInterface $themeSalesChannelRepository,
         ThemeCompilerInterface $themeCompiler,
-        EventDispatcherInterface $dispatcher
+        EventDispatcherInterface $dispatcher,
+        AbstractConfigLoader $configLoader
     ) {
-        $this->pluginRegistry = $pluginRegistry;
+        $this->extensionRegistery = $extensionRegistry;
         $this->themeRepository = $themeRepository;
         $this->themeSalesChannelRepository = $themeSalesChannelRepository;
         $this->themeCompiler = $themeCompiler;
         $this->dispatcher = $dispatcher;
+        $this->configLoader = $configLoader;
     }
 
     public function compileTheme(
@@ -62,13 +54,11 @@ class ThemeService
         ?StorefrontPluginConfigurationCollection $configurationCollection = null,
         bool $withAssets = true
     ): void {
-        $themePluginConfiguration = $this->getPluginConfiguration($themeId, $context);
-
         $this->themeCompiler->compileTheme(
             $salesChannelId,
             $themeId,
-            $themePluginConfiguration,
-            $configurationCollection ?? $this->pluginRegistry->getConfigurations(),
+            $this->configLoader->load($themeId, $context),
+            $configurationCollection ?? $this->extensionRegistery->getConfigurations(),
             $withAssets
         );
     }
@@ -242,126 +232,13 @@ class ThemeService
         return $outputStructure;
     }
 
-    private function loadCompileConfig(string $themeId, Context $context): array
-    {
-        $config = $this->loadRecursiveConfig($themeId, $context);
-
-        $field = new ThemeConfigField();
-
-        foreach ($config['fields'] as $name => $item) {
-            $clone = clone $field;
-            $clone->setName($name);
-            $clone->assign($item);
-            $config[$name] = $clone;
-        }
-
-        return json_decode((string) json_encode($config), true);
-    }
-
-    private function loadRecursiveConfig(string $themeId, Context $context): array
-    {
-        $criteria = new Criteria([$themeId]);
-
-        $theme = $this->themeRepository
-            ->search($criteria, $context)
-            ->first();
-
-        if (!$theme instanceof ThemeEntity) {
-            throw new InvalidThemeException($themeId);
-        }
-
-        $config = $this->mergeStaticConfig($theme);
-
-        $parentId = $theme->getParentThemeId();
-        if ($parentId) {
-            $parent = $this->loadRecursiveConfig($parentId, $context);
-
-            return array_replace_recursive($parent, $config);
-        }
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('technicalName', StorefrontPluginRegistry::BASE_THEME_NAME));
-
-        $theme = $this->themeRepository
-            ->search($criteria, $context)
-            ->first();
-
-        if (!$theme instanceof ThemeEntity) {
-            throw new InvalidThemeException(StorefrontPluginRegistry::BASE_THEME_NAME);
-        }
-
-        $base = $this->mergeStaticConfig($theme);
-
-        return array_replace_recursive($base, $config);
-    }
-
-    private function getPluginConfiguration(string $themeId, Context $context): StorefrontPluginConfiguration
-    {
-        $pluginConfig = $this->loadConfigByName($themeId, $context);
-
-        if (!$pluginConfig) {
-            throw new InvalidThemeException($themeId);
-        }
-
-        $pluginConfig = clone $pluginConfig;
-
-        $config = $this->loadCompileConfig($themeId, $context);
-
-        $pluginConfig->setThemeConfig($config);
-
-        return $pluginConfig;
-    }
-
-    private function loadConfigByName(string $themeId, Context $context): ?StorefrontPluginConfiguration
-    {
-        /** @var ThemeEntity|null $theme */
-        $theme = $this->themeRepository
-            ->search(new Criteria([$themeId]), $context)
-            ->get($themeId);
-
-        if ($theme === null) {
-            return $this->pluginRegistry
-                ->getConfigurations()
-                ->getByTechnicalName(StorefrontPluginRegistry::BASE_THEME_NAME);
-        }
-
-        $pluginConfig = null;
-        if ($theme->getTechnicalName() !== null) {
-            $pluginConfig = $this->pluginRegistry
-                ->getConfigurations()
-                ->getByTechnicalName($theme->getTechnicalName());
-        }
-
-        if ($pluginConfig !== null) {
-            return $pluginConfig;
-        }
-
-        if ($theme->getParentThemeId() !== null) {
-            $criteria = new Criteria();
-            $criteria->addFilter(new EqualsFilter('id', $theme->getParentThemeId()));
-
-            /** @var ThemeEntity $parentTheme */
-            $parentTheme = $this->themeRepository
-                ->search($criteria, $context)
-                ->first();
-
-            return $this->pluginRegistry
-                ->getConfigurations()
-                ->getByTechnicalName($parentTheme->getTechnicalName());
-        }
-
-        return $this->pluginRegistry
-            ->getConfigurations()
-            ->getByTechnicalName(StorefrontPluginRegistry::BASE_THEME_NAME);
-    }
-
     private function mergeStaticConfig(ThemeEntity $theme): array
     {
         $configuredTheme = [];
 
         $pluginConfig = null;
         if ($theme->getTechnicalName()) {
-            $pluginConfig = $this->pluginRegistry->getConfigurations()->getByTechnicalName($theme->getTechnicalName());
+            $pluginConfig = $this->extensionRegistery->getConfigurations()->getByTechnicalName($theme->getTechnicalName());
         }
 
         if ($pluginConfig !== null) {

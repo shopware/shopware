@@ -58,6 +58,9 @@ function createWrapper(privileges = []) {
 
                     return privileges.includes(identifier);
                 }
+            },
+            feature: {
+                isActive: () => true
             }
         },
 
@@ -212,5 +215,15 @@ describe('module/sw-settings-country/page/sw-settings-country-list', () => {
 
         const deleteMenuItem = wrapper.find('.sw-country-list__delete-action');
         expect(deleteMenuItem.attributes().disabled).toBeTruthy();
+    });
+
+    it('should be able to delete mutilple country', async () => {
+        const wrapper = createWrapper([
+            'country.deleter'
+        ]);
+        await wrapper.vm.$nextTick();
+
+        const deleteSelection = wrapper.find('.sw-settings-country-list-grid');
+        expect(deleteSelection.attributes()['show-selection']).toBeTruthy();
     });
 });

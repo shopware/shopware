@@ -9,7 +9,8 @@ const stubs = {
     'sw-block-field': true,
     'sw-select-selection-list': true,
     'sw-select-result-list': true,
-    'sw-highlight-text': true
+    'sw-highlight-text': true,
+    'sw-icon': true
 };
 
 function createWrapper(taxRule) {
@@ -104,7 +105,7 @@ describe('module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-
         wrapper.destroy();
     });
 
-    it.only('updates its states if multiselect emits a change', () => {
+    it('only updates its states if multiselect emits a change', () => {
         const states = [
             { id: Shopware.Utils.createId() },
             { id: Shopware.Utils.createId() }
@@ -117,7 +118,7 @@ describe('module/sw-settings-tax/component/sw-settings-tax-rule-type-individual-
             }
         });
 
-        const select = wrapper.find(stubs['sw-entity-multi-select']);
+        const select = wrapper.findComponent(stubs['sw-entity-multi-select']);
 
         select.vm.$emit('change', new Shopware.Data.EntityCollection(
             '/country-state',

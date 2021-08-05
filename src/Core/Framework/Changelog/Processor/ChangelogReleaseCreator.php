@@ -48,7 +48,7 @@ class ChangelogReleaseCreator extends ChangelogProcessor
 
         foreach ($collection as $changelog) {
             if (!$dryRun) {
-                $this->filesystem->rename($this->unreleasedDir . '/' . $changelog->getName(), $releaseDir . '/' . $changelog->getName());
+                $this->filesystem->rename($this->getUnreleasedDir() . '/' . $changelog->getName(), $releaseDir . '/' . $changelog->getName());
             } else {
                 $output[] = '* ' . $changelog->getName();
             }
@@ -84,7 +84,7 @@ class ChangelogReleaseCreator extends ChangelogProcessor
         }
 
         if (!$dryRun) {
-            $content = file_get_contents($this->changelogGlobal) ?: '';
+            $content = file_get_contents($this->getChangelogGlobal()) ?: '';
 
             $posLatestRelease = strpos($content, '## ');
             $posLatestRelease = $posLatestRelease ?: 0;
@@ -93,7 +93,7 @@ class ChangelogReleaseCreator extends ChangelogProcessor
                 = substr($content, 0, $posLatestRelease)
                 . implode("\n", $append) . "\n\n"
                 . substr($content, $posLatestRelease);
-            file_put_contents($this->changelogGlobal, $content);
+            file_put_contents($this->getChangelogGlobal(), $content);
 
             $output[] = '* Update the CHANGELOG.md file';
         } else {

@@ -9,18 +9,18 @@ Component.register('sw-order-state-change-modal-attach-documents', {
     props: {
         order: {
             type: Object,
-            required: true
+            required: true,
         },
 
         isLoading: {
             type: Boolean,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
         return {
-            sendMail: true
+            sendMail: true,
         };
     },
 
@@ -34,6 +34,6 @@ Component.register('sw-order-state-change-modal-attach-documents', {
             });
 
             this.$emit('on-confirm', docIds, this.sendMail);
-        }
-    }
+        },
+    },
 });

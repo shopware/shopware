@@ -163,7 +163,7 @@
                     :disabled="!acl.can('number_ranges.editor')"
                     @input="onChangePattern()"
                 />
-                <div v-if="!advanced" />
+                <div v-if="!advanced"></div>
                 {% endblock %}
 
                 {% block sw_settings_number_range_detail_content_field_current_number %}

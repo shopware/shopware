@@ -17,72 +17,72 @@ Component.register('sw-condition-tree', {
             insertNodeIntoTree: this.insertNodeIntoTree,
             removeNodeFromTree: this.removeNodeFromTree,
             childAssociationField: this.childAssociationField,
-            conditionDataProviderService: this.conditionDataProviderService
+            conditionDataProviderService: this.conditionDataProviderService,
         };
     },
 
     props: {
         conditionDataProviderService: {
             type: Object,
-            required: true
+            required: true,
         },
 
         conditionRepository: {
             type: Object,
             required: false,
-            default: null
+            default: null,
         },
 
         initialConditions: {
             type: Array,
             required: false,
-            default: null
+            default: null,
         },
 
         rootCondition: {
             type: Object,
             required: false,
-            default: null
+            default: null,
         },
 
         allowedTypes: {
             type: Array,
             required: false,
-            default: null
+            default: null,
         },
 
         scopes: {
             type: Array,
             required: false,
-            default: null
+            default: null,
         },
 
         associationField: {
             type: String,
-            required: true
+            required: true,
         },
 
         associationValue: {
             type: String,
-            required: true
+            required: true,
         },
 
         childAssociationField: {
             type: String,
             required: false,
-            default: 'children'
+            default: 'children',
         },
 
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
         return {
-            conditionTree: null
+            conditionTree: null,
         };
     },
 
@@ -98,7 +98,7 @@ Component.register('sw-condition-tree', {
 
         rootId() {
             return this.rootCondition !== null ? this.rootCondition.id : null;
-        }
+        },
     },
 
     watch: {
@@ -109,7 +109,7 @@ Component.register('sw-condition-tree', {
             }
 
             this.buildTree();
-        }
+        },
     },
 
     created() {
@@ -140,7 +140,7 @@ Component.register('sw-condition-tree', {
                 condition[this.childAssociationField].entity,
                 condition[this.childAssociationField].context,
                 null,
-                [...children, ...condition[this.childAssociationField]]
+                [...children, ...condition[this.childAssociationField]],
             );
             return condition;
         },
@@ -157,7 +157,7 @@ Component.register('sw-condition-tree', {
             const rootContainer = this.createCondition(
                 this.conditionDataProviderService.getOrContainerData(),
                 this.rootId,
-                0
+                0,
             );
 
             this.initialConditions.push(rootContainer);
@@ -174,8 +174,8 @@ Component.register('sw-condition-tree', {
                 {
                     parentId,
                     position,
-                    [this.associationField]: this.associationValue
-                }
+                    [this.associationField]: this.associationValue,
+                },
             );
             return condition;
         },
@@ -243,17 +243,17 @@ Component.register('sw-condition-tree', {
                 this.initialConditions.entity,
                 this.initialConditions.context,
                 this.initialConditions.criteria,
-                [this.conditionTree]
+                [this.conditionTree],
             );
 
             this.$emit('conditions-changed', {
                 conditions,
-                deletedIds
+                deletedIds,
             });
         },
 
         isNotDefined(val) {
             return val === null || typeof val === 'undefined';
-        }
-    }
+        },
+    },
 });

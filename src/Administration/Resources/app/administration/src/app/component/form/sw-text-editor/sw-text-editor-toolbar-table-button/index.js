@@ -12,8 +12,8 @@ Component.register('sw-text-editor-toolbar-table-button', {
     props: {
         buttonConfig: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
@@ -28,7 +28,7 @@ Component.register('sw-text-editor-toolbar-table-button', {
             selectedRows: 0,
             selectedCols: 0,
             oldHorizontalDirection: '',
-            oldVerticalDirection: ''
+            oldVerticalDirection: '',
         };
     },
 
@@ -171,6 +171,6 @@ Component.register('sw-text-editor-toolbar-table-button', {
 
             tableHtml += '</tbody></table>';
             this.buttonConfig.value = tableHtml;
-        }
-    }
+        },
+    },
 });

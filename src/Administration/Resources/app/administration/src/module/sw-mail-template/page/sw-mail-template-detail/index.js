@@ -1,3 +1,4 @@
+import { dom } from 'src/core/service/util.service';
 import template from './sw-mail-template-detail.html.twig';
 import './sw-mail-template-detail.scss';
 
@@ -13,7 +14,7 @@ Component.register('sw-mail-template-detail', {
 
     mixins: [
         Mixin.getByName('placeholder'),
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     shortcuts: {
@@ -21,9 +22,9 @@ Component.register('sw-mail-template-detail', {
             active() {
                 return this.allowSave;
             },
-            method: 'onSave'
+            method: 'onSave',
         },
-        ESCAPE: 'onCancel'
+        ESCAPE: 'onCancel',
     },
 
     data() {
@@ -37,26 +38,26 @@ Component.register('sw-mail-template-detail', {
             mailTemplateType: {},
             selectedType: {},
             editorConfig: {
-                enableBasicAutocompletion: true
+                enableBasicAutocompletion: true,
             },
             mailTemplateMedia: null,
             mailTemplateMediaSelected: {},
             fileAccept: 'application/pdf, image/*',
             testMailSalesChannelId: null,
-            availableVariables: {}
+            availableVariables: {},
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle(this.identifier)
+            title: this.$createTitle(this.identifier),
         };
     },
 
     computed: {
         ...mapPropertyErrors('mailTemplate', [
             'mailTemplateTypeId',
-            'subject'
+            'subject',
         ]),
 
         loadedAvailableVariables() {
@@ -91,11 +92,11 @@ Component.register('sw-mail-template-detail', {
                     const properties = [];
                     Object.keys(
                         entityMappingService.getEntityMapping(
-                            prefix, innerMailTemplateType.availableEntities
-                        )
+                            prefix, innerMailTemplateType.availableEntities,
+                        ),
                     ).forEach((val) => {
                         properties.push({
-                            value: val
+                            value: val,
                         });
                     });
                     return properties;
@@ -131,7 +132,7 @@ Component.register('sw-mail-template-detail', {
                 return {
                     message: this.$tc('sw-privileges.tooltip.warning'),
                     disabled: this.allowSave,
-                    showOnDisabledElements: true
+                    showOnDisabledElements: true,
                 };
             }
 
@@ -139,22 +140,26 @@ Component.register('sw-mail-template-detail', {
 
             return {
                 message: `${systemKey} + S`,
-                appearance: 'light'
+                appearance: 'light',
             };
         },
 
         showPreview() {
-            if (this.mailTemplate.contentHtml === undefined || this.mailTemplate.mailTemplateTypeId === undefined || this.mailTemplate.contentHtml === '') {
+            if (
+                this.mailTemplate.contentHtml === undefined ||
+                this.mailTemplate.mailTemplateTypeId === undefined ||
+                this.mailTemplate.contentHtml === ''
+            ) {
                 return true;
             }
             return false;
-        }
+        },
     },
 
     watch: {
         '$route.params.id'() {
             this.createdComponent();
-        }
+        },
     },
 
     created() {
@@ -216,7 +221,8 @@ Component.register('sw-mail-template-detail', {
             return this.onSave();
         },
 
-        onChangeLanguage() {
+        onChangeLanguage(languageId) {
+            Shopware.State.commit('context/setApiLanguageId', languageId);
             this.loadEntityData();
         },
 
@@ -253,23 +259,25 @@ Component.register('sw-mail-template-detail', {
                     message: this.$tc(
                         'sw-mail-template.detail.messageSaveError',
                         0,
-                        { subject: mailTemplateSubject }
-                    ) + errormsg
+                        { subject: mailTemplateSubject },
+                    ) + errormsg,
                 });
             }));
+
+            return Promise.all(updatePromises);
         },
 
         onClickTestMailTemplate() {
             const notificationTestMailSuccess = {
-                message: this.$tc('sw-mail-template.general.notificationTestMailSuccessMessage')
+                message: this.$tc('sw-mail-template.general.notificationTestMailSuccessMessage'),
             };
 
             const notificationTestMailError = {
-                message: this.$tc('sw-mail-template.general.notificationTestMailErrorMessage')
+                message: this.$tc('sw-mail-template.general.notificationTestMailErrorMessage'),
             };
 
             const notificationTestMailErrorSalesChannel = {
-                message: this.$tc('sw-mail-template.general.notificationTestMailSalesChannelErrorMessage')
+                message: this.$tc('sw-mail-template.general.notificationTestMailSalesChannelErrorMessage'),
             };
 
             if (!this.testMailSalesChannelId) {
@@ -281,7 +289,7 @@ Component.register('sw-mail-template-detail', {
                 this.testerMail,
                 this.mailTemplate,
                 this.mailTemplateMedia,
-                this.testMailSalesChannelId
+                this.testMailSalesChannelId,
             ).then(() => {
                 this.createNotificationSuccess(notificationTestMailSuccess);
             }).catch((exception) => {
@@ -294,7 +302,7 @@ Component.register('sw-mail-template-detail', {
             this.isLoading = true;
             this.mailPreview = this.mailService.buildRenderPreview(
                 this.mailTemplateType,
-                this.mailTemplate
+                this.mailTemplate,
             ).then((response) => {
                 this.mailPreview = response;
             }).finally(() => {
@@ -307,17 +315,24 @@ Component.register('sw-mail-template-detail', {
         },
 
         onCopyVariable(variable) {
-            navigator.clipboard.writeText(variable).catch((error) => {
-                let errormsg = '';
-                if (error.response.data.errors.length > 0) {
-                    const errorDetailMsg = error.response.data.errors[0].detail;
-                    errormsg = `<br/> ${this.$tc('sw-mail-template.detail.textErrorMessage')}: "${errorDetailMsg}"`;
-                }
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(variable).catch((error) => {
+                    let errormsg = '';
+                    if (error.response.data.errors.length > 0) {
+                        const errorDetailMsg = error.response.data.errors[0].detail;
+                        errormsg = `<br/> ${this.$tc('sw-mail-template.detail.textErrorMessage')}: "${errorDetailMsg}"`;
+                    }
 
-                this.createNotificationError({
-                    message: errormsg
+                    this.createNotificationError({
+                        message: errormsg,
+                    });
                 });
-            });
+
+                return;
+            }
+
+            // non-https polyfill
+            dom.copyToClipboard(variable);
         },
 
         async onChangeType(id) {
@@ -340,7 +355,7 @@ Component.register('sw-mail-template-detail', {
                 }
 
                 this.createNotificationError({
-                    message: errormsg
+                    message: errormsg,
                 });
             } finally {
                 this.isLoading = false;
@@ -350,7 +365,7 @@ Component.register('sw-mail-template-detail', {
         getMediaColumns() {
             return [{
                 property: 'fileName',
-                label: 'sw-mail-template.list.columnFilename'
+                label: 'sw-mail-template.list.columnFilename',
             }];
         },
 
@@ -415,7 +430,7 @@ Component.register('sw-mail-template-detail', {
         onAddItemToAttachment(mediaItem) {
             if (this._checkIfMediaIsAlreadyUsed(mediaItem.id)) {
                 this.createNotificationInfo({
-                    message: this.$tc('sw-mail-template.list.errorMediaItemDuplicated')
+                    message: this.$tc('sw-mail-template.list.errorMediaItemDuplicated'),
                 });
                 return false;
             }
@@ -443,7 +458,7 @@ Component.register('sw-mail-template-detail', {
                     name: val,
                     childCount: length,
                     parentId: variable,
-                    afterId: null
+                    afterId: null,
                 };
             });
 
@@ -477,9 +492,9 @@ Component.register('sw-mail-template-detail', {
                     name: variable,
                     childCount: length,
                     parentId: null,
-                    afterId: null
+                    afterId: null,
                 }]);
             });
-        }
-    }
+        },
+    },
 });

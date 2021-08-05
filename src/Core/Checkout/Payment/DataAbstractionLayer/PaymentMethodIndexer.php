@@ -77,6 +77,6 @@ class PaymentMethodIndexer extends EntityIndexer
 
         $this->distinguishableNameGenerator->generateDistinguishablePaymentNames($message->getContext());
 
-        $this->eventDispatcher->dispatch(new PaymentMethodIndexerEvent($ids, $message->getContext()));
+        $this->eventDispatcher->dispatch(new PaymentMethodIndexerEvent($ids, $message->getContext(), $message->getSkip()));
     }
 }

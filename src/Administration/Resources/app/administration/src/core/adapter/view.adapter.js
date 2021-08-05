@@ -37,7 +37,7 @@ export default class ViewAdapter {
                 ${renderElement}
                 ${router}
                 ${providers}
-            `
+            `,
         );
 
         return this.root;
@@ -57,7 +57,7 @@ export default class ViewAdapter {
                 ${renderElement}
                 ${router}
                 ${providers}
-            `
+            `,
         );
     }
 
@@ -75,7 +75,7 @@ export default class ViewAdapter {
             `
                 You need to overwrite the createComponent method which expect these arguments: 
                 ${componentName}
-            `
+            `,
         );
     }
 
@@ -92,7 +92,7 @@ export default class ViewAdapter {
             `
                 You need to overwrite the getComponent method which expect these arguments: 
                 ${componentName}
-            `
+            `,
         );
     }
 
@@ -105,7 +105,7 @@ export default class ViewAdapter {
     getComponents() {
         warn(
             'getComponents',
-            'You need to overwrite the getComponents method'
+            'You need to overwrite the getComponents method',
         );
     }
 
@@ -118,7 +118,7 @@ export default class ViewAdapter {
     getWrapper() {
         warn(
             'getWrapper',
-            'You need to overwrite the getWrapper method'
+            'You need to overwrite the getWrapper method',
         );
     }
 
@@ -131,7 +131,7 @@ export default class ViewAdapter {
     getName() {
         warn(
             'getName',
-            'You need to overwrite the getName method'
+            'You need to overwrite the getName method',
         );
     }
 
@@ -144,7 +144,7 @@ export default class ViewAdapter {
     setReactive() {
         warn(
             'setReactive',
-            'You need to overwrite the setReactive method'
+            'You need to overwrite the setReactive method',
         );
     }
 
@@ -157,7 +157,7 @@ export default class ViewAdapter {
     deleteReactive() {
         warn(
             'deleteReactive',
-            'You need to overwrite the deleteReactive method'
+            'You need to overwrite the deleteReactive method',
         );
     }
 }

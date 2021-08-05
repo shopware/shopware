@@ -262,7 +262,6 @@ class RecalculationService
             ->addAssociation('deliveries.shippingOrderAddress.country')
             ->addAssociation('deliveries.shippingOrderAddress.countryState');
 
-        /* @var OrderEntity|null $order */
         return $this->orderRepository
             ->search($criteria, $context)
             ->get($orderId);

@@ -25,3 +25,34 @@
 .sw-settings-cache__card-section-heading {
     font-weight: 600;
 }
+
+.sw-settings-cache__indexers-list {
+    list-style: none;
+    font-size: 14px;
+    padding-top: 8px;
+
+    & > li {
+        & > ul {
+            list-style: none;
+            margin-left: 25px;
+        }
+    }
+}
+
+.sw-settings-cache__indexers-placeholder {
+    &.sw-label.sw-label--ghost {
+        border-color: transparent;
+    }
+}
+
+.sw-settings-cache__indexers-select {
+    &.sw-field {
+        margin: 8px 0 0 0;
+    }
+
+    &.sw-select {
+        .sw-select__selection {
+            padding-top: 8px;
+        }
+    }
+}

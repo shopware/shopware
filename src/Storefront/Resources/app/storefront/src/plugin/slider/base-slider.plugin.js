@@ -21,9 +21,9 @@ export default class BaseSliderPlugin extends Plugin {
                 sm: {},
                 md: {},
                 lg: {},
-                xl: {}
-            }
-        }
+                xl: {},
+            },
+        },
     };
 
     init() {
@@ -166,7 +166,7 @@ export default class BaseSliderPlugin extends Plugin {
                     container,
                     controlsContainer,
                     onInit,
-                    ...this._sliderSettings
+                    ...this._sliderSettings,
                 });
             } else {
                 container.style.display = 'none';

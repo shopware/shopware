@@ -29,7 +29,6 @@ Thumbs.db
 
 /public/*
 !/public/index.php
-!/public/.htaccess
 !/public/.htaccess.dist
 /public/css/*
 !/public/css/
@@ -73,10 +72,11 @@ src/Docs/Command/wiki.secret
 /.env
 .env.local
 .env.test
+.env.e2e
+.env.dev
 /dev-ops/check_requirements.php
 /performance/_fixtures.php
 /src/Docs/**/dist
-phpstan.neon
 
 # tests / ci
 /build/
@@ -101,7 +101,13 @@ src/Core/Framework/Test/Plugin/_fixture/SwagFashionTheme.zip
 
 .gitkeep
 config/jwt/
-public
+config/packages/
+config/services*
+
 custom
+files/*
 install.lock
 docker-compose.override.yaml
+
+vendor-bin/**/vendor
+vendor-bin/**/composer.lock

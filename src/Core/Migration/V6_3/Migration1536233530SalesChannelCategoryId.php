@@ -26,7 +26,7 @@ class Migration1536233530SalesChannelCategoryId extends MigrationStep
 
     private function addCmsToCategory(Connection $connection): void
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
 ALTER TABLE `category`
 ADD COLUMN `cms_page_id` BINARY(16) NULL AFTER `media_id`,
 ADD CONSTRAINT `fk.category.cms_page_id` FOREIGN KEY (`cms_page_id`)
@@ -40,7 +40,7 @@ SQL;
     {
         $connection->executeUpdate('ALTER TABLE `sales_channel` DROP FOREIGN KEY `fk.sales_channel.navigation_id`');
 
-        $sql = <<<SQL
+        $sql = <<<'SQL'
 ALTER TABLE `sales_channel`
     DROP COLUMN `navigation_id`,
     DROP COLUMN `navigation_version_id`
@@ -57,7 +57,7 @@ SQL;
 
     private function addSlotConfigToCategory(Connection $connection): void
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
 ALTER TABLE `category_translation`
     ADD COLUMN `slot_config` JSON,
     ADD CONSTRAINT `json.category_translation.slot_config` CHECK (JSON_VALID(`slot_config`))

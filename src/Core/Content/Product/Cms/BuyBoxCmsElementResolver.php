@@ -19,15 +19,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class BuyBoxCmsElementResolver extends AbstractProductDetailCmsElementResolver
 {
-    /**
-     * @var ProductConfiguratorLoader
-     */
-    private $configuratorLoader;
+    private ProductConfiguratorLoader $configuratorLoader;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $repository;
+    private EntityRepositoryInterface $repository;
 
     public function __construct(
         ProductConfiguratorLoader $configuratorLoader,
@@ -47,9 +41,7 @@ class BuyBoxCmsElementResolver extends AbstractProductDetailCmsElementResolver
         $buyBox = new BuyBoxStruct();
         $slot->setData($buyBox);
 
-        $config = $slot->getFieldConfig();
-        $productConfig = $config->get('product');
-
+        $productConfig = $slot->getFieldConfig()->get('product');
         if ($productConfig === null) {
             return;
         }
@@ -57,11 +49,11 @@ class BuyBoxCmsElementResolver extends AbstractProductDetailCmsElementResolver
         $product = null;
 
         if ($productConfig->isMapped() && $resolverContext instanceof EntityResolverContext) {
-            $product = $this->resolveEntityValue($resolverContext->getEntity(), $productConfig->getValue());
+            $product = $this->resolveEntityValue($resolverContext->getEntity(), $productConfig->getStringValue());
         }
 
         if ($productConfig->isStatic()) {
-            $product = $this->getSlotProduct($slot, $result, $productConfig->getValue());
+            $product = $this->getSlotProduct($slot, $result, $productConfig->getStringValue());
         }
 
         /** @var SalesChannelProductEntity|null $product */
@@ -77,8 +69,7 @@ class BuyBoxCmsElementResolver extends AbstractProductDetailCmsElementResolver
     {
         $reviewCriteria = $this->createReviewCriteria($context, $product->getId());
 
-        $reviews = $this->repository->aggregate($reviewCriteria, $context->getContext());
-        $aggregation = $reviews->get('review-count');
+        $aggregation = $this->repository->aggregate($reviewCriteria, $context->getContext())->get('review-count');
 
         return $aggregation instanceof CountResult ? $aggregation->getCount() : 0;
     }

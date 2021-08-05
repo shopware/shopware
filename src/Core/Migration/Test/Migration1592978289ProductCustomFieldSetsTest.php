@@ -32,7 +32,6 @@ class Migration1592978289ProductCustomFieldSetsTest extends TestCase
      */
     public function initialise(): void
     {
-        /* @var Connection $connection */
         $connection = $this->getContainer()->get(Connection::class);
         $migration = new Migration1592978289ProductCustomFieldSets();
 

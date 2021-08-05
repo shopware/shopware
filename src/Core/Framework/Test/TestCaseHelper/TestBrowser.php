@@ -55,6 +55,15 @@ class TestBrowser extends KernelBrowser
         $this->csrfDisabled = false;
     }
 
+    /**
+     * @param string
+     * @param string|object|array $value
+     */
+    public function setServerParameter($key, $value): void
+    {
+        $this->server[$key] = $value;
+    }
+
     protected function filterRequest(DomRequest $request): Request
     {
         $filteredRequest = parent::filterRequest($request);

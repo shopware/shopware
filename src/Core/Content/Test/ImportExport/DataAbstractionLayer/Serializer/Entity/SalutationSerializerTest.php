@@ -32,7 +32,6 @@ class SalutationSerializerTest extends TestCase
 
     public function setUp(): void
     {
-        /* @var EntityRepositoryInterface $salutationRepository */
         $this->salutationRepository = $this->getContainer()->get('salutation.repository');
         $serializerRegistry = $this->getContainer()->get(SerializerRegistry::class);
 
@@ -96,7 +95,7 @@ class SalutationSerializerTest extends TestCase
 
         $deserialized = iterator_to_array($this->serializer->deserialize($config, $this->salutationRepository->getDefinition(), $salutation));
 
-        static::assertSame($salutation['salutationKey'], $deserialized['salutationKey']);
+        static::assertArrayNotHasKey('salutationKey', $deserialized);
         static::assertArrayHasKey('id', $deserialized);
 
         $criteria = (new Criteria())->addFilter(new EqualsFilter('salutationKey', 'not_specified'));

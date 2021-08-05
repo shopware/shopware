@@ -9,17 +9,17 @@ Component.register('sw-settings-search-searchable-content', {
 
     inject: [
         'repositoryFactory',
-        'acl'
+        'acl',
     ],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     props: {
         searchConfigId: {
             type: String,
-            required: true
+            required: true,
         },
 
         productSearchConfigs: {
@@ -27,8 +27,8 @@ Component.register('sw-settings-search-searchable-content', {
             required: false,
             default() {
                 return null;
-            }
-        }
+            },
+        },
     },
 
     data() {
@@ -37,7 +37,7 @@ Component.register('sw-settings-search-searchable-content', {
             defaultTab: 'general',
             tabNames: {
                 generalTab: 'general',
-                customTab: 'customfields'
+                customTab: 'customfields',
             },
             isLoading: false,
             isEnabledReset: true,
@@ -49,8 +49,8 @@ Component.register('sw-settings-search-searchable-content', {
                     defaultConfigs: {
                         searchable: true,
                         ranking: 700,
-                        tokenize: true
-                    }
+                        tokenize: true,
+                    },
                 },
                 {
                     label: this.$tc('sw-settings-search.generalTab.configFields.description'),
@@ -58,8 +58,8 @@ Component.register('sw-settings-search-searchable-content', {
                     defaultConfigs: {
                         searchable: false,
                         ranking: 0,
-                        tokenize: false
-                    }
+                        tokenize: false,
+                    },
                 },
                 {
                     label: this.$tc('sw-settings-search.generalTab.configFields.productNumber'),
@@ -67,8 +67,8 @@ Component.register('sw-settings-search-searchable-content', {
                     defaultConfigs: {
                         searchable: true,
                         ranking: 1000,
-                        tokenize: false
-                    }
+                        tokenize: false,
+                    },
                 },
                 {
                     label: this.$tc('sw-settings-search.generalTab.configFields.manufacturerNumber'),
@@ -76,8 +76,8 @@ Component.register('sw-settings-search-searchable-content', {
                     defaultConfigs: {
                         searchable: true,
                         ranking: 500,
-                        tokenize: false
-                    }
+                        tokenize: false,
+                    },
                 },
                 {
                     label: this.$tc('sw-settings-search.generalTab.configFields.ean'),
@@ -85,8 +85,8 @@ Component.register('sw-settings-search-searchable-content', {
                     defaultConfigs: {
                         searchable: true,
                         ranking: 500,
-                        tokenize: false
-                    }
+                        tokenize: false,
+                    },
                 },
                 {
                     label: this.$tc('sw-settings-search.generalTab.configFields.customSearchKeywords'),
@@ -94,8 +94,8 @@ Component.register('sw-settings-search-searchable-content', {
                     defaultConfigs: {
                         searchable: true,
                         ranking: 800,
-                        tokenize: false
-                    }
+                        tokenize: false,
+                    },
                 },
                 {
                     label: this.$tc('sw-settings-search.generalTab.configFields.manufacturerName'),
@@ -103,8 +103,8 @@ Component.register('sw-settings-search-searchable-content', {
                     defaultConfigs: {
                         searchable: true,
                         ranking: 500,
-                        tokenize: false
-                    }
+                        tokenize: false,
+                    },
                 },
                 {
                     label: this.$tc('sw-settings-search.generalTab.configFields.manufacturerCustomFields'),
@@ -112,8 +112,8 @@ Component.register('sw-settings-search-searchable-content', {
                     defaultConfigs: {
                         searchable: false,
                         ranking: 0,
-                        tokenize: false
-                    }
+                        tokenize: false,
+                    },
                 },
                 {
                     label: this.$tc('sw-settings-search.generalTab.configFields.categoriesName'),
@@ -121,8 +121,8 @@ Component.register('sw-settings-search-searchable-content', {
                     defaultConfigs: {
                         searchable: false,
                         ranking: 0,
-                        tokenize: false
-                    }
+                        tokenize: false,
+                    },
                 },
                 {
                     label: this.$tc('sw-settings-search.generalTab.configFields.categoriesCustomFields'),
@@ -130,8 +130,8 @@ Component.register('sw-settings-search-searchable-content', {
                     defaultConfigs: {
                         searchable: false,
                         ranking: 0,
-                        tokenize: false
-                    }
+                        tokenize: false,
+                    },
                 },
                 {
                     label: this.$tc('sw-settings-search.generalTab.configFields.tagsName'),
@@ -139,8 +139,8 @@ Component.register('sw-settings-search-searchable-content', {
                     defaultConfigs: {
                         searchable: false,
                         ranking: 0,
-                        tokenize: false
-                    }
+                        tokenize: false,
+                    },
                 },
                 {
                     label: this.$tc('sw-settings-search.generalTab.configFields.metaTitle'),
@@ -148,8 +148,8 @@ Component.register('sw-settings-search-searchable-content', {
                     defaultConfigs: {
                         searchable: false,
                         ranking: 0,
-                        tokenize: false
-                    }
+                        tokenize: false,
+                    },
                 },
                 {
                     label: this.$tc('sw-settings-search.generalTab.configFields.metaDescription'),
@@ -157,8 +157,8 @@ Component.register('sw-settings-search-searchable-content', {
                     defaultConfigs: {
                         searchable: false,
                         ranking: 0,
-                        tokenize: false
-                    }
+                        tokenize: false,
+                    },
                 },
                 {
                     label: this.$tc('sw-settings-search.generalTab.configFields.propertiesName'),
@@ -166,8 +166,8 @@ Component.register('sw-settings-search-searchable-content', {
                     defaultConfigs: {
                         searchable: false,
                         ranking: 0,
-                        tokenize: false
-                    }
+                        tokenize: false,
+                    },
                 },
                 {
                     label: this.$tc('sw-settings-search.generalTab.configFields.variantValue'),
@@ -175,10 +175,10 @@ Component.register('sw-settings-search-searchable-content', {
                     defaultConfigs: {
                         searchable: false,
                         ranking: 0,
-                        tokenize: false
-                    }
-                }
-            ]
+                        tokenize: false,
+                    },
+                },
+            ],
         };
     },
 
@@ -198,7 +198,7 @@ Component.register('sw-settings-search-searchable-content', {
             } else {
                 criteria.addFilter(Criteria.not(
                     'AND',
-                    [Criteria.equals('customFieldId', null)]
+                    [Criteria.equals('customFieldId', null)],
                 ));
             }
 
@@ -215,27 +215,27 @@ Component.register('sw-settings-search-searchable-content', {
                 label: 'sw-settings-search.generalTab.list.columnContent',
                 inlineEdit: 'string',
                 sortable: true,
-                width: '250px'
+                width: '250px',
             }, {
                 property: 'searchable',
                 label: 'sw-settings-search.generalTab.list.columnSearchable',
                 align: 'center',
                 inlineEdit: 'string',
-                sortable: true
+                sortable: true,
             }, {
                 property: 'ranking',
                 inlineEdit: 'number',
                 label: 'sw-settings-search.generalTab.list.columnRankingPoints',
                 align: 'right',
-                sortable: true
+                sortable: true,
             }, {
                 property: 'tokenize',
                 inlineEdit: 'string',
                 label: 'sw-settings-search.generalTab.list.columnSplitKeywords',
                 align: 'center',
-                sortable: true
+                sortable: true,
             }];
-        }
+        },
     },
 
     watch: {
@@ -246,7 +246,7 @@ Component.register('sw-settings-search-searchable-content', {
 
         productSearchConfigs() {
             this.loadData();
-        }
+        },
     },
 
     methods: {
@@ -261,6 +261,7 @@ Component.register('sw-settings-search-searchable-content', {
         onAddNewConfig() {
             const item = this.createNewConfigItem();
             this.searchConfigFields.unshift(item);
+            this.$emit('edit-change', true);
         },
 
         createNewConfigItem() {
@@ -285,7 +286,7 @@ Component.register('sw-settings-search-searchable-content', {
             return {
                 ranking: 0,
                 searchable: false,
-                tokenize: false
+                tokenize: false,
             };
         },
 
@@ -326,7 +327,7 @@ Component.register('sw-settings-search-searchable-content', {
                     this.searchConfigFields = items;
                 }).catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-search.notification.loadError')
+                        message: this.$tc('sw-settings-search.notification.loadError'),
                     });
                 }).finally(() => {
                     this.isLoading = false;
@@ -339,11 +340,12 @@ Component.register('sw-settings-search-searchable-content', {
                 .saveAll(this.searchConfigFields)
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-settings-search.notification.saveSuccess')
+                        message: this.$tc('sw-settings-search.notification.saveSuccess'),
                     });
+                    this.$emit('edit-change', false);
                 }).catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-search.notification.saveError')
+                        message: this.$tc('sw-settings-search.notification.saveError'),
                     });
                 }).finally(() => {
                     this.isLoading = false;
@@ -360,16 +362,16 @@ Component.register('sw-settings-search-searchable-content', {
             this.productSearchFieldRepository.delete(configFieldId)
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-settings-search.notification.saveSuccess')
+                        message: this.$tc('sw-settings-search.notification.saveSuccess'),
                     });
                 }).catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-search.notification.saveError')
+                        message: this.$tc('sw-settings-search.notification.saveError'),
                     });
                 }).finally(() => {
                     this.isLoading = false;
                     this.loadData();
                 });
-        }
-    }
+        },
+    },
 });

@@ -4,7 +4,7 @@
 export default {
     registerStore,
     getStore,
-    getStoreRegistry
+    getStoreRegistry,
 };
 
 /**

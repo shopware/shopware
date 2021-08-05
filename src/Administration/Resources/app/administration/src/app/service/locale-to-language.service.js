@@ -2,7 +2,7 @@ const { Criteria } = Shopware.Data;
 
 export default function createLocaleToLanguageService() {
     return {
-        localeToLanguage
+        localeToLanguage,
     };
 
     /**

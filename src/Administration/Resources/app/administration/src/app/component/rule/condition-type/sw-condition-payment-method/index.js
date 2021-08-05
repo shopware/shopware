@@ -18,7 +18,7 @@ Component.extend('sw-condition-payment-method', 'sw-condition-base', {
 
     data() {
         return {
-            paymentMethods: null
+            paymentMethods: null,
         };
     },
 
@@ -39,14 +39,14 @@ Component.extend('sw-condition-payment-method', 'sw-condition-base', {
             set(paymentMethodIds) {
                 this.ensureValueExist();
                 this.condition.value = { ...this.condition.value, paymentMethodIds };
-            }
+            },
         },
 
         ...mapPropertyErrors('condition', ['value.operator', 'value.paymentMethodIds']),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValuePaymentMethodIdsError;
-        }
+        },
     },
 
     created() {
@@ -58,7 +58,7 @@ Component.extend('sw-condition-payment-method', 'sw-condition-base', {
             this.paymentMethods = new EntityCollection(
                 this.paymentMethodRepository.route,
                 this.paymentMethodRepository.entityName,
-                Context.api
+                Context.api,
             );
 
             if (this.paymentMethodIds.length <= 0) {
@@ -76,6 +76,6 @@ Component.extend('sw-condition-payment-method', 'sw-condition-base', {
         setPaymentMethodIds(paymentMethods) {
             this.paymentMethodIds = paymentMethods.getIds();
             this.paymentMethods = paymentMethods;
-        }
-    }
+        },
+    },
 });

@@ -30,7 +30,7 @@
             <argument type="service" id="Shopware\Core\Content\Sitemap\Service\SitemapExporter"/>
         </service>
 
-        <service id="Shopware\Core\Content\Sitemap\SalesChannel\CachedSitemapRoute" decorates="Shopware\Core\Content\Sitemap\SalesChannel\SitemapRoute" decoration-priority="-1000">
+        <service id="Shopware\Core\Content\Sitemap\SalesChannel\CachedSitemapRoute" decorates="Shopware\Core\Content\Sitemap\SalesChannel\SitemapRoute" decoration-priority="-1000" public="true">
             <argument type="service" id="Shopware\Core\Content\Sitemap\SalesChannel\CachedSitemapRoute.inner"/>
             <argument type="service" id="cache.object"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>

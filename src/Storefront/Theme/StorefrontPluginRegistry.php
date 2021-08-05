@@ -16,25 +16,13 @@ class StorefrontPluginRegistry implements StorefrontPluginRegistryInterface
 {
     public const BASE_THEME_NAME = 'Storefront';
 
-    /**
-     * @var StorefrontPluginConfigurationCollection|null
-     */
-    private $pluginConfigurations;
+    private ?StorefrontPluginConfigurationCollection $pluginConfigurations = null;
 
-    /**
-     * @var KernelInterface
-     */
-    private $kernel;
+    private KernelInterface $kernel;
 
-    /**
-     * @var AbstractStorefrontPluginConfigurationFactory
-     */
-    private $pluginConfigurationFactory;
+    private AbstractStorefrontPluginConfigurationFactory $pluginConfigurationFactory;
 
-    /**
-     * @var ActiveAppsLoader
-     */
-    private $activeAppsLoader;
+    private ActiveAppsLoader $activeAppsLoader;
 
     public function __construct(
         KernelInterface $kernel,

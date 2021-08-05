@@ -9,13 +9,13 @@ Component.register('sw-product-restriction-selection', {
     props: {
         groupsWithOptions: {
             type: Array,
-            required: true
+            required: true,
         },
 
         restriction: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
@@ -25,14 +25,14 @@ Component.register('sw-product-restriction-selection', {
             optionStore: {},
             selectedOptionStore: {},
             options: {},
-            selectedOptions: []
+            selectedOptions: [],
         };
     },
 
     computed: {
         availableGroups() {
             return this.groupsWithOptions;
-        }
+        },
     },
 
     watch: {
@@ -68,7 +68,7 @@ Component.register('sw-product-restriction-selection', {
             const selectedOptionArray = this.selectedOptions !== null ? this.selectedOptions : [];
 
             this.restriction.options = selectedOptionArray;
-        }
+        },
     },
 
     mounted() {
@@ -86,6 +86,6 @@ Component.register('sw-product-restriction-selection', {
 
         deleteRestriction() {
             this.$emit('restriction-delete', this.restriction);
-        }
-    }
+        },
+    },
 });

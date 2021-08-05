@@ -54,7 +54,14 @@ export default class FormFieldTogglePlugin extends Plugin {
          * This is only used if the scope, defined in the data attribute of `scopeDataAttribute`, is not set to 'all',
          * which is the default.
          */
-        parentSelectorDataAttribute: 'data-form-field-toggle-parent-selector'
+        parentSelectorDataAttribute: 'data-form-field-toggle-parent-selector',
+
+        /**
+         * The data attribute to contain a boolean value that declares if on nested instances of `FormFieldTogglePlugin`
+         * the method `_onChange` should be called when iterating elements to be shown. This is meant for instances
+         * where form fields should not automatically be required but be dependent on a nested instance of `FormFieldTogglePlugin`
+         */
+        triggerNestedDataAttribute: 'data-form-field-toggle-trigger-nested',
     };
 
     init() {
@@ -65,6 +72,8 @@ export default class FormFieldTogglePlugin extends Plugin {
         // Since the target could be hidden from the start,
         // the onChange function must be called.
         this._onChange();
+
+        this._triggerNested = DomAccess.getDataAttribute(this.el, this.options.triggerNestedDataAttribute, false);
     }
 
     /**
@@ -188,6 +197,17 @@ export default class FormFieldTogglePlugin extends Plugin {
                 field.classList.add(this.options.wasDisabledCls);
             }
         });
+        if (this._triggerNested) {
+            Iterator.iterate(fields, field => {
+                if (field.matches('[data-form-field-toggle="true"]')) {
+                    const instance = window.PluginManager.getPluginInstanceFromElement(field, 'FormFieldToggle');
+
+                    if (instance) {
+                        instance._onChange();
+                    }
+                }
+            });
+        }
 
         target.classList.remove(this.options.hiddenCls);
         target.classList.add(this.options.showCls);

@@ -12,9 +12,14 @@ class EntityCollection extends Collection
 
         foreach ($elements as $element) {
             $this->validateType($element);
-            /* @var Entity $element */
+
             $this->set($element->getUniqueIdentifier(), $element);
         }
+    }
+
+    public function fill(array $entities): void
+    {
+        array_map([$this, 'add'], $entities);
     }
 
     /**

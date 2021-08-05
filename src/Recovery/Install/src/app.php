@@ -276,6 +276,10 @@ $app->any('/database-configuration/', function (ServerRequestInterface $request,
         'port' => $_SESSION['parameters']['c_database_port'] ?? '',
         'socket' => $_SESSION['parameters']['c_database_socket'] ?? '',
         'database' => $_SESSION['parameters']['c_database_schema'] ?? '',
+        'sslCaPath' => $_SESSION['parameters']['c_database_ssl_ca_path'] ?? '',
+        'sslCertPath' => $_SESSION['parameters']['c_database_ssl_cert_path'] ?? '',
+        'sslCertKeyPath' => $_SESSION['parameters']['c_database_ssl_cert_key_path'] ?? '',
+        'sslDontVerifyCert' => $_SESSION['parameters']['c_database_ssl_dont_verify_cert'] ?? '0',
     ];
 
     if (empty($databaseParameters['user'])
@@ -295,6 +299,10 @@ $app->any('/database-configuration/', function (ServerRequestInterface $request,
     $connectionInfo->databaseName = $databaseParameters['database'];
     $connectionInfo->password = $databaseParameters['password'];
     $connectionInfo->socket = $databaseParameters['socket'];
+    $connectionInfo->sslCaPath = $databaseParameters['sslCaPath'];
+    $connectionInfo->sslCertPath = $databaseParameters['sslCertPath'];
+    $connectionInfo->sslCertKeyPath = $databaseParameters['sslCertKeyPath'];
+    $connectionInfo->sslDontVerifyServerCert = $databaseParameters['sslDontVerifyCert'] === '1';
 
     try {
         try {
@@ -319,7 +327,7 @@ $app->any('/database-configuration/', function (ServerRequestInterface $request,
         return $this->renderer->render($response, 'database-configuration.php', ['error' => $e->getMessage()]);
     } finally {
         // Init db in container
-        $container->offsetSet('db', $connection);
+        $container->offsetSet('db', $connection ?? null);
     }
 
     $_SESSION['databaseConnectionInfo'] = $connectionInfo;
@@ -647,6 +655,10 @@ $app->post('/check-database-connection', function (ServerRequestInterface $reque
         'port' => $postData['c_database_port'],
         'password' => $postData['c_database_password'],
         'socket' => $postData['c_database_socket'],
+        'sslCaPath' => $postData['c_database_ssl_ca_path'],
+        'sslCertPath' => $postData['c_database_ssl_cert_path'],
+        'sslCertKeyPath' => $postData['c_database_ssl_cert_key_path'],
+        'sslDontVerifyServerCert' => isset($postData['c_database_ssl_dont_verify_cert']) ? true : false,
     ]);
 
     try {

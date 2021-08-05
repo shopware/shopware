@@ -90,6 +90,8 @@
     "main_category.updatedAt",
     "webhook.createdAt",
     "webhook.updatedAt",
+    "webhook_event_log.createdAt",
+    "webhook_event_log.updatedAt",
     "named.id",
     "named.name",
     "named.createdAt",
@@ -1019,6 +1021,7 @@
     "customer.tagIds",
     "customer.createdAt",
     "customer.updatedAt",
+    "customer.orderTotalAmount",
     "customer_group_translation.name",
     "customer_group_translation.registrationTitle",
     "customer_group_translation.registrationIntroduction",
@@ -1385,5 +1388,9 @@
     "theme_translation.createdAt",
     "theme_translation.updatedAt",
     "theme_translation.themeId",
-    "theme_translation.languageId"
+    "theme_translation.languageId",
+    "country.vatIdRequired",
+    "country.customerTax",
+    "country.companyTax",
+    "currency.taxFreeFrom"
 ]

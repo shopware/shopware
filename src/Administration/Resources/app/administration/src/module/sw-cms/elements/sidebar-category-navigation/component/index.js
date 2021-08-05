@@ -6,7 +6,7 @@ Shopware.Component.register('sw-cms-el-category-navigation', {
 
     mixins: [
         Shopware.Mixin.getByName('cms-element'),
-        Shopware.Mixin.getByName('placeholder')
+        Shopware.Mixin.getByName('placeholder'),
     ],
 
     created() {
@@ -16,6 +16,6 @@ Shopware.Component.register('sw-cms-el-category-navigation', {
     methods: {
         createdComponent() {
             this.initElementConfig('category-navigation');
-        }
-    }
+        },
+    },
 });

@@ -11,6 +11,7 @@ use OpenApi\Annotations\Response as OpenApiResponse;
 use OpenApi\Annotations\Schema;
 use OpenApi\Annotations\SecurityScheme;
 use OpenApi\Annotations\Server;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
@@ -61,7 +62,7 @@ class OpenApiSchemaBuilder
      */
     private function createServers(string $api): array
     {
-        $url = $_SERVER['APP_URL'] ?? '';
+        $url = (string) EnvironmentHelper::getVariable('APP_URL', '');
 
         return [
             new Server(['url' => rtrim($url, '/') . self::API[$api]['url']]),
@@ -386,7 +387,7 @@ class OpenApiSchemaBuilder
             ];
         }
 
-        $url = $_SERVER['APP_URL'] ?? '';
+        $url = (string) EnvironmentHelper::getVariable('APP_URL', '');
 
         return [
             'oAuth' => new SecurityScheme([

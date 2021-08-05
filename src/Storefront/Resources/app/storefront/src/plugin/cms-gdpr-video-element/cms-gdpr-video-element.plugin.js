@@ -16,7 +16,7 @@ export default class CmsGdprVideoElement extends Plugin {
         backdropClasses: ['element-loader-backdrop', 'element-loader-backdrop-open'],
         confirmButtonText: null,
         modalTriggerSelector: '[data-toggle="modal"][data-url]',
-        urlAttribute: 'data-url'
+        urlAttribute: 'data-url',
     };
 
     /**
@@ -81,7 +81,7 @@ export default class CmsGdprVideoElement extends Plugin {
         });
 
         buttonElement.addEventListener('click', this.onReplaceElementWithVideo.bind(this), false, {
-            once: true
+            once: true,
         });
 
         return buttonElement;

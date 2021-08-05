@@ -4,7 +4,9 @@ import 'src/module/sw-cms/component/sw-cms-sidebar';
 import 'src/app/component/base/sw-button';
 import Vuex from 'vuex';
 
-function getBlockData() {
+const { EntityCollection } = Shopware.Data;
+
+function getBlockData(sectionId = '1111') {
     return {
         id: 'a322757550914445a0ec3c1b23255754',
         slots: [
@@ -22,6 +24,7 @@ function getBlockData() {
                 type: 'text'
             }
         ],
+        sectionId,
         position: 0,
         sectionPosition: 0
     };
@@ -44,6 +47,7 @@ function createWrapper() {
     });
 
     localVue.use(Vuex);
+    localStorage.clear();
 
     return shallowMount(Shopware.Component.build('sw-cms-sidebar'), {
         localVue,
@@ -51,8 +55,9 @@ function createWrapper() {
             page: {
                 sections: [
                     {
+                        id: '1111',
                         type: 'sidebar',
-                        blocks: [
+                        blocks: new EntityCollection([
                             {
                                 id: '1a2b',
                                 sectionPosition: 'main',
@@ -73,7 +78,17 @@ function createWrapper() {
                                 sectionPosition: 'main',
                                 type: 'foo-bar-removed'
                             }
-                        ]
+                        ])
+                    }, {
+                        id: '2222',
+                        type: 'sidebar',
+                        blocks: new EntityCollection([
+                            {
+                                id: 'abcd',
+                                sectionPosition: 'main',
+                                type: 'i-dont-care'
+                            }
+                        ])
                     }
                 ]
             }
@@ -91,7 +106,9 @@ function createWrapper() {
             'sw-context-button': true,
             'sw-context-menu-item': true,
             'sw-cms-sidebar-nav-element': true,
-            'sw-entity-single-select': true
+            'sw-entity-single-select': true,
+            'sw-modal': true,
+            'sw-checkbox-field': true
         },
         provide: {
             repositoryFactory: {
@@ -99,7 +116,8 @@ function createWrapper() {
                     create: () => ({
                         id: null,
                         slots: []
-                    })
+                    }),
+                    save: () => {}
                 })
             },
             cmsService: {
@@ -110,6 +128,7 @@ function createWrapper() {
         }
     });
 }
+
 describe('module/sw-cms/component/sw-cms-sidebar', () => {
     beforeAll(() => {
         Shopware.State.registerModule('cmsPageState', {
@@ -149,6 +168,80 @@ describe('module/sw-cms/component/sw-cms-sidebar', () => {
         sidebarItems.wrappers.forEach(sidebarItem => {
             expect(sidebarItem.attributes().disabled).toBeUndefined();
         });
+    });
+
+    it('should correctly adjust the sectionId when drag sorting (cross section)', async () => {
+        const wrapper = createWrapper();
+        const blockDrag = {
+            block: getBlockData('1111'),
+            sectionIndex: 0
+        };
+        const blockDrop = {
+            block: getBlockData('2222'),
+            sectionIndex: 1
+        };
+
+        await wrapper.vm.onBlockDragSort(blockDrag, blockDrop, true);
+
+        expect(wrapper.emitted()['block-navigator-sort'][0]).toEqual([true]);
+        expect(blockDrag.block.sectionId).toEqual(blockDrop.block.sectionId);
+    });
+
+    it('should stop prompting a warning when entering the navigator, when "Do not remind me" option has been checked once', () => {
+        const wrapper = createWrapper();
+
+        // Check initial state of modal and localStorage
+        expect(localStorage.getItem('cmsNavigatorDontRemind')).toBeFalsy();
+        expect(wrapper.vm.showSidebarNavigatorModal).toBe(false);
+
+        // Open the configuration modal
+        wrapper.vm.$refs.blockNavigator.isActive = true;
+        wrapper.vm.onSidebarNavigatorClick();
+        expect(wrapper.vm.showSidebarNavigatorModal).toBe(true);
+
+        // Check "don't remind me" and confirm the modal
+        wrapper.vm.navigatorDontRemind = true;
+        wrapper.vm.onSidebarNavigationConfirm();
+        expect(localStorage.getItem('cmsNavigatorDontRemind')).toBe('true');
+        expect(wrapper.vm.showSidebarNavigatorModal).toBe(false);
+
+        // Close the sidebar
+        wrapper.vm.$refs.blockNavigator.isActive = false;
+
+        // Reopen the blockNavigator, to see that the modal won't be triggered
+
+        wrapper.vm.$refs.blockNavigator.isActive = true;
+        wrapper.vm.onSidebarNavigatorClick();
+        expect(localStorage.getItem('cmsNavigatorDontRemind')).toBe('true');
+        expect(wrapper.vm.showSidebarNavigatorModal).toBe(false);
+    });
+
+    it('should continue prompting a warning when entering the navigator, when "Do not remind me" option has not been checked once', () => {
+        const wrapper = createWrapper();
+
+        // Check initial state of modal and localStorage
+        expect(localStorage.getItem('cmsNavigatorDontRemind')).toBeFalsy();
+        expect(wrapper.vm.showSidebarNavigatorModal).toBe(false);
+
+        // Open the configuration modal
+        wrapper.vm.$refs.blockNavigator.isActive = true;
+        wrapper.vm.onSidebarNavigatorClick();
+        expect(wrapper.vm.showSidebarNavigatorModal).toBe(true);
+
+        // Uncheck "don't remind me" and confirm the modal
+        wrapper.vm.navigatorDontRemind = false;
+        wrapper.vm.onSidebarNavigationConfirm();
+        expect(localStorage.getItem('cmsNavigatorDontRemind')).toBeFalsy();
+        expect(wrapper.vm.showSidebarNavigatorModal).toBe(false);
+
+        // Close the sidebar
+        wrapper.vm.$refs.blockNavigator.isActive = false;
+
+        // Reopen the blockNavigator, to see that the modal will still be triggered
+        wrapper.vm.$refs.blockNavigator.isActive = true;
+        wrapper.vm.onSidebarNavigatorClick();
+        expect(localStorage.getItem('cmsNavigatorDontRemind')).toBeFalsy();
+        expect(wrapper.vm.showSidebarNavigatorModal).toBe(true);
     });
 
     it('should keep the id when duplicating blocks', () => {

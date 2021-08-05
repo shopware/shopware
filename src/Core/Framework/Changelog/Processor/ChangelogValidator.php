@@ -30,7 +30,7 @@ class ChangelogValidator extends ChangelogProcessor
     {
         $entries = [];
         $finder = new Finder();
-        $finder->in($this->unreleasedDir)->files()->sortByName()->depth('0')->name('*.md');
+        $finder->in($this->getUnreleasedDir())->files()->sortByName()->depth('0')->name('*.md');
         if ($finder->hasResults()) {
             foreach ($finder as $file) {
                 $entries[] = (string) $file->getRealPath();

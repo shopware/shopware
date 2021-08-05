@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+/**
+ * @group store-api
+ */
 class RemoveWishlistProductRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -58,7 +61,6 @@ class RemoveWishlistProductRouteTest extends TestCase
         $this->assignSalesChannelContext($this->browser);
         $this->customerRepository = $this->getContainer()->get('customer.repository');
 
-        /* @var SystemConfigService $systemConfigService */
         $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
         $this->systemConfigService->set('core.cart.wishlistEnabled', true);
 

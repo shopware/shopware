@@ -29,24 +29,19 @@ if (isDev) {
 }
 
 // Error Handling when something is not defined
-if (isDev && !process.env.ENV_FILE) {
-    console.error(chalk.red('\n \u{26A0}️  You need to add the "ENV_FILE" as an environment variable for compiling the code. \u{26A0}️\n'));
-    process.exit(1);
-}
-
 if (isDev && !process.env.APP_URL) {
     console.error(chalk.red('\n \u{26A0}️  You need to add the "APP_URL" as an environment variable for compiling the code. \u{26A0}️\n'));
     process.exit(1);
 }
 
 if (isDev && !process.env.HOST) {
-    console.error(chalk.red('\n \u{26A0}️  You need to add the "HOST" as an environment variable for compiling the code. \u{26A0}️\n'));
-    process.exit(1);
+    process.env.HOST = '0.0.0.0';
+    console.debug(`HOST not defined. Using 0.0.0.0 as default`);
 }
 
 if (isDev && !process.env.PORT) {
-    console.error(chalk.red('\n \u{26A0}️  You need to add the "PORT" as an environment variable for compiling the code. \u{26A0}️\n'));
-    process.exit(1);
+    process.env.PORT = 8080;
+    console.debug(`PORT not defined. Using ${process.env.PORT} as default`);
 }
 
 if (!process.env.PROJECT_ROOT) {
@@ -84,7 +79,7 @@ console.log();
 
 const webpackConfig = {
     mode: isDev ? 'development' : 'production',
-    bail: isDev ? false : true,
+    bail: !isDev,
     stats: {
         all: false,
         colors: true,
@@ -502,9 +497,7 @@ const webpackConfig = {
                         template: 'index.html.tpl',
                         templateParameters: {
                             featureFlags: (() => {
-                                const getFeatureFlagNames = (sourceFolder) => {
-                                    const flagsPath = path.join(sourceFolder, '/config_js_features.json');
-
+                                const getFeatureFlagNames = (flagsPath) => {
                                     if (!fs.existsSync(flagsPath)) {
                                         return '{}';
                                     }
@@ -512,10 +505,8 @@ const webpackConfig = {
                                     return fs.readFileSync(flagsPath);
                                 }
 
-                                return getFeatureFlagNames(path.join(__dirname, '../../../../../../var'));
+                                return getFeatureFlagNames(path.join(process.env.PROJECT_ROOT, 'var', 'config_js_features.json'));
                             })(),
-                            // TODO: NEXT-7581 - Implement a version dump in the backend and read here the version file
-                            apiVersion: 3
                         },
                         inject: false
                     }),

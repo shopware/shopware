@@ -10,19 +10,19 @@ Component.register('sw-product-variant-modal', {
     inject: [
         'feature',
         'repositoryFactory',
-        'acl'
+        'acl',
     ],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     props: {
         // this is the parent product entity from wich we will get all the variants
         productEntity: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
@@ -37,7 +37,7 @@ Component.register('sw-product-variant-modal', {
             isDeleteButtonLoading: false,
             isDeletionOver: false,
             sortDirection: 'ASC',
-            sortBy: 'productNumber'
+            sortBy: 'productNumber',
         };
     },
 
@@ -82,11 +82,7 @@ Component.register('sw-product-variant-modal', {
             criteria.getAssociation('options')
                 .addAssociation('group');
             criteria.addAssociation('cover');
-
-            if (this.feature.isActive('FEATURE_NEXT_6544')) {
-                criteria.addAssociation('media');
-                criteria.addAssociation('cover');
-            }
+            criteria.addAssociation('media');
 
             if (this.searchTerm) {
                 // Split each word for search
@@ -108,14 +104,14 @@ Component.register('sw-product-variant-modal', {
         },
 
         gridColumns() {
-            const columns = [
+            return [
                 {
                     property: 'name',
                     dataIndex: 'name',
                     label: this.$tc('sw-product.list.columnName'),
                     routerLink: 'sw.product.detail',
                     inlineEdit: 'string',
-                    allowResize: true
+                    allowResize: true,
                 },
                 {
                     property: 'price',
@@ -124,7 +120,7 @@ Component.register('sw-product-variant-modal', {
                     allowResize: true,
                     width: '250px',
                     inlineEdit: 'number',
-                    align: 'right'
+                    align: 'right',
                 },
                 {
                     property: 'stock',
@@ -132,7 +128,7 @@ Component.register('sw-product-variant-modal', {
                     label: 'sw-product.list.columnInStock',
                     allowResize: true,
                     inlineEdit: 'number',
-                    align: 'right'
+                    align: 'right',
                 },
                 {
                     property: 'active',
@@ -140,29 +136,24 @@ Component.register('sw-product-variant-modal', {
                     label: 'sw-product.list.columnActive',
                     allowResize: true,
                     inlineEdit: 'boolean',
-                    align: 'center'
+                    align: 'center',
                 },
                 {
                     property: 'productNumber',
                     dataIndex: 'productNumber',
                     label: 'sw-product.list.columnProductNumber',
                     allowResize: true,
-                    align: 'right'
-                }
-            ];
-
-            if (this.feature.isActive('FEATURE_NEXT_6544')) {
-                columns.push({
+                    align: 'right',
+                },
+                {
                     property: 'media',
                     dataIndex: 'media',
                     label: this.$tc('sw-product.list.columnMedia'),
                     allowResize: true,
                     inlineEdit: true,
-                    sortable: false
-                });
-            }
-
-            return columns;
+                    sortable: false,
+                },
+            ];
         },
 
         canBeDeletedCriteria() {
@@ -171,7 +162,7 @@ Component.register('sw-product-variant-modal', {
             criteria.addFilter(Criteria.equalsAny('canonicalProductId', variantIds));
 
             return criteria;
-        }
+        },
     },
 
     created() {
@@ -239,7 +230,7 @@ Component.register('sw-product-variant-modal', {
                 currencyId: currency.id,
                 gross: defaultPrice.gross * currency.factor,
                 linked: defaultPrice.linked,
-                net: defaultPrice.net * currency.factor
+                net: defaultPrice.net * currency.factor,
             };
 
             // add new price currency to variant
@@ -285,7 +276,7 @@ Component.register('sw-product-variant-modal', {
                     !ommitOptionGroupName ? optionGroupName : '',
                     !ommitOptionGroupName ? ': ' : '',
                     optionValue,
-                    seperator
+                    seperator,
                 );
             }, '').slice(0, -seperator.length);
 
@@ -330,8 +321,8 @@ Component.register('sw-product-variant-modal', {
                 this.$router.push({
                     name: 'sw.product.detail',
                     params: {
-                        id: productId
-                    }
+                        id: productId,
+                    },
                 });
             });
         },
@@ -364,8 +355,8 @@ Component.register('sw-product-variant-modal', {
                         message: this.$tc(
                             'sw-product.list.notificationVariantDeleteErrorCanonicalUrl',
                             amount,
-                            { variantName }
-                        )
+                            { variantName },
+                        ),
                     });
 
                     return;
@@ -377,8 +368,8 @@ Component.register('sw-product-variant-modal', {
                             message: this.$tc(
                                 'sw-product.list.notificationVariantDeleteSuccess',
                                 amount,
-                                { variantName, amount }
-                            )
+                                { variantName, amount },
+                            ),
                         });
 
                         this.fetchProductVariants();
@@ -388,8 +379,8 @@ Component.register('sw-product-variant-modal', {
                             message: this.$tc(
                                 'sw-product.list.notificationVariantDeleteError',
                                 amount,
-                                { variantName, amount }
-                            )
+                                { variantName, amount },
+                            ),
                         });
                     })
                     .finally(() => {
@@ -410,7 +401,7 @@ Component.register('sw-product-variant-modal', {
 
             this.productRepository.save(editedVariant).then(() => {
                 this.createNotificationSuccess({
-                    message: this.$t('sw-product.list.notificationVariantSaveSuccess', { variantName })
+                    message: this.$t('sw-product.list.notificationVariantSaveSuccess', { variantName }),
                 });
 
                 this.fetchProductVariants();
@@ -460,7 +451,7 @@ Component.register('sw-product-variant-modal', {
                 message: this.$tc('sw-privileges.tooltip.warning'),
                 appearance: 'dark',
                 showOnDisabledElements,
-                disabled: this.acl.can(role)
+                disabled: this.acl.can(role),
             };
         },
 
@@ -505,6 +496,6 @@ Component.register('sw-product-variant-modal', {
 
                 variant.media.push(mediaItem);
             });
-        }
-    }
+        },
+    },
 });

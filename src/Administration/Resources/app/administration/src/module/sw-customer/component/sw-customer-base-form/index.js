@@ -2,8 +2,9 @@ import template from './sw-customer-base-form.html.twig';
 import './sw-customer-base-form.scss';
 import errorConfig from '../../error-config.json';
 
-const { Component } = Shopware;
+const { Component, Defaults } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-customer-base-form', {
     template,
@@ -13,12 +14,22 @@ Component.register('sw-customer-base-form', {
     props: {
         customer: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
     },
 
     computed: {
-        ...mapPropertyErrors('customer', errorConfig['sw.customer.detail.base'].customer)
+        ...mapPropertyErrors('customer', errorConfig['sw.customer.detail.base'].customer),
+
+        salutationCriteria() {
+            const criteria = new Criteria();
+
+            criteria.addFilter(Criteria.not('or', [
+                Criteria.equals('id', Defaults.defaultSalutationId),
+            ]));
+
+            return criteria;
+        },
     },
 
     watch: {
@@ -26,12 +37,12 @@ Component.register('sw-customer-base-form', {
             if (newVal) {
                 this.customer.password = null;
             }
-        }
+        },
     },
 
     methods: {
         onSalesChannelChange(salesChannelId) {
             this.$emit('sales-channel-change', salesChannelId);
-        }
-    }
+        },
+    },
 });

@@ -8,61 +8,61 @@ Component.register('sw-meteor-single-select', {
     template,
 
     mixins: [
-        Mixin.getByName('remove-api-error')
+        Mixin.getByName('remove-api-error'),
     ],
 
     model: {
         prop: 'value',
-        event: 'change'
+        event: 'change',
     },
 
     props: {
         options: {
             required: true,
-            type: Array
+            type: Array,
         },
 
         // FIXME: add type for property
         // eslint-disable-next-line vue/require-prop-types
         value: {
-            required: true
+            required: true,
         },
 
         label: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
 
         isLoading: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         highlightSearchTerm: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
 
         placeholder: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
 
         labelProperty: {
             type: String,
             required: false,
-            default: 'label'
+            default: 'label',
         },
 
         valueProperty: {
             type: String,
             required: false,
-            default: 'value'
-        }
+            default: 'value',
+        },
     },
 
     data() {
@@ -71,7 +71,7 @@ Component.register('sw-meteor-single-select', {
             isExpanded: false,
             results: this.options,
             // used to track if an item was selected before closing the result list
-            itemRecentlySelected: false
+            itemRecentlySelected: false,
         };
     },
 
@@ -82,18 +82,18 @@ Component.register('sw-meteor-single-select', {
             },
             set(newValue) {
                 this.$emit('change', newValue);
-            }
+            },
         },
 
         inputClasses() {
             return {
-                'is--expanded': this.isExpanded
+                'is--expanded': this.isExpanded,
             };
         },
 
         selectionTextClasses() {
             return {
-                'is--placeholder': !this.singleSelection
+                'is--placeholder': !this.singleSelection,
             };
         },
 
@@ -105,7 +105,7 @@ Component.register('sw-meteor-single-select', {
             },
             set(newValue) {
                 this.currentValue = this.getKey(newValue, this.valueProperty);
-            }
+            },
         },
 
         selectedValueLabel() {
@@ -114,7 +114,7 @@ Component.register('sw-meteor-single-select', {
             }
 
             return this.getKey(this.singleSelection, this.labelProperty);
-        }
+        },
     },
 
     methods: {
@@ -177,6 +177,6 @@ Component.register('sw-meteor-single-select', {
 
         getKey(object, keyPath, defaultValue) {
             return get(object, keyPath, defaultValue);
-        }
-    }
+        },
+    },
 });

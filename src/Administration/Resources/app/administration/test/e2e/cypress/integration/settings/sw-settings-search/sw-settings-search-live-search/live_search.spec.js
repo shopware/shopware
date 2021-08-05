@@ -26,7 +26,8 @@ describe('Search settings: Live Search', () => {
         cy.get('.sw-modal.sw-settings-search-example-modal').should('be.visible');
     });
 
-    it('@settings: Search for a keyword with no result', () => {
+
+    it(`@settings: Search for a keyword with no result`, () => {
         cy.contains('Sales Channel live search');
 
         // Request we want to wait for later
@@ -39,6 +40,8 @@ describe('Search settings: Live Search', () => {
         // the input should be disabled
         cy.get('.sw-simple-search-field input').should('be.disabled');
 
+        // typeSingleSelect seems to be buggy and require this delay
+        cy.wait(500);
         // select a sales channel to search
         cy.get('.sw-single-select')
             .typeSingleSelect('Storefront', '.sw-single-select');
@@ -59,6 +62,10 @@ describe('Search settings: Live Search', () => {
             method: 'post'
         }).as('searchKeywords');
 
+        cy.get('.sw-single-select').should('be.visible');
+
+        // typeSingleSelect seems to be buggy and require this delay
+        cy.wait(500);
         // select a sales channel to search
         cy.get('.sw-single-select')
             .typeSingleSelect('Storefront', '.sw-single-select');
@@ -83,6 +90,10 @@ describe('Search settings: Live Search', () => {
             method: 'post'
         }).as('searchKeywords');
 
+        // typeSingleSelect seems to be buggy and require this delay
+        cy.wait(500);
+        cy.get('.sw-single-select').should('be.visible');
+
         // select a sales channel to search
         cy.get('.sw-single-select')
             .typeSingleSelect('Storefront', '.sw-single-select');
@@ -101,7 +112,6 @@ describe('Search settings: Live Search', () => {
         });
     });
 
-
     it('@settings: Search for a keyword with multiple results', () => {
         cy.server();
         cy.route({
@@ -109,6 +119,8 @@ describe('Search settings: Live Search', () => {
             method: 'post'
         }).as('searchKeywords');
 
+        // typeSingleSelect seems to be buggy and require this delay
+        cy.wait(500);
         // select a sales channel to search
         cy.get('.sw-single-select')
             .typeSingleSelect('Storefront', '.sw-single-select');

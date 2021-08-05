@@ -18,39 +18,39 @@ Component.register('sw-confirm-field', {
         value: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
 
         compact: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         preventEmptySubmit: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         required: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
         return {
             isEditing: false,
             draft: this.value,
-            event: null
+            event: null,
         };
     },
 
@@ -58,15 +58,15 @@ Component.register('sw-confirm-field', {
         confirmFieldClasses() {
             return {
                 'sw-confirm-field--compact': this.compact,
-                'sw-confirm-field--editing': this.isEditing
+                'sw-confirm-field--editing': this.isEditing,
             };
-        }
+        },
     },
 
     watch: {
         value() {
             this.draft = this.value;
-        }
+        },
     },
 
     methods: {
@@ -119,6 +119,6 @@ Component.register('sw-confirm-field', {
             this.event = 'click';
             this.submitValue();
             this.isEditing = false;
-        }
-    }
+        },
+    },
 });

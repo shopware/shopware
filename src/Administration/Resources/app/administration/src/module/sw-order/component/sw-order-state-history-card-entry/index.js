@@ -11,26 +11,26 @@ Component.register('sw-order-state-card-entry', {
     props: {
         history: {
             type: Array,
-            required: true
+            required: true,
         },
         transitionOptions: {
             type: Array,
-            required: true
+            required: true,
         },
         stateMachineName: {
             type: String,
-            required: true
+            required: true,
         },
         title: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
     methods: {
         userDisplayName(user) {
@@ -54,6 +54,6 @@ Component.register('sw-order-state-card-entry', {
 
         getBackgroundColorFromState(stateName) {
             return this.stateStyleDataProviderService.getStyle(this.stateMachineName, stateName).iconBackgroundStyle;
-        }
-    }
+        },
+    },
 });

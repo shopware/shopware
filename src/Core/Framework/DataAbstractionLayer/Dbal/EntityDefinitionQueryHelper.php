@@ -85,7 +85,7 @@ class EntityDefinitionQueryHelper
             }
         }
 
-        return $accessorFields;
+        return array_filter($accessorFields);
     }
 
     /**
@@ -218,6 +218,25 @@ class EntityDefinitionQueryHelper
             $root . '.' . $field->getPropertyName(),
             $context
         );
+    }
+
+    public static function getAssociationPath(string $accessor, EntityDefinition $definition): ?string
+    {
+        $fields = self::getFieldsOfAccessor($definition, $accessor, true);
+
+        $path = [];
+        foreach ($fields as $field) {
+            if (!$field instanceof AssociationField) {
+                break;
+            }
+            $path[] = $field->getPropertyName();
+        }
+
+        if (empty($path)) {
+            return null;
+        }
+
+        return implode('.', $path);
     }
 
     /**
@@ -356,15 +375,7 @@ class EntityDefinitionQueryHelper
 
         $inherited = $context->considerInheritance() && $definition->isInheritanceAware();
 
-        $alias = $root . '.' . $translationDefinition->getEntityName();
-        $query->addSelect(self::escape($alias) . '.*');
-
-        if ($inherited) {
-            $alias = $root . '.' . $translationDefinition->getEntityName() . '.parent';
-            $query->addSelect(self::escape($alias) . '.*');
-        }
-
-        $chain = self::buildTranslationChain($root, $context, $inherited);
+        $chain = EntityDefinitionQueryHelper::buildTranslationChain($root, $context, $inherited);
 
         /** @var TranslatedField $field */
         foreach ($fields as $field) {
@@ -378,6 +389,12 @@ class EntityDefinitionQueryHelper
                     '#root#' => $select,
                     '#field#' => $field->getPropertyName(),
                 ];
+
+                $query->addSelect(str_replace(
+                    array_keys($vars),
+                    array_values($vars),
+                    EntityDefinitionQueryHelper::escape('#root#.#field#')
+                ));
 
                 $selects[] = str_replace(
                     array_keys($vars),
@@ -435,6 +452,11 @@ class EntityDefinitionQueryHelper
     public static function getTranslatedField(EntityDefinition $definition, TranslatedField $translatedField): Field
     {
         $translationDefinition = $definition->getTranslationDefinition();
+
+        if ($translationDefinition === null) {
+            throw new \RuntimeException(sprintf('Entity %s has no translation definition', $definition->getEntityName()));
+        }
+
         $field = $translationDefinition->getFields()->get($translatedField->getPropertyName());
 
         if ($field === null || !$field instanceof StorageAware || !$field instanceof Field) {

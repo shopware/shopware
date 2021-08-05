@@ -10,48 +10,50 @@
         {# @deprecated tag:v6.5.0 - Use "sw_breadcrumb_full" directly. #}
         {% set breadcrumbTypes = sw_breadcrumb_build_types(breadcrumbCategories) %}
 
-        <nav aria-label="breadcrumb">
-            {% block layout_breadcrumb_list %}
-                <ol class="breadcrumb"
-                    itemscope
-                    itemtype="https://schema.org/BreadcrumbList">
-                    {% for breadcrumbCategory in breadcrumbCategories %}
-                        {% set key = breadcrumbCategory.id %}
-                        {% set name = breadcrumbCategory.translated.name %}
+        {% if breadcrumbCategories|length > 0 %}
+            <nav aria-label="breadcrumb">
+                {% block layout_breadcrumb_list %}
+                    <ol class="breadcrumb"
+                        itemscope
+                        itemtype="https://schema.org/BreadcrumbList">
+                        {% for breadcrumbCategory in breadcrumbCategories %}
+                            {% set key = breadcrumbCategory.id %}
+                            {% set name = breadcrumbCategory.translated.name %}
 
-                        {% block layout_breadcrumb_list_item %}
-                            <li class="breadcrumb-item"
-                                {% if key is same as(categoryId) %}aria-current="page"{% endif %}
-                                itemprop="itemListElement"
-                                itemscope
-                                itemtype="https://schema.org/ListItem">
-                                {% if breadcrumbCategory.type == 'folder' %}
-                                    <div>{{ name }}</div>
-                                {% else %}
-                                    <a href="{{ category_url(breadcrumbCategory) }}"
-                                       class="breadcrumb-link {% if key is same as(categoryId) %} is-active{% endif %}"
-                                       title="{{ name }}"
-                                       {% if category_linknewtab(breadcrumbCategory) %}target="_blank"{% endif %}
-                                       itemprop="item">
-                                        <link itemprop="url"
-                                              href="{{ category_url(breadcrumbCategory) }}"/>
-                                        <span class="breadcrumb-title" itemprop="name">{{ name }}</span>
-                                    </a>
-                                    <meta itemprop="position" content="{{ breadcrumbCategory.id }}"/>
+                            {% block layout_breadcrumb_list_item %}
+                                <li class="breadcrumb-item"
+                                    {% if key is same as(categoryId) %}aria-current="page"{% endif %}
+                                    itemprop="itemListElement"
+                                    itemscope
+                                    itemtype="https://schema.org/ListItem">
+                                    {% if breadcrumbCategory.type == 'folder' %}
+                                        <div>{{ name }}</div>
+                                    {% else %}
+                                        <a href="{{ category_url(breadcrumbCategory) }}"
+                                           class="breadcrumb-link {% if key is same as(categoryId) %} is-active{% endif %}"
+                                           title="{{ name }}"
+                                           {% if category_linknewtab(breadcrumbCategory) %}target="_blank"{% endif %}
+                                           itemprop="item">
+                                            <link itemprop="url"
+                                                  href="{{ category_url(breadcrumbCategory) }}"/>
+                                            <span class="breadcrumb-title" itemprop="name">{{ name }}</span>
+                                        </a>
+                                        <meta itemprop="position" content="{{ breadcrumbCategory.id }}"/>
+                                    {% endif %}
+                                </li>
+                            {% endblock %}
+
+                            {% block layout_breadcrumb_placeholder %}
+                                {% if key != breadcrumbKeys|last %}
+                                    <div class="breadcrumb-placeholder">
+                                        {% sw_icon 'arrow-medium-right' style { 'size': 'fluid', 'pack': 'solid'} %}
+                                    </div>
                                 {% endif %}
-                            </li>
-                        {% endblock %}
-
-                        {% block layout_breadcrumb_placeholder %}
-                            {% if key != breadcrumbKeys|last %}
-                                <div class="breadcrumb-placeholder">
-                                    {% sw_icon 'arrow-medium-right' style { 'size': 'fluid', 'pack': 'solid'} %}
-                                </div>
-                            {% endif %}
-                        {% endblock %}
-                    {% endfor %}
-                </ol>
-            {% endblock %}
-        </nav>
+                            {% endblock %}
+                        {% endfor %}
+                    </ol>
+                {% endblock %}
+            </nav>
+        {% endif %}
     {% endif %}
 {% endblock %}

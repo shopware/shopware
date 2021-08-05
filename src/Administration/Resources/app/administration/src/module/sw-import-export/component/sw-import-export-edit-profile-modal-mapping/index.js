@@ -10,18 +10,28 @@ const Criteria = Shopware.Data.Criteria;
 Shopware.Component.register('sw-import-export-edit-profile-modal-mapping', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [
+        'repositoryFactory',
+        'feature',
+    ],
 
     mixins: [
-        Shopware.Mixin.getByName('notification')
+        Shopware.Mixin.getByName('notification'),
     ],
 
     props: {
         profile: {
             type: Object,
             required: false,
-            default: null
-        }
+            default: null,
+        },
+        systemRequiredFields: {
+            type: Object,
+            required: false,
+            default() {
+                return {};
+            },
+        },
     },
 
     data() {
@@ -30,7 +40,7 @@ Shopware.Component.register('sw-import-export-edit-profile-modal-mapping', {
             mappings: [],
             currencies: [],
             languages: [],
-            addMappingEnabled: false
+            addMappingEnabled: false,
         };
     },
 
@@ -54,21 +64,42 @@ Shopware.Component.register('sw-import-export-edit-profile-modal-mapping', {
         },
 
         mappingColumns() {
-            return [
+            let columns = [
                 {
                     property: 'csvName',
                     label: 'sw-import-export.profile.mapping.fileValueLabel',
                     allowResize: true,
-                    primary: true
+                    primary: true,
                 },
                 {
                     property: 'entry',
                     label: 'sw-import-export.profile.mapping.entityLabel',
                     allowResize: true,
-                    width: '300px'
-                }
+                    width: '300px',
+                },
             ];
-        }
+
+            if (this.feature.isActive('FEATURE_NEXT_8097') && this.profile.type !== 'export') {
+                columns = [...columns, {
+                    property: 'required',
+                    label: 'sw-import-export.profile.mapping.isRequired',
+                    allowResize: true,
+                    align: 'center',
+                },
+                {
+                    property: 'defaultValue',
+                    label: 'sw-import-export.profile.mapping.defaultValue',
+                    allowResize: true,
+                    width: '300px',
+                }];
+            }
+
+            return columns;
+        },
+
+        mappingsExist() {
+            return this.profile.mapping.length > 0;
+        },
     },
 
     watch: {
@@ -76,8 +107,8 @@ Shopware.Component.register('sw-import-export-edit-profile-modal-mapping', {
             handler(profile) {
                 this.toggleAddMappingActionState(profile.sourceEntity);
             },
-            deep: true
-        }
+            deep: true,
+        },
     },
 
     created() {
@@ -121,6 +152,7 @@ Shopware.Component.register('sw-import-export-edit-profile-modal-mapping', {
                     const mappedKey = mapping.mappedKey.toLowerCase();
                     return !!(key.includes(searchTerm) || mappedKey.includes(searchTerm));
                 });
+
                 return;
             }
 
@@ -150,6 +182,22 @@ Shopware.Component.register('sw-import-export-edit-profile-modal-mapping', {
 
         debouncedSearch: debounce(function updateSearchTerm() {
             this.loadMappings();
-        }, 100)
-    }
+        }, 100),
+
+        isDefaultValueCheckboxDisabled() {
+            return this.profile.systemDefault;
+        },
+
+        isDefaultValueTextFieldDisabled(item) {
+            return this.profile.systemDefault || !item.useDefaultValue;
+        },
+
+        isRequiredBySystem(item) {
+            if (!item || !item.key) {
+                return false;
+            }
+
+            return this.systemRequiredFields[item.key] !== undefined;
+        },
+    },
 });

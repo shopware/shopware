@@ -185,7 +185,7 @@ class StoreController extends AbstractStoreController
      */
     public function getUpdateList(Request $request, Context $context): JsonResponse
     {
-        $language = $request->query->get('language', '');
+        $language = (string) $request->query->get('language', '');
 
         if ($this->extensionDataProvider) {
             $extensions = $this->extensionDataProvider->getInstalledExtensions($context, false);
@@ -224,7 +224,7 @@ class StoreController extends AbstractStoreController
      */
     public function downloadPlugin(QueryDataBag $queryDataBag, Context $context): JsonResponse
     {
-        $pluginName = $queryDataBag->get('pluginName');
+        $pluginName = (string) $queryDataBag->get('pluginName');
         $language = $queryDataBag->get('language', '');
 
         $criteria = new Criteria();
@@ -261,7 +261,7 @@ class StoreController extends AbstractStoreController
      */
     public function getLicenseViolations(Request $request, Context $context): JsonResponse
     {
-        $language = $request->query->get('language', '');
+        $language = (string) $request->query->get('language', '');
 
         if ($this->extensionDataProvider) {
             $extensions = $this->extensionDataProvider->getInstalledExtensions($context, false);
@@ -308,7 +308,7 @@ class StoreController extends AbstractStoreController
         }
 
         try {
-            $language = $request->query->get('language', 'en-GB');
+            $language = (string) $request->query->get('language', 'en-GB');
 
             try {
                 $storeToken = $this->getUserStoreToken($context);

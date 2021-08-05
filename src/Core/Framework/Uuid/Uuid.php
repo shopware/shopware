@@ -90,6 +90,14 @@ class Uuid
         throw new InvalidUuidException($uuid);
     }
 
+    /**
+     * Generates a md5 binary, to hash the string and returns a UUID in hex
+     */
+    public static function fromStringToHex(string $string): string
+    {
+        return self::fromBytesToHex(md5($string, true));
+    }
+
     public static function isValid(string $id): bool
     {
         if (!preg_match('/' . self::VALID_PATTERN . '/', $id)) {

@@ -98,8 +98,7 @@
         </service>
 
         <service id="Shopware\Storefront\Framework\Twig\Extension\SwSanitizeTwigFilter" public="false">
-            <argument>%storefront.htmlPurifier.cacheDir%</argument>
-            <argument>%storefront.htmlPurifier.cacheEnabled%</argument>
+            <argument type="service" id="Shopware\Core\Framework\Util\HtmlSanitizer"/>
 
             <tag name="twig.extension"/>
         </service>
@@ -108,10 +107,16 @@
             <tag name="twig.extension"/>
         </service>
 
+        <service id="Shopware\Storefront\Framework\Csrf\SessionProvider" lazy="true">
+            <argument type="service" id="session"/>
+        </service>
+
         <service id="Shopware\Storefront\Framework\Csrf\CsrfPlaceholderHandler" public="true">
             <argument type="service" id="security.csrf.token_manager"/>
             <argument>%storefront.csrf.enabled%</argument>
             <argument>%storefront.csrf.mode%</argument>
+            <argument type="service" id="request_stack"/>
+            <argument type="service" id="Shopware\Storefront\Framework\Csrf\SessionProvider"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Media\StorefrontMediaUploader">
@@ -153,7 +158,6 @@
             <argument type="service" id="security.csrf.token_manager"/>
             <argument>%storefront.csrf.enabled%</argument>
             <argument>%storefront.csrf.mode%</argument>
-            <argument type="service" id="session"/>
             <argument type="service" id="translator"/>
 
             <tag name="kernel.event_subscriber"/>
@@ -209,7 +213,6 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Storefront\Framework\Captcha\BasicCaptcha\BasicCaptchaGenerator"/>
             <argument type="service" id="Shopware\Core\Content\Category\Service\NavigationLoader"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_12455"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Suggest\SuggestPageLoader">
@@ -321,6 +324,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\CustomerRoute"/>
+            <argument type="service" id="Shopware\Storefront\Pagelet\Newsletter\Account\NewsletterAccountPageletLoader"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Account\Order\AccountOrderPageLoader">
@@ -349,6 +353,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Order\SalesChannel\OrderRoute"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Order\OrderConverter"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader">
@@ -382,6 +387,15 @@
         <service id="Shopware\Storefront\Page\Newsletter\Subscribe\NewsletterSubscribePageLoader">
             <argument type="service" id="Shopware\Storefront\Page\GenericPageLoader"/>
             <argument type="service" id="event_dispatcher"/>
+        </service>
+
+        <service id="Shopware\Storefront\Pagelet\Newsletter\Account\NewsletterAccountPageletLoader">
+            <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute"/>
+            <argument type="service" id="Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute"/>
+            <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\AccountNewsletterRecipientRoute"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder" public="true">
@@ -444,6 +458,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService" />
             <argument>%shopware.http.cache.default_ttl%</argument>
             <argument>%shopware.http.cache.enabled%</argument>
+            <argument type="service" id="Shopware\Storefront\Framework\Routing\MaintenanceModeResolver"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>
@@ -513,7 +528,7 @@
 
         <service id="Shopware\Storefront\Framework\Captcha\CaptchaRouteListener">
             <argument type="tagged" tag="shopware.storefront.captcha"/>
-            <argument type="service" id="Shopware\Storefront\Controller\ErrorController" on-invalid="null"/>
+            <argument type="service" id="Shopware\Storefront\Controller\ErrorController"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
 
             <tag name="kernel.event_subscriber"/>
@@ -521,39 +536,31 @@
 
         <service id="Shopware\Storefront\Framework\Captcha\HoneypotCaptcha">
             <argument type="service" id="validator"/>
-            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
 
-            <tag name="shopware.storefront.captcha"/>
+            <tag name="shopware.storefront.captcha" priority="400"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Captcha\BasicCaptcha">
-            <argument type="service" id="session"/>
+            <argument type="service" id="request_stack"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
 
-            <tag name="shopware.storefront.captcha"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_12455"/>
+            <tag name="shopware.storefront.captcha" priority="300"/>
         </service>
 
-        <service id="Shopware\Storefront\Framework\Captcha\BasicCaptcha\BasicCaptchaGenerator">
-            <tag name="shopware.feature" flag="FEATURE_NEXT_12455"/>
-        </service>
+        <service id="Shopware\Storefront\Framework\Captcha\BasicCaptcha\BasicCaptchaGenerator"/>
 
-        <service id="shopware.captcha.client" class="GuzzleHttp\Client">
-            <tag name="shopware.feature" flag="FEATURE_NEXT_12455"/>
-        </service>
+        <service id="shopware.captcha.client" class="GuzzleHttp\Client"/>
 
         <service id="Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV2">
             <argument type="service" id="shopware.captcha.client"/>
 
-            <tag name="shopware.storefront.captcha"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_12455"/>
+            <tag name="shopware.storefront.captcha" priority="200"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Captcha\GoogleReCaptchaV3">
             <argument type="service" id="shopware.captcha.client"/>
 
-            <tag name="shopware.storefront.captcha"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_12455"/>
+            <tag name="shopware.storefront.captcha" priority="100"/>
         </service>
 
         <service id="Shopware\Storefront\Framework\Captcha\Annotation\Captcha"/>
@@ -570,8 +577,8 @@
         </service>
 
         <service id="Shopware\Storefront\Event\CartMergedSubscriber">
-            <argument type="service" id="session"/>
             <argument type="service" id="translator"/>
+            <argument type="service" id="request_stack"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>

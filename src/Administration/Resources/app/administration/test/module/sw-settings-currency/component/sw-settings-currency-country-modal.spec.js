@@ -34,7 +34,7 @@ describe('module/sw-settings-currency/component/sw-settings-currency-country-mod
     it('should be a Vue.JS component', () => {
         const wrapper = createWrapper();
 
-        expect(wrapper.isVueInstance()).toBe(true);
+        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should disable already assigned countries', () => {

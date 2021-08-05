@@ -20,7 +20,7 @@ export default class SearchWidgetPlugin extends Plugin {
         searchWidgetCollapseClass: 'collapsed',
 
         searchWidgetDelay: 250,
-        searchWidgetMinChars: 3
+        searchWidgetMinChars: 3,
     };
 
     init() {
@@ -56,7 +56,7 @@ export default class SearchWidgetPlugin extends Plugin {
             Debouncer.debounce(this._handleInputEvent.bind(this), this.options.searchWidgetDelay),
             {
                 capture: true,
-                passive: true
+                passive: true,
             },
         );
 

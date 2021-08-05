@@ -12,7 +12,7 @@ Component.register('sw-review-detail', {
     mixins: [
         'placeholder',
         'notification',
-        'salutation'
+        'salutation',
     ],
 
     shortcuts: {
@@ -20,9 +20,9 @@ Component.register('sw-review-detail', {
             active() {
                 return this.acl.can('review.editor');
             },
-            method: 'onSave'
+            method: 'onSave',
         },
-        ESCAPE: 'onCancel'
+        ESCAPE: 'onCancel',
     },
 
     data() {
@@ -31,13 +31,13 @@ Component.register('sw-review-detail', {
             isSaveSuccessful: false,
             reviewId: null,
             review: {},
-            customFieldSets: null
+            customFieldSets: null,
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle(this.identifier)
+            title: this.$createTitle(this.identifier),
         };
     },
 
@@ -71,7 +71,7 @@ Component.register('sw-review-detail', {
                 return {
                     message: this.$tc('sw-privileges.tooltip.warning'),
                     disabled: true,
-                    showOnDisabledElements: true
+                    showOnDisabledElements: true,
                 };
             }
 
@@ -79,26 +79,26 @@ Component.register('sw-review-detail', {
 
             return {
                 message: `${systemKey} + S`,
-                appearance: 'light'
+                appearance: 'light',
             };
         },
 
         tooltipCancel() {
             return {
                 message: 'ESC',
-                appearance: 'light'
+                appearance: 'light',
             };
         },
 
         showCustomFields() {
             return this.review && this.customFieldSets && this.customFieldSets.length > 0;
-        }
+        },
     },
 
     watch: {
         '$route.params.id'() {
             this.createdComponent();
-        }
+        },
     },
 
     created() {
@@ -139,14 +139,14 @@ Component.register('sw-review-detail', {
         onSave() {
             this.isSaveSuccessful = false;
             const messageSaveError = this.$tc(
-                'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'
+                'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid',
             );
 
             this.repository.save(this.review).then(() => {
                 this.isSaveSuccessful = true;
             }).catch(() => {
                 this.createNotificationError({
-                    message: messageSaveError
+                    message: messageSaveError,
                 });
             });
         },
@@ -158,6 +158,6 @@ Component.register('sw-review-detail', {
 
         onCancel() {
             this.$router.push({ name: 'sw.review.index' });
-        }
-    }
+        },
+    },
 });

@@ -42,6 +42,7 @@
                 <sw-text-editor
                     v-model="element.config.content.value"
                     :allow-inline-data-mapping="true"
+                    sanitize-input
                     @input="onInput"
                     @blur="onBlur"
                 />
@@ -51,7 +52,7 @@
                     slot-scope="{ demoValue }"
                     class="sw-cms-el-config-text__mapping-preview"
                 >
-                    <div v-html="$sanitize(demoValue)" />
+                    <div v-html="$sanitize(demoValue)"></div>
                 </div>
             </sw-cms-mapping-field>
         </sw-container>

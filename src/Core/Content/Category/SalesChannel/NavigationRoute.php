@@ -5,10 +5,15 @@ namespace Shopware\Core\Content\Category\SalesChannel;
 use Doctrine\DBAL\Connection;
 use OpenApi\Annotations as OA;
 use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\CountAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\Entity;
@@ -17,7 +22,6 @@ use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -116,19 +120,7 @@ Instead of passing uuids, you can also use one of the following aliases for the 
         SalesChannelContext $context,
         Criteria $criteria
     ): NavigationRouteResponse {
-        $buildTree = $request->query->getBoolean('buildTree', $request->request->getBoolean('buildTree', true));
         $depth = $request->query->getInt('depth', $request->request->getInt('depth', 2));
-
-        $activeId = $this->resolveAliasId($activeId, $context->getSalesChannel());
-        $rootId = $this->resolveAliasId($rootId, $context->getSalesChannel());
-
-        if ($activeId === null) {
-            throw new CategoryNotFoundException($request->get('activeId'));
-        }
-
-        if ($rootId === null) {
-            throw new CategoryNotFoundException($request->get('rootId'));
-        }
 
         $metaInfo = $this->getCategoryMetaInfo($activeId, $rootId);
 
@@ -157,40 +149,7 @@ Instead of passing uuids, you can also use one of the following aliases for the 
         // If the active category is part of the provided root id, we have to load the children and the parents of the active id
         $categories = $this->loadChildren($activeId, $context, $rootId, $metaInfo, $categories, clone $criteria);
 
-        if ($buildTree) {
-            $categories = $this->buildTree($rootId, $categories->getElements());
-        }
-
         return new NavigationRouteResponse($categories);
-    }
-
-    private function buildTree(?string $parentId, array $categories): CategoryCollection
-    {
-        $children = new CategoryCollection();
-        foreach ($categories as $key => $category) {
-            if ($category->getParentId() !== $parentId) {
-                continue;
-            }
-
-            unset($categories[$key]);
-
-            $children->add($category);
-        }
-
-        $children->sortByPosition();
-
-        $items = new CategoryCollection();
-        foreach ($children as $child) {
-            if (!$child->getActive() || !$child->getVisible()) {
-                continue;
-            }
-
-            $child->setChildren($this->buildTree($child->getId(), $categories));
-
-            $items->add($child);
-        }
-
-        return $items;
     }
 
     private function loadCategories(array $ids, SalesChannelContext $context, Criteria $criteria): CategoryCollection
@@ -222,6 +181,52 @@ Instead of passing uuids, you can also use one of the following aliases for the 
 
         /** @var CategoryCollection $levels */
         $levels = $this->categoryRepository->search($criteria, $context)->getEntities();
+
+        // Count visible children that are already included in the original query
+        foreach ($levels as $level) {
+            $count = $levels->filter(function (CategoryEntity $category) use ($level) {
+                return $category->getParentId() === $level->getId() && $category->getVisible() && $category->getActive();
+            })->count();
+            $level->setVisibleChildCount($count);
+        }
+
+        // Fetch additional level of categories for counting visible children that are NOT included in the original query
+        $criteria = new Criteria();
+        $criteria->addFilter(
+            new ContainsFilter('path', '|' . $rootId . '|'),
+            new EqualsFilter('level', $rootLevel + $depth + 1),
+            new EqualsFilter('active', true),
+            new EqualsFilter('visible', true)
+        )->addAggregation(
+            new TermsAggregation(
+                'category-ids',
+                'parentId',
+                null,
+                null,
+                new CountAggregation('visible-children-count', 'id')
+            )
+        );
+
+        $termsResult = $this->categoryRepository
+            ->search($criteria, $context)
+            ->getAggregations()
+            ->get('category-ids');
+
+        if ($termsResult instanceof TermsResult) {
+            foreach ($termsResult->getBuckets() as $bucket) {
+                $key = $bucket->getKey();
+
+                if ($key === null) {
+                    continue;
+                }
+
+                $parent = $levels->get($key);
+
+                if ($parent instanceof CategoryEntity) {
+                    $parent->setVisibleChildCount($bucket->getCount());
+                }
+            }
+        }
 
         return $levels;
     }
@@ -315,19 +320,5 @@ Instead of passing uuids, you can also use one of the following aliases for the 
         }
 
         return false;
-    }
-
-    private function resolveAliasId(string $id, SalesChannelEntity $salesChannelEntity): ?string
-    {
-        switch ($id) {
-            case 'main-navigation':
-                return $salesChannelEntity->getNavigationCategoryId();
-            case 'service-navigation':
-                return $salesChannelEntity->getServiceCategoryId();
-            case 'footer-navigation':
-                return $salesChannelEntity->getFooterCategoryId();
-            default:
-                return $id;
-        }
     }
 }

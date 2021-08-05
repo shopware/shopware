@@ -25,7 +25,7 @@ class IncrementSqlStorage implements IncrementStorageInterface
         $this->connection->executeUpdate(
             'INSERT `number_range_state` (`id`, `last_value`, `number_range_id`, `created_at`) VALUES (:stateId, :value, :id, :createdAt)
                 ON DUPLICATE KEY UPDATE
-                `last_value` = @nr' . $varname . ' := `last_value`+1',
+                `last_value` = @nr' . $varname . ' := IF(`last_value`+1 > :value, `last_value`+1, :value)',
             [
                 'value' => $configuration->getStart(),
                 'id' => Uuid::fromHexToBytes($configuration->getId()),

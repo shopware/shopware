@@ -1,0 +1,23 @@
+# requires /.gitlab/base.yml
+
+Component Library:
+    extends: .base
+    stage: build
+    image: node:10.8
+    before_script: []
+    variables:
+        PROJECT_ROOT: $CI_PROJECT_DIR
+    rules:
+        - !reference [ .rules, skip ]
+        - !reference [ .rules, run ]
+        - changes:
+              - src/Administration/**/*
+              - src/Storefront/**/*
+    script:
+        - npm install --prefix src/Administration/Resources/app/administration
+        - npm install --prefix src/Administration/Resources/app/administration/build/nuxt-component-library/
+        - npm run --prefix src/Administration/Resources/app/administration/build/nuxt-component-library/ generate
+        - "[[ -d build/artifacts/component-library/ ]] && (ls -1qA build/artifacts/component-library/ | grep -q .)"
+    artifacts:
+        paths:
+            - build/artifacts/component-library/

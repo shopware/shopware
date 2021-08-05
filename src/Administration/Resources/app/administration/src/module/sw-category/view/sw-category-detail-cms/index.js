@@ -11,8 +11,8 @@ Component.register('sw-category-detail-cms', {
     props: {
         isLoading: {
             type: Boolean,
-            required: true
-        }
+            required: true,
+        },
     },
 
     computed: {
@@ -22,6 +22,6 @@ Component.register('sw-category-detail-cms', {
 
         cmsPage() {
             return Shopware.State.get('cmsPageState').currentPage;
-        }
-    }
+        },
+    },
 });

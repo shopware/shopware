@@ -41,7 +41,7 @@ abstract class ScheduledTaskHandler extends AbstractMessageHandler
             ->search(new Criteria([$taskId]), Context::createDefaultContext())
             ->get($taskId);
 
-        if ($taskEntity === null || $taskEntity->getStatus() !== ScheduledTaskDefinition::STATUS_QUEUED) {
+        if ($taskEntity === null || !$taskEntity->isExecutionAllowed()) {
             return;
         }
 

@@ -1,5 +1,5 @@
 {% set currencyIsoCode = order.currency.isoCode %}
-{{ order.orderCustomer.salutation.translated.letterName }} {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},
+{% if order.orderCustomer.salutation %}{{ order.orderCustomer.salutation.translated.letterName ~ ' ' }}{% endif %}{{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},
 
 We have received your order on {{ order.orderDateTime|format_datetime('medium', 'short', locale='en-GB') }}.
 

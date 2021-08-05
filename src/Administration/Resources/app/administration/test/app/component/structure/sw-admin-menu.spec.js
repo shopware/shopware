@@ -1,11 +1,9 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { config, shallowMount, createLocalVue } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import 'src/app/component/structure/sw-admin-menu';
 import 'src/app/component/structure/sw-admin-menu-item';
 import createMenuService from 'src/app/service/menu.service';
 import catalogues from './_sw-admin-menu-item/catalogues';
-
-/** service */
 
 /** fixtures */
 import adminModules from '../../service/_mocks/adminModules.json';
@@ -15,20 +13,19 @@ const menuService = createMenuService(Shopware.Module);
 Shopware.Service().register('menuService', () => menuService);
 
 function createWrapper() {
+    // delete global $router and $routes mocks
+    delete config.mocks.$router;
+    delete config.mocks.$route;
+
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
     localVue.use(VueRouter);
 
     const adminMenuComponent = Shopware.Component.build('sw-admin-menu');
-    // eslint-disable-next-line func-names
-    adminMenuComponent.provide = function () {
-        return { acl: { can: () => true } };
-    };
 
     return shallowMount(adminMenuComponent, {
         localVue,
         router: new VueRouter({ routes: Shopware.Module.getModuleRoutes() }),
-        sync: false,
         stubs: {
             'sw-icon': true,
             'sw-version': true,
@@ -47,14 +44,14 @@ function createWrapper() {
             },
             appModulesService: {
                 fetchAppModules: () => Promise.resolve([])
-            }
+            },
+            acl: { can: () => true }
         }
     });
 }
 
-
 describe('src/app/component/structure/sw-admin-menu', () => {
-    let wrapper = createWrapper();
+    let wrapper;
 
     beforeAll(() => {
         Shopware.State.get('session').currentLocale = 'en-GB';
@@ -90,6 +87,8 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         wrapper.destroy();
     });
 
+    //
+
     it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });
@@ -100,7 +99,8 @@ describe('src/app/component/structure/sw-admin-menu', () => {
             title: 'Master of something',
             aclRoles: []
         });
-        wrapper = await createWrapper();
+
+        await wrapper.vm.$nextTick();
 
         const userTitle = wrapper.find('.sw-admin-menu__user-type');
 
@@ -113,7 +113,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
             title: 'Master of something',
             aclRoles: []
         });
-        wrapper = await createWrapper();
+        await wrapper.vm.$nextTick();
 
         const userTitle = wrapper.find('.sw-admin-menu__user-type');
 
@@ -126,7 +126,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
             title: null,
             aclRoles: []
         });
-        wrapper = await createWrapper();
+        await wrapper.vm.$nextTick();
 
         const userTitle = wrapper.find('.sw-admin-menu__user-type');
 
@@ -142,7 +142,8 @@ describe('src/app/component/structure/sw-admin-menu', () => {
             ]
         });
 
-        wrapper = await createWrapper();
+        await wrapper.vm.$nextTick();
+
 
         const userTitle = wrapper.find('.sw-admin-menu__user-type');
 
@@ -150,8 +151,6 @@ describe('src/app/component/structure/sw-admin-menu', () => {
     });
 
     it('should remove classes from an element', async () => {
-        wrapper = await createWrapper();
-
         const element1 = document.createElement('div');
         const element2 = document.createElement('div');
 
@@ -170,9 +169,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         expect(element2.classList.contains('foo')).toBeTruthy();
     });
 
-    it('should be able to check if a mouse position is in a polygon', async () => {
-        wrapper = await createWrapper();
-
+    it('should be able to check if a mouse position is in a polygon', () => {
         const polygon = [
             [0, 287],
             [0, 335],
@@ -193,9 +190,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         expect(wrapper.vm.isPositionInPolygon(outsideMousePosition.x, outsideMousePosition.y, polygon)).toBeFalsy();
     });
 
-    it('should get polygon from menu item', async () => {
-        wrapper = await createWrapper();
-
+    it('should get polygon from menu item', () => {
         const element = document.createElement('div');
         const entry = {
             children: [{
@@ -207,7 +202,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
             .toStrictEqual([[0, 0], [0, 0], [0, 0], [0, 0]]);
     });
 
-    it('should render correct admin menu entries', async () => {
+    it('should render correct admin menu entries', () => {
         const topLevelEntries = wrapper.findAll('.navigation-list-item__level-1');
 
         // expect only one top level entry visible because sw-my-apps and second-module have no children nor a path

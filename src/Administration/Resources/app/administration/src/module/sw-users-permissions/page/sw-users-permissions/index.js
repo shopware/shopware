@@ -9,7 +9,7 @@ Component.register('sw-users-permissions', {
 
     metaInfo() {
         return {
-            title: this.$createTitle()
+            title: this.$createTitle(),
         };
     },
 
@@ -22,6 +22,6 @@ Component.register('sw-users-permissions', {
             if (this.$refs.roleListing) {
                 this.$refs.roleListing.getList();
             }
-        }
-    }
+        },
+    },
 });

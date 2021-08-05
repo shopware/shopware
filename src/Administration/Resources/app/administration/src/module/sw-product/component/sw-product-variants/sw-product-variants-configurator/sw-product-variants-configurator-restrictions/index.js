@@ -9,13 +9,13 @@ Component.register('sw-product-variants-configurator-restrictions', {
     props: {
         product: {
             type: Object,
-            required: true
+            required: true,
         },
 
         selectedGroups: {
             type: Array,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
@@ -24,7 +24,7 @@ Component.register('sw-product-variants-configurator-restrictions', {
             restrictionModalIsOpen: false,
             isLoading: true,
             groupsWithOptions: [],
-            actualRestriction: {}
+            actualRestriction: {},
         };
     },
 
@@ -34,8 +34,8 @@ Component.register('sw-product-variants-configurator-restrictions', {
                 {
                     property: 'id',
                     label: 'sw-product.variations.configuratorModal.restrictedCombinations',
-                    rawData: true
-                }
+                    rawData: true,
+                },
             ];
         },
 
@@ -79,7 +79,7 @@ Component.register('sw-product-variants-configurator-restrictions', {
 
             // return only the restrictions with matching id
             return this.product.variantRestrictions.filter((restriction) => matchingIds.indexOf(restriction.id) >= 0);
-        }
+        },
     },
 
     mounted() {
@@ -94,7 +94,7 @@ Component.register('sw-product-variants-configurator-restrictions', {
             this.groupsWithOptions = this.selectedGroups.map((group) => {
                 return {
                     group: group,
-                    options: this.getOptionsForGroupId(group.id)
+                    options: this.getOptionsForGroupId(group.id),
                 };
             });
 
@@ -125,7 +125,7 @@ Component.register('sw-product-variants-configurator-restrictions', {
                     if (!actualGroup) {
                         return {
                             group: '',
-                            options: []
+                            options: [],
                         };
                     }
 
@@ -144,9 +144,9 @@ Component.register('sw-product-variants-configurator-restrictions', {
 
                     return {
                         group: actualGroup.translated.name,
-                        options: optionNames
+                        options: optionNames,
                     };
-                })
+                }),
             };
         },
 
@@ -172,7 +172,7 @@ Component.register('sw-product-variants-configurator-restrictions', {
             const uniqueId = String(new Date().valueOf()).split('').reverse().join('');
             this.actualRestriction = {
                 id: uniqueId,
-                values: []
+                values: [],
             };
             this.addEmptyRestriction();
             this.restrictionModalIsOpen = true;
@@ -184,7 +184,7 @@ Component.register('sw-product-variants-configurator-restrictions', {
             this.actualRestriction.values.push({
                 id: uniqueId,
                 group: firstGroup.id,
-                options: []
+                options: [],
             });
         },
 
@@ -225,6 +225,6 @@ Component.register('sw-product-variants-configurator-restrictions', {
             this.actualRestriction.values = this.actualRestriction.values.filter((restriction) => {
                 return restriction !== deleteRestriction;
             });
-        }
-    }
+        },
+    },
 });

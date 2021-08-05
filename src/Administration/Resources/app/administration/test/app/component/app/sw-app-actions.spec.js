@@ -1,12 +1,13 @@
-import { createLocalVue, mount } from '@vue/test-utils';
+import { config, createLocalVue, mount } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import Vuex from 'vuex';
 import flushPromises from 'flush-promises';
 import { InvalidActionButtonParameterError } from 'src/core/service/api/app-action-button.service';
-import { createRouter, actionButtonData } from './_fixtures/app-action-fixtures';
+import { createRouter, actionButtonData, actionResultData } from './_fixtures/app-action-fixtures';
 import 'src/app/component/app/sw-app-actions';
 import 'src/app/component/base/sw-icon';
 import 'src/app/component/base/sw-button';
+import 'src/app/component/base/sw-modal';
 import 'src/app/component/app/sw-app-action-button';
 import 'src/app/component/context-menu/sw-context-button';
 import 'src/app/component/context-menu/sw-context-menu';
@@ -23,10 +24,18 @@ const stubs = {
     'icons-small-more': {
         template: '<span class="sw-icon sw-icon--default-action-external"></span>'
     },
-    'sw-popover': Shopware.Component.build('sw-popover')
+    'sw-popover': Shopware.Component.build('sw-popover'),
+    'sw-modal': true,
+    'icons-small-default-x-line-medium': {
+        template: '<span class="sw-icon sw-icon--small-default-x-line-medium"></span>'
+    }
 };
 
-function createWrapper(router) {
+function createWrapper(router, resultData = actionResultData) {
+    // delete global $router and $routes mocks
+    delete config.mocks.$router;
+    delete config.mocks.$route;
+
     const localVue = createLocalVue();
     localVue.directive('popover', {});
     localVue.use(VueRouter);
@@ -39,7 +48,13 @@ function createWrapper(router) {
         router,
         provide: {
             appActionButtonService: {
-                runAction: jest.fn(),
+                runAction: jest.fn((actionButtonId) => {
+                    if (actionButtonId) {
+                        return Promise.resolve(resultData);
+                    }
+
+                    return Promise.resolve([]);
+                }),
                 getActionButtonsPerView(entity, view) {
                     if (!entity || !view) {
                         throw new InvalidActionButtonParameterError('error');
@@ -55,6 +70,14 @@ function createWrapper(router) {
 
                     return Promise.reject(new Error('error occured'));
                 }
+            },
+
+            repositoryFactory: {
+                create: () => ({
+                    search: jest.fn(() => {
+                        return Promise.resolve([]);
+                    })
+                })
             }
         }
     });
@@ -183,5 +206,59 @@ describe('sw-app-actions', () => {
             actionButtonData[1].id,
             { ids: Shopware.State.get('shopwareApps').selectedIds }
         ]);
+    });
+
+    it('it calls appActionButtonService.runAction with correct response', async () => {
+        const router = createRouter();
+        wrapper = createWrapper(router);
+        wrapper.vm.createNotification = jest.fn();
+
+        router.push({ name: 'sw.product.detail' });
+        await flushPromises();
+
+        const contextButton = wrapper.findComponent(stubs['sw-context-button']);
+
+        await contextButton.trigger('click');
+        const swAppActions = wrapper.findAllComponents(stubs['sw-app-action-button']);
+        await swAppActions.at(0).trigger('click');
+
+        const actionButtonId = Shopware.Utils.createId();
+        await wrapper.vm.appActionButtonService.runAction(actionButtonId);
+
+        const notificationMock = wrapper.vm.createNotification;
+
+        expect(notificationMock).toBeCalledTimes(1);
+        expect(notificationMock).toBeCalledWith({
+            variant: actionResultData.data.status,
+            message: actionResultData.data.message
+        });
+    });
+
+    it('it calls appActionButtonService.runAction with open modal response', async () => {
+        const router = createRouter();
+        const openModalResponseData = {
+            data: {
+                actionType: 'openModal',
+                iframeUrl: 'http://test/com',
+                size: 'medium'
+            }
+        };
+        wrapper = createWrapper(router, openModalResponseData);
+
+        router.push({ name: 'sw.product.detail' });
+        await flushPromises();
+
+        expect(wrapper.find('.sw-modal-app-action-button').exists()).toBe(false);
+
+        const contextButton = wrapper.findComponent(stubs['sw-context-button']);
+
+        await contextButton.trigger('click');
+        const swAppActions = wrapper.findAllComponents(stubs['sw-app-action-button']);
+        await swAppActions.at(0).trigger('click');
+
+        const actionButtonId = Shopware.Utils.createId();
+        await wrapper.vm.appActionButtonService.runAction(actionButtonId);
+
+        expect(wrapper.find('.sw-modal-app-action-button').exists()).toBe(true);
     });
 });

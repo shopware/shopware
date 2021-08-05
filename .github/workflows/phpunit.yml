@@ -11,48 +11,30 @@ jobs:
     runs-on: ubuntu-latest
     container: shopware/development:7.4-composer-2
     env:
-      DEVELOPMENT_BRANCH: trunk
       TEST_SUITES: 'administration storefront checkout content framework profiling migration system elasticsearch docs'
+      APP_ENV: test
 
     services:
-      mysql:
+      database:
         image: mysql:5.7
         env:
-            MYSQL_ROOT_PASSWORD: shopware
-            MYSQL_DATABASE: shopware
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: root
       elasticsearch:
-        image: elastic/elasticsearch:7.3.0
+        image: elastic/elasticsearch:7.8.0
         env:
           discovery.type: single-node
 
     steps:
-    - name: Clone development
-      run: git clone -b $DEVELOPMENT_BRANCH https://github.com/shopware/development.git && cd development && rm -rf platform
-
-    - name: Clone platform
+    - name: Checkout
       uses: actions/checkout@v2
       with:
-        path: development/platform
-        fetch-depth: '0'
-
-    - name: Fix platform for composer
-      run: |
-        cd development/platform
-        git checkout trunk
-        git checkout -
-        cd ..
-        git reset --hard @
+          fetch-depth: 0
 
     - name: Install Shopware
       run: |
-        cd development
-        cp platform/.github/.psh.yaml.override .
-        ./psh.phar init-composer
-        if [[ ! -h vendor/shopware/platform ]]; then echo 'vendor/shopware/platform should be a symlink'; exit 1; fi
-        nohup php -S localhost:8000 -t public > phpd.log 2>&1 &
-        ./psh.phar init
+        composer run setup
 
     - name: Run PHPUnit
       run: |
-        cd development
-        for TEST_SUITE in $TEST_SUITES; do php -d memory_limit=-1 vendor/bin/phpunit --configuration vendor/shopware/platform/phpunit.xml.dist --exclude-group needsWebserver --testsuite "$TEST_SUITE"; done
+        for TEST_SUITE in $TEST_SUITES; do php -d memory_limit=-1 vendor/bin/phpunit --configuration phpunit.xml.dist --exclude-group needsWebserver --testsuite "$TEST_SUITE"; done

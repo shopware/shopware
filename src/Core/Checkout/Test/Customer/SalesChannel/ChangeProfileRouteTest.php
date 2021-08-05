@@ -13,6 +13,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @group store-api
+ */
 class ChangeProfileRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -85,7 +88,6 @@ class ChangeProfileRouteTest extends TestCase
         $sources = array_column(array_column($response['errors'], 'source'), 'pointer');
         static::assertContains('/firstName', $sources);
         static::assertContains('/lastName', $sources);
-        static::assertContains('/salutationId', $sources);
     }
 
     public function testChangeName(): void

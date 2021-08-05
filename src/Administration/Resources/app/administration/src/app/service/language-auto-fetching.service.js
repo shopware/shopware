@@ -12,7 +12,7 @@ export default function LanguageAutoFetchingService() {
         const languageRepository = Shopware.Service('repositoryFactory').create('language');
         const newLanguage = await languageRepository.get(newLanguageId, {
             ...Shopware.Context.api,
-            inheritance: true
+            inheritance: true,
         });
 
         Shopware.State.commit('context/setApiLanguage', newLanguage);

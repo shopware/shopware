@@ -65,7 +65,7 @@ class PluginCompatibility
         $currentLanguage = 'en-GB';
 
         if ($request = $this->requestStack->getCurrentRequest()) {
-            $currentLanguage = $request->query->get('language', 'en-GB');
+            $currentLanguage = (string) $request->query->get('language', 'en-GB');
         }
 
         if ($plugins === null) {
@@ -107,7 +107,7 @@ class PluginCompatibility
     {
         $currentLanguage = 'en-GB';
         if ($request = $this->requestStack->getCurrentRequest()) {
-            $currentLanguage = $request->query->get('language', 'en-GB');
+            $currentLanguage = (string) $request->query->get('language', 'en-GB');
         }
 
         if ($extensions === null) {

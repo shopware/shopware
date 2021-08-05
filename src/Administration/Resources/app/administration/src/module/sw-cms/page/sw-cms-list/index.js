@@ -11,7 +11,7 @@ Component.register('sw-cms-list', {
 
     mixins: [
         Mixin.getByName('listing'),
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     data() {
@@ -29,13 +29,13 @@ Component.register('sw-cms-list', {
             showDeleteModal: false,
             defaultMediaFolderId: null,
             listMode: 'grid',
-            assignablePageTypes: ['categories', 'products']
+            assignablePageTypes: ['categories', 'products'],
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle()
+            title: this.$createTitle(),
         };
     },
 
@@ -57,7 +57,7 @@ Component.register('sw-cms-list', {
                 { value: 'createdAt:DESC', name: this.$tc('sw-cms.sorting.labelSortByCreatedDsc') },
                 { value: 'createdAt:ASC', name: this.$tc('sw-cms.sorting.labelSortByCreatedAsc') },
                 { value: 'updatedAt:DESC', name: this.$tc('sw-cms.sorting.labelSortByUpdatedDsc') },
-                { value: 'updatedAt:ASC', name: this.$tc('sw-cms.sorting.labelSortByUpdatedAsc') }
+                { value: 'updatedAt:ASC', name: this.$tc('sw-cms.sorting.labelSortByUpdatedAsc') },
             ];
         },
 
@@ -67,7 +67,7 @@ Component.register('sw-cms-list', {
                 { value: 'page', name: this.$tc('sw-cms.sorting.labelSortByShopPages') },
                 { value: 'landingpage', name: this.$tc('sw-cms.sorting.labelSortByLandingPages') },
                 { value: 'product_list', name: this.$tc('sw-cms.sorting.labelSortByCategoryPages') },
-                { value: 'product_detail', name: this.$tc('sw-cms.sorting.labelSortByProductPages') }
+                { value: 'product_detail', name: this.$tc('sw-cms.sorting.labelSortByProductPages') },
             ];
 
             return sortPageTypes;
@@ -78,7 +78,7 @@ Component.register('sw-cms-list', {
                 page: this.$tc('sw-cms.sorting.labelSortByShopPages'),
                 landingpage: this.$tc('sw-cms.sorting.labelSortByLandingPages'),
                 product_list: this.$tc('sw-cms.sorting.labelSortByCategoryPages'),
-                product_detail: this.$tc('sw-cms.sorting.labelSortByProductPages')
+                product_detail: this.$tc('sw-cms.sorting.labelSortByProductPages'),
             };
 
             return pageTypes;
@@ -118,11 +118,11 @@ Component.register('sw-cms-list', {
                     type: 'multi',
                     operator: 'OR',
                     queries: this.assignablePageTypes.map(
-                        name => Criteria.not('OR', [Criteria.equals(`${name}.id`, null)])
-                    )
-                }
+                        name => Criteria.not('OR', [Criteria.equals(`${name}.id`, null)]),
+                    ),
+                },
             ];
-        }
+        },
     },
 
     created() {
@@ -169,7 +169,7 @@ Component.register('sw-cms-list', {
                 name: 'linkedLayouts',
                 type: 'entity',
                 definition: 'cms_page',
-                field: 'id'
+                field: 'id',
             });
 
             criteria.addAggregation(linkedLayoutsFilter);
@@ -190,7 +190,7 @@ Component.register('sw-cms-list', {
                 limit: this.limit,
                 term: this.term,
                 sortBy: this.sortBy,
-                sortDirection: this.sortDirection
+                sortDirection: this.sortDirection,
             });
             this.getList();
         },
@@ -251,7 +251,7 @@ Component.register('sw-cms-list', {
             this.getList();
             this.updateRoute({
                 page: this.page,
-                limit: this.limit
+                limit: this.limit,
             });
         },
 
@@ -335,7 +335,7 @@ Component.register('sw-cms-list', {
                 this.isLoading = false;
                 this.createNotificationError({
                     title: titleDeleteError,
-                    message: messageDeleteError
+                    message: messageDeleteError,
                 });
             });
         },
@@ -345,17 +345,17 @@ Component.register('sw-cms-list', {
                 property: 'name',
                 label: this.$tc('sw-cms.list.gridHeaderName'),
                 inlineEdit: 'string',
-                primary: true
+                primary: true,
             }, {
                 property: 'type',
-                label: this.$tc('sw-cms.list.gridHeaderType')
+                label: this.$tc('sw-cms.list.gridHeaderType'),
             }, {
                 property: 'assignments',
                 label: this.$tc('sw-cms.list.gridHeaderAssignments'),
-                sortable: false
+                sortable: false,
             }, {
                 property: 'createdAt',
-                label: this.$tc('sw-cms.list.gridHeaderCreated')
+                label: this.$tc('sw-cms.list.gridHeaderCreated'),
             }];
         },
 
@@ -364,15 +364,15 @@ Component.register('sw-cms-list', {
                 return {
                     showDelay: 300,
                     message: this.$tc('sw-cms.general.deleteDisabledProductToolTip'),
-                    disabled: !this.layoutIsLinked(page.id)
+                    disabled: !this.layoutIsLinked(page.id),
                 };
             }
 
             return {
                 showDelay: 300,
                 message: this.$tc('sw-cms.general.deleteDisabledToolTip'),
-                disabled: !this.layoutIsLinked(page.id)
+                disabled: !this.layoutIsLinked(page.id),
             };
-        }
-    }
+        },
+    },
 });

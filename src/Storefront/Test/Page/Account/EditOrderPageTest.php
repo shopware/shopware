@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
@@ -103,6 +104,57 @@ class EditOrderPageTest extends TestCase
         $this->getPageLoader()->load($request, $context);
     }
 
+    public function testShouldOnlyShowAvailablePaymentsForOrder(): void
+    {
+        $request = new Request();
+        $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
+        $orderId = $this->placeRandomOrder($context);
+
+        // Get customer from USA rule
+        $ruleCriteria = new Criteria();
+        $ruleCriteria->addFilter(new EqualsFilter('name', 'Customers from USA'));
+
+        $ruleRepository = $this->getContainer()->get('rule.repository');
+
+        $ruleId = $ruleRepository->search($ruleCriteria, $context->getContext())->first()->getId();
+
+        $this->createCustomPaymentWithRule($context, $ruleId);
+
+        // Fake context rules for USA customers
+        $context->setRuleIds(array_merge($context->getRuleIds(), [$ruleId]));
+
+        $page = $this->getPageLoader()->load($request, $context);
+
+        static::assertInstanceOf(AccountEditOrderPage::class, $page);
+        static::assertSame($orderId, $page->getOrder()->getId());
+        static::assertCount(1, $page->getPaymentMethods());
+    }
+
+    public function testShouldSortAvailablePaymentMethodsByPreference(): void
+    {
+        $request = new Request();
+        $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
+        $this->placeRandomOrder($context);
+
+        $selectedPaymentMethod = $this->createCustomPaymentMethod($context, ['position' => 1]);
+
+        // create some dummy methods to test sorting
+        $this->createCustomPaymentMethod($context, ['position' => 0]);
+        $this->createCustomPaymentMethod($context, ['position' => 4]);
+
+        // replace active payment method with a new one
+        $context->assign(['paymentMethod' => $selectedPaymentMethod]);
+
+        $page = $this->getPageLoader()->load($request, $context);
+        $paymentMethods = \array_values($page->getPaymentMethods()->getElements());
+
+        // selected payment method should be first
+        static::assertSame($selectedPaymentMethod->getId(), $paymentMethods[0]->getId());
+
+        // default payment method of customer should be second
+        static::assertSame($context->getCustomer()->getDefaultPaymentMethodId(), $paymentMethods[1]->getId());
+    }
+
     protected function getPageLoader(): AccountEditOrderPageLoader
     {
         return $this->getContainer()->get(AccountEditOrderPageLoader::class);
@@ -132,7 +184,59 @@ class EditOrderPageTest extends TestCase
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('transactions');
 
-        /* @var OrderEntity $order */
         return $orderRepository->search($criteria, $context->getContext())->first();
+    }
+
+    private function createCustomPaymentWithRule(SalesChannelContext $context, string $ruleId): string
+    {
+        $paymentId = Uuid::randomHex();
+
+        $this->getContainer()->get('payment_method.repository')->create([
+            [
+                'id' => $paymentId,
+                'name' => 'Test Payment with Rule',
+                'description' => 'Payment rule test',
+                'active' => true,
+                'afterOrderEnabled' => true,
+                'availabilityRuleId' => $ruleId,
+                'salesChannels' => [
+                    [
+                        'id' => $context->getSalesChannelId(),
+                    ],
+                ],
+            ],
+        ], $context->getContext());
+
+        return $paymentId;
+    }
+
+    private function createCustomPaymentMethod(SalesChannelContext $context, array $options): PaymentMethodEntity
+    {
+        $paymentId = Uuid::randomHex();
+
+        $data = \array_replace_recursive(
+            [
+                'id' => $paymentId,
+                'name' => 'Test Payment',
+                'description' => 'Payment test',
+                'active' => true,
+                'afterOrderEnabled' => true,
+                'salesChannels' => [
+                    [
+                        'id' => $context->getSalesChannelId(),
+                    ],
+                ],
+            ],
+            $options
+        );
+
+        $this->getContainer()
+            ->get('payment_method.repository')
+            ->create([$data], $context->getContext());
+
+        return $this->getContainer()
+            ->get('payment_method.repository')
+            ->search(new Criteria([$paymentId]), $context->getContext())
+            ->first();
     }
 }

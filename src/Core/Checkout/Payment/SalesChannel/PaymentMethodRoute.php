@@ -21,10 +21,7 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class PaymentMethodRoute extends AbstractPaymentMethodRoute
 {
-    /**
-     * @var SalesChannelRepositoryInterface
-     */
-    private $paymentMethodsRepository;
+    private SalesChannelRepositoryInterface $paymentMethodsRepository;
 
     public function __construct(SalesChannelRepositoryInterface $paymentMethodsRepository)
     {
@@ -63,7 +60,7 @@ class PaymentMethodRoute extends AbstractPaymentMethodRoute
      *                      @OA\Property(
      *                          type="array",
      *                          property="elements",
-     *                          @OA\Items(ref="#/components/schemas/payment_method_flat")
+     *                          @OA\Items(ref="#/components/schemas/PaymentMethod")
      *                      )
      *                  )
      *              }
@@ -88,7 +85,7 @@ class PaymentMethodRoute extends AbstractPaymentMethodRoute
             $paymentMethods = $paymentMethods->filterByActiveRules($context);
         }
 
-        $result->assign(['entities' => $paymentMethods]);
+        $result->assign(['entities' => $paymentMethods, 'elements' => $paymentMethods, 'total' => $paymentMethods->count()]);
 
         return new PaymentMethodRouteResponse($result);
     }

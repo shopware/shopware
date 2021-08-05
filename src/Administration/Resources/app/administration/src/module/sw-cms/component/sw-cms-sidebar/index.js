@@ -6,51 +6,52 @@ const { Criteria } = Shopware.Data;
 const { cloneDeep } = Shopware.Utils.object;
 const types = Shopware.Utils.types;
 
-
 Component.register('sw-cms-sidebar', {
     template,
 
     inject: [
         'cmsService',
         'repositoryFactory',
-        'feature'
+        'feature',
     ],
 
     mixins: [
         Mixin.getByName('cms-state'),
-        Mixin.getByName('placeholder')
+        Mixin.getByName('placeholder'),
     ],
 
     props: {
         page: {
             type: Object,
-            required: true
+            required: true,
         },
 
         demoEntity: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         demoEntityIdProp: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
         return {
             demoEntityId: this.demoEntityIdProp,
             currentBlockCategory: 'text',
-            currentDragSectionIndex: null
+            currentDragSectionIndex: null,
+            showSidebarNavigatorModal: false,
+            navigatorDontRemind: false,
         };
     },
 
@@ -94,7 +95,7 @@ Component.register('sw-cms-sidebar', {
         tooltipDisabled() {
             return {
                 message: this.$tc('sw-cms.detail.tooltip.cannotSelectProductPageLayout'),
-                disabled: this.page.type !== 'product_detail'
+                disabled: this.page.type !== 'product_detail',
             };
         },
 
@@ -119,7 +120,7 @@ Component.register('sw-cms-sidebar', {
 
         blockTypes() {
             return Object.keys(this.cmsBlocks);
-        }
+        },
     },
 
     methods: {
@@ -147,7 +148,7 @@ Component.register('sw-cms-sidebar', {
             return (this.cmsBlocks[block.type].removable !== false) && this.isSystemDefaultLanguage;
         },
 
-        onBlockDragSort(dragData, dropData, validDrop) {
+        async onBlockDragSort(dragData, dropData, validDrop) {
             if (validDrop !== true) {
                 return;
             }
@@ -155,7 +156,8 @@ Component.register('sw-cms-sidebar', {
             const dragSectionIndex = dragData.sectionIndex;
             const dropSectionIndex = dropData.sectionIndex;
 
-            if (dragSectionIndex < 0 || dropSectionIndex < 0) {
+            if (dragSectionIndex < 0 || dragSectionIndex >= this.page.sections.length ||
+                dropSectionIndex < 0 || dropSectionIndex >= this.page.sections.length) {
                 return;
             }
 
@@ -192,26 +194,77 @@ Component.register('sw-cms-sidebar', {
                     this.currentDragSectionIndex -= 1;
                 }
 
-                // clone dragged block
-                const blockClone = this.cloneBlock(dragData.block, this.page.sections[dropSectionIndex].id);
+                dragData.block.sectionId = this.page.sections[dropSectionIndex].id;
 
-                // delete block from old section
-                this.page.sections[removeIndex].blocks.remove(dragData.block.id);
+                await this.blockMoveSave(dragData.block, dropSectionIndex, removeIndex);
 
-                // set dragData.block to the cloned block to keep the reference
-                dragData.block = blockClone;
-
-                // add cloned block to new section
-                this.page.sections[dropSectionIndex].blocks.add(blockClone);
-            } else {
-                // move item inside the section
-                this.page.sections[dropSectionIndex].blocks.moveItem(dragData.block.position, dropData.block.position);
+                return;
             }
 
+            if (dragData.block.position === dropData.block.position) {
+                return;
+            }
+
+            // move item inside the section
+            this.page.sections[dropSectionIndex].blocks.moveItem(dragData.block.position, dropData.block.position);
+
             this.$emit('block-navigator-sort');
-            this.pageUpdate();
         },
 
+        async blockMoveSave(block, dropSectionIndex, removeIndex) {
+            block.slots.forEach((slot) => {
+                Object.values(slot.config).forEach((configField) => {
+                    if (configField.entity) {
+                        delete configField.entity;
+                    }
+                    if (configField.required) {
+                        delete configField.required;
+                    }
+                });
+            });
+
+            await this.blockRepository.save(block, Shopware.Context.api);
+
+            // Add and remove the blocks from the sidebar for display reasons
+            this.page.sections[dropSectionIndex].blocks.add(block);
+            this.page.sections[removeIndex].blocks.remove(block.id);
+
+            this.$emit('block-navigator-sort', true);
+        },
+
+        onSidebarNavigatorClick() {
+            if (!this.$refs.blockNavigator.isActive) {
+                return;
+            }
+
+            if (localStorage.getItem('cmsNavigatorDontRemind') === 'true') {
+                this.onSidebarNavigationConfirm();
+                return;
+            }
+
+            this.navigatorDontRemind = false;
+            this.showSidebarNavigatorModal = true;
+        },
+
+        onSidebarNavigationConfirm() {
+            if (this.navigatorDontRemind) {
+                localStorage.setItem('cmsNavigatorDontRemind', true);
+            }
+
+            this.$emit('page-save');
+            this.showSidebarNavigatorModal = false;
+        },
+
+        onSidebarNavigationCancel() {
+            this.showSidebarNavigatorModal = false;
+            this.$nextTick(() => {
+                this.$refs.pageConfigSidebar.openContent();
+            });
+        },
+
+        /**
+         * @deprecated tag:v6.5.0 - Will be deleted. Clone will be managed via clone route
+         */
         cloneBlock(block, sectionId) {
             const newBlock = this.blockRepository.create();
 
@@ -228,6 +281,9 @@ Component.register('sw-cms-sidebar', {
             return newBlock;
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - Will be deleted. Clone will be managed via clone route
+         */
         cloneSlotsInBlock(block, newBlock) {
             block.slots.forEach(slot => {
                 const element = this.slotRepository.create();
@@ -249,7 +305,7 @@ Component.register('sw-cms-sidebar', {
                 data: { block, sectionIndex },
                 validDragCls: null,
                 onDragEnter: this.onBlockDragSort,
-                onDrop: this.onBlockDragStop
+                onDrop: this.onBlockDragStop,
             };
         },
 
@@ -257,7 +313,7 @@ Component.register('sw-cms-sidebar', {
             return {
                 dragGroup: 'cms-navigator',
                 data: { block, sectionIndex },
-                onDrop: this.onBlockDropAbort
+                onDrop: this.onBlockDropAbort,
             };
         },
 
@@ -297,7 +353,7 @@ Component.register('sw-cms-sidebar', {
             Object.assign(
                 newBlock,
                 cloneDeep(this.blockConfigDefaults),
-                cloneDeep(blockConfig.defaultConfig || {})
+                cloneDeep(blockConfig.defaultConfig || {}),
             );
 
             Object.keys(blockConfig.slots).forEach((slotName) => {
@@ -328,13 +384,13 @@ Component.register('sw-cms-sidebar', {
         moveSectionUp(section) {
             this.page.sections.moveItem(section.position, section.position - 1);
 
-            this.pageUpdate();
+            this.$emit('page-save', true);
         },
 
         moveSectionDown(section) {
             this.page.sections.moveItem(section.position, section.position + 1);
 
-            this.pageUpdate();
+            this.$emit('page-save', true);
         },
 
         onSectionDuplicate(section) {
@@ -344,7 +400,7 @@ Component.register('sw-cms-sidebar', {
         onSectionDelete(sectionId) {
             Shopware.State.commit('cmsPageState/removeSelectedSection');
             this.page.sections.remove(sectionId);
-            this.pageUpdate();
+            this.$emit('page-save');
         },
 
         onBlockDelete(block, section) {
@@ -358,7 +414,7 @@ Component.register('sw-cms-sidebar', {
                 Shopware.State.commit('cmsPageState/removeSelectedBlock');
             }
 
-            this.pageUpdate();
+            this.$emit('page-save', true);
         },
 
         onBlockDuplicate(block, section) {
@@ -414,6 +470,6 @@ Component.register('sw-cms-sidebar', {
 
         blockTypeExists(type) {
             return this.blockTypes.includes(type);
-        }
-    }
+        },
+    },
 });

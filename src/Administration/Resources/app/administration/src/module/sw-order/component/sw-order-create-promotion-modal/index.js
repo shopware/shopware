@@ -11,18 +11,18 @@ Component.register('sw-order-create-promotion-modal', {
     props: {
         currency: {
             type: Object,
-            required: true
+            required: true,
         },
         salesChannelId: {
             type: String,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
         return {
-            isLoading: false
+            isLoading: false,
         };
     },
 
@@ -39,7 +39,7 @@ Component.register('sw-order-create-promotion-modal', {
 
         hasNoAutomaticPromotions() {
             return this.cartAutomaticPromotionItems.length === 0;
-        }
+        },
     },
 
     methods: {
@@ -71,7 +71,7 @@ Component.register('sw-order-create-promotion-modal', {
                 Math.abs(totalPrice) < value) {
                 return this.$tc(`${snippet}.absoluteUpto`, 0, {
                     value: format.currency(Number(value), this.currency.shortName),
-                    totalPrice: format.currency(Math.abs(totalPrice), this.currency.shortName)
+                    totalPrice: format.currency(Math.abs(totalPrice), this.currency.shortName),
                 });
             }
 
@@ -80,6 +80,6 @@ Component.register('sw-order-create-promotion-modal', {
                 : format.currency(Number(value), this.currency.shortName);
 
             return this.$tc(`${snippet}.${discountType}`, 0, { value: discountValue, groupId });
-        }
-    }
+        },
+    },
 });

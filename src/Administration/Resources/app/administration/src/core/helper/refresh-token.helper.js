@@ -7,8 +7,9 @@ export default class RefreshTokenHelper {
         this._isRefreshing = false;
         this._subscribers = [];
         this._errorSubscribers = [];
+        // eslint-disable-next-line inclusive-language/use-inclusive-words
         this._whitelist = [
-            '/oauth/token'
+            '/oauth/token',
         ];
     }
 
@@ -70,11 +71,15 @@ export default class RefreshTokenHelper {
         });
     }
 
+    // eslint-disable-next-line inclusive-language/use-inclusive-words
     get whitelist() {
+        // eslint-disable-next-line inclusive-language/use-inclusive-words
         return this._whitelist;
     }
 
+    // eslint-disable-next-line inclusive-language/use-inclusive-words
     set whitelist(urls) {
+        // eslint-disable-next-line inclusive-language/use-inclusive-words
         this._whitelists = urls;
     }
 

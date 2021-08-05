@@ -12,25 +12,25 @@ Component.register('sw-base-field', {
         name: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         label: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         helpText: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         isInvalid: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         error: {
@@ -38,43 +38,43 @@ Component.register('sw-base-field', {
             required: false,
             default() {
                 return null;
-            }
+            },
         },
 
         disabled: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         required: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         isInherited: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         isInheritanceField: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         disableInheritanceToggle: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
         return {
-            id: utils.createId()
+            id: utils.createId(),
         };
     },
 
@@ -99,18 +99,18 @@ Component.register('sw-base-field', {
             return {
                 'has--error': this.hasError,
                 'is--disabled': this.disabled,
-                'is--inherited': this.isInherited
+                'is--inherited': this.isInherited,
             };
         },
 
         swFieldLabelClasses() {
             return {
-                'is--required': this.required
+                'is--required': this.required,
             };
         },
 
         showLabel() {
-            return !!this.label || !!this.$slots.label || !!this.$scopedSlots.label;
-        }
-    }
+            return !!this.label || !!this.$slots.label || !!this.$scopedSlots?.label?.();
+        },
+    },
 });

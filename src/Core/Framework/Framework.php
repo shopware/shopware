@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework;
 
+use Shopware\Core\Framework\Compatibility\AnnotationReaderCompilerPass;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\ExtensionRegistry;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ActionEventCompilerPass;
@@ -58,6 +59,7 @@ class Framework extends Bundle
         $loader->load('data-abstraction-layer.xml');
         $loader->load('demodata.xml');
         $loader->load('event.xml');
+        $loader->load('hydrator.xml');
         $loader->load('filesystem.xml');
         $loader->load('message-queue.xml');
         $loader->load('plugin.xml');
@@ -85,6 +87,7 @@ class Framework extends Bundle
         $container->addCompilerPass(new RouteScopeCompilerPass());
         $container->addCompilerPass(new AssetRegistrationCompilerPass());
         $container->addCompilerPass(new FilesystemConfigMigrationCompilerPass());
+        $container->addCompilerPass(new AnnotationReaderCompilerPass());
 
         // configure migration directories
         $migrationSourceV3 = $container->getDefinition(MigrationSource::class . '.core.V6_3');
@@ -158,6 +161,9 @@ class Framework extends Bundle
 
         $configLoader->load($confDir . '/{packages}/*' . Kernel::CONFIG_EXTS, 'glob');
         $configLoader->load($confDir . '/{packages}/' . $environment . '/*' . Kernel::CONFIG_EXTS, 'glob');
+        if ($environment === 'e2e') {
+            $configLoader->load($confDir . '/{packages}/prod/*' . Kernel::CONFIG_EXTS, 'glob');
+        }
         $shopwareFeaturesPath = $cacheDir . '/shopware_features.php';
         if (is_readable($shopwareFeaturesPath)) {
             $configLoader->load($shopwareFeaturesPath, 'php');

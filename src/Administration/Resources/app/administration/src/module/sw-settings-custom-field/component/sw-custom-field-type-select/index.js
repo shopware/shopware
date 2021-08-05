@@ -8,12 +8,12 @@ Component.extend('sw-custom-field-type-select', 'sw-custom-field-type-base', {
 
     data() {
         return {
+            multiSelectSwitch: false,
             propertyNames: {
                 label: this.$tc('sw-settings-custom-field.customField.detail.labelLabel'),
                 placeholder: this.$tc('sw-settings-custom-field.customField.detail.labelPlaceholder'),
-                helpText: this.$tc('sw-settings-custom-field.customField.detail.labelHelpText')
+                helpText: this.$tc('sw-settings-custom-field.customField.detail.labelHelpText'),
             },
-            multiSelectSwitch: false
         };
     },
 
@@ -32,6 +32,14 @@ Component.extend('sw-custom-field-type-select', 'sw-custom-field-type-base', {
             if (!this.currentCustomField.config.hasOwnProperty('componentName')) {
                 this.currentCustomField.config.componentName = 'sw-single-select';
             }
+
+            this.$set(this.currentCustomField.config, 'options', this.currentCustomField.config.options.map(option => {
+                if (Array.isArray(option.label)) {
+                    option.label = {};
+                }
+
+                return option;
+            }));
 
             this.multiSelectSwitch = this.currentCustomField.config.componentName === 'sw-multi-select';
         },
@@ -57,6 +65,6 @@ Component.extend('sw-custom-field-type-select', 'sw-custom-field-type-base', {
             }
 
             this.currentCustomField.config.componentName = 'sw-single-select';
-        }
-    }
+        },
+    },
 });

@@ -44,7 +44,7 @@ const ApiServices = require('src/core/service/api').default;
 const ModuleFilterFactory = require('src/core/data/filter-factory.data').default;
 
 const container = new Bottle({
-    strict: true
+    strict: true,
 });
 
 const application = new ApplicationBootstrapper(container);
@@ -108,7 +108,7 @@ const Shopware = function Shopware() {
         register: ModuleFactory.registerModule,
         getModuleRegistry: ModuleFactory.getModuleRegistry,
         getModuleRoutes: ModuleFactory.getModuleRoutes,
-        getModuleByEntityName: ModuleFactory.getModuleByEntityName
+        getModuleByEntityName: ModuleFactory.getModuleByEntityName,
     };
 
     /**
@@ -123,7 +123,7 @@ const Shopware = function Shopware() {
         getTemplate: ComponentFactory.getComponentTemplate,
         getComponentRegistry: ComponentFactory.getComponentRegistry,
         getComponentHelper: ComponentFactory.getComponentHelper,
-        registerComponentHelper: ComponentFactory.registerComponentHelper
+        registerComponentHelper: ComponentFactory.registerComponentHelper,
     };
 
     /**
@@ -136,7 +136,7 @@ const Shopware = function Shopware() {
         override: TemplateFactory.registerTemplateOverride,
         getRenderedTemplate: TemplateFactory.getRenderedTemplate,
         find: TemplateFactory.findCustomTemplate,
-        findOverride: TemplateFactory.findCustomTemplate
+        findOverride: TemplateFactory.findCustomTemplate,
     };
 
     /**
@@ -148,10 +148,11 @@ const Shopware = function Shopware() {
         getDefinition: EntityFactory.getEntityDefinition,
         getDefinitionRegistry: EntityFactory.getDefinitionRegistry,
         getRawEntityObject: EntityFactory.getRawEntityObject,
+        // eslint-disable-next-line inclusive-language/use-inclusive-words
         getPropertyBlacklist: EntityFactory.getPropertyBlacklist,
         getRequiredProperties: EntityFactory.getRequiredProperties,
         getAssociatedProperties: EntityFactory.getAssociatedProperties,
-        getTranslatableProperties: EntityFactory.getTranslatableProperties
+        getTranslatableProperties: EntityFactory.getTranslatableProperties,
     };
 
     /**
@@ -166,7 +167,7 @@ const Shopware = function Shopware() {
      */
     this.Mixin = {
         register: MixinFactory.register,
-        getByName: MixinFactory.getByName
+        getByName: MixinFactory.getByName,
     };
 
     /**
@@ -176,7 +177,7 @@ const Shopware = function Shopware() {
     this.Filter = {
         register: FilterFactory.register,
         getByName: FilterFactory.getByName,
-        getRegistry: FilterFactory.getRegistry
+        getRegistry: FilterFactory.getRegistry,
     };
 
     /**
@@ -186,7 +187,7 @@ const Shopware = function Shopware() {
     this.Directive = {
         register: DirectiveFactory.registerDirective,
         getByName: DirectiveFactory.getDirectiveByName,
-        getDirectiveRegistry: DirectiveFactory.getDirectiveRegistry
+        getDirectiveRegistry: DirectiveFactory.getDirectiveRegistry,
     };
 
     /**
@@ -197,7 +198,7 @@ const Shopware = function Shopware() {
         register: LocaleFactory.register,
         extend: LocaleFactory.extend,
         getByName: LocaleFactory.getLocaleByName,
-        getLocaleRegistry: LocaleFactory.getLocaleRegistry
+        getLocaleRegistry: LocaleFactory.getLocaleRegistry,
     };
 
     /**
@@ -207,7 +208,7 @@ const Shopware = function Shopware() {
     this.Shortcut = {
         getShortcutRegistry: ShortcutFactory.getShortcutRegistry,
         getPathByCombination: ShortcutFactory.getPathByCombination,
-        register: ShortcutFactory.register
+        register: ShortcutFactory.register,
     };
 
     /**
@@ -216,7 +217,7 @@ const Shopware = function Shopware() {
      */
     this.Plugin = {
         addBootPromise: PluginBootFactory.addBootPromise,
-        getBootPromises: PluginBootFactory.getBootPromises
+        getBootPromises: PluginBootFactory.getBootPromises,
     };
 
     /**
@@ -252,7 +253,7 @@ const Shopware = function Shopware() {
         getByName: ApiServiceFactory.getByName,
         getRegistry: ApiServiceFactory.getRegistry,
         getServices: ApiServiceFactory.getServices,
-        has: ApiServiceFactory.has
+        has: ApiServiceFactory.has,
     };
 
     /**
@@ -269,7 +270,7 @@ const Shopware = function Shopware() {
         remove: EntityDefinitionFactory.remove,
         getTranslatedFields: EntityDefinitionFactory.getTranslatedFields,
         getAssociationFields: EntityDefinitionFactory.getAssociationFields,
-        getRequiredFields: EntityDefinitionFactory.getRequiredFields
+        getRequiredFields: EntityDefinitionFactory.getRequiredFields,
     };
 
     /**
@@ -281,7 +282,7 @@ const Shopware = function Shopware() {
         getRegistry: WorkerNotificationFactory.getRegistry,
         override: WorkerNotificationFactory.override,
         remove: WorkerNotificationFactory.remove,
-        initialize: WorkerNotificationFactory.initialize
+        initialize: WorkerNotificationFactory.initialize,
     };
 
     /**
@@ -294,7 +295,8 @@ const Shopware = function Shopware() {
         versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
         storefrontSalesChannelTypeId: '8a243080f92e4c719546314b577cf82b',
         productComparisonTypeId: 'ed535e5722134ac1aa6524f73e26881b',
-        apiSalesChannelTypeId: 'f183ee5650cf4bdb8a774337575067a6'
+        apiSalesChannelTypeId: 'f183ee5650cf4bdb8a774337575067a6',
+        defaultSalutationId: 'ed643807c9f84cc8b50132ea3ccb1c3b',
     };
 
     /**
@@ -309,7 +311,7 @@ const Shopware = function Shopware() {
      */
     this.Classes = ClassesFactory({
         ShopwareError: ShopwareError,
-        ApiService: ApiService
+        ApiService: ApiService,
     },
     {
         /**
@@ -323,8 +325,8 @@ const Shopware = function Shopware() {
             ApiContextFactory: ApiContextFactory,
             AppContextFactory: AppContextFactory,
             RouterFactory: RouterFactory,
-            FilterFactory: ModuleFilterFactory
-        }
+            FilterFactory: ModuleFilterFactory,
+        },
     });
 
     /**
@@ -336,7 +338,7 @@ const Shopware = function Shopware() {
         MiddlewareHelper: MiddlewareHelper,
         RefreshTokenHelper: RefreshTokenHelper,
         SanitizerHelper: SanitizerHelper,
-        DeviceHelper: DeviceHelper
+        DeviceHelper: DeviceHelper,
     };
 };
 
@@ -356,8 +358,8 @@ Shopware.prototype = {
      * @private
      */
     _private: {
-        ApiServices: ApiServices
-    }
+        ApiServices: ApiServices,
+    },
 };
 
 const ShopwareInstance = new Shopware();

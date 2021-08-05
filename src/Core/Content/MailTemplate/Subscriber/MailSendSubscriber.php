@@ -17,7 +17,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\BusinessEvent;
-use Shopware\Core\Framework\Event\EventData\EventDataType;
 use Shopware\Core\Framework\Event\MailActionInterface;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\System\Language\LanguageEntity;
@@ -204,7 +203,7 @@ class MailSendSubscriber implements EventSubscriberInterface
     private function getTemplateData(MailActionInterface $event): array
     {
         $data = [];
-        /* @var EventDataType $item */
+
         foreach (array_keys($event::getAvailableData()->toArray()) as $key) {
             $getter = 'get' . ucfirst($key);
             if (method_exists($event, $getter)) {

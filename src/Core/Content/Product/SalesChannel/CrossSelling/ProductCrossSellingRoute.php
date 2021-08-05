@@ -190,6 +190,7 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
 
         $criteria->setIds($ids);
         $criteria->addFilter($filter);
+        $criteria->addAssociation('options.group');
 
         $criteria = $this->handleAvailableStock($criteria, $context);
 

@@ -34,35 +34,37 @@
     {% block sw_product_detail_empty_state %}
     <sw-card
         v-else
-        class="sw-product-detail-cross-selling__empty-state"
     >
         <sw-loader v-if="isLoading" />
-        <div v-else>
-            <template>
-                <div class="sw-product-detail-cross-selling__empty-state-inner">
-                    <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
 
-                    <div class="sw-product-detail-cross-selling__empty-state-inner--label">
-                        <p>{{ $tc('sw-product.crossselling.emptyStateDescription') }}</p>
-                    </div>
-
-                    {% block sw_product_detail_empty_state_cross_selling_add %}
-                    <sw-button
-                        v-tooltip="{
-                            message: onAddCrossSellingTooltipMessage,
-                            disabled: acl.can('product.editor') && isSystemDefaultLanguage,
-                            showOnDisabledElements: true
-                        }"
-                        variant="ghost"
-                        :disabled="!acl.can('product.editor') || !isSystemDefaultLanguage"
-                        @click="onAddCrossSelling"
-                    >
-                        {{ $tc('sw-product.crossselling.buttonAddCrossSelling') }}
-                    </sw-button>
-                    {% endblock %}
-                </div>
+        <sw-empty-state
+            v-else
+            :title="$tc('sw-product.crossselling.cardTitleCrossSelling')"
+            :subline="$tc('sw-product.crossselling.emptyStateDescription')"
+            :absolute="false"
+            empty-module
+        >
+            <template #icon>
+                <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
             </template>
-        </div>
+
+            {% block sw_product_detail_empty_state_cross_selling_add %}
+            <template #actions>
+                <sw-button
+                    v-tooltip="{
+                        message: onAddCrossSellingTooltipMessage,
+                        disabled: acl.can('product.editor') && isSystemDefaultLanguage,
+                        showOnDisabledElements: true
+                    }"
+                    variant="ghost"
+                    :disabled="!acl.can('product.editor') || !isSystemDefaultLanguage"
+                    @click="onAddCrossSelling"
+                >
+                    {{ $tc('sw-product.crossselling.buttonAddCrossSelling') }}
+                </sw-button>
+            </template>
+            {% endblock %}
+        </sw-empty-state>
     </sw-card>
     {% endblock %}
 </div>

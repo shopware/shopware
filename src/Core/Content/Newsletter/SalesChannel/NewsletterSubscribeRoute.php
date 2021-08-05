@@ -6,12 +6,14 @@ use OpenApi\Annotations as OA;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Content\Newsletter\Event\NewsletterConfirmEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
+use Shopware\Core\Content\Newsletter\Event\NewsletterSubscribeUrlEvent;
 use Shopware\Core\Content\Newsletter\Exception\NewsletterRecipientNotFoundException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
@@ -22,6 +24,7 @@ use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\Email;
@@ -39,6 +42,34 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
     public const STATUS_DIRECT = 'direct';
 
     /**
+     * The subscription is directly active and does not need a confirmation.
+     *
+     * @internal (flag:FEATURE_NEXT_14001) remove this comment on feature release
+     */
+    public const OPTION_DIRECT = 'direct';
+
+    /**
+     * An email will be send to the provided email addrees containing a link to the /newsletter/confirm route.
+     *
+     * @internal (flag:FEATURE_NEXT_14001) remove this comment on feature release
+     */
+    public const OPTION_SUBSCRIBE = 'subscribe';
+
+    /**
+     * The email address will be removed from the newsletter subscriptions.
+     *
+     * @internal (flag:FEATURE_NEXT_14001) remove this comment on feature release
+     */
+    public const OPTION_UNSUBSCRIBE = 'unsubscribe';
+
+    /**
+     * Confirmes the newsletter subscription for the provided email address.
+     *
+     * @internal (flag:FEATURE_NEXT_14001) remove this comment on feature release
+     */
+    public const OPTION_CONFIRM_SUBSCRIBE = 'confirmSubscribe';
+
+    /**
      * @var EntityRepositoryInterface
      */
     private $newsletterRecipientRepository;
@@ -53,14 +84,18 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
      */
     private $eventDispatcher;
 
+    private SystemConfigService $systemConfigService;
+
     public function __construct(
         EntityRepositoryInterface $newsletterRecipientRepository,
         DataValidator $validator,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        SystemConfigService $systemConfigService
     ) {
         $this->newsletterRecipientRepository = $newsletterRecipientRepository;
         $this->validator = $validator;
         $this->eventDispatcher = $eventDispatcher;
+        $this->systemConfigService = $systemConfigService;
     }
 
     public function getDecorated(): AbstractNewsletterSubscribeRoute
@@ -162,6 +197,18 @@ The subscription is only successful, if the /newsletter/confirm route is called 
      */
     public function subscribe(RequestDataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl = true): NoContentResponse
     {
+        /* @feature-deprecated (flag:FEATURE_NEXT_16200) remove the if conditio, keep its body */
+        if (Feature::isActive('FEATURE_NEXT_16200')) {
+            $doubleOptInDomain = $this->systemConfigService->getString(
+                'core.newsletter.doubleOptInDomain',
+                $context->getSalesChannelId()
+            );
+            if ($doubleOptInDomain !== '') {
+                $dataBag->set('storefrontUrl', $doubleOptInDomain);
+                $validateStorefrontUrl = false;
+            }
+        }
+
         $validator = $this->getOptInValidator($context, $validateStorefrontUrl);
         $this->validator->validate($dataBag->all(), $validator);
 
@@ -186,7 +233,10 @@ The subscription is only successful, if the /newsletter/confirm route is called 
         if (isset($recipientId)) {
             /** @var NewsletterRecipientEntity $recipient */
             $recipient = $this->newsletterRecipientRepository->search(new Criteria([$recipientId]), $context->getContext())->first();
-            if ($recipient->getConfirmedAt()) {
+
+            // If the user was previously subscribed but has unsubscribed now, the `getConfirmedAt()`
+            // will still be set. So we need to check for the status as well.
+            if ($recipient->getStatus() !== self::STATUS_OPT_OUT && $recipient->getConfirmedAt()) {
                 return new NoContentResponse();
             }
         }
@@ -204,17 +254,8 @@ The subscription is only successful, if the /newsletter/confirm route is called 
             return new NoContentResponse();
         }
 
-        $url = $data['storefrontUrl'] . str_replace(
-            [
-                '%%HASHEDEMAIL%%',
-                '%%SUBSCRIBEHASH%%',
-            ],
-            [
-                hash('sha1', $data['email']),
-                $data['hash'],
-            ],
-            '/newsletter-subscribe?em=%%HASHEDEMAIL%%&hash=%%SUBSCRIBEHASH%%'
-        );
+        $hashedEmail = hash('sha1', $data['email']);
+        $url = $this->getSubscribeUrl($context, $hashedEmail, $data['hash'], $data, $recipient);
 
         $event = new NewsletterRegisterEvent($context->getContext(), $recipient, $url, $context->getSalesChannel()->getId());
         $this->eventDispatcher->dispatch($event);
@@ -267,10 +308,10 @@ The subscription is only successful, if the /newsletter/confirm route is called 
     private function getOptionSelection(): array
     {
         return [
-            'direct' => self::STATUS_DIRECT,
-            'subscribe' => self::STATUS_NOT_SET,
-            'confirmSubscribe' => self::STATUS_OPT_IN,
-            'unsubscribe' => self::STATUS_OPT_OUT,
+            self::OPTION_DIRECT => self::STATUS_DIRECT,
+            self::OPTION_SUBSCRIBE => self::STATUS_NOT_SET,
+            self::OPTION_CONFIRM_SUBSCRIBE => self::STATUS_OPT_IN,
+            self::OPTION_UNSUBSCRIBE => self::STATUS_OPT_OUT,
         ];
     }
 
@@ -294,5 +335,36 @@ The subscription is only successful, if the /newsletter/confirm route is called 
         return array_map(static function (SalesChannelDomainEntity $domainEntity) {
             return rtrim($domainEntity->getUrl(), '/');
         }, $context->getSalesChannel()->getDomains()->getElements());
+    }
+
+    private function getSubscribeUrl(
+        SalesChannelContext $context,
+        string $hashedEmail,
+        string $hash,
+        array $data,
+        NewsletterRecipientEntity $recipient
+    ): string {
+        $urlTemplate = $this->systemConfigService->get(
+            'core.newsletter.subscribeUrl',
+            $context->getSalesChannelId()
+        );
+        if (!\is_string($urlTemplate)) {
+            $urlTemplate = '/newsletter-subscribe?em=%%HASHEDEMAIL%%&hash=%%SUBSCRIBEHASH%%';
+        }
+
+        $urlEvent = new NewsletterSubscribeUrlEvent($context, $urlTemplate, $hashedEmail, $hash, $data, $recipient);
+        $this->eventDispatcher->dispatch($urlEvent);
+
+        return $data['storefrontUrl'] . str_replace(
+            [
+                '%%HASHEDEMAIL%%',
+                '%%SUBSCRIBEHASH%%',
+            ],
+            [
+                $hashedEmail,
+                $hash,
+            ],
+            $urlEvent->getSubscribeUrl()
+        );
     }
 }

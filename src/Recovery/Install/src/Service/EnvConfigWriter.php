@@ -61,11 +61,15 @@ MAILER_URL=null://localhost
         );
 
         $defaults = $this->defaultEnvVars;
-        $appEnvVars = [
+        $appEnvVars = array_filter([
             'APP_ENV' => 'prod',
             'APP_SECRET' => $secret,
             'APP_URL' => 'http://' . $shop->host . $shop->basePath,
-        ];
+            'DATABASE_SSL_CA' => $info->sslCaPath,
+            'DATABASE_SSL_CERT' => $info->sslCertPath,
+            'DATABASE_SSL_KEY' => $info->sslCertKeyPath,
+            'DATABASE_SSL_DONT_VERIFY_SERVER_CERT' => $info->sslDontVerifyServerCert ? '1' : '',
+        ]);
 
         // override app env vars
         foreach ($appEnvVars as $key => $value) {

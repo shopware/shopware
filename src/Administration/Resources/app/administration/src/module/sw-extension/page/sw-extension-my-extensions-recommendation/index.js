@@ -5,13 +5,13 @@ Shopware.Component.register('sw-extension-my-extensions-recommendation', {
 
     data() {
         return {
-            isLoading: true
+            isLoading: true,
         };
     },
 
     methods: {
         finishLoading() {
             this.isLoading = false;
-        }
-    }
+        },
+    },
 });

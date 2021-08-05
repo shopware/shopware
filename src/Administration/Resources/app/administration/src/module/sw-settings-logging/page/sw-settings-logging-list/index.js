@@ -10,7 +10,7 @@ Component.register('sw-settings-logging-list', {
 
     mixins: [
         Mixin.getByName('sw-settings-list'),
-        Mixin.getByName('placeholder')
+        Mixin.getByName('placeholder'),
     ],
 
     data() {
@@ -29,14 +29,14 @@ Component.register('sw-settings-logging-list', {
                 Error: 400,
                 Critical: 500,
                 Alert: 550,
-                Emergency: 600
-            }
+                Emergency: 600,
+            },
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle()
+            title: this.$createTitle(),
         };
     },
 
@@ -58,7 +58,7 @@ Component.register('sw-settings-logging-list', {
                 return `sw-settings-logging-${subComponentName}-info`;
             }
             return 'sw-settings-logging-entry-info';
-        }
+        },
     },
 
     methods: {
@@ -107,23 +107,23 @@ Component.register('sw-settings-logging-list', {
                 dataIndex: 'createdAt',
                 label: 'sw-settings-logging.list.columnDate',
                 allowResize: true,
-                primary: true
+                primary: true,
             }, {
                 property: 'message',
                 dataIndex: 'message',
                 label: 'sw-settings-logging.list.columnMessage',
-                allowResize: true
+                allowResize: true,
             }, {
                 property: 'level',
                 dataIndex: 'level',
                 label: 'sw-settings-logging.list.columnLevel',
-                allowResize: true
+                allowResize: true,
             }, {
                 property: 'context',
                 dataIndex: 'context',
                 label: 'sw-settings-logging.list.columnContent',
-                allowResize: true
+                allowResize: true,
             }];
-        }
-    }
+        },
+    },
 });

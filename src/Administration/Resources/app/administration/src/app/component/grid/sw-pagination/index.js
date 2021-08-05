@@ -16,23 +16,23 @@ Component.register('sw-pagination', {
     props: {
         total: {
             type: Number,
-            required: true
+            required: true,
         },
 
         limit: {
             type: Number,
-            required: true
+            required: true,
         },
 
         page: {
             type: Number,
-            required: true
+            required: true,
         },
 
         totalVisible: {
             type: Number,
             required: false,
-            default: 7
+            default: 7,
         },
 
         steps: {
@@ -40,20 +40,20 @@ Component.register('sw-pagination', {
             required: false,
             default() {
                 return [10, 25, 50, 75, 100];
-            }
+            },
         },
 
         autoHide: {
             type: Boolean,
             required: false,
-            default: true
-        }
+            default: true,
+        },
     },
 
     data() {
         return {
             currentPage: this.page,
-            perPage: this.limit
+            perPage: this.limit,
         };
     },
 
@@ -78,7 +78,7 @@ Component.register('sw-pagination', {
                 return [
                     ...this.range(1, left + 1),
                     '...',
-                    ...this.range((this.maxPage - left) + 1 + even, this.maxPage)
+                    ...this.range((this.maxPage - left) + 1 + even, this.maxPage),
                 ];
             }
 
@@ -86,7 +86,7 @@ Component.register('sw-pagination', {
                 return [
                     ...this.range(1, left),
                     '...',
-                    ...this.range((this.maxPage - left) + even, this.maxPage)
+                    ...this.range((this.maxPage - left) + even, this.maxPage),
                 ];
             }
 
@@ -100,7 +100,7 @@ Component.register('sw-pagination', {
             return [
                 ...this.range(1, left),
                 '...',
-                ...this.range((this.maxPage - left) + 1 + even, this.maxPage)
+                ...this.range((this.maxPage - left) + 1 + even, this.maxPage),
             ];
         },
 
@@ -124,7 +124,7 @@ Component.register('sw-pagination', {
             });
 
             return possibleSteps;
-        }
+        },
     },
 
     watch: {
@@ -141,7 +141,7 @@ Component.register('sw-pagination', {
             if (this.currentPage > this.maxPage) {
                 this.changePageByPageNumber(this.maxPage);
             }
-        }
+        },
     },
 
     methods: {
@@ -159,7 +159,7 @@ Component.register('sw-pagination', {
         pageChange() {
             this.$emit('page-change', {
                 page: this.currentPage,
-                limit: this.perPage
+                limit: this.perPage,
             });
         },
 
@@ -195,6 +195,6 @@ Component.register('sw-pagination', {
 
         refresh() {
             this.pageChange();
-        }
-    }
+        },
+    },
 });

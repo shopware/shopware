@@ -11,15 +11,15 @@ Component.register('sw-product-feature-set-form', {
         allowEdit: {
             type: Boolean,
             required: false,
-            default: true
-        }
+            default: true,
+        },
     },
 
     computed: {
         ...mapState('swProductDetail', [
             'product',
             'parentProduct',
-            'loading'
-        ])
-    }
+            'loading',
+        ]),
+    },
 });

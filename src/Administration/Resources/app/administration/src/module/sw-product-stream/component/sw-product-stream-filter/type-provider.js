@@ -10,5 +10,5 @@ export default {
     TYPE_NOT_EQUALS_ANY: 'notEqualsAny',
     TYPE_NOT_CONTAINS: 'notContains',
     TYPE_RANGE: 'range',
-    TYPE_NOT: 'not'
+    TYPE_NOT: 'not',
 };

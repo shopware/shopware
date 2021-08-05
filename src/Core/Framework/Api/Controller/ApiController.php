@@ -181,8 +181,8 @@ class ApiController extends AbstractController
      */
     public function compositeSearch(Request $request, Context $context): JsonResponse
     {
-        $term = $request->query->get('term');
-        if ($term === null) {
+        $term = (string) $request->query->get('term');
+        if ($term === '') {
             throw new MissingRequestParameterException('term');
         }
         $limit = $request->query->getInt('limit', 5);
@@ -214,8 +214,8 @@ class ApiController extends AbstractController
     public function clone(Context $context, string $entity, string $id, Request $request): JsonResponse
     {
         $behavior = new CloneBehavior(
-            $request->request->get('overwrites', []),
-            $request->request->get('cloneChildren', true)
+            $request->request->all('overwrites'),
+            $request->request->getBoolean('cloneChildren', true)
         );
 
         $entity = $this->urlToSnakeCase($entity);
@@ -257,8 +257,8 @@ class ApiController extends AbstractController
     {
         $entity = $this->urlToSnakeCase($entity);
 
-        $versionId = $request->request->get('versionId');
-        $versionName = $request->request->get('versionName');
+        $versionId = $request->request->has('versionId') ? (string) $request->request->get('versionId') : null;
+        $versionName = $request->request->has('versionName') ? (string) $request->request->get('versionName') : null;
 
         if ($versionId !== null && !Uuid::isValid($versionId)) {
             throw new InvalidUuidException($versionId);
@@ -467,7 +467,6 @@ class ApiController extends AbstractController
 
         $first = array_shift($pathSegments);
 
-        /* @var EntityDefinition $definition */
         if (\count($pathSegments) === 0) {
             //first api level call /product/{id}
             $definition = $first['definition'];
@@ -617,7 +616,6 @@ class ApiController extends AbstractController
                 throw new MissingReverseAssociation($definition->getEntityName(), $parentDefinition);
             }
 
-            /* @var ManyToManyAssociationField $reverse */
             $criteria->addFilter(
                 new EqualsFilter(
                     sprintf('%s.%s.id', $definition->getEntityName(), $reverse->getPropertyName()),
@@ -671,7 +669,6 @@ class ApiController extends AbstractController
                 throw new MissingReverseAssociation($definition->getEntityName(), $parentDefinition);
             }
 
-            /* @var OneToManyAssociationField $reverse */
             $criteria->addFilter(
                 new EqualsFilter(
                 //filter inverse association to parent value:  manufacturer.products.id = SW1
@@ -697,7 +694,6 @@ class ApiController extends AbstractController
                 throw new MissingReverseAssociation($definition->getEntityName(), $parentDefinition);
             }
 
-            /* @var OneToManyAssociationField $reverse */
             $criteria->addFilter(
                 new EqualsFilter(
                 //filter inverse association to parent value:  order_customer.order_id = xxxx
@@ -807,7 +803,6 @@ class ApiController extends AbstractController
 
         $parentDefinition = $parent['definition'];
 
-        /* @var Entity $entity */
         if ($association instanceof OneToManyAssociationField) {
             $foreignKey = $definition->getFields()
                 ->getByStorageName($association->getReferenceField());

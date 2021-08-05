@@ -4,6 +4,7 @@ import 'src/app/component/base/sw-icon';
 
 function createWrapper(action, listeners = {}) {
     const localVue = createLocalVue();
+    localVue.directive('tooltip', {});
 
     return mount(Shopware.Component.build('sw-app-action-button'), {
         localVue,
@@ -16,6 +17,9 @@ function createWrapper(action, listeners = {}) {
             'icons-default-action-external': {
                 template: '<span class="sw-icon sw-icon--default-action-external"></span>'
             }
+        },
+        provide: {
+            acl: { can: () => true }
         }
     });
 }
@@ -31,6 +35,11 @@ const baseAction = {
         'de-DE': 'Product hinzufügen',
         'en-GB': 'Add product'
     },
+    /**
+     * @feature-deprecated (FEATURE_NEXT_14360) tag:v6.5.0 - "openNewTab" key will be removed.
+     * It will no longer be used in the manifest.xml file
+     * and will be processed in the Executor with an OpenNewTabResponse response instead.
+     */
     openNewTab: false,
     url: 'http://test-url/actions/product/add'
 };
@@ -61,6 +70,11 @@ describe('sw-app-action-button', () => {
         expect(wrapper.vm.$el).toBeInstanceOf(HTMLDivElement);
     });
 
+    /**
+     * @feature-deprecated (FEATURE_NEXT_14360) tag:v6.5.0 - will be removed.
+     * It will no longer be used in the manifest.xml file
+     * and will be processed in the Executor with an OpenNewTabResponse response instead.
+     */
     it('is an anchor if action is a link', () => {
         wrapper = createWrapper({
             ...baseAction,
@@ -98,6 +112,10 @@ describe('sw-app-action-button', () => {
         expect(icon.exists()).toBe(false);
     });
 
+    /**
+     * @feature-deprecated (FEATURE_NEXT_14360) tag:v6.5.0 - "emits call to action if it is not a link" text
+     * will be replaced with "should emit call to action"
+     */
     it('emits call to action if it is not a link', async () => {
         const actionListener = jest.fn();
 
@@ -111,6 +129,11 @@ describe('sw-app-action-button', () => {
         expect(actionListener).toBeCalledWith(appActionId);
     });
 
+    /**
+     * @feature-deprecated (FEATURE_NEXT_14360) tag:v6.5.0 - will be removed.
+     * It will no longer be used in the manifest.xml file
+     * and will be processed in the Executor with an OpenNewTabResponse response instead.
+     */
     it('follows the link if clicked', async () => {
         const actionListener = jest.fn();
 

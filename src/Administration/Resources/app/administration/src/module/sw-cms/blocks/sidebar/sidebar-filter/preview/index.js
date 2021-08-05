@@ -4,5 +4,5 @@ import './sw-cms-block-preview-sidebar-filter.scss';
 const { Component } = Shopware;
 
 Component.register('sw-cms-block-preview-sidebar-filter', {
-    template
+    template,
 });

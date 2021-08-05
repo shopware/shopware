@@ -11,6 +11,9 @@ use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\Cache\CacheItem;
 
+/**
+ * @group cache
+ */
 class CacheInvalidatorTest extends TestCase
 {
     use KernelTestBehaviour;

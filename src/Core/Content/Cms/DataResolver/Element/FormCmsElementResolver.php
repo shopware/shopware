@@ -12,10 +12,7 @@ use Shopware\Core\System\Salutation\SalutationCollection;
 
 class FormCmsElementResolver extends Element\AbstractCmsElementResolver
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $salutationRepository;
+    private EntityRepositoryInterface $salutationRepository;
 
     public function __construct(EntityRepositoryInterface $salutationRepository)
     {

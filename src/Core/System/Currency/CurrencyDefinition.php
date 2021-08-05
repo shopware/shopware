@@ -24,7 +24,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCountryRoundingDefinition;
 use Shopware\Core\System\Currency\Aggregate\CurrencyTranslation\CurrencyTranslationDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCurrency\SalesChannelCurrencyDefinition;
@@ -79,9 +78,7 @@ class CurrencyDefinition extends EntityDefinition
             (new OneToManyAssociationField('countryRoundings', CurrencyCountryRoundingDefinition::class, 'currency_id'))->addFlags(new CascadeDelete()),
         ]);
 
-        if (Feature::isActive('FEATURE_NEXT_14114')) {
-            $collection->add((new FloatField('tax_free_from', 'taxFreeFrom'))->addFlags(new ApiAware()));
-        }
+        $collection->add((new FloatField('tax_free_from', 'taxFreeFrom'))->addFlags(new ApiAware()));
 
         return $collection;
     }

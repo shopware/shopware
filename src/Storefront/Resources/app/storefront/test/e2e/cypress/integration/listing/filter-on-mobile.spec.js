@@ -50,7 +50,7 @@ describe('Listing: Filter on mobile', () => {
         cy.get('.filter-multi-select-properties').contains('color').as('colorFilterButton');
 
         cy.get('@colorFilterButton').closest('.filter-multi-select-properties').as('colorFilter');
-        cy.get('@colorFilter').click();
+        cy.get('@colorFilterButton').click();
         cy.get('@colorFilter').within(() => {
             cy.get('.filter-multi-select-dropdown').as('colorList').should('be.visible')
         })
@@ -59,19 +59,19 @@ describe('Listing: Filter on mobile', () => {
         cy.get('@colorList').contains(filterBy.color).click();
 
         // close color dropdown
-        cy.get('@colorFilter').click();
+        cy.get('@colorFilterButton').click();
 
         // size filter
         cy.get('.filter-multi-select-properties').contains('size').as('sizeFilterButton');
 
         cy.get('@sizeFilterButton').closest('.filter-multi-select-properties').as('sizeFilter');
-        cy.get('@sizeFilter').click()
+        cy.get('@sizeFilterButton').click()
         cy.get('@sizeFilter').within(() => {
             cy.get('.filter-multi-select-dropdown').as('sizeList').should('be.visible')
         });
         cy.get('@sizeList').contains(filterBy.size).click();
         // close size dropdown
-        cy.get('@sizeFilter').click();
+        cy.get('@sizeFilterButton').click();
 
         // before closing filter
         verifySelectedFilter();

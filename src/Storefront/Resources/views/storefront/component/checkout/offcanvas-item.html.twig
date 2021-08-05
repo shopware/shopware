@@ -11,14 +11,6 @@
 
     {# @deprecated tag:v6.5.0 - var will be removed with no replacement #}
     {% set cartItemClasses = '' %}
-    {% if not feature('FEATURE_NEXT_12635') %}
-        {% if isNested %}
-            {% set cartItemClasses = cartItemClasses ~ ' is-nested' %}
-        {% endif %}
-        {% if isChild %}
-            {% set cartItemClasses = cartItemClasses ~ ' is-child' %}
-        {% endif %}
-    {% endif %}
 
     {% block component_offcanvas_cart_item_container %}
         <div class="cart-item cart-item-{{ type }}{% if isDiscount %} is-discount{% endif %}{{ cartItemClasses }} js-cart-item">
@@ -202,30 +194,19 @@
                     </div>
                 {% endblock %}
 
-                {% if feature('FEATURE_NEXT_12635') %}
-                    {% block component_offcanvas_children %}
-                        {% if isNested %}
+                {% block component_offcanvas_children %}
+                    {% if isNested %}
+                        {# @deprecated tag:v6.5.0 - block will be removed, use `component_offcanvas_item_children` in `@Storefront/storefront/component/checkout/offcanvas-item-children.html.twig` instead #}
+                        {% block component_offcanvas_cart_item_children %}
                             {% sw_include childrenTemplate %}
-                        {% endif %}
-                    {% endblock %}
-                {% endif %}
+                        {% endblock %}
+                    {% endif %}
+                {% endblock %}
 
             </div>
         </div>
     {% endblock %}
 
-    {# @deprecated tag:v6.5.0 - will be removed, look into `@Storefront/storefront/component/checkout/offcanvas-item-children.html.twig` instead #}
-    {% if not feature('FEATURE_NEXT_12635') %}
-        {# @deprecated tag:v6.5.0 - block will be moved to `@Storefront/storefront/component/checkout/offcanvas-item-children.html.twig` #}
-        {% block component_offcanvas_cart_item_children %}
-            {% for lineItem in lineItem.children %}
-                {# @deprecated tag:v6.5.0 - block will be removed #}
-                {% block component_offcanvas_cart_item_child %}
-                    {% sw_include '@Storefront/storefront/component/checkout/offcanvas-item.html.twig' with {
-                        'isChild': true
-                    } %}
-                {% endblock %}
-            {% endfor %}
-        {% endblock %}
-    {% endif %}
+    {# @deprecated tag:v6.5.0 - block will be removed #}
+    {% block component_offcanvas_cart_item_child %}{% endblock %}
 {% endblock %}

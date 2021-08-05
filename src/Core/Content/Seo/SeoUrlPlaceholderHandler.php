@@ -44,7 +44,7 @@ class SeoUrlPlaceholderHandler implements SeoUrlPlaceholderHandlerInterface
     {
         $path = $this->router->generate($name, $parameters, RouterInterface::ABSOLUTE_PATH);
 
-        $request = $this->requestStack->getMasterRequest();
+        $request = $this->requestStack->getMainRequest();
         $basePath = $request ? $request->getBasePath() : '';
         $path = $this->removePrefix($path, $basePath);
 

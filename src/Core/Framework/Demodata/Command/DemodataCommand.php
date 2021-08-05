@@ -31,20 +31,11 @@ class DemodataCommand extends Command
 {
     protected static $defaultName = 'framework:demodata';
 
-    /**
-     * @var DemodataService
-     */
-    private $demodataService;
+    private DemodataService $demodataService;
 
-    /**
-     * @var string
-     */
-    private $kernelEnv;
+    private string $kernelEnv;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
     public function __construct(
         DemodataService $demodataService,
@@ -60,12 +51,12 @@ class DemodataCommand extends Command
 
     protected function configure(): void
     {
-        $this->addOption('products', 'p', InputOption::VALUE_REQUIRED, 'Product count', '60');
-        $this->addOption('categories', 'c', InputOption::VALUE_REQUIRED, 'Category count', '7');
+        $this->addOption('products', 'p', InputOption::VALUE_REQUIRED, 'Product count', '1000');
+        $this->addOption('categories', 'c', InputOption::VALUE_REQUIRED, 'Category count', '10');
         $this->addOption('orders', 'o', InputOption::VALUE_REQUIRED, 'Order count', '60');
         $this->addOption('manufacturers', 'm', InputOption::VALUE_REQUIRED, 'Manufacturer count', '60');
         $this->addOption('customers', 'cs', InputOption::VALUE_REQUIRED, 'Customer count', '60');
-        $this->addOption('media', '', InputOption::VALUE_REQUIRED, 'Media count', '100');
+        $this->addOption('media', '', InputOption::VALUE_REQUIRED, 'Media count', '300');
         $this->addOption('properties', '', InputOption::VALUE_REQUIRED, 'Property group count (option count rand(30-300))', '10');
         $this->addOption('users', '', InputOption::VALUE_REQUIRED, 'Users count', '0');
 
@@ -73,13 +64,10 @@ class DemodataCommand extends Command
 
         $this->addOption('mail-template', 'mt', InputOption::VALUE_REQUIRED, 'Mail template count', '10');
         $this->addOption('mail-header-footer', 'mhf', InputOption::VALUE_REQUIRED, 'Mail header/footer count', '3');
-
         $this->addOption('with-media', 'y', InputOption::VALUE_OPTIONAL, 'Enables media for products', '1');
-
         $this->addOption('reviews', 'r', InputOption::VALUE_OPTIONAL, 'Reviews count', '20');
 
         $this->addOption('attribute-sets', null, InputOption::VALUE_REQUIRED, 'CustomField set count', '4');
-
         $this->addOption('product-attributes', null, InputOption::VALUE_REQUIRED, 'Products attribute count');
         $this->addOption('manufacturer-attributes', null, InputOption::VALUE_REQUIRED, 'Manufacturer attribute count');
         $this->addOption('order-attributes', null, InputOption::VALUE_REQUIRED, 'Order attribute count');
@@ -102,7 +90,7 @@ class DemodataCommand extends Command
 
         $request = new DemodataRequest();
 
-        $request->add(RuleDefinition::class, 5);
+        $request->add(RuleDefinition::class, 25);
         $request->add(MediaDefinition::class, (int) $input->getOption('media'));
         $request->add(CustomerDefinition::class, (int) $input->getOption('customers'));
         $request->add(PropertyGroupDefinition::class, (int) $input->getOption('properties'));

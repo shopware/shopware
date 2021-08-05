@@ -14,6 +14,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @group store-api
+ */
 class ContextSwitchRouteTest extends TestCase
 {
     use SalesChannelApiTestBehaviour;

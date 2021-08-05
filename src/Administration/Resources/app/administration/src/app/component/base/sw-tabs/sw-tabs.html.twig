@@ -11,14 +11,14 @@
         :style="tabContentStyle"
     >
         {% block sw_tabs_content_slot %}
-        <slot :active="active" />
+        <slot :active="active"></slot>
         {% endblock %}
         {% block sw_tabs_slider %}
         <span
             class="sw-tabs__slider"
             :class="sliderClasses"
             :style="sliderStyle"
-        />
+        ></span>
         {% endblock %}
     </div>
     {% endblock %}
@@ -56,7 +56,7 @@
         <slot
             name="content"
             :active="active"
-        />
+        ></slot>
         {% endblock %}
     </div>
 

@@ -58,16 +58,24 @@ class LineItemOfManufacturerRule extends Rule
 
     public function getConstraints(): array
     {
-        return [
-            'manufacturerIds' => [new NotBlank(), new ArrayOfUuid()],
+        $constraints = [
             'operator' => [
                 new NotBlank(),
                 new Choice([
                     self::OPERATOR_EQ,
                     self::OPERATOR_NEQ,
+                    self::OPERATOR_EMPTY,
                 ]),
             ],
         ];
+
+        if ($this->operator === self::OPERATOR_EMPTY) {
+            return $constraints;
+        }
+
+        $constraints['manufacturerIds'] = [new NotBlank(), new ArrayOfUuid()];
+
+        return $constraints;
     }
 
     /**
@@ -84,6 +92,9 @@ class LineItemOfManufacturerRule extends Rule
 
             case self::OPERATOR_NEQ:
                 return !\in_array($manufacturerId, $this->manufacturerIds, true);
+
+            case self::OPERATOR_EMPTY:
+                return empty($manufacturerId);
 
             default:
                 throw new UnsupportedOperatorException($this->operator, self::class);

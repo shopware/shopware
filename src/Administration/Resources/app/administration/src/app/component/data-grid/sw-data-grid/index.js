@@ -30,114 +30,115 @@ Component.register('sw-data-grid', {
     template,
 
     inject: [
-        'repositoryFactory'
+        'repositoryFactory',
+        'feature',
     ],
 
     props: {
         dataSource: {
             type: Array,
-            required: true
+            required: true,
         },
 
         columns: {
             type: Array,
-            required: true
+            required: true,
         },
 
         identifier: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
 
         showSelection: {
             type: Boolean,
             default: true,
-            required: false
+            required: false,
         },
 
         showActions: {
             type: Boolean,
             default: true,
-            required: false
+            required: false,
         },
 
         showHeader: {
             type: Boolean,
             default: true,
-            required: false
+            required: false,
         },
 
         showSettings: {
             type: Boolean,
             default: false,
-            required: false
+            required: false,
         },
 
         fullPage: {
             type: Boolean,
             default: false,
-            required: false
+            required: false,
         },
 
         allowInlineEdit: {
             type: Boolean,
             default: false,
-            required: false
+            required: false,
         },
 
         allowColumnEdit: {
             type: Boolean,
             default: false,
-            required: false
+            required: false,
         },
 
         isLoading: {
             type: Boolean,
             default: false,
-            required: false
+            required: false,
         },
 
         skeletonItemAmount: {
             type: Number,
             required: false,
-            default: 7
+            default: 7,
         },
 
         sortBy: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         sortDirection: {
             type: String,
             required: false,
-            default: 'ASC'
+            default: 'ASC',
         },
 
         naturalSorting: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         compactMode: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
 
         plainAppearance: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         showPreviews: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
 
         isRecordEditable: {
@@ -145,7 +146,7 @@ Component.register('sw-data-grid', {
             required: false,
             default() {
                 return true;
-            }
+            },
         },
 
         isRecordSelectable: {
@@ -153,14 +154,14 @@ Component.register('sw-data-grid', {
             required: false,
             default() {
                 return true;
-            }
+            },
         },
 
         itemIdentifierProperty: {
             type: String,
             required: false,
-            default: 'id'
-        }
+            default: 'id',
+        },
     },
 
     data() {
@@ -185,7 +186,7 @@ Component.register('sw-data-grid', {
             // eslint-disable-next-line vue/no-reserved-keys
             _hasColumnsResize: false,
             // eslint-disable-next-line vue/no-reserved-keys
-            _isResizing: false
+            _isResizing: false,
         };
     },
 
@@ -195,7 +196,7 @@ Component.register('sw-data-grid', {
                 'is--compact': this.compact,
                 'sw-data-grid--full-page': this.fullPage,
                 'sw-data-grid--actions': this.showActions,
-                'sw-data-grid--plain-appearance': this.plainAppearance
+                'sw-data-grid--plain-appearance': this.plainAppearance,
             };
         },
 
@@ -241,7 +242,7 @@ Component.register('sw-data-grid', {
             criteria.addFilter(Criteria.equals('userId', this.currentUser && this.currentUser.id));
 
             return criteria;
-        }
+        },
     },
 
     watch: {
@@ -283,7 +284,7 @@ Component.register('sw-data-grid', {
 
         selection() {
             this.$emit('selection-change', this.selection, this.selectionCount);
-        }
+        },
     },
 
     created() {
@@ -305,7 +306,7 @@ Component.register('sw-data-grid', {
 
             this.$device.onResize({
                 listener: this.trackScrollX.bind(this),
-                component: this
+                component: this,
             });
         },
 
@@ -332,7 +333,7 @@ Component.register('sw-data-grid', {
                 this.applyUserSettings({
                     columns: userSetting?.columns ?? userSetting,
                     compact: userSetting?.compact,
-                    previews: userSetting?.previews
+                    previews: userSetting?.previews,
                 });
             });
         },
@@ -349,7 +350,7 @@ Component.register('sw-data-grid', {
                 this.applyUserSettings({
                     columns: userSetting?.columns ?? userSetting,
                     compact: userSetting?.compact,
-                    previews: userSetting?.previews
+                    previews: userSetting?.previews,
                 });
             });
         },
@@ -372,8 +373,8 @@ Component.register('sw-data-grid', {
                         sortable: column.sortable,
                         visible: column.visible,
                         align: column.visible,
-                        naturalSorting: column.naturalSorting
-                    }
+                        naturalSorting: column.naturalSorting,
+                    },
                 };
             }, {});
 
@@ -415,7 +416,7 @@ Component.register('sw-data-grid', {
                     sortable: true,
                     visible: true,
                     align: 'left',
-                    naturalSorting: false
+                    naturalSorting: false,
                 };
 
                 if (!column.property) {
@@ -448,7 +449,7 @@ Component.register('sw-data-grid', {
             this.currentSetting.value = {
                 columns: this.currentColumns,
                 compact: this.compact,
-                previews: this.previews
+                previews: this.previews,
             };
             this.userConfigRepository.save(this.currentSetting, Shopware.Context.api).then(() => {
                 this.findUserSettingById();
@@ -459,10 +460,10 @@ Component.register('sw-data-grid', {
             return [
                 {
                     'sw-data-grid__cell--sortable': column.sortable,
-                    'sw-data-grid__cell--icon-label': column.iconLabel
+                    'sw-data-grid__cell--icon-label': column.iconLabel,
                 },
                 `sw-data-grid__cell--${index}`,
-                `sw-data-grid__cell--align-${column.align}`
+                `sw-data-grid__cell--align-${column.align}`,
             ];
         },
 
@@ -470,9 +471,9 @@ Component.register('sw-data-grid', {
             return [
                 {
                     'is--inline-edit': this.isInlineEdit(item),
-                    'is--selected': this.isSelected(item.id)
+                    'is--selected': this.isSelected(item.id),
                 },
-                `sw-data-grid__row--${itemIndex}`
+                `sw-data-grid__row--${itemIndex}`,
             ];
         },
 
@@ -481,8 +482,8 @@ Component.register('sw-data-grid', {
                 `sw-data-grid__cell--${column.property.replace(/\./g, '-')}`,
                 `sw-data-grid__cell--align-${column.align}`,
                 {
-                    'sw-data-grid__cell--multi-line': column.multiLine
-                }
+                    'sw-data-grid__cell--multi-line': column.multiLine,
+                },
             ];
         },
 
@@ -617,7 +618,7 @@ Component.register('sw-data-grid', {
         },
 
         onClickSaveInlineEdit(item) {
-            this.$emit('inline-edit-assign');
+            this.$emit('inline-edit-assign', item);
             this.save(item);
 
             this.disableInlineEdit();
@@ -771,6 +772,6 @@ Component.register('sw-data-grid', {
 
         sort(column) {
             this.$emit('column-sort', column);
-        }
-    }
+        },
+    },
 });

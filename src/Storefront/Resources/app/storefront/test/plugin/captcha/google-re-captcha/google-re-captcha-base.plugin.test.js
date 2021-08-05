@@ -1,7 +1,6 @@
 /**
  * @jest-environment jsdom
  */
-import CookieStorageHelper from 'src/helper/storage/cookie-storage.helper';
 import GoogleReCaptchaBasePlugin from 'src/plugin/captcha/google-re-captcha/google-re-captcha-base.plugin';
 
 describe('GoogleReCaptchaBasePlugin tests', () => {
@@ -64,33 +63,6 @@ describe('GoogleReCaptchaBasePlugin tests', () => {
         expect(typeof googleReCaptchaBasePlugin).toBe('object');
     });
 
-    test('_checkCookieAccepted is called when submit the form', () => {
-        googleReCaptchaBasePlugin._checkCookieAccepted = jest.fn();
-
-        googleReCaptchaBasePlugin._onFormSubmitCallback();
-
-        expect(googleReCaptchaBasePlugin._checkCookieAccepted).toHaveBeenCalled();
-    });
-
-    test('cookieConfiguration is opened when form submitted if the captcha cookie is not set', () => {
-        googleReCaptchaBasePlugin.cookieConfiguration = [{
-            isOpening: false,
-            openOffCanvas: () => {}
-        }];
-
-        CookieStorageHelper.setItem(googleReCaptchaBasePlugin.cookieEnabledName, true);
-
-        googleReCaptchaBasePlugin._onFormSubmitCallback();
-        expect(googleReCaptchaBasePlugin._checkCookieAccepted()).toEqual(true);
-        expect(googleReCaptchaBasePlugin.cookieConfiguration[0].isOpening).toEqual(false);
-
-        CookieStorageHelper.removeItem(googleReCaptchaBasePlugin.cookieEnabledName);
-
-        googleReCaptchaBasePlugin._onFormSubmitCallback();
-        expect(googleReCaptchaBasePlugin._checkCookieAccepted()).toEqual(false);
-        expect(googleReCaptchaBasePlugin.cookieConfiguration[0].isOpening).toEqual(true);
-    });
-
     test('onFormSubmit is called _onFormSubmitCallback', () => {
         googleReCaptchaBasePlugin.onFormSubmit = jest.fn();
 
@@ -102,7 +74,6 @@ describe('GoogleReCaptchaBasePlugin tests', () => {
         expect(googleReCaptchaBasePlugin._formSubmitting).toEqual(true);
 
         googleReCaptchaBasePlugin._formSubmitting = false;
-        CookieStorageHelper.setItem(googleReCaptchaBasePlugin.cookieEnabledName, true);
 
         googleReCaptchaBasePlugin._onFormSubmitCallback();
         expect(googleReCaptchaBasePlugin.onFormSubmit).toHaveBeenCalled();

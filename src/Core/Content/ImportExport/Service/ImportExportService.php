@@ -8,6 +8,7 @@ use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLog
 use Shopware\Core\Content\ImportExport\Exception\FileNotReadableException;
 use Shopware\Core\Content\ImportExport\Exception\ProcessingException;
 use Shopware\Core\Content\ImportExport\Exception\ProfileNotFoundException;
+use Shopware\Core\Content\ImportExport\Exception\ProfileWrongTypeException;
 use Shopware\Core\Content\ImportExport\Exception\UnexpectedFileTypeException;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
@@ -15,6 +16,7 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\User\UserEntity;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -73,6 +75,11 @@ class ImportExportService
         string $activity = ImportExportLogEntity::ACTIVITY_EXPORT
     ): ImportExportLogEntity {
         $profileEntity = $this->findProfile($context, $profileId);
+
+        if (Feature::isActive('FEATURE_NEXT_8097') && !\in_array($profileEntity->getType(), [ImportExportProfileEntity::TYPE_EXPORT, ImportExportProfileEntity::TYPE_IMPORT_EXPORT], true)) {
+            throw new ProfileWrongTypeException($profileEntity->getId(), $profileEntity->getType());
+        }
+
         if ($originalFileName === null) {
             $originalFileName = $this->generateFilename($profileEntity);
         }
@@ -87,17 +94,23 @@ class ImportExportService
         string $profileId,
         \DateTimeInterface $expireDate,
         UploadedFile $file,
-        array $config = []
+        array $config = [],
+        bool $dryRun = false
     ): ImportExportLogEntity {
         $profileEntity = $this->findProfile($context, $profileId);
+
+        if (Feature::isActive('FEATURE_NEXT_8097') && !\in_array($profileEntity->getType(), [ImportExportProfileEntity::TYPE_IMPORT, ImportExportProfileEntity::TYPE_IMPORT_EXPORT], true)) {
+            throw new ProfileWrongTypeException($profileEntity->getId(), $profileEntity->getType());
+        }
 
         $type = $this->detectType($file);
         if ($type !== $profileEntity->getFileType()) {
             throw new UnexpectedFileTypeException($file->getClientMimeType(), $profileEntity->getFileType());
         }
 
-        $fileEntity = $this->storeFile($context, $expireDate, $file->getPathname(), $file->getClientOriginalName(), 'import');
-        $logEntity = $this->createLog($context, 'import', $fileEntity, $profileEntity, $config);
+        $fileEntity = $this->storeFile($context, $expireDate, $file->getPathname(), $file->getClientOriginalName(), ImportExportLogEntity::ACTIVITY_IMPORT);
+        $activity = $dryRun ? ImportExportLogEntity::ACTIVITY_DRYRUN : ImportExportLogEntity::ACTIVITY_IMPORT;
+        $logEntity = $this->createLog($context, $activity, $fileEntity, $profileEntity, $config);
 
         return $logEntity;
     }
@@ -135,7 +148,7 @@ class ImportExportService
         return $progress;
     }
 
-    public function saveProgress(Progress $progress): void
+    public function saveProgress(Progress $progress, ?array $result = null): void
     {
         $logData = [
             'id' => $progress->getLogId(),
@@ -144,6 +157,9 @@ class ImportExportService
         ];
         if ($progress->getInvalidRecordsLogId()) {
             $logData['invalidRecordsLogId'] = $progress->getInvalidRecordsLogId();
+        }
+        if ($result) {
+            $logData['result'] = $result;
         }
 
         $context = Context::createDefaultContext();

@@ -12,14 +12,14 @@ Component.register('sw-category-sales-channel-card', {
     props: {
         category: {
             type: Object,
-            required: true
+            required: true,
         },
 
         isLoading: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     computed: {
@@ -33,6 +33,6 @@ Component.register('sw-category-sales-channel-card', {
 
         footerSalesChannels() {
             return this.category.footerSalesChannels;
-        }
-    }
+        },
+    },
 });

@@ -84,7 +84,7 @@ class StoreApiService extends ApiService {
     downloadPlugin(pluginName, unauthenticated = false, onlyDownload = false) {
         const headers = this.getBasicHeaders();
         const params = this.getBasicParams({
-            pluginName: pluginName
+            pluginName: pluginName,
         });
         if (unauthenticated) {
             params.unauthenticated = true;
@@ -114,7 +114,7 @@ class StoreApiService extends ApiService {
     downloadAndUpdatePlugin(pluginName, unauthenticated = false) {
         const headers = this.getBasicHeaders();
         const params = this.getBasicParams({
-            pluginName: pluginName
+            pluginName: pluginName,
         });
         if (unauthenticated) {
             params.unauthenticated = true;
@@ -144,7 +144,7 @@ class StoreApiService extends ApiService {
 
     getBasicParams(additionalParams = {}) {
         const basicParams = {
-            language: localStorage.getItem('sw-admin-locale')
+            language: localStorage.getItem('sw-admin-locale'),
         };
 
         return Object.assign({}, basicParams, additionalParams);

@@ -171,6 +171,37 @@ class ProductPageTest extends TestCase
         static::assertEquals(7, $matrix->getTotalReviewCount());
     }
 
+    public function testItLoadsPageWithProductCategoryAsActiveNavigation(): void
+    {
+        $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
+
+        $seoCategoryName = 'Fancy Category';
+
+        $catRepository = $this->getContainer()->get('category.repository');
+
+        $seoCategoryId = Uuid::randomHex();
+
+        $catRepository->create([[
+            'id' => $seoCategoryId,
+            'name' => $seoCategoryName,
+            'active' => true,
+            'parentId' => $context->getSalesChannel()->getNavigationCategoryId(),
+        ]], Context::createDefaultContext());
+
+        $product = $this->getRandomProduct($context, 1, false, [
+            'categories' => [
+                ['id' => $seoCategoryId],
+            ],
+        ]);
+
+        $request = new Request([], [], ['productId' => $product->getId()]);
+
+        $page = $this->getPageLoader()->load($request, $context);
+
+        static::assertEquals($seoCategoryName, $page->getHeader()->getNavigation()->getActive()->getName());
+        static::assertEquals($seoCategoryId, $page->getHeader()->getNavigation()->getActive()->getId());
+    }
+
     public function testItDoesLoadACmsProductDetailPage(): void
     {
         $context = $this->createSalesChannelContextWithNavigation();

@@ -57,6 +57,7 @@
             <argument type="service" id="Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogDefinition" />
             <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter" />
             <argument type="service" id="Shopware\Core\Content\ImportExport\ImportExportFactory"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
@@ -121,8 +122,42 @@
             <tag name="shopware.import_export.entity_serializer" priority="-400"/>
         </service>
 
+        <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\CountrySerializer">
+            <argument type="service" id="country.repository"/>
+
+            <tag name="shopware.import_export.entity_serializer" priority="-400"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\LanguageSerializer">
+            <argument type="service" id="language.repository"/>
+
+            <tag name="shopware.import_export.entity_serializer" priority="-400"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\CustomerSerializer">
+            <argument type="service" id="customer_group.repository"/>
+            <argument type="service" id="payment_method.repository"/>
+            <argument type="service" id="sales_channel.repository"/>
+
+            <tag name="shopware.import_export.entity_serializer" priority="-400"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\PromotionIndividualCodeSerializer">
+            <argument type="service" id="promotion_individual_code.repository"/>
+            <argument type="service" id="promotion.repository"/>
+
+            <tag name="shopware.import_export.entity_serializer" priority="-400"/>
+        </service>
+
         <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\ProductSerializer">
             <argument type="service" id="product_visibility.repository"/>
+            <argument type="service" id="sales_channel.repository"/>
+
+            <tag name="shopware.import_export.entity_serializer" priority="-400"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\ProductCrossSellingSerializer">
+            <argument type="service" id="product_cross_selling_assigned_products.repository"/>
 
             <tag name="shopware.import_export.entity_serializer" priority="-400"/>
         </service>
@@ -150,6 +185,7 @@
             <argument type="service" id="shopware.filesystem.private"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="import_export_log.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
 
             <argument type="tagged" tag="shopware.import_export.reader_factory"/>
             <argument type="tagged" tag="shopware.import_export.writer_factory"/>
@@ -185,7 +221,23 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
+        <service id="Shopware\Core\Content\ImportExport\Event\Subscriber\ProductCategoryPathsSubscriber">
+            <argument type="service" id="category.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\Sync\SyncService"/>
+
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Content\ImportExport\Event\Subscriber\ProductCriteriaSubscriber">
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ImportExport\Event\Subscriber\ProductVariantsSubscriber">
+            <argument type="service" id="Shopware\Core\Framework\Api\Sync\SyncService"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="property_group.repository"/>
+            <argument type="service" id="property_group_option.repository"/>
+
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -193,6 +245,8 @@
             <argument type="service" id="Shopware\Core\Content\ImportExport\Service\ImportExportService"/>
             <argument type="service" id="import_export_profile.repository"/>
             <argument type="service" id="Shopware\Core\Content\ImportExport\ImportExportFactory"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="shopware.filesystem.private"/>
 
             <tag name="console.command"/>
         </service>

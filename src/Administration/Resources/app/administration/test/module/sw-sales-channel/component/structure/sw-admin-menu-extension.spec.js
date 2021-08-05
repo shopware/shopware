@@ -3,6 +3,11 @@ import 'src/app/component/structure/sw-admin-menu';
 import 'src/module/sw-sales-channel/component/structure/sw-admin-menu-extension';
 import createMenuService from 'src/app/service/menu.service';
 
+// Turn off known errors
+import { missingGetListMethod } from 'src/../test/_helper_/allowedErrors';
+
+global.allowedErrors = [missingGetListMethod];
+
 const menuService = createMenuService(Shopware.Module);
 Shopware.Service().register('menuService', () => menuService);
 
@@ -36,7 +41,6 @@ function createWrapper(privileges = []) {
             }
         },
         methods: {
-            refreshApps: () => {}
         }
     });
 }

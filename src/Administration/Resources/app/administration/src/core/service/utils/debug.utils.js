@@ -1,6 +1,6 @@
 export default {
     warn,
-    error
+    error,
 };
 
 /**

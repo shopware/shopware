@@ -20,8 +20,8 @@ export default class PromotionCodeApiService extends ApiService {
         return this.httpClient.get(
             `/_action/${this.getApiBasePath()}/codes/generate-fixed`,
             {
-                headers
-            }
+                headers,
+            },
         ).then((response) => {
             return ApiService.handleResponse(response);
         });
@@ -40,8 +40,8 @@ export default class PromotionCodeApiService extends ApiService {
             `/_action/${this.getApiBasePath()}/codes/generate-individual`,
             {
                 params: { codePattern, amount },
-                headers
-            }
+                headers,
+            },
         ).then((response) => {
             return ApiService.handleResponse(response);
         });
@@ -60,11 +60,11 @@ export default class PromotionCodeApiService extends ApiService {
             `/_action/${this.getApiBasePath()}/codes/add-individual`,
             {
                 promotionId,
-                amount
+                amount,
             },
             {
-                headers
-            }
+                headers,
+            },
         ).then((response) => {
             return ApiService.handleResponse(response);
         });
@@ -85,11 +85,11 @@ export default class PromotionCodeApiService extends ApiService {
             {
                 promotionId,
                 codePattern,
-                amount
+                amount,
             },
             {
-                headers
-            }
+                headers,
+            },
         ).then((response) => {
             return ApiService.handleResponse(response);
         });
@@ -107,8 +107,8 @@ export default class PromotionCodeApiService extends ApiService {
             `/_action/${this.getApiBasePath()}/codes/preview`,
             {
                 params: { codePattern },
-                headers
-            }
+                headers,
+            },
         ).then((response) => {
             return ApiService.handleResponse(response);
         });

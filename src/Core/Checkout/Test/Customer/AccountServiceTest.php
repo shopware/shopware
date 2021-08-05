@@ -10,6 +10,8 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 
 class AccountServiceTest extends TestCase
 {
@@ -23,6 +25,30 @@ class AccountServiceTest extends TestCase
     protected function setUp(): void
     {
         $this->accountService = $this->getContainer()->get(AccountService::class);
+    }
+
+    public function testLogin(): void
+    {
+        $salesChannelContext = $this->createSalesChannelContext();
+        $customerId = $this->createCustomerOfSalesChannel($salesChannelContext->getSalesChannelId(), 'foo@bar.com');
+        $token = $this->accountService->login('foo@bar.com', $salesChannelContext);
+
+        $customer = $this->getCustomerFromToken($token, $salesChannelContext->getSalesChannelId());
+
+        static::assertSame('foo@bar.com', $customer->getEmail());
+        static::assertSame($customerId, $customer->getId());
+    }
+
+    public function testLoginById(): void
+    {
+        $salesChannelContext = $this->createSalesChannelContext();
+        $customerId = $this->createCustomerOfSalesChannel($salesChannelContext->getSalesChannelId(), 'foo@bar.com');
+        $token = $this->accountService->loginById($customerId, $salesChannelContext);
+
+        $customer = $this->getCustomerFromToken($token, $salesChannelContext->getSalesChannelId());
+
+        static::assertSame('foo@bar.com', $customer->getEmail());
+        static::assertSame($customerId, $customer->getId());
     }
 
     public function testGetCustomerByLogin(): void
@@ -108,6 +134,19 @@ class AccountServiceTest extends TestCase
         $customer2 = $this->accountService->getCustomerByLogin($email, 'shopware', $context2);
         static::assertInstanceOf(CustomerEntity::class, $customer2);
         static::assertEquals($context2->getSalesChannel()->getId(), $customer2->getSalesChannelId());
+    }
+
+    private function getCustomerFromToken(string $contextToken, string $salesChannelId): CustomerEntity
+    {
+        $salesChannelContextService = $this->getContainer()->get(SalesChannelContextService::class);
+        $context = $salesChannelContextService->get(
+            new SalesChannelContextServiceParameters($salesChannelId, $contextToken)
+        );
+
+        $customer = $context->getCustomer();
+        static::assertNotNull($customer);
+
+        return $customer;
     }
 
     private function createCustomerOfSalesChannel(string $salesChannelId, string $email, bool $boundToSalesChannel = true): string

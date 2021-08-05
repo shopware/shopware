@@ -6,13 +6,7 @@ use League\Flysystem\FilesystemInterface;
 use Padaliyajay\PHPAutoprefixer\Autoprefixer;
 use ScssPhp\ScssPhp\Compiler;
 use ScssPhp\ScssPhp\OutputStyle;
-use Shopware\Core\Content\Media\MediaCollection;
-use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedScriptsEvent;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
 use Shopware\Storefront\Event\ThemeCompilerEnrichScssVariablesEvent;
@@ -37,14 +31,16 @@ class ThemeCompiler implements ThemeCompilerInterface
 
     private FilesystemInterface $tempFilesystem;
 
-    private EntityRepositoryInterface $mediaRepository;
-
     /**
      * @var Package[]
      */
     private iterable $packages;
 
     private CacheInvalidator $logger;
+  
+    private AbstractThemePathBuilder $themePathBuilder;
+  
+    private string $projectDir;
 
     private Compiler $scssCompiler;
 
@@ -55,9 +51,10 @@ class ThemeCompiler implements ThemeCompilerInterface
         bool $debug,
         EventDispatcherInterface $eventDispatcher,
         ThemeFileImporterInterface $themeFileImporter,
-        EntityRepositoryInterface $mediaRepository,
         iterable $packages,
-        CacheInvalidator $logger
+        CacheInvalidator $logger,
+        AbstractThemePathBuilder $themePathBuilder,
+        string $projectDir
     ) {
         $this->filesystem = $filesystem;
         $this->tempFilesystem = $tempFilesystem;
@@ -65,9 +62,10 @@ class ThemeCompiler implements ThemeCompilerInterface
         $this->themeFileImporter = $themeFileImporter;
         $this->debug = $debug;
         $this->eventDispatcher = $eventDispatcher;
-        $this->mediaRepository = $mediaRepository;
         $this->packages = $packages;
         $this->logger = $logger;
+        $this->themePathBuilder = $themePathBuilder;
+        $this->projectDir = $projectDir;
 
         $this->scssCompiler = new Compiler();
         $this->scssCompiler->setImportPaths('');
@@ -81,7 +79,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         StorefrontPluginConfigurationCollection $configurationCollection,
         bool $withAssets = true
     ): void {
-        $themePrefix = self::getThemePrefix($salesChannelId, $themeId);
+        $themePrefix = $this->themePathBuilder->assemblePath($salesChannelId, $themeId);
         $outputPath = 'theme' . \DIRECTORY_SEPARATOR . $themePrefix;
 
         if ($withAssets && $this->filesystem->has($outputPath)) {
@@ -122,6 +120,9 @@ class ThemeCompiler implements ThemeCompilerInterface
         $this->logger->invalidate(['theme-metaData'], true);
     }
 
+    /**
+     * @deprecated tag:v6.5.0.0 - Use AbstractThemePathBuilder instead
+     */
     public static function getThemePrefix(string $salesChannelId, string $themeId): string
     {
         return md5($themeId . $salesChannelId);
@@ -147,6 +148,10 @@ class ThemeCompiler implements ThemeCompilerInterface
                 $this->copyAssets($config, $configurationCollection, $outputPath);
 
                 continue;
+            }
+
+            if ($asset[0] !== '/' && file_exists($this->projectDir . '/' . $asset)) {
+                $asset = $this->projectDir . '/' . $asset;
             }
 
             $assets = $this->themeFileImporter->getCopyBatchInputsForAssets($asset, $outputPath, $configuration);
@@ -222,7 +227,6 @@ class ThemeCompiler implements ThemeCompilerInterface
         }
 
         $variables = [];
-        $mediaIds = [];
         foreach ($config['fields'] as $key => $data) {
             if (!isset($data['value'])) {
                 continue;
@@ -244,40 +248,11 @@ class ThemeCompiler implements ThemeCompilerInterface
             }
 
             if (\in_array($data['type'], ['media', 'textarea'], true)) {
-                if ($data['type'] === 'media') {
-                    // Add id of media which needs to be resolved
-                    if (Uuid::isValid($data['value'])) {
-                        $mediaIds[$key] = $data['value'];
-                    }
-                }
-
                 $variables[$key] = '\'' . $data['value'] . '\'';
             } elseif ($data['type'] === 'switch' || $data['type'] === 'checkbox') {
                 $variables[$key] = (int) ($data['value']);
             } else {
                 $variables[$key] = $data['value'];
-            }
-        }
-
-        // Resolve media urls
-        if (\count($mediaIds) > 0) {
-            /** @var MediaCollection $medias */
-            $medias = $this->mediaRepository
-                ->search(
-                    new Criteria(array_values($mediaIds)),
-                    Context::createDefaultContext()
-                )
-                ->getEntities();
-
-            foreach ($mediaIds as $key => $mediaId) {
-                $media = $medias->get($mediaId);
-                if ($media === null) {
-                    unset($variables[$key]);
-
-                    continue;
-                }
-                /* @var MediaEntity $media */
-                $variables[$key] = '\'' . $media->getUrl() . '\'';
             }
         }
 

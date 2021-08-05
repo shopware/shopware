@@ -52,7 +52,8 @@
       "buttonSave": "Speichern",
       "helpTextAdvancedField": "Erweiterte Pattern-Definition: <br/>{Präfix}_{n}_{Suffix}<br/>'n' entspricht der definierten Startnummer<br/>('_' ist ein beliebiges Trennzeichen)<br/><br/>Verwendung von 'date' (PHP-Parameter): <br/>{date}:<br/>Internationales Datums-Format (YYYY-MM-DD)<br/>{date_dmy}:<br/>Benutzerdefiniertes Datums-Format (DD-MM-YY)<br/><br/>usw.",
       "errorSalesChannelNeededMessage": "Kein Verkaufskanal ausgewählt. Bitte wähle mindestens einen Verkaufskanal.",
-      "errorPatternNeededMessage": "Kein Pattern angegeben. Bitte gib mindestens eine Startnummer an."
+      "errorPatternNeededMessage": "Kein Pattern angegeben. Bitte gib mindestens eine Startnummer an.",
+      "infoStartDecrementMessage": "Änderungen der Startnummer werden nur wirksam, wenn die Startnummer größer als die aktuelle Nummer ist."
     }
   },
   "sw-privileges": {

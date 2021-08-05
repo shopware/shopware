@@ -9,13 +9,13 @@ Component.register('sw-order-create-details-body', {
         // FIXME: add required attribute and or default value
         // eslint-disable-next-line vue/require-default-prop
         customer: {
-            type: Object
+            type: Object,
         },
 
         isCustomerActive: {
             type: Boolean,
-            default: false
-        }
+            default: false,
+        },
     },
 
     computed: {
@@ -26,7 +26,7 @@ Component.register('sw-order-create-details-body', {
 
             set(email) {
                 if (this.customer) this.customer.email = email;
-            }
+            },
         },
 
         phoneNumber: {
@@ -36,7 +36,7 @@ Component.register('sw-order-create-details-body', {
 
             set(phoneNumber) {
                 if (this.customer) this.customer.defaultBillingAddress.phoneNumber = phoneNumber;
-            }
+            },
         },
 
         billingAddress: {
@@ -54,7 +54,7 @@ Component.register('sw-order-create-details-body', {
 
             set(billingAddress) {
                 if (this.customer) this.customer.billingAddress = billingAddress;
-            }
+            },
         },
 
         shippingAddress: {
@@ -72,12 +72,12 @@ Component.register('sw-order-create-details-body', {
 
             set(shippingAddress) {
                 if (this.customer) this.customer.shippingAddress = shippingAddress;
-            }
+            },
         },
 
         isAddressIdentical() {
             return this.shippingAddress.id === this.billingAddress.id;
-        }
+        },
     },
 
     methods: {
@@ -87,6 +87,6 @@ Component.register('sw-order-create-details-body', {
 
         onEditShippingAddress() {
             this.$emit('on-edit-shipping-address');
-        }
-    }
+        },
+    },
 });

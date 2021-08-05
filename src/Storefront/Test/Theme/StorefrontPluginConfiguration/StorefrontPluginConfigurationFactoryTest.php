@@ -30,6 +30,8 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
         $theme = $this->getBundle('TestTheme', $basePath, true);
         $config = $this->configFactory->createFromBundle($theme);
 
+        $basePath = $this->stripProjectDir($basePath);
+
         static::assertEquals('TestTheme', $config->getTechnicalName());
         static::assertEquals($basePath . '/Resources', $config->getBasePath());
         static::assertTrue($config->getIsTheme());
@@ -75,6 +77,8 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
         $basePath = realpath(__DIR__ . '/../fixtures/SimplePlugin');
         $bundle = $this->getBundle('SimplePlugin', $basePath);
 
+        $basePath = $this->stripProjectDir($basePath);
+
         $config = $this->configFactory->createFromBundle($bundle);
 
         $this->assertFileCollection([
@@ -114,15 +118,15 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
                     $this->path = $basePath;
                 }
             };
-        } else {
-            return new class($name, $basePath) extends Bundle {
-                public function __construct($name, $basePath)
-                {
-                    $this->name = $name;
-                    $this->path = $basePath;
-                }
-            };
         }
+
+        return new class($name, $basePath) extends Bundle {
+            public function __construct($name, $basePath)
+            {
+                $this->name = $name;
+                $this->path = $basePath;
+            }
+        };
     }
 
     private function assertFileCollection(array $expected, FileCollection $files): void
@@ -133,5 +137,16 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
         }
 
         static::assertEquals($expected, $flatFiles);
+    }
+
+    private function stripProjectDir(string $path): string
+    {
+        $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
+
+        if (\strpos($path, $projectDir) === 0) {
+            return substr($path, \strlen($projectDir) + 1);
+        }
+
+        return $path;
     }
 }

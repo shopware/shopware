@@ -44,6 +44,11 @@ class ProductExportDefinition extends EntityDefinition
         return '6.1.0.0';
     }
 
+    public function getHydratorClass(): string
+    {
+        return ProductExportHydrator::class;
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
@@ -61,9 +66,9 @@ class ProductExportDefinition extends EntityDefinition
             (new BoolField('generate_by_cronjob', 'generateByCronjob'))->addFlags(new Required()),
             new DateTimeField('generated_at', 'generatedAt'),
             (new IntField('interval', 'interval'))->addFlags(new Required()),
-            (new LongTextField('header_template', 'headerTemplate'))->addFlags(new AllowHtml()),
-            (new LongTextField('body_template', 'bodyTemplate'))->addFlags(new AllowHtml()),
-            (new LongTextField('footer_template', 'footerTemplate'))->addFlags(new AllowHtml()),
+            (new LongTextField('header_template', 'headerTemplate'))->addFlags(new AllowHtml(false)),
+            (new LongTextField('body_template', 'bodyTemplate'))->addFlags(new AllowHtml(false)),
+            (new LongTextField('footer_template', 'footerTemplate'))->addFlags(new AllowHtml(false)),
             (new BoolField('paused_schedule', 'pausedSchedule')),
             new ManyToOneAssociationField('productStream', 'product_stream_id', ProductStreamDefinition::class, 'id', false),
             new ManyToOneAssociationField('storefrontSalesChannel', 'storefront_sales_channel_id', SalesChannelDefinition::class, 'id', false),

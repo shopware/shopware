@@ -1,8 +1,5 @@
 {% block sw_settings_captcha_select_v2 %}
-<sw-container
-    v-if="feature.isActive('FEATURE_NEXT_12455')"
-    class="sw-settings-captcha-select-v2"
->
+<sw-container class="sw-settings-captcha-select-v2">
 
     {% block sw_settings_captcha_select_v2_multi_select %}
     <sw-multi-select
@@ -17,6 +14,16 @@
         v-if="currentValue.googleReCaptchaV2.isActive"
         class="sw-settings-captcha-select-v2__google-recaptcha-v2"
     >
+
+        {% block sw_settings_captcha_select_v2_google_recaptcha_v2_description %}
+        <p class="sw-settings-captcha-select-v2__description sw-settings-captcha-select-v2__google-recaptcha-v2-description">
+            {{ $tc('sw-settings-basic-information.captcha.label.googleReCaptchaV2CheckboxDescription') }}
+        </p>
+
+        <p class="sw-settings-captcha-select-v2__description sw-settings-captcha-select-v2__google-recaptcha-v2-description">
+            {{ $tc('sw-settings-basic-information.captcha.label.googleReCaptchaV2InvisibleDescription') }}
+        </p>
+        {% endblock %}
 
         {% block sw_settings_captcha_select_v2_google_recaptcha_v2_site_key %}
         <sw-text-field
@@ -52,7 +59,14 @@
         class="sw-settings-captcha-select-v2__google-recaptcha-v3"
     >
 
+        {% block sw_settings_captcha_select_v2_google_recaptcha_v3_description %}
+        <p class="sw-settings-captcha-select-v2__description sw-settings-captcha-select-v2__google-recaptcha-v3-description">
+            {{ $tc('sw-settings-basic-information.captcha.label.googleReCaptchaV3Description') }}
+        </p>
+        {% endblock %}
+
         {% block sw_settings_captcha_select_v2_google_recaptcha_v3_site_key %}
+
         <sw-text-field
             v-model="currentValue.googleReCaptchaV3.config.siteKey"
             name="googleReCaptchaV3SiteKey"
@@ -72,7 +86,12 @@
         <sw-number-field
             v-model="currentValue.googleReCaptchaV3.config.thresholdScore"
             name="googleReCaptchaV3ThresholdScore"
+            number-type="float"
+            :min="0"
+            :max="1"
+            :step="0.1"
             :label="$tc('sw-settings-basic-information.captcha.label.googleReCaptchaV3ThresholdScore')"
+            :help-text="$tc('sw-settings-basic-information.captcha.label.googleReCaptchaV3DescriptionThresholdScore')"
         />
         {% endblock %}
 

@@ -123,6 +123,7 @@ class PaymentMethodIndexerTest extends TestCase
             ->getEntities();
 
         $creditCardPayment = $payments->get($creditCardPaymentId);
+        static::assertNotNull($creditCardPayment);
         static::assertEquals('Credit card', $creditCardPayment->getDistinguishableName());
 
         /** @var PaymentMethodEntity $invoicePaymentByShopwarePlugin */
@@ -157,6 +158,7 @@ class PaymentMethodIndexerTest extends TestCase
             ->getEntities();
 
         $creditCardPayment = $payments->get($creditCardPaymentId);
+        static::assertNotNull($creditCardPayment);
         static::assertEquals('Kreditkarte', $creditCardPayment->getDistinguishableName());
 
         /** @var PaymentMethodEntity $invoicePaymentByShopwarePlugin */

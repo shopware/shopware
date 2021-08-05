@@ -313,7 +313,7 @@ class Migration1599134496FixImportExportProfilesForGermanLanguageTest extends Te
 
         $this->connection->exec('DELETE FROM `language`');
 
-        $insertSql = <<<SQL
+        $insertSql = <<<'SQL'
             INSERT INTO `language` (`id`, `name`, `locale_id`, `translation_code_id`, `created_at`)
             VALUES (:id, :name, :localeId, :translationCodeId, NOW())
 SQL;

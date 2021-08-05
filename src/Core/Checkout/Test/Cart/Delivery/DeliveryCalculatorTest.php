@@ -19,11 +19,11 @@ use Shopware\Core\Checkout\Cart\LineItem\CartDataCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceEntity;
 use Shopware\Core\Checkout\Shipping\Cart\Error\ShippingMethodBlockedError;
@@ -1301,10 +1301,9 @@ class DeliveryCalculatorTest extends TestCase
         $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
 
         $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
-        $customerGroup = new CustomerGroupEntity();
-        $customerGroup->setDisplayGross(true);
 
-        $context->method('getCurrentCustomerGroup')->willReturn($customerGroup);
+        $context->expects(static::atLeastOnce())->method('getTaxState')->willReturn(CartPrice::TAX_STATE_GROSS);
+
         $context->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
 
         $context->expects(static::atLeastOnce())->method('getRuleIds')->willReturn([]);
@@ -1355,13 +1354,13 @@ class DeliveryCalculatorTest extends TestCase
         $shippingMethod->setPrices(new ShippingMethodPriceCollection([$price]));
 
         $context = $this->createMock(SalesChannelContext::class);
-        $customerGroup = new CustomerGroupEntity();
-        $customerGroup->setDisplayGross(false);
+
+        $context->expects(static::atLeastOnce())->method('getTaxState')->willReturn(CartPrice::TAX_STATE_NET);
+
         $baseContext = $this->createMock(Context::class);
         $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
 
         $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
-        $context->expects(static::atLeastOnce())->method('getCurrentCustomerGroup')->willReturn($customerGroup);
         $context->expects(static::atLeastOnce())->method('getRuleIds')->willReturn([]);
         $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
         $context->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));

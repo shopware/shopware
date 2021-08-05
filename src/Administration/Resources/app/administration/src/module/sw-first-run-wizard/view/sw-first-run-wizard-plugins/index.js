@@ -15,7 +15,7 @@ Component.register('sw-first-run-wizard-plugins', {
             categories: [],
             selectedRegion: null,
             selectedCategory: null,
-            isLoading: false
+            isLoading: false,
         };
     },
 
@@ -43,7 +43,7 @@ Component.register('sw-first-run-wizard-plugins', {
 
         showNotCategoryLead() {
             return this.notCategoryLead.length > 0;
-        }
+        },
 
     },
 
@@ -70,7 +70,7 @@ Component.register('sw-first-run-wizard-plugins', {
                     position: 'left',
                     variant: null,
                     action: 'sw.first.run.wizard.index.markets',
-                    disabled: false
+                    disabled: false,
                 },
                 {
                     key: 'next',
@@ -78,8 +78,8 @@ Component.register('sw-first-run-wizard-plugins', {
                     position: 'right',
                     variant: 'primary',
                     action: 'sw.first.run.wizard.index.shopware.account',
-                    disabled: false
-                }
+                    disabled: false,
+                },
             ];
 
             this.$emit('buttons-update', buttonConfig);
@@ -121,7 +121,7 @@ Component.register('sw-first-run-wizard-plugins', {
             this.recommendationsService.getRecommendations({
                 language,
                 region,
-                category
+                category,
             }).then((response) => {
                 this.plugins = response.items;
             }).finally(() => {
@@ -134,7 +134,7 @@ Component.register('sw-first-run-wizard-plugins', {
             this.isLoading = true;
 
             this.recommendationsService.getRecommendationRegions({
-                language
+                language,
             }).then((response) => {
                 this.regions = response.items;
             }).finally(() => {
@@ -144,6 +144,6 @@ Component.register('sw-first-run-wizard-plugins', {
 
         reloadRecommendations() {
             this.getRecommendations();
-        }
-    }
+        },
+    },
 });

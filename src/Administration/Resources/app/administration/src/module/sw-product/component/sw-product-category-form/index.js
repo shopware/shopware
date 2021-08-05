@@ -12,22 +12,22 @@ Component.register('sw-product-category-form', {
     inject: ['repositoryFactory', 'systemConfigApiService', 'feature'],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     props: {
         allowEdit: {
             type: Boolean,
             required: false,
-            default: true
-        }
+            default: true,
+        },
     },
 
     data() {
         return {
             displayVisibilityDetail: false,
             multiSelectVisible: true,
-            salesChannel: null
+            salesChannel: null,
         };
     },
 
@@ -36,17 +36,17 @@ Component.register('sw-product-category-form', {
             'product',
             'parentProduct',
             'localMode',
-            'loading'
+            'loading',
         ]),
 
         ...mapGetters('swProductDetail', [
             'isChild',
-            'showModeSetting'
+            'showModeSetting',
         ]),
 
         ...mapPropertyErrors('product', [
             'tags',
-            'active'
+            'active',
         ]),
 
         hasSelectedVisibilities() {
@@ -62,7 +62,7 @@ Component.register('sw-product-category-form', {
 
         salesChannelRepository() {
             return this.repositoryFactory.create('sales_channel');
-        }
+        },
     },
 
     created() {
@@ -75,7 +75,7 @@ Component.register('sw-product-category-form', {
                 '/sales-channel',
                 'sales_channel',
                 Shopware.Context.api,
-                new Criteria()
+                new Criteria(),
             );
 
             if (this.feature.isActive('FEATURE_NEXT_12437')) {
@@ -100,7 +100,7 @@ Component.register('sw-product-category-form', {
                     productVersionId,
                     salesChannelId,
                     salesChannel,
-                    visibility
+                    visibility,
                 });
 
                 this.product.visibilities.push(visibilities);
@@ -141,7 +141,7 @@ Component.register('sw-product-category-form', {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-product.visibility.errorMessage')
+                        message: this.$tc('sw-product.visibility.errorMessage'),
                     });
                 });
         },
@@ -161,10 +161,10 @@ Component.register('sw-product-category-form', {
                 visibility: visibility[salesChannel.id],
                 productId: this.product.id,
                 salesChannelId: salesChannel.id,
-                salesChannel: salesChannel
+                salesChannel: salesChannel,
             });
 
             return visibilities;
-        }
-    }
+        },
+    },
 });

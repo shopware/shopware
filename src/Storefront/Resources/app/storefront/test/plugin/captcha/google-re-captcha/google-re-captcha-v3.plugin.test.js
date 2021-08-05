@@ -1,4 +1,3 @@
-import CookieStorageHelper from 'src/helper/storage/cookie-storage.helper';
 import GoogleReCaptchaV3Plugin from 'src/plugin/captcha/google-re-captcha/google-re-captcha-v3.plugin';
 
 describe('GoogleReCaptchaV3Plugin tests', () => {
@@ -36,8 +35,6 @@ describe('GoogleReCaptchaV3Plugin tests', () => {
         googleReCaptchaV3Plugin = new GoogleReCaptchaV3Plugin(mockElement, {
             grecaptchaInputSelector: '.grecaptcha_v3-input'
         });
-
-        CookieStorageHelper.setItem(googleReCaptchaV3Plugin.cookieEnabledName, true);
     });
 
     afterEach(() => {

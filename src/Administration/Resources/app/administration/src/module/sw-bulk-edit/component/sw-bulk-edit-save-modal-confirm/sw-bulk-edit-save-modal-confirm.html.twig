@@ -1,0 +1,13 @@
+{% block sw_bulk_edit_save_modal_confirm %}
+<div class="sw-bulk-edit-save-modal-confirm">
+    <p class="sw-bulk-edit-save-modal__help-text">
+        {{ $tc('sw-bulk-edit.modal.confirm.description', itemTotal, {itemCount: itemTotal}) }}
+    </p>
+    <sw-alert
+        variant="warning"
+        class="sw-bulk-edit-save-modal__warning"
+    >
+        {{ $tc('sw-bulk-edit.modal.warningText') }}
+    </sw-alert>
+</div>
+{% endblock %}

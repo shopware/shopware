@@ -49,8 +49,13 @@ describe('Product: Test ACL privileges', () => {
         cy.get('.sw-product-detail__tab-specifications')
             .scrollIntoView()
             .click();
-        cy.get('.sw-product-detail-properties__empty-state')
-            .should('be.visible');
+
+        cy.onlyOnFeature('FEATURE_NEXT_12437', () => {
+            cy.get('.sw-product-properties').should('be.visible');
+        });
+        cy.skipOnFeature('FEATURE_NEXT_12437', () => {
+            cy.get('.sw-empty-state').should('be.visible');
+        });
 
         cy.get('.sw-product-detail__tab-variants')
             .scrollIntoView()
@@ -61,7 +66,7 @@ describe('Product: Test ACL privileges', () => {
         cy.get('.sw-product-detail__tab-cross-selling')
             .scrollIntoView()
             .click();
-        cy.get('.sw-product-detail-cross-selling__empty-state-inner')
+        cy.get('.sw-empty-state')
             .should('be.visible');
     });
 
@@ -69,8 +74,8 @@ describe('Product: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'patch'
+            url: `${Cypress.env('apiPath')}/_action/sync`,
+            method: 'post'
         }).as('saveProduct');
 
         const page = new ProductPageObject();
@@ -103,7 +108,7 @@ describe('Product: Test ACL privileges', () => {
 
         // Verify updated product
         cy.wait('@saveProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
+            expect(xhr).to.have.property('status', 200);
         });
 
         cy.get(page.elements.smartBarBack).click();
@@ -114,7 +119,7 @@ describe('Product: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: `${Cypress.env('apiPath')}/product`,
+            url: `${Cypress.env('apiPath')}/_action/sync`,
             method: 'post'
         }).as('saveProduct');
         cy.route({
@@ -167,7 +172,7 @@ describe('Product: Test ACL privileges', () => {
         // Save product
         cy.get(page.elements.productSaveAction).click();
         cy.wait('@saveProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
+            expect(xhr).to.have.property('status', 200);
         });
         cy.get(page.elements.smartBarBack).click();
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)

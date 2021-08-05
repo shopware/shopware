@@ -30,7 +30,7 @@ export default class ViewportDetection {
             Debouncer.debounce(this._onResize.bind(this), RESIZE_DEBOUNCE_TIME),
             {
                 capture: true,
-                passive: true
+                passive: true,
             }
         );
     }
@@ -103,7 +103,7 @@ export default class ViewportDetection {
      */
     _dispatchViewportEvent(eventName) {
         document.$emitter.publish(eventName, {
-            previousViewport: this.previousViewport
+            previousViewport: this.previousViewport,
         });
     }
 

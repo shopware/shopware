@@ -20,25 +20,25 @@ Component.extend('sw-select-number-field', 'sw-select-field', {
 
     model: {
         prop: 'value',
-        event: 'change'
+        event: 'change',
     },
 
     props: {
         value: {
             type: Number,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
         return {
-            currentValue: Number(this.value)
+            currentValue: Number(this.value),
         };
     },
 
     watch: {
-        value() { this.currentValue = Number(this.value); }
+        value() { this.currentValue = Number(this.value); },
     },
 
     methods: {
@@ -50,6 +50,6 @@ Component.extend('sw-select-number-field', 'sw-select-field', {
             }
 
             this.$emit('change', this.currentValue);
-        }
-    }
+        },
+    },
 });

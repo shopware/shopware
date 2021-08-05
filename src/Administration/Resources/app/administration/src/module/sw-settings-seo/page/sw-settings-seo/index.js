@@ -7,7 +7,7 @@ Component.register('sw-settings-seo', {
 
     metaInfo() {
         return {
-            title: this.$createTitle()
+            title: this.$createTitle(),
         };
     },
 
@@ -15,6 +15,6 @@ Component.register('sw-settings-seo', {
         onClickSave() {
             this.$refs.seoUrlTemplateCard.onClickSave();
             this.$refs.systemConfig.saveAll();
-        }
-    }
+        },
+    },
 });

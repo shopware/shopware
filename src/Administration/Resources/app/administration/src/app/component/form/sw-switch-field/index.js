@@ -20,7 +20,7 @@ Component.extend('sw-switch-field', 'sw-checkbox-field', {
         noMarginTop: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         size: {
@@ -30,8 +30,8 @@ Component.extend('sw-switch-field', 'sw-checkbox-field', {
             validValues: ['small', 'medium', 'default'],
             validator(val) {
                 return ['small', 'medium', 'default'].includes(val);
-            }
-        }
+            },
+        },
     },
 
     computed: {
@@ -40,16 +40,16 @@ Component.extend('sw-switch-field', 'sw-checkbox-field', {
                 {
                     'sw-field--switch-bordered': this.bordered,
                     'sw-field--switch-no-margin-top': this.noMarginTop,
-                    ...this.swCheckboxFieldClasses
+                    ...this.swCheckboxFieldClasses,
                 },
-                `sw-field--${this.size}`
+                `sw-field--${this.size}`,
             ];
-        }
+        },
     },
 
     methods: {
         onInheritanceRestore(event) {
             this.$emit('inheritance-restore', event);
-        }
-    }
+        },
+    },
 });

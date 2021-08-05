@@ -11,8 +11,8 @@ Component.register('sw-product-visibility-detail', {
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
@@ -20,14 +20,14 @@ Component.register('sw-product-visibility-detail', {
             items: [],
             page: 1,
             limit: 10,
-            total: 0
+            total: 0,
         };
     },
 
     computed: {
         ...mapState('swProductDetail', [
-            'product'
-        ])
+            'product',
+        ]),
     },
 
     created() {
@@ -51,6 +51,6 @@ Component.register('sw-product-visibility-detail', {
 
         changeVisibilityValue(event, item) {
             item.visibility = Number(event);
-        }
-    }
+        },
+    },
 });

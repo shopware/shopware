@@ -17,7 +17,7 @@ Component.extend('sw-condition-goods-price', 'sw-condition-base', {
 
     data() {
         return {
-            showFilterModal: false
+            showFilterModal: false,
         };
     },
 
@@ -34,13 +34,13 @@ Component.extend('sw-condition-goods-price', 'sw-condition-base', {
             set(amount) {
                 this.ensureValueExist();
                 this.condition.value = { ...this.condition.value, amount };
-            }
+            },
         },
 
         ...mapPropertyErrors('condition', ['value.operator', 'value.amount']),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueAmountError;
-        }
-    }
+        },
+    },
 });

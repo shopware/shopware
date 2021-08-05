@@ -1,9 +1,9 @@
 @import "~scss/variables";
 
 .sw-import-export-edit-profile-modal-mapping {
+    display: flex;
+    flex-direction: column;
     border-top: 1px solid $color-gray-300;
-    max-height: 300px;
-    margin-top: 30px;
 
     &__toolbar {
         z-index: 10;
@@ -17,5 +17,18 @@
             flex-basis: 100%;
             margin-right: 16px;
         }
+    }
+
+    &__grid,
+    &__empty-state {
+        flex-grow: 1;
+    }
+
+    .sw-data-grid__cell-content .sw-field--switch {
+        margin-top: 5px;
+    }
+
+    &__default-value-switch {
+        margin-right: 12px;
     }
 }

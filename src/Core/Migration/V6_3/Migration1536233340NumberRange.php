@@ -14,7 +14,7 @@ class Migration1536233340NumberRange extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             CREATE TABLE `number_range` (
               `id` BINARY(16) NOT NULL,
               `type_id` BINARY(16) NOT NULL,
@@ -28,7 +28,7 @@ class Migration1536233340NumberRange extends MigrationStep
 SQL;
         $connection->executeUpdate($sql);
 
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             CREATE TABLE `number_range_translation` (
               `number_range_id` BINARY(16) NOT NULL,
               `name` VARCHAR(64) NULL,
@@ -47,7 +47,7 @@ SQL;
 SQL;
         $connection->executeUpdate($sql);
 
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             CREATE TABLE `number_range_state` (
               `id` BINARY(16) NOT NULL,
               `number_range_id` BINARY(16) NOT NULL,
@@ -63,7 +63,7 @@ SQL;
         // we can force MySQL to expect a Dependency here
         $connection->executeUpdate($sql);
 
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             CREATE TABLE `number_range_type` (
               `id` BINARY(16) NOT NULL,
               `technical_name` VARCHAR(64),
@@ -77,7 +77,7 @@ SQL;
 
         $connection->executeUpdate($sql);
 
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             CREATE TABLE `number_range_type_translation` (
               `number_range_type_id` BINARY(16) NOT NULL,
               `language_id` BINARY(16) NOT NULL,
@@ -96,7 +96,7 @@ SQL;
 
         $connection->executeUpdate($sql);
 
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             CREATE TABLE `number_range_sales_channel` (
               `id` BINARY(16) NOT NULL,
               `number_range_id` BINARY(16) NOT NULL,

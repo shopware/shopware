@@ -9,16 +9,16 @@ Component.register('sw-base-filter', {
     props: {
         title: {
             type: String,
-            required: true
+            required: true,
         },
         showResetButton: {
             type: Boolean,
-            required: true
+            required: true,
         },
         active: {
             type: Boolean,
-            required: true
-        }
+            required: true,
+        },
     },
 
     watch: {
@@ -26,12 +26,12 @@ Component.register('sw-base-filter', {
             if (!value) {
                 this.resetFilter();
             }
-        }
+        },
     },
 
     methods: {
         resetFilter() {
             this.$emit('filter-reset');
-        }
-    }
+        },
+    },
 });

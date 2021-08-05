@@ -46,6 +46,9 @@ class LastNameRule extends Rule
             case Rule::OPERATOR_NEQ:
                 return strcasecmp($this->lastName, $customer->getLastName()) !== 0;
 
+            case Rule::OPERATOR_EMPTY:
+                return empty(trim($customer->getLastName()));
+
             default:
                 throw new UnsupportedOperatorException($this->operator, self::class);
         }
@@ -53,10 +56,20 @@ class LastNameRule extends Rule
 
     public function getConstraints(): array
     {
-        return [
-            'lastName' => [new NotBlank(), new Type('string')],
-            'operator' => [new NotBlank(), new Choice([Rule::OPERATOR_EQ, Rule::OPERATOR_NEQ])],
+        $constraints = [
+            'operator' => [
+                new NotBlank(),
+                new Choice([Rule::OPERATOR_EQ, Rule::OPERATOR_NEQ, Rule::OPERATOR_EMPTY]),
+            ],
         ];
+
+        if ($this->operator === self::OPERATOR_EMPTY) {
+            return $constraints;
+        }
+
+        $constraints['lastName'] = [new NotBlank(), new Type('string')];
+
+        return $constraints;
     }
 
     public function getName(): string

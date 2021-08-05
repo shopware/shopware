@@ -14,6 +14,7 @@
             <argument type="service" id="Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory"/>
             <argument>%kernel.shopware_version%</argument>
             <argument type="service" id="Symfony\Component\Messenger\MessageBusInterface"/>
+            <argument>%shopware.admin_worker.enable_admin_worker%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\Webhook\WebhookCacheClearer">
@@ -42,8 +43,6 @@
 
         <service id="Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition">
             <tag name="shopware.entity.definition"/>
-
-            <tag name="shopware.feature" flag="FEATURE_NEXT_14363"/>
         </service>
 
         <service id="Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector">
@@ -53,12 +52,10 @@
 
         <service id="Shopware\Core\Framework\Webhook\Handler\WebhookEventMessageHandler">
             <argument type="service" id="shopware.app_system.guzzle"/>
-            <argument type="service" id="app.repository"/>
             <argument type="service" id="webhook.repository"/>
             <argument type="service" id="webhook_event_log.repository"/>
 
             <tag name="messenger.message_handler"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_14363"/>
         </service>
 
         <service id="Shopware\Core\Framework\Webhook\Subscriber\RetryWebhookMessageFailedSubscriber">
@@ -67,7 +64,6 @@
             <argument type="service" id="webhook_event_log.repository"/>
 
             <tag name="kernel.event_subscriber"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_14363"/>
         </service>
     </services>
 </container>

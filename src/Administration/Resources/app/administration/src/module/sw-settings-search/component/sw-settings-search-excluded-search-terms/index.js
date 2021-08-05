@@ -9,25 +9,25 @@ Component.register('sw-settings-search-excluded-search-terms', {
     inject: [
         'excludedSearchTermService',
         'repositoryFactory',
-        'acl'
+        'acl',
     ],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     props: {
         searchConfigs: {
             type: Object,
             required: false,
-            default: null
+            default: null,
         },
 
         isExcludedTermsLoading: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
@@ -41,7 +41,7 @@ Component.register('sw-settings-search-excluded-search-terms', {
             searchTerm: '',
             isLoading: false,
             isAddingItem: false,
-            responseMessage: ''
+            responseMessage: '',
         };
     },
 
@@ -55,15 +55,15 @@ Component.register('sw-settings-search-excluded-search-terms', {
                 property: 'value',
                 label: 'sw-settings-search.generalTab.textColumnSearchTerm',
                 inlineEdit: 'string',
-                sortable: false
+                sortable: false,
             }];
-        }
+        },
     },
 
     watch: {
         searchConfigs() {
             this.createdComponent();
-        }
+        },
     },
 
     created() {
@@ -106,6 +106,8 @@ Component.register('sw-settings-search-excluded-search-terms', {
             this.renderComponent();
 
             this.items.unshift({ id: null, value: '' });
+            this.$refs.dataGrid.onDbClickCell(this.items[0]);
+            this.$emit('edit-change', true);
         },
 
         renderComponent() {
@@ -185,7 +187,7 @@ Component.register('sw-settings-search-excluded-search-terms', {
             // Make sure value is not null
             if (term.value === '') {
                 this.createNotificationError({
-                    message: this.$tc('sw-settings-search.notification.excludedTermRequired')
+                    message: this.$tc('sw-settings-search.notification.excludedTermRequired'),
                 });
                 this.renderComponent();
                 return;
@@ -198,7 +200,7 @@ Component.register('sw-settings-search-excluded-search-terms', {
             });
             if (isExists) {
                 this.createNotificationError({
-                    message: this.$tc('sw-settings-search.notification.excludedTermAlreadyExists')
+                    message: this.$tc('sw-settings-search.notification.excludedTermAlreadyExists'),
                 });
                 this.renderComponent();
                 return;
@@ -229,6 +231,7 @@ Component.register('sw-settings-search-excluded-search-terms', {
 
         onCancelEdit() {
             this.renderComponent();
+            this.$emit('edit-change', false);
         },
 
         onBulkDeleteExcludedTerm() {
@@ -241,14 +244,15 @@ Component.register('sw-settings-search-excluded-search-terms', {
             return this.searchRepository.save(this.searchConfigs)
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.responseMessage
+                        message: this.responseMessage,
                     });
                     this.isAddingItem = false;
                     this.renderComponent();
+                    this.$emit('edit-change', false);
                 })
                 .catch((error) => {
                     this.createNotificationError({
-                        message: error
+                        message: error,
                     });
                 })
                 .finally(() => {
@@ -260,15 +264,15 @@ Component.register('sw-settings-search-excluded-search-terms', {
             this.excludedSearchTermService.resetExcludedSearchTerm()
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-settings-search.notification.resetToDefaultExcludedTermSuccess')
+                        message: this.$tc('sw-settings-search.notification.resetToDefaultExcludedTermSuccess'),
                     });
                     this.$emit('data-load');
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-search.notification.resetToDefaultExcludedTermError')
+                        message: this.$tc('sw-settings-search.notification.resetToDefaultExcludedTermError'),
                     });
                 });
-        }
-    }
+        },
+    },
 });

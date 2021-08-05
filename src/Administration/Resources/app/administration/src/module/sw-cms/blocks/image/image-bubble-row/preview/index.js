@@ -4,5 +4,5 @@ import './sw-cms-preview-image-bubble-row.scss';
 const { Component } = Shopware;
 
 Component.register('sw-cms-preview-image-bubble-row', {
-    template
+    template,
 });

@@ -54,7 +54,7 @@ class JsonEntityEncoderTest extends TestCase
     {
         $this->expectException(UnsupportedEncoderInputException::class);
         $encoder = $this->getContainer()->get(JsonEntityEncoder::class);
-        $encoder->encode(new Criteria(), $this->getContainer()->get(ProductDefinition::class), $input, SerializationFixture::API_BASE_URL, SerializationFixture::API_VERSION);
+        $encoder->encode(new Criteria(), $this->getContainer()->get(ProductDefinition::class), $input, SerializationFixture::API_BASE_URL);
     }
 
     public function complexStructsProvider(): array
@@ -78,7 +78,7 @@ class JsonEntityEncoderTest extends TestCase
         /** @var EntityDefinition $definition */
         $definition = $this->getContainer()->get($definitionClass);
         $encoder = $this->getContainer()->get(JsonEntityEncoder::class);
-        $actual = $encoder->encode(new Criteria(), $definition, $fixture->getInput(), SerializationFixture::API_BASE_URL, SerializationFixture::API_VERSION);
+        $actual = $encoder->encode(new Criteria(), $definition, $fixture->getInput(), SerializationFixture::API_BASE_URL);
 
         $this->assertValues($fixture->getAdminJsonFixtures(), $actual);
     }
@@ -98,7 +98,7 @@ class JsonEntityEncoderTest extends TestCase
         $fixture = new TestBasicWithExtension();
 
         $encoder = $this->getContainer()->get(JsonEntityEncoder::class);
-        $actual = $encoder->encode(new Criteria(), $extendableDefinition, $fixture->getInput(), SerializationFixture::API_BASE_URL, SerializationFixture::API_VERSION);
+        $actual = $encoder->encode(new Criteria(), $extendableDefinition, $fixture->getInput(), SerializationFixture::API_BASE_URL);
 
         unset($actual['apiAlias']);
         static::assertEquals($fixture->getAdminJsonFixtures(), $actual);
@@ -119,9 +119,9 @@ class JsonEntityEncoderTest extends TestCase
         $fixture = new TestBasicWithExtension();
 
         $encoder = $this->getContainer()->get(JsonEntityEncoder::class);
-        $actual = $encoder->encode(new Criteria(), $extendableDefinition, $fixture->getInput(), SerializationFixture::API_BASE_URL, SerializationFixture::API_VERSION);
+        $actual = $encoder->encode(new Criteria(), $extendableDefinition, $fixture->getInput(), SerializationFixture::API_BASE_URL);
 
         unset($actual['apiAlias']);
-        $this->assertValues($fixture->getAdminJsonFixtures(), $actual);
+        static::assertEquals($fixture->getAdminJsonFixtures(), $actual);
     }
 }

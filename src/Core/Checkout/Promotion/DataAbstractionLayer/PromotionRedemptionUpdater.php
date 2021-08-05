@@ -38,7 +38,7 @@ class PromotionRedemptionUpdater implements EventSubscriberInterface
             return;
         }
 
-        $sql = <<<SQL
+        $sql = <<<'SQL'
                 SELECT JSON_UNQUOTE(JSON_EXTRACT(`order_line_item`.`payload`, '$.promotionId')) as promotion_id,
                        COUNT(DISTINCT order_line_item.id) as total,
                        LOWER(HEX(order_customer.customer_id)) as customer_id

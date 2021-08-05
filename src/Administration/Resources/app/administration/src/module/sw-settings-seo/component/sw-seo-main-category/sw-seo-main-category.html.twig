@@ -6,9 +6,9 @@
         label-property="translated.name"
         value-property="id"
         :placeholder="$tc('sw-seo-url.placeholderMainCategory')"
-        :label="$tc('sw-seo-url.labelMainCategory')"
+        :label="overwriteLabel ? undefined : $tc('sw-seo-url.labelMainCategory')"
         :value="selectedCategory"
-        :disabled="currentSalesChannelId===null || !allowEdit"
+        :disabled="currentSalesChannelId === null || !allowEdit"
         @change="onMainCategorySelected"
     />
     {% endblock %}

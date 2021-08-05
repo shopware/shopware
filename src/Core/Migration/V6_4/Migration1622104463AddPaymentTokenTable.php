@@ -15,7 +15,7 @@ class Migration1622104463AddPaymentTokenTable extends MigrationStep
     public function update(Connection $connection): void
     {
         $connection->executeStatement('
-            CREATE TABLE `payment_token` (
+            CREATE TABLE IF NOT EXISTS `payment_token` (
               `token` char(32) COLLATE utf8mb4_unicode_ci NOT NULL,
               `expires` datetime(3) NOT NULL,
               PRIMARY KEY (`token`)

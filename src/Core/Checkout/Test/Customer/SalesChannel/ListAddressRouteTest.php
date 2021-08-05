@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
+/**
+ * @group store-api
+ */
 class ListAddressRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

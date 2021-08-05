@@ -9,31 +9,31 @@ Component.register('sw-order-state-change-modal', {
     props: {
         order: {
             type: Object,
-            required: true
+            required: true,
         },
 
         isLoading: {
             type: Boolean,
-            required: true
+            required: true,
         },
 
         technicalName: {
             type: String,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
         return {
             showModal: false,
-            userCanConfirm: false
+            userCanConfirm: false,
         };
     },
 
     computed: {
         modalTitle() {
             return this.$tc('sw-order.assignMailTemplateCard.cardTitle');
-        }
+        },
     },
 
     methods: {
@@ -43,6 +43,6 @@ Component.register('sw-order-state-change-modal', {
 
         onDocsConfirm(docIds, sendMail = true) {
             this.$emit('page-leave-confirm', docIds, sendMail);
-        }
-    }
+        },
+    },
 });

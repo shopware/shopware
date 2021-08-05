@@ -93,6 +93,10 @@ describe('module/sw-customer/view/sw-customer-detail-base.spec.js', () => {
         wrapper = createWrapper();
     });
 
+    afterEach(() => {
+        wrapper.destroy();
+    });
+
     it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();
     });

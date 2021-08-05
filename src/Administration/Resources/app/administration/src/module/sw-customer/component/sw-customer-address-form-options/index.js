@@ -8,25 +8,25 @@ Component.register('sw-customer-address-form-options', {
     props: {
         customer: {
             type: Object,
-            required: true
+            required: true,
         },
 
         address: {
             type: Object,
             required: true,
-            default: () => {}
+            default: () => {},
         },
 
         customFieldSets: {
             type: Array,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
         return {
             isDefaultShippingAddressId: false,
-            isDefaultBillingAddressId: false
+            isDefaultBillingAddressId: false,
         };
     },
 
@@ -46,7 +46,7 @@ Component.register('sw-customer-address-form-options', {
 
         onChangeDefaultBillingAddress(active) {
             this.$emit('default-address-change', { name: 'billing-address', id: this.address.id, value: active });
-        }
-    }
+        },
+    },
 
 });

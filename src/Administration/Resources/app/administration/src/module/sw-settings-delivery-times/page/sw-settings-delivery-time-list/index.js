@@ -11,7 +11,7 @@ Component.register('sw-settings-delivery-time-list', {
 
     mixins: [
         Mixin.getByName('listing'),
-        Mixin.getByName('placeholder')
+        Mixin.getByName('placeholder'),
     ],
 
     data() {
@@ -19,20 +19,20 @@ Component.register('sw-settings-delivery-time-list', {
             deliveryTimes: null,
             isLoading: false,
             sortBy: 'createdAt',
-            sortDirection: 'DESC'
+            sortDirection: 'DESC',
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle()
+            title: this.$createTitle(),
         };
     },
 
     computed: {
         deliveryTimeRepository() {
             return this.repositoryFactory.create('delivery_time');
-        }
+        },
     },
 
     methods: {
@@ -53,7 +53,7 @@ Component.register('sw-settings-delivery-time-list', {
                 })
                 .catch((exception) => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-delivery-time.list.errorLoad')
+                        message: this.$tc('sw-settings-delivery-time.list.errorLoad'),
                     });
 
                     this.isLoading = false;
@@ -70,17 +70,17 @@ Component.register('sw-settings-delivery-time-list', {
                 property: 'name',
                 label: 'sw-settings-delivery-time.list.columnName',
                 primary: true,
-                routerLink: 'sw.settings.delivery.time.detail'
+                routerLink: 'sw.settings.delivery.time.detail',
             }, {
                 property: 'unit',
-                label: 'sw-settings-delivery-time.list.columnUnit'
+                label: 'sw-settings-delivery-time.list.columnUnit',
             }, {
                 property: 'min',
-                label: 'sw-settings-delivery-time.list.columnMin'
+                label: 'sw-settings-delivery-time.list.columnMin',
             }, {
                 property: 'max',
-                label: 'sw-settings-delivery-time.list.columnMax'
+                label: 'sw-settings-delivery-time.list.columnMax',
             }];
-        }
-    }
+        },
+    },
 });

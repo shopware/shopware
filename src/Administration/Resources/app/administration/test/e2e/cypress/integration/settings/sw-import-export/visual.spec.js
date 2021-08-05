@@ -22,8 +22,9 @@ describe('Import/Export:  Visual tests', () => {
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/import-export/index`);
         });
-    })
+    });
 
+    // eslint-disable-next-line no-undef
     after(() => {
         page = null;
     });
@@ -38,7 +39,12 @@ describe('Import/Export:  Visual tests', () => {
             url: `${Cypress.env('apiPath')}//search/import-export-log`,
             method: 'post'
         }).as('getData');
+        cy.route({
+            url: `${Cypress.env('apiPath')}/search/language`,
+            method: 'post'
+        }).as('getLanguages');
 
+        cy.get('.sw-import-export-view-import').should('be.visible');
         cy.clickMainMenuItem({
             targetPath: '#/sw/settings/index',
             mainMenuId: 'sw-settings'
@@ -54,15 +60,9 @@ describe('Import/Export:  Visual tests', () => {
 
         // Take snapshot for visual testing
         cy.get('.sw-data-grid__skeleton').should('not.exist');
-        cy.sortListingViaColumn('Name', 'Default category', '.sw-data-grid__row--0')
+        cy.sortAndCheckListingAscViaColumn('Name', 'Default category');
         cy.takeSnapshot('[Import export] Profiles overview',
             '.sw-import-export-view-profiles__listing');
-
-        // Perform create new profile action
-        cy.get('.sw-import-export-view-profiles__create-action').click();
-
-        // Take snapshot for visual testing
-        cy.takeSnapshot('[Import export] Profile creation', '.sw-modal');
     });
 
     it('@visual: check appearance of basic export workflow', () => {
@@ -82,6 +82,7 @@ describe('Import/Export:  Visual tests', () => {
             method: 'post'
         }).as('importExportLog');
 
+        cy.get('.sw-import-export-view-import').should('be.visible');
         cy.contains('[href="#/sw/import-export/index/export"]', 'Export').click();
 
         // Take snapshot for visual testing
@@ -135,6 +136,7 @@ describe('Import/Export:  Visual tests', () => {
         }).as('importExportLog');
 
         // Take snapshot for visual testing
+        cy.get('.sw-import-export-view-import').should('be.visible');
         cy.get('.sw-data-grid__skeleton').should('not.exist');
         cy.takeSnapshot('[Import export] Detail, Import overview', '.sw-import-export-view-import');
 
@@ -182,7 +184,9 @@ describe('Import/Export:  Visual tests', () => {
 
         // Change color of the element to ensure consistent snapshots
         cy.changeElementStyling('.sw-data-grid__cell--createdAt', 'color : #fff');
+
         // Take snapshot for visual testing
+        cy.contains('Import successful').should('be.visible');
         cy.takeSnapshot('[Import export] Detail, Overview after import', '.sw-import-export-activity');
     });
 });

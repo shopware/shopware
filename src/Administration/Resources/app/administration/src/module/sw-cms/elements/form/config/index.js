@@ -9,7 +9,7 @@ Component.register('sw-cms-el-config-form', {
     inject: ['systemConfigApiService'],
 
     mixins: [
-        Mixin.getByName('cms-element')
+        Mixin.getByName('cms-element'),
     ],
 
     computed: {
@@ -18,7 +18,7 @@ Component.register('sw-cms-el-config-form', {
                 return 'is--last';
             }
             return '';
-        }
+        },
     },
 
     created() {
@@ -73,6 +73,6 @@ Component.register('sw-cms-el-config-form', {
                 }
             }
             return true;
-        }
-    }
+        },
+    },
 });

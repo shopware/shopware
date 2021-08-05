@@ -116,7 +116,7 @@
                     {% block sw_customer_list_grid_columns_name_link %}
                     <router-link
                         v-else
-                        :to="{ name: 'sw.customer.detail', params: { id: item.id } }"
+                        :to="{ name: 'sw.customer.detail', params: { id: item.id }, query: { edit: false } }"
                     >
                         {{ item.lastName }}, {{ item.firstName }}
                     </router-link>
@@ -261,11 +261,25 @@
                     v-if="filterCriteria.length"
                     :title="$tc('sw-customer.filter.messageEmptyTitle')"
                     :subline="$tc('sw-customer.filter.messageEmptySubline')"
-                />
+                >
+                    <template #icon>
+                        <img
+                            :src="'/administration/static/img/empty-states/customer-empty-state.svg' | asset"
+                            :alt="$tc('sw-customer.filter.messageEmptyTitle')"
+                        >
+                    </template>
+                </sw-empty-state>
                 <sw-empty-state
                     v-else
                     :title="$tc('sw-customer.list.messageEmpty')"
-                />
+                >
+                    <template #icon>
+                        <img
+                            :src="'/administration/static/img/empty-states/customer-empty-state.svg' | asset"
+                            :alt="$tc('sw-customer.list.messageEmpty')"
+                        >
+                    </template>
+                </sw-empty-state>
             </template>
             {% endblock %}
         </div>

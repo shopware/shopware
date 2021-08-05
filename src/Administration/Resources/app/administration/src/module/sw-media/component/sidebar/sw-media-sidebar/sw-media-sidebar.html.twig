@@ -43,18 +43,17 @@
             v-on="$listeners"
         />
 
-        <div
+        <sw-empty-state
             v-else
-            class="sw-media-sidebar__empty-state"
+            :title="$tc('sw-media.sidebar.labelNoMediaSelected')"
         >
-            <img
-                :src="'/administration/static/img/empty-states/media-empty-state.svg' | asset"
-                :alt="$tc('sw-media.sidebar.labelNoMediaSelected')"
-            >
-            <div class="sw-media-sidebar__empty-state-label">
-                {{ $tc('sw-media.sidebar.labelNoMediaSelected') }}
-            </div>
-        </div>
+            <template #icon>
+                <img
+                    :src="'/administration/static/img/empty-states/media-empty-state.svg' | asset"
+                    :alt="$tc('sw-media.sidebar.labelNoMediaSelected')"
+                >
+            </template>
+        </sw-empty-state>
     </div>
     {% endblock %}
 </div>

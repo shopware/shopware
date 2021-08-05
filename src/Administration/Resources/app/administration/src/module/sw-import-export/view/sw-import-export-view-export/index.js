@@ -9,13 +9,13 @@ Shopware.Component.register('sw-import-export-view-export', {
 
     metaInfo() {
         return {
-            title: this.$createTitle()
+            title: this.$createTitle(),
         };
     },
 
     methods: {
         reloadContent() {
             this.$refs.activityGrid.fetchActivities();
-        }
-    }
+        },
+    },
 });

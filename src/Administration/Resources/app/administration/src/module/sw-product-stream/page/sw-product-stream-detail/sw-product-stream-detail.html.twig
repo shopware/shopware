@@ -102,7 +102,7 @@
                 :class="{ 'is--disabled': !acl.can('product_stream.editor') }"
                 :title="$tc('sw-product-stream.detail.titleFilter')"
             >
-                {% block sw_product_stream_detail_filter %}
+                {% block sw_product_stream_detail_filter_tree %}
                 <sw-condition-tree
                     v-if="productStream"
                     :initial-conditions="productStreamFilters"

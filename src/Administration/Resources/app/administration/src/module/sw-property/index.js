@@ -23,13 +23,13 @@ Module.register('sw-property', {
     routes: {
         index: {
             components: {
-                default: 'sw-property-list'
+                default: 'sw-property-list',
             },
             path: 'index',
             alias: '/',
             meta: {
-                privilege: 'property.viewer'
-            }
+                privilege: 'property.viewer',
+            },
         },
         detail: {
             component: 'sw-property-detail',
@@ -37,31 +37,31 @@ Module.register('sw-property', {
             props: {
                 default: (route) => {
                     return {
-                        groupId: route.params.id
+                        groupId: route.params.id,
                     };
-                }
+                },
             },
             meta: {
                 parentPath: 'sw.property.index',
-                privilege: 'property.viewer'
-            }
+                privilege: 'property.viewer',
+            },
         },
         create: {
             component: 'sw-property-create',
             path: 'create',
             meta: {
                 parentPath: 'sw.property.index',
-                privilege: 'property.creator'
-            }
+                privilege: 'property.creator',
+            },
         },
         option: {
             component: 'sw-property-option-detail',
             path: 'detail/:groupId/option/:optionId',
             meta: {
                 parentPath: 'sw.property.detail',
-                privilege: 'property.editor'
-            }
-        }
+                privilege: 'property.editor',
+            },
+        },
     },
 
     navigation: [{
@@ -70,6 +70,6 @@ Module.register('sw-property', {
         parent: 'sw-catalogue',
         path: 'sw.property.index',
         position: 40,
-        privilege: 'property.viewer'
-    }]
+        privilege: 'property.viewer',
+    }],
 });

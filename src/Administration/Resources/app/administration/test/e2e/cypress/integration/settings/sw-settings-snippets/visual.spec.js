@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 describe('Snippets: Visual testing', () => {
     // eslint-disable-next-line no-undef
@@ -35,13 +35,27 @@ describe('Snippets: Visual testing', () => {
             expect(xhr).to.have.property('status', 200);
         });
         cy.get('.sw-grid').should('be.visible');
+
+        // Change color of the element to ensure consistent snapshots
+        cy.changeElementStyling(
+            '.sw-settings-snippet-set-file__column-changed-at .sw-grid__cell-content div',
+            'color: #fff'
+        );
+        cy.get('.sw-settings-snippet-set-file__column-changed-at .sw-grid__cell-content div')
+            .should('have.css', 'color', 'rgb(255, 255, 255)');
+
         cy.takeSnapshot('[Snippets] Listing of snippet sets',
             '.sw-settings-snippet-set-list');
 
         cy.contains('.sw-grid__cell-content a', 'BASE de-DE').click();
+
+        // Ensure snapshot consistency
         cy.get('.sw-data-grid__skeleton').should('not.exist');
-        cy.takeSnapshot('[Snippets] Snippet listing',
-            '.sw-import-export-view-profiles__listing');
+        cy.changeElementStyling('.sw-page__smart-bar-amount', 'color : #fff');
+
+        // Take Snapshot
+        cy.takeSnapshot('[Snippets] Snippet listing itself',
+            '.sw-settings-snippet-list__grid');
 
         cy.contains('.sw-data-grid__cell-content a', 'aWonderful.customSnip').click();
         cy.get('.sw-loader').should('not.exist');

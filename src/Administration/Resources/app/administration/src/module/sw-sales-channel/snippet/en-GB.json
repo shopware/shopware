@@ -111,9 +111,9 @@
       "basicinformationLink": "Change default maintenance layout here",
       "columnDomainCurrency": "Currency",
       "products": {
-        "titleEmptyState": "No products added yet",
+        "titleEmptyState": "No more products found",
         "titleEmptyStateTable": "No matching products found",
-        "buttonAddProducts": "Add products",
+        "buttonAddProducts": "Add {productCount} products | Add {productCount} product | Add {productCount} products",
         "columnProductName": "Product name",
         "columnActive": "Active",
         "columnProductNumber": "Product number"
@@ -233,21 +233,33 @@
       },
       "titleShippingPayment": "Payment and shipping",
       "labelTaxCalculation": "Tax calculation",
-      "descriptionTaxCalculation": "Changing this setting could lead to acounting problems with external payment providers. Check back on how VAT is calculated by payment providers you employ, before you make any changes.",
+      "descriptionTaxCalculation": "Changing this setting could lead to accounting problems with external payment providers. Check back on how VAT is calculated by payment providers you employ, before you make any changes.",
       "taxCalculation": {
         "verticalName": "Column by column (vertical) calculation",
         "verticalDescription": "VAT is calculated from the order total. No individual VAT values are displayed during checkout.",
         "horizontalName": "Line by line (horizontal) calculation",
         "horizontalDescription": "VAT is calculated for each shopping cart position. During checkout each position's individual VAT is displayed. The total VAT amount is calculated by adding up all individual VAT values."
       },
-      "productAssigmentModal": {
+      "productAssignmentModal": {
         "title": "Add products",
-        "singleProducts": "Individual products",
-        "categories": "Filter by categories",
-        "dynamicProductGroups": "Filter by dynamic product groups"
+        "singleProducts": "Product selection",
+        "categories": {
+          "title": "Category selection",
+          "textInfo": "The assignments made here are not dynamic and represent only the current product status. Subsequent changes to the product composition of categories won't affect the assignment.",
+          "textSearch": "Search categories ...",
+          "emptySearchResults": "No categories found."
+        },
+        "dynamicProductGroups": {
+          "title": "Product group selection",
+          "infoText": "The assignments made here are not dynamic and represent only the current product status. Subsequent changes to the product composition of dynamic product groups won't affect the assignment.",
+          "columnName": "Name",
+          "searchFieldPlaceholder": "Search dynamic product groups...",
+          "titleNoProductStreamsMatching": "No matching dynamic product groups found.",
+          "titleNoProductStreamsAvailable": "No dynamic product groups available."
+        }
       }
     },
-     "sw-sales-channel-defaults-select": {
+    "sw-sales-channel-defaults-select": {
       "messageError": "The value is in use by this domain: \"%{url}\"."
     }
   },

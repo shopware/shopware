@@ -29,7 +29,23 @@
 {% block sw_extension_card_base_subscription_expired_info %}
 <section v-if="subscriptionExpiredText">
     {% block sw_extension_card_base_subscription_expired_info_text %}
-    <span>
+    <span
+        class="sw-extension-card-bought__info-subscription-expiry"
+        :class="subscriptionExpiredTextClasses"
+    >
+        <sw-icon
+            v-if="isExpiredTestPhase"
+            name="default-badge-alert"
+            size="14"
+            small
+        />
+        <sw-icon
+            v-else-if="isExpiredRent"
+            name="default-badge-warning"
+            size="14"
+            small
+        />
+
         {{ subscriptionExpiredText }}
     </span>
     {% endblock %}
@@ -78,11 +94,15 @@
     v-if="showExtensionInstallationFailedModal"
     :title="extension.label"
     variant="small"
+    class="sw-extension-card-bought__installation-failed-modal"
     @modal-close="closeInstallationFailedNotification"
 >
-    {% block sw_bought_extension_card_installation_failed_modal %}
+    {% block sw_bought_extension_card_installation_failed_modal_extension %}
     <sw-extension-adding-failed
         :extension-name="extension.name"
+        :title="installationFailedError && installationFailedError.title"
+        :detail="installationFailedError && installationFailedError.message"
+        :documentation-link="installationFailedError && installationFailedError.parameters && installationFailedError.parameters.documentationLink"
         @close="closeInstallationFailedNotification"
     />
     {% endblock %}

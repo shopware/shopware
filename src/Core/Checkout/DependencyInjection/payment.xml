@@ -44,6 +44,7 @@
             <argument type="service" id="order.repository"/>
             <argument type="service" id="router"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry"/>
+            <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
         </service>
 
         <service id="shopware.jwt_signer" class="Lcobucci\JWT\Signer\Rsa\Sha256"/>
@@ -131,7 +132,7 @@
             <argument type="service" id="sales_channel.payment_method.repository"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Payment\SalesChannel\CachedPaymentMethodRoute" decorates="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute" decoration-priority="-1000">
+        <service id="Shopware\Core\Checkout\Payment\SalesChannel\CachedPaymentMethodRoute" decorates="Shopware\Core\Checkout\Payment\SalesChannel\PaymentMethodRoute" decoration-priority="-1000" public="true">
             <argument type="service" id="Shopware\Core\Checkout\Payment\SalesChannel\CachedPaymentMethodRoute.inner"/>
             <argument type="service" id="cache.object"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>

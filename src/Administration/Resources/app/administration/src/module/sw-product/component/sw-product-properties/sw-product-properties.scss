@@ -1,0 +1,36 @@
+@import "~scss/variables";
+
+.sw-product-properties {
+    &__card.sw-card .sw-card__content {
+        padding: 0;
+    }
+
+    &__card.is-inherited .sw-card__content {
+        border-color: $color-module-purple-900;
+
+        &::after {
+            content: '';
+            position: absolute;
+            z-index: 10;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background: $color-gray-100;
+            border-radius: $border-radius-default;
+            mix-blend-mode: multiply;
+        }
+    }
+
+    &__button-add-property {
+        width: 100%;
+    }
+
+    .sw-card__title.is-inherited {
+        color: $color-module-purple-900;
+    }
+
+    .sw-empty-state {
+        padding: 30px;
+    }
+}

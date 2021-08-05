@@ -46,7 +46,7 @@ class TemplateDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new LongTextField('template', 'template'))->addFlags(new Required(), new AllowHtml()),
+            (new LongTextField('template', 'template'))->addFlags(new Required(), new AllowHtml(false)),
             (new StringField('path', 'path', 1024))->addFlags(new Required()),
             (new BoolField('active', 'active'))->addFlags(new Required()),
             (new FkField('app_id', 'appId', AppDefinition::class))->addFlags(new Required()),

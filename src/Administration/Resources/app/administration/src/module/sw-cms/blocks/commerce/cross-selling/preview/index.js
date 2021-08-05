@@ -4,5 +4,5 @@ import './sw-cms-preview-cross-selling.scss';
 const { Component } = Shopware;
 
 Component.register('sw-cms-preview-cross-selling', {
-    template
+    template,
 });

@@ -11,7 +11,7 @@ Shopware.State.registerModule('cmsPageState', {
         currentCmsDeviceView: 'desktop',
         selectedSection: null,
         selectedBlock: null,
-        isSystemDefaultLanguage: true
+        isSystemDefaultLanguage: true,
     },
 
     mutations: {
@@ -89,7 +89,7 @@ Shopware.State.registerModule('cmsPageState', {
 
         setIsSystemDefaultLanguage(state, isSystemDefaultLanguage) {
             state.isSystemDefaultLanguage = isSystemDefaultLanguage;
-        }
+        },
     },
 
     actions: {
@@ -108,6 +108,6 @@ Shopware.State.registerModule('cmsPageState', {
         setBlock({ commit }, block) {
             commit('removeSelectedSection');
             commit('setSelectedBlock', block);
-        }
-    }
+        },
+    },
 });

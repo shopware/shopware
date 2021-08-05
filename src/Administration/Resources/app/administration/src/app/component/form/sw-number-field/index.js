@@ -19,7 +19,7 @@ Component.extend('sw-number-field', 'sw-text-field', {
 
     model: {
         prop: 'value',
-        event: 'change'
+        event: 'change',
     },
 
     props: {
@@ -30,31 +30,31 @@ Component.extend('sw-number-field', 'sw-text-field', {
             validValues: ['float', 'int'],
             validator(value) {
                 return ['float', 'int'].includes(value);
-            }
+            },
         },
 
         step: {
             type: Number,
             required: false,
-            default: null
+            default: null,
         },
 
         min: {
             type: Number,
             required: false,
-            default: null
+            default: null,
         },
 
         max: {
             type: Number,
             required: false,
-            default: null
+            default: null,
         },
 
         value: {
             type: Number,
             required: false,
-            default: null
+            default: null,
         },
 
         digits: {
@@ -67,19 +67,19 @@ Component.extend('sw-number-field', 'sw-text-field', {
                     warn('sw-number-field', 'Provided prop digits must be of type integer');
                 }
                 return isInt;
-            }
+            },
         },
 
         allowEmpty: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
         return {
-            currentValue: this.value
+            currentValue: this.value,
         };
     },
 
@@ -113,7 +113,7 @@ Component.extend('sw-number-field', 'sw-text-field', {
             }
 
             return this.currentValue.toString();
-        }
+        },
     },
 
     watch: {
@@ -126,8 +126,8 @@ Component.extend('sw-number-field', 'sw-text-field', {
 
                 this.computeValue(this.value.toString());
             },
-            immediate: true
-        }
+            immediate: true,
+        },
     },
 
     methods: {
@@ -226,7 +226,7 @@ Component.extend('sw-number-field', 'sw-text-field', {
             if (decimals.length <= this.digits) {
                 return {
                     decimals,
-                    transfer: 0
+                    transfer: 0,
                 };
             }
 
@@ -238,15 +238,15 @@ Component.extend('sw-number-field', 'sw-text-field', {
             if (asString.length > this.digits) {
                 return {
                     decimals: asString.substr(1, asString.length),
-                    transfer: 1
+                    transfer: 1,
                 };
             }
 
             asString = '0'.repeat(this.digits - asString.length) + asString;
             return {
                 decimals: asString,
-                transfer: 0
+                transfer: 0,
             };
-        }
-    }
+        },
+    },
 });

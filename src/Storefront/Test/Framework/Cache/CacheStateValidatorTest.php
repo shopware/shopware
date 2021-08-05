@@ -8,6 +8,9 @@ use Shopware\Storefront\Framework\Cache\CacheStateValidator;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @group cache
+ */
 class CacheStateValidatorTest extends TestCase
 {
     /**

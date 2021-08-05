@@ -25,7 +25,7 @@ class LanguagePluginApiService extends ApiService {
         return this.httpClient
             .get(`/_action/store/${this.apiEndpoint}`, {
                 params,
-                headers
+                headers,
             })
             .then((response) => {
                 return ApiService.handleResponse(response);

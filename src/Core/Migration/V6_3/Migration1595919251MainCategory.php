@@ -14,7 +14,7 @@ class Migration1595919251MainCategory extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             CREATE TABLE IF NOT EXISTS `main_category` (
               `id` BINARY(16) NOT NULL PRIMARY KEY,
               `product_id` BINARY(16) NOT NULL,

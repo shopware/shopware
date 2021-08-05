@@ -4,7 +4,9 @@ namespace Shopware\Core\Framework\Test\Update\Steps;
 
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Feature;
@@ -27,45 +29,21 @@ class DeactivateExtensionsStepTest extends TestCase
     use ExtensionBehaviour;
     use StoreClientBehaviour;
 
-    /**
-     * @var ExtensionLifecycleService
-     */
-    private $lifecycleService;
+    private ExtensionLifecycleService $lifecycleService;
 
-    /**
-     * @var PluginCompatibility
-     */
-    private $pluginCompatibility;
+    private PluginCompatibility $pluginCompatibility;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $appRepository;
+    private EntityRepositoryInterface $appRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $pluginRepository;
+    private EntityRepositoryInterface $pluginRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $themeRepository;
+    private EntityRepositoryInterface $themeRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $salesChannelRepository;
+    private EntityRepositoryInterface $salesChannelRepository;
 
-    /**
-     * @var ApiClient
-     */
-    private $apiClient;
+    private ApiClient $apiClient;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     public function setUp(): void
     {
@@ -81,7 +59,6 @@ class DeactivateExtensionsStepTest extends TestCase
         $this->pluginRepository = $this->getContainer()->get('plugin.repository');
         $this->themeRepository = $this->getContainer()->get('theme.repository');
         $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
-
         $userId = Uuid::randomHex();
         $storeToken = Uuid::randomHex();
 
@@ -103,9 +80,10 @@ class DeactivateExtensionsStepTest extends TestCase
         $this->context = Context::createDefaultContext($source);
 
         // Install extensions
+        $appContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
         $this->installApp(__DIR__ . '/../_fixtures/TestApp', false);
-        $this->lifecycleService->install('app', 'TestApp', $this->context);
-        $this->lifecycleService->activate('app', 'TestApp', $this->context);
+        $this->lifecycleService->install('app', 'TestApp', $appContext);
+        $this->lifecycleService->activate('app', 'TestApp', $appContext);
     }
 
     public function tearDown(): void

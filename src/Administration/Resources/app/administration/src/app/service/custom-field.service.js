@@ -17,27 +17,27 @@ export default function createCustomFieldService() {
     const $typeStore = {
         select: {
             configRenderComponent: 'sw-custom-field-type-select',
-            config: {}
+            config: {},
         },
         entity: {
             configRenderComponent: 'sw-custom-field-type-entity',
             type: 'select',
-            config: {}
+            config: {},
         },
         text: {
             configRenderComponent: 'sw-custom-field-type-text',
             type: 'text',
             config: {
                 componentName: 'sw-field',
-                type: 'text'
-            }
+                type: 'text',
+            },
         },
         media: {
             configRenderComponent: 'sw-custom-field-type-base',
             type: 'text',
             config: {
-                componentName: 'sw-media-field'
-            }
+                componentName: 'sw-media-field',
+            },
         },
         number: {
             configRenderComponent: 'sw-custom-field-type-number',
@@ -45,8 +45,8 @@ export default function createCustomFieldService() {
             config: {
                 componentName: 'sw-field',
                 type: 'number',
-                numberType: 'float'
-            }
+                numberType: 'float',
+            },
         },
         date: {
             configRenderComponent: 'sw-custom-field-type-date',
@@ -54,40 +54,40 @@ export default function createCustomFieldService() {
             config: {
                 componentName: 'sw-field',
                 type: 'date',
-                dateType: 'datetime'
-            }
+                dateType: 'datetime',
+            },
         },
         checkbox: {
             configRenderComponent: 'sw-custom-field-type-checkbox',
             type: 'bool',
             config: {
                 componentName: 'sw-field',
-                type: 'checkbox'
-            }
+                type: 'checkbox',
+            },
         },
         switch: {
             configRenderComponent: 'sw-custom-field-type-checkbox',
             type: 'bool',
             config: {
                 componentName: 'sw-field',
-                type: 'switch'
-            }
+                type: 'switch',
+            },
         },
         textEditor: {
             configRenderComponent: 'sw-custom-field-type-text-editor',
             type: 'html',
             config: {
-                componentName: 'sw-text-editor'
-            }
+                componentName: 'sw-text-editor',
+            },
         },
         colorpicker: {
             configRenderComponent: 'sw-custom-field-type-base',
             type: 'text',
             config: {
                 componentName: 'sw-field',
-                type: 'colorpicker'
-            }
-        }
+                type: 'colorpicker',
+            },
+        },
     };
 
     const $entityNameStore = [
@@ -116,7 +116,7 @@ export default function createCustomFieldService() {
         'rule',
         'salutation',
         'shipping_method',
-        'tax'
+        'tax',
     ];
 
     return {
@@ -126,7 +126,7 @@ export default function createCustomFieldService() {
         getEntityNames,
         addEntityName,
         removeEntityName,
-        getCustomFieldSets
+        getCustomFieldSets,
     };
 
     function getTypeByName(type) {

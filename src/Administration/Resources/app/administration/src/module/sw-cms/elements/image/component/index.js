@@ -7,7 +7,7 @@ Component.register('sw-cms-el-image', {
     template,
 
     mixins: [
-        Mixin.getByName('cms-element')
+        Mixin.getByName('cms-element'),
     ],
 
     computed: {
@@ -24,7 +24,7 @@ Component.register('sw-cms-el-image', {
                 'min-height': this.element.config.displayMode.value === 'cover' &&
                               this.element.config.minHeight.value &&
                               this.element.config.minHeight.value !== 0 ? this.element.config.minHeight.value : '340px',
-                'align-self': this.element.config.verticalAlign.value || null
+                'align-self': this.element.config.verticalAlign.value || null,
             };
         },
 
@@ -59,7 +59,7 @@ Component.register('sw-cms-el-image', {
 
         mediaConfigValue() {
             return this.element?.config?.sliderItems?.value;
-        }
+        },
     },
 
     watch: {
@@ -67,7 +67,7 @@ Component.register('sw-cms-el-image', {
             deep: true,
             handler() {
                 this.$forceUpdate();
-            }
+            },
         },
 
         mediaConfigValue(value) {
@@ -77,7 +77,7 @@ Component.register('sw-cms-el-image', {
             if (isSourceStatic && mediaId && value !== mediaId) {
                 this.element.config.media.value = mediaId;
             }
-        }
+        },
     },
 
     created() {
@@ -88,6 +88,6 @@ Component.register('sw-cms-el-image', {
         createdComponent() {
             this.initElementConfig('image');
             this.initElementData('image');
-        }
-    }
+        },
+    },
 });

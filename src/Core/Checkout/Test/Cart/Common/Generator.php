@@ -25,7 +25,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
 use Shopware\Core\System\Country\CountryEntity;
@@ -95,13 +94,8 @@ class Generator extends TestCase
         if (!$country) {
             $country = new CountryEntity();
             $country->setId('5cff02b1029741a4891c430bcd9e3603');
-            if (Feature::isActive('FEATURE_NEXT_14114')) {
-                $country->setCustomerTax(new TaxFreeConfig(false, Defaults::CURRENCY, 0));
-                $country->setCompanyTax(new TaxFreeConfig(false, Defaults::CURRENCY, 0));
-            } else {
-                $country->setTaxFree(false);
-                $country->setCompanyTaxFree(false);
-            }
+            $country->setCustomerTax(new TaxFreeConfig(false, Defaults::CURRENCY, 0));
+            $country->setCompanyTax(new TaxFreeConfig(false, Defaults::CURRENCY, 0));
             $country->setName('Germany');
         }
         if (!$state) {

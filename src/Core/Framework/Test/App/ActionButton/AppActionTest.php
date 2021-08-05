@@ -27,7 +27,8 @@ class AppActionTest extends TestCase
             $action,
             $ids,
             's3cr3t',
-            $shopId
+            $shopId,
+            Uuid::randomHex()
         );
 
         $expected = [
@@ -64,7 +65,8 @@ class AppActionTest extends TestCase
             $action,
             $ids,
             's3cr3t',
-            $shopId
+            $shopId,
+            Uuid::randomHex()
         );
     }
 
@@ -86,7 +88,8 @@ class AppActionTest extends TestCase
             $action,
             $ids,
             's3cr3t',
-            $shopId
+            $shopId,
+            Uuid::randomHex()
         );
     }
 
@@ -108,7 +111,8 @@ class AppActionTest extends TestCase
             $action,
             $ids,
             's3cr3t',
-            $shopId
+            $shopId,
+            Uuid::randomHex()
         );
     }
 
@@ -130,7 +134,8 @@ class AppActionTest extends TestCase
             $action,
             $ids,
             's3cr3t',
-            $shopId
+            $shopId,
+            Uuid::randomHex()
         );
     }
 
@@ -152,7 +157,8 @@ class AppActionTest extends TestCase
             $action,
             $ids,
             's3cr3t',
-            $shopId
+            $shopId,
+            Uuid::randomHex()
         );
     }
 
@@ -174,7 +180,8 @@ class AppActionTest extends TestCase
             $action,
             $ids,
             's3cr3t',
-            $shopId
+            $shopId,
+            Uuid::randomHex()
         );
     }
 
@@ -196,7 +203,8 @@ class AppActionTest extends TestCase
             $action,
             $ids,
             '',
-            $shopId
+            $shopId,
+            Uuid::randomHex()
         );
     }
 
@@ -218,7 +226,8 @@ class AppActionTest extends TestCase
             $action,
             $ids,
             's3cr3t',
-            $shopId
+            $shopId,
+            Uuid::randomHex()
         );
     }
 }

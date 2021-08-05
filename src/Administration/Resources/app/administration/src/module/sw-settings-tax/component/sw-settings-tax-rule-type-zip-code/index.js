@@ -8,8 +8,8 @@ Component.register('sw-settings-tax-rule-type-zip-code', {
     props: {
         taxRule: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
     },
 
     created() {
@@ -20,9 +20,9 @@ Component.register('sw-settings-tax-rule-type-zip-code', {
         createdComponent() {
             if (!this.taxRule.data) {
                 this.taxRule.data = {
-                    zipCode: ''
+                    zipCode: '',
                 };
             }
-        }
-    }
+        },
+    },
 });

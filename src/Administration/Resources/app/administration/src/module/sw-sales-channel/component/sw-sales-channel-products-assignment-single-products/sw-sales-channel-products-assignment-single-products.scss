@@ -1,18 +1,17 @@
 .sw-sales-channel-products-assignment-single-products {
-    .sw-card {
+    &.sw-card {
         margin: 0;
     }
 
-    &-primary.sw-card-section {
+    &.sw-card .sw-card__content {
         padding: 0;
     }
 
-    .sw-data-grid.sw-data-grid--full-page {
+    &__card-section-primary {
         position: relative;
     }
 
-    .sw-card .sw-card__content {
+    &__card-section-primary.sw-card-section {
         padding: 0;
-        min-height: 100px;
     }
 }

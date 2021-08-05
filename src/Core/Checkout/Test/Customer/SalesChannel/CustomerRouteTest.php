@@ -10,6 +10,9 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 
+/**
+ * @group store-api
+ */
 class CustomerRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -128,7 +131,6 @@ class CustomerRouteTest extends TestCase
     {
         return [
             'guest' => true,
-            'salutationId' => $this->getValidSalutationId(),
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'email' => 'teg-reg@example.com',
@@ -141,7 +143,6 @@ class CustomerRouteTest extends TestCase
             ],
             'shippingAddress' => [
                 'countryId' => $this->getValidCountryId(),
-                'salutationId' => $this->getValidSalutationId(),
                 'firstName' => 'Test 2',
                 'lastName' => 'Example 2',
                 'street' => 'Examplestreet 111',

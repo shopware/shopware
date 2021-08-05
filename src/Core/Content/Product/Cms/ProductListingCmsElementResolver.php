@@ -15,10 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class ProductListingCmsElementResolver extends AbstractCmsElementResolver
 {
-    /**
-     * @var AbstractProductListingRoute
-     */
-    private $listingRoute;
+    private AbstractProductListingRoute $listingRoute;
 
     public function __construct(AbstractProductListingRoute $listingRoute)
     {

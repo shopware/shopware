@@ -13,7 +13,8 @@
 
                         <button type="submit"
                                 title="{{ "account.addressesSetAsDefaultShippingAction"|trans|striptags }}"
-                                class="btn btn-link address-action-set-default">
+                                class="btn btn-link address-action-set-default address-action-set-default-shipping"
+                                {% if feature('FEATURE_NEXT_15707') and not address.country.shippingAvailable %} disabled="disabled"{% endif %}>
                             {{ "account.addressesSetAsDefaultShippingAction"|trans|sw_sanitize }}
                         </button>
                     </form>
@@ -32,7 +33,7 @@
 
                         <button type="submit"
                                 title="{{ "account.addressesSetAsDefaultBillingAction"|trans|striptags }}"
-                                class="btn btn-link address-action-set-default">
+                                class="btn btn-link address-action-set-default address-action-set-default-billing">
                             {{ "account.addressesSetAsDefaultBillingAction"|trans|sw_sanitize }}
                         </button>
                     </form>

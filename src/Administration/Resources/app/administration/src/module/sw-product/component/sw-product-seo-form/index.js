@@ -8,19 +8,19 @@ Component.register('sw-product-seo-form', {
     template,
 
     inject: [
-        'repositoryFactory'
+        'repositoryFactory',
     ],
 
     mixins: [
-        Mixin.getByName('placeholder')
+        Mixin.getByName('placeholder'),
     ],
 
     props: {
         allowEdit: {
             type: Boolean,
             required: false,
-            default: true
-        }
+            default: true,
+        },
     },
 
     data() {
@@ -30,7 +30,7 @@ Component.register('sw-product-seo-form', {
             canonicalProductSwitchEnabled: false,
             switchStateHasBeenSet: false,
             shouldKeepSelectValue: false,
-            selectValue: null
+            selectValue: null,
         };
     },
 
@@ -53,7 +53,7 @@ Component.register('sw-product-seo-form', {
             criteria.addAssociation('options.group');
 
             criteria.addFilter(
-                Criteria.equals('parentId', this.product.id)
+                Criteria.equals('parentId', this.product.id),
             );
 
             if (this.searchTerm) {
@@ -84,26 +84,26 @@ Component.register('sw-product-seo-form', {
 
             variants.unshift({
                 id: null,
-                name: this.$tc('sw-product.seoForm.placeholderCanonicalProduct')
+                name: this.$tc('sw-product.seoForm.placeholderCanonicalProduct'),
             });
 
             return variants;
         },
 
         ...mapGetters('swProductDetail', [
-            'isLoading'
+            'isLoading',
         ]),
 
         ...mapState('swProductDetail', [
             'product',
-            'parentProduct'
+            'parentProduct',
         ]),
 
         ...mapPropertyErrors('product', [
             'keywords',
             'metaDescription',
-            'metaTitle'
-        ])
+            'metaTitle',
+        ]),
     },
 
 
@@ -121,7 +121,7 @@ Component.register('sw-product-seo-form', {
                 this.canonicalProductSwitchEnabled = !!value;
                 this.switchStateHasBeenSet = true;
             },
-            immediate: true
+            immediate: true,
         },
 
         'product.id': {
@@ -133,7 +133,7 @@ Component.register('sw-product-seo-form', {
 
                 this.fetchVariants();
             },
-            immediate: true
+            immediate: true,
         },
 
         canonicalProductSwitchEnabled(isEnabled) {
@@ -163,7 +163,7 @@ Component.register('sw-product-seo-form', {
             }
 
             this.selectValue = this.product.canonicalProductId;
-        }
+        },
     },
 
     methods: {
@@ -193,6 +193,6 @@ Component.register('sw-product-seo-form', {
                     this.$refs.canonicalProductSelect.resetActiveItem();
                 });
             });
-        }
-    }
+        },
+    },
 });

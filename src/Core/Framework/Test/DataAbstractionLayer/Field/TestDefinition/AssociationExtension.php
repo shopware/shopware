@@ -21,6 +21,11 @@ class AssociationExtension extends EntityExtension
             (new OneToOneAssociationField('toOne', 'id', 'extendable_id', ExtendedDefinition::class, false))
                 ->addFlags(new ApiAware())
         );
+
+        $collection->add(
+            (new OneToOneAssociationField('toOneWithoutApiAware', 'id', 'extendable_id', ExtendedDefinition::class, false))
+                ->removeFlag(ApiAware::class)
+        );
     }
 
     public function getDefinitionClass(): string

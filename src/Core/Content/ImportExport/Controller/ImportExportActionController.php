@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ImportExport\Controller;
 
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogDefinition;
+use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\Exception\ProcessingException;
 use Shopware\Core\Content\ImportExport\Exception\ProfileNotFoundException;
 use Shopware\Core\Content\ImportExport\ImportExportFactory;
@@ -10,12 +11,20 @@ use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
 use Shopware\Core\Content\ImportExport\Service\DownloadService;
 use Shopware\Core\Content\ImportExport\Service\ImportExportService;
 use Shopware\Core\Content\ImportExport\Service\SupportedFeaturesService;
+use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
+use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -48,6 +57,8 @@ class ImportExportActionController extends AbstractController
 
     private ImportExportFactory $importExportFactory;
 
+    private DefinitionInstanceRegistry $definitionInstanceRegistry;
+
     public function __construct(
         SupportedFeaturesService $supportedFeaturesService,
         ImportExportService $initiationService,
@@ -56,7 +67,8 @@ class ImportExportActionController extends AbstractController
         DataValidator $dataValidator,
         ImportExportLogDefinition $logDefinition,
         ApiVersionConverter $apiVersionConverter,
-        ImportExportFactory $importExportFactory
+        ImportExportFactory $importExportFactory,
+        DefinitionInstanceRegistry $definitionInstanceRegistry
     ) {
         $this->supportedFeaturesService = $supportedFeaturesService;
         $this->importExportService = $initiationService;
@@ -66,6 +78,7 @@ class ImportExportActionController extends AbstractController
         $this->logDefinition = $logDefinition;
         $this->apiVersionConverter = $apiVersionConverter;
         $this->importExportFactory = $importExportFactory;
+        $this->definitionInstanceRegistry = $definitionInstanceRegistry;
     }
 
     /**
@@ -87,16 +100,13 @@ class ImportExportActionController extends AbstractController
      */
     public function initiate(Request $request, Context $context): JsonResponse
     {
-        $params = $request->request->all();
-        $definition = new DataValidationDefinition();
-        $definition->add('profileId', new NotBlank(), new Type('string'));
-        $definition->add('expireDate', new NotBlank(), new Type('string'));
-        $this->dataValidator->validate($params, $definition);
+        $profileId = (string) $request->request->get('profileId');
+        $expireDate = (string) $request->request->get('expireDate');
 
         /** @var UploadedFile|null $file */
         $file = $request->files->get('file');
-        $profile = $this->findProfile($context, $params['profileId']);
-        $expireDate = new \DateTimeImmutable($params['expireDate']);
+        $profile = $this->findProfile($context, $profileId);
+        $expireDate = new \DateTimeImmutable($expireDate);
 
         if ($file !== null) {
             $log = $this->importExportService->prepareImport(
@@ -104,17 +114,20 @@ class ImportExportActionController extends AbstractController
                 $profile->getId(),
                 $expireDate,
                 $file,
-                $params['config'] ?? []
+                $request->request->all('config'),
+                Feature::isActive('FEATURE_NEXT_8097') && $request->request->has('dryRun')
             );
 
             unlink($file->getPathname());
         } else {
+            $this->checkAllowedReadPrivileges($profile, $context);
+
             $log = $this->importExportService->prepareExport(
                 $context,
                 $profile->getId(),
                 $expireDate,
                 null,
-                $params['config'] ?? []
+                $request->request->all('config')
             );
         }
 
@@ -127,21 +140,18 @@ class ImportExportActionController extends AbstractController
      */
     public function process(Request $request, Context $context): JsonResponse
     {
-        $params = $request->request->all();
-        $definition = new DataValidationDefinition();
-        $definition->add('logId', new NotBlank(), new Type('string'));
-        $definition->add('offset', new NotBlank(), new Type('int'));
-        $this->dataValidator->validate($params, $definition);
-
-        $logId = mb_strtolower($params['logId']);
-        $offset = $params['offset'];
+        $logId = strtolower((string) $request->request->get('logId'));
+        $offset = $request->request->getInt('offset');
 
         $importExport = $this->importExportFactory->create($logId, 50, 50);
         $logEntity = $importExport->getLogEntity();
 
-        if ($logEntity->getActivity() === 'import') {
+        if (
+            $logEntity->getActivity() === ImportExportLogEntity::ACTIVITY_IMPORT
+            || $logEntity->getActivity() === ImportExportLogEntity::ACTIVITY_DRYRUN
+        ) {
             $progress = $importExport->import($context, $offset);
-        } elseif ($logEntity->getActivity() === 'export') {
+        } elseif ($logEntity->getActivity() === ImportExportLogEntity::ACTIVITY_EXPORT) {
             $progress = $importExport->export($context, new Criteria(), $offset);
         } else {
             throw new ProcessingException('Unknown activity');
@@ -172,12 +182,13 @@ class ImportExportActionController extends AbstractController
      */
     public function cancel(Request $request, Context $context): Response
     {
-        $params = $request->request->all();
-        $definition = new DataValidationDefinition();
-        $definition->add('logId', new NotBlank(), new Type('string'));
-        $this->dataValidator->validate($params, $definition);
+        $logId = $request->request->get('logId');
 
-        $this->importExportService->cancel($context, $params['logId']);
+        if (!\is_string($logId)) {
+            throw new InvalidRequestParameterException('logId');
+        }
+
+        $this->importExportService->cancel($context, $logId);
 
         return new Response('', Response::HTTP_NO_CONTENT);
     }
@@ -197,5 +208,61 @@ class ImportExportActionController extends AbstractController
         }
 
         throw new ProfileNotFoundException($profileId);
+    }
+
+    private function checkAllowedReadPrivileges(ImportExportProfileEntity $profile, Context $context): void
+    {
+        $missingPrivileges = [];
+
+        $sourceEntity = $profile->getSourceEntity();
+        $privilege = sprintf('%s:%s', $sourceEntity, AclRoleDefinition::PRIVILEGE_READ);
+
+        if (!$context->isAllowed($privilege)) {
+            $missingPrivileges[] = $privilege;
+        }
+
+        $definition = $this->definitionInstanceRegistry->getByEntityName($sourceEntity);
+        $mappings = $profile->getMapping() ?? [];
+
+        $mappedKeys = array_column($mappings, 'key');
+        $propertyPaths = array_map(function (string $key): array {
+            return explode('.', $key);
+        }, $mappedKeys);
+
+        foreach ($propertyPaths as $properties) {
+            $missingPrivileges = $this->getMissingPrivilges($properties, $definition, $context, $missingPrivileges);
+        }
+
+        if (!empty($missingPrivileges)) {
+            throw new MissingPrivilegeException($missingPrivileges);
+        }
+    }
+
+    private function getMissingPrivilges(
+        array $properties,
+        EntityDefinition $definition,
+        Context $context,
+        array $missingPrivileges
+    ): array {
+        $property = array_shift($properties);
+
+        $property = $definition->getField($property);
+
+        if (!$property instanceof AssociationField || $property instanceof TranslationsAssociationField) {
+            return $missingPrivileges;
+        }
+
+        $definition = $property->getReferenceDefinition();
+        $privilege = sprintf('%s:%s', $definition->getEntityName(), AclRoleDefinition::PRIVILEGE_READ);
+
+        if (!$context->isAllowed($privilege)) {
+            $missingPrivileges[] = $privilege;
+        }
+
+        if (!empty($properties)) {
+            $missingPrivileges = $this->getMissingPrivilges($properties, $definition, $context, $missingPrivileges);
+        }
+
+        return $missingPrivileges;
     }
 }

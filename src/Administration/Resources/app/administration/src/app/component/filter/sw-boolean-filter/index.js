@@ -12,18 +12,18 @@ Component.register('sw-boolean-filter', {
     props: {
         filter: {
             type: Object,
-            required: true
+            required: true,
         },
         active: {
             type: Boolean,
-            required: true
-        }
+            required: true,
+        },
     },
 
     computed: {
         value() {
             return this.filter.value;
-        }
+        },
     },
 
     methods: {
@@ -40,6 +40,6 @@ Component.register('sw-boolean-filter', {
 
         resetFilter() {
             this.$emit('filter-reset', this.filter.name);
-        }
-    }
+        },
+    },
 });

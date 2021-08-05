@@ -16,9 +16,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
-/**
- * @internal (FEATURE_NEXT_14363)
- */
 class WebhookEventLogDefinition extends EntityDefinition
 {
     public const STATUS_QUEUED = 'queued';
@@ -55,13 +52,13 @@ class WebhookEventLogDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new StringField('app_name', 'appName'))->addFlags(new Required()),
+            new StringField('app_name', 'appName'),
             (new StringField('webhook_name', 'webhookName'))->addFlags(new Required()),
             (new StringField('event_name', 'eventName'))->addFlags(new Required()),
             (new StringField('delivery_status', 'deliveryStatus'))->addFlags(new Required()),
             new IntField('timestamp', 'timestamp'),
             new IntField('processing_time', 'processingTime'),
-            (new StringField('app_version', 'appVersion'))->addFlags(new Required()),
+            new StringField('app_version', 'appVersion'),
             new JsonField('request_content', 'requestContent'),
             new JsonField('response_content', 'responseContent'),
             new IntField('response_status_code', 'responseStatusCode'),

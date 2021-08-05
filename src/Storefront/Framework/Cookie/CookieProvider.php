@@ -2,8 +2,6 @@
 
 namespace Shopware\Storefront\Framework\Cookie;
 
-use Shopware\Core\Framework\Feature;
-
 class CookieProvider implements CookieProviderInterface
 {
     private const REQUIRED_COOKIES = [
@@ -29,6 +27,11 @@ class CookieProvider implements CookieProviderInterface
                 'value' => '1',
                 'expiration' => '30',
                 'hidden' => true,
+            ],
+            [
+                'snippet_name' => 'cookie.groupRequiredCaptcha',
+                'cookie' => '_GRECAPTCHA',
+                'value' => '1',
             ],
         ],
     ];
@@ -86,14 +89,6 @@ class CookieProvider implements CookieProviderInterface
     public function getCookieGroups(): array
     {
         $requiredCookies = self::REQUIRED_COOKIES;
-
-        if (Feature::isActive('FEATURE_NEXT_12455')) {
-            $requiredCookies['entries'][] = [
-                'snippet_name' => 'cookie.groupRequiredCaptcha',
-                'cookie' => '_GRECAPTCHA',
-                'value' => '1',
-            ];
-        }
 
         return [
             $requiredCookies,

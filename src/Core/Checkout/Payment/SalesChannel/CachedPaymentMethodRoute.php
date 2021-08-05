@@ -26,6 +26,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class CachedPaymentMethodRoute extends AbstractPaymentMethodRoute
 {
+    public const ALL_TAG = 'payment-method-route';
+
     private AbstractPaymentMethodRoute $decorated;
 
     private TagAwareAdapterInterface $cache;
@@ -96,7 +98,7 @@ class CachedPaymentMethodRoute extends AbstractPaymentMethodRoute
      *                      @OA\Property(
      *                          type="array",
      *                          property="elements",
-     *                          @OA\Items(ref="#/components/schemas/payment_method_flat")
+     *                          @OA\Items(ref="#/components/schemas/PaymentMethod")
      *                      )
      *                  )
      *              }
@@ -167,7 +169,7 @@ class CachedPaymentMethodRoute extends AbstractPaymentMethodRoute
     {
         $tags = array_merge(
             $this->tracer->get(self::buildName($context->getSalesChannelId())),
-            [self::buildName($context->getSalesChannelId())]
+            [self::buildName($context->getSalesChannelId()), self::ALL_TAG]
         );
 
         $event = new PaymentMethodRouteCacheTagsEvent($tags, $request, $response, $context, $criteria);

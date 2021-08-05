@@ -46,13 +46,13 @@ export default class CookieConfiguration extends Plugin {
         entriesActiveClass: 'offcanvas-cookie-entries--active',
         entriesClass: 'offcanvas-cookie-entries',
         groupClass: 'offcanvas-cookie-group',
-        parentInputClass: 'offcanvas-cookie-parent-input'
+        parentInputClass: 'offcanvas-cookie-parent-input',
     };
 
     init() {
         this.lastState = {
             active: [],
-            inactive: []
+            inactive: [],
         };
 
         this.ajaxModalExtension = null;
@@ -239,7 +239,7 @@ export default class CookieConfiguration extends Plugin {
 
         this.lastState = {
             active: activeCookies,
-            inactive: inactiveCookies
+            inactive: inactiveCookies,
         };
 
         activeCookies.forEach(activeCookie => {

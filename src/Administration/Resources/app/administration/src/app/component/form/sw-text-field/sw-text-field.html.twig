@@ -14,17 +14,18 @@
         <slot
             name="prefix"
             v-bind="{ disabled, identification }"
-        />
+        ></slot>
     </template>
 
     <template #sw-field-input="{ identification, error, disabled, size, setFocusClass, removeFocusClass, hasSuffix, hasPrefix }">
         <input
+            v-bind="$attrs"
             :id="createInputId(identification)"
             type="text"
             :name="identification"
             :disabled="disabled"
             :value="currentValue"
-            :placeHolder="placeholder"
+            :placeholder="placeholder"
             @input="onInput"
             @change="onChange"
             @focus="setFocusClass"
@@ -40,13 +41,17 @@
         <slot
             name="suffix"
             v-bind="{ identification }"
-        />
+        ></slot>
         <sw-field-copyable
             v-if="copyable"
             :display-name="identification"
             :copyable-text="currentValue"
             :tooltip="copyableTooltip"
         />
+    </template>
+
+    <template #label>
+        <slot name="label"></slot>
     </template>
 </sw-contextual-field>
 {% endblock %}

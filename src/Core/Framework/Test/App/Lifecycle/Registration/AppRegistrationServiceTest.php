@@ -230,6 +230,33 @@ class AppRegistrationServiceTest extends TestCase
         $this->registrator->registerApp($manifest, '', '', Context::createDefaultContext());
     }
 
+    public function testRegistrationFailsWithError(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/minimal/manifest.xml');
+
+        $this->appendNewResponse(new Response(500, [], '{"error": "Shop url is not met"}'));
+
+        static::expectException(AppRegistrationException::class);
+        $this->registrator->registerApp($manifest, '', '', Context::createDefaultContext());
+    }
+
+    public function testConfirmRegistrationFailsWithError(): void
+    {
+        $id = Uuid::randomHex();
+        $this->createApp($id);
+        $secretAccessKey = AccessKeyHelper::generateSecretAccessKey();
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/minimal/manifest.xml');
+
+        $appSecret = 'dont_tell';
+        $appResponseBody = $this->buildAppResponse($manifest, $appSecret);
+
+        $this->appendNewResponse(new Response(200, [], $appResponseBody));
+        $this->appendNewResponse(new Response(500, [], '{"error": "Shop url is not met"}'));
+
+        static::expectException(AppRegistrationException::class);
+        $this->registrator->registerApp($manifest, $id, $secretAccessKey, Context::createDefaultContext());
+    }
+
     private function createApp(string $id): void
     {
         $roleId = Uuid::randomHex();

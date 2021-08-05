@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Theme\Command\ThemeDumpCommand;
+use Shopware\Storefront\Theme\ConfigLoader\StaticFileConfigDumper;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationCollection;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
@@ -30,7 +31,8 @@ class ThemeDumpCommandTest extends TestCase
             $this->getPluginRegistryMock(),
             $themeFileResolverMock,
             $this->getContainer()->get('theme.repository'),
-            $this->getContainer()->getParameter('kernel.project_dir')
+            $this->getContainer()->getParameter('kernel.project_dir'),
+            $this->createMock(StaticFileConfigDumper::class)
         );
 
         $commandTester = new CommandTester($themeDumpCommand);

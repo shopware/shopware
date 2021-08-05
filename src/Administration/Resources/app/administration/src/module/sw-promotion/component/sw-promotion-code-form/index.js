@@ -16,19 +16,19 @@ Component.register('sw-promotion-code-form', {
 
     mixins: [
         Mixin.getByName('placeholder'),
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     props: {
         promotion: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
         return {
-            modalIndividualVisible: false
+            modalIndividualVisible: false,
         };
     },
 
@@ -98,7 +98,7 @@ Component.register('sw-promotion-code-form', {
             return '';
         },
 
-        ...mapPropertyErrors('promotion', ['code'])
+        ...mapPropertyErrors('promotion', ['code']),
 
     },
     methods: {
@@ -107,7 +107,7 @@ Component.register('sw-promotion-code-form', {
 
             if (string.isEmptyOrSpaces(this.promotion.name)) {
                 this.createNotificationWarning({
-                    message: this.$tc(`${snippetRoot}.warningEmptyPromotionName`)
+                    message: this.$tc(`${snippetRoot}.warningEmptyPromotionName`),
                 });
                 return;
             }
@@ -116,6 +116,6 @@ Component.register('sw-promotion-code-form', {
         },
         closeModalIndividualCodes() {
             this.modalIndividualVisible = false;
-        }
-    }
+        },
+    },
 });

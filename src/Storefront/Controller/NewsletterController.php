@@ -7,15 +7,16 @@ use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterConfirmRoute
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterUnsubscribeRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Captcha\Annotation\Captcha;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Page\Newsletter\Subscribe\NewsletterSubscribePageLoader;
+use Shopware\Storefront\Pagelet\Newsletter\Account\NewsletterAccountPageletLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -32,11 +33,15 @@ class NewsletterController extends StorefrontController
 
     /**
      * @var EntityRepositoryInterface
+     *
+     * @deprecated tag:v6.5.0 (flag:FEATURE_NEXT_16106) $customerRepository is no longer used and will be removed
      */
     private $customerRepository;
 
     /**
      * @var AbstractNewsletterSubscribeRoute
+     *
+     * @deprecated tag:v6.5.0 (flag:FEATURE_NEXT_16106) $newsletterSubscribeRoute is no longer used and will be removed
      */
     private $newsletterSubscribeRoute;
 
@@ -47,21 +52,30 @@ class NewsletterController extends StorefrontController
 
     /**
      * @var AbstractNewsletterUnsubscribeRoute
+     *
+     * @deprecated tag:v6.5.0 (flag:FEATURE_NEXT_16106) $newsletterUnsubscribeRoute is no longer used and will be removed
      */
     private $newsletterUnsubscribeRoute;
+
+    private NewsletterAccountPageletLoader $newsletterAccountPageletLoader;
 
     public function __construct(
         NewsletterSubscribePageLoader $newsletterConfirmRegisterPageLoader,
         EntityRepositoryInterface $customerRepository,
         AbstractNewsletterSubscribeRoute $newsletterSubscribeRoute,
         AbstractNewsletterConfirmRoute $newsletterConfirmRoute,
-        AbstractNewsletterUnsubscribeRoute $newsletterUnsubscribeRoute
+        AbstractNewsletterUnsubscribeRoute $newsletterUnsubscribeRoute,
+        NewsletterAccountPageletLoader $newsletterAccountPageletLoader
     ) {
         $this->newsletterConfirmRegisterPageLoader = $newsletterConfirmRegisterPageLoader;
+        /* @feature-deprecated tag:v6.5.0 (flag:FEATURE_NEXT_16106) remove next line */
         $this->customerRepository = $customerRepository;
+        /* @feature-deprecated tag:v6.5.0 (flag:FEATURE_NEXT_16106) remove next line */
         $this->newsletterSubscribeRoute = $newsletterSubscribeRoute;
         $this->newsletterConfirmRoute = $newsletterConfirmRoute;
+        /* @feature-deprecated tag:v6.5.0 (flag:FEATURE_NEXT_16106) remove next line */
         $this->newsletterUnsubscribeRoute = $newsletterUnsubscribeRoute;
+        $this->newsletterAccountPageletLoader = $newsletterAccountPageletLoader;
     }
 
     /**
@@ -87,10 +101,19 @@ class NewsletterController extends StorefrontController
      * @Since("6.0.0.0")
      * @LoginRequired()
      * @Route("/widgets/account/newsletter", name="frontend.account.newsletter", methods={"POST"}, defaults={"XmlHttpRequest"=true})
-     * @Captcha
      */
     public function subscribeCustomer(Request $request, RequestDataBag $dataBag, SalesChannelContext $context, CustomerEntity $customer): Response
     {
+        /*
+         * @feature-deprecated tag:v6.5.0 (flag:FEATURE_NEXT_14001) keep if branch on feature release
+         */
+        if (Feature::isActive('FEATURE_NEXT_14001')) {
+            $pagelet = $this->newsletterAccountPageletLoader->action($request, $dataBag, $context, $customer);
+
+            return $this->renderStorefront('@Storefront/storefront/page/account/newsletter.html.twig', [
+                'newsletterAccountPagelet' => $pagelet,
+            ]);
+        }
         $subscribed = $request->get('option', false) === 'direct';
 
         if (!$subscribed) {
@@ -146,6 +169,9 @@ class NewsletterController extends StorefrontController
         ]);
     }
 
+    /**
+     * @feature-deprecated tag:v6.5.0 (flag:FEATURE_NEXT_14001) remove method
+     */
     private function hydrateFromCustomer(RequestDataBag $dataBag, CustomerEntity $customer): RequestDataBag
     {
         $dataBag->set('email', $customer->getEmail());
@@ -159,6 +185,9 @@ class NewsletterController extends StorefrontController
         return $dataBag;
     }
 
+    /**
+     * @feature-deprecated tag:v6.5.0 (flag:FEATURE_NEXT_14001) remove method
+     */
     private function setNewsletterFlag(CustomerEntity $customer, bool $newsletter, SalesChannelContext $context): void
     {
         $customer->setNewsletter($newsletter);

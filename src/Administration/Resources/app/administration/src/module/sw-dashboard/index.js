@@ -17,10 +17,10 @@ Module.register('sw-dashboard', {
     routes: {
         index: {
             components: {
-                default: 'sw-dashboard-index'
+                default: 'sw-dashboard-index',
             },
-            path: 'index'
-        }
+            path: 'index',
+        },
     },
 
     navigation: [{
@@ -29,6 +29,6 @@ Module.register('sw-dashboard', {
         color: '#6AD6F0',
         icon: 'default-device-dashboard',
         path: 'sw.dashboard.index',
-        position: 10
-    }]
+        position: 10,
+    }],
 });

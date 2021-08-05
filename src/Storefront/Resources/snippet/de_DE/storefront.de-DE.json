@@ -62,11 +62,6 @@
     "FRAMEWORK__INVALID_UUID": "Die gewählte Zahlungsart konnte nicht gefunden werden.",
     "CHECKOUT__UNKNOWN_PAYMENT_METHOD": "Die gewählte Zahlungsart konnte nicht gefunden werden.",
     "productNotFound": "Produkt \"%number%\" konnte nicht gefunden werden.",
-    "payment-method-blocked": "Die gewählte Zahlungsart %name% ist nicht verfügbar.",
-    "shipping-address-blocked": "Lieferungen an die gewählte Lieferadresse sind nicht möglich.",
-    "shipping-address-invalid": "Die gewählte Versandadresse ist nicht gültig oder unvollständig. Bitte prüfen Sie Ihre Eingaben.",
-    "billing-address-blocked": "Rechnungen können nicht an die gewählte Rechnungsadresse ausgestellt werden.",
-    "billing-address-invalid": "Die gewählte Rechnungsadresse ist nicht gültig oder unvollständig. Bitte prüfen Sie Ihre Eingaben.",
     "VIOLATION::TOO_SHORT_ERROR": "%field% ist zu kurz.",
     "product-not-found": "Das Produkt wurde nicht gefunden.",
     "message-403-ajax": "Die Sitzung ist abgelaufen. Bitte laden Sie die Seite neu und versuchen Sie es erneut.",
@@ -74,7 +69,7 @@
     "product-out-of-stock": "%name% ist momentan nicht verfügbar.",
     "auto-promotion-not-found": "Die Rabattaktion \"%name%\" ist nicht mehr gültig!",
     "captcha" : {
-      "basic-captcha-invalid": "CAPTCHA-Eingabe ungültig. Bitte überprüfen Sie Ihre Eingaben."
+      "basic-captcha-invalid": "Eingabe ungültig. Bitte versuchen Sie es erneut."
     }
   },
   "account": {
@@ -161,6 +156,7 @@
     "overviewChangeShipping": "Lieferadresse ändern",
     "overviewNewestOrderHeader": "Letzte Bestellung",
     "overviewCustomerGroupRequest": "Anfrage zur Aufnahme in die Kundengruppe \"%group%\" gestellt.",
+    "overviewNotAbleToShip": "Wir können nicht in das Land liefern, welches in Ihrer Lieferadresse hinterlegt ist.",
     "paymentChangeSubmit": "Ändern",
     "profilePersonalTitle": "Persönliche Daten",
     "profileMailTitle": "E-Mail-Adresse",
@@ -297,6 +293,8 @@
     "cityPlaceholder": "Ort eingeben ...",
     "countryLabel": "Land",
     "countryPlaceholder": "Land auswählen ...",
+    "countryPostfixNoShipping": "(Keine Lieferung möglich)",
+    "countryNoShippingAlert": "Eine Lieferung in das Land ist nicht möglich.",
     "countryStateLabel": "Bundesland",
     "countryStatePlaceholder": "Bundesland auswählen ...",
     "phoneNumberLabel": "Telefonnummer",
@@ -395,16 +393,23 @@
     "promotion-discount-added": "Rabatt \"%name%\" wurde dem Warenkorb hinzugefügt",
     "promotion-not-found": "Der Gutschein-Code \"%code%\" existiert nicht.",
     "promotion-not-eligible": "Der Gutschein-Code wurde gespeichert, aber nicht auf den Warenkorb angewendet, da die Voraussetzungen dafür nicht zutreffen. Sobald die Voraussetzungen zutreffen, wird er automatisch hinzugefügt.",
+    "promotion-excluded": "Mindestens ein Rabatt wurde wegen Konflikten mit anderen Rabatten aus dem Warenkorb entfernt. Sobald die Bedingungen wieder zutreffen, wird der Rabatt automatisch hinzugefügt.",
     "auto-promotion-not-found": "Die Rabattaktion \"%name%\" ist nicht länger gültig!",
     "shipping-address-blocked": "Lieferungen an die gewählte Lieferadresse sind nicht möglich.",
     "billing-address-blocked": "Rechnungen können nicht an die gewählte Rechnungsadresse ausgestellt werden.",
+    "shipping-address-invalid": "Die gewählte Versandadresse ist nicht gültig oder unvollständig. Bitte prüfen Sie Ihre Eingaben.",
+    "billing-address-invalid": "Die gewählte Rechnungsadresse ist nicht gültig oder unvollständig. Bitte prüfen Sie Ihre Eingaben.",
     "customerCommentHeader": "Zusätzliche Informationen",
     "customerCommentLabel": "Möchten Sie uns etwas über Ihre Bestellung mitteilen?",
     "customerCommentPlaceholder": "Kommentieren Sie hier ...",
     "cart-merged-hint": "Der aktuelle Warenkorb enthält u.U. zusätzliche Produkte, die noch von einem früheren Besuch gespeichert waren.",
     "collapseTriggerMore": "Mehr zeigen",
     "collapseTriggerLess": "Weniger zeigen",
-    "product-not-found": "Das Produkt wurde nicht gefunden."
+    "product-not-found": "Das Produkt wurde nicht gefunden.",
+    "salutation-missing": "Es wurde keine Anrede konfiguriert, bitte wählen Sie beim Abschluss Ihrer Bestellung eine Anrede aus.",
+    "salutation-missing-profile": "Ihr Profil enthält noch keine Anrede, bitte wählen Sie <a href=\"%url%\">hier</a> eine aus.",
+    "salutation-missing-billing-address": "Für die gewählte Rechnungsadresse wurde noch keine Anrede festgelegt, bitte wählen Sie <a href=\"%url%\">hier</a> eine aus.",
+    "salutation-missing-shipping-address": "Für die gewählte Lieferadresse wurde noch keine Anrede festgelegt, bitte wählen Sie <a href=\"%url%\">hier</a> eine aus."
   },
   "listing": {
     "filterTitleText": "Filter",
@@ -562,7 +567,7 @@
   },
   "captcha": {
     "googleReCaptcha": {
-      "dataProtectionInformation": "Diese Seite ist durch reCAPTCHA geschützt und es gelten die <a href=\\\"https://policies.google.com/privacy?hl=de\\\">Datenschutzrichtlinie</a> und\\n<a href=\\\"https://policies.google.com/terms?hl=de\\\">Nutzungsbedingungen</a>."
+      "dataProtectionInformation": "Diese Seite ist durch reCAPTCHA geschützt und es gelten die <a href=\\\"https://policies.google.com/privacy?hl=de\\\">Datenschutzrichtlinie</a> und <a href=\\\"https://policies.google.com/terms?hl=de\\\">Nutzungsbedingungen</a>."
     },
     "basicCaptchaLabel" : "Bitte geben Sie die abgebildeten Zeichen ein*"
   },
@@ -579,7 +584,7 @@
     "groupRequiredSession": "Sitzung",
     "groupRequiredCsrf": "CSRF-Schutz",
     "groupRequiredTimezone": "Zeitzone",
-    "groupRequiredCaptcha": "Captcha-Integration",
+    "groupRequiredCaptcha": "CAPTCHA-Integration",
     "groupStatistical": "Statistiken",
     "groupStatisticalDescription": "Für Statistiken und Shop-Performance-Metriken genutzte Cookies.",
     "groupStatisticalGoogleAnalytics": "Google Analytics",

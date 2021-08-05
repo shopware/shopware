@@ -1,0 +1,166 @@
+{% block sw_sales_channel_product_assignment_categories %}
+<div class="sw-sales-channel-product-assignment-categories">
+    {% block sw_sales_channel_product_assignment_categories_info %}
+    <sw-alert ref="alert">
+        {{ $tc('sw-sales-channel.detail.productAssignmentModal.categories.textInfo') }}
+    </sw-alert>
+    {% endblock %}
+
+    {% block sw_sales_channel_product_assignment_categories_content %}
+    <sw-card :is-loading="!isComponentReady || isProductLoading">
+        <div :style="containerStyle">
+            {% block sw_sales_channel_products_assignment_single_products_secondary %}
+            <sw-card-section
+                ref="cardSectionSecondary"
+                secondary
+                divider="bottom"
+            >
+                {% block sw_sales_channel_product_assignment_categories_search_field %}
+                <sw-simple-search-field
+                    v-model="searchTerm"
+                    variant="form"
+                    size="small"
+                    :placeholder="$tc('sw-sales-channel.detail.productAssignmentModal.categories.textSearch')"
+                />
+                {% endblock %}
+            </sw-card-section>
+            {% endblock %}
+
+            {% block sw_sales_channel_product_assignment_categories_tree %}
+            {% block sw_sales_channel_product_assignment_categories_tree_result %}
+            <sw-tree
+                v-if="searchTerm.length <= 0 && categories.length > 0"
+                ref="swTree"
+                after-id-property="afterCategoryId"
+                :items="categories"
+                :sortable="false"
+                @get-tree-items="getTreeItems"
+            >
+                {% block sw_sales_channel_product_assignment_categories_tree_headline %}
+                <template #headline>
+                    <span></span>
+                </template>
+                {% endblock %}
+
+                {% block sw_sales_channel_product_assignment_categories_tree_search %}
+                <template #search>
+                    <span></span>
+                </template>
+                {% endblock %}
+
+                {% block sw_sales_channel_product_assignment_categories_tree_items %}
+                <template
+                    #items="{
+                        treeItems,
+                        draggedItem,
+                        translationContext
+                    }"
+                >
+                    {% block ssw_sales_channel_product_assignment_categories_tree_item %}
+                    <sw-tree-item
+                        v-for="item in treeItems"
+                        :key="item.id"
+                        :item="item"
+                        :translation-context="translationContext"
+                        :dragged-item="draggedItem"
+                        :active-parent-ids="selectedCategoriesPathIds"
+                        :active-item-ids="selectedCategoriesItemsIds"
+                        :sortable="false"
+                        :mark-inactive="true"
+                        @check-item="onCheckItem"
+                    >
+
+                        {% block sw_sales_channel_product_assignment_categories_tree_item_actions %}
+                        <template #actions>
+                            <span></span>
+                        </template>
+                        {% endblock %}
+
+                    </sw-tree-item>
+                    {% endblock %}
+                </template>
+                {% endblock %}
+            </sw-tree>
+            {% endblock %}
+
+            {% block sw_sales_channel_product_assignment_categories_search_results %}
+            <ul
+                v-else-if="searchResult.length > 0 && searchTerm.length > 0"
+                class="sw-sales-channel-product-assignment-categories__search-results"
+            >
+
+                {% block sw_sales_channel_product_assignment_categories_search_results_item %}
+                <li
+                    v-for="item in searchResult"
+                    :key="item.id"
+                    class="sw-sales-channel-product-assignment-categories__search-result"
+                    @click.stop="onCheckSearchItem(item)"
+                >
+
+                    {% block sw_sales_channel_product_assignment_categories_search_results_item_checkbox %}
+                    <sw-checkbox-field
+                        class="sw-sales-channel-product-assignment-categories__search-results-checkbox"
+                        :value="isSearchItemChecked(item.id)"
+                    />
+                    {% endblock %}
+
+                    {% block sw_sales_channel_product_assignment_categories_search_results_item_folder %}
+                    <div
+                        v-if="item.childCount > 0"
+                        class="sw-sales-channel-product-assignment-categories__search-results-icon"
+                    >
+                        {% block sw_sales_channel_product_assignment_categories_search_results_item_folder_icon %}
+                        <sw-icon
+                            name="multicolor-folder-tree"
+                            multicolor
+                            small
+                        />
+                        {% endblock %}
+                    </div>
+                    {% endblock %}
+
+                    {% block sw_category_tree_field_input_results_search_results_item_endpoint %}
+                    <div
+                        v-else
+                        class="sw-sales-channel-product-assignment-categories__search-results-icon"
+                    >
+                        {% block sw_category_tree_field_input_results_search_results_item_endpoint_icon %}
+                        <sw-icon
+                            name="small-default-circle-small"
+                            size="18"
+                        />
+                        {% endblock %}
+                    </div>
+                    {% endblock %}
+
+                    {% block sw_sales_channel_product_assignment_categories_search_results_item_name %}
+                    <span class="sw-sales-channel-product-assignment-categories__search-results-name">
+                        {% block sw_category_tree_field_input_results_search_results_item_name_highlight %}
+                        <sw-highlight-text
+                            :search-term="searchTerm"
+                            :text="getBreadcrumb(item)"
+                        />
+                        {% endblock %}
+                    </span>
+                    {% endblock %}
+                </li>
+                {% endblock %}
+            </ul>
+            {% endblock %}
+
+            {% block sw_sales_channel_product_assignment_categories_search_results_empty %}
+            <sw-empty-state
+                v-else
+                :show-description="false"
+                :absolute="false"
+                :title="$tc('sw-sales-channel.detail.productAssignmentModal.categories.emptySearchResults')"
+                :icon="'default-symbol-products'"
+                class="sw-sales-channel-product-assignment-categories__empty-state"
+            />
+            {% endblock %}
+            {% endblock %}
+        </div>
+    </sw-card>
+    {% endblock %}
+</div>
+{% endblock %}

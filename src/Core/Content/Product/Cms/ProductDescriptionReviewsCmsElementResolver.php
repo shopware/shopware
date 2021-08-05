@@ -30,14 +30,10 @@ class ProductDescriptionReviewsCmsElementResolver extends AbstractProductDetailC
     private const DEFAULT_PAGE = 1;
     private const FILTER_LANGUAGE = 'filter-language';
 
-    /**
-     * @var AbstractProductReviewRoute;
-     */
-    private $productReviewRoute;
+    private AbstractProductReviewRoute $productReviewRoute;
 
-    public function __construct(
-        AbstractProductReviewRoute $productReviewRoute
-    ) {
+    public function __construct(AbstractProductReviewRoute $productReviewRoute)
+    {
         $this->productReviewRoute = $productReviewRoute;
     }
 
@@ -51,9 +47,7 @@ class ProductDescriptionReviewsCmsElementResolver extends AbstractProductDetailC
         $data = new ProductDescriptionReviewsStruct();
         $slot->setData($data);
 
-        $config = $slot->getFieldConfig();
-        $productConfig = $config->get('product');
-
+        $productConfig = $slot->getFieldConfig()->get('product');
         if ($productConfig === null) {
             return;
         }
@@ -65,11 +59,11 @@ class ProductDescriptionReviewsCmsElementResolver extends AbstractProductDetailC
         $product = null;
 
         if ($productConfig->isMapped() && $resolverContext instanceof EntityResolverContext) {
-            $product = $this->resolveEntityValue($resolverContext->getEntity(), $productConfig->getValue());
+            $product = $this->resolveEntityValue($resolverContext->getEntity(), $productConfig->getStringValue());
         }
 
         if ($productConfig->isStatic()) {
-            $product = $this->getSlotProduct($slot, $result, $productConfig->getValue());
+            $product = $this->getSlotProduct($slot, $result, $productConfig->getStringValue());
         }
 
         /** @var SalesChannelProductEntity|null $product */

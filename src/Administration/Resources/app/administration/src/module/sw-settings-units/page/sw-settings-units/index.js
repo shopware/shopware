@@ -10,7 +10,7 @@ Component.register('sw-settings-units', {
     inject: ['repositoryFactory', 'acl'],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     data() {
@@ -19,13 +19,13 @@ Component.register('sw-settings-units', {
             placeholderAmount: 7,
             unitsCriteria: null,
             units: [],
-            newUnit: null
+            newUnit: null,
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle()
+            title: this.$createTitle(),
         };
     },
 
@@ -51,20 +51,20 @@ Component.register('sw-settings-units', {
                 return {
                     message: this.$tc('sw-privileges.tooltip.warning'),
                     disabled: this.acl.can('scale_unit.creator'),
-                    showOnDisabledElements: true
+                    showOnDisabledElements: true,
                 };
             }
 
             return {
                 showOnDisabledElements: true,
                 message: this.$tc('sw-settings-units.general.disableAddNewUnitMessage'),
-                disabled: !this.isAddingUnitsDisabled
+                disabled: !this.isAddingUnitsDisabled,
             };
         },
 
         isAddingUnitsDisabled() {
             return Shopware.Context.api.languageId !== Shopware.Context.api.systemLanguageId;
-        }
+        },
     },
 
     created() {
@@ -118,7 +118,7 @@ Component.register('sw-settings-units', {
 
                 this.createNotificationSuccess({
                     title: titleSaveSuccess,
-                    message: messageSaveSuccess
+                    message: messageSaveSuccess,
                 });
             }).catch(() => {
                 this.isLoading = false;
@@ -134,7 +134,7 @@ Component.register('sw-settings-units', {
 
                 this.createNotificationError({
                     title: titleSaveError,
-                    message: messageSaveError
+                    message: messageSaveError,
                 });
             });
         },
@@ -161,16 +161,16 @@ Component.register('sw-settings-units', {
             return [{
                 property: 'name',
                 label: 'sw-settings-units.grid.columnName',
-                inlineEdit: 'string'
+                inlineEdit: 'string',
             }, {
                 property: 'shortCode',
                 label: 'sw-settings-units.grid.columnShortCode',
-                inlineEdit: 'string'
+                inlineEdit: 'string',
             }];
         },
 
         onChangeLanguage() {
             this.loadUnits();
-        }
-    }
+        },
+    },
 });

@@ -20,10 +20,20 @@ Component.extend('sw-settings-country-create', 'sw-settings-country-detail', {
 
             if (this.$route.params.id) {
                 this.country = this.countryRepository.create(Shopware.Context.api, this.$route.params.id);
+                this.country.customerTax = {
+                    amount: 0,
+                    currencyId: Shopware.Context.app.systemCurrencyId,
+                    enabled: false,
+                };
+                this.country.companyTax = {
+                    amount: 0,
+                    currencyId: Shopware.Context.app.systemCurrencyId,
+                    enabled: false,
+                };
                 this.countryId = this.country.id;
                 this.countryStateRepository = this.repositoryFactory.create(
                     this.country.states.entity,
-                    this.country.states.source
+                    this.country.states.source,
                 );
             }
         },
@@ -31,6 +41,6 @@ Component.extend('sw-settings-country-create', 'sw-settings-country-detail', {
         saveFinish() {
             this.isSaveSuccessful = false;
             this.$router.push({ name: 'sw.settings.country.detail', params: { id: this.country.id } });
-        }
-    }
+        },
+    },
 });

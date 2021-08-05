@@ -10,25 +10,25 @@ Component.register('sw-cms-page-select', {
     inject: ['cmsService'],
 
     mixins: [
-        Mixin.getByName('sw-inline-snippet')
+        Mixin.getByName('sw-inline-snippet'),
     ],
 
     props: {
         pageType: {
             type: String,
-            required: true
+            required: true,
         },
 
         value: {
             type: String,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
         return {
-            currentValue: this.value
+            currentValue: this.value,
         };
     },
 
@@ -36,7 +36,7 @@ Component.register('sw-cms-page-select', {
         bind() {
             return {
                 ...this.$attrs,
-                ...this.translations
+                ...this.translations,
             };
         },
 
@@ -48,11 +48,11 @@ Component.register('sw-cms-page-select', {
             const criteria = new Criteria(1, 25);
 
             criteria.addFilter(
-                Criteria.equals('type', this.pageType)
+                Criteria.equals('type', this.pageType),
             );
 
             return criteria;
-        }
+        },
     },
 
     watch: {
@@ -64,7 +64,7 @@ Component.register('sw-cms-page-select', {
 
         value() {
             this.currentValue = this.value;
-        }
+        },
     },
 
     methods: {
@@ -79,6 +79,6 @@ Component.register('sw-cms-page-select', {
             });
 
             return translations;
-        }
-    }
+        },
+    },
 });

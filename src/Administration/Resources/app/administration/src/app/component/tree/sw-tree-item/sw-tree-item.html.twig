@@ -15,7 +15,7 @@
         <div
             v-if="item.childCount <= 0"
             class="sw-tree-item__leaf"
-        />
+        ></div>
         {% endblock %}
 
         {% block sw_tree_item_element_toggle %}
@@ -44,10 +44,9 @@
 
         {% block sw_tree_item_element_selection %}
         <div class="sw-tree-item__selection">
-            <sw-field
+            <sw-checkbox-field
                 v-if="displayCheckbox"
                 :disabled="currentEditElement === item.data.id"
-                type="checkbox"
                 :ghost-value="checkedGhost"
                 :value="checked"
                 @change="toggleItemCheck($event, item)"
@@ -332,7 +331,7 @@
                         class="sw-tree-item__actions"
                     >
 
-                        {% block sw_tree_items_active_state %}
+                        {% block sw_tree_items_transition_active_state %}
                         <sw-icon
                             v-if="shouldShowActiveState"
                             size="6"
@@ -358,7 +357,7 @@
                                 :disabled="isDisabled"
                             >
 
-                                {% block sw_tree_items_actions_without_position %}
+                                {% block sw_tree_items_transition_actions_without_position %}
                                 <sw-context-menu-item
                                     v-if="allowCreateWithoutPosition"
                                     class="sw-tree-item__without-position-action"
@@ -368,61 +367,66 @@
                                 </sw-context-menu-item>
                                 {% endblock %}
 
-                                {% block sw_tree_items_actions_before %}
+                                {% block sw_tree_items_transition_actions_before %}
                                 <sw-context-menu-item
                                     v-if="!allowCreateWithoutPosition"
                                     :disabled="!allowNewCategories"
+                                    class="sw-tree-item__before-action"
                                     @click="addElement(item, 'before')"
                                 >
                                     {{ $tc(`${translationContext}.general.actions.createBefore`) }}
                                 </sw-context-menu-item>
                                 {% endblock %}
 
-                                {% block sw_tree_items_actions_after %}
+                                {% block sw_tree_items_transition_actions_after %}
                                 <sw-context-menu-item
                                     v-if="!allowCreateWithoutPosition"
                                     :disabled="!allowNewCategories"
+                                    class="sw-tree-item__after-action"
                                     @click="addElement(item, 'after')"
                                 >
                                     {{ $tc(`${translationContext}.general.actions.createAfter`) }}
                                 </sw-context-menu-item>
                                 {% endblock %}
 
-                                {% block sw_tree_items_actions_sub %}
+                                {% block sw_tree_items_transition_actions_sub %}
                                 <sw-context-menu-item
                                     v-if="!allowCreateWithoutPosition"
                                     :disabled="!allowNewCategories"
+                                    class="sw-tree-item__sub-action"
                                     @click="addSubElement(item); openTreeItem(true)"
                                 >
                                     {{ $tc(`${translationContext}.general.actions.createSub`) }}
                                 </sw-context-menu-item>
                                 {% endblock %}
 
-                                {% block sw_tree_items_actions_duplicate %}
+                                {% block sw_tree_items_transition_actions_duplicate %}
                                 <sw-context-menu-item
                                     v-if="allowDuplicate"
+                                    class="sw-context-menu__duplicate-action"
                                     @click="onDuplicate(item)"
                                 >
                                     {{ $tc(`global.default.duplicate`) }}
                                 </sw-context-menu-item>
                                 {% endblock %}
 
-                                {% block sw_tree_items_actions_group %}
+                                {% block sw_tree_items_transition_actions_group %}
                                 <div class="sw-context-menu__group">
 
-                                    {% block sw_tree_items_actions_edit %}
+                                    {% block sw_tree_items_transition_actions_edit %}
                                     <sw-context-menu-item @click="onChangeRoute(item)">
-                                        {{ $tc('sw-tree.actions.edit') }}
+                                        {{ $tc('global.default.edit') }}
                                     </sw-context-menu-item>
                                     {% endblock %}
 
-                                    {% block sw_tree_items_actions_delete %}
+                                    {% block sw_tree_items_transition_actions_delete %}
                                     <sw-context-menu-item
-                                        variant="danger"
+                                        class="sw-context-menu__group-button-delete"
                                         :disabled="!allowDeleteCategories"
+                                        variant="danger"
                                         @click="deleteElement(item)"
                                     >
-                                        {{ $tc('sw-tree.actions.delete') }}
+                                        {{ $tc('global.default.delete') }}
                                     </sw-context-menu-item>
                                     {% endblock %}
                                 </div>

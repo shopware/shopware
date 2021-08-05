@@ -159,7 +159,7 @@ describe('Product: Mode advanced settings at product detail', () => {
             cy.get('.sw-product-detail-base__labelling-card').should('not.be.visible');
         });
     });
-    
+
     it('@catalogue: should not show the cards, fields when unchecking or toggling in advanced mode menu in Specification tab', () => {
         const page = new ProductPageObject();
 
@@ -197,7 +197,14 @@ describe('Product: Mode advanced settings at product detail', () => {
         cy.get('.sw-tabs-item.sw-product-detail__tab-specifications').click();
 
         cy.get('.sw-product-detail-specification__measures-packaging').should('be.visible');
-        cy.get('.sw-product-detail-properties').should('be.visible');
+
+        cy.onlyOnFeature('FEATURE_NEXT_12437', () => {
+            cy.get('.sw-product-properties').should('be.visible');
+        });
+        cy.skipOnFeature('FEATURE_NEXT_12437', () => {
+            cy.get('.sw-product-detail-properties').should('be.visible');
+        });
+
         cy.get('.sw-product-detail-specification__essential-characteristics').should('be.visible');
 
         packagingItemClassName.forEach(item => {
@@ -216,8 +223,15 @@ describe('Product: Mode advanced settings at product detail', () => {
 
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-product-detail-specification__measures-packaging').should('be.visible');
-        cy.get('.sw-product-detail-properties').should('be.visible');
-        cy.get('.sw-product-detail-properties .sw-empty-state__element').should('be.visible');
+
+        cy.onlyOnFeature('FEATURE_NEXT_12437', () => {
+            cy.get('.sw-product-properties').should('be.visible');
+        });
+        cy.skipOnFeature('FEATURE_NEXT_12437', () => {
+            cy.get('.sw-product-detail-properties').should('be.visible');
+            cy.get('.sw-product-detail-properties .sw-empty-state__element').should('be.visible');
+        });
+
         cy.get('.sw-product-detail-specification__essential-characteristics').should('not.be.visible');
 
         packagingItemClassName.forEach(item => {
@@ -243,7 +257,13 @@ describe('Product: Mode advanced settings at product detail', () => {
         cy.get('.sw-product-settings-mode__list .sw-product-settings-mode__item').eq(1).click();
         cy.wait('@saveUserConfig').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
-            cy.get('.sw-product-detail-properties').should('not.be.visible');
+
+            cy.onlyOnFeature('FEATURE_NEXT_12437', () => {
+                cy.get('.sw-product-properties').should('not.be.visible');
+            });
+            cy.skipOnFeature('FEATURE_NEXT_12437', () => {
+                cy.get('.sw-product-detail-properties').should('not.be.visible');
+            });
         });
 
         cy.get('.sw-product-settings-mode__list .sw-product-settings-mode__item').eq(2).click();

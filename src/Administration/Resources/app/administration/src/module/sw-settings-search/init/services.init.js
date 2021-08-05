@@ -5,20 +5,20 @@ import ExcludedSearchTermService from '../../../core/service/api/excludedSearchT
 Shopware.Service().register('productIndexService', () => {
     return new ProductIndexService(
         Shopware.Application.getContainer('init').httpClient,
-        Shopware.Service('loginService')
+        Shopware.Service('loginService'),
     );
 });
 
 Shopware.Service().register('liveSearchService', () => {
     return new LiveSearchApiService(
         Shopware.Application.getContainer('init').httpClient,
-        Shopware.Service('loginService')
+        Shopware.Service('loginService'),
     );
 });
 
 Shopware.Service().register('excludedSearchTermService', () => {
     return new ExcludedSearchTermService(
         Shopware.Application.getContainer('init').httpClient,
-        Shopware.Service('loginService')
+        Shopware.Service('loginService'),
     );
 });

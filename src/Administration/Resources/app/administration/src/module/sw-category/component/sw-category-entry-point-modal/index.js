@@ -7,14 +7,14 @@ Component.register('sw-category-entry-point-modal', {
     template,
 
     inject: [
-        'acl'
+        'acl',
     ],
 
     props: {
         salesChannelCollection: {
             type: Array,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
@@ -25,7 +25,7 @@ Component.register('sw-category-entry-point-modal', {
             showLayoutSelectionModal: false,
             pageTypes: ['page', 'landingpage', 'product_list'],
             nextRoute: null,
-            isDisplayingLeavePageWarning: false
+            isDisplayingLeavePageWarning: false,
         };
     },
 
@@ -39,9 +39,9 @@ Component.register('sw-category-entry-point-modal', {
                 page: this.$tc('sw-cms.detail.label.pageTypeShopPage'),
                 landingpage: this.$tc('sw-cms.detail.label.pageTypeLandingpage'),
                 product_list: this.$tc('sw-cms.detail.label.pageTypeCategory'),
-                product_detail: this.$tc('sw-cms.detail.label.pageTypeProduct')
+                product_detail: this.$tc('sw-cms.detail.label.pageTypeProduct'),
             };
-        }
+        },
     },
 
     created() {
@@ -61,12 +61,12 @@ Component.register('sw-category-entry-point-modal', {
                     homeKeywords: salesChannel.homeKeywords,
                     homeCmsPageId: salesChannel.homeCmsPageId,
                     homeCmsPage: salesChannel.homeCmsPage ? { ...salesChannel.homeCmsPage } : null,
-                    translated: salesChannel.translated ? { ...salesChannel.translated } : null
+                    translated: salesChannel.translated ? { ...salesChannel.translated } : null,
                 });
 
                 this.salesChannelOptions.push({
                     value: salesChannel.id,
-                    label: salesChannel.translated ? salesChannel.translated.name : salesChannel.name
+                    label: salesChannel.translated ? salesChannel.translated.name : salesChannel.name,
                 });
             });
 
@@ -183,6 +183,6 @@ Component.register('sw-category-entry-point-modal', {
                     this.$router.push({ name: destination.name, params: destination.params });
                 });
             });
-        }
-    }
+        },
+    },
 });

@@ -20,7 +20,8 @@ Component.extend('sw-condition-billing-country', 'sw-condition-base', {
 
     data() {
         return {
-            billingCountries: null
+            billingCountries: null,
+            inputKey: 'countryIds',
         };
     },
 
@@ -30,7 +31,9 @@ Component.extend('sw-condition-billing-country', 'sw-condition-base', {
         },
 
         operators() {
-            return this.conditionDataProviderService.getOperatorSet('multiStore');
+            return this.conditionDataProviderService.addEmptyOperatorToOperatorSet(
+                this.conditionDataProviderService.getOperatorSet('multiStore'),
+            );
         },
 
         countryIds: {
@@ -41,14 +44,14 @@ Component.extend('sw-condition-billing-country', 'sw-condition-base', {
             set(countryIds) {
                 this.ensureValueExist();
                 this.condition.value = { ...this.condition.value, countryIds };
-            }
+            },
         },
 
         ...mapPropertyErrors('condition', ['value.operator', 'value.countryIds']),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueCountryIdsError;
-        }
+        },
     },
 
     created() {
@@ -60,7 +63,7 @@ Component.extend('sw-condition-billing-country', 'sw-condition-base', {
             this.billingCountries = new EntityCollection(
                 this.countryRepository.route,
                 this.countryRepository.entityName,
-                Context.api
+                Context.api,
             );
 
             if (this.countryIds.length <= 0) {
@@ -78,6 +81,6 @@ Component.extend('sw-condition-billing-country', 'sw-condition-base', {
         setCountryIds(countries) {
             this.countryIds = countries.getIds();
             this.billingCountries = countries;
-        }
-    }
+        },
+    },
 });

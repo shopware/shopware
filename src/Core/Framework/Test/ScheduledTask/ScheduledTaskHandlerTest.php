@@ -36,7 +36,10 @@ class ScheduledTaskHandlerTest extends TestCase
         $this->scheduledTaskRepo = $this->getContainer()->get('scheduled_task.repository');
     }
 
-    public function testHandle(): void
+    /**
+     * @dataProvider allowedStatus
+     */
+    public function testHandle(string $status): void
     {
         $this->connection->exec('DELETE FROM scheduled_task');
 
@@ -50,7 +53,7 @@ class ScheduledTaskHandlerTest extends TestCase
                 'name' => 'test',
                 'scheduledTaskClass' => RequeueDeadMessagesTask::class,
                 'runInterval' => $interval,
-                'status' => ScheduledTaskDefinition::STATUS_QUEUED,
+                'status' => $status,
                 'nextExecutionTime' => $originalNextExecution,
             ],
         ], Context::createDefaultContext());
@@ -74,6 +77,14 @@ class ScheduledTaskHandlerTest extends TestCase
         static::assertEquals(ScheduledTaskDefinition::STATUS_SCHEDULED, $task->getStatus());
         static::assertEquals($newOriginalNextExecutionString, $nextExecutionTimeString);
         static::assertNotEquals($originalNextExecution->format(\DATE_ATOM), $task->getNextExecutionTime()->format(\DATE_ATOM));
+    }
+
+    public function allowedStatus(): array
+    {
+        return [
+            [ScheduledTaskDefinition::STATUS_QUEUED],
+            [ScheduledTaskDefinition::STATUS_FAILED],
+        ];
     }
 
     public function testHandleWhenNewNextExecutionTimeLessThanNowTime(): void
@@ -170,9 +181,9 @@ class ScheduledTaskHandlerTest extends TestCase
     }
 
     /**
-     * @dataProvider notQueuedStatus
+     * @dataProvider notAllowedStatus
      */
-    public function testHandleIgnoresWhenTaskIsNotQueued(string $status): void
+    public function testHandleIgnoresWhenTaskIsNotAllowedForExecution(string $status): void
     {
         $this->connection->exec('DELETE FROM scheduled_task');
 
@@ -201,10 +212,9 @@ class ScheduledTaskHandlerTest extends TestCase
         static::assertEquals($status, $task->getStatus());
     }
 
-    public function notQueuedStatus(): array
+    public function notAllowedStatus(): array
     {
         return [
-            [ScheduledTaskDefinition::STATUS_FAILED],
             [ScheduledTaskDefinition::STATUS_RUNNING],
             [ScheduledTaskDefinition::STATUS_SCHEDULED],
             [ScheduledTaskDefinition::STATUS_INACTIVE],

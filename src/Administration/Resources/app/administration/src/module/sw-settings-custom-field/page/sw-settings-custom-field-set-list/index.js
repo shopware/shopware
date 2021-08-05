@@ -10,7 +10,7 @@ Component.register('sw-settings-custom-field-set-list', {
 
     mixins: [
         Mixin.getByName('sw-inline-snippet'),
-        Mixin.getByName('sw-settings-list')
+        Mixin.getByName('sw-settings-list'),
     ],
 
     data() {
@@ -18,13 +18,13 @@ Component.register('sw-settings-custom-field-set-list', {
             entityName: 'custom_field_set',
             sortBy: 'config.name',
             datetime: '',
-            showModal: false
+            showModal: false,
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle()
+            title: this.$createTitle(),
         };
     },
 
@@ -40,7 +40,7 @@ Component.register('sw-settings-custom-field-set-list', {
                 return this.$tc(
                     'sw-settings-custom-field.set.list.messageDeleteSuccess',
                     0,
-                    { name: this.getInlineSnippet(this.deleteEntity.config.label) || this.deleteEntity.name }
+                    { name: this.getInlineSnippet(this.deleteEntity.config.label) || this.deleteEntity.name },
                 );
             }
             return '';
@@ -55,14 +55,14 @@ Component.register('sw-settings-custom-field-set-list', {
                 'OR',
                 [
                     ...this.getLocaleCriterias(params.term),
-                    ...this.getTermCriteria(params.term)
-                ]
+                    ...this.getTermCriteria(params.term),
+                ],
             ));
 
             criteria.addFilter(Criteria.equals('appId', null));
 
             return criteria;
-        }
+        },
     },
 
     methods: {
@@ -76,7 +76,7 @@ Component.register('sw-settings-custom-field-set-list', {
 
             locales.forEach((value, key) => {
                 criteria.push(Criteria.contains(
-                    `config.label.\"${key}\"`, term
+                    `config.label.\"${key}\"`, term,
                 ));
             });
 
@@ -91,6 +91,6 @@ Component.register('sw-settings-custom-field-set-list', {
             }
 
             return criteria;
-        }
-    }
+        },
+    },
 });

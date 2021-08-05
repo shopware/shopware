@@ -23,12 +23,12 @@ Component.extend('sw-condition-line-item-of-type', 'sw-condition-base', {
             return [
                 {
                     value: 'product',
-                    label: this.$tc('global.sw-condition.condition.lineItemOfTypeRule.product')
+                    label: this.$tc('global.sw-condition.condition.lineItemOfTypeRule.product'),
                 },
                 {
                     value: 'discount_surcharge',
-                    label: this.$tc('global.sw-condition.condition.lineItemOfTypeRule.discount_surcharge')
-                }
+                    label: this.$tc('global.sw-condition.condition.lineItemOfTypeRule.discount_surcharge'),
+                },
             ];
         },
 
@@ -40,13 +40,13 @@ Component.extend('sw-condition-line-item-of-type', 'sw-condition-base', {
             set(lineItemType) {
                 this.ensureValueExist();
                 this.condition.value = { ...this.condition.value, lineItemType };
-            }
+            },
         },
 
         ...mapPropertyErrors('condition', ['value.operator', 'value.lineItemType']),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueLineItemTypeError;
-        }
-    }
+        },
+    },
 });

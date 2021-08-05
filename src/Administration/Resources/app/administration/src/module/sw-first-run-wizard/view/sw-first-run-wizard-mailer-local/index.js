@@ -11,8 +11,8 @@ Shopware.Component.register('sw-first-run-wizard-mailer-local', {
             isLoading: false,
             mailerSettings: {
                 'core.mailerSettings.emailAgent': null,
-                'core.mailerSettings.sendMailOptions': null
-            }
+                'core.mailerSettings.sendMailOptions': null,
+            },
         };
     },
 
@@ -25,12 +25,12 @@ Shopware.Component.register('sw-first-run-wizard-mailer-local', {
             return [
                 {
                     value: '-bs',
-                    name: this.$tc('sw-settings-mailer.sendmail.sync')
+                    name: this.$tc('sw-settings-mailer.sendmail.sync'),
                 },
                 {
                     value: '-t',
-                    name: this.$tc('sw-settings-mailer.sendmail.async')
-                }
+                    name: this.$tc('sw-settings-mailer.sendmail.async'),
+                },
             ];
         },
 
@@ -42,7 +42,7 @@ Shopware.Component.register('sw-first-run-wizard-mailer-local', {
                     position: 'left',
                     variant: null,
                     action: 'sw.first.run.wizard.index.mailer.selection',
-                    disabled: false
+                    disabled: false,
                 },
                 {
                     key: 'configure-later',
@@ -50,7 +50,7 @@ Shopware.Component.register('sw-first-run-wizard-mailer-local', {
                     position: 'right',
                     variant: null,
                     action: 'sw.first.run.wizard.index.paypal.info',
-                    disabled: false
+                    disabled: false,
                 },
                 {
                     key: 'next',
@@ -58,8 +58,8 @@ Shopware.Component.register('sw-first-run-wizard-mailer-local', {
                     position: 'right',
                     variant: 'primary',
                     action: this.saveMailerSettings.bind(this),
-                    disabled: !this.requiredFieldsFilled
-                }
+                    disabled: !this.requiredFieldsFilled,
+                },
             ];
         },
 
@@ -68,7 +68,7 @@ Shopware.Component.register('sw-first-run-wizard-mailer-local', {
                 !!this.mailerSettings['core.mailerSettings.emailAgent'] &&
                 !!this.mailerSettings['core.mailerSettings.sendMailOptions']
             );
-        }
+        },
     },
 
     watch: {
@@ -76,8 +76,8 @@ Shopware.Component.register('sw-first-run-wizard-mailer-local', {
             deep: true,
             handler() {
                 this.updateButtons();
-            }
-        }
+            },
+        },
     },
 
     created() {
@@ -122,6 +122,6 @@ Shopware.Component.register('sw-first-run-wizard-mailer-local', {
             }).catch(() => {
                 this.isLoading = false;
             });
-        }
-    }
+        },
+    },
 });

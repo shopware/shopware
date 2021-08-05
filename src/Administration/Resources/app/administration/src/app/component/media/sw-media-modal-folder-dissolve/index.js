@@ -16,7 +16,7 @@ Component.register('sw-media-modal-folder-dissolve', {
     inject: ['mediaFolderService'],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     props: {
@@ -25,8 +25,8 @@ Component.register('sw-media-modal-folder-dissolve', {
             type: Array,
             validator(value) {
                 return (value.length !== 0);
-            }
-        }
+            },
+        },
     },
 
     methods: {
@@ -45,8 +45,8 @@ Component.register('sw-media-modal-folder-dissolve', {
                     message: this.$root.$tc(
                         'global.sw-media-modal-folder-dissolve.notification.successSingle.message',
                         1,
-                        { folderName: item.name }
-                    )
+                        { folderName: item.name },
+                    ),
                 });
                 return item.id;
             } catch {
@@ -55,8 +55,8 @@ Component.register('sw-media-modal-folder-dissolve', {
                     message: this.$root.$tc(
                         'global.sw-media-modal-folder-dissolve.notification.errorSingle.message',
                         1,
-                        { folderName: item.name }
-                    )
+                        { folderName: item.name },
+                    ),
                 });
 
                 return null;
@@ -78,25 +78,25 @@ Component.register('sw-media-modal-folder-dissolve', {
                     this.createNotificationSuccess({
                         title: this.$root.$tc('global.default.success'),
                         message: this.$root.$tc(
-                            'global.sw-media-modal-folder-dissolve.notification.successOverall.message'
-                        )
+                            'global.sw-media-modal-folder-dissolve.notification.successOverall.message',
+                        ),
                     });
                 }
 
                 this.$emit(
                     'media-folder-dissolve-modal-dissolve',
-                    dissolvedIds
+                    dissolvedIds,
                 );
             } catch {
                 if (this.itemsToDissolve.length > 1) {
                     this.createNotificationError({
                         title: this.$root.$tc('global.default.error'),
                         message: this.$root.$tc(
-                            'global.sw-media-modal-folder-dissolve.notification.errorOverall.message'
-                        )
+                            'global.sw-media-modal-folder-dissolve.notification.errorOverall.message',
+                        ),
                     });
                 }
             }
-        }
-    }
+        },
+    },
 });

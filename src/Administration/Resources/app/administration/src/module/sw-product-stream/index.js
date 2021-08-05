@@ -23,34 +23,34 @@ Module.register('sw-product-stream', {
     routes: {
         index: {
             components: {
-                default: 'sw-product-stream-list'
+                default: 'sw-product-stream-list',
             },
             path: 'index',
             meta: {
-                privilege: 'product_stream.viewer'
-            }
+                privilege: 'product_stream.viewer',
+            },
         },
         create: {
             component: 'sw-product-stream-detail',
             path: 'create',
             meta: {
                 parentPath: 'sw.product.stream.index',
-                privilege: 'product_stream.viewer'
-            }
+                privilege: 'product_stream.viewer',
+            },
         },
         detail: {
             component: 'sw-product-stream-detail',
             path: 'detail/:id',
             meta: {
                 parentPath: 'sw.product.stream.index',
-                privilege: 'product_stream.viewer'
+                privilege: 'product_stream.viewer',
             },
             props: {
                 default(route) {
                     return { productStreamId: route.params.id };
-                }
-            }
-        }
+                },
+            },
+        },
     },
 
     navigation: [{
@@ -60,6 +60,6 @@ Module.register('sw-product-stream', {
         privilege: 'product_stream.viewer',
         parent: 'sw-catalogue',
         color: '#57D9A3',
-        position: 30
-    }]
+        position: 30,
+    }],
 });

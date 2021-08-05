@@ -19,6 +19,11 @@ class TestBasicWithExtension extends SerializationFixture
             'name' => 'toOne',
         ]));
 
+        $extendable->addExtension('toOneWithoutApiAware', new ArrayEntity([
+            'id' => '6f51622eb3814c75ae0263cece27ce72',
+            'name' => 'toOneWithoutApiAware',
+        ]));
+
         $collection = new EntityCollection([
             new ArrayEntity([
                 'id' => '548faa1f7846436c85944f4aea792d96',

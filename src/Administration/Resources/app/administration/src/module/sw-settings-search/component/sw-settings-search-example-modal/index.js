@@ -21,7 +21,7 @@ Component.register('sw-settings-search-example-modal', {
                     scoreDetail: 20,
                     textTotal: this.$tc('sw-settings-search.generalTab.modal.textTotal'),
                     scoreTotal: 170,
-                    textProductRankedScore: this.$tc('sw-settings-search.generalTab.modal.textProductRankedFirstScore')
+                    textProductRankedScore: this.$tc('sw-settings-search.generalTab.modal.textProductRankedFirstScore'),
                 },
                 {
                     textTitle: this.$tc('sw-settings-search.generalTab.modal.textTitle'),
@@ -35,7 +35,7 @@ Component.register('sw-settings-search-example-modal', {
                     scoreDetail: 20,
                     textTotal: this.$tc('sw-settings-search.generalTab.modal.textTotal'),
                     scoreTotal: 120,
-                    textProductRankedScore: this.$tc('sw-settings-search.generalTab.modal.textProductRankedSecondScore')
+                    textProductRankedScore: this.$tc('sw-settings-search.generalTab.modal.textProductRankedSecondScore'),
                 },
                 {
                     textTitle: this.$tc('sw-settings-search.generalTab.modal.textTitle'),
@@ -49,15 +49,15 @@ Component.register('sw-settings-search-example-modal', {
                     scoreDetail: 20,
                     textTotal: this.$tc('sw-settings-search.generalTab.modal.textTotal'),
                     scoreTotal: 20,
-                    textProductRankedScore: this.$tc('sw-settings-search.generalTab.modal.textProductRankedThirdScore')
-                }
-            ]
+                    textProductRankedScore: this.$tc('sw-settings-search.generalTab.modal.textProductRankedThirdScore'),
+                },
+            ],
         };
     },
 
     methods: {
         closeModal() {
             this.$emit('modal-close');
-        }
-    }
+        },
+    },
 });

@@ -12,18 +12,18 @@
             :class="{ 'sw-select-result-list__content_empty': isLoading && (!options || options.length <= 0) }"
             @scroll="onScroll"
         >
-            <slot name="before-item-list" />
+            <slot name="before-item-list"></slot>
 
             <ul class="sw-select-result-list__item-list">
                 <template v-for="(item, index) in options">
                     <slot
                         name="result-item"
                         v-bind="{ item, index }"
-                    />
+                    ></slot>
                 </template>
             </ul>
 
-            <slot name="after-item-list" />
+            <slot name="after-item-list"></slot>
 
             <div
                 v-if="!isLoading && options && options.length < 1"

@@ -82,6 +82,8 @@
                 :error="productDescriptionError"
                 :disabled="isInherited || !allowEdit"
                 :value="currentValue"
+                sanitize-input
+                sanitize-field-name="product_translation.description"
                 @input="updateCurrentValue"
             />
 

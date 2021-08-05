@@ -3,7 +3,8 @@
 namespace Shopware\Core\Framework\Test\Store\Service;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -28,35 +29,17 @@ class ExtensionLifecycleServiceTest extends TestCase
     use ExtensionBehaviour;
     use StoreClientBehaviour;
 
-    /**
-     * @var ExtensionLifecycleService
-     */
-    private $lifecycleService;
+    private ExtensionLifecycleService $lifecycleService;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $appRepository;
+    private EntityRepositoryInterface $appRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $pluginRepository;
+    private EntityRepositoryInterface $pluginRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $themeRepository;
+    private EntityRepositoryInterface $themeRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $salesChannelRepository;
+    private EntityRepositoryInterface $salesChannelRepository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     public function setUp(): void
     {
@@ -67,26 +50,7 @@ class ExtensionLifecycleServiceTest extends TestCase
         $this->pluginRepository = $this->getContainer()->get('plugin.repository');
         $this->themeRepository = $this->getContainer()->get('theme.repository');
         $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
-
-        $userId = Uuid::randomHex();
-        $storeToken = Uuid::randomHex();
-
-        $data = [
-            [
-                'id' => $userId,
-                'localeId' => $this->getLocaleIdOfSystemLanguage(),
-                'username' => 'foobar',
-                'password' => 'asdasdasdasd',
-                'firstName' => 'Foo',
-                'lastName' => 'Bar',
-                'email' => 'foo@bar.com',
-                'storeToken' => $storeToken,
-            ],
-        ];
-        $this->getContainer()->get('user.repository')->create($data, Context::createDefaultContext());
-        $source = new AdminApiSource($userId);
-        $source->setIsAdmin(true);
-        $this->context = Context::createDefaultContext($source);
+        $this->context = new Context(new SystemSource(), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
     }
 
     public function tearDown(): void

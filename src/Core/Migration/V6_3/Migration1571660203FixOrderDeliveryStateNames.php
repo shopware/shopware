@@ -21,7 +21,7 @@ class Migration1571660203FixOrderDeliveryStateNames extends MigrationStep
 
         foreach ($this->getMailTemplatesMapping() as $technicalName => $mailTemplate) {
             if ($defaultLangId !== $deLangId) {
-                $sql = <<<SQL
+                $sql = <<<'SQL'
                 UPDATE `mail_template_type_translation` SET `name` = :name
                     WHERE `mail_template_type_id` = (SELECT `id` FROM `mail_template_type` WHERE `technical_name` = :technicalName)
                       AND `language_id` = :lang
@@ -31,7 +31,7 @@ SQL;
             }
 
             if ($defaultLangId !== Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)) {
-                $sql = <<<SQL
+                $sql = <<<'SQL'
                 UPDATE `mail_template_type_translation` SET `name` = :name
                     WHERE `mail_template_type_id` = (SELECT `id` FROM `mail_template_type` WHERE `technical_name` = :technicalName)
                       AND `language_id` = :lang
@@ -41,7 +41,7 @@ SQL;
             }
 
             if ($deLangId) {
-                $sql = <<<SQL
+                $sql = <<<'SQL'
                 UPDATE `mail_template_type_translation` SET `name` = :name
                     WHERE `mail_template_type_id` = (SELECT `id` FROM `mail_template_type` WHERE `technical_name` = :technicalName)
                       AND `language_id` = :lang
@@ -85,7 +85,7 @@ SQL;
 
     private function getLanguageIdByLocale(Connection $connection, string $locale): ?string
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
 SELECT `language`.`id`
 FROM `language`
 INNER JOIN `locale` ON `locale`.`id` = `language`.`locale_id`

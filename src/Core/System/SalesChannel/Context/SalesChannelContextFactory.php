@@ -8,9 +8,11 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Context\AdminSalesChannelApiSource;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -21,7 +23,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
 use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCountryRoundingEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextPermissionsChangedEvent;
@@ -327,9 +328,15 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         $criteria = (new Criteria([$id]))->addAssociation('media');
         $criteria->setTitle('context-factory::payment-method');
 
-        return $this->paymentMethodRepository
+        $paymentMethod = $this->paymentMethodRepository
             ->search($criteria, $context)
             ->get($id);
+
+        if (!$paymentMethod) {
+            throw new UnknownPaymentMethodException($id);
+        }
+
+        return $paymentMethod;
     }
 
     private function getShippingMethod(array $options, Context $context, SalesChannelEntity $salesChannel): ShippingMethodEntity
@@ -376,7 +383,11 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             throw new \RuntimeException(sprintf('No context data found for SalesChannel "%s"', $salesChannelId));
         }
 
-        $origin = new SalesChannelApiSource($salesChannelId);
+        if (isset($session[SalesChannelContextService::ORIGINAL_CONTEXT])) {
+            $origin = new AdminSalesChannelApiSource($salesChannelId, $session[SalesChannelContextService::ORIGINAL_CONTEXT]);
+        } else {
+            $origin = new SalesChannelApiSource($salesChannelId);
+        }
 
         //explode all available languages for the provided sales channel
         $languageIds = $data['sales_channel_language_ids'] ? explode(',', $data['sales_channel_language_ids']) : [];
@@ -485,7 +496,6 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             $state = $this->countryStateRepository->search($criteria, $context)
                 ->get($options[SalesChannelContextService::COUNTRY_STATE_ID]);
 
-            /* @var CountryStateEntity $state */
             return new ShippingLocation($state->getCountry(), $state, null);
         }
 

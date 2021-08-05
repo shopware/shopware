@@ -8,10 +8,11 @@ export default {
     getEntityDefinition,
     getDefinitionRegistry,
     getRawEntityObject,
+    // eslint-disable-next-line inclusive-language/use-inclusive-words
     getPropertyBlacklist,
     getRequiredProperties,
     getAssociatedProperties,
-    getTranslatableProperties
+    getTranslatableProperties,
 };
 
 /**
@@ -123,6 +124,7 @@ function getRawPropertyValue(propSchema, deep = true) {
     return null;
 }
 
+// eslint-disable-next-line inclusive-language/use-inclusive-words
 function getPropertyBlacklist() {
     return [
         'createdAt',
@@ -138,7 +140,7 @@ function getPropertyBlacklist() {
         'fileSize',
         'fileName',
         'mediaType',
-        'mediaFolder'
+        'mediaFolder',
     ];
 }
 
@@ -154,11 +156,12 @@ function getRequiredProperties(entityName) {
     }
 
     const definition = entityDefinitions.get(entityName);
-    const blacklist = getPropertyBlacklist();
+    // eslint-disable-next-line inclusive-language/use-inclusive-words
+    const blocklist = getPropertyBlacklist();
     const requiredFields = [];
 
     definition.required.forEach((property) => {
-        if (!blacklist.includes(property)) {
+        if (!blocklist.includes(property)) {
             requiredFields.push(property);
         }
     });

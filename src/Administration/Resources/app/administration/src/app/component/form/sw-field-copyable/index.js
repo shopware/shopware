@@ -11,26 +11,26 @@ Component.register('sw-field-copyable', {
     template,
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     props: {
         copyableText: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         tooltip: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
         return {
-            wasCopied: false
+            wasCopied: false,
         };
     },
 
@@ -41,7 +41,7 @@ Component.register('sw-field-copyable', {
             }
 
             return this.$tc('global.sw-field-copyable.tooltip.canCopy');
-        }
+        },
     },
 
     methods: {
@@ -60,7 +60,7 @@ Component.register('sw-field-copyable', {
             } catch (err) {
                 this.createNotificationError({
                     title: this.$tc('global.default.error'),
-                    message: this.$tc('global.sw-field.notification.notificationCopyFailureMessage')
+                    message: this.$tc('global.sw-field.notification.notificationCopyFailureMessage'),
                 });
             }
         },
@@ -71,12 +71,12 @@ Component.register('sw-field-copyable', {
 
         notificationSuccess() {
             this.createNotificationInfo({
-                message: this.$tc('global.sw-field.notification.notificationCopySuccessMessage')
+                message: this.$tc('global.sw-field.notification.notificationCopySuccessMessage'),
             });
         },
 
         resetTooltipText() {
             this.wasCopied = false;
-        }
-    }
+        },
+    },
 });

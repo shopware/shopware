@@ -14,7 +14,7 @@ class Migration1536233400MailTemplateMedia extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $query = <<<SQL
+        $query = <<<'SQL'
             CREATE TABLE mail_template_media (
               id BINARY(16) NOT NULL,
               mail_template_id BINARY(16) NOT NULL,

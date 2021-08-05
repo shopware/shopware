@@ -1,0 +1,220 @@
+{% block sw_product_properties %}
+<sw-inherit-wrapper
+    v-if="properties"
+    v-model="product.properties"
+    class="sw-product-properties"
+    is-association
+    :inherited-value="parentProduct.properties"
+>
+    <template #content="{ isInherited, isInheritField, restoreInheritance, removeInheritance }">
+        {% block sw_product_properties_card %}
+        <sw-card
+            class="sw-product-properties__card"
+            :class="{ 'is-inherited': isInherited }"
+            :is-loading="isLoading"
+        >
+            <template #title>
+                {% block sw_product_properties_card_title %}
+                <div
+                    class="sw-card__title"
+                    :class="{ 'is-inherited': isInherited }"
+                >
+                    {% block sw_product_properties_card_title_icon %}
+                    <sw-inheritance-switch
+                        v-if="isInheritField"
+                        class="sw-inherit-wrapper__inheritance-icon"
+                        :is-inherited="isInherited"
+                        :disabled="!acl.can('product.editor')"
+                        @inheritance-restore="restoreInheritance"
+                        @inheritance-remove="removeInheritance"
+                    />
+                    {% endblock %}
+
+                    {% block sw_product_properties_card_title_text %}
+                    {{ $tc('sw-product.properties.cardTitle') }}
+                    {% endblock %}
+                </div>
+                {% endblock %}
+            </template>
+
+            <template
+                v-if="properties.length > 0 || searchTerm"
+                #grid
+            >
+                {% block sw_product_properties_filled_state %}
+                <sw-container rows="auto auto">
+                    {% block sw_product_properties_filled_state_header %}
+                    <sw-card-section
+                        secondary
+                        divider="bottom"
+                    >
+                        <sw-container
+                            columns="1fr auto"
+                            gap="0 15px"
+                        >
+                            {% block sw_product_properties_filled_state_header_form_control %}
+                            <sw-simple-search-field
+                                v-model="searchTerm"
+                                variant="form"
+                                size="small"
+                                :placeholder="$tc('sw-product.properties.placeholderSearchAddedProperties')"
+                                :disabled="isPropertiesLoading"
+                                @search-term-change="onChangeSearchTerm"
+                            />
+                            {% endblock %}
+
+                            {% block sw_product_properties_filled_state_header_button %}
+                            <sw-button
+                                v-tooltip="{
+                                    message: $tc('sw-privileges.tooltip.warning'),
+                                    disabled: acl.can('product.editor'),
+                                    showOnDisabledElements: true
+                                }"
+                                class="sw-product-properties__button-add-property"
+                                variant="ghost"
+                                size="small"
+                                :disabled="!acl.can('product.editor')"
+                                @click="turnOnAddPropertiesModal"
+                            >
+                                {{ $tc('sw-product.properties.buttonAddProperty') }}
+                            </sw-button>
+                            {% endblock %}
+                        </sw-container>
+                    </sw-card-section>
+                    {% endblock %}
+
+                    {% block sw_product_properties_filled_state_body_filled_state %}
+                    <sw-entity-listing
+                        v-if="properties.length > 0"
+                        ref="entityListing"
+                        class="sw-product-properties__list"
+                        detail-route="sw.property.detail"
+                        identifier="sw-product-properties-list"
+                        :items="properties"
+                        :data-source="properties"
+                        :columns="propertyColumns"
+                        :repository="propertyGroupRepository"
+                        :plain-appearance="true"
+                        :full-page="false"
+                        :show-settings="false"
+                        :allow-column-edit="false"
+                        :allow-inline-edit="false"
+                        :allow-view="acl.can('product.viewer')"
+                        :allow-edit="acl.can('property.editor')"
+                        :allow-delete="acl.can('product.deleter')"
+                    >
+                        <template #column-values="{ item }">
+                            {% block sw_product_properties_filled_state_body_filled_state_column_values %}
+                            <div
+                                v-for="option in item.options"
+                                :key="option.id"
+                                class="sw-product-properties-list__column-values"
+                            >
+                                <sw-label
+                                    size="medium"
+                                    :dismissable="acl.can('product.deleter')"
+                                    @dismiss="onDeletePropertyValue(option)"
+                                >
+                                    {{ option.translated.name }}
+                                </sw-label>
+                            </div>
+                            {% endblock %}
+                        </template>
+
+                        <template #delete-modal-delete-item="{ item }">
+                            {% block sw_product_properties_filled_state_body_filled_state_delete_modal_delete_item %}
+                            <sw-button
+                                variant="danger"
+                                size="small"
+                                @click="onDeleteProperty(item)"
+                            >
+                                {{ $tc('global.default.delete') }}
+                            </sw-button>
+                            {% endblock %}
+                        </template>
+
+                        <template #bulk-modal-delete-items>
+                            {% block sw_product_properties_filled_state_body_filled_state_bulk_modal_delete_items %}
+                            <sw-button
+                                variant="danger"
+                                size="small"
+                                @click="onDeleteProperties"
+                            >
+                                {{ $tc('global.default.delete') }}
+                            </sw-button>
+                            {% endblock %}
+                        </template>
+                    </sw-entity-listing>
+                    {% endblock %}
+
+                    {% block sw_product_properties_filled_state_body_empty_state %}
+                    <sw-empty-state
+                        v-if="properties.length <= 0"
+                        :absolute="false"
+                        :show-description="false"
+                        :title="$tc('sw-product.properties.titleEmptyStateList')"
+                    >
+                        <template #icon>
+                            {% block sw_product_properties_filled_state_body_empty_state_image %}
+                            <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
+                            {% endblock %}
+                        </template>
+                    </sw-empty-state>
+                    {% endblock %}
+
+                    {% block sw_product_properties_filled_state_body_loading_state %}
+                    <sw-loader
+                        v-if="isPropertiesLoading"
+                    />
+                    {% endblock %}
+                </sw-container>
+                {% endblock %}
+            </template>
+
+            {% block sw_product_properties_empty_state %}
+            <sw-empty-state
+                v-if="properties.length <= 0 && !searchTerm"
+                :absolute="false"
+                :show-description="false"
+                :title="$tc('sw-product.properties.titleEmptyState')"
+            >
+                <template #icon>
+                    {% block sw_product_properties_empty_state_image %}
+                    <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
+                    {% endblock %}
+                </template>
+
+                <template #actions>
+                    {% block sw_product_properties_empty_state_button %}
+                    <sw-button
+                        v-tooltip="{
+                            message: $tc('sw-privileges.tooltip.warning'),
+                            disabled: acl.can('product.editor'),
+                            showOnDisabledElements: true
+                        }"
+                        variant="ghost"
+                        :disabled="!acl.can('product.editor')"
+                        @click="turnOnAddPropertiesModal"
+                    >
+                        {{ $tc('sw-product.properties.buttonAddProperties') }}
+                    </sw-button>
+                    {% endblock %}
+                </template>
+            </sw-empty-state>
+            {% endblock %}
+        </sw-card>
+        {% endblock %}
+
+        {% block sw_product_properties_add_properties_modal %}
+        <sw-product-add-properties-modal
+            v-if="showAddPropertiesModal"
+            :new-properties="newProperties"
+            @update-new-properties-item="updateNewPropertiesItem"
+            @add-new-properties-item="addNewPropertiesItem"
+            @modal-cancel="onCancelAddPropertiesModal"
+            @modal-save="onSaveAddPropertiesModal"
+        />
+        {% endblock %}
+    </template>
+</sw-inherit-wrapper>
+{% endblock %}

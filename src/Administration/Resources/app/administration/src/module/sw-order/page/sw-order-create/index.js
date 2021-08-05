@@ -8,7 +8,7 @@ Component.register('sw-order-create', {
     template,
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     data() {
@@ -16,7 +16,7 @@ Component.register('sw-order-create', {
             isLoading: false,
             isSaveSuccessful: false,
             orderId: null,
-            showInvalidCodeModal: false
+            showInvalidCodeModal: false,
         };
     },
 
@@ -38,7 +38,7 @@ Component.register('sw-order-create', {
                 this.cart.token &&
                 this.cart.lineItems.length &&
                 !this.invalidPromotionCodes.length;
-        }
+        },
     },
 
     beforeCreate() {
@@ -71,7 +71,7 @@ Component.register('sw-order-create', {
                 State
                     .dispatch('swOrder/saveOrder', {
                         salesChannelId: this.customer.salesChannelId,
-                        contextToken: this.cart.token
+                        contextToken: this.cart.token,
                     })
                     .then((response) => {
                         this.isSaveSuccessful = true;
@@ -97,7 +97,7 @@ Component.register('sw-order-create', {
             State
                 .dispatch('swOrder/cancelCart', {
                     salesChannelId: this.customer.salesChannelId,
-                    contextToken: this.cart.token
+                    contextToken: this.cart.token,
                 })
                 .then(() => this.redirectToOrderList());
         },
@@ -106,7 +106,7 @@ Component.register('sw-order-create', {
             const errorMessage = error?.response?.data?.errors?.[0]?.detail || null;
 
             this.createNotificationError({
-                message: errorMessage || this.$tc('sw-order.create.messageSaveError')
+                message: errorMessage || this.$tc('sw-order.create.messageSaveError'),
             });
         },
 
@@ -121,6 +121,6 @@ Component.register('sw-order-create', {
         removeInvalidCode() {
             State.commit('swOrder/removeInvalidPromotionCodes');
             this.closeInvalidCodeModal();
-        }
-    }
+        },
+    },
 });

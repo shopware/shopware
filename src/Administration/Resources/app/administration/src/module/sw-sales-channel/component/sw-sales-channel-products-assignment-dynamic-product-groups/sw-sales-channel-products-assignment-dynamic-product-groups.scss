@@ -1,0 +1,17 @@
+.sw-sales-channel-products-assignment-dynamic-product-groups {
+    .sw-card {
+        margin: 0;
+    }
+
+    &__card-section-primary {
+        position: relative;
+    }
+
+    &__card-section-primary.sw-card-section {
+        padding: 0;
+    }
+
+    &__link-open {
+        cursor: pointer;
+    }
+}

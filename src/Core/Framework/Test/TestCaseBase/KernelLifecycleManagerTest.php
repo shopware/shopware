@@ -10,20 +10,6 @@ use Shopware\Core\Kernel;
  */
 class KernelLifecycleManagerTest extends TestCase
 {
-    public const BUILD_AGAINST_FILE_HASH = 'f1301e308184e3cf3b906c57953f30d92b629add';
-
-    public function testIfTheManagerNeedsAnUpdate(): void
-    {
-        $kernelTestCaseFileName = TEST_PROJECT_DIR . '/vendor/symfony/framework-bundle/Test/KernelTestCase.php';
-
-        static::assertFileExists($kernelTestCaseFileName);
-        static::assertSame(
-            self::BUILD_AGAINST_FILE_HASH,
-            sha1_file($kernelTestCaseFileName),
-            sprintf('You need to update the class KernelTestCase from %s and update the local hash', $kernelTestCaseFileName)
-        );
-    }
-
     public function testIfTheKernelClassIsShopware(): void
     {
         static::assertInstanceOf(Kernel::class, KernelLifecycleManager::getKernel());

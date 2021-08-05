@@ -8,6 +8,9 @@ use Shopware\Storefront\Framework\Cache\AbstractHttpCacheKeyGenerator;
 use Shopware\Storefront\Framework\Cache\HttpCacheKeyGenerator;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @group cache
+ */
 class HttpCacheKeyGeneratorTest extends TestCase
 {
     use KernelTestBehaviour;

@@ -7,6 +7,7 @@ use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaType\ImageType;
 use Shopware\Core\Content\Media\MediaType\VideoType;
 use Shopware\Core\Content\Media\TypeDetector\ImageTypeDetector;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 class ImageTypeDetectorTest extends TestCase
@@ -50,11 +51,22 @@ class ImageTypeDetectorTest extends TestCase
         static::assertTrue($type->is(ImageType::ANIMATED));
     }
 
+    /**
+     * @group needsWebserver
+     */
     public function testDetectAnimatedGifFromUrl(): void
     {
+        $publicPath = $this->getContainer()->getParameter('kernel.project_dir') . '/public/animate.gif';
+        \copy(
+            __DIR__ . '/../fixtures/animated.gif',
+            $publicPath
+        );
+
+        $webPath = rtrim(EnvironmentHelper::getVariable('APP_URL'), '/') . '/animate.gif';
+
         $type = $this->getImageTypeDetector()->detect(
             new MediaFile(
-                'https://upload.wikimedia.org/wikipedia/commons/f/f0/Zipper_animated.gif',
+                $webPath,
                 'image/gif',
                 'gif',
                 1024
@@ -66,6 +78,8 @@ class ImageTypeDetectorTest extends TestCase
         static::assertCount(2, $type->getFlags());
         static::assertTrue($type->is(ImageType::TRANSPARENT));
         static::assertTrue($type->is(ImageType::ANIMATED));
+
+        unlink($publicPath);
     }
 
     public function testDetectWebp(): void
@@ -93,11 +107,22 @@ class ImageTypeDetectorTest extends TestCase
         static::assertTrue($type->is(ImageType::ANIMATED));
     }
 
+    /**
+     * @group needsWebserver
+     */
     public function testDetectAnimatedWebpFromUrl(): void
     {
+        $publicPath = $this->getContainer()->getParameter('kernel.project_dir') . '/public/animate.webp';
+        \copy(
+            __DIR__ . '/../fixtures/animated.webp',
+            $publicPath
+        );
+
+        $webPath = rtrim(EnvironmentHelper::getVariable('APP_URL'), '/') . '/animate.webp';
+
         $type = $this->getImageTypeDetector()->detect(
             new MediaFile(
-                'https://upload.wikimedia.org/wikipedia/commons/f/f8/Simple_Animated_Clock.webp',
+                $webPath,
                 'image/webp',
                 'webp',
                 1024
@@ -109,6 +134,8 @@ class ImageTypeDetectorTest extends TestCase
         static::assertCount(2, $type->getFlags());
         static::assertTrue($type->is(ImageType::TRANSPARENT));
         static::assertTrue($type->is(ImageType::ANIMATED));
+
+        unlink($publicPath);
     }
 
     public function testDetectSvg(): void

@@ -54,7 +54,7 @@ class SeoUrlRoute extends AbstractSeoUrlRoute
      *                      @OA\Property(
      *                          type="array",
      *                          property="elements",
-     *                          @OA\Items(ref="#/components/schemas/seo_url_flat")
+     *                          @OA\Items(ref="#/components/schemas/SeoUrl")
      *                      )
      *                  )
      *              }

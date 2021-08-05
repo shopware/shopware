@@ -28,6 +28,10 @@ use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @group cache
+ * @group store-api
+ */
 class CachedProductReviewRouteTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -160,7 +164,7 @@ class CachedProductReviewRouteTest extends TestCase
 
                 $this->getContainer()->get('product_review.repository')->create([$data], $ids->getContext());
             },
-            2,
+            1,
         ];
 
         yield 'Cache invalidated if review updated' => [
@@ -190,7 +194,7 @@ class CachedProductReviewRouteTest extends TestCase
 
                 $this->getContainer()->get('product_review.repository')->delete([$data], $ids->getContext());
             },
-            2,
+            1,
         ];
 
         yield 'Cache not invalidated if other review created' => [
@@ -202,7 +206,7 @@ class CachedProductReviewRouteTest extends TestCase
 
                 $this->getContainer()->get('product_review.repository')->create([$data], $ids->getContext());
             },
-            1,
+            0,
         ];
     }
 
@@ -214,6 +218,7 @@ class CachedProductReviewRouteTest extends TestCase
             'title' => $title,
             'content' => $content,
             'points' => $points,
+            'status' => true,
             'languageId' => $languageId,
             'salesChannelId' => $salesChannelId,
         ];

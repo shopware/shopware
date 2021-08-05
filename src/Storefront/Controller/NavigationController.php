@@ -62,9 +62,13 @@ class NavigationController extends StorefrontController
     {
         $page = $this->offcanvasLoader->load($request, $context);
 
-        return $this->renderStorefront(
+        $response = $this->renderStorefront(
             '@Storefront/storefront/layout/navigation/offcanvas/navigation-pagelet.html.twig',
             ['page' => $page]
         );
+
+        $response->headers->set('x-robots-tag', 'noindex');
+
+        return $response;
     }
 }

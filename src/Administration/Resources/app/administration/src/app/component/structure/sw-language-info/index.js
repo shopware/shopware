@@ -25,23 +25,23 @@ Component.register('sw-language-info', {
         entityDescription: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
         isNewEntity: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
         changeLanguageOnParentClick: {
             type: Boolean,
             required: false,
-            default: true
-        }
+            default: true,
+        },
     },
 
     data() {
         return {
-            parentLanguage: { name: '' }
+            parentLanguage: { name: '' },
         };
     },
 
@@ -49,7 +49,7 @@ Component.register('sw-language-info', {
         ...mapState('context', {
             languageId: state => state.api.languageId,
             systemLanguageId: state => state.api.systemLanguageId,
-            language: state => state.api.language
+            language: state => state.api.language,
         }),
 
         languageRepository() {
@@ -66,7 +66,7 @@ Component.register('sw-language-info', {
                 return this.$tc(
                     'sw-language-info.infoTextNewEntity',
                     0,
-                    { entityDescription: this.entityDescription }
+                    { entityDescription: this.entityDescription },
                 );
             }
 
@@ -81,8 +81,8 @@ Component.register('sw-language-info', {
                     0,
                     {
                         entityDescription: this.entityDescription,
-                        language: this.language.name
-                    }
+                        language: this.language.name,
+                    },
                 );
             }
 
@@ -97,14 +97,14 @@ Component.register('sw-language-info', {
                 0,
                 {
                     entityDescription: this.entityDescription,
-                    language: this.language.name
-                }
+                    language: this.language.name,
+                },
             );
         },
 
         isDefaultLanguage() {
             return this.languageId === this.systemLanguageId;
-        }
+        },
     },
 
     watch: {
@@ -112,8 +112,8 @@ Component.register('sw-language-info', {
         'language.name': {
             handler() {
                 this.refreshParentLanguage().catch(error => warn(error));
-            }
-        }
+            },
+        },
     },
 
     methods: {
@@ -137,6 +137,6 @@ Component.register('sw-language-info', {
             }
 
             this.$root.$emit('on-change-language-clicked', this.parentLanguage.id);
-        }
-    }
+        },
+    },
 });

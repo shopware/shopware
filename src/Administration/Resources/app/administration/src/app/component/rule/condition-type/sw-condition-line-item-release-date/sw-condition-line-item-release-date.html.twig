@@ -8,6 +8,7 @@
     {% endblock %}
     {% block sw_condition_line_item_release_date %}
     <sw-datepicker
+        v-if="!isEmpty"
         v-model="lineItemReleaseDate"
         size="medium"
         date-type="datetime-local"

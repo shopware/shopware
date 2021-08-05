@@ -16,22 +16,27 @@ Component.register('sw-product-stream-grid-preview', {
         // FIXME: add property type
         // eslint-disable-next-line vue/require-prop-types
         filters: {
-            required: true
+            required: true,
         },
         columns: {
             required: false,
             type: Array,
             default() {
                 return [];
-            }
+            },
         },
         criteria: {
             required: false,
             type: Object,
             default() {
                 return new Criteria(1, 10);
-            }
-        }
+            },
+        },
+        showSelection: {
+            required: false,
+            type: Boolean,
+            default: false,
+        },
     },
 
     data() {
@@ -42,7 +47,7 @@ Component.register('sw-product-stream-grid-preview', {
             page: 1,
             total: 0,
             limit: 10,
-            isLoading: false
+            isLoading: false,
         };
     },
 
@@ -60,23 +65,23 @@ Component.register('sw-product-stream-grid-preview', {
                 property: 'name',
                 label: this.$tc('sw-product-stream.filter.values.product'),
                 type: 'text',
-                routerLink: 'sw.product.detail'
+                routerLink: 'sw.product.detail',
             }, {
                 property: 'manufacturer.name',
-                label: this.$tc('sw-product-stream.filter.values.manufacturer')
+                label: this.$tc('sw-product-stream.filter.values.manufacturer'),
             }, {
                 property: 'active',
                 label: this.$tc('sw-product-stream.filter.values.active'),
                 align: 'center',
-                type: 'bool'
+                type: 'bool',
             }, {
                 property: 'price',
-                label: this.$tc('sw-product-stream.filter.values.price')
+                label: this.$tc('sw-product-stream.filter.values.price'),
 
             }, {
                 property: 'stock',
                 label: this.$tc('sw-product-stream.filter.values.stock'),
-                align: 'right'
+                align: 'right',
             }];
         },
 
@@ -97,12 +102,12 @@ Component.register('sw-product-stream-grid-preview', {
                 return this.$tc('global.entity-components.productStreamPreview.emptyMessageNoSearchResults',
                     this.searchTerm,
                     {
-                        term: this.searchTerm
+                        term: this.searchTerm,
                     });
             }
 
             return this.$tc('global.entity-components.productStreamPreview.emptyMessageNoProducts');
-        }
+        },
     },
 
     watch: {
@@ -120,7 +125,7 @@ Component.register('sw-product-stream-grid-preview', {
             this.isLoading = true;
             this.systemCurrency = await this.loadSystemDefaultCurrency();
             this.loadProducts();
-        }
+        },
     },
 
     created() {
@@ -154,14 +159,14 @@ Component.register('sw-product-stream-grid-preview', {
                 Criteria.not(
                     'AND',
                     [
-                        Criteria.equals('displayGroup', null)
-                    ]
-                )
+                        Criteria.equals('displayGroup', null),
+                    ],
+                ),
             );
 
             return this.productRepository.search(this.criteria, {
                 ...Context.api,
-                inheritance: true
+                inheritance: true,
             }).then((products) => {
                 this.products = products;
                 this.total = products.total;
@@ -184,6 +189,10 @@ Component.register('sw-product-stream-grid-preview', {
             });
 
             return price ? price.gross : '-';
-        }
-    }
+        },
+
+        onSelectionChange(products) {
+            this.$emit('selection-change', products);
+        },
+    },
 });

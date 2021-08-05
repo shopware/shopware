@@ -17,6 +17,8 @@
             <argument type="service" id="cms_slot.repository" />
             <argument type="service" id="salutation.repository" />
             <argument type="service" id="category.repository" />
+            <argument type="service" id="landing_page.repository" />
+            <argument type="service" id="product.repository" />
         </service>
     </services>
 </container>

@@ -82,4 +82,6 @@ typings/
 app/storefront/dist/*
 !app/storefront/dist/assets
 
+app/storefront/test/app
+
 public/

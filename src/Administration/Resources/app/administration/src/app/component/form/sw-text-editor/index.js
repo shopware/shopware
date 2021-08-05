@@ -27,9 +27,10 @@ const { Component } = Shopware;
  *              <p>Furthermore you can pass the position prop [left (default), middle and right]
  *              to set the buttons position in the toolbar.</p>
  * @component-example
- *  <sw-text-editor value="Lorem ipsum dolor sit amet, consetetur sadipscing elitr" :isInlineEdit="true">
- *
- *  </sw-text-editor>
+ *  <sw-text-editor
+ *      value="Lorem ipsum dolor sit amet, consetetur sadipscing elitr"
+ *      :is-inline-edit="true"
+ *  />
  */
 Component.register('sw-text-editor', {
     template,
@@ -40,13 +41,13 @@ Component.register('sw-text-editor', {
         value: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
 
         isInlineEdit: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         verticalAlign: {
@@ -56,31 +57,43 @@ Component.register('sw-text-editor', {
             validValues: ['', 'center', 'flex-start', 'flex-end'],
             validator(value) {
                 return ['', 'center', 'flex-start', 'flex-end'].includes(value);
-            }
+            },
         },
 
         label: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
 
         placeholder: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
 
         disabled: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         allowInlineDataMapping: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
+        },
+
+        sanitizeInput: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
+        sanitizeFieldName: {
+            type: String,
+            required: false,
+            default: null,
         },
 
         buttonConfig: {
@@ -97,93 +110,93 @@ Component.register('sw-text-editor', {
                                 type: 'formatBlock',
                                 name: this.$tc('sw-text-editor-toolbar.title.paragraph'),
                                 value: 'p',
-                                tag: 'p'
+                                tag: 'p',
                             },
                             {
                                 type: 'formatBlock',
                                 name: this.$tc('sw-text-editor-toolbar.title.h1'),
                                 value: 'h1',
-                                tag: 'h1'
+                                tag: 'h1',
                             },
                             {
                                 type: 'formatBlock',
                                 name: this.$tc('sw-text-editor-toolbar.title.h2'),
                                 value: 'h2',
-                                tag: 'h2'
+                                tag: 'h2',
                             },
                             {
                                 type: 'formatBlock',
                                 name: this.$tc('sw-text-editor-toolbar.title.h3'),
                                 value: 'h3',
-                                tag: 'h3'
+                                tag: 'h3',
                             },
                             {
                                 type: 'formatBlock',
                                 name: this.$tc('sw-text-editor-toolbar.title.h4'),
                                 value: 'h4',
-                                tag: 'h4'
+                                tag: 'h4',
                             },
                             {
                                 type: 'formatBlock',
                                 name: this.$tc('sw-text-editor-toolbar.title.h5'),
                                 value: 'h5',
-                                tag: 'h5'
+                                tag: 'h5',
                             },
                             {
                                 type: 'formatBlock',
                                 name: this.$tc('sw-text-editor-toolbar.title.h6'),
                                 value: 'h6',
-                                tag: 'h6'
+                                tag: 'h6',
                             },
                             {
                                 type: 'formatBlock',
                                 name: this.$tc('sw-text-editor-toolbar.title.blockquote'),
                                 value: 'blockquote',
-                                tag: 'blockquote'
-                            }
-                        ]
+                                tag: 'blockquote',
+                            },
+                        ],
                     },
                     {
                         type: 'foreColor',
                         title: this.$tc('sw-text-editor-toolbar.title.text-color'),
                         value: '',
-                        tag: 'font'
+                        tag: 'font',
                     },
                     {
                         type: 'bold',
                         title: this.$tc('sw-text-editor-toolbar.title.bold'),
                         icon: 'default-text-editor-bold',
-                        tag: 'b'
+                        tag: 'b',
                     },
                     {
                         type: 'italic',
                         title: this.$tc('sw-text-editor-toolbar.title.italic'),
                         icon: 'default-text-editor-italic',
-                        tag: 'i'
+                        tag: 'i',
                     },
                     {
                         type: 'underline',
                         title: this.$tc('sw-text-editor-toolbar.title.underline'),
                         icon: 'default-text-editor-underline',
-                        tag: 'u'
+                        tag: 'u',
                     },
                     {
                         type: 'strikethrough',
                         title: this.$tc('sw-text-editor-toolbar.title.strikethrough'),
                         icon: 'default-text-editor-strikethrough',
-                        tag: 'strike'
+                        tag: 'strike',
                     },
                     {
                         type: 'superscript',
                         title: this.$tc('sw-text-editor-toolbar.title.superscript'),
                         icon: 'default-text-editor-superscript',
-                        tag: 'sup'
+                        tag: 'sup',
                     },
                     {
                         type: 'subscript',
                         title: this.$tc('sw-text-editor-toolbar.title.subscript'),
                         icon: 'default-text-editor-subscript',
-                        tag: 'sub'
+                        tag: 'sub',
                     },
                     {
                         type: 'justify',
@@ -193,36 +206,36 @@ Component.register('sw-text-editor', {
                             {
                                 type: 'justifyLeft',
                                 title: this.$tc('sw-text-editor-toolbar.title.alignLeft'),
-                                icon: 'default-text-align-left'
+                                icon: 'default-text-align-left',
                             },
                             {
                                 type: 'justifyCenter',
                                 title: this.$tc('sw-text-editor-toolbar.title.alignCenter'),
-                                icon: 'default-text-align-center'
+                                icon: 'default-text-align-center',
                             },
                             {
                                 type: 'justifyRight',
                                 title: this.$tc('sw-text-editor-toolbar.title.alignRight'),
-                                icon: 'default-text-align-right'
+                                icon: 'default-text-align-right',
                             },
                             {
                                 type: 'justifyFull',
                                 title: this.$tc('sw-text-editor-toolbar.title.justify'),
-                                icon: 'default-text-align-justify'
-                            }
-                        ]
+                                icon: 'default-text-align-justify',
+                            },
+                        ],
                     },
                     {
                         type: 'insertUnorderedList',
                         title: this.$tc('sw-text-editor-toolbar.title.insert-unordered-list'),
                         icon: 'default-text-editor-list-unordered',
-                        tag: 'ul'
+                        tag: 'ul',
                     },
                     {
                         type: 'insertOrderedList',
                         title: this.$tc('sw-text-editor-toolbar.title.insert-ordered-list'),
                         icon: 'default-text-editor-list-numberd',
-                        tag: 'ol'
+                        tag: 'ol',
                     },
                     {
                         type: 'link',
@@ -235,39 +248,39 @@ Component.register('sw-text-editor', {
                         buttonVariantList: [
                             {
                                 id: 'primary',
-                                name: this.$tc('sw-text-editor-toolbar.link.buttonVariantPrimary')
+                                name: this.$tc('sw-text-editor-toolbar.link.buttonVariantPrimary'),
                             },
                             {
                                 id: 'secondary',
-                                name: this.$tc('sw-text-editor-toolbar.link.buttonVariantSecondary')
+                                name: this.$tc('sw-text-editor-toolbar.link.buttonVariantSecondary'),
                             },
                             {
                                 id: 'primary-sm',
-                                name: this.$tc('sw-text-editor-toolbar.link.buttonVariantPrimarySmall')
+                                name: this.$tc('sw-text-editor-toolbar.link.buttonVariantPrimarySmall'),
                             },
                             {
                                 id: 'secondary-sm',
-                                name: this.$tc('sw-text-editor-toolbar.link.buttonVariantSecondarySmall')
-                            }
+                                name: this.$tc('sw-text-editor-toolbar.link.buttonVariantSecondarySmall'),
+                            },
                         ],
                         value: '',
-                        tag: 'a'
+                        tag: 'a',
                     },
                     {
                         type: 'undo',
                         title: this.$tc('sw-text-editor-toolbar.title.undo'),
                         icon: 'default-text-editor-undo',
-                        position: 'middle'
+                        position: 'middle',
                     },
                     {
                         type: 'redo',
                         title: this.$tc('sw-text-editor-toolbar.title.redo'),
                         icon: 'default-text-editor-redo',
-                        position: 'middle'
-                    }
+                        position: 'middle',
+                    },
                 ];
-            }
-        }
+            },
+        },
     },
 
     data() {
@@ -288,10 +301,10 @@ Component.register('sw-text-editor', {
                 curCol: null,
                 nextCol: null,
                 curColWidth: null,
-                nextColWidth: null
+                nextColWidth: null,
             },
             isTableEdit: false,
-            cmsPageState: Shopware.State.get('cmsPageState')
+            cmsPageState: Shopware.State.get('cmsPageState'),
         };
     },
 
@@ -302,7 +315,7 @@ Component.register('sw-text-editor', {
                 'is--disabled': this.disabled,
                 'is--boxed': !this.isInlineEdit,
                 'is--empty': this.isEmpty,
-                'has--vertical-align': !!this.verticalAlign
+                'has--vertical-align': !!this.verticalAlign,
             };
         },
 
@@ -312,7 +325,7 @@ Component.register('sw-text-editor', {
             }
 
             return {
-                'justify-content': this.verticalAlign
+                'justify-content': this.verticalAlign,
             };
         },
 
@@ -328,7 +341,7 @@ Component.register('sw-text-editor', {
             });
 
             return mappings;
-        }
+        },
     },
 
     watch: {
@@ -345,7 +358,7 @@ Component.register('sw-text-editor', {
                     this.setWordCount();
                     this.setTablesResizable();
                 });
-            }
+            },
         },
 
         isCodeEdit() {
@@ -354,7 +367,7 @@ Component.register('sw-text-editor', {
                     this.setWordCount();
                 });
             }
-        }
+        },
     },
 
     created() {
@@ -380,7 +393,7 @@ Component.register('sw-text-editor', {
                     icon: 'default-text-editor-table',
                     tag: 'table',
                     expanded: false,
-                    handler: this.handleInsertTable
+                    handler: this.handleInsertTable,
                 });
 
                 if (!this.isInlineEdit) {
@@ -390,7 +403,7 @@ Component.register('sw-text-editor', {
                         icon: 'default-text-editor-code',
                         expanded: this.isCodeEdit,
                         handler: this.toggleCodeEditor,
-                        position: 'right'
+                        position: 'right',
                     });
                 }
 
@@ -405,7 +418,7 @@ Component.register('sw-text-editor', {
                         position: 'left',
                         dropdownPosition: 'left',
                         tooltipShowDelay: 500,
-                        tooltipHideDelay: 100
+                        tooltipHideDelay: 100,
                     };
 
                     const buttonConfigs = this.availableDataMappings.map(mapping => (
@@ -413,7 +426,7 @@ Component.register('sw-text-editor', {
                             type: mapping,
                             name: mapping,
                             title: mapping,
-                            handler: this.handleInsertDataMapping
+                            handler: this.handleInsertDataMapping,
                         }
                     ));
 
@@ -468,7 +481,8 @@ Component.register('sw-text-editor', {
                 return;
             }
 
-            if (path.includes(this.toolbar)) {
+            if (path.includes(this.toolbar) && event?.target?.tagName !== 'INPUT') {
+                event.preventDefault();
                 return;
             }
 
@@ -499,7 +513,7 @@ Component.register('sw-text-editor', {
                     if (this.buttonConfig[key].type === 'foreColor') {
                         this.buttonConfig[key].value = '';
                     }
-                }
+                },
             );
         },
 
@@ -543,7 +557,7 @@ Component.register('sw-text-editor', {
                 anchorOffset,
                 focusNode,
                 focusNode: { nodeValue: focusNodeText },
-                focusOffset
+                focusOffset,
             } = this.selection;
 
             const contentAfterSelection = Array.from(focusNodeText)
@@ -556,7 +570,7 @@ Component.register('sw-text-editor', {
                 anchorNode,
                 focusNode,
                 containsBothStartBrackets ? anchorOffset : anchorOffset - 1,
-                focusOffset + positionOfEndBracket + 2
+                focusOffset + positionOfEndBracket + 2,
             );
         },
 
@@ -566,7 +580,7 @@ Component.register('sw-text-editor', {
                 anchorNode,
                 anchorNode: { nodeValue: anchorNodeText },
                 focusNode,
-                focusOffset
+                focusOffset,
             } = this.selection;
 
             const contentBeforeSelection = Array.from(anchorNodeText)
@@ -580,7 +594,7 @@ Component.register('sw-text-editor', {
                 anchorNode,
                 focusNode,
                 anchorOffset - positionOfStartBracket - 2,
-                containsBothEndBrackets ? focusOffset : focusOffset + 1
+                containsBothEndBrackets ? focusOffset : focusOffset + 1,
             );
         },
 
@@ -621,7 +635,7 @@ Component.register('sw-text-editor', {
                 anchorOffset,
                 anchorNode: { nodeValue: anchorNodeText },
                 focusOffset,
-                focusNode: { nodeValue: focusNodeText }
+                focusNode: { nodeValue: focusNodeText },
             } = this.selection;
 
             const contentBeforeSelection = Array.from(anchorNodeText)
@@ -723,7 +737,7 @@ Component.register('sw-text-editor', {
             const classes = [];
             const attributes = [
                 `target="${target}"`,
-                `href="${value}"`
+                `href="${value}"`,
             ];
 
             if (target === '_blank') {
@@ -845,6 +859,6 @@ Component.register('sw-text-editor', {
         onTableDelete(event) {
             event.stopPropagation();
             this.isTableEdit = false;
-        }
-    }
+        },
+    },
 });

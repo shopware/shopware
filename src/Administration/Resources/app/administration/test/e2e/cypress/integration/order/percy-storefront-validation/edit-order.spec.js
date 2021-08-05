@@ -40,11 +40,15 @@ describe('Account - Order: Visual tests', () => {
 
         // Change color of the element to ensure consistent snapshots
         cy.changeElementStyling('.order-table-header-heading', 'color: #fff');
+        cy.get('.order-table-header-heading')
+            .should('have.css', 'color', 'rgb(255, 255, 255)');
 
         // Change visibility of the element to ensure consistent snapshots
         cy.changeElementStyling('.order-table-header-order-status', 'visibility: hidden');
+        cy.get('.order-table-header-order-status')
+            .should('have.css', 'visibility', 'hidden');
 
         // Take snapshot for visual testing
-        cy.takeSnapshot('Account overview', '.order-table', { widths: [375, 1920] });
+        cy.takeSnapshot('[Account] Overview', '.order-table', { widths: [375, 1920] });
     });
 });

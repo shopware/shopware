@@ -64,11 +64,11 @@ function createWrapper() {
 describe('src/app/component/form/select/base/sw-select-result/', () => {
     let wrapper;
 
-    beforeEach(async () => {
-        wrapper = await createWrapper();
+    beforeEach(() => {
+        wrapper = createWrapper();
     });
-    afterEach(async () => {
-        await wrapper.destroy();
+    afterEach(() => {
+        wrapper.destroy();
     });
 
 

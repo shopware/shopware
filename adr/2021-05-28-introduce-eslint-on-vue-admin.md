@@ -21,16 +21,26 @@ For the `*.js` files we try to follow a standard vue cli linting way, with this 
 * [`'vue/no-mutating-props': ['off']`](https://eslint.vuejs.org/rules/no-mutating-props.html) - this is a tradeoff to allow mutating properties because it is already heavily used
 * [`'vue/component-definition-name-casing': ['error', 'kebab-case']`](https://eslint.vuejs.org/rules/component-definition-name-casing.html) - write component names in kebab-casing
 
+### `*.spec.js` linting
+
+During writing unit test files, we do not want to get a `max-len` warning.
+A `max-len` rule may lead to hard understandable output in test names only to suit the `max-len` rules.
+In a test itself, you sometimes have `selector` phrases or something else where you exceed the `max-len` rule without a chance to solve it.
+
 ### `*.html.twig` linting
 
-Besides the _twig-to-html-comment_ tradeoff these exceptions are also made by us:
+Besides the _twig-to-html-comment_ tradeoff, these exceptions are also made:
 
-* `'vue/component-name-in-template-casing': ['error', 'kebab-case']` - write vue components in kebab-case in templates
-* `'vue/no-multiple-template-root': 'warn',` - due to external template files and component inheritance
+* `'vue/component-name-in-template-casing': ['error', 'kebab-case']` - write vue component names in kebab-case in templates
+* `'vue/no-multiple-template-root': 'off',` - due to external template files and component inheritance
+* `'vue/attribute-hyphenation': 'error'` - write `hello-word=""` attributes instead of `helloWorld=""`
 * `'vue/no-parsing-error': ['error', {'nested-comment': false}]` - ignore nested html comments, which may be a result of the twig-to-html-comment workflow
-* `'vue/valid-template-root': 'warn'` - @see `vue/no-multiple-template-root`
+* `'vue/valid-template-root': 'off'` - @see `vue/no-multiple-template-root`
 * `'vue/valid-v-slot': ['error', { allowModifiers: true }]` - allow `.`s in template slot names 
-
+* `'vue/no-unused-vars': 'off'` - the twig parser cannot understand if a scoped slot value is used or not used properly
+* `'vue/no-template-shadow': 'off'` - for providing scoped values into another template scope
+* `'vue/no-lone-template': 'off'` - in some composition cases lone template tags are used
+* `'vue/no-v-html': 'off'` - for i18n and other reasons v-html is often used
 
 ### twig block indentation
 
@@ -124,7 +134,16 @@ Please follow the _know the rules, break the rules_ approach and not the _dont b
 
 ## ESLint IDE setup
 
-The `*.js` linting should run out of the box with PHPStorm or VSCode. For `*.html.twig` linting have a look at the README to get it running.
-VSCode should work out of the box, PHPStorm needs a special setup.
+The `*.js` linting should run out of the box with PHPStorm or VSCode. For `*.html.twig` linting have a look at the next chapter.
 
 ESLint is part of the CI pipeline, so a running ESLint environment is mandatory.
+
+### Twig Linting Setup
+
+#### VSCode
+
+Should work out of the box @see [.vscode/settings.json](../.vscode/settings.json).
+
+#### PHPStorm
+
+Add `html,twig` to `eslint.additional.file.extensions` list in Registry (Help > Find Action..., type registry... to locate it) and re-start the IDE.

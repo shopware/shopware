@@ -11,17 +11,17 @@ Shopware.Component.register('sw-extension-my-extensions-listing-controls', {
             sortingOptions: [
                 {
                     value: 'updated-at',
-                    name: this.$tc('sw-extension.my-extensions.listing.controls.filterOptions.last-updated')
+                    name: this.$tc('sw-extension.my-extensions.listing.controls.filterOptions.last-updated'),
                 },
                 {
                     value: 'name-asc',
-                    name: this.$tc('sw-extension.my-extensions.listing.controls.filterOptions.name-asc')
+                    name: this.$tc('sw-extension.my-extensions.listing.controls.filterOptions.name-asc'),
                 },
                 {
                     value: 'name-desc',
-                    name: this.$tc('sw-extension.my-extensions.listing.controls.filterOptions.name-desc')
-                }
-            ]
+                    name: this.$tc('sw-extension.my-extensions.listing.controls.filterOptions.name-desc'),
+                },
+            ],
         };
     },
 
@@ -32,6 +32,6 @@ Shopware.Component.register('sw-extension-my-extensions-listing-controls', {
 
         selectedSortingOption(value) {
             this.$emit('update:sorting-option', value);
-        }
-    }
+        },
+    },
 });

@@ -4,7 +4,7 @@
         v-if="element.config.content.source === 'mapped'"
         class="sw-cms-el-text__mapping-preview content-editor"
         v-html="$sanitize(demoValue)"
-    />
+    ></div>
 
     <sw-text-editor
         v-else
@@ -13,6 +13,7 @@
         :vertical-align="element.config.verticalAlign.value"
         :allow-inline-data-mapping="true"
         :is-inline-edit="true"
+        sanitize-input
         @blur="onBlur"
         @input="onInput"
     />

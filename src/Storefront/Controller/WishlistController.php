@@ -116,7 +116,10 @@ class WishlistController extends StorefrontController
 
         $page = $this->wishlistPageLoader->load($request, $context, $customer);
 
-        return $this->renderStorefront('@Storefront/storefront/page/wishlist/index.html.twig', ['page' => $page]);
+        $response = $this->renderStorefront('@Storefront/storefront/page/wishlist/index.html.twig', ['page' => $page]);
+        $response->headers->set('x-robots-tag', 'noindex');
+
+        return $response;
     }
 
     /**

@@ -2,6 +2,20 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-sales-channel/view/sw-sales-channel-detail-products';
 
+function mockCriteria() {
+    return {
+        limit: 25,
+        page: 1,
+        sortings: [{ field: 'name', naturalSorting: false, order: 'ASC' }],
+        resetSorting() {
+            this.sortings = [];
+        },
+        addSorting(sorting) {
+            this.sortings.push(sorting);
+        }
+    };
+}
+
 function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-sales-channel-detail-products'), {
         stubs: {
@@ -48,12 +62,17 @@ function createWrapper(privileges = []) {
             'sw-pagination': true,
             'sw-simple-search-field': true,
             'sw-button': true,
-            'sw-icon': true
+            'sw-icon': true,
+            'sw-sales-channel-products-assignment-modal': true,
+            'sw-context-menu-item': true
         },
         provide: {
             repositoryFactory: {
                 create: () => {
                     return {
+                        create: () => {
+                            return Promise.resolve();
+                        },
                         search: () => {
                             return Promise.resolve();
                         },
@@ -61,6 +80,9 @@ function createWrapper(privileges = []) {
                             return Promise.resolve();
                         },
                         syncDeleted: () => {
+                            return Promise.resolve();
+                        },
+                        saveAll: () => {
                             return Promise.resolve();
                         }
                     };
@@ -88,13 +110,18 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
         { id: '101', active: true, productNumber: '001' },
         { id: '102', active: false, productNumber: '002' }
     ];
+    productsMock.has = (id) => {
+        return productsMock.some((item) => {
+            return item.id === id;
+        });
+    };
+
     const productMock = { visibilities: [
         { id: '01', productId: '101', salesChannelId: 'apiSalesChannelTypeId' },
         { id: '02', productId: '101', salesChannelId: 'storefrontSalesChannelTypeId' }
     ] };
+
     const $refsMock = { entityListing: {
-        deleteId: null,
-        closeModal: () => false,
         selection: {
             101: productMock
         }
@@ -212,9 +239,17 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
         await wrapper.vm.$nextTick();
         wrapper.vm.getProducts = jest.fn();
 
+        await wrapper.setData({
+            page: 2
+        });
+
+        expect(wrapper.vm.page).toEqual(2);
+
         await wrapper.vm.onChangeSearchTerm('Awesome Product');
 
         expect(wrapper.vm.searchTerm).toBe('Awesome Product');
+        expect(wrapper.vm.productCriteria.term).toBe('Awesome Product');
+        expect(wrapper.vm.page).toEqual(1);
         expect(wrapper.vm.getProducts).toHaveBeenCalledTimes(1);
         wrapper.vm.getProducts.mockRestore();
     });
@@ -223,11 +258,16 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
         const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
         wrapper.vm.getProducts = jest.fn();
+        expect(wrapper.vm.productCriteria.sortings).toEqual([]);
+        wrapper.vm.products.criteria = mockCriteria();
 
         await wrapper.vm.onChangePage({ page: 2, limit: 25 });
 
         expect(wrapper.vm.page).toBe(2);
         expect(wrapper.vm.limit).toBe(25);
+        expect(wrapper.vm.productCriteria.sortings).toEqual([
+            { field: 'name', naturalSorting: false, order: 'ASC' }
+        ]);
         expect(wrapper.vm.getProducts).toHaveBeenCalledTimes(1);
         wrapper.vm.getProducts.mockRestore();
     });
@@ -300,7 +340,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
 
     it('should be able to edit product', async () => {
         const wrapper = createWrapper([
-            'sales_channel.editor'
+            'product.editor'
         ]);
         await wrapper.vm.$nextTick();
 
@@ -318,5 +358,83 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
 
         const entityListing = wrapper.find('.sw-sales-channel-detail-products__list');
         expect(entityListing.attributes()['allow-edit']).toBe(undefined);
+    });
+
+    it('should turn on add products modal', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+
+        await wrapper.vm.openAddProductsModal();
+
+        const modal = wrapper.find('sw-sales-channel-products-assignment-modal-stub');
+
+        expect(wrapper.vm.showProductsModal).toBe(true);
+        expect(modal.exists()).toBeTruthy();
+    });
+
+    it('should add products successful', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+        wrapper.vm.saveProductVisibilities = jest.fn(() => Promise.resolve());
+
+        await wrapper.setData({ products: productsMock });
+        await wrapper.vm.onAddProducts([
+            { id: '103', active: true, productNumber: '003' }
+        ]);
+
+        expect(wrapper.vm.saveProductVisibilities).toHaveBeenCalledWith(
+            expect.arrayContaining([
+                expect.objectContaining({ productId: '103' })
+            ])
+        );
+
+        wrapper.vm.saveProductVisibilities.mockRestore();
+    });
+
+    it('should add products failed', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+        wrapper.vm.saveProductVisibilities = jest.fn(() => Promise.resolve());
+
+        wrapper.vm.onAddProducts([]);
+
+        expect(wrapper.vm.showProductsModal).toBe(false);
+        expect(wrapper.vm.saveProductVisibilities).not.toBeCalled();
+
+        wrapper.vm.saveProductVisibilities.mockRestore();
+    });
+
+    it('should save product visibilities successful', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+        wrapper.vm.productVisibilityRepository.saveAll = jest.fn(() => Promise.resolve());
+
+        await wrapper.vm.saveProductVisibilities([]);
+
+        expect(wrapper.vm.productVisibilityRepository.saveAll).not.toBeCalled();
+
+        wrapper.vm.productVisibilityRepository.saveAll.mockRestore();
+    });
+
+    it('should save product visibilities failed', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+        wrapper.vm.productVisibilityRepository.saveAll = jest.fn(() => {
+            return Promise.reject(new Error('Whoops!'));
+        });
+
+        await wrapper.vm.saveProductVisibilities([
+            {
+                visibility: 30,
+                productId: 'productId',
+                salesChannelId: 'salesChannelId',
+                salesChannel: {},
+                _isNew: true
+            }
+        ]).catch((error) => {
+            expect(error.message).toBe('Whoops!');
+        });
+
+        wrapper.vm.productVisibilityRepository.saveAll.mockRestore();
     });
 });

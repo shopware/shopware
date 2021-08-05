@@ -134,7 +134,7 @@ base-uri 'self';
 
         <service id="Shopware\Core\Framework\Migration\Command\CreateMigrationCommand">
             <argument type="service" id="Shopware\Core\Framework\Plugin\KernelPluginCollection"/>
-            <argument>%kernel.project_dir%</argument>
+            <argument>%kernel.shopware_core_dir%</argument>
             <argument>%kernel.shopware_version%</argument>
             <tag name="console.command"/>
         </service>
@@ -393,6 +393,10 @@ base-uri 'self';
             <argument type="service" id="app_template.repository"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Adapter\Twig\TwigVariableParser">
+            <argument type="service" id="twig" />
+        </service>
+
         <service id="Shopware\Core\Framework\Routing\ApiRequestContextResolver">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\Routing\RouteScopeRegistry"/>
@@ -597,6 +601,15 @@ base-uri 'self';
             <tag name="console.command" command="administration:dump:features"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Adapter\Command\S3FilesystemVisibilityCommand">
+            <argument type="service" id="shopware.filesystem.private"/>
+            <argument type="service" id="shopware.filesystem.public"/>
+            <argument type="service" id="shopware.filesystem.theme"/>
+            <argument type="service" id="shopware.filesystem.sitemap"/>
+            <argument type="service" id="shopware.filesystem.asset"/>
+            <tag name="console.command"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber">
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
@@ -604,5 +617,12 @@ base-uri 'self';
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollection"/>
+
+        <service id="Shopware\Core\Framework\Util\HtmlSanitizer" public="true">
+            <argument>%shopware.html_sanitizer.cache_dir%</argument>
+            <argument>%shopware.html_sanitizer.cache_enabled%</argument>
+            <argument>%shopware.html_sanitizer.sets%</argument>
+            <argument>%shopware.html_sanitizer.fields%</argument>
+        </service>
     </services>
 </container>

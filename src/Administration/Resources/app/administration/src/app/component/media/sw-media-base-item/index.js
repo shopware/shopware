@@ -7,8 +7,8 @@ import './sw-media-base-item.scss';
  * @example-type code-only
  * @component-example
  * <sw-media-base-item
- *     isList="true"
- *     :isLoading="item.isLoading">
+ *     :item="myItem"
+ *     :is-list="true">
  * </sw-media-base-item>
  */
 Shopware.Component.register('sw-media-base-item', {
@@ -17,67 +17,67 @@ Shopware.Component.register('sw-media-base-item', {
     props: {
         item: {
             type: Object,
-            required: true
+            required: true,
         },
 
         isList: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         showSelectionIndicator: {
             required: false,
             type: Boolean,
-            default: false
+            default: false,
         },
 
         showContextMenuButton: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
 
         selected: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         editable: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
 
         allowMultiSelect: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
 
         truncateRight: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         allowEdit: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
 
         allowDelete: {
             type: Boolean,
             required: false,
-            default: true
-        }
+            default: true,
+        },
     },
 
     data() {
         return {
-            isInlineEdit: false
+            isInlineEdit: false,
         };
     },
 
@@ -85,13 +85,13 @@ Shopware.Component.register('sw-media-base-item', {
         mediaItemClasses() {
             return {
                 'is--list': this.isList,
-                'is--selected': this.selected || this.isInlineEdit
+                'is--selected': this.selected || this.isInlineEdit,
             };
         },
 
         mediaNameContainerClasses() {
             return {
-                'is--truncate-right': this.truncateRight
+                'is--truncate-right': this.truncateRight,
             };
         },
 
@@ -104,13 +104,13 @@ Shopware.Component.register('sw-media-base-item', {
                 'selected-indicator--visible': this.showSelectionIndicator,
                 'selected-indicator--list': this.isList,
                 'selected-indicator--checked': this.listSelected,
-                'selected-indicator--is-allowed': this.allowMultiSelect
+                'selected-indicator--is-allowed': this.allowMultiSelect,
             };
         },
 
         isLoading() {
             return this.item.isLoading;
-        }
+        },
     },
 
     methods: {
@@ -120,7 +120,7 @@ Shopware.Component.register('sw-media-base-item', {
             }
             this.$emit('media-item-click', {
                 originalDomEvent,
-                item: this.item
+                item: this.item,
             });
         },
 
@@ -144,14 +144,14 @@ Shopware.Component.register('sw-media-base-item', {
         selectItem(originalDomEvent) {
             this.$emit('media-item-selection-add', {
                 originalDomEvent,
-                item: this.item
+                item: this.item,
             });
         },
 
         removeFromSelection(originalDomEvent) {
             this.$emit('media-item-selection-remove', {
                 originalDomEvent,
-                item: this.item
+                item: this.item,
             });
         },
 
@@ -163,6 +163,6 @@ Shopware.Component.register('sw-media-base-item', {
 
         endInlineEdit() {
             this.isInlineEdit = false;
-        }
-    }
+        },
+    },
 });

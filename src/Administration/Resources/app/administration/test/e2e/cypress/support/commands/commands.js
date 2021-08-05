@@ -8,13 +8,13 @@ import '@percy/cypress';
  * @param {String} value - The value to type
  */
 Cypress.Commands.add('typeAndCheckSearchField', {
-    prevSubject: 'element'
+    prevSubject: 'element',
 }, (subject, value) => {
     // Request we want to wait for later
     cy.server();
     cy.route({
         url: `${Cypress.env('apiPath')}/search/**`,
-        method: 'post'
+        method: 'post',
     }).as('searchResultCall');
 
     cy.wrap(subject).type(value).should('have.value', value);
@@ -34,7 +34,7 @@ Cypress.Commands.add('typeAndCheckSearchField', {
  * @param {Array} permissions - The permissions for the role
  */
 Cypress.Commands.add('loginAsUserWithPermissions', {
-    prevSubject: false
+    prevSubject: false,
 }, (permissions) => {
     cy.window().then(($w) => {
         const roleID = 'ef68f039468d4788a9ee87db9b3b94de';
@@ -42,7 +42,7 @@ Cypress.Commands.add('loginAsUserWithPermissions', {
         let headers = {
             Accept: 'application/vnd.api+json',
             Authorization: `Bearer ${$w.Shopware.Context.api.authToken.access}`,
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
         };
 
         cy.request({
@@ -54,14 +54,14 @@ Cypress.Commands.add('loginAsUserWithPermissions', {
                 client_id: 'administration',
                 scope: 'user-verified',
                 username: 'admin',
-                password: 'shopware'
-            }
+                password: 'shopware',
+            },
         }).then(response => {
             // overwrite headers with new scope
             headers = {
                 Accept: 'application/vnd.api+json',
                 Authorization: `Bearer ${response.body.access_token}`,
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
             };
 
             return cy.request({
@@ -76,8 +76,8 @@ Cypress.Commands.add('loginAsUserWithPermissions', {
 
                         const adminPrivileges = permissions.map(({ key, role }) => `${key}.${role}`);
                         return privilegesService.getPrivilegesForAdminPrivilegeKeys(adminPrivileges);
-                    })()
-                }
+                    })(),
+                },
             });
         }).then(() => {
             // save user
@@ -94,8 +94,8 @@ Cypress.Commands.add('loginAsUserWithPermissions', {
                     lastName: 'Muster',
                     localeId: localeId,
                     password: 'Passw0rd!',
-                    username: 'maxmuster'
-                }
+                    username: 'maxmuster',
+                },
             });
         });
 
@@ -176,7 +176,7 @@ Cypress.Commands.add('createReviewFixture', () => {
         const headers = {
             Accept: 'application/vnd.api+json',
             Authorization: `Bearer ${JSON.parse(result.value).access}`,
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
         };
 
         cy.createProductFixture().then(() => {
@@ -188,8 +188,8 @@ Cypress.Commands.add('createReviewFixture', () => {
                 endpoint: 'product',
                 data: {
                     field: 'name',
-                    value: 'Product name'
-                }
+                    value: 'Product name',
+                },
             });
         }).then((data) => {
             productId = data.id;
@@ -198,8 +198,8 @@ Cypress.Commands.add('createReviewFixture', () => {
                 endpoint: 'sales-channel',
                 data: {
                     field: 'name',
-                    value: 'Storefront'
-                }
+                    value: 'Storefront',
+                },
             });
         })
             .then((data) => {
@@ -209,8 +209,8 @@ Cypress.Commands.add('createReviewFixture', () => {
                     endpoint: 'language',
                     data: {
                         field: 'name',
-                        value: 'English'
-                    }
+                        value: 'English',
+                    },
                 });
             })
             .then((data) => {
@@ -222,8 +222,8 @@ Cypress.Commands.add('createReviewFixture', () => {
                         customerId: customerId,
                         languageId: data.id,
                         productId: productId,
-                        salesChannelId: salesChannelId
-                    })
+                        salesChannelId: salesChannelId,
+                    }),
                 });
             });
     });
@@ -244,6 +244,8 @@ Cypress.Commands.add('takeSnapshot', (title, selectorToCheck = null, width = nul
     }
 
     if (selectorToCheck) {
+        cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-loader__element').should('not.exist');
         cy.get(selectorToCheck).should('be.visible');
     }
 
@@ -270,8 +272,8 @@ Cypress.Commands.add('setShippingMethodInSalesChannel', (name, salesChannel = 'S
         endpoint: 'sales-channel',
         data: {
             field: 'name',
-            value: salesChannel
-        }
+            value: salesChannel,
+        },
     }).then((data) => {
         salesChannelId = data.id;
 
@@ -279,14 +281,14 @@ Cypress.Commands.add('setShippingMethodInSalesChannel', (name, salesChannel = 'S
             endpoint: 'shipping-method',
             data: {
                 field: 'name',
-                value: name
-            }
+                value: name,
+            },
         });
     }).then((data) => {
         return cy.updateViaAdminApi('sales-channel', salesChannelId, {
             data: {
-                shippingMethodId: data.id
-            }
+                shippingMethodId: data.id,
+            },
         });
     });
 });
@@ -294,7 +296,7 @@ Cypress.Commands.add('setShippingMethodInSalesChannel', (name, salesChannel = 'S
 /**
  * Updates an existing entity using Shopware API at the given endpoint
  * @memberOf Cypress.Chainable#
- * @name updateViaAdminApi2
+ * @name updateViaAdminApi
  * @function
  * @param {String} endpoint - API endpoint for the request
  * @param {String} id - Id of the entity to be updated
@@ -324,24 +326,31 @@ Cypress.Commands.add('changeElementStyling', (selector, imageStyle) => {
 /**
  * Sorts a listing via clicking on name column
  * @memberOf Cypress.Chainable#
- * @name sortListingViaColumn
+ * @name sortAndCheckListingAscViaColumn
  * @function
  * @param {String} columnTitle - Title of the column to sort with
  * @param {String} firstEntry - String of the first entry to be in listing after sorting
  * @param {String} [rowZeroSelector = .sw-data-grid__row--0]  - Name of the sales channel
  */
-Cypress.Commands.add('sortListingViaColumn', (
+Cypress.Commands.add('sortAndCheckListingAscViaColumn', (
     columnTitle,
     firstEntry,
-    rowZeroSelector = '.sw-data-grid__row--0'
+    rowZeroSelector = '.sw-data-grid__row--0',
 ) => {
+    // Sort listing
     cy.contains('.sw-data-grid__cell-content', columnTitle).should('be.visible');
     cy.contains('.sw-data-grid__cell-content', columnTitle).click();
 
+    // Assertions to make sure listing is loaded
     cy.get('.sw-data-grid__skeleton').should('not.exist');
-    cy.get('.sw-data-grid__sort-indicator').should('be.visible');
+    cy.get('.sw-loader').should('not.exist');
 
-    cy.get(rowZeroSelector).contains(firstEntry);
+    // Assertions to make sure sorting was applied
+    cy.get('.sw-data-grid__sort-indicator').should('be.visible');
+    cy.get('.icon--small-arrow-small-down').should('not.exist');
+    cy.get('.icon--small-arrow-small-up').should('be.visible');
+    cy.get(rowZeroSelector).should('be.visible');
+    cy.contains(rowZeroSelector, firstEntry).should('be.visible');
 });
 
 /**
@@ -364,7 +373,7 @@ Cypress.Commands.add('testListing', ({ searchTerm, sorting = {
     location: undefined,
     text: undefined,
     propertyName: undefined,
-    sortDirection: undefined
+    sortDirection: undefined,
 }, page, limit, changesUrl = true }) => {
     cy.get('.sw-loader').should('not.exist');
     cy.get('.sw-data-grid__skeleton').should('not.exist');
@@ -422,14 +431,14 @@ Cypress.Commands.add('testListing', ({ searchTerm, sorting = {
 Cypress.Commands.add(
     'typeMultiSelectAndCheckMultiple',
     {
-        prevSubject: 'element'
+        prevSubject: 'element',
     },
     (subject, values) => {
         // Request we want to wait for later
         cy.server();
         cy.route({
             url: `${Cypress.env('apiPath')}/search/*`,
-            method: 'post'
+            method: 'post',
         }).as('filteredResultCall');
 
         cy.wrap(subject)
@@ -443,7 +452,7 @@ Cypress.Commands.add(
                 .type(values[i])
                 .should(
                     'have.value',
-                    values[i]
+                    values[i],
                 );
 
             // wait for the first request (which happens on opening / clicking in the input
@@ -463,7 +472,7 @@ Cypress.Commands.add(
         // close search results
         cy.get(`${subject.selector} .sw-select-selection-list__input`).type('{esc}');
         cy.get(`${subject.selector} .sw-select-result-list`).should(
-            'not.exist'
+            'not.exist',
         );
 
         // check if all values are selected
@@ -475,7 +484,7 @@ Cypress.Commands.add(
         // return same element as the one this command works on so it can be chained with other commands.
         // otherwise it will return the last element which is in this case a '.sw-select-selection-list' element.
         cy.wrap(subject);
-    }
+    },
 );
 
 Cypress.Commands.add(
@@ -496,13 +505,20 @@ Cypress.Commands.add(
                     cy.get(`.sw-admin-menu__navigation-list-item .${subMenuId}`).should('be.visible')
                         .then($el => Cypress.dom.isAttached($el));
                     cy.log(`Element ${subMenuId} is now attached to the DOM.`);
-                    cy.getAttached(`.sw-admin-menu__navigation-list-item .${subMenuId}`).click();
+
+                    // the admin menu sometimes replaces the dom element. So we wait for some time
+                    cy.wait(500);
+                    cy.get(`.sw-admin-menu__item--${mainMenuId} .sw-admin-menu__navigation-list-item.${subMenuId}`)
+                        .should('be.visible');
+
+                    cy.get(`.sw-admin-menu__item--${mainMenuId} .sw-admin-menu__navigation-list-item.${subMenuId}`)
+                        .click();
                 } else {
                     cy.get(finalMenuItem).should('be.visible').click();
                 }
             });
         cy.url().should('include', targetPath);
-    }
+    },
 );
 
 Cypress.Commands.add('getAttached', selector => {
@@ -517,26 +533,83 @@ Cypress.Commands.add('getAttached', selector => {
     }).then(() => cy.wrap($el));
 });
 
-
 /**
- * Sets Shopware back to its initial state
+ * Creates a variant product based on given fixtures "product-variants.json", 'tax,json" and "property.json"
+ * with minor customisation
  * @memberOf Cypress.Chainable#
- * @name setToInitialStateVisual
+ * @name createProductVariantFixture
  * @function
  */
-Cypress.Commands.add('setToInitialState', () => {
-    // TODO: Move into setToInitialState command in e2e-testsuite-platform
+Cypress.Commands.add('createProductVariantFixture', () => {
+    return cy.createDefaultFixture('tax', {
+        id: '91b5324352dc4ee58ec320df5dcf2bf4',
+    }).then(() => {
+        return cy.createPropertyFixture({
+            options: [{
+                id: '15532b3fd3ea4c1dbef6e9e9816e0715',
+                name: 'Red',
+            }, {
+                id: '98432def39fc4624b33213a56b8c944d',
+                name: 'Green',
+            }],
+        });
+    }).then(() => {
+        return cy.createPropertyFixture({
+            name: 'Size',
+            options: [{ name: 'S' }, { name: 'M' }, { name: 'L' }],
+        });
+    }).then(() => {
+        return cy.searchViaAdminApi({
+            data: {
+                field: 'name',
+                value: 'Storefront',
+            },
+            endpoint: 'sales-channel',
+        });
+    })
+        .then((saleschannel) => {
+            cy.createDefaultFixture('product', {
+                visibilities: [{
+                    visibility: 30,
+                    salesChannelId: saleschannel.id,
+                }],
+            }, 'product-variants.json');
+        });
+});
 
-    return cy.log('Cleaning, please wait a little bit.').then(() => {
-        if (Cypress.env('percyUsage')) {
-            cy.exec(`cd ${Cypress.env('projectRoot')} && ./psh.phar e2e:restore-db && cd ${Cypress.env('projectPath')}`)
-                .its('stdout').should('contain', 'All commands successfully executed!');
-        } else {
-            cy.cleanUpPreviousState();
-        }
+/**
+ * Ensures Shopware's modals are fully loaded before a snapshot is taken
+ * @memberOf Cypress.Chainable#
+ * @name handleModalSnapshot
+ * @param {String} title - Modal title
+ * @function
+ */
+Cypress.Commands.add('handleModalSnapshot', (title) => {
+    cy.contains('.sw-modal__header', title).should('be.visible');
+
+    cy.get('.sw-modal').should('be.visible').then(() => {
+        cy.get('.sw-modal-fade-enter-active').should('not.exist');
+        cy.get('.sw-modal-fade-enter').should('not.exist');
     }).then(() => {
-        return cy.clearCacheAdminApi('DELETE', 'api/_action/cache');
-    }).then(() => {
-        return cy.setLocaleToEnGb();
-    });
+        cy.get('.sw-modal-fade-leave-active').should('not.exist');
+        cy.get('.sw-modal-fade-leave-to').should('not.exist');
+    })
+        .then(() => {
+            cy.get('.sw-modal').should('have.css', 'opacity', '1');
+        });
+});
+
+/**
+ * Cleans up any previous state by restoring database and clearing caches
+ * @memberOf Cypress.Chainable#
+ * @name cleanUpPreviousState
+ * @function
+ */
+Cypress.Commands.overwrite('cleanUpPreviousState', (orig) => {
+    if (Cypress.env('localUsage')) {
+        return cy.exec(`${Cypress.env('shopwareRoot')}/bin/console e2e:restore-db`)
+            .its('code').should('eq', 0);
+    }
+
+    return orig();
 });

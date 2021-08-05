@@ -6,9 +6,9 @@ Shopware.Service('privileges')
         roles: {
             create_discounts: {
                 privileges: ['order:create:discount'],
-                dependencies: []
-            }
-        }
+                dependencies: [],
+            },
+        },
     })
     .addPrivilegeMappingEntry({
         category: 'permissions',
@@ -43,9 +43,9 @@ Shopware.Service('privileges')
                     'user:read',
                     'user_config:read',
                     'user_config:create',
-                    'user_config:update'
+                    'user_config:update',
                 ],
-                dependencies: []
+                dependencies: [],
             },
             editor: {
                 privileges: [
@@ -69,28 +69,36 @@ Shopware.Service('privileges')
                     'customer_address:read',
                     'salutation:read',
                     'order_address:create',
-                    'order:delete'
-                ],
-                dependencies: [
-                    'order.viewer'
-                ]
-            },
-            creator: {
-                privileges: [
-                    'customer_group:read'
+                    'order:delete',
                 ],
                 dependencies: [
                     'order.viewer',
-                    'order.editor'
-                ]
+                ],
+            },
+            creator: {
+                privileges: [
+                    'customer_group:read',
+                    'order:create',
+                    'order_customer:create',
+                    'order_delivery:create',
+                    'order_line_item:create',
+                    'order_transaction:create',
+                    'order_delivery_position:create',
+                    'mail_template_type:update',
+                    'customer:update',
+                ],
+                dependencies: [
+                    'order.viewer',
+                    'order.editor',
+                ],
             },
             deleter: {
                 privileges: [
-                    'order:delete'
+                    'order:delete',
                 ],
                 dependencies: [
-                    'order.viewer'
-                ]
-            }
-        }
+                    'order.viewer',
+                ],
+            },
+        },
     });

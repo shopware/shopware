@@ -26,7 +26,7 @@ export default class ImportExportService extends ApiService {
         const createdLog = await this.httpClient.post('/_action/import-export/prepare', {
             profileId: profileId,
             config: config,
-            expireDate: expireDate.toDateString()
+            expireDate: expireDate.toDateString(),
         }, { headers: this.getBasicHeaders() });
 
         return this.trackProgress(createdLog, callback);
@@ -52,9 +52,10 @@ export default class ImportExportService extends ApiService {
      * @param file {File} The csv file
      * @param callback {Function} Callback for progress
      * @param config {Object} Additional config for profile
+     * @param dryRun {Boolean} Set if import is a dry run
      * @returns {Promise<void>}
      */
-    async import(profileId, file, callback, config = {}) {
+    async import(profileId, file, callback, config = {}, dryRun = false) {
         const expireDate = new Date();
         expireDate.setDate(expireDate.getDate() + 30);
 
@@ -64,6 +65,9 @@ export default class ImportExportService extends ApiService {
         }
         formData.append('profileId', profileId);
         formData.append('expireDate', expireDate.toDateString());
+        if (dryRun) {
+            formData.append('dryRun', true);
+        }
 
         Object.entries(config).forEach(([key, value]) => {
             formData.append(`config[${key}]`, JSON.stringify(value));
@@ -71,7 +75,7 @@ export default class ImportExportService extends ApiService {
 
 
         const createdLog = await this.httpClient.post('/_action/import-export/prepare', formData, {
-            headers: this.getBasicHeaders()
+            headers: this.getBasicHeaders(),
         });
 
         return this.trackProgress(createdLog, callback);
@@ -86,7 +90,7 @@ export default class ImportExportService extends ApiService {
     async trackProgress(logEntry, callback, progress) {
         const { data: { progress: newProgress } } = await this.httpClient.post('/_action/import-export/process', {
             logId: logEntry.data.log.id,
-            offset: (progress?.offset) ? progress.offset : 0
+            offset: (progress?.offset) ? progress.offset : 0,
         }, { headers: this.getBasicHeaders() });
 
         callback.call(this, newProgress);

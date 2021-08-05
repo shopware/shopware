@@ -94,40 +94,42 @@
 
     {% block sw_order_detail_content %}
     <template #content>
+        <sw-card-view>
 
-        {% block sw_order_detail_content_tabs %}
-        <sw-tabs
-            v-if="showTabs"
-            class="sw-order-detail__tabs"
-        >
-
-            {% block sw_order_detail_content_tabs_general %}
-            <sw-tabs-item
-                :route="{ name: 'sw.order.detail.base', params: { id: $route.params.id } }"
-                :title="$tc('sw-order.detail.tabGeneral')"
+            {% block sw_order_detail_content_tabs %}
+            <sw-tabs
+                v-if="showTabs"
+                class="sw-order-detail__tabs"
             >
-                {{ $tc('sw-order.detail.tabGeneral') }}
-            </sw-tabs-item>
+
+                {% block sw_order_detail_content_tabs_general %}
+                <sw-tabs-item
+                    :route="{ name: 'sw.order.detail.base', params: { id: $route.params.id } }"
+                    :title="$tc('sw-order.detail.tabGeneral')"
+                >
+                    {{ $tc('sw-order.detail.tabGeneral') }}
+                </sw-tabs-item>
+                {% endblock %}
+
+            </sw-tabs>
             {% endblock %}
 
-        </sw-tabs>
-        {% endblock %}
+            {% block sw_order_detail_content_view %}
+            <router-view
+                ref="baseComponent"
+                :order-id="orderId"
+                :is-editing="isEditing"
+                :is-loading="isLoading"
+                :is-save-successful="isSaveSuccessful"
+                @identifier-change="updateIdentifier"
+                @created-by-id-change="updateCreatedById"
+                @loading-change="onUpdateLoading"
+                @editing-change="onUpdateEditing"
+                @error="onError"
+            />
+            {% endblock %}
 
-        {% block sw_order_detail_content_view %}
-        <router-view
-            ref="baseComponent"
-            :order-id="orderId"
-            :is-editing="isEditing"
-            :is-loading="isLoading"
-            :is-save-successful="isSaveSuccessful"
-            @identifier-change="updateIdentifier"
-            @created-by-id-change="updateCreatedById"
-            @loading-change="onUpdateLoading"
-            @editing-change="onUpdateEditing"
-            @error="onError"
-        />
-        {% endblock %}
-
+        </sw-card-view>
     </template>
     {% endblock %}
 

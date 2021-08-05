@@ -12,7 +12,6 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder;
-use Shopware\Core\Checkout\Cart\Tax\TaxDetector;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceEntity;
 use Shopware\Core\Checkout\Shipping\Cart\Error\ShippingMethodBlockedError;
@@ -43,19 +42,12 @@ class DeliveryCalculator
      */
     private $percentageTaxRuleBuilder;
 
-    /**
-     * @var TaxDetector
-     */
-    private $taxDetector;
-
     public function __construct(
         QuantityPriceCalculator $priceCalculator,
-        PercentageTaxRuleBuilder $percentageTaxRuleBuilder,
-        TaxDetector $taxDetector
+        PercentageTaxRuleBuilder $percentageTaxRuleBuilder
     ) {
         $this->priceCalculator = $priceCalculator;
         $this->percentageTaxRuleBuilder = $percentageTaxRuleBuilder;
-        $this->taxDetector = $taxDetector;
     }
 
     public function calculate(CartDataCollection $data, Cart $cart, DeliveryCollection $deliveries, SalesChannelContext $context): void
@@ -231,9 +223,7 @@ class DeliveryCalculator
 
     private function getPriceForTaxState(Price $price, SalesChannelContext $context): float
     {
-        $taxState = $this->taxDetector->getTaxState($context);
-
-        if ($taxState === CartPrice::TAX_STATE_GROSS) {
+        if ($context->getTaxState() === CartPrice::TAX_STATE_GROSS) {
             return $price->getGross();
         }
 

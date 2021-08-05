@@ -103,6 +103,8 @@
                 "preConditions": {
                     "cardTitlePreConditions": "Pre-conditions",
                     "cardTitleRuleConditions": "Rule based conditions",
+                    "labelPreventCombination": "Prevent combination with other promotions",
+                    "helpTextPreventCombination": "Activating this option will exclude all other promotions, regardless of the combination selection.",
                     "labelPromotionExclusions": "Do not combine with",
                     "placeholderPromotionExclusions": "Add promotion...",
                     "labelPromotionSalesChannel": "Sales Channels",

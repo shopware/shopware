@@ -43,6 +43,8 @@ export default class VueAdapter extends ViewAdapter {
 
         // add router to View
         this.router = router;
+        // add i18n to View
+        this.i18n = i18n;
 
         // Enable performance measurements in development mode
         Vue.config.performance = process.env.NODE_ENV !== 'production';
@@ -59,9 +61,9 @@ export default class VueAdapter extends ViewAdapter {
             components,
             data() {
                 return {
-                    initError: {}
+                    initError: {},
                 };
-            }
+            },
         });
 
         return this.root;
@@ -143,6 +145,23 @@ export default class VueAdapter extends ViewAdapter {
         this.resolveMixins(componentConfig);
 
         const vueComponent = Vue.component(componentName, componentConfig);
+        this.vueComponents[componentName] = vueComponent;
+
+        return vueComponent;
+    }
+
+    /**
+     * Builds and creates a Vue component using the provided component configuration.
+     *
+     * @param {Object }componentConfig
+     * @memberOf module:app/adapter/view/vue
+     * @returns {Function}
+     */
+    buildAndCreateComponent(componentConfig) {
+        const componentName = componentConfig.name;
+        this.resolveMixins(componentConfig);
+
+        const vueComponent = Vue.component(componentConfig.name, componentConfig);
         this.vueComponents[componentName] = vueComponent;
 
         return vueComponent;
@@ -292,7 +311,7 @@ export default class VueAdapter extends ViewAdapter {
             fallbackLocale,
             silentFallbackWarn: true,
             sync: true,
-            messages
+            messages,
         });
 
         store.subscribe(({ type }, state) => {

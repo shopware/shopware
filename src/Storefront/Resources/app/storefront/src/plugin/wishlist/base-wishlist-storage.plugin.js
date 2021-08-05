@@ -7,7 +7,7 @@ export default class BaseWishlistStoragePlugin extends Plugin {
 
     load() {
         this.$emitter.publish('Wishlist/onProductsLoaded', {
-            products: this.products
+            products: this.products,
         });
     }
 
@@ -20,7 +20,7 @@ export default class BaseWishlistStoragePlugin extends Plugin {
 
         this.$emitter.publish('Wishlist/onProductAdded', {
             products: this.products,
-            productId
+            productId,
         });
     }
 
@@ -29,7 +29,7 @@ export default class BaseWishlistStoragePlugin extends Plugin {
 
         this.$emitter.publish('Wishlist/onProductRemoved', {
             products: this.products,
-            productId
+            productId,
         });
     }
 

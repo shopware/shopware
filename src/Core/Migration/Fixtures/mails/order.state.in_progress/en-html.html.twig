@@ -1,6 +1,6 @@
 <div style="font-family:arial; font-size:12px;">
     <br/>
-    {{ order.orderCustomer.salutation.translated.letterName }} {{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br/>
+    {% if order.orderCustomer.salutation %}{{ order.orderCustomer.salutation.translated.letterName ~ ' ' }}{% endif %}{{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br/>
     <br/>
     the status of your order at {{ salesChannel.translated.name }} (Number: {{ order.orderNumber }}) on {{ order.orderDateTime|format_datetime('medium', 'short', locale='en-GB') }} has changed.<br/>
     <strong>The new status is as follows: {{ order.stateMachineState.translated.name }}.</strong><br/>

@@ -65,9 +65,17 @@ class CalculatedTaxCollection extends Collection
         return array_sum($amounts);
     }
 
-    public function merge(self $taxCollection): self
+    /**
+     * @deprecated tag:v6.5.0 - keep parameter will be removed. Additionally the function always keeps the existing collection
+     */
+    public function merge(self $taxCollection, bool $keep = false): self
     {
-        $new = new self($this->elements);
+        $new = $this;
+
+        //@deprecated tag:v6.5.0 remove complete if $new should be always $this
+        if (!$keep) {
+            $new = new self($this->elements);
+        }
 
         foreach ($taxCollection as $calculatedTax) {
             $exists = $new->get($this->getKey($calculatedTax));

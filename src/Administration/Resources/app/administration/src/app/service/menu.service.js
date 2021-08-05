@@ -20,7 +20,7 @@ export default function createMenuService(moduleFactory) {
         /** @deprecated tag:v6.5.0 will be removed in future version */
         removeItem: () => {},
         getNavigationFromAdminModules,
-        getNavigationFromApps
+        getNavigationFromApps,
     };
 
     /**
@@ -92,10 +92,11 @@ export default function createMenuService(moduleFactory) {
                 id: `app-${app.name}-${appModule.name}`,
                 label: {
                     translated: true,
-                    label: `${appLabel} - ${moduleLabel}`
+                    label: `${appLabel} - ${moduleLabel}`,
                 },
                 position: appModule.position,
-                parent: getParentFromModule(appModule)
+                parent: getParentFromModule(appModule),
+                privilege: `app.${app.name}`,
             };
 
             if (typeof appModule.position === 'number') {

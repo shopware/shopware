@@ -30,15 +30,22 @@ class DatabaseInteractor
         $databaseUser = $this->askForDatabaseUsername((string) $connectionInformation->username);
         $databasePassword = $this->askForDatabasePassword((string) $connectionInformation->password);
 
-        $connectionInformation = new DatabaseConnectionInformation([
+        $dbSslCa = $this->IOHelper->ask('Please enter database SSL CA path: ', '');
+        $dbSslCert = $this->IOHelper->ask('Please enter database SSL cerificate path: ', '');
+        $dbSslKey = $this->IOHelper->ask('Please enter database SSL key path: ', '');
+        $dbSslDontVerify = $this->IOHelper->askConfirmation(new ConfirmationQuestion('Don\'t verify database server certificate?'));
+
+        return new DatabaseConnectionInformation([
             'hostname' => $databaseHost,
             'port' => $databasePort,
             'socket' => $databaseSocket,
             'username' => $databaseUser,
             'password' => $databasePassword,
+            'sslCaPath' => $dbSslCa,
+            'sslCertPath' => $dbSslCert,
+            'sslCertKeyPath' => $dbSslKey,
+            'sslDontVerifyServerCert' => $dbSslDontVerify ? true : false,
         ]);
-
-        return $connectionInformation;
     }
 
     public function createDatabase(\PDO $connection): string

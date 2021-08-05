@@ -6,7 +6,7 @@ Component.extend('sw-order-document-settings-invoice-modal', 'sw-order-document-
     template,
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     created() {
@@ -15,16 +15,18 @@ Component.extend('sw-order-document-settings-invoice-modal', 'sw-order-document-
 
     methods: {
         onCreateDocument(additionalAction = false) {
+            this.$emit('loading-document');
+
             if (this.documentNumberPreview === this.documentConfig.documentNumber) {
                 this.numberRangeService.reserve(
                     `document_${this.currentDocumentType.technicalName}`,
                     this.order.salesChannelId,
-                    false
+                    false,
                 ).then((response) => {
                     this.documentConfig.custom.invoiceNumber = response.number;
                     if (response.number !== this.documentConfig.documentNumber) {
                         this.createNotificationInfo({
-                            message: this.$tc('sw-order.documentCard.info.DOCUMENT__NUMBER_WAS_CHANGED')
+                            message: this.$tc('sw-order.documentCard.info.DOCUMENT__NUMBER_WAS_CHANGED'),
                         });
                     }
 
@@ -38,8 +40,9 @@ Component.extend('sw-order-document-settings-invoice-modal', 'sw-order-document-
         },
 
         onPreview() {
+            this.$emit('loading-preview');
             this.documentConfig.custom.invoiceNumber = this.documentConfig.documentNumber;
             this.$super('onPreview');
-        }
-    }
+        },
+    },
 });

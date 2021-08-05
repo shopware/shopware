@@ -1,9 +1,13 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { config, createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-category/component/sw-category-tree';
 import VueRouter from 'vue-router';
 import swCategoryState from 'src/module/sw-category/page/sw-category-detail/state';
 
 function createWrapper() {
+    // delete global $router and $routes mocks
+    delete config.mocks.$router;
+    delete config.mocks.$route;
+
     const localVue = createLocalVue();
     localVue.use(VueRouter);
 
@@ -39,7 +43,9 @@ function createWrapper() {
                         {
                             id: '1a'
                         }
-                    ])
+                    ]),
+                    delete: () => Promise.resolve(),
+                    get: () => Promise.resolve()
                 })
             }
         },
@@ -262,5 +268,60 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
 
         const itemUrl = wrapper.vm.getCategoryUrl({ id: '1a2b' });
         expect(itemUrl).not.toEqual('#/detail/1a2b');
+    });
+
+    [
+        { serviceSalesChannels: [{ id: '4d9ef75adbb149aa99785a0a969b3b7a' }] },
+        { navigationSalesChannels: [{ id: '4d9ef75adbb149aa99785a0a969b3b7b' }] },
+        { footerSalesChannels: [{ id: '4d9ef75adbb149aa99785a0a969b3b7c' }] }
+
+    ].forEach(entryPoint => {
+        it(`should not be able to delete a category having ${Object.keys(entryPoint)[0]} as initial entry point`, async () => {
+            const wrapper = createWrapper();
+            wrapper.vm.createNotificationError = jest.fn();
+
+            await wrapper.setData({
+                isLoadingInitialData: false
+            });
+
+            const category = {
+                id: '1a',
+                isNew: () => false,
+                ...entryPoint
+            };
+
+            await wrapper.vm.onDeleteCategory({ data: category, children: [] });
+
+            const notificationMock = wrapper.vm.createNotificationError;
+
+            expect(notificationMock).toBeCalledTimes(1);
+            expect(notificationMock).toHaveBeenCalledWith({
+                message: 'sw-category.general.errorNavigationEntryPoint'
+            });
+
+            wrapper.vm.createNotificationError.mockRestore();
+        });
+    });
+
+    it('should be able to delete a category having an empty entry point', async () => {
+        const wrapper = createWrapper();
+        wrapper.vm.createNotificationError = jest.fn();
+
+        await wrapper.setData({
+            isLoadingInitialData: false
+        });
+
+        const category = {
+            id: '1a',
+            isNew: () => false
+        };
+
+        await wrapper.vm.onDeleteCategory({ data: category, children: [] });
+
+        const notificationMock = wrapper.vm.createNotificationError;
+
+        expect(notificationMock).toHaveBeenCalledTimes(0);
+
+        wrapper.vm.createNotificationError.mockRestore();
     });
 });

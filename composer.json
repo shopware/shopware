@@ -14,6 +14,13 @@
         "shopware/administration": "self.version",
         "shopware/elasticsearch": "self.version"
     },
+    "support": {
+        "issues": "https://issues.shopware.com",
+        "forum": "https://forum.shopware.com",
+        "wiki": "https://developer.shopware.com",
+        "docs": "https://developer.shopware.com",
+        "chat": "https://slack.shopware.com"
+    },
     "extra": {
         "branch-alias": {
             "dev-master": "6.4.x-dev",
@@ -24,7 +31,8 @@
         "platform": {
             "php": "7.4.3"
         },
-        "sort-packages": true
+        "sort-packages": true,
+        "process-timeout": 7200
     },
     "require": {
         "php": "^7.4.3 || ^8.0",
@@ -49,9 +57,9 @@
         "composer-runtime-api": "^2.0",
         "composer/composer": "~2.0.9",
         "composer/semver": "~3.2.4",
-        "doctrine/annotations": "1.11.1",
+        "doctrine/annotations": "1.13.1",
         "doctrine/dbal": "2.12.1",
-        "doctrine/inflector": "1.4.4",
+        "doctrine/inflector": "~1.4.4",
         "dompdf/dompdf": "1.0.2",
         "elasticsearch/elasticsearch": "7.11.0",
         "enqueue/dbal": "0.10.11",
@@ -61,8 +69,8 @@
         "guzzlehttp/guzzle": "~7.2",
         "jdorn/sql-formatter": "1.2.17",
         "lcobucci/jwt": "4.1.4",
-        "league/flysystem": "1.0.63",
-        "league/flysystem-aws-s3-v3": "1.0.23",
+        "league/flysystem": "~1.1.4",
+        "league/flysystem-aws-s3-v3": "~1.0.29",
         "league/oauth2-server": "8.2.4",
         "marc1706/fast-image-size": "1.1.6",
         "nyholm/psr7": "1.4.0",
@@ -77,48 +85,48 @@
         "sensio/framework-extra-bundle": "5.5.6",
         "sroze/messenger-enqueue-transport": "0.4.0",
         "superbalist/flysystem-google-storage": "7.2.2",
-        "symfony/asset": "~5.2.3",
-        "symfony/cache": "~5.2.3",
+        "symfony/asset": "~5.3.0",
+        "symfony/cache": "~5.3.0",
         "symfony/cache-contracts": "2.2.0",
-        "symfony/config": "~5.2.3",
-        "symfony/console": "~5.2.3",
-        "symfony/debug-bundle": "~5.2.3",
-        "symfony/dependency-injection": "~5.2.3",
+        "symfony/config": "~5.3.0",
+        "symfony/console": "~5.3.0",
+        "symfony/debug-bundle": "~5.3.0",
+        "symfony/dependency-injection": "~5.3.0",
         "symfony/deprecation-contracts": "2.2.0",
-        "symfony/dotenv": "~5.2.3",
-        "symfony/error-handler": "~5.2.3",
-        "symfony/event-dispatcher": "~5.2.3",
+        "symfony/dotenv": "~5.3.0",
+        "symfony/error-handler": "~5.3.0",
+        "symfony/event-dispatcher": "~5.3.0",
         "symfony/event-dispatcher-contracts": "2.2.0",
-        "symfony/filesystem": "~5.2.3",
-        "symfony/finder": "~5.2.3",
-        "symfony/framework-bundle": "~5.2.3",
-        "symfony/http-foundation": "~5.2.3",
-        "symfony/http-kernel": "~5.2.3",
-        "symfony/inflector": "~5.2.3",
-        "symfony/mailer": "~5.2.3",
-        "symfony/messenger": "~5.2.3",
-        "symfony/mime": "~5.2.3",
-        "symfony/monolog-bridge": "~5.2.3",
+        "symfony/filesystem": "~5.3.0",
+        "symfony/finder": "~5.3.0",
+        "symfony/framework-bundle": "~5.3.0",
+        "symfony/http-foundation": "~5.3.0",
+        "symfony/http-kernel": "~5.3.0",
+        "symfony/inflector": "~5.3.0",
+        "symfony/mailer": "~5.3.0",
+        "symfony/messenger": "~5.3.0",
+        "symfony/mime": "~5.3.0",
+        "symfony/monolog-bridge": "~5.3.0",
         "symfony/monolog-bundle": "3.6.0",
-        "symfony/options-resolver": "~5.2.3",
-        "symfony/polyfill-php80": "*",
-        "symfony/process": "~5.2.3",
-        "symfony/property-access": "~5.2.3",
-        "symfony/property-info": "~5.2.3",
-        "symfony/proxy-manager-bridge": "~5.2.3",
+        "symfony/options-resolver": "~5.3.0",
+        "symfony/polyfill-php80": "~1.16.0",
+        "symfony/process": "~5.3.0",
+        "symfony/property-access": "~5.3.0",
+        "symfony/property-info": "~5.3.0",
+        "symfony/proxy-manager-bridge": "~5.3.0",
         "symfony/psr-http-message-bridge": "2.1.0",
-        "symfony/routing": "~5.2.3",
-        "symfony/security-core": "~5.2.3",
-        "symfony/security-csrf": "~5.2.3",
-        "symfony/serializer": "~5.2.3",
+        "symfony/routing": "~5.3.0",
+        "symfony/security-core": "~5.3.0",
+        "symfony/security-csrf": "~5.3.0",
+        "symfony/serializer": "~5.3.0",
         "symfony/service-contracts": "2.2.0",
-        "symfony/translation": "~5.2.3",
+        "symfony/translation": "~5.3.0",
         "symfony/translation-contracts": "2.3.0",
-        "symfony/twig-bridge": "~5.2.3",
-        "symfony/twig-bundle": "~5.2.3",
-        "symfony/validator": "~5.2.3",
-        "symfony/var-exporter": "~5.2.3",
-        "symfony/yaml": "~5.2.3",
+        "symfony/twig-bridge": "~5.3.0",
+        "symfony/twig-bundle": "~5.3.0",
+        "symfony/validator": "~5.3.0",
+        "symfony/var-exporter": "~5.3.0",
+        "symfony/yaml": "~5.3.0",
         "true/punycode": "2.1.1",
         "twig/intl-extra": "3.3.0",
         "twig/string-extra": "3.3.0",
@@ -128,24 +136,171 @@
     "require-dev": {
         "ext-tokenizer": "*",
         "ext-xmlwriter": "*",
-        "bheller/images-generator": "1.0.1",
+        "bamarni/composer-bin-plugin": "1.4.1",
         "brianium/paratest": "^6.2",
         "dms/phpunit-arraysubset-asserts": "^0.2.1",
-        "fzaninotto/faker": "1.9.1",
+        "fakerphp/faker": "1.14.1",
         "johnkary/phpunit-speedtrap": "3.3.0",
         "league/flysystem-memory": "1.0.2",
-        "mbezhanov/faker-provider-collection": "1.2.1",
+        "maltyxx/images-generator": "1.0.0",
+        "mbezhanov/faker-provider-collection": "2.0.1",
         "nikic/php-parser": "4.10.4",
         "opis/json-schema": "1.0.19",
+        "phpstan/extension-installer": "^1.1.0",
+        "phpstan/phpstan": "0.12.90",
+        "phpstan/phpstan-doctrine": "0.12.39",
+        "phpstan/phpstan-phpunit": "0.12.20",
+        "phpstan/phpstan-symfony": "0.12.37",
         "phpunit/php-code-coverage": "9.2.5",
-        "phpunit/phpunit": "9.5.2",
+        "phpunit/phpunit": "9.5.6",
         "smalot/pdfparser": "0.14.0",
-        "symfony/browser-kit": "~4.4.19",
-        "symfony/dom-crawler": "~5.2.3",
-        "symfony/phpunit-bridge": "~5.2.3",
-        "symfony/stopwatch": "~5.2.3",
-        "symfony/var-dumper": "~5.2.3",
-        "symfony/web-profiler-bundle": "~5.2.3"
+        "symfony/browser-kit": "~5.3.0",
+        "symfony/dom-crawler": "~5.3.0",
+        "symfony/expression-language": "~5.3.0",
+        "symfony/phpunit-bridge": "~5.3.0",
+        "symfony/stopwatch": "~5.3.0",
+        "symfony/var-dumper": "~5.3.0",
+        "symfony/web-profiler-bundle": "~5.3.0"
+    },
+    "scripts": {
+        "post-install-cmd": [
+            "@composer bin all install --ansi"
+        ],
+        "post-update-cmd": [
+            "@composer bin all update --ansi"
+        ],
+        "hook:pre-commit": [
+            "bin/pre-commit"
+        ],
+        "hook:pre-commit:install": [
+            "ln -sf $PWD/bin/pre-commit .git/hooks/pre-commit"
+        ],
+        "hook:pre-push": [
+            "bin/pre-commit"
+        ],
+        "hook:pre-push:install": [
+            "ln -sf $PWD/bin/pre-push .git/hooks/pre-push"
+        ],
+        "init:db": [
+            "@php bin/console system:install --drop-database --basic-setup --force"
+        ],
+        "init:js": [
+            "@npm:admin clean-install",
+            "@npm:storefront clean-install"
+        ],
+        "setup": [
+            "@composer install",
+            "mkdir -p config/jwt || true",
+            "mkdir -p custom/plugins || true",
+            "@php bin/console system:generate-jwt || true",
+            "@init:db",
+            "@init:js",
+            "@build:js",
+            "@php bin/console theme:compile",
+            "@php bin/console theme:change --all Storefront",
+            "@php bin/console assets:install"
+        ],
+        "npm:admin:bin": "export PROJECT_ROOT=\"$PWD\"; cd src/Administration/Resources/app/administration; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$PROJECT_ROOT\"/bin/exec-with-env ",
+        "npm:admin": "@npm:admin:bin npm",
+        "npm:storefront:bin": "export PROJECT_ROOT=\"$PWD\"; cd src/Storefront/Resources/app/storefront; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$PROJECT_ROOT\"/bin/exec-with-env ",
+        "npm:storefront": "@npm:storefront:bin npm",
+        "npm:e2e:admin:bin": "export CYPRESS_shopwareRoot=\"$PWD\"; cd src/Administration/Resources/app/administration/test/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$CYPRESS_shopwareRoot\"/bin/exec-with-env ",
+        "npm:e2e:admin": "@npm:e2e:admin:bin npm",
+        "npm:e2e:storefront:bin": "export CYPRESS_shopwareRoot=\"$PWD\"; cd src/Storefront/Resources/app/storefront/test/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$CYPRESS_shopwareRoot\"/bin/exec-with-env ",
+        "npm:e2e:storefront": "@npm:e2e:storefront:bin npm",
+        "build:js:admin": [
+            "@npm:admin run build"
+        ],
+        "build:js:storefront": [
+            "@npm:storefront run production",
+            "cd src/Storefront/Resources/app/storefront && node copy-to-vendor.js"
+        ],
+        "build:js": [
+            "@php bin/console bundle:dump",
+            "@build:js:admin",
+            "@build:js:storefront"
+        ],
+        "watch:admin": [
+            "@php bin/console feature:dump",
+            "@php bin/console bundle:dump",
+            "@npm:admin run dev"
+        ],
+        "watch:storefront": [
+            "@php bin/console feature:dump",
+            "@php bin/console theme:dump",
+            "@npm:storefront run hot-proxy"
+        ],
+        "stylelint:admin": "@npm:admin:bin stylelint --syntax scss",
+        "stylelint:storefront": "@npm:storefront:bin stylelint --syntax scss --config stylelint.config.js",
+        "stylelint": [
+            "@stylelint:admin src/**/*.scss",
+            "@stylelint:storefront src/**/*.scss"
+        ],
+        "eslint:admin": "@npm:admin:bin eslint --config .eslintrc.js --ext .js,.vue,.html.twig",
+        "eslint:storefront": "@npm:storefront:bin eslint --config .eslintrc.js --ext .js,.vue",
+        "eslint": [
+            "@eslint:admin",
+            "@eslint:storefront"
+        ],
+        "ecs": "ecs check",
+        "ecs-fix": "ecs check --fix",
+        "lint:changelog": "@php bin/shopware changelog:check",
+        "lint:snippets": "@php bin/shopware snippets:validate",
+        "lint": [
+            "@stylelint",
+            "@eslint",
+            "@ecs src/",
+            "@lint:changelog",
+            "@lint:snippets"
+        ],
+        "phpstan": [
+            "@php src/Core/DevOps/StaticAnalyze/PHPStan/phpstan-bootstrap.php",
+            "phpstan --memory-limit=2G"
+        ],
+        "psalm": "psalm --config=psalm.xml --threads=4",
+        "static-analyze": [
+            "@phpstan",
+            "@psalm"
+        ],
+        "phpunit": [
+            "phpunit"
+        ],
+        "paratest": [
+            "paratest --configuration phpunit.xml.dist --testsuite=paratest --exclude-group=skip-paratest,needsWebserver --processes $(nproc)"
+        ],
+        "init:e2e:admin": "@npm:e2e:admin clean-install",
+        "init:e2e:storefront": "@npm:e2e:storefront clean-install",
+        "e2e:setup": [
+            "@putenv APP_ENV=e2e",
+            "@setup",
+            "@e2e:prepare"
+        ],
+        "e2e:prepare": [
+            "@putenv APP_ENV=e2e",
+            "@putenv CYPRESS_localUsage=1",
+            "@php bin/console e2e:dump-db"
+        ],
+        "e2e:admin:cypress": [
+            "export APP_ENV=e2e; export CYPRESS_localUsage=1; export CYPRESS_shopwareRoot=\"$PWD\"; cd src/Administration/Resources/app/administration/test/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$CYPRESS_shopwareRoot\"/bin/exec-with-env cypress"
+        ],
+        "e2e:admin:percy": [
+            "export APP_ENV=e2e; export CYPRESS_localUsage=1; export CYPRESS_shopwareRoot=\"$PWD\"; cd src/Administration/Resources/app/administration/test/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$CYPRESS_shopwareRoot\"/bin/exec-with-env percy"
+        ],
+        "e2e:storefront:cypress": [
+            "export APP_ENV=e2e; export CYPRESS_localUsage=1; export CYPRESS_shopwareRoot=\"$PWD\"; cd src/Storefront/Resources/app/storefront/test/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$CYPRESS_shopwareRoot\"/bin/exec-with-env cypress"
+        ],
+        "e2e:admin:run": [
+            "@e2e:admin:cypress run --browser chrome --headless"
+        ],
+        "e2e:storefront:run": [
+            "@e2e:storefront:cypress run --browser chrome --headless"
+        ],
+        "e2e:admin:open": [
+            "@e2e:admin:cypress open"
+        ],
+        "e2e:storefront:open": [
+            "@e2e:storefront:cypress open"
+        ]
     },
     "conflict": {
         "symfony/symfony": "*"

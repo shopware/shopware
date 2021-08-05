@@ -10,25 +10,25 @@ Component.register('sw-order-product-select', {
     props: {
         item: {
             type: Object,
-            required: true
+            required: true,
         },
 
         salesChannelId: {
             type: String,
             required: true,
-            default: ''
+            default: '',
         },
 
         taxStatus: {
             type: String,
             required: true,
-            default: ''
-        }
+            default: '',
+        },
     },
 
     data() {
         return {
-            product: null
+            product: null,
         };
     },
 
@@ -67,17 +67,17 @@ Component.register('sw-order-product-select', {
                     'OR',
                     [
                         Criteria.equals('product.childCount', 0),
-                        Criteria.equals('product.childCount', null)
-                    ]
-                )
+                        Criteria.equals('product.childCount', null),
+                    ],
+                ),
             );
 
             criteria.addFilter(
-                Criteria.equals('product.visibilities.salesChannelId', this.salesChannelId)
+                Criteria.equals('product.visibilities.salesChannelId', this.salesChannelId),
             );
 
             return criteria;
-        }
+        },
     },
 
     methods: {
@@ -98,6 +98,6 @@ Component.register('sw-order-product-select', {
                 this.item.precision = 2;
                 this.item.priceDefinition.taxRules[0].taxRate = newProduct.tax.taxRate;
             });
-        }
-    }
+        },
+    },
 });

@@ -4,27 +4,21 @@ namespace Shopware\Storefront\Event;
 
 use Shopware\Core\Checkout\Cart\Event\CartMergedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CartMergedSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var Session
-     */
-    private $session;
+    private TranslatorInterface $translator;
 
-    /**
-     * @var TranslatorInterface
-     */
-    private $translator;
+    private RequestStack $requestStack;
 
     public function __construct(
-        Session $session,
-        TranslatorInterface $translator
+        TranslatorInterface $translator,
+        RequestStack $requestStack
     ) {
-        $this->session = $session;
         $this->translator = $translator;
+        $this->requestStack = $requestStack;
     }
 
     public static function getSubscribedEvents(): array
@@ -36,6 +30,22 @@ class CartMergedSubscriber implements EventSubscriberInterface
 
     public function addCartMergedNoticeFlash(CartMergedEvent $event): void
     {
-        $this->session->getFlashBag()->add('info', $this->translator->trans('checkout.cart-merged-hint'));
+        $mainRequest = $this->requestStack->getMainRequest();
+
+        if ($mainRequest === null) {
+            return;
+        }
+
+        if ($mainRequest->hasSession() === false) {
+            return;
+        }
+
+        $session = $mainRequest->getSession();
+
+        if (!method_exists($session, 'getFlashBag')) {
+            return;
+        }
+
+        $session->getFlashBag()->add('info', $this->translator->trans('checkout.cart-merged-hint'));
     }
 }

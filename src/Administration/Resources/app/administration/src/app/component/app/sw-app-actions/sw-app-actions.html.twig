@@ -20,5 +20,115 @@
             @run-app-action="runAction"
         />
     </sw-context-button>
+
+    {% block sw_app_action_modal %}
+    <sw-modal
+        v-if="isOpenModal"
+        class="sw-modal-app-action-button"
+        :class="{ 'is-expanded' : isExpanded}"
+        :variant="size"
+        @modal-close="onCloseModal"
+    >
+        {% block sw_app_action_modal_header %}
+        <template slot="modal-header">
+            {% block sw_app_action_modal_slot_header %}
+            {% block sw_app_action_modal_close %}
+            <div
+                id="modal-app-action-button"
+                class="sw-modal__title"
+            >
+                <img
+                    v-if="action.icon"
+                    class="sw-app-action-button__icon"
+                    :src="`data:image/png;base64, ${action.icon}`"
+                >
+                <span>{{ action.app }}</span>
+            </div>
+            {% endblock %}
+
+            {% block sw_app_action_modal_close_button %}
+            <button
+                class="sw-modal__close"
+                :title="$tc('global.sw-modal.labelClose')"
+                :aria-label="$tc('global.sw-modal.labelClose')"
+                @click.prevent="onCloseModal"
+            >
+                {% block sw_app_action_modal_close_icon %}
+                <sw-icon
+                    name="small-default-x-line-medium"
+                    small
+                />
+                {% endblock %}
+            </button>
+            {% endblock %}
+            {% endblock %}
+        </template>
+        {% endblock %}
+
+        {% block sw_app_action_modal_iframe %}
+        <iframe
+            id="app-action-button-iframe"
+            ref="innerFrame"
+            class="sw-app-action-button-iframe"
+            referrerpolicy="origin-when-cross-origin"
+            :src="iframeUrl"
+        ></iframe>
+        {% endblock %}
+
+        {% block sw_app_action_modal_confirm %}
+        <sw-modal
+            v-if="isOpenConfirmModal"
+            class="sw-app-action-button-modal-confirm"
+            :title="$tc('sw-app.component.sw-app-actions.closeWindow')"
+            variant="small"
+            @modal-close="onCloseModalConfirm"
+        >
+            <p>{{ $tc('sw-app.component.sw-app-actions.iframeModalConfirmMessage',0, { title: action.app }) }}</p>
+            <p>{{ $tc('sw-app.component.sw-app-actions.iframeModalConfirmMessageDescription') }}</p>
+
+            {% block sw_app_action_modal_confirm_footer %}
+            <template slot="modal-footer">
+                {% block sw_app_action_modal_confirm_checkbox %}
+                <sw-checkbox-field
+                    :value="!isShowModalConfirm"
+                    @change="onChangeCheckboxShow()"
+                >
+                    {% block sw_app_action_modal_confirm_checkbox_label %}
+                    <template slot="label">
+                        {{ $tc('sw-app.component.sw-app-actions.dontAskMeAgain') }}
+                    </template>
+                    {% endblock %}
+                </sw-checkbox-field>
+                {% endblock %}
+
+                {% block sw_app_action_modal_confirm_footer_buttons %}
+                <div class="footer-buttons">
+                    {% block sw_app_action_modal_confirm_footer_cancel %}
+                    <sw-button
+                        size="small"
+                        @click="onCloseModalConfirm"
+                    >
+                        {{ $tc('global.default.cancel') }}
+                    </sw-button>
+                    {% endblock %}
+
+                    {% block sw_app_action_modal_confirm_footer_continue %}
+                    <sw-button
+                        variant="primary"
+                        size="small"
+                        @click="onConfirmClose"
+                    >
+                        {{ $tc('global.default.close') }}
+                    </sw-button>
+                    {% endblock %}
+                </div>
+                {% endblock %}
+            </template>
+            {% endblock %}
+        </sw-modal>
+        {% endblock %}
+    </sw-modal>
+    {% endblock %}
+
 </div>
 {% endblock %}

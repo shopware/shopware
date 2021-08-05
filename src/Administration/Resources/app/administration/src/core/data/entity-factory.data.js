@@ -25,7 +25,7 @@ export default class EntityFactory {
         }
 
         const data = {
-            extensions: {}
+            extensions: {},
         };
 
         const toManyAssociations = definition.getToManyAssociations();
@@ -38,7 +38,7 @@ export default class EntityFactory {
                     `${id}/extensions`,
                     property,
                     associatedProperty,
-                    context
+                    context,
                 );
             } else {
                 data[property] = this.createCollection(entityName, id, property, associatedProperty, context);

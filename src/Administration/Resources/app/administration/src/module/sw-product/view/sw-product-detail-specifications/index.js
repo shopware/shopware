@@ -6,19 +6,19 @@ const { mapState, mapGetters } = Component.getComponentHelper();
 Component.register('sw-product-detail-specifications', {
     template,
 
-    inject: ['acl'],
+    inject: ['acl', 'feature'],
 
     computed: {
         ...mapState('swProductDetail', [
             'product',
             'parentProduct',
-            'customFieldSets'
+            'customFieldSets',
         ]),
 
         ...mapGetters('swProductDetail', [
             'isLoading',
             'showModeSetting',
-            'showProductCard'
+            'showProductCard',
         ]),
 
         customFieldsExists() {
@@ -33,6 +33,6 @@ Component.register('sw-product-detail-specifications', {
             return this.showProductCard('custom_fields') &&
                 !this.isLoading &&
                 this.customFieldsExists;
-        }
-    }
+        },
+    },
 });

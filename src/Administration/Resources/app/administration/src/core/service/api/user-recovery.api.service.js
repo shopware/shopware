@@ -18,12 +18,12 @@ class UserRecoveryApiService extends ApiService {
         return this.httpClient.post(
             apiRoute,
             {
-                email: email
+                email: email,
             },
             {
                 params: {},
-                headers: this.getBasicHeaders()
-            }
+                headers: this.getBasicHeaders(),
+            },
         ).then((response) => {
             ApiService.handleResponse(response);
         });
@@ -36,8 +36,8 @@ class UserRecoveryApiService extends ApiService {
             apiRoute,
             {
                 params: { hash: hash },
-                headers: this.getBasicHeaders()
-            }
+                headers: this.getBasicHeaders(),
+            },
         ).then((response) => {
             ApiService.handleResponse(response);
         });
@@ -51,12 +51,12 @@ class UserRecoveryApiService extends ApiService {
             {
                 hash: hash,
                 password: password,
-                passwordConfirm: passwordConfirm
+                passwordConfirm: passwordConfirm,
             },
             {
                 params: {},
-                headers: this.getBasicHeaders()
-            }
+                headers: this.getBasicHeaders(),
+            },
         ).then((response) => {
             ApiService.handleResponse(response);
         });

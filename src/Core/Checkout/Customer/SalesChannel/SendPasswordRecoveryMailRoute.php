@@ -7,6 +7,7 @@ use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
+use Shopware\Core\Checkout\Customer\Event\PasswordRecoveryUrlEvent;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -27,6 +28,7 @@ use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\Email;
@@ -62,16 +64,20 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
      */
     private $validator;
 
+    private SystemConfigService $systemConfigService;
+
     public function __construct(
         EntityRepositoryInterface $customerRepository,
         EntityRepositoryInterface $customerRecoveryRepository,
         EventDispatcherInterface $eventDispatcher,
-        DataValidator $validator
+        DataValidator $validator,
+        SystemConfigService $systemConfigService
     ) {
         $this->customerRepository = $customerRepository;
         $this->customerRecoveryRepository = $customerRecoveryRepository;
         $this->eventDispatcher = $eventDispatcher;
         $this->validator = $validator;
+        $this->systemConfigService = $systemConfigService;
     }
 
     public function getDecorated(): AbstractSendPasswordRecoveryMailRoute
@@ -143,7 +149,8 @@ Returns a success indicating a successful initialisation of the reset flow.",
         $customerRecovery = $this->customerRecoveryRepository->search($customerIdCriteria, $repoContext)->first();
 
         $hash = $customerRecovery->getHash();
-        $recoverUrl = rtrim($data->get('storefrontUrl'), '/') . '/account/recover/password?hash=' . $hash;
+
+        $recoverUrl = $this->getRecoverUrl($context, $hash, $data->get('storefrontUrl'), $customerRecovery);
 
         $event = new CustomerAccountRecoverRequestEvent($context, $customerRecovery, $recoverUrl);
         $this->eventDispatcher->dispatch($event, CustomerAccountRecoverRequestEvent::EVENT_NAME);
@@ -257,5 +264,29 @@ Returns a success indicating a successful initialisation of the reset flow.",
         ];
 
         $this->customerRecoveryRepository->delete([$recoveryData], $context);
+    }
+
+    private function getRecoverUrl(
+        SalesChannelContext $context,
+        string $hash,
+        string $storefrontUrl,
+        CustomerRecoveryEntity $customerRecovery
+    ): string {
+        $urlTemplate = $this->systemConfigService->get(
+            'core.loginRegistration.pwdRecoverUrl',
+            $context->getSalesChannelId()
+        );
+        if (!\is_string($urlTemplate)) {
+            $urlTemplate = '/account/recover/password?hash=%%RECOVERHASH%%';
+        }
+
+        $urlEvent = new PasswordRecoveryUrlEvent($context, $urlTemplate, $hash, $storefrontUrl, $customerRecovery);
+        $this->eventDispatcher->dispatch($urlEvent);
+
+        return rtrim($storefrontUrl, '/') . str_replace(
+            '%%RECOVERHASH%%',
+            $hash,
+            $urlEvent->getRecoveryUrl()
+        );
     }
 }

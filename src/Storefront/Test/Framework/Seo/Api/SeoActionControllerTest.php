@@ -94,13 +94,13 @@ class SeoActionControllerTest extends TestCase
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'stock' => 0,
         ];
-        $this->getBrowser()->request('POST', '/api/product', $product);
+        $this->getBrowser()->request('POST', '/api/product', [], [], [], json_encode($product));
 
         $data = [
             'routeName' => ProductPageSeoUrlRoute::ROUTE_NAME,
             'entityName' => $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
         ];
-        $this->getBrowser()->request('POST', '/api/_action/seo-url-template/context', $data);
+        $this->getBrowser()->request('POST', '/api/_action/seo-url-template/context', [], [], [], json_encode($data));
 
         $response = $this->getBrowser()->getResponse();
         static::assertEquals(200, $response->getStatusCode());
@@ -302,7 +302,7 @@ class SeoActionControllerTest extends TestCase
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'stock' => 0,
         ];
-        $this->getBrowser()->request('POST', '/api/product', $product);
+        $this->getBrowser()->request('POST', '/api/product', [], [], [], json_encode($product));
 
         return $id;
     }
@@ -315,7 +315,7 @@ class SeoActionControllerTest extends TestCase
             'name' => $name,
             'parentId' => $parentId,
         ];
-        $this->getBrowser()->request('POST', '/api/category', $product);
+        $this->getBrowser()->request('POST', '/api/category', [], [], [], json_encode($product));
 
         return $id;
     }

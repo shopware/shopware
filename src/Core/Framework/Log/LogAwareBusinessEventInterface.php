@@ -6,5 +6,8 @@ interface LogAwareBusinessEventInterface
 {
     public function getLogData(): array;
 
+    /**
+     * @return 100|200|250|300|400|500|550|600
+     */
     public function getLogLevel(): int;
 }

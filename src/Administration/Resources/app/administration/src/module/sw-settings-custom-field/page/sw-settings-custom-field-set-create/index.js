@@ -47,8 +47,8 @@ Component.extend('sw-settings-custom-field-set-create', 'sw-settings-custom-fiel
 
             this.createNotificationError({
                 title: titleSaveSuccess,
-                message: messageSaveSuccess
+                message: messageSaveSuccess,
             });
-        }
-    }
+        },
+    },
 });

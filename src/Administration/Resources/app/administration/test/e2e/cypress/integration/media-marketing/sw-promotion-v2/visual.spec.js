@@ -42,6 +42,10 @@ describe('Promotion v2: Visual tests', () => {
             url: `${Cypress.env('apiPath')}/search/promotion`,
             method: 'post'
         }).as('getData');
+        cy.route({
+            url: '/widgets/checkout/info',
+            method: 'get'
+        }).as('cartInfo');
 
         cy.clickMainMenuItem({
             targetPath: '#/sw/promotion/v2/index',
@@ -72,6 +76,8 @@ describe('Promotion v2: Visual tests', () => {
 
         // Take snapshot for visual testing
         cy.get('.sw-loader').should('not.exist');
+        cy.contains('General settings').click();
+        cy.get('.sw-tooltip').should('not.exist');
         cy.takeSnapshot('[Promotion] Detail', '.sw-promotion-v2-detail');
 
         cy.get(page.elements.smartBarBack).click();
@@ -111,7 +117,26 @@ describe('Promotion v2: Visual tests', () => {
         cy.get('.product-box').should('be.visible');
         cy.get('.btn-buy').click();
 
+        cy.get('.offcanvas').should('be.visible');
+        cy.wait('@cartInfo').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
+        cy.get('.loader').should('not.exist');
+
+        cy.changeElementStyling(
+            '.header-search',
+            'visibility: hidden'
+        );
+        cy.get('.header-search')
+            .should('have.css', 'visibility', 'hidden');
+        cy.changeElementStyling(
+            '#accountWidget',
+            'visibility: hidden'
+        );
+        cy.get('#accountWidget')
+            .should('have.css', 'visibility', 'hidden');
+
         // Take snapshot for visual testing
-        cy.takeSnapshot('[Promotion] Storefront, off-canvas of checkout', '.offcanvas.is-open');
+        cy.takeSnapshot('[Promotion] Storefront, checkout off-canvas ', '.offcanvas.is-open');
     });
 });

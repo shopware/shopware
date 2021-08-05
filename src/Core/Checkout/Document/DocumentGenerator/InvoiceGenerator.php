@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Twig\Error\Error;
 
 class InvoiceGenerator implements DocumentGeneratorInterface
@@ -97,9 +96,7 @@ class InvoiceGenerator implements DocumentGeneratorInterface
             return false;
         }
 
-        $isCompanyTaxFree = Feature::isActive('FEATURE_NEXT_14114')
-            ? $country->getCompanyTax()->getEnabled()
-            : $country->getCompanyTaxFree();
+        $isCompanyTaxFree = $country->getCompanyTax()->getEnabled();
 
         return $isCompanyTaxFree && \in_array($country->getId(), $config['deliveryCountries'], true);
     }

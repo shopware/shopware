@@ -24,6 +24,9 @@ describe('Search bar: Check main functionality', () => {
 
         cy.get('input.sw-search-bar__input').type('Product');
         cy.get('.sw-search-bar__results').should('be.visible');
+        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
+            cy.get('.sw-search-more-results__link').contains('Show all 1 matching results in products...')
+        });
         cy.get('.sw-search-bar-item')
             .should('be.visible')
             .contains('Product name')
@@ -45,11 +48,13 @@ describe('Search bar: Check main functionality', () => {
 
         cy.get('input.sw-search-bar__input').type('Home');
         cy.get('.sw-search-bar__results').should('be.visible');
+        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
+            cy.get('.sw-search-more-results__link').contains('Show all 1 matching results in categories...')
+        });
         cy.get('.sw-search-bar-item')
             .should('be.visible')
             .contains('Home')
             .click();
-
         cy.get('.smart-bar__header h2')
             .should('be.visible')
             .contains('Home');
@@ -69,6 +74,9 @@ describe('Search bar: Check main functionality', () => {
 
         cy.get('input.sw-search-bar__input').type('Pep Eroni');
         cy.get('.sw-search-bar__results').should('be.visible');
+        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
+            cy.get('.sw-search-more-results__link').contains('Show all 1 matching results in customers...')
+        });
         cy.get('.sw-search-bar-item')
             .should('be.visible')
             .contains('Pep Eroni')
@@ -122,10 +130,21 @@ describe('Search bar: Check main functionality', () => {
             .get('.sw-search-bar__types-header-entity')
             .contains('Order');
 
-        cy.get('.sw-search-bar-item')
-            .should('be.visible')
-            .contains('10000 - Max Mustermann')
-            .click();
+        cy.skipOnFeature('FEATURE_NEXT_6040', () => {
+            cy.get('.sw-search-bar-item')
+                .should('be.visible')
+                .contains('10000 - Max Mustermann')
+                .click();
+        });
+
+        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
+            cy.get('.sw-search-more-results__link').contains('Show all 1 matching results in orders...')
+
+            cy.get('.sw-search-bar-item')
+                .should('be.visible')
+                .contains('Max Mustermann 10000')
+                .click();
+        });
 
         cy.get('.smart-bar__header h2')
             .should('be.visible')
@@ -165,7 +184,9 @@ describe('Search bar: Check main functionality', () => {
 
         cy.get('input.sw-search-bar__input').type('sw-login-background');
         cy.get('.sw-search-bar__results').should('be.visible');
-
+        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
+            cy.get('.sw-search-more-results__link').contains('Show all 1 matching results in media...')
+        });
         cy.get('.sw-search-bar-item')
             .should('be.visible')
             .contains('sw-login-background')

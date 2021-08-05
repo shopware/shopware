@@ -6,34 +6,34 @@ Shopware.Service('privileges')
         roles: {
             viewer: {
                 privileges: [
-                    'flow:read'
+                    'flow:read',
                 ],
-                dependencies: []
+                dependencies: [],
             },
             editor: {
                 privileges: [
-                    'flow:update'
-                ],
-                dependencies: [
-                    'flow.viewer'
-                ]
-            },
-            creator: {
-                privileges: [
-                    'flow:create'
+                    'flow:update',
                 ],
                 dependencies: [
                     'flow.viewer',
-                    'flow.editor'
-                ]
+                ],
+            },
+            creator: {
+                privileges: [
+                    'flow:create',
+                ],
+                dependencies: [
+                    'flow.viewer',
+                    'flow.editor',
+                ],
             },
             deleter: {
                 privileges: [
-                    'flow:delete'
+                    'flow:delete',
                 ],
                 dependencies: [
-                    'flow.viewer'
-                ]
-            }
-        }
+                    'flow.viewer',
+                ],
+            },
+        },
     });

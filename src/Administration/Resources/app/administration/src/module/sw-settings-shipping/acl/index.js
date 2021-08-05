@@ -17,9 +17,9 @@ Shopware.Service('privileges')
                     'tax:read',
                     'custom_field_set:read',
                     'custom_field:read',
-                    'custom_field_set_relation:read'
+                    'custom_field_set_relation:read',
                 ],
-                dependencies: []
+                dependencies: [],
             },
             editor: {
                 privileges: [
@@ -29,28 +29,28 @@ Shopware.Service('privileges')
                     'shipping_method_price:create',
                     'shipping_method_price:update',
                     'shipping_method_price:delete',
-                    'shipping_method_tag:create'
-                ],
-                dependencies: [
-                    'shipping.viewer'
-                ]
-            },
-            creator: {
-                privileges: [
-                    'shipping_method:create'
+                    'shipping_method_tag:create',
                 ],
                 dependencies: [
                     'shipping.viewer',
-                    'shipping.editor'
-                ]
+                ],
+            },
+            creator: {
+                privileges: [
+                    'shipping_method:create',
+                ],
+                dependencies: [
+                    'shipping.viewer',
+                    'shipping.editor',
+                ],
             },
             deleter: {
                 privileges: [
-                    'shipping_method:delete'
+                    'shipping_method:delete',
                 ],
                 dependencies: [
-                    'shipping.viewer'
-                ]
-            }
-        }
+                    'shipping.viewer',
+                ],
+            },
+        },
     });

@@ -6,7 +6,7 @@ import { warn } from 'src/core/service/utils/debug.utils';
 export default {
     getRegistry,
     register,
-    getByName
+    getByName,
 };
 
 /**
@@ -49,7 +49,7 @@ function register(filterName, filterFactoryMethod = noop) {
     if (!filterName || !filterName.length) {
         warn(
             name,
-            'A filter always needs a name'
+            'A filter always needs a name',
         );
         return false;
     }
@@ -57,7 +57,7 @@ function register(filterName, filterFactoryMethod = noop) {
     if (filterRegistry.has(filterName)) {
         warn(
             name,
-            `The filter "${filterName}" is already registered. Please select a unique name for your filter.`
+            `The filter "${filterName}" is already registered. Please select a unique name for your filter.`,
         );
         return false;
     }

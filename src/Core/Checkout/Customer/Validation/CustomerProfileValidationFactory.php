@@ -69,7 +69,7 @@ class CustomerProfileValidationFactory implements DataValidationFactoryInterface
         }
 
         $definition
-            ->add('salutationId', new NotBlank(), new EntityExists(['entity' => $this->salutationDefinition->getEntityName(), 'context' => $frameworkContext]))
+            ->add('salutationId', new EntityExists(['entity' => $this->salutationDefinition->getEntityName(), 'context' => $frameworkContext]))
             ->add('firstName', new NotBlank())
             ->add('lastName', new NotBlank());
 

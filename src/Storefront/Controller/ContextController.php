@@ -109,7 +109,7 @@ class ContextController extends StorefrontController
             ], $context->getContext());
         }
 
-        $route = $request->request->get('redirectTo', 'frontend.home.page');
+        $route = (string) $request->request->get('redirectTo', 'frontend.home.page');
 
         $params = $request->request->get('redirectParameters', json_encode([]));
 
@@ -150,7 +150,7 @@ class ContextController extends StorefrontController
         $routerContext->setHost($parsedUrl['host']);
         $routerContext->setBaseUrl(rtrim($parsedUrl['path'] ?? '', '/'));
 
-        $this->requestStack->getMasterRequest()
+        $this->requestStack->getMainRequest()
             ->attributes->set(RequestTransformer::SALES_CHANNEL_BASE_URL, '');
 
         $url = $this->router->generate($route, $params, Router::ABSOLUTE_URL);

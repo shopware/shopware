@@ -15,7 +15,7 @@ class Migration1578650334AddGoogleAnalyticsTable extends MigrationStep
     public function update(Connection $connection): void
     {
         $connection->executeUpdate(
-            <<<SQL
+            <<<'SQL'
             CREATE TABLE IF NOT EXISTS `sales_channel_analytics` (
                 `id` BINARY(16)  NOT NULL,
                 `tracking_id` VARCHAR(50) NOT NULL,
@@ -29,7 +29,7 @@ SQL
         );
 
         $connection->executeUpdate(
-            <<<SQL
+            <<<'SQL'
             ALTER TABLE `sales_channel`
             ADD `analytics_id` binary(16) NULL AFTER `payment_method_ids`,
             ADD CONSTRAINT `fk.sales_channel.analytics_id` FOREIGN KEY (`analytics_id`) REFERENCES `sales_channel_analytics` (`id`) ON DELETE CASCADE ON UPDATE CASCADE

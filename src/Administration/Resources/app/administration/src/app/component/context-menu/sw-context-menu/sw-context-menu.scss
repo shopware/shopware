@@ -7,7 +7,7 @@ $sw-context-menu-color-active:           $color-shopware-brand-500;
 $sw-context-menu-z-index:                $z-index-context-menu;
 
 .sw-context-menu {
-    position: absolute;
+    position: relative;
     z-index: $sw-context-menu-z-index;
 
     &.is--top-align {
@@ -37,7 +37,7 @@ $sw-context-menu-z-index:                $z-index-context-menu;
             content: '';
             position: absolute;
             top: -5px;
-            right: 28px;
+            left: 28px;
             height: 8px;
             width: 8px;
             transform: rotate(45deg);

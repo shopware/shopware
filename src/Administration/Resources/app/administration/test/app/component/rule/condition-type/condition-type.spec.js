@@ -1,6 +1,7 @@
 /* global adminPath */
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/rule/sw-condition-base';
+import ConditionDataProviderService from 'src/app/service/rule-condition.service';
 import fs from 'fs';
 // eslint-disable-next-line
 import path from 'path';
@@ -73,10 +74,7 @@ function createWrapperForComponent(componentName, props = {}) {
             }
         },
         provide: {
-            conditionDataProviderService: {
-                getComponentByCondition: () => {},
-                getOperatorSet: () => {}
-            },
+            conditionDataProviderService: new ConditionDataProviderService(),
             availableTypes: [],
             childAssociationField: {},
             repositoryFactory: {

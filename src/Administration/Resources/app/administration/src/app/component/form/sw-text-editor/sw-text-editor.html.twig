@@ -46,6 +46,8 @@
             v-if="isCodeEdit"
             ref="codeEditor"
             :value="value"
+            :sanitize-input="sanitizeInput"
+            :sanitize-field-name="sanitizeFieldName"
             set-focus
             @blur="emitHtmlContent"
         />
@@ -66,12 +68,12 @@
                 @blur="emitContent"
                 @input="onContentChange"
                 v-html="$sanitize(content, { ADD_ATTR: ['target'] })"
-            />
+            ></div>
             <div
                 v-if="placeholderVisible"
                 class="sw-text-editor__content-placeholder"
                 v-html="$sanitize(placeholder)"
-            />
+            ></div>
         </div>
         {% endblock %}
 
@@ -84,7 +86,9 @@
                 columns="1fr"
                 justify="right"
             >
-                <span class="sw-text-editor__text-length">{{ $tc('global.sw-text-editor.labelTextLength', textLength, { count: textLength }) }}</span>
+                <span class="sw-text-editor__text-length">
+                    {{ $tc('global.sw-text-editor.labelTextLength', textLength, { count: textLength }) }}
+                </span>
             </sw-container>
         </div>
         {% endblock %}

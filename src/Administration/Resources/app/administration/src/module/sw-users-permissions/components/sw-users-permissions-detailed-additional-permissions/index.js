@@ -8,37 +8,37 @@ Component.register('sw-users-permissions-detailed-additional-permissions', {
 
     inject: [
         'privileges',
-        'aclApiService'
+        'aclApiService',
     ],
 
     props: {
         role: {
             type: Object,
-            required: true
+            required: true,
         },
 
         disabled: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         detailedPrivileges: {
             type: Array,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
         return {
-            detailedAdditionalPermissions: []
+            detailedAdditionalPermissions: [],
         };
     },
 
     computed: {
         allGeneralSelectedPrivileges() {
             return this.privileges.getPrivilegesForAdminPrivilegeKeys(this.role.privileges);
-        }
+        },
     },
 
     created() {
@@ -56,7 +56,7 @@ Component.register('sw-users-permissions-detailed-additional-permissions', {
                 additionalPrivileges.forEach((privilege) => {
                     roles[privilege] = {
                         privileges: [privilege],
-                        dependencies: []
+                        dependencies: [],
                     };
                 });
 
@@ -64,7 +64,7 @@ Component.register('sw-users-permissions-detailed-additional-permissions', {
                     category: 'additional_permissions',
                     parent: null,
                     key: 'routes',
-                    roles: roles
+                    roles: roles,
                 });
             });
         },
@@ -72,7 +72,7 @@ Component.register('sw-users-permissions-detailed-additional-permissions', {
         isEntitySelected(identifier) {
             const allPrivileges = [
                 ...this.allGeneralSelectedPrivileges,
-                ...this.detailedPrivileges
+                ...this.detailedPrivileges,
             ];
 
             return allPrivileges.includes(identifier);
@@ -95,6 +95,6 @@ Component.register('sw-users-permissions-detailed-additional-permissions', {
             }
 
             this.detailedPrivileges.push(identifier);
-        }
-    }
+        },
+    },
 });

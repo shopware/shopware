@@ -10,14 +10,14 @@ Component.register('sw-cms-sidebar-nav-element', {
     props: {
         block: {
             type: Object,
-            required: true
+            required: true,
         },
 
         removable: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     methods: {
@@ -27,6 +27,6 @@ Component.register('sw-cms-sidebar-nav-element', {
 
         onBlockDelete() {
             this.$emit('block-delete', this.block);
-        }
-    }
+        },
+    },
 });

@@ -23,13 +23,16 @@
     "admin": "/admin",
     "apiPath": "**/api",
     "locale": "en-GB",
-    "projectRoot": "/app",
-    "projectPath": "/app",
+    "shopwareRoot": "/app",
     "localUsage": false,
     "usePercy": false
   },
   "firefoxGcInterval": {
     "runMode": null,
     "openMode": null
+  },
+  "retries": {
+    "runMode": 2,
+    "openMode": 0
   }
 }

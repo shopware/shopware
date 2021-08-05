@@ -16,18 +16,18 @@ Component.register('sw-promotion-discount-component', {
     inject: ['repositoryFactory', 'acl'],
 
     mixins: [
-        Mixin.getByName('placeholder')
+        Mixin.getByName('placeholder'),
     ],
 
     props: {
         promotion: {
             type: Object,
-            required: true
+            required: true,
         },
         discount: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
     },
     data() {
         return {
@@ -46,7 +46,7 @@ Component.register('sw-promotion-discount-component', {
             syncService: null,
             httpClient: null,
             sorterKeys: [],
-            pickerKeys: []
+            pickerKeys: [],
         };
     },
 
@@ -67,7 +67,7 @@ Component.register('sw-promotion-discount-component', {
             const criteria = new Criteria();
 
             criteria.addFilter(
-                Criteria.not('AND', [Criteria.equalsAny('conditions.type', ['cartCartAmount'])])
+                Criteria.not('AND', [Criteria.equalsAny('conditions.type', ['cartCartAmount'])]),
             );
 
             criteria.addSorting(Criteria.sort('name', 'ASC', false));
@@ -78,11 +78,11 @@ Component.register('sw-promotion-discount-component', {
         currencyPriceColumns() {
             return [{
                 property: 'currency.translated.name',
-                label: this.$tc('sw-promotion.detail.main.discounts.pricesModal.labelCurrency')
+                label: this.$tc('sw-promotion.detail.main.discounts.pricesModal.labelCurrency'),
             }, {
                 property: 'price',
                 dataIndex: 'price',
-                label: this.$tc('sw-promotion.detail.main.discounts.pricesModal.labelPrice')
+                label: this.$tc('sw-promotion.detail.main.discounts.pricesModal.labelPrice'),
             }];
         },
 
@@ -90,7 +90,7 @@ Component.register('sw-promotion-discount-component', {
             const scopes = [
                 { key: DiscountScopes.CART, name: this.$tc('sw-promotion.detail.main.discounts.valueScopeCart') },
                 { key: DiscountScopes.DELIVERY, name: this.$tc('sw-promotion.detail.main.discounts.valueScopeDelivery') },
-                { key: DiscountScopes.SET, name: this.$tc('sw-promotion.detail.main.discounts.valueScopeSet') }
+                { key: DiscountScopes.SET, name: this.$tc('sw-promotion.detail.main.discounts.valueScopeSet') },
             ];
 
 
@@ -117,7 +117,7 @@ Component.register('sw-promotion-discount-component', {
             const availableTypes = [
                 { key: DiscountTypes.ABSOLUTE, name: this.$tc('sw-promotion.detail.main.discounts.valueTypeAbsolute') },
                 { key: DiscountTypes.PERCENTAGE, name: this.$tc('sw-promotion.detail.main.discounts.valueTypePercentage') },
-                { key: DiscountTypes.FIXED_UNIT, name: this.$tc('sw-promotion.detail.main.discounts.valueTypeFixedUnit') }
+                { key: DiscountTypes.FIXED_UNIT, name: this.$tc('sw-promotion.detail.main.discounts.valueTypeFixedUnit') },
             ];
 
             // do not allow a fixed-total price for cart. this would mean the whole
@@ -125,7 +125,7 @@ Component.register('sw-promotion-discount-component', {
             // we do only allow this option if the scope is something else
             if (!this.cartScope) {
                 availableTypes.push(
-                    { key: DiscountTypes.FIXED, name: this.$tc('sw-promotion.detail.main.discounts.valueTypeFixed') }
+                    { key: DiscountTypes.FIXED, name: this.$tc('sw-promotion.detail.main.discounts.valueTypeFixed') },
                 );
             }
 
@@ -133,7 +133,7 @@ Component.register('sw-promotion-discount-component', {
             // at least advanced rules have been activated
             if (this.cartScope && this.discount.considerAdvancedRules) {
                 availableTypes.push(
-                    { key: DiscountTypes.FIXED, name: this.$tc('sw-promotion.detail.main.discounts.valueTypeFixed') }
+                    { key: DiscountTypes.FIXED, name: this.$tc('sw-promotion.detail.main.discounts.valueTypeFixed') },
                 );
             }
 
@@ -192,8 +192,8 @@ Component.register('sw-promotion-discount-component', {
                 result.push(
                     {
                         key: keyValue,
-                        name: this.$tc(`sw-promotion.filter.sorter.${keyValue}`)
-                    }
+                        name: this.$tc(`sw-promotion.filter.sorter.${keyValue}`),
+                    },
                 );
             });
 
@@ -207,8 +207,8 @@ Component.register('sw-promotion-discount-component', {
                 result.push(
                     {
                         key: keyValue,
-                        name: this.$tc(`sw-promotion.filter.picker.${keyValue}`)
-                    }
+                        name: this.$tc(`sw-promotion.filter.picker.${keyValue}`),
+                    },
                 );
             });
 
@@ -231,8 +231,8 @@ Component.register('sw-promotion-discount-component', {
             const appliers = [
                 {
                     key: 'ALL',
-                    name: this.$tc('sw-promotion.filter.applier.ALL')
-                }
+                    name: this.$tc('sw-promotion.filter.applier.ALL'),
+                },
             ];
 
             // if selection is a setgroup and group is of type count, we reduce the standard maximum count
@@ -254,8 +254,8 @@ Component.register('sw-promotion-discount-component', {
                 appliers.push(
                     {
                         key: i,
-                        name: this.$tc('sw-promotion.filter.applier.SELECT', 0, { count: i })
-                    }
+                        name: this.$tc('sw-promotion.filter.applier.SELECT', 0, { count: i }),
+                    },
                 );
             }
 
@@ -266,8 +266,8 @@ Component.register('sw-promotion-discount-component', {
             const counts = [
                 {
                     key: 'ALL',
-                    name: this.$tc('sw-promotion.filter.counter.ALL')
-                }
+                    name: this.$tc('sw-promotion.filter.counter.ALL'),
+                },
             ];
 
             let i;
@@ -275,8 +275,8 @@ Component.register('sw-promotion-discount-component', {
                 counts.push(
                     {
                         key: i,
-                        name: this.$tc('sw-promotion.filter.counter.SELECT', 0, { count: i })
-                    }
+                        name: this.$tc('sw-promotion.filter.counter.SELECT', 0, { count: i }),
+                    },
                 );
             }
 
@@ -301,7 +301,7 @@ Component.register('sw-promotion-discount-component', {
             }
 
             return true;
-        }
+        },
 
     },
     created() {
@@ -474,7 +474,7 @@ Component.register('sw-promotion-discount-component', {
         async loadSetGroups() {
             const criteria = new Criteria();
             criteria.addFilter(
-                Criteria.equals('promotionId', this.promotion.id)
+                Criteria.equals('promotionId', this.promotion.id),
             );
 
             await this.repositoryGroups.search(criteria).then((groups) => {
@@ -488,8 +488,8 @@ Component.register('sw-promotion-discount-component', {
             return this.httpClient.get(
                 '/_action/promotion/setgroup/sorter',
                 {
-                    headers: this.syncService.getBasicHeaders()
-                }
+                    headers: this.syncService.getBasicHeaders(),
+                },
             ).then((response) => {
                 return response.data;
             });
@@ -499,13 +499,13 @@ Component.register('sw-promotion-discount-component', {
             return this.httpClient.get(
                 '/_action/promotion/discount/picker',
                 {
-                    headers: this.syncService.getBasicHeaders()
-                }
+                    headers: this.syncService.getBasicHeaders(),
+                },
             ).then((response) => {
                 return response.data;
             });
-        }
+        },
 
-    }
+    },
 
 });

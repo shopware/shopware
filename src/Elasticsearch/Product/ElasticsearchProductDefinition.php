@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyEntity;
+use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\Indexing\EntityMapper;
 
@@ -37,6 +38,8 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
     private CashRounding $rounding;
 
     private PriceFieldSerializer $priceFieldSerializer;
+
+    private ?array $customFieldsTypes = null;
 
     public function __construct(
         ProductDefinition $definition,
@@ -382,7 +385,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
 
     private function fetchProducts(array $ids, Context $context): array
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
 SELECT
     LOWER(HEX(p.id)) AS id,
     IFNULL(p.active, pp.active) AS active,
@@ -427,7 +430,7 @@ FROM product p
         :productTranslationQuery:
     ) product_translation_parent ON (product_translation_parent.product_id = p.parent_id)
 
-WHERE p.id IN (:ids) AND p.version_id = :liveVersionId AND p.child_count = 0 OR p.parent_id IS NOT NULL
+WHERE p.id IN (:ids) AND p.version_id = :liveVersionId AND (p.child_count = 0 OR p.parent_id IS NOT NULL)
 
 GROUP BY p.id
 SQL;
@@ -456,15 +459,7 @@ SQL;
 
     private function getCustomFieldsMapping(): array
     {
-        $fieldMapping = $this->connection->fetchAllKeyValue('
-SELECT
-    custom_field.`name`,
-    custom_field.type
-FROM custom_field_set_relation
-    INNER JOIN custom_field ON(custom_field.set_id = custom_field_set_relation.set_id)
-WHERE custom_field_set_relation.entity_name = "product"
-ORDER BY custom_field.`name` ASC
-');
+        $fieldMapping = $this->getCustomFieldTypes();
         $mapping = [
             'type' => 'object',
             'dynamic' => true,
@@ -486,12 +481,33 @@ ORDER BY custom_field.`name` ASC
 
     private function formatCustomFields(array $customFields): array
     {
+        $types = $this->getCustomFieldTypes();
+
         foreach ($customFields as $name => $customField) {
-            if (\is_int($customField)) {
+            $type = $types[$name] ?? null;
+            if ($type === CustomFieldTypes::BOOL) {
+                $customFields[$name] = (bool) $customField;
+            } elseif (\is_int($customField)) {
                 $customFields[$name] = (float) $customField;
             }
         }
 
         return $customFields;
+    }
+
+    private function getCustomFieldTypes(): array
+    {
+        if ($this->customFieldsTypes !== null) {
+            return $this->customFieldsTypes;
+        }
+
+        return $this->customFieldsTypes = $this->connection->fetchAllKeyValue('
+SELECT
+    custom_field.`name`,
+    custom_field.type
+FROM custom_field_set_relation
+    INNER JOIN custom_field ON(custom_field.set_id = custom_field_set_relation.set_id)
+WHERE custom_field_set_relation.entity_name = "product"
+');
     }
 }

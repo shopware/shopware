@@ -57,7 +57,7 @@ class CustomerAddressDefinition extends EntityDefinition
             (new FkField('country_id', 'countryId', CountryDefinition::class))->addFlags(new ApiAware(), new Required()),
             (new FkField('country_state_id', 'countryStateId', CountryStateDefinition::class))->addFlags(new ApiAware()),
 
-            (new FkField('salutation_id', 'salutationId', SalutationDefinition::class))->addFlags(new ApiAware(), new Required()),
+            (new FkField('salutation_id', 'salutationId', SalutationDefinition::class))->addFlags(new ApiAware()),
             (new StringField('first_name', 'firstName'))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             (new StringField('last_name', 'lastName'))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             (new StringField('zipcode', 'zipcode'))->addFlags(new ApiAware(), new Required()),

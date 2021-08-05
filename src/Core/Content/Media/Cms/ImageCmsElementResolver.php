@@ -23,14 +23,12 @@ class ImageCmsElementResolver extends AbstractCmsElementResolver
 
     public function collect(CmsSlotEntity $slot, ResolverContext $resolverContext): ?CriteriaCollection
     {
-        $config = $slot->getFieldConfig();
-        $mediaConfig = $config->get('media');
-
-        if (!$mediaConfig || $mediaConfig->isMapped() || $mediaConfig->getValue() === null) {
+        $mediaConfig = $slot->getFieldConfig()->get('media');
+        if ($mediaConfig === null || $mediaConfig->isMapped() || $mediaConfig->getValue() === null) {
             return null;
         }
 
-        $criteria = new Criteria([$mediaConfig->getValue()]);
+        $criteria = new Criteria([$mediaConfig->getStringValue()]);
 
         $criteriaCollection = new CriteriaCollection();
         $criteriaCollection->add('media_' . $slot->getUniqueIdentifier(), MediaDefinition::class, $criteria);
@@ -44,20 +42,22 @@ class ImageCmsElementResolver extends AbstractCmsElementResolver
         $image = new ImageStruct();
         $slot->setData($image);
 
-        if ($urlConfig = $config->get('url')) {
+        $urlConfig = $config->get('url');
+        if ($urlConfig !== null) {
             if ($urlConfig->isStatic()) {
-                $image->setUrl($urlConfig->getValue());
+                $image->setUrl($urlConfig->getStringValue());
             }
 
             if ($urlConfig->isMapped() && $resolverContext instanceof EntityResolverContext) {
-                $url = $this->resolveEntityValue($resolverContext->getEntity(), $urlConfig->getValue());
+                $url = $this->resolveEntityValue($resolverContext->getEntity(), $urlConfig->getStringValue());
                 if ($url) {
                     $image->setUrl($url);
                 }
             }
 
-            if ($newTabConfig = $config->get('newTab')) {
-                $image->setNewTab($newTabConfig->getValue());
+            $newTabConfig = $config->get('newTab');
+            if ($newTabConfig !== null) {
+                $image->setNewTab($newTabConfig->getBoolValue());
             }
         }
 
@@ -67,11 +67,16 @@ class ImageCmsElementResolver extends AbstractCmsElementResolver
         }
     }
 
-    private function addMediaEntity(CmsSlotEntity $slot, ImageStruct $image, ElementDataCollection $result, FieldConfig $config, ResolverContext $resolverContext): void
-    {
+    private function addMediaEntity(
+        CmsSlotEntity $slot,
+        ImageStruct $image,
+        ElementDataCollection $result,
+        FieldConfig $config,
+        ResolverContext $resolverContext
+    ): void {
         if ($config->isMapped() && $resolverContext instanceof EntityResolverContext) {
             /** @var MediaEntity|null $media */
-            $media = $this->resolveEntityValue($resolverContext->getEntity(), $config->getValue());
+            $media = $this->resolveEntityValue($resolverContext->getEntity(), $config->getStringValue());
 
             if ($media !== null) {
                 $image->setMediaId($media->getUniqueIdentifier());
@@ -80,7 +85,7 @@ class ImageCmsElementResolver extends AbstractCmsElementResolver
         }
 
         if ($config->isStatic()) {
-            $image->setMediaId($config->getValue());
+            $image->setMediaId($config->getStringValue());
 
             $searchResult = $result->get('media_' . $slot->getUniqueIdentifier());
             if (!$searchResult) {

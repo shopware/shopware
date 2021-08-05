@@ -6,7 +6,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityAggregationResultLoadedEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntitySearchResultLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
@@ -18,7 +18,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterfac
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\ArrayEntity;
+use Shopware\Core\System\SalesChannel\Event\SalesChannelProcessCriteriaEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -49,18 +51,39 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
      */
     protected $eventDispatcher;
 
+    private ?EntityLoadedEventFactory $eventFactory;
+
     public function __construct(
         EntityDefinition $definition,
         EntityReaderInterface $reader,
         EntitySearcherInterface $searcher,
         EntityAggregatorInterface $aggregator,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        ?EntityLoadedEventFactory $eventFactory
     ) {
         $this->definition = $definition;
         $this->reader = $reader;
         $this->searcher = $searcher;
         $this->aggregator = $aggregator;
         $this->eventDispatcher = $eventDispatcher;
+
+        if ($eventFactory !== null) {
+            $this->eventFactory = $eventFactory;
+        } else {
+            Feature::throwException('FEATURE_NEXT_16155', sprintf('Sales channel repository for definition %s requires the event factory as __construct parameter', $definition->getEntityName()));
+        }
+    }
+
+    /**
+     * @deprecated tag:v6.5.0 - Will be removed,
+     */
+    public function setEntityLoadedEventFactory(EntityLoadedEventFactory $eventFactory): void
+    {
+        if ($this->eventFactory === null) {
+            Feature::throwException('FEATURE_NEXT_16155', sprintf('Sales channel repository for definition %s requires the event factory as __construct parameter', $this->definition->getEntityName()));
+        }
+
+        $this->eventFactory = $eventFactory;
     }
 
     /**
@@ -160,11 +183,14 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
 
         $entities = $this->reader->read($this->definition, $criteria, $salesChannelContext->getContext());
 
-        $event = new EntityLoadedEvent($this->definition, $entities->getElements(), $salesChannelContext->getContext());
-        $this->eventDispatcher->dispatch($event, $event->getName());
+        if ($this->eventFactory === null) {
+            throw new \RuntimeException('Event loaded factory was not injected');
+        }
 
-        $event = new SalesChannelEntityLoadedEvent($this->definition, $entities->getElements(), $salesChannelContext);
-        $this->eventDispatcher->dispatch($event, $event->getName());
+        $events = $this->eventFactory->createForSalesChannel($entities->getElements(), $salesChannelContext);
+        foreach ($events as $event) {
+            $this->eventDispatcher->dispatch($event);
+        }
 
         return $entities;
     }
@@ -207,6 +233,11 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
 
             if ($definition instanceof SalesChannelDefinitionInterface) {
                 $definition->processCriteria($criteria, $salesChannelContext);
+
+                $eventName = \sprintf('sales_channel.%s.process.criteria', $definition->getEntityName());
+                $event = new SalesChannelProcessCriteriaEvent($criteria, $salesChannelContext);
+
+                $this->eventDispatcher->dispatch($event, $eventName);
             }
 
             $processed[\get_class($definition)] = true;

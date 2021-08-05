@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/no-extraneous-dependencies
 import chalk from 'chalk';
 import RepositoryFactory from 'src/core/data/repository-factory.data';
 import EntityHydrator from 'src/core/data/entity-hydrator.data';
@@ -5,6 +6,7 @@ import ChangesetGenerator from 'src/core/data/changeset-generator.data';
 import EntityFactory from 'src/core/data/entity-factory.data';
 import ErrorResolverError from 'src/core/data/error-resolver.data';
 import createHTTPClient from 'src/core/factory/http.factory';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import MockAdapter from 'axios-mock-adapter';
 import EntitySchema from '../../_mocks_/entity-schema.json';
 
@@ -13,13 +15,13 @@ Object.entries(EntitySchema).forEach(([entityName, entityInformation]) => {
     Shopware.EntityDefinition.add(entityName, entityInformation);
 });
 
-// This function throws an warning if some request has no mocked return value
+// This function throws an error if some request has no mocked return value
 function throwMissingImplementationError(config) {
-    if (!global.repositoryFactoryMock.showWarning) {
+    if (!global.repositoryFactoryMock.showError) {
         return;
     }
 
-    console.log(chalk.yellow(`
+    console.error(chalk.yellow(`
 You should to implement mock data for this route: "${config.url}".
 
 ############### Example ###############
@@ -44,9 +46,9 @@ responses.addResponse({
 
 ############### Example End ###############
 
-You can disable this warning with this code:
+You can disable this error with this code:
 
-global.repositoryFactoryMock.showWarning = false;
+global.repositoryFactoryMock.showError = false;
 `));
 }
 
@@ -62,7 +64,7 @@ class ResponseRegistry {
             method,
             status,
             response,
-            warning
+            warning,
         });
     }
 
@@ -83,7 +85,7 @@ function clientMockFactory() {
     clientMock.onAny().reply(config => {
         const customResponse = responses.getResponse({
             url: config.url,
-            method: config.method
+            method: config.method,
         });
 
         if (customResponse) {
@@ -107,9 +109,9 @@ function clientMockFactory() {
         response: {
             data: [],
             meta: {
-                total: 0
-            }
-        }
+                total: 0,
+            },
+        },
     });
 
     return { client, clientMock, responses };
@@ -122,7 +124,7 @@ global.repositoryFactoryMock = {
     httpClient,
     clientMock,
     responses,
-    showWarning: true
+    showError: true,
 };
 
 const hydrator = new EntityHydrator();
@@ -135,7 +137,7 @@ const repositoryFactory = new RepositoryFactory(
     changesetGenerator,
     entityFactory,
     httpClient,
-    errorResolver
+    errorResolver,
 );
 
 export default repositoryFactory;

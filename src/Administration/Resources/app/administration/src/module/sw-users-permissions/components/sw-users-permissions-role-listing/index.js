@@ -9,12 +9,12 @@ Component.register('sw-users-permissions-role-listing', {
 
     inject: [
         'repositoryFactory',
-        'acl'
+        'acl',
     ],
 
     mixins: [
         Mixin.getByName('listing'),
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     data() {
@@ -24,7 +24,7 @@ Component.register('sw-users-permissions-role-listing', {
             itemToDelete: null,
             confirmDelete: null,
             disableRouteParams: true,
-            confirmPasswordModal: false
+            confirmPasswordModal: false,
         };
     },
 
@@ -32,10 +32,10 @@ Component.register('sw-users-permissions-role-listing', {
         rolesColumns() {
             return [{
                 property: 'name',
-                label: this.$tc('sw-users-permissions.roles.role-grid.labelName')
+                label: this.$tc('sw-users-permissions.roles.role-grid.labelName'),
             }, {
                 property: 'description',
-                label: this.$tc('sw-users-permissions.roles.role-grid.labelDescription')
+                label: this.$tc('sw-users-permissions.roles.role-grid.labelDescription'),
             }];
         },
 
@@ -47,6 +47,7 @@ Component.register('sw-users-permissions-role-listing', {
             const criteria = new Criteria(this.page, this.limit);
             // Roles created by apps should not be visible and editable in the admin
             criteria.addFilter(Criteria.equals('app.id', null));
+            criteria.addFilter(Criteria.equals('deletedAt', null));
 
             if (this.term) {
                 criteria.setTerm(this.term);
@@ -65,7 +66,7 @@ Component.register('sw-users-permissions-role-listing', {
             }
 
             return (this.roles && this.roles.length > 0) || (this.term && this.term.length <= 0);
-        }
+        },
     },
 
     created() {
@@ -126,7 +127,7 @@ Component.register('sw-users-permissions-role-listing', {
                 this.createNotificationSuccess({
                     message: this.$tc('sw-users-permissions.roles.role-grid.notification.deleteSuccess.message',
                         0,
-                        { name: role.name })
+                        { name: role.name }),
                 });
 
                 this.$emit('get-list');
@@ -134,13 +135,13 @@ Component.register('sw-users-permissions-role-listing', {
                 this.createNotificationError({
                     message: this.$tc('sw-users-permissions.roles.role-grid.notification.deleteError.message',
                         0,
-                        { name: role.name })
+                        { name: role.name }),
                 });
             });
         },
 
         onCloseConfirmPasswordModal() {
             this.confirmPasswordModal = false;
-        }
-    }
+        },
+    },
 });

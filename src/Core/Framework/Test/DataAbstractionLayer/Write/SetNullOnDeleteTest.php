@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
@@ -20,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Write\Entity\SetNullOnDeleteChildDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Write\Entity\SetNullOnDeleteManyToOneDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Write\Entity\SetNullOnDeleteParentDefinition;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -60,7 +62,8 @@ class SetNullOnDeleteTest extends TestCase
             $this->getContainer()->get(VersionManager::class),
             $this->getContainer()->get(EntitySearcherInterface::class),
             $this->getContainer()->get(EntityAggregatorInterface::class),
-            $this->getContainer()->get('event_dispatcher')
+            $this->getContainer()->get('event_dispatcher'),
+            $this->getContainer()->get(EntityLoadedEventFactory::class)
         );
 
         $this->connection->rollBack();
@@ -131,18 +134,17 @@ class SetNullOnDeleteTest extends TestCase
 
     public function testDeleteOneToManyIfParentHasVersionId(): void
     {
-        $id = Uuid::randomHex();
-        $childId = Uuid::randomHex();
+        $ids = new IdsCollection();
 
         $this->writer->insert(
             $this->getContainer()->get(SetNullOnDeleteParentDefinition::class),
             [
                 [
-                    'id' => $id,
+                    'id' => $ids->get('parent'),
                     'productNumber' => Uuid::randomHex(),
                     'name' => 'test',
                     'setNulls' => [
-                        ['id' => $childId, 'name' => 'test child'],
+                        ['id' => $ids->get('child'), 'name' => 'test child'],
                     ],
                 ],
             ],
@@ -158,7 +160,7 @@ class SetNullOnDeleteTest extends TestCase
         $result = $this->writer->delete(
             $this->getContainer()->get(SetNullOnDeleteParentDefinition::class),
             [
-                ['id' => $id],
+                ['id' => $ids->get('parent')],
             ],
             WriteContext::createFromContext(Context::createDefaultContext())
         );
@@ -168,7 +170,7 @@ class SetNullOnDeleteTest extends TestCase
         static::assertArrayHasKey(SetNullOnDeleteParentDefinition::ENTITY_NAME, $deleted);
 
         static::assertCount(1, $deleted[SetNullOnDeleteParentDefinition::ENTITY_NAME]);
-        static::assertEquals($id, $deleted[SetNullOnDeleteParentDefinition::ENTITY_NAME][0]->getPrimaryKey());
+        static::assertEquals($ids->get('parent'), $deleted[SetNullOnDeleteParentDefinition::ENTITY_NAME][0]->getPrimaryKey());
 
         $updated = $result->getUpdated();
         static::assertCount(1, $updated);
@@ -177,9 +179,9 @@ class SetNullOnDeleteTest extends TestCase
         static::assertCount(1, $updated[SetNullOnDeleteChildDefinition::ENTITY_NAME]);
         /** @var EntityWriteResult $updateResult */
         $updateResult = $updated[SetNullOnDeleteChildDefinition::ENTITY_NAME][0];
-        static::assertEquals($childId, $updateResult->getPrimaryKey());
+        static::assertEquals($ids->get('child'), $updateResult->getPrimaryKey());
         static::assertEquals([
-            'id' => $childId,
+            'id' => $ids->get('child'),
             'setNullOnDeleteParentId' => null,
             'setNullOnDeleteParentVersionId' => null,
         ], $updateResult->getPayload());

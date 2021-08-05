@@ -6,7 +6,7 @@ import deepmerge from 'deepmerge';
 export default class FilterPropertySelectPlugin extends FilterMultiSelectPlugin {
 
     static options = deepmerge(FilterMultiSelectPlugin.options, {
-        propertyName: ''
+        propertyName: '',
     });
 
     /**
@@ -25,7 +25,7 @@ export default class FilterPropertySelectPlugin extends FilterMultiSelectPlugin 
                     label: checkbox.dataset.label,
                     id: checkbox.id,
                     previewHex: checkbox.dataset.previewHex,
-                    previewImageUrl: checkbox.dataset.previewImageUrl
+                    previewImageUrl: checkbox.dataset.previewImageUrl,
                 });
             });
         } else {

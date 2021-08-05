@@ -43,8 +43,8 @@ if (!Shopware.Feature.isActive('FEATURE_NEXT_12608')) {
         methods: {
             showExtensionErrors(errorResponse) {
                 console.error(errorResponse);
-            }
-        }
+            },
+        },
     };
 }
 Shopware.Mixin.register('sw-extension-error', errorMixin);
@@ -70,87 +70,87 @@ Shopware.Module.register('sw-extension', {
             path: 'my-extensions',
             component: 'sw-extension-my-extensions-index',
             redirect: {
-                name: 'sw.extension.my-extensions.listing'
+                name: 'sw.extension.my-extensions.listing',
             },
             meta: {
-                privilege: 'system.plugin_maintain'
+                privilege: 'system.plugin_maintain',
             },
             children: {
                 listing: {
                     path: 'listing',
                     component: 'sw-extension-my-extensions-listing',
                     redirect: {
-                        name: 'sw.extension.my-extensions.listing.app'
+                        name: 'sw.extension.my-extensions.listing.app',
                     },
                     meta: {
-                        privilege: 'system.plugin_maintain'
+                        privilege: 'system.plugin_maintain',
                     },
                     children: {
                         app: {
                             path: 'app',
                             component: 'sw-extension-my-extensions-listing',
                             propsData: {
-                                isTheme: false
+                                isTheme: false,
                             },
                             meta: {
-                                privilege: 'system.plugin_maintain'
-                            }
+                                privilege: 'system.plugin_maintain',
+                            },
                         },
                         theme: {
                             path: 'theme',
                             component: 'sw-extension-my-extensions-listing',
                             propsData: {
-                                isTheme: true
+                                isTheme: true,
                             },
                             meta: {
-                                privilege: 'system.plugin_maintain'
-                            }
-                        }
-                    }
+                                privilege: 'system.plugin_maintain',
+                            },
+                        },
+                    },
                 },
                 recommendation: {
                     path: 'recommendation',
                     component: 'sw-extension-my-extensions-recommendation',
                     meta: {
-                        privilege: 'system.plugin_maintain'
-                    }
+                        privilege: 'system.plugin_maintain',
+                    },
                 },
                 account: {
                     path: 'account',
                     component: 'sw-extension-my-extensions-account',
                     meta: {
-                        privilege: 'system.plugin_maintain'
-                    }
-                }
-            }
+                        privilege: 'system.plugin_maintain',
+                    },
+                },
+            },
         },
         config: {
             component: 'sw-extension-config',
             path: 'config/:namespace',
             meta: {
                 parentPath: 'sw.extension.my-extensions',
-                privilege: 'system.plugin_maintain'
+                privilege: 'system.plugin_maintain',
             },
 
             props: {
                 default(route) {
                     return { namespace: route.params.namespace };
-                }
-            }
+                },
+            },
         },
 
         store: {
             path: 'store',
             component: 'sw-extension-store-landing-page',
             redirect: {
-                name: 'sw.extension.store.landing-page'
-            }
+                name: 'sw.extension.store.landing-page',
+            },
         },
 
         'store.landing-page': {
             path: 'store/landing-page',
-            component: 'sw-extension-store-landing-page'
-        }
+            component: 'sw-extension-store-landing-page',
+        },
     },
 
     navigation: [
@@ -159,7 +159,7 @@ Shopware.Module.register('sw-extension', {
             label: 'sw-extension.mainMenu.mainMenuItemExtensionStore',
             color: '#189EFF',
             icon: 'default-object-plug',
-            position: 70
+            position: 70,
         },
         {
             id: 'sw-extension-store',
@@ -167,7 +167,7 @@ Shopware.Module.register('sw-extension', {
             label: 'sw-extension.mainMenu.store',
             path: 'sw.extension.store',
             privilege: 'system.extension_store',
-            position: 10
+            position: 10,
         },
         {
             id: 'sw-extension-my-extensions',
@@ -175,7 +175,7 @@ Shopware.Module.register('sw-extension', {
             label: 'sw-extension.mainMenu.purchased',
             path: 'sw.extension.my-extensions',
             privilege: 'system.plugin_maintain',
-            position: 10
-        }
-    ]
+            position: 10,
+        },
+    ],
 });

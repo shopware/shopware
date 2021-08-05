@@ -6,28 +6,28 @@ Component.register('sw-settings-search-searchable-content-general', {
     template,
 
     inject: [
-        'acl'
+        'acl',
     ],
 
     mixins: [
         Mixin.getByName('listing'),
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     props: {
         isEmpty: {
             type: Boolean,
-            required: true
+            required: true,
         },
 
         columns: {
             type: Array,
-            required: true
+            required: true,
         },
 
         repository: {
             type: Object,
-            required: true
+            required: true,
         },
 
         searchConfigs: {
@@ -35,19 +35,19 @@ Component.register('sw-settings-search-searchable-content-general', {
             required: false,
             default() {
                 return null;
-            }
+            },
         },
 
         fieldConfigs: {
             type: Array,
-            required: true
+            required: true,
         },
 
         isLoading: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     methods: {
@@ -79,12 +79,12 @@ Component.register('sw-settings-search-searchable-content-general', {
             promise
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-settings-search.notification.saveSuccess')
+                        message: this.$tc('sw-settings-search.notification.saveSuccess'),
                     });
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-search.notification.saveError')
+                        message: this.$tc('sw-settings-search.notification.saveError'),
                     });
                 })
                 .finally(() => {
@@ -99,7 +99,7 @@ Component.register('sw-settings-search-searchable-content-general', {
         onResetRanking(currentField) {
             if (!currentField.field) {
                 this.createNotificationError({
-                    message: this.$tc('sw-settings-search.notification.saveError')
+                    message: this.$tc('sw-settings-search.notification.saveError'),
                 });
 
                 this.$emit('data-load');
@@ -109,7 +109,7 @@ Component.register('sw-settings-search-searchable-content-general', {
             const currentItem = this.searchConfigs.find((item) => item.field === currentField.field);
             if (!currentItem) {
                 this.createNotificationError({
-                    message: this.$tc('sw-settings-search.notification.saveError')
+                    message: this.$tc('sw-settings-search.notification.saveError'),
                 });
 
                 return;
@@ -127,6 +127,6 @@ Component.register('sw-settings-search-searchable-content-general', {
             const fieldConfigDefault = this.fieldConfigs.find(fieldConfig => fieldConfig.value === fieldName);
 
             return fieldConfigDefault ? fieldConfigDefault.defaultConfigs.ranking : 0;
-        }
-    }
+        },
+    },
 });

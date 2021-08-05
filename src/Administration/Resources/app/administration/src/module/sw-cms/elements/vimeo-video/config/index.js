@@ -7,13 +7,13 @@ Component.register('sw-cms-el-config-vimeo-video', {
     template,
 
     mixins: [
-        Mixin.getByName('cms-element')
+        Mixin.getByName('cms-element'),
     ],
 
     data() {
         return {
             mediaModalIsOpen: false,
-            initialFolderId: null
+            initialFolderId: null,
         };
     },
 
@@ -25,7 +25,7 @@ Component.register('sw-cms-el-config-vimeo-video', {
 
             set(link) {
                 this.element.config.videoID.value = this.shortenLink(link);
-            }
+            },
         },
 
         mediaRepository() {
@@ -42,7 +42,7 @@ Component.register('sw-cms-el-config-vimeo-video', {
             }
 
             return this.element.config.previewMedia.value;
-        }
+        },
     },
 
     created() {
@@ -106,6 +106,6 @@ Component.register('sw-cms-el-config-vimeo-video', {
 
         onOpenMediaModal() {
             this.mediaModalIsOpen = true;
-        }
-    }
+        },
+    },
 });

@@ -14,7 +14,7 @@ class Migration1536232890CmsPage extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             CREATE TABLE `cms_page` (
               `id` BINARY(16) NOT NULL,
               `type` VARCHAR(255) NOT NULL,
@@ -33,7 +33,7 @@ SQL;
 
         $connection->executeUpdate($sql);
 
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             CREATE TABLE `cms_page_translation` (
               `cms_page_id` BINARY(16) NOT NULL,
               `language_id` BINARY(16) NOT NULL,

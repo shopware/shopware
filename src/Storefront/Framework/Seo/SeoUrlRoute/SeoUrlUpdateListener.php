@@ -19,6 +19,10 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class SeoUrlUpdateListener implements EventSubscriberInterface
 {
+    public const CATEGORY_SEO_URL_UPDATER = 'category.seo-url';
+    public const PRODUCT_SEO_URL_UPDATER = 'product.seo-url';
+    public const LANDING_PAGE_SEO_URL_UPDATER = 'landing_page.seo-url';
+
     /**
      * @var SeoUrlUpdater
      */
@@ -66,6 +70,10 @@ class SeoUrlUpdateListener implements EventSubscriberInterface
 
     public function updateCategoryUrls(CategoryIndexerEvent $event): void
     {
+        if (\in_array(self::CATEGORY_SEO_URL_UPDATER, $event->getSkip(), true)) {
+            return;
+        }
+
         $ids = array_merge($event->getIds(), $this->getCategoryChildren($event->getIds()));
 
         $this->seoUrlUpdater->update(NavigationPageSeoUrlRoute::ROUTE_NAME, $ids);
@@ -73,6 +81,10 @@ class SeoUrlUpdateListener implements EventSubscriberInterface
 
     public function updateProductUrls(ProductIndexerEvent $event): void
     {
+        if (\in_array(self::PRODUCT_SEO_URL_UPDATER, $event->getSkip(), true)) {
+            return;
+        }
+
         $ids = array_merge($event->getIds(), $this->getProductChildren($event->getIds()));
 
         $this->seoUrlUpdater->update(ProductPageSeoUrlRoute::ROUTE_NAME, $ids);
@@ -80,6 +92,10 @@ class SeoUrlUpdateListener implements EventSubscriberInterface
 
     public function updateLandingPageUrls(LandingPageIndexerEvent $event): void
     {
+        if (\in_array(self::LANDING_PAGE_SEO_URL_UPDATER, $event->getSkip(), true)) {
+            return;
+        }
+
         $this->seoUrlUpdater->update(LandingPageSeoUrlRoute::ROUTE_NAME, $event->getIds());
     }
 

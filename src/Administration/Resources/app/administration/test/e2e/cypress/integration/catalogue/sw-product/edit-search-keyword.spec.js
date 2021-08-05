@@ -21,8 +21,8 @@ describe('Product: Search Keyword product', () => {
     it('@catalogue: edit a products search keyword', () => {
         cy.server();
         cy.route({
-            url: '/api/product/*',
-            method: 'patch'
+            url: `${Cypress.env('apiPath')}/_action/sync`,
+            method: 'post'
         }).as('saveData');
         cy.route({
             url: `${Cypress.env('apiPath')}/search/product`,
@@ -52,7 +52,7 @@ describe('Product: Search Keyword product', () => {
 
         // Verify updated product
         cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
+            expect(xhr).to.have.property('status', 200);
         });
         cy.get(page.elements.successIcon).should('be.visible');
 

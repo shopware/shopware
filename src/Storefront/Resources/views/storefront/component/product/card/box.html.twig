@@ -6,6 +6,24 @@
         {% set layout = 'standard' %}
     {% endif %}
 
+    {% set sizes = {
+        'xs': '500px',
+        'sm': '315px',
+        'md': '390px',
+        'lg': '350px',
+        'xl': '280px'
+    } %}
+
+    {% if layout == 'image' %}
+        {% set sizes = {
+            'xs': '500px',
+            'sm': '500px',
+            'md': '390px',
+            'lg': '350px',
+            'xl': '280px'
+        } %}
+    {% endif %}
+
     {% if layout == 'standard' %}
         {% sw_include "@Storefront/storefront/component/product/card/box-standard.html.twig" %}
     {% elseif layout == 'image' %}

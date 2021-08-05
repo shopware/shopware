@@ -14,6 +14,9 @@ use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @group cache
+ */
 class CacheStoreTest extends TestCase
 {
     use IntegrationTestBehaviour;

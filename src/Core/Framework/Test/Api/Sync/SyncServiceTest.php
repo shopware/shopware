@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\Api\Sync;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Api\Converter\ApiVersionConverter;
 use Shopware\Core\Framework\Api\Converter\ConverterRegistry;
 use Shopware\Core\Framework\Api\Converter\DefaultApiConverter;
@@ -17,14 +18,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\Api\Converter\fixtures\DeprecatedConverter;
 use Shopware\Core\Framework\Test\Api\Converter\fixtures\DeprecatedDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 
 class SyncServiceTest extends TestCase
 {
@@ -49,6 +54,8 @@ class SyncServiceTest extends TestCase
 
     public function testSingleOperation(): void
     {
+        Feature::skipTestIfActive('FEATURE_NEXT_15815', $this);
+
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
 
@@ -90,12 +97,31 @@ class SyncServiceTest extends TestCase
     {
         $ids = new TestDataCollection();
 
+        $currency = [
+            'name' => 'test',
+            'factor' => 2,
+            'symbol' => '€',
+            'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+            'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true)), true),
+            'shortName' => 'TEST',
+        ];
+
+        $this->getContainer()->get('currency.repository')->create(
+            [
+                array_merge($currency, ['id' => $ids->get('currency-1'), 'isoCode' => 'xx']),
+                array_merge($currency, ['id' => $ids->get('currency-2'), 'isoCode' => 'xy']),
+            ],
+            Context::createDefaultContext()
+        );
+
+        $product = (new ProductBuilder($ids, 'test', 1, 'tax-1'))->price(100);
+
         $operations = [
             new SyncOperation('write', 'product_manufacturer', SyncOperation::ACTION_UPSERT, [
                 ['id' => $ids->create('m1'), 'name' => 'first manufacturer'],
                 ['id' => $ids->create('m2'), 'name' => 'second manufacturer'],
             ]),
-            new SyncOperation('write', 'tax', SyncOperation::ACTION_UPSERT, [
+            new SyncOperation('write-tax', 'tax', SyncOperation::ACTION_UPSERT, [
                 ['id' => $ids->create('t1'), 'name' => 'first tax', 'taxRate' => 10],
                 ['id' => $ids->create('t2'), 'name' => 'second tax', 'taxRate' => 10],
             ]),
@@ -103,9 +129,25 @@ class SyncServiceTest extends TestCase
                 ['id' => $ids->create('c1'), 'name' => 'first country'],
                 ['id' => $ids->create('c2'), 'name' => 'second country'],
             ]),
+            new SyncOperation('multi-pk', 'product', SyncOperation::ACTION_UPSERT, [
+                $product->build(),
+            ]),
+            new SyncOperation('not-found', 'product', SyncOperation::ACTION_DELETE, [
+                ['id' => $ids->get('p1')],
+                ['id' => $ids->get('p2')],
+                ['id' => $ids->get('p3')],
+            ]),
+            new SyncOperation('delete-currencies', 'currency', SyncOperation::ACTION_DELETE, [
+                ['id' => $ids->get('currency-1')],
+                ['id' => $ids->get('currency-2')],
+            ]),
         ];
 
-        $behavior = new SyncBehavior(false, true);
+        if (Feature::isActive('FEATURE_NEXT_15815')) {
+            $behavior = new SyncBehavior();
+        } else {
+            $behavior = new SyncBehavior(false, true);
+        }
 
         $this->service->sync($operations, Context::createDefaultContext(), $behavior);
 
@@ -189,7 +231,11 @@ class SyncServiceTest extends TestCase
             ]),
         ];
 
-        $behavior = new SyncBehavior(false, true);
+        if (Feature::isActive('FEATURE_NEXT_15815')) {
+            $behavior = new SyncBehavior();
+        } else {
+            $behavior = new SyncBehavior(false, true);
+        }
 
         $this->service->sync($operations, Context::createDefaultContext(), $behavior);
     }
@@ -200,41 +246,45 @@ class SyncServiceTest extends TestCase
         $id2 = Uuid::randomHex();
 
         $operation = new SyncOperation(
-            'write',
+            'manufacturers',
             'product_manufacturer',
             SyncOperation::ACTION_UPSERT,
             [
                 ['id' => $id1, 'name' => 'first manufacturer'],
                 ['id' => $id2],
+                ['id' => Uuid::randomHex()],
+                ['id' => Uuid::randomHex()],
+                ['id' => Uuid::randomHex()],
             ]
         );
 
-        $result = $this->service->sync([$operation], Context::createDefaultContext(), new SyncBehavior(false));
+        if (Feature::isActive('FEATURE_NEXT_15815')) {
+            $behavior = new SyncBehavior();
+        } else {
+            $behavior = new SyncBehavior(false, true);
+        }
 
-        static::assertFalse($result->isSuccess());
-        $operation = $result->get('write');
+        $e = null;
 
-        static::assertInstanceOf(SyncOperationResult::class, $operation);
-        static::assertTrue($operation->hasError());
+        try {
+            $this->service->sync([$operation], Context::createDefaultContext(), $behavior);
+        } catch (WriteException $e) {
+        }
 
-        static::assertTrue($operation->has(0));
-        static::assertTrue($operation->has(1));
+        static::assertInstanceOf(WriteException::class, $e);
 
-        $written = $operation->get(0);
-        static::assertEquals([], $written['errors']);
-        static::assertArrayHasKey('entities', $written);
-        static::assertArrayHasKey('product_manufacturer', $written['entities']);
-        static::assertArrayHasKey('product_manufacturer_translation', $written['entities']);
+        static::assertCount(4, $e->getExceptions());
+        $first = $e->getExceptions()[0];
 
-        $written = $operation->get(1);
-        static::assertIsArray($written['errors']);
-        static::assertCount(1, $written['errors']);
-        static::assertArrayHasKey('entities', $written);
-        static::assertEmpty($written['entities']);
+        /** @var WriteConstraintViolationException $first */
+        static::assertInstanceOf(WriteConstraintViolationException::class, $first);
+        static::assertStringStartsWith('/manufacturers/1/translations', $first->getPath());
     }
 
     public function testFailOnErrorContinues(): void
     {
+        Feature::skipTestIfActive('FEATURE_NEXT_15815', $this);
+
         $this->stopTransactionAfter();
         $this->disableNestTransactionsWithSavepointsForNextTest();
         $this->startTransactionBefore();
@@ -267,6 +317,8 @@ class SyncServiceTest extends TestCase
 
     public function testFailOnErrorRollback(): void
     {
+        Feature::skipTestIfActive('FEATURE_NEXT_15815', $this);
+
         $this->connection->rollBack();
 
         $id1 = Uuid::randomHex();
@@ -309,6 +361,8 @@ class SyncServiceTest extends TestCase
 
     public function testFailOnErrorWithMultipleOperations(): void
     {
+        Feature::skipTestIfActive('FEATURE_NEXT_15815', $this);
+
         $this->connection->rollBack();
 
         $id1 = Uuid::randomHex();
@@ -362,6 +416,8 @@ class SyncServiceTest extends TestCase
 
     public function testDeprecatedPayloadIsConverted(): void
     {
+        Feature::skipTestIfActive('FEATURE_NEXT_15815', $this);
+
         $id = Uuid::randomHex();
 
         $operations = [

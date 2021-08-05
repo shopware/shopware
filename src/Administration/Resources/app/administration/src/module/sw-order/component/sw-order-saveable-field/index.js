@@ -11,30 +11,30 @@ Component.register('sw-order-saveable-field', {
         // eslint-disable-next-line vue/require-prop-types
         value: {
             required: true,
-            default: null
+            default: null,
         },
         type: {
             type: String,
             required: true,
-            default: 'text'
+            default: 'text',
         },
         // FIXME: add type to placeholder property
         // eslint-disable-next-line vue/require-prop-types
         placeholder: {
             required: false,
-            default: null
+            default: null,
         },
         editable: {
             type: Boolean,
             required: false,
-            default: true
-        }
+            default: true,
+        },
     },
 
     data() {
         return {
             isEditing: false,
-            isLoading: false
+            isLoading: false,
         };
     },
 
@@ -52,6 +52,6 @@ Component.register('sw-order-saveable-field', {
 
         onCancelButtonClicked() {
             this.isEditing = false;
-        }
-    }
+        },
+    },
 });

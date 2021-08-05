@@ -11,8 +11,8 @@ export default class FilterRatingSelectPlugin extends FilterMultiSelectPlugin {
             filterRatingActiveLabelStart: 'Minimum',
             filterRatingActiveLabelEndSingular: 'star',
             filterRatingActiveLabelEnd: 'stars',
-            disabledFilterText: 'Filter not active'
-        }
+            disabledFilterText: 'Filter not active',
+        },
     });
 
 
@@ -74,7 +74,7 @@ export default class FilterRatingSelectPlugin extends FilterMultiSelectPlugin {
                 label: `${this.options.snippets.filterRatingActiveLabelStart}
                         ${currentRating}/${this.options.maxPoints}
                         ${endSnippet}`,
-                id: 'rating'
+                id: 'rating',
             });
         } else {
             labels = [];

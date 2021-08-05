@@ -37,7 +37,7 @@ export default class GuestWishlistPagePlugin extends Plugin {
 
         this.httpClient.post(this.options.pageletRouter.path, JSON.stringify({
             _csrf_token: this.options.pageletRouter.token,
-            productIds
+            productIds,
         }), response => {
             this.el.innerHTML = response;
             const forms = this.el.querySelectorAll('form.product-wishlist-form');

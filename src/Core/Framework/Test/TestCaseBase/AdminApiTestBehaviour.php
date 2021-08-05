@@ -9,6 +9,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Test\TestCaseHelper\TestBrowser;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -29,7 +30,7 @@ trait AdminApiTestBehaviour
     protected $apiIntegrations = [];
 
     /**
-     * @var KernelBrowser|null
+     * @var TestBrowser|null
      */
     private $kernelBrowser;
 
@@ -126,7 +127,7 @@ trait AdminApiTestBehaviour
      * @throws \RuntimeException
      * @throws DBALException
      */
-    public function authorizeBrowser(KernelBrowser $browser, array $scopes = [], ?array $aclPermissions = null): void
+    public function authorizeBrowser(TestBrowser $browser, array $scopes = [], ?array $aclPermissions = null): void
     {
         $username = Uuid::randomHex();
         $password = Uuid::randomHex();

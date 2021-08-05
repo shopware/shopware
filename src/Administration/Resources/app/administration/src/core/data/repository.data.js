@@ -19,7 +19,7 @@ export default class Repository {
         changesetGenerator,
         entityFactory,
         errorResolver,
-        options
+        options,
     ) {
         this.route = route;
         this.entityName = entityName;
@@ -67,7 +67,7 @@ export default class Repository {
         return this.httpClient
             .post(url, criteria.parse(), {
                 headers,
-                version: this.options.version
+                version: this.options.version,
             })
             .then((response) => {
                 return this.hydrator.hydrateSearchResult(this.route, this.entityName, response, context, criteria);
@@ -100,11 +100,80 @@ export default class Repository {
      * @returns {Promise<any>}
      */
     save(entity, context = Shopware.Context.api) {
+        if (this.options.useSync === true) {
+            return this.saveWithSync(entity, context);
+        }
+
+        return this.saveWithRest(entity, context);
+    }
+
+    /**
+     * @private
+     * @param {Entity} entity
+     * @param {Object} context
+     * @returns {Promise<Promise>}
+     */
+    saveWithRest(entity, context) {
         const { changes, deletionQueue } = this.changesetGenerator.generate(entity);
 
         return this.errorResolver.resetApiErrors()
             .then(() => this.sendDeletions(deletionQueue, context))
             .then(() => this.sendChanges(entity, changes, context));
+    }
+
+    /**
+     * @private
+     * @param {Entity} entity
+     * @param {Object} context
+     * @returns {Promise<void>|Promise<T>}
+     */
+    saveWithSync(entity, context) {
+        const { changes, deletionQueue } = this.changesetGenerator.generate(entity);
+
+        if (entity.isNew()) {
+            Object.assign(changes || {}, { id: entity.id });
+        }
+
+        const operations = [];
+
+        if (deletionQueue.length > 0) {
+            operations.push(...this.buildDeleteOperations(deletionQueue));
+        }
+
+        if (changes !== null) {
+            operations.push({
+                key: 'write',
+                action: 'upsert',
+                entity: entity.getEntityName(),
+                payload: [changes],
+            });
+        }
+
+        const headers = this.buildHeaders(context);
+        headers['single-operation'] = true;
+
+        if (operations.length <= 0) {
+            return Promise.resolve();
+        }
+
+        return this.errorResolver.resetApiErrors().then(() => {
+            return this.httpClient
+                .post('_action/sync', operations, { headers, version: this.options.version })
+                .catch((errorResponse) => {
+                    const errors = [];
+                    const result = errorResponse?.response?.data?.errors ?? [];
+
+                    result.forEach((error) => {
+                        if (error.source.pointer.startsWith('/write/')) {
+                            error.source.pointer = error.source.pointer.substring(6);
+                            errors.push(error);
+                        }
+                    });
+
+                    this.errorResolver.handleWriteErrors({ errors }, [{ entity, changes }]);
+                    throw errorResponse;
+                });
+        });
     }
 
     /**
@@ -123,7 +192,7 @@ export default class Repository {
         return this.httpClient
             .post(`/_action/clone${this.route}/${entityId}`, behavior, {
                 headers: this.buildHeaders(context),
-                version: this.options.version
+                version: this.options.version,
             })
             .then((response) => {
                 return response.data;
@@ -219,10 +288,10 @@ export default class Repository {
                 [this.entityName]: {
                     entity: this.entityName,
                     action: 'upsert',
-                    payload
-                }
+                    payload,
+                },
             },
-            { headers, version: this.options.version }
+            { headers, version: this.options.version },
         ).then(({ data }) => {
             if (data.success === false) {
                 throw data;
@@ -232,7 +301,7 @@ export default class Repository {
             const errors = this.getSyncErrors(errorResponse);
             this.errorResolver.handleWriteErrors(
                 { errors },
-                changeset
+                changeset,
             );
             throw errorResponse;
         });
@@ -244,6 +313,28 @@ export default class Repository {
      * @returns {Array}
      */
     getSyncErrors(errorResponse) {
+        if (Shopware.Feature.isActive('FEATURE_NEXT_15815')) {
+            const errors = errorResponse.response.data.errors;
+
+            errors.forEach((current) => {
+                if (!current.source || !current.source.pointer) {
+                    return;
+                }
+
+                const segments = current.source.pointer.split('/');
+
+                // remove first empty element in list
+                if (segments[0] === '') {
+                    segments.shift();
+                }
+                segments.shift();
+
+                current.source.pointer = segments.join('/');
+            });
+
+            return errors;
+        }
+
         const operation = errorResponse.response.data.data[this.entityName];
         return operation.result.reduce((acc, result) => {
             acc.push(...result.errors);
@@ -312,6 +403,38 @@ export default class Repository {
     }
 
     /**
+     * Allows to iterate all ids of the provided criteria.
+     * @param {Criteria} criteria
+     * @param {function} callback
+     * @param context
+     * @returns {Promise}
+     */
+    iterateIds(criteria, callback, context = Shopware.Context.api) {
+        if (criteria.limit == null) {
+            criteria.setLimit(50);
+        }
+        criteria.setTotalCountMode(1);
+
+        return this.searchIds(criteria, context).then((response) => {
+            const ids = response.data;
+
+            if (ids.length <= 0) {
+                return Promise.resolve();
+            }
+
+            return callback(ids).then(() => {
+                if (ids.length < criteria.limit) {
+                    return Promise.resolve();
+                }
+
+                criteria.setPage(criteria.page + 1);
+
+                return this.iterateIds(criteria, callback);
+            });
+        });
+    }
+
+    /**
      * Sends a delete request for a set of ids
      * @param {Array} ids
      * @param {Object} context
@@ -331,10 +454,10 @@ export default class Repository {
                 [this.entityName]: {
                     entity: this.entityName,
                     action: 'delete',
-                    payload
-                }
+                    payload,
+                },
             },
-            { headers, version: this.options.version }
+            { headers, version: this.options.version },
         ).then(({ data }) => {
             if (data.success === false) {
                 throw data;
@@ -491,37 +614,73 @@ export default class Repository {
             Accept: 'application/vnd.api+json',
             Authorization: `Bearer ${context.authToken.access}`,
             'Content-Type': 'application/json',
-            'sw-api-compatibility': compatibility
+            'sw-api-compatibility': compatibility,
         };
 
         if (context.languageId) {
             headers = Object.assign(
                 { 'sw-language-id': context.languageId },
-                headers
+                headers,
             );
         }
 
         if (context.currencyId) {
             headers = Object.assign(
                 { 'sw-currency-id': context.currencyId },
-                headers
+                headers,
             );
         }
 
         if (context.versionId) {
             headers = Object.assign(
                 { 'sw-version-id': context.versionId },
-                headers
+                headers,
             );
         }
 
         if (context.inheritance) {
             headers = Object.assign(
                 { 'sw-inheritance': context.inheritance },
-                headers
+                headers,
             );
         }
 
         return headers;
+    }
+
+    /**
+     * @private
+     * @param {Array} deletionQueue
+     */
+    buildDeleteOperations(deletionQueue) {
+        const grouped = {};
+
+        deletionQueue.forEach((deletion) => {
+            const entityName = deletion.entity;
+
+            if (!entityName) {
+                return;
+            }
+
+            if (!grouped.hasOwnProperty(entityName)) {
+                grouped[entityName] = [];
+            }
+
+            grouped[entityName].push(deletion.primary);
+        });
+
+        const operations = [];
+
+        Object.keys(grouped).forEach((entity) => {
+            const deletions = grouped[entity];
+
+            operations.push({
+                action: 'delete',
+                payload: deletions,
+                entity: entity,
+            });
+        });
+
+        return operations;
     }
 }

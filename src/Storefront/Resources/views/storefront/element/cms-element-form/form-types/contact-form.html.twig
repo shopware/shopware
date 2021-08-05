@@ -104,17 +104,7 @@
         {% endblock %}
 
         {% block cms_form_contact_captcha %}
-            {% if feature('FEATURE_NEXT_12455') %}
-                {% sw_include '@Storefront/storefront/component/captcha/base.html.twig'
-                    with {
-                    'captchas': config('core.basicInformation.activeCaptchasV2'),
-                    'additionalClass' : 'col-md-12',
-                    'formId': 'contact-form'
-                    }
-                %}
-            {% else %}
-                {% sw_include '@Storefront/storefront/component/captcha/base.html.twig' with { 'captchas': config('core.basicInformation.activeCaptchas') } %}
-            {% endif %}
+            {% sw_include '@Storefront/storefront/component/captcha/base.html.twig' with { additionalClass : 'col-md-12'} %}
         {% endblock %}
 
         {% block cms_form_contact_privacy %}
@@ -132,7 +122,12 @@
                     {{ sw_csrf(action) }}
                 {% endblock %}
 
-                <input type="hidden" name="navigationId" value="{{ page.header.navigation.active.id }}"/>
+                {% if page.navigationId and page.entityName %}
+                    <input type="hidden" name="navigationId" value="{{ page.navigationId }}"/>
+                    <input type="hidden" name="entityName" value="{{ page.entityName }}"/>
+                {% else %}
+                    <input type="hidden" name="navigationId" value="{{ page.header.navigation.active.id }}"/>
+                {% endif %}
 
                 <input type="hidden" name="slotId" value="{{ element.id }}"/>
 

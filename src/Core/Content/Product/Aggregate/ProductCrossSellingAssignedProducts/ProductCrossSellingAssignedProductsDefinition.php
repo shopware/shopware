@@ -43,6 +43,11 @@ class ProductCrossSellingAssignedProductsDefinition extends EntityDefinition
         return '6.2.0.0';
     }
 
+    public function getHydratorClass(): string
+    {
+        return ProductCrossSellingAssignedProductsHydrator::class;
+    }
+
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([

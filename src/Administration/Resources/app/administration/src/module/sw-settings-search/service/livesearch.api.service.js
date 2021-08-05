@@ -15,11 +15,11 @@ export default class LiveSearchService extends ApiService {
         const route = `_proxy/store-api/${salesChannelId}/search`;
         const payload = {
             salesChannelId,
-            search
+            search,
         };
         const headers = {
             ...this.getBasicHeaders(additionalHeaders),
-            'sw-context-token': contextToken
+            'sw-context-token': contextToken,
         };
         return this.httpClient
             .post(route, payload, { additionalParams, headers });

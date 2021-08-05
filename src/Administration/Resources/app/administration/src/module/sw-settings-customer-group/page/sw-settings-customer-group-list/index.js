@@ -11,7 +11,7 @@ Component.register('sw-settings-customer-group-list', {
     mixins: [
         Mixin.getByName('listing'),
         Mixin.getByName('placeholder'),
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     data() {
@@ -20,13 +20,13 @@ Component.register('sw-settings-customer-group-list', {
             sortBy: 'name',
             limit: 10,
             customerGroups: null,
-            sortDirection: 'ASC'
+            sortDirection: 'ASC',
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle()
+            title: this.$createTitle(),
         };
     },
 
@@ -46,7 +46,7 @@ Component.register('sw-settings-customer-group-list', {
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
 
             return criteria;
-        }
+        },
     },
 
     created() {
@@ -75,11 +75,11 @@ Component.register('sw-settings-customer-group-list', {
                 label: 'sw-settings-customer-group.list.columnName',
                 inlineEdit: 'string',
                 routerLink: 'sw.settings.customer.group.detail',
-                primary: true
+                primary: true,
             }, {
                 property: 'displayGross',
                 label: 'sw-settings-customer-group.list.columnDisplayGross',
-                inlineEdit: 'boolean'
+                inlineEdit: 'boolean',
             }];
         },
 
@@ -87,7 +87,7 @@ Component.register('sw-settings-customer-group-list', {
             const criteria = new Criteria();
 
             criteria.addFilter(
-                Criteria.equalsAny('id', idsOfSelectedCustomerGroups)
+                Criteria.equalsAny('id', idsOfSelectedCustomerGroups),
             );
 
             return criteria;
@@ -95,7 +95,7 @@ Component.register('sw-settings-customer-group-list', {
 
         createErrorNotification() {
             return this.createNotificationError({
-                message: this.$tc('sw-settings-customer-group.notification.errorMessageCannotDeleteCustomerGroup')
+                message: this.$tc('sw-settings-customer-group.notification.errorMessageCannotDeleteCustomerGroup'),
             });
         },
 
@@ -146,6 +146,6 @@ Component.register('sw-settings-customer-group-list', {
 
         onContextMenuDelete(customerGroup) {
             this.$refs.listing.deleteId = customerGroup.id;
-        }
-    }
+        },
+    },
 });

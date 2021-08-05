@@ -43,5 +43,64 @@
         {% endblock %}
     </template>
     {% endblock %}
+
+    {% block sw_users_permissions_additional_permissions_app_privileges %}
+    <template v-for="privilege in appPermissions">
+        {% block sw_users_permissions_additional_permissions_app_privileges_headline %}
+        <h4
+            :key="`head-${privilege.key}`"
+            class="sw-users-permissions-additional-permissions-app"
+        >
+            {% block sw_users_permissions_additional_permissions_app_privileges_headline_content %}
+            <strong>
+                {{ $tc('sw-privileges.additional_permissions.app.label') }}
+            </strong>
+            {% endblock %}
+        </h4>
+        {% endblock %}
+
+        {% block sw_users_permissions_additional_permissions_app_privileges_switches %}
+        <div
+            :key="`body-${privilege.key}`"
+            class="sw-users-permissions-additional-permissions__switches"
+        >
+            {% block sw_users_permissions_additional_permissions_app_privileges_switches_content %}
+            <template v-for="(key, roleName) in privilege.roles">
+                {% block sw_users_permissions_additional_permissions_app_privileges_switches_content_switch %}
+                <sw-field
+                    v-if="roleName === 'all'"
+                    :key="roleName"
+                    type="switch"
+                    :disabled="disabled"
+                    class="sw_users_permissions_additional_permissions_app_all"
+                    :value="isPrivilegeSelected('app.' + roleName)"
+                    :label="$tc('sw-privileges.additional_permissions.app.all')"
+                    :bordered="true"
+                    @change="changeAllAppPermissionsForKey('app.' + roleName, $event)"
+                />
+
+                <sw-field
+                    v-else
+                    :key="roleName"
+                    v-tooltip="{
+                        message: $tc('sw-privileges.additional_permissions.app.disabledCheckboxMessage'),
+                        disabled: !isPrivilegeSelected('app.all') || disabled,
+                        showOnDisabledElements: false
+                    }"
+                    type="switch"
+                    :disabled="isPrivilegeSelected('app.all') || disabled"
+                    :class="'sw_users_permissions_additional_permissions_app_' + roleName"
+                    :value="isPrivilegeSelected('app.' + roleName)"
+                    :label="roleName"
+                    :bordered="true"
+                    @change="onSelectPrivilege('app.' + roleName, $event)"
+                />
+                {% endblock %}
+            </template>
+            {% endblock %}
+        </div>
+        {% endblock %}
+    </template>
+    {% endblock %}
 </sw-card>
 {% endblock %}

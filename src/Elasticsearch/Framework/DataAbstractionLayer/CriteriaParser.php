@@ -50,6 +50,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\XOrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 
 class CriteriaParser
@@ -79,15 +80,27 @@ class CriteriaParser
             $parts = $ordered;
         }
 
-        if ($field instanceof PriceField) {
-            $parts[] = 'c_' . $context->getCurrencyId();
-
-            if ($context->getTaxState() === CartPrice::TAX_STATE_GROSS) {
-                $parts[] = 'gross';
-            } else {
-                $parts[] = 'net';
-            }
+        if (!$field instanceof PriceField) {
+            return implode('.', $parts);
         }
+
+        if (\in_array(end($parts), ['net', 'gross'], true)) {
+            $taxState = end($parts);
+            array_pop($parts);
+        } elseif ($context->getTaxState() === CartPrice::TAX_STATE_GROSS) {
+            $taxState = 'gross';
+        } else {
+            $taxState = 'net';
+        }
+
+        $currencyId = $context->getCurrencyId();
+        if (Uuid::isValid((string) end($parts))) {
+            $currencyId = end($parts);
+            array_pop($parts);
+        }
+
+        $parts[] = 'c_' . $currencyId;
+        $parts[] = $taxState;
 
         return implode('.', $parts);
     }
@@ -278,6 +291,11 @@ class CriteriaParser
             $aggregation->getInterval(),
             'yyyy-MM-dd HH:mm:ss'
         );
+
+        if ($aggregation->getTimeZone()) {
+            $histogram->addParameter('time_zone', $aggregation->getTimeZone());
+        }
+
         $composite->addSource($histogram);
 
         if ($nested = $aggregation->getAggregation()) {

@@ -9,11 +9,11 @@ Component.register('sw-promotion-v2-list', {
 
     inject: [
         'repositoryFactory',
-        'acl'
+        'acl',
     ],
 
     mixins: [
-        'listing'
+        'listing',
     ],
 
     data() {
@@ -23,13 +23,13 @@ Component.register('sw-promotion-v2-list', {
             total: 0,
             showDeleteModal: false,
             sortBy: 'createdAt',
-            sortDirection: 'DESC'
+            sortDirection: 'DESC',
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle()
+            title: this.$createTitle(),
         };
     },
 
@@ -53,9 +53,9 @@ Component.register('sw-promotion-v2-list', {
                 message: this.$tc('sw-privileges.tooltip.warning'),
                 disabled: this.acl.can('promotion.creator'),
                 showOnDisabledElements: true,
-                position: 'bottom'
+                position: 'bottom',
             };
-        }
+        },
     },
 
     methods: {
@@ -82,30 +82,30 @@ Component.register('sw-promotion-v2-list', {
                 routerLink: 'sw.promotion.v2.detail',
                 inlineEdit: 'string',
                 allowResize: true,
-                primary: true
+                primary: true,
             }, {
                 property: 'active',
                 label: 'sw-promotion-v2.list.columnActive',
                 inlineEdit: 'boolean',
                 allowResize: true,
-                align: 'center'
+                align: 'center',
             }, {
                 property: 'validFrom',
                 label: 'sw-promotion-v2.list.columnValidFrom',
                 inlineEdit: 'date',
                 allowResize: true,
-                align: 'center'
+                align: 'center',
             }, {
                 property: 'validUntil',
                 label: 'sw-promotion-v2.list.columnValidUntil',
                 inlineEdit: 'date',
                 allowResize: true,
-                align: 'center'
+                align: 'center',
             }];
         },
 
         updateTotal({ total }) {
             this.total = total;
-        }
-    }
+        },
+    },
 });

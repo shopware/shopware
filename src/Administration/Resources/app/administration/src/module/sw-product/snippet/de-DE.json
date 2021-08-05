@@ -22,7 +22,6 @@
       "inheritanceModuleName": "Dieses Produkt",
       "backToParent": "zurück zur Variantenübersicht",
       "backToGeneralOverview": "Zurück zur allgemeinen Übersicht",
-      "copy": "Kopie",
       "cloneSuffix": "Varianten",
       "cloneNotice": "Die Produktvarianten werden dupliziert. Sollte dieser Prozess unterbrochen werden, kann es sein, dass nicht alle Varianten vollständig dupliziert werden. In diesem Fall kannst Du die Varianten im neuen Produkt erneut generieren.",
       "cloneTitle": "Varianten duplizieren",
@@ -299,7 +298,23 @@
       "linkPropertiesOfParent": "Zeige die Eigenschaften des Hauptprodukts",
       "inheritSwitchLabel": "Nutze die Eigenschaften des Hauptprodukts",
       "propertiesNotInherited": "Du kannst jetzt benutzerdefinierte Eigenschaften für diese Variante verwenden.",
-      "propertiesNotExisting": "Diesem Produkt sind noch keine Eigenschaften zugewiesen."
+      "propertiesNotExisting": "Diesem Produkt sind noch keine Eigenschaften zugewiesen.",
+      "cardTitle": "Eigenschaften",
+      "buttonAddProperty": "Eigenschaft konfigurieren",
+      "buttonAddProperties": "Eigenschaften konfigurieren",
+      "titleEmptyState": "Diesem Produkt sind noch keine Eigenschaften zugewiesen worden.",
+      "titleEmptyStateList": "Keine passenden Eigenschaften gefunden.",
+      "columnProperty": "Eigenschaft",
+      "columnValue": "Eigenschaftsausprägung",
+      "placeholderSearchAddedProperties": "Hinzugefügte Eigenschaften durchsuchen ...",
+      "placeholderSearchProperties": "Eigenschaften durchsuchen ...",
+      "addPropertiesModal": {
+        "title": "Eigenschaften hinzufügen",
+        "titleEmptyState": "Du musst zuerst Eigenschaften und deren Ausprägungen erstellen, um diese hier zuordnen zu können.",
+        "selectedProperties": "{count} Ausprägung gewählt | {count} Ausprägungen gewählt",
+        "titleEmptyPropertyValues": "Keine Eigenschaftsausprägungen verfügbar.",
+        "titleNoPropertySelected": "Keine Eigenschaft ausgewählt."
+      }
     },
     "variations": {
       "emptyStateDescription": "Dieses Produkt hat noch keine Varianten.",

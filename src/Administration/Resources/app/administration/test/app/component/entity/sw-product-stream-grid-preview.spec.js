@@ -2,19 +2,36 @@ import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/app/component/entity/sw-product-stream-grid-preview';
 import 'src/app/component/base/sw-empty-state';
 import 'src/app/component/data-grid/sw-data-grid';
+import 'src/app/component/form/sw-checkbox-field';
+import 'src/app/component/form/field-base/sw-base-field';
 
 describe('components/entity/sw-product-stream-grid-preview.spec', () => {
     let wrapper;
     const localVue = createLocalVue();
 
     const mockFilter = [{ type: 'equals', field: 'parentId', value: null }];
+    const mockProducts = [{
+        id: 1,
+        name: 'Product 1',
+        price: [{ currencyId: 'uuid1337', gross: 444 }],
+        manufacturer: { name: 'Test' }
+    }, {
+        id: 2,
+        name: 'Product 2',
+        price: [{ currencyId: 'uuid1337', gross: 25 }],
+        manufacturer: { name: 'Test' }
+    }, {
+        id: 3,
+        name: 'Product 3',
+        price: [{ currencyId: 'uuid1337', gross: 36 }],
+        manufacturer: { name: 'Test' }
+    }, {
+        id: 4,
+        name: 'Product 4',
+        price: [{ currencyId: 'uuid1337', gross: 1258 }],
+        manufacturer: { name: 'Test' }
+    }];
 
-    const mockProducts = [
-        { name: 'Product 1', price: [{ currencyId: 'uuid1337', gross: 444 }] },
-        { name: 'Product 2', price: [{ currencyId: 'uuid1337', gross: 25 }] },
-        { name: 'Product 3', price: [{ currencyId: 'uuid1337', gross: 36 }] },
-        { name: 'Product 4', price: [{ currencyId: 'uuid1337', gross: 1258 }] }
-    ];
     mockProducts.total = 4;
     mockProducts.criteria = {
         page: 1,
@@ -43,7 +60,11 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
                 'sw-pagination': true,
                 'sw-data-grid-column-boolean': true,
                 'router-link': true,
-                'sw-product-variant-info': true
+                'sw-product-variant-info': true,
+                'sw-checkbox-field': Shopware.Component.build('sw-checkbox-field'),
+                'sw-icon': true,
+                'sw-field-error': true,
+                'sw-base-field': Shopware.Component.build('sw-base-field')
             },
             mocks: {
                 $route: { meta: { $module: { icon: 'default' } } }
@@ -193,5 +214,30 @@ describe('components/entity/sw-product-stream-grid-preview.spec', () => {
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.criteria.term).toBe('Desired product');
+    });
+
+    it('should emit event when selection change with correct data', async () => {
+        await wrapper.setProps({
+            filters: mockFilter,
+            showSelection: true
+        });
+
+        await wrapper.vm.$nextTick();
+
+        wrapper.find('.sw-data-grid__row--0 .sw-field--checkbox input').trigger('click');
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.emitted()['selection-change'].length).toBeTruthy();
+        expect(wrapper.emitted()['selection-change'][0]).toEqual([
+            {
+                1: {
+                    id: 1,
+                    name: 'Product 1',
+                    price: [{ currencyId: 'uuid1337', gross: 444 }],
+                    manufacturer: { name: 'Test' }
+                }
+            }
+        ]);
     });
 });

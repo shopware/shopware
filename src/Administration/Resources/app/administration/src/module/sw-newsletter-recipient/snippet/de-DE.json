@@ -41,7 +41,7 @@
   "sw-privileges": {
     "permissions": {
       "newsletter_recipient": {
-        "label": "Newsletter Empfänger"
+        "label": "Newsletter-Empfänger"
       }
     },
     "additional_permissions": {

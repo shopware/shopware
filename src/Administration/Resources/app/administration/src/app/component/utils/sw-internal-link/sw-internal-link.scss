@@ -9,11 +9,12 @@
     color: $color-shopware-brand-500;
     font-size: $font-size-small;
 
-    &:hover {
+    &:hover,
+    &:focus {
         color: $color-shopware-brand-600;
     }
 
-    &.sw-internal-link--inline {
+    &--inline {
         display: inline;
     }
 }

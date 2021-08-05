@@ -112,8 +112,8 @@ class FileFetcher
      */
     private function getExtensionFromRequest(Request $request): string
     {
-        $extension = $request->query->get('extension');
-        if ($extension === null) {
+        $extension = (string) $request->query->get('extension');
+        if ($extension === '') {
             throw new MissingFileExtensionException();
         }
 
@@ -125,9 +125,9 @@ class FileFetcher
      */
     private function getUrlFromRequest(Request $request): string
     {
-        $url = $request->request->get('url');
+        $url = (string) $request->request->get('url');
 
-        if ($url === null) {
+        if ($url === '') {
             throw new UploadException('You must provide a valid url.');
         }
 

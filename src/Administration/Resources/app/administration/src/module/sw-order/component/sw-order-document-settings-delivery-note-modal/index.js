@@ -10,12 +10,12 @@ Component.extend('sw-order-document-settings-delivery-note-modal', 'sw-order-doc
             documentConfig: {
                 custom: {
                     deliveryDate: (new Date()).toISOString(),
-                    deliveryNoteDate: (new Date()).toISOString()
+                    deliveryNoteDate: (new Date()).toISOString(),
                 },
                 documentNumber: 0,
                 documentComment: '',
-                documentDate: ''
-            }
+                documentDate: '',
+            },
         };
     },
 
@@ -25,16 +25,18 @@ Component.extend('sw-order-document-settings-delivery-note-modal', 'sw-order-doc
 
     methods: {
         onCreateDocument(additionalAction = false) {
+            this.$emit('loading-document');
+
             if (this.documentNumberPreview === this.documentConfig.documentNumber) {
                 this.numberRangeService.reserve(
                     `document_${this.currentDocumentType.technicalName}`,
                     this.order.salesChannelId,
-                    false
+                    false,
                 ).then((response) => {
                     this.documentConfig.custom.deliveryNoteNumber = response.number;
                     if (response.number !== this.documentConfig.documentNumber) {
                         this.createNotificationInfo({
-                            message: this.$tc('sw-order.documentCard.info.DOCUMENT__NUMBER_WAS_CHANGED')
+                            message: this.$tc('sw-order.documentCard.info.DOCUMENT__NUMBER_WAS_CHANGED'),
                         });
                     }
                     this.documentConfig.documentNumber = response.number;
@@ -47,8 +49,9 @@ Component.extend('sw-order-document-settings-delivery-note-modal', 'sw-order-doc
         },
 
         onPreview() {
+            this.$emit('loading-preview');
             this.documentConfig.custom.deliveryNoteNumber = this.documentConfig.documentNumber;
             this.$super('onPreview');
-        }
-    }
+        },
+    },
 });

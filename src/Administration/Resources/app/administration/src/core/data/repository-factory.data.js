@@ -32,7 +32,7 @@ export default class RepositoryFactory {
             this.changesetGenerator,
             this.entityFactory,
             this.errorResolver,
-            options
+            options,
         );
     }
 }

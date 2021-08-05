@@ -23,7 +23,7 @@ class AclApiService {
         return {
             Accept: 'application/json',
             Authorization: `Bearer ${this.loginService.getToken()}`,
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
         };
     }
 }

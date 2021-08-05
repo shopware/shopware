@@ -14,7 +14,7 @@
             {% block sw_sales_channel_detail_products_card_section_secondary %}
             <sw-card-section secondary>
                 <sw-container
-                    columns="1fr 100px"
+                    columns="1fr auto"
                     gap="0 15px"
                 >
                     {% block sw_sales_channel_detail_products_card_section_secondary_input %}
@@ -38,7 +38,7 @@
                         :disabled="!acl.can('sales_channel.editor')"
                         @click="openAddProductsModal"
                     >
-                        {{ $tc('sw-sales-channel.detail.products.buttonAddProducts') }}
+                        {{ $tc('sw-sales-channel.detail.products.buttonAddProducts', 0) }}
                     </sw-button>
                     {% endblock %}
                 </sw-container>
@@ -59,11 +59,11 @@
                     :data-source="products"
                     :columns="productColumns"
                     :plain-appearance="true"
-                    :skeleton-item-amount="skeletonItemAmount"
+                    :skeleton-item-amount="limit"
                     :is-loading="isLoading"
                     :allow-inline-edit="false"
-                    :allow-view="acl.can('sales_channel.editor')"
-                    :allow-edit="acl.can('sales_channel.editor')"
+                    :allow-view="acl.can('sales_channel.viewer')"
+                    :allow-edit="acl.can('product.editor')"
                     :allow-delete="acl.can('sales_channel.deleter')"
                 >
                     <template #column-active="{ item }">
@@ -79,38 +79,33 @@
                     <template #pagination>
                         {% block sw_sales_channel_detail_products_listing_pagination %}
                         <sw-pagination
-                            :page="page"
-                            :limit="limit"
-                            :total="total"
-                            :total-visible="7"
-                            :steps="[10]"
+                            v-bind="{ page, limit, total }"
+                            :total-visible="5"
+                            :auto-hide="false"
                             @page-change="onChangePage"
                         />
                         {% endblock %}
                     </template>
 
-                    <template #delete-modal-delete-item="{ item }">
-                        {% block sw_sales_channel_detail_products_listing_delete_modal_delete_item %}
-                        <sw-button
-                            variant="danger"
-                            size="small"
+                    <template #delete-action="{ item }">
+                        {% block sw_sales_channel_detail_products_listing_delete_action %}
+                        <sw-context-menu-item
+                            variant="warning"
                             @click="onDeleteProduct(item)"
                         >
-                            {{ $tc('global.default.delete') }}
-                        </sw-button>
+                            {{ $tc('global.default.remove') }}
+                        </sw-context-menu-item>
                         {% endblock %}
                     </template>
 
-                    <template #bulk-modal-delete-items>
-                        {% block sw_sales_channel_detail_products_listing_bulk_modal_delete_items %}
-                        <sw-button
-                            variant="danger"
-                            size="small"
-                            :is-loading="isBulkLoading"
+                    <template #bulk>
+                        {% block sw_sales_channel_detail_products_listing_bulk %}
+                        <a
+                            class="link link-warning"
                             @click="onDeleteProducts"
                         >
-                            {{ $tc('global.default.delete') }}
-                        </sw-button>
+                            {{ $tc('global.default.remove') }}
+                        </a>
                         {% endblock %}
                     </template>
                 </sw-entity-listing>
@@ -160,7 +155,7 @@
                 :disabled="!acl.can('sales_channel.editor')"
                 @click="openAddProductsModal"
             >
-                {{ $tc('sw-sales-channel.detail.products.buttonAddProducts') }}
+                {{ $tc('sw-sales-channel.detail.products.buttonAddProducts', 0) }}
             </sw-button>
             {% endblock %}
         </template>
@@ -171,6 +166,7 @@
     <sw-sales-channel-products-assignment-modal
         v-if="showProductsModal"
         :sales-channel="salesChannel"
+        :is-assign-product-loading="isAssignProductLoading"
         @modal-close="showProductsModal = false"
         @products-add="onAddProducts"
     />

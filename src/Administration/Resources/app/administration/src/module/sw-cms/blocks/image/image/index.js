@@ -12,22 +12,22 @@ Shopware.Service('cmsService').registerCmsBlock({
         marginTop: '20px',
         marginLeft: '20px',
         marginRight: '20px',
-        sizingMode: 'boxed'
+        sizingMode: 'boxed',
     },
     slots: {
         image: {
             type: 'image',
             default: {
                 config: {
-                    displayMode: { source: 'static', value: 'standard' }
+                    displayMode: { source: 'static', value: 'standard' },
                 },
                 data: {
                     media: {
-                        url: '/administration/static/img/cms/preview_mountain_large.jpg'
-                    }
-                }
-            }
-        }
+                        url: '/administration/static/img/cms/preview_mountain_large.jpg',
+                    },
+                },
+            },
+        },
 
-    }
+    },
 });

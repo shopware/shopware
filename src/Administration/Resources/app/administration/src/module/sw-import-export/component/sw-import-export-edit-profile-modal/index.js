@@ -11,7 +11,11 @@ const { Mixin } = Shopware;
 Shopware.Component.register('sw-import-export-edit-profile-modal', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: [
+        'repositoryFactory',
+        'feature',
+        'importExportProfileMapping',
+    ],
 
     mixins: [Mixin.getByName('notification')],
 
@@ -21,8 +25,8 @@ Shopware.Component.register('sw-import-export-edit-profile-modal', {
             required: false,
             default() {
                 return {};
-            }
-        }
+            },
+        },
     },
 
     data() {
@@ -30,54 +34,77 @@ Shopware.Component.register('sw-import-export-edit-profile-modal', {
             supportedEntities: [
                 {
                     value: 'product',
-                    label: this.$tc('sw-import-export.profile.productLabel')
+                    label: this.$tc('sw-import-export.profile.productLabel'),
                 },
                 {
                     value: 'customer',
-                    label: this.$tc('sw-import-export.profile.customerLabel')
+                    label: this.$tc('sw-import-export.profile.customerLabel'),
                 },
                 {
                     value: 'category',
-                    label: this.$tc('sw-import-export.profile.categoriesLabel')
+                    label: this.$tc('sw-import-export.profile.categoriesLabel'),
                 },
                 {
                     value: 'media',
-                    label: this.$tc('sw-import-export.profile.mediaLabel')
+                    label: this.$tc('sw-import-export.profile.mediaLabel'),
                 },
                 {
                     value: 'newsletter_recipient',
-                    label: this.$tc('sw-import-export.profile.newsletterRecipientLabel')
+                    label: this.$tc('sw-import-export.profile.newsletterRecipientLabel'),
                 },
                 {
                     value: 'property_group_option',
-                    label: this.$tc('sw-import-export.profile.propertyLabel')
+                    label: this.$tc('sw-import-export.profile.propertyLabel'),
                 },
                 {
                     value: 'product_configurator_setting',
-                    label: this.$tc('sw-import-export.profile.configuratorSettingLabel')
-                }
+                    label: this.$tc('sw-import-export.profile.configuratorSettingLabel'),
+                },
+                {
+                    value: 'product_cross_selling',
+                    label: this.$tc('sw-import-export.profile.productCrossSellingLabel'),
+                },
+                {
+                    value: 'promotion_individual_code',
+                    label: this.$tc('sw-import-export.profile.promotionIndividualCodesLabel'),
+                },
             ],
             supportedDelimiter: [
                 {
                     value: '^',
-                    label: this.$tc('sw-import-export.profile.caretsLabel')
+                    label: this.$tc('sw-import-export.profile.caretsLabel'),
                 },
                 {
                     value: ',',
-                    label: this.$tc('sw-import-export.profile.commasLabel')
+                    label: this.$tc('sw-import-export.profile.commasLabel'),
                 },
                 {
                     value: ';',
-                    label: this.$tc('sw-import-export.profile.semicolonLabel')
-                }
+                    label: this.$tc('sw-import-export.profile.semicolonLabel'),
+                },
             ],
             supportedEnclosures: [
                 {
                     value: '"',
-                    label: this.$tc('sw-import-export.profile.doubleQuoteLabel')
-                }
+                    label: this.$tc('sw-import-export.profile.doubleQuoteLabel'),
+                },
             ],
-            missingRequiredFields: []
+            supportedProfileTypes: [
+                {
+                    value: 'import-export',
+                    label: this.$tc('sw-import-export.profile.types.importExportLabel'),
+                },
+                {
+                    value: 'import',
+                    label: this.$tc('sw-import-export.profile.types.importLabel'),
+                },
+                {
+                    value: 'export',
+                    label: this.$tc('sw-import-export.profile.types.exportLabel'),
+                },
+            ],
+            missingRequiredFields: [],
+            systemRequiredFields: {},
         };
     },
 
@@ -87,7 +114,8 @@ Shopware.Component.register('sw-import-export-edit-profile-modal', {
                 'name',
                 'sourceEntity',
                 'delimiter',
-                'enclosure'
+                'enclosure',
+                'type',
             ]),
 
         isNew() {
@@ -125,7 +153,17 @@ Shopware.Component.register('sw-import-export-edit-profile-modal', {
 
         profileRepository() {
             return this.repositoryFactory.create('import_export_profile');
-        }
+        },
+    },
+
+    watch: {
+        'profile.sourceEntity': {
+            handler(value) {
+                if (value) {
+                    this.loadSystemRequiredFieldsForEntity(value);
+                }
+            },
+        },
     },
 
     methods: {
@@ -151,18 +189,21 @@ Shopware.Component.register('sw-import-export-edit-profile-modal', {
                 return null;
             }).catch(() => {
                 this.createNotificationError({
-                    message: this.$tc('sw-import-export.profile.messageSearchParentProfileError')
+                    message: this.$tc('sw-import-export.profile.messageSearchParentProfileError'),
                 });
             });
         },
 
         checkValidation(parentProfile) {
+            // Skip validation for only export profiles
+            if (this.feature.isActive('FEATURE_NEXT_8097') && this.profile.type === 'export') {
+                return;
+            }
             const parentMapping = parentProfile ? parentProfile.mapping : [];
-
-            const validationErrors = Shopware.Service('importExportProfileMapping').validate(
+            const validationErrors = this.importExportProfileMapping.validate(
                 this.profile.sourceEntity,
                 this.profile.mapping,
-                parentMapping
+                parentMapping,
             );
 
             if (validationErrors.missingRequiredFields.length > 0) {
@@ -172,6 +213,22 @@ Shopware.Component.register('sw-import-export-edit-profile-modal', {
 
         resetViolations() {
             this.missingRequiredFields = [];
-        }
-    }
+        },
+
+        loadSystemRequiredFieldsForEntity(entityName) {
+            this.systemRequiredFields = this.importExportProfileMapping.getSystemRequiredFields(entityName);
+        },
+
+        onCreateEntitiesChanged(newValue) {
+            if (newValue === false) {
+                this.profile.config.updateEntities = true;
+            }
+        },
+
+        onUpdateEntitiesChanged(newValue) {
+            if (newValue === false) {
+                this.profile.config.createEntities = true;
+            }
+        },
+    },
 });

@@ -16,7 +16,7 @@ class CheckoutStoreService extends ApiService {
         const route = `_proxy-order/${salesChannelId}`;
         const headers = {
             ...this.getBasicHeaders(additionalHeaders),
-            'sw-context-token': contextToken
+            'sw-context-token': contextToken,
         };
         return this.httpClient
             .post(route, {}, { additionalParams, headers });

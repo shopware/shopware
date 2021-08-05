@@ -40,7 +40,6 @@ export default class ChangesetGenerator {
      * @private
      * @param {Entity} entity
      * @param deletionQueue
-     * @param updateQueue
      * @returns {null}
      */
     recursion(entity, deletionQueue) {
@@ -102,7 +101,7 @@ export default class ChangesetGenerator {
                     break;
                 }
                 case 'many_to_many': {
-                    const associationChanges = this.handleManyToMany(draftValue, originValue, deletionQueue);
+                    const associationChanges = this.handleManyToMany(draftValue, originValue, deletionQueue, field, entity);
                     if (associationChanges.length > 0) {
                         changes[fieldName] = associationChanges;
                     }
@@ -129,7 +128,7 @@ export default class ChangesetGenerator {
         });
 
         if (Object.keys(changes).length > 0) {
-            return changes;
+            return { ...this.getPrimaryKeyData(entity), ...changes };
         }
 
         return null;
@@ -139,22 +138,34 @@ export default class ChangesetGenerator {
      * @private
      * @param {EntityCollection} draft
      * @param {EntityCollection} origin
+     * @param {Object} field
+     * @param {Entity} entity
      * @param deletionQueue
      * @returns {Array}
      */
-    handleManyToMany(draft, origin, deletionQueue) {
+    handleManyToMany(draft, origin, deletionQueue, field, entity) {
         const changes = [];
         const originIds = origin.getIds();
 
-        draft.forEach((entity) => {
-            if (!originIds.includes(entity.id)) {
-                changes.push({ id: entity.id });
+        draft.forEach((nested) => {
+            if (!originIds.includes(nested.id)) {
+                changes.push({ id: nested.id });
             }
         });
 
         originIds.forEach((id) => {
             if (!draft.has(id)) {
-                deletionQueue.push({ route: draft.source, key: id });
+                const primary = {
+                    [field.local]: entity.id,
+                    [field.reference]: id,
+                };
+
+                deletionQueue.push({
+                    route: draft.source,
+                    key: id,
+                    entity: field.mapping,
+                    primary: primary,
+                });
             }
         });
 
@@ -202,10 +213,16 @@ export default class ChangesetGenerator {
         if (field.flags?.cascade_delete) {
             originIds.forEach((id) => {
                 if (!draft.has(id)) {
+                    const primary = {
+                        [field.primary]: id,
+                    };
+
                     // still existing?
                     deletionQueue.push({
                         route: draft.source,
-                        key: id
+                        key: id,
+                        entity: field.entity,
+                        primary,
                     });
                 }
             });

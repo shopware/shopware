@@ -19,14 +19,6 @@
 
     {# @deprecated tag:v6.5.0 - `cartItemClasses` & `isChild` will be removed with no replacement #}
     {% set cartItemClasses = '' %}
-    {% if not feature('FEATURE_NEXT_12635') %}
-        {% if isNested %}
-            {% set cartItemClasses = cartItemClasses ~ ' is-nested' %}
-        {% endif %}
-        {% if isChild %}
-            {% set cartItemClasses = cartItemClasses ~ ' is-child' %}
-        {% endif %}
-    {% endif %}
 
     {% block page_checkout_item_container %}
         <div class="cart-item cart-item-{{ lineItem.type }}{% if isDiscount %} is-discount{% endif %}{{ cartItemClasses }}">
@@ -261,7 +253,7 @@
                     <div class="col-12 col-sm-4 col-md-2 cart-item-unit-price">
 
                         {% block page_checkout_item_unit_price_wrapper %}
-                            {% if not isDiscount and ((not isNested) or feature('FEATURE_NEXT_12635')) %}
+                            {% if not isDiscount %}
                                 {% block page_checkout_item_unit_price_label %}
                                     <div class="cart-item-unit-price-label">
                                         {{ "checkout.cartHeaderUnitPrice"|trans|sw_sanitize }}
@@ -330,31 +322,20 @@
                     </div>
                 {% endblock %}
 
-                {% if feature('FEATURE_NEXT_12635') %}
-                    {% block page_checkout_item_children_template %}
-                        {% if isNested %}
+                {% block page_checkout_item_children_template %}
+                    {% if isNested %}
+                        {# @deprecated tag:v6.5.0 - block will be moved to `@Storefront/storefront/page/checkout/checkout-item-children.html.twig` #}
+                        {% block page_checkout_item_children %}
                             {% sw_include childrenTemplate %}
-                        {% endif %}
-                    {% endblock %}
-                {% endif %}
+                        {% endblock %}
+                    {% endif %}
+                {% endblock %}
 
             </div>
         </div>
     {% endblock %}
 
-    {# @deprecated tag:v6.5.0 - will be removed, look into `@Storefront/storefront/page/checkout/checkout-item-children.html.twig` instead #}
-    {% if not feature('FEATURE_NEXT_12635') %}
-        {# @deprecated tag:v6.5.0 - block will be moved to `@Storefront/storefront/page/checkout/checkout-item-children.html.twig` #}
-        {% block page_checkout_item_children %}
-            {% for lineItem in lineItem.children %}
-                {# @deprecated tag:v6.5.0 - block will be removed #}
-                {% block page_checkout_item_child %}
-                    {% sw_include childTemplate with {
-                        'isChild': true
-                    } %}
-                {% endblock %}
-            {% endfor %}
-        {% endblock %}
-    {% endif %}
+    {# @deprecated tag:v6.5.0 - block will be removed #}
+    {% block page_checkout_item_child %}{% endblock %}
 {% endblock %}
 

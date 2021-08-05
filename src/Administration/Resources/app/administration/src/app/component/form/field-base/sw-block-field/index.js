@@ -15,13 +15,13 @@ Component.register('sw-block-field', {
             validValues: ['small', 'medium', 'default'],
             validator(val) {
                 return ['small', 'medium', 'default'].includes(val);
-            }
-        }
+            },
+        },
     },
 
     data() {
         return {
-            hasFocus: false
+            hasFocus: false,
         };
     },
 
@@ -33,11 +33,11 @@ Component.register('sw-block-field', {
         swBlockFieldClasses() {
             return [
                 {
-                    'has--focus': this.hasFocus
+                    'has--focus': this.hasFocus,
                 },
-                this.swBlockSize
+                this.swBlockSize,
             ];
-        }
+        },
     },
 
     methods: {
@@ -47,6 +47,6 @@ Component.register('sw-block-field', {
 
         removeFocusClass() {
             this.hasFocus = false;
-        }
-    }
+        },
+    },
 });

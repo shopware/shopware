@@ -1,9 +1,12 @@
 <?php declare(strict_types=1);
 
+namespace Shopware\Core;
+
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Dotenv\Dotenv;
 
 function getProjectDir(): string
@@ -21,23 +24,21 @@ function getProjectDir(): string
 
     $dir = $rootDir = __DIR__;
     while (!file_exists($dir . '/vendor')) {
-        if ($dir === dirname($dir)) {
+        if ($dir === \dirname($dir)) {
             return $rootDir;
         }
-        $dir = dirname($dir);
+        $dir = \dirname($dir);
     }
 
     return $dir;
 }
 
-define('TEST_PROJECT_DIR', getProjectDir());
+\define('TEST_PROJECT_DIR', getProjectDir());
 
 $loader = require TEST_PROJECT_DIR . '/vendor/autoload.php';
 
-KernelLifecycleManager::prepare($loader);
-
 if (!class_exists(Dotenv::class)) {
-    throw new RuntimeException('APP_ENV environment variable is not defined. You need to define environment variables for configuration or add "symfony/dotenv" as a Composer dependency to load variables from a .env file.');
+    throw new \RuntimeException('APP_ENV environment variable is not defined. You need to define environment variables for configuration or add "symfony/dotenv" as a Composer dependency to load variables from a .env file.');
 }
 
 $envFilePath = TEST_PROJECT_DIR . '/.env';
@@ -64,6 +65,7 @@ $testDb = sprintf(
 $_ENV['DATABASE_URL'] = $testDb;
 $_SERVER['DATABASE_URL'] = $testDb;
 
+KernelLifecycleManager::prepare($loader);
 KernelLifecycleManager::bootKernel();
 $kernel = KernelLifecycleManager::getKernel();
 
@@ -79,7 +81,7 @@ if (!$exists || ($_SERVER['FORCE_INSTALL'] ?? false)) {
     $application = new Application($kernel);
     $installCommand = $application->find('system:install');
 
-    $output = new Symfony\Component\Console\Output\ConsoleOutput();
+    $output = new ConsoleOutput();
 
     $returnCode = $installCommand->run(
         new ArrayInput(

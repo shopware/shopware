@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @group slow
+ * @group store-api
  */
 class ProductSuggestRouteTest extends TestCase
 {

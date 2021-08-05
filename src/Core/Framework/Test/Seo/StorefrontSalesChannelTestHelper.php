@@ -78,6 +78,7 @@ trait StorefrontSalesChannelTestHelper
         $shippingMethod = $this->getValidShippingMethodId();
         $country = $this->getValidCountryId(null);
 
+        $languages[] = ['id' => Defaults::LANGUAGE_SYSTEM];
         foreach ($languageIds as $langId) {
             $languages[] = ['id' => $langId];
             $domains[] = [
@@ -113,7 +114,7 @@ trait StorefrontSalesChannelTestHelper
         /** @var SalesChannelEntity $salesChannel */
         $salesChannel = $repo->search(new Criteria([$id]), Context::createDefaultContext())->first();
 
-        return $this->createSalesChannelContext($salesChannel);
+        return $this->createNewContext($salesChannel);
     }
 
     public function updateSalesChannelNavigationEntryPoint(string $id, string $categoryId): void
@@ -165,7 +166,7 @@ trait StorefrontSalesChannelTestHelper
         return $customerRepository->search(new Criteria([$customerId]), Context::createDefaultContext())->first();
     }
 
-    private function createSalesChannelContext(SalesChannelEntity $salesChannel): SalesChannelContext
+    private function createNewContext(SalesChannelEntity $salesChannel): SalesChannelContext
     {
         $factory = $this->getContainer()->get(SalesChannelContextFactory::class);
 

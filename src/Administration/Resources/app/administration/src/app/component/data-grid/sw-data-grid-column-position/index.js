@@ -23,33 +23,33 @@ Component.register('sw-data-grid-column-position', {
     template,
 
     mixins: [
-        Mixin.getByName('position')
+        Mixin.getByName('position'),
     ],
 
     props: {
         value: {
             type: Array,
-            required: true
+            required: true,
         },
         item: {
             type: Object,
-            required: true
+            required: true,
         },
         field: {
             type: String,
             required: false,
-            default: 'position'
+            default: 'position',
         },
         showValue: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     computed: {
@@ -59,7 +59,7 @@ Component.register('sw-data-grid-column-position', {
 
         itemMax() {
             return this.value.every((entity) => this.item[this.field] >= entity[this.field]);
-        }
+        },
     },
 
     methods: {
@@ -73,6 +73,6 @@ Component.register('sw-data-grid-column-position', {
             this.raisePositionValue(this.value, this.item);
             this.$emit('raise-position-value', this.value);
             this.$emit('position-changed', this.value);
-        }
-    }
+        },
+    },
 });

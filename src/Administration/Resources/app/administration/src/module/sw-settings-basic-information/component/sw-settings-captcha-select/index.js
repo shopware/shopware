@@ -8,20 +8,20 @@ Component.register('sw-settings-captcha-select', {
     inject: ['feature', 'captchaService'],
 
     mixins: [
-        Mixin.getByName('sw-inline-snippet')
+        Mixin.getByName('sw-inline-snippet'),
     ],
 
     props: {
         value: {
             type: Array,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
         return {
-            availableCaptchas: []
+            availableCaptchas: [],
         };
     },
 
@@ -33,7 +33,7 @@ Component.register('sw-settings-captcha-select', {
         attributes() {
             return {
                 ...this.$attrs,
-                ...this.translations
+                ...this.translations,
             };
         },
 
@@ -50,8 +50,8 @@ Component.register('sw-settings-captcha-select', {
                 if (val !== this.value) {
                     this.$emit('input', val);
                 }
-            }
-        }
+            },
+        },
     },
 
     mounted() {
@@ -70,7 +70,7 @@ Component.register('sw-settings-captcha-select', {
         renderCaptchaOption(technicalName) {
             return {
                 label: this.$tc(`sw-settings-basic-information.captcha.label.${technicalName}`),
-                value: technicalName
+                value: technicalName,
             };
         },
 
@@ -79,8 +79,8 @@ Component.register('sw-settings-captcha-select', {
                 .filter(name => !!this.$attrs[name])
                 .reduce((translations, name) => ({
                     [name]: this.getInlineSnippet(this.$attrs[name]),
-                    ...translations
+                    ...translations,
                 }), {});
-        }
-    }
+        },
+    },
 });

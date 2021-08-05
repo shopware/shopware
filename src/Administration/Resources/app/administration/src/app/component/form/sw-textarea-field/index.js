@@ -16,31 +16,31 @@ Component.register('sw-textarea-field', {
 
     mixins: [
         Mixin.getByName('sw-form-field'),
-        Mixin.getByName('remove-api-error')
+        Mixin.getByName('remove-api-error'),
     ],
 
     props: {
         value: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         placeholder: {
             type: String,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
         return {
-            currentValue: this.value || ''
+            currentValue: this.value || '',
         };
     },
 
     watch: {
-        value() { this.currentValue = this.value; }
+        value() { this.currentValue = this.value; },
     },
 
     methods: {
@@ -50,6 +50,6 @@ Component.register('sw-textarea-field', {
 
         onChange(event) {
             this.$emit('change', event.target.value);
-        }
-    }
+        },
+    },
 });

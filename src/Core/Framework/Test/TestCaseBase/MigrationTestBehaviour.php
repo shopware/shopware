@@ -30,7 +30,7 @@ trait MigrationTestBehaviour
 
     private function getSql(): string
     {
-        return <<<SQL
+        return <<<'SQL'
 SELECT * FROM `migration` WHERE `class` = :class AND `update_destructive` IS NOT NULL
 SQL;
     }

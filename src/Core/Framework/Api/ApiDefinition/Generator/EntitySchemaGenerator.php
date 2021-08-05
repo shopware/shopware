@@ -57,7 +57,7 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
         return $format === self::FORMAT;
     }
 
-    public function generate(array $definitions, string $api): array
+    public function generate(array $definitions, string $api, string $apiType = 'jsonapi'): array
     {
         return $this->getSchema($definitions);
     }
@@ -146,6 +146,11 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
                 $localField = $definition->getFields()->getByStorageName($field->getLocalField());
                 $referenceField = $reference->getFields()->getByStorageName($field->getReferenceField());
 
+                $primary = $reference->getPrimaryKeys()->first();
+                if (!$primary) {
+                    throw new \RuntimeException(sprintf('No primary key defined for %s', $reference->getEntityName()));
+                }
+
                 return [
                     'type' => 'association',
                     'relation' => 'one_to_many',
@@ -153,6 +158,7 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
                     'flags' => $flags,
                     'localField' => $localField ? $localField->getPropertyName() : null,
                     'referenceField' => $referenceField ? $referenceField->getPropertyName() : null,
+                    'primary' => $primary->getPropertyName(),
                 ];
 
             case $field instanceof ParentAssociationField:
@@ -179,9 +185,26 @@ class EntitySchemaGenerator implements ApiDefinitionGeneratorInterface
                 $localField = $definition->getFields()->getByStorageName($field->getLocalField());
                 $referenceField = $reference->getFields()->getByStorageName($field->getReferenceField());
 
+                $mappingReference = $field->getMappingDefinition()->getFields()->getByStorageName(
+                    $field->getMappingReferenceColumn()
+                );
+                $mappingLocal = $field->getMappingDefinition()->getFields()->getByStorageName(
+                    $field->getMappingLocalColumn()
+                );
+
+                if (!$mappingReference) {
+                    throw new \RuntimeException(sprintf('Can not find mapping entity field for storage field %s', $field->getMappingReferenceColumn()));
+                }
+                if (!$mappingLocal) {
+                    throw new \RuntimeException(sprintf('Can not find mapping entity field for storage field %s', $field->getMappingLocalColumn()));
+                }
+
                 return [
                     'type' => 'association',
                     'relation' => 'many_to_many',
+                    'local' => $mappingLocal->getPropertyName(),
+                    'reference' => $mappingReference->getPropertyName(),
+                    'mapping' => $field->getMappingDefinition()->getEntityName(),
                     'entity' => $field->getToManyReferenceDefinition()->getEntityName(),
                     'flags' => $flags,
                     'localField' => $localField ? $localField->getPropertyName() : null,

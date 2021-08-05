@@ -43,18 +43,18 @@ Module.register('sw-category', {
             path: 'index',
             meta: {
                 parentPath: 'sw.category.index',
-                privilege: 'category.viewer'
-            }
+                privilege: 'category.viewer',
+            },
         },
 
         detail: {
             component: 'sw-category-detail',
             path: 'index/:id',
             meta: {
-                privilege: 'category.viewer'
+                privilege: 'category.viewer',
             },
             redirect: {
-                name: 'sw.category.detail.base'
+                name: 'sw.category.detail.base',
             },
 
             children: {
@@ -63,52 +63,52 @@ Module.register('sw-category', {
                     path: 'base',
                     meta: {
                         parentPath: 'sw.category.index',
-                        privilege: 'category.viewer'
-                    }
+                        privilege: 'category.viewer',
+                    },
                 },
                 cms: {
                     component: 'sw-category-detail-cms',
                     path: 'cms',
                     meta: {
                         parentPath: 'sw.category.index',
-                        privilege: 'category.viewer' // change in NEXT-8921 to CMS rights
-                    }
+                        privilege: 'category.viewer', // change in NEXT-8921 to CMS rights
+                    },
                 },
                 products: {
                     component: 'sw-category-detail-products',
                     path: 'products',
                     meta: {
                         parentPath: 'sw.category.index',
-                        privilege: 'category.viewer'
-                    }
+                        privilege: 'category.viewer',
+                    },
                 },
                 seo: {
                     component: 'sw-category-detail-seo',
                     path: 'seo',
                     meta: {
                         parentPath: 'sw.category.index',
-                        privilege: 'category.viewer'
-                    }
-                }
+                        privilege: 'category.viewer',
+                    },
+                },
             },
 
             props: {
                 default(route) {
                     return {
-                        categoryId: route.params.id
+                        categoryId: route.params.id,
                     };
-                }
-            }
+                },
+            },
         },
 
         landingPageDetail: {
             component: 'sw-category-detail',
             path: 'landingPage/:id',
             meta: {
-                privilege: 'category.viewer'
+                privilege: 'category.viewer',
             },
             redirect: {
-                name: 'sw.category.landingPageDetail.base'
+                name: 'sw.category.landingPageDetail.base',
             },
 
             children: {
@@ -117,27 +117,27 @@ Module.register('sw-category', {
                     path: 'base',
                     meta: {
                         parentPath: 'sw.category.index',
-                        privilege: 'category.viewer'
-                    }
+                        privilege: 'category.viewer',
+                    },
                 },
                 cms: {
                     component: 'sw-landing-page-detail-cms',
                     path: 'cms',
                     meta: {
                         parentPath: 'sw.category.index',
-                        privilege: 'category.viewer' // change in NEXT-8921 to CMS rights
-                    }
-                }
+                        privilege: 'category.viewer', // change in NEXT-8921 to CMS rights
+                    },
+                },
             },
 
             props: {
                 default(route) {
                     return {
-                        landingPageId: route.params.id
+                        landingPageId: route.params.id,
                     };
-                }
-            }
-        }
+                },
+            },
+        },
     },
 
     navigation: [{
@@ -146,6 +146,6 @@ Module.register('sw-category', {
         label: 'sw-category.general.mainMenuItemIndex',
         parent: 'sw-catalogue',
         privilege: 'category.viewer',
-        position: 20
-    }]
+        position: 20,
+    }],
 });

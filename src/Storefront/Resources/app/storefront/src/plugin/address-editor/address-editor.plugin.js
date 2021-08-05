@@ -19,7 +19,7 @@ export default class AddressEditorPlugin extends Plugin {
         changeBilling: false,
         editorModalClass: 'address-editor-modal',
         closeEditorClass: 'js-close-address-editor',
-        csrfToken: ''
+        csrfToken: '',
     };
 
     init() {
@@ -74,8 +74,8 @@ export default class AddressEditorPlugin extends Plugin {
             id: this.options.addressId,
             changeableAddresses: {
                 changeShipping: this.options.changeShipping,
-                changeBilling: this.options.changeBilling
-            }
+                changeBilling: this.options.changeBilling,
+            },
         };
 
         if (window.csrf.enabled && window.csrf.mode === 'twig') {

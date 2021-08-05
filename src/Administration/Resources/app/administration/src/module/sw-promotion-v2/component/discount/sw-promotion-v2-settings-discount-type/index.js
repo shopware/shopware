@@ -9,13 +9,13 @@ Component.register('sw-promotion-v2-settings-discount-type', {
 
     inject: [
         'acl',
-        'repositoryFactory'
+        'repositoryFactory',
     ],
 
     props: {
         discount: {
             type: Object,
-            required: true
+            required: true,
         },
 
         discountScope: {
@@ -23,7 +23,7 @@ Component.register('sw-promotion-v2-settings-discount-type', {
             required: true,
             validator(value) {
                 return ['basic', 'buy-x-get-y', 'shipping-discount'].includes(value);
-            }
+            },
         },
 
         preselectedDiscountType: {
@@ -34,7 +34,7 @@ Component.register('sw-promotion-v2-settings-discount-type', {
             },
             default() {
                 return 'fixed';
-            }
+            },
         },
 
         preselectedApplyDiscountTo: {
@@ -45,8 +45,8 @@ Component.register('sw-promotion-v2-settings-discount-type', {
             },
             default() {
                 return 'ALL';
-            }
-        }
+            },
+        },
     },
 
     data() {
@@ -54,7 +54,7 @@ Component.register('sw-promotion-v2-settings-discount-type', {
             displayAdvancedPricesModal: false,
             currencies: [],
             defaultCurrency: null,
-            currencySymbol: null
+            currencySymbol: null,
         };
     },
 
@@ -66,7 +66,7 @@ Component.register('sw-promotion-v2-settings-discount-type', {
         labelValue() {
             return this.$tc(
                 'sw-promotion-v2.detail.discounts.settings.discountType.labelValue',
-                !this.isPercentageType
+                !this.isPercentageType,
             );
         },
 
@@ -77,11 +77,11 @@ Component.register('sw-promotion-v2-settings-discount-type', {
         currencyPriceColumns() {
             return [{
                 property: 'currency.translated.name',
-                label: this.$tc('sw-promotion-v2.detail.discounts.pricesModal.labelCurrency')
+                label: this.$tc('sw-promotion-v2.detail.discounts.pricesModal.labelCurrency'),
             }, {
                 property: 'price',
                 dataIndex: 'price',
-                label: this.$tc('sw-promotion-v2.detail.discounts.pricesModal.labelPrice')
+                label: this.$tc('sw-promotion-v2.detail.discounts.pricesModal.labelPrice'),
             }];
         },
 
@@ -100,7 +100,7 @@ Component.register('sw-promotion-v2-settings-discount-type', {
 
         showMaxValueAdvancedPrices() {
             return this.discount.type === 'percentage' && this.discount.maxValue !== null;
-        }
+        },
     },
 
     watch: {
@@ -122,7 +122,7 @@ Component.register('sw-promotion-v2-settings-discount-type', {
             } else if (value === 'percentage') {
                 this.discount.value = Math.min(this.discount.value, 100);
             }
-        }
+        },
     },
 
     created() {
@@ -144,23 +144,23 @@ Component.register('sw-promotion-v2-settings-discount-type', {
 
             let config = {
                 type: this.discount.type || this.preselectedDiscountType,
-                applierKey: this.discount.applierKey || this.preselectedApplyDiscountTo
+                applierKey: this.discount.applierKey || this.preselectedApplyDiscountTo,
             };
 
             if (this.discountScope === 'basic') {
                 config = {
                     ...config,
-                    scope: 'cart'
+                    scope: 'cart',
                 };
             } else if (this.discountScope === 'buy-x-get-y') {
                 config = {
                     ...config,
-                    scope: 'set'
+                    scope: 'set',
                 };
             } else if (this.discountScope === 'shipping-discount') {
                 config = {
                     ...config,
-                    scope: 'delivery'
+                    scope: 'delivery',
                 };
             }
 
@@ -171,16 +171,16 @@ Component.register('sw-promotion-v2-settings-discount-type', {
             const prefix = 'sw-promotion-v2.detail.discounts.settings.discountType.discountTypeSelection';
             return [{
                 value: 'percentage',
-                display: this.$tc(`${prefix}.displayPercentage`)
+                display: this.$tc(`${prefix}.displayPercentage`),
             }, {
                 value: (this.discount.scope === 'delivery' ? 'absolute' : 'fixed'),
-                display: this.$tc(`${prefix}.displayFixedDiscount`)
+                display: this.$tc(`${prefix}.displayFixedDiscount`),
             }, {
                 value: 'fixed_unit',
-                display: this.$tc(`${prefix}.displayFixedPrice`)
+                display: this.$tc(`${prefix}.displayFixedPrice`),
             }, {
                 value: 'free',
-                display: this.$tc(`${prefix}.displayFree`)
+                display: this.$tc(`${prefix}.displayFree`),
             }];
         },
 
@@ -189,10 +189,10 @@ Component.register('sw-promotion-v2-settings-discount-type', {
 
             return [{
                 value: 'ALL',
-                display: this.$tc(`${prefix}.displayTotalPrice`)
+                display: this.$tc(`${prefix}.displayTotalPrice`),
             }, {
                 value: 'SELECT',
-                display: this.$tc(`${prefix}.displayProductPrice`)
+                display: this.$tc(`${prefix}.displayProductPrice`),
             }];
         },
 
@@ -237,7 +237,7 @@ Component.register('sw-promotion-v2-settings-discount-type', {
                 discountId: this.discount.id,
                 price: setPrice,
                 currencyId: currency.id,
-                currency: currency
+                currency: currency,
             });
 
             this.discount.promotionDiscountPrices.add(newAdvancedCurrencyPrices);
@@ -278,6 +278,6 @@ Component.register('sw-promotion-v2-settings-discount-type', {
             });
 
             this.displayAdvancedPricesModal = false;
-        }
-    }
+        },
+    },
 });

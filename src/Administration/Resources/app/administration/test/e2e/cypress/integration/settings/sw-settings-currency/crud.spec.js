@@ -55,18 +55,17 @@ describe('Currency: Test crud operations', () => {
         });
     });
 
-    // TODO: Test skipped because of flaky behaviour, fix and unskip with NEXT-15487
-    it.skip('@settings: update and read currency', () => {
+    it('@settings: update and read currency', () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: `${Cypress.env('apiPath')}/currency/*`,
-            method: 'patch'
-        }).as('saveData');
+            url: `${Cypress.env('apiPath')}/search/currency`,
+            method: 'post'
+        }).as('loadData');
 
-        cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
+        cy.get(`${page.elements.dataGridRow}--0`).should('be.visible');
         cy.clickContextMenuItem(
             '.sw-currency-list__edit-action',
             page.elements.contextMenuButton,
@@ -78,8 +77,8 @@ describe('Currency: Test crud operations', () => {
         cy.get(page.elements.currencySaveAction).click();
 
         // Verify creation
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
+        cy.wait('@loadData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
         });
 
         cy.get(page.elements.smartBarBack).click();
@@ -89,8 +88,7 @@ describe('Currency: Test crud operations', () => {
             .contains('Kreuzer');
     });
 
-    // TODO: Test skipped because of flaky behaviour, fix and unskip with NEXT-15487
-    it.skip('@settings: delete currency', () => {
+    it('@settings: delete currency', () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
@@ -103,6 +101,7 @@ describe('Currency: Test crud operations', () => {
         // filter currency via search bar
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('ZZ Yen');
         cy.get(`${page.elements.dataGridRow}--0`).should('be.visible');
+        cy.get(`${page.elements.dataGridRow}--1`).should('not.exist');
 
         // Delete currency
         cy.clickContextMenuItem(
@@ -121,6 +120,7 @@ describe('Currency: Test crud operations', () => {
         });
 
         cy.get(page.elements.modal).should('not.exist');
+        cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.get(`${page.elements.dataGridRow}--0 ${page.elements.currencyColumnName}`).should('not.exist');
     });
 });

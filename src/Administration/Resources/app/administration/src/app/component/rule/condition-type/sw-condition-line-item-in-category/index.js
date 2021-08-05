@@ -12,7 +12,8 @@ Component.extend('sw-condition-line-item-in-category', 'sw-condition-base', {
 
     data() {
         return {
-            categories: null
+            categories: null,
+            inputKey: 'categoryIds',
         };
     },
 
@@ -22,7 +23,9 @@ Component.extend('sw-condition-line-item-in-category', 'sw-condition-base', {
         },
 
         operators() {
-            return this.conditionDataProviderService.getOperatorSet('multiStore');
+            return this.conditionDataProviderService.addEmptyOperatorToOperatorSet(
+                this.conditionDataProviderService.getOperatorSet('multiStore'),
+            );
         },
 
         categoryIds: {
@@ -33,14 +36,14 @@ Component.extend('sw-condition-line-item-in-category', 'sw-condition-base', {
             set(categoryIds) {
                 this.ensureValueExist();
                 this.condition.value = { ...this.condition.value, categoryIds };
-            }
+            },
         },
 
         ...mapPropertyErrors('condition', ['value.operator', 'value.categoryIds']),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueCategoryIdsError;
-        }
+        },
     },
 
     created() {
@@ -52,7 +55,7 @@ Component.extend('sw-condition-line-item-in-category', 'sw-condition-base', {
             this.categories = new EntityCollection(
                 this.categoryRepository.route,
                 this.categoryRepository.entityName,
-                Context.api
+                Context.api,
             );
 
             if (this.categoryIds.length <= 0) {
@@ -70,6 +73,6 @@ Component.extend('sw-condition-line-item-in-category', 'sw-condition-base', {
         setCategoryIds(categories) {
             this.categoryIds = categories.getIds();
             this.categories = categories;
-        }
-    }
+        },
+    },
 });

@@ -38,11 +38,11 @@ export default class IndividualCodeGenerator extends EventEmitter {
      */
     async generateCodes(pattern, desiredCount) {
         const result = {
-            count: 0
+            count: 0,
         };
 
         this.emit('generate-begin', {
-            maxCount: desiredCount
+            maxCount: desiredCount,
         });
 
         // remove all existing codes
@@ -77,8 +77,8 @@ export default class IndividualCodeGenerator extends EventEmitter {
         return this.httpClient.delete(
             `/_action/promotion/${this.promotionId}/codes/individual`,
             {
-                headers: this.syncService.getBasicHeaders()
-            }
+                headers: this.syncService.getBasicHeaders(),
+            },
         ).then((response) => {
             return response.data;
         });
@@ -94,8 +94,8 @@ export default class IndividualCodeGenerator extends EventEmitter {
         return this.httpClient.get(
             `/_action/promotion/${this.promotionId}/codes/individual`,
             {
-                headers: this.syncService.getBasicHeaders()
-            }
+                headers: this.syncService.getBasicHeaders(),
+            },
         ).then((response) => {
             return response.data;
         });
@@ -248,7 +248,7 @@ export default class IndividualCodeGenerator extends EventEmitter {
             actions.push({
                 action: 'upsert',
                 entity: 'promotion_individual_code',
-                payload: [item]
+                payload: [item],
             });
         });
 
@@ -302,7 +302,7 @@ export function createCodes(pattern, count, existingCodes, promotionId) {
         if (!existingCodes.includes(randomCode) && !plainNewCodesList.includes(randomCode)) {
             const codeObject = {
                 promotionId,
-                code: randomCode
+                code: randomCode,
             };
 
             allNewCodes.push(codeObject);

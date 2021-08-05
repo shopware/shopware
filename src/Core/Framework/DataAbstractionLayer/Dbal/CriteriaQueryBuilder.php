@@ -102,6 +102,10 @@ class CriteriaQueryBuilder
 
         $this->addQueries($definition, $criteria, $query, $context);
 
+        if ($criteria->getLimit() === 1) {
+            $query->removeState(EntityDefinitionQueryHelper::HAS_TO_MANY_JOIN);
+        }
+
         $this->addSortings($definition, $criteria, $criteria->getSorting(), $query, $context);
 
         return $query;

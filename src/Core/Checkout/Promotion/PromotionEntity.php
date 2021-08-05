@@ -4,7 +4,6 @@ namespace Shopware\Core\Checkout\Promotion;
 
 use Shopware\Core\Checkout\Cart\Rule\LineItemGroupRule;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
-use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Rule\CustomerNumberRule;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeCollection;
@@ -79,6 +78,8 @@ class PromotionEntity extends Entity
      * @var bool
      */
     protected $customerRestriction = false;
+
+    protected bool $preventCombination = false;
 
     /**
      * @var bool
@@ -376,6 +377,16 @@ class PromotionEntity extends Entity
         $this->customerRestriction = $customerRestriction;
     }
 
+    public function isPreventCombination(): bool
+    {
+        return $this->preventCombination;
+    }
+
+    public function setPreventCombination(bool $preventCombination): void
+    {
+        $this->preventCombination = $preventCombination;
+    }
+
     /**
      * Gets a list of "order" related rules that need to
      * be valid for this promotion.
@@ -516,7 +527,6 @@ class PromotionEntity extends Entity
             if ($this->getPersonaCustomers() !== null) {
                 $personaCustomerOR = new OrRule();
 
-                /* @var CustomerEntity $ruleEntity */
                 foreach ($this->getPersonaCustomers()->getElements() as $customer) {
                     // build our new rule for this
                     // customer and his/her customer number

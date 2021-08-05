@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Page\Product;
 
 use Shopware\Core\Content\Cms\CmsPageEntity;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\CrossSelling\CrossSellingElementCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
@@ -21,6 +22,8 @@ class ProductPage extends Page
      * @var CmsPageEntity
      */
     protected $cmsPage;
+
+    protected ?string $navigationId;
 
     /**
      * @var PropertyGroupCollection
@@ -62,6 +65,16 @@ class ProductPage extends Page
         $this->cmsPage = $cmsPage;
     }
 
+    public function getNavigationId(): ?string
+    {
+        return $this->navigationId;
+    }
+
+    public function setNavigationId(?string $navigationId): void
+    {
+        $this->navigationId = $navigationId;
+    }
+
     public function getConfiguratorSettings(): PropertyGroupCollection
     {
         return $this->configuratorSettings;
@@ -100,5 +113,10 @@ class ProductPage extends Page
     public function setCrossSellings(CrossSellingElementCollection $crossSellings): void
     {
         $this->crossSellings = $crossSellings;
+    }
+
+    public function getEntityName(): string
+    {
+        return ProductDefinition::ENTITY_NAME;
     }
 }

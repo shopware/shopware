@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Framework\Captcha;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -21,13 +20,13 @@ class CaptchaRouteListener implements EventSubscriberInterface
      */
     private iterable $captchas;
 
-    private ?ErrorController $errorController;
+    private ErrorController $errorController;
 
     private SystemConfigService $systemConfigService;
 
     public function __construct(
         iterable $captchas,
-        ?ErrorController $errorController = null,
+        ErrorController $errorController,
         SystemConfigService $systemConfigService
     ) {
         $this->captchas = $captchas;
@@ -60,47 +59,34 @@ class CaptchaRouteListener implements EventSubscriberInterface
             return;
         }
 
-        $activeCaptchas = [];
+        /** @var SalesChannelContext|null $context */
+        $context = $event->getRequest()->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
 
-        if (Feature::isActive('FEATURE_NEXT_12455')) {
-            /** @var SalesChannelContext|null $context */
-            $context = $event->getRequest()->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
+        $salesChannelId = $context ? $context->getSalesChannelId() : null;
 
-            $salesChannelId = $context ? $context->getSalesChannelId() : null;
-
-            $activeCaptchas = (array) ($this->systemConfigService->get('core.basicInformation.activeCaptchasV2', $salesChannelId) ?? []);
-        }
+        $activeCaptchas = (array) ($this->systemConfigService->get('core.basicInformation.activeCaptchasV2', $salesChannelId) ?? []);
 
         foreach ($this->captchas as $captcha) {
-            $captchaConfig = [];
-            if (Feature::isActive('FEATURE_NEXT_12455')) {
-                $captchaConfig = $activeCaptchas[$captcha->getName()] ?? [];
-            }
-
+            $captchaConfig = $activeCaptchas[$captcha->getName()] ?? [];
+            $request = $event->getRequest();
             if (
-                $captcha->supports($event->getRequest(), $captchaConfig) && !$captcha->isValid($event->getRequest(), $captchaConfig)
+                $captcha->supports($request, $captchaConfig) && !$captcha->isValid($request, $captchaConfig)
             ) {
-                if (!Feature::isActive('FEATURE_NEXT_12455')) {
-                    throw new CaptchaInvalidException($captcha);
-                }
-
                 if ($captcha->shouldBreak()) {
                     throw new CaptchaInvalidException($captcha);
                 }
 
                 $violations = $captcha->getViolations();
 
-                /** @var ErrorController $errorController */
-                $errorController = $this->errorController;
-
-                $request = $event->getRequest();
                 $event->setController(function () use (
-                    $errorController,
                     $violations,
                     $request
                 ) {
-                    return $errorController->onCaptchaFailure($violations, $request);
+                    return $this->errorController->onCaptchaFailure($violations, $request);
                 });
+
+                // Return on first invalid captcha
+                return;
             }
         }
     }

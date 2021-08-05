@@ -29,7 +29,7 @@ class OrderApiService extends ApiService {
             .post(
                 route,
                 { quantity: quantity },
-                { additionalParams, headers }
+                { additionalParams, headers },
             );
     }
 
@@ -49,10 +49,10 @@ class OrderApiService extends ApiService {
                         type: item.type,
                         identifier: utils.createId(),
                         description: item.description,
-                        priceDefinition: dummyPrice }
+                        priceDefinition: dummyPrice },
                 ), {
                     additionalParams,
-                    headers
+                    headers,
                 });
     }
 
@@ -69,10 +69,10 @@ class OrderApiService extends ApiService {
                         type: item.type,
                         identifier: utils.createId(),
                         description: item.description,
-                        priceDefinition: dummyPrice }
+                        priceDefinition: dummyPrice },
                 ), {
                     additionalParams,
-                    headers
+                    headers,
                 });
     }
 
@@ -84,7 +84,7 @@ class OrderApiService extends ApiService {
         return this.httpClient
             .post(route, {}, {
                 params,
-                headers
+                headers,
             });
     }
 }

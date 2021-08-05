@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 describe('Delivery times: Visual testing', () => {
     beforeEach(() => {
@@ -29,10 +29,10 @@ describe('Delivery times: Visual testing', () => {
             expect(xhr).to.have.property('status', 200);
         });
         cy.get('.sw-data-grid-skeleton').should('not.exist');
-        cy.sortListingViaColumn('Name', '1-2 weeks', '.sw-data-grid__row--0')
-        cy.takeSnapshot('[Language] Listing', '.sw-settings-delivery-time-list-grid');
+        cy.sortAndCheckListingAscViaColumn('Name', '1-2 weeks');
+        cy.takeSnapshot('[Delivery times] Listing', '.sw-settings-delivery-time-list-grid');
         cy.contains('.sw-data-grid__cell--name a', '1-3 days').click();
         cy.get('.sw-loader').should('not.exist');
-        cy.takeSnapshot('[Language] Details', '.sw-settings-delivery-time-detail');
+        cy.takeSnapshot('[Delivery times] Details', '.sw-settings-delivery-time-detail');
     });
 });

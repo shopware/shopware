@@ -43,9 +43,9 @@ class SystemConfigController extends AbstractController
      */
     public function checkConfiguration(Request $request, Context $context): JsonResponse
     {
-        $domain = $request->query->get('domain');
+        $domain = (string) $request->query->get('domain');
 
-        if (!$domain) {
+        if ($domain === '') {
             return new JsonResponse(false);
         }
 
@@ -60,9 +60,9 @@ class SystemConfigController extends AbstractController
      */
     public function getConfiguration(Request $request, Context $context): JsonResponse
     {
-        $domain = $request->query->get('domain');
+        $domain = (string) $request->query->get('domain');
 
-        if (!$domain) {
+        if ($domain === '') {
             throw new MissingRequestParameterException('domain');
         }
 
@@ -76,11 +76,14 @@ class SystemConfigController extends AbstractController
      */
     public function getConfigurationValues(Request $request): JsonResponse
     {
-        $domain = $request->query->get('domain');
-        $salesChannelId = $request->query->get('salesChannelId');
-
-        if (!$domain) {
+        $domain = (string) $request->query->get('domain');
+        if ($domain === '') {
             throw new MissingRequestParameterException('domain');
+        }
+
+        $salesChannelId = $request->query->get('salesChannelId');
+        if (!\is_string($salesChannelId)) {
+            $salesChannelId = null;
         }
 
         $values = $this->systemConfig->getDomain($domain, $salesChannelId);
@@ -101,6 +104,10 @@ class SystemConfigController extends AbstractController
     public function saveConfiguration(Request $request): JsonResponse
     {
         $salesChannelId = $request->query->get('salesChannelId');
+        if (!\is_string($salesChannelId)) {
+            $salesChannelId = null;
+        }
+
         $kvs = $request->request->all();
         $this->saveKeyValues($salesChannelId, $kvs);
 
@@ -114,6 +121,10 @@ class SystemConfigController extends AbstractController
      */
     public function batchSaveConfiguration(Request $request): JsonResponse
     {
+        /**
+         * @var string $salesChannelId
+         * @var array  $kvs
+         */
         foreach ($request->request->all() as $salesChannelId => $kvs) {
             if ($salesChannelId === 'null') {
                 $salesChannelId = null;

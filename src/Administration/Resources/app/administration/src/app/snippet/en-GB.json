@@ -15,8 +15,10 @@
       "apply": "Apply",
       "cancel": "Cancel",
       "delete": "Delete",
+      "remove": "Remove",
       "edit": "Edit",
       "duplicate": "Duplicate",
+      "copy": "Copy",
       "error": "Error",
       "warning": "Warning",
       "save": "Save",
@@ -29,12 +31,10 @@
       "ascending": "Ascending",
       "descending": "Descending",
       "xTimesIn": "{n} times in",
+      "open": "Open",
       "close": "Close",
       "from": "From",
-      "to": "To",
-      "bulkEdit": "Bulk edit",
-      "startBulkEdit": "Start bulk edit",
-      "bulkEditModalTitle": "Bulk edit - {count} item selected | Bulk edit - {count} items selected"
+      "to": "To"
     },
     "notification": {
       "notificationSaveErrorMessage": "An error occurred while saving the entity \"{entityName}\".",
@@ -182,6 +182,10 @@
     },
     "sw-text-editor": {
       "labelTextLength": "{count} character | {count} characters"
+    },
+    "sw-code-editor": {
+      "sanitizeInfo": "Potentially harmful code will be sanitised and removed from the editor automatically.",
+      "sanitizedHint": "Some of your inputs have been sanitised. Please double check your content."
     },
     "sw-tag-field": {
       "title": "Tags",
@@ -490,9 +494,6 @@
     "sw-entity-many-to-many-select": {
       "messageNoResults": "No results found for \"{term}\"."
     },
-    "sw-label": {
-      "buttonDismiss": "Dismiss"
-    },
     "sw-search-bar": {
       "messageNoResults": "No results found for \"{term}\".",
       "messageNoTypeResults": "No type found.",
@@ -509,7 +510,8 @@
       "typeLabelCms": "CMS"
     },
     "sw-search-more-results": {
-      "labelShowResultsInModule": "Show results in module({count})"
+      "labelShowResultsInModule": "Show results in module({count})",
+      "labelShowResultsInModuleV2": "Show all {count} matching results in {entityName}..."
     },
     "sw-tagged-field": {
       "text-default-placeholder": "Press the enter key to add values."
@@ -525,7 +527,8 @@
         "isOneOf": "Is one of",
         "isNoneOf": "Is none of",
         "gross": "Gross",
-        "net": "Net"
+        "net": "Net",
+        "empty": "Is empty"
       },
       "placeholderErrorMessage": "Placeholder cannot be saved.",
       "dataErrorMessage": "Required fields not filled.",
@@ -554,8 +557,8 @@
         "shippingZipCodeRule": "Shipping postal code",
         "customerLoggedInRule": "Customer logged in",
         "cartAmountRule": "Cart amount",
-        "goodsCountRule": "Goods count",
-        "goodsPriceRule": "Goods price",
+        "goodsCountRule": "Distinct products in cart",
+        "goodsPriceRule": "Total product price in cart",
         "lineItemOfTypeRule": {
           "label": "Line item of type",
           "product": "Product",
@@ -611,6 +614,8 @@
         "lineItemListPriceRule": "Line item list price",
         "paymentMethodRule": "Payment method",
         "shippingMethodRule": "Shipping method",
+        "lineItemGoodsTotalRule": "Total number of products in cart",
+        "orderTotalAmountRule": "Total value of completed orders",
         "lineItemCustomField": {
           "field": {
             "fieldSetSelect": {
@@ -721,6 +726,7 @@
       "checkout_customer_logout": "Customer logs off",
       "checkout_customer_register": "Customer account registered",
       "checkout_order_placed": "Order placed",
+      "checkout_order_payment_method_changed": "Order payment method changed",
       "contact_form_send": "Contact form sent",
       "customer_group_registration_accepted": "Customer group registration request accepted",
       "customer_group_registration_declined": "Customer group registration request declined",
@@ -781,6 +787,11 @@
       "Standard rate": "Standard rate",
       "Reduced rate": "Reduced rate",
       "Reduced rate 2": "Super-reduced rate"
+    },
+    "sw-bulk-edit-modal": {
+      "bulkEdit": "Bulk edit",
+      "startBulkEdit": "Start bulk edit",
+      "bulkEditModalTitle": "Bulk edit - {count} item selected | Bulk edit - {count} items selected"
     }
   },
   "sw-text-editor-toolbar": {
@@ -1053,7 +1064,11 @@
   "sw-app": {
     "component": {
       "sw-app-actions": {
-        "messageErrorFetchButtons": "An error occurred while fetching your app actions."
+        "messageErrorFetchButtons": "An error occurred while fetching your app actions.",
+        "closeWindow": "Close window",
+        "iframeModalConfirmMessage": "Are you sure you want to close \"{title}\"?",
+        "iframeModalConfirmMessageDescription": "Please make sure that all processes are completed.",
+        "dontAskMeAgain": "Don't ask me again"
       },
       "sw-app-app-url-changed-modal": {
         "move-shop-permanently": {

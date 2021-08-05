@@ -33,7 +33,7 @@ function createWrapper(privileges = []) {
             },
             orderService: {},
             stateMachineService: {
-                getState: () => ''
+                getState: () => { return { data: { transactions: [] } }; }
             },
             orderStateMachineService: {},
             repositoryFactory: {
@@ -51,10 +51,6 @@ function createWrapper(privileges = []) {
 
 describe('src/module/sw-order/component/sw-order-state-history-card', () => {
     let wrapper;
-
-    beforeAll(() => {
-        console.warn = () => {};
-    });
 
     beforeEach(() => {
         wrapper = createWrapper();
@@ -98,9 +94,6 @@ describe('src/module/sw-order/component/sw-order-state-history-card', () => {
         wrapper.setData({ showModal: true });
 
         await wrapper.vm.$nextTick();
-
-        console.log(wrapper.vm.showModal);
-        console.log(wrapper.html());
 
         // Document selection should be visible
         expect(wrapper.find('sw-order-state-change-modal-attach-documents-stub').exists()).toBeTruthy();

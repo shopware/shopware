@@ -14,12 +14,11 @@ const INPUT_TYPE_URL_UPLOAD = 'url-upload';
  * @example-type code-only
  * @component-example
  * <sw-media-upload-v2
- *     uploadTag="my-upload-tag"
+ *     upload-tag="my-upload-tag"
  *     variant="regular"
- *     :allowMultiSelect="false"
- *     :autoUpload="true"
- *     label="My image-upload">
- * </sw-media-upload-v2>
+ *     :allow-multi-select="false"
+ *     label="My image-upload"
+ * ></sw-media-upload-v2>
  */
 Component.register('sw-media-upload-v2', {
     template,
@@ -27,14 +26,14 @@ Component.register('sw-media-upload-v2', {
     inject: ['repositoryFactory', 'mediaService', 'configService'],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     props: {
         source: {
             type: [Object, String],
             required: false,
-            default: null
+            default: null,
         },
 
         variant: {
@@ -44,25 +43,25 @@ Component.register('sw-media-upload-v2', {
             validator(value) {
                 return ['compact', 'regular'].includes(value);
             },
-            default: 'regular'
+            default: 'regular',
         },
 
         uploadTag: {
             type: String,
-            required: true
+            required: true,
         },
 
         allowMultiSelect: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
 
         // eslint-disable-next-line vue/require-default-prop
         label: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         defaultFolder: {
@@ -71,38 +70,38 @@ Component.register('sw-media-upload-v2', {
             validator(value) {
                 return value.length > 0;
             },
-            default: null
+            default: null,
         },
 
         targetFolderId: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         helpText: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         sourceContext: {
             type: Object,
             required: false,
-            default: null
+            default: null,
         },
 
         fileAccept: {
             type: String,
             required: false,
-            default: 'image/*'
+            default: 'image/*',
         },
 
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
@@ -112,7 +111,7 @@ Component.register('sw-media-upload-v2', {
             preview: null,
             isDragActive: false,
             defaultFolderId: null,
-            isUploadUrlFeatureEnabled: false
+            isUploadUrlFeatureEnabled: false,
         };
     },
 
@@ -139,14 +138,14 @@ Component.register('sw-media-upload-v2', {
 
         previewClass() {
             return {
-                'has--preview': this.showPreview
+                'has--preview': this.showPreview,
             };
         },
 
         isDragActiveClass() {
             return {
                 'is--active': this.isDragActive,
-                'is--multi': this.variant === 'regular' && !!this.multiSelect
+                'is--multi': this.variant === 'regular' && !!this.multiSelect,
             };
         },
 
@@ -164,13 +163,13 @@ Component.register('sw-media-upload-v2', {
 
         uploadUrlFeatureEnabled() {
             return this.isUploadUrlFeatureEnabled;
-        }
+        },
     },
 
     watch: {
         async defaultFolder() {
             this.defaultFolderId = await this.getDefaultFolderId();
-        }
+        },
     },
 
     created() {
@@ -378,6 +377,6 @@ Component.register('sw-media-upload-v2', {
             if (action === 'media-upload-fail') {
                 this.onRemoveMediaItem();
             }
-        }
-    }
+        },
+    },
 });

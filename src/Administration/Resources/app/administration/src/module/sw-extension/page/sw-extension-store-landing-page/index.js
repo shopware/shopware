@@ -13,14 +13,14 @@ Shopware.Component.register('sw-extension-store-landing-page', {
         return {
             isLoading: false,
             activationStatus: null,
-            error: null
+            error: null,
         };
     },
 
     computed: {
         extensionName() {
             return 'SwagExtensionStore';
-        }
+        },
     },
 
     methods: {
@@ -49,6 +49,6 @@ Shopware.Component.register('sw-extension-store-landing-page', {
                 .finally(() => {
                     this.isLoading = false;
                 });
-        }
-    }
+        },
+    },
 });

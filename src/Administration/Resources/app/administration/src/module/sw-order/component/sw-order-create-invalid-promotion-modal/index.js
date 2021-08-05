@@ -9,7 +9,7 @@ Component.register('sw-order-create-invalid-promotion-modal', {
     computed: {
         invalidPromotionCodes() {
             return State.getters['swOrder/invalidPromotionCodes'];
-        }
+        },
     },
 
     methods: {
@@ -19,6 +19,6 @@ Component.register('sw-order-create-invalid-promotion-modal', {
 
         onConfirm() {
             this.$emit('confirm');
-        }
-    }
+        },
+    },
 });

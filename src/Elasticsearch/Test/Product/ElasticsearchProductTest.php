@@ -13,7 +13,6 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\DateHistogramAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
@@ -101,6 +100,8 @@ class ElasticsearchProductTest extends TestCase
     private string $navigationId;
 
     private string $currencyId = '0fa91ce3e96a4bc2be4bd9ce752c3425';
+
+    private string $anotherCurrencyId = '2c962ddb7b3346f29c748a9d3b884302';
 
     private ElasticsearchProductDefinition $definition;
 
@@ -190,21 +191,35 @@ class ElasticsearchProductTest extends TestCase
 
             $this->ids->getContext()->addState(Context::STATE_ELASTICSEARCH_AWARE);
             $this->ids->set('currency', $this->currencyId);
-            $currency = [
-                'id' => $this->currencyId,
-                'name' => 'test',
-                'factor' => 1,
-                'symbol' => 'A',
-                'decimalPrecision' => 2,
-                'shortName' => 'A',
-                'isoCode' => 'A',
-                'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.05, true)), true),
-                'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.05, true)), true),
+            $this->ids->set('anotherCurrency', $this->anotherCurrencyId);
+            $currencies = [
+                [
+                    'id' => $this->currencyId,
+                    'name' => 'test',
+                    'factor' => 1,
+                    'symbol' => 'A',
+                    'decimalPrecision' => 2,
+                    'shortName' => 'A',
+                    'isoCode' => 'A',
+                    'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.05, true)), true),
+                    'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.05, true)), true),
+                ],
+                [
+                    'id' => $this->anotherCurrencyId,
+                    'name' => 'test',
+                    'factor' => 0.001,
+                    'symbol' => 'B',
+                    'decimalPrecision' => 2,
+                    'shortName' => 'B',
+                    'isoCode' => 'B',
+                    'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.05, true)), true),
+                    'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.05, true)), true),
+                ],
             ];
 
             $this->getContainer()
                 ->get('currency.repository')
-                ->upsert([$currency], Context::createDefaultContext());
+                ->upsert($currencies, Context::createDefaultContext());
 
             $this->createData();
 
@@ -334,8 +349,8 @@ class ElasticsearchProductTest extends TestCase
             $criteria->addFilter(new RangeFilter('product.stock', [RangeFilter::GTE => 10]));
 
             $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
-            static::assertCount(5, $products->getIds());
-            static::assertSame(5, $products->getTotal());
+            static::assertCount(6, $products->getIds());
+            static::assertSame(6, $products->getTotal());
         } catch (\Exception $e) {
             static::tearDown();
 
@@ -386,8 +401,8 @@ class ElasticsearchProductTest extends TestCase
 
             $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
 
-            static::assertCount(5, $products->getIds());
-            static::assertSame(5, $products->getTotal());
+            static::assertCount(6, $products->getIds());
+            static::assertSame(6, $products->getTotal());
             static::assertContains($data->get('product-2'), $products->getIds());
             static::assertContains($data->get('product-3'), $products->getIds());
             static::assertContains($data->get('product-4'), $products->getIds());
@@ -545,7 +560,7 @@ class ElasticsearchProductTest extends TestCase
 
             $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
 
-            static::assertCount(4, $products->getIds());
+            static::assertCount(5, $products->getIds());
             static::assertContains($data->get('product-1'), $products->getIds());
             static::assertContains($data->get('product-2'), $products->getIds());
             static::assertContains($data->get('product-3'), $products->getIds());
@@ -575,7 +590,7 @@ class ElasticsearchProductTest extends TestCase
 
             $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
 
-            static::assertCount(5, $products->getIds());
+            static::assertCount(6, $products->getIds());
             static::assertContains($data->get('product-1'), $products->getIds());
             static::assertContains($data->get('product-2'), $products->getIds());
             static::assertContains($data->get('product-3'), $products->getIds());
@@ -614,7 +629,7 @@ class ElasticsearchProductTest extends TestCase
             $result = $aggregations->get('avg-price');
             static::assertInstanceOf(AvgResult::class, $result);
 
-            static::assertEquals(175, $result->getAvg());
+            static::assertEquals(192.85714285714, $result->getAvg());
         } catch (\Exception $e) {
             static::tearDown();
 
@@ -788,7 +803,7 @@ class ElasticsearchProductTest extends TestCase
             $result = $aggregations->get('sum-price');
             static::assertInstanceOf(SumResult::class, $result);
 
-            static::assertEquals(1050, $result->getSum());
+            static::assertEquals(1350, $result->getSum());
         } catch (\Exception $e) {
             static::tearDown();
 
@@ -1130,8 +1145,8 @@ class ElasticsearchProductTest extends TestCase
 
             static::assertEquals(50, $result->getMin());
             static::assertEquals(300, $result->getMax());
-            static::assertEquals(175, $result->getAvg());
-            static::assertEquals(1050, $result->getSum());
+            static::assertEquals(192.85714285714, $result->getAvg());
+            static::assertEquals(1350, $result->getSum());
         } catch (\Exception $e) {
             static::tearDown();
 
@@ -1387,7 +1402,8 @@ class ElasticsearchProductTest extends TestCase
                     $case->getInterval(),
                     null,
                     null,
-                    $case->getFormat()
+                    $case->getFormat(),
+                    $case->getTimeZone()
                 )
             );
 
@@ -1423,6 +1439,7 @@ class ElasticsearchProductTest extends TestCase
                     '2019-06-15 13:00:00' => 1,
                     '2020-09-30 15:00:00' => 1,
                     '2021-12-10 11:59:00' => 2,
+                    '2024-12-11 23:59:00' => 1,
                 ]),
             ],
             [
@@ -1431,6 +1448,7 @@ class ElasticsearchProductTest extends TestCase
                     '2019-06-15 13:00:00' => 1,
                     '2020-09-30 15:00:00' => 1,
                     '2021-12-10 11:00:00' => 2,
+                    '2024-12-11 23:00:00' => 1,
                 ]),
             ],
             [
@@ -1439,6 +1457,7 @@ class ElasticsearchProductTest extends TestCase
                     '2019-06-15 00:00:00' => 1,
                     '2020-09-30 00:00:00' => 1,
                     '2021-12-10 00:00:00' => 2,
+                    '2024-12-11 00:00:00' => 1,
                 ]),
             ],
             [
@@ -1447,6 +1466,7 @@ class ElasticsearchProductTest extends TestCase
                     '2019 24' => 1,
                     '2020 40' => 1,
                     '2021 49' => 2,
+                    '2024 50' => 1,
                 ]),
             ],
             [
@@ -1455,6 +1475,7 @@ class ElasticsearchProductTest extends TestCase
                     '2019-06-01 00:00:00' => 1,
                     '2020-09-01 00:00:00' => 1,
                     '2021-12-01 00:00:00' => 2,
+                    '2024-12-01 00:00:00' => 1,
                 ]),
             ],
             [
@@ -1463,6 +1484,7 @@ class ElasticsearchProductTest extends TestCase
                     '2019 2' => 1,
                     '2020 3' => 1,
                     '2021 4' => 2,
+                    '2024 4' => 1,
                 ]),
             ],
             [
@@ -1470,6 +1492,7 @@ class ElasticsearchProductTest extends TestCase
                     '2019-01-01 00:00:00' => 3,
                     '2020-01-01 00:00:00' => 1,
                     '2021-01-01 00:00:00' => 2,
+                    '2024-01-01 00:00:00' => 1,
                 ]),
             ],
             [
@@ -1478,6 +1501,7 @@ class ElasticsearchProductTest extends TestCase
                     '2019 June' => 1,
                     '2020 September' => 1,
                     '2021 December' => 2,
+                    '2024 December' => 1,
                 ], 'Y F'),
             ],
             [
@@ -1486,7 +1510,17 @@ class ElasticsearchProductTest extends TestCase
                     'Saturday 15th Jun, 2019' => 1,
                     'Wednesday 30th Sep, 2020' => 1,
                     'Friday 10th Dec, 2021' => 2,
+                    'Wednesday 11th Dec, 2024' => 1,
                 ], 'l dS M, Y'),
+            ],
+            [
+                new DateHistogramCase(DateHistogramAggregation::PER_DAY, [
+                    '2019-01-01 00:00:00' => 2,
+                    '2019-06-15 00:00:00' => 1,
+                    '2020-09-30 00:00:00' => 1,
+                    '2021-12-10 00:00:00' => 2,
+                    '2024-12-12 00:00:00' => 1,
+                ], null, 'Europe/Berlin'),
             ],
         ];
     }
@@ -1520,7 +1554,7 @@ class ElasticsearchProductTest extends TestCase
             $histogram = $result->get('release-histogram');
             static::assertInstanceOf(DateHistogramResult::class, $histogram);
 
-            static::assertCount(4, $histogram->getBuckets());
+            static::assertCount(5, $histogram->getBuckets());
 
             $bucket = $histogram->get('2019-01-01 00:00:00');
             static::assertInstanceOf(Bucket::class, $bucket);
@@ -1724,6 +1758,7 @@ class ElasticsearchProductTest extends TestCase
                 $data->get('product-1'),
                 $data->get('product-6'),
                 $data->get('product-3'),
+                $data->get('product-7'),
             ];
 
             // check simple equals filter
@@ -2103,6 +2138,11 @@ class ElasticsearchProductTest extends TestCase
      */
     public function testCustomFieldsGetMapped(IdsCollection $ids): void
     {
+        $ref = new \ReflectionClass($this->definition);
+        $property = $ref->getProperty('customFieldsTypes');
+        $property->setAccessible(true);
+        $property->setValue($this->definition, null);
+
         $mapping = $this->definition->getMapping($ids->getContext());
 
         $expected = [
@@ -2136,7 +2176,7 @@ class ElasticsearchProductTest extends TestCase
             ],
         ];
 
-        static::assertSame($expected, $mapping['properties']['customFields']);
+        static::assertEquals($expected, $mapping['properties']['customFields']);
     }
 
     /**
@@ -2180,6 +2220,33 @@ class ElasticsearchProductTest extends TestCase
 
             static::assertSame($ids->get('product-1'), $result[0]);
             static::assertSame($ids->get('product-2'), $result[1]);
+        } catch (\Exception $e) {
+            static::tearDown();
+
+            throw $e;
+        }
+    }
+
+    /**
+     * @depends testIndexing
+     */
+    public function testSortByCurrencyPrice(IdsCollection $ids): void
+    {
+        $context = $ids->getContext();
+
+        try {
+            $criteria = new Criteria();
+            $criteria->addSorting(new FieldSorting(sprintf('price.%s.gross', $this->anotherCurrencyId), FieldSorting::DESCENDING));
+
+            $searcher = $this->createEntitySearcher();
+
+            $result = $searcher->search($this->productDefinition, $criteria, $context)->getIds();
+
+            static::assertSame($ids->get('product-3'), $result[0]);
+            static::assertSame($ids->get('product-5'), $result[1]);
+            static::assertSame($ids->get('product-4'), $result[2]);
+            static::assertSame($ids->get('product-2'), $result[3]);
+            static::assertSame($ids->get('product-6'), $result[4]);
         } catch (\Exception $e) {
             static::tearDown();
 
@@ -2355,6 +2422,7 @@ class ElasticsearchProductTest extends TestCase
                 ->customField('test_int', 19999)
                 ->customField('test_date', (new \DateTime())->format('Y-m-d H:i:s'))
                 ->customField('testFloatingField', 1.5)
+                ->customField('test_bool', true)
                 ->build(),
             (new ProductBuilder($this->ids, 'product-2'))
                 ->name('Rubber')
@@ -2364,6 +2432,7 @@ class ElasticsearchProductTest extends TestCase
                 ->tax('t1')
                 ->manufacturer('m2')
                 ->price(100)
+                ->price(300, null, 'anotherCurrency')
                 ->releaseDate('2019-01-01 10:13:00')
                 ->purchasePrice(0)
                 ->stock(10)
@@ -2382,6 +2451,7 @@ class ElasticsearchProductTest extends TestCase
                 ->tax('t2')
                 ->manufacturer('m2')
                 ->price(150)
+                ->price(800, null, 'anotherCurrency')
                 ->releaseDate('2019-06-15 13:00:00')
                 ->purchasePrice(100)
                 ->stock(100)
@@ -2397,6 +2467,7 @@ class ElasticsearchProductTest extends TestCase
                 ->tax('t2')
                 ->manufacturer('m2')
                 ->price(200)
+                ->price(500, null, 'anotherCurrency')
                 ->releaseDate('2020-09-30 15:00:00')
                 ->purchasePrice(100)
                 ->stock(300)
@@ -2410,6 +2481,7 @@ class ElasticsearchProductTest extends TestCase
                 ->tax('t3')
                 ->manufacturer('m3')
                 ->price(250)
+                ->price(600, null, 'anotherCurrency')
                 ->releaseDate('2021-12-10 11:59:00')
                 ->purchasePrice(100)
                 ->stock(300)
@@ -2422,9 +2494,19 @@ class ElasticsearchProductTest extends TestCase
                 ->tax('t3')
                 ->manufacturer('m3')
                 ->price(300)
+                ->price(200, null, 'anotherCurrency')
                 ->releaseDate('2021-12-10 11:59:00')
                 ->purchasePrice(200)
                 ->stock(300)
+                ->build(),
+            (new ProductBuilder($this->ids, 'product-7'))
+                ->name('Test Product for Timezone ReleaseDate')
+                ->category('navi')
+                ->visibility(Defaults::SALES_CHANNEL)
+                ->tax('t3')
+                ->price(300)
+                ->releaseDate('2024-12-11 23:59:00')
+                ->stock(350)
                 ->build(),
             (new ProductBuilder($this->ids, 'n7'))
                 ->name('Other product')
@@ -2811,7 +2893,6 @@ class ElasticsearchProductTest extends TestCase
     {
         $id = Uuid::randomHex();
 
-        /* @var EntityRepositoryInterface $languageRepository */
         $languageRepository = $this->getContainer()->get('language.repository');
 
         $languageRepository->create(

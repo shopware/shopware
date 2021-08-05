@@ -14,7 +14,7 @@ export default class DateFormatHelper {
         const defaultOptions = {
             day: '2-digit',
             month: '2-digit',
-            year: 'numeric'
+            year: 'numeric',
         };
         options = { ...defaultOptions, ...options };
 

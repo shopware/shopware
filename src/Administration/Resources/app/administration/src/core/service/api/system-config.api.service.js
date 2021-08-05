@@ -11,7 +11,7 @@ class SystemConfigApiService extends ApiService {
         return this.httpClient
             .get('_action/system-config/check', {
                 params: { domain, ...additionalParams },
-                headers: this.getBasicHeaders(additionalHeaders)
+                headers: this.getBasicHeaders(additionalHeaders),
             })
             .then((response) => {
                 return ApiService.handleResponse(response);
@@ -22,7 +22,7 @@ class SystemConfigApiService extends ApiService {
         return this.httpClient
             .get('_action/system-config/schema', {
                 params: { domain, ...additionalParams },
-                headers: this.getBasicHeaders(additionalHeaders)
+                headers: this.getBasicHeaders(additionalHeaders),
             })
             .then((response) => {
                 return ApiService.handleResponse(response);
@@ -33,7 +33,7 @@ class SystemConfigApiService extends ApiService {
         return this.httpClient
             .get('_action/system-config', {
                 params: { domain, salesChannelId, ...additionalParams },
-                headers: this.getBasicHeaders(additionalHeaders)
+                headers: this.getBasicHeaders(additionalHeaders),
             })
             .then((response) => {
                 return ApiService.handleResponse(response);
@@ -46,7 +46,7 @@ class SystemConfigApiService extends ApiService {
                 values,
                 {
                     params: { salesChannelId, ...additionalParams },
-                    headers: this.getBasicHeaders(additionalHeaders)
+                    headers: this.getBasicHeaders(additionalHeaders),
                 })
             .then((response) => {
                 return ApiService.handleResponse(response);
@@ -59,7 +59,7 @@ class SystemConfigApiService extends ApiService {
                 values,
                 {
                     params: { ...additionalParams },
-                    headers: this.getBasicHeaders(additionalHeaders)
+                    headers: this.getBasicHeaders(additionalHeaders),
                 })
             .then((response) => {
                 return ApiService.handleResponse(response);

@@ -400,7 +400,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
             $ids = explode('|', $ids);
         }
 
-        return array_filter($ids);
+        return array_filter((array) $ids);
     }
 
     private function getPropertyIds(Request $request): array
@@ -414,7 +414,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
             $ids = explode('|', $ids);
         }
 
-        return array_filter($ids);
+        return array_filter((array) $ids);
     }
 
     private function getLimit(Request $request, SalesChannelContext $context): int
@@ -470,8 +470,8 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         if (!$request->request->get('property-filter', true)) {
             $filters->remove('properties');
 
-            if ($request->request->get('property-whitelist', null)) {
-                $filters->add($this->getPropertyFilter($request, $request->request->get('property-whitelist')));
+            if (\count($propertyWhitelist = $request->request->all('property-whitelist'))) {
+                $filters->add($this->getPropertyFilter($request, $propertyWhitelist));
             }
         }
 

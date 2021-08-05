@@ -9,21 +9,21 @@ Component.register('sw-login', {
     props: {
         hash: {
             type: String,
-            default: null
-        }
+            default: null,
+        },
     },
 
     data() {
         return {
             isLoading: false,
             isLoginSuccess: false,
-            isLoginError: false
+            isLoginError: false,
         };
     },
 
     metaInfo() {
         return {
-            title: this.title
+            title: this.title,
         };
     },
 
@@ -33,7 +33,7 @@ Component.register('sw-login', {
             const adminName = this.$tc('global.sw-admin-menu.textShopwareAdmin');
 
             return `${modulName} | ${adminName}`;
-        }
+        },
     },
 
     methods: {
@@ -47,6 +47,6 @@ Component.register('sw-login', {
 
         loginSuccess() {
             this.isLoginSuccess = !this.isLoginSuccess;
-        }
-    }
+        },
+    },
 });

@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 
+/**
+ * @group store-api
+ */
 class NavigationRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -49,7 +52,7 @@ class NavigationRouteTest extends TestCase
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
-        static::assertCount(1, $response);
+        static::assertCount(2, $response);
         static::assertSame('Toys', $response[0]['name']);
         static::assertSame($this->ids->get('category2'), $response[0]['id']);
         static::assertCount(1, $response[0]['children']);
@@ -69,7 +72,7 @@ class NavigationRouteTest extends TestCase
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
-        static::assertCount(3, $response);
+        static::assertCount(5, $response);
         static::assertArrayHasKey('name', $response[0]);
         $ids = array_column($response, 'id');
         $names = array_column($response, 'name');
@@ -96,7 +99,7 @@ class NavigationRouteTest extends TestCase
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
-        static::assertCount(3, $response);
+        static::assertCount(5, $response);
         static::assertArrayHasKey('name', $response[0]);
         $ids = array_column($response, 'id');
         $names = array_column($response, 'name');
@@ -108,6 +111,41 @@ class NavigationRouteTest extends TestCase
         static::assertContains('Root', $names);
         static::assertContains('Toys', $names);
         static::assertContains('Kids', $names);
+    }
+
+    public function testLoadVisibleChildrenCount(): void
+    {
+        foreach ([1, 2] as $depth) {
+            $this->browser
+                ->request(
+                    'POST',
+                    '/store-api/navigation/' . $this->ids->get('category') . '/' . $this->ids->get('category'),
+                    [
+                        'depth' => $depth,
+                    ]
+                );
+
+            $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+            static::assertCount(2, $response);
+            $ids = array_column($response, 'id');
+
+            static::assertContains($this->ids->get('category2'), $ids);
+            static::assertContains($this->ids->get('category4'), $ids);
+
+            foreach ($response as $category) {
+                switch ($category['id']) {
+                    case $this->ids->get('category2'):
+                        static::assertEquals(1, $category['visibleChildCount'], 'Depth: ' . $depth);
+
+                        break;
+                    case $this->ids->get('category4'):
+                        static::assertEquals(0, $category['visibleChildCount'], 'Depth: ' . $depth);
+
+                        break;
+                }
+            }
+        }
     }
 
     public function testInvalidId(): void
@@ -138,7 +176,7 @@ class NavigationRouteTest extends TestCase
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
-        static::assertCount(1, $response);
+        static::assertCount(2, $response);
         static::assertSame('Toys', $response[0]['name']);
         static::assertSame($this->ids->get('category2'), $response[0]['id']);
         static::assertCount(1, $response[0]['children']);
@@ -222,6 +260,18 @@ class NavigationRouteTest extends TestCase
                         [
                             'id' => $this->ids->create('category3'),
                             'name' => 'Kids',
+                        ],
+                    ],
+                ],
+                [
+                    'id' => $this->ids->create('category4'),
+                    'name' => 'Sports',
+                    'afterCategoryId' => $this->ids->get('category2'),
+                    'children' => [
+                        [
+                            'id' => $this->ids->create('category5'),
+                            'name' => 'Invisible Child',
+                            'visible' => false,
                         ],
                     ],
                 ],

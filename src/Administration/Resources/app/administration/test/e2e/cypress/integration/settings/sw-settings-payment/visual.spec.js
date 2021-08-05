@@ -29,14 +29,24 @@ describe('Payment: Visual testing', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('#sw-settings-payment').click();
+
+        // Ensure snapshot consistency
         cy.wait('@getData').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
         cy.get('.sw-data-grid-skeleton').should('not.exist');
+
+        // Take Snapshot
         cy.takeSnapshot('[Payment] Listing', '.sw-settings-payment-list');
 
-        cy.contains('.sw-data-grid__cell--name', 'Cash on delivery').click();
+        cy.contains('.sw-data-grid__cell--name a', 'Cash on delivery').click();
+
+        // Ensure snapshot consistency
         cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-media-upload-v2__header .sw-context-button__button').should('be.visible');
+        cy.get('.sw-settings-payment-detail__condition_container').should('be.visible');
+
+        // Take Snapshot
         cy.takeSnapshot('[Payment] Details', '.sw-settings-payment-detail');
     });
 });

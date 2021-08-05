@@ -14,14 +14,14 @@ Shopware.Component.register('sw-media-grid', {
             default: 'medium-preview',
             validator(value) {
                 return ['small-preview', 'medium-preview', 'large-preview', 'list-preview'].includes(value);
-            }
-        }
+            },
+        },
     },
 
     computed: {
         mediaColumnDefinitions() {
             return {
-                'grid-template-columns': `repeat(auto-fit, ${this.gridColumnWidth}px)`
+                'grid-template-columns': `repeat(auto-fit, ${this.gridColumnWidth}px)`,
             };
         },
 
@@ -35,9 +35,9 @@ Shopware.Component.register('sw-media-grid', {
                 'sw-context-menu',
                 'sw-media-index__load-more',
                 'sw-media-index__options-container',
-                'sw-modal'
+                'sw-modal',
             ];
-        }
+        },
     },
 
     created() {
@@ -70,7 +70,7 @@ Shopware.Component.register('sw-media-grid', {
                 (classes, eventParent) => {
                     return eventParent.classList ? classes.concat(Array.from(eventParent.classList)) : classes;
                 },
-                []
+                [],
             );
 
             return this.nonDeselectingComponents.some((cssClass) => { return eventPathClasses.includes(cssClass); });
@@ -84,8 +84,8 @@ Shopware.Component.register('sw-media-grid', {
 
         emitSelectionCleared(originalDomEvent) {
             this.$emit('media-grid-selection-clear', {
-                originalDomEvent
+                originalDomEvent,
             });
-        }
-    }
+        },
+    },
 });

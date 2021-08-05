@@ -56,6 +56,9 @@ class CustomerTagRule extends Rule
             case self::OPERATOR_NEQ:
                 return empty(array_intersect($tagIds, $this->identifiers));
 
+            case self::OPERATOR_EMPTY:
+                return empty($tagIds);
+
             default:
                 throw new UnsupportedOperatorException($this->operator, self::class);
         }
@@ -63,10 +66,20 @@ class CustomerTagRule extends Rule
 
     public function getConstraints(): array
     {
-        return [
-            'identifiers' => [new NotBlank(), new ArrayOfUuid()],
-            'operator' => [new NotBlank(), new Choice([Rule::OPERATOR_EQ, Rule::OPERATOR_NEQ])],
+        $constraints = [
+            'operator' => [
+                new NotBlank(),
+                new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ, self::OPERATOR_EMPTY]),
+            ],
         ];
+
+        if ($this->operator === self::OPERATOR_EMPTY) {
+            return $constraints;
+        }
+
+        $constraints['identifiers'] = [new NotBlank(), new ArrayOfUuid()];
+
+        return $constraints;
     }
 
     private function extractTagIds(CustomerEntity $customer): array

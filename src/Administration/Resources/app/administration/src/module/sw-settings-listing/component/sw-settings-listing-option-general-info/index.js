@@ -8,24 +8,24 @@ Component.register('sw-settings-listing-option-general-info', {
 
     model: {
         prop: 'sortingOption',
-        event: 'input'
+        event: 'input',
     },
 
     props: {
         sortingOption: {
             type: Object,
-            required: true
+            required: true,
         },
 
         isDefaultSorting: {
             type: Boolean,
-            required: true
-        }
+            required: true,
+        },
     },
 
     computed: {
         ...mapPropertyErrors('sortingOption', [
-            'label'
-        ])
-    }
+            'label',
+        ]),
+    },
 });

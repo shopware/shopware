@@ -15,11 +15,6 @@ class ProfilePageTest extends TestCase
     use IntegrationTestBehaviour;
     use StorefrontPageTestBehaviour;
 
-    public function testLoginRequirement(): void
-    {
-        $this->assertLoginRequirement();
-    }
-
     public function testItLoadsTheProfilePage(): void
     {
         $request = new Request();

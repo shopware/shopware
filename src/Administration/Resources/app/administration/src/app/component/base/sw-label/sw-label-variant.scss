@@ -1,6 +1,6 @@
-@mixin sw-label-variant($color-background, $color-text, $color-border) {
+@mixin sw-label-variant($color-background, $color-text, $color-border, $color-border-normal) {
     background-color: $color-background;
-    border-color: transparent;
+    border-color: $color-border-normal;
     color: $color-text;
 
     &.sw-label--small::before {

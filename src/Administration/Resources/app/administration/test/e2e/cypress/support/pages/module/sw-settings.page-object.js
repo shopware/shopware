@@ -9,10 +9,10 @@ export default class SettingsPageObject {
                 countrySaveAction: '.sw-settings-country-detail__save-action',
                 countryColumnName: '.sw-data-grid__cell--name',
 
-                countryStateListContent: '.sw-country-state-list__content',
+                countryStateListContent: '.sw-settings-country-state-list__content',
                 countryStateSaveAction: '.sw-country-state-detail__save-button',
                 countryStateAddAction: '.sw-settings-country-detail__add-country-state-button',
-                countryStateColumnName: '.sw-settings-country-detail__link',
+                countryStateColumnName: '.sw-data-grid__cell--translated-name',
 
                 currencySaveAction: '.sw-settings-currency-detail__save-action',
                 currencyColumnName: '.sw-data-grid__cell--name',
@@ -47,8 +47,8 @@ export default class SettingsPageObject {
                 mailHeaderFooterGridList: '#mailHeaderFooterGrid',
                 mailHeaderFooterColumnName: '.sw-data-grid__cell--name',
                 mailHeaderFooterColumnDescription: '.sw-data-grid__cell--description',
-                mailHeaderFooterColumnSalesChannel: '.sw-data-grid__cell--salesChannels-name'
-            }
+                mailHeaderFooterColumnSalesChannel: '.sw-data-grid__cell--salesChannels-name',
+            },
         };
     }
 }

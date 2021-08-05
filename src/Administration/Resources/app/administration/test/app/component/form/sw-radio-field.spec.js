@@ -20,7 +20,7 @@ const createWrapper = () => {
                     { value: 2, name: 'option 2' },
                     { value: 3, name: 'option 3' }
                 ],
-                currentValue: null,
+                currentValue: 1,
                 block: false,
                 description: null
             };
@@ -99,5 +99,40 @@ describe('components/form/sw-radio-field', () => {
 
         optionDescription = wrapper.find('.sw-field__radio-option-description');
         expect(optionDescription.exists()).toBe(true);
+    });
+
+    it('should show the label from the property', () => {
+        const wrapper = shallowMount(Shopware.Component.build('sw-radio-field'), {
+            propsData: {
+                label: 'Label from prop'
+            },
+            stubs: {
+                'sw-base-field': Shopware.Component.build('sw-base-field'),
+                'sw-field-error': {
+                    template: '<div></div>'
+                }
+            }
+        });
+
+        expect(wrapper.find('label').text()).toEqual('Label from prop');
+    });
+
+    it('should show the value from the label slot', () => {
+        const wrapper = shallowMount(Shopware.Component.build('sw-radio-field'), {
+            propsData: {
+                label: 'Label from prop'
+            },
+            stubs: {
+                'sw-base-field': Shopware.Component.build('sw-base-field'),
+                'sw-field-error': {
+                    template: '<div></div>'
+                }
+            },
+            scopedSlots: {
+                label: '<template>Label from slot</template>'
+            }
+        });
+
+        expect(wrapper.find('label').text()).toEqual('Label from slot');
     });
 });

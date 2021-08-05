@@ -19,7 +19,7 @@ class OrderStateMachineApiService extends ApiService {
         return this.httpClient
             .post(route, mediaIds, {
                 additionalParams,
-                headers
+                headers,
             });
     }
 
@@ -31,7 +31,7 @@ class OrderStateMachineApiService extends ApiService {
         return this.httpClient
             .post(route, mediaIds, {
                 additionalParams,
-                headers
+                headers,
             });
     }
 
@@ -43,7 +43,7 @@ class OrderStateMachineApiService extends ApiService {
         return this.httpClient
             .post(route, mediaIds, {
                 additionalParams,
-                headers
+                headers,
             });
     }
 }

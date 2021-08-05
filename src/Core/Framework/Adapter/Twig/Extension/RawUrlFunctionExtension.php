@@ -34,7 +34,7 @@ class RawUrlFunctionExtension extends AbstractExtension
 
     public function rawUrl(string $name, array $parameters = [], ?string $domain = null): string
     {
-        $request = $this->stack->getMasterRequest();
+        $request = $this->stack->getMainRequest();
         if (!$request) {
             $url = $this->router->generate($name, $parameters);
 

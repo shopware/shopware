@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Document\Controller;
 
+use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
 use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\Exception\InvalidDocumentException;
@@ -42,6 +43,44 @@ class DocumentController extends AbstractController
 
     /**
      * @Since("6.0.0.0")
+     * @OA\Get(
+     *     path="/_action/document/{documentId}/{deepLinkCode}",
+     *     summary="Download a document",
+     *     description="Download a document by its identifier and deep link code.",
+     *     operationId="downloadDocument",
+     *     tags={"Admin API", "Document Management"},
+     *     @OA\Parameter(
+     *         name="documentId",
+     *         description="Identifier of the document to be downloaded.",
+     *         @OA\Schema(type="string", pattern="^[0-9a-f]{32}$"),
+     *         in="path",
+     *         required=true
+     *     ),
+     *     @OA\Parameter(
+     *         name="deepLinkCode",
+     *         description="A unique hash code which was generated when the document was created.",
+     *         @OA\Schema(type="string"),
+     *         in="path",
+     *         required=true
+     *     ),
+     *     @OA\Parameter(
+     *         name="download",
+     *         description="This parameter controls the `Content-Disposition` header. If set to `true` the header will be set to `attachment` else `inline`.",
+     *         @OA\Schema(type="boolean", default=false),
+     *         in="query",
+     *     ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="The document.",
+     *          @OA\MediaType(
+     *              mediaType="application/octet-stream",
+     *              @OA\Schema(
+     *                  type="string",
+     *                  format="binary"
+     *              )
+     *          )
+     *     )
+     * )
      * @Route("/api/_action/document/{documentId}/{deepLinkCode}", name="api.action.download.document", methods={"GET"})
      */
     public function downloadDocument(Request $request, string $documentId, string $deepLinkCode, Context $context): Response
@@ -88,7 +127,7 @@ class DocumentController extends AbstractController
         Context $context
     ): Response {
         $config = $request->query->get('config');
-        $config = $config !== null ? json_decode($config, true) : [];
+        $config = \is_string($config) ? json_decode($config, true, 512, \JSON_THROW_ON_ERROR) : [];
         $documentConfig = DocumentConfigurationFactory::createConfiguration($config);
 
         $fileType = $request->query->getAlnum('fileType', FileTypes::PDF);

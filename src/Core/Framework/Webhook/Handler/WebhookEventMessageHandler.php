@@ -4,19 +4,13 @@ namespace Shopware\Core\Framework\Webhook\Handler;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
-use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\MessageQueue\Exception\MessageFailedException;
 use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
 
-/**
- * @internal (flag:FEATURE_NEXT_14363) only for use by the app-system
- */
 class WebhookEventMessageHandler extends AbstractMessageHandler
 {
     private const TIMEOUT = 20;
@@ -24,16 +18,13 @@ class WebhookEventMessageHandler extends AbstractMessageHandler
 
     private Client $client;
 
-    private EntityRepositoryInterface $appRepository;
-
     private EntityRepositoryInterface $webhookRepository;
 
     private EntityRepositoryInterface $webhookEventLogRepository;
 
-    public function __construct(Client $client, EntityRepositoryInterface $appRepository, EntityRepositoryInterface $webhookRepository, EntityRepositoryInterface $webhookEventLogRepository)
+    public function __construct(Client $client, EntityRepositoryInterface $webhookRepository, EntityRepositoryInterface $webhookEventLogRepository)
     {
         $this->client = $client;
-        $this->appRepository = $appRepository;
         $this->webhookRepository = $webhookRepository;
         $this->webhookEventLogRepository = $webhookEventLogRepository;
     }
@@ -43,7 +34,6 @@ class WebhookEventMessageHandler extends AbstractMessageHandler
      */
     public function handle($message): void
     {
-        $appId = $message->getAppId();
         $shopwareVersion = $message->getShopwareVersion();
         $payload = $message->getPayload();
         $url = $message->getUrl();
@@ -59,11 +49,8 @@ class WebhookEventMessageHandler extends AbstractMessageHandler
         /** @var string $jsonPayload */
         $jsonPayload = json_encode($payload);
 
-        if ($appId !== null) {
-            $appSecret = $this->getAppSecret($appId);
-            if ($appSecret !== null) {
-                $header['shopware-shop-signature'] = hash_hmac('sha256', $jsonPayload, $appSecret);
-            }
+        if ($message->getSecret()) {
+            $header['shopware-shop-signature'] = hash_hmac('sha256', $jsonPayload, $message->getSecret());
         }
 
         $requestContent = [
@@ -135,16 +122,5 @@ class WebhookEventMessageHandler extends AbstractMessageHandler
     public static function getHandledMessages(): iterable
     {
         return [WebhookEventMessage::class];
-    }
-
-    private function getAppSecret(string $appId): ?string
-    {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('id', $appId));
-
-        /** @var AppEntity|null $app */
-        $app = $this->appRepository->search($criteria, Context::createDefaultContext())->first();
-
-        return $app ? $app->getAppSecret() : null;
     }
 }

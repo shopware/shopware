@@ -14,7 +14,7 @@ Shopware.Component.extend('sw-settings-listing-option-create', 'sw-settings-list
 
         isNewProductSorting() {
             return !this.productSortingEntity || this.productSortingEntity._isNew;
-        }
+        },
     },
 
     created() {
@@ -57,7 +57,7 @@ Shopware.Component.extend('sw-settings-listing-option-create', 'sw-settings-list
                     const sortingOptionName = this.productSortingEntity.label;
 
                     this.createNotificationError({
-                        message: this.$t('sw-settings-listing.base.notification.saveError', { sortingOptionName })
+                        message: this.$t('sw-settings-listing.base.notification.saveError', { sortingOptionName }),
                     });
                 });
         },
@@ -84,6 +84,6 @@ Shopware.Component.extend('sw-settings-listing-option-create', 'sw-settings-list
 
             // close delete modal
             this.toBeDeletedCriteria = null;
-        }
-    }
+        },
+    },
 });

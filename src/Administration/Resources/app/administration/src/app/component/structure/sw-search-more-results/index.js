@@ -16,19 +16,20 @@ Component.register('sw-search-more-results', {
     template,
 
     inject: [
-        'searchTypeService'
+        'searchTypeService',
+        'feature',
     ],
 
     props: {
         result: {
             required: true,
-            type: Object
+            type: Object,
         },
         term: {
             type: String,
             required: false,
-            default: null
-        }
+            default: null,
+        },
     },
 
     computed: {
@@ -48,6 +49,20 @@ Component.register('sw-search-more-results', {
 
         searchTypes() {
             return this.searchTypeService.getTypes();
-        }
-    }
+        },
+
+        searchContent() {
+            const { total, entity } = this.result;
+
+            if (!this.feature.isActive('FEATURE_NEXT_6040')) {
+                return this.$tc('global.sw-search-more-results.labelShowResultsInModule', 0, { count: total });
+            }
+
+            return this.$tc(
+                'global.sw-search-more-results.labelShowResultsInModuleV2',
+                0,
+                { count: total, entityName: this.$tc(`global.entities.${entity}`, 0).toLowerCase() },
+            );
+        },
+    },
 });

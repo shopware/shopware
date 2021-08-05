@@ -64,6 +64,28 @@ shopware:
     cart:
         expire_days: 120
 
+    sales_channel_context:
+        expire_days: 120
+
+    html_sanitizer:
+        cache_dir: '%kernel.cache_dir%'
+        cache_enabled: true
+        sets:
+            - name: basic
+              tags: ["a", "abbr", "acronym", "address", "b", "bdo", "big", "blockquote", "br", "caption", "center", "cite", "code", "col", "colgroup", "dd", "del", "dfn", "dir", "div", "dl", "dt", "em", "font", "h1", "h2", "h3", "h4", "h5", "h6", "hr", "i", "ins", "kbd", "li", "menu", "ol", "p", "pre", "q", "s", "samp", "small", "span", "strike", "strong", "sub", "sup", "table", "tbody", "td", "tfoot", "th", "thead", "tr", "tt", "u", "ul", "var"]
+              attributes: ["align", "bgcolor", "border", "cellpadding", "cellspacing", "cite", "class", "clear", "color", "colspan", "dir", "face", "frame", "height", "href", "id", "lang", "name", "noshade", "nowrap", "rel", "rev", "rowspan", "scope", "size", "span", "start", "style", "summary", "title", "type", "valign", "value", "width"]
+            - name: media
+              tags: ["img"]
+              attributes: ["src", "alt"]
+            - name: script
+              tags: ["script"]
+              options:
+                  - key: HTML.Trusted
+                    value: true
+        fields:
+            - name: product_translation.description
+              sets: ["basic", "media"]
+
     feature:
         flags:
             - name: FEATURE_NEXT_1797
@@ -84,16 +106,21 @@ shopware:
               major: true
               description: "Deprecate old promotion module"
               # issue: NEXT-13810
-            - name: FEATURE_NEXT_6544
-              default: false
-              major: false
-              description: "Image assignment for variants"
-              # issue: NEXT-6544
             - name: FEATURE_NEXT_13250
               default: false
               major: true
               description: "Reduce database queries if all required data for the line items is already assign"
               # issue: NEXT-13250
+            - name: FEATURE_NEXT_16151
+              default: false
+              major: true
+              description: "Remove CheapestPriceField from product entity, to speed up entity hydration"
+              # issue: NEXT-16151
+            - name: FEATURE_NEXT_16155
+              default: false
+              major: true
+              description: "EntityLoadedEventFactory will be required in repositories"
+              # issue: NEXT-16155
             - name: FEATURE_NEXT_14872
               default: false
               major: false
@@ -114,16 +141,10 @@ shopware:
               major: false
               description: "Captcha Integration"
               # issue: NEXT-12455
-            - name: FEATURE_NEXT_12635
+            - name: FEATURE_NEXT_15815
               default: false
-              major: false
-              description: "Improve nested LineItem support"
-              # issue: NEXT-12635
-            - name: FEATURE_NEXT_14363
-              default: false
-              major: false
-              description: "App System 3.0 - Dispatch webhook overqueue"
-              # issue: NEXT-14363
+              major: true
+              description: "Remove single record handling in sync service. Only single operation should be supported"
             - name: FEATURE_NEXT_8225
               default: false
               major: false
@@ -143,11 +164,65 @@ shopware:
               major: false
               description: "App System 3.0 - CMS blocks provided by apps"
               # issue: NEXT-14408
+            - name: FEATURE_NEXT_15707
+              default: false
+              major: false
+              description: "Delivery notice for EU geoblocking regulation"
+              # issue: NEXT-15707
+            - name: FEATURE_NEXT_15475
+              default: false
+              major: false
+              description: "Refactor Preview Mail Dummy Data"
+              # issue: NEXT-15475
             - name: FEATURE_NEXT_12437
               default: false
               major: false
               description: "Improve Product UX 2.0"
               # issue: NEXT-12437
+            - name: FEATURE_NEXT_14360
+              default: false
+              major: true
+              description: "App System 4.0 - Build action button messaging system"
+              # issue: NEXT-14360
+            - name: FEATURE_NEXT_15172
+              default: false
+              major: true
+              description: "Sanitize html of fields with AllowHtml flag"
+              # issue: NEXT-15172
+            - name: FEATURE_NEXT_15687
+              default: false
+              major: true
+              description: "Storefront Controller needs Twig injected"
+              # issue: NEXT-15687
+            - name: FEATURE_NEXT_6040
+              default: false
+              major: false
+              description: "Admin search improvements"
+              # issue: NEXT-6040
+            - name: FEATURE_NEXT_14001
+              default: false
+              major: false
+              description: "Newsletter DOI for registered customers"
+              # issue: NEXT-14001
+            - name: FEATURE_NEXT_7739
+              default: false
+              major: true
+              description: "Optional salutation"
+            - name: FEATURE_NEXT_16200
+              default: false
+              major: false
+              description: "Register Doi Domain"
+              # issue: NEXT-16200
+            - name: FEATURE_NEXT_8097
+              default: false
+              major: false
+              description: "Groundwork for csv import"
+              # issue: NEXT-8097
+            - name: FEATURE_NEXT_15917
+              default: false
+              major: true
+              description: "Move storefront script tags to head with defer"
+              # issue: NEXT-15917
 
     logger:
         file_rotation_count: 14

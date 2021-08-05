@@ -13,7 +13,7 @@ Component.register('sw-settings-listing', {
 
     mixins: [
         'notification',
-        'sw-inline-snippet'
+        'sw-inline-snippet',
     ],
 
     data() {
@@ -34,10 +34,10 @@ Component.register('sw-settings-listing', {
                 null: {
                     'core.defaultSalesChannel.salesChannel': [],
                     'core.defaultSalesChannel.active': true,
-                    'core.defaultSalesChannel.visibility': {}
-                }
+                    'core.defaultSalesChannel.visibility': {},
+                },
             },
-            visibilityConfig: []
+            visibilityConfig: [],
         };
     },
 
@@ -60,7 +60,7 @@ Component.register('sw-settings-listing', {
             },
             set(salesChannel) {
                 this.configData.null['core.defaultSalesChannel.salesChannel'] = salesChannel;
-            }
+            },
         },
 
         productSortingsOptionsCriteria() {
@@ -71,11 +71,11 @@ Component.register('sw-settings-listing', {
                 .setPage(this.sortingOptionsGridPage);
 
             criteria.addSorting(
-                Criteria.sort('priority', 'DESC')
+                Criteria.sort('priority', 'DESC'),
             );
 
             criteria.addFilter(
-                Criteria.equals('locked', false)
+                Criteria.equals('locked', false),
             );
 
             return criteria;
@@ -85,7 +85,7 @@ Component.register('sw-settings-listing', {
             const criteria = new Criteria();
 
             criteria.addFilter(
-                Criteria.contains('label', this.productSortingOptionsSearchTerm)
+                Criteria.contains('label', this.productSortingOptionsSearchTerm),
             );
 
             return criteria;
@@ -104,20 +104,20 @@ Component.register('sw-settings-listing', {
                 {
                     property: 'label',
                     routerLink: 'sw.settings.listing.edit',
-                    label: this.$tc('sw-settings-listing.index.productSorting.grid.header.name')
+                    label: this.$tc('sw-settings-listing.index.productSorting.grid.header.name'),
                 },
                 {
                     property: 'criteria',
                     label: this.$tc('sw-settings-listing.index.productSorting.grid.header.criteria'),
-                    multiLine: true
+                    multiLine: true,
                 },
                 {
                     property: 'priority',
                     inlineEdit: 'number',
-                    label: this.$tc('sw-settings-listing.index.productSorting.grid.header.priority')
-                }
+                    label: this.$tc('sw-settings-listing.index.productSorting.grid.header.priority'),
+                },
             ];
-        }
+        },
     },
 
     watch: {
@@ -137,14 +137,14 @@ Component.register('sw-settings-listing', {
                 this.salesChannel.forEach(el => {
                     configData.set(el, {
                         id: el,
-                        visibility: this.configData.null?.['core.defaultSalesChannel.visibility'][el] || 30
+                        visibility: this.configData.null?.['core.defaultSalesChannel.visibility'][el] || 30,
                     });
                 });
 
                 this.visibilityConfig = [...configData.values()];
             },
-            deep: true
-        }
+            deep: true,
+        },
     },
 
     created() {
@@ -198,12 +198,12 @@ Component.register('sw-settings-listing', {
                     this.isSaveSuccessful = true;
 
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-settings-listing.general.messageSaveSuccess')
+                        message: this.$tc('sw-settings-listing.general.messageSaveSuccess'),
                     });
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-listing.general.messageSaveError')
+                        message: this.$tc('sw-settings-listing.general.messageSaveError'),
                     });
                 })
                 .finally(() => {
@@ -222,7 +222,7 @@ Component.register('sw-settings-listing', {
             this.productSortingOptionRepository.delete(item.id)
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-listing.index.productSorting.messageDeleteError')
+                        message: this.$tc('sw-settings-listing.index.productSorting.messageDeleteError'),
                     });
                 })
                 .finally(() => {
@@ -241,7 +241,7 @@ Component.register('sw-settings-listing', {
                 if ((this.sortingOptionsGridPage * this.sortingOptionsGridLimit) >= newTotal) {
                     this.onPageChange({
                         page: this.sortingOptionsGridPage - 1,
-                        limit: this.sortingOptionsGridLimit
+                        limit: this.sortingOptionsGridLimit,
                     });
                 }
             }
@@ -269,7 +269,7 @@ Component.register('sw-settings-listing', {
                 }
 
                 return this.$tc(
-                    `sw-settings-listing.general.productSortingCriteriaGrid.options.label.${currentField.field}`
+                    `sw-settings-listing.general.productSortingCriteriaGrid.options.label.${currentField.field}`,
                 );
             });
 
@@ -381,7 +381,7 @@ Component.register('sw-settings-listing', {
             const salesChannelEntity = new EntityCollection(
                 this.salesChannelRepository.route,
                 this.salesChannelRepository.entityName,
-                Shopware.Context.api
+                Shopware.Context.api,
             );
 
             this.systemConfigApiService.getValues('core.defaultSalesChannel').then(configData => {
@@ -420,6 +420,6 @@ Component.register('sw-settings-listing', {
 
         saveSalesChannelVisibilityConfig() {
             return this.systemConfigApiService.batchSave(this.configData);
-        }
-    }
+        },
+    },
 });

@@ -1,6 +1,9 @@
 {% block component_product_box_price_info %}
+    {# @deprecated tag:v6.5.0 - purchaseUnit will be removed, use product.purchaseUnit if needed #}
     {% set purchaseUnit = product.purchaseUnit %}
+    {# @deprecated tag:v6.5.0 - listingPrice will be removed without replacement, since it was removed from the product struct #}
     {% set listingPrice = product.calculatedListingPrice %}
+    {# @deprecated tag:v6.5.0 - fromPrice will be removed without replacement #}
     {% set fromPrice = listingPrice.from %}
 
     {% set cheapest = product.calculatedCheapestPrice %}

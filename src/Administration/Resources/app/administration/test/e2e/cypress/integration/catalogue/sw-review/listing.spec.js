@@ -1,41 +1,57 @@
 // / <reference types="Cypress" />
 const uuid = require('uuid/v4');
 
-
 describe('Review: Test pagination and the corosponding URL parameters', () => {
     // eslint-disable-next-line no-undef
     before(() => {
-        let authToken = undefined;
-        let salesChannelId = undefined;
-        let languageId = undefined;
-        let productIds = [];
+        let authToken;
+        let salesChannelId;
+        const productIds = [];
 
-        cy.setToInitialState().then(() => {
-                return cy.authenticate()
-            }).then((auth) => {
+        cy.setToInitialState()
+            .then(() => {
+                cy.log('first call to authenticate');
+                return cy.authenticate();
+            })
+            .then((auth) => {
                 authToken = auth.access;
 
+                cy.log('creating tax fixtures');
                 cy.createDefaultFixture('tax');
             })
             .then(() => {
+                cy.log('search via admin api');
                 cy.searchViaAdminApi({
                     data: {
                         field: 'name',
                         value: 'Standard rate'
                     },
                     endpoint: 'tax'
-                })
-            }).then(tax => {
-                let products = [];
+                });
+            })
+            .then(tax => {
+                cy.log('create 25 products');
+                const products = [];
 
-                for (let i = 1; i <= 26; i++) {
+                for (let i = 0; i <= 25; i += 1) {
+                    const id = uuid().replace(/-/g, '');
+
+                    productIds.push(id);
                     products.push(
                         {
-                            name: `product-${i}`,
+                            id: id,
+                            name: `product-${i + 1}`,
                             stock: i,
-                            productNumber: uuid().replace(/-/g, ''),
+                            productNumber: id,
                             taxId: tax.id,
-                            price: 1
+                            price: [
+                                {
+                                    currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+                                    net: 1,
+                                    linked: false,
+                                    gross: 1
+                                }
+                            ]
                         }
                     );
                 }
@@ -52,16 +68,14 @@ describe('Review: Test pagination and the corosponding URL parameters', () => {
                     },
                     body: {
                         'write-product': {
-                            'entity': 'product',
-                            'action': 'upsert',
-                            'payload': products
+                            entity: 'product',
+                            action: 'upsert',
+                            payload: products
                         }
-
                     }
-                })
-            }).then(products => {
-                productIds = products.body.data['write-product'].result.map(product => product.entities.product[0]);
-
+                });
+            })
+            .then(() => {
                 return cy.searchViaAdminApi({
                     endpoint: 'sales-channel',
                     data: {
@@ -80,11 +94,11 @@ describe('Review: Test pagination and the corosponding URL parameters', () => {
                         value: 'English'
                     }
                 });
-            }).then(data => {
-                languageId = data.id;
-
+            })
+            .then(() => {
                 return cy.createCustomerFixture();
-            }).then((data) => {
+            })
+            .then((data) => {
                 const reviews = productIds.map(productId => {
                     return {
                         title: 'review',
@@ -92,8 +106,8 @@ describe('Review: Test pagination and the corosponding URL parameters', () => {
                         customerId: data.id,
                         productId: productId,
                         salesChannelId: salesChannelId
-                    }
-                })
+                    };
+                });
                 return cy.request({
                     headers: {
                         Accept: 'application/vnd.api+json',
@@ -107,17 +121,18 @@ describe('Review: Test pagination and the corosponding URL parameters', () => {
                     },
                     body: {
                         'write-product_review': {
-                            'entity': 'product_review',
-                            'action': 'upsert',
-                            'payload': reviews
+                            entity: 'product_review',
+                            action: 'upsert',
+                            payload: reviews
                         }
 
                     }
-                })
-            })
+                });
+            });
     });
 
-    it('@catalogue: check that the url parameters get set', () => {
+    // TODO: E2E will be fixed and removed skip in NEXT-16286
+    it.skip('@catalogue: check that the url parameters get set', () => {
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/review/index`);
@@ -158,8 +173,8 @@ describe('Review: Test pagination and the corosponding URL parameters', () => {
         });
 
         cy.log('change items per page to 10');
-        cy.get('#perPage').select("10");
-        cy.log('change Sorting direction from DESC to ASC')
+        cy.get('#perPage').select('10');
+        cy.log('change Sorting direction from DESC to ASC');
 
         cy.testListing({
             searchTerm: 'product',
@@ -172,7 +187,7 @@ describe('Review: Test pagination and the corosponding URL parameters', () => {
             page: 1,
             limit: 10
         });
-        cy.log('go to second page')
+        cy.log('go to second page');
         cy.get(':nth-child(2) > .sw-pagination__list-button').click();
         cy.get('.sw-data-grid-skeleton').should('not.exist');
 
@@ -188,7 +203,7 @@ describe('Review: Test pagination and the corosponding URL parameters', () => {
             limit: 10
         });
 
-        cy.log('change sorting to Customer')
+        cy.log('change sorting to Customer');
         cy.get('.sw-data-grid__cell--3 > .sw-data-grid__cell-content').click('right');
         cy.get('.sw-data-grid-skeleton').should('not.exist');
 
@@ -208,7 +223,7 @@ describe('Review: Test pagination and the corosponding URL parameters', () => {
     it('@catalogue: check that the url parameters get applied after a reload', () => {
         cy.loginViaApi();
 
-        cy.openInitialPage(`${Cypress.env('admin')}#/sw/review/index?term=product&page=2&limit=10&sortBy=customer.lastName,customer.firstName&sortDirection=ASC&naturalSorting=false`)
+        cy.openInitialPage(`${Cypress.env('admin')}#/sw/review/index?term=product&page=2&limit=10&sortBy=customer.lastName,customer.firstName&sortDirection=ASC&naturalSorting=false`);
 
         cy.testListing({
             searchTerm: 'product',

@@ -43,10 +43,12 @@ class ThemeController extends AbstractController
      */
     public function updateTheme(string $themeId, Request $request, Context $context): JsonResponse
     {
+        $config = $request->request->all('config');
+
         $this->themeService->updateTheme(
             $themeId,
-            $request->request->get('config'),
-            $request->request->get('parentThemeId'),
+            $config,
+            (string) $request->request->get('parentThemeId'),
             $context
         );
 

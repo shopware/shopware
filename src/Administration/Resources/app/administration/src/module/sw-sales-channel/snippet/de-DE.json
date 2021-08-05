@@ -28,9 +28,9 @@
       "buttonCreateNewApiKeys": "API-Zugangsdaten neu generieren",
       "tabBase": "Allgemein",
       "tabTheme": "Theme",
-      "tabAnalytics": "Analytics",
+      "tabAnalytics": "Analyse",
       "tabProductComparison": "Template",
-      "tabProducts": "Products",
+      "tabProducts": "Produkte",
       "titleProductComparisonTemplate": "Template",
       "titleProductComparisonPreview": "Vorschau",
       "titleProductComparisonPreviewErrors": "Fehler bei der Generierung",
@@ -111,9 +111,9 @@
       "ipAddressWhitleList": "Whitelist für IP-Adressen",
       "columnDomainCurrency": "Währung",
       "products": {
-        "titleEmptyState": "Noch keine Produkte hinzugefügt",
+        "titleEmptyState": "Keine weiteren Produkte gefunden",
         "titleEmptyStateTable": "Keine passenden Produkte gefunden",
-        "buttonAddProducts": "Produkte hinzufügen",
+        "buttonAddProducts": "{productCount} Produkte hinzufügen | {productCount} Produkt hinzufügen | {productCount} Produkte hinzufügen",
         "columnProductName": "Produktname",
         "columnActive": "Aktiv",
         "columnProductNumber": "Produktnummer"
@@ -212,7 +212,7 @@
       },
       "analytics": {
         "cardTitle": "Google Analytics",
-        "headline": "Google Analytics-Integration",
+        "headline": "Google-Analytics-Integration",
         "description": "Mit Google Analytics kannst Du Daten aus Deinem Shop sammeln und analysieren. Um diese Funktion nutzen zu können, benötigst Du ein Konto bei Google Analytics. Wenn Du noch kein Konto hast, kannst Du Dich hier registrieren: <a href=\"https://analytics.google.com/\" target=\"_blank\">Google Analytics</a>. Nach der Registrierung erhältst Du eine Tracking-ID, die Du hier eingeben musst, um die Integration zu aktivieren.",
         "fields": {
           "trackingId": {
@@ -240,11 +240,23 @@
         "horizontalName": "Zeilenweise (horizontale) Berechnung",
         "horizontalDescription": "Die Mehrwertsteuer wird pro Warenkorb-Position berechnet. Die Mehrwertsteueranteile jeder einzelnen Warenkorb-Position werden während des Bestellabschlusses angezeigt. Die Mehrwertsteuersumme berechnet sich aus den Mehrwertsteueranteilen der einzelnen Positionen."
       },
-      "productAssigmentModal": {
+      "productAssignmentModal": {
         "title": "Produkte hinzufügen",
-        "singleProducts": "Einzelne Produkte",
-        "categories": "Nach Kategorien filtern",
-        "dynamicProductGroups": "Nach Dynamischen Produktgruppen filtern"
+        "singleProducts": "Produkt-Auswahl",
+        "categories": {
+          "title": "Kategorie-Auswahl",
+          "textInfo": "Die hier gemachten Zuweisungen sind nicht dynamisch und bilden nur den Produktstatus zum jetzigen Zeitpunkt ab. Nachfolgende Änderungen der Produktzusammensetzung in Kategorien beeinflussen die Zuweisung nicht.",
+          "textSearch": "Kategorien durchsuchen ...",
+          "emptySearchResults": "Keine Kategorien gefunden."
+        },
+        "dynamicProductGroups": {
+          "title": "Produktgruppen-Auswahl",
+          "infoText": "Die hier gemachten Zuweisungen sind nicht dynamisch und bilden nur den Produktstatus zum jetzigen Zeitpunkt ab. Nachfolgende Änderungen der Produktzusammensetzung von Dynamischen Produktgruppen beeinflussen diese Zuweisung nicht.",
+          "columnName": "Name",
+          "searchFieldPlaceholder": "Durchsuche alle dynamischen Produktgruppen ...",
+          "titleNoProductStreamsMatching": "Keine passenden dynamischen Produktgruppen gefunden.",
+          "titleNoProductStreamsAvailable": "Keine dynamische Produktgruppen verfügbar."
+        }
       }
     },
     "sw-sales-channel-defaults-select": {

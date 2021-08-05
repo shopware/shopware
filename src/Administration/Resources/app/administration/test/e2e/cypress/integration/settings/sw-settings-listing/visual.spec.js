@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 describe('Listing settings: Visual testing', () => {
     beforeEach(() => {
@@ -30,6 +30,6 @@ describe('Listing settings: Visual testing', () => {
         });
         cy.get('.sw-card__title').contains('Product');
         cy.get('.sw-loader').should('not.exist');
-        cy.takeSnapshot('[Payment] Details', '.sw-settings-listing-index');
+        cy.takeSnapshot('[Listing] Details', '.sw-settings-listing-index');
     });
 });

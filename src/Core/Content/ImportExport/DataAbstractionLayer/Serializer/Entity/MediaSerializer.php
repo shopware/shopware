@@ -31,7 +31,7 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
     /**
      * @var array[]
      */
-    private array $mediaFiles = [];
+    private array $cacheMediaFiles = [];
 
     public function __construct(
         MediaService $mediaService,
@@ -87,7 +87,7 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
             $pathInfo = pathinfo($parsed['path']);
 
             $media = $this->fetchFileFromURL((string) $url, $pathInfo['extension'] ?? '');
-            $this->mediaFiles[$deserialized['id']] = [
+            $this->cacheMediaFiles[$deserialized['id']] = [
                 'media' => $media,
                 'destination' => $pathInfo['filename'],
             ];
@@ -113,13 +113,13 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
      */
     public function persistMedia(EntityWrittenEvent $event): void
     {
-        if (empty($this->mediaFiles)) {
+        if (empty($this->cacheMediaFiles)) {
             return;
         }
 
-        $mediaFiles = $this->mediaFiles;
+        $mediaFiles = $this->cacheMediaFiles;
         // prevent recursion
-        $this->mediaFiles = [];
+        $this->cacheMediaFiles = [];
 
         foreach ($event->getIds() as $id) {
             if (!isset($mediaFiles[$id])) {

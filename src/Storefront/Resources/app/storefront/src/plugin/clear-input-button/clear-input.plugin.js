@@ -13,7 +13,7 @@ export default class ClearInputPlugin extends Plugin {
          *
          * @type string
          */
-        clearButtonSelector: ''
+        clearButtonSelector: '',
     }
 
     init() {

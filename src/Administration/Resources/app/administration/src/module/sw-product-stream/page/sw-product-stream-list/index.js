@@ -9,12 +9,12 @@ Component.register('sw-product-stream-list', {
 
     inject: [
         'repositoryFactory',
-        'acl'
+        'acl',
     ],
 
     mixins: [
         Mixin.getByName('listing'),
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     data() {
@@ -23,32 +23,32 @@ Component.register('sw-product-stream-list', {
             sortBy: 'createdAt',
             sortDirection: 'DESC',
             isLoading: false,
-            showDeleteModal: false
+            showDeleteModal: false,
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle()
+            title: this.$createTitle(),
         };
     },
 
     computed: {
         productStreamRepository() {
             return this.repositoryFactory.create('product_stream');
-        }
+        },
     },
 
     methods: {
         onInlineEditSave(promise, productStream) {
             return promise.then(() => {
                 this.createNotificationSuccess({
-                    message: this.$tc('sw-product-stream.detail.messageSaveSuccess', 0, { name: productStream.name })
+                    message: this.$tc('sw-product-stream.detail.messageSaveSuccess', 0, { name: productStream.name }),
                 });
             }).catch(() => {
                 this.getList();
                 this.createNotificationError({
-                    message: this.$tc('sw-product-stream.detail.messageSaveError')
+                    message: this.$tc('sw-product-stream.detail.messageSaveError'),
                 });
             });
         },
@@ -86,21 +86,21 @@ Component.register('sw-product-stream-list', {
                 routerLink: 'sw.product.stream.detail',
                 width: '250px',
                 allowResize: true,
-                primary: true
+                primary: true,
             }, {
                 property: 'description',
                 label: 'sw-product-stream.list.columnDescription',
                 width: '250px',
-                allowResize: true
+                allowResize: true,
             }, {
                 property: 'updatedAt',
                 label: 'sw-product-stream.list.columnDateUpdated',
                 align: 'right',
-                allowResize: true
+                allowResize: true,
             }, {
                 property: 'invalid',
                 label: 'sw-product-stream.list.columnStatus',
-                allowResize: true
+                allowResize: true,
             }];
         },
 
@@ -110,8 +110,8 @@ Component.register('sw-product-stream-list', {
                 message: this.$tc('sw-privileges.tooltip.warning'),
                 appearance: 'dark',
                 showOnDisabledElements,
-                disabled: this.acl.can(role) || this.allowDelete
+                disabled: this.acl.can(role) || this.allowDelete,
             };
-        }
-    }
+        },
+    },
 });

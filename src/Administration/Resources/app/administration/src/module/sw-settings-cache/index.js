@@ -20,16 +20,16 @@ Module.register('sw-settings-cache', {
             component: 'sw-settings-cache-index',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.index',
-                privilege: 'system.clear_cache'
-            }
-        }
+                parentPath: 'sw.settings.index.system',
+                privilege: 'system.clear_cache',
+            },
+        },
     },
 
     settingsItem: {
         privilege: 'system.clear_cache',
         group: 'system',
         to: 'sw.settings.cache.index',
-        icon: 'default-action-replace'
-    }
+        icon: 'default-action-replace',
+    },
 });

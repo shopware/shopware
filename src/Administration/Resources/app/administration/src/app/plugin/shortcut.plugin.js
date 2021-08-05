@@ -30,14 +30,14 @@ export default {
                             key: key,
                             functionName: value.method,
                             instance: this,
-                            active: activeFunction.bind(this)
+                            active: activeFunction.bind(this),
                         });
                     } else {
                         activeShortcuts.push({
                             key: key,
                             functionName: value,
                             instance: this,
-                            active: () => true
+                            active: () => true,
                         });
                     }
                 });
@@ -93,11 +93,11 @@ export default {
                         return false;
                     }
 
+                    // check for editable elements
+                    const isEditableDiv = event.target.tagName === 'DIV' && event.target.isContentEditable;
+
                     // SYSTEMKEY shortcuts combinations should always trigger
                     if (matchedShortcut && /SYSTEMKEY/.test(matchedShortcut.key) === false) {
-                        // check for editable elements
-                        const isEditableDiv = event.target.tagName === 'DIV' && event.target.isContentEditable;
-
                         // check for restricted elements
                         const restrictedTags = /INPUT|TEXTAREA|SELECT/;
                         const isRestrictedTag = restrictedTags.test(event.target.tagName);
@@ -113,6 +113,12 @@ export default {
                         return false;
                     }
 
+                    // blur rich text and code editor inputs on save shortcut to react on changes before saving
+                    if (matchedShortcut.key === 'SYSTEMKEY+S' &&
+                        (isEditableDiv || event.target.classList.contains('ace_text-input'))) {
+                        event.target.blur();
+                    }
+
                     // check if function exists
                     if (matchedShortcut.instance[matchedShortcut.functionName]) {
                         // trigger function
@@ -120,12 +126,12 @@ export default {
                     }
 
                     return true;
-                }, 200)
-            }
+                }, 200),
+            },
         });
 
         pluginInstalled = true;
 
         return true;
-    }
+    },
 };

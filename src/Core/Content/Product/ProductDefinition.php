@@ -62,6 +62,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeDefinition;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
@@ -110,6 +111,11 @@ class ProductDefinition extends EntityDefinition
         return '6.0.0.0';
     }
 
+    public function getHydratorClass(): string
+    {
+        return ProductHydrator::class;
+    }
+
     protected function defineFields(): FieldCollection
     {
         $collection = new FieldCollection([
@@ -139,7 +145,7 @@ class ProductDefinition extends EntityDefinition
             (new IntField('available_stock', 'availableStock'))->addFlags(new ApiAware(), new WriteProtected()),
             (new BoolField('available', 'available'))->addFlags(new ApiAware(), new WriteProtected()),
             (new BoolField('is_closeout', 'isCloseout'))->addFlags(new ApiAware(), new Inherited()),
-            (new ListField('variation', 'variation', StringField::class))->addFlags(new Runtime()),
+            (new ListField('variation', 'variation', StringField::class))->setStrict(true)->addFlags(new Runtime()),
 
             (new StringField('display_group', 'displayGroup'))->addFlags(new ApiAware(), new WriteProtected()),
             (new JsonField('configurator_group_config', 'configuratorGroupConfig'))->addFlags(new Inherited()),
@@ -161,7 +167,7 @@ class ProductDefinition extends EntityDefinition
             (new FloatField('length', 'length'))->addFlags(new ApiAware(), new Inherited()),
             (new DateTimeField('release_date', 'releaseDate'))->addFlags(new ApiAware(), new Inherited()),
             (new FloatField('rating_average', 'ratingAverage'))->addFlags(new ApiAware(), new WriteProtected(), new Inherited()),
-            (new ListField('category_tree', 'categoryTree', IdField::class))->addFlags(new ApiAware(), new Inherited(), new WriteProtected()),
+            (new ListField('category_tree', 'categoryTree', IdField::class))->setStrict(true)->addFlags(new ApiAware(), new Inherited(), new WriteProtected()),
             (new ManyToManyIdField('property_ids', 'propertyIds', 'properties'))->addFlags(new ApiAware(), new Inherited()),
             (new ManyToManyIdField('option_ids', 'optionIds', 'options'))->addFlags(new ApiAware(), new Inherited()),
             (new ManyToManyIdField('tag_ids', 'tagIds', 'tags'))->addFlags(new Inherited()),
@@ -169,7 +175,6 @@ class ProductDefinition extends EntityDefinition
             (new ChildCountField())->addFlags(new ApiAware()),
             (new BoolField('custom_field_set_selection_active', 'customFieldSetSelectionActive'))->addFlags(new Inherited()),
             (new IntField('sales', 'sales'))->addFlags(new ApiAware(), new WriteProtected()),
-            (new CheapestPriceField('cheapest_price', 'cheapestPrice'))->addFlags(new WriteProtected(), new Inherited()),
 
             (new TranslatedField('metaDescription'))->addFlags(new ApiAware(), new Inherited()),
             (new TranslatedField('name'))->addFlags(new ApiAware(), new Inherited(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
@@ -242,6 +247,11 @@ class ProductDefinition extends EntityDefinition
 
             (new TranslationsAssociationField(ProductTranslationDefinition::class, 'product_id'))->addFlags(new ApiAware(), new Inherited(), new Required()),
         ]);
+
+        // CheapestPrice will only be added to SalesChannelProductEntities in the Future
+        if (!Feature::isActive('FEATURE_NEXT_16151')) {
+            $collection->add((new CheapestPriceField('cheapest_price', 'cheapestPrice'))->addFlags(new WriteProtected(), new Inherited()));
+        }
 
         return $collection;
     }

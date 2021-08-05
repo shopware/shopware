@@ -42,6 +42,8 @@ class ElasticsearchIndexer extends AbstractMessageHandler
 
     private EntityRepositoryInterface $languageRepository;
 
+    private int $indexingBatchSize;
+
     public function __construct(
         Connection $connection,
         ElasticsearchHelper $helper,
@@ -51,7 +53,8 @@ class ElasticsearchIndexer extends AbstractMessageHandler
         Client $client,
         LoggerInterface $logger,
         EntityRepositoryInterface $currencyRepository,
-        EntityRepositoryInterface $languageRepository
+        EntityRepositoryInterface $languageRepository,
+        int $indexingBatchSize
     ) {
         $this->connection = $connection;
         $this->helper = $helper;
@@ -62,6 +65,7 @@ class ElasticsearchIndexer extends AbstractMessageHandler
         $this->logger = $logger;
         $this->currencyRepository = $currencyRepository;
         $this->languageRepository = $languageRepository;
+        $this->indexingBatchSize = $indexingBatchSize;
     }
 
     /**
@@ -217,10 +221,6 @@ class ElasticsearchIndexer extends AbstractMessageHandler
 
             throw new ElasticsearchIndexingException($errors);
         }
-
-        $this->client->indices()->refresh([
-            'index' => $index,
-        ]);
     }
 
     public static function getHandledMessages(): iterable
@@ -260,7 +260,7 @@ class ElasticsearchIndexer extends AbstractMessageHandler
 
         $entity = $definition->getEntityDefinition()->getEntityName();
 
-        $iterator = $this->iteratorFactory->createIterator($definition->getEntityDefinition(), $offset->getLastId(), 100);
+        $iterator = $this->iteratorFactory->createIterator($definition->getEntityDefinition(), $offset->getLastId(), $this->indexingBatchSize);
 
         $ids = $iterator->fetch();
 

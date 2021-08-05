@@ -90,7 +90,7 @@ describe('components/sw-boolean-filter', () => {
     it('should emit `filter-update` event when user changes from `Active` to `Inactive`', async () => {
         const wrapper = createWrapper();
 
-        await wrapper.setData({ value: 'true' });
+        wrapper.get('.sw-block-field__block').trigger('click');
 
         const options = wrapper.find('select').findAll('option');
 
@@ -106,7 +106,7 @@ describe('components/sw-boolean-filter', () => {
     it('should emit `filter-update` event when user changes from `Inactive` to `Active`', async () => {
         const wrapper = createWrapper();
 
-        await wrapper.setData({ value: 'false' });
+        wrapper.get('.sw-block-field__block').trigger('click');
 
         const options = wrapper.find('select').findAll('option');
 

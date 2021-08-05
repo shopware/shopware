@@ -18,7 +18,7 @@ Component.extend('sw-condition-sales-channel', 'sw-condition-base', {
 
     data() {
         return {
-            salesChannels: null
+            salesChannels: null,
         };
     },
 
@@ -39,14 +39,14 @@ Component.extend('sw-condition-sales-channel', 'sw-condition-base', {
             set(salesChannelIds) {
                 this.ensureValueExist();
                 this.condition.value = { ...this.condition.value, salesChannelIds };
-            }
+            },
         },
 
         ...mapPropertyErrors('condition', ['value.operator', 'value.salesChannelIds']),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueSalesChannelIdsError;
-        }
+        },
     },
 
     created() {
@@ -58,7 +58,7 @@ Component.extend('sw-condition-sales-channel', 'sw-condition-base', {
             this.salesChannels = new EntityCollection(
                 this.salesChannelRepository.route,
                 this.salesChannelRepository.entityName,
-                Context.api
+                Context.api,
             );
 
             if (this.salesChannelIds.length <= 0) {
@@ -76,6 +76,6 @@ Component.extend('sw-condition-sales-channel', 'sw-condition-base', {
         setSalesChannelIds(salesChannels) {
             this.salesChannelIds = salesChannels.getIds();
             this.salesChannels = salesChannels;
-        }
-    }
+        },
+    },
 });

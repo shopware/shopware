@@ -355,4 +355,92 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
             ])
         );
     });
+
+    it('should show regular upload button when having less than 3 media files', async () => {
+        const entities = [
+            {
+                mediaId: 'mediaId1',
+                id: 'id1'
+            },
+            {
+                mediaId: 'mediaId2',
+                id: 'id2'
+            }
+        ];
+
+        await wrapper.setProps({
+            uploadTag: 'upload-tag',
+            source: {
+                media: new EntityCollection(
+                    '/test-entity',
+                    'testEntity',
+                    null,
+                    { isShopwareContext: true },
+                    entities,
+                    entities.length,
+                    null
+                ),
+                coverId: 'id2'
+            },
+            parentProduct: {
+                media: new EntityCollection(
+                    '/test-entity',
+                    'testEntity',
+                    null,
+                    { isShopwareContext: true },
+                    entities,
+                    entities.length,
+                    null
+                )
+            }
+        });
+
+        expect(wrapper.find('.sw-product-variants-media-upload__regular-button').exists()).toBeTruthy();
+    });
+
+    it('should show regular compact button when having 3 or more media files', async () => {
+        const entities = [
+            {
+                mediaId: 'mediaId1',
+                id: 'id1'
+            },
+            {
+                mediaId: 'mediaId2',
+                id: 'id2'
+            },
+            {
+                mediaId: 'mediaId3',
+                id: 'id3'
+            }
+        ];
+
+        await wrapper.setProps({
+            uploadTag: 'upload-tag',
+            source: {
+                media: new EntityCollection(
+                    '/test-entity',
+                    'testEntity',
+                    null,
+                    { isShopwareContext: true },
+                    entities,
+                    entities.length,
+                    null
+                ),
+                coverId: 'id2'
+            },
+            parentProduct: {
+                media: new EntityCollection(
+                    '/test-entity',
+                    'testEntity',
+                    null,
+                    { isShopwareContext: true },
+                    entities,
+                    entities.length,
+                    null
+                )
+            }
+        });
+
+        expect(wrapper.find('.sw-product-variants-media-upload__compact-button').exists()).toBeTruthy();
+    });
 });

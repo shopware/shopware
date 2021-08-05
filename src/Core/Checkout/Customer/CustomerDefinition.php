@@ -27,6 +27,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SetNullOnDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FloatField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
@@ -87,14 +88,14 @@ class CustomerDefinition extends EntityDefinition
             (new FkField('default_shipping_address_id', 'defaultShippingAddressId', CustomerAddressDefinition::class))->addFlags(new ApiAware(), new Required()),
             (new IntField('auto_increment', 'autoIncrement'))->addFlags(new WriteProtected()),
             (new NumberRangeField('customer_number', 'customerNumber', 255))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
-            (new FkField('salutation_id', 'salutationId', SalutationDefinition::class))->addFlags(new ApiAware(), new Required()),
+            (new FkField('salutation_id', 'salutationId', SalutationDefinition::class))->addFlags(new ApiAware()),
             (new StringField('first_name', 'firstName'))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING)),
             (new StringField('last_name', 'lastName'))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new StringField('company', 'company'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             (new PasswordField('password', 'password'))->removeFlag(ApiAware::class),
             (new EmailField('email', 'email'))->addFlags(new ApiAware(), new Required(), new SearchRanking(SearchRanking::MIDDLE_SEARCH_RANKING, false)),
             (new StringField('title', 'title'))->addFlags(new ApiAware()),
-            (new ListField('vat_ids', 'vatIds', StringField::class))->addFlags(new ApiAware()),
+            (new ListField('vat_ids', 'vatIds', StringField::class))->setStrict(true)->addFlags(new ApiAware()),
             (new StringField('affiliate_code', 'affiliateCode'))->addFlags(new ApiAware()),
             (new StringField('campaign_code', 'campaignCode'))->addFlags(new ApiAware()),
             (new BoolField('active', 'active'))->addFlags(new ApiAware()),
@@ -105,10 +106,15 @@ class CustomerDefinition extends EntityDefinition
             (new BoolField('guest', 'guest'))->addFlags(new ApiAware()),
             (new DateTimeField('first_login', 'firstLogin'))->addFlags(new ApiAware()),
             (new DateTimeField('last_login', 'lastLogin'))->addFlags(new ApiAware()),
+            /*
+             * @feature-deprecated tag:v6.5.0 (FEATURE_NEXT_16106) - newsletter field will be remove on version 6.5.0.
+             * Please use the newsletterRecipient to detemine if a customer is subscribed to a newsletter
+             */
             (new BoolField('newsletter', 'newsletter'))->addFlags(new ApiAware()),
             (new DateField('birthday', 'birthday'))->addFlags(new ApiAware()),
             (new DateTimeField('last_order_date', 'lastOrderDate'))->addFlags(new ApiAware(), new WriteProtected(Context::SYSTEM_SCOPE)),
             (new IntField('order_count', 'orderCount'))->addFlags(new ApiAware(), new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new FloatField('order_total_amount', 'orderTotalAmount'))->addFlags(new ApiAware(), new WriteProtected(Context::SYSTEM_SCOPE)),
             (new CustomFields())->addFlags(new ApiAware()),
             (new StringField('legacy_password', 'legacyPassword'))->removeFlag(ApiAware::class),
             (new StringField('legacy_encoder', 'legacyEncoder'))->removeFlag(ApiAware::class),

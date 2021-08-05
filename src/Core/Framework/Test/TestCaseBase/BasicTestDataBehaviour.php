@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
+use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Defaults;
@@ -60,17 +61,17 @@ trait BasicTestDataBehaviour
         $repository = $this->getContainer()->get('payment_method.repository');
 
         $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('active', true));
-        $paymentMethods = $repository->search($criteria, Context::createDefaultContext())->getEntities();
+            ->setLimit(1)
+            ->addFilter(new EqualsFilter('active', true))
+            ->addFilter(new EqualsFilter('availabilityRuleId', null));
 
-        /** @var PaymentMethodEntity $paymentMethod */
-        foreach ($paymentMethods as $paymentMethod) {
-            if ($paymentMethod->getAvailabilityRuleId() === null) {
-                return $paymentMethod;
-            }
+        $paymentMethod = $repository->search($criteria, Context::createDefaultContext())->getEntities()->first();
+
+        if ($paymentMethod === null) {
+            throw new \LogicException('No available Payment method configured');
         }
 
-        throw new \LogicException('No available Payment method configured');
+        return $paymentMethod;
     }
 
     protected function getValidShippingMethodId(): string
@@ -177,6 +178,20 @@ trait BasicTestDataBehaviour
         $repository = $this->getContainer()->get('tax.repository');
 
         $criteria = (new Criteria())->setLimit(1);
+
+        return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
+    }
+
+    protected function getStateMachineState(string $stateMachine = OrderStates::STATE_MACHINE, string $state = OrderStates::STATE_OPEN): string
+    {
+        /** @var EntityRepositoryInterface $repository */
+        $repository = $this->getContainer()->get('state_machine_state.repository');
+
+        $criteria = new Criteria();
+        $criteria
+            ->setLimit(1)
+            ->addFilter(new EqualsFilter('technicalName', $state))
+            ->addFilter(new EqualsFilter('stateMachine.technicalName', $stateMachine));
 
         return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
     }

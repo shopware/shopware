@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Adapter\Cache\CacheIdLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @group cache
+ */
 class CacheIdLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;

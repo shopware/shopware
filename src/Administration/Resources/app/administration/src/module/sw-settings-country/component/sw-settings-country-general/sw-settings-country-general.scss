@@ -1,0 +1,38 @@
+@import "~scss/variables";
+
+.sw-settings-country-general {
+    &__option-items.sw-field--switch {
+        margin: 12px 0;
+    }
+
+    &__currency-dependent-modal {
+        color: $color-shopware-brand-500;
+        font-size: 14px;
+        cursor: pointer;
+        text-decoration: underline;
+    }
+
+    &__select {
+        &.sw-field {
+            width: 100%;
+            margin-bottom: 0;
+        }
+    }
+
+    &__input-amount {
+        .sw-block-field__block {
+            .sw-field__addition {
+                width: 45%;
+                padding: 0;
+            }
+
+            .sw-field__addition .sw-block-field__block {
+                border: 0;
+            }
+
+            .sw-field__addition .sw-block-field__block .sw-select__selection {
+                width: 100%;
+            }
+        }
+    }
+}

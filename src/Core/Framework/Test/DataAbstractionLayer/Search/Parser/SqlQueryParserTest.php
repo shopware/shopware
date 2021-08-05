@@ -3,12 +3,18 @@
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Parser;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -24,6 +30,34 @@ class SqlQueryParserTest extends TestCase
     protected function setUp(): void
     {
         $this->manufacturerRepository = $this->getContainer()->get('product_manufacturer.repository');
+    }
+
+    /**
+     * @dataProvider whenToUseNullSafeOperatorProvider
+     */
+    public function testWhenToUseNullSafeOperator(Filter $filter, bool $expected): void
+    {
+        $parser = $this->getContainer()->get(SqlQueryParser::class);
+
+        $definition = $this->getContainer()->get(ProductDefinition::class);
+
+        $parsed = $parser->parse($filter, $definition, Context::createDefaultContext(), 'product');
+
+        $has = false;
+        foreach ($parsed->getWheres() as $where) {
+            $has = $has || strpos($where, '<=>') !== false;
+        }
+
+        static::assertEquals($expected, $has);
+    }
+
+    public function whenToUseNullSafeOperatorProvider()
+    {
+        yield 'Dont used for simple equals' => [new EqualsFilter('product.id', Uuid::randomHex()), false];
+        yield 'Used for negated comparison' => [new NandFilter([new EqualsFilter('product.id', Uuid::randomHex())]), true];
+        yield 'Used for negated null comparison' => [new NandFilter([new EqualsFilter('product.id', null)]), true];
+        yield 'Used in nested negated comparison' => [new AndFilter([new NandFilter([new EqualsFilter('product.id', Uuid::randomHex())])]), true];
+        yield 'Used for null comparison' => [new EqualsFilter('product.id', null), true];
     }
 
     public function testContainsFilterFindUnderscore(): void

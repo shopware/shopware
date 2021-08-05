@@ -70,7 +70,7 @@ class UpdateService extends ApiService {
         return this.httpClient
             .get(
                 `/_action/${this.getApiBasePath()}/unpack?offset=${offset}`,
-                { headers }
+                { headers },
             ).then((response) => {
                 return ApiService.handleResponse(response);
             });
@@ -78,7 +78,7 @@ class UpdateService extends ApiService {
 
     getBasicParams(additionalParams = {}) {
         const basicParams = {
-            language: localStorage.getItem('sw-admin-locale')
+            language: localStorage.getItem('sw-admin-locale'),
         };
 
         return Object.assign({}, basicParams, additionalParams);

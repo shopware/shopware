@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryStates;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -160,12 +161,12 @@ EOF;
         foreach ($availableTransitions as $transition) {
             if ($transition->getActionName() === 'reopen') {
                 $reopenActionExisted = true;
-                static::assertEquals('open', $transition->getToStateMachineState()->getTechnicalName());
+                static::assertEquals(OrderDeliveryStates::STATE_OPEN, $transition->getToStateMachineState()->getTechnicalName());
             }
 
             if ($transition->getActionName() === 'retour') {
                 $retourActionExisted = true;
-                static::assertEquals('returned', $transition->getToStateMachineState()->getTechnicalName());
+                static::assertEquals(OrderDeliveryStates::STATE_RETURNED, $transition->getToStateMachineState()->getTechnicalName());
             }
         }
 
@@ -184,8 +185,23 @@ EOF;
         static::assertNotEmpty($stateCollection->get('toPlace'));
         static::assertInstanceOf(StateMachineStateEntity::class, $fromPlace = $stateCollection->get('fromPlace'));
         static::assertInstanceOf(StateMachineStateEntity::class, $toPlace = $stateCollection->get('toPlace'));
-        static::assertEquals('returned_partially', $fromPlace->getTechnicalName());
-        static::assertEquals('returned', $toPlace->getTechnicalName());
+        static::assertEquals(OrderDeliveryStates::STATE_PARTIALLY_RETURNED, $fromPlace->getTechnicalName());
+        static::assertEquals(OrderDeliveryStates::STATE_RETURNED, $toPlace->getTechnicalName());
+    }
+
+    public function testStateMachineRegistryUnnecessaryTransition(): void
+    {
+        $orderDeliveryId = $this->createOrderWithPartiallyReturnedDeliveryState();
+        $transition = new Transition('order_delivery', $orderDeliveryId, 'retour_partially', 'stateId');
+        $stateCollection = $this->stateMachineRegistry->transition($transition, Context::createDefaultContext());
+
+        static::assertNotEmpty($stateCollection);
+        static::assertNotEmpty($stateCollection->get('fromPlace'));
+        static::assertNotEmpty($stateCollection->get('toPlace'));
+        static::assertInstanceOf(StateMachineStateEntity::class, $fromPlace = $stateCollection->get('fromPlace'));
+        static::assertInstanceOf(StateMachineStateEntity::class, $toPlace = $stateCollection->get('toPlace'));
+        static::assertEquals(OrderDeliveryStates::STATE_PARTIALLY_RETURNED, $fromPlace->getTechnicalName());
+        static::assertEquals(OrderDeliveryStates::STATE_PARTIALLY_RETURNED, $toPlace->getTechnicalName());
     }
 
     private function createOrderWithPartiallyReturnedDeliveryState(): string
@@ -198,7 +214,7 @@ EOF;
 
         $stateMachineId = $connection->fetchColumn('SELECT id FROM state_machine WHERE technical_name = :name', ['name' => 'order_delivery.state']);
         /** @var string $returnedPartially */
-        $returnedPartially = $connection->fetchColumn('SELECT id FROM state_machine_state WHERE technical_name = :name AND state_machine_id = :id', ['name' => 'returned_partially', 'id' => $stateMachineId]);
+        $returnedPartially = $connection->fetchColumn('SELECT id FROM state_machine_state WHERE technical_name = :name AND state_machine_id = :id', ['name' => OrderDeliveryStates::STATE_PARTIALLY_RETURNED, 'id' => $stateMachineId]);
         $returnedPartially = Uuid::fromBytesToHex($returnedPartially);
 
         $orderDeliveryId = Uuid::randomHex();
@@ -300,7 +316,7 @@ EOF;
                     'de-DE' => ['name' => 'Bestellungsstatus'],
                 ],
                 'states' => [
-                    ['id' => $this->openId, 'technicalName' => 'open', 'name' => 'Open'],
+                    ['id' => $this->openId, 'technicalName' => OrderDeliveryStates::STATE_OPEN, 'name' => OrderDeliveryStates::STATE_OPEN],
                     ['id' => $this->inProgressId, 'technicalName' => 'in_progress', 'name' => 'In progress'],
                     ['id' => $this->closedId, 'technicalName' => 'closed', 'name' => 'Closed'],
                 ],

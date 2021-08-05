@@ -73,28 +73,9 @@ The current shopware version will be sent as a `sw-version` header.
 You can verify the authenticity of the incoming request by checking the `shopware-shop-signature` every request should have a sha256 hmac of the 
 request body, that is signed with the secret your app assigned the shop during the registration.
 
-You can use a variety of events to react to changes in Shopware that way. See the table below for an overview of most
-important ones.
+You can use a variety of events to react to changes in Shopware that way. 
 
-| Event        | Description           | 
-| -------------- |-------------------- |
-| `contact_form.send` | Triggers if a contact form is send | 
-| `mail.sent` | Triggers if a mail is send from Shopware | 
-| `mail.after.create.message` | Triggers if a mail after creating a message is send | 
-| `mail.before.send` | Triggers before a mail is send | 
-| `checkout.order.placed` | Triggers if an order is placed checkout-wise | 
-| `checkout.customer.register` | Triggers if a new customer was registered yo| 
-| `checkout.customer.login` | Triggers as soon as a customer logs in | 
-| `checkout.customer.double_opt_in_guest_order` | Triggers as soon as double opt-in is accepted in a guest order | 
-| `checkout.customer.before.login` |  Triggers as soon as a customer logs in within the checkout process |
-| `checkout.customer.changed-payment-method` |  Triggers if a customer changes his payment method in checkout process |
-| `checkout.customer.logout` | Triggers if a customer logs out |
-| `checkout.customer.double_opt_in_registration` | Triggers if a customer commits to his registration via double opt in |
-| `customer.recovery.request` | Triggers if a customer recovers his password |
-| `user.recovery.request` | Triggers if a user recovers his password |
-| `product.written` | Triggers if a product is written |
-| `product_price.written` | Triggers if product price is written |
-| `category.written` | Triggers if a category is written |
+See that table [Webhook-Events-Reference](webhook-events-reference.md) for an overview.
 
 #### App lifecycle events
 
@@ -186,6 +167,63 @@ The current shopware version will be sent as a `sw-version` header.
 
 Again you can verify the authenticity of the incoming request, like with webhooks, by checking the `shopware-shop-signature` it too should contain a sha256 hmac of the
 request body, that is signed with the secret your app assigned the shop during the registration.
+
+If you want to trigger an action inside the administration upon completing the action, the app should return a response with a valid body and the header `shopware-app-signature` contains the sha256 hmac of the whole response body signed with and the app secret.
+If you do not need to trigger any actions, a response with an empty body is also always valid.
+
+Examples response body:
+To open a new tab in the user browser you can use the `openNewTab` action type. You need to pass the url that should be opened as the `redirectUrl` property inside the payload.
+```json
+{
+  "actionType": "openNewTab",
+  "payload": {
+    "redirectUrl": "http://google.com"
+  }
+}
+
+```
+
+To send a notification, you can use the `notification` action type. You need to pass the `status` property and the content of the notification as `message` property inside the payload.
+```json
+{
+  "actionType": "notification",
+  "payload": {
+    "status": "success",
+    "message": "This is the successful message"
+  }
+}
+
+```
+
+To reload the data in the user's current page you can use the `reload` action type with an empty payload.
+```json
+{
+  "actionType": "reload",
+  "payload": {}
+}
+
+```
+
+To open a modal with the embedded link in the iframe, you can use the `openModal` action type. You need to pass the url that should be opened as the `iframeUrl` property and the `size` property inside the payload.
+```json
+{
+  "actionType": "openModal",
+  "payload": {
+    "iframeUrl": "http://google.com",
+    "size": "medium",
+    "expand": true
+  }
+}
+
+```
+* `actionType`: The type of action the app want to be triggered, including `notification`, `reload`, `openNewTab`, `openModal`
+* `payload`: The needed data to perform the action
+* `redirectUrl`: The url to open new tab
+* `iframeUrl`: The embedded link in modal iframe
+* `status`: Notification status, including `success`, `error`, `info`, `warning`
+* `message`: The content of the notification
+* `size`: The size of the modal in `openModal` type, including `small`, `medium`, `large`, `fullscreen`, default `medium`
+* `expand`: The expansion of the modal in `openModal` type, including `true`, `false`, default `false`
 
 ### Create own module
 

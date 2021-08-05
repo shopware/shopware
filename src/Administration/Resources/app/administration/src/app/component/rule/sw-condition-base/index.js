@@ -19,28 +19,28 @@ Component.register('sw-condition-base', {
     inject: [
         'conditionDataProviderService',
         'availableTypes',
-        'childAssociationField'
+        'childAssociationField',
     ],
 
     props: {
         condition: {
             type: Object,
             required: false,
-            default: null
+            default: null,
         },
 
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     computed: {
         conditionClasses() {
             return {
                 'has--error': this.hasError,
-                'is--disabled': this.hasNoComponent || this.disabled
+                'is--disabled': this.hasNoComponent || this.disabled,
             };
         },
 
@@ -66,7 +66,15 @@ Component.register('sw-condition-base', {
             const component = this.conditionDataProviderService.getComponentByCondition(this.condition);
 
             return component === 'sw-condition-not-found';
-        }
+        },
+
+        operator() {
+            return this.condition.value?.operator ?? null;
+        },
+
+        isEmpty() {
+            return this.operator === this.conditionDataProviderService.getOperatorSet('empty')[0].identifier;
+        },
     },
 
     watch: {
@@ -74,7 +82,10 @@ Component.register('sw-condition-base', {
             if (this.hasError) {
                 this.$store.commit('error/removeApiError', { expression: this.valueErrorPath });
             }
-        }
+            if (this.isEmpty && !!this.inputKey) {
+                this.$delete(this.condition.value, this.inputKey);
+            }
+        },
     },
 
     methods: {
@@ -94,6 +105,6 @@ Component.register('sw-condition-base', {
             if (typeof this.condition.value === 'undefined' || this.condition.value === null) {
                 this.condition.value = {};
             }
-        }
-    }
+        },
+    },
 });

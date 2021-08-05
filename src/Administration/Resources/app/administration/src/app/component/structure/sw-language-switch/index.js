@@ -21,35 +21,35 @@ Component.register('sw-language-switch', {
         disabled: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
         changeGlobalLanguage: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
         // FIXME: add default value
         // eslint-disable-next-line vue/require-default-prop
         abortChangeFunction: {
             type: Function,
-            required: false
+            required: false,
         },
         // FIXME: add default value for example `default: () => { console.debug('implement me'); }
         // eslint-disable-next-line vue/require-default-prop
         saveChangesFunction: {
             type: Function,
-            required: false
+            required: false,
         },
         savePermission: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
         allowEdit: {
             type: Boolean,
             required: false,
-            default: true
-        }
+            default: true,
+        },
     },
 
     data() {
@@ -57,7 +57,7 @@ Component.register('sw-language-switch', {
             languageId: '',
             lastLanguageId: '',
             newLanguageId: '',
-            showUnsavedChangesModal: false
+            showUnsavedChangesModal: false,
         };
     },
 
@@ -68,7 +68,7 @@ Component.register('sw-language-switch', {
             criteria.addSorting(Criteria.sort('name', 'ASC', false));
 
             return criteria;
-        }
+        },
     },
 
     created() {
@@ -102,7 +102,7 @@ Component.register('sw-language-switch', {
             if (typeof this.abortChangeFunction === 'function' && this.savePermission) {
                 if (this.abortChangeFunction({
                     oldLanguageId: this.lastLanguageId,
-                    newLanguageId: this.languageId
+                    newLanguageId: this.languageId,
                 })) {
                     this.showUnsavedChangesModal = true;
                     this.languageId = this.lastLanguageId;
@@ -156,6 +156,6 @@ Component.register('sw-language-switch', {
             this.languageId = this.newLanguageId;
             this.newLanguageId = '';
             this.emitChange();
-        }
-    }
+        },
+    },
 });

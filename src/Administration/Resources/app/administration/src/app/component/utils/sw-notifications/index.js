@@ -23,16 +23,16 @@ Component.register('sw-notifications', {
                     return true;
                 }
                 return ['topRight', 'bottomRight'].includes(value);
-            }
+            },
         },
         notificationsGap: {
             type: String,
-            default: '20px'
+            default: '20px',
         },
         notificationsTopGap: {
             type: String,
-            default: '165px'
-        }
+            default: '165px',
+        },
     },
 
     computed: {
@@ -52,7 +52,7 @@ Component.register('sw-notifications', {
                     top: 'auto',
                     right: notificationsGap,
                     bottom: notificationsGap,
-                    left: 'auto'
+                    left: 'auto',
                 };
             }
 
@@ -60,9 +60,9 @@ Component.register('sw-notifications', {
                 top: this.notificationsTopGap,
                 right: notificationsGap,
                 bottom: 'auto',
-                left: 'auto'
+                left: 'auto',
             };
-        }
+        },
     },
 
     methods: {
@@ -86,6 +86,6 @@ Component.register('sw-notifications', {
             }
 
             this.onClose(notification);
-        }
-    }
+        },
+    },
 });

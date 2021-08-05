@@ -10,14 +10,14 @@ Component.register('sw-category-detail-menu', {
     props: {
         category: {
             type: Object,
-            required: true
+            required: true,
         },
 
         isLoading: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     computed: {
@@ -27,7 +27,7 @@ Component.register('sw-category-detail-menu', {
             },
             set(visibility) {
                 this.category.visible = !visibility;
-            }
+            },
         },
 
         mediaItem() {
@@ -36,7 +36,7 @@ Component.register('sw-category-detail-menu', {
 
         mediaRepository() {
             return this.repositoryFactory.create('media');
-        }
+        },
     },
 
     methods: {
@@ -55,7 +55,7 @@ Component.register('sw-category-detail-menu', {
         onMediaDropped(dropItem) {
             // to be consistent refetch entity with repository
             this.onSetMediaItem({ targetId: dropItem.id });
-        }
-    }
+        },
+    },
 
 });

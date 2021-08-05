@@ -12,47 +12,47 @@ Shopware.Service('cmsService').registerCmsBlock({
         marginTop: null,
         marginLeft: null,
         marginRight: null,
-        sizingMode: 'full_width'
+        sizingMode: 'full_width',
     },
     slots: {
         left: {
             type: 'image',
             default: {
                 config: {
-                    displayMode: { source: 'static', value: 'cover' }
+                    displayMode: { source: 'static', value: 'cover' },
                 },
                 data: {
                     media: {
-                        url: '/administration/static/img/cms/preview_camera_large.jpg'
-                    }
-                }
-            }
+                        url: '/administration/static/img/cms/preview_camera_large.jpg',
+                    },
+                },
+            },
         },
         center: {
             type: 'image',
             default: {
                 config: {
-                    displayMode: { source: 'static', value: 'cover' }
+                    displayMode: { source: 'static', value: 'cover' },
                 },
                 data: {
                     media: {
-                        url: '/administration/static/img/cms/preview_plant_large.jpg'
-                    }
-                }
-            }
+                        url: '/administration/static/img/cms/preview_plant_large.jpg',
+                    },
+                },
+            },
         },
         right: {
             type: 'image',
             default: {
                 config: {
-                    displayMode: { source: 'static', value: 'cover' }
+                    displayMode: { source: 'static', value: 'cover' },
                 },
                 data: {
                     media: {
-                        url: '/administration/static/img/cms/preview_glasses_large.jpg'
-                    }
-                }
-            }
-        }
-    }
+                        url: '/administration/static/img/cms/preview_glasses_large.jpg',
+                    },
+                },
+            },
+        },
+    },
 });

@@ -19,7 +19,7 @@ class StateMachineApiService extends ApiService {
         return this.httpClient
             .get(route, {
                 additionalParams,
-                headers
+                headers,
             });
     }
 
@@ -31,7 +31,7 @@ class StateMachineApiService extends ApiService {
         return this.httpClient
             .post(route, {}, {
                 additionalParams,
-                headers
+                headers,
             });
     }
 }

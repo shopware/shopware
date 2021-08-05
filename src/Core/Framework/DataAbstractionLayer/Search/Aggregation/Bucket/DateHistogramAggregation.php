@@ -30,8 +30,17 @@ class DateHistogramAggregation extends BucketAggregation
      */
     protected $interval;
 
-    public function __construct(string $name, string $field, string $interval, ?FieldSorting $sorting = null, ?Aggregation $aggregation = null, ?string $format = null)
-    {
+    protected ?string $timeZone;
+
+    public function __construct(
+        string $name,
+        string $field,
+        string $interval,
+        ?FieldSorting $sorting = null,
+        ?Aggregation $aggregation = null,
+        ?string $format = null,
+        ?string $timeZone = null
+    ) {
         parent::__construct($name, $field, $aggregation);
 
         $interval = mb_strtolower($interval);
@@ -39,9 +48,14 @@ class DateHistogramAggregation extends BucketAggregation
             throw new \RuntimeException('Provided date histogram interval is not supported');
         }
 
+        if (\is_string($timeZone) && !\in_array($timeZone, \DateTimeZone::listIdentifiers(), true)) {
+            throw new \InvalidArgumentException(\sprintf('Given "%s" is not a valid timezone', $timeZone));
+        }
+
         $this->interval = $interval;
         $this->format = $format;
         $this->sorting = $sorting;
+        $this->timeZone = $timeZone;
     }
 
     public function getFormat(): ?string
@@ -57,5 +71,10 @@ class DateHistogramAggregation extends BucketAggregation
     public function getSorting(): ?FieldSorting
     {
         return $this->sorting;
+    }
+
+    public function getTimeZone(): ?string
+    {
+        return $this->timeZone;
     }
 }

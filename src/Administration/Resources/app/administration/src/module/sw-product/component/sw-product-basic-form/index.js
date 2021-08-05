@@ -11,26 +11,26 @@ Component.register('sw-product-basic-form', {
     inject: ['repositoryFactory'],
 
     mixins: [
-        Mixin.getByName('placeholder')
+        Mixin.getByName('placeholder'),
     ],
 
     props: {
         allowEdit: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
 
         showSettingsInformation: {
             type: Boolean,
             required: false,
-            default: true
-        }
+            default: true,
+        },
     },
 
     data() {
         return {
-            productNumberRangeId: null
+            productNumberRangeId: null,
         };
     },
 
@@ -38,7 +38,7 @@ Component.register('sw-product-basic-form', {
         ...mapState('swProductDetail', [
             'product',
             'parentProduct',
-            'loading'
+            'loading',
         ]),
 
         ...mapPropertyErrors('product', [
@@ -47,7 +47,7 @@ Component.register('sw-product-basic-form', {
             'productNumber',
             'manufacturerId',
             'active',
-            'markAsTopseller'
+            'markAsTopseller',
         ]),
 
         numberRangeRepository() {
@@ -61,13 +61,13 @@ Component.register('sw-product-basic-form', {
         productNumberRangeLink() {
             if (!this.productNumberRangeId) {
                 return {
-                    name: 'sw.settings.number.range.index'
+                    name: 'sw.settings.number.range.index',
                 };
             }
 
             return {
                 name: 'sw.settings.number.range.detail',
-                params: { id: this.productNumberRangeId }
+                params: { id: this.productNumberRangeId },
             };
         },
 
@@ -77,18 +77,18 @@ Component.register('sw-product-basic-form', {
                            :router-link=${JSON.stringify(this.productNumberRangeLink)}
                            :inline="true">
                            ${this.$tc('sw-product.basicForm.productNumberHelpText.linkText')}
-                       </sw-internal-link>`
+                       </sw-internal-link>`,
             });
         },
 
         highlightHelpText() {
             const themesLink = {
-                name: 'sw.theme.manager.index'
+                name: 'sw.theme.manager.index',
             };
 
             const snippetLink = {
                 name: 'sw.settings.snippet.detail',
-                params: { key: 'listing.boxLabelTopseller' }
+                params: { key: 'listing.boxLabelTopseller' },
             };
 
             return this.$tc('sw-product.basicForm.highlightHelpText.label', 0, {
@@ -101,7 +101,7 @@ Component.register('sw-product-basic-form', {
                                   :router-link=${JSON.stringify(snippetLink)}
                                   :inline="true">
                                   ${this.$tc('sw-product.basicForm.highlightHelpText.snippetLinkText')}
-                              </sw-internal-link>`
+                              </sw-internal-link>`,
             });
         },
 
@@ -112,7 +112,7 @@ Component.register('sw-product-basic-form', {
             criteria.addFilter(Criteria.equals('global', true));
 
             return criteria;
-        }
+        },
     },
 
     created() {
@@ -142,6 +142,6 @@ Component.register('sw-product-basic-form', {
             return this.numberRangeRepository.searchIds(this.numberRangeCriteria, Context.api).then((numberRangeIds) => {
                 this.productNumberRangeId = numberRangeIds.data[0];
             });
-        }
-    }
+        },
+    },
 });

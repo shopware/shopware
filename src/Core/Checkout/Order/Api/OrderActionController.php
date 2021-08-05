@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Order\Api;
 
+use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriber;
@@ -45,6 +46,61 @@ class OrderActionController extends AbstractController
 
     /**
      * @Since("6.1.0.0")
+     * @OA\Post(
+     *     path="/_action/order/{orderId}/state/{transition}",
+     *     summary="Transition an order to a new state",
+     *     description="Changes the order state and informs the customer via email if configured.",
+     *     operationId="orderStateTransition",
+     *     tags={"Admin API", "Order Management"},
+     *     @OA\RequestBody(
+     *         required=false,
+     *         @OA\JsonContent(
+     *             @OA\Property(
+     *                 property="sendMail",
+     *                 description="Controls if a mail should be sent to the customer.",
+     *                 @OA\Schema(type="boolean", default=true)
+     *             ),
+     *             @OA\Property(
+     *                 property="documentIds",
+     *                 description="A list of document identifiers that should be attached",
+     *                 type="array",
+     *                 @OA\Items(type="string", pattern="^[0-9a-f]{32}$")
+     *             ),
+     *             @OA\Property(
+     *                 property="mediaIds",
+     *                 description="A list of media identifiers that should be attached",
+     *                 type="array",
+     *                 @OA\Items(type="string", pattern="^[0-9a-f]{32}$")
+     *             ),
+     *             @OA\Property(
+     *                 property="stateFieldName",
+     *                 description="This is the state column within the order database table. There should be no need to change it from the default.",
+     *                 type="string",
+     *                 default="stateId"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="orderId",
+     *         description="Identifier of the order.",
+     *         @OA\Schema(type="string", pattern="^[0-9a-f]{32}$"),
+     *         in="path",
+     *         required=true
+     *     ),
+     *     @OA\Parameter(
+     *         name="transition",
+     *         description="The `action_name` of the `state_machine_transition`. For example `process` if the order state should change from open to in progress.
+
+Note: If you choose a transition that is not available, you will get an error that lists possible transitions for the current state.",
+     *         @OA\Schema(type="string"),
+     *         in="path",
+     *         required=true
+     *     ),
+     *     @OA\Response(
+     *         response="200",
+     *         description="Todo: Use ref of `state_machine_transition` here"
+     *     )
+     * )
      * @Route("/api/_action/order/{orderId}/state/{transition}", name="api.action.order.state_machine.order.transition_state", methods={"POST"})
      *
      * @throws OrderNotFoundException
@@ -55,12 +111,15 @@ class OrderActionController extends AbstractController
         Request $request,
         Context $context
     ): JsonResponse {
+        $documentIds = $request->request->all('documentIds');
+        $mediaIds = $request->request->all('mediaIds');
+
         $context->addExtension(
             MailSendSubscriber::MAIL_CONFIG_EXTENSION,
             new MailSendSubscriberConfig(
                 $request->request->get('sendMail', true) === false,
-                $request->request->get('documentIds', []),
-                $request->request->get('mediaIds', [])
+                $documentIds,
+                $mediaIds
             )
         );
 
@@ -81,6 +140,61 @@ class OrderActionController extends AbstractController
 
     /**
      * @Since("6.1.0.0")
+     * @OA\Post(
+     *     path="/_action/order_transaction/{orderTransactionId}/state/{transition}",
+     *     summary="Transition an order transaction to a new state",
+     *     description="Changes the order transaction state and informs the customer via email if configured.",
+     *     operationId="orderTransactionStateTransition",
+     *     tags={"Admin API", "Order Management"},
+     *     @OA\RequestBody(
+     *         required=false,
+     *         @OA\JsonContent(
+     *             @OA\Property(
+     *                 property="sendMail",
+     *                 description="Controls if a mail should be sent to the customer.",
+     *                 @OA\Schema(type="boolean", default=true)
+     *             ),
+     *             @OA\Property(
+     *                 property="documentIds",
+     *                 description="A list of document identifiers that should be attached",
+     *                 type="array",
+     *                 @OA\Items(type="string", pattern="^[0-9a-f]{32}$")
+     *             ),
+     *             @OA\Property(
+     *                 property="mediaIds",
+     *                 description="A list of media identifiers that should be attached",
+     *                 type="array",
+     *                 @OA\Items(type="string", pattern="^[0-9a-f]{32}$")
+     *             ),
+     *             @OA\Property(
+     *                 property="stateFieldName",
+     *                 description="This is the state column within the order transaction database table. There should be no need to change it from the default.",
+     *                 type="string",
+     *                 default="stateId"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="orderTransactionId",
+     *         description="Identifier of the order transaction.",
+     *         @OA\Schema(type="string", pattern="^[0-9a-f]{32}$"),
+     *         in="path",
+     *         required=true
+     *     ),
+     *     @OA\Parameter(
+     *         name="transition",
+     *         description="The `action_name` of the `state_machine_transition`. For example `process` if the order state should change from open to in progress.
+
+Note: If you choose a transition that is not available, you will get an error that lists possible transitions for the current state.",
+     *         @OA\Schema(type="string"),
+     *         in="path",
+     *         required=true
+     *     ),
+     *     @OA\Response(
+     *         response="200",
+     *         description="Returns information about the transition that was made. `#/components/schemas/StateMachineTransition`"
+     *     )
+     * )
      * @Route("/api/_action/order_transaction/{orderTransactionId}/state/{transition}", name="api.action.order.state_machine.order_transaction.transition_state", methods={"POST"})
      *
      * @throws OrderNotFoundException
@@ -91,12 +205,15 @@ class OrderActionController extends AbstractController
         Request $request,
         Context $context
     ): JsonResponse {
+        $documentIds = $request->request->all('documentIds');
+        $mediaIds = $request->request->all('mediaIds');
+
         $context->addExtension(
             MailSendSubscriber::MAIL_CONFIG_EXTENSION,
             new MailSendSubscriberConfig(
                 $request->request->get('sendMail', true) === false,
-                $request->request->get('documentIds', []),
-                $request->request->get('mediaIds', [])
+                $documentIds,
+                $mediaIds
             )
         );
 
@@ -117,6 +234,61 @@ class OrderActionController extends AbstractController
 
     /**
      * @Since("6.1.0.0")
+     * @OA\Post(
+     *     path="/_action/order_delivery/{orderDeliveryId}/state/{transition}",
+     *     summary="Transition an order delivery to a new state",
+     *     description="Changes the order delivery state and informs the customer via email if configured.",
+     *     operationId="orderDeliveryStateTransition",
+     *     tags={"Admin API", "Order Management"},
+     *     @OA\RequestBody(
+     *         required=false,
+     *         @OA\JsonContent(
+     *             @OA\Property(
+     *                 property="sendMail",
+     *                 description="Controls if a mail should be send to the customer.",
+     *                 @OA\Schema(type="boolean", default=true)
+     *             ),
+     *             @OA\Property(
+     *                 property="documentIds",
+     *                 description="A list of document identifiers that should be attached",
+     *                 type="array",
+     *                 @OA\Items(type="string", pattern="^[0-9a-f]{32}$")
+     *             ),
+     *             @OA\Property(
+     *                 property="mediaIds",
+     *                 description="A list of media identifiers that should be attached",
+     *                 type="array",
+     *                 @OA\Items(type="string", pattern="^[0-9a-f]{32}$")
+     *             ),
+     *             @OA\Property(
+     *                 property="stateFieldName",
+     *                 description="This is the state column within the order delivery database table. There should be no need to change it from the default.",
+     *                 type="string",
+     *                 default="stateId"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="orderDeliveryId",
+     *         description="Identifier of the order delivery.",
+     *         @OA\Schema(type="string", pattern="^[0-9a-f]{32}$"),
+     *         in="path",
+     *         required=true
+     *     ),
+     *     @OA\Parameter(
+     *         name="transition",
+     *         description="The `action_name` of the `state_machine_transition`. For example `process` if the order state should change from open to in progress.
+
+Note: If you choose a transition which is not possible, you will get an error that lists possible transition for the actual state.",
+     *         @OA\Schema(type="string"),
+     *         in="path",
+     *         required=true
+     *     ),
+     *     @OA\Response(
+     *         response="200",
+     *         description="Todo: Use ref of `state_machine_transition` here"
+     *     )
+     * )
      * @Route("/api/_action/order_delivery/{orderDeliveryId}/state/{transition}", name="api.action.order.state_machine.order_delivery.transition_state", methods={"POST"})
      *
      * @throws OrderNotFoundException
@@ -127,12 +299,15 @@ class OrderActionController extends AbstractController
         Request $request,
         Context $context
     ): JsonResponse {
+        $documentIds = $request->request->all('documentIds');
+        $mediaIds = $request->request->all('mediaIds');
+
         $context->addExtension(
             MailSendSubscriber::MAIL_CONFIG_EXTENSION,
             new MailSendSubscriberConfig(
                 $request->request->get('sendMail', true) === false,
-                $request->request->get('documentIds', []),
-                $request->request->get('mediaIds', [])
+                $documentIds,
+                $mediaIds
             )
         );
 

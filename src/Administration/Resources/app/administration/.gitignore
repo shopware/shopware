@@ -5,4 +5,6 @@ npm-debug.log
 yarn-error.log
 test/unit/coverage
 test/e2e/reports
+test/_mocks_/entity-schema.json
 selenium-debug.log
+build

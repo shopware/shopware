@@ -16,12 +16,9 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @RouteScope(scopes={"storefront"})
  */
-class CountryStateController extends StorefrontController
+class CountryStateController
 {
-    /**
-     * @var SalesChannelRepositoryInterface
-     */
-    private $countryRepository;
+    private SalesChannelRepositoryInterface $countryRepository;
 
     public function __construct(SalesChannelRepositoryInterface $countryRepository)
     {
@@ -36,7 +33,7 @@ class CountryStateController extends StorefrontController
      */
     public function getCountryData(Request $request, SalesChannelContext $context): Response
     {
-        $countryId = $request->request->get('countryId');
+        $countryId = (string) $request->request->get('countryId');
         $criteria = new Criteria([$countryId]);
         $criteria->addAssociation('states');
 

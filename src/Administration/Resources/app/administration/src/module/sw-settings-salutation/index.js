@@ -23,38 +23,38 @@ Module.register('sw-settings-salutation', {
             path: 'index',
             meta: {
                 parentPath: 'sw.settings.index',
-                privilege: 'salutation.viewer'
-            }
+                privilege: 'salutation.viewer',
+            },
         },
         detail: {
             component: 'sw-settings-salutation-detail',
             path: 'detail/:id',
             meta: {
                 parentPath: 'sw.settings.salutation.index',
-                privilege: 'salutation.viewer'
+                privilege: 'salutation.viewer',
             },
             props: {
                 default(route) {
                     return {
-                        salutationId: route.params.id
+                        salutationId: route.params.id,
                     };
-                }
-            }
+                },
+            },
         },
         create: {
             component: 'sw-settings-salutation-detail',
             path: 'create',
             meta: {
                 parentPath: 'sw.settings.salutation.index',
-                privilege: 'salutation.creator'
-            }
-        }
+                privilege: 'salutation.creator',
+            },
+        },
     },
 
     settingsItem: {
         group: 'shop',
         to: 'sw.settings.salutation.index',
         icon: 'default-communication-speech-bubbles',
-        privilege: 'salutation.viewer'
-    }
+        privilege: 'salutation.viewer',
+    },
 });

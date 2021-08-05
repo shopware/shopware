@@ -5,9 +5,11 @@
 import initUserInformation from './user-information.init';
 import initLanguage from './language.init';
 import initWorker from './worker.init';
+import initMarketing from './marketing.init';
 
 export default {
     language: initLanguage,
     userInformation: initUserInformation,
-    worker: initWorker
+    worker: initWorker,
+    marketing: initMarketing,
 };

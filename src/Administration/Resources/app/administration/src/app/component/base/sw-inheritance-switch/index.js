@@ -10,20 +10,20 @@ Component.register('sw-inheritance-switch', {
         isInherited: {
             type: Boolean,
             required: true,
-            default: false
+            default: false,
         },
 
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     computed: {
         unInheritClasses() {
             return { 'is--clickable': !this.disabled };
-        }
+        },
     },
 
     methods: {
@@ -39,6 +39,6 @@ Component.register('sw-inheritance-switch', {
                 return;
             }
             this.$emit('inheritance-remove');
-        }
-    }
+        },
+    },
 });

@@ -10,7 +10,7 @@ Component.register('sw-login-recovery', {
 
     data() {
         return {
-            email: ''
+            email: '',
         };
     },
 
@@ -39,6 +39,6 @@ Component.register('sw-login-recovery', {
 
         displayRecoveryInfo() {
             this.$router.push({ name: 'sw.login.index.recoveryInfo' });
-        }
-    }
+        },
+    },
 });

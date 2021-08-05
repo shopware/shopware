@@ -34,8 +34,19 @@ describe('Rule builder: Visual tests', () => {
         });
         cy.get('.sw-settings-rule-list__content').should('exist');
 
+        // Change color of the element to ensure consistent snapshots
+        cy.changeElementStyling(
+            '.sw-data-grid__cell--updatedAt',
+            'color: #fff'
+        );
+        cy.get('.sw-data-grid__cell--updatedAt')
+            .should('have.css', 'color', 'rgb(255, 255, 255)');
+
         // Take snapshot for visual testing
-        cy.takeSnapshot('[Rule builder] Listing', '.sw-condition');
+        cy.get(page.elements.loader).should('not.exist');
+        cy.get('.sw-loader__element').should('not.exist');
+        cy.get('.sw-card__content').should('not.exist');
+        cy.takeSnapshot('[Rule builder] Listing', '.sw-rule-list-grid');
 
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('Ruler');
 
@@ -46,6 +57,10 @@ describe('Rule builder: Visual tests', () => {
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
+
+        // Take snapshot
+        cy.get('.sw-settings-rule-detail-base').should('be.visible');
+        cy.takeSnapshot('[Rule builder] Detail', '.sw-settings-rule-detail-base');
 
         cy.get('.sw-condition-tree .sw-condition-or-container .sw-condition-and-container')
             .first()
@@ -130,11 +145,12 @@ describe('Rule builder: Visual tests', () => {
 
             cy.get('button.sw-button').contains('Subcondition').click();
             cy.get('.sw-condition').should('have.length', 2);
-
-            cy.get('.sw-condition .sw-condition__context-button').first().click();
         });
 
         // Take snapshot for visual testing
+        cy.get('.sw-condition-tree').scrollIntoView();
+        cy.get(page.elements.loader).should('not.exist');
+        cy.get('.sw-condition').should('be.visible');
         cy.takeSnapshot('[Rule builder] Detail, rule with conditions', '.sw-condition');
     });
 });

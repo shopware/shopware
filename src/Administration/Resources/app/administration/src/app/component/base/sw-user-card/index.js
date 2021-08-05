@@ -53,18 +53,18 @@ Component.register('sw-user-card', {
             required: true,
             default() {
                 return {};
-            }
+            },
         },
         title: {
             type: String,
             required: true,
-            default: ''
+            default: '',
         },
         isLoading: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     computed: {
@@ -83,6 +83,6 @@ Component.register('sw-user-card', {
                 return '';
             }
             return this.$route.meta.$module.color;
-        }
-    }
+        },
+    },
 });

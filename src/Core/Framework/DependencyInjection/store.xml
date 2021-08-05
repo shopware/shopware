@@ -39,6 +39,7 @@
             <argument type="service" id="Shopware\Core\Framework\Store\Services\FirstRunWizardClient"/>
             <argument type="service" id="plugin.repository" />
             <argument type="service" id="user.repository" />
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -107,6 +108,7 @@
             <argument type="service" id="theme.repository"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\Service\ConfigurationService"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreService"/>
             <tag name="shopware.feature" flag="FEATURE_NEXT_12608"/>
         </service>
 
@@ -125,6 +127,8 @@
 
         <service id="Shopware\Core\Framework\Store\Api\ExtensionStoreDataController" public="true">
             <argument type="service" id="Shopware\Core\Framework\Store\Services\AbstractExtensionDataProvider"/>
+            <argument type="service" id="user.repository"/>
+            <argument type="service" id="language.repository"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -160,6 +164,7 @@
             <argument type="service" id="Shopware\Core\Framework\Store\Authentication\AbstractAuthenticationProvider"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreClient"/>
             <argument type="service" id="Shopware\Core\Framework\Plugin\PluginManagementService"/>
+            <argument type="service" id="Shopware\Core\Framework\Store\Services\ExtensionLoader"/>
             <tag name="shopware.feature" flag="FEATURE_NEXT_12608"/>
         </service>
 

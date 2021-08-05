@@ -7,7 +7,7 @@ export default () => {
                 value: property,
                 writable: false,
                 enumerable: true,
-                configurable: true
+                configurable: true,
             });
 
             return this;
@@ -20,7 +20,7 @@ export default () => {
                 get: getMethod,
                 set: setMethod,
                 enumerable: true,
-                configurable: true
+                configurable: true,
             });
 
             return this;

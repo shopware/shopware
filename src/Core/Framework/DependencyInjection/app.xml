@@ -104,6 +104,7 @@
 
         <service id="Shopware\Core\Framework\App\ActiveAppsLoader">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Template\TemplateStateService" public="true">
@@ -172,6 +173,7 @@
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
             <argument type="service" id="Shopware\Core\Framework\App\Validation\ConfigValidator"/>
             <argument type="service" id="integration.repository"/>
+            <argument type="service" id="acl_role.repository"/>
             <argument type="string">%kernel.project_dir%</argument>
         </service>
 
@@ -198,6 +200,17 @@
             <tag name="messenger.message_handler"/>
         </service>
 
+        <service id="Shopware\Core\Framework\App\ScheduledTask\DeleteCascadeAppsTask">
+            <tag name="shopware.scheduled.task"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\ScheduledTask\DeleteCascadeAppsHandler">
+            <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="acl_role.repository"/>
+            <argument type="service" id="integration.repository"/>
+            <tag name="messenger.message_handler"/>
+        </service>
+
         <service id="Shopware\Core\Framework\App\Lifecycle\AppLoader">
             <argument>%shopware.app_dir%</argument>
             <argument>%kernel.project_dir%</argument>
@@ -211,10 +224,14 @@
             <argument type="service" id="app_action_button.repository"/>
         </service>
 
+        <service id="Shopware\Core\Framework\App\ActionButton\Response\ActionButtonResponseFactory">
+        </service>
+
         <service id="Shopware\Core\Framework\App\ActionButton\Executor">
             <argument type="service" id="shopware.app_system.guzzle"/>
             <argument type="service" id="logger"/>
             <argument>%kernel.shopware_version%</argument>
+            <argument type="service" id="Shopware\Core\Framework\App\ActionButton\Response\ActionButtonResponseFactory"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\ActionButton\AppActionLoader">

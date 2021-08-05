@@ -16,19 +16,19 @@ Component.register('sw-rating-stars', {
     props: {
         value: {
             type: Number,
-            required: true
+            required: true,
         },
 
         maxStars: {
             type: Number,
             required: false,
-            default: 5
+            default: 5,
         },
 
         iconSize: {
             type: Number,
             required: false,
-            default: 16
+            default: 16,
         },
 
         displayFractions: {
@@ -37,8 +37,8 @@ Component.register('sw-rating-stars', {
             default: 4,
             validator(value) {
                 return value > 0 && value <= 100;
-            }
-        }
+            },
+        },
     },
 
     computed: {
@@ -46,8 +46,8 @@ Component.register('sw-rating-stars', {
             return {
                 message: this.$tc('sw-rating-stars.ratingTooltipText', 0, {
                     actual: this.cappedValue,
-                    max: this.maxStars
-                })
+                    max: this.maxStars,
+                }),
             };
         },
 
@@ -72,6 +72,6 @@ Component.register('sw-rating-stars', {
 
         dynamicWidthStyle() {
             return `width: ${this.maxStars * this.iconSize + this.maxStars - 1}px;`;
-        }
-    }
+        },
+    },
 });

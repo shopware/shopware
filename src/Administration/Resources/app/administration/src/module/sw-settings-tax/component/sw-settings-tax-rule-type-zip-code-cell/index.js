@@ -8,8 +8,8 @@ Component.register('sw-settings-tax-rule-type-zip-code-cell', {
     props: {
         taxRule: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
     },
 
     created() {
@@ -18,6 +18,6 @@ Component.register('sw-settings-tax-rule-type-zip-code-cell', {
 
     methods: {
         createdComponent() {
-        }
-    }
+        },
+    },
 });

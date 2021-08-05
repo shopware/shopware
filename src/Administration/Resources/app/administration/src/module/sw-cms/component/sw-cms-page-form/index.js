@@ -11,8 +11,8 @@ Component.register('sw-cms-page-form', {
     props: {
         page: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
     },
 
     computed: {
@@ -22,7 +22,19 @@ Component.register('sw-cms-page-form', {
 
         cmsElements() {
             return this.cmsService.getCmsElementRegistry();
-        }
+        },
+    },
+
+    created() {
+        const twoColumnSorting = ['left', 'right'];
+
+        this.page.sections.forEach((section) => {
+            section.blocks.forEach((block) => {
+                if (block.type === 'text-two-column') {
+                    block.slots.sort((a, b) => twoColumnSorting.indexOf(a.slot) - twoColumnSorting.indexOf(b.slot));
+                }
+            });
+        });
     },
 
     methods: {
@@ -71,6 +83,6 @@ Component.register('sw-cms-page-form', {
             return block.sectionPosition === 'main' ?
                 this.$tc('sw-cms.section.positionRight') :
                 this.$tc('sw-cms.section.positionLeft');
-        }
-    }
+        },
+    },
 });

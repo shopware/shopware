@@ -14,7 +14,7 @@ class DebugStackTest extends TestCase
     {
         $connection = $this->getContainer()->get(Connection::class);
 
-        static::expectExceptionMessage('Write operations are not supported when using executeQuery.');
+        static::expectExceptionMessage('Write operations are not supported when using executeQuery, use executeStatement instead.');
         $connection->executeQuery('CREATE TABLE `test` (
             `id` BINARY(16) NOT NULL PRIMARY KEY
         )');

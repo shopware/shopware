@@ -5,9 +5,6 @@ namespace Shopware\Core\Framework\Webhook\Event;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\MessageQueue\DeadMessage\DeadMessageEntity;
 
-/**
- * @internal (flag:FEATURE_NEXT_14363) only for use by the app-system
- */
 class RetryWebhookMessageFailedEvent
 {
     private DeadMessageEntity $deadMessage;

@@ -36,7 +36,8 @@
                                 {% sw_include '@Storefront/storefront/component/address/address-form.html.twig' with {
                                     'data': page.address,
                                     'prefix': 'address',
-                                    'showFormCompany': true
+                                    'showFormCompany': true,
+                                    'showNoShippingPostfix': true,
                                 } %}
                             {% endblock %}
 

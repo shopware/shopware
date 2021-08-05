@@ -100,7 +100,7 @@ class ManyToOneAssociationFieldSerializer implements FieldSerializerInterface
         if (!$field instanceof ManyToOneAssociationField) {
             throw new InvalidSerializerFieldException(ManyToOneAssociationField::class, $field);
         }
-        /* @var ManyToOneAssociationField $field */
+
         if (!\is_array($data->getValue())) {
             throw new ExpectedArrayException($parameters->getPath());
         }

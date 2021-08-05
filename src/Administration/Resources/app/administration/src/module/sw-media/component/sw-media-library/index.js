@@ -10,24 +10,24 @@ Component.register('sw-media-library', {
     inject: ['repositoryFactory', 'acl'],
 
     mixins: [
-        Mixin.getByName('media-grid-listener')
+        Mixin.getByName('media-grid-listener'),
     ],
 
     model: {
         prop: 'selection',
-        event: 'media-selection-change'
+        event: 'media-selection-change',
     },
 
     props: {
         selection: {
             type: Array,
-            required: true
+            required: true,
         },
 
         folderId: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         pendingUploads: {
@@ -35,7 +35,7 @@ Component.register('sw-media-library', {
             required: false,
             default() {
                 return [];
-            }
+            },
         },
 
         limit: {
@@ -45,32 +45,32 @@ Component.register('sw-media-library', {
             validValues: [1, 5, 25, 50, 100, 500],
             validator(value) {
                 return [1, 5, 25, 50, 100, 500].includes(value);
-            }
+            },
         },
 
         term: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
 
         compact: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         editable: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         allowMultiSelect: {
             type: Boolean,
             required: false,
-            default: true
-        }
+            default: true,
+        },
     },
 
     data() {
@@ -87,7 +87,7 @@ Component.register('sw-media-library', {
             parentFolder: null,
             presentation: 'medium-preview',
             sorting: { sortBy: 'fileName', sortDirection: 'asc' },
-            folderSorting: { sortBy: 'name', sortDirection: 'asc' }
+            folderSorting: { sortBy: 'name', sortDirection: 'asc' },
         };
     },
 
@@ -130,7 +130,7 @@ Component.register('sw-media-library', {
 
         showLoadMoreButton() {
             return !this.isLoading && (!this.itemLoaderDone || !this.folderLoaderDone);
-        }
+        },
     },
 
     watch: {
@@ -156,7 +156,7 @@ Component.register('sw-media-library', {
 
         term() {
             this.refreshList();
-        }
+        },
     },
 
     created() {
@@ -348,6 +348,6 @@ Component.register('sw-media-library', {
 
         removeNewFolder() {
             this.subFolders.shift();
-        }
-    }
+        },
+    },
 });

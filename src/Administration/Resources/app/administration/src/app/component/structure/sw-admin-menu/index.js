@@ -15,11 +15,11 @@ Component.register('sw-admin-menu', {
         'loginService',
         'userService',
         'appModulesService',
-        'feature'
+        'feature',
     ],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     props: {
@@ -28,15 +28,15 @@ Component.register('sw-admin-menu', {
             required: false,
             default() {
                 return 3;
-            }
+            },
         },
         subMenuDelay: {
             type: Number,
             required: false,
             default() {
                 return 150;
-            }
-        }
+            },
+        },
     },
 
     data() {
@@ -54,7 +54,7 @@ Component.register('sw-admin-menu', {
             flyoutLabel: '',
             subMenuOpen: false,
             scrollbarOffset: '',
-            isUserLoading: true
+            isUserLoading: true,
         };
     },
 
@@ -126,7 +126,7 @@ Component.register('sw-admin-menu', {
         scrollbarOffsetStyle() {
             return {
                 right: this.scrollbarOffset,
-                'margin-left': this.scrollbarOffset
+                'margin-left': this.scrollbarOffset,
             };
         },
 
@@ -134,7 +134,7 @@ Component.register('sw-admin-menu', {
             return {
                 'is--expanded': this.isExpanded,
                 'is--collapsed': !this.isExpanded,
-                'is--off-canvas-shown': this.isOffCanvasShown
+                'is--off-canvas-shown': this.isOffCanvasShown,
             };
         },
 
@@ -160,13 +160,13 @@ Component.register('sw-admin-menu', {
 
         lastName() {
             return this.currentUser ? this.currentUser.lastName : '';
-        }
+        },
     },
 
     watch: {
         isExpanded() {
             this.toggleSidebar();
-        }
+        },
     },
 
     created() {
@@ -223,7 +223,7 @@ Component.register('sw-admin-menu', {
                 listener() {
                     that.collapseMenuOnSmallViewports();
                 },
-                component: this
+                component: this,
             });
 
             document.addEventListener('mousemove', this.onMouseMoveDocument.bind(this));
@@ -272,28 +272,28 @@ Component.register('sw-admin-menu', {
             if (!this.isExpanded) {
                 this.removeClassesFromElements(
                     Array.from(this.$el.querySelectorAll('.sw-admin-menu__navigation-list-item')),
-                    ['is--entry-expanded']
+                    ['is--entry-expanded'],
                 );
 
-                const currentlyActiveElement = this.$el.querySelector('a.router-link-active');
-                const currentlyActiveParentElement = currentlyActiveElement?.parentElement;
-                const parentIsFirstLevel = currentlyActiveParentElement?.classList?.contains('navigation-list-item__level-1');
+                const currentActiveElement = this.$el.querySelector('a.router-link-active');
+                const currentActiveParentElement = currentActiveElement?.parentElement;
+                const parentIsFirstLevel = currentActiveParentElement?.classList?.contains('navigation-list-item__level-1');
 
-                const ignoreElementsList = [currentlyActiveParentElement];
+                const ignoreElementsList = [currentActiveParentElement];
 
-                if (currentlyActiveElement && !parentIsFirstLevel) {
-                    const mainMenuListItem = currentlyActiveElement.closest(
-                        '.navigation-list-item__level-1.navigation-list-item__has-children'
+                if (currentActiveElement && !parentIsFirstLevel) {
+                    const mainMenuListItem = currentActiveElement.closest(
+                        '.navigation-list-item__level-1.navigation-list-item__has-children',
                     );
                     ignoreElementsList.push(mainMenuListItem.firstElementChild);
                 }
 
                 this.removeClassesFromElements(
                     Array.from(this.$el.querySelectorAll(
-                        '.navigation-list-item__level-1.navigation-list-item__has-children > .router-link-active'
+                        '.navigation-list-item__level-1.navigation-list-item__has-children > .router-link-active',
                     )),
                     ['router-link-active'],
-                    ignoreElementsList
+                    ignoreElementsList,
                 );
                 this.onFlyoutLeave();
             }
@@ -334,7 +334,7 @@ Component.register('sw-admin-menu', {
             Shopware.State.commit('notification/clearGrowlNotificationsForCurrentUser');
             Shopware.State.commit('notification/clearNotificationsForCurrentUser');
             this.$router.push({
-                name: 'sw.login.index'
+                name: 'sw.login.index',
             });
         },
 
@@ -351,7 +351,7 @@ Component.register('sw-admin-menu', {
         onMouseMoveDocument(event) {
             this.mouseLocations.push({
                 x: event.pageX,
-                y: event.pageY
+                y: event.pageY,
             });
 
             // Mouse locations array exceeds the configured threshold
@@ -376,10 +376,10 @@ Component.register('sw-admin-menu', {
             const firstChild = target.firstChild;
             this.removeClassesFromElements(
                 Array.from(this.$el.querySelectorAll(
-                    '.sw-admin-menu__navigation-list-item'
+                    '.sw-admin-menu__navigation-list-item',
                 )),
                 ['is--entry-expanded', 'is--flyout-expanded'],
-                [target, firstChild]
+                [target, firstChild],
             );
 
             const isEntryExpanded = target.classList.contains('is--entry-expanded');
@@ -453,7 +453,7 @@ Component.register('sw-admin-menu', {
             this.removeClassesFromElements(
                 Array.from(parent.querySelectorAll('.sw-admin-menu__navigation-list-item')),
                 ['is--flyout-enabled'],
-                [target]
+                [target],
             );
 
             if (!entry.children.length) {
@@ -463,7 +463,7 @@ Component.register('sw-admin-menu', {
 
             target.classList.add('is--flyout-enabled');
             this.flyoutStyle = {
-                top: `${target.getBoundingClientRect().top}px`
+                top: `${target.getBoundingClientRect().top}px`,
             };
 
             this.flyoutEntries = entry.children;
@@ -479,6 +479,7 @@ Component.register('sw-admin-menu', {
         },
 
         isPositionInPolygon(x, y, polygon) {
+            // eslint-disable-next-line inclusive-language/use-inclusive-words
             // Inspired by https://github.com/substack/point-in-polygon/blob/master/index.js
             let inside = false;
 
@@ -503,7 +504,7 @@ Component.register('sw-admin-menu', {
             if (delay) {
                 this.subMenuTimer = window.setTimeout(
                     this.possiblyActivate.bind(this, entry, currentTarget, parentEntries, true),
-                    delay
+                    delay,
                 );
                 return;
             }
@@ -517,7 +518,7 @@ Component.register('sw-admin-menu', {
             }
 
             this.flyoutStyle = {
-                top: `${target.getBoundingClientRect().top}px`
+                top: `${target.getBoundingClientRect().top}px`,
             };
 
             // Remove previous flyout enabled
@@ -562,29 +563,29 @@ Component.register('sw-admin-menu', {
 
             const topLeft = {
                 x: targetRect.left,
-                y: targetRect.top
+                y: targetRect.top,
             };
 
             const bottomLeft = {
                 x: topLeft.x,
-                y: topLeft.y + targetHeight
+                y: topLeft.y + targetHeight,
             };
 
             const topRight = {
                 x: topLeft.x + (targetWidth * 2),
-                y: topLeft.y
+                y: topLeft.y,
             };
 
             const bottomRight = {
                 x: topRight.x,
-                y: topRight.y + subMenuHeight
+                y: topRight.y + subMenuHeight,
             };
 
             return [
                 [topLeft.x, topLeft.y],
                 [bottomLeft.x, bottomLeft.y],
                 [bottomRight.x, bottomRight.y],
-                [topRight.x, topRight.y]
+                [topRight.x, topRight.y],
             ];
         },
 
@@ -651,6 +652,6 @@ Component.register('sw-admin-menu', {
                 return false;
             }
             return types.isEqual(entry, firstPluginEntry);
-        }
-    }
+        },
+    },
 });

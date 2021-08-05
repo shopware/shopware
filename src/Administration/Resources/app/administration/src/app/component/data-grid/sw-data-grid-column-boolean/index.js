@@ -13,18 +13,18 @@ Component.register('sw-data-grid-column-boolean', {
         isInlineEdit: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
         disabled: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
         // FIXME: add property type
         // eslint-disable-next-line vue/require-prop-types
         value: {
-            required: true
-        }
+            required: true,
+        },
     },
 
     computed: {
@@ -35,7 +35,7 @@ Component.register('sw-data-grid-column-boolean', {
 
             set(newValue) {
                 this.$emit('input', newValue);
-            }
-        }
-    }
+            },
+        },
+    },
 });

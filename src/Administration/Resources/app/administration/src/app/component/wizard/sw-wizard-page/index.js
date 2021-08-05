@@ -17,25 +17,25 @@ Component.register('sw-wizard-page', {
             required: false,
             default() {
                 return false;
-            }
+            },
         },
         title: {
             type: String,
             required: false,
             default() {
                 return '';
-            }
+            },
         },
         position: {
             type: Number,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
         return {
             isCurrentlyActive: this.isActive,
-            modalTitle: this.title
+            modalTitle: this.title,
         };
     },
 
@@ -54,6 +54,6 @@ Component.register('sw-wizard-page', {
 
         destroyedComponent() {
             this.$parent.$emit('page-remove', this);
-        }
-    }
+        },
+    },
 });

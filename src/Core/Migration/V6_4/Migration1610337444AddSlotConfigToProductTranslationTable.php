@@ -14,7 +14,7 @@ class Migration1610337444AddSlotConfigToProductTranslationTable extends Migratio
 
     public function update(Connection $connection): void
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
 ALTER TABLE `product_translation`
     ADD COLUMN `slot_config` JSON AFTER `custom_fields`,
     ADD CONSTRAINT `json.product_translation.slot_config` CHECK (JSON_VALID(`slot_config`))

@@ -41,7 +41,7 @@
             v-if="activeTab === 'html'"
             class="sw-settings-logging-mail-sent-info__mail-content"
             v-html="logEntry.context.additionalData.contents['text/html']"
-        />
+        ></div>
         {% endblock %}
 
         {% block sw_settings_logging_mail_sent_content_mailbody_plain %}

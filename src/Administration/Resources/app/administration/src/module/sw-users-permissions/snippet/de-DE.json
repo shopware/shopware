@@ -151,7 +151,7 @@
         },
         "notification": {
           "saveError": {
-            "message": "Der Benutzers \"{name}\" konnte nicht gespeichert werden."
+            "message": "Der Benutzer \"{name}\" konnte nicht gespeichert werden."
           },
           "saveSuccess": {
             "message": "Benutzer \"{name}\" gespeichert."
@@ -220,6 +220,11 @@
         "api_info_me": "Eigene API-Userinfo lesen",
         "api_info_ping": "API-Token erneuern",
         "system:clear:cache": "Cache leeren"
+      },
+      "app": {
+        "label": "Apps",
+        "all": "Alle",
+        "disabledCheckboxMessage": "Um diese Option deaktivieren zu können, müssen Sie zuerst die Option Alle deaktivieren."
       }
     }
   }

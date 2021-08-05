@@ -1,12 +1,31 @@
 {% block page_account_overview_newsletter_content_inner %}
+
+    {% if feature('FEATURE_NEXT_14001') %}
+        {# @deprecated tag:v6.5.0 - variables success, messages and customer will be removed and found as properties of newsletterAccountPagelet #}
+        {% set success = newsletterAccountPagelet.success %}
+        {% set messages = newsletterAccountPagelet.messages %}
+        {% set customer = newsletterAccountPagelet.customer %}
+    {% endif %}
+
     {% block page_account_overview_newsletter_content_success %}
-        {% if success is not null %}
-            <div class="newsletter-alerts">
-                {% for message in messages %}
-                    {% sw_include "@Storefront/storefront/utilities/alert.html.twig" with { 'type': message.type, 'content': message.text} %}
-                {% endfor %}
-            </div>
+        {% if feature('FEATURE_NEXT_14001') %}
+            {% if newsletterAccountPagelet.messages|length > 0 %}
+                <div class="newsletter-alerts">
+                    {% for message in newsletterAccountPagelet.messages %}
+                        {% sw_include "@Storefront/storefront/utilities/alert.html.twig" with { 'type': message.type, 'content': message.text} %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% else %}
+            {% if success is not null %}
+                <div class="newsletter-alerts">
+                    {% for message in messages %}
+                        {% sw_include "@Storefront/storefront/utilities/alert.html.twig" with { 'type': message.type, 'content': message.text} %}
+                    {% endfor %}
+                </div>
+            {% endif %}
         {% endif %}
+
     {% endblock %}
 
     {% set formAutoSubmitOptions = {
@@ -28,12 +47,25 @@
             {% block page_account_overview_newsletter_content_form_check_control %}
                 <div class="custom-control custom-checkbox">
                     {% block page_account_overview_newsletter_content_form_input %}
+                        {% set subscribe = constant('Shopware\\Core\\Content\\Newsletter\\SalesChannel\\NewsletterSubscribeRoute::OPTION_SUBSCRIBE') %}
+                        {% set direct = constant('Shopware\\Core\\Content\\Newsletter\\SalesChannel\\NewsletterSubscribeRoute::OPTION_DIRECT') %}
+                        {% set statusDirect = constant('Shopware\\Core\\Content\\Newsletter\\SalesChannel\\NewsletterSubscribeRoute::STATUS_DIRECT') %}
+                        {% set statusOptIn = constant('Shopware\\Core\\Content\\Newsletter\\SalesChannel\\NewsletterSubscribeRoute::STATUS_OPT_IN') %}
+                        {% set statusNotSet = constant('Shopware\\Core\\Content\\Newsletter\\SalesChannel\\NewsletterSubscribeRoute::STATUS_NOT_SET') %}
+                        {% set status = false %}
+                        {% if newsletterAccountPagelet.newsletterStatus == statusDirect or newsletterAccountPagelet.newsletterStatus == statusOptIn or newsletterAccountPagelet.newsletterStatus == statusNotSet %}
+                            {% set status = true %}
+                        {% endif %}
+                        {% if feature('FEATURE_NEXT_14001') == false %}
+                            {% set status = customer.newsletter %}
+                        {% endif %}
                         <input type="checkbox"
                                class="custom-control-input"
                                id="newsletterRegister"
                                name="option"
-                               value="direct"
-                               {% if customer.newsletter %}checked="checked"{% endif %}>
+                               autocomplete="off"
+                               value="{% if newsletterAccountPagelet.newsletterDoi %}{{ subscribe }}{% else %}{{ direct }}{% endif %}"
+                               {% if status %}checked="checked"{% endif %}>
                     {% endblock %}
 
                     {% block page_account_overview_newsletter_content_form_label %}

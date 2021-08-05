@@ -6,16 +6,16 @@
          cacheResult="false"
          executionOrder="random"
          convertDeprecationsToExceptions="false">
-    <coverage cacheDirectory="var/cache/phpunit/">
-
-        <include>
+    <coverage cacheDirectory="var/cache/phpunit/" includeUncoveredFiles="false">
+        <include >
             <!--
                 DO NOT change this to a more generic structure.
                 The phpunit file traversal is really inefficient for our test structure. A naive definition results in
-                more that 70000 files being traversed, which has to be done for each thread/process.
+                more than 70000 files being traversed, which has to be done for each thread/process.
             -->
             <directory suffix=".php">src/Core/Framework</directory>
             <directory suffix=".php">src/Core/Content</directory>
+            <directory suffix=".php">src/Core/Checkout</directory>
             <directory suffix=".php">src/Core/DevOps</directory>
             <directory suffix=".php">src/Core/Profiling</directory>
             <directory suffix=".php">src/Core/System</directory>
@@ -49,6 +49,7 @@
             <directory suffix=".php">src/Core/Test</directory>
             <directory suffix=".php">src/Core/Framework/Test</directory>
             <directory suffix=".php">src/Core/Content/Test</directory>
+            <directory suffix=".php">src/Core/Checkout/Test</directory>
             <directory suffix=".php">src/Core/DevOps/Test</directory>
             <directory suffix=".php">src/Core/Migration</directory>
             <directory suffix=".php">src/Core/Profiling/Test</directory>
@@ -70,6 +71,7 @@
         <env name="SHELL_VERBOSITY" value="-1" />
         <env name="SYMFONY_DEPRECATIONS_HELPER" value="disabled" />
         <server name="MAILER_URL" value="null://localhost"/>
+        <server name="HTTPS" value="off"/>
         <!--To see the full stackTrace of a Deprecation set the value to a regex matching the deprecation warning-->
         <!--https://symfony.com/doc/current/components/phpunit_bridge.html#display-the-full-stack-trace-->
         <!--<env name="SYMFONY_DEPRECATIONS_HELPER" value="/A tree builder without a root node is deprecated since Symfony 4\.2 and will not be supported anymore in 5\.0\./" />-->
@@ -104,6 +106,7 @@
             <directory>src/Elasticsearch/Test</directory>
         </testsuite>
         <testsuite name="docs">
+            <directory>src/Docs/Test</directory>
             <directory suffix="example.php">src/Docs/Resources/current/</directory>
         </testsuite>
 

@@ -117,26 +117,26 @@ $sw-label-pill-border-radius: 50px;
     }
 
     &.sw-label--info {
-        @include sw-label-variant($color-shopware-brand-50, $color-shopware-brand-500, $color-shopware-brand-500);
+        @include sw-label-variant($color-shopware-brand-50, $color-shopware-brand-500, $color-shopware-brand-500, $color-shopware-brand-100);
     }
 
     &.sw-label--success {
-        @include sw-label-variant($color-emerald-50, $color-emerald-500, $color-emerald-500);
+        @include sw-label-variant($color-emerald-50, $color-emerald-500, $color-emerald-500, $color-emerald-100);
     }
 
     &.sw-label--danger {
-        @include sw-label-variant($color-crimson-50, $color-crimson-500, $color-crimson-500);
+        @include sw-label-variant($color-crimson-50, $color-crimson-500, $color-crimson-500, $color-crimson-100);
     }
 
     &.sw-label--warning {
-        @include sw-label-variant($color-pumpkin-spice-50, $color-pumpkin-spice-500, $color-pumpkin-spice-500);
+        @include sw-label-variant($color-pumpkin-spice-50, $color-pumpkin-spice-500, $color-pumpkin-spice-500, $color-pumpkin-spice-100);
     }
 
     &.sw-label--neutral {
-        @include sw-label-variant($color-gray-50, $color-darkgray-200, $color-gray-300);
+        @include sw-label-variant($color-gray-50, $color-darkgray-200, $color-gray-300, $color-gray-100);
     }
 
     &.sw-label--primary {
-        @include sw-label-variant($color-shopware-brand-500, $color-shopware-brand-50, $color-shopware-brand-500);
+        @include sw-label-variant($color-shopware-brand-500, $color-shopware-brand-50, $color-shopware-brand-500, $color-shopware-brand-100);
     }
 }

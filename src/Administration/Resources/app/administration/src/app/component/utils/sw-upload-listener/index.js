@@ -46,40 +46,40 @@ Component.register('sw-upload-listener', {
     inject: ['repositoryFactory', 'mediaService'],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     props: {
         uploadTag: {
             type: String,
-            required: true
+            required: true,
         },
 
         autoUpload: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
         return {
             id: utils.createId(),
-            notificationId: null
+            notificationId: null,
         };
     },
 
     computed: {
         mediaRepository() {
             return this.repositoryFactory.create('media');
-        }
+        },
     },
 
     watch: {
         uploadTag(newVal, oldVal) {
             this.mediaService.removeListener(oldVal, this.convertStoreEventToVueEvent);
             this.mediaService.addListener(newVal, this.convertStoreEventToVueEvent);
-        }
+        },
     },
 
     created() {
@@ -157,10 +157,10 @@ Component.register('sw-upload-listener', {
                     payload.successAmount,
                     {
                         count: payload.successAmount,
-                        total: payload.totalAmount
-                    }
+                        total: payload.totalAmount,
+                    },
                 ),
-                growl: payload.successAmount + payload.failureAmount === payload.totalAmount
+                growl: payload.successAmount + payload.failureAmount === payload.totalAmount,
             };
 
             if (payload.successAmount + payload.failureAmount === payload.totalAmount) {
@@ -170,7 +170,7 @@ Component.register('sw-upload-listener', {
             if (this.notificationId !== null) {
                 Shopware.State.dispatch('notification/updateNotification', {
                     uuid: this.notificationId,
-                    ...notification
+                    ...notification,
                 }).then(() => {
                     if (payload.successAmount + payload.failureAmount === payload.totalAmount) {
                         this.notificationId = null;
@@ -181,7 +181,7 @@ Component.register('sw-upload-listener', {
 
             Shopware.State.dispatch('notification/createNotification', {
                 variant: 'success',
-                ...notification
+                ...notification,
             }).then((newNotificationId) => {
                 if (payload.successAmount + payload.failureAmount < payload.totalAmount) {
                     this.notificationId = newNotificationId;
@@ -196,27 +196,27 @@ Component.register('sw-upload-listener', {
                     message: this.$root.$tc(
                         'global.sw-media-upload.notification.illegalFilename.message',
                         0,
-                        { fileName: payload.fileName }
-                    )
+                        { fileName: payload.fileName },
+                    ),
                 });
             } else if (isIllegalUrlException(payload.error)) {
                 this.createNotificationError({
                     title: this.$root.$tc('global.sw-media-upload.notification.illegalFileUrl.title'),
                     message: this.$root.$tc(
                         'global.sw-media-upload.notification.illegalFileUrl.message',
-                        0
-                    )
+                        0,
+                    ),
                 });
             } else {
                 this.createNotificationError({
                     title: this.$root.$tc('global.default.error'),
-                    message: this.$root.$tc('global.sw-media-upload.notification.failure.message')
+                    message: this.$root.$tc('global.sw-media-upload.notification.failure.message'),
                 });
             }
         },
 
         syncEntitiesAndRunUploads() {
             this.mediaService.runUploads(this.uploadTag);
-        }
-    }
+        },
+    },
 });

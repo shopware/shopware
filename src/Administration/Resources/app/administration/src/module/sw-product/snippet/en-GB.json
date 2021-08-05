@@ -22,7 +22,6 @@
       "inheritanceModuleName": "This product",
       "backToParent": "Go back to variant overview",
       "backToGeneralOverview": "Go back to general overview",
-      "copy": "Copy",
       "cloneSuffix": "variants",
       "cloneNotice": "The product variants are duplicated. If this process is interrupted, it is possible that not all variants are duplicated completely. In this case you can generate the variants in the new product again.",
       "cloneTitle": "Duplicate variants",
@@ -299,7 +298,23 @@
       "linkPropertiesOfParent": "Show properties of parent product",
       "inheritSwitchLabel": "Use properties from parent product",
       "propertiesNotInherited": "You can now use custom properties for this variant.",
-      "propertiesNotExisting": "No properties have been assigned to this product yet."
+      "propertiesNotExisting": "No properties assigned to this product yet.",
+      "cardTitle": "Properties",
+      "buttonAddProperty": "Configure properties",
+      "buttonAddProperties": "Configure properties",
+      "titleEmptyState": "No properties assigned to this product yet.",
+      "titleEmptyStateList": "No matching properties found.",
+      "columnProperty": "Property",
+      "columnValue": "Property value",
+      "placeholderSearchAddedProperties": "Search added properties...",
+      "placeholderSearchProperties": "Search properties...",
+      "addPropertiesModal": {
+        "title": "Add properties",
+        "titleEmptyState": "Create properties and property values first, then return here to assign them.",
+        "selectedProperties": "{count} value selected | {count} values selected",
+        "titleEmptyPropertyValues": "No property values available.",
+        "titleNoPropertySelected": "No property selected."
+      }
     },
     "variations": {
       "emptyStateDescription": "This product has no variants yet.",

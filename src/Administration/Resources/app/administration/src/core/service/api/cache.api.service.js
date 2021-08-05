@@ -10,9 +10,9 @@ class CacheApiService {
         return this.httpClient.get('/_action/cache_info', { headers });
     }
 
-    index() {
+    index(skip = []) {
         const headers = this.getHeaders();
-        return this.httpClient.post('/_action/index', {}, { headers });
+        return this.httpClient.post('/_action/index', { skip }, { headers });
     }
 
     clear() {
@@ -39,7 +39,7 @@ class CacheApiService {
         return {
             Accept: 'application/json',
             Authorization: `Bearer ${this.loginService.getToken()}`,
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
         };
     }
 }

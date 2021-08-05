@@ -401,18 +401,33 @@ class ApplicationBootstrapper {
         this.view.init(
             '#app',
             router,
-            this.getContainer('service')
+            this.getContainer('service'),
         );
 
         const firstRunWizard = Shopware.Context.app.firstRunWizard;
         if (firstRunWizard && !router.history.current.name.startsWith('sw.first.run.wizard.')) {
             router.push({
-                name: 'sw.first.run.wizard.index'
+                name: 'sw.first.run.wizard.index',
             });
+        }
+
+        if (typeof this._resolveViewInitialized === 'function') {
+            this._resolveViewInitialized();
         }
 
         return Promise.resolve(this);
     }
+
+    _resolveViewInitialized;
+
+    /**
+     * You can use this Promise to do things after the view
+     * was initialized.
+     * @type {Promise<undefined>}
+     */
+    viewInitialized = new Promise((resolve) => {
+        this._resolveViewInitialized = resolve;
+    })
 
     /**
      * Creates the application root and show the error message.
@@ -427,13 +442,13 @@ class ApplicationBootstrapper {
         this.view.init(
             '#app',
             router,
-            this.getContainer('service')
+            this.getContainer('service'),
         );
 
         this.view.root.initError = error;
 
         router.push({
-            name: 'error'
+            name: 'error',
         });
     }
 
@@ -471,7 +486,7 @@ class ApplicationBootstrapper {
             'baseComponents',
             'locale',
             'apiServices',
-            'svgIcons'
+            'svgIcons',
         ];
 
         const initContainer = this.getContainer('init');

@@ -11,10 +11,13 @@ class PaymentMethodIndexerEvent extends NestedEvent
 
     private Context $context;
 
-    public function __construct(array $ids, Context $context)
+    private array $skip;
+
+    public function __construct(array $ids, Context $context, array $skip = [])
     {
         $this->context = $context;
         $this->ids = $ids;
+        $this->skip = $skip;
     }
 
     public function getContext(): Context
@@ -25,5 +28,10 @@ class PaymentMethodIndexerEvent extends NestedEvent
     public function getIds(): array
     {
         return $this->ids;
+    }
+
+    public function getSkip(): array
+    {
+        return $this->skip;
     }
 }

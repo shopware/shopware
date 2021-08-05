@@ -1,24 +1,25 @@
 // / <reference types="Cypress" />
 
 import OrderPageObject from '../../../support/pages/module/sw-order.page-object';
+
 const uuid = require('uuid/v4');
 
 const ids = {
-    '1': uuid().replace(/-/g, ''),
-    '1.1': uuid().replace(/-/g, ''),
+    1: uuid().replace(/-/g, ''),
+    1.1: uuid().replace(/-/g, ''),
     '1.1.1': uuid().replace(/-/g, ''),
     '1.1.1.1': uuid().replace(/-/g, ''),
     '1.1.1.1.1': uuid().replace(/-/g, ''),
     '1.1.2': uuid().replace(/-/g, ''),
     '1.1.3': uuid().replace(/-/g, ''),
-    '2': uuid().replace(/-/g, ''),
-    '2.1': uuid().replace(/-/g, ''),
-    '2.2': uuid().replace(/-/g, ''),
+    2: uuid().replace(/-/g, ''),
+    2.1: uuid().replace(/-/g, ''),
+    2.2: uuid().replace(/-/g, ''),
     '2.2.1': uuid().replace(/-/g, ''),
-    '3': uuid().replace(/-/g, ''),
+    3: uuid().replace(/-/g, '')
 };
 
-function getLineItem(id, children = []) {
+function getLineItem(id, children = [], position = 0) {
     const mockNumber = parseInt(id.replace(/\./g, ''));
     return {
         id: ids[id],
@@ -42,18 +43,14 @@ function getLineItem(id, children = []) {
             calculatedTaxes: [{
                 tax: mockNumber * 0.002,
                 price: mockNumber * 0.01,
-                taxRate: 20.0,
+                taxRate: 20.0
             }]
-        }
-    }
+        },
+        position: position
+    };
 }
 
 describe('Order: Read order with nested line items', () => {
-    // eslint-disable-next-line no-undef
-    before(() => {
-        cy.onlyOnFeature('FEATURE_NEXT_12635');
-    });
-
     beforeEach(() => {
         cy.setToInitialState().then(() => {
             cy.loginViaApi();
@@ -76,21 +73,22 @@ describe('Order: Read order with nested line items', () => {
                                 ])
                             ]),
                             getLineItem('1.1.2'),
-                            getLineItem('1.1.3'),
+                            getLineItem('1.1.3')
                         ])
-                    ]),
+                    ], 0),
                     getLineItem('2', [
                         getLineItem('2.1'),
                         getLineItem('2.2', [
                             getLineItem('2.2.1')
                         ])
-                    ]),
-                    getLineItem('3')
+                    ], 1),
+                    getLineItem('3', [], 3)
                 ]
             });
-        }).then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
-        });
+        })
+            .then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
+            });
     });
 
     it('@base @order: can open and view nested line items in its modal', () => {

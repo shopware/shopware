@@ -18,14 +18,16 @@ describe('Search: Test ACL privileges', () => {
             });
     });
 
-    it('@settings: access the search but without rights', () => {
+    // TODO skipped due to flakiness, see NEXT-15696
+    it.skip('@settings: access the search but without rights', () => {
         cy.loginAsUserWithPermissions([]);
 
         cy.visit(`${Cypress.env('admin')}#/sw/settings/search/index`);
         cy.location('hash').should('eq', '#/sw/privilege/error/index');
     });
 
-    it('@settings: can view the general tab and live search tab content', () => {
+    // TODO skipped due to flakiness, see NEXT-15696
+    it.skip('@settings: can view the general tab and live search tab content', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product_search_config',
@@ -53,8 +55,9 @@ describe('Search: Test ACL privileges', () => {
         cy.get('.sw-settings-search__button-save').should('be.disabled');
     });
 
+    // TODO skipped due to flakiness, see NEXT-15696
     // Search behaviour section
-    it('@settings: can edit search behaviour settings if having editor/creator privilege', () => {
+    it.skip('@settings: can edit search behaviour settings if having editor/creator privilege', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product_search_config',
@@ -96,8 +99,9 @@ describe('Search: Test ACL privileges', () => {
         cy.awaitAndCheckNotification('Configuration saved.');
     });
 
+    // TODO skipped due to flakiness, see NEXT-15696
     // Searchable content section - General tab
-    it('@settings: should able to update config field', () => {
+    it.skip('@settings: should able to update config field', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product_search_config',
@@ -143,7 +147,8 @@ describe('Search: Test ACL privileges', () => {
         });
     });
 
-    it('@settings: should able to reset config to default on general tab', () => {
+    // TODO skipped due to flakiness, see NEXT-15696
+    it.skip('@settings: should able to reset config to default on general tab', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product_search_config',
@@ -196,8 +201,9 @@ describe('Search: Test ACL privileges', () => {
             });
     });
 
+    // TODO skipped due to flakiness, see NEXT-15696
     // Searchable content section -> Custom field tab
-    it('@settings: should able to create a custom config field', () => {
+    it.skip('@settings: should able to create a custom config field', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product_search_config',
@@ -266,7 +272,8 @@ describe('Search: Test ACL privileges', () => {
         });
     });
 
-    it('@settings: should able to update config field', () => {
+    // TODO skipped due to flakiness, see NEXT-15696
+    it.skip('@settings: should able to update config field', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product_search_config',
@@ -348,7 +355,8 @@ describe('Search: Test ACL privileges', () => {
         });
     });
 
-    it('@settings: should able to delete config field', () => {
+    // TODO skipped due to flakiness, see NEXT-15696
+    it.skip('@settings: should able to delete config field', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product_search_config',
@@ -428,8 +436,9 @@ describe('Search: Test ACL privileges', () => {
         cy.get('.sw-empty-state').should('exist');
     });
 
+    // TODO skipped due to flakiness, see NEXT-15696
     // Excluded search terms section
-    it('@settings: can create the excluded search terms having creator privilege', () => {
+    it.skip('@settings: can create the excluded search terms having creator privilege', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product_search_config',
@@ -465,7 +474,8 @@ describe('Search: Test ACL privileges', () => {
             `${page.elements.dataGridRow}--0 .sw-data-grid__cell-value`).contains('example');
     });
 
-    it('@settings: can update the excluded search terms having editor/creator privilege', () => {
+    // TODO skipped due to flakiness, see NEXT-15696
+    it.skip('@settings: can update the excluded search terms having editor/creator privilege', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product_search_config',
@@ -503,7 +513,8 @@ describe('Search: Test ACL privileges', () => {
             `${page.elements.dataGridRow}--0 .sw-data-grid__cell-value`).contains('update');
     });
 
-    it('@settings: should able to a delete a excluded terms if having deleter privilege', () => {
+    // TODO skipped due to flakiness, see NEXT-15696
+    it.skip('@settings: should able to a delete a excluded terms if having deleter privilege', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product_search_config',
@@ -547,8 +558,9 @@ describe('Search: Test ACL privileges', () => {
         cy.awaitAndCheckNotification('Excluded search term deleted.');
     });
 
+    // TODO skipped due to flakiness, see NEXT-15696
     // Rebuild search index section
-    it('@settings: can rebuild the search index if having editor/creator privilege', () => {
+    it.skip('@settings: can rebuild the search index if having editor/creator privilege', () => {
         cy.loginAsUserWithPermissions([
             {
                 key: 'product_search_config',

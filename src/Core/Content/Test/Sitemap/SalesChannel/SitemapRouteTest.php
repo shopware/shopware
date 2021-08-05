@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 
+/**
+ * @group store-api
+ */
 class SitemapRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;

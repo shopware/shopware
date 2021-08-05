@@ -41,7 +41,7 @@ class CustomerTokenSubscriber implements EventSubscriberInterface
 
     public function onCustomerWritten(EntityWrittenEvent $event): void
     {
-        $master = $this->requestStack->getMasterRequest();
+        $master = $this->requestStack->getMainRequest();
 
         if (!$master) {
             return;
@@ -83,7 +83,7 @@ class CustomerTokenSubscriber implements EventSubscriberInterface
 
     public function onCustomerDeleted(EntityDeletedEvent $event): void
     {
-        $master = $this->requestStack->getMasterRequest();
+        $master = $this->requestStack->getMainRequest();
 
         if (!$master) {
             return;

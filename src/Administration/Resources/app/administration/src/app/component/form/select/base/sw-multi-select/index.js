@@ -27,54 +27,54 @@ Component.register('sw-multi-select', {
     inheritAttrs: false,
 
     mixins: [
-        Mixin.getByName('remove-api-error')
+        Mixin.getByName('remove-api-error'),
     ],
 
     model: {
         prop: 'value',
-        event: 'change'
+        event: 'change',
     },
 
     props: {
         options: {
             type: Array,
-            required: true
+            required: true,
         },
         value: {
             required: true,
             validator(value) {
                 return Array.isArray(value) || value === null || value === undefined;
-            }
+            },
         },
         labelProperty: {
             type: String,
             required: false,
-            default: 'label'
+            default: 'label',
         },
         valueProperty: {
             type: String,
             required: false,
-            default: 'value'
+            default: 'value',
         },
         placeholder: {
             type: String,
             required: false,
-            default: ''
+            default: '',
         },
         valueLimit: {
             type: Number,
             required: false,
-            default: 5
+            default: 5,
         },
         isLoading: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
         highlightSearchTerm: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
         // Used to implement a custom search function.
         // Parameters passed: { options, labelProperty, valueProperty, searchTerm }
@@ -89,14 +89,14 @@ Component.register('sw-multi-select', {
                     }
                     return label.toLowerCase().includes(searchTerm.toLowerCase());
                 });
-            }
-        }
+            },
+        },
     },
 
     data() {
         return {
             searchTerm: '',
-            limit: this.valueLimit
+            limit: this.valueLimit,
         };
     },
 
@@ -137,7 +137,7 @@ Component.register('sw-multi-select', {
             },
             set(newValue) {
                 this.$emit('change', newValue);
-            }
+            },
         },
 
         visibleResults() {
@@ -147,13 +147,13 @@ Component.register('sw-multi-select', {
                         options: this.options,
                         labelProperty: this.labelProperty,
                         valueProperty: this.valueProperty,
-                        searchTerm: this.searchTerm
-                    }
+                        searchTerm: this.searchTerm,
+                    },
                 );
             }
 
             return this.options;
-        }
+        },
     },
 
     methods: {
@@ -226,6 +226,6 @@ Component.register('sw-multi-select', {
 
         getKey(object, keyPath, defaultValue) {
             return get(object, keyPath, defaultValue);
-        }
-    }
+        },
+    },
 });

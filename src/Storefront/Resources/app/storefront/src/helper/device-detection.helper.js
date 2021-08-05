@@ -72,7 +72,7 @@ export default class DeviceDetection {
             'is-iphone': DeviceDetection.isIPhoneDevice(),
             'is-ipad': DeviceDetection.isIPadDevice(),
             'is-ie': DeviceDetection.isIEBrowser(),
-            'is-edge': DeviceDetection.isEdgeBrowser()
+            'is-edge': DeviceDetection.isEdgeBrowser(),
         };
     }
 }

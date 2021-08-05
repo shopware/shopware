@@ -41,13 +41,13 @@ echo $app->getContainer()->get('renderer')->fetch('_header.php'); ?>
     </div>
 
     <div class="custom-switch">
-        <input type="checkbox" id="c_advanced" class="toggle" data-href="#advanced-settings" />
+        <input type="checkbox" name="advanced-settings" value="1" id="c_advanced" class="toggle" data-href="#advanced-settings" <?= isset($_POST['advanced-settings']) ? 'checked' : ''; ?> />
         <label for="c_advanced" class="toggle">
             <?= $t->t('database-configuration_advanced_settings'); ?>
         </label>
     </div>
 
-    <div class="is--hidden" id="advanced-settings">
+    <div class="<?= isset($_POST['advanced-settings']) ? '' : 'is--hidden'; ?>" id="advanced-settings">
         <p>
             <label for="c_database_port"><?= $t->t('database-configuration_field_port'); ?></label>
             <input type="text" value="<?= isset($parameters['c_database_port']) ? $parameters['c_database_port'] : '3306'; ?>" name="c_database_port" id="c_database_port" required="required" />
@@ -57,6 +57,31 @@ echo $app->getContainer()->get('renderer')->fetch('_header.php'); ?>
             <label for="c_database_socket"><?= $t->t('database-configuration_field_socket'); ?></label>
             <input type="text" value="<?= isset($parameters['c_database_socket']) ? $parameters['c_database_socket'] : ''; ?>" name="c_database_socket" id="c_database_socket" />
         </p>
+
+        <p>
+            <label for="c_database_ssl_ca_path"><?= $t->t('database-configuration_field_ssl_ca_path'); ?></label>
+            <input type="text" value="<?= isset($parameters['c_database_ssl_ca_path']) ? $parameters['c_database_ssl_ca_path'] : ''; ?>" name="c_database_ssl_ca_path" id="c_database_ssl_ca_path" />
+        </p>
+
+        <p>
+            <label for="c_database_ssl_cert_path"><?= $t->t('database-configuration_field_ssl_cert_path'); ?></label>
+            <input type="text" value="<?= isset($parameters['c_database_ssl_cert_path']) ? $parameters['c_database_ssl_cert_path'] : ''; ?>" name="c_database_ssl_cert_path" id="c_database_ssl_cert_path" />
+        </p>
+
+        <p>
+            <label for="c_database_ssl_cert_key_path"><?= $t->t('database-configuration_field_ssl_cert_key_path'); ?></label>
+            <input type="text" value="<?= isset($parameters['c_database_ssl_cert_key_path']) ? $parameters['c_database_ssl_cert_key_path'] : ''; ?>" name="c_database_ssl_cert_key_path" id="c_database_ssl_cert_key_path" />
+        </p>
+
+
+        <div class="custom-checkbox">
+            <input type="checkbox"
+                   id="c_database_ssl_dont_verify_cert"
+                   name="c_database_ssl_dont_verify_cert"
+                    <?= isset($parameters['c_database_ssl_dont_verify_cert']) ? 'checked' : ''; ?>
+                   value="1"/>
+            <label for="c_database_ssl_dont_verify_cert"><?= $t->t('database-configuration_field_ssl_dont_verify_cert'); ?></label>
+        </div>
     </div>
 
     <p>
@@ -75,7 +100,7 @@ echo $app->getContainer()->get('renderer')->fetch('_header.php'); ?>
         <?= $t->t('database-configuration_non_empty_database'); ?>
     </div>
     <p>
-        <div class="custom-checkbox">
+        <div class="custom-checkbox c_create_database">
             <input id="c_database_create_schema_new" type="checkbox" />
             <label for="c_database_create_schema_new"><?= $t->t('database-configuration_field_new_database'); ?></label>
         </div>

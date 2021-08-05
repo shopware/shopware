@@ -9,14 +9,14 @@ Component.extend('sw-product-variants-configurator-selection', 'sw-property-sear
     inject: ['repositoryFactory'],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     props: {
         product: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
     },
 
     computed: {
@@ -24,9 +24,9 @@ Component.extend('sw-product-variants-configurator-selection', 'sw-property-sear
             // get configuratorSettingsRepository
             return this.repositoryFactory.create(
                 this.product.configuratorSettings.entity,
-                this.product.configuratorSettings.source
+                this.product.configuratorSettings.source,
             );
-        }
+        },
     },
 
     methods: {
@@ -81,6 +81,6 @@ Component.extend('sw-product-variants-configurator-selection', 'sw-property-sear
             this.options.add(newOption);
 
             this.addOptionCount();
-        }
-    }
+        },
+    },
 });

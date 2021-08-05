@@ -40,6 +40,11 @@ class ProductSearchKeywordDefinition extends EntityDefinition
         return '6.0.0.0';
     }
 
+    public function getHydratorClass(): string
+    {
+        return ProductSearchKeywordHydrator::class;
+    }
+
     protected function getParentDefinitionClass(): ?string
     {
         return ProductDefinition::class;

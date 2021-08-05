@@ -142,7 +142,6 @@
         <service id="Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder"/>
-            <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\TaxDetector"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\PriceActionController" public="true">
@@ -249,6 +248,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\RuleLoader"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\TaxDetector"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\CachedRuleLoader" decorates="Shopware\Core\Checkout\Cart\RuleLoader" decoration-priority="-1000">
@@ -292,6 +292,11 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\PriceDefinitionFactory"/>
             <argument type="service" id="media.repository"/>
             <tag name="shopware.cart.line_item.factory"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerDefaultSalutationSubscriber">
+            <argument type="service" id="salutation.repository"/>
+            <tag name="kernel.event_subscriber"/>
         </service>
 
         <!-- LINE ITEM GROUPS -->

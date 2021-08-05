@@ -22,7 +22,7 @@ describe('Product: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: `${Cypress.env('apiPath')}/product`,
+            url: `${Cypress.env('apiPath')}/_action/sync`,
             method: 'post'
         }).as('saveData');
         cy.route({
@@ -81,7 +81,7 @@ describe('Product: Test crud operations', () => {
         // Save product
         cy.get(page.elements.productSaveAction).click();
         cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
+            expect(xhr).to.have.property('status', 200);
         });
         cy.get(page.elements.smartBarBack).click();
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
@@ -105,8 +105,8 @@ describe('Product: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'patch'
+            url: `${Cypress.env('apiPath')}/_action/sync`,
+            method: 'post'
         }).as('saveData');
 
         // Edit base data of product
@@ -122,7 +122,7 @@ describe('Product: Test crud operations', () => {
 
         // Verify updated product
         cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
+            expect(xhr).to.have.property('status', 200);
         });
         cy.get(page.elements.smartBarBack).click();
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
@@ -174,8 +174,8 @@ describe('Product: Test crud operations', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'patch'
+            url: `${Cypress.env('apiPath')}/_action/sync`,
+            method: 'post'
         }).as('saveData');
 
         // Edit base data of product
@@ -195,7 +195,7 @@ describe('Product: Test crud operations', () => {
 
         // Verify updated product
         cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
+            expect(xhr).to.have.property('status', 200);
         });
 
         cy.get('.sw-text-editor__content-editor')
@@ -210,7 +210,7 @@ describe('Product: Test crud operations', () => {
 
         // Verify updated product
         cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
+            expect(xhr).to.have.property('status', 200);
         });
 
         cy.get('.sw-text-editor__content-editor')
@@ -218,5 +218,27 @@ describe('Product: Test crud operations', () => {
             .then(text => {
                 expect(text).to.equal('');
             });
+    });
+
+    it('@base @catalogue: Test floating point precision', () => {
+        // Request we want to wait for later
+        cy.server();
+
+        cy.route({
+            url: `${Cypress.env('apiPath')}/_action/calculate-price`,
+            method: 'post'
+        }).as('calculatePrice');
+
+        // Add basic data to product
+        cy.get('a[href="#/sw/product/create"]').click();
+
+        cy.get('input[name=sw-field--product-name]').typeAndCheck('Product with floating point net price');
+
+        // Check net price calculation
+        cy.get('select[name=sw-field--product-taxId]').select('Standard rate');
+        cy.get('.sw-list-price-field .sw-price-field__net input').eq(0).type('4.23').type('{enter}');
+        cy.wait('@calculatePrice').then(() => {
+            cy.get('.sw-list-price-field .sw-price-field__gross input').eq(0).should('have.value', '5.0337');
+        });
     });
 });

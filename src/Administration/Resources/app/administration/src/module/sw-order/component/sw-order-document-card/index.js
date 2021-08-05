@@ -17,29 +17,29 @@ Component.register('sw-order-document-card', {
         'documentService',
         'numberRangeService',
         'repositoryFactory',
-        'acl'
+        'acl',
     ],
 
     mixins: [
         Mixin.getByName('listing'),
         Mixin.getByName('placeholder'),
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     props: {
         order: {
             type: Object,
-            required: true
+            required: true,
         },
         isLoading: {
             type: Boolean,
-            required: true
+            required: true,
         },
         attachView: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
@@ -53,7 +53,9 @@ Component.register('sw-order-document-card', {
             documentNumber: null,
             documentComment: '',
             term: '',
-            attachment: {}
+            attachment: {},
+            isLoadingDocument: false,
+            isLoadingPreview: false,
         };
     },
 
@@ -118,23 +120,23 @@ Component.register('sw-order-document-card', {
                 dataIndex: 'createdAt',
                 label: 'sw-order.documentCard.labelDate',
                 allowResize: false,
-                primary: true
+                primary: true,
             }, {
                 property: 'config.documentNumber',
                 dataIndex: 'config.documentNumber',
                 label: 'sw-order.documentCard.labelNumber',
-                allowResize: false
+                allowResize: false,
             }, {
                 property: 'documentType.name',
                 dataIndex: 'documentType.name',
                 label: 'sw-order.documentCard.labelType',
-                allowResize: false
+                allowResize: false,
             }, {
                 property: 'sent',
                 dataIndex: 'sent',
                 label: 'sw-order.documentCard.labelSent',
                 allowResize: false,
-                align: 'center'
+                align: 'center',
             }];
 
             if (this.attachView) {
@@ -143,12 +145,12 @@ Component.register('sw-order-document-card', {
                     dataIndex: 'attach',
                     label: 'sw-order.documentCard.labelAttach',
                     allowResize: false,
-                    align: 'center'
+                    align: 'center',
                 });
             }
 
             return columns;
-        }
+        },
     },
 
     created() {
@@ -176,7 +178,7 @@ Component.register('sw-order-document-card', {
                 }
 
                 this.createNotificationError({
-                    message: errorMessage
+                    message: errorMessage,
                 });
             } else if (action === DocumentEvents.DOCUMENT_FINISHED) {
                 this.showModal = false;
@@ -235,7 +237,7 @@ Component.register('sw-order-document-card', {
                 referencedDocumentId,
                 {},
                 {},
-                file
+                file,
             );
         },
 
@@ -254,7 +256,7 @@ Component.register('sw-order-document-card', {
                 documentId,
                 documentDeepLink,
                 Shopware.Context.api,
-                true
+                true,
             ).then((response) => {
                 if (response.data) {
                     const filename = response.headers['content-disposition'].split('filename=')[1];
@@ -262,19 +264,21 @@ Component.register('sw-order-document-card', {
                     link.href = URL.createObjectURL(response.data);
                     link.download = filename;
                     link.dispatchEvent(new MouseEvent('click'));
-                    link.parentNode.removeChild(link);
+                    link.remove();
                 }
             });
         },
 
         onCreateDocument(params, additionalAction, referencedDocumentId = null, file = null) {
+            this.isLoadingDocument = true;
+
             this.$nextTick().then(() => {
                 return this.createDocument(
                     this.order.id,
                     this.currentDocumentType.technicalName,
                     params,
                     referencedDocumentId,
-                    file
+                    file,
                 );
             }).then((response) => {
                 if (response && additionalAction === 'download') {
@@ -284,25 +288,36 @@ Component.register('sw-order-document-card', {
         },
 
         onPreview(params) {
+            this.isLoadingPreview = true;
+
             this.documentService.getDocumentPreview(
                 this.order.id,
                 this.order.deepLinkCode,
                 this.currentDocumentType.technicalName,
-                params
+                params,
             ).then((response) => {
                 if (response.data) {
-                    const filename = response.headers['content-disposition'].split('filename=')[1];
                     const link = document.createElement('a');
                     link.href = URL.createObjectURL(response.data);
-                    link.download = filename;
+                    link.target = '_blank';
                     link.dispatchEvent(new MouseEvent('click'));
-                    link.parentNode.removeChild(link);
+                    link.remove();
                 }
+
+                this.isLoadingPreview = false;
             });
         },
 
         onDownload(id, deepLink) {
             this.downloadDocument(id, deepLink);
-        }
-    }
+        },
+
+        onLoadingDocument() {
+            this.isLoadingDocument = true;
+        },
+
+        onLoadingPreview() {
+            this.isLoadingPreview = true;
+        },
+    },
 });

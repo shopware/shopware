@@ -8,12 +8,12 @@ Component.extend('sw-order-document-settings-storno-modal', 'sw-order-document-s
     props: {
         order: {
             type: Object,
-            required: true
+            required: true,
         },
         currentDocumentType: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
@@ -21,12 +21,12 @@ Component.extend('sw-order-document-settings-storno-modal', 'sw-order-document-s
             documentConfig: {
                 custom: {
                     stornoNumber: '',
-                    invoiceNumber: ''
+                    invoiceNumber: '',
                 },
                 documentNumber: 0,
                 documentComment: '',
-                documentDate: ''
-            }
+                documentDate: '',
+            },
         };
     },
 
@@ -39,7 +39,7 @@ Component.extend('sw-order-document-settings-storno-modal', 'sw-order-document-s
             return this.order.documents.filter((document) => {
                 return document.documentType.technicalName === 'invoice';
             });
-        }
+        },
     },
 
     created() {
@@ -51,7 +51,7 @@ Component.extend('sw-order-document-settings-storno-modal', 'sw-order-document-s
             this.numberRangeService.reserve(
                 `document_${this.currentDocumentType.technicalName}`,
                 this.order.salesChannelId,
-                true
+                true,
             ).then((response) => {
                 this.documentConfig.documentNumber = response.number;
                 this.documentNumberPreview = this.documentConfig.documentNumber;
@@ -60,6 +60,8 @@ Component.extend('sw-order-document-settings-storno-modal', 'sw-order-document-s
         },
 
         onCreateDocument(additionalAction = false) {
+            this.$emit('loading-document');
+
             const selectedInvoice = this.invoices.filter((item) => {
                 return item.config.custom.invoiceNumber === this.documentConfig.custom.invoiceNumber;
             })[0];
@@ -68,12 +70,12 @@ Component.extend('sw-order-document-settings-storno-modal', 'sw-order-document-s
                 this.numberRangeService.reserve(
                     `document_${this.currentDocumentType.technicalName}`,
                     this.order.salesChannelId,
-                    false
+                    false,
                 ).then((response) => {
                     this.documentConfig.custom.stornoNumber = response.number;
                     if (response.number !== this.documentConfig.documentNumber) {
                         this.createNotificationInfo({
-                            message: this.$tc('sw-order.documentCard.info.DOCUMENT__NUMBER_WAS_CHANGED')
+                            message: this.$tc('sw-order.documentCard.info.DOCUMENT__NUMBER_WAS_CHANGED'),
                         });
                     }
                     this.documentConfig.documentNumber = response.number;
@@ -86,13 +88,14 @@ Component.extend('sw-order-document-settings-storno-modal', 'sw-order-document-s
         },
 
         onPreview() {
+            this.$emit('loading-preview');
             this.documentConfig.custom.stornoNumber = this.documentConfig.documentNumber;
             this.$super('onPreview');
         },
 
         onSelectInvoice(selected) {
             this.documentConfig.custom.invoiceNumber = selected;
-        }
+        },
 
-    }
+    },
 });

@@ -263,7 +263,7 @@
                 {% endblock %}
 
                 {% block sw_theme_list_media_modal %}
-                    <sw-media-modal
+                    <sw-media-modal-v2
                         variant="regular"
                         v-if="showMediaModal"
                         :caption="$tc('sw-theme-manager.general.captionMediaUpload')"
@@ -271,7 +271,7 @@
                         :allowMultiSelect="false"
                         @media-modal-selection-change="onPreviewImageChange"
                         @modal-close="onModalClose">
-                    </sw-media-modal>
+                    </sw-media-modal-v2>
                 {% endblock %}
 
                 {% block sw_theme_list_delete_modal %}

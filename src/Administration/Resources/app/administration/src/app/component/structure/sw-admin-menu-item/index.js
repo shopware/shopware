@@ -14,39 +14,39 @@ Component.register('sw-admin-menu-item', {
     props: {
         entry: {
             type: Object,
-            required: true
+            required: true,
         },
         // FIXME: add default property `() => []` ?
         // eslint-disable-next-line vue/require-default-prop
         parentEntries: {
             type: Array,
-            required: false
+            required: false,
         },
         displayIcon: {
             type: Boolean,
             default: true,
-            required: false
+            required: false,
         },
         iconSize: {
             type: String,
             default: '20px',
-            required: false
+            required: false,
         },
         collapsibleText: {
             type: Boolean,
             default: true,
-            required: false
+            required: false,
         },
         sidebarExpanded: {
             type: Boolean,
             default: true,
-            required: false
+            required: false,
         },
         borderColor: {
             type: String,
             default: '#333',
-            required: false
-        }
+            required: false,
+        },
     },
 
     computed: {
@@ -99,7 +99,7 @@ Component.register('sw-admin-menu-item', {
 
                 return this.acl.can(child.privilege);
             });
-        }
+        },
     },
 
     methods: {
@@ -179,7 +179,7 @@ Component.register('sw-admin-menu-item', {
                 `navigation-list-item__${name}`,
                 `sw-admin-menu__item--${this.entry.id}`,
                 `navigation-list-item__level-${this.entry.level}`,
-                { 'navigation-list-item__has-children': hasChildren }
+                { 'navigation-list-item__has-children': hasChildren },
             ];
         },
 
@@ -200,6 +200,6 @@ Component.register('sw-admin-menu-item', {
 
         getCustomKey(path) {
             return `${path}-${createId()}`;
-        }
-    }
+        },
+    },
 });

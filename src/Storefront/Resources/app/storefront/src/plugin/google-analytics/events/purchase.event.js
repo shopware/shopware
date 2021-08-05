@@ -25,7 +25,7 @@ export default class PurchaseEvent extends AnalyticsEvent
 
         gtag('event', 'purchase', { ...{
             'transaction_id': this.generateUuid(),
-            'items':  LineItemHelper.getLineItems()
+            'items':  LineItemHelper.getLineItems(),
         }, ...LineItemHelper.getAdditionalProperties() });
     }
 

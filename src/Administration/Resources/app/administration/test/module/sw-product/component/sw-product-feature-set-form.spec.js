@@ -1,4 +1,4 @@
-import { shallowMount, createLocalVue, Wrapper } from '@vue/test-utils';
+import { shallowMount, createLocalVue, config } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import 'src/module/sw-product/component/sw-product-feature-set-form';
 import 'src/app/component/base/sw-container';
@@ -59,7 +59,11 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
         });
     };
 
-    const featureSetFormComponent = () => {
+    function createWrapper() {
+        // delete global $router and $routes mocks
+        delete config.mocks.$router;
+        delete config.mocks.$route;
+
         const localVue = createLocalVue();
 
         localVue.use(VueRouter);
@@ -105,25 +109,10 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
                 loading: () => {}
             }
         });
-    };
-
-    /*
-     * Workaround, since the current vue-test-utils version doesn't support get()
-     *
-     * @see https://vue-test-utils.vuejs.org/api/wrapper/#get
-     */
-    const findSecure = (wrapperEl, findArg) => {
-        const el = wrapperEl.find(findArg);
-
-        if (el instanceof Wrapper) {
-            return el;
-        }
-
-        throw new Error(`Could not find element ${findArg}.`);
-    };
+    }
 
     beforeEach(() => {
-        wrapper = featureSetFormComponent();
+        wrapper = createWrapper();
     });
 
     afterEach(() => {
@@ -139,63 +128,62 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
     });
 
     it('contains the description container', async () => {
-        expect(findSecure(wrapper, `.${classes.descriptionContainer}`).exists()).toBeTruthy();
+        expect(wrapper.find(`.${classes.descriptionContainer}`).exists()).toBe(true);
     });
 
     it('has a complete description', async () => {
-        const descriptionContainer = findSecure(wrapper, `.${classes.descriptionContainer}`);
+        const descriptionContainer = wrapper.get(`.${classes.descriptionContainer}`);
 
-        const title = findSecure(descriptionContainer, `.${classes.descriptionTitle}`);
-        const description = findSecure(descriptionContainer, `.${classes.descriptionBody}`);
-        const configInformation = findSecure(descriptionContainer, `.${classes.descriptionConfigInformation}`);
+        // checks if the descriptionTitle exists
+        descriptionContainer.get(`.${classes.descriptionTitle}`);
 
-        expect(title.exists()).toBeTruthy();
+        const description = descriptionContainer.get(`.${classes.descriptionBody}`);
+        const configInformation = descriptionContainer.get(`.${classes.descriptionConfigInformation}`);
 
-        expect(description.exists()).toBeTruthy();
+
         expect(description.text()).toEqual(text.descriptionBody);
 
-        expect(configInformation.exists()).toBeTruthy();
         expect(configInformation.attributes().path).toEqual(text.descriptionConfigInformation);
     });
 
     it('has a link to the feature set config module', async () => {
-        const linkContainer = findSecure(wrapper, `.${classes.descriptionLink}`);
-        const link = findSecure(linkContainer, `.${classes.quickLink}`);
+        const linkContainer = wrapper.get(`.${classes.descriptionLink}`);
+        const link = linkContainer.get(`.${classes.quickLink}`);
 
-        expect(link.exists()).toBeTruthy();
+        expect(link.exists()).toBe(true);
         expect(link.text()).toEqual(text.descriptionLink);
         expect(link.props().to.name).toEqual(text.descriptionLinkTarget);
     });
 
     it('contains the form container', async () => {
-        expect(findSecure(wrapper, `.${classes.formContainer}`).exists()).toBeTruthy();
+        expect(wrapper.find(`.${classes.formContainer}`).exists()).toBe(true);
     });
 
     it('has a sw-entity-single-select for selecting templates and supports inheritance', async () => {
-        const form = findSecure(wrapper, `.${classes.formContainer}`);
+        const form = wrapper.get(`.${classes.formContainer}`);
 
-        const inheritWrapper = findSecure(form, `.${classes.formInheritWrapper}`);
-        const singleSelect = findSecure(inheritWrapper, `.${classes.templateSingleSelect}`);
+        const inheritWrapper = form.get(`.${classes.formInheritWrapper}`);
+        const singleSelect = inheritWrapper.get(`.${classes.templateSingleSelect}`);
 
         expect(inheritWrapper.props().label).toEqual(text.templateSelectLabel);
         expect(singleSelect.props().placeholder).toEqual(text.templateSelectPlaceholder);
     });
 
     it('shows the current product\'s featureSet', async () => {
-        const singleSelect = findSecure(wrapper, `.${classes.templateSingleSelect}`);
-        const selection = findSecure(singleSelect, `.${classes.singleSelectSelection}`);
+        const singleSelect = wrapper.get(`.${classes.templateSingleSelect}`);
+        const selection = singleSelect.get(`.${classes.singleSelectSelection}`);
 
         expect(selection.text()).toEqual(featureSetMock.name);
     });
 
     it('show not the inherit value', async () => {
-        const inheritanceSwitch = findSecure(wrapper, `.${classes.inheritanceSwitch}`);
+        const inheritanceSwitch = wrapper.get(`.${classes.inheritanceSwitch}`);
 
         expect(inheritanceSwitch.classes()).toContain('sw-inheritance-switch--is-not-inherited');
     });
 
     it('show switch to inherit value', async () => {
-        const inheritanceSwitch = findSecure(wrapper, `.${classes.inheritanceSwitch}`);
+        const inheritanceSwitch = wrapper.get(`.${classes.inheritanceSwitch}`);
 
         await inheritanceSwitch.find('.sw-icon').trigger('click');
 
@@ -203,7 +191,7 @@ describe('src/module/sw-product/component/sw-product-feature-set-form', () => {
     });
 
     it('show remove inheritance', async () => {
-        const inheritanceSwitch = findSecure(wrapper, `.${classes.inheritanceSwitch}`);
+        const inheritanceSwitch = wrapper.get(`.${classes.inheritanceSwitch}`);
 
         await inheritanceSwitch.find('.sw-icon').trigger('click');
 

@@ -32,7 +32,7 @@ class Migration1599134496FixImportExportProfilesForGermanLanguage extends Migrat
             AND loc.code = \'en-GB\';
         ');
 
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             SELECT *
             FROM import_export_profile_translation AS `translation`
             INNER JOIN import_export_profile AS `profile` ON translation.import_export_profile_id = profile.id
@@ -48,7 +48,7 @@ SQL;
         ]);
         $germanTranslations = $this->getGermanTranslationData();
 
-        $insertSql = <<<SQL
+        $insertSql = <<<'SQL'
             INSERT INTO import_export_profile_translation (`import_export_profile_id`, `language_id`, `label`, `created_at`)
             VALUES (:import_export_profile_id, :language_id, :label, :created_at)
 SQL;

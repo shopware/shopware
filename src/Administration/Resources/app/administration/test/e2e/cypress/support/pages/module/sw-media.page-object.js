@@ -92,14 +92,10 @@ export default class MediaPageObject {
 
     setThumbnailSize(size, position = 0) {
         cy.get('input[name=sw-field--width').type(size.width);
-        cy.get('input[name=sw-field--width').type('{enter}');
 
         if (size.height) {
             cy.get('.sw-media-add-thumbnail-form__lock').click();
-            cy.get('input[name=sw-field--height]').clear();
-            cy.get('input[name=sw-field--height]').clear();
-            cy.get('input[name=sw-field--height]').type(size.height);
-            cy.get('input[name=sw-field--height]').type('{enter}');
+            cy.get('input[name=sw-field--height]').type(`{selectall}${size.height}`);
             cy.get('.sw-media-folder-settings__add-thumbnail-size-action.is--disabled')
                 .should('not.exist');
             cy.get('.sw-media-folder-settings__add-thumbnail-size-action').click();

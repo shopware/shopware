@@ -1,0 +1,15 @@
+{
+  "allOf": [
+    {
+      "$ref": "#/components/schemas/Struct"
+    },
+    {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        }
+      }
+    }
+  ]
+}

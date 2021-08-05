@@ -6,20 +6,20 @@ Component.register('sw-settings-basic-information', {
     template,
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
 
     data() {
         return {
             isLoading: false,
-            isSaveSuccessful: false
+            isSaveSuccessful: false,
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle()
+            title: this.$createTitle(),
         };
     },
 
@@ -38,9 +38,9 @@ Component.register('sw-settings-basic-information', {
             }).catch((err) => {
                 this.isLoading = false;
                 this.createNotificationError({
-                    message: err
+                    message: err,
                 });
             });
-        }
-    }
+        },
+    },
 });

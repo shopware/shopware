@@ -8,7 +8,7 @@ Component.extend('sw-cms-product-assignment', 'sw-many-to-many-assignment-card',
     template,
     data() {
         return {
-            steps: [5]
+            steps: [5],
         };
     },
 
@@ -20,7 +20,7 @@ Component.extend('sw-cms-product-assignment', 'sw-many-to-many-assignment-card',
                 this.searchCriteria = Criteria.fromCriteria(this.criteria);
 
                 this.paginateGrid();
-            }
+            },
         },
 
         entityCollection() {
@@ -31,7 +31,7 @@ Component.extend('sw-cms-product-assignment', 'sw-many-to-many-assignment-card',
 
         languageId() {
             this.paginateGrid();
-        }
+        },
     },
 
     created() {
@@ -103,6 +103,6 @@ Component.extend('sw-cms-product-assignment', 'sw-many-to-many-assignment-card',
             this.removeItem(item).then(() => {
                 this.paginateGrid();
             });
-        }
-    }
+        },
+    },
 });

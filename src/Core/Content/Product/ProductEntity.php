@@ -300,6 +300,8 @@ class ProductEntity extends Entity
      * The container will be resolved on product.loaded event and
      * the detected cheapest price will be set for the current context rules
      *
+     * @feature-deprecated  (flag:FEATURE_NEXT_15815) tag:v6.5.0 - CheapestPrice will only be available for SalesChannelProductEntity
+     *
      * @var CheapestPrice|CheapestPriceContainer|null
      */
     protected $cheapestPrice;
@@ -485,6 +487,8 @@ class ProductEntity extends Entity
     protected $canonicalProduct;
 
     /**
+     * @feature-deprecated  (flag:FEATURE_NEXT_15815) tag:v6.5.0 - CheapestPrice will only be available for SalesChannelProductEntity
+     *
      * @var CheapestPriceContainer|null
      */
     protected $cheapestPriceContainer;
@@ -1401,6 +1405,8 @@ class ProductEntity extends Entity
     }
 
     /**
+     * @feature-deprecated  (flag:FEATURE_NEXT_15815) tag:v6.5.0 - CheapestPrice will only be available for SalesChannelProductEntity
+     *
      * @return CheapestPrice|CheapestPriceContainer|null
      */
     public function getCheapestPrice()
@@ -1408,16 +1414,25 @@ class ProductEntity extends Entity
         return $this->cheapestPrice;
     }
 
+    /**
+     * @feature-deprecated  (flag:FEATURE_NEXT_15815) tag:v6.5.0 - CheapestPrice will only be available for SalesChannelProductEntity
+     */
     public function setCheapestPrice(?CheapestPrice $cheapestPrice): void
     {
         $this->cheapestPrice = $cheapestPrice;
     }
 
+    /**
+     * @feature-deprecated  (flag:FEATURE_NEXT_15815) tag:v6.5.0 - CheapestPrice will only be available for SalesChannelProductEntity
+     */
     public function setCheapestPriceContainer(CheapestPriceContainer $container): void
     {
         $this->cheapestPriceContainer = $container;
     }
 
+    /**
+     * @feature-deprecated  (flag:FEATURE_NEXT_15815) tag:v6.5.0 - CheapestPrice will only be available for SalesChannelProductEntity
+     */
     public function getCheapestPriceContainer(): ?CheapestPriceContainer
     {
         return $this->cheapestPriceContainer;

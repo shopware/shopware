@@ -194,61 +194,61 @@ class EntityAggregator implements EntityAggregatorInterface
     {
         switch (true) {
             case $aggregation instanceof DateHistogramAggregation:
-                /* @var DateHistogramAggregation $aggregation */
+
                 $this->parseDateHistogramAggregation($aggregation, $query, $definition, $context);
 
                 break;
 
             case $aggregation instanceof TermsAggregation:
-                /* @var TermsAggregation $aggregation */
+
                 $this->parseTermsAggregation($aggregation, $query, $definition, $context);
 
                 break;
 
             case $aggregation instanceof FilterAggregation:
-                /* @var FilterAggregation $aggregation */
+
                 $this->parseFilterAggregation($aggregation, $query, $definition, $context);
 
                 break;
 
             case $aggregation instanceof AvgAggregation:
-                /* @var AvgAggregation $aggregation */
+
                 $this->parseAvgAggregation($aggregation, $query, $definition, $context);
 
                 break;
 
             case $aggregation instanceof SumAggregation:
-                /* @var SumAggregation $aggregation */
+
                 $this->parseSumAggregation($aggregation, $query, $definition, $context);
 
                 break;
 
             case $aggregation instanceof MaxAggregation:
-                /* @var MaxAggregation $aggregation */
+
                 $this->parseMaxAggregation($aggregation, $query, $definition, $context);
 
                 break;
 
             case $aggregation instanceof MinAggregation:
-                /* @var MinAggregation $aggregation */
+
                 $this->parseMinAggregation($aggregation, $query, $definition, $context);
 
                 break;
 
             case $aggregation instanceof CountAggregation:
-                /* @var CountAggregation $aggregation */
+
                 $this->parseCountAggregation($aggregation, $query, $definition, $context);
 
                 break;
 
             case $aggregation instanceof StatsAggregation:
-                /* @var StatsAggregation $aggregation */
+
                 $this->parseStatsAggregation($aggregation, $query, $definition, $context);
 
                 break;
 
             case $aggregation instanceof EntityAggregation:
-                /* @var EntityAggregation $aggregation */
+
                 $this->parseEntityAggregation($aggregation, $query, $definition, $context);
 
                 break;
@@ -270,6 +270,10 @@ class EntityAggregator implements EntityAggregatorInterface
     private function parseDateHistogramAggregation(DateHistogramAggregation $aggregation, QueryBuilder $query, EntityDefinition $definition, Context $context): void
     {
         $accessor = $this->helper->getFieldAccessor($aggregation->getField(), $definition, $definition->getEntityName(), $context);
+
+        if ($aggregation->getTimeZone()) {
+            $accessor = 'CONVERT_TZ(' . $accessor . ', "UTC", "' . $aggregation->getTimeZone() . '")';
+        }
 
         switch ($aggregation->getInterval()) {
             case DateHistogramAggregation::PER_MINUTE:
@@ -424,15 +428,15 @@ class EntityAggregator implements EntityAggregatorInterface
 
         switch (true) {
             case $aggregation instanceof DateHistogramAggregation:
-                /* @var DateHistogramAggregation $aggregation */
+
                 return $this->hydrateDateHistogramAggregation($aggregation, $definition, $rows, $context);
 
             case $aggregation instanceof TermsAggregation:
-                /* @var TermsAggregation $aggregation */
+
                 return $this->hydrateTermsAggregation($aggregation, $definition, $rows, $context);
 
             case $aggregation instanceof FilterAggregation:
-                /* @var FilterAggregation $aggregation */
+
                 return $this->hydrateResult($aggregation->getAggregation(), $definition, $rows, $context);
 
             case $aggregation instanceof AvgAggregation:
@@ -473,7 +477,7 @@ class EntityAggregator implements EntityAggregatorInterface
                 return new StatsResult($aggregation->getName(), $min, $max, $avg, $sum);
 
             case $aggregation instanceof EntityAggregation:
-                /* @var EntityAggregation $aggregation */
+
                 return $this->hydrateEntityAggregation($aggregation, $rows, $context);
             default:
                 throw new InvalidAggregationQueryException(sprintf('Aggregation of type %s not supported', \get_class($aggregation)));

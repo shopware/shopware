@@ -137,6 +137,8 @@ class LineItemOfManufacturerRuleTest extends TestCase
             'multiple products / equal / no match' => [['4', '5'], Rule::OPERATOR_EQ, '2', false],
             'multiple products / not equal / match product manufacturer' => [['5', '6'], Rule::OPERATOR_NEQ, '2', true],
             'multiple products / not equal / no match product manufacturer' => [['1', '2'], Rule::OPERATOR_NEQ, '2', false],
+            'multiple products / empty / match product manufacturer' => [['1', '2'], Rule::OPERATOR_EMPTY, '', true],
+            'multiple products / empty/ no match product manufacturer' => [['1', '2'], Rule::OPERATOR_EMPTY, '2', false],
         ];
     }
 

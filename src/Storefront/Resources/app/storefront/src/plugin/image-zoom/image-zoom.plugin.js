@@ -78,7 +78,7 @@ export default class ImageZoomPlugin extends Plugin {
          *
          * @type string
          */
-        gallerySliderSelector: '[data-modal-gallery-slider]'
+        gallerySliderSelector: '[data-modal-gallery-slider]',
     };
 
     /**
@@ -96,7 +96,7 @@ export default class ImageZoomPlugin extends Plugin {
         this._containerSize = new Vector2(this.el.offsetWidth, this.el.offsetHeight);
 
         this._storedTransform = new Vector3(0, 0, 1);
-        this._transform = this._storedTransform;
+        this._transform = new Vector3(this._storedTransform.x, this._storedTransform.y, this._storedTransform.z);
         this._translateRange = new Vector2(0, 0);
 
         this._updateTranslateRange();
@@ -424,7 +424,7 @@ export default class ImageZoomPlugin extends Plugin {
      */
     _updateStoredTransformVector() {
         this._clampTransform();
-        this._storedTransform = this._storedTransform.set(this._transform);
+        this._storedTransform = new Vector3(this._transform.x, this._transform.y, this._transform.z);
     }
 
     /**

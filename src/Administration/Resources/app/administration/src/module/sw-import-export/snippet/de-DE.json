@@ -6,6 +6,7 @@
         },
         "activity": {
             "invalidHelpText": "Fehlerhafte Einträge können über das Kontext-Menü heruntergeladen werden.",
+            "dryrun": "Testlauf",
             "columns": {
                 "size": "Größe",
                 "profile": "Profil",
@@ -19,7 +20,8 @@
                 "showLog": "Öffne Logeintrag",
                 "downloadFile": "Datei herunterladen",
                 "showProfile": "Profil anzeigen",
-                "downloadInvalidFile": "Fehlerhafte Einträge herunterladen"
+                "downloadInvalidFile": "Fehlerhafte Einträge herunterladen",
+                "showResults": "Ergebnistabelle anzeigen"
             },
             "detail": {
                 "modalTitle": "Log-Informationen",
@@ -38,6 +40,16 @@
                 "labelDownloadFile": "Datei herunterladen",
                 "labelDownloadInvalidFile": "Fehlerhafte Einträge herunterladen",
                 "helpTextFailedRecords": "Fehlgeschlagene Einträge können runtergeladen, bearbeitet und neu importiert werden."
+            },
+            "result": {
+              "modalTitle": "Ergebnistabelle",
+              "entityName": "Objekt-Typ Name",
+              "insert": "Erstellt",
+              "update": "Aktualisiert",
+              "insertError": "Erstellungsfehler",
+              "updateError": "Aktualisierungsfehler",
+              "insertSkip": "Erstellung übersprungen",
+              "updateSkip": "Aktualisierung übersprungen"
             },
             "status": {
                 "progress": "Importiere ...",
@@ -68,6 +80,7 @@
             "editProfileLabel": "Profil bearbeiten",
             "addProfileLabel": "Profil hinzufügen",
             "addNewProfileLabel": "Neues Profil hinzufügen",
+            "addNewProfileTooltipLanguage": "Profile können nur in der System-Standardsprache erstellt werden.",
             "openLabel": "Öffnen",
             "duplicateLabel": "Duplizieren",
             "copyOfLabel": "Kopie von:",
@@ -75,14 +88,15 @@
             "closeProfileLabel": "Profil schließen",
             "generalTab": "Allgemein",
             "fieldIndicatorsTab": "Feld-Indikator",
+            "mappingsTab": "Zuweisungen",
             "profileNameFieldLabel": "Profilname",
             "objectTypeFieldLabel": "Objekt-Typ",
             "separatorFieldLabel": "Seperator-Zeichen",
             "enclosureFieldLabel": "Einfassungszeichen",
             "addMappingTooltipText": "Bitte lege zunächst einen Objekt-Typ fest.",
             "objectTypeFieldTooltipText": "Der Objekt-Typ kann nicht mehr verändert werden, wenn bereits Mapping-Optionen gepflegt wurden.",
-            "descriptionBlock": "Objekt-Typen definieren den Import- und Export-Modus und haben Auswirkungen auf die verfügbaren Optionen in der Tabelle unten. Sobald Du ihn konfiguriert hast, kannst Du kannst den Objekt-Typ nicht mehr verändern.",
-            "mappingDescriptionBlock": "Verwende die Tabelle unten, um den CSV-Feldern bestimmte Datenbankeinträge zuzuweisen.",
+            "descriptionBlock": "Objekt-Typen definieren den Import- und Export-Modus und haben Auswirkungen auf die verfügbaren Optionen in der Zuweisungen-Tabelle. Sobald Du ihn konfiguriert hast, kannst Du kannst den Objekt-Typ nicht mehr verändern.",
+            "mappingDescriptionBlock": "Verwende die Tabelle unter dem \"Zuweisungen\"-Tab, um den CSV-Feldern bestimmte Datenbankeinträge zuzuweisen.",
             "csvDescriptionBlock": "Separatoren werden verwendet, um einzelne Felder zu trennen. Einfassungszeichen werden verwendet, um gezielt darin enthaltene Steuerzeichen zu ignorieren. Zum Beispiel, wenn im Fließtext das Separator-Zeichen auftaucht.",
             "cancelLabel": "Abbrechen",
             "addMappingLabel": "Neues Mapping hinzufügen",
@@ -90,16 +104,31 @@
             "systemDefaultInfoText": "Dies ist ein Systemstandardprofil, das nicht geändert werden kann. Du kannst entweder ein neues Profil erstellen oder ein Systemstandardprofil duplizieren.",
             "mapping": {
                 "fileValueLabel": "CSV-Name",
-                "entityLabel": "Datenbank-Eintrag"
+                "entityLabel": "Datenbank-Eintrag",
+                "isRequired": "Erforderlich",
+                "defaultValue": "Standard-Wert"
             },
             "typeColumn": "Typ",
             "nameColumn": "Name",
             "customTypeLabel": "Benutzerdefiniert",
             "defaultTypeLabel": "Standard",
             "propertyLabel": "Eigenschaften",
+            "mappingDescription": "Verwende die folgende Tabelle, um den CSV-Namen auf die Shopware-Datenbank abzubilden. Zusätzlich kannst Du einstellen, ob die Zuordnung erforderlich sein soll (falls es nicht bereits durch die Datenbank selbst erforderlich ist). Leere Pflichtfelder führen beim Import zu einem Fehler, es sei denn, der Standard-Wert wurde eingestellt. Der Standard-Wert wird verwendet, um leere Datenbankeinträge beim Import oder CSV-Namen beim Export auszufüllen.",
+            "mappingEmptyState": "Es wurde noch kein benutzerdefiniertes Mapping angelegt.",
             "configuratorSettingLabel": "Varianten-Konfiguration",
+            "productCrossSellingLabel": "Cross-Selling",
+            "promotionIndividualCodesLabel": "Aktionscodes",
             "closeViolation": "Schließen",
-            "violationMessage": "Dein Profil ist noch nicht gültig. Du musst Zuordnungen zu den unten angezeigten Pflichtfeldern hinzufügen, um das Profil zu speichern:"
+            "violationMessage": "Dein Profil ist noch nicht gültig. Du musst Zuordnungen zu den unten angezeigten Pflichtfeldern hinzufügen, um das Profil zu speichern:",
+            "importSettingsHeadline": "Import-Einstellungen",
+            "createEntitiesLabel": "Neue Entitäten erstellen",
+            "updateEntitiesLabel": "Vorhandene Daten aktualisieren",
+            "typeFieldLabel": "Nutzung",
+            "types": {
+                "importExportLabel": "Import und Export",
+                "importLabel": "Import",
+                "exportLabel": "Export"
+            }
         },
         "exporter": {
             "messageExportSuccess": "Der Export wurde erfolgreich abgeschlossen.",
@@ -140,6 +169,7 @@
         },
         "progress": {
             "startImportLabel": "Import starten",
+            "startImportDryrunLabel": "Testlauf starten",
             "startExportLabel": "Export starten",
             "entriesLabel": "Einträge",
             "fileSizeLabel": "kB",

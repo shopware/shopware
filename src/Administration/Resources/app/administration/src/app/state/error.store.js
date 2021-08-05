@@ -8,7 +8,7 @@ class VuexErrorStore {
 
         this.state = {
             system: {},
-            api: {}
+            api: {},
         };
 
         this.mutations = {
@@ -31,7 +31,7 @@ class VuexErrorStore {
 
             removeSystemError(state, { id }) {
                 ErrorStore.removeSystemError(id, state, Application.view.deleteReactive);
-            }
+            },
         };
 
         this.getters = {
@@ -78,7 +78,7 @@ class VuexErrorStore {
 
             getSystemError: (state) => (id) => {
                 return state.system[id] || null;
-            }
+            },
         };
 
         this.actions = {
@@ -101,7 +101,7 @@ class VuexErrorStore {
 
             removeSystemError({ commit }, { id }) {
                 commit('removeSystemError', { id });
-            }
+            },
         };
     }
 }

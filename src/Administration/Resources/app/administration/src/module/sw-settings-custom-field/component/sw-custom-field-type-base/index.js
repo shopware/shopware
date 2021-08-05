@@ -10,24 +10,24 @@ Component.register('sw-custom-field-type-base', {
     props: {
         currentCustomField: {
             type: Object,
-            required: true
+            required: true,
         },
         set: {
             type: Object,
-            required: true
+            required: true,
         },
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
         return {
             propertyNames: {
-                label: this.$tc('sw-settings-custom-field.customField.detail.labelLabel')
-            }
+                label: this.$tc('sw-settings-custom-field.customField.detail.labelLabel'),
+            },
         };
     },
 
@@ -38,6 +38,6 @@ Component.register('sw-custom-field-type-base', {
             }
 
             return [this.$root.$i18n.fallbackLocale];
-        }
-    }
+        },
+    },
 });

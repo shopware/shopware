@@ -14,11 +14,11 @@ Component.register('sw-wizard-dot-navigation', {
     props: {
         pages: {
             type: Array,
-            required: true
+            required: true,
         },
         activePage: {
             type: Number,
-            required: true
-        }
-    }
+            required: true,
+        },
+    },
 });

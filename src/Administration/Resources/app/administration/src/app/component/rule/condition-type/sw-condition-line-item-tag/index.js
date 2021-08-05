@@ -19,13 +19,16 @@ Component.extend('sw-condition-line-item-tag', 'sw-condition-base', {
 
     data() {
         return {
-            tags: null
+            tags: null,
+            inputKey: 'identifiers',
         };
     },
 
     computed: {
         operators() {
-            return this.conditionDataProviderService.getOperatorSet('multiStore');
+            return this.conditionDataProviderService.addEmptyOperatorToOperatorSet(
+                this.conditionDataProviderService.getOperatorSet('multiStore'),
+            );
         },
 
         tagRepository() {
@@ -40,14 +43,14 @@ Component.extend('sw-condition-line-item-tag', 'sw-condition-base', {
             set(identifiers) {
                 this.ensureValueExist();
                 this.condition.value = { ...this.condition.value, identifiers };
-            }
+            },
         },
 
         ...mapPropertyErrors('condition', ['value.operator', 'value.identifiers']),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueIdentifiersError;
-        }
+        },
     },
 
     created() {
@@ -59,7 +62,7 @@ Component.extend('sw-condition-line-item-tag', 'sw-condition-base', {
             this.tags = new EntityCollection(
                 this.tagRepository.route,
                 this.tagRepository.entityName,
-                Context.api
+                Context.api,
             );
 
             if (this.identifiers.length <= 0) {
@@ -77,6 +80,6 @@ Component.extend('sw-condition-line-item-tag', 'sw-condition-base', {
         setTags(tags) {
             this.identifiers = tags.getIds();
             this.tags = tags;
-        }
-    }
+        },
+    },
 });

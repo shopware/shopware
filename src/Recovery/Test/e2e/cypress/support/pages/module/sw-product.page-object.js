@@ -39,8 +39,8 @@ export default class ProductPageObject {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'patch'
+            url: `${Cypress.env('apiPath')}/_action/sync`,
+            method: 'post'
         }).as('productCall');
         cy.route({
             url: `${Cypress.env('apiPath')}/search/product`,

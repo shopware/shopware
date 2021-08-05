@@ -3,7 +3,9 @@
 const path = require('path');
 const { join } = require('path');
 
-const artifactsPath = join(process.env.PROJECT_ROOT, '/build/artifacts');
+process.env.PROJECT_ROOT = process.env.PROJECT_ROOT || process.env.INIT_CWD;
+
+const artifactsPath = join(process.env.PROJECT_ROOT, '/build/artifacts/jest');
 
 module.exports = {
 
@@ -13,6 +15,8 @@ module.exports = {
     // Automatically clear mock calls and instances between every test
     clearMocks: true,
 
+    globalTeardown: '<rootDir>test/globalTeardown.js',
+
     // The directory where Jest should output its coverage files
     collectCoverage: true,
     coverageDirectory: artifactsPath,
@@ -20,10 +24,12 @@ module.exports = {
         'lcov',
         'text',
         'clover',
+        'cobertura',
     ],
 
     collectCoverageFrom: [
         'src/**',
+        'src/**/*.js',
         '!src/main.js',
         '!src/scss/**',
         '!src/vendor/**',

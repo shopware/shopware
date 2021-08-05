@@ -30,7 +30,10 @@ import addShopwareUpdatesListener from 'src/core/service/shopware-updates-listen
 import addCustomerGroupRegistrationListener from 'src/core/service/customer-group-registration-listener.service';
 import LocaleHelperService from 'src/app/service/locale-helper.service';
 import FilterService from 'src/app/service/filter.service';
+import AppCmsService from 'src/app/service/app-cms.service';
 import MediaDefaultFolderService from 'src/app/service/media-default-folder.service';
+import AppAclService from 'src/app/service/app-acl.service';
+import ShopwareDiscountCampaignService from 'src/app/service/discount-campaign.service';
 
 /** Import Feature */
 import Feature from 'src/core/feature';
@@ -104,7 +107,7 @@ Application
     .addServiceProvider('extensionHelperService', () => {
         return new ExtensionHelperService({
             storeService: Shopware.Service('storeService'),
-            extensionStoreActionService: Shopware.Service('extensionStoreActionService')
+            extensionStoreActionService: Shopware.Service('extensionStoreActionService'),
         });
     })
     .addServiceProvider('languageAutoFetchingService', () => {
@@ -133,14 +136,27 @@ Application
             Shopware: Shopware,
             localeRepository: Shopware.Service('repositoryFactory').create('locale'),
             snippetService: Shopware.Service('snippetService'),
-            localeFactory: Application.getContainer('factory').locale
+            localeFactory: Application.getContainer('factory').locale,
         });
     })
     .addServiceProvider('filterService', () => {
         return new FilterService({
-            userConfigRepository: Shopware.Service('repositoryFactory').create('user_config')
+            userConfigRepository: Shopware.Service('repositoryFactory').create('user_config'),
         });
     })
     .addServiceProvider('mediaDefaultFolderService', () => {
         return MediaDefaultFolderService();
+    })
+    .addServiceProvider('appAclService', () => {
+        return new AppAclService({
+            privileges: Shopware.Service('privileges'),
+            appRepository: Shopware.Service('repositoryFactory').create('app'),
+        });
+    })
+    .addServiceProvider('appCmsService', (container) => {
+        const appCmsBlocksService = container.appCmsBlocks;
+        return new AppCmsService(appCmsBlocksService, adapter);
+    })
+    .addServiceProvider('shopwareDiscountCampaignService', () => {
+        return new ShopwareDiscountCampaignService();
     });

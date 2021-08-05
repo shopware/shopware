@@ -8,10 +8,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Deprecated;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RestrictDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
@@ -41,7 +41,7 @@ class IntegrationDefinition extends EntityDefinition
 
     public function getDefaults(): array
     {
-        return ['admin' => true];
+        return ['admin' => false];
     }
 
     public function since(): ?string
@@ -60,8 +60,9 @@ class IntegrationDefinition extends EntityDefinition
             new DateTimeField('last_usage_at', 'lastUsageAt'),
             new BoolField('admin', 'admin'),
             new CustomFields(),
+            new DateTimeField('deleted_at', 'deletedAt'),
 
-            (new OneToOneAssociationField('app', 'id', 'integration_id', AppDefinition::class, false))->addFlags(new CascadeDelete()),
+            (new OneToOneAssociationField('app', 'id', 'integration_id', AppDefinition::class, false))->addFlags(new RestrictDelete()),
         ]);
 
         $collection->add(

@@ -12,14 +12,14 @@ Component.register('sw-property-assignment', {
     props: {
         propertyCollection: {
             type: Array,
-            required: true
+            required: true,
         },
 
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
@@ -27,7 +27,7 @@ Component.register('sw-property-assignment', {
             groups: [],
             displayTree: false,
             displaySearch: false,
-            isLoading: false
+            isLoading: false,
         };
     },
 
@@ -57,13 +57,13 @@ Component.register('sw-property-assignment', {
         propertyRepository() {
             return this.repositoryFactory.create(
                 this.propertyCollection.entity,
-                this.propertyCollection.source
+                this.propertyCollection.source,
             );
         },
 
         groupRepository() {
             return this.repositoryFactory.create('property_group');
-        }
+        },
     },
 
     watch: {
@@ -75,8 +75,8 @@ Component.register('sw-property-assignment', {
                     this.$emit('options-load');
                 }
             },
-            immediate: true
-        }
+            immediate: true,
+        },
     },
 
     methods: {
@@ -102,7 +102,6 @@ Component.register('sw-property-assignment', {
 
         deleteOption(option) {
             this.propertyCollection.remove(option.id);
-            this.groupProperties();
         },
 
         groupProperties() {
@@ -121,7 +120,7 @@ Component.register('sw-property-assignment', {
 
             const groupSearchCriteria = new Criteria(1, 500);
             groupSearchCriteria.addFilter(
-                Criteria.equalsAny('id', groupIds)
+                Criteria.equalsAny('id', groupIds),
             );
 
             // Fetch groups with options
@@ -130,6 +129,6 @@ Component.register('sw-property-assignment', {
             });
 
             return true;
-        }
-    }
+        },
+    },
 });

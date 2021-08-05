@@ -14,7 +14,7 @@ class Migration1536233380UserRecovery extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $query = <<<SQL
+        $query = <<<'SQL'
             CREATE TABLE IF NOT EXISTS `user_recovery` (
                 `id` BINARY(16) NOT NULL,
                 `user_id` BINARY(16) NOT NULL,

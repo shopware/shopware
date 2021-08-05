@@ -73,7 +73,7 @@ The criteria passed with this route also affects the listing, if there is one wi
      *      @OA\Response(
      *          response="200",
      *          description="The loaded cms page",
-     *          @OA\JsonContent(ref="#/components/schemas/cms_page_flat")
+     *          @OA\JsonContent(ref="#/components/schemas/CmsPage")
      *     ),
      *     @OA\Response(
      *          response="404",

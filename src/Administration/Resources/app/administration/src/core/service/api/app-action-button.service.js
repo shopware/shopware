@@ -20,7 +20,7 @@ export default class AppActionButtonService extends ApiService {
     getBasicHeaders() {
         return {
             ...super.getBasicHeaders(),
-            'sw-language-id': Shopware.Context.api.languageId
+            'sw-language-id': Shopware.Context.api.languageId,
         };
     }
 
@@ -42,7 +42,7 @@ export default class AppActionButtonService extends ApiService {
         return this.httpClient
             .get(`app-system/action-button/${entity}/${view}`,
                 {
-                    headers: this.getBasicHeaders()
+                    headers: this.getBasicHeaders(),
                 }).then(({ data }) => {
                 return data.actions;
             });
@@ -60,8 +60,8 @@ export default class AppActionButtonService extends ApiService {
                 `app-system/action-button/run/${id}`,
                 params,
                 {
-                    headers: this.getBasicHeaders()
-                }
+                    headers: this.getBasicHeaders(),
+                },
             );
     }
 }

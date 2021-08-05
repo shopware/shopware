@@ -16,7 +16,7 @@ Component.register('sw-seo-url', {
         salesChannelId: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         urls: {
@@ -24,32 +24,32 @@ Component.register('sw-seo-url', {
             required: false,
             default() {
                 return [];
-            }
+            },
         },
 
         isLoading: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
 
         hasDefaultTemplate: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
 
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
         return {
             currentSalesChannelId: this.salesChannelId,
-            showEmptySeoUrlError: false
+            showEmptySeoUrlError: false,
         };
     },
 
@@ -105,14 +105,14 @@ Component.register('sw-seo-url', {
 
         allowInput() {
             return this.hasDefaultTemplate || this.currentSalesChannelId !== null;
-        }
+        },
     },
 
     watch: {
         urls() {
             this.initSeoUrlCollection();
             this.refreshCurrentSeoUrl();
-        }
+        },
     },
 
     beforeCreate() {
@@ -157,7 +157,7 @@ Component.register('sw-seo-url', {
                 this.seoUrlRepository.route,
                 this.seoUrlRepository.schema.entity,
                 Shopware.Context.api,
-                new Criteria()
+                new Criteria(),
             );
 
             const defaultSeoUrlData = this.urls.find((entityData) => {
@@ -210,16 +210,17 @@ Component.register('sw-seo-url', {
 
             if (!currentSeoUrl) {
                 const entity = this.seoUrlRepository.create();
-                const { foreignKey, routeName, pathInfo } = this.seoUrlCollection.find((item) => {
-                    return item.salesChannelId && item.salesChannelId === this.currentSalesChannelId;
+                // Fetch any seo url as template, since we need to know foreignKey, pathInfo and the routeName
+                const seoUrl = this.seoUrlCollection.find((item) => {
+                    return item.pathInfo && item.routeName && item.foreignKey;
                 }) || {};
 
-                entity.foreignKey = this.defaultSeoUrl?.foreignKey ?? foreignKey;
+                entity.foreignKey = this.defaultSeoUrl?.foreignKey ?? seoUrl.foreignKey;
                 entity.isCanonical = true;
                 entity.languageId = actualLanguageId;
                 entity.salesChannelId = this.currentSalesChannelId;
-                entity.routeName = this.defaultSeoUrl?.routeName ?? routeName;
-                entity.pathInfo = this.defaultSeoUrl?.pathInfo ?? pathInfo;
+                entity.routeName = this.defaultSeoUrl?.routeName ?? seoUrl.routeName;
+                entity.pathInfo = this.defaultSeoUrl?.pathInfo ?? seoUrl.pathInfo;
                 entity.isModified = true;
 
                 this.seoUrlCollection.add(entity);
@@ -233,7 +234,8 @@ Component.register('sw-seo-url', {
         },
         onSalesChannelChanged(salesChannelId) {
             this.currentSalesChannelId = salesChannelId;
+            this.$emit('on-change-sales-channel', salesChannelId);
             this.refreshCurrentSeoUrl();
-        }
-    }
+        },
+    },
 });

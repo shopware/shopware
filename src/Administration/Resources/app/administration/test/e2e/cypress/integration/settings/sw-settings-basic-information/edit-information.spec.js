@@ -134,8 +134,8 @@ describe('Basic Informaion: Edit assignments', () => {
         cy.get('.content-main h1').contains('Maintenance mode');
     });
 
-    it('@settings: change active captcha and test input field show when google recaptcha selected', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_12455');
+    // NEXT-16105 - Flaky, looks like the test does not wait for the clear of the multi select
+    it.skip('@settings: change active captcha and test input field show when google recaptcha selected', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
@@ -144,13 +144,19 @@ describe('Basic Informaion: Edit assignments', () => {
         }).as('saveData');
 
         cy.get('.sw-card.sw-system-config__card--3').should('be.visible');
-        cy.get('.sw-card.sw-system-config__card--3 .sw-card__title').contains('Captcha');
+        cy.get('.sw-card.sw-system-config__card--3 .sw-card__title').contains('CAPTCHA');
         cy.get('.sw-settings-captcha-select-v2').scrollIntoView();
         cy.get('.sw-settings-captcha-select-v2').should('be.visible');
 
+        cy.get('.sw-settings-captcha-select-v2 .sw-multi-select input').scrollIntoView();
         cy.get('.sw-settings-captcha-select-v2 .sw-multi-select input').clear();
+        cy.get('.sw-settings-captcha-select-v2 .sw-multi-select input').clear();
+        cy.get('.sw-settings-captcha-select-v2 .sw-multi-select input').should('be.empty');
+
         cy.get('.sw-settings-captcha-select-v2 .sw-multi-select')
             .typeMultiSelectAndCheck('Google reCAPTCHA v3');
+
+        cy.get('.sw-settings-captcha-select-v2__google-recaptcha-v3 input[name="googleReCaptchaV3ThresholdScore"]').clear().type('0.5');
 
         cy.get('.smart-bar__content .sw-button--primary').click();
         cy.wait('@saveData').then((xhr) => {
@@ -159,5 +165,8 @@ describe('Basic Informaion: Edit assignments', () => {
         cy.get('.sw-settings-captcha-select-v2').scrollIntoView();
         cy.get('.sw-settings-captcha-select-v2 .sw-settings-captcha-select-v2__google-recaptcha-v3')
             .should('be.visible');
+        cy.get('.sw-settings-captcha-select-v2__google-recaptcha-v3-description').should('be.visible');
+        cy.get('.sw-settings-captcha-select-v2__google-recaptcha-v3 input[name="googleReCaptchaV3ThresholdScore"]')
+            .should('have.value', '0.5');
     });
 });

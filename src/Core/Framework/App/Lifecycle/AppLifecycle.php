@@ -27,6 +27,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -77,6 +78,8 @@ class AppLifecycle extends AbstractAppLifecycle
 
     private EntityRepositoryInterface $integrationRepository;
 
+    private EntityRepositoryInterface $aclRoleRepository;
+
     public function __construct(
         EntityRepositoryInterface $appRepository,
         PermissionPersister $permissionPersister,
@@ -94,6 +97,7 @@ class AppLifecycle extends AbstractAppLifecycle
         SystemConfigService $systemConfigService,
         ConfigValidator $configValidator,
         EntityRepositoryInterface $integrationRepository,
+        EntityRepositoryInterface $aclRoleRepository,
         string $projectDir
     ) {
         $this->appRepository = $appRepository;
@@ -113,6 +117,7 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->systemConfigService = $systemConfigService;
         $this->configValidator = $configValidator;
         $this->integrationRepository = $integrationRepository;
+        $this->aclRoleRepository = $aclRoleRepository;
     }
 
     public function getDecorated(): AbstractAppLifecycle
@@ -142,6 +147,8 @@ class AppLifecycle extends AbstractAppLifecycle
         if ($activate) {
             $this->appStateService->activateApp($appId, $context);
         }
+
+        $this->updateAclRole($app->getName(), $context);
     }
 
     public function update(Manifest $manifest, array $app, Context $context): void
@@ -163,7 +170,7 @@ class AppLifecycle extends AbstractAppLifecycle
             $this->appStateService->deactivateApp($appEntity->getId(), $context);
         }
 
-        $this->removeAppAndRole($appEntity, $context, $keepUserData);
+        $this->removeAppAndRole($appEntity, $context, $keepUserData, true);
     }
 
     private function updateApp(
@@ -251,18 +258,37 @@ class AppLifecycle extends AbstractAppLifecycle
         return $app;
     }
 
-    private function removeAppAndRole(AppEntity $app, Context $context, bool $keepUserData = false): void
+    private function removeAppAndRole(AppEntity $app, Context $context, bool $keepUserData = false, bool $softDelete = false): void
     {
         // throw event before deleting app from db as it may be delivered via webhook to the deleted app
         $this->eventDispatcher->dispatch(
             new AppDeletedEvent($app->getId(), $context, $keepUserData)
         );
 
-        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($app): void {
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($app, $softDelete, $keepUserData): void {
+            if (!$keepUserData) {
+                $config = $this->appLoader->getConfiguration($app);
+
+                if ($config) {
+                    $this->systemConfigService->deleteExtensionConfiguration($app->getName(), $config);
+                }
+            }
+
             $this->appRepository->delete([['id' => $app->getId()]], $context);
-            $this->integrationRepository->delete([['id' => $app->getIntegrationId()]], $context);
+
+            if ($softDelete) {
+                $this->integrationRepository->update([[
+                    'id' => $app->getIntegrationId(),
+                    'deletedAt' => new \DateTimeImmutable(),
+                ]], $context);
+                $this->permissionPersister->softDeleteRole($app->getAclRoleId());
+            } else {
+                $this->integrationRepository->delete([['id' => $app->getIntegrationId()]], $context);
+                $this->permissionPersister->removeRole($app->getAclRoleId());
+            }
+
+            $this->deleteAclRole($app->getName(), $context);
         });
-        $this->permissionPersister->removeRole($app->getAclRoleId());
     }
 
     private function updateMetadata(array $metadata, Context $context): void
@@ -353,5 +379,65 @@ class AppLifecycle extends AbstractAppLifecycle
         $locale = $language->getLocale();
 
         return $locale->getCode();
+    }
+
+    private function updateAclRole(string $appName, Context $context): void
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new NotFilter(
+            NotFilter::CONNECTION_AND,
+            [new EqualsFilter('users.id', null)]
+        ));
+        $roles = $this->aclRoleRepository->search($criteria, $context);
+
+        $newPrivileges = [
+            'app.' . $appName,
+        ];
+        $dataUpdate = [];
+
+        foreach ($roles as $role) {
+            $currentPrivileges = $role->getPrivileges();
+
+            if (\in_array('app.all', $currentPrivileges, true)) {
+                $currentPrivileges = array_merge($currentPrivileges, $newPrivileges);
+                $currentPrivileges = array_unique($currentPrivileges);
+
+                array_push($dataUpdate, [
+                    'id' => $role->getId(),
+                    'privileges' => $currentPrivileges,
+                ]);
+            }
+        }
+
+        if (\count($dataUpdate) > 0) {
+            $this->aclRoleRepository->update($dataUpdate, $context);
+        }
+    }
+
+    private function deleteAclRole(string $appName, Context $context): void
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('app.id', null));
+        $roles = $this->aclRoleRepository->search($criteria, $context);
+
+        $appPrivileges = 'app.' . $appName;
+        $dataUpdate = [];
+
+        foreach ($roles as $role) {
+            $currentPrivileges = $role->getPrivileges();
+
+            if (($key = array_search($appPrivileges, $currentPrivileges, true)) !== false) {
+                unset($currentPrivileges[$key]);
+
+                array_push($dataUpdate, [
+                    'id' => $role->getId(),
+                    'privileges' => $currentPrivileges,
+                ]);
+            }
+        }
+
+        if (\count($dataUpdate) > 0) {
+            $this->aclRoleRepository->update($dataUpdate, $context);
+        }
     }
 }

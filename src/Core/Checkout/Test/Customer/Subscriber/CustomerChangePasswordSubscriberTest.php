@@ -64,7 +64,6 @@ class CustomerChangePasswordSubscriberTest extends TestCase
 
         $response = $this->getBrowser()->getResponse();
 
-        /* @var Response $response */
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
 
         $criteria = new Criteria();
@@ -96,7 +95,6 @@ class CustomerChangePasswordSubscriberTest extends TestCase
 
         $response = $this->getBrowser()->getResponse();
 
-        /* @var Response $response */
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
 
         $criteria = new Criteria();

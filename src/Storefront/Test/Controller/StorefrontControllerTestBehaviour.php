@@ -4,8 +4,13 @@ namespace Shopware\Storefront\Test\Controller;
 
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Component\Security\Csrf\CsrfTokenManager;
+use Symfony\Component\Security\Csrf\TokenGenerator\UriSafeTokenGenerator;
+use Symfony\Component\Security\Csrf\TokenStorage\SessionTokenStorage;
 
 trait StorefrontControllerTestBehaviour
 {
@@ -19,12 +24,17 @@ trait StorefrontControllerTestBehaviour
 
     public function tokenize(string $route, array $data): array
     {
-        $token = $this->getContainer()
-            ->get('security.csrf.token_manager')
-            ->getToken($route)
-            ->getValue();
+        $requestStack = new RequestStack();
+        $request = new Request();
+        $request->setSession($this->getContainer()->get('session'));
+        $requestStack->push($request);
 
-        $data['_csrf_token'] = $token;
+        $tokenStorage = new CsrfTokenManager(
+            new UriSafeTokenGenerator(),
+            new SessionTokenStorage($requestStack)
+        );
+
+        $data['_csrf_token'] = $tokenStorage->getToken($route);
 
         return $data;
     }

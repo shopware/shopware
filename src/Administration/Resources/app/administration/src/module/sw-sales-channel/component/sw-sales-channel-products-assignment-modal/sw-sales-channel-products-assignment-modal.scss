@@ -1,0 +1,18 @@
+.sw-sales-channel-products-assignment-modal {
+    &.sw-modal .sw-modal__body .sw-data-grid .sw-data-grid__bulk {
+        padding-left: 100px;
+    }
+
+    &__tabs.sw-tabs.sw-tabs--small {
+        margin: 0 auto;
+    }
+
+    &__tabs.sw-tabs .sw-tabs__custom-content {
+        padding: 20px 0 0;
+    }
+
+    &__content {
+        position: relative;
+        overflow: hidden;
+    }
+}

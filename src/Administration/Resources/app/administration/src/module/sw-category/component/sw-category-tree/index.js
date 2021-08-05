@@ -16,31 +16,31 @@ Component.register('sw-category-tree', {
         categoryId: {
             type: String,
             required: false,
-            default: null
+            default: null,
         },
 
         currentLanguageId: {
             type: String,
-            required: true
+            required: true,
         },
 
         allowEdit: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
 
         allowCreate: {
             type: Boolean,
             required: false,
-            default: true
+            default: true,
         },
 
         allowDelete: {
             type: Boolean,
             required: false,
-            default: true
-        }
+            default: true,
+        },
     },
 
     data() {
@@ -49,13 +49,13 @@ Component.register('sw-category-tree', {
             translationContext: 'sw-category',
             linkContext: 'sw.category.detail',
             isLoadingInitialData: true,
-            loadedParentIds: []
+            loadedParentIds: [],
         };
     },
 
     computed: {
         ...mapState('swCategoryDetail', [
-            'categoriesToDelete'
+            'categoriesToDelete',
         ]),
 
         categoryRepository() {
@@ -97,11 +97,38 @@ Component.register('sw-category-tree', {
             const parentCriteria = Criteria.fromCriteria(this.criteria).setLimit(1);
             parentCriteria.associations.push({
                 association: 'children',
-                criteria: Criteria.fromCriteria(this.criteria)
+                criteria: Criteria.fromCriteria(this.criteria),
             });
 
             return parentCriteria;
-        }
+        },
+
+        cmsPageRepository() {
+            return this.repositoryFactory.create('cms_page');
+        },
+
+        productRepository() {
+            return this.repositoryFactory.create('product');
+        },
+
+        defaultLayout() {
+            return Shopware.State.get('swCategoryDetail').defaultLayout;
+        },
+
+        defaultLayoutCriteria() {
+            const criteria = new Criteria(1, 1);
+            criteria
+                .addSorting(Criteria.sort('createdAt', 'ASC'))
+                .addFilter(Criteria.multi(
+                    'AND',
+                    [
+                        Criteria.equals('type', 'product_list'),
+                        Criteria.equals('locked', true),
+                    ],
+                ));
+
+            return criteria;
+        },
     },
 
     watch: {
@@ -113,7 +140,7 @@ Component.register('sw-category-tree', {
             this.$refs.categoryTree.onDeleteElements(value);
 
             Shopware.State.commit('swCategoryDetail/setCategoriesToDelete', {
-                categoriesToDelete: undefined
+                categoriesToDelete: undefined,
             });
         },
 
@@ -135,7 +162,7 @@ Component.register('sw-category-tree', {
                     newVal.id,
                     ...oldVal.navigationSalesChannels.map(salesChannel => salesChannel.navigationCategoryId),
                     ...oldVal.footerSalesChannels.map(salesChannel => salesChannel.footerCategoryId),
-                    ...oldVal.serviceSalesChannels.map(salesChannel => salesChannel.serviceCategoryId)
+                    ...oldVal.serviceSalesChannels.map(salesChannel => salesChannel.serviceCategoryId),
                 ];
 
                 const criteria = Criteria.fromCriteria(this.criteria)
@@ -151,7 +178,7 @@ Component.register('sw-category-tree', {
 
         currentLanguageId() {
             this.openInitialTree();
-        }
+        },
     },
 
     created() {
@@ -160,6 +187,8 @@ Component.register('sw-category-tree', {
 
     methods: {
         createdComponent() {
+            this.loadDefaultLayout();
+
             if (this.category !== null) {
                 this.openInitialTree();
             }
@@ -210,9 +239,30 @@ Component.register('sw-category-tree', {
 
             this.syncSiblings({ parentId: newParentId }).then(() => {
                 if (oldParentId !== newParentId) {
-                    this.syncSiblings({ parentId: oldParentId });
+                    this.syncSiblings({ parentId: oldParentId }).then(() => {
+                        this.syncProducts(draggedItem.id);
+                    });
                 }
             });
+        },
+
+        syncProducts(categoryId) {
+            const criteria = new Criteria(1, 50);
+            criteria.addFilter(Criteria.multi('or', [
+                Criteria.equals('categoriesRo.id', categoryId),
+                Criteria.equals('categories.id', categoryId),
+            ]));
+
+            return this.productRepository.iterateIds(criteria, this.indexProducts);
+        },
+
+        indexProducts(ids) {
+            const headers = this.productRepository.buildHeaders();
+
+            const initContainer = Shopware.Application.getContainer('init');
+            const httpClient = initContainer.httpClient;
+
+            return httpClient.post('/_action/index-products', { ids }, { headers });
         },
 
         checkedElementsCount(count) {
@@ -229,7 +279,7 @@ Component.register('sw-category-tree', {
 
             if (hasNavigationCategories) {
                 this.createNotificationError({
-                    message: this.$tc('sw-category.general.errorNavigationEntryPointMultiple')
+                    message: this.$tc('sw-category.general.errorNavigationEntryPointMultiple'),
                 });
 
                 const categories = ids.map((id) => {
@@ -258,7 +308,7 @@ Component.register('sw-category-tree', {
                 return Promise.resolve();
             }
 
-            if (category.navigationSalesChannels !== null && category.navigationSalesChannels.length > 0) {
+            if (this.isErrorNavigationEntryPoint(category)) {
                 // remove delete flags
                 category.isDeleted = false;
                 if (children.length > 0) {
@@ -279,7 +329,7 @@ Component.register('sw-category-tree', {
                 // reload after changes
                 this.loadedCategories = { ...this.loadedCategories };
 
-                this.createNotificationError({ message: this.$tc('sw-category.general.errorNavigationEntryPoint') });
+                this.createNotificationError({ message: this.entryPointWarningMessage(category) });
                 return Promise.resolve();
             }
 
@@ -287,7 +337,11 @@ Component.register('sw-category-tree', {
                 this.removeFromStore(category.id);
 
                 if (category.parentId !== null) {
-                    this.categoryRepository.get(category.parentId).then((updatedParent) => {
+                    this.categoryRepository.get(
+                        category.parentId,
+                        Shopware.Context.api,
+                        this.criteria,
+                    ).then((updatedParent) => {
                         this.addCategory(updatedParent);
                     });
                 }
@@ -313,8 +367,11 @@ Component.register('sw-category-tree', {
             }
 
             this.loadedParentIds.push(parentId);
-            const criteria = Criteria.fromCriteria(this.criteria)
-                .addFilter(Criteria.equals('parentId', parentId));
+            const criteria = Criteria.fromCriteria(this.criteria);
+            criteria.addFilter(Criteria.equals('parentId', parentId));
+            // in case the criteria has been altered to search specific ids e.g. by dragndrop position change
+            // reset all ids so categories can be found solely by parentId
+            criteria.setIds([]);
 
             return this.categoryRepository.search(criteria).then((children) => {
                 this.addCategories(children);
@@ -355,6 +412,7 @@ Component.register('sw-category-tree', {
             newCategory.childCount = 0;
             newCategory.active = false;
             newCategory.visible = true;
+            newCategory.cmsPageId = this.defaultLayout;
 
             newCategory.save = () => {
                 return this.categoryRepository.save(newCategory).then(() => {
@@ -378,7 +436,7 @@ Component.register('sw-category-tree', {
                 this.loadedParentIds = this.loadedParentIds.filter(id => id !== parentId);
                 return this.getChildrenFromParent(parentId);
             }).then(() => {
-                this.categoryRepository.get(parentId).then((parent) => {
+                this.categoryRepository.get(parentId, Shopware.Context.api, this.criteria).then((parent) => {
                     this.addCategory(parent);
                 });
             });
@@ -423,7 +481,7 @@ Component.register('sw-category-tree', {
         getCategoryUrl(category) {
             return this.$router.resolve({
                 name: this.linkContext,
-                params: { id: category.id }
+                params: { id: category.id },
             }).href;
         },
 
@@ -431,6 +489,48 @@ Component.register('sw-category-tree', {
             return (category.navigationSalesChannels !== null && category.navigationSalesChannels.length > 0)
                 || (category.serviceSalesChannels !== null && category.serviceSalesChannels.length > 0)
                 || (category.footerSalesChannels !== null && category.footerSalesChannels.length > 0);
-        }
-    }
+        },
+
+        loadDefaultLayout() {
+            return this.cmsPageRepository.search(this.defaultLayoutCriteria).then((response) => {
+                Shopware.State.commit('swCategoryDetail/setDefaultLayout', response[0]);
+            });
+        },
+
+        isErrorNavigationEntryPoint(category) {
+            const { navigationSalesChannels, serviceSalesChannels, footerSalesChannels } = category;
+
+            return [
+                navigationSalesChannels,
+                serviceSalesChannels,
+                footerSalesChannels,
+            ].some(navigation => navigation !== null && navigation?.length > 0);
+        },
+
+        entryPointWarningMessage(category) {
+            const { serviceSalesChannels, footerSalesChannels } = category;
+
+            if (serviceSalesChannels !== null && serviceSalesChannels?.length > 0) {
+                return this.$tc(
+                    'sw-category.general.errorNavigationEntryPoint',
+                    0,
+                    { entryPointLabel: this.$tc('sw-category.base.entry-point-card.types.labelServiceNavigation') },
+                );
+            }
+
+            if (footerSalesChannels !== null && footerSalesChannels?.length > 0) {
+                return this.$tc(
+                    'sw-category.general.errorNavigationEntryPoint',
+                    0,
+                    { entryPointLabel: this.$tc('sw-category.base.entry-point-card.types.labelFooterNavigation') },
+                );
+            }
+
+            return this.$tc(
+                'sw-category.general.errorNavigationEntryPoint',
+                0,
+                { entryPointLabel: this.$tc('sw-category.base.entry-point-card.types.labelMainNavigation') },
+            );
+        },
+    },
 });

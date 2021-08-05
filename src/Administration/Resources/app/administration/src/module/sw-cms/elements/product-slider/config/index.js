@@ -10,7 +10,7 @@ Component.register('sw-cms-el-config-product-slider', {
     inject: ['repositoryFactory', 'feature'],
 
     mixins: [
-        Mixin.getByName('cms-element')
+        Mixin.getByName('cms-element'),
     ],
 
     data() {
@@ -21,7 +21,7 @@ Component.register('sw-cms-el-config-product-slider', {
 
             // Temporary values to store the previous selection in case the user changes the assignment type.
             tempProductIds: [],
-            tempStreamId: null
+            tempStreamId: null,
         };
     },
 
@@ -35,7 +35,7 @@ Component.register('sw-cms-el-config-product-slider', {
         },
 
         products() {
-            if (this.element.data && this.element.data.products && this.element.data.products.length > 0) {
+            if (this.element?.data?.products && this.element.data.products.length > 0) {
                 return this.element.data.products;
             }
 
@@ -60,35 +60,35 @@ Component.register('sw-cms-el-config-product-slider', {
         productAssignmentTypes() {
             return [{
                 label: this.$tc('sw-cms.elements.productSlider.config.productAssignmentTypeOptions.manual'),
-                value: 'static'
+                value: 'static',
             }, {
                 label: this.$tc('sw-cms.elements.productSlider.config.productAssignmentTypeOptions.productStream'),
-                value: 'product_stream'
+                value: 'product_stream',
             }];
         },
 
         productStreamSortingOptions() {
             return [{
                 label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.nameAsc'),
-                value: 'name:ASC'
+                value: 'name:ASC',
             }, {
                 label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.nameDesc'),
-                value: 'name:DESC'
+                value: 'name:DESC',
             }, {
                 label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.creationDateAsc'),
-                value: 'createdAt:ASC'
+                value: 'createdAt:ASC',
             }, {
                 label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.creationDateDesc'),
-                value: 'createdAt:DESC'
+                value: 'createdAt:DESC',
             }, {
                 label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.random'),
-                value: 'random'
+                value: 'random',
             }, {
                 label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.priceAsc'),
-                value: 'cheapestPrice:ASC'
+                value: 'cheapestPrice:ASC',
             }, {
                 label: this.$tc('sw-cms.elements.productSlider.config.productStreamSortingOptions.priceDesc'),
-                value: 'cheapestPrice:DESC'
+                value: 'cheapestPrice:DESC',
             }];
         },
 
@@ -114,14 +114,14 @@ Component.register('sw-cms-el-config-product-slider', {
                     property: 'name',
                     label: this.$tc('sw-category.base.products.columnNameLabel'),
                     dataIndex: 'name',
-                    sortable: false
+                    sortable: false,
                 }, {
                     property: 'manufacturer.name',
                     label: this.$tc('sw-category.base.products.columnManufacturerLabel'),
-                    sortable: false
-                }
+                    sortable: false,
+                },
             ];
-        }
+        },
     },
 
     created() {
@@ -150,7 +150,7 @@ Component.register('sw-cms-el-config-product-slider', {
 
                 this.productRepository
                     .search(criteria, Object.assign({}, Shopware.Context.api, { inheritance: true }))
-                    .then((result) => {
+                    .then(result => {
                         this.productCollection = result;
                     });
             }
@@ -198,7 +198,15 @@ Component.register('sw-cms-el-config-product-slider', {
         onProductsChange() {
             this.element.config.products.value = this.productCollection.getIds();
 
+            if (!this.element?.data) {
+                return;
+            }
+
             this.$set(this.element.data, 'products', this.productCollection);
-        }
-    }
+        },
+
+        isSelected(itemId) {
+            return this.productCollection.has(itemId);
+        },
+    },
 });

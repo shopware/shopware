@@ -48,7 +48,6 @@
         </service>
 
         <service id="Shopware\Core\Framework\Demodata\Generator\CategoryGenerator">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter"/>
             <argument type="service" id="category.repository"/>
             <argument type="service" id="cms_page.repository"/>
 
@@ -71,10 +70,8 @@
         </service>
 
         <service id="Shopware\Core\Framework\Demodata\Generator\ProductGenerator">
-            <argument type="service" id="tax.repository" />
             <argument type="service" id="Doctrine\DBAL\Connection" />
-            <argument type="service" id="product.repository"/>
-
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <tag name="shopware.demodata_generator"/>
         </service>
 
@@ -105,6 +102,9 @@
             <argument type="service" id="Shopware\Core\Checkout\Order\OrderDefinition" />
 
             <tag name="shopware.demodata_generator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\AmountCalculator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\CartCalculator"/>
         </service>
 
         <service id="Shopware\Core\Framework\Demodata\Generator\CustomFieldGenerator">

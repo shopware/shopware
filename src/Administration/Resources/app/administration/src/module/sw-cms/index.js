@@ -28,25 +28,25 @@ Module.register('sw-cms', {
             component: 'sw-cms-list',
             path: 'index',
             meta: {
-                privilege: 'cms.viewer'
-            }
+                privilege: 'cms.viewer',
+            },
         },
         detail: {
             component: 'sw-cms-detail',
             path: 'detail/:id',
             meta: {
                 parentPath: 'sw.cms.index',
-                privilege: 'cms.viewer'
-            }
+                privilege: 'cms.viewer',
+            },
         },
         create: {
             component: 'sw-cms-create',
             path: 'create',
             meta: {
                 parentPath: 'sw.cms.index',
-                privilege: 'cms.creator'
-            }
-        }
+                privilege: 'cms.creator',
+            },
+        },
     },
 
     navigation: [{
@@ -54,7 +54,7 @@ Module.register('sw-cms', {
         label: 'global.sw-admin-menu.navigation.mainMenuItemContent',
         color: '#ff68b4',
         icon: 'default-symbol-content',
-        position: 50
+        position: 50,
     }, {
         id: 'sw-cms',
         label: 'sw-cms.general.mainMenuItemGeneral',
@@ -63,6 +63,6 @@ Module.register('sw-cms', {
         icon: 'default-symbol-content',
         position: 10,
         parent: 'sw-content',
-        privilege: 'cms.viewer'
-    }]
+        privilege: 'cms.viewer',
+    }],
 });

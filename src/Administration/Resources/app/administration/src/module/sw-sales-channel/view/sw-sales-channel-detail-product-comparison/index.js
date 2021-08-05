@@ -13,31 +13,31 @@ Component.register('sw-sales-channel-detail-product-comparison', {
         'repositoryFactory',
         'productExportService',
         'entityMappingService',
-        'acl'
+        'acl',
     ],
 
     mixins: [
         Mixin.getByName('notification'),
-        Mixin.getByName('placeholder')
+        Mixin.getByName('placeholder'),
     ],
 
     props: {
         // FIXME: add type for salesChannel property
         // eslint-disable-next-line vue/require-prop-types
         salesChannel: {
-            required: true
+            required: true,
         },
 
         // FIXME: add type for prodcutExport property
         // eslint-disable-next-line vue/require-prop-types
         productExport: {
-            required: true
+            required: true,
         },
 
         isLoading: {
             type: Boolean,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
@@ -51,14 +51,14 @@ Component.register('sw-sales-channel-detail-product-comparison', {
             isLoadingPreview: false,
             isPreviewSuccessful: false,
             isLoadingValidate: false,
-            isValidateSuccessful: false
+            isValidateSuccessful: false,
         };
     },
 
     computed: {
         editorConfig() {
             return {
-                enableBasicAutocompletion: true
+                enableBasicAutocompletion: true,
             };
         },
 
@@ -69,7 +69,7 @@ Component.register('sw-sales-channel-detail-product-comparison', {
         domainRepository() {
             return this.repositoryFactory.create(
                 this.salesChannel.domains.entity,
-                this.salesChannel.domains.source
+                this.salesChannel.domains.source,
             );
         },
 
@@ -85,28 +85,28 @@ Component.register('sw-sales-channel-detail-product-comparison', {
 
         outerCompleterFunctionHeader() {
             return this.outerCompleterFunction({
-                productExport: 'product_export'
+                productExport: 'product_export',
             });
         },
 
         outerCompleterFunctionBody() {
             return this.outerCompleterFunction({
                 productExport: 'product_export',
-                product: 'product'
+                product: 'product',
             });
         },
 
         outerCompleterFunctionFooter() {
             return this.outerCompleterFunction({
-                productExport: 'product_export'
+                productExport: 'product_export',
             });
-        }
+        },
     },
 
     methods: {
         validateTemplate() {
             const notificationValidateSuccess = {
-                message: this.$tc('sw-sales-channel.detail.productComparison.notificationMessageValidateSuccessful')
+                message: this.$tc('sw-sales-channel.detail.productComparison.notificationMessageValidateSuccessful'),
             };
 
             this.isLoadingValidate = true;
@@ -126,7 +126,7 @@ Component.register('sw-sales-channel-detail-product-comparison', {
                     this.isValidateSuccessful = true;
                 }).catch((exception) => {
                     this.createNotificationError({
-                        message: exception.response.data.errors[0].detail
+                        message: exception.response.data.errors[0].detail,
                     });
                     warn(this._name, exception.message, exception.response);
 
@@ -152,7 +152,7 @@ Component.register('sw-sales-channel-detail-product-comparison', {
                     this.isPreviewSuccessful = true;
                 }).catch((exception) => {
                     this.createNotificationError({
-                        message: exception.response.data.errors[0].detail
+                        message: exception.response.data.errors[0].detail,
                     });
                     warn(this._name, exception.message, exception.response);
 
@@ -179,6 +179,6 @@ Component.register('sw-sales-channel-detail-product-comparison', {
 
         resetValid() {
             this.isValidateSuccessful = false;
-        }
-    }
+        },
+    },
 });

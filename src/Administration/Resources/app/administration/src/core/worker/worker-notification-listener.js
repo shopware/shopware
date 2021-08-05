@@ -92,17 +92,17 @@ class WorkerNotificationListener {
                 create: (notification) => {
                     return appRoot.$store.dispatch(
                         'notification/createNotification',
-                        notification
+                        notification,
                     );
                 },
                 update: (notification) => {
                     return appRoot.$store.dispatch(
                         'notification/updateNotification',
-                        notification
+                        notification,
                     );
-                }
+                },
             },
-            queue
+            queue,
         };
 
         this._middlewareHelper.go(middlewareParams);

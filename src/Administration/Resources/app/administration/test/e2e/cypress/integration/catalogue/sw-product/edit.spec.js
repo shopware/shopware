@@ -12,6 +12,9 @@ describe('Product: Edit in various ways', () => {
                 return cy.createProductFixture();
             })
             .then(() => {
+                return cy.createDefaultFixture('custom-field-set');
+            })
+            .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
             });
     });
@@ -22,8 +25,8 @@ describe('Product: Edit in various ways', () => {
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'patch'
+            url: `${Cypress.env('apiPath')}/_action/sync`,
+            method: 'post'
         }).as('saveData');
 
         cy.clickContextMenuItem(
@@ -42,7 +45,7 @@ describe('Product: Edit in various ways', () => {
 
         // Verify updated product
         cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
+            expect(xhr).to.have.property('status', 200);
         });
 
         cy.get(page.elements.smartBarBack).click();
@@ -59,7 +62,13 @@ describe('Product: Edit in various ways', () => {
 
         // Inline edit customer
         cy.get('.sw-data-grid__cell--productNumber').dblclick();
-        cy.get('#sw-field--item-name').clearTypeAndCheck('That\'s not my name');
+        cy.get('#sw-field--item-name').should('be.visible');
+        cy.get('#sw-field--item-name').should('have.value', 'Product name');
+
+        cy.get('#sw-field--item-name')
+            .clear()
+            .should('have.value', '')
+            .typeAndCheck('That\'s not my name');
         cy.get('.sw-data-grid__inline-edit-save').click();
         cy.awaitAndCheckNotification('Product "That\'s not my name" has been saved.');
 
@@ -70,72 +79,65 @@ describe('Product: Edit in various ways', () => {
         cy.get('.sw-data-grid__cell--name').contains('That\'s not my name');
     });
 
-    // TODO: Unskip with NEXT-15486
-    it.skip('@catalogue: test the text editor\'s link functionality', () => {
+    it('@base @catalogue: edit a product\'s custom field translation', () => {
         const page = new ProductPageObject();
-        const productName = 'This is an example product with links';
-        const exampleDomain = 'example.com';
-        const exampleUrl = `https://${exampleDomain}`;
-        const linkSelector = `a[href$="${exampleDomain}"]`;
-        const buttonSelector = `${linkSelector}.btn.btn-primary.btn-sm`;
 
         // Request we want to wait for later
         cy.server();
         cy.route({
-            url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'patch'
+            url: `${Cypress.env('apiPath')}/_action/sync`,
+            method: 'post'
         }).as('saveData');
 
+
+        // Access custom field
+        cy.visit(`${Cypress.env('admin')}#/sw/settings/custom/field/index`);
+        cy.contains('.sw-grid__cell-content a', 'My custom field').should('be.visible');
+        cy.contains('.sw-grid__cell-content a', 'My custom field').click();
+
+        // Assign custom field to products
+        cy.get('#sw-field--set-name').should('be.visible');
+        cy.get('.sw-settings-custom-field-set-detail-base__label-entities').typeMultiSelectAndCheck('Products');
+        cy.contains('.sw-label', 'Products').should('be.visible');
+
+        cy.get('.sw-settings-set-detail__save-action').click();
+        cy.get('.sw-loader').should('not.exist');
+
+        // Open product
+        cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
 
-        // Rename product
-        cy.get('input[name=sw-field--product-name]').as('productNameField').type(`{selectall}${productName}`);
+        cy.get('.sw-product-detail__tab-specifications').should('be.visible');
+        cy.get('.sw-product-detail__tab-specifications').click();
 
-        // Test link
-        cy.get('.sw-text-editor .sw-text-editor__content-editor').as('textEditor').click().type('{selectall}Link{selectall}');
-        cy.get('.sw-text-editor-toolbar .icon--default-text-editor-link').as('toolbarLinkButton').click();
+        // Fill custom field in english
+        cy.get('#custom_field_set_property').scrollIntoView();
+        cy.get('#custom_field_set_property').type('EN');
 
-        cy.get('.sw-text-editor-toolbar-button__link-menu').as('toolbarLinkOverlay').should('be.visible');
+        // Change
+        page.changeTranslation('Deutsch', 0);
+        cy.get(page.elements.loader).should('not.exist');
 
-        cy.get('#sw-field--buttonConfig-value').as('linkUrlField').click().type(`{selectall}${exampleUrl}`);
-        cy.get('.sw-text-editor-toolbar-button__link-menu-buttons button').as('insertButton').click();
+        cy.get('.sw-modal__body').should('be.visible');
+        cy.get('.sw-modal__body > p')
+            .contains('There are unsaved changes in the current language. Do you want to save them now?');
+        cy.get('#sw-language-switch-save-changes-button').click();
+        cy.get('.sw_modal').should('not.exist');
+        cy.get(page.elements.loader).should('not.exist');
 
-        cy.get('@textEditor').scrollIntoView();
-        cy.get(`.sw-text-editor ${linkSelector}`).should('be.visible');
+        // Fill custom field in german
+        cy.get('#custom_field_set_property').scrollIntoView();
+        cy.get('#custom_field_set_property').type('DE');
 
-        // Test link as button
-        cy.get('@textEditor').click().type('{selectall}Primary small{selectall}');
-        cy.get('@toolbarLinkButton').click();
-
-        cy.get('@toolbarLinkOverlay').should('be.visible');
-
-        cy.get('@linkUrlField').click().type(`{selectall}${exampleUrl}`);
-
-        cy.get('#sw-field--buttonConfig-displayAsButton').as('displayAsButtonToggleField').click();
-        cy.get('#sw-field--buttonConfig-buttonVariant').as('buttonVariantSelectField').should('be.visible');
-        cy.get('@buttonVariantSelectField').select('primary-sm');
-
-        cy.get('@insertButton').click();
-
-        cy.get('@textEditor').scrollIntoView();
-        cy.get(`.sw-text-editor ${buttonSelector}`).should('be.visible');
-
-        // Save product
         cy.get(page.elements.productSaveAction).click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
 
-        // Verify in the storefront
-        cy.visit('/');
-        cy.get('input[name=search]').type(productName);
-        cy.get('.search-suggest-container').should('be.visible');
-        cy.get('.search-suggest-product-name').contains(productName).click();
-        cy.get('.product-detail-name').contains(productName);
-        cy.get(`.product-detail-description-text ${buttonSelector}`).should('exist');
+        // Verify updated product
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
     });
 });

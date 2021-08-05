@@ -74,13 +74,18 @@
 
     {% block sw_order_line_items_grid_sales_channel_grid %}
     {% block sw_order_line_items_grid_sales_channel_grid_no_items %}
-    <div
+    <sw-empty-state
         v-if="cartLineItems.length === 0"
-        class="sw-order-line-items-grid-sales-channel__empty-container"
+        :title="$tc('sw-order.createBase.messageEmptyItem')"
+        :absolute="false"
     >
-        <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
-        <p>{{ $tc('sw-order.createBase.messageEmptyItem') }}</p>
-    </div>
+        <template #icon>
+            <img
+                :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                :alt="$tc('sw-order.createBase.messageEmptyItem')"
+            >
+        </template>
+    </sw-empty-state>
     {% endblock %}
 
     {% block sw_order_line_items_grid_sales_channel_grid_item_table %}

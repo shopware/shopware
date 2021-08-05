@@ -8,13 +8,13 @@ Component.register('sw-settings-snippet-sidebar', {
     props: {
         filterItems: {
             type: Array,
-            required: true
+            required: true,
         },
 
         authorFilters: {
             type: Array,
-            required: true
-        }
+            required: true,
+        },
     },
 
     methods: {
@@ -38,6 +38,6 @@ Component.register('sw-settings-snippet-sidebar', {
 
         onRefresh() {
             this.$emit('sw-sidebar-collaps-refresh-grid');
-        }
-    }
+        },
+    },
 });

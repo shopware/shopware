@@ -10,7 +10,7 @@ Component.register('sw-settings-listing-option-base', {
     inject: ['repositoryFactory', 'systemConfigApiService'],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     data() {
@@ -19,7 +19,7 @@ Component.register('sw-settings-listing-option-base', {
             toBeDeletedCriteria: null,
             customFieldOptions: [],
             customFields: [],
-            defaultSortingKey: null
+            defaultSortingKey: null,
         };
     },
 
@@ -58,7 +58,7 @@ Component.register('sw-settings-listing-option-base', {
 
         isDefaultSorting() {
             return this.defaultSortingKey === this.productSortingEntity.key;
-        }
+        },
     },
 
     created() {
@@ -70,7 +70,7 @@ Component.register('sw-settings-listing-option-base', {
             Promise.all([
                 this.fetchProductSortingEntity(),
                 this.fetchCustomFields(),
-                this.fetchDefaultSorting()
+                this.fetchDefaultSorting(),
             ]);
         },
 
@@ -80,7 +80,7 @@ Component.register('sw-settings-listing-option-base', {
             this.productSortingRepository.get(
                 productSortingEntityId,
                 Shopware.Context.api,
-                this.productSortingEntityCriteria
+                this.productSortingEntityCriteria,
             ).then(response => {
                 if (!Array.isArray(response.fields)) {
                     response.fields = [];
@@ -123,14 +123,14 @@ Component.register('sw-settings-listing-option-base', {
                     const sortingOptionName = this.productSortingEntity.label;
 
                     this.createNotificationSuccess({
-                        message: this.$t('sw-settings-listing.base.notification.saveSuccess', { sortingOptionName })
+                        message: this.$t('sw-settings-listing.base.notification.saveSuccess', { sortingOptionName }),
                     });
                 })
                 .catch(() => {
                     const sortingOptionName = this.productSortingEntity.label;
 
                     this.createNotificationError({
-                        message: this.$t('sw-settings-listing.base.notification.saveError', { sortingOptionName })
+                        message: this.$t('sw-settings-listing.base.notification.saveError', { sortingOptionName }),
                     });
                 });
         },
@@ -168,8 +168,18 @@ Component.register('sw-settings-listing-option-base', {
             }
 
             this.productSortingEntity.fields.push(newCriteria);
+        },
 
-            this.saveProductSorting();
+        onCancelEditCriteria(item) {
+            if (this.getProductSortingEntityId()) {
+                this.fetchProductSortingEntity();
+
+                return;
+            }
+
+            this.productSortingEntity.fields = this.productSortingEntity.fields.filter(currentCriteria => {
+                return currentCriteria.field !== item.field;
+            });
         },
 
         isCriteriaACustomField(technicalName) {
@@ -192,7 +202,7 @@ Component.register('sw-settings-listing-option-base', {
 
         onChangeLanguage() {
             this.fetchProductSortingEntity();
-        }
-    }
+        },
+    },
 });
 

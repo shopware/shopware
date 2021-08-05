@@ -14,7 +14,7 @@ class Migration1536232910CmsSlot extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             CREATE TABLE `cms_slot` (
               `id` BINARY(16) NOT NULL,
               `version_id` BINARY(16) NOT NULL,
@@ -32,7 +32,7 @@ SQL;
 
         $connection->executeUpdate($sql);
 
-        $sql = <<<SQL
+        $sql = <<<'SQL'
             CREATE TABLE `cms_slot_translation` (
               `cms_slot_id` BINARY(16) NOT NULL,
               `cms_slot_version_id` BINARY(16) NOT NULL,

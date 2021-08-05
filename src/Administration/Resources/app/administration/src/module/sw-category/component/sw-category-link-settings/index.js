@@ -12,14 +12,14 @@ Component.register('sw-category-link-settings', {
     props: {
         category: {
             type: Object,
-            required: true
+            required: true,
         },
 
         isLoading: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     computed: {
@@ -27,12 +27,12 @@ Component.register('sw-category-link-settings', {
             return [
                 {
                     value: 'external',
-                    label: this.$tc('sw-category.base.link.type.external')
+                    label: this.$tc('sw-category.base.link.type.external'),
                 },
                 {
                     value: 'internal',
-                    label: this.$tc('sw-category.base.link.type.internal')
-                }
+                    label: this.$tc('sw-category.base.link.type.internal'),
+                },
             ];
         },
 
@@ -40,16 +40,16 @@ Component.register('sw-category-link-settings', {
             return [
                 {
                     value: 'category',
-                    label: this.$tc('global.entities.category')
+                    label: this.$tc('global.entities.category'),
                 },
                 {
                     value: 'product',
-                    label: this.$tc('global.entities.product')
+                    label: this.$tc('global.entities.product'),
                 },
                 {
                     value: 'landing_page',
-                    label: this.$tc('global.entities.landing_page')
-                }
+                    label: this.$tc('global.entities.landing_page'),
+                },
             ];
         },
 
@@ -70,7 +70,7 @@ Component.register('sw-category-link-settings', {
                 }
 
                 this.category.linkType = value;
-            }
+            },
         },
 
         isExternal() {
@@ -94,7 +94,7 @@ Component.register('sw-category-link-settings', {
             criteria.addFilter(Criteria.equals('type', 'page'));
 
             return criteria;
-        }
+        },
     },
 
     created() {
@@ -114,6 +114,6 @@ Component.register('sw-category-link-settings', {
             }
 
             this.category.internalLink = null;
-        }
-    }
+        },
+    },
 });

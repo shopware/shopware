@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import CustomerPageObject from '../../../support/pages/module/sw-customer.page-object';
 
@@ -10,9 +10,11 @@ let customer = {
 };
 
 describe('Customer:  Visual test', () => {
-    // eslint-disable-next-line no-undef
-    before(() => {
+    beforeEach(() => {
         cy.setToInitialState()
+            .then(() => {
+                return cy.loginViaApi();
+            })
             .then(() => {
                 return cy.createCustomerFixture();
             })
@@ -26,16 +28,6 @@ describe('Customer:  Visual test', () => {
             })
             .then((result) => {
                 customer = Cypress._.merge(customer, result);
-            });
-    });
-
-    beforeEach(() => {
-        cy.setToInitialState()
-            .then(() => {
-                cy.loginViaApi();
-            })
-            .then(() => {
-                cy.createReviewFixture();
             })
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/customer/index`);
@@ -56,11 +48,8 @@ describe('Customer:  Visual test', () => {
             method: 'post'
         }).as('getData');
 
-        cy.clickMainMenuItem({
-            targetPath: '#/sw/customer/index',
-            mainMenuId: 'sw-customer',
-            subMenuId: 'sw-customer-index'
-        });
+        cy.get('.sw-customer-list').should('be.visible');
+
         cy.wait('@getData').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
@@ -101,16 +90,27 @@ describe('Customer:  Visual test', () => {
 
         // Verify new customer in detail
         cy.wait('@saveData').then((xhr) => {
+            cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
             expect(xhr).to.have.property('status', 204);
+            cy.get('.icon--small-default-checkmark-line-medium').should('not.exist');
         });
 
         // Take snapshot for visual testing
         cy.get('.sw-card-section--secondary').contains('English');
+        cy.contains('Account').click();
+        cy.get('.sw-tooltip').should('not.exist');
         cy.takeSnapshot('[Customer] Detail', '.sw-customer-card');
     });
 
     it('@visual: check appearance of customer address workflow', () => {
         const page = new CustomerPageObject();
+
+        // Request we want to wait for later
+        cy.server();
+        cy.route({
+            url: `${Cypress.env('apiPath')}/search/country`,
+            method: 'post'
+        }).as('getCountries');
 
         // Open customer
         cy.clickContextMenuItem(
@@ -123,7 +123,6 @@ describe('Customer:  Visual test', () => {
 
         // Open and add new address
         cy.get('.sw-customer-detail__tab-addresses').click();
-        cy.sortListingViaColumn('Last name', 'Eroni', '.sw-data-grid__cell--lastName');
 
         // Take snapshot for visual testing
         cy.get('.sw-data-grid__skeleton').should('not.exist');
@@ -132,8 +131,13 @@ describe('Customer:  Visual test', () => {
         cy.get('.sw-customer-detail__open-edit-mode-action').click();
         cy.get('.sw-customer-detail-addresses__add-address-action').click();
 
+        cy.wait('@getCountries').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
+
         // Take snapshot for visual testing
-        cy.takeSnapshot('[Customer] Detail, address modal', '.sw-modal');
+        cy.handleModalSnapshot('Address');
+        cy.takeSnapshot('[Customer] Detail, address modal', '#sw-field--address-company');
     });
 
     it('@visual: check appearance of customer edit workflow', () => {
@@ -155,6 +159,6 @@ describe('Customer:  Visual test', () => {
         cy.get('.sw-loader__element').should('not.exist');
 
         // Take snapshot for visual testing
-        cy.takeSnapshot('[Customer] Detail, address modal', '#sw-field--customer-title');
+        cy.takeSnapshot('[Customer] Detail, edit view', '#sw-field--customer-title');
     });
 });

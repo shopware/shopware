@@ -41,7 +41,7 @@
             <argument type="service" id="sales_channel.currency.repository"/>
         </service>
 
-        <service id="Shopware\Core\System\Currency\SalesChannel\CachedCurrencyRoute" decorates="Shopware\Core\System\Currency\SalesChannel\CurrencyRoute" decoration-priority="-1000">
+        <service id="Shopware\Core\System\Currency\SalesChannel\CachedCurrencyRoute" decorates="Shopware\Core\System\Currency\SalesChannel\CurrencyRoute" decoration-priority="-1000" public="true">
             <argument type="service" id="Shopware\Core\System\Currency\SalesChannel\CachedCurrencyRoute.inner"/>
             <argument type="service" id="cache.object"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>

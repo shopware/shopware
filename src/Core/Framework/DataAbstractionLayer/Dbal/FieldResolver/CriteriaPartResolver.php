@@ -20,7 +20,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaPartInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SingleFieldFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\SqlQueryParser;
 
 /**
@@ -128,7 +127,6 @@ class CriteriaPartResolver
             $query->setParameter($key, $value, $parsed->getType($key));
         }
 
-        /* @var SingleFieldFilter $query */
         foreach ($filter->getQueries() as $filter) {
             $filter->setResolved(self::escape($alias) . '.id IS NOT NULL');
         }

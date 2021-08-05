@@ -4,5 +4,5 @@ import './sw-cms-block-text-three-column.scss';
 const { Component } = Shopware;
 
 Component.register('sw-cms-block-text-three-column', {
-    template
+    template,
 });

@@ -23,7 +23,7 @@ export default function initializeWorker() {
             // Enable worker notification listener regardless of the config
             enableWorkerNotificationListener(
                 loginService,
-                Shopware.Context.api
+                Shopware.Context.api,
             );
 
             if (context.config.adminWorker.enableAdminWorker && !enabled) {
@@ -46,11 +46,11 @@ function enableAdminWorker(loginService, context, config) {
         worker.postMessage({
             context: {
                 languageId: context.languageId,
-                apiResourcePath: context.apiResourcePath
+                apiResourcePath: context.apiResourcePath,
             },
             bearerAuth: loginService.getBearerAuthentication(),
             host: window.location.origin,
-            transports: config.transports
+            transports: config.transports,
         });
     }
 
@@ -60,11 +60,11 @@ function enableAdminWorker(loginService, context, config) {
         worker.postMessage({
             context: {
                 languageId: context.languageId,
-                apiResourcePath: context.apiResourcePath
+                apiResourcePath: context.apiResourcePath,
             },
             bearerAuth: auth,
             host: window.location.origin,
-            transports: config.transports
+            transports: config.transports,
         });
     });
 
@@ -114,9 +114,9 @@ function registerThumbnailMiddleware(factory) {
                 title: 'global.default.success',
                 message: 'global.notification-center.worker-listener.dalIndexing.message',
                 success: 'global.notification-center.worker-listener.dalIndexing.messageSuccess',
-                foregroundSuccessMessage: 'sw-settings-cache.notifications.index.success'
+                foregroundSuccessMessage: 'sw-settings-cache.notifications.index.success',
             });
-        }
+        },
     });
 
     factory.register('WarmupIndexingMessage', {
@@ -126,9 +126,9 @@ function registerThumbnailMiddleware(factory) {
                 title: 'global.default.success',
                 message: 'global.notification-center.worker-listener.warmupIndexing.message',
                 success: 'global.notification-center.worker-listener.warmupIndexing.messageSuccess',
-                foregroundSuccessMessage: 'sw-settings-cache.notifications.clearCacheAndWarmup.success'
+                foregroundSuccessMessage: 'sw-settings-cache.notifications.clearCacheAndWarmup.success',
             }, 10);
-        }
+        },
     });
 
     factory.register('EsIndexingMessage', {
@@ -137,9 +137,9 @@ function registerThumbnailMiddleware(factory) {
             messageQueueNotification('esIndexing', ids, next, entry, $root, notification, {
                 title: 'global.default.success',
                 message: 'global.notification-center.worker-listener.esIndexing.message',
-                success: 'global.notification-center.worker-listener.esIndexing.messageSuccess'
+                success: 'global.notification-center.worker-listener.esIndexing.messageSuccess',
             });
-        }
+        },
     });
 
     factory.register('generateThumbnailsMessage', {
@@ -148,9 +148,9 @@ function registerThumbnailMiddleware(factory) {
             messageQueueNotification('thumbnails', ids, next, entry, $root, notification, {
                 title: 'global.notification-center.worker-listener.thumbnailGeneration.title',
                 message: 'global.notification-center.worker-listener.thumbnailGeneration.message',
-                success: 'global.notification-center.worker-listener.thumbnailGeneration.messageSuccess'
+                success: 'global.notification-center.worker-listener.thumbnailGeneration.messageSuccess',
             });
-        }
+        },
     });
 
     factory.register('PromotionIndexingMessage', {
@@ -159,9 +159,9 @@ function registerThumbnailMiddleware(factory) {
             messageQueueNotification('promotion', ids, next, entry, $root, notification, {
                 title: 'global.notification-center.worker-listener.promotion.title',
                 message: 'global.notification-center.worker-listener.promotion.message',
-                success: 'global.notification-center.worker-listener.promotion.messageSuccess'
+                success: 'global.notification-center.worker-listener.promotion.messageSuccess',
             }, 50);
-        }
+        },
     });
 
     factory.register('ProductStreamIndexingMessage', {
@@ -170,9 +170,9 @@ function registerThumbnailMiddleware(factory) {
             messageQueueNotification('productStream', ids, next, entry, $root, notification, {
                 title: 'global.notification-center.worker-listener.productStream.title',
                 message: 'global.notification-center.worker-listener.productStream.message',
-                success: 'global.notification-center.worker-listener.productStream.messageSuccess'
+                success: 'global.notification-center.worker-listener.productStream.messageSuccess',
             }, 50);
-        }
+        },
     });
 
     factory.register('CategoryIndexingMessage', {
@@ -181,9 +181,9 @@ function registerThumbnailMiddleware(factory) {
             messageQueueNotification('category', ids, next, entry, $root, notification, {
                 title: 'global.notification-center.worker-listener.category.title',
                 message: 'global.notification-center.worker-listener.category.message',
-                success: 'global.notification-center.worker-listener.category.messageSuccess'
+                success: 'global.notification-center.worker-listener.category.messageSuccess',
             }, 50);
-        }
+        },
     });
 
     factory.register('MediaIndexingMessage', {
@@ -192,9 +192,9 @@ function registerThumbnailMiddleware(factory) {
             messageQueueNotification('media', ids, next, entry, $root, notification, {
                 title: 'global.notification-center.worker-listener.media.title',
                 message: 'global.notification-center.worker-listener.media.message',
-                success: 'global.notification-center.worker-listener.media.messageSuccess'
+                success: 'global.notification-center.worker-listener.media.messageSuccess',
             }, 50);
-        }
+        },
     });
 
     factory.register('SalesChannelIndexingMessage', {
@@ -203,9 +203,9 @@ function registerThumbnailMiddleware(factory) {
             messageQueueNotification('salesChannel', ids, next, entry, $root, notification, {
                 title: 'global.notification-center.worker-listener.salesChannel.title',
                 message: 'global.notification-center.worker-listener.salesChannel.message',
-                success: 'global.notification-center.worker-listener.salesChannel.messageSuccess'
+                success: 'global.notification-center.worker-listener.salesChannel.messageSuccess',
             }, 50);
-        }
+        },
     });
 
     factory.register('RuleIndexingMessage', {
@@ -214,9 +214,9 @@ function registerThumbnailMiddleware(factory) {
             messageQueueNotification('rule', ids, next, entry, $root, notification, {
                 title: 'global.notification-center.worker-listener.rule.title',
                 message: 'global.notification-center.worker-listener.rule.message',
-                success: 'global.notification-center.worker-listener.rule.messageSuccess'
+                success: 'global.notification-center.worker-listener.rule.messageSuccess',
             }, 50);
-        }
+        },
     });
 
     factory.register('ProductIndexingMessage', {
@@ -225,9 +225,9 @@ function registerThumbnailMiddleware(factory) {
             messageQueueNotification('product', ids, next, entry, $root, notification, {
                 title: 'global.notification-center.worker-listener.product.title',
                 message: 'global.notification-center.worker-listener.product.message',
-                success: 'global.notification-center.worker-listener.product.messageSuccess'
+                success: 'global.notification-center.worker-listener.product.messageSuccess',
             }, 50);
-        }
+        },
     });
 
     factory.register('ElasticSearchIndexingMessage', {
@@ -236,9 +236,9 @@ function registerThumbnailMiddleware(factory) {
             messageQueueNotification('esIndexing', ids, next, entry, $root, notification, {
                 title: 'global.default.success',
                 message: 'global.notification-center.worker-listener.esIndexing.message',
-                success: 'global.notification-center.worker-listener.esIndexing.messageSuccess'
+                success: 'global.notification-center.worker-listener.esIndexing.messageSuccess',
             }, 50);
-        }
+        },
     });
 
 
@@ -263,10 +263,10 @@ function messageQueueNotification(key, ids, next, entry, $root, notification, me
         message: $root.$tc(messages.message, entry.size),
         variant: 'info',
         metadata: {
-            size: entry.size
+            size: entry.size,
         },
         growl: false,
-        isLoading: true
+        isLoading: true,
     };
 
     // Create new notification
@@ -276,7 +276,7 @@ function messageQueueNotification(key, ids, next, entry, $root, notification, me
 
             ids[key] = {
                 notificationId,
-                didSendForegroundMessage: false
+                didSendForegroundMessage: false,
             };
         });
         next();
@@ -302,7 +302,7 @@ function messageQueueNotification(key, ids, next, entry, $root, notification, me
 
                 ids[key] = {
                     notificationId,
-                    didSendForegroundMessage: true
+                    didSendForegroundMessage: true,
                 };
             }
 

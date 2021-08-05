@@ -12,13 +12,13 @@ Component.register('sw-product-list', {
         'repositoryFactory',
         'numberRangeService',
         'acl',
-        'filterFactory'
+        'filterFactory',
     ],
 
     mixins: [
         Mixin.getByName('notification'),
         Mixin.getByName('listing'),
-        Mixin.getByName('placeholder')
+        Mixin.getByName('placeholder'),
     ],
 
     data() {
@@ -44,17 +44,17 @@ Component.register('sw-product-list', {
                 'manufacturer-filter',
                 'visibilities-filter',
                 'categories-filter',
-                'tags-filter'
+                'tags-filter',
             ],
             storeKey: 'grid.filter.product',
             activeFilterNumber: 0,
-            showBulkEditModal: false
+            showBulkEditModal: false,
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle()
+            title: this.$createTitle(),
         };
     },
 
@@ -85,7 +85,7 @@ Component.register('sw-product-list', {
                     currencyId: item.id,
                     visible: item.isSystemDefault,
                     align: 'right',
-                    useCustomSort: true
+                    useCustomSort: true,
                 };
             });
         },
@@ -98,10 +98,7 @@ Component.register('sw-product-list', {
             productCriteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
             productCriteria.addAssociation('cover');
             productCriteria.addAssociation('manufacturer');
-
-            if (this.feature.isActive('FEATURE_NEXT_6544')) {
-                productCriteria.addAssociation('media');
-            }
+            productCriteria.addAssociation('media');
 
             this.filterCriteria.forEach(filter => {
                 productCriteria.addFilter(filter);
@@ -123,7 +120,7 @@ Component.register('sw-product-list', {
                 'active-filter': {
                     property: 'active',
                     label: this.$tc('sw-product.filters.activeFilter.label'),
-                    placeholder: this.$tc('sw-product.filters.activeFilter.placeholder')
+                    placeholder: this.$tc('sw-product.filters.activeFilter.placeholder'),
                 },
                 'stock-filter': {
                     property: 'stock',
@@ -132,30 +129,30 @@ Component.register('sw-product-list', {
                     step: 1,
                     min: 0,
                     fromPlaceholder: this.$tc('sw-product.filters.fromPlaceholder'),
-                    toPlaceholder: this.$tc('sw-product.filters.toPlaceholder')
+                    toPlaceholder: this.$tc('sw-product.filters.toPlaceholder'),
                 },
                 'product-without-images-filter': {
                     property: 'media',
                     label: this.$tc('sw-product.filters.imagesFilter.label'),
                     placeholder: this.$tc('sw-product.filters.imagesFilter.placeholder'),
                     optionHasCriteria: this.$tc('sw-product.filters.imagesFilter.textHasCriteria'),
-                    optionNoCriteria: this.$tc('sw-product.filters.imagesFilter.textNoCriteria')
+                    optionNoCriteria: this.$tc('sw-product.filters.imagesFilter.textNoCriteria'),
                 },
                 'manufacturer-filter': {
                     property: 'manufacturer',
                     label: this.$tc('sw-product.filters.manufacturerFilter.label'),
-                    placeholder: this.$tc('sw-product.filters.manufacturerFilter.placeholder')
+                    placeholder: this.$tc('sw-product.filters.manufacturerFilter.placeholder'),
                 },
                 'visibilities-filter': {
                     property: 'visibilities.salesChannel',
                     label: this.$tc('sw-product.filters.salesChannelsFilter.label'),
-                    placeholder: this.$tc('sw-product.filters.salesChannelsFilter.placeholder')
+                    placeholder: this.$tc('sw-product.filters.salesChannelsFilter.placeholder'),
                 },
                 'categories-filter': {
                     property: 'categories',
                     label: this.$tc('sw-product.filters.categoriesFilter.label'),
                     placeholder: this.$tc('sw-product.filters.categoriesFilter.placeholder'),
-                    displayPath: true
+                    displayPath: true,
                 },
                 'price-filter': {
                     property: 'price',
@@ -163,18 +160,18 @@ Component.register('sw-product-list', {
                     digits: 20,
                     min: 0,
                     fromPlaceholder: this.$tc('sw-product.filters.fromPlaceholder'),
-                    toPlaceholder: this.$tc('sw-product.filters.toPlaceholder')
+                    toPlaceholder: this.$tc('sw-product.filters.toPlaceholder'),
                 },
                 'tags-filter': {
                     property: 'tags',
                     label: this.$tc('sw-product.filters.tagsFilter.label'),
-                    placeholder: this.$tc('sw-product.filters.tagsFilter.placeholder')
+                    placeholder: this.$tc('sw-product.filters.tagsFilter.placeholder'),
                 },
                 'release-date-filter': {
                     property: 'releaseDate',
                     label: this.$tc('sw-product.filters.releaseDateFilter.label'),
-                    dateType: 'datetime-local'
-                }
+                    dateType: 'datetime-local',
+                },
             });
         },
 
@@ -183,7 +180,7 @@ Component.register('sw-product-list', {
                 const { inlineEdit, ...restParams } = item;
                 return restParams;
             });
-        }
+        },
     },
 
     watch: {
@@ -191,8 +188,8 @@ Component.register('sw-product-list', {
             handler() {
                 this.getList();
             },
-            deep: true
-        }
+            deep: true,
+        },
     },
 
     beforeRouteLeave(to, from, next) {
@@ -219,7 +216,7 @@ Component.register('sw-product-list', {
             try {
                 const result = await Promise.all([
                     this.productRepository.search(criteria),
-                    this.currencyRepository.search(this.currencyCriteria)
+                    this.currencyRepository.search(this.currencyCriteria),
                 ]);
 
                 const products = result[0];
@@ -241,12 +238,12 @@ Component.register('sw-product-list', {
 
             return promise.then(() => {
                 this.createNotificationSuccess({
-                    message: this.$tc('sw-product.list.messageSaveSuccess', 0, { name: productName })
+                    message: this.$tc('sw-product.list.messageSaveSuccess', 0, { name: productName }),
                 });
             }).catch(() => {
                 this.getList();
                 this.createNotificationError({
-                    message: this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid')
+                    message: this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
                 });
             });
         },
@@ -281,7 +278,7 @@ Component.register('sw-product-list', {
                 currencyId: null,
                 gross: null,
                 linked: true,
-                net: null
+                net: null,
             };
         },
 
@@ -292,23 +289,23 @@ Component.register('sw-product-list', {
                 routerLink: 'sw.product.detail',
                 inlineEdit: 'string',
                 allowResize: true,
-                primary: true
+                primary: true,
             }, {
                 property: 'productNumber',
                 naturalSorting: true,
                 label: this.$tc('sw-product.list.columnProductNumber'),
                 align: 'right',
-                allowResize: true
+                allowResize: true,
             }, {
                 property: 'manufacturer.name',
                 label: this.$tc('sw-product.list.columnManufacturer'),
-                allowResize: true
+                allowResize: true,
             }, {
                 property: 'active',
                 label: this.$tc('sw-product.list.columnActive'),
                 inlineEdit: 'boolean',
                 allowResize: true,
-                align: 'center'
+                align: 'center',
             },
             ...this.currenciesColumns,
             {
@@ -316,12 +313,12 @@ Component.register('sw-product-list', {
                 label: this.$tc('sw-product.list.columnInStock'),
                 inlineEdit: 'number',
                 allowResize: true,
-                align: 'right'
+                align: 'right',
             }, {
                 property: 'availableStock',
                 label: this.$tc('sw-product.list.columnAvailableStock'),
                 allowResize: true,
-                align: 'right'
+                align: 'right',
             }];
         },
 
@@ -357,8 +354,16 @@ Component.register('sw-product-list', {
             this.productEntityVariantModal = null;
         },
 
+        onBulkEditItems() {
+            this.$router.push({ name: 'sw.bulk.edit.product' });
+        },
+
         onBulkEditModalOpen() {
             this.showBulkEditModal = true;
-        }
-    }
+        },
+
+        onBulkEditModalClose() {
+            this.showBulkEditModal = false;
+        },
+    },
 });

@@ -21,19 +21,19 @@ class DbalKernelPluginLoader extends KernelPluginLoader
 
     protected function loadPluginInfos(): void
     {
-        $sql = <<<SQL
-            # dbal-plugin-loader
-            SELECT
-                   `name`,
-                   `base_class` AS baseClass,
-                   IF(`active` = 1 AND `installed_at` IS NOT NULL, 1, 0) AS active,
-                   `path`,
-                   `version`,
-                   `autoload`,
-                   `managed_by_composer` AS managedByComposer,
-                   composer_name as composerName
-            FROM `plugin`
-            ORDER BY `installed_at`;
+        $sql = <<<'SQL'
+        # dbal-plugin-loader
+        SELECT
+               `name`,
+               `base_class` AS baseClass,
+               IF(`active` = 1 AND `installed_at` IS NOT NULL, 1, 0) AS active,
+               `path`,
+               `version`,
+               `autoload`,
+               `managed_by_composer` AS managedByComposer,
+               composer_name as composerName
+        FROM `plugin`
+        ORDER BY `installed_at`;
 SQL;
 
         $plugins = $this->connection->executeQuery($sql)->fetchAll();

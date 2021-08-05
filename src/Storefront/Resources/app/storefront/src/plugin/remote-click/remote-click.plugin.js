@@ -26,7 +26,7 @@ export default class RemoteClickPlugin extends Plugin {
         /**
          * selector for the fixed header element
          */
-        fixedHeaderSelector: 'header.fixed-top'
+        fixedHeaderSelector: 'header.fixed-top',
     };
 
     init() {
@@ -83,7 +83,7 @@ export default class RemoteClickPlugin extends Plugin {
         const top = this._getOffset(target);
         window.scrollTo({
             top,
-            behavior: 'smooth'
+            behavior: 'smooth',
         });
     }
 

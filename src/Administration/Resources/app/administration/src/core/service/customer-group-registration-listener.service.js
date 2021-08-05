@@ -35,27 +35,27 @@ export default function addCustomerGroupRegistrationListener(loginService) {
     function createNotification(customer) {
         const notification = {
             title: getApplicationRootReference().$tc(
-                'global.default.info'
+                'global.default.info',
             ),
             message: getApplicationRootReference().$tc(
                 'sw-customer.customerGroupRegistration.notification.message',
                 0,
-                { name: `${customer.firstName} ${customer.lastName}`, groupName: customer.requestedGroup.name }
+                { name: `${customer.firstName} ${customer.lastName}`, groupName: customer.requestedGroup.name },
             ),
             actions: [{
                 label: getApplicationRootReference().$tc(
-                    'sw-customer.customerGroupRegistration.notification.openCustomer'
+                    'sw-customer.customerGroupRegistration.notification.openCustomer',
                 ),
-                route: { name: 'sw.customer.detail', params: { id: customer.id } }
+                route: { name: 'sw.customer.detail', params: { id: customer.id } },
             }],
             variant: 'info',
             appearance: 'notification',
-            growl: true
+            growl: true,
         };
 
         getApplicationRootReference().$store.dispatch(
             'notification/createNotification',
-            notification
+            notification,
         );
     }
 

@@ -14,10 +14,13 @@ class IterateEntityIndexerMessage
      */
     protected $offset;
 
-    public function __construct(string $indexer, $offset)
+    protected array $skip = [];
+
+    public function __construct(string $indexer, $offset, array $skip = [])
     {
         $this->indexer = $indexer;
         $this->offset = $offset;
+        $this->skip = $skip;
     }
 
     public function getIndexer(): string
@@ -33,5 +36,10 @@ class IterateEntityIndexerMessage
     public function setOffset($offset): void
     {
         $this->offset = $offset;
+    }
+
+    public function getSkip(): array
+    {
+        return $this->skip;
     }
 }

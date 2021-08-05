@@ -60,8 +60,8 @@ describe('Product: Duplicate product', () => {
             method: 'POST'
         }).as('duplicateProduct');
         cy.route({
-            url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'PATCH'
+            url: `${Cypress.env('apiPath')}/_action/sync`,
+            method: 'post'
         }).as('saveProduct');
         cy.route({
             url: `${Cypress.env('apiPath')}/search/product`,
@@ -93,11 +93,6 @@ describe('Product: Duplicate product', () => {
             '.sw-product-detail__save-duplicate-action',
             '.sw-product-detail__save-button-group .sw-context-button'
         );
-
-        // verify save request got fired
-        cy.wait('@saveProduct').then(xhr => {
-            expect(xhr).to.have.property('status', 204);
-        });
 
         // Verify product
         cy.wait('@duplicateProduct').then((xhr) => {
@@ -131,14 +126,14 @@ describe('Product: Duplicate product', () => {
 
         // verify save request got fired
         cy.wait('@saveProduct').then(xhr => {
-            expect(xhr).to.have.property('status', 204);
+            expect(xhr).to.have.property('status', 200);
         });
 
         cy.contains('Cancel').click();
 
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('What remains of Edith Finch');
 
-        cy.get('.sw-data-grid__cell-content > :nth-child(2) > a').click();
+        cy.contains('.sw-data-grid__cell-content', 'What remains of Edith Finch').click();
 
         // check product name
         cy.get('#sw-field--product-name')

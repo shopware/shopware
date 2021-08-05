@@ -13,7 +13,7 @@ Shopware.Component.register('sw-import-export-activity-detail-modal', {
     inject: ['importExport'],
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     props: {
@@ -22,8 +22,8 @@ Shopware.Component.register('sw-import-export-activity-detail-modal', {
             required: false,
             default() {
                 return {};
-            }
-        }
+            },
+        },
     },
 
     data() {
@@ -34,7 +34,7 @@ Shopware.Component.register('sw-import-export-activity-detail-modal', {
     computed: {
         typeText() {
             return this.$tc(`sw-import-export.activity.detail.${this.logEntity.activity}Label`);
-        }
+        },
     },
 
     methods: {
@@ -50,6 +50,6 @@ Shopware.Component.register('sw-import-export-activity-detail-modal', {
             const translationKey = `sw-import-export.activity.status.${state}`;
 
             return this.$te(translationKey) ? this.$tc(translationKey) : state;
-        }
-    }
+        },
+    },
 });

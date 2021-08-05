@@ -21,7 +21,7 @@ class VersionDataPayloadFieldSerializer implements FieldSerializerInterface
         if (!$field instanceof VersionDataPayloadField) {
             throw new InvalidSerializerFieldException(VersionDataPayloadField::class, $field);
         }
-        /* @var VersionDataPayloadField $field */
+
         yield $field->getStorageName() => $data->getValue();
     }
 

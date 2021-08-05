@@ -9,23 +9,23 @@ Shopware.Component.register('sw-media-tag', {
     props: {
         media: {
             type: Object,
-            required: true
+            required: true,
         },
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     computed: {
         mediaRepository() {
             return this.repositoryFactory.create('media');
-        }
+        },
     },
     methods: {
         handleChange() {
             this.mediaRepository.save(this.media);
-        }
-    }
+        },
+    },
 });

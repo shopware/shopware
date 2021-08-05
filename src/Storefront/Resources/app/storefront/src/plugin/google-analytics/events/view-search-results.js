@@ -15,7 +15,7 @@ export default class ViewSearchResults extends AnalyticsEvent
         const searchInput = DomAccessHelper.querySelector(document, '.header-search-input');
 
         gtag('event', 'view_search_results', {
-            'search_term': searchInput.value
+            'search_term': searchInput.value,
         });
     }
 }

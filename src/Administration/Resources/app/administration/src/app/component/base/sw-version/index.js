@@ -38,7 +38,7 @@ Component.register('sw-version', {
             }
 
             return output;
-        }
+        },
     },
 
     methods: {
@@ -60,6 +60,6 @@ Component.register('sw-version', {
             }
 
             return text;
-        }
-    }
+        },
+    },
 });

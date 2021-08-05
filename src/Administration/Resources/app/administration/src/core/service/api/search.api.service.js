@@ -18,7 +18,7 @@ class SearchApiService extends ApiService {
         return this.httpClient
             .get(this.getApiBasePath(), {
                 params,
-                headers
+                headers,
             })
             .then((response) => {
                 return ApiService.handleResponse(response);

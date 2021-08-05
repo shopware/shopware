@@ -5,5 +5,5 @@ export default {
         const hash = crypto.createHash('sha1');
         hash.update(key);
         return hash.digest('hex');
-    }
+    },
 };

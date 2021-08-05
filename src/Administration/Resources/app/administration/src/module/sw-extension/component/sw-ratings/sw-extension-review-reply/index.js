@@ -13,18 +13,18 @@ Component.register('sw-extension-review-reply', {
     props: {
         reply: {
             type: Object,
-            required: true
+            required: true,
         },
 
         producerName: {
             type: String,
-            required: true
-        }
+            required: true,
+        },
     },
 
     computed: {
         creationDate() {
             return this.reply.creationDate !== null ? date(this.reply.creationDate) : null;
-        }
-    }
+        },
+    },
 });

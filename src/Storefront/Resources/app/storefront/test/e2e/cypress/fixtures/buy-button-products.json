@@ -1,0 +1,77 @@
+[
+    {
+        "id": "f1d2554b0ce847cd82f3ac9bd1c0dfca",
+        "name": "Product with price ranges",
+        "productNumber": "TEST",
+        "price": [
+            {
+                "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
+                "net": 8.40,
+                "linked": false,
+                "gross": 10
+            }
+        ],
+        "prices": [
+            {
+                "productId": "f1d2554b0ce847cd82f3ac9bd1c0dfca",
+                "price": [
+                    {
+                        "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
+                        "net": 8.40,
+                        "linked": false,
+                        "gross": 10,
+                        "listPrice": null
+                    }
+                ],
+                "quantityStart": 1
+            }
+        ],
+        "stock": 1234,
+        "tax": {
+            "taxRate": 0,
+            "name": "foo"
+        },
+        "manufacturer": {
+            "id": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
+            "name": "Test variant manufacturer"
+        }
+    },
+    {    
+        "id": "f1d2554b0ce847cd82f3ac9bd1c0dfcd",
+        "name": "Product sold out",
+        "productNumber": "TEST1",
+        "price": [
+            {
+                "gross": 111,
+                "net": 111,
+                "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
+                "linked": false
+            }
+        ],
+        "stock": 0,
+        "tax": {
+            "taxRate": 0,
+            "name": "foo"
+        },
+        "isCloseout": true
+    },
+    {    
+        "id": "f1d2554b0ce847cd82f3ac9bd1c0dfcb",
+        "name": "Product with price",
+        "productNumber": "TEST2",
+        "price": [
+            {
+                "gross": 111,
+                "net": 111,
+                "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
+                "linked": false
+            }
+        ],
+        "stock": 0,
+        "tax": {
+            "taxRate": 0,
+            "name": "foo"
+        },
+        "isCloseout": true
+    }
+]

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Webhook\Hookable;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
+use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Event\BusinessEventDefinition;
 use Shopware\Core\Framework\Webhook\Hookable;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 /**
@@ -25,8 +27,10 @@ class HookableEventCollector
         ProductPriceDefinition::ENTITY_NAME,
         CategoryDefinition::ENTITY_NAME,
         SalesChannelDefinition::ENTITY_NAME,
+        SalesChannelDomainDefinition::ENTITY_NAME,
         CustomerDefinition::ENTITY_NAME,
         CustomerAddressDefinition::ENTITY_NAME,
+        OrderDefinition::ENTITY_NAME,
     ];
 
     private const PRIVILEGES = 'privileges';
@@ -63,6 +67,36 @@ class HookableEventCollector
         return $this->hookableEventNamesWithPrivileges;
     }
 
+    public function getPrivilegesFromBusinessEventDefinition(BusinessEventDefinition $businessEventDefinition): array
+    {
+        $privileges = [];
+        foreach ($businessEventDefinition->getData() as $data) {
+            if ($data['type'] !== 'entity') {
+                continue;
+            }
+
+            $entityName = $this->definitionRegistry->get($data['entityClass'])->getEntityName();
+            $privileges[] = $entityName . ':' . AclRoleDefinition::PRIVILEGE_READ;
+        }
+
+        return $privileges;
+    }
+
+    public function getEntityWrittenEventNamesWithPrivileges(): array
+    {
+        $entityWrittenEventNames = [];
+        foreach (self::HOOKABLE_ENTITIES as $entity) {
+            $privileges = [
+                self::PRIVILEGES => [$entity . ':' . AclRoleDefinition::PRIVILEGE_READ],
+            ];
+
+            $entityWrittenEventNames[$entity . '.written'] = $privileges;
+            $entityWrittenEventNames[$entity . '.deleted'] = $privileges;
+        }
+
+        return $entityWrittenEventNames;
+    }
+
     private function getEventNamesWithPrivileges(Context $context): array
     {
         return array_merge(
@@ -92,35 +126,5 @@ class HookableEventCollector
                 self::PRIVILEGES => $privileges,
             ];
         }, $response->getElements());
-    }
-
-    private function getPrivilegesFromBusinessEventDefinition(BusinessEventDefinition $businessEventDefinition): array
-    {
-        $privileges = [];
-        foreach ($businessEventDefinition->getData() as $data) {
-            if ($data['type'] !== 'entity') {
-                continue;
-            }
-
-            $entityName = $this->definitionRegistry->get($data['entityClass'])->getEntityName();
-            $privileges[] = $entityName . ':' . AclRoleDefinition::PRIVILEGE_READ;
-        }
-
-        return $privileges;
-    }
-
-    private function getEntityWrittenEventNamesWithPrivileges(): array
-    {
-        $entityWrittenEventNames = [];
-        foreach (self::HOOKABLE_ENTITIES as $entity) {
-            $privileges = [
-                self::PRIVILEGES => [$entity . ':' . AclRoleDefinition::PRIVILEGE_READ],
-            ];
-
-            $entityWrittenEventNames[$entity . '.written'] = $privileges;
-            $entityWrittenEventNames[$entity . '.deleted'] = $privileges;
-        }
-
-        return $entityWrittenEventNames;
     }
 }

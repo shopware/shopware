@@ -16,7 +16,7 @@ export default class VariantSwitchPlugin extends Plugin {
         elementId: '',
         pageType: '',
         radioFieldSelector: '.product-detail-configurator-option-input',
-        selectFieldSelector: '.product-detail-configurator-select-input'
+        selectFieldSelector: '.product-detail-configurator-select-input',
     };
 
     init() {
@@ -84,7 +84,7 @@ export default class VariantSwitchPlugin extends Plugin {
 
         const query = {
             switched: switchedOptionId,
-            options: JSON.stringify(selectedOptions)
+            options: JSON.stringify(selectedOptions),
         };
 
         if (this._elementId && this._pageType !== 'product_detail') {

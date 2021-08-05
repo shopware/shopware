@@ -75,12 +75,26 @@
                 :current-sales-channel-id="currentSalesChannelId"
                 :search-terms="searchTerms"
                 :search-results="searchResults"
+                @edit-change="onEditChanged"
                 @sales-channel-change="onSalesChannelChanged"
                 @live-search-results-change="onLiveSearchResultsChanged"
                 @excluded-search-terms-load="getProductSearchConfigs"
             />
             {% endblock %}
         </sw-card-view>
+
+        {% block sw_settings_search_discard_model %}
+        <sw-confirm-modal
+            v-if="isDisplayingLeavePageWarning"
+            class="sw_settings_search_leave_modal"
+            type="yesno"
+            :text="$tc('sw-settings-search.textLeaveConfirm')"
+            @confirm="onConfirmLeave"
+            @close="onCloseLeaveModal"
+            @cancel="onCancelLeaveModal"
+        />
+        {% endblock %}
+
     </template>
     {% endblock %}
 </sw-page>

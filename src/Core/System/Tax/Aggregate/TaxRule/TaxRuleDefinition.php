@@ -50,7 +50,7 @@ class TaxRuleDefinition extends EntityDefinition
             (new FkField('country_id', 'countryId', CountryDefinition::class))->addFlags(new Required()),
             (new FloatField('tax_rate', 'taxRate'))->addFlags(new Required(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new JsonField('data', 'data', [
-                new ListField('states', 'states'),
+                (new ListField('states', 'states'))->setStrict(true),
                 new StringField('zipCode', 'zipCode'),
                 new StringField('fromZipCode', 'fromZipCode'),
                 new StringField('toZipCode', 'toZipCode'),

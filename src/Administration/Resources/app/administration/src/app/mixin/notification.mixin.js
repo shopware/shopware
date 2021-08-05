@@ -9,7 +9,7 @@ Mixin.register('notification', {
         createNotificationSuccess(config) {
             const notification = Object.assign({
                 variant: 'success',
-                title: this.$tc('global.default.success')
+                title: this.$tc('global.default.success'),
             }, config);
 
             this.createNotification(notification);
@@ -18,7 +18,7 @@ Mixin.register('notification', {
         createNotificationInfo(config) {
             const notification = Object.assign({
                 variant: 'info',
-                title: this.$tc('global.default.info')
+                title: this.$tc('global.default.info'),
             }, config);
 
             this.createNotification(notification);
@@ -27,7 +27,7 @@ Mixin.register('notification', {
         createNotificationWarning(config) {
             const notification = Object.assign({
                 variant: 'warning',
-                title: this.$tc('global.default.warning')
+                title: this.$tc('global.default.warning'),
             }, config);
 
             this.createNotification(notification);
@@ -36,7 +36,7 @@ Mixin.register('notification', {
         createNotificationError(config) {
             const notification = Object.assign({
                 variant: 'error',
-                title: this.$tc('global.default.error')
+                title: this.$tc('global.default.error'),
             }, config);
 
             this.createNotification(notification);
@@ -45,7 +45,7 @@ Mixin.register('notification', {
         createSystemNotificationSuccess(config) {
             const notification = Object.assign({
                 variant: 'success',
-                system: true
+                system: true,
             }, config);
 
             this.createNotification(notification);
@@ -54,7 +54,7 @@ Mixin.register('notification', {
         createSystemNotificationInfo(config) {
             const notification = Object.assign({
                 variant: 'info',
-                system: true
+                system: true,
             }, config);
 
             this.createNotification(notification);
@@ -63,7 +63,7 @@ Mixin.register('notification', {
         createSystemNotificationWarning(config) {
             const notification = Object.assign({
                 variant: 'warning',
-                system: true
+                system: true,
             }, config);
 
             this.createNotification(notification);
@@ -72,7 +72,7 @@ Mixin.register('notification', {
         createSystemNotificationError(config) {
             const notification = Object.assign({
                 variant: 'error',
-                system: true
+                system: true,
             }, config);
 
             this.createNotification(notification);
@@ -80,10 +80,10 @@ Mixin.register('notification', {
 
         createSystemNotification(config) {
             const notification = Object.assign({
-                system: true
+                system: true,
             }, config);
 
             this.createNotification(notification);
-        }
-    }
+        },
+    },
 });

@@ -5,7 +5,7 @@ Shopware.Component.register('sw-settings-search-search-behaviour', {
     template,
 
     inject: [
-        'acl'
+        'acl',
     ],
 
     props: {
@@ -14,19 +14,19 @@ Shopware.Component.register('sw-settings-search-search-behaviour', {
             required: false,
             default() {
                 return null;
-            }
+            },
         },
 
         isLoading: {
             type: Boolean,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data: () => {
         return {
             min: 2,
-            max: 20
+            max: 20,
         };
     },
 
@@ -36,15 +36,15 @@ Shopware.Component.register('sw-settings-search-search-behaviour', {
                 {
                     name: this.$tc('sw-settings-search.generalTab.labelSearchAndCondition'),
                     value: true,
-                    description: this.$tc('sw-settings-search.generalTab.textSearchAndConditionExplain')
+                    description: this.$tc('sw-settings-search.generalTab.textSearchAndConditionExplain'),
                 },
                 {
                     name: this.$tc('sw-settings-search.generalTab.labelSearchOrCondition'),
                     value: false,
-                    description: this.$tc('sw-settings-search.generalTab.textSearchOrConditionExplain')
-                }
+                    description: this.$tc('sw-settings-search.generalTab.textSearchOrConditionExplain'),
+                },
             ];
-        }
-    }
+        },
+    },
 
 });

@@ -7,10 +7,13 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-settings-country-list', {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: [
+        'repositoryFactory',
+        'acl',
+    ],
 
     mixins: [
-        Mixin.getByName('listing')
+        Mixin.getByName('listing'),
     ],
 
     data() {
@@ -21,13 +24,13 @@ Component.register('sw-settings-country-list', {
             isLoading: false,
             sortDirection: 'ASC',
             naturalSorting: true,
-            showDeleteModal: false
+            showDeleteModal: false,
         };
     },
 
     metaInfo() {
         return {
-            title: this.$createTitle()
+            title: this.$createTitle(),
         };
     },
 
@@ -42,7 +45,7 @@ Component.register('sw-settings-country-list', {
             }
 
             return this.$tc('global.default.edit');
-        }
+        },
     },
 
     methods: {
@@ -55,7 +58,7 @@ Component.register('sw-settings-country-list', {
             criteria.setTerm(this.term);
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
 
-            this.countryRepository.search(criteria).then((items) => {
+            this.countryRepository.search(criteria, Shopware.Context.api).then((items) => {
                 this.total = items.total;
                 this.country = items;
                 this.isLoading = false;
@@ -69,12 +72,12 @@ Component.register('sw-settings-country-list', {
         onInlineEditSave(promise, country) {
             promise.then(() => {
                 this.createNotificationSuccess({
-                    message: this.$tc('sw-settings-country.detail.messageSaveSuccess', 0, { name: country.name })
+                    message: this.$tc('sw-settings-country.detail.messageSaveSuccess', 0, { name: country.name }),
                 });
             }).catch(() => {
                 this.getList();
                 this.createNotificationError({
-                    message: this.$tc('sw-settings-country.detail.messageSaveError')
+                    message: this.$tc('sw-settings-country.detail.messageSaveError'),
                 });
             });
         },
@@ -107,24 +110,24 @@ Component.register('sw-settings-country-list', {
                 inlineEdit: 'string',
                 label: 'sw-settings-country.list.columnName',
                 routerLink: 'sw.settings.country.detail',
-                primary: true
+                primary: true,
             }, {
                 property: 'position',
                 inlineEdit: 'number',
-                label: 'sw-settings-country.list.columnPosition'
+                label: 'sw-settings-country.list.columnPosition',
             }, {
                 property: 'iso',
                 inlineEdit: 'string',
-                label: 'sw-settings-country.list.columnIso'
+                label: 'sw-settings-country.list.columnIso',
             }, {
                 property: 'iso3',
                 inlineEdit: 'string',
-                label: 'sw-settings-country.list.columnIso3'
+                label: 'sw-settings-country.list.columnIso3',
             }, {
                 property: 'active',
                 inlineEdit: 'string',
-                label: 'sw-settings-country.list.columnActive'
+                label: 'sw-settings-country.list.columnActive',
             }];
-        }
-    }
+        },
+    },
 });

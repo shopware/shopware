@@ -12,7 +12,7 @@ Shopware.Component.register('sw-media-display-options', {
             validValues: ['small-preview', 'medium-preview', 'large-preview', 'list-preview'],
             validator(value) {
                 return ['small-preview', 'medium-preview', 'large-preview', 'list-preview'].includes(value);
-            }
+            },
         },
 
         sorting: {
@@ -21,16 +21,16 @@ Shopware.Component.register('sw-media-display-options', {
             default: () => {
                 return {
                     sortBy: 'createdAt',
-                    sortDirection: 'asc'
+                    sortDirection: 'asc',
                 };
-            }
+            },
         },
 
         hidePresentation: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     computed: {
@@ -45,7 +45,7 @@ Shopware.Component.register('sw-media-display-options', {
                 { value: 'fileName:asc', name: this.$tc('sw-media.sorting.labelSortByNameAsc') },
                 { value: 'fileName:desc', name: this.$tc('sw-media.sorting.labelSortByNameDsc') },
                 { value: 'fileSize:asc', name: this.$tc('sw-media.sorting.labelSortBySizeAsc') },
-                { value: 'fileSize:desc', name: this.$tc('sw-media.sorting.labelSortBySizeDsc') }
+                { value: 'fileSize:desc', name: this.$tc('sw-media.sorting.labelSortBySizeDsc') },
             ];
         },
 
@@ -54,9 +54,9 @@ Shopware.Component.register('sw-media-display-options', {
                 { value: 'small-preview', name: this.$tc('sw-media.presentation.labelPresentationSmall') },
                 { value: 'medium-preview', name: this.$tc('sw-media.presentation.labelPresentationMedium') },
                 { value: 'large-preview', name: this.$tc('sw-media.presentation.labelPresentationLarge') },
-                { value: 'list-preview', name: this.$tc('sw-media.presentation.labelPresentationList') }
+                { value: 'list-preview', name: this.$tc('sw-media.presentation.labelPresentationList') },
             ];
-        }
+        },
     },
 
     methods: {
@@ -64,12 +64,12 @@ Shopware.Component.register('sw-media-display-options', {
             const parts = value.split(':');
             this.$emit('media-sorting-change', {
                 sortBy: parts[0],
-                sortDirection: parts[1]
+                sortDirection: parts[1],
             });
         },
 
         onPresentationChanged(value) {
             this.$emit('media-presentation-change', value);
-        }
-    }
+        },
+    },
 });

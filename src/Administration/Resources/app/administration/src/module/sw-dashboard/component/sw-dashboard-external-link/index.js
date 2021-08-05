@@ -8,12 +8,12 @@ Component.register('sw-dashboard-external-link', {
     props: {
         title: {
             type: String,
-            required: true
+            required: true,
         },
 
         link: {
             type: String,
-            required: true
-        }
-    }
+            required: true,
+        },
+    },
 });

@@ -27,6 +27,7 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
     let wrapper;
     let localVue;
     let missingRequiredFieldsLength;
+    const systemRequiredFields = {};
     let parentProfileTotal = 1;
     let searchError = false;
 
@@ -38,7 +39,11 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
                 key: 'productNumber',
                 mappedKey: 'product_number'
             }
-        ]
+        ],
+        config: {
+            createEntities: true,
+            updateEntities: true
+        }
     };
 
     beforeEach(() => {
@@ -65,6 +70,18 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
                             }
                         };
                     }
+                },
+                importExportProfileMapping: {
+                    validate: () => {
+                        return {
+                            missingRequiredFields: {
+                                length: missingRequiredFieldsLength
+                            }
+                        };
+                    },
+                    getSystemRequiredFields: () => {
+                        return systemRequiredFields;
+                    }
                 }
             }
         });
@@ -73,20 +90,6 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
     afterEach(() => {
         localVue = null;
         wrapper.destroy();
-    });
-
-    beforeAll(() => {
-        Shopware.Service().register('importExportProfileMapping', () => {
-            return {
-                validate: () => {
-                    return {
-                        missingRequiredFields: {
-                            length: missingRequiredFieldsLength
-                        }
-                    };
-                }
-            };
-        });
     });
 
     it('should be a Vue.js component', async () => {
@@ -180,5 +183,32 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         wrapper.setProps({ profile: { isNew: () => {} } });
 
         expect(wrapper.vm.profile.isNew).toBeTruthy();
+    });
+
+    it('should set the updateEntities and createEntities config options', async () => {
+        await wrapper.setProps({ profile: mockProfile });
+        // create and update should be true from the mockProfile inside the component
+        expect(wrapper.vm.profile.config.createEntities).toBeTruthy();
+        expect(wrapper.vm.profile.config.updateEntities).toBeTruthy();
+
+        // switch create to false (simulate v-model)
+        wrapper.vm.profile.config.createEntities = false;
+        // simulate @change event
+        wrapper.vm.onCreateEntitiesChanged(wrapper.vm.profile.config.createEntities);
+        await wrapper.vm.$nextTick();
+        expect(wrapper.vm.profile.config.createEntities).toBeFalsy();
+
+        // also switch update to false (one must stay true -> this should switch create back to true)
+        wrapper.vm.profile.config.updateEntities = false;
+        wrapper.vm.onUpdateEntitiesChanged(wrapper.vm.profile.config.updateEntities);
+        await wrapper.vm.$nextTick();
+        expect(wrapper.vm.profile.config.updateEntities).toBeFalsy();
+        expect(wrapper.vm.profile.config.createEntities).toBeTruthy();
+
+        // now switch create back to false (which should also switch update back to true)
+        wrapper.vm.profile.config.createEntities = false;
+        wrapper.vm.onCreateEntitiesChanged(wrapper.vm.profile.config.createEntities);
+        await wrapper.vm.$nextTick();
+        expect(wrapper.vm.profile.config.updateEntities).toBeTruthy();
     });
 });

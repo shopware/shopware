@@ -220,6 +220,11 @@
         "api_info_me": "Read own api user info",
         "api_info_ping": "Refresh auth token",
         "system:clear:cache": "Clear cache"
+      },
+      "app": {
+        "label": "Apps",
+        "all": "All",
+        "disabledCheckboxMessage": "To deactivate this option, you must first deactivate the All option."
       }
     }
   }

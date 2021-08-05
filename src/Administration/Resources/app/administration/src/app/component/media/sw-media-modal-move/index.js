@@ -8,8 +8,7 @@ const { Component, Mixin, Context } = Shopware;
  * @description The <u>sw-media-modal-move</u> component is used to validate the move action.
  * @example-type code-only
  * @component-example
- * <sw-media-modal-move itemsToDelete="[items]">
- * </sw-media-modal-move>
+ * <sw-media-modal-move :items-to-move="[items]"></sw-media-modal-move>
  */
 Component.register('sw-media-modal-move', {
     template,
@@ -18,12 +17,12 @@ Component.register('sw-media-modal-move', {
 
     provide() {
         return {
-            filterItems: this.isNotPartOfItemsToMove
+            filterItems: this.isNotPartOfItemsToMove,
         };
     },
 
     mixins: [
-        Mixin.getByName('notification')
+        Mixin.getByName('notification'),
     ],
 
     props: {
@@ -32,8 +31,8 @@ Component.register('sw-media-modal-move', {
             type: Array,
             validator(value) {
                 return (value.length > 0);
-            }
-        }
+            },
+        },
     },
 
     data() {
@@ -41,7 +40,7 @@ Component.register('sw-media-modal-move', {
             targetFolder: null,
             parentFolder: null,
             displayFolder: null,
-            displayFolderId: null
+            displayFolderId: null,
         };
     },
 
@@ -81,14 +80,14 @@ Component.register('sw-media-modal-move', {
             }
 
             return firstItem.parentId;
-        }
+        },
     },
 
     watch: {
         displayFolder(newFolder) {
             this.displayFolderId = newFolder.id;
             this.updateParentFolder(newFolder);
-        }
+        },
     },
 
     mounted() {
@@ -154,8 +153,8 @@ Component.register('sw-media-modal-move', {
                     message: this.$root.$tc(
                         'global.sw-media-modal-move.notification.successSingle.message',
                         1,
-                        { mediaName: this.mediaNameFilter(item) }
-                    )
+                        { mediaName: this.mediaNameFilter(item) },
+                    ),
                 });
 
                 return item.id;
@@ -165,8 +164,8 @@ Component.register('sw-media-modal-move', {
                     message: this.$root.$tc(
                         'global.sw-media-modal-move.notification.errorSingle.message',
                         1,
-                        { mediaName: this.mediaNameFilter(item) }
-                    )
+                        { mediaName: this.mediaNameFilter(item) },
+                    ),
                 });
 
                 return null;
@@ -199,19 +198,19 @@ Component.register('sw-media-modal-move', {
 
                 this.createNotificationSuccess({
                     title: this.$root.$tc('global.default.success'),
-                    message: this.$root.$tc('global.sw-media-modal-move.notification.successOverall.message')
+                    message: this.$root.$tc('global.sw-media-modal-move.notification.successOverall.message'),
                 });
 
                 this.$emit(
                     'media-move-modal-items-move',
-                    movedIds
+                    movedIds,
                 );
             } catch {
                 this.createNotificationError({
                     title: this.$root.$tc('global.default.error'),
-                    message: this.$root.$tc('global.sw-media-modal-move.notification.errorOverall.message')
+                    message: this.$root.$tc('global.sw-media-modal-move.notification.errorOverall.message'),
                 });
             }
-        }
-    }
+        },
+    },
 });

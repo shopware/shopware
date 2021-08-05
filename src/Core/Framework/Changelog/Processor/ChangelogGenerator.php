@@ -22,9 +22,19 @@ class ChangelogGenerator extends ChangelogProcessor
     {
         return sprintf(
             '%s/%s-%s.md',
-            $this->unreleasedDir,
+            $this->getUnreleasedDir(),
             $date,
-            str_replace(' ', '-', strtolower($template->getTitle()))
+            $this->replaceSpecialChars($template->getTitle())
         );
+    }
+
+    private function replaceSpecialChars(string $name): string
+    {
+        $name = (string) preg_replace('/[^a-z_\-0-9]/i', '-', $name);
+        $name = (string) preg_replace('/[-]{2,}/', '-', $name);
+        $name = (string) preg_replace('/[-_]+$/', '', $name);
+        $name = (string) preg_replace('/^[-_]+/', '', $name);
+
+        return strtolower($name);
     }
 }

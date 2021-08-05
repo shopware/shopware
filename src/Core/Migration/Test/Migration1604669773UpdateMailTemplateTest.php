@@ -47,8 +47,11 @@ EOF;
         The following Message was sent to you via the contact form.<br/>
         <br/>
         Contact name: {{ contactFormData.firstName }} {{ contactFormData.lastName }}
-        Contact email address: {{ contactFormData.email }}<br/>
-        Phone: {{ contactFormData.phone }}<br/><br/>
+        <br/>
+        Contact email address: {{ contactFormData.email }}
+        <br/>
+        Phone: {{ contactFormData.phone }}<br/>
+        <br/>
         Subject: {{ contactFormData.subject }}<br/>
         <br/>
         Message: {{ contactFormData.comment }}<br/>

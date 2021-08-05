@@ -27,7 +27,6 @@ class SwagTestSubscriber implements EventSubscriberInterface
             return;
         }
 
-        /* @var SwagTest $plugin */
         $plugin->preActivateContext = $event->getContext();
     }
 
@@ -38,7 +37,6 @@ class SwagTestSubscriber implements EventSubscriberInterface
             return;
         }
 
-        /* @var SwagTest $plugin */
         $plugin->postActivateContext = $event->getContext();
     }
 
@@ -49,7 +47,6 @@ class SwagTestSubscriber implements EventSubscriberInterface
             return;
         }
 
-        /* @var SwagTest $plugin */
         $plugin->preDeactivateContext = $event->getContext();
     }
 
@@ -60,7 +57,6 @@ class SwagTestSubscriber implements EventSubscriberInterface
             return;
         }
 
-        /* @var SwagTest $plugin */
         $plugin->postDeactivateContext = $event->getContext();
     }
 }

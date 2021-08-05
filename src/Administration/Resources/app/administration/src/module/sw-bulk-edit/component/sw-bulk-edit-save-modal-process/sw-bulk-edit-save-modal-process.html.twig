@@ -1,0 +1,34 @@
+{% block sw_bulk_edit_save_modal_process %}
+<div class="sw-bulk-edit-save-modal-process">
+    {% block sw_bulk_edit_save_modal_process_icon %}
+    <sw-label
+        class="sw-bulk-edit-save-modal__icon"
+        appearance="pill"
+        variant="info"
+    >
+        <sw-icon
+            class="sw-bulk-edit-save-modal__loading-icon"
+            name="default-web-loading-circle"
+            size="30px"
+            small
+        />
+    </sw-label>
+    {% endblock %}
+
+    {% block sw_bulk_edit_save_modal_process_content %}
+    <p class="sw-bulk-edit-save-modal__help-text">
+        {{ $tc('sw-bulk-edit.modal.process.description') }}
+        <br>
+        <br>
+        {{ $tc('sw-bulk-edit.modal.process.helpText') }}
+    </p>
+
+    <sw-alert
+        variant="warning"
+        class="sw-bulk-edit-save-modal__warning"
+    >
+        {{ $tc('sw-bulk-edit.modal.warningText') }}
+    </sw-alert>
+    {% endblock %}
+</div>
+{% endblock %}

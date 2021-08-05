@@ -1,21 +1,17 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-mail-template/page/sw-mail-template-index';
 
-const createWrapper = (privileges = []) => {
+// Turn off known errors
+import { missingGetListMethod } from 'src/../test/_helper_/allowedErrors';
+
+global.allowedErrors = [missingGetListMethod];
+
+const createWrapper = () => {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {});
 
     return shallowMount(Shopware.Component.build('sw-mail-template-index'), {
         localVue,
-        provide: {
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) { return true; }
-
-                    return privileges.includes(identifier);
-                }
-            }
-        },
         mocks: {
             $route: {
                 query: {
@@ -53,6 +49,9 @@ const createWrapper = (privileges = []) => {
 };
 
 describe('modules/sw-mail-template/page/sw-mail-template-index', () => {
+    beforeEach(() => {
+        global.activeAclRoles = [];
+    });
     it('should not allow to create', () => {
         const wrapper = createWrapper();
 
@@ -64,9 +63,9 @@ describe('modules/sw-mail-template/page/sw-mail-template-index', () => {
     });
 
     it('should allow to create', () => {
-        const wrapper = createWrapper([
-            'mail_templates.creator'
-        ]);
+        global.activeAclRoles = ['mail_templates.creator'];
+
+        const wrapper = createWrapper();
 
         const createButton = wrapper.find('.sw-context-button');
         const innerButton = createButton.find('sw-button-stub');

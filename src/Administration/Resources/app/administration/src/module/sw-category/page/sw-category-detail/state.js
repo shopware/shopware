@@ -9,7 +9,8 @@ export default {
             category: null,
             customFieldSets: [],
             landingPagesToDelete: undefined,
-            categoriesToDelete: undefined
+            categoriesToDelete: undefined,
+            defaultLayout: null,
         };
     },
 
@@ -32,7 +33,11 @@ export default {
 
         setCategoriesToDelete(state, { categoriesToDelete }) {
             state.categoriesToDelete = categoriesToDelete;
-        }
+        },
+
+        setDefaultLayout(state, defaultLayout) {
+            state.defaultLayout = defaultLayout?.id;
+        },
     },
 
     actions: {
@@ -40,7 +45,7 @@ export default {
             commit('setActiveLandingPage', payload);
         },
 
-        loadActiveLandingPage({ commit }, { repository, id, apiContext }) {
+        loadActiveLandingPage({ commit }, { repository, id, apiContext, criteria }) {
             if (id === 'create') {
                 const landingPage = repository.create(apiContext);
                 landingPage.cmsPageId = null;
@@ -48,10 +53,9 @@ export default {
                 return Promise.resolve();
             }
 
-            const criteria = new Criteria();
-
-            criteria.addAssociation('tags');
-            criteria.addAssociation('salesChannels');
+            if (!criteria) {
+                criteria = new Criteria();
+            }
 
             return repository.get(id, apiContext, criteria).then((landingPage) => {
                 commit('setActiveLandingPage', { landingPage });
@@ -62,17 +66,10 @@ export default {
             commit('setActiveCategory', payload);
         },
 
-        loadActiveCategory({ commit }, { repository, id, apiContext }) {
-            const criteria = new Criteria();
-
-            criteria.getAssociation('seoUrls')
-                .addFilter(Criteria.equals('isCanonical', true));
-
-            criteria.addAssociation('tags')
-                .addAssociation('media')
-                .addAssociation('navigationSalesChannels.homeCmsPage.previewMedia')
-                .addAssociation('serviceSalesChannels')
-                .addAssociation('footerSalesChannels');
+        loadActiveCategory({ commit }, { repository, id, apiContext, criteria }) {
+            if (!criteria) {
+                criteria = new Criteria();
+            }
 
             return repository.get(id, apiContext, criteria).then((category) => {
                 category.isColumn = false;
@@ -95,6 +92,6 @@ export default {
             }).then((category) => {
                 commit('setActiveCategory', { category });
             });
-        }
-    }
+        },
+    },
 };

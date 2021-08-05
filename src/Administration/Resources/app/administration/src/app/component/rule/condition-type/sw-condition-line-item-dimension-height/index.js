@@ -6,9 +6,17 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 Component.extend('sw-condition-line-item-dimension-height', 'sw-condition-base', {
     template,
 
+    data() {
+        return {
+            inputKey: 'amount',
+        };
+    },
+
     computed: {
         operators() {
-            return this.conditionDataProviderService.getOperatorSet('number');
+            return this.conditionDataProviderService.addEmptyOperatorToOperatorSet(
+                this.conditionDataProviderService.getOperatorSet('number'),
+            );
         },
 
         amount: {
@@ -19,13 +27,13 @@ Component.extend('sw-condition-line-item-dimension-height', 'sw-condition-base',
             set(amount) {
                 this.ensureValueExist();
                 this.condition.value = { ...this.condition.value, amount };
-            }
+            },
         },
 
         ...mapPropertyErrors('condition', ['value.operator', 'value.amount']),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueAmountError;
-        }
-    }
+        },
+    },
 });

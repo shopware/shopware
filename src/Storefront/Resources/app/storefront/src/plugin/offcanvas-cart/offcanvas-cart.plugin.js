@@ -21,7 +21,7 @@ export default class OffCanvasCartPlugin extends Plugin {
         offcanvasPosition: 'right',
         shippingContainerSelector: '.offcanvas-shipping-preference',
         shippingToggleSelector: '.js-toggle-shipping-selection',
-        additionalOffcanvasClass: 'cart-offcanvas'
+        additionalOffcanvasClass: 'cart-offcanvas',
     };
 
     init() {

@@ -180,7 +180,7 @@ class SalesChannelProxyController extends AbstractController
     {
         $this->fetchSalesChannel($salesChannelId, $context);
 
-        $salesChannelContext = $this->fetchSalesChannelContext($salesChannelId, $request);
+        $salesChannelContext = $this->fetchSalesChannelContext($salesChannelId, $request, $context);
 
         $cart = $this->cartService->getCart($salesChannelContext->getToken(), $salesChannelContext);
 
@@ -214,7 +214,7 @@ class SalesChannelProxyController extends AbstractController
             throw new MissingRequestParameterException(self::SALES_CHANNEL_ID);
         }
 
-        $salesChannelId = $request->request->get('salesChannelId');
+        $salesChannelId = (string) $request->request->get('salesChannelId');
 
         if (!$request->request->has(self::CUSTOMER_ID)) {
             throw new MissingRequestParameterException(self::CUSTOMER_ID);
@@ -224,15 +224,15 @@ class SalesChannelProxyController extends AbstractController
 
         $this->persistPermissions($request);
 
-        $salesChannelContext = $this->fetchSalesChannelContext($salesChannelId, $request);
+        $salesChannelContext = $this->fetchSalesChannelContext($salesChannelId, $request, $context);
 
         $this->updateCustomerToContext($request->get(self::CUSTOMER_ID), $salesChannelContext);
 
         $content = json_encode([
             PlatformRequest::HEADER_CONTEXT_TOKEN => $salesChannelContext->getToken(),
-        ]);
+        ], \JSON_THROW_ON_ERROR);
         $response = new Response();
-        $response->setContent($content ? $content : null);
+        $response->setContent($content ?: null);
 
         return $response;
     }
@@ -251,11 +251,11 @@ class SalesChannelProxyController extends AbstractController
             throw new MissingRequestParameterException(self::SALES_CHANNEL_ID);
         }
 
-        $salesChannelId = $request->request->get('salesChannelId');
+        $salesChannelId = (string) $request->request->get('salesChannelId');
 
         $this->fetchSalesChannel($salesChannelId, $context);
 
-        $salesChannelContext = $this->fetchSalesChannelContext($salesChannelId, $request);
+        $salesChannelContext = $this->fetchSalesChannelContext($salesChannelId, $request, $context);
 
         $calculatedPrice = $this->parseCalculatedPriceByRequest($request);
 
@@ -276,7 +276,7 @@ class SalesChannelProxyController extends AbstractController
 
         $contextToken = $this->getContextToken($request);
 
-        $salesChannelId = $request->request->get('salesChannelId');
+        $salesChannelId = (string) $request->request->get('salesChannelId');
 
         $this->adminOrderCartService->addPermission($contextToken, PromotionCollector::SKIP_AUTOMATIC_PROMOTIONS, $salesChannelId);
 
@@ -295,7 +295,7 @@ class SalesChannelProxyController extends AbstractController
 
         $contextToken = $this->getContextToken($request);
 
-        $salesChannelId = $request->request->get('salesChannelId');
+        $salesChannelId = (string) $request->request->get('salesChannelId');
 
         $this->adminOrderCartService->deletePermission($contextToken, PromotionCollector::SKIP_AUTOMATIC_PROMOTIONS, $salesChannelId);
 
@@ -368,7 +368,7 @@ class SalesChannelProxyController extends AbstractController
     {
         $requestStackBackup = [];
 
-        while ($requestStack->getMasterRequest()) {
+        while ($requestStack->getMainRequest()) {
             $requestStackBackup[] = $requestStack->pop();
         }
 
@@ -384,7 +384,7 @@ class SalesChannelProxyController extends AbstractController
         }
     }
 
-    private function fetchSalesChannelContext(string $salesChannelId, Request $request): SalesChannelContext
+    private function fetchSalesChannelContext(string $salesChannelId, Request $request, Context $originalContext): SalesChannelContext
     {
         $contextToken = $this->getContextToken($request);
 
@@ -393,7 +393,9 @@ class SalesChannelProxyController extends AbstractController
                 $salesChannelId,
                 $contextToken,
                 $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID),
-                $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID)
+                $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID),
+                null,
+                $originalContext
             )
         );
 
@@ -450,7 +452,7 @@ class SalesChannelProxyController extends AbstractController
     {
         $contextToken = $this->getContextToken($request);
 
-        $salesChannelId = $request->request->get('salesChannelId');
+        $salesChannelId = (string) $request->request->get('salesChannelId');
 
         $payload = $this->contextPersister->load($contextToken, $salesChannelId);
 
@@ -478,6 +480,6 @@ class SalesChannelProxyController extends AbstractController
         $validation = new DataValidationDefinition('shipping-cost');
         $validation->add('unitPrice', new NotBlank(), new Type('numeric'), new GreaterThanOrEqual(['value' => 0]));
         $validation->add('totalPrice', new NotBlank(), new Type('numeric'), new GreaterThanOrEqual(['value' => 0]));
-        $this->validator->validate($request->request->get('shippingCosts'), $validation);
+        $this->validator->validate($request->request->all('shippingCosts'), $validation);
     }
 }

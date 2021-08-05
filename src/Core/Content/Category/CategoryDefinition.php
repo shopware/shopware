@@ -93,6 +93,11 @@ class CategoryDefinition extends EntityDefinition
         return '6.0.0.0';
     }
 
+    public function getHydratorClass(): string
+    {
+        return CategoryHydrator::class;
+    }
+
     protected function defineFields(): FieldCollection
     {
         $collection = new FieldCollection([

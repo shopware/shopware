@@ -257,7 +257,7 @@ class OrderConverter
     /**
      * @throws InconsistentCriteriaIdsException
      */
-    public function assembleSalesChannelContext(OrderEntity $order, Context $context): SalesChannelContext
+    public function assembleSalesChannelContext(OrderEntity $order, Context $context, array $overrideOptions = []): SalesChannelContext
     {
         if ($order->getTransactions() === null) {
             throw new MissingOrderRelationException('transactions');
@@ -312,17 +312,21 @@ class OrderConverter
             }
         }
 
+        $options = array_merge($options, $overrideOptions);
+
         $salesChannelContext = $this->salesChannelContextFactory->create(Uuid::randomHex(), $order->getSalesChannelId(), $options);
         $salesChannelContext->getContext()->addExtensions($context->getExtensions());
 
-        $itemRounding = $order->getItemRounding();
-        if ($itemRounding !== null) {
-            $salesChannelContext->setItemRounding($itemRounding);
+        if ($order->getItemRounding() !== null) {
+            $salesChannelContext->setItemRounding($order->getItemRounding());
         }
 
-        $totalRounding = $order->getTotalRounding();
-        if ($totalRounding !== null) {
-            $salesChannelContext->setTotalRounding($totalRounding);
+        if ($order->getTotalRounding() !== null) {
+            $salesChannelContext->setTotalRounding($order->getTotalRounding());
+        }
+
+        if ($order->getRuleIds() !== null) {
+            $salesChannelContext->setRuleIds($order->getRuleIds());
         }
 
         return $salesChannelContext;

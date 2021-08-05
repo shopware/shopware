@@ -6,18 +6,18 @@ const { Component } = Shopware;
 Component.register('sw-users-permissions-additional-permissions', {
     template,
 
-    inject: ['privileges'],
+    inject: ['privileges', 'appAclService'],
 
     props: {
         role: {
             type: Object,
-            required: true
+            required: true,
         },
         disabled: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
@@ -28,11 +28,29 @@ Component.register('sw-users-permissions-additional-permissions', {
         additionalPermissions() {
             const privileges = this.privileges.getPrivilegesMappings();
 
-            return privileges.filter(privilege => privilege.category === 'additional_permissions');
-        }
+            return privileges.filter(
+                privilege => privilege.category === 'additional_permissions' && privilege.key !== 'app',
+            );
+        },
+
+        appPermissions() {
+            const privileges = this.privileges.getPrivilegesMappings();
+
+            return privileges.filter(
+                privilege => privilege.category === 'additional_permissions' && privilege.key === 'app',
+            );
+        },
+    },
+
+    created() {
+        this.createdComponent();
     },
 
     methods: {
+        createdComponent() {
+            this.appAclService.addAppPermissions();
+        },
+
         isPrivilegeSelected(privilegeKey) {
             if (!this.role.privileges) {
                 return false;
@@ -47,6 +65,24 @@ Component.register('sw-users-permissions-additional-permissions', {
             } else {
                 this.role.privileges = this.role.privileges.filter(p => p !== privilegeKey);
             }
-        }
-    }
+        },
+
+        changeAllAppPermissionsForKey(permissionKey, isSelected) {
+            this.appPermissions.forEach(permission => {
+                Object.keys(permission.roles).forEach(role => {
+                    const identifier = `app.${role}`;
+
+                    if (isSelected) {
+                        if (this.role.privileges.includes(identifier)) {
+                            return;
+                        }
+
+                        this.role.privileges.push(identifier);
+                    } else {
+                        this.role.privileges = this.role.privileges.filter(p => p !== identifier);
+                    }
+                });
+            });
+        },
+    },
 });

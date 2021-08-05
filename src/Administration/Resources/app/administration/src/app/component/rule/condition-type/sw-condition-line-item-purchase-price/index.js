@@ -11,7 +11,9 @@ Component.extend('sw-condition-line-item-purchase-price', 'sw-condition-base', {
 
     computed: {
         operators() {
-            return this.conditionDataProviderService.getOperatorSet('number');
+            return this.conditionDataProviderService.addEmptyOperatorToOperatorSet(
+                this.conditionDataProviderService.getOperatorSet('number'),
+            );
         },
 
         isNetOperators() {
@@ -26,7 +28,7 @@ Component.extend('sw-condition-line-item-purchase-price', 'sw-condition-base', {
             set(amount) {
                 this.ensureValueExist();
                 this.condition.value = { ...this.condition.value, amount };
-            }
+            },
         },
 
         ...mapPropertyErrors('condition', ['value.operator', 'value.amount']),
@@ -35,6 +37,14 @@ Component.extend('sw-condition-line-item-purchase-price', 'sw-condition-base', {
             return this.conditionValueIsNetError
                 || this.conditionValueOperatorError
                 || this.conditionValueAmountError;
-        }
-    }
+        },
+    },
+
+    watch: {
+        operator() {
+            if (this.isEmpty) {
+                delete this.condition.value.amount;
+            }
+        },
+    },
 });

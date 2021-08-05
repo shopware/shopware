@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 describe('Currency: Visual testing', () => {
     // eslint-disable-next-line no-undef
@@ -34,7 +34,7 @@ describe('Currency: Visual testing', () => {
         });
 
         cy.get('.sw-data-grid-skeleton').should('not.exist');
-        cy.sortListingViaColumn('Short name', 'CHF', '.sw-data-grid__row--0');
+        cy.sortAndCheckListingAscViaColumn('Short name', 'CHF');
         cy.takeSnapshot('[Currency] Listing', '.sw-settings-currency-list-grid');
 
         cy.contains('.sw-data-grid__cell--name a', 'Czech').click();

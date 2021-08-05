@@ -66,6 +66,11 @@ class CategoryEntity extends Entity
     protected $childCount;
 
     /**
+     * @var int
+     */
+    protected $visibleChildCount = 0;
+
+    /**
      * @var bool
      */
     protected $displayNestedProducts;
@@ -283,6 +288,16 @@ class CategoryEntity extends Entity
     public function setChildCount(int $childCount): void
     {
         $this->childCount = $childCount;
+    }
+
+    public function getVisibleChildCount(): int
+    {
+        return $this->visibleChildCount;
+    }
+
+    public function setVisibleChildCount(int $visibleChildCount): void
+    {
+        $this->visibleChildCount = $visibleChildCount;
     }
 
     public function getParent(): ?CategoryEntity

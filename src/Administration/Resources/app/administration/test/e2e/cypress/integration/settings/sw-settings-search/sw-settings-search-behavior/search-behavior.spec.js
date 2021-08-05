@@ -46,8 +46,20 @@ describe('Product Search: Test crud operations', () => {
             method: 'patch'
         }).as('saveData');
 
-        // Choose German language
-        page.changeTranslation('Deutsch', 0);
+        cy.route({
+            url: '/api/product-search-config/*',
+            method: 'patch'
+        }).as('saveData');
+
+        // Switch language to Deutsch
+        cy.get('.sw-language-switch__select .sw-entity-single-select__selection-text').contains('English');
+        cy.get('.smart-bar__content .sw-language-switch__select').click();
+        cy.get('.sw-select-result-list__item-list').should('be.visible');
+        // poor assertion to check if there is more than 1 language
+        cy.get('.sw-select-result-list__item-list .sw-select-result')
+            .should('have.length.greaterThan', 1);
+        cy.get('.sw-select-result-list__item-list .sw-select-result')
+            .contains('Deutsch').click();
 
         // change value of Minimal search term length
         cy.get('.sw-settings-search__search-behaviour-term-length input').clear().type('19');

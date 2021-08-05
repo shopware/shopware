@@ -50,7 +50,7 @@ describe('Listing: Test crud operations', () => {
         cy.get('.smart-bar__header').should('be.visible').contains('Create product sorting');
 
         // check if save button is disabled
-        cy.get('.sw-button')
+        cy.get('.smart-bar__actions .sw-button--primary')
             .should('be.visible')
             .should('be.disabled');
 
@@ -67,7 +67,7 @@ describe('Listing: Test crud operations', () => {
         // validate entry
         cy.get('.sw-data-grid__cell--field .sw-data-grid__cell-content').contains('Product name');
         cy.get('.sw-data-grid__cell--order .sw-data-grid__cell-content').contains('Ascending');
-        cy.get('.sw-data-grid__cell--priority .sw-data-grid__cell-content').contains('1');
+        cy.get('.sw-data-grid__cell--priority #sw-field--currentValue').should('have.value', '1');
 
         cy.route({
             url: `${Cypress.env('apiPath')}/product-sorting`,
@@ -75,7 +75,7 @@ describe('Listing: Test crud operations', () => {
         }).as('saveData');
 
         // save entity
-        cy.get('.sw-button')
+        cy.get('.smart-bar__actions .sw-button--primary')
             .should('not.be.disabled')
             .click();
 
@@ -106,7 +106,7 @@ describe('Listing: Test crud operations', () => {
             method: 'post'
         }).as('saveCustomField');
 
-        cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/custom/field/index`);
+        cy.visit(`${Cypress.env('admin')}#/sw/settings/custom/field/index`);
 
         cy.get('.sw-grid-row.sw-grid__row--0 a').click();
 
@@ -145,12 +145,12 @@ describe('Listing: Test crud operations', () => {
         cy.get('.smart-bar__header').should('be.visible').contains('Create product sorting');
 
         // check if save button is disabled
-        cy.get('.sw-button')
+        cy.get('.smart-bar__actions .sw-button--primary')
             .should('be.visible')
             .should('be.disabled');
 
         // add name
-        cy.get('#sw-field--sortingOption-label').typeAndCheck('My own product sorting with Custom Field');
+        cy.get('#sw-field--sortingOption-label').typeAndCheck('My own product sorting');
 
         // mark entity as active
         cy.get('.sw-field--switch__input').click();
@@ -163,29 +163,41 @@ describe('Listing: Test crud operations', () => {
         // custom field selection should visible
         cy.get('.sw-data-grid__cell--field .sw-data-grid__cell-content .sw-entity-single-select').should('be.visible');
         cy.get('.sw-data-grid__cell--order .sw-data-grid__cell-content').contains('Ascending');
-        cy.get('.sw-data-grid__cell--priority .sw-data-grid__cell-content').contains('1');
+        cy.get('.sw-data-grid__cell--priority #sw-field--currentValue').should('have.value', '1');
 
         // check if save button is still disabled because no custom field is selected
-        cy.get('.sw-button')
+        cy.get('.smart-bar__actions .sw-button--primary')
             .should('be.visible')
             .should('be.disabled');
 
         const customFieldSelection = '.sw-data-grid__cell--field .sw-data-grid__cell-content .sw-entity-single-select';
 
-        cy.get(customFieldSelection).typeSingleSelect('my_custom_field_first', customFieldSelection);
-
         cy.route({
             url: `${Cypress.env('apiPath')}/product-sorting`,
             method: 'post'
         }).as('saveData');
+        cy.route({
+            url: `${Cypress.env('apiPath')}/product-sorting/*`,
+            method: 'patch'
+        }).as('updateData');
+
+        cy.get(customFieldSelection).typeSingleSelect('my_custom_field_first', customFieldSelection);
+
+        // check api request
+        cy.wait('@saveData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
+        });
+
+        // edit name
+        cy.get('#sw-field--sortingOption-label').clear().typeAndCheck('My own product sorting with Custom Field');
 
         // save entity
-        cy.get('.sw-button--primary')
+        cy.get('.smart-bar__actions .sw-button--primary')
             .should('not.be.disabled')
             .click();
 
         // check api request
-        cy.wait('@saveData').then((xhr) => {
+        cy.wait('@updateData').then((xhr) => {
             expect(xhr).to.have.property('status', 204);
         });
 
@@ -234,7 +246,7 @@ describe('Listing: Test crud operations', () => {
             .click();
 
         // save changes
-        cy.get('.sw-button')
+        cy.get('.smart-bar__actions .sw-button--primary')
             .should('be.visible')
             .click();
 

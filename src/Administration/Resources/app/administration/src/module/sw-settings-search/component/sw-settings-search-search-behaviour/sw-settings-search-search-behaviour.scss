@@ -14,6 +14,10 @@
     }
 
     &__search-behaviour-condition {
+        label {
+            cursor: pointer;
+        }
+
         .sw-field__radio-option-description {
             white-space: pre-line;
             display: inline;

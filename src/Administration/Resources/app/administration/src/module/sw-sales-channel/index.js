@@ -20,6 +20,8 @@ import './service/export-template.service';
 import './product-export-templates';
 import './component/sw-sales-channel-products-assignment-modal';
 import './component/sw-sales-channel-products-assignment-single-products';
+import './component/sw-sales-channel-product-assignment-categories';
+import './component/sw-sales-channel-products-assignment-dynamic-product-groups';
 
 import './acl';
 
@@ -41,58 +43,58 @@ Module.register('sw-sales-channel', {
             component: 'sw-sales-channel-detail',
             path: 'detail/:id',
             meta: {
-                privilege: 'sales_channel.viewer'
+                privilege: 'sales_channel.viewer',
             },
             redirect: {
-                name: 'sw.sales.channel.detail.base'
+                name: 'sw.sales.channel.detail.base',
             },
             children: {
                 base: {
                     component: 'sw-sales-channel-detail-base',
                     path: 'base',
                     meta: {
-                        privilege: 'sales_channel.viewer'
-                    }
+                        privilege: 'sales_channel.viewer',
+                    },
                 },
                 products: {
                     component: 'sw-sales-channel-detail-products',
                     path: 'products',
                     meta: {
-                        privilege: 'sales_channel.viewer'
-                    }
+                        privilege: 'sales_channel.viewer',
+                    },
                 },
                 productComparison: {
                     component: 'sw-sales-channel-detail-product-comparison',
                     path: 'product-comparison',
                     meta: {
-                        privilege: 'sales_channel.viewer'
-                    }
+                        privilege: 'sales_channel.viewer',
+                    },
                 },
                 analytics: {
                     component: 'sw-sales-channel-detail-analytics',
                     path: 'analytics',
                     meta: {
-                        privilege: 'sales_channel.viewer'
-                    }
-                }
-            }
+                        privilege: 'sales_channel.viewer',
+                    },
+                },
+            },
         },
 
         create: {
             component: 'sw-sales-channel-create',
             path: 'create/:typeId',
             redirect: {
-                name: 'sw.sales.channel.create.base'
+                name: 'sw.sales.channel.create.base',
             },
             children: {
                 base: {
                     component: 'sw-sales-channel-create-base',
                     path: 'base',
                     meta: {
-                        privilege: 'sales_channel.creator'
-                    }
-                }
-            }
-        }
-    }
+                        privilege: 'sales_channel.creator',
+                    },
+                },
+            },
+        },
+    },
 });

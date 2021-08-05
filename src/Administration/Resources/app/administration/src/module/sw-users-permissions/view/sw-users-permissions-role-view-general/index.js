@@ -6,20 +6,20 @@ Shopware.Component.register('sw-users-permissions-role-view-general', {
     template,
 
     inject: [
-        'acl'
+        'acl',
     ],
 
     props: {
         role: {
             type: Object,
-            required: true
-        }
+            required: true,
+        },
     },
 
     computed: {
         ...mapPropertyErrors('role', [
             'name',
-            'description'
-        ])
-    }
+            'description',
+        ]),
+    },
 });

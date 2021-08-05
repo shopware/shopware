@@ -5,6 +5,15 @@ import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/base/sw-modal';
 import 'src/app/component/grid/sw-pagination';
 
+const responses = global.repositoryFactoryMock.responses;
+
+responses.addResponse({
+    method: 'Post',
+    url: '/search/user-config',
+    status: 200,
+    response: { data: [] }
+});
+
 describe('src/app/component/entity/sw-bulk-edit-modal', () => {
     let wrapper;
 

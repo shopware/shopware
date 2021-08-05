@@ -15,9 +15,11 @@ use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Event\SwitchBuyBoxVariantEvent;
 use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
 use Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder;
 use Shopware\Storefront\Page\Product\Review\ProductReviewLoader;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -59,13 +61,16 @@ class CmsController extends StorefrontController
      */
     private $combinationFinder;
 
+    private EventDispatcherInterface $eventDispatcher;
+
     public function __construct(
         AbstractCmsRoute $cmsRoute,
         AbstractCategoryRoute $categoryRoute,
         AbstractProductListingRoute $listingRoute,
         AbstractProductDetailRoute $productRoute,
         ProductReviewLoader $productReviewLoader,
-        ProductCombinationFinder $combinationFinder
+        ProductCombinationFinder $combinationFinder,
+        EventDispatcherInterface $eventDispatcher
     ) {
         $this->cmsRoute = $cmsRoute;
         $this->categoryRoute = $categoryRoute;
@@ -73,6 +78,7 @@ class CmsController extends StorefrontController
         $this->productRoute = $productRoute;
         $this->productReviewLoader = $productReviewLoader;
         $this->combinationFinder = $combinationFinder;
+        $this->eventDispatcher = $eventDispatcher;
     }
 
     /**
@@ -94,7 +100,10 @@ class CmsController extends StorefrontController
 
         $cmsPage = $this->cmsRoute->load($id, $request, $salesChannelContext)->getCmsPage();
 
-        return $this->renderStorefront('@Storefront/storefront/page/content/detail.html.twig', ['cmsPage' => $cmsPage]);
+        $response = $this->renderStorefront('@Storefront/storefront/page/content/detail.html.twig', ['cmsPage' => $cmsPage]);
+        $response->headers->set('x-robots-tag', 'noindex');
+
+        return $response;
     }
 
     /**
@@ -121,7 +130,10 @@ class CmsController extends StorefrontController
             throw new PageNotFoundException('');
         }
 
-        return $this->renderStorefront('@Storefront/storefront/page/content/detail.html.twig', ['cmsPage' => $category->getCmsPage()]);
+        $response = $this->renderStorefront('@Storefront/storefront/page/content/detail.html.twig', ['cmsPage' => $category->getCmsPage()]);
+        $response->headers->set('x-robots-tag', 'noindex');
+
+        return $response;
     }
 
     /**
@@ -158,6 +170,7 @@ class CmsController extends StorefrontController
 
         $response = new JsonResponse($mapped);
         $response->headers->set(AbstractSessionListener::NO_AUTO_CACHE_CONTROL_HEADER, '1');
+        $response->headers->set('x-robots-tag', 'noindex');
 
         return $response;
     }
@@ -187,9 +200,9 @@ class CmsController extends StorefrontController
         /** @var string $elementId */
         $elementId = $request->query->get('elementId');
 
-        $options = $request->query->get('options');
+        $options = (string) $request->query->get('options');
         /** @var array $newOptions */
-        $newOptions = $options !== null ? json_decode($options, true) : [];
+        $newOptions = \strlen($options) ? json_decode($options, true) : [];
 
         $redirect = $this->combinationFinder->find($productId, $switchedOption, $newOptions, $context);
 
@@ -204,11 +217,17 @@ class CmsController extends StorefrontController
         $reviews = $this->productReviewLoader->load($request, $context);
         $reviews->setParentId($product->getParentId() ?? $product->getId());
 
-        return $this->renderStorefront('@Storefront/storefront/component/buy-widget/buy-widget.html.twig', [
+        $event = new SwitchBuyBoxVariantEvent($elementId, $product, $configurator, $request, $context);
+        $this->eventDispatcher->dispatch($event);
+
+        $response = $this->renderStorefront('@Storefront/storefront/component/buy-widget/buy-widget.html.twig', [
             'product' => $product,
             'configuratorSettings' => $configurator,
             'totalReviews' => $reviews->getTotalReviews(),
             'elementId' => $elementId,
         ]);
+        $response->headers->set('x-robots-tag', 'noindex');
+
+        return $response;
     }
 }

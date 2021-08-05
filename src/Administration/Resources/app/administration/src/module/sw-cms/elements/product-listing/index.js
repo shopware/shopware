@@ -15,31 +15,32 @@ Shopware.Service('cmsService').registerCmsElement({
     defaultConfig: {
         boxLayout: {
             source: 'static',
-            value: 'standard'
+            value: 'standard',
         },
         showSorting: {
             source: 'static',
-            value: true
+            value: true,
         },
         useCustomSorting: {
             source: 'static',
-            value: false
+            value: false,
         },
         availableSortings: {
             source: 'static',
-            value: {}
+            value: {},
         },
         defaultSorting: {
             source: 'static',
-            value: ''
+            value: '',
         },
         filters: {
             source: 'static',
-            value: 'manufacturer-filter,rating-filter,price-filter,shipping-free-filter,property-filter'
+            value: 'manufacturer-filter,rating-filter,price-filter,shipping-free-filter,property-filter',
         },
+        // eslint-disable-next-line inclusive-language/use-inclusive-words
         propertyWhitelist: {
             source: 'static',
-            value: []
-        }
-    }
+            value: [],
+        },
+    },
 });

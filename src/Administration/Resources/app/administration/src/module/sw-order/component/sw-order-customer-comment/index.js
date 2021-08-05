@@ -9,12 +9,12 @@ Component.register('sw-order-customer-comment', {
         customerComment: {
             type: String,
             required: true,
-            default: ''
+            default: '',
         },
         isLoading: {
             type: Boolean,
             required: false,
-            default: false
-        }
-    }
+            default: false,
+        },
+    },
 });

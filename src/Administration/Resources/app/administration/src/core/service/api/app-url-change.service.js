@@ -13,8 +13,8 @@ export default class AppUrlChangeService extends ApiService {
         return this.httpClient.get(
             'app-system/app-url-change/strategies',
             {
-                headers: this.getBasicHeaders()
-            }
+                headers: this.getBasicHeaders(),
+            },
         ).then(({ data }) => {
             return Object.entries(data).map(([key, description]) => {
                 return { name: key, description };
@@ -32,8 +32,8 @@ export default class AppUrlChangeService extends ApiService {
                 'app-system/app-url-change/resolve',
                 { strategy: name },
                 {
-                    headers: this.getBasicHeaders()
-                }
+                    headers: this.getBasicHeaders(),
+                },
             );
     }
 
@@ -44,8 +44,8 @@ export default class AppUrlChangeService extends ApiService {
         return this.httpClient.get(
             'app-system/app-url-change/url-difference',
             {
-                headers: this.getBasicHeaders()
-            }
+                headers: this.getBasicHeaders(),
+            },
         ).then((resp) => {
             if (resp.status === 204) {
                 return null;

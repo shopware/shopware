@@ -146,6 +146,8 @@
         "titleNavigator": "Navigator",
         "titleSectionSettings": "Sektion-Einstellungen",
         "titleLayoutAssignment": "Layout-Zuweisung",
+        "confirmTextNavigator": "Beim Betreten des Block-Navigators wird die aktuelle Seite gespeichert werden. Möchtest Du wirklich fortfahren?",
+        "confirmReminderNavigator": "Nicht noch einmal fragen",
         "mobile": "Mobiles Sidebar-Verhalten",
         "mobileOptionHidden": "Nicht angezeigt",
         "mobileOptionWrap": "Umbrechen"

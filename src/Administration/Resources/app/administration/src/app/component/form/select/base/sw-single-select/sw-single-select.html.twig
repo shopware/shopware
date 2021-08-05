@@ -3,7 +3,9 @@
     ref="selectBase"
     class="sw-single-select"
     :is-loading="isLoading"
+    clearable
     v-bind="$attrs"
+    @clear="clearSelection"
     @select-expanded="onSelectExpanded"
     @select-collapsed="onSelectCollapsed"
     v-on="$listeners"
@@ -66,7 +68,7 @@
             {% block sw_single_select_base_results_list %}
             {% block sw_single_select_base_results_list_before %}
             <template #before-item-list>
-                <slot name="before-item-list" />
+                <slot name="before-item-list"></slot>
             </template>
             {% endblock %}
 
@@ -106,7 +108,7 @@
 
             {% block sw_single_select_base_results_list_after %}
             <template #after-item-list>
-                <slot name="after-item-list" />
+                <slot name="after-item-list"></slot>
             </template>
             {% endblock %}
             {% endblock %}

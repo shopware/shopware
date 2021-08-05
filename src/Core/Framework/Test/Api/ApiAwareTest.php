@@ -10,8 +10,10 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @group skip-paratest
+ */
 class ApiAwareTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -19,7 +21,7 @@ class ApiAwareTest extends TestCase
 
     public function testApiAware(): void
     {
-        $kernel = KernelLifecycleManager::createKernel(null, true, Uuid::randomHex());
+        $kernel = KernelLifecycleManager::createKernel(null, true, hash_file('md5', __DIR__ . '/fixtures/api-aware-fields.json'));
         $kernel->boot();
         $registry = $kernel->getContainer()->get(DefinitionInstanceRegistry::class);
 
@@ -49,13 +51,6 @@ class ApiAwareTest extends TestCase
 
         $expected = json_decode($expected, true);
 
-        if (Feature::isActive('FEATURE_NEXT_14114')) {
-            $expected[] = 'country.vatIdRequired';
-            $expected[] = 'country.customerTax';
-            $expected[] = 'country.companyTax';
-            $expected[] = 'currency.taxFreeFrom';
-        }
-
         if (Feature::isActive('FEATURE_NEXT_14408')) {
             $expected[] = 'app_cms_block.createdAt';
             $expected[] = 'app_cms_block.updatedAt';
@@ -64,11 +59,6 @@ class ApiAwareTest extends TestCase
             $expected[] = 'app_cms_block_translation.updatedAt';
             $expected[] = 'app_cms_block_translation.appCmsBlockId';
             $expected[] = 'app_cms_block_translation.languageId';
-        }
-
-        if (Feature::isActive('FEATURE_NEXT_14363')) {
-            $expected[] = 'webhook_event_log.createdAt';
-            $expected[] = 'webhook_event_log.updatedAt';
         }
 
         $message = 'One or more fields have been changed in their visibility for the Store Api.

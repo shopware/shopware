@@ -1,10 +1,9 @@
 import GoogleReCaptchaBasePlugin from 'src/plugin/captcha/google-re-captcha/google-re-captcha-base.plugin';
 
-export default class GoogleReCaptchaV3Plugin extends GoogleReCaptchaBasePlugin
-{
+export default class GoogleReCaptchaV3Plugin extends GoogleReCaptchaBasePlugin {
     static options = {
         siteKey: null,
-        grecaptchaInputSelector: '.grecaptcha_v3-input'
+        grecaptchaInputSelector: '.grecaptcha_v3-input',
     };
 
     init() {
@@ -17,8 +16,8 @@ export default class GoogleReCaptchaV3Plugin extends GoogleReCaptchaBasePlugin
 
     getGreCaptchaInfo() {
         return {
-            version: 'GoogleReCaptchaV3'
-        }
+            version: 'GoogleReCaptchaV3',
+        };
     }
 
     /**
@@ -28,7 +27,7 @@ export default class GoogleReCaptchaV3Plugin extends GoogleReCaptchaBasePlugin
         this.grecaptcha.execute(this.options.siteKey, { action: 'submit' }).then(token => {
             this.$emitter.publish('onGreCaptchaTokenResponse', {
                 info: this.getGreCaptchaInfo(),
-                token
+                token,
             });
 
             this.grecaptchaInput.value = token;

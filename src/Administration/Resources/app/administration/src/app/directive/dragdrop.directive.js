@@ -78,7 +78,7 @@ const defaultDragConfig = {
     onDragLeave: null,
     onDrop: null,
     data: null,
-    disabled: false
+    disabled: false,
 };
 
 /**
@@ -100,7 +100,7 @@ const defaultDropConfig = {
     invalidDropCls: 'is--invalid-drop',
     validateDrop: null,
     onDrop: null,
-    data: null
+    data: null,
 };
 
 /**
@@ -237,7 +237,7 @@ function stopDrag() {
         if (types.isFunction(currentDrag.dragConfig.onDrop)) {
             currentDrag.dragConfig.onDrop(
                 currentDrag.dragConfig.data,
-                validDrop ? currentDrop.dropConfig.data : null
+                validDrop ? currentDrop.dropConfig.data : null,
             );
         }
     }
@@ -444,7 +444,7 @@ Directive.register('draggable', {
             el.removeEventListener('mousedown', el.boundDragListener);
             el.removeEventListener('touchstart', el.boundDragListener);
         }
-    }
+    },
 });
 
 /**
@@ -484,5 +484,5 @@ Directive.register('droppable', {
         } else {
             Object.assign(dropZone.dropConfig, { data: binding.value });
         }
-    }
+    },
 });

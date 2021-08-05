@@ -19,15 +19,15 @@ Shopware.Component.register('sw-media-url-form', {
             validator(value) {
                 return ['modal', 'inline'].includes(value);
             },
-            default: 'inline'
-        }
+            default: 'inline',
+        },
     },
 
     data() {
         return {
             url: '',
             extensionFromUrl: '',
-            extensionFromInput: ''
+            extensionFromInput: '',
         };
     },
 
@@ -64,7 +64,7 @@ Shopware.Component.register('sw-media-url-form', {
 
         isValid() {
             return this.urlObject !== null && this.fileExtension;
-        }
+        },
     },
 
     watch: {
@@ -81,7 +81,7 @@ Shopware.Component.register('sw-media-url-form', {
             }
 
             this.extensionFromUrl = fileName.split('.').pop();
-        }
+        },
     },
 
     methods: {
@@ -90,7 +90,7 @@ Shopware.Component.register('sw-media-url-form', {
                 this.$emit('media-url-form-submit', {
                     originalDomEvent,
                     url: this.urlObject,
-                    fileExtension: this.fileExtension
+                    fileExtension: this.fileExtension,
                 });
 
                 if (this.variant === 'modal') {
@@ -101,6 +101,6 @@ Shopware.Component.register('sw-media-url-form', {
 
         closeModal() {
             this.$emit('modal-close');
-        }
-    }
+        },
+    },
 });

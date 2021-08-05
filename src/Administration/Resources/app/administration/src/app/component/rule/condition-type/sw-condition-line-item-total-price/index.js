@@ -27,13 +27,13 @@ Component.extend('sw-condition-line-item-total-price', 'sw-condition-base', {
             set(amount) {
                 this.ensureValueExist();
                 this.condition.value = { ...this.condition.value, amount };
-            }
+            },
         },
 
         ...mapPropertyErrors('condition', ['value.operator', 'value.amount']),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueAmountError;
-        }
-    }
+        },
+    },
 });

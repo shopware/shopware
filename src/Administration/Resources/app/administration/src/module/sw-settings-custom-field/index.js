@@ -32,32 +32,32 @@ Module.register('sw-settings-custom-field', {
             component: 'sw-settings-custom-field-set-list',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.index',
-                privilege: 'custom_field.viewer'
-            }
+                parentPath: 'sw.settings.index.system',
+                privilege: 'custom_field.viewer',
+            },
         },
         detail: {
             component: 'sw-settings-custom-field-set-detail',
             path: 'detail/:id',
             meta: {
                 parentPath: 'sw.settings.custom.field.index',
-                privilege: 'custom_field.viewer'
-            }
+                privilege: 'custom_field.viewer',
+            },
         },
         create: {
             component: 'sw-settings-custom-field-set-create',
             path: 'create',
             meta: {
                 parentPath: 'sw.settings.custom.field.index',
-                privilege: 'custom_field.creator'
-            }
-        }
+                privilege: 'custom_field.creator',
+            },
+        },
     },
 
     settingsItem: {
         group: 'system',
         to: 'sw.settings.custom.field.index',
         icon: 'default-basic-stack-block',
-        privilege: 'custom_field.viewer'
-    }
+        privilege: 'custom_field.viewer',
+    },
 });

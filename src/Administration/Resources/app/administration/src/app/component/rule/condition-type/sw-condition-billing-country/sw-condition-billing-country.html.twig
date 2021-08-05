@@ -9,6 +9,7 @@
 
     {% block sw_condition_billing_country_field_country_ids %}
     <sw-entity-multi-select
+        v-if="!isEmpty"
         size="medium"
         entity="country"
         :entity-collection="billingCountries"

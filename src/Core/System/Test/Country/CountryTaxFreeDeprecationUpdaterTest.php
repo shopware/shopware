@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -70,8 +69,6 @@ class CountryTaxFreeDeprecationUpdaterTest extends TestCase
         array $customerTaxExpected,
         array $companyTaxExpected
     ): void {
-        Feature::skipTestIfInActive('FEATURE_NEXT_14114', $this);
-
         $this->setBlueGreen(false);
 
         $id = Uuid::randomHex();
@@ -98,7 +95,6 @@ class CountryTaxFreeDeprecationUpdaterTest extends TestCase
 
         static::assertInstanceOf(CountryEntity::class, $country);
 
-        /* @var CountryEntity $country */
         static::assertSame($country->getTaxFree(), $country->getCustomerTax()->getEnabled());
         static::assertSame($customerTaxExpected['enabled'], $country->getCustomerTax()->getEnabled());
         static::assertSame($customerTaxExpected['currencyId'], $country->getCustomerTax()->getCurrencyId());
@@ -158,8 +154,6 @@ class CountryTaxFreeDeprecationUpdaterTest extends TestCase
         array $customerTaxExpected,
         array $companyTaxExpected
     ): void {
-        Feature::skipTestIfInActive('FEATURE_NEXT_14114', $this);
-
         $this->setBlueGreen(false);
 
         $id = Uuid::randomHex();
@@ -195,7 +189,6 @@ class CountryTaxFreeDeprecationUpdaterTest extends TestCase
 
         static::assertInstanceOf(CountryEntity::class, $country);
 
-        /* @var CountryEntity $country */
         static::assertSame($country->getTaxFree(), $country->getCustomerTax()->getEnabled());
         static::assertSame($customerTaxExpected['enabled'], $country->getCustomerTax()->getEnabled());
         static::assertSame($customerTaxExpected['currencyId'], $country->getCustomerTax()->getCurrencyId());

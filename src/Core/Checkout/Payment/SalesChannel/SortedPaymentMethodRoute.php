@@ -60,7 +60,7 @@ class SortedPaymentMethodRoute extends AbstractPaymentMethodRoute
      *              @OA\Property(
      *                  property="elements",
      *                  type="array",
-     *                  @OA\Items(ref="#/components/schemas/payment_method_flat")
+     *                  @OA\Items(ref="#/components/schemas/PaymentMethod")
      *              )
      *       )
      *    )

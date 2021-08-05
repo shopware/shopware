@@ -12,7 +12,7 @@ Component.register('sw-first-run-wizard-finish', {
         return {
             licenceDomains: [],
             licensed: false,
-            restarting: false
+            restarting: false,
         };
     },
 
@@ -45,7 +45,7 @@ Component.register('sw-first-run-wizard-finish', {
                     position: 'left',
                     variant: null,
                     action: 'sw.first.run.wizard.index.store',
-                    disabled: false
+                    disabled: false,
                 },
                 {
                     key: 'finish',
@@ -53,10 +53,10 @@ Component.register('sw-first-run-wizard-finish', {
                     position: 'right',
                     variant: 'primary',
                     action: this.onFinish.bind(this),
-                    disabled: false
-                }
+                    disabled: false,
+                },
             ];
-        }
+        },
     },
 
     watch: {
@@ -64,8 +64,8 @@ Component.register('sw-first-run-wizard-finish', {
             handler() {
                 this.updateButtons();
             },
-            deep: true
-        }
+            deep: true,
+        },
     },
 
     created() {
@@ -79,7 +79,7 @@ Component.register('sw-first-run-wizard-finish', {
             const language = Shopware.State.get('session').currentLocale;
 
             this.firstRunWizardService.getLicenseDomains({
-                language
+                language,
             }).then((response) => {
                 const { items } = response;
 
@@ -105,6 +105,6 @@ Component.register('sw-first-run-wizard-finish', {
         onFinish() {
             this.restarting = true;
             this.$emit('frw-finish', true);
-        }
-    }
+        },
+    },
 });

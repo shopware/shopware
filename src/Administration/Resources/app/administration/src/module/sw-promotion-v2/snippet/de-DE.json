@@ -103,6 +103,8 @@
                 "preConditions": {
                     "cardTitlePreConditions": "Voraussetzungen",
                     "cardTitleRuleConditions": "Regelbasierte Bedingungen",
+                    "labelPreventCombination": "Verhindert die Kombination mit anderen Aktionen",
+                    "helpTextPreventCombination": "Durch die Aktivierung dieser Option werden alle anderen Aktionen ausgeschlossen, unabhängig von der Kombinationsauswahl.",
                     "labelPromotionExclusions": "Nicht kombinieren mit",
                     "placeholderPromotionExclusions": "Aktion hinzufügen ...",
                     "labelPromotionSalesChannel": "Verkaufskanäle",

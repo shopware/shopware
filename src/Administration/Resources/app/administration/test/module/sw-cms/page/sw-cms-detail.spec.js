@@ -64,6 +64,7 @@ function createWrapper(privileges = []) {
                     };
                 }
             },
+            appCmsService: {},
             cmsDataResolverService: {}
         }
     });

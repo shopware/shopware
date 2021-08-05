@@ -236,7 +236,7 @@
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\SalesChannel\Suggest\CachedProductSuggestRoute" decorates="Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute" decoration-priority="-1000">
+        <service id="Shopware\Core\Content\Product\SalesChannel\Suggest\CachedProductSuggestRoute" decorates="Shopware\Core\Content\Product\SalesChannel\Suggest\ProductSuggestRoute" decoration-priority="-1000" public="true">
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Suggest\CachedProductSuggestRoute.inner"/>
             <argument type="service" id="cache.object"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
@@ -369,7 +369,7 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\SalesChannel\Detail\CachedProductDetailRoute" decorates="Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute" decoration-priority="-1000">
+        <service id="Shopware\Core\Content\Product\SalesChannel\Detail\CachedProductDetailRoute" decorates="Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute" decoration-priority="-1000" public="true">
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Detail\CachedProductDetailRoute.inner"/>
             <argument type="service" id="cache.object"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
@@ -383,7 +383,7 @@
             <argument type="service" id="product_review.repository"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\SalesChannel\Review\CachedProductReviewRoute" decorates="Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRoute" decoration-priority="-1000">
+        <service id="Shopware\Core\Content\Product\SalesChannel\Review\CachedProductReviewRoute" decorates="Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRoute" decoration-priority="-1000" public="true">
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\Review\CachedProductReviewRoute.inner"/>
             <argument type="service" id="cache.object"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>
@@ -402,7 +402,7 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\SalesChannel\CrossSelling\CachedProductCrossSellingRoute" decorates="Shopware\Core\Content\Product\SalesChannel\CrossSelling\ProductCrossSellingRoute" decoration-priority="-1000">
+        <service id="Shopware\Core\Content\Product\SalesChannel\CrossSelling\CachedProductCrossSellingRoute" decorates="Shopware\Core\Content\Product\SalesChannel\CrossSelling\ProductCrossSellingRoute" decoration-priority="-1000" public="true">
             <argument type="service" id="Shopware\Core\Content\Product\SalesChannel\CrossSelling\CachedProductCrossSellingRoute.inner"/>
             <argument type="service" id="cache.object"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator"/>

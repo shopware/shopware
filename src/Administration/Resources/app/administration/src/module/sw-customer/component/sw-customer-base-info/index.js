@@ -12,25 +12,25 @@ Component.register('sw-customer-base-info', {
     props: {
         customer: {
             type: Object,
-            required: true
+            required: true,
         },
         customerEditMode: {
             type: Boolean,
             required: true,
-            default: false
+            default: false,
         },
         isLoading: {
             type: Boolean,
             required: false,
-            default: false
-        }
+            default: false,
+        },
     },
 
     data() {
         return {
             orderAmount: 0,
             orderCount: 0,
-            customerLanguage: null
+            customerLanguage: null,
         };
     },
 
@@ -59,7 +59,7 @@ Component.register('sw-customer-base-info', {
             criteria.addFilter(Criteria.equals('salesChannels.id', this.customer.salesChannelId));
 
             return criteria;
-        }
+        },
     },
 
     watch: {
@@ -69,8 +69,8 @@ Component.register('sw-customer-base-info', {
                 this.languageRepository.get(this.languageId).then((language) => {
                     this.customerLanguage = language;
                 });
-            }
-        }
+            },
+        },
     },
 
     created() {
@@ -86,6 +86,6 @@ Component.register('sw-customer-base-info', {
                 this.orderCount = response.total;
                 this.orderAmount = response.aggregations.orderAmount.sum;
             });
-        }
-    }
+        },
+    },
 });

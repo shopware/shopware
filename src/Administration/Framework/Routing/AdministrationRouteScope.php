@@ -13,7 +13,12 @@ class AdministrationRouteScope extends AbstractRouteScope implements ApiContextR
     /**
      * @var string[]
      */
-    protected $allowedPaths = ['admin', 'api'];
+    protected $allowedPaths;
+
+    public function __construct(string $administrationPathName = 'admin')
+    {
+        $this->allowedPaths = [$administrationPathName, 'api'];
+    }
 
     public function isAllowed(Request $request): bool
     {

@@ -10,4 +10,23 @@
         margin-top: 2px;
         color: $color-darkgray-200;
     }
+
+    .sw-extension-card-bought__info-subscription-expiry {
+        display: inline-flex;
+        align-items: center;
+
+        .sw-icon {
+            margin-right: 6px;
+        }
+
+        &.is--expired-rent {
+            font-weight: $font-weight-semi-bold;
+            color: $color-crimson-500;
+        }
+
+        &.is--expired-test-phase {
+            font-weight: $font-weight-semi-bold;
+            color: $color-pumpkin-spice-900;
+        }
+    }
 }

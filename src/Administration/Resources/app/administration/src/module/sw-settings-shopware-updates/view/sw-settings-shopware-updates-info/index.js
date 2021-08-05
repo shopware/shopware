@@ -1,3 +1,4 @@
+import './sw-shopware-updates-info.scss';
 import template from './sw-shopware-updates-info.html.twig';
 
 const { Component } = Shopware;
@@ -8,10 +9,10 @@ Component.register('sw-settings-shopware-updates-info', {
     props: {
         changelog: {
             type: String,
-            required: true
+            required: true,
         },
         isLoading: {
-            type: Boolean
-        }
-    }
+            type: Boolean,
+        },
+    },
 });

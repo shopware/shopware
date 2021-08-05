@@ -26,12 +26,12 @@ export default class ListingPlugin extends Plugin {
         loadingElementLoaderClass: 'has-element-loader',
         disableEmptyFilter: false,
         snippets: {
-            resetAllButtonText: 'Reset all'
+            resetAllButtonText: 'Reset all',
         },
         //if the window should be scrolled to top of to the listingWrapper element
         scrollTopListingWrapper: true,
         // how much px the scrolling should be offset
-        scrollOffset: 15
+        scrollOffset: 15,
     };
 
     init() {
@@ -221,7 +221,7 @@ export default class ListingPlugin extends Plugin {
         const top = elemRect.top + window.scrollY - this.options.scrollOffset;
         window.scrollTo({
             top: top,
-            behavior: 'smooth'
+            behavior: 'smooth',
         });
     }
 

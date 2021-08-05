@@ -10,6 +10,7 @@ use Opis\JsonSchema\Validator;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ActionButton\AppAction;
 use Shopware\Core\Framework\App\ActionButton\Executor;
+use Shopware\Core\Framework\App\Exception\ActionProcessException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Util\Random;
@@ -41,7 +42,8 @@ class ExecutorTest extends TestCase
             'detail',
             [Uuid::randomHex()],
             's3cr3t',
-            Random::getAlphanumericString(12)
+            Random::getAlphanumericString(12),
+            Uuid::randomHex()
         );
 
         $this->appendNewResponse(new Response(200));
@@ -68,7 +70,7 @@ class ExecutorTest extends TestCase
         static::assertNotEmpty($request->getHeaderLine('sw-version'));
     }
 
-    public function testExecutorIgnoresFailedRequests(): void
+    public function testExecutorReturnMessageWithFailedRequests(): void
     {
         $action = new AppAction(
             'https://brokenServer.com',
@@ -78,16 +80,14 @@ class ExecutorTest extends TestCase
             'detail',
             [],
             's3cr3t',
-            Random::getAlphanumericString(12)
+            Random::getAlphanumericString(12),
+            Uuid::randomHex()
         );
 
         $this->appendNewResponse(new Response(500));
+
+        $this->expectException(ActionProcessException::class);
         $this->executor->execute($action, Context::createDefaultContext());
-
-        /** @var Request $request */
-        $request = $this->getLastRequest();
-
-        static::assertNotNull($request);
     }
 
     public function testTargetUrlIsCorrect(): void
@@ -101,7 +101,8 @@ class ExecutorTest extends TestCase
             'detail',
             [],
             's3cr3t',
-            Random::getAlphanumericString(12)
+            Random::getAlphanumericString(12),
+            Uuid::randomHex()
         );
 
         $this->appendNewResponse(new Response(200));
@@ -139,7 +140,8 @@ class ExecutorTest extends TestCase
             $actionName,
             $affectedIds,
             's3cr3t',
-            $shopId
+            $shopId,
+            Uuid::randomHex()
         );
 
         $context = Context::createDefaultContext();
@@ -180,6 +182,91 @@ class ExecutorTest extends TestCase
         static::assertNotEmpty($request->getHeaderLine('sw-version'));
     }
 
+    public function testExecutorReturnEmptyResponseBody(): void
+    {
+        $action = new AppAction(
+            'https://brokenServer.com',
+            getenv('APP_URL'),
+            '1.0.0',
+            'product',
+            'detail',
+            [],
+            's3cr3t',
+            Random::getAlphanumericString(12),
+            Uuid::randomHex()
+        );
+
+        $this->appendNewResponse(new Response(200));
+
+        $this->executor->execute($action, Context::createDefaultContext());
+
+        /** @var Request $request */
+        $request = $this->getLastRequest();
+
+        static::assertEquals('POST', $request->getMethod());
+        $body = $request->getBody()->getContents();
+        static::assertJson($body);
+
+        $result = $this->validateRequestSchema($body);
+
+        $message = $this->parseSchemaErrors($result);
+
+        static::assertTrue($result->isValid(), $message);
+
+        static::assertEquals(
+            hash_hmac('sha256', $body, $action->getAppSecret()),
+            $request->getHeaderLine('shopware-shop-signature')
+        );
+
+        static::assertNotEmpty($request->getHeaderLine('sw-version'));
+    }
+
+    public function testExecutorReturnMessageWithWrongHMac(): void
+    {
+        $action = new AppAction(
+            'https://brokenServer.com',
+            getenv('APP_URL'),
+            '1.0.0',
+            'product',
+            'detail',
+            [],
+            's3cr3t',
+            Random::getAlphanumericString(12),
+            Uuid::randomHex()
+        );
+
+        $this->signResponse('123455');
+
+        $this->expectException(ActionProcessException::class);
+        $this->executor->execute($action, Context::createDefaultContext());
+    }
+
+    public function testExecutorReturnMessageWithInvalidResponseFormat(): void
+    {
+        $appSecret = 's3cr3t';
+        $action = new AppAction(
+            'https://brokenServer.com',
+            getenv('APP_URL'),
+            '1.0.0',
+            'product',
+            'detail',
+            [],
+            $appSecret,
+            Random::getAlphanumericString(12),
+            Uuid::randomHex()
+        );
+
+        $responseData = [
+            'actionType' => '',
+            'payload' => [],
+        ];
+
+        $this->signResponse($appSecret, $responseData);
+
+        $this->expectException(ActionProcessException::class);
+        $this->executor->execute($action, Context::createDefaultContext());
+    }
+
     private function parseSchemaErrors(ValidationResult $result): string
     {
         $message = '';
@@ -199,5 +286,27 @@ class ExecutorTest extends TestCase
         $validator = new Validator();
 
         return $validator->schemaValidation($requestData, $schema);
+    }
+
+    private function signResponse(string $appSecret, ?array $responseData = null): void
+    {
+        $responseData = $responseData ?: [
+            'actionType' => 'openNewTab',
+            'payload' => [
+                'redirectUrl' => 'https://www.google.com',
+            ],
+        ];
+
+        $responseData = (string) json_encode($responseData);
+
+        $this->appendNewResponse(
+            new Response(
+                200,
+                [
+                    'shopware-app-signature' => hash_hmac('sha256', $responseData, $appSecret),
+                ],
+                $responseData
+            )
+        );
     }
 }

@@ -7,39 +7,39 @@ Component.register('sw-promotion-v2-rule-select', {
     template,
 
     inject: [
-        'repositoryFactory'
+        'repositoryFactory',
     ],
 
     model: {
         prop: 'collection',
-        event: 'change'
+        event: 'change',
     },
 
     props: {
         collection: {
             type: Array,
             required: false,
-            default: null
+            default: null,
         },
         ruleScope: {
             type: Array,
             required: false,
             default() {
                 return [];
-            }
+            },
         },
         localMode: {
             type: Boolean,
             required: false,
             default() {
                 return false;
-            }
-        }
+            },
+        },
     },
 
     data() {
         return {
-            showRuleModal: false
+            showRuleModal: false,
         };
     },
 
@@ -51,7 +51,7 @@ Component.register('sw-promotion-v2-rule-select', {
         onSaveRule(ruleId) {
             const ruleRepository = this.repositoryFactory.create(
                 this.collection.entity,
-                this.collection.source
+                this.collection.source,
             );
 
             ruleRepository.assign(ruleId, this.collection.context).then(() => {
@@ -60,6 +60,6 @@ Component.register('sw-promotion-v2-rule-select', {
                     this.$refs.ruleSelect.sendSearchRequest();
                 });
             });
-        }
-    }
+        },
+    },
 });

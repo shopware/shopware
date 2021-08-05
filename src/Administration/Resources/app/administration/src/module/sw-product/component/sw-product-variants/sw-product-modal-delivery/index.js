@@ -11,26 +11,26 @@ Component.register('sw-product-modal-delivery', {
     props: {
         product: {
             type: Object,
-            required: true
+            required: true,
         },
 
         selectedGroups: {
             type: Array,
-            required: true
-        }
+            required: true,
+        },
     },
 
     data() {
         return {
             activeTab: 'order',
-            isLoading: false
+            isLoading: false,
         };
     },
 
     computed: {
         productRepository() {
             return this.repositoryFactory.create('product');
-        }
+        },
     },
 
     methods: {
@@ -59,6 +59,6 @@ Component.register('sw-product-modal-delivery', {
             delete product.listingMode;
 
             return product;
-        }
-    }
+        },
+    },
 });

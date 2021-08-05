@@ -18,24 +18,24 @@ Component.register('sw-popover', {
         zIndex: {
             type: [Number, null],
             required: false,
-            default: null
+            default: null,
         },
         resizeWidth: {
             type: Boolean,
             required: false,
-            default: false
+            default: false,
         },
         popoverClass: {
             type: [String, Array, Object],
             required: false,
-            default: ''
-        }
+            default: '',
+        },
     },
 
     computed: {
         componentStyle() {
             return {
-                'z-Index': this.zIndex
+                'z-Index': this.zIndex,
             };
         },
         popoverConfig() {
@@ -44,8 +44,8 @@ Component.register('sw-popover', {
             return {
                 ...popoverConfigBase,
                 active: true,
-                resizeWidth: this.resizeWidth
+                resizeWidth: this.resizeWidth,
             };
-        }
-    }
+        },
+    },
 });

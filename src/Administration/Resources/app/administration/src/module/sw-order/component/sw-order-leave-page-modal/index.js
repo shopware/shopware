@@ -10,6 +10,6 @@ Component.register('sw-order-leave-page-modal', {
         },
         onCancel() {
             this.$emit('page-leave-cancel');
-        }
-    }
+        },
+    },
 });

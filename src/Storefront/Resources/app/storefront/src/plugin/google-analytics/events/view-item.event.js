@@ -24,8 +24,8 @@ export default class ViewItemEvent extends AnalyticsEvent
         gtag('event', 'view_item', {
             'items': [{
                 'id': productId,
-                'name': productName
-            }]
+                'name': productName,
+            }],
         });
     }
 

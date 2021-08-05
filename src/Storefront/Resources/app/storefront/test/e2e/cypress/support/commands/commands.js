@@ -301,3 +301,18 @@ const waitUntil = (subject, checkFunction, originalOptions = {}) => {
 };
 
 Cypress.Commands.add("waitUntil", { prevSubject: "optional" }, waitUntil);
+
+/**
+ * Cleans up any previous state by restoring database and clearing caches
+ * @memberOf Cypress.Chainable#
+ * @name cleanUpPreviousState
+ * @function
+ */
+Cypress.Commands.overwrite('cleanUpPreviousState', (orig) => {
+    if (Cypress.env('localUsage')) {
+        return cy.exec(`${Cypress.env('shopwareRoot')}/bin/console e2e:restore-db`)
+            .its('code').should('eq', 0);
+    }
+
+    return orig();
+});

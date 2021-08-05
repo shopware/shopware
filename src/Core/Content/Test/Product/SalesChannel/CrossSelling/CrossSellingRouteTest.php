@@ -23,6 +23,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @group slow
+ * @group store-api
  */
 class CrossSellingRouteTest extends TestCase
 {

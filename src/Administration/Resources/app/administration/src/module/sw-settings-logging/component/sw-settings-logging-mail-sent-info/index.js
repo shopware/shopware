@@ -19,7 +19,7 @@ Component.extend('sw-settings-logging-mail-sent-info', 'sw-settings-logging-entr
             }
 
             return recipients;
-        }
+        },
     },
 
     created() {
@@ -29,6 +29,6 @@ Component.extend('sw-settings-logging-mail-sent-info', 'sw-settings-logging-entr
     methods: {
         createdComponent() {
             this.activeTab = 'html';
-        }
-    }
+        },
+    },
 });

@@ -16,14 +16,14 @@ Component.register('sw-tagged-field', {
 
     model: {
         prop: 'value',
-        event: 'change'
+        event: 'change',
     },
 
     props: {
         value: {
             type: Array,
             required: false,
-            default: () => []
+            default: () => [],
         },
 
         placeholder: {
@@ -31,20 +31,20 @@ Component.register('sw-tagged-field', {
             required: false,
             default() {
                 return this.$tc('global.sw-tagged-field.text-default-placeholder');
-            }
+            },
         },
 
         addOnKey: {
             type: Array,
             required: false,
-            default: () => ['enter']
-        }
+            default: () => ['enter'],
+        },
     },
 
     data() {
         return {
             newTagName: '',
-            hasFocus: false
+            hasFocus: false,
         };
     },
 
@@ -55,16 +55,16 @@ Component.register('sw-tagged-field', {
 
         taggedFieldClasses() {
             return {
-                'has--focus': this.hasFocus
+                'has--focus': this.hasFocus,
             };
         },
 
         taggedFieldInputClasses() {
             return {
                 'sw-tagged-field__input--full-width': !this.hasValues,
-                'sw-tagged-field__input--hidden': this.hasValues && !this.hasFocus
+                'sw-tagged-field__input--hidden': this.hasValues && !this.hasFocus,
             };
-        }
+        },
     },
 
     methods: {
@@ -111,6 +111,6 @@ Component.register('sw-tagged-field', {
 
             event.preventDefault();
             return false;
-        }
-    }
+        },
+    },
 });

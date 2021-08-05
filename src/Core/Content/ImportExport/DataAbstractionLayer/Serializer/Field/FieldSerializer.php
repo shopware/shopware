@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field;
 
+use Shopware\Core\Content\ImportExport\Exception\InvalidIdentifierException;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -19,7 +20,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class FieldSerializer extends AbstractFieldSerializer
 {
@@ -109,6 +113,27 @@ class FieldSerializer extends AbstractFieldSerializer
             );
         }
 
+        if ($field instanceof OneToManyAssociationField) {
+            // early return in case a specific serializer has already hydrated associations
+            if (\is_array($value)) {
+                return null;
+            }
+
+            return array_filter(
+                array_map(
+                    function ($id) {
+                        $id = $this->normalizeId($id);
+                        if ($id === '') {
+                            return null;
+                        }
+
+                        return $id;
+                    },
+                    explode('|', $value)
+                )
+            );
+        }
+
         if ($field instanceof AssociationField) {
             return null;
         }
@@ -153,6 +178,16 @@ class FieldSerializer extends AbstractFieldSerializer
 
     private function normalizeId(?string $id): string
     {
-        return mb_strtolower(trim((string) $id));
+        $id = mb_strtolower(trim((string) $id));
+
+        if (!Feature::isActive('FEATURE_NEXT_8097') || Uuid::isValid($id) || $id === '') {
+            return $id;
+        }
+
+        if (str_contains($id, '|')) {
+            throw new InvalidIdentifierException($id);
+        }
+
+        return Uuid::fromStringToHex($id);
     }
 }

@@ -13,6 +13,9 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
+/**
+ * @group store-api
+ */
 class MergeWishlistProductRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -69,7 +72,6 @@ class MergeWishlistProductRouteTest extends TestCase
         $email = Uuid::randomHex() . '@example.com';
         $this->customerId = $this->createCustomer('shopware', $email);
 
-        /* @var SystemConfigService $systemConfigService */
         $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
         $this->systemConfigService->set('core.cart.wishlistEnabled', true);
 

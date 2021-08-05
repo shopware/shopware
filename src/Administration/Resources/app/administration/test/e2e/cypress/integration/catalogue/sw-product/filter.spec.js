@@ -182,7 +182,8 @@ describe('Product: Testing filter and reset filter', () => {
             });
     });
 
-    it('@catalogue: check filter function and display listing correctly', () => {
+    // TODO skipped due to flakiness, see NEXT-15697
+    it.skip('@catalogue: check filter function and display listing correctly', () => {
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
@@ -252,7 +253,8 @@ describe('Product: Testing filter and reset filter', () => {
         cy.get('.sw-sidebar-navigation-item[title="Filters"]').find('.notification-badge').should('have.text', '2');
     });
 
-    it('@catalogue: check reset filter', () => {
+    // TODO skipped due to flakiness, see NEXT-15697
+    it.skip('@catalogue: check reset filter', () => {
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
@@ -299,7 +301,7 @@ describe('Product: Testing filter and reset filter', () => {
             expect(xhr).to.have.property('status', 200);
             cy.wait('@filterProduct').then((xhr) => {
                 expect(xhr).to.have.property('status', 200);
-                cy.contains('.sw-page__smart-bar-amount', '28')
+                cy.contains('.sw-page__smart-bar-amount', '28');
             });
         });
     });

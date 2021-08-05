@@ -22,6 +22,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
 use Shopware\Core\Framework\Rule\Rule;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -96,17 +97,25 @@ class OrderRecalculationController extends AbstractController
      * */
     public function addCreditItemToOrder(string $orderId, Request $request, Context $context)
     {
-        $identifier = $request->request->get('identifier');
+        $identifier = (string) $request->request->get('identifier');
         $type = LineItem::CREDIT_LINE_ITEM_TYPE;
         $quantity = $request->request->getInt('quantity', 1);
 
         $lineItem = new LineItem($identifier, $type, null, $quantity);
         $label = $request->request->get('label');
         $description = $request->request->get('description');
-        $removeable = $request->request->get('removeable', true);
-        $stackable = $request->request->get('stackable', true);
-        $payload = $request->request->get('payload', []);
-        $priceDefinition = $request->request->get('priceDefinition');
+        $removeable = (bool) $request->request->get('removeable', true);
+        $stackable = (bool) $request->request->get('stackable', true);
+        $payload = $request->request->all('payload');
+        $priceDefinition = $request->request->all('priceDefinition');
+
+        if ($label !== null && !\is_string($label)) {
+            throw new InvalidRequestParameterException('label');
+        }
+
+        if ($description !== null && !\is_string($description)) {
+            throw new InvalidRequestParameterException('description');
+        }
 
         $lineItem->setLabel($label);
         $lineItem->setDescription($description);
@@ -116,7 +125,7 @@ class OrderRecalculationController extends AbstractController
 
         $lineItem->setPriceDefinition(
             new AbsolutePriceDefinition(
-                $priceDefinition['price'],
+                (float) $priceDefinition['price'],
                 new LineItemOfTypeRule(Rule::OPERATOR_NEQ, $type)
             )
         );
@@ -142,11 +151,11 @@ class OrderRecalculationController extends AbstractController
      */
     public function addCustomLineItemToOrder(string $orderId, Request $request, Context $context): Response
     {
-        $identifier = $request->request->get('identifier');
+        $identifier = (string) $request->request->get('identifier');
         $type = $request->request->get('type', LineItem::CUSTOM_LINE_ITEM_TYPE);
         $quantity = $request->request->getInt('quantity', 1);
 
-        $lineItem = (new LineItem($identifier, $type, null, $quantity))
+        $lineItem = (new LineItem($identifier, (string) $type, null, $quantity))
             ->setStackable(true)
             ->setRemovable(true);
         $this->updateLineItemByRequest($request, $lineItem);
@@ -177,10 +186,18 @@ class OrderRecalculationController extends AbstractController
     {
         $label = $request->request->get('label');
         $description = $request->request->get('description');
-        $removeable = $request->request->get('removeable', true);
-        $stackable = $request->request->get('stackable', true);
-        $payload = $request->request->get('payload', []);
-        $priceDefinition = $request->request->get('priceDefinition');
+        $removeable = (bool) $request->request->get('removeable', true);
+        $stackable = (bool) $request->request->get('stackable', true);
+        $payload = $request->request->all('payload');
+        $priceDefinition = $request->request->all('priceDefinition');
+
+        if ($label !== null && !\is_string($label)) {
+            throw new InvalidRequestParameterException('label');
+        }
+
+        if ($description !== null && !\is_string($description)) {
+            throw new InvalidRequestParameterException('description');
+        }
 
         $lineItem->setLabel($label);
         $lineItem->setDescription($description);

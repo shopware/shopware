@@ -39,7 +39,7 @@ class MenuOffcanvasPageletLoader implements MenuOffcanvasPageletLoaderInterface
      */
     public function load(Request $request, SalesChannelContext $context): MenuOffcanvasPagelet
     {
-        $navigationId = $request->query->get('navigationId', $context->getSalesChannel()->getNavigationCategoryId());
+        $navigationId = (string) $request->query->get('navigationId', $context->getSalesChannel()->getNavigationCategoryId());
         if (!$navigationId) {
             throw new MissingRequestParameterException('navigationId');
         }

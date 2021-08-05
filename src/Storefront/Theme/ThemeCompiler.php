@@ -37,9 +37,9 @@ class ThemeCompiler implements ThemeCompilerInterface
     private iterable $packages;
 
     private CacheInvalidator $logger;
-  
+
     private AbstractThemePathBuilder $themePathBuilder;
-  
+
     private string $projectDir;
 
     private Compiler $scssCompiler;
@@ -68,7 +68,7 @@ class ThemeCompiler implements ThemeCompilerInterface
         $this->projectDir = $projectDir;
 
         $this->scssCompiler = new Compiler();
-        $this->scssCompiler->setImportPaths('');
+        $this->scssCompiler->setImportPaths(__DIR__);
         $this->scssCompiler->setOutputStyle($debug ? OutputStyle::EXPANDED : OutputStyle::COMPRESSED);
     }
 

@@ -1,3 +1,5 @@
+import { ACTION } from '../constant/flow.constant';
+
 const { EntityCollection } = Shopware.Data;
 
 export default {
@@ -13,6 +15,7 @@ export default {
         invalidSequences: [],
         stateMachineState: [],
         documentTypes: [],
+        mailTemplates: [],
     },
 
     mutations: {
@@ -82,6 +85,10 @@ export default {
             state.documentTypes = documentTypes;
         },
 
+        setMailTemplates(state, mailTemplates) {
+            state.mailTemplates = mailTemplates;
+        },
+
         removeCurrentFlow(state) {
             state.flow = {
                 eventName: '',
@@ -131,6 +138,12 @@ export default {
             });
 
             return availableAction;
+        },
+
+        mailTemplateIds(state) {
+            return state.flow.sequences
+                .filter(item => item.actionName === ACTION.MAIL_SEND)
+                .map(item => item.config?.mailTemplateId);
         },
     },
 

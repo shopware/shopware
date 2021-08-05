@@ -154,6 +154,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                     sequences: getSequencesCollection([{ ...sequenceFixture }])
                 },
                 invalidSequences: [],
+                mailTemplates: [],
                 triggerEvent: {
                     data: {
                         customer: '',

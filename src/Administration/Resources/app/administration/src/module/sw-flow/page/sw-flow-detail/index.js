@@ -68,6 +68,17 @@ Component.register('sw-flow-detail', {
             return criteria;
         },
 
+        mailTemplateRepository() {
+            return this.repositoryFactory.create('mail_template');
+        },
+
+        mailTemplateIdsCriteria() {
+            const criteria = new Criteria();
+            criteria.addAssociation('mailTemplateType');
+            criteria.addFilter(Criteria.equalsAny('id', this.mailTemplateIds));
+            return criteria;
+        },
+
         stateMachineStateRepository() {
             return this.repositoryFactory.create('state_machine_state');
         },
@@ -87,7 +98,7 @@ Component.register('sw-flow-detail', {
         },
 
         ...mapState('swFlowState', ['flow']),
-        ...mapGetters('swFlowState', ['sequences']),
+        ...mapGetters('swFlowState', ['sequences', 'mailTemplateIds']),
     },
 
     watch: {
@@ -263,6 +274,15 @@ Component.register('sw-flow-detail', {
                 // get support information for generate document action.
                 promises.push(this.documentTypeRepository.search(this.documentTypeCriteria).then((data) => {
                     Shopware.State.commit('swFlowState/setDocumentTypes', data);
+                }));
+            }
+
+            const hasMailSendAction = this.sequences.some(sequence => sequence.actionName === ACTION.MAIL_SEND);
+
+            if (hasMailSendAction) {
+                // get support information for mail send action.
+                promises.push(this.mailTemplateRepository.search(this.mailTemplateIdsCriteria).then((data) => {
+                    Shopware.State.commit('swFlowState/setMailTemplates', data);
                 }));
             }
 

@@ -89,7 +89,8 @@
         "deleteAction": "Aktion entfernen"
       },
       "addAction": "Aktion hinzufügen",
-      "tagDescription": "<div class='sw-flow-sequence-action__tags-description'><div>To: <span>{entity}<span></div><p>Tag: {tagNames}</p></div>"
+      "tagDescription": "<div class='sw-flow-sequence-action__tags-description'><div>To: <span>{entity}<span></div><p>Tag: {tagNames}</p></div>",
+      "mailDescription": "Template: {template}"
     },
     "rule": {
       "addRule": "Regel hinzufügen",
@@ -138,6 +139,40 @@
         "labelDocumentType": "Document type",
         "placeholderDocumentType": "Select document type...",
         "documentDescription": "Document type: {documentType}"
+      },
+      "mail": {
+        "columnRecipientName": "Name",
+        "columnRecipientMail": "E-Mail-Adresse",
+        "placeholderRecipientEmailAddress": "E-Mail-Adresse eingeben ...",
+        "placeholderRecipientName": "Empfänger-Namen eingeben ...",
+        "fieldMailTemplateDetailLink": "E-Mail-Template öffnen",
+        "titleSendMail": "Send mail",
+        "labelEmailTemplate": "Email template",
+        "placeholderEmailTemplate": "Select email template...",
+        "titleNewEmailTemplate": "New email template",
+        "tabGeneral": "General",
+        "tabMailText": "Mail-Text",
+        "labelMailType": "Typ",
+        "placeholderMailType": "Wähle einen Typ ...",
+        "labelSubject": "Betreff",
+        "labelSenderName": "Absender",
+        "placeholderSubject": "Enter subject...",
+        "placeholderSenderName": "Example sender name...",
+        "labelDescription": "Beschreibung",
+        "placeholderDescription": "Gib eine Beschreibung ein ...",
+        "labelContentPlain": "Text",
+        "labelContentHtml": "HTML",
+        "placeholderPlain": "Text-Inhalt eingeben ...",
+        "placeholderHtml": "HTML-Inhalt eingeben ...",
+        "buttonAddMailTemplate": "Add email template",
+        "labelDefault": "Default",
+        "labelAdmin": "Admin",
+        "labelCustom": "Custom",
+        "labelRecipient": "Recipient",
+        "placeholderRecipient": "Select email recipient...",
+        "labelLatestDocuments": "Add (latest) documents",
+        "placeholderLatestDocuments": "Add documents...",
+        "documentDescription": "If the selected document doesn't exist you'll have to generate it first. Otherwise no documents will be send."
       }
     }
   },

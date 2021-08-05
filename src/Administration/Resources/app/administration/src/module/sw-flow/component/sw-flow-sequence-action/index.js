@@ -77,7 +77,7 @@ Component.register('sw-flow-sequence-action', {
             return this.flowBuilderService.getActionModalName(this.actionModal);
         },
 
-        ...mapState('swFlowState', ['invalidSequences', 'stateMachineState', 'documentTypes']),
+        ...mapState('swFlowState', ['invalidSequences', 'stateMachineState', 'documentTypes', 'mailTemplates']),
         ...mapGetters('swFlowState', ['availableActions']),
     },
 
@@ -266,6 +266,10 @@ Component.register('sw-flow-sequence-action', {
                     return this.getSetOrderStateDescription(config);
                 case ACTION.GENERATE_DOCUMENT:
                     return this.getGenerateDocumentDescription(config);
+
+                case ACTION.MAIL_SEND:
+                    return this.getMailSendDescription(config);
+
                 default: {
                     return '';
                 }
@@ -324,6 +328,14 @@ Component.register('sw-flow-sequence-action', {
             const documentType = this.documentTypes.find(item => item.technicalName === config.documentType);
             return this.$tc('sw-flow.modals.document.documentDescription', 0, {
                 documentType: documentType?.translated?.name,
+            });
+        },
+
+        getMailSendDescription(config) {
+            const mailTemplateData = this.mailTemplates.find(item => item.id === config.mailTemplateId);
+
+            return this.$tc('sw-flow.actions.mailDescription', 0, {
+                template: mailTemplateData?.mailTemplateType?.name,
             });
         },
     },

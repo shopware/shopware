@@ -6,6 +6,8 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeDefinition;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeEntity;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
@@ -1447,6 +1449,88 @@ class ImportExportTest extends TestCase
         static::assertEquals(0, $mockRepo->updateCalls);
     }
 
+    public function testPromotionCodeImportExport(): void
+    {
+        $connection = $this->getContainer()->get(Connection::class);
+        $connection->executeUpdate('DELETE FROM `promotion_individual_code`');
+
+        // create the promotion before the import
+        $promotion = $this->createPromotion([
+            'id' => 'c1a28776116d4431a2208eb2960ec340',
+            'name' => 'MyPromo',
+        ]);
+
+        // add one already generated code to the promotion
+        // already existing codes can only be updated by import
+        // -> code is unique
+        $this->createPromotionCode($promotion['id'], [
+            'code' => 'TestCode',
+        ]);
+
+        $context = Context::createDefaultContext();
+        $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
+
+        $factory = $this->getContainer()->get(ImportExportFactory::class);
+
+        $importExportService = $this->getContainer()->get(ImportExportService::class);
+
+        // get default profile
+        $profileId = $this->getDefaultProfileId(PromotionIndividualCodeDefinition::ENTITY_NAME);
+
+        $expireDate = new \DateTimeImmutable('2099-01-01');
+        $file = new UploadedFile(__DIR__ . '/fixtures/promotion_individual_codes.csv', 'promotion_individual_codes.csv', 'text/csv');
+
+        $logEntity = $importExportService->prepareImport(
+            $context,
+            $profileId,
+            $expireDate,
+            $file
+        );
+
+        $progress = new Progress($logEntity->getId(), Progress::STATE_PROGRESS, 0, null);
+        $importExport = $factory->create($logEntity->getId(), 5, 5);
+        do {
+            $progress = $importExport->import($context, $progress->getOffset());
+        } while (!$progress->isFinished());
+
+        // validate import
+        static::assertSame(Progress::STATE_SUCCEEDED, $progress->getState());
+
+        $repository = $this->getContainer()->get('promotion_individual_code.repository');
+        $criteria = new Criteria();
+        $criteria->addAssociation('promotion');
+        $result = $repository->search($criteria, Context::createDefaultContext());
+
+        static::assertSame(13, $result->count());
+
+        /** @var PromotionIndividualCodeEntity $promoCodeResult */
+        foreach ($result as $promoCodeResult) {
+            static::assertTrue($promoCodeResult->getPromotion()->isUseIndividualCodes(), 'Promotion should have useIndividualCodes set to true after import');
+        }
+
+        // export
+        $logEntity = $importExportService->prepareExport(Context::createDefaultContext(), $profileId, $expireDate);
+        $progress = new Progress($logEntity->getId(), Progress::STATE_PROGRESS, 0, null);
+        do {
+            $importExport = $factory->create($logEntity->getId(), 5, 5);
+            $progress = $importExport->export(Context::createDefaultContext(), new Criteria(), $progress->getOffset());
+        } while (!$progress->isFinished());
+
+        static::assertSame(Progress::STATE_SUCCEEDED, $progress->getState());
+
+        $filesystem = $this->getContainer()->get('shopware.filesystem.private');
+        $csv = $filesystem->read($logEntity->getFile()->getPath());
+
+        // validate export
+        /** @var PromotionIndividualCodeEntity $promoCodeResult */
+        foreach ($result as $promoCodeResult) {
+            static::assertStringContainsString($promoCodeResult->getId(), $csv);
+            static::assertStringContainsString($promoCodeResult->getPromotion()->getId(), $csv);
+            static::assertStringContainsString($promoCodeResult->getPromotion()->getName(), $csv);
+            static::assertStringContainsString($promoCodeResult->getCode(), $csv);
+        }
+    }
+
     private function runCustomerImportWithConfigAndMockedRepository(array $configOverrides): MockRepository
     {
         $context = Context::createDefaultContext();
@@ -1497,6 +1581,39 @@ class ImportExportTest extends TestCase
         static::assertSame(Progress::STATE_SUCCEEDED, $progress->getState(), 'Import with MockRepository failed. Maybe check for mock errors.');
 
         return $mockRepository;
+    }
+
+    private function createPromotion(array $promotionOverride = []): array
+    {
+        /** @var EntityRepositoryInterface $promotionRepository */
+        $promotionRepository = $this->getContainer()->get('promotion.repository');
+
+        $promotion = array_merge([
+            'id' => $promotionOverride['id'] ?? Uuid::randomHex(),
+            'name' => 'Test case promotion',
+            'active' => true,
+            'useIndividualCodes' => true,
+        ], $promotionOverride);
+
+        $promotionRepository->upsert([$promotion], Context::createDefaultContext());
+
+        return $promotion;
+    }
+
+    private function createPromotionCode(string $promotionId, array $promotionCodeOverride = []): array
+    {
+        /** @var EntityRepositoryInterface $promotionCodeRepository */
+        $promotionCodeRepository = $this->getContainer()->get('promotion_individual_code.repository');
+
+        $promotionCode = array_merge([
+            'id' => $promotionCodeOverride['id'] ?? Uuid::randomHex(),
+            'promotionId' => $promotionId,
+            'code' => 'TestCode',
+        ], $promotionCodeOverride);
+
+        $promotionCodeRepository->upsert([$promotionCode], Context::createDefaultContext());
+
+        return $promotionCode;
     }
 
     private function getDefaultProfileId(string $entity): string

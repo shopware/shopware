@@ -64,6 +64,10 @@ Shopware.Component.register('sw-import-export-edit-profile-modal', {
                     value: 'product_cross_selling',
                     label: this.$tc('sw-import-export.profile.productCrossSellingLabel'),
                 },
+                {
+                    value: 'promotion_individual_code',
+                    label: this.$tc('sw-import-export.profile.promotionIndividualCodesLabel'),
+                },
             ],
             supportedDelimiter: [
                 {

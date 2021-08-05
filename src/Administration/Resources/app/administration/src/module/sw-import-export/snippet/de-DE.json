@@ -117,6 +117,7 @@
             "mappingEmptyState": "Es wurde noch kein benutzerdefiniertes Mapping angelegt.",
             "configuratorSettingLabel": "Varianten-Konfiguration",
             "productCrossSellingLabel": "Cross-Selling",
+            "promotionIndividualCodesLabel": "Aktionscodes",
             "closeViolation": "Schließen",
             "violationMessage": "Dein Profil ist noch nicht gültig. Du musst Zuordnungen zu den unten angezeigten Pflichtfeldern hinzufügen, um das Profil zu speichern:",
             "importSettingsHeadline": "Import-Einstellungen",

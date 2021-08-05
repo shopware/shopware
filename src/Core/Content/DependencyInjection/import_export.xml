@@ -142,6 +142,13 @@
             <tag name="shopware.import_export.entity_serializer" priority="-400"/>
         </service>
 
+        <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\PromotionIndividualCodeSerializer">
+            <argument type="service" id="promotion_individual_code.repository"/>
+            <argument type="service" id="promotion.repository"/>
+
+            <tag name="shopware.import_export.entity_serializer" priority="-400"/>
+        </service>
+
         <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\ProductSerializer">
             <argument type="service" id="product_visibility.repository"/>
             <argument type="service" id="sales_channel.repository"/>

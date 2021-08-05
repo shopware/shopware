@@ -45,7 +45,7 @@ class CheckoutOrderPlacedEvent extends Event implements MailActionInterface, Sal
     }
 
     /**
-     * @internal (FEATURE_NEXT_8225)
+     * @internal (flag:FEATURE_NEXT_8225)
      */
     public function getOrderId(): string
     {

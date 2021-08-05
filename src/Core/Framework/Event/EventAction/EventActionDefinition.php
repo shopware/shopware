@@ -21,7 +21,7 @@ use Shopware\Core\Framework\Event\EventAction\Aggregate\EventActionSalesChannel\
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
 /**
- * @feature-deprecated (FEATURE_NEXT_8225) tag:v6.5.0 - Will be removed in v6.5.0.
+ * @feature-deprecated (flag:FEATURE_NEXT_8225) tag:v6.5.0 - Will be removed in v6.5.0.
  */
 class EventActionDefinition extends EntityDefinition
 {

@@ -6,7 +6,8 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
-use Shopware\Core\Content\Flow\Action\FlowAction;
+use Shopware\Core\Content\Flow\Dispatching\Action\AddOrderTagAction;
+use Shopware\Core\Content\Flow\Dispatching\Action\RemoveCustomerTagAction;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -20,7 +21,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
- * @internal (FEATURE_NEXT_8225)
+ * @internal (flag:FEATURE_NEXT_8225)
  */
 class RemoveCustomerTagActionTest extends TestCase
 {
@@ -97,7 +98,7 @@ class RemoveCustomerTagActionTest extends TestCase
                     'id' => Uuid::randomHex(),
                     'parentId' => $sequenceId,
                     'ruleId' => null,
-                    'actionName' => FlowAction::REMOVE_CUSTOMER_TAG,
+                    'actionName' => RemoveCustomerTagAction::getName(),
                     'config' => [
                         'tagIds' => [
                             $this->ids->get('tag_id') => 'test tag',
@@ -111,7 +112,7 @@ class RemoveCustomerTagActionTest extends TestCase
                     'id' => Uuid::randomHex(),
                     'parentId' => $sequenceId,
                     'ruleId' => null,
-                    'actionName' => FlowAction::ADD_ORDER_TAG,
+                    'actionName' => AddOrderTagAction::getName(),
                     'config' => [
                         'tagIds' => [
                             $this->ids->get('tag_id3') => 'test tag3',

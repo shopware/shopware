@@ -6,10 +6,14 @@ use Enqueue\Container\Container;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
-use Shopware\Core\Content\Flow\Action\FlowActionCollector;
+use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\Controller\InfoController;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
+use Shopware\Core\Framework\Event\CustomerAware;
+use Shopware\Core\Framework\Event\MailAware;
+use Shopware\Core\Framework\Event\OrderAware;
+use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\Adapter\Twig\fixtures\BundleFixture;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
@@ -143,27 +147,28 @@ class InfoControllerTest extends TestCase
         ];
 
         if (Feature::isActive('FEATURE_NEXT_8225')) {
-            $expected[0]['orderAware'] = false;
-            $expected[0]['customerAware'] = true;
-            $expected[0]['webhookAware'] = true;
-            $expected[0]['userAware'] = false;
-            $expected[0]['salesChannelAware'] = true;
-            $expected[1]['orderAware'] = true;
-            $expected[1]['customerAware'] = false;
-            $expected[1]['webhookAware'] = true;
-            $expected[1]['userAware'] = false;
-            $expected[1]['salesChannelAware'] = true;
-            $expected[2]['orderAware'] = true;
-            $expected[2]['customerAware'] = false;
-            $expected[2]['webhookAware'] = true;
-            $expected[2]['userAware'] = false;
-            $expected[2]['salesChannelAware'] = true;
+            $expected[0]['aware'] = [
+                SalesChannelAware::class,
+                CustomerAware::class,
+            ];
+            $expected[1]['aware'] = [
+                MailAware::class,
+                SalesChannelAware::class,
+                OrderAware::class,
+            ];
+            $expected[2]['aware'] = [
+                MailAware::class,
+                SalesChannelAware::class,
+                OrderAware::class,
+            ];
         }
 
         foreach ($expected as $event) {
             $actualEvents = array_values(array_filter($response, function ($x) use ($event) {
                 return $x['name'] === $event['name'];
             }));
+            sort($event['aware']);
+            sort($actualEvents[0]['aware']);
             static::assertNotEmpty($actualEvents, 'Event with name "' . $event['name'] . '" not found');
             static::assertCount(1, $actualEvents);
             static::assertEquals($event, $actualEvents[0]);
@@ -224,7 +229,7 @@ class InfoControllerTest extends TestCase
     public function testFlowActionsRoute(): void
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_8225', $this);
-        $url = '/api/_info/actions.json';
+        $url = '/api/_info/flow-actions.json';
         $client = $this->getBrowser();
         $client->request('GET', $url);
 
@@ -238,7 +243,7 @@ class InfoControllerTest extends TestCase
             [
                 'name' => 'action.add.order.tag',
                 'requirements' => [
-                    'orderAware' => "Shopware\Core\Framework\Event\OrderAware",
+                    "Shopware\Core\Framework\Event\OrderAware",
                 ],
                 'extensions' => [],
             ],

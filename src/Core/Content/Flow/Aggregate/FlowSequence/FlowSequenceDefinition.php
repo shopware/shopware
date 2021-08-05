@@ -49,7 +49,7 @@ class FlowSequenceDefinition extends EntityDefinition
 
     public function since(): ?string
     {
-        return '6.4.1.0';
+        return '6.4.4.0';
     }
 
     protected function getParentDefinitionClass(): ?string

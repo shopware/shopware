@@ -8,15 +8,21 @@ use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
- * @internal (FEATURE_NEXT_8225)
+ * @internal (flag:FEATURE_NEXT_8225)
  */
 class TestFlowBusinessEvent extends Event implements BusinessEventInterface
 {
-    public const EVENT_NAME = 'test.flow_business_event';
+    public const EVENT_NAME = 'test.business_event';
 
-    protected string $name = self::EVENT_NAME;
+    /**
+     * @var string
+     */
+    protected $name = self::EVENT_NAME;
 
-    protected Context $context;
+    /**
+     * @var Context
+     */
+    protected $context;
 
     public function __construct(Context $context)
     {

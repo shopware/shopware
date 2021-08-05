@@ -20,8 +20,8 @@ use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
-use Shopware\Core\Content\Flow\Action\GenerateDocumentAction;
-use Shopware\Core\Content\Flow\FlowState;
+use Shopware\Core\Content\Flow\Dispatching\Action\GenerateDocumentAction;
+use Shopware\Core\Content\Flow\Dispatching\FlowState;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -38,7 +38,7 @@ use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @internal (FEATURE_NEXT_8225)
+ * @internal (flag:FEATURE_NEXT_8225)
  */
 class GenerateDocumentActionTest extends TestCase
 {
@@ -101,7 +101,7 @@ class GenerateDocumentActionTest extends TestCase
             $this->createInvoiceDocument($order->getId(), $config, $context);
         }
 
-        $subscriber->handle(new FlowEvent('action.generate.document', new FlowState($event), $config));
+        $subscriber->handle(new FlowEvent(GenerateDocumentAction::getName(), new FlowState($event), $config));
 
         $referenceDoctype = $documentType === StornoGenerator::STORNO || $documentType === CreditNoteGenerator::CREDIT_NOTE;
         if ($referenceDoctype && !$autoGenInvoiceDoc) {

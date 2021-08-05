@@ -379,7 +379,7 @@ class SalesChannelEntity extends Entity
     protected $customerGroupsRegistrations;
 
     /**
-     * @feature-deprecated (FEATURE_NEXT_8225) tag:v6.5.0 - Will be removed in v6.5.0.
+     * @feature-deprecated (flag:FEATURE_NEXT_8225) tag:v6.5.0 - Will be removed in v6.5.0.
      *
      * @var EventActionCollection|null
      */
@@ -1067,7 +1067,7 @@ class SalesChannelEntity extends Entity
     }
 
     /**
-     * @feature-deprecated (FEATURE_NEXT_8225) tag:v6.5.0 - Will be removed in v6.5.0.
+     * @feature-deprecated (flag:FEATURE_NEXT_8225) tag:v6.5.0 - Will be removed in v6.5.0.
      */
     public function getEventActions(): ?EventActionCollection
     {
@@ -1077,7 +1077,7 @@ class SalesChannelEntity extends Entity
     }
 
     /**
-     * @feature-deprecated (FEATURE_NEXT_8225) tag:v6.5.0 - Will be removed in v6.5.0.
+     * @feature-deprecated (flag:FEATURE_NEXT_8225) tag:v6.5.0 - Will be removed in v6.5.0.
      */
     public function setEventActions(EventActionCollection $eventActions): void
     {

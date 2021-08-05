@@ -11,7 +11,7 @@ flag: FEATURE_NEXT_8552.
 * Added `AddTagAction`, `RemoveTagAction`, and `SetOrderStateAction` class at `Shopware\Core\Content\Flow\Action`.
 * Removed `AddOrderTagAction` class at `Shopware\Core\Content\Flow\Action`.
 * Added `FlowActionCollectorEvent` to dispatch when have a collect flow action.
-* Added `UserAware` and `WebHookAware` interfaces at `Shopware\Core\Framework\Event`.
+* Added `UserAware` interfaces at `Shopware\Core\Framework\Event`.
 * Added `orderAware`, `customerAware`, `webhookAware`, `userAware` properties and getter, setter for them into class `BusinessEventDefinition` at `Shopware\Core\Framework\Event`.
 * Added `getCustomerId` function into `CustomerAccountRecoverRequestEvent`, `CustomerChangedPaymentMethodEvent`, `CustomerDeletedEvent`, `CustomerDoubleOptInRegistrationEvent`, `CustomerGroupRegistrationAccepted`, `CustomerGroupRegistrationDeclined`, `CustomerLoginEvent`, `CustomerLogoutEvent`, `CustomerRegisterEvent` and `DoubleOptInGuestOrderEvent` at `Shopware\Core\Checkout\Customer\Event`.
 * Added `getOrderId` function into `OrderStateMachineStateChangeEvent` at `Shopware\Core\Checkout\Order\Event`.

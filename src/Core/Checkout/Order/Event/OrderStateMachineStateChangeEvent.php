@@ -86,7 +86,7 @@ class OrderStateMachineStateChangeEvent extends Event implements MailActionInter
     }
 
     /**
-     * @internal (FEATURE_NEXT_8225)
+     * @internal (flag:FEATURE_NEXT_8225)
      */
     public function getOrderId(): string
     {

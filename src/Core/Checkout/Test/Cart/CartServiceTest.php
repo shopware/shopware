@@ -310,6 +310,7 @@ class CartServiceTest extends TestCase
 
     public function testOrderCartSendMail(): void
     {
+        Feature::skipTestIfActive('FEATURE_NEXT_8225', $this);
         Feature::skipTestIfInActive('FEATURE_NEXT_8225', $this);
         if (!$this->getContainer()->has(AccountOrderController::class)) {
             // ToDo: NEXT-16882 - Reactivate tests again

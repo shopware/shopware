@@ -3,10 +3,9 @@
 namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Content\Flow\Action\FlowAction;
 use Shopware\Core\Content\Flow\Aggregate\FlowSequence\FlowSequenceDefinition;
+use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
 use Shopware\Core\Content\Flow\FlowDefinition;
-use Shopware\Core\Content\Flow\SequenceTree\SequenceTreeBuilder;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Defaults;
@@ -66,7 +65,7 @@ class Migration1625583619MoveDataFromEventActionToFlow extends MigrationStep
             LEFT JOIN event_action_sales_channel ON event_action.id = event_action_sales_channel.event_action_id
             WHERE event_action.action_name = :actionName AND JSON_EXTRACT(event_action.config, "$.mail_template_id") IS NOT NULL
             GROUP BY event_action.id;',
-            ['actionName' => FlowAction::SEND_MAIL]
+            ['actionName' => SendMailAction::getName()]
         );
 
         $createdAt = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
@@ -122,10 +121,8 @@ class Migration1625583619MoveDataFromEventActionToFlow extends MigrationStep
                 $flowValue['action_name'],
                 $flowSequenceParentId === null ? 0 : 1,
                 $createdAt,
-                $this->getNewConfig($connection, $flowValue['config'])
+                $this->getNewConfig($flowValue['config'])
             );
-
-            $serializedPayload = serialize(SequenceTreeBuilder::build($flowSequences));
 
             foreach ($flowSequences as $flowSequence) {
                 $this->flowSequenceQueue[] = $flowSequence;
@@ -136,7 +133,8 @@ class Migration1625583619MoveDataFromEventActionToFlow extends MigrationStep
                 'name' => $flowValue['title'] ?? $this->getEventFullNameByEventName($flowValue['event_name']),
                 'event_name' => $flowValue['event_name'],
                 'active' => $flowValue['active'],
-                'payload' => $serializedPayload,
+                'payload' => null,
+                'invalid' => 0,
                 'custom_fields' => $flowValue['custom_fields'],
                 'created_at' => $createdAt,
             ];
@@ -385,7 +383,7 @@ class Migration1625583619MoveDataFromEventActionToFlow extends MigrationStep
         );
     }
 
-    private function getNewConfig(Connection $connection, string $config): string
+    private function getNewConfig(string $config): string
     {
         $config = json_decode($config, true);
         $result = [];
@@ -399,28 +397,6 @@ class Migration1625583619MoveDataFromEventActionToFlow extends MigrationStep
             'type' => 'default',
         ];
 
-        $result['mailTemplateDescription'] = 'Shopware Default Template';
-
-        $mailTemplate = $this->getMailTemplateById($connection, $result['mailTemplateId']);
-        if ($mailTemplate !== null) {
-            $result['mailTemplateDescription'] = empty($mailTemplate['description']) ? $mailTemplate['subject'] : $mailTemplate['description'];
-        }
-
         return (string) json_encode($result);
-    }
-
-    private function getMailTemplateById(Connection $connection, string $mailTemplateId): ?array
-    {
-        $mailTemplate = $connection->fetchAssociative(
-            'SELECT mail_template_translation.description as description, mail_template_translation.subject as subject FROM mail_template
-            LEFT JOIN mail_template_translation ON mail_template_translation.mail_template_id = mail_template.id
-            WHERE mail_template.id = :mailTemplateId AND mail_template_translation.language_id = :languageId',
-            [
-                'mailTemplateId' => Uuid::fromHexToBytes($mailTemplateId),
-                'languageId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
-            ]
-        );
-
-        return $mailTemplate ?: null;
     }
 }

@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Test\Flow;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
@@ -14,9 +15,9 @@ use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Content\ContactForm\Event\ContactFormEvent;
-use Shopware\Core\Content\Flow\Action\SendMailAction;
+use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
+use Shopware\Core\Content\Flow\Dispatching\FlowState;
 use Shopware\Core\Content\Flow\Events\FlowSendMailActionEvent;
-use Shopware\Core\Content\Flow\FlowState;
 use Shopware\Core\Content\Mail\Service\MailService as EMailService;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
@@ -39,7 +40,7 @@ use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @internal (FEATURE_NEXT_8225)
+ * @internal (flag:FEATURE_NEXT_8225)
  */
 class SendMailActionTest extends TestCase
 {
@@ -53,9 +54,10 @@ class SendMailActionTest extends TestCase
     /**
      * @dataProvider sendMailProvider
      */
-    public function testEmailSend(bool $skip, ?array $recipients, array $contactFormRecipients = []): void
+    public function testEmailSend(array $recipients, ?bool $hasAttachment = true): void
     {
         $documentRepository = $this->getContainer()->get('document.repository');
+        $orderRepository = $this->getContainer()->get('order.repository');
 
         $criteria = new Criteria();
         $criteria->setLimit(1);
@@ -64,9 +66,10 @@ class SendMailActionTest extends TestCase
 
         $customerId = $this->createCustomer($context);
         $orderId = $this->createOrder($customerId, $context);
-        $documentId = $this->createDocumentWithFile($orderId, $context);
 
-        $context->addExtension(MailSendSubscriber::MAIL_CONFIG_EXTENSION, new MailSendSubscriberConfig($skip, [$documentId], []));
+        if ($hasAttachment) {
+            $documentId = $this->createDocumentWithFile($orderId, $context);
+        }
 
         $mailTemplateId = $this->getContainer()
             ->get('mail_template.repository')
@@ -78,10 +81,12 @@ class SendMailActionTest extends TestCase
         $config = array_filter([
             'mailTemplateId' => $mailTemplateId,
             'recipient' => $recipients,
-            'documentTypeIds' => [],
+            'documentTypeIds' => $hasAttachment ? [$this->getDocIdByType(DeliveryNoteGenerator::DELIVERY_NOTE)] : [],
         ]);
 
-        $event = new ContactFormEvent($context, Defaults::SALES_CHANNEL, new MailRecipientStruct($contactFormRecipients), new DataBag());
+        $order = $orderRepository->search(new Criteria([$orderId]), $context)->first();
+        $event = new CheckoutOrderPlacedEvent($context, $order, Defaults::SALES_CHANNEL);
+
         $mailService = new TestEmailService();
         $subscriber = new SendMailAction(
             $mailService,
@@ -105,21 +110,25 @@ class SendMailActionTest extends TestCase
 
         $subscriber->handle(new FlowEvent('action.send.mail', new FlowState($event), $config));
 
-        if (!$skip) {
-            static::assertIsObject($mailFilterEvent);
-        }
+        static::assertIsObject($mailFilterEvent);
+        static::assertEquals(1, $mailService->calls);
 
-        if ($skip) {
-            static::assertEquals(0, $mailService->calls);
-            static::assertNull($mailService->data);
-        } else {
-            static::assertEquals(1, $mailService->calls);
-            if (!empty($recipients)) {
+        switch ($recipients['type']) {
+            case 'admin':
+                $admin = $this->getContainer()->get(Connection::class)->fetchAssociative(
+                    'SELECT `first_name`, `last_name`, `email` FROM `user` WHERE `admin` = 1'
+                );
+                static::assertEquals($mailService->data['recipients'], [$admin['email'] => $admin['first_name'] . ' ' . $admin['last_name']]);
+
+                break;
+            case 'custom':
                 static::assertEquals($mailService->data['recipients'], $recipients['data']);
-            } else {
-                static::assertEquals($mailService->data['recipients'], $contactFormRecipients);
-            }
 
+                break;
+            default:
+                static::assertEquals($mailService->data['recipients'], [$order->getOrderCustomer()->getEmail() => $order->getOrderCustomer()->getFirstName() . ' ' . $order->getOrderCustomer()->getLastName()]);
+        }
+        if ($hasAttachment) {
             $criteria = new Criteria();
             $criteria->addFilter(new EqualsFilter('id', $documentId))->addFilter(new EqualsFilter('sent', true));
             $document = $documentRepository->search($criteria, $context)->first();
@@ -129,40 +138,15 @@ class SendMailActionTest extends TestCase
 
     public function sendMailProvider(): iterable
     {
-        yield 'Test skip mail' => [true, null, [
-            'type' => 'custom',
-            'data' => [
-                'test@example.com' => 'Shopware ag',
-            ],
-        ]];
-        yield 'Test send mail' => [false, [
-            'type' => 'customer',
-            'data' => ['test@example.com' => 'Shopware ag'],
-        ], ['test@example.com' => 'Shopware ag'],
-        ];
-        yield 'Test send mail admin' => [false, [
-            'type' => 'admin',
-            'data' => ['info@shopware.com' => ' admin'],
-        ]];
-        yield 'Test overwrite recipients' => [false, [
+        yield 'Test send mail default' => [['type' => 'customer']];
+        yield 'Test send mail admin' => [['type' => 'admin']];
+        yield 'Test send mail custom' => [[
             'type' => 'custom',
             'data' => [
                 'test2@example.com' => 'Overwrite',
             ],
-        ], [
-            'type' => 'custom',
-            'data' => [
-                'test@example.com' => 'Shopware ag',
-            ],
         ]];
-        yield 'Test extend TemplateData' => [false, [
-            'type' => 'custom',
-            'data' => [
-                'test@example.com' => 'Shopware ag',
-            ],
-            null,
-        ]];
-        yield 'Test send mail without contact recipients' => [false, null];
+        yield 'Test send mail without attachments' => [['type' => 'customer'], false];
     }
 
     public function testTranslatorInjectionInMail(): void
@@ -336,6 +320,18 @@ class SendMailActionTest extends TestCase
         );
 
         return $documentStruct->getId();
+    }
+
+    private function getDocIdByType(string $documentType): ?string
+    {
+        $document = $this->getContainer()->get(Connection::class)->fetchFirstColumn(
+            'SELECT LOWER(HEX(`id`)) FROM `document_type` WHERE `technical_name` = :documentType',
+            [
+                'documentType' => $documentType,
+            ]
+        );
+
+        return $document ? $document[0] : '';
     }
 }
 

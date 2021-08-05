@@ -32,7 +32,7 @@ class ContactFormServiceTest extends TestCase
 
     public function testContactFormSendMail(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_8225', $this);
+        Feature::skipTestIfActive('FEATURE_NEXT_8225', $this);
         /** @var AbstractSalesChannelContextFactory $salesChannelContextFactory */
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);

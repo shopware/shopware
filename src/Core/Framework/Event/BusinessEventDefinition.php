@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Event;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\Struct;
 
 class BusinessEventDefinition extends Struct
@@ -18,11 +17,15 @@ class BusinessEventDefinition extends Struct
     protected $class;
 
     /**
+     * @feature-deprecated (flag:FEATURE_NEXT_8225) - tag:v6.5.0 - Will be removed in v6.5.0, use $aware instead.
+     *
      * @var bool
      */
     protected $mailAware;
 
     /**
+     * @feature-deprecated (flag:FEATURE_NEXT_8225) - tag:v6.5.0 - Will be removed in v6.5.0, use $aware instead.
+     *
      * @var bool
      */
     protected $logAware;
@@ -33,29 +36,16 @@ class BusinessEventDefinition extends Struct
     protected $data;
 
     /**
+     * @feature-deprecated (flag:FEATURE_NEXT_8225) - tag:v6.5.0 - Will be removed in v6.5.0, use $aware instead.
+     *
      * @var bool
      */
     protected $salesChannelAware;
 
     /**
-     * @internal (FEATURE_NEXT_8225)
+     * @internal (flag:FEATURE_NEXT_8225)
      */
-    protected ?bool $orderAware;
-
-    /**
-     * @internal (FEATURE_NEXT_8225)
-     */
-    protected ?bool $customerAware;
-
-    /**
-     * @internal (FEATURE_NEXT_8225)
-     */
-    protected ?bool $webhookAware;
-
-    /**
-     * @internal (FEATURE_NEXT_8225)
-     */
-    protected ?bool $userAware;
+    protected array $aware = [];
 
     public function __construct(
         string $name,
@@ -64,10 +54,7 @@ class BusinessEventDefinition extends Struct
         bool $logAware,
         bool $salesChannelAware,
         array $data,
-        ?bool $orderAware = null,
-        ?bool $customerAware = null,
-        ?bool $webhookAware = null,
-        ?bool $userAware = null
+        array $aware = []
     ) {
         $this->name = $name;
         $this->class = $class;
@@ -75,10 +62,7 @@ class BusinessEventDefinition extends Struct
         $this->logAware = $logAware;
         $this->data = $data;
         $this->salesChannelAware = $salesChannelAware;
-        $this->orderAware = $orderAware;
-        $this->customerAware = $customerAware;
-        $this->webhookAware = $webhookAware;
-        $this->userAware = $userAware;
+        $this->aware = $aware;
     }
 
     public function getName(): string
@@ -101,21 +85,33 @@ class BusinessEventDefinition extends Struct
         $this->class = $class;
     }
 
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_8225) - tag:v6.5.0 - Will be removed in v6.5.0, use BusinessEventDefinition::getAware() instead.
+     */
     public function isMailAware(): bool
     {
         return $this->mailAware;
     }
 
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_8225) - tag:v6.5.0 - Will be removed in v6.5.0, use BusinessEventDefinition::addAware() instead.
+     */
     public function setMailAware(bool $mailAware): void
     {
         $this->mailAware = $mailAware;
     }
 
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_8225) - tag:v6.5.0 - Will be removed in v6.5.0, use BusinessEventDefinition::getAware() instead.
+     */
     public function isLogAware(): bool
     {
         return $this->logAware;
     }
 
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_8225) - tag:v6.5.0 - Will be removed in v6.5.0, use BusinessEventDefinition::addAware() instead.
+     */
     public function setLogAware(bool $logAware): void
     {
         $this->logAware = $logAware;
@@ -136,57 +132,29 @@ class BusinessEventDefinition extends Struct
         $this->data = $data;
     }
 
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_8225) - tag:v6.5.0 - Will be removed in v6.5.0, use BusinessEventDefinition::getAware() instead.
+     */
     public function isSalesChannelAware(): bool
     {
         return $this->salesChannelAware;
     }
 
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_8225) - tag:v6.5.0 - Will be removed in v6.5.0, use BusinessEventDefinition::addAware() instead.
+     */
     public function setSalesChannelAware(bool $salesChannelAware): void
     {
         $this->salesChannelAware = $salesChannelAware;
     }
 
-    public function getOrderAware(): ?bool
+    public function addAware(string $key): void
     {
-        return $this->orderAware;
+        $this->aware[] = $key;
     }
 
-    public function setOrderAware(?bool $orderAware): void
+    public function getAware(string $key): bool
     {
-        $this->orderAware = $orderAware;
-    }
-
-    public function getCustomerAware(): ?bool
-    {
-        return $this->customerAware;
-    }
-
-    public function setCustomerAware(?bool $customerAware): void
-    {
-        $this->customerAware = $customerAware;
-    }
-
-    public function getWebhookAware(): ?bool
-    {
-        return $this->webhookAware;
-    }
-
-    public function setWebhookAware(?bool $webhookAware): void
-    {
-        $this->webhookAware = $webhookAware;
-    }
-
-    /**
-     * @feature-deprecated (FEATURE_NEXT_8225)
-     */
-    public function jsonSerialize(): array
-    {
-        $vars = parent::jsonSerialize();
-
-        if (!Feature::isActive('FEATURE_NEXT_8225')) {
-            unset($vars['orderAware'], $vars['customerAware'], $vars['userAware'], $vars['webhookAware']);
-        }
-
-        return $vars;
+        return \in_array($key, $this->aware, true);
     }
 }

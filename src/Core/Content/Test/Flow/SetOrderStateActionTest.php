@@ -14,9 +14,8 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStat
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PrePayment;
-use Shopware\Core\Content\Flow\Action\FlowAction;
-use Shopware\Core\Content\Flow\Action\SetOrderStateAction;
-use Shopware\Core\Content\Flow\FlowState;
+use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction;
+use Shopware\Core\Content\Flow\Dispatching\FlowState;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -29,7 +28,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 
 /**
- * @internal (FEATURE_NEXT_8225)
+ * @internal (flag:FEATURE_NEXT_8225)
  */
 class SetOrderStateActionTest extends TestCase
 {
@@ -187,7 +186,7 @@ class SetOrderStateActionTest extends TestCase
                     'id' => Uuid::randomHex(),
                     'parentId' => null,
                     'ruleId' => null,
-                    'actionName' => FlowAction::SET_ORDER_STATE,
+                    'actionName' => SetOrderStateAction::getName(),
                     'config' => [
                         'order' => $orderState,
                         'order_delivery' => $orderDeliveryState,

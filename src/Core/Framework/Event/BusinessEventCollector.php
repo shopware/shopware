@@ -76,17 +76,24 @@ class BusinessEventCollector
         }
 
         if (Feature::isActive('FEATURE_NEXT_8225')) {
+            /** @var array $interfaces */
+            $interfaces = class_implements($instance);
+
+            $aware = [];
+            foreach ($interfaces as $interface) {
+                if (is_subclass_of($interface, FlowEventAware::class) && $interface !== FlowEventAware::class) {
+                    $aware[] = $interface;
+                }
+            }
+
             return new BusinessEventDefinition(
                 $name,
                 $class,
-                $instance instanceof MailAware || $instance instanceof MailActionInterface,
+                $instance instanceof MailActionInterface,
                 $instance instanceof LogAwareBusinessEventInterface,
                 $instance instanceof SalesChannelAware,
                 $instance::getAvailableData()->toArray(),
-                $instance instanceof OrderAware,
-                $instance instanceof CustomerAware,
-                $instance instanceof WebhookAware,
-                $instance instanceof UserAware,
+                $aware
             );
         }
 

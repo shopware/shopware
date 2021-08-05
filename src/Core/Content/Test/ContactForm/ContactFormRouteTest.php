@@ -34,7 +34,7 @@ class ContactFormRouteTest extends TestCase
 
     protected function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_8225', $this);
+        Feature::skipTestIfActive('FEATURE_NEXT_8225', $this);
         $this->ids = new TestDataCollection(Context::createDefaultContext());
 
         $this->browser = $this->createCustomSalesChannelBrowser([

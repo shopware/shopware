@@ -22,6 +22,8 @@ class Migration1621845357AddFlowTest extends TestCase
         static::assertContains('event_name', $flowColumns);
         static::assertContains('priority', $flowColumns);
         static::assertContains('active', $flowColumns);
+        static::assertContains('payload', $flowColumns);
+        static::assertContains('invalid', $flowColumns);
         static::assertContains('custom_fields', $flowColumns);
         static::assertContains('created_at', $flowColumns);
         static::assertContains('updated_at', $flowColumns);

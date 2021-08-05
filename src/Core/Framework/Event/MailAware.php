@@ -2,19 +2,14 @@
 
 namespace Shopware\Core\Framework\Event;
 
-use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 
 /**
- * @internal (FEATURE_NEXT_8225)
+ * @internal (flag:FEATURE_NEXT_8225)
  */
-interface MailAware extends ShopwareEvent
+interface MailAware extends FlowEventAware
 {
     public function getMailStruct(): MailRecipientStruct;
 
     public function getSalesChannelId(): ?string;
-
-    public static function getAvailableData(): EventDataCollection;
-
-    public function getName(): string;
 }

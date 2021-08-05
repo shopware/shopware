@@ -205,7 +205,7 @@
         <!-- This will be removed after removing flag FEATURE_NEXT_8225 -->
         <UnnecessaryVarAnnotation>
             <errorLevel type="suppress">
-                <file name="src/Core/Content/Flow/FlowDispatcher.php" />
+                <file name="src/Core/Content/Flow/Dispatching/FlowDispatcher.php" />
             </errorLevel>
         </UnnecessaryVarAnnotation>
 

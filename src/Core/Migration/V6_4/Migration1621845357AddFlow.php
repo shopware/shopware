@@ -22,6 +22,7 @@ class Migration1621845357AddFlow extends MigrationStep
                 `event_name`            VARCHAR(255)    NOT NULL,
                 `priority`              INT(11)         NOT NULL DEFAULT 1,
                 `payload`               LONGBLOB        NULL,
+                `invalid`               TINYINT(1)      NOT NULL DEFAULT 0,
                 `active`                TINYINT(1)      NOT NULL DEFAULT 0,
                 `custom_fields`         JSON            NULL,
                 `created_at`            DATETIME(3)     NOT NULL,

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Flow;
 
 use Shopware\Core\Content\Flow\Aggregate\FlowSequence\FlowSequenceCollection;
+use Shopware\Core\Content\Flow\Dispatching\Struct\Flow;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -25,7 +26,12 @@ class FlowEntity extends Entity
 
     protected int $priority;
 
-    protected ?string $payload;
+    /**
+     * @var string|Flow|null
+     */
+    protected $payload;
+
+    protected bool $invalid;
 
     protected ?FlowSequenceCollection $sequences = null;
 
@@ -79,14 +85,24 @@ class FlowEntity extends Entity
         $this->priority = $priority;
     }
 
-    public function getPayload(): ?string
+    public function getPayload()
     {
         return $this->payload;
     }
 
-    public function setPayload(string $payload): void
+    public function setPayload($payload): void
     {
         $this->payload = $payload;
+    }
+
+    public function isInvalid(): bool
+    {
+        return $this->invalid;
+    }
+
+    public function setInvalid(bool $invalid): void
+    {
+        $this->invalid = $invalid;
     }
 
     public function getSequences(): ?FlowSequenceCollection

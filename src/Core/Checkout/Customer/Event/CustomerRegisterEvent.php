@@ -84,7 +84,7 @@ class CustomerRegisterEvent extends Event implements MailActionInterface, SalesC
     }
 
     /**
-     * @internal (FEATURE_NEXT_8225)
+     * @internal (flag:FEATURE_NEXT_8225)
      */
     public function getCustomerId(): string
     {

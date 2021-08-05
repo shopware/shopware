@@ -4,12 +4,11 @@ namespace Shopware\Core\Checkout\Customer\Event;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class PasswordRecoveryUrlEvent extends Event implements SalesChannelAware, ShopwareSalesChannelEvent
+class PasswordRecoveryUrlEvent extends Event implements ShopwareSalesChannelEvent
 {
     private string $recoveryUrl;
 

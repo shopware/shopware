@@ -2,104 +2,187 @@
 
 namespace Shopware\Core\Content\Test\Flow;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Checkout\Order\OrderDefinition;
-use Shopware\Core\Content\Flow\Action\FlowAction;
-use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Defaults;
+use Shopware\Core\Content\Flow\Dispatching\Action\StopFlowAction;
+use Shopware\Core\Content\Flow\Dispatching\FlowDispatcher;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Event\BusinessEvents;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @internal (FEATURE_NEXT_8225)
+ * @internal (flag:FEATURE_NEXT_8225)
  */
 class FlowDispatcherTest extends TestCase
 {
     use IntegrationTestBehaviour;
-    use SalesChannelApiTestBehaviour;
-    use CountryAddToSalesChannelTestBehaviour;
 
     private ?EntityRepositoryInterface $flowRepository;
 
-    private ?Connection $connection;
+    private ?EntityRepositoryInterface $customerRepository;
 
-    private KernelBrowser $browser;
+    private ?EventDispatcherInterface $dispatcher;
+
+    private FlowActionTestSubscriber $flowActionTestSubscriber;
 
     private TestDataCollection $ids;
-
-    private ?EntityRepository $customerRepository;
 
     protected function setUp(): void
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_8225', $this);
 
-        $this->flowRepository = $this->getContainer()->get('flow.repository');
+        $this->flowActionTestSubscriber = new FlowActionTestSubscriber();
 
-        $this->connection = $this->getContainer()->get(Connection::class);
+        $this->flowRepository = $this->getContainer()->get('flow.repository');
 
         $this->customerRepository = $this->getContainer()->get('customer.repository');
 
+        $this->dispatcher = $this->getContainer()->get('event_dispatcher');
+
+        $this->dispatcher->addSubscriber($this->flowActionTestSubscriber);
+
         $this->ids = new TestDataCollection(Context::createDefaultContext());
-
-        $this->browser = $this->createCustomSalesChannelBrowser([
-            'id' => $this->ids->create('sales-channel'),
-        ]);
-
-        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->ids->create('token'));
-
-        // all business event should be inactive.
-        $this->connection->executeStatement('DELETE FROM event_action;');
     }
 
-    public function testAddOrderTagActionDispatched(): void
+    protected function tearDown(): void
     {
-        $this->createDataTest();
+        if (Feature::isActive('FEATURE_NEXT_8225')) {
+            parent::tearDown();
 
-        $this->createCustomerAndLogin();
+            $this->dispatcher->removeSubscriber($this->flowActionTestSubscriber);
+        }
+    }
 
+    public function testAllEventsPassthru(): void
+    {
+        $context = Context::createDefaultContext();
+        $event = new TestFlowBusinessEvent($context);
+
+        $eventDispatcherMock = static::createMock(EventDispatcherInterface::class);
+        $eventDispatcherMock->expects(static::exactly(1))
+            ->method('dispatch')
+            ->willReturn($event);
+
+        $dispatcher = new FlowDispatcher(
+            $eventDispatcherMock,
+            $this->getContainer()->get(LoggerInterface::class)
+        );
+
+        $dispatcher->setContainer($this->getContainer()->get('service_container'));
+
+        $dispatcher->dispatch($event, $event->getName());
+    }
+
+    public function testSingleEventActionIsDispatchedTrueCase(): void
+    {
+        $context = Context::createDefaultContext();
+        $context->setRuleIds([$this->ids->create('ruleId')]);
+        $event = new TestFlowBusinessEvent($context);
+
+        $this->createFlow(true);
+
+        $this->dispatcher->dispatch($event);
+
+        static::assertEquals(1, $this->flowActionTestSubscriber->events[BusinessEvents::GLOBAL_EVENT] ?? 0);
+        static::assertEquals(1, $this->flowActionTestSubscriber->actions['unit_test_action_true'] ?? 0);
+        static::assertEquals(0, $this->flowActionTestSubscriber->actions['unit_test_action_false'] ?? 0);
+    }
+
+    public function testSingleEventActionIsDispatchedFalseCase(): void
+    {
+        $context = Context::createDefaultContext();
+        //rule id not matched
+        $context->setRuleIds([$this->ids->create('ruleId2')]);
+        $event = new TestFlowBusinessEvent($context);
+        $this->createFlow(true, [], []);
+
+        $this->dispatcher->dispatch($event);
+
+        static::assertEquals(1, $this->flowActionTestSubscriber->events[BusinessEvents::GLOBAL_EVENT] ?? 0);
+        static::assertEquals(0, $this->flowActionTestSubscriber->actions['unit_test_action_true'] ?? 0);
+        static::assertEquals(1, $this->flowActionTestSubscriber->actions['unit_test_action_false'] ?? 0);
+    }
+
+    public function testEventActionWithConfig(): void
+    {
+        $context = Context::createDefaultContext();
+        $context->setRuleIds([$this->ids->create('ruleId')]);
+        $event = new TestFlowBusinessEvent($context);
+
+        $eventConfig = [
+            'tagIds' => [
+                $this->ids->get('tag_id') => 'test tag',
+            ],
+            'entity' => OrderDefinition::ENTITY_NAME,
+        ];
+
+        $this->createFlow(true);
+
+        $this->dispatcher->dispatch($event);
+
+        static::assertEquals(1, $this->flowActionTestSubscriber->events[BusinessEvents::GLOBAL_EVENT] ?? 0);
+        static::assertEquals(1, $this->flowActionTestSubscriber->actions['unit_test_action_true'] ?? 0);
+        static::assertEquals(0, $this->flowActionTestSubscriber->actions['unit_test_action_false'] ?? 0);
+        static::assertEquals($eventConfig, $this->flowActionTestSubscriber->lastActionConfig);
+    }
+
+    public function testInactiveEventActionIsDispatched(): void
+    {
+        $context = Context::createDefaultContext();
+        $context->setRuleIds([$this->ids->create('ruleId')]);
+        $event = new TestFlowBusinessEvent($context);
+
+        $this->createFlow(false);
+
+        $this->dispatcher->dispatch($event);
+
+        static::assertEquals(1, $this->flowActionTestSubscriber->events[BusinessEvents::GLOBAL_EVENT] ?? 0);
+        static::assertEquals(0, $this->flowActionTestSubscriber->actions['unit_test_action_true'] ?? 0);
+        static::assertEquals(0, $this->flowActionTestSubscriber->actions['unit_test_action_false'] ?? 0);
+        static::assertEquals(0, $this->flowActionTestSubscriber->actions['unit_test_action_next'] ?? 0);
+    }
+
+    public function testSequencePriority(): void
+    {
+        $context = Context::createDefaultContext();
+        $context->setRuleIds([$this->ids->create('ruleId'), $this->ids->create('ruleId2')]);
+        $event = new TestFlowBusinessEvent($context);
         $sequenceId = Uuid::randomHex();
-        $ruleId = Uuid::randomHex();
-        $this->flowRepository->create([[
-            'name' => 'Create Order',
-            'eventName' => CheckoutOrderPlacedEvent::EVENT_NAME,
-            'priority' => 1,
-            'active' => true,
-            'sequences' => [
+
+        $this->createFlow(
+            true,
+            [
                 [
                     'id' => $sequenceId,
                     'parentId' => null,
-                    'ruleId' => $ruleId,
+                    'ruleId' => $this->ids->create('ruleId2'),
                     'actionName' => null,
                     'config' => [],
                     'position' => 1,
+                    'displayGroup' => 2,
                     'rule' => [
-                        'id' => $ruleId,
+                        'id' => $this->ids->create('ruleId2'),
                         'name' => 'Test rule',
-                        'priority' => 1,
-                        'conditions' => [
-                            ['type' => (new AlwaysValidRule())->getName()],
-                        ],
+                        'priority' => 10,
+                        'conditions' => [['type' => (new AlwaysValidRule())->getName()]],
                     ],
                 ],
                 [
                     'id' => Uuid::randomHex(),
                     'parentId' => $sequenceId,
                     'ruleId' => null,
-                    'actionName' => FlowAction::ADD_ORDER_TAG,
+                    'actionName' => 'unit_test_action_next',
+                    'displayGroup' => 2,
                     'config' => [
                         'tagIds' => [
-                            $this->ids->get('tag_id') => 'test tag',
+                            $this->ids->get('tag_id4') => 'test tag4',
                         ],
                         'entity' => OrderDefinition::ENTITY_NAME,
                     ],
@@ -110,251 +193,231 @@ class FlowDispatcherTest extends TestCase
                     'id' => Uuid::randomHex(),
                     'parentId' => $sequenceId,
                     'ruleId' => null,
-                    'actionName' => FlowAction::ADD_ORDER_TAG,
+                    'actionName' => 'unit_test_action_next',
+                    'displayGroup' => 2,
                     'config' => [
                         'tagIds' => [
-                            $this->ids->get('tag_id2') => 'test tag2',
+                            $this->ids->get('tag_id5') => 'test tag5',
                         ],
                         'entity' => OrderDefinition::ENTITY_NAME,
                     ],
                     'position' => 2,
                     'trueCase' => true,
                 ],
-            ],
-        ]], Context::createDefaultContext());
-
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/checkout/cart/line-item',
-                [
-                    'items' => [
-                        [
-                            'id' => $this->ids->get('p1'),
-                            'type' => 'product',
-                            'referencedId' => $this->ids->get('p1'),
-                        ],
-                    ],
-                ]
-            );
-
-        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
-
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/checkout/order',
-                [
-                    'affiliateCode' => 'test affiliate code',
-                ]
-            );
-
-        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
-
-        $orderTag = $this->connection->fetchAllAssociative(
-            'SELECT tag_id FROM order_tag WHERE tag_id IN (:ids)',
-            ['ids' => [Uuid::fromHexToBytes($this->ids->get('tag_id')), Uuid::fromHexToBytes($this->ids->get('tag_id2'))]],
-            ['ids' => Connection::PARAM_STR_ARRAY]
+            ]
         );
 
-        static::assertCount(2, $orderTag);
+        $this->dispatcher->dispatch($event);
+
+        static::assertEquals(1, $this->flowActionTestSubscriber->events[BusinessEvents::GLOBAL_EVENT] ?? 0);
+        static::assertEquals(1, $this->flowActionTestSubscriber->actions['unit_test_action_true'] ?? 0);
+        static::assertEquals(0, $this->flowActionTestSubscriber->actions['unit_test_action_false'] ?? 0);
+        static::assertEquals(2, $this->flowActionTestSubscriber->actions['unit_test_action_next'] ?? 0);
+        static::assertEquals($this->ids->get('tag_id5'), array_key_first($this->flowActionTestSubscriber->lastActionConfig['tagIds']));
     }
 
-    public function testStopFlowActionDispatched(): void
+    public function testFlowPriority(): void
     {
-        $this->createDataTest();
-
-        $this->createCustomerAndLogin();
-
+        $context = Context::createDefaultContext();
+        $context->setRuleIds([$this->ids->create('ruleId'), $this->ids->create('ruleId2')]);
+        $event = new TestFlowBusinessEvent($context);
         $sequenceId = Uuid::randomHex();
-        $ruleId = Uuid::randomHex();
-        $this->flowRepository->create([[
-            'name' => 'Create Order',
-            'eventName' => CheckoutOrderPlacedEvent::EVENT_NAME,
-            'priority' => 1,
-            'active' => true,
-            'sequences' => [
-                [
-                    'id' => $sequenceId,
-                    'parentId' => null,
-                    'ruleId' => $ruleId,
-                    'actionName' => null,
-                    'config' => [],
-                    'position' => 1,
-                    'rule' => [
-                        'id' => $ruleId,
-                        'name' => 'Test rule',
-                        'priority' => 1,
-                        'conditions' => [
-                            ['type' => (new AlwaysValidRule())->getName()],
-                        ],
-                    ],
-                ],
-                [
-                    'id' => Uuid::randomHex(),
-                    'parentId' => $sequenceId,
-                    'ruleId' => null,
-                    'actionName' => FlowAction::ADD_ORDER_TAG,
-                    'config' => [
-                        'tagIds' => [
-                            $this->ids->get('tag_id') => 'test tag',
-                        ],
-                        'entity' => OrderDefinition::ENTITY_NAME,
-                    ],
-                    'position' => 1,
-                    'trueCase' => true,
-                ],
-                [
-                    'id' => Uuid::randomHex(),
-                    'parentId' => $sequenceId,
-                    'ruleId' => null,
-                    'actionName' => FlowAction::STOP_FLOW,
-                    'config' => [],
-                    'position' => 2,
-                    'trueCase' => true,
-                ],
-                [
-                    'id' => Uuid::randomHex(),
-                    'parentId' => $sequenceId,
-                    'ruleId' => null,
-                    'actionName' => FlowAction::ADD_ORDER_TAG,
-                    'config' => [
-                        'tagIds' => [
-                            $this->ids->get('tag_id2') => 'test tag2',
-                        ],
-                        'entity' => OrderDefinition::ENTITY_NAME,
-                    ],
-                    'position' => 3,
-                    'trueCase' => true,
-                ],
-            ],
-        ]], Context::createDefaultContext());
 
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/checkout/cart/line-item',
-                [
-                    'items' => [
-                        [
-                            'id' => $this->ids->get('p1'),
-                            'type' => 'product',
-                            'referencedId' => $this->ids->get('p1'),
-                        ],
-                    ],
-                ]
-            );
-
-        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
-
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/checkout/order',
-                [
-                    'affiliateCode' => 'test affiliate code',
-                ]
-            );
-
-        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
-
-        $orderTag = $this->connection->fetchAllAssociative(
-            'SELECT tag_id FROM order_tag WHERE tag_id IN (:ids)',
-            ['ids' => [Uuid::fromHexToBytes($this->ids->get('tag_id')), Uuid::fromHexToBytes($this->ids->get('tag_id2'))]],
-            ['ids' => Connection::PARAM_STR_ARRAY]
-        );
-
-        static::assertCount(1, $orderTag);
-    }
-
-    private function createCustomerAndLogin(?string $email = null, ?string $password = null): void
-    {
-        $email = $email ?? (Uuid::randomHex() . '@example.com');
-        $password = $password ?? 'shopware';
-        $this->createCustomer($password, $email);
-
-        $this->login($email, $password);
-    }
-
-    private function login(?string $email = null, ?string $password = null): void
-    {
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/account/login',
-                [
-                    'email' => $email,
-                    'password' => $password,
-                ]
-            );
-
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true);
-
-        static::assertArrayHasKey('contextToken', $response);
-
-        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
-    }
-
-    private function createCustomer(string $password, ?string $email = null): void
-    {
-        $this->customerRepository->create([
-            [
-                'id' => $this->ids->create('customer'),
-                'salesChannelId' => $this->ids->get('sales-channel'),
-                'defaultShippingAddress' => [
-                    'id' => $this->ids->create('address'),
-                    'firstName' => 'Max',
-                    'lastName' => 'Mustermann',
-                    'street' => 'Musterstraße 1',
-                    'city' => 'Schöppingen',
-                    'zipcode' => '12345',
-                    'salutationId' => $this->getValidSalutationId(),
-                    'countryId' => $this->getValidCountryId($this->ids->get('sales-channel')),
-                ],
-                'defaultBillingAddressId' => $this->ids->get('address'),
-                'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-                'email' => $email,
-                'password' => $password,
-                'firstName' => 'Max',
-                'lastName' => 'Mustermann',
-                'salutationId' => $this->getValidSalutationId(),
-                'customerNumber' => '12345',
-                'vatIds' => ['DE123456789'],
-                'company' => 'Test',
-            ],
-        ], $this->ids->context);
-    }
-
-    private function createDataTest(): void
-    {
-        $this->addCountriesToSalesChannel();
-
-        $this->getContainer()->get('product.repository')->create([
-            [
-                'id' => $this->ids->create('p1'),
-                'productNumber' => $this->ids->get('p1'),
-                'stock' => 10,
-                'name' => 'Test',
-                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
-                'manufacturer' => ['id' => $this->ids->create('manufacturerId'), 'name' => 'test'],
-                'tax' => ['id' => $this->ids->create('tax'), 'taxRate' => 17, 'name' => 'with id'],
+        $this->createFlow(
+            true,
+            [],
+            [[
+                'name' => 'Trigger test',
+                'eventName' => TestFlowBusinessEvent::EVENT_NAME,
+                'priority' => 1,
                 'active' => true,
-                'visibilities' => [
-                    ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                'sequences' => [
+                    [
+                        'id' => $sequenceId,
+                        'parentId' => null,
+                        'ruleId' => $this->ids->create('ruleId'),
+                        'actionName' => null,
+                        'config' => [],
+                        'position' => 1,
+                        'rule' => [
+                            'id' => $this->ids->create('ruleId'),
+                            'name' => 'Test rule',
+                            'priority' => 1,
+                            'conditions' => [
+                                ['type' => (new AlwaysValidRule())->getName()],
+                            ],
+                        ],
+                    ],
+                    [
+                        'id' => Uuid::randomHex(),
+                        'parentId' => $sequenceId,
+                        'ruleId' => null,
+                        'actionName' => 'unit_test_action_true',
+                        'config' => [
+                            'tagIds' => [
+                                $this->ids->get('tag_id6') => 'test tag',
+                            ],
+                            'entity' => OrderDefinition::ENTITY_NAME,
+                        ],
+                        'position' => 1,
+                        'trueCase' => true,
+                    ],
+                    [
+                        'id' => Uuid::randomHex(),
+                        'parentId' => $sequenceId,
+                        'ruleId' => null,
+                        'actionName' => 'unit_test_action_next',
+                        'config' => [
+                            'tagIds' => [
+                                $this->ids->get('tag_id7') => 'test tag2',
+                            ],
+                            'entity' => OrderDefinition::ENTITY_NAME,
+                        ],
+                        'position' => 2,
+                        'trueCase' => true,
+                    ],
                 ],
-            ],
-        ], $this->ids->context);
+            ]]
+        );
 
-        $this->getContainer()->get('tag.repository')->create([
-            [
-                'id' => $this->ids->create('tag_id'),
-                'name' => 'test tag',
-            ],
-            [
-                'id' => $this->ids->create('tag_id2'),
-                'name' => 'test tag2',
-            ],
-        ], $this->ids->context);
+        $this->dispatcher->dispatch($event);
+
+        static::assertEquals(1, $this->flowActionTestSubscriber->events[BusinessEvents::GLOBAL_EVENT] ?? 0);
+        static::assertEquals(2, $this->flowActionTestSubscriber->actions['unit_test_action_true'] ?? 0);
+        static::assertEquals(0, $this->flowActionTestSubscriber->actions['unit_test_action_false'] ?? 0);
+        static::assertEquals(1, $this->flowActionTestSubscriber->actions['unit_test_action_next'] ?? 0);
+        static::assertEquals($this->ids->get('tag_id7'), array_key_first($this->flowActionTestSubscriber->lastActionConfig['tagIds']));
+    }
+
+    public function testStopFlowAction(): void
+    {
+        $context = Context::createDefaultContext();
+        $context->setRuleIds([$this->ids->create('ruleId'), $this->ids->create('ruleId2')]);
+        $event = new TestFlowBusinessEvent($context);
+        $sequenceId = Uuid::randomHex();
+
+        $this->createFlow(
+            true,
+            [],
+            [[
+                'name' => 'Trigger test',
+                'eventName' => TestFlowBusinessEvent::EVENT_NAME,
+                'priority' => 20,
+                'active' => true,
+                'sequences' => [
+                    [
+                        'id' => $sequenceId,
+                        'parentId' => null,
+                        'ruleId' => $this->ids->create('ruleId'),
+                        'actionName' => null,
+                        'config' => [],
+                        'position' => 1,
+                        'rule' => [
+                            'id' => $this->ids->create('ruleId'),
+                            'name' => 'Test rule',
+                            'priority' => 1,
+                            'conditions' => [
+                                ['type' => (new AlwaysValidRule())->getName()],
+                            ],
+                        ],
+                    ],
+                    [
+                        'id' => Uuid::randomHex(),
+                        'parentId' => $sequenceId,
+                        'ruleId' => null,
+                        'actionName' => StopFlowAction::getName(),
+                        'config' => [
+                            'tagIds' => [
+                                $this->ids->get('tag_id6') => 'test tag',
+                            ],
+                            'entity' => OrderDefinition::ENTITY_NAME,
+                        ],
+                        'position' => 1,
+                        'trueCase' => true,
+                    ],
+                    [
+                        'id' => Uuid::randomHex(),
+                        'parentId' => $sequenceId,
+                        'ruleId' => null,
+                        'actionName' => '2nd_unit_test_action',
+                        'config' => [
+                            'tagIds' => [
+                                $this->ids->get('tag_id7') => 'test tag2',
+                            ],
+                            'entity' => OrderDefinition::ENTITY_NAME,
+                        ],
+                        'position' => 2,
+                        'trueCase' => true,
+                    ],
+                ],
+            ]]
+        );
+
+        $this->dispatcher->dispatch($event);
+
+        static::assertEquals(1, $this->flowActionTestSubscriber->events[BusinessEvents::GLOBAL_EVENT] ?? 0);
+        static::assertEquals(1, $this->flowActionTestSubscriber->actions['unit_test_action_true'] ?? 0);
+        static::assertEquals(0, $this->flowActionTestSubscriber->actions['unit_test_action_false'] ?? 0);
+        static::assertEquals(0, $this->flowActionTestSubscriber->actions['unit_test_action_next'] ?? 0);
+        static::assertEquals($this->ids->get('tag_id'), array_key_first($this->flowActionTestSubscriber->lastActionConfig['tagIds']));
+    }
+
+    private function createFlow(bool $isActive, array $additionSequence = [], array $additionFlow = []): void
+    {
+        $sequenceId = Uuid::randomHex();
+
+        $this->flowRepository->create(array_merge([[
+            'name' => 'Create Order',
+            'eventName' => TestFlowBusinessEvent::EVENT_NAME,
+            'priority' => 10,
+            'active' => $isActive,
+            'sequences' => array_merge([
+                [
+                    'id' => $sequenceId,
+                    'parentId' => null,
+                    'ruleId' => $this->ids->create('ruleId'),
+                    'actionName' => null,
+                    'config' => [],
+                    'position' => 1,
+                    'rule' => [
+                        'id' => $this->ids->create('ruleId'),
+                        'name' => 'Test rule',
+                        'priority' => 1,
+                        'conditions' => [
+                            ['type' => (new AlwaysValidRule())->getName()],
+                        ],
+                    ],
+                ],
+                [
+                    'id' => Uuid::randomHex(),
+                    'parentId' => $sequenceId,
+                    'ruleId' => null,
+                    'actionName' => 'unit_test_action_true',
+                    'config' => [
+                        'tagIds' => [
+                            $this->ids->get('tag_id') => 'test tag',
+                        ],
+                        'entity' => OrderDefinition::ENTITY_NAME,
+                    ],
+                    'position' => 1,
+                    'trueCase' => true,
+                ],
+                [
+                    'id' => Uuid::randomHex(),
+                    'parentId' => $sequenceId,
+                    'ruleId' => null,
+                    'actionName' => 'unit_test_action_false',
+                    'config' => [
+                        'tagIds' => [
+                            $this->ids->get('tag_id2') => 'test tag2',
+                        ],
+                        'entity' => OrderDefinition::ENTITY_NAME,
+                    ],
+                    'position' => 2,
+                    'trueCase' => false,
+                ],
+            ], $additionSequence),
+        ],
+        ], $additionFlow), Context::createDefaultContext());
     }
 }

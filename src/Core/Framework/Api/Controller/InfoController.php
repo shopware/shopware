@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Api\Controller;
 
 use OpenApi\Annotations as OA;
-use Shopware\Core\Content\Flow\Action\FlowActionCollector;
+use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Framework\Adapter\Asset\LastModifiedVersionStrategy;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
@@ -64,7 +64,7 @@ class InfoController extends AbstractController
     private $eventCollector;
 
     /**
-     * @internal (FEATURE_NEXT_8225)
+     * @internal (flag:FEATURE_NEXT_8225)
      */
     private ?FlowActionCollector $flowActionCollector;
 
@@ -244,7 +244,7 @@ class InfoController extends AbstractController
 
     /**
      * @Since("6.4.0.0")
-     * @Route("/api/_info/actions.json", name="api.info.actions", methods={"GET"})
+     * @Route("/api/_info/flow-actions.json", name="api.info.actions", methods={"GET"})
      *
      * @internal (flag:FEATURE_NEXT_8225)
      */

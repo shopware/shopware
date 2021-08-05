@@ -15,9 +15,8 @@
             <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
         </service>
 
-        <service id="Shopware\Core\Content\Flow\FlowDispatcher" decorates="event_dispatcher" decoration-priority="1000">
-            <argument type="service" id="Shopware\Core\Content\Flow\FlowDispatcher.inner"/>
-            <argument type="service" id="Shopware\Core\Content\Flow\FlowLoader"/>
+        <service id="Shopware\Core\Content\Flow\Dispatching\FlowDispatcher" decorates="event_dispatcher" decoration-priority="1000">
+            <argument type="service" id="Shopware\Core\Content\Flow\Dispatching\FlowDispatcher.inner"/>
             <argument type="service" id="logger"/>
 
             <call method="setContainer">
@@ -27,49 +26,40 @@
             <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
         </service>
 
-        <service id="Shopware\Core\Content\Flow\FlowExecutor" public="true">
+        <service id="Shopware\Core\Content\Flow\Dispatching\FlowExecutor" public="true">
             <argument type="service" id="event_dispatcher" />
             <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
         </service>
 
-        <service id="Shopware\Core\Content\Flow\Action\AddOrderTagAction">
+        <service id="Shopware\Core\Content\Flow\Dispatching\Action\AddOrderTagAction">
             <argument type="service" id="order.repository" />
             <tag name="kernel.event_subscriber" />
             <tag name="flow.action" priority="1000" />
             <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
         </service>
 
-        <service id="Shopware\Core\Content\Flow\Action\AddCustomerTagAction">
+        <service id="Shopware\Core\Content\Flow\Dispatching\Action\AddCustomerTagAction">
             <argument type="service" id="customer.repository" />
             <tag name="kernel.event_subscriber" />
             <tag name="flow.action" priority="900" />
             <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
         </service>
 
-        <service id="Shopware\Core\Content\Flow\Action\RemoveOrderTagAction">
+        <service id="Shopware\Core\Content\Flow\Dispatching\Action\RemoveOrderTagAction">
             <argument type="service" id="order_tag.repository" />
             <tag name="kernel.event_subscriber" />
             <tag name="flow.action" priority="800" />
             <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
         </service>
 
-        <service id="Shopware\Core\Content\Flow\Action\RemoveCustomerTagAction">
+        <service id="Shopware\Core\Content\Flow\Dispatching\Action\RemoveCustomerTagAction">
             <argument type="service" id="customer_tag.repository" />
             <tag name="kernel.event_subscriber" />
             <tag name="flow.action" priority="700" />
             <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
         </service>
 
-        <service id="Shopware\Core\Content\Flow\Action\CallWebhookAction">
-            <argument type="service" id="shopware.app_system.guzzle" />
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer"/>
-            <argument type="service" id="logger"/>
-            <tag name="kernel.event_subscriber" />
-            <tag name="flow.action" priority="650" />
-            <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
-        </service>
-
-        <service id="Shopware\Core\Content\Flow\Action\SendMailAction">
+        <service id="Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction">
             <argument type="service" id="Shopware\Core\Content\Mail\Service\MailService"/>
             <argument type="service" id="mail_template.repository"/>
             <argument type="service" id="Shopware\Core\Content\Media\MediaService"/>
@@ -87,7 +77,7 @@
             <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
         </service>
 
-        <service id="Shopware\Core\Content\Flow\Action\GenerateDocumentAction">
+        <service id="Shopware\Core\Content\Flow\Dispatching\Action\GenerateDocumentAction">
             <argument type="service" id="Shopware\Core\Checkout\Document\DocumentService"/>
             <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface" />
             <argument type="service" id="Doctrine\DBAL\Connection"/>
@@ -97,7 +87,7 @@
             <tag name="flow.action" priority="620" />
         </service>
 
-        <service id="Shopware\Core\Content\Flow\Action\SetOrderStateAction">
+        <service id="Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="logger"/>
             <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
@@ -107,33 +97,49 @@
             <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
         </service>
 
-        <service id="Shopware\Core\Content\Flow\Action\StopFlowAction">
+        <service id="Shopware\Core\Content\Flow\Dispatching\Action\StopFlowAction">
             <tag name="kernel.event_subscriber" />
             <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
             <tag name="flow.action" priority="1" />
         </service>
 
-        <service id="Shopware\Core\Content\Flow\Action\FlowActionCollector">
+        <service id="Shopware\Core\Content\Flow\Api\FlowActionCollector">
             <argument type="tagged" tag="flow.action" />
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service id="Shopware\Core\Content\Flow\FlowLoader">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        <service id="Shopware\Core\Content\Flow\Dispatching\FlowLoader" public="true">
+            <argument type="service" id="flow.repository"/>
             <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
         </service>
 
-        <service id="Shopware\Core\Content\Flow\DataAbstractionLayer\FlowPayloadUpdater">
+        <service id="Shopware\Core\Content\Flow\Indexing\FlowPayloadUpdater">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Content\Flow\Dispatching\FlowsBuilder"/>
+
             <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
         </service>
 
-        <service id="Shopware\Core\Content\Flow\DataAbstractionLayer\FlowIndexer">
+        <service id="Shopware\Core\Content\Flow\Indexing\FlowPayloadSubscriber">
+            <argument type="service" id="Shopware\Core\Content\Flow\Indexing\FlowPayloadUpdater"/>
+            <tag name="kernel.event_subscriber"/>
+
+            <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
+        </service>
+
+        <service id="Shopware\Core\Content\Flow\Indexing\FlowIndexer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
             <argument type="service" id="flow.repository"/>
-            <argument type="service" id="Shopware\Core\Content\Flow\DataAbstractionLayer\FlowPayloadUpdater"/>
+            <argument type="service" id="Shopware\Core\Content\Flow\Indexing\FlowPayloadUpdater"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Shopware\Core\Content\Flow\Dispatching\FlowLoader"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="shopware.entity_indexer"/>
+            <tag name="kernel.event_subscriber"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
+        </service>
+
+        <service id="Shopware\Core\Content\Flow\Dispatching\FlowsBuilder">
             <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
         </service>
 

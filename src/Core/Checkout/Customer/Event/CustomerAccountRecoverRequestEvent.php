@@ -111,7 +111,7 @@ class CustomerAccountRecoverRequestEvent extends Event implements MailActionInte
     }
 
     /**
-     * @internal (FEATURE_NEXT_8225)
+     * @internal (flag:FEATURE_NEXT_8225)
      */
     public function getCustomerId(): string
     {

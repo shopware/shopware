@@ -11,7 +11,7 @@ use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\OrderStates;
-use Shopware\Core\Content\Flow\Action\FlowAction;
+use Shopware\Core\Content\Flow\Dispatching\Action\RemoveOrderTagAction;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
@@ -20,7 +20,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 
 /**
- * @internal (FEATURE_NEXT_8225)
+ * @internal (flag:FEATURE_NEXT_8225)
  */
 class RemoveOrderTagActionTest extends TestCase
 {
@@ -83,7 +83,7 @@ class RemoveOrderTagActionTest extends TestCase
                     'id' => Uuid::randomHex(),
                     'parentId' => $sequenceId,
                     'ruleId' => null,
-                    'actionName' => FlowAction::REMOVE_ORDER_TAG,
+                    'actionName' => RemoveOrderTagAction::getName(),
                     'config' => [
                         'tagIds' => [
                             $this->ids->get('tag_id') => 'test tag',
@@ -97,7 +97,7 @@ class RemoveOrderTagActionTest extends TestCase
                     'id' => Uuid::randomHex(),
                     'parentId' => $sequenceId,
                     'ruleId' => null,
-                    'actionName' => FlowAction::REMOVE_ORDER_TAG,
+                    'actionName' => RemoveOrderTagAction::getName(),
                     'config' => [
                         'tagIds' => [
                             $this->ids->get('tag_id3') => 'test tag3',

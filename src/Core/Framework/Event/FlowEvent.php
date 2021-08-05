@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Event;
 
-use Shopware\Core\Content\Flow\FlowState;
+use Shopware\Core\Content\Flow\Dispatching\FlowState;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Symfony\Contracts\EventDispatcher\Event;
@@ -58,5 +58,10 @@ class FlowEvent extends Event
     public function getFlowState(): FlowState
     {
         return $this->state;
+    }
+
+    public function stop(): void
+    {
+        $this->state->stop = true;
     }
 }

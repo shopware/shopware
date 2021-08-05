@@ -93,7 +93,7 @@ class UserRecoveryRequestEvent extends Event implements BusinessEventInterface, 
     }
 
     /**
-     * @internal (FEATURE_NEXT_8225)
+     * @internal (flag:FEATURE_NEXT_8225)
      */
     public function getUserId(): string
     {

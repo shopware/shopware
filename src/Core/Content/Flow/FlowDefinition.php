@@ -43,12 +43,15 @@ class FlowDefinition extends EntityDefinition
 
     public function getDefaults(): array
     {
-        return ['active' => false, 'priority' => 1];
+        return [
+            'active' => false,
+            'priority' => 1,
+        ];
     }
 
     public function since(): ?string
     {
-        return '6.4.1.0';
+        return '6.4.4.0';
     }
 
     protected function defineFields(): FieldCollection
@@ -59,6 +62,7 @@ class FlowDefinition extends EntityDefinition
             (new StringField('event_name', 'eventName', 255))->addFlags(new Required()),
             new IntField('priority', 'priority'),
             (new BlobField('payload', 'payload'))->removeFlag(ApiAware::class)->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
+            (new BoolField('invalid', 'invalid'))->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
             new BoolField('active', 'active'),
             (new StringField('description', 'description', 500)),
             (new OneToManyAssociationField('sequences', FlowSequenceDefinition::class, 'flow_id', 'id'))->addFlags(new CascadeDelete()),

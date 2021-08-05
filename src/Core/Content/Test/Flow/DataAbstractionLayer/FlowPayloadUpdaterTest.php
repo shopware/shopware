@@ -7,9 +7,11 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Checkout\Order\OrderDefinition;
-use Shopware\Core\Content\Flow\Action\FlowAction;
-use Shopware\Core\Content\Flow\SequenceTree\Sequence;
-use Shopware\Core\Content\Flow\SequenceTree\SequenceTree;
+use Shopware\Core\Content\Flow\Dispatching\Action\AddOrderTagAction;
+use Shopware\Core\Content\Flow\Dispatching\Action\RemoveOrderTagAction;
+use Shopware\Core\Content\Flow\Dispatching\Struct\ActionSequence;
+use Shopware\Core\Content\Flow\Dispatching\Struct\Flow;
+use Shopware\Core\Content\Flow\Dispatching\Struct\IfSequence;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -18,7 +20,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 
 /**
- * @internal (FEATURE_NEXT_8225)
+ * @internal (flag:FEATURE_NEXT_8225)
  */
 class FlowPayloadUpdaterTest extends TestCase
 {
@@ -47,28 +49,34 @@ class FlowPayloadUpdaterTest extends TestCase
 
         $flow = $this->flowRepository->search(new Criteria([$this->ids->get('flow_id')]), $this->ids->context)->first();
 
-        $trueCaseNextAction = new Sequence();
-        $trueCaseNextAction->action = FlowAction::ADD_ORDER_TAG;
+        $trueCaseNextAction = new ActionSequence();
+        $trueCaseNextAction->action = AddOrderTagAction::getName();
         $trueCaseNextAction->config = [
             'tagId' => $this->ids->get('tag_id2'),
             'entity' => OrderDefinition::ENTITY_NAME,
         ];
+        $trueCaseNextAction->flowId = $this->ids->get('flow_id');
+        $trueCaseNextAction->sequenceId = $this->ids->get('flow_sequence_id2');
 
-        $trueCase = new Sequence();
-        $trueCase->action = FlowAction::ADD_ORDER_TAG;
+        $trueCase = new ActionSequence();
+        $trueCase->action = AddOrderTagAction::getName();
         $trueCase->config = [
             'tagId' => $this->ids->get('tag_id'),
             'entity' => OrderDefinition::ENTITY_NAME,
         ];
         $trueCase->nextAction = $trueCaseNextAction;
+        $trueCase->flowId = $this->ids->get('flow_id');
+        $trueCase->sequenceId = $this->ids->get('flow_sequence_id1');
 
-        $sequence = new Sequence();
+        $sequence = new IfSequence();
         $sequence->ruleId = $this->ids->get('rule_id');
         $sequence->trueCase = $trueCase;
+        $sequence->flowId = $this->ids->get('flow_id');
+        $sequence->sequenceId = $this->ids->get('flow_sequence_id');
 
         $expected = [$sequence];
 
-        static::assertSame(serialize(new SequenceTree($expected)), $flow->getPayload());
+        static::assertSame(serialize(new Flow($this->ids->get('flow_id'), $expected)), serialize($flow->getPayload()));
     }
 
     public function testUpdate(): void
@@ -81,7 +89,7 @@ class FlowPayloadUpdaterTest extends TestCase
                 'sequences' => [
                     [
                         'id' => $this->ids->create('flow_sequence_id1'),
-                        'actionName' => FlowAction::REMOVE_ORDER_TAG,
+                        'actionName' => RemoveOrderTagAction::getName(),
                     ],
                     [
                         'id' => $this->ids->create('flow_sequence_id2'),
@@ -94,28 +102,34 @@ class FlowPayloadUpdaterTest extends TestCase
 
         $flow = $this->flowRepository->search(new Criteria([$this->ids->get('flow_id')]), $this->ids->context)->first();
 
-        $falseCase = new Sequence();
-        $falseCase->action = FlowAction::ADD_ORDER_TAG;
+        $falseCase = new ActionSequence();
+        $falseCase->action = AddOrderTagAction::getName();
         $falseCase->config = [
             'tagId' => $this->ids->get('tag_id2'),
             'entity' => OrderDefinition::ENTITY_NAME,
         ];
+        $falseCase->flowId = $this->ids->get('flow_id');
+        $falseCase->sequenceId = $this->ids->get('flow_sequence_id2');
 
-        $trueCase = new Sequence();
-        $trueCase->action = FlowAction::REMOVE_ORDER_TAG;
+        $trueCase = new ActionSequence();
+        $trueCase->action = RemoveOrderTagAction::getName();
         $trueCase->config = [
             'tagId' => $this->ids->get('tag_id'),
             'entity' => OrderDefinition::ENTITY_NAME,
         ];
+        $trueCase->flowId = $this->ids->get('flow_id');
+        $trueCase->sequenceId = $this->ids->get('flow_sequence_id1');
 
-        $sequence = new Sequence();
+        $sequence = new IfSequence();
         $sequence->ruleId = $this->ids->get('rule_id');
         $sequence->trueCase = $trueCase;
         $sequence->falseCase = $falseCase;
+        $sequence->flowId = $this->ids->get('flow_id');
+        $sequence->sequenceId = $this->ids->get('flow_sequence_id');
 
         $expected = [$sequence];
 
-        static::assertSame(serialize(new SequenceTree($expected)), $flow->getPayload());
+        static::assertSame(serialize(new Flow($this->ids->get('flow_id'), $expected)), serialize($flow->getPayload()));
     }
 
     private function createTestData(): void
@@ -126,6 +140,8 @@ class FlowPayloadUpdaterTest extends TestCase
             'eventName' => CheckoutOrderPlacedEvent::EVENT_NAME,
             'priority' => 1,
             'active' => true,
+            'payload' => null,
+            'invalid' => true,
             'sequences' => [
                 [
                     'id' => $this->ids->create('flow_sequence_id'),
@@ -147,7 +163,7 @@ class FlowPayloadUpdaterTest extends TestCase
                     'id' => $this->ids->create('flow_sequence_id1'),
                     'parentId' => $this->ids->get('flow_sequence_id'),
                     'ruleId' => null,
-                    'actionName' => FlowAction::ADD_ORDER_TAG,
+                    'actionName' => AddOrderTagAction::getName(),
                     'config' => [
                         'tagId' => $this->ids->get('tag_id'),
                         'entity' => OrderDefinition::ENTITY_NAME,
@@ -159,7 +175,7 @@ class FlowPayloadUpdaterTest extends TestCase
                     'id' => $this->ids->create('flow_sequence_id2'),
                     'parentId' => $this->ids->get('flow_sequence_id'),
                     'ruleId' => null,
-                    'actionName' => FlowAction::ADD_ORDER_TAG,
+                    'actionName' => AddOrderTagAction::getName(),
                     'config' => [
                         'tagId' => $this->ids->get('tag_id2'),
                         'entity' => OrderDefinition::ENTITY_NAME,

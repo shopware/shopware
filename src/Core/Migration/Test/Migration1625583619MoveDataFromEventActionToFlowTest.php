@@ -4,7 +4,7 @@ namespace Shopware\Core\Migration\Test;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Flow\Action\FlowAction;
+use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
 use Shopware\Core\Content\Flow\FlowEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -61,7 +61,7 @@ class Migration1625583619MoveDataFromEventActionToFlowTest extends TestCase
             $data[] = [
                 'title' => 'Test event',
                 'eventName' => $eventName,
-                'actionName' => FlowAction::SEND_MAIL,
+                'actionName' => SendMailAction::getName(),
                 'config' => [
                     'mail_template_id' => $this->ids->get('mail_template'),
                     'mail_template_type_id' => $this->ids->get('mail_template_type'),
@@ -85,7 +85,7 @@ class Migration1625583619MoveDataFromEventActionToFlowTest extends TestCase
 
         $eventActions = $this->connection->fetchAssociative(
             'SELECT id FROM event_action WHERE action_name = :actionName',
-            ['actionName' => FlowAction::SEND_MAIL]
+            ['actionName' => SendMailAction::getName()]
         );
 
         static::assertFalse($eventActions);
@@ -110,7 +110,7 @@ class Migration1625583619MoveDataFromEventActionToFlowTest extends TestCase
 
         $eventActions = $this->connection->fetchAssociative(
             'SELECT id FROM event_action WHERE action_name = :actionName',
-            ['actionName' => FlowAction::SEND_MAIL]
+            ['actionName' => SendMailAction::getName()]
         );
 
         static::assertFalse($eventActions);
@@ -125,7 +125,7 @@ class Migration1625583619MoveDataFromEventActionToFlowTest extends TestCase
             'id' => $this->ids->create('event_action_id'),
             'title' => 'Test event',
             'eventName' => 'checkout.order.placed',
-            'actionName' => FlowAction::SEND_MAIL,
+            'actionName' => SendMailAction::getName(),
             'config' => [
                 'mail_template_id' => $this->ids->get('mail_template'),
                 'mail_template_type_id' => $this->ids->get('mail_template_type'),

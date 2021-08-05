@@ -94,7 +94,7 @@ class CustomerDoubleOptInRegistrationEvent extends Event implements MailActionIn
     }
 
     /**
-     * @internal (FEATURE_NEXT_8225)
+     * @internal (flag:FEATURE_NEXT_8225)
      */
     public function getCustomerId(): string
     {

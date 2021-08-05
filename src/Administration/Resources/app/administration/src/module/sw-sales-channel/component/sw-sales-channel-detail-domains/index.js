@@ -226,6 +226,10 @@ Component.register('sw-sales-channel-detail-domains', {
             this.deleteDomain = null;
         },
 
+        onLanguageSelect(id) {
+            this.onOptionSelect('language', this.salesChannel.languages.get(id));
+        },
+
         onOptionSelect(name, entity) {
             this.currentDomain[name] = entity;
         },

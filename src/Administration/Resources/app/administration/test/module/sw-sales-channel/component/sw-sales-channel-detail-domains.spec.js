@@ -1,6 +1,9 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-sales-channel/component/sw-sales-channel-detail-domains';
 import 'src/app/component/data-grid/sw-data-grid';
+import 'src/app/component/base/sw-modal';
+import 'src/app/component/form/select/base/sw-single-select';
+
 
 function createWrapper(customProps = {}, domains = []) {
     return shallowMount(Shopware.Component.build('sw-sales-channel-detail-domains'), {
@@ -12,10 +15,32 @@ function createWrapper(customProps = {}, domains = []) {
             'sw-data-grid': Shopware.Component.build('sw-data-grid'),
             'sw-context-menu-item': true,
             'sw-icon': true,
-            'sw-context-button': true
+            'sw-context-button': true,
+            'sw-modal': Shopware.Component.build('sw-modal'),
+            'sw-entity-single-select': true,
+            'sw-radio-field': true,
+            'sw-single-select': Shopware.Component.build('sw-single-select'),
+            'sw-container': { template: '<div class="sw-container"><slot></slot></div>' },
+            'sw-url-field': true,
+            'sw-select-base': true,
+            'sw-select-result-list': true
+
         },
         provide: {
-            repositoryFactory: {}
+            repositoryFactory: {
+                create: () => ({
+                    create: () => {
+                        return {
+                            id: '44de136acf314e7184401d36406c1e90',
+                            isNew: () => true
+                        };
+                    }
+                })
+            },
+            shortcutService: {
+                stopEventListener: () => {}
+            }
+
         },
         propsData: {
             salesChannel: {
@@ -157,5 +182,26 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
         const expectedRow = rows.at(0);
         expect(expectedRow.find('.sw-data-grid__cell--url .sw-data-grid__cell-content').text()).toBe('http://secondExample.com');
+    });
+
+    it('should only display available languages', async () => {
+        const languages = [
+            {
+                id: 'test1',
+                name: 'language1'
+            }
+        ];
+
+        const wrapper = createWrapper({
+            salesChannel: {
+                languages,
+                domains: getExampleDomains()
+            }
+        }, getExampleDomains());
+
+        wrapper.vm.onClickOpenCreateDomainModal();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.sw-sales-channel-detail-domains__domain-language-select').vm.$data.results).toBe(languages);
     });
 });

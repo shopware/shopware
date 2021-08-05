@@ -502,9 +502,7 @@ const webpackConfig = {
                         template: 'index.html.tpl',
                         templateParameters: {
                             featureFlags: (() => {
-                                const getFeatureFlagNames = (sourceFolder) => {
-                                    const flagsPath = path.join(sourceFolder, '/config_js_features.json');
-
+                                const getFeatureFlagNames = (flagsPath) => {
                                     if (!fs.existsSync(flagsPath)) {
                                         return '{}';
                                     }
@@ -512,7 +510,7 @@ const webpackConfig = {
                                     return fs.readFileSync(flagsPath);
                                 }
 
-                                return getFeatureFlagNames(path.join(__dirname, '../../../../../../var'));
+                                return getFeatureFlagNames(path.join(process.env.PROJECT_ROOT, 'var', 'config_js_features.json'));
                             })(),
                             // TODO: NEXT-7581 - Implement a version dump in the backend and read here the version file
                             apiVersion: 3

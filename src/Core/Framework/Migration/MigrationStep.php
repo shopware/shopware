@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Migration;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
+use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 
 abstract class MigrationStep
@@ -101,5 +102,33 @@ abstract class MigrationStep
     protected function registerIndexer(Connection $connection, string $name): void
     {
         IndexerQueuer::registerIndexer($connection, $name, static::class);
+    }
+
+    protected function addAdditionalPrivileges(Connection $connection, array $privileges): void
+    {
+        $roles = $connection->fetchAllAssociative('SELECT * from `acl_role`');
+        foreach ($roles as $role) {
+            $currentPrivileges = json_decode($role['privileges'], true);
+            $newPrivileges = array_values($this->fixRolePrivileges($privileges, $currentPrivileges));
+            if ($currentPrivileges === $newPrivileges) {
+                continue;
+            }
+
+            $role['privileges'] = json_encode($newPrivileges);
+            $role['updated_at'] = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_FORMAT);
+
+            $connection->update('acl_role', $role, ['id' => $role['id']]);
+        }
+    }
+
+    private function fixRolePrivileges(array $privilegeChange, array $rolePrivileges): array
+    {
+        foreach ($privilegeChange as $existingPrivilege => $newPrivileges) {
+            if (\in_array($existingPrivilege, $rolePrivileges, true)) {
+                $rolePrivileges = array_merge($rolePrivileges, $newPrivileges);
+            }
+        }
+
+        return $rolePrivileges;
     }
 }

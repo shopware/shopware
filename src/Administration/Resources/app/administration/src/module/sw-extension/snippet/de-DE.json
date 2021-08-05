@@ -50,7 +50,10 @@
       },
       "fileUpload": {
         "buttonFileUpload": "Erweiterung hochladen",
-        "messageUploadSuccess": "Erweiterung hochgeladen."
+        "messageUploadSuccess": "Erweiterung hochgeladen.",
+        "titleWarningModal": "Warnung",
+        "descriptionWarningModal": "Erweiterungen, die nicht aus dem Shopware Store stammen, wurden nicht von uns überprüft und könnten eine Gefahr für Deinen Shop darstellen. Wir empfehlen, wenn möglich, Erweiterungen aus dem Shopware Store zu verwenden.",
+        "textHideWarning": "Nicht erneut anzeigen"
       }
     },
     "errors": {

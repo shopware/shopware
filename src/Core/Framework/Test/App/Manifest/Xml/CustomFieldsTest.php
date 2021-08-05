@@ -23,6 +23,7 @@ class CustomFieldsTest extends TestCase
             'de-DE' => 'Zusatzfeld Test',
         ], $customFieldSet->getLabel());
         static::assertEquals(['product', 'customer'], $customFieldSet->getRelatedEntities());
+        static::assertTrue($customFieldSet->getGlobal());
 
         static::assertCount(0, $customFieldSet->getFields());
     }

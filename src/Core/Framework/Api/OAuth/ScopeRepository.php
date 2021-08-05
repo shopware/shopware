@@ -40,7 +40,7 @@ class ScopeRepository implements ScopeRepositoryInterface
     /**
      * {@inheritdoc}
      */
-    public function getScopeEntityByIdentifier($identifier): ScopeEntityInterface
+    public function getScopeEntityByIdentifier($identifier): ?ScopeEntityInterface
     {
         return $this->scopes[$identifier] ?? null;
     }

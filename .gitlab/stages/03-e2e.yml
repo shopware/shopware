@@ -1,0 +1,58 @@
+# requires /.gitlab/base.yml
+
+E2E:
+    extends:
+        - .long-running
+    stage: E2E
+    needs: []
+    services:
+        -   name: mariadb:10.3
+            alias: database
+    variables:
+        APP_ENV: e2e
+        CYPRESS_baseUrl: "http://localhost:8000"
+        CYPRESS_localUsage: 1
+        CYPRESS_screenshotsFolder: $CI_PROJECT_DIR/var/log/screenshots
+        SHOPWARE_HTTP_CACHE_ENABLED: 0
+        cypress_usePercy: 'false'
+    parallel:
+        matrix:
+            -   E2E_PROJECT: 'storefront'
+                TEST_DIRECTORY: "cypress/integration/**/**/*"
+                BROWSER: 'chrome'
+                FEATURE_ALL: ["false", "minor", "major"]
+            -   E2E_PROJECT: 'admin'
+                TEST_DIRECTORY:
+                    - "cypress/integration/content/**/*,cypress/integration/catalogue/**/*,cypress/integration/customer/**/*,cypress/integration/media-marketing/**/*"
+                    - "cypress/integration/general/**/*,cypress/integration/order/**/*,cypress/integration/rule-product-stream/**/*,cypress/integration/settings/**/*"
+                BROWSER: 'chrome'
+                FEATURE_ALL: ["false", "minor", "major"]
+            # firefox
+            -   E2E_PROJECT: 'storefront'
+                TEST_DIRECTORY: "cypress/integration/**/**/*"
+                BROWSER: 'firefox'
+                FEATURE_ALL: 'false'
+            -   E2E_PROJECT: 'admin'
+                TEST_DIRECTORY:
+                    - "cypress/integration/content/**/*,cypress/integration/catalogue/**/*,cypress/integration/customer/**/*,cypress/integration/media-marketing/**/*"
+                    - "cypress/integration/general/**/*,cypress/integration/order/**/*,cypress/integration/rule-product-stream/**/*,cypress/integration/settings/**/*"
+                BROWSER: 'firefox'
+                FEATURE_ALL: 'false'
+
+    script:
+        - composer run init:e2e:$E2E_PROJECT
+        - composer run e2e:prepare
+        - composer run e2e:$E2E_PROJECT:cypress -- run
+            --browser chrome
+            --spec "$TEST_DIRECTORY"
+            --headless
+    after_script:
+        - mkdir $CI_PROJECT_DIR/var/log/e2e
+        - mv $ADMIN_PATH/test/e2e/cypress/results/*.xml var/log/e2e/ || true
+        - mv $STOREFRONT_PATH/test/e2e/cypress/results/*.xml var/log/e2e/ || true
+    artifacts:
+        when: always
+        paths:
+            - var/log/*
+        reports:
+            junit: var/log/e2e/*.xml

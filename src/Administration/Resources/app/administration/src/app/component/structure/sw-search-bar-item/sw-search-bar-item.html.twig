@@ -5,6 +5,14 @@
     @mouseenter="onMouseEnter($event)"
 >
 
+    {% block sw_search_bar_item_icon %}
+    <sw-icon
+        v-if="entityIconName && feature.isActive('FEATURE_NEXT_6040')"
+        :name="entityIconName"
+        :color="entityIconColor"
+    />
+    {% endblock %}
+
     {% block sw_search_bar_item_customer %}
     <router-link
         v-if="type === 'customer'"
@@ -12,13 +20,34 @@
         class="sw-search-bar-item__link"
         :to="{ name: 'sw.customer.detail.base', params: { id: item.id } }"
     >
-
         {% block sw_search_bar_item_customer_label %}
-        <span class="sw-search-bar-item__label">
+        <span
+            v-if="!feature.isActive('FEATURE_NEXT_6040')"
+            class="sw-search-bar-item__label"
+        >
             <sw-highlight-text
                 :search-term="searchTerm"
                 :text="`${item.customerNumber} - ${item.firstName} ${item.lastName}`"
             />
+        </span>
+
+        <span
+            v-if="feature.isActive('FEATURE_NEXT_6040')"
+            class="sw-search-bar-item__label"
+        >
+            {% block sw_search_bar_item_customer_label_name %}
+            <sw-highlight-text
+                :search-term="searchTerm"
+                :text="`${item.firstName} ${item.lastName}`"
+            />
+            {% endblock %}
+
+            {% block sw_search_bar_item_customer_label_number %}
+            <sw-highlight-text
+                :search-term="searchTerm"
+                :text="item.customerNumber"
+            />
+            {% endblock %}
         </span>
         {% endblock %}
 
@@ -34,11 +63,33 @@
     >
 
         {% block sw_search_bar_item_product_label %}
-        <span class="sw-search-bar-item__label">
+        <span
+            v-if="!feature.isActive('FEATURE_NEXT_6040')"
+            class="sw-search-bar-item__label"
+        >
             <sw-highlight-text
                 :search-term="searchTerm"
                 :text="`${item.productNumber} - ${item.name}`"
             />
+        </span>
+
+        <span
+            v-if="feature.isActive('FEATURE_NEXT_6040')"
+            class="sw-search-bar-item__label"
+        >
+            {% block sw_search_bar_item_product_label_name %}
+            <sw-highlight-text
+                :search-term="searchTerm"
+                :text="item.name"
+            />
+            {% endblock %}
+
+            {% block sw_search_bar_item_product_label_number %}
+            <sw-highlight-text
+                :search-term="searchTerm"
+                :text="item.productNumber"
+            />
+            {% endblock %}
         </span>
         {% endblock %}
 
@@ -74,11 +125,33 @@
     >
 
         {% block sw_search_bar_item_order_label %}
-        <span class="sw-search-bar-item__label">
+        <span
+            v-if="!feature.isActive('FEATURE_NEXT_6040')"
+            class="sw-search-bar-item__label"
+        >
             <sw-highlight-text
                 :search-term="searchTerm"
                 :text="`${item.orderNumber} - ${item.orderCustomer.firstName} ${item.orderCustomer.lastName}`"
             />
+        </span>
+
+        <span
+            v-if="feature.isActive('FEATURE_NEXT_6040')"
+            class="sw-search-bar-item__label"
+        >
+            {% block sw_search_bar_item_order_label_name %}
+            <sw-highlight-text
+                :search-term="searchTerm"
+                :text="`${item.orderCustomer.firstName} ${item.orderCustomer.lastName}`"
+            />
+            {% endblock %}
+
+            {% block sw_search_bar_item_order_label_number %}
+            <sw-highlight-text
+                :search-term="searchTerm"
+                :text="item.orderNumber"
+            />
+            {% endblock %}
         </span>
         {% endblock %}
 

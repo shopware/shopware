@@ -19,6 +19,7 @@ Component.register('sw-search-bar', {
         'searchService',
         'searchTypeService',
         'repositoryFactory',
+        'feature',
     ],
 
     shortcuts: {
@@ -345,6 +346,9 @@ Component.register('sw-search-bar', {
             const criteria = new Criteria();
 
             criteria.setTerm(searchTerm);
+            if (this.feature.isActive('FEATURE_NEXT_6040')) {
+                criteria.setLimit(10);
+            }
 
             repository.search(criteria, Shopware.Context.api).then((response) => {
                 entityResults.total = response.total;

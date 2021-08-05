@@ -109,6 +109,7 @@
             v-if="showResultsContainer"
             ref="resultsContainer"
             class="sw-search-bar__results"
+            :class="{'sw-search-bar__results--v2': feature.isActive('FEATURE_NEXT_6040')}"
         >
 
             {% block sw_search_bar_results_empty_state %}
@@ -127,19 +128,32 @@
                     {% block sw_search_bar_results_list_column %}
                     {% block sw_search_bar_results_list_column_header %}
                     <div class="sw-search-bar__results-column-header">
-                        <template v-if="!currentSearchType">
+                        <template v-if="!currentSearchType && !feature.isActive('FEATURE_NEXT_6040')">
                             <sw-icon
                                 v-if="getEntityIconName(entity.entity)"
                                 :name="getEntityIconName(entity.entity)"
                                 size="20px"
                                 :color="getEntityIconColor(entity.entity)"
                             />
+
                             <span class="sw-search-bar__types-header-entity">
                                 {{ $tc(`global.entities.${entity.entity}`, entity.total) }}
                             </span>
                         </template>
+
+                        {% block sw_search_bar_results_list_column_header_title %}
+                        <span
+                            v-if="feature.isActive('FEATURE_NEXT_6040')"
+                            class="sw-search-bar__types-header-entity"
+                        >
+                            {{ $tc(`global.entities.${entity.entity}`, entity.total) }}
+                        </span>
+                        {% endblock %}
+
+                        {# @feature-deprecated (FEATURE_NEXT_6040) tag:v6.5.0 - Will be removed #}
                         {% block sw_search_bar_results_list_column_header_more_results %}
                         <sw-search-more-results
+                            v-if="!feature.isActive('FEATURE_NEXT_6040')"
                             :result="entity"
                             :term="searchTerm"
                         />
@@ -155,7 +169,30 @@
                             :search-term="searchTerm"
                             :column="column"
                             :index="index"
+                            :entity-icon-color="getEntityIconColor(entity.entity)"
+                            :entity-icon-name="getEntityIconName(entity.entity)"
                         />
+
+                        {% block sw_search_bar_results_list_bar_item %}
+                        <li
+                            v-if="feature.isActive('FEATURE_NEXT_6040')"
+                            class="sw-search-bar-item sw-search-bar-item--v2"
+                        >
+                            {% block sw_search_bar_results_list_bar_item_icon %}
+                            <sw-icon
+                                name="small-arrow-medium-double-right"
+                                color="rgb(117, 140, 163)"
+                            />
+                            {% endblock %}
+
+                            {% block sw_search_bar_results_list_bar_item_more_results %}
+                            <sw-search-more-results
+                                :result="entity"
+                                :term="searchTerm"
+                            />
+                            {% endblock %}
+                        </li>
+                        {% endblock %}
                     </ul>
                     {% endblock %}
                 </div>

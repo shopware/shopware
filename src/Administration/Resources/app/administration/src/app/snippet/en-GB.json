@@ -510,7 +510,8 @@
       "typeLabelCms": "CMS"
     },
     "sw-search-more-results": {
-      "labelShowResultsInModule": "Show results in module({count})"
+      "labelShowResultsInModule": "Show results in module({count})",
+      "labelShowResultsInModuleV2": "Show all {count} matching results in {entityName}..."
     },
     "sw-tagged-field": {
       "text-default-placeholder": "Press the enter key to add values."

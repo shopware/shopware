@@ -43,11 +43,6 @@ class NumberRangeTypeDefinition extends EntityDefinition
         return '6.0.0.0';
     }
 
-    protected function getParentDefinitionClass(): string
-    {
-        return NumberRangeDefinition::class;
-    }
-
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([

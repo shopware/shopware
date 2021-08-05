@@ -183,6 +183,10 @@ class EntityProtectionValidatorTest extends TestCase
 
     public function testItDoesNotValidateCascadeDeletes(): void
     {
+        /** @var EntityRepositoryInterface $salesChannelRepository */
+        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+        $countBefore = $salesChannelRepository->search(new Criteria(), Context::createDefaultContext())->getTotal();
+
         // system_config has a cascade delete on sales_channel
         $this->getBrowser()
             ->request(
@@ -194,11 +198,8 @@ class EntityProtectionValidatorTest extends TestCase
 
         static::assertEquals(204, $response->getStatusCode(), $response->getContent());
 
-        /** @var EntityRepositoryInterface $salesChannelRepository */
-        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
-
         static::assertEquals(
-            1,
+            $countBefore - 1,
             $salesChannelRepository->search(new Criteria(), Context::createDefaultContext())->getTotal()
         );
     }

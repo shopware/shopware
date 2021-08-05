@@ -99,13 +99,17 @@ class CachedCategoryRouteTest extends TestCase
 
         $route->load($id, new Request(), $context);
         $route->load($id, new Request(), $context);
+
+        $this->getContainer()
+            ->get('event_dispatcher')
+            ->removeListener(CategoryRouteCacheTagsEvent::class, $listener);
     }
 
     public function invalidationProvider()
     {
         $ids = new IdsCollection();
 
-        yield 'Test call multiple times withot change' => [
+        yield 'Test call multiple times without change' => [
             $ids,
             function (IdsCollection $ids, SalesChannelContext $context): void {
             },

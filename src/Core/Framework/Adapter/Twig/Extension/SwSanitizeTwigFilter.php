@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Framework\Twig\Extension;
+namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Twig\Extension\AbstractExtension;
@@ -8,10 +8,7 @@ use Twig\TwigFilter;
 
 class SwSanitizeTwigFilter extends AbstractExtension
 {
-    /**
-     * @var HtmlSanitizer
-     */
-    private $sanitizer;
+    private HtmlSanitizer $sanitizer;
 
     public function __construct(HtmlSanitizer $sanitizer)
     {

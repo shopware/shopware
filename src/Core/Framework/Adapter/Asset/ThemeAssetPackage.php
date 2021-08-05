@@ -23,7 +23,7 @@ class ThemeAssetPackage extends FallbackUrlPackage
         $baseUrls,
         VersionStrategyInterface $versionStrategy,
         RequestStack $requestStack,
-        AbstractThemePathBuilder $themePathBuilder
+        ?AbstractThemePathBuilder $themePathBuilder
     ) {
         parent::__construct($baseUrls, $versionStrategy);
         $this->requestStack = $requestStack;

@@ -146,10 +146,28 @@ PHP Full:
                 DEV_IMAGE: shopware/development:7.4-composer-2
                 FEATURE_ALL: 'false'
                 PREFER_LOWEST: 'true'
+            -   MYSQL_IMAGE: mariadb:10.4
+                DEV_IMAGE: shopware/development:7.4-composer-2
+                FEATURE_ALL: 'false'
+                ONLY_CORE: 'true'
+                TEST_SUITES: "checkout content framework profiling migration system"
     script:
         - >
             if [ "$PREFER_LOWEST" == "true" ]; then
                 composer update --prefer-lowest
+            fi
+        - >
+            if [ "$ONLY_CORE" == "true" ]; then
+                sed -i '/Shopware\\Administration/d' ./config/bundles.php
+                sed -i '/ Shopware\\Docs/d' ./config/bundles.php
+                sed -i '/Shopware\\Storefront/d' ./config/bundles.php
+                sed -i '/Shopware\\Elasticsearch/d' ./config/bundles.php
+                sed -i '/Shopware\\\\Administration/d' ./composer.json
+                sed -i '/Shopware\\\\Docs/d' ./composer.json
+                sed -i '/Shopware\\\\Storefront/d' ./composer.json
+                sed -i '/Shopware\\\\Elasticsearch/d' ./composer.json
+                sed -i 's/"src\/Core\/"\,/"src\/Core\/"/' ./composer.json
+                composer dump-autoload
             fi
         - FAILED=0
         - >

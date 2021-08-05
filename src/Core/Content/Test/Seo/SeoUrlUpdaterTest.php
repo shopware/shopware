@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 
 class SeoUrlUpdaterTest extends TestCase
 {
@@ -32,6 +33,9 @@ class SeoUrlUpdaterTest extends TestCase
 
     protected function setUp(): void
     {
+        if (!$this->getContainer()->has(ProductPageSeoUrlRoute::class)) {
+            static::markTestSkipped('SeoUrl tests need the storefront bundle to be present.');
+        }
         parent::setUp();
 
         $this->ids = new TestDataCollection();

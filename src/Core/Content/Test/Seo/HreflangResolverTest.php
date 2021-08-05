@@ -17,28 +17,24 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelD
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 
 class HreflangResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $seoUrlRepository;
+    private EntityRepositoryInterface $seoUrlRepository;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
+    private SalesChannelContext $salesChannelContext;
 
-    /**
-     * @var HreflangLoaderInterface
-     */
-    private $hreflangResolver;
+    private HreflangLoaderInterface $hreflangResolver;
 
     protected function setUp(): void
     {
+        if (!$this->getContainer()->has(ProductPageSeoUrlRoute::class)) {
+            static::markTestSkipped('SeoRoute/Hreflang tests need the storefront bundle to be present.');
+        }
+
         parent::setUp();
         $this->cleanDefaultSalesChannelDomain();
 

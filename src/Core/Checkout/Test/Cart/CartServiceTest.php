@@ -33,6 +33,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Storefront\Controller\AccountOrderController;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class CartServiceTest extends TestCase
@@ -307,6 +308,11 @@ class CartServiceTest extends TestCase
 
     public function testOrderCartSendMail(): void
     {
+        if (!$this->getContainer()->has(AccountOrderController::class)) {
+            // ToDo: NEXT-16882 - Reactivate tests again
+            static::markTestSkipped('Order mail tests should be fixed without storefront in NEXT-16882');
+        }
+
         $context = $this->getSalesChannelContext();
 
         $contextService = $this->getContainer()->get(SalesChannelContextService::class);

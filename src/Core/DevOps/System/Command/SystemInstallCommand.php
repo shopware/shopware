@@ -10,9 +10,7 @@ use Doctrine\DBAL\FetchMode;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Kernel;
-use Shopware\Storefront\Theme\Command\ThemeChangeCommand;
-use Shopware\Storefront\Theme\Command\ThemeCompileCommand;
-use Shopware\Storefront\Theme\Command\ThemeRefreshCommand;
+use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
@@ -152,13 +150,15 @@ class SystemInstallCommand extends Command
             ],
         ];
 
-        if (\class_exists(ThemeRefreshCommand::class)) {
+        /** @var Application $application */
+        $application = $this->getApplication();
+        if ($application->has('theme:refresh')) {
             $commands[] = [
                 'command' => 'theme:refresh',
             ];
         }
 
-        if (\class_exists(ThemeCompileCommand::class)) {
+        if ($application->has('theme:compile')) {
             $commands[] = [
                 'command' => 'theme:compile',
                 'allowedToFail' => true,
@@ -173,13 +173,15 @@ class SystemInstallCommand extends Command
                 '--password' => 'shopware',
             ];
 
-            $commands[] = [
-                'command' => 'sales-channel:create:storefront',
-                '--name' => 'Storefront',
-                '--url' => (string) EnvironmentHelper::getVariable('APP_URL', 'http://localhost'),
-            ];
+            if ($application->has('sales-channel:create:storefront')) {
+                $commands[] = [
+                    'command' => 'sales-channel:create:storefront',
+                    '--name' => 'Storefront',
+                    '--url' => (string) EnvironmentHelper::getVariable('APP_URL', 'http://localhost'),
+                ];
+            }
 
-            if (\class_exists(ThemeChangeCommand::class) && !$input->getOption('no-assign-theme')) {
+            if ($application->has('theme:change') && !$input->getOption('no-assign-theme')) {
                 $commands[] = [
                     'command' => 'theme:change',
                     'allowedToFail' => true,

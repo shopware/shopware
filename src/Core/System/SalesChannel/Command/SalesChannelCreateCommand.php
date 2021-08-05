@@ -24,40 +24,19 @@ class SalesChannelCreateCommand extends Command
 {
     protected static $defaultName = 'sales-channel:create';
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $salesChannelRepository;
+    private EntityRepositoryInterface $salesChannelRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $paymentMethodRepository;
+    private EntityRepositoryInterface $paymentMethodRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $shippingMethodRepository;
+    private EntityRepositoryInterface $shippingMethodRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $countryRepository;
+    private EntityRepositoryInterface $countryRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $snippetSetRepository;
+    private EntityRepositoryInterface $snippetSetRepository;
 
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $definitionRegistry;
+    private DefinitionInstanceRegistry $definitionRegistry;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $categoryRepository;
+    private EntityRepositoryInterface $categoryRepository;
 
     public function __construct(
         DefinitionInstanceRegistry $definitionRegistry,

@@ -410,7 +410,7 @@ base-uri 'self';
             <argument type="service" id="Shopware\Core\Framework\Routing\RouteScopeRegistry"/>
         </service>
 
-        <service id="Shopware\Administration\Service\AdminOrderCartService">
+        <service id="Shopware\Core\Checkout\Cart\ApiOrderCartService">
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
         </service>
@@ -423,7 +423,7 @@ base-uri 'self';
             <argument type="service" id="Shopware\Core\Framework\Routing\SalesChannelRequestContextResolver"/>
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Administration\Service\AdminOrderCartService"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\ApiOrderCartService"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartOrderRoute"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
@@ -617,6 +617,11 @@ base-uri 'self';
         </service>
 
         <service id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollection"/>
+
+        <service id="Shopware\Core\Framework\Adapter\Cache\CacheDecorator" decorates="cache.object">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheDecorator.inner"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollection"/>
+        </service>
 
         <service id="Shopware\Core\Framework\Util\HtmlSanitizer" public="true">
             <argument>%shopware.html_sanitizer.cache_dir%</argument>

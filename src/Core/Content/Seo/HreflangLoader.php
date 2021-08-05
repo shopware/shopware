@@ -14,20 +14,11 @@ use Symfony\Component\Routing\RouterInterface;
 
 class HreflangLoader implements HreflangLoaderInterface
 {
-    /**
-     * @var RouterInterface
-     */
-    private $router;
+    private RouterInterface $router;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $seoUrlRepository;
+    private EntityRepositoryInterface $seoUrlRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $salesChannelDomainRepository;
+    private EntityRepositoryInterface $salesChannelDomainRepository;
 
     public function __construct(
         RouterInterface $router,

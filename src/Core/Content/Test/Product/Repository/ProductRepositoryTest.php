@@ -51,30 +51,15 @@ class ProductRepositoryTest extends TestCase
     public const TEST_LOCALE_ID = 'cf735c44dc7b4428bb3870fe4ffea2df';
     public const TEST_LANGUAGE_LOCALE_CODE = 'sw-AG';
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $repository;
+    private EntityRepositoryInterface $repository;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
-    /**
-     * @var SearchKeywordUpdater
-     */
-    private $searchKeywordUpdater;
+    private SearchKeywordUpdater $searchKeywordUpdater;
 
     protected function setUp(): void
     {
@@ -3129,9 +3114,13 @@ class ProductRepositoryTest extends TestCase
     private function resetSearchKeywordUpdaterConfig(): void
     {
         $class = new \ReflectionClass($this->searchKeywordUpdater);
-        $property = $class->getProperty('decorated');
-        $property->setAccessible(true);
-        $searchKeywordUpdaterInner = $property->getValue($this->searchKeywordUpdater);
+        if ($class->hasProperty('decorated')) {
+            $property = $class->getProperty('decorated');
+            $property->setAccessible(true);
+            $searchKeywordUpdaterInner = $property->getValue($this->searchKeywordUpdater);
+        } else {
+            $searchKeywordUpdaterInner = $this->searchKeywordUpdater;
+        }
 
         $class = new \ReflectionClass($searchKeywordUpdaterInner);
         $property = $class->getProperty('config');

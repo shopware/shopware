@@ -43,6 +43,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
 /**
  * @RouteScope(scopes={"api"})
@@ -312,12 +313,12 @@ class UpdateController extends AbstractController
         $oldVersion = $this->systemConfig->getString(self::UPDATE_PREVIOUS_VERSION_KEY);
         if ($offset === 0) {
             if (!$token) {
-                return $this->redirectToRoute('administration.index');
+                return $this->getFinishResponse();
             }
 
-            $dbUpdateToken = $this->systemConfig->get(self::UPDATE_TOKEN_KEY);
+            $dbUpdateToken = $this->systemConfig->getString(self::UPDATE_TOKEN_KEY);
             if (!$dbUpdateToken || $token !== $dbUpdateToken) {
-                return $this->redirectToRoute('administration.index');
+                return $this->getFinishResponse();
             }
 
             $_unusedPreviousSetting = ignore_user_abort(true);
@@ -330,7 +331,7 @@ class UpdateController extends AbstractController
             new UpdatePostFinishEvent($context, $oldVersion, $this->shopwareVersion)
         );
 
-        return $this->redirectToRoute('administration.index');
+        return $this->getFinishResponse();
     }
 
     private function getUpdateLocale(Context $context): string
@@ -435,5 +436,14 @@ class UpdateController extends AbstractController
         $filename = 'update_' . $version->sha1 . '.zip';
 
         return $this->rootDir . '/' . $filename;
+    }
+
+    private function getFinishResponse(): Response
+    {
+        try {
+            return $this->redirectToRoute('administration.index');
+        } catch (RouteNotFoundException $e) {
+            return new Response('', Response::HTTP_NO_CONTENT);
+        }
     }
 }

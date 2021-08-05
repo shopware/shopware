@@ -22,20 +22,11 @@ class TranslatorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var Translator
-     */
-    private $translator;
+    private Translator $translator;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $snippetRepository;
+    private EntityRepositoryInterface $snippetRepository;
 
     protected function setUp(): void
     {
@@ -148,11 +139,9 @@ class TranslatorTest extends TestCase
         static::assertEquals('en_GB', $catalogue->getFallbackCatalogue()->getLocale());
 
         $this->translator->resetInMemoryCache();
-        $this->translator->resetInMemoryCache();
         $catalogue = $this->translator->getCatalogue('en_GB');
         static::assertEquals('en', $catalogue->getFallbackCatalogue()->getLocale());
 
-        $this->translator->resetInMemoryCache();
         $this->translator->resetInMemoryCache();
         $catalogue = $this->translator->getCatalogue('en-GB');
         $fallback = $catalogue->getFallbackCatalogue();
@@ -160,7 +149,6 @@ class TranslatorTest extends TestCase
         static::assertEquals('en_GB', $fallback->getFallbackCatalogue()->getLocale());
         static::assertEquals('en', $fallback->getFallbackCatalogue()->getFallbackCatalogue()->getLocale());
 
-        $this->translator->resetInMemoryCache();
         $this->translator->resetInMemoryCache();
         $catalogue = $this->translator->getCatalogue('de');
         $fallback = $catalogue->getFallbackCatalogue();

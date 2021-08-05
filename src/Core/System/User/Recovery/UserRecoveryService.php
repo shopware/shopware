@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\User\Recovery;
 
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -10,6 +11,7 @@ use Shopware\Core\Framework\Event\BusinessEventDispatcher;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryEntity;
 use Shopware\Core\System\User\UserEntity;
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -79,7 +81,14 @@ class UserRecoveryService
         }
 
         $hash = $recovery->getHash();
-        $url = $this->router->generate('administration.index', [], UrlGeneratorInterface::ABSOLUTE_URL);
+
+        try {
+            $url = $this->router->generate('administration.index', [], UrlGeneratorInterface::ABSOLUTE_URL);
+        } catch (RouteNotFoundException $e) {
+            // fallback if admin bundle is not installed, the url should work once the bundle is installed
+            $url = EnvironmentHelper::getVariable('APP_URL') . '/admin';
+        }
+
         $recoveryUrl = $url . '#/login/user-recovery/' . $hash;
 
         $this->dispatcher->dispatch(

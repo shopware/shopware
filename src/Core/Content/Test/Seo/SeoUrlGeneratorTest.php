@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 
 class SeoUrlGeneratorTest extends TestCase
 {
@@ -50,6 +51,10 @@ class SeoUrlGeneratorTest extends TestCase
 
     protected function setUp(): void
     {
+        if (!$this->getContainer()->has(ProductPageSeoUrlRoute::class)) {
+            static::markTestSkipped('SeoUrl tests need the storefront bundle to be present.');
+        }
+
         parent::setUp();
         $this->ids = new TestDataCollection();
         $this->deLanguageId = $this->getDeDeLanguageId();

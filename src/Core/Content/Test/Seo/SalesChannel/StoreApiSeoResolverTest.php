@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Test\Seo\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -27,6 +28,10 @@ class StoreApiSeoResolverTest extends TestCase
 
     protected function setUp(): void
     {
+        if (!$this->isSeoRoutePresent()) {
+            static::markTestSkipped('SeoRoute test need the storefront bundle to be present.');
+        }
+
         $this->ids = new TestDataCollection(Context::createDefaultContext());
 
         $this->createData();
@@ -176,5 +181,12 @@ class StoreApiSeoResolverTest extends TestCase
 
         $this->getContainer()->get('product.repository')
             ->update($products, $this->ids->context);
+    }
+
+    private function isSeoRoutePresent(): bool
+    {
+        return $this->getContainer()
+            ->get(SeoUrlRouteRegistry::class)
+            ->findByRouteName(self::NAVIGATION_SEO_URL_ROUTE_NAME) !== null;
     }
 }

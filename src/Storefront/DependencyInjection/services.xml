@@ -97,12 +97,6 @@
             <tag name="twig.extension"/>
         </service>
 
-        <service id="Shopware\Storefront\Framework\Twig\Extension\SwSanitizeTwigFilter" public="false">
-            <argument type="service" id="Shopware\Core\Framework\Util\HtmlSanitizer"/>
-
-            <tag name="twig.extension"/>
-        </service>
-
         <service id="Shopware\Storefront\Framework\Twig\Extension\CsrfFunctionExtension">
             <tag name="twig.extension"/>
         </service>
@@ -165,18 +159,6 @@
 
         <service id="Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener">
             <tag name="kernel.event_subscriber"/>
-        </service>
-
-        <service id="Shopware\Storefront\Framework\Command\SalesChannelCreateStorefrontCommand">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="sales_channel.repository"/>
-            <argument type="service" id="payment_method.repository"/>
-            <argument type="service" id="shipping_method.repository"/>
-            <argument type="service" id="country.repository"/>
-            <argument type="service" id="snippet_set.repository"/>
-            <argument type="service" id="category.repository"/>
-
-            <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Storefront\Page\Navigation\NavigationPageLoader">
@@ -520,6 +502,18 @@
             <tag name="console.command"/>
         </service>
 
+        <service id="Shopware\Storefront\Framework\Command\SalesChannelCreateStorefrontCommand">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="payment_method.repository"/>
+            <argument type="service" id="shipping_method.repository"/>
+            <argument type="service" id="country.repository"/>
+            <argument type="service" id="snippet_set.repository"/>
+            <argument type="service" id="category.repository"/>
+
+            <tag name="console.command"/>
+        </service>
+
         <service id="Shopware\Storefront\Framework\Cookie\CookieProviderInterface" class="Shopware\Storefront\Framework\Cookie\CookieProvider" />
 
         <service id="Shopware\Storefront\Framework\Cookie\AppCookieProvider" decorates="Shopware\Storefront\Framework\Cookie\CookieProviderInterface">
@@ -565,13 +559,6 @@
         </service>
 
         <service id="Shopware\Storefront\Framework\Captcha\Annotation\Captcha"/>
-
-        <service id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollection"/>
-
-        <service id="Shopware\Core\Framework\Adapter\Cache\CacheDecorator" decorates="cache.object">
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheDecorator.inner"/>
-            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheTagCollection"/>
-        </service>
 
         <service id="Shopware\Storefront\Framework\Routing\ResponseHeaderListener">
             <tag name="kernel.event_listener" priority="-10"/>

@@ -256,7 +256,7 @@ class ContainerProvider implements ServiceProviderInterface
 
         $hasStorefrontMigrations = is_dir($storefrontBasePath);
 
-        $source = new CoreMigrationSource('core.V6_3', [
+        $source = new CoreMigrationSource('core.' . $version, [
             sprintf('%s/Migration/%s', $coreBasePath, $version) => sprintf('Shopware\\Core\\Migration\\%s', $version),
         ]);
 

@@ -21,6 +21,7 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelD
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\Exception\InvalidDomainException;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Symfony\Component\Routing\RouterInterface;
 
 class ProductUrlProviderTest extends TestCase
@@ -29,33 +30,22 @@ class ProductUrlProviderTest extends TestCase
     use AdminApiTestBehaviour;
     use StorefrontSalesChannelTestHelper;
 
-    /**
-     * @var SalesChannelRepositoryInterface
-     */
-    private $productSalesChannelRepository;
+    private SalesChannelRepositoryInterface $productSalesChannelRepository;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
+    private SalesChannelContext $salesChannelContext;
 
-    /**
-     * @var SalesChannelRepositoryInterface
-     */
-    private $seoUrlSalesChannelRepository;
+    private SalesChannelRepositoryInterface $seoUrlSalesChannelRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $productRepository;
+    private EntityRepositoryInterface $productRepository;
 
-    /**
-     * @var SeoUrlPlaceholderHandlerInterface
-     */
-    private $seoUrlPlaceholderHandler;
+    private SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler;
 
     protected function setUp(): void
     {
+        if (!$this->getContainer()->has(ProductPageSeoUrlRoute::class)) {
+            static::markTestSkipped('NEXT-16799: Sitemap module has a dependency on storefront routes');
+        }
+
         parent::setUp();
         $this->productSalesChannelRepository = $this->getContainer()->get('sales_channel.product.repository');
         $this->seoUrlSalesChannelRepository = $this->getContainer()->get('sales_channel.seo_url.repository');

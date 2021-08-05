@@ -11,16 +11,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
 use Symfony\Component\Console\Tester\CommandTester;
 
 class RefreshIndexCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var RefreshIndexCommand
-     */
-    private $refreshIndexCommand;
+    private RefreshIndexCommand $refreshIndexCommand;
 
     protected function setUp(): void
     {
@@ -48,6 +46,9 @@ class RefreshIndexCommandTest extends TestCase
 
     public function testExecuteWithSkipSeoUpdaterOption(): void
     {
+        if (!$this->getContainer()->has(NavigationPageSeoUrlRoute::class)) {
+            static::markTestSkipped('SeoUrl tests need storefront bundle to be installed');
+        }
         $repo = $this->getContainer()->get('seo_url.repository');
         $context = Context::createDefaultContext();
         $skip = 'sales_channel.indexer,customer.indexer,landing_page.indexer,payment_method.indexer,media.indexer,media_folder_configuration.indexer';

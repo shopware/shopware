@@ -25,8 +25,6 @@ class AppStateServiceTest extends TestCase
 
     private EntityRepository $appRepository;
 
-    private EntityRepository $themeRepo;
-
     private AppStateService $appStateService;
 
     private EventDispatcherInterface $eventDispatcher;
@@ -38,7 +36,6 @@ class AppStateServiceTest extends TestCase
     public function setUp(): void
     {
         $this->appRepository = $this->getContainer()->get('app.repository');
-        $this->themeRepo = $this->getContainer()->get('theme.repository');
         $this->appStateService = $this->getContainer()->get(AppStateService::class);
         $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');
         $this->appLifecycle = $this->getContainer()->get(AppLifecycle::class);

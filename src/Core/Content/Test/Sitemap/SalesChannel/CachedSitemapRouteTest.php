@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -37,6 +38,9 @@ class CachedSitemapRouteTest extends TestCase
 
     protected function setUp(): void
     {
+        if (!$this->getContainer()->has(ProductPageSeoUrlRoute::class)) {
+            static::markTestSkipped('NEXT-16799: Sitemap module has a dependency on storefront routes');
+        }
         parent::setUp();
     }
 

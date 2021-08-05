@@ -163,7 +163,6 @@ class DateRangeRuleTest extends TestCase
 
     /**
      * @dataProvider matchDataProvider
-     * @group Dev
      */
     public function testMatch(
         ?string $fromDate,

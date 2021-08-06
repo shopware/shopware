@@ -43,13 +43,6 @@ describe('Product: Edit product media', () => {
                 mimeType: 'image/png'
             });
 
-        cy.get('#files')
-            .attachFile({
-                filePath: 'img/sw-login-background.png',
-                fileName: 'sw-login-background.png',
-                mimeType: 'image/png'
-            });
-
         cy.get('.sw-product-image__image img')
             .should('have.attr', 'src')
             .and('match', /sw-login-background/);
@@ -109,17 +102,12 @@ describe('Product: Edit product media', () => {
 
         // Add first image to product
         cy.get('.sw-product-media-form__previews').scrollIntoView();
-        cy.fixture('img/sw-login-background.png').then(fileContent => {
-            cy.get('#files').upload(
-                {
-                    fileContent,
-                    fileName: 'sw-login-background.png',
-                    mimeType: 'image/png'
-                }, {
-                    subjectType: 'input'
-                }
-            );
-        });
+        cy.get('#files')
+            .attachFile({
+                filePath: 'img/sw-login-background.png',
+                fileName: 'sw-login-background.png',
+                mimeType: 'image/png'
+            });
         cy.get('.sw-product-image__image img')
             .should('have.attr', 'src')
             .and('match', /sw-login-background/);
@@ -188,17 +176,12 @@ describe('Product: Edit product media', () => {
         cy.get('.sw-product-media-form__previews').scrollIntoView();
 
         if (Cypress.isBrowser({ family: 'chromium' })) {
-            cy.fixture('img/sw-login-background.png').then(fileContent => {
-                cy.get('#files').upload(
-                    {
-                        fileContent,
-                        fileName: 'sw-login-background.png',
-                        mimeType: 'image/png'
-                    }, {
-                        subjectType: 'input'
-                    }
-                );
-            });
+            cy.get('#files')
+                .attachFile({
+                    filePath: 'img/sw-login-background.png',
+                    fileName: 'sw-login-background.png',
+                    mimeType: 'image/png'
+                });
 
             cy.get('.sw-product-image__image img')
                 .should('have.attr', 'src')

@@ -134,17 +134,17 @@ describe('CMS: Check usage and editing of image elements', () => {
 
         cy.get(`.sw-cms-slot__config-modal ${page.elements.uploadInput}`)
             .attachFile({
-                filePath: 'img/sw-login-background.png',
-                fileName: 'sw-login-background.png',
+                filePath: 'img/sw-test-image.png',
+                fileName: 'sw-test-image.png',
                 mimeType: 'image/png'
             });
         cy.get('.sw-media-preview-v2__item[alt="sw-test-image"]').should('be.visible');
 
         cy.get(`.sw-cms-slot__config-modal ${page.elements.uploadInput}`)
             .attachFile({
-                filePath: 'img/sw-login-background.png',
-                fileName: 'sw-login-background.png',
-                mimeType: 'image/png'
+                filePath: 'img/sw-storefront-en.jpg',
+                fileName: 'sw-storefront-en.jpg',
+                mimeType: 'image/jpg'
             });
         cy.get('.sw-media-preview-v2__item[alt="sw-storefront-en"]').should('be.visible');
 

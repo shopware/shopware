@@ -85,17 +85,12 @@ describe('Profile module', () => {
             .click()
 
         // Add avatar to profile
-        cy.fixture('img/sw-test-image.png').then(fileContent => {
-            cy.get('#files').upload(
-                {
-                    fileContent,
-                    fileName: 'sw-test-image.png',
-                    mimeType: 'image/png'
-                }, {
-                    subjectType: 'input'
-                }
-            );
-        });
+        cy.get('#files')
+            .attachFile({
+                filePath: 'img/sw-test-image.png',
+                fileName: 'sw-test-image.png',
+                mimeType: 'image/png'
+            });
 
         cy.get('.sw-media-preview-v2__item')
             .should('have.attr', 'src')

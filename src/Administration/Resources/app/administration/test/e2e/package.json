@@ -23,11 +23,9 @@
     "cypress-file-upload": "4.1.1",
     "cypress-multi-reporters": "^1.2.3",
     "cypress-select-tests": "^1.7.1",
-    "install": "^0.13.0",
     "mocha": "^7.0.0",
     "mocha-junit-reporter": "^1.23.1",
-    "mochawesome": "^4.1.0",
-    "npm": "^7.20.2"
+    "mochawesome": "^4.1.0"
   },
   "devDependencies": {
     "@percy/cli": "^1.0.0-beta.51",

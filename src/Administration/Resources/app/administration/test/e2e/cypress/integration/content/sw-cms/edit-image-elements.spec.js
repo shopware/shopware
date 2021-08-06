@@ -50,17 +50,13 @@ describe('CMS: Check usage and editing of image elements', () => {
         cy.get('.sw-cms-slot__config-modal').should('be.visible');
 
         // Upload image
-        cy.fixture('img/sw-login-background.png').then(fileContent => {
-            cy.get(`.sw-cms-slot__config-modal ${page.elements.uploadInput}`).upload(
-                {
-                    fileContent,
-                    fileName: 'sw-login-background.png',
-                    mimeType: 'image/png'
-                }, {
-                    subjectType: 'input'
-                }
-            );
-        });
+        cy.get(`.sw-cms-slot__config-modal ${page.elements.uploadInput}`)
+            .attachFile({
+                filePath: 'img/sw-login-background.png',
+                fileName: 'sw-login-background.png',
+                mimeType: 'image/png'
+            });
+
         cy.awaitAndCheckNotification('File has been saved.');
         cy.get('#sw-field--element-config-displayMode-value').select('Cover');
         cy.get('.sw-cms-slot__config-modal .sw-button--primary').click();
@@ -128,43 +124,28 @@ describe('CMS: Check usage and editing of image elements', () => {
         cy.get('.sw-cms-slot__config-modal').should('be.visible');
 
         // Add three slider images
-        cy.fixture('img/sw-login-background.png').then(fileContent => {
-            cy.get(`.sw-cms-slot__config-modal ${page.elements.uploadInput}`).upload(
-                {
-                    fileContent,
-                    fileName: 'sw-login-background.png',
-                    mimeType: 'image/png'
-                }, {
-                    subjectType: 'input'
-                }
-            );
-        });
+        cy.get(`.sw-cms-slot__config-modal ${page.elements.uploadInput}`)
+            .attachFile({
+                filePath: 'img/sw-login-background.png',
+                fileName: 'sw-login-background.png',
+                mimeType: 'image/png'
+            });
         cy.get('.sw-media-preview-v2__item[alt="sw-login-background"]').should('be.visible');
 
-        cy.fixture('img/sw-test-image.png').then(fileContent => {
-            cy.get(`.sw-cms-slot__config-modal ${page.elements.uploadInput}`).upload(
-                {
-                    fileContent,
-                    fileName: 'sw-test-image.png',
-                    mimeType: 'image/png'
-                }, {
-                    subjectType: 'input'
-                }
-            );
-        });
+        cy.get(`.sw-cms-slot__config-modal ${page.elements.uploadInput}`)
+            .attachFile({
+                filePath: 'img/sw-login-background.png',
+                fileName: 'sw-login-background.png',
+                mimeType: 'image/png'
+            });
         cy.get('.sw-media-preview-v2__item[alt="sw-test-image"]').should('be.visible');
 
-        cy.fixture('img/sw-storefront-en.jpg').then(fileContent => {
-            cy.get(`.sw-cms-slot__config-modal ${page.elements.uploadInput}`).upload(
-                {
-                    fileContent,
-                    fileName: 'sw-storefront-en.jpg',
-                    mimeType: 'image/jpg'
-                }, {
-                    subjectType: 'input'
-                }
-            );
-        });
+        cy.get(`.sw-cms-slot__config-modal ${page.elements.uploadInput}`)
+            .attachFile({
+                filePath: 'img/sw-login-background.png',
+                fileName: 'sw-login-background.png',
+                mimeType: 'image/png'
+            });
         cy.get('.sw-media-preview-v2__item[alt="sw-storefront-en"]').should('be.visible');
 
         cy.awaitAndCheckNotification('File has been saved.');

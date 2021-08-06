@@ -36,34 +36,32 @@ describe('Product: Edit product media', () => {
 
         // Add first image to product
         cy.get('.sw-product-media-form__previews').scrollIntoView();
-        cy.fixture('img/sw-login-background.png').then(fileContent => {
-            cy.get('#files').upload(
-                {
-                    fileContent,
-                    fileName: 'sw-login-background.png',
-                    mimeType: 'image/png'
-                }, {
-                    subjectType: 'input'
-                }
-            );
-        });
+        cy.get('#files')
+            .attachFile({
+                filePath: 'img/sw-login-background.png',
+                fileName: 'sw-login-background.png',
+                mimeType: 'image/png'
+            });
+
+        cy.get('#files')
+            .attachFile({
+                filePath: 'img/sw-login-background.png',
+                fileName: 'sw-login-background.png',
+                mimeType: 'image/png'
+            });
+
         cy.get('.sw-product-image__image img')
             .should('have.attr', 'src')
             .and('match', /sw-login-background/);
         cy.awaitAndCheckNotification('File has been saved.');
 
         // Add second image to product
-        cy.fixture('img/sw-test-image.png').then(fileContent => {
-            cy.get('#files').upload(
-                {
-                    fileContent,
-                    fileName: 'sw-test-image.png',
-                    mimeType: 'image/png'
-                }, {
-                    subjectType: 'input'
-                }
-            );
-        });
+        cy.get('#files')
+            .attachFile({
+                filePath: 'img/sw-test-image.png',
+                fileName: 'sw-test-image.png',
+                mimeType: 'image/png'
+            });
         cy.get('.sw-product-image:nth-of-type(2) img')
             .first()
             .should('have.attr', 'src')
@@ -128,17 +126,12 @@ describe('Product: Edit product media', () => {
         cy.awaitAndCheckNotification('File has been saved.');
 
         // Add second image to product
-        cy.fixture('img/sw-test-image.png').then(fileContent => {
-            cy.get('#files').upload(
-                {
-                    fileContent,
-                    fileName: 'sw-test-image.png',
-                    mimeType: 'image/png'
-                }, {
-                    subjectType: 'input'
-                }
-            );
-        });
+        cy.get('#files')
+            .attachFile({
+                filePath: 'img/sw-test-image.png',
+                fileName: 'sw-test-image.png',
+                mimeType: 'image/png'
+            });
         cy.get('.sw-product-image:nth-of-type(2) img')
             .first()
             .should('have.attr', 'src')

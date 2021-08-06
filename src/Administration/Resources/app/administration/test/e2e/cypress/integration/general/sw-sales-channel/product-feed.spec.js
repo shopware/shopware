@@ -50,17 +50,12 @@ describe('Sales Channel: Test product comparison', () => {
         cy.get('input[name=sw-field--product-name]').should('be.visible');
         if (Cypress.isBrowser({ family: 'chromium' })) {
             // Add image to product
-            cy.fixture('img/sw-login-background.png').then(fileContent => {
-                cy.get('#files').upload(
-                    {
-                        fileContent,
-                        fileName: 'sw-login-background.png',
-                        mimeType: 'image/png'
-                    }, {
-                        subjectType: 'input'
-                    }
-                );
-            });
+            cy.get('#files')
+                .attachFile({
+                    filePath: 'img/sw-login-background.png',
+                    fileName: 'sw-login-background.png',
+                    mimeType: 'image/png'
+                });
             cy.get('.sw-product-image__image img')
                 .should('have.attr', 'src')
                 .and('match', /sw-login-background/);

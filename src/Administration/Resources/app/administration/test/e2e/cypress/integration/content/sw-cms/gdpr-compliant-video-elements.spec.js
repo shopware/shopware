@@ -58,17 +58,12 @@ describe('CMS: Check GDPR compliant video elements', () => {
 
             // Upload preview image
             cy.get('.sw-media-upload-v2__dropzone.is--droppable').should('be.visible');
-            cy.fixture('img/sw-login-background.png').then(fileContent => {
-                cy.get('.sw-cms-slot__config-modal #files').upload(
-                    {
-                        fileContent,
-                        fileName: 'sw-login-background.png',
-                        mimeType: 'image/png'
-                    }, {
-                        subjectType: 'input'
-                    }
-                );
-            });
+            cy.get(`..sw-cms-slot__config-modal #files'`)
+                .attachFile({
+                    filePath: 'img/sw-login-background.png',
+                    fileName: 'sw-login-background.png',
+                    mimeType: 'image/png'
+                });
             cy.awaitAndCheckNotification('File has been saved.');
 
             // Close config modal

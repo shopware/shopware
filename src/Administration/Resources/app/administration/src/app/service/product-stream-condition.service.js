@@ -61,7 +61,7 @@ export default function conditionService() {
             'properties',
             'isCloseout',
             'purchasePrices',
-            'releaseDate',
+            'createdAt',
         ],
     };
 

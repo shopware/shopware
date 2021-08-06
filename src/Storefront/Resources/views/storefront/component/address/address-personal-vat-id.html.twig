@@ -16,7 +16,7 @@
                id="vatIds"
                placeholder="{{ "address.companyVatPlaceholder"|trans|striptags }}"
                name="vatIds[]"
-               value="{{ activeRoute == 'frontend.account.profile.page' ? vatIds[0] : vatIds.get(0) }}">
+               value="{{ activeRoute == 'frontend.account.profile.page' or (feature('FEATURE_NEXT_15957') and activeRoute == 'frontend.account.addressbook' and context.customer.guest) ? vatIds[0] : vatIds.get(0) }}">
     {% endblock %}
 
     {% block component_address_form_company_vatId_input_error %}

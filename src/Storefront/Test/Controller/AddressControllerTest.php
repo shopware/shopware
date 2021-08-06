@@ -9,6 +9,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -140,6 +141,72 @@ class AddressControllerTest extends TestCase
 
         static::assertNotSame($oldShippingAddressId, $customer->getDefaultShippingAddressId());
         static::assertSame($oldBillingAddressId, $customer->getDefaultBillingAddressId());
+    }
+
+    public function testChangeVatIds(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_15957', $this);
+
+        $customerId = Uuid::randomHex();
+        $addressId = Uuid::randomHex();
+
+        $salutationId = $this->getValidSalutationId();
+        $paymentMethodId = $this->getValidPaymentMethodId();
+
+        $customers = [
+            [
+                'id' => $customerId,
+                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'defaultBillingAddress' => [
+                    'id' => $addressId,
+                    'salutationId' => $salutationId,
+                    'firstName' => 'foo',
+                    'lastName' => 'bar',
+                    'zipcode' => '48599',
+                    'city' => 'gronau',
+                    'street' => 'Schillerstr.',
+                    'country' => ['name' => 'not'],
+                ],
+                'company' => 'nfq',
+                'defaultShippingAddressId' => $addressId,
+                'defaultPaymentMethodId' => $paymentMethodId,
+                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                'email' => Uuid::randomHex() . '@example.com',
+                'password' => 'not',
+                'lastName' => 'not',
+                'firstName' => 'First name',
+                'salutationId' => $salutationId,
+                'customerNumber' => 'not',
+            ],
+        ];
+
+        $this->customerRepository->create($customers, Context::createDefaultContext());
+
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL, [SalesChannelContextService::CUSTOMER_ID => $customerId]);
+
+        static::assertInstanceOf(CustomerEntity::class, $context->getCustomer());
+        static::assertSame($customerId, $context->getCustomer()->getId());
+
+        $controller = $this->getContainer()->get(AddressController::class);
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
+        $request->attributes->set(RequestTransformer::STOREFRONT_URL, 'shopware.test');
+        $this->getContainer()->get('request_stack')->push($request);
+
+        $vatIds = ['DE123456789'];
+        $requestDataBag = new RequestDataBag(['vatIds' => $vatIds]);
+        $controller->addressBook($request, $requestDataBag, $context, $context->getCustomer());
+
+        $criteria = new Criteria([$customerId]);
+
+        /** @var CustomerEntity $customer */
+        $customer = $this->customerRepository->search($criteria, $context->getContext())
+            ->get($customerId);
+
+        static::assertInstanceOf(CustomerEntity::class, $customer);
+        static::assertSame($vatIds, $customer->getVatIds());
     }
 
     private function createCustomers(): array

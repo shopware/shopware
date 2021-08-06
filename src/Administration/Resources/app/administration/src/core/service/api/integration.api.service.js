@@ -18,12 +18,13 @@ class IntegrationApiService extends ApiService {
      * @param {Object} [additionalHeaders = {}]
      * @returns {Promise<T>}
      */
-    generateKey(additionalParams = {}, additionalHeaders = {}) {
+    generateKey(additionalParams = {}, additionalHeaders = {}, user = false) {
         const params = additionalParams;
         const headers = this.getBasicHeaders(additionalHeaders);
+        const endpoint = user ? '/_action/access-key/user' : '/_action/access-key/intergration';
 
         return this.httpClient
-            .get('/_action/access-key/intergration', {
+            .get(endpoint, {
                 params,
                 headers,
             })

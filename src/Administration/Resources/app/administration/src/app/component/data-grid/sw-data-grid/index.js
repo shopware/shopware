@@ -30,6 +30,7 @@ Component.register('sw-data-grid', {
     template,
 
     inject: [
+        'acl',
         'repositoryFactory',
         'feature',
     ],
@@ -152,7 +153,12 @@ Component.register('sw-data-grid', {
         isRecordSelectable: {
             type: Function,
             required: false,
-            default() {
+            default: function (item) {
+                if (this.feature.isActive('FEATURE_NEXT_6061')) {
+                    return !this.reachMaximumSelectionExceed
+                        || Object.keys(this.selection).includes(item[this.itemIdentifierProperty]);
+                }
+
                 return true;
             },
         },
@@ -161,6 +167,24 @@ Component.register('sw-data-grid', {
             type: String,
             required: false,
             default: 'id',
+        },
+
+        /**
+         * @internal (flag: FEATURE_NEXT_6061)
+         */
+        maximumSelectItems: {
+            type: Number,
+            required: false,
+            default: null,
+        },
+
+        /**
+         * @internal (flag: FEATURE_NEXT_6061)
+         */
+        preSelection: {
+            type: Object,
+            required: false,
+            default: null,
         },
     },
 
@@ -175,7 +199,7 @@ Component.register('sw-data-grid', {
             currentSetting: {},
             currentColumns: [],
             columnIndex: null,
-            selection: {},
+            selection: Object.assign({}, this.preSelection || {}),
             originalTarget: null,
             compact: this.compactMode,
             previews: this.showPreviews,
@@ -200,6 +224,9 @@ Component.register('sw-data-grid', {
             };
         },
 
+        /**
+         * @major-deprecated (flag:FEATURE_NEXT_6061) localStorageItemKey will be removed
+         */
         localStorageItemKey() {
             return `${this.identifier}-grid`;
         },
@@ -208,7 +235,46 @@ Component.register('sw-data-grid', {
             return Object.values(this.selection).length;
         },
 
+        /**
+         * @internal (flag: FEATURE_NEXT_6061)
+         */
+        reachMaximumSelectionExceed() {
+            if (!this.maximumSelectItems) {
+                return false;
+            }
+
+            return this.selectionCount >= this.maximumSelectItems;
+        },
+
+        /**
+         * @internal (flag: FEATURE_NEXT_6061)
+         */
+        isSelectAllDisabled() {
+            if (!this.maximumSelectItems) {
+                return false;
+            }
+
+            if (!this.records) {
+                return false;
+            }
+
+            const currentVisibleIds = this.records.map(record => record.id);
+
+            return this.reachMaximumSelectionExceed
+                && Object.keys(this.selection).every(id => !currentVisibleIds.includes(id));
+        },
+
         allSelectedChecked() {
+            if (this.feature.isActive('FEATURE_NEXT_6061')) {
+                if (this.isSelectAllDisabled) {
+                    return false;
+                }
+
+                if (this.reachMaximumSelectionExceed) {
+                    return true;
+                }
+            }
+
             if (!this.records || this.records.length === 0) {
                 return false;
             }
@@ -218,6 +284,15 @@ Component.register('sw-data-grid', {
             }
 
             const selectedItems = Object.values(this.selection);
+
+            if (this.feature.isActive('FEATURE_NEXT_6061')) {
+                return this.records.every(item => {
+                    return selectedItems.some((selection) => {
+                        return selection[this.itemIdentifierProperty] === item[this.itemIdentifierProperty];
+                    });
+                });
+            }
+
             return this.records.reduce((acc, item) => {
                 if (!selectedItems.some((selection) => selection === item)) {
                     acc = false;
@@ -242,6 +317,18 @@ Component.register('sw-data-grid', {
             criteria.addFilter(Criteria.equals('userId', this.currentUser && this.currentUser.id));
 
             return criteria;
+        },
+
+        /**
+         * @internal (flag: FEATURE_NEXT_6061)
+         */
+        hasInvisibleSelection() {
+            if (!this.records) {
+                return false;
+            }
+
+            const currentVisibleIds = this.records.map(record => record.id);
+            return this.selectionCount > 0 && Object.keys(this.selection).some(id => !currentVisibleIds.includes(id));
         },
     },
 
@@ -274,7 +361,14 @@ Component.register('sw-data-grid', {
             this.selection = this.showSelection ? this.selection : {};
         },
 
+        /**
+         * @major-deprecated (feature: FEATURE_NEXT_6061) will be removed
+         */
         records() {
+            if (this.feature.isActive('FEATURE_NEXT_6061')) {
+                return;
+            }
+
             this.selection = {};
         },
 
@@ -317,11 +411,19 @@ Component.register('sw-data-grid', {
             if (!this.identifier) {
                 return;
             }
+
             this.findUserSetting();
         },
 
         findUserSetting() {
-            return this.userConfigRepository.search(this.userGridSettingCriteria, Shopware.Context.api).then((response) => {
+            if (this.feature.isActive('FEATURE_NEXT_6061') && !this.acl.can('user_config:read')) {
+                return Promise.resolve();
+            }
+
+            return this.userConfigRepository.search(
+                this.userGridSettingCriteria,
+                Shopware.Context.api,
+            ).then((response) => {
                 if (!response.length) {
                     return;
                 }
@@ -439,6 +541,14 @@ Component.register('sw-data-grid', {
         },
 
         saveUserSettings() {
+            if (
+                this.feature.isActive('FEATURE_NEXT_6061')
+                && (!this.acl.can('user_config:create')
+                || !this.acl.can('user_config:update'))
+            ) {
+                return;
+            }
+
             if (!this.identifier) {
                 return;
             }
@@ -595,6 +705,10 @@ Component.register('sw-data-grid', {
         },
 
         selectItem(selected, item) {
+            if (this.feature.isActive('FEATURE_NEXT_6061') && selected && this.reachMaximumSelectionExceed) {
+                return;
+            }
+
             if (!this.isRecordSelectable(item)) {
                 return;
             }

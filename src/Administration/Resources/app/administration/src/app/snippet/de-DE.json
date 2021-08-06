@@ -206,7 +206,9 @@
       "labelSettingsCompactMode": "Kompaktmodus verwenden",
       "labelSettingsPreviewImages": "Vorschaubilder anzeigen",
       "labelColumnHide": "Spalte ausblenden",
-      "labelSelectionCount": "Ausgewählt:"
+      "labelSelectionCount": "Ausgewählt:",
+      "labelDeSelectAll": "Alle abwählen",
+      "maximumSelectionExceed": "Maximale Anzahl Artikel ausgewählt"
     },
     "sw-pagination": {
       "labelItemsPerPage": "Einträge pro Seite:"

@@ -120,6 +120,15 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
                 return [];
             },
         },
+
+        /**
+         * @internal (flag: FEATURE_NEXT_6061)
+         */
+        maximumSelectItems: {
+            type: Number,
+            required: false,
+            default: 1000,
+        },
     },
 
     data() {
@@ -183,7 +192,14 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
 
         deleteItems() {
             this.isBulkLoading = true;
-            const selectedIds = Object.values(this.selection).map(selectedProxy => selectedProxy.id);
+
+            let selectedIds = null;
+
+            if (this.feature.isActive('FEATURE_NEXT_6061')) {
+                selectedIds = Object.keys(this.selection);
+            } else {
+                selectedIds = Object.values(this.selection).map(selectedProxy => selectedProxy.id);
+            }
 
             return this.repository.syncDeleted(selectedIds, this.items.context).then(() => {
                 return this.deleteItemsFinish();

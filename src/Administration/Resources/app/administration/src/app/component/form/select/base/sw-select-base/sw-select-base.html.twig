@@ -8,6 +8,7 @@
 >
     <template #sw-field-input="{ identification, error, disabled, size, setFocusClass, removeFocusClass }">
         <div
+            ref="selectWrapper"
             class="sw-select__selection"
             tabindex="0"
             @click="expand"
@@ -27,10 +28,11 @@
                 />
 
                 <button
-                    v-if="clearable"
+                    v-if="!disabled && showClearableButton"
                     class="sw-select__select-indicator-hitbox"
                     data-clearable-button
                     @click.prevent.stop="emitClear"
+                    @keydown.tab.stop="focusParentSelect"
                 >
                     <sw-icon
                         class="sw-select__select-indicator sw-select__select-indicator-clear"

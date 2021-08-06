@@ -9,6 +9,7 @@
         v-model="shippingMethod.taxType"
         class="sw-settings-shipping__tax-type-selection"
         required
+        show-clearable-button
         :disabled="disabled"
         :label="$tc('sw-settings-shipping.detail.tax.labelTaxType')"
         :placeholder="$tc('sw-settings-shipping.detail.tax.placeholderTaxType')"
@@ -26,6 +27,7 @@
         class="sw-settings-shipping__tax-rate"
         validation="required"
         required
+        show-clearable-button
         entity="tax"
         :criteria="taxCriteria"
         :highlight-search-term="false"

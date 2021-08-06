@@ -90,7 +90,7 @@
                             :options="supportedProfileTypes"
                             :disabled="profile.systemDefault"
                             :error="profileTypeError"
-                            :clearable="!profile.systemDefault"
+                            :show-clearable-button="!profile.systemDefault"
                         />
                         {% endblock %}
 
@@ -112,7 +112,7 @@
                                 :options="supportedEntities"
                                 :disabled="profile.systemDefault || mappingLength > 0"
                                 :error="profileSourceEntityError"
-                                :clearable="!(profile.systemDefault || mappingLength > 0)"
+                                :show-clearable-button="!(profile.systemDefault || mappingLength > 0)"
                             />
                         </span>
                         {% endblock %}
@@ -191,6 +191,7 @@
                         <sw-single-select
                             v-model="profile.delimiter"
                             required
+                            show-clearable-button
                             :label="$tc('sw-import-export.profile.separatorFieldLabel')"
                             :error="profileDelimiterError"
                             :disabled="profile.systemDefault"
@@ -202,6 +203,7 @@
                         <sw-single-select
                             v-model="profile.enclosure"
                             required
+                            show-clearable-button
                             :label="$tc('sw-import-export.profile.enclosureFieldLabel')"
                             :error="profileEnclosureError"
                             :disabled="profile.systemDefault"

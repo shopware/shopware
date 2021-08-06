@@ -14,6 +14,7 @@
             :placeholder="$tc('sw-settings-listing.base.criteria.selectPlaceholder')"
             value-property="value"
             label-property="label"
+            show-clearable-button
             @change="onAddCriteria"
         />
         {% endblock %}
@@ -48,6 +49,7 @@
                 :criteria="customFieldCriteriaSingleSelect(item)"
                 :label-callback="getCustomFieldName"
                 entity="custom_field"
+                show-clearable-button
                 @change="changeCustomField"
             />
             {% endblock %}
@@ -82,6 +84,7 @@
                 :options="orderOptions"
                 value-property="value"
                 label-property="label"
+                show-clearable-button
                 :placeholder="$tc('global.sw-single-select.valuePlaceholder')"
             />
             {% endblock %}

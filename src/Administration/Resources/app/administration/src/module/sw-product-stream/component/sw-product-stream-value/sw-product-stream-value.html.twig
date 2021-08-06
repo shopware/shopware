@@ -17,6 +17,7 @@
             :options="booleanOptions"
             :value="condition.value"
             :disabled="disabled"
+            show-clearable-button
             @change="setBooleanValue"
         />
         {% endblock %}
@@ -34,6 +35,7 @@
                 :options="operators"
                 :placeholder="$tc('sw-product-stream.filter.placeholderOperatorSelect')"
                 :disabled="disabled"
+                show-clearable-button
             />
         </sw-arrow-field>
         {% endblock %}
@@ -44,6 +46,7 @@
                 v-if="definition.entity === 'product' && actualCondition.type === 'equals'"
                 v-model="actualCondition.value"
                 size="medium"
+                show-clearable-button
                 :entity="definition.entity"
                 :criteria="productCriteria"
                 :context="context"
@@ -95,6 +98,7 @@
                 :criteria="propertyCriteria"
                 :context="context"
                 :disabled="disabled"
+                show-clearable-button
                 @select-collapsed="onSelectCollapsed"
                 @search-term-change="setSearchTerm"
             >
@@ -119,6 +123,7 @@
                 :label-callback="visibilitiesLabelCallback"
                 :context="context"
                 :disabled="disabled"
+                show-clearable-button
                 @search-term-change="setSearchTerm"
             />
             {% endblock %}
@@ -130,6 +135,7 @@
                 :entity="definition.entity"
                 :context="context"
                 :disabled="disabled"
+                show-clearable-button
             />
             {% endblock %}
 

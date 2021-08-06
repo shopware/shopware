@@ -203,6 +203,7 @@
                         disabled: !documentConfig.global || !acl.can('document.editor')
                     }"
                     required
+                    show-clearable-button
                     :error="documentBaseConfigDocumentTypeIdError"
                     entity="document_type"
                     :label="$tc('sw-settings-document.detail.labelType')"

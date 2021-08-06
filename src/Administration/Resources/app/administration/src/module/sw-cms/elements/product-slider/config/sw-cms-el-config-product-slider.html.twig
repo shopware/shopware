@@ -50,6 +50,7 @@
                     class="sw-cms-el-config-product-slider__product-assignment-type-select"
                     :label="$tc('sw-cms.elements.productSlider.config.label.productAssignmentType')"
                     :options="productAssignmentTypes"
+                    show-clearable-button
                     @change="onChangeAssignmentType"
                 />
                 {% endblock %}
@@ -62,6 +63,7 @@
                         class="sw-cms-el-config-product-slider__product-stream-select"
                         :label="$tc('sw-cms.elements.productSlider.config.label.productStreamChoice')"
                         :placeholder="$tc('sw-cms.elements.productSlider.config.placeholder.productStreamChoice')"
+                        show-clearable-button
                         @change="onChangeProductStream"
                     />
                     {% endblock %}
@@ -114,6 +116,7 @@
                             :disabled="!productStream"
                             :placeholder="$tc('sw-cms.elements.productSlider.config.placeholder.productStreamSorting')"
                             :options="productStreamSortingOptions"
+                            show-clearable-button
                         />
                         {% endblock %}
 

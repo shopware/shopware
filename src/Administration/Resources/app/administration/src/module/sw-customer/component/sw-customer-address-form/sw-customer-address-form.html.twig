@@ -41,6 +41,7 @@
                 :disabled="disabled"
                 :criteria="salutationCriteria"
                 label-property="displayName"
+                show-clearable-button
             />
             {% endblock %}
 
@@ -149,6 +150,7 @@
             required
             :error="addressCountryIdError"
             :disabled="disabled"
+            show-clearable-button
         />
         {% endblock %}
 
@@ -167,6 +169,7 @@
                 :required="country && country.forceStateInRegistration"
                 :error="addressCountryStateIdError"
                 :disabled="disabled"
+                show-clearable-button
             />
         </div>
         {% endblock %}

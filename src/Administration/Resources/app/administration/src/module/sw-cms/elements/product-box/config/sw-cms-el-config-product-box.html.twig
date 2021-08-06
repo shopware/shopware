@@ -9,6 +9,7 @@
         entity="product"
         :criteria="productCriteria"
         :context="productSelectContext"
+        show-clearable-button
         @change="onProductChange"
     >
         <template #selection-label-property="{ item }">

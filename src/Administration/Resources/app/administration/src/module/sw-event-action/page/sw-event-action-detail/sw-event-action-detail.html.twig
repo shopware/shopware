@@ -84,6 +84,7 @@
                     :error="eventActionEventNameError"
                     :disabled="!acl.can('event_action.editor')"
                     required
+                    show-clearable-button
                     label-property="label"
                     value-property="name"
                 >
@@ -117,6 +118,7 @@
                     value-property="title"
                     label-property="description"
                     required
+                    show-clearable-button
                 >
 
                     <template #selection-label-property="{ item }">

@@ -35,6 +35,7 @@
                 :context="context"
                 :disabled="isDisabledListingMode('single')"
                 :placeholder="$tc('sw-product.variations.deliveryModal.listingPlaceholderSelectMainVariant')"
+                show-clearable-button
                 @change="updateMainVariant"
             >
                 <template #selection-label-property="{ item }">

@@ -237,6 +237,7 @@
                         entity="language"
                         class="sw-review__language-select"
                         required
+                        show-clearable-button
                         :disabled="!acl.can('review.editor')"
                         :label="$tc('sw-review.detail.labelLanguage')"
                         :criteria="languageCriteria"

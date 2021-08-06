@@ -18,6 +18,7 @@
                 :error="customerSalutationIdError"
                 :criteria="salutationCriteria"
                 label-property="displayName"
+                show-clearable-button
             />
             {% endblock %}
 
@@ -97,6 +98,7 @@
             v-model="customer.groupId"
             class="sw-customer-base-form__customer-group-select"
             required
+            show-clearable-button
             entity="customer_group"
             :label="$tc('sw-customer.baseForm.labelCustomerGroup')"
             :placeholder="$tc('sw-customer.baseForm.placeholderCustomerGroup')"
@@ -113,6 +115,7 @@
             :value="customer.salesChannelId"
             :error="customerSalesChannelIdError"
             required
+            show-clearable-button
             @change="onSalesChannelChange"
         />
         {% endblock %}
@@ -124,6 +127,7 @@
             entity="payment_method"
             label-property="distinguishableName"
             required
+            show-clearable-button
             :label="$tc('sw-customer.baseForm.labelPaymentMethod')"
             :placeholder="$tc('sw-customer.baseForm.placeholderPaymentMethod')"
             :error="customerDefaultPaymentMethodIdError"

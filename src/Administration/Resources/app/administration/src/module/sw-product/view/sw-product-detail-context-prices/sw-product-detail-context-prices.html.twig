@@ -47,6 +47,7 @@
                         :placeholder="$tc('sw-product.advancedPrices.selectRule')"
                         :entity="rules.entity"
                         :disabled="!acl.can('product.editor')"
+                        show-clearable-button
                         @change="onRuleChange($event, priceGroup.ruleId)"
                     >
                         <template #result-item="{ isSelected, setValue, item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
@@ -398,6 +399,7 @@
                 value=""
                 :placeholder="$tc('sw-product.advancedPrices.selectRule')"
                 :entity="rules.entity"
+                show-clearable-button
                 @change="onAddNewPriceGroup($event)"
             >
                 <template #result-item="{ isSelected, setValue, item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">

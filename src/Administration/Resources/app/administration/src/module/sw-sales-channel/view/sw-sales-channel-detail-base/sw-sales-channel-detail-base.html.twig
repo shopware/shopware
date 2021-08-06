@@ -83,6 +83,7 @@
                 id="navigationCategoryId"
                 v-model="salesChannel.navigationCategoryId"
                 required
+                show-clearable-button
                 class="sw-sales-channel-detail__select-navigation-category-id"
                 :label="$tc('sw-sales-channel.detail.navigationCategoryId')"
                 :criteria="mainNavigationCriteria"
@@ -115,6 +116,7 @@
             :label="$tc('sw-sales-channel.detail.footerCategory')"
             :disabled="!acl.can('sales_channel.editor')"
             entity="category"
+            show-clearable-button
         />
         {% endblock %}
 
@@ -127,6 +129,7 @@
             :label="$tc('sw-sales-channel.detail.serviceCategory')"
             :disabled="!acl.can('sales_channel.editor')"
             entity="category"
+            show-clearable-button
         />
         {% endblock %}
 
@@ -136,6 +139,7 @@
             v-model="salesChannel.customerGroupId"
             class="sw-sales-channel-detail__select-customer-group"
             required
+            show-clearable-button
             :label="$tc('sw-sales-channel.detail.customerGroup')"
             entity="customer_group"
             :error="salesChannelCustomerGroupIdError"
@@ -263,6 +267,7 @@
             value-property="id"
             entity="sales_channel"
             required
+            show-clearable-button
             @change="onStorefrontSelectionChange"
         />
         {% endblock %}
@@ -277,6 +282,7 @@
             value-property="id"
             entity="sales_channel_domain"
             required
+            show-clearable-button
             :disabled="(!productExport.salesChannelDomainId && !productExport.storefrontSalesChannelId) || !acl.can('sales_channel.editor')"
             :error="productExportSalesChannelDomainIdError"
             @change="onStorefrontDomainSelectionChange"
@@ -298,6 +304,7 @@
                 entity="currency"
                 :disabled="!acl.can('sales_channel.editor')"
                 :error="productExportCurrencyIdError"
+                show-clearable-button
             />
         </div>
         {% endblock %}
@@ -314,6 +321,7 @@
                 value-property="id"
                 entity="language"
                 :disabled="true"
+                show-clearable-button
             />
             <sw-help-text
                 class="sw-sales-channel-detail-base__product-comparison-helptext"
@@ -333,6 +341,7 @@
                 value-property="id"
                 entity="customer_group"
                 :disabled="true"
+                show-clearable-button
             />
             <sw-help-text
                 class="sw-sales-channel-detail-base__product-comparison-helptext"
@@ -442,6 +451,7 @@
             label-property="name"
             value-property="id"
             required
+            show-clearable-button
             :disabled="!acl.can('sales_channel.editor')"
             entity="product_stream"
             :error="productExportProductStreamIdError"

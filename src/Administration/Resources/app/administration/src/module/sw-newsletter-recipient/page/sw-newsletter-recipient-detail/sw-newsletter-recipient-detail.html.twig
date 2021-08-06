@@ -42,6 +42,7 @@
                     :label="$tc('sw-newsletter-recipient.general.salutation')"
                     label-property="displayName"
                     entity="salutation"
+                    show-clearable-button
                 />
                 {% endblock %}
 
@@ -118,6 +119,7 @@
                 :label="$tc('sw-newsletter-recipient.general.language')"
                 :disabled="!acl.can('newsletter_recipient.editor')"
                 entity="language"
+                show-clearable-button
             />
             {% endblock %}
 
@@ -128,6 +130,7 @@
                 label-property="name"
                 :disabled="true"
                 entity="sales_channel"
+                show-clearable-button
             />
             {% endblock %}
 

@@ -16,6 +16,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -251,14 +252,20 @@ class SalesChannelContextRestorerTest extends TestCase
         $cartMergedEvent = $this->events[CartMergedEvent::class];
         static::assertInstanceOf(CartMergedEvent::class, $cartMergedEvent);
 
+        static::assertEquals(1, $cartMergedEvent->getPreviousCart()->getLineItems()->count());
+        static::assertEquals($cartMergedEvent->getCart()->getName(), $cartMergedEvent->getPreviousCart()->getName());
+        static::assertEquals($cartMergedEvent->getCart()->getToken(), $cartMergedEvent->getPreviousCart()->getToken());
+
         static::assertNotEmpty($p1 = $restoreCart->getLineItems()->get($productId1));
         static::assertEquals(1, $p1->getQuantity());
         static::assertNotEmpty($savedItem = $restoreCart->getLineItems()->get($savedLineItem->getId()));
         static::assertEquals($savedLineItemQuantity + $guestProductQuantity, $savedItem->getQuantity());
     }
 
-    public function testCartMergedEventIsNotFired(): void
+    public function testCartMergedEventIsFiredWithCustomerCart(): void
     {
+        Feature::skipTestIfInActive('FEATURE_NEXT_16824', $this);
+
         $currentContextToken = Random::getAlphanumericString(32);
 
         $currentContext = $this->createSalesChannelContext($currentContextToken, []);
@@ -299,8 +306,14 @@ class SalesChannelContextRestorerTest extends TestCase
         $restoreCart = $this->cartService->getCart($restoreContext->getToken(), $restoreContext);
 
         static::assertFalse($restoreCart->isModified());
+        static::assertArrayHasKey(CartMergedEvent::class, $this->events);
 
-        static::assertArrayNotHasKey(CartMergedEvent::class, $this->events);
+        /** @var CartMergedEvent $event */
+        $event = $this->events[CartMergedEvent::class];
+
+        static::assertEquals(0, $event->getPreviousCart()->getLineItems()->count());
+        static::assertEquals($event->getCart()->getName(), $event->getPreviousCart()->getName());
+        static::assertEquals($event->getCart()->getToken(), $event->getPreviousCart()->getToken());
 
         static::assertNotEmpty($p1 = $restoreCart->getLineItems()->get($productId1));
         static::assertEquals(1, $p1->getQuantity());

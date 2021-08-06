@@ -4,6 +4,7 @@ namespace Shopware\Core\System\SalesChannel\Context;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
+use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Cart\Event\CartMergedEvent;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
@@ -96,17 +97,20 @@ class SalesChannelContextRestorer
 
     private function mergeCart(Cart $customerCart, Cart $guestCart, SalesChannelContext $customerContext): Cart
     {
-        $customerCartAlreadyContainedItems = $customerCart->getLineItems()->count() > 0;
-
         $mergeableLineItems = $guestCart->getLineItems()->filter(function (LineItem $item) use ($customerCart) {
             return ($item->getQuantity() > 0 && $item->isStackable()) || !$customerCart->has($item->getId());
         });
 
+        $errors = $customerCart->getErrors();
+        $customerCart->setErrors(new ErrorCollection());
+
+        $customerCartClone = clone $customerCart;
+        $customerCart->setErrors($errors);
+        $customerCartClone->setErrors($errors);
+
         $mergedCart = $this->cartService->add($customerCart, $mergeableLineItems->getElements(), $customerContext);
 
-        if ($customerCartAlreadyContainedItems) {
-            $this->eventDispatcher->dispatch(new CartMergedEvent($mergedCart, $customerContext));
-        }
+        $this->eventDispatcher->dispatch(new CartMergedEvent($mergedCart, $customerContext, $customerCartClone));
 
         return $mergedCart;
     }

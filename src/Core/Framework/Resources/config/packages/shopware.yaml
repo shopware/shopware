@@ -309,6 +309,11 @@ shopware:
               major: true
               description: "Improve orders UX in Administration"
               # issue: NEXT-7530
+            - name: FEATURE_NEXT_16824
+              default: false
+              major: true
+              description: "Cart merged event"
+              # issue: NEXT-16824
 
     logger:
         file_rotation_count: 14

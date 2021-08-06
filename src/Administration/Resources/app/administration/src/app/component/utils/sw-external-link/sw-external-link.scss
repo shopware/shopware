@@ -11,11 +11,11 @@
         color: $color-shopware-brand-600;
     }
 
-    .sw-external-link__icon {
+    &__icon {
         margin-left: 4px;
     }
 
-    &.sw-external-link--small {
+    &--small {
         font-size: $font-size-extra-small;
 
         .sw-external-link__icon {

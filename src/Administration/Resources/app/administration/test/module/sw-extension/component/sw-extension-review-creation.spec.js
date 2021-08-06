@@ -12,6 +12,7 @@ import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-field-error';
 import 'src/app/component/form/sw-checkbox-field';
+import 'src/app/component/utils/sw-external-link';
 
 describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-creation', () => {
     /** @type Wrapper */
@@ -49,7 +50,8 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-review-creat
                 },
                 'sw-gtc-checkbox': Shopware.Component.build('sw-gtc-checkbox'),
                 'sw-button': Shopware.Component.build('sw-button'),
-                'sw-button-process': Shopware.Component.build('sw-button-process')
+                'sw-button-process': Shopware.Component.build('sw-button-process'),
+                'sw-external-link': Shopware.Component.build('sw-external-link')
             }
         });
     }

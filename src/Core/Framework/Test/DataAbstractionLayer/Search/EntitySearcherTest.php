@@ -415,4 +415,56 @@ class EntitySearcherTest extends TestCase
             $result->getIds()
         );
     }
+
+    public function testIdsSearchResultReturnFieldPropertyName(): void
+    {
+        $defaults = [
+            'name' => 'test',
+            'stock' => 10,
+            'price' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
+            ],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+        ];
+
+        $ids = new TestDataCollection();
+        $data = [
+            array_merge($defaults, [
+                'id' => $ids->create('product-1'),
+                'productNumber' => Uuid::randomHex(),
+                'categories' => [
+                    ['name' => 'F'],
+                    ['name' => 'B'],
+                ],
+            ]),
+            array_merge($defaults, [
+                'id' => $ids->create('product-2'),
+                'productNumber' => Uuid::randomHex(),
+                'categories' => [
+                    ['name' => 'X'],
+                    ['name' => 'A'],
+                ],
+            ]),
+        ];
+
+        $this->getContainer()->get('product.repository')
+            ->create($data, Context::createDefaultContext());
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('productId', array_values($ids->getList(['product-1', 'product-2']))));
+
+        $result = $this->getContainer()->get('product_category.repository')
+            ->searchIds($criteria, Context::createDefaultContext());
+
+        static::assertNotEmpty($result->getIds());
+
+        foreach ($result->getIds() as $ids) {
+            static::assertArrayHasKey('product_id', $ids);
+            static::assertArrayHasKey('category_id', $ids);
+            static::assertArrayHasKey('productId', $ids);
+            static::assertArrayHasKey('categoryId', $ids);
+            static::assertEquals($ids['categoryId'], $ids['category_id']);
+            static::assertEquals($ids['productId'], $ids['product_id']);
+        }
+    }
 }

@@ -11,6 +11,7 @@
             :placeholder="$tc('global.sw-condition.condition.lineItemCustomField.field.fieldSetSelect.placeholder')"
             :disabled="disabled"
             size="medium"
+            show-clearable-button
             @change="onFieldSetChange"
         >
             <template #selection-label-property="slotProps">
@@ -35,6 +36,7 @@
             :placeholder="$tc('global.sw-condition.condition.lineItemCustomField.field.customFieldSelect.placeholder')"
             :disabled="disabled"
             size="medium"
+            show-clearable-button
             @change="onFieldChange"
         >
             <template #selection-label-property="slotProps">

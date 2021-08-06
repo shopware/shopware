@@ -54,6 +54,7 @@
                     :placeholder="$tc('sw-cms.elements.productBox.config.placeholder.selection')"
                     :criteria="productCriteria"
                     :context="productSelectContext"
+                    show-clearable-button
                     @change="onProductChange"
                 >
                     {% block sw_entity_single_select_variant_selected_item %}

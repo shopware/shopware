@@ -110,6 +110,7 @@
                             class="sw-settings-country-general__customer-select-currency sw-settings-country-general__select"
                             entity="currency"
                             bordered
+                            show-clearable-button
                             :disabled="!acl.can('country.editor')"
                         />
                     </template>
@@ -168,6 +169,7 @@
                             v-model="country.companyTax.currencyId"
                             class="sw-settings-country-general__company-select-currency sw-settings-country-general__select"
                             entity="currency"
+                            show-clearable-button
                             :disabled="!acl.can('country.editor')"
                         />
                     </template>

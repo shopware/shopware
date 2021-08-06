@@ -13,6 +13,7 @@
         :placeholder="$tc('sw-category.base.entry-point-card.placeholderEntryPoint')"
         :help-text="helpText"
         :disabled="hasExistingNavigation || !acl.can('category.editor')"
+        show-clearable-button
         @change="onEntryPointChange"
     />
     {% endblock %}

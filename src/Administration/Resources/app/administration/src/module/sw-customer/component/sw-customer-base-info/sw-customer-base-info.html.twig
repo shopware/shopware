@@ -32,6 +32,7 @@
                     v-model="customer.groupId"
                     entity="customer_group"
                     size="small"
+                    show-clearable-button
                 />
             </dd>
             {% endblock %}
@@ -62,6 +63,7 @@
                     entity="payment_method"
                     label-property="distinguishableName"
                     size="small"
+                    show-clearable-button
                 />
             </dd>
             {% endblock %}
@@ -119,6 +121,7 @@
                     entity="language"
                     :criteria="languageCriteria"
                     size="small"
+                    show-clearable-button
                 />
             </dd>
             {% endblock %}

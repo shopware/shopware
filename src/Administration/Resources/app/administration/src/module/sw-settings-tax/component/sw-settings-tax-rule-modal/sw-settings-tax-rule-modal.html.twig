@@ -12,6 +12,7 @@
         {% block sw_settings_tax_rule_modal_country_select %}
         <sw-entity-single-select
             v-model="taxRule.countryId"
+            show-clearable-button
             required
             :label="$tc('sw-settings-tax.taxRuleCard.labelCountryName')"
             :help-text="$tc('sw-settings-tax.taxRuleCard.tooltipCountries')"
@@ -22,6 +23,7 @@
         {% block sw_settings_tax_rule_modal_type_select %}
         <sw-entity-single-select
             v-model="taxRule.taxRuleTypeId"
+            show-clearable-button
             required
             :label="$tc('sw-settings-tax.taxRuleCard.labelAppliesOn')"
             label-property="typeName"

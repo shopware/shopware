@@ -59,6 +59,7 @@
                     :value="currentValue"
                     :placeholder="$tc('sw-product.featureSets.templateSelectFieldPlaceholder')"
                     :disabled="isInherited || !allowEdit"
+                    show-clearable-button
                     @change="updateCurrentValue"
                 />
                 {% endblock %}

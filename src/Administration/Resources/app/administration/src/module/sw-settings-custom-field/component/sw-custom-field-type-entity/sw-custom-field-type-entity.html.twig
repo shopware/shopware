@@ -15,6 +15,7 @@
     :help-text="$tc('sw-settings-custom-field.customField.detail.helpTextEntitySelect')"
     :label="$tc('sw-settings-custom-field.customField.detail.labelEntityTypeSelect')"
     :options="sortedEntityTypes"
+    show-clearable-button
     @change="onChangeEntityType"
 />
 {% endblock %}

@@ -257,7 +257,7 @@ Component.register('sw-users-permissions-user-detail', {
 
             this.isModalLoading = true;
             newKey.quantityStart = 1;
-            this.integrationService.generateKey().then((response) => {
+            this.integrationService.generateKey({}, {}, true).then((response) => {
                 newKey.accessKey = response.accessKey;
                 newKey.secretAccessKey = response.secretAccessKey;
                 this.currentIntegration = newKey;

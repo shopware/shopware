@@ -56,9 +56,10 @@ class MailServiceTest extends TestCase
 
         $mailSender = $this->createMock(AbstractMailSender::class);
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+        $templateRenderer = $this->createMock(StringTemplateRenderer::class);
         $mailService = new MailService(
             $this->createMock(DataValidator::class),
-            $this->createMock(StringTemplateRenderer::class),
+            $templateRenderer,
             $this->getContainer()->get(MailFactory::class),
             $mailSender,
             $this->createMock(EntityRepositoryInterface::class),
@@ -73,21 +74,27 @@ class MailServiceTest extends TestCase
         $salesChannel = $this->createSalesChannel();
 
         $data = [
-            'senderName' => 'Foo Bar',
+            'senderName' => 'Foo & Bar',
             'recipients' => ['baz@example.com' => 'Baz'],
             'salesChannelId' => $salesChannel['id'],
             'contentHtml' => '<h1>Test</h1>',
             'contentPlain' => 'Test',
-            'subject' => 'Test subject',
+            'subject' => 'Test subject & content',
         ];
         if ($dataSenderEmail !== null) {
             $data['senderEmail'] = $dataSenderEmail;
         }
 
+        $templateRenderer->expects(static::exactly(4))
+            ->method('render')
+            ->willReturn('Test subject &amp; content', 'Foo &amp; Bar', '<h1>Test</h1>', 'Test');
+
         $mailSender->expects(static::once())
             ->method('send')
-            ->with(static::callback(function (Email $mail) use ($expected): bool {
+            ->with(static::callback(function (Email $mail) use ($expected, $data): bool {
                 $from = $mail->getFrom();
+                $this->assertSame($data['senderName'], $from[0]->getName());
+                $this->assertSame($data['subject'], $mail->getSubject());
                 $this->assertCount(1, $from);
                 $this->assertSame($expected, $from[0]->getAddress());
 

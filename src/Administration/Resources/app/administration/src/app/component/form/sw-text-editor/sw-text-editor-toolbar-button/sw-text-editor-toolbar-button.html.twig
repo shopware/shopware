@@ -95,24 +95,33 @@
         class="sw-text-editor-toolbar-button__children sw-text-editor-toolbar-button__link-menu"
     >
         {% block sw_text_editor_toolbar_button_link_menu_content %}
+        {% block sw_text_editor_toolbar_button_link_menu_content_title %}
         <p class="sw-text-editor-toolbar-button__link-menu-text">
             {{ $tc('sw-text-editor-toolbar.link.linkTo') }}
         </p>
+        {% endblock %}
+        {% block sw_text_editor_toolbar_button_link_menu_content_link %}
         <sw-field
             v-model="buttonConfig.value"
             type="text"
             :placeholder="$tc('sw-text-editor-toolbar.link.placeholder')"
         />
+        {% endblock %}
+        {% block sw_text_editor_toolbar_button_link_menu_content_new_tab %}
         <sw-field
             v-model="buttonConfig.newTab"
             type="switch"
             :label="$tc('sw-text-editor-toolbar.link.openInNewTab')"
         />
+        {% endblock %}
+        {% block sw_text_editor_toolbar_button_link_menu_content_display_as_button %}
         <sw-field
             v-model="buttonConfig.displayAsButton"
             type="switch"
             :label="$tc('sw-text-editor-toolbar.link.displayAsButton')"
         />
+        {% endblock %}
+        {% block sw_text_editor_toolbar_button_link_menu_content_button_variant %}
         <sw-field
             v-if="buttonConfig.displayAsButton"
             v-model="buttonConfig.buttonVariant"
@@ -120,6 +129,7 @@
             type="select"
             :label="$tc('sw-text-editor-toolbar.link.buttonVariant')"
         />
+        {% endblock %}
         <div class="sw-text-editor-toolbar-button__link-menu-buttons">
             {% block sw_text_editor_toolbar_button_link_menu_buttons %}
             <sw-button

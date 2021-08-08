@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Test\Cart\SalesChannel;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedCriteriaEvent;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
@@ -427,6 +428,43 @@ class CartOrderRouteTest extends TestCase
 
         static::assertNotSame($guestToken, $mergedToken);
         static::assertNotSame($originalToken, $mergedToken);
+    }
+
+    public function testOrderPlacedCriteriaEventFired(): void
+    {
+        $this->createCustomerAndLogin();
+
+        $event = null;
+        $this->catchEvent(CheckoutOrderPlacedCriteriaEvent::class, $event);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/checkout/cart/line-item',
+                [
+                    'items' => [
+                        [
+                            'id' => $this->ids->get('p1'),
+                            'type' => 'product',
+                            'referencedId' => $this->ids->get('p1'),
+                        ],
+                    ],
+                ]
+            );
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/checkout/order'
+            );
+
+        TestCase::assertInstanceOf(CheckoutOrderPlacedCriteriaEvent::class, $event);
+    }
+
+    protected function catchEvent(string $eventName, &$eventResult): void
+    {
+        $this->getContainer()->get('event_dispatcher')->addListener($eventName, static function ($event) use (&$eventResult): void {
+            $eventResult = $event;
+        });
     }
 
     private function createTestData(): void

@@ -6,6 +6,7 @@ use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartPersisterInterface;
+use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedCriteriaEvent;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Cart\Order\OrderPersisterInterface;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -127,6 +128,8 @@ class CartOrderRoute extends AbstractCartOrderRoute
             ->addAssociation('lineItems')
             ->addAssociation('currency')
             ->addAssociation('addresses.country');
+
+        $this->eventDispatcher->dispatch(new CheckoutOrderPlacedCriteriaEvent($criteria, $context));
 
         /** @var OrderEntity|null $orderEntity */
         $orderEntity = $this->orderRepository->search($criteria, $context->getContext())->first();

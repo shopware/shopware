@@ -2,17 +2,12 @@
 import variantProduct from '../../../fixtures/variant-product';
 
 function uploadImageUsingFileUpload(path, name) {
-    cy.fixture(path).then(fileContent => {
-        cy.get('.sw-cms-slot__config-modal .sw-media-upload-v2__file-input').upload(
-            {
-                fileContent,
-                fileName: name,
-                mimeType: 'image/png'
-            }, {
-                subjectType: 'input'
-            }
-        );
-    });
+    cy.get('.sw-cms-slot__config-modal .sw-media-upload-v2__file-input')
+        .attachFile({
+            filePath: path,
+            fileName: name,
+            mimeType: 'image/png'
+        });
 
     const altValue = name.substr(0, name.lastIndexOf('.'));
 

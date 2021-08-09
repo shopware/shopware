@@ -2,8 +2,8 @@
 const AdminApiService = require('@shopware-ag/e2e-testsuite-platform/cypress/support/service/administration/admin-api.service');
 
 class RuleBuilderFixture {
-    constructor() {
-        this.apiClient = new AdminApiService();
+    constructor(authInformation) {
+        this.apiClient = new AdminApiService(authInformation);
     }
 
     create(endpoint, rawData) {

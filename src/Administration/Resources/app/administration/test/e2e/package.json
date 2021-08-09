@@ -19,9 +19,10 @@
   "dependencies": {
     "@babel/core": "^7.7.7",
     "@percy/cypress": "^3.1.0",
-    "@shopware-ag/e2e-testsuite-platform": "2.0.0-beta.6",
+    "@shopware-ag/e2e-testsuite-platform": "^2.0.1",
     "cypress-file-upload": "4.1.1",
     "cypress-multi-reporters": "^1.2.3",
+    "cypress-select-tests": "^1.7.1",
     "mocha": "^7.0.0",
     "mocha-junit-reporter": "^1.23.1",
     "mochawesome": "^4.1.0"

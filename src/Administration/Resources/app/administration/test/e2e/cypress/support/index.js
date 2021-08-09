@@ -19,3 +19,7 @@ require('@shopware-ag/e2e-testsuite-platform/cypress/support');
 
 // Custom administration commands
 require('./commands/commands');
+
+Cypress.Cookies.defaults({
+    preserve: ['_test-api-dbName', '_apiAuth']
+})

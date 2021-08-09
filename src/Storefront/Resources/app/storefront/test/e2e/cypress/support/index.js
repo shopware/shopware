@@ -31,3 +31,7 @@ beforeEach(() => {
         return cy.clearCacheAdminApi('DELETE', `api/_action/cache`);
     })
 });
+
+Cypress.Cookies.defaults({
+    preserve: ['_test-api-dbName', '_apiAuth']
+})

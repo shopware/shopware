@@ -171,13 +171,15 @@ Cypress.Commands.add('typeAndSelect', {
 });
 
 Cypress.Commands.add('createRuleFixture', (userData, shippingMethodName = 'Standard') => {
-    const fixture = new RuleBuilderFixture();
+    return cy.authenticate().then((authInformation) => {
+        const fixture = new RuleBuilderFixture(authInformation);
 
-    return cy.fixture('rule-builder-shipping-payment.json').then((result) => {
-        return Cypress._.merge(result, userData);
-    }).then((data) => {
-        return fixture.setRuleFixture(data, shippingMethodName);
-    })
+        return cy.fixture('rule-builder-shipping-payment.json').then((result) => {
+            return Cypress._.merge(result, userData);
+        }).then((data) => {
+            return fixture.setRuleFixture(data, shippingMethodName);
+        })
+    });
 });
 
 /**

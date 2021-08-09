@@ -141,17 +141,12 @@ describe('Import/Export:  Visual tests', () => {
         cy.takeSnapshot('[Import export] Detail, Import overview', '.sw-import-export-view-import');
 
         // Upload a fixture CSV file with a single product
-        cy.fixture('csv/single-product.csv').then(fileContent => {
-            cy.get('.sw-file-input__file-input').upload(
-                {
-                    fileContent,
-                    fileName: 'single-product.csv',
-                    mimeType: 'text/csv'
-                }, {
-                    subjectType: 'input'
-                }
-            );
-        });
+        cy.get('.sw-file-input__file-input')
+            .attachFile({
+                filePath: 'csv/single-product.csv',
+                fileName: 'single-product.csv',
+                mimeType: 'text/csv'
+            });
 
         // Select fixture profile for product entity
         cy.get('.sw-import-export-importer > .sw-field').click();

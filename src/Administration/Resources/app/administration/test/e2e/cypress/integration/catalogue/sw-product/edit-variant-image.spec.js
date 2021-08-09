@@ -2,17 +2,12 @@
 import ProductPageObject from '../../../support/pages/module/sw-product.page-object';
 
 function uploadImageUsingFileUpload(path, name, index = 1) {
-    cy.fixture(path).then(fileContent => {
-        cy.get('.sw-product-variants-media-upload .sw-media-upload-v2__file-input').upload(
-            {
-                fileContent,
-                fileName: name,
-                mimeType: 'image/png'
-            }, {
-                subjectType: 'input'
-            }
-        );
-    });
+    cy.get('.sw-product-variants-media-upload .sw-media-upload-v2__file-input')
+        .attachFile({
+            filePath: path,
+            fileName: name,
+            mimeType: 'image/png'
+        });
 
     const altValue = name.substr(0, name.lastIndexOf('.'));
     const regex = new RegExp(name);

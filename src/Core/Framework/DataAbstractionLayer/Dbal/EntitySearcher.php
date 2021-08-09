@@ -108,13 +108,20 @@ class EntitySearcher implements EntitySearcherInterface
                 if ($field) {
                     $value = $field->getSerializer()->decode($field, $value);
 
+                    /*
+                     * @deprecated tag:v6.5.0 - The keys of IdSearchResult should always be field's propertyName instead of storageName
+                     */
                     $pk[$storageName] = $value;
+                    $pk[$field->getPropertyName()] = $value;
                 }
 
                 $data[$storageName] = $value;
             }
 
-            $arrayKey = implode('-', $pk);
+            /**
+             * @deprecated tag:v6.5.0 - Will be change to $arrayKey = implode('-', $pk) due to no duplicated ids as mentioned above;
+             */
+            $arrayKey = implode('-', array_unique(array_values($pk)));
 
             if (\count($pk) === 1) {
                 $pk = array_shift($pk);

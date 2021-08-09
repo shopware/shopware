@@ -1410,6 +1410,71 @@ EOF;
         static::assertArrayHasKey('data', $responseData);
     }
 
+    public function testSearchIdsOnManyToMany(): void
+    {
+        $id = Uuid::randomHex();
+        $categoryA = Uuid::randomHex();
+        $categoryB = Uuid::randomHex();
+
+        $data = [
+            'id' => $id,
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 1,
+            'name' => 'price test',
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
+            'manufacturer' => ['name' => 'test'],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+            'categories' => [
+                ['id' => $categoryA, 'name' => 'A'],
+                ['id' => $categoryB, 'name' => 'B'],
+            ],
+        ];
+
+        $this->getContainer()->get('product.repository')
+            ->create([$data], Context::createDefaultContext());
+
+        $path = '/api/search-ids/product-category';
+        $this->getBrowser()->request('POST', $path, [
+            'filter' => [
+                [
+                    'type' => 'equalsAny',
+                    'field' => 'productId',
+                    'value' => implode('|', [$id]),
+                ],
+            ],
+        ]);
+        $responseData = json_decode($this->getBrowser()->getResponse()->getContent(), true);
+        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode(), print_r($responseData, true));
+
+        static::assertArrayHasKey('total', $responseData);
+        static::assertSame(2, $responseData['total']);
+        static::assertArrayHasKey('data', $responseData);
+
+        $categoryAFound = 0;
+        $categoryBFound = 0;
+
+        foreach ($responseData['data'] as $datum) {
+            static::assertArrayHasKey('product_id', $datum);
+            static::assertArrayHasKey('category_id', $datum);
+            static::assertArrayHasKey('productId', $datum);
+            static::assertArrayHasKey('categoryId', $datum);
+            static::assertEquals($datum['categoryId'], $datum['category_id']);
+            static::assertEquals($datum['productId'], $datum['product_id']);
+            static::assertEquals($datum['productId'], $id);
+
+            if ($categoryA === $datum['categoryId']) {
+                ++$categoryAFound;
+            }
+
+            if ($categoryB === $datum['categoryId']) {
+                ++$categoryBFound;
+            }
+        }
+
+        static::assertEquals(1, $categoryAFound);
+        static::assertEquals(1, $categoryBFound);
+    }
+
     public function testNestedSearchOnManyToManyWithoutPermissionOnParent(): void
     {
         $id = Uuid::randomHex();

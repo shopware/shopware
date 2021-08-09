@@ -76,6 +76,11 @@ class ProductPriceCalculator extends AbstractProductPriceCalculator
         }
         $prices->sortByQuantity();
 
+        $minQuantityStart = $prices->first()->getQuantityStart();
+        if ($minQuantityStart > $product->getMinPurchase()) {
+            $product->setMinPurchase($minQuantityStart);
+        }
+
         $reference = ReferencePriceDto::createFromProduct($product);
 
         $calculated = new CalculatedPriceCollection();

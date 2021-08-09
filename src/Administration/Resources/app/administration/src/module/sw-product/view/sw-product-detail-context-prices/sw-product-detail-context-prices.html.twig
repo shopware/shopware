@@ -152,14 +152,13 @@
                     {% block sw_product_detail_prices_price_card_price_group_grid_quantity_start_field %}
                     <sw-field
                         v-model="item.quantityStart"
-                        v-tooltip="getStartQuantityTooltip(itemIndex, item.quantityStart)"
                         type="number"
                         :name="`${item.ruleId}-${item.quantityStart}-quantityStart`"
                         validation="required"
                         :min="priceGroup.prices[itemIndex - 1] ? priceGroup.prices[itemIndex - 1].quantityEnd + 1 : 1"
                         :max="item.quantityEnd ? item.quantityEnd : null"
                         :size="compact ? 'small' : 'default'"
-                        :disabled="(itemIndex === 0 && item.quantityStart === 1) || !acl.can('product.editor')"
+                        :disabled="!acl.can('product.editor')"
                     />
                     {% endblock %}
                 </template>

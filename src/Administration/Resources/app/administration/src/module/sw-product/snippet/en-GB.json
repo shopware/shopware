@@ -285,8 +285,7 @@
       "inheritSwitchLabel": "Use advanced prices from parent product",
       "advancedPricesNotInherited": "You can now use custom pricing rules for this variant.",
       "advancedListPricePriceLabel": "Price",
-      "advancedListPriceLabel": "List price",
-      "advancedPriceDisabledTooltip": "The start value of the first listing price has to be 1."
+      "advancedListPriceLabel": "List price"
     },
     "properties": {
       "cardTitleProperties": "Available properties",

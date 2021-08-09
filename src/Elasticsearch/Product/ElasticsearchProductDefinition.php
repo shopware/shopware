@@ -102,6 +102,9 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'releaseDate' => [
                     'type' => 'date',
                 ],
+                'createdAt' => [
+                    'type' => 'date',
+                ],
                 'sales' => EntityMapper::INT_FIELD,
                 'stock' => EntityMapper::INT_FIELD,
                 'shippingFree' => EntityMapper::BOOLEAN_FIELD,
@@ -221,6 +224,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                     'id' => $item['productManufacturerId'],
                 ],
                 'releaseDate' => isset($item['releaseDate']) ? (new \DateTime($item['releaseDate']))->format('c') : null,
+                'createdAt' => isset($item['createdAt']) ? (new \DateTime($item['createdAt']))->format('c') : null,
                 'optionIds' => json_decode($item['optionIds'] ?? '[]', true),
                 'options' => array_map(fn (string $optionId) => ['id' => $optionId], json_decode($item['optionIds'] ?? '[]', true)),
                 'categoriesRo' => array_map(fn (string $categoryId) => ['id' => $categoryId], json_decode($item['categoryIds'] ?? '[]', true)),
@@ -404,6 +408,7 @@ SELECT
     IFNULL(p.height, pp.height) AS height,
     IFNULL(p.width, pp.width) AS width,
     IFNULL(p.release_date, pp.release_date) AS releaseDate,
+    IFNULL(p.created_at, pp.created_at) AS createdAt,
     IFNULL(p.category_tree, pp.category_tree) AS categoryIds,
     IFNULL(p.option_ids, pp.option_ids) AS optionIds,
     IFNULL(p.property_ids, pp.property_ids) AS propertyIds,

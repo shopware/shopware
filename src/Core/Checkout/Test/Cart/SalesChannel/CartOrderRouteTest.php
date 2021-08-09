@@ -434,7 +434,6 @@ class CartOrderRouteTest extends TestCase
     {
         $this->createCustomerAndLogin();
 
-        /** @var $event CheckoutOrderPlacedCriteriaEvent|null */
         $event = null;
         $this->catchEvent(CheckoutOrderPlacedCriteriaEvent::class, $event);
 

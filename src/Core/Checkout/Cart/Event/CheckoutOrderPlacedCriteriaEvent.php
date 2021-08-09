@@ -11,6 +11,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 class CheckoutOrderPlacedCriteriaEvent extends Event implements ShopwareSalesChannelEvent
 {
     protected SalesChannelContext $context;
+
     protected Criteria $criteria;
 
     public function __construct(Criteria $criteria, SalesChannelContext $context)

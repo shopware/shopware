@@ -430,6 +430,44 @@ class CartOrderRouteTest extends TestCase
         static::assertNotSame($originalToken, $mergedToken);
     }
 
+    public function testOrderPlacedCriteriaEventFired(): void
+    {
+        $this->createCustomerAndLogin();
+
+        /** @var $event CheckoutOrderPlacedCriteriaEvent|null */
+        $event = null;
+        $this->catchEvent(CheckoutOrderPlacedCriteriaEvent::class, $event);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/checkout/cart/line-item',
+                [
+                    'items' => [
+                        [
+                            'id' => $this->ids->get('p1'),
+                            'type' => 'product',
+                            'referencedId' => $this->ids->get('p1'),
+                        ],
+                    ],
+                ]
+            );
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/checkout/order'
+            );
+
+        TestCase::assertInstanceOf(CheckoutOrderPlacedCriteriaEvent::class, $event);
+    }
+
+    protected function catchEvent(string $eventName, &$eventResult): void
+    {
+        $this->getContainer()->get('event_dispatcher')->addListener($eventName, static function ($event) use (&$eventResult): void {
+            $eventResult = $event;
+        });
+    }
+
     private function createTestData(): void
     {
         $this->addCountriesToSalesChannel();
@@ -521,43 +559,5 @@ class CartOrderRouteTest extends TestCase
         ], $this->ids->context);
 
         return $customerId;
-    }
-
-    public function testOrderPlacedCriteriaEventFired(): void
-    {
-        $this->createCustomerAndLogin();
-
-        /** @var $event CheckoutOrderPlacedCriteriaEvent|null */
-        $event = null;
-        $this->catchEvent(CheckoutOrderPlacedCriteriaEvent::class, $event);
-
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/checkout/cart/line-item',
-                [
-                    'items' => [
-                        [
-                            'id' => $this->ids->get('p1'),
-                            'type' => 'product',
-                            'referencedId' => $this->ids->get('p1'),
-                        ],
-                    ],
-                ]
-            );
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/checkout/order'
-            );
-
-        TestCase::assertInstanceOf(CheckoutOrderPlacedCriteriaEvent::class, $event);
-    }
-
-    protected function catchEvent(string $eventName, &$eventResult): void
-    {
-        $this->getContainer()->get('event_dispatcher')->addListener($eventName, static function ($event) use (&$eventResult): void {
-            $eventResult = $event;
-        });
     }
 }

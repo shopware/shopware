@@ -128,14 +128,16 @@
             {% endblock %}
 
             {% block sw_sales_channel_detail_domains_input_language %}
-            <sw-entity-single-select
+            <sw-single-select
+                class="sw-sales-channel-detail-domains__domain-language-select"
+                :options="salesChannel.languages"
+                label-property="name"
+                value-property="id"
                 v-model="currentDomain.languageId"
-                :label="$tc('sw-sales-channel.detail.labelInputLanguage')"
-                :criteria="salesChannelFilterCriteria"
-                entity="language"
                 required
+                :label="$tc('sw-sales-channel.detail.labelInputLanguage')"
+                @change="onLanguageSelect"
                 show-clearable-button
-                @option-select="onOptionSelect"
             />
             {% endblock %}
         </sw-container>

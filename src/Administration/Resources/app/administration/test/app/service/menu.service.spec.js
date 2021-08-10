@@ -23,14 +23,17 @@ describe('src/app/service/menu.service', () => {
 
             const navigationEntries = menuService.getNavigationFromAdminModules();
 
-            expect(navigationEntries).toHaveLength(6);
+            expect(navigationEntries).toHaveLength(9);
             expect(navigationEntries).toEqual(expect.arrayContaining([
                 expect.objectContaining({ id: 'sw.second.top.level' }),
                 expect.objectContaining({ id: 'sw.second.level.last' }),
                 expect.objectContaining({ id: 'sw.second.level.first' }),
                 expect.objectContaining({ id: 'sw.second.level.second' }),
                 expect.objectContaining({ id: 'sw.first.top.level' }),
-                expect.objectContaining({ id: 'sw-my-apps' })
+                expect.objectContaining({ id: 'sw-my-apps' }),
+                expect.objectContaining({ id: 'children.with.privilege' }),
+                expect.objectContaining({ id: 'children.with.privilege.first' }),
+                expect.objectContaining({ id: 'children.with.privilege.second' })
             ]));
         });
 
@@ -193,6 +196,7 @@ describe('src/app/service/menu.service', () => {
 
             const navigationTree = menuService.getMainMenu();
 
+
             expect(navigationTree).toEqual([
                 expect.objectContaining({
                     id: 'sw.first.top.level',
@@ -220,6 +224,10 @@ describe('src/app/service/menu.service', () => {
                 expect.objectContaining({
                     id: 'sw-my-apps',
                     position: 100
+                }),
+                expect.objectContaining({
+                    id: 'children.with.privilege',
+                    position: 150
                 })
             ]);
         });

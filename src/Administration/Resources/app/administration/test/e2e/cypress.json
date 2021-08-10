@@ -1,7 +1,7 @@
 {
   "viewportHeight": 1080,
   "viewportWidth": 1920,
-  "baseUrl": "http://localhost:8000",
+  "baseUrl": "http://shopware.test",
   "watchForFileChanges": true,
   "requestTimeout": 60000,
   "responseTimeout": 80000,
@@ -19,8 +19,8 @@
     "admin": "/admin",
     "apiPath": "**/api",
     "locale": "en-GB",
-    "shopwareRoot": "/app",
-    "localUsage": false,
+    "shopwareRoot": "/Users/y.tuer/Sites/shopware",
+    "localUsage": true,
     "usePercy": false
   },
   "firefoxGcInterval": {
@@ -33,13 +33,16 @@
   },
   "reporter": "cypress-multi-reporters",
     "reporterOptions": {
-        "reporterEnabled": "mochawesome",
+        "reporterEnabled": "mochawesome, mocha-junit-reporter",
         "mochawesomeReporterOptions": {
             "reportDir": "cypress/results/mocha",
             "quite": true,
             "overwrite": false,
             "html": false,
             "json": true
+        },
+        "mochaJunitReporterReporterOptions": {
+          "mochaFile": "cypress/results/single-reports/results-[hash].xml"
         }
     }
 

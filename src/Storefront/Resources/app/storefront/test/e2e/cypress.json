@@ -33,13 +33,17 @@
   },
   "reporter": "cypress-multi-reporters",
     "reporterOptions": {
-        "reporterEnabled": "mochawesome",
+        "reporterEnabled": "mochawesome, mocha-junit-reporter",
         "mochawesomeReporterOptions": {
             "reportDir": "cypress/results/mocha",
             "quite": true,
             "overwrite": false,
             "html": false,
             "json": true
+        },
+        "mochaJunitReporterReporterOptions": {
+          "mochaFile": "cypress/results/single-reports/results-[hash].xml"
         }
     }
+
 }

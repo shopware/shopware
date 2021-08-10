@@ -1,5 +1,4 @@
 import template from './sw-gtc-checkbox.html.twig';
-import './sw-gtc-checkbox.scss';
 
 Shopware.Component.register('sw-gtc-checkbox', {
     template,

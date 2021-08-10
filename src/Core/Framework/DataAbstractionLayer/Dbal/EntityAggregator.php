@@ -48,36 +48,28 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
  */
 class EntityAggregator implements EntityAggregatorInterface
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var EntityDefinitionQueryHelper
-     */
-    private $helper;
+    private EntityDefinitionQueryHelper $helper;
 
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $registry;
+    private DefinitionInstanceRegistry $registry;
 
-    /**
-     * @var CriteriaQueryBuilder
-     */
-    private $criteriaQueryBuilder;
+    private CriteriaQueryBuilder $criteriaQueryBuilder;
+
+    private bool $timeZoneSupportEnabled;
 
     public function __construct(
         Connection $connection,
         EntityDefinitionQueryHelper $queryHelper,
         DefinitionInstanceRegistry $registry,
-        CriteriaQueryBuilder $criteriaQueryBuilder
+        CriteriaQueryBuilder $criteriaQueryBuilder,
+        bool $timeZoneSupportEnabled
     ) {
         $this->connection = $connection;
         $this->helper = $queryHelper;
         $this->registry = $registry;
         $this->criteriaQueryBuilder = $criteriaQueryBuilder;
+        $this->timeZoneSupportEnabled = $timeZoneSupportEnabled;
     }
 
     public function aggregate(EntityDefinition $definition, Criteria $criteria, Context $context): AggregationResultCollection
@@ -271,7 +263,7 @@ class EntityAggregator implements EntityAggregatorInterface
     {
         $accessor = $this->helper->getFieldAccessor($aggregation->getField(), $definition, $definition->getEntityName(), $context);
 
-        if ($aggregation->getTimeZone()) {
+        if ($this->timeZoneSupportEnabled && $aggregation->getTimeZone()) {
             $accessor = 'CONVERT_TZ(' . $accessor . ', "UTC", "' . $aggregation->getTimeZone() . '")';
         }
 

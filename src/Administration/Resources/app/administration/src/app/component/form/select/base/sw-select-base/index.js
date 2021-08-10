@@ -26,7 +26,7 @@ Component.register('sw-select-base', {
             default: false,
         },
 
-        clearable: {
+        showClearableButton: {
             type: Boolean,
             required: false,
             default: false,
@@ -127,6 +127,13 @@ Component.register('sw-select-base', {
 
         emitClear() {
             this.$emit('clear');
+        },
+
+        focusParentSelect(event) {
+            if (event && event?.shiftKey) {
+                this.$refs.selectWrapper.click();
+                event.preventDefault();
+            }
         },
     },
 });

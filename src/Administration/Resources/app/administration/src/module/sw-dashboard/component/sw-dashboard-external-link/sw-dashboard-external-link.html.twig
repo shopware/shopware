@@ -1,15 +1,9 @@
 {% block sw_dashboard_external_link %}
-<a
+<sw-external-link
     class="sw-dashboard-external-link"
     :href="link"
-    target="_blank"
-    rel="noopener"
+    icon="default-arrow-simple-right"
 >
     {{ title }}
-    <sw-icon
-        name="default-arrow-simple-right"
-        small
-        color="#d1d9e0"
-    />
-</a>
+</sw-external-link>
 {% endblock %}

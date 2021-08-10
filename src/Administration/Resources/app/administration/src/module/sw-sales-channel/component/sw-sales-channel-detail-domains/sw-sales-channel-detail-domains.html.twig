@@ -134,6 +134,7 @@
                 :criteria="salesChannelFilterCriteria"
                 entity="language"
                 required
+                show-clearable-button
                 @option-select="onOptionSelect"
             />
             {% endblock %}
@@ -150,6 +151,7 @@
                 :criteria="currencyCriteria"
                 :label="$tc('sw-sales-channel.detail.labelInputCurrency')"
                 required
+                show-clearable-button
                 @option-select="onOptionSelect"
             />
             {% endblock %}
@@ -161,6 +163,7 @@
                 :criteria="snippetSetCriteria"
                 :label="$tc('sw-sales-channel.detail.labelInputSnippet')"
                 required
+                show-clearable-button
                 @option-select="onOptionSelect"
             />
             {% endblock %}

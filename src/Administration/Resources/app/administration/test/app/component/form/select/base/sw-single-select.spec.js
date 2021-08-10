@@ -186,7 +186,11 @@ describe('components/sw-single-select', () => {
     });
 
     it('should show the clearable icon in the single select', async () => {
-        const wrapper = await createSingleSelect();
+        const wrapper = await createSingleSelect({
+            attrs: {
+                showClearableButton: true
+            }
+        });
 
         const clearableIcon = wrapper.find('.sw-select__select-indicator-clear');
         expect(clearableIcon.isVisible()).toBe(true);
@@ -210,6 +214,9 @@ describe('components/sw-single-select', () => {
                         value: 'entryThreeValue'
                     }
                 ]
+            },
+            attrs: {
+                showClearableButton: true
             }
         });
 

@@ -95,6 +95,7 @@
                         :placeholder="$tc('sw-settings-language.detail.placeholderPleaseSelect')"
                         :help-text="inheritanceTooltipText"
                         entity="language"
+                        show-clearable-button
                         @change="onInputLanguage"
                     >
                         <template #result-item="{ isSelected, setValue, item, index, labelProperty, searchTerm, highlightSearchTerm, getKey }">
@@ -132,6 +133,7 @@
                         :label="$tc('sw-settings-language.detail.labelIsoCode')"
                         :required="isIsoCodeRequired"
                         label-property="code"
+                        show-clearable-button
                         :placeholder="$tc('sw-settings-language.detail.placeholderPleaseSelect')"
                         :help-text="$tc('sw-settings-language.detail.tooltipIsoCodeNotChoosable')"
                         entity="locale"
@@ -167,6 +169,7 @@
                         id="locales"
                         v-model="language.localeId"
                         required
+                        show-clearable-button
                         class="sw-settings-language-detail__select-locale"
                         :disabled="!acl.can('language.editor')"
                         :label="$tc('sw-settings-language.detail.labelLocale')"

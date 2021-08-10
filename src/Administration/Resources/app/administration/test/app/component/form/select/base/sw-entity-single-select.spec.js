@@ -399,7 +399,11 @@ describe('components/sw-entity-single-select', () => {
     });
 
     it('should show the clearable icon in the single select', async () => {
-        const wrapper = await createEntitySingleSelect();
+        const wrapper = await createEntitySingleSelect({
+            attrs: {
+                showClearableButton: true
+            }
+        });
 
         const clearableIcon = wrapper.find('.sw-select__select-indicator-clear');
         expect(clearableIcon.isVisible()).toBe(true);
@@ -421,6 +425,9 @@ describe('components/sw-entity-single-select', () => {
                         };
                     }
                 }
+            },
+            attrs: {
+                showClearableButton: true
             }
         });
 

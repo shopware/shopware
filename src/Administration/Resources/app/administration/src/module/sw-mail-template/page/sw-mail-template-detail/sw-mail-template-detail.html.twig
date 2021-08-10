@@ -74,6 +74,7 @@
                     v-model="mailTemplate.mailTemplateTypeId"
                     entity="mail_template_type"
                     required
+                    show-clearable-button
                     :label="$tc('sw-mail-template.detail.basic.labelMailType')"
                     :placeholder="$tc('sw-mail-template.detail.basic.placeholderMailType')"
                     :disabled="!acl.can('mail_templates.editor')"
@@ -290,6 +291,7 @@
                         entity="sales_channel"
                         :label="$tc('sw-mail-template.detail.basic.labelSalesChannels')"
                         :placeholder="$tc('sw-mail-template.detail.basic.placeholderSalesChannels')"
+                        show-clearable-button
                     />
                     {% endblock %}
 

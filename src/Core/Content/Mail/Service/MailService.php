@@ -158,9 +158,9 @@ class MailService extends AbstractMailService
         $template = $data['subject'];
 
         try {
-            $data['subject'] = $this->templateRenderer->render($template, $templateData, $context);
+            $data['subject'] = html_entity_decode($this->templateRenderer->render($template, $templateData, $context));
             $template = $data['senderName'];
-            $data['senderName'] = $this->templateRenderer->render($template, $templateData, $context);
+            $data['senderName'] = html_entity_decode($this->templateRenderer->render($template, $templateData, $context));
             foreach ($contents as $index => $template) {
                 $contents[$index] = $this->templateRenderer->render($template, $templateData, $context);
             }

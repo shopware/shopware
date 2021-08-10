@@ -46,17 +46,12 @@ describe('Media: Replace media', () => {
         cy.get('.sw-media-modal-replace').should('be.visible');
 
         // Upload new file
-        cy.fixture('img/sw-test-image.png').then(fileContent => {
-            cy.get(`.sw-media-modal-replace ${page.elements.uploadInput}`).upload(
-                {
-                    fileContent,
-                    fileName: 'sw-test-image.png',
-                    mimeType: 'image/png'
-                }, {
-                    subjectType: 'input'
-                }
-            );
-        });
+        cy.get(`.sw-media-modal-replace ${page.elements.uploadInput}`)
+            .attachFile({
+                filePath: 'img/sw-test-image.png',
+                fileName: 'sw-test-image.png',
+                mimeType: 'image/png'
+            });
 
         // Verify image is about to be replaced
         cy.get('.sw-media-modal-replace .sw-media-upload__fallback-icon').should('not.exist');
@@ -104,17 +99,12 @@ describe('Media: Replace media', () => {
         cy.get('.sw-media-modal-replace').should('be.visible');
 
         // Upload new file with different file type
-        cy.fixture('img/sw-storefront-en.jpg').then(fileContent => {
-            cy.get(`.sw-media-modal-replace ${page.elements.uploadInput}`).upload(
-                {
-                    fileContent,
-                    fileName: 'sw-storefront-en.jpg',
-                    mimeType: 'image/jpg'
-                }, {
-                    subjectType: 'input'
-                }
-            );
-        });
+        cy.get(`.sw-media-modal-replace ${page.elements.uploadInput}`)
+            .attachFile({
+                filePath: 'img/sw-storefront-en.jpg',
+                fileName: 'sw-storefront-en.jpg',
+                mimeType: 'image/jpg'
+            });
 
         // Verify image is about to be replaced
         cy.get('.sw-media-modal-replace .sw-media-upload__fallback-icon').should('not.exist');

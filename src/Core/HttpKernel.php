@@ -200,7 +200,7 @@ class HttpKernel
 
         $connection = self::getConnection();
 
-        if ($this->environment === 'dev') {
+        if ($this->environment !== 'prod') {
             $connection->getConfiguration()->setSQLLogger(new DebugStack());
         }
 

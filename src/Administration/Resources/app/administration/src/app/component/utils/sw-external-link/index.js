@@ -31,6 +31,12 @@ Component.register('sw-external-link', {
             required: false,
             default: 'small-arrow-small-external',
         },
+
+        rel: {
+            type: String,
+            required: false,
+            default: 'noopener',
+        },
     },
 
     computed: {

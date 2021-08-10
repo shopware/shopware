@@ -8,7 +8,9 @@
     {% endblock %}
 
     {# @deprecated tag:v6.5.0 - will be removed #}
-    {% set showVatIdField = false %}
+    {% if not feature('FEATURE_NEXT_15957') %}
+        {% set showVatIdField = false %}
+    {% endif %}
 
     {% block component_address_form_company %}
         {% if showFormCompany %}
@@ -85,9 +87,8 @@
                                 </div>
                             {% endblock %}
 
-                            {# @deprecated tag:v6.5.0 - will be removed, look into `@Storefront/storefront/component/address/address-personal-vat-id.html.twig` instead #}
                             {% block component_address_form_company_vatId %}
-                                {% if showVatIdField %}
+                                {% if not feature('FEATURE_NEXT_15957') and showVatIdField %}
                                     <div class="form-group col-md-6">
                                         {% if formViolations.getViolations("/vatId") is not empty %}
                                             {% set violationPath = "/vatId" %}
@@ -95,6 +96,7 @@
                                             {% set violationPath = "/#{prefix}/vatId" %}
                                         {% endif %}
 
+                                        {# @deprecated tag:v6.5.0 - will be removed, look into `@Storefront/storefront/component/address/address-personal-vat-id.html.twig` instead #}
                                         {% block component_address_form_company_vatId_label %}
                                             <label class="form-label"
                                                    for="{{ prefix }}vatId">
@@ -102,6 +104,7 @@
                                             </label>
                                         {% endblock %}
 
+                                        {# @deprecated tag:v6.5.0 - will be removed, look into `@Storefront/storefront/component/address/address-personal-vat-id.html.twig` instead #}
                                         {% block component_address_form_company_vatId_input %}
                                             <input type="text"
                                                    class="form-control{% if violationPath %} is-invalid{% endif %}"
@@ -111,11 +114,19 @@
                                                    value="{{ data.get('vatId') }}">
                                         {% endblock %}
 
+                                        {# @deprecated tag:v6.5.0 - will be removed, look into `@Storefront/storefront/component/address/address-personal-vat-id.html.twig` instead #}
                                         {% block component_address_form_company_vatId_input_error %}
                                             {% if violationPath %}
                                                 {% sw_include '@Storefront/storefront/utilities/form-violation.html.twig' %}
                                             {% endif %}
                                         {% endblock %}
+                                    </div>
+
+                                {% elseif feature('FEATURE_NEXT_15957') and prefix == 'address' and showVatIdField %}
+                                    <div class="form-group col-md-6">
+                                        {% sw_include '@Storefront/storefront/component/address/address-personal-vat-id.html.twig' with {
+                                            'vatIds': context.customer.vatIds
+                                        } %}
                                     </div>
                                 {% endif %}
                             {% endblock %}

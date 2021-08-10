@@ -18,6 +18,7 @@
         :label="$tc('sw-category.base.link.mainTypeLabel')"
         :placeholder="$tc('sw-category.base.link.mainTypePlaceholder')"
         :options="linkTypeValues"
+        show-clearable-button
     />
     {% endblock %}
 
@@ -30,6 +31,7 @@
         :label="$tc('sw-category.base.link.internalTypeLabel')"
         :placeholder="$tc('sw-category.base.link.internalTypePlaceholder')"
         :options="entityValues"
+        show-clearable-button
         @change="changeEntity"
     />
     {% endblock %}
@@ -44,6 +46,7 @@
         :placeholder="$tc('sw-category.base.link.categoryPlaceholder')"
         :criteria="categoryCriteria"
         entity="category"
+        show-clearable-button
     />
     {% endblock %}
 
@@ -58,6 +61,7 @@
         :criteria="productCriteria"
         :display-variants="true"
         entity="product"
+        show-clearable-button
     />
     {% endblock %}
 
@@ -70,6 +74,7 @@
         :label="$tc('global.entities.landing_page')"
         :placeholder="$tc('sw-category.base.link.landingPagePlaceholder')"
         entity="landing_page"
+        show-clearable-button
     />
     {% endblock %}
 

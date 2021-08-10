@@ -37,7 +37,7 @@ describe('components/sw-select-base', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
-            clearable: true
+            showClearableButton: true
         });
 
         const clearableIcon = wrapper.find('.sw-select__select-indicator-clear');
@@ -48,7 +48,7 @@ describe('components/sw-select-base', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
-            clearable: true
+            showClearableButton: true
         });
 
         const clearableIcon = wrapper.find('.sw-select__select-indicator-clear');

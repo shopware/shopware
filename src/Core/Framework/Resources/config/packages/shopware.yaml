@@ -223,6 +223,11 @@ shopware:
               major: true
               description: "Move storefront script tags to head with defer"
               # issue: NEXT-15917
+            - name: FEATURE_NEXT_15957
+              default: false
+              major: true
+              description: "VAT id field for guest"
+              # issue: NEXT-15957
 
     logger:
         file_rotation_count: 14

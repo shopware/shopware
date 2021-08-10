@@ -16,6 +16,7 @@ default:
     before_script:
         - composer run setup
         - chown -R application:application .
+        - echo 'LogFormat "[httpd:access] %V:%p %h %l %u %t \"%r\" %>s bytesIn:%I bytesOut:%O reqTime:%{ms}T" dockerlog' > /opt/docker/etc/httpd/conf.d/20-custom-log.conf
         - /entrypoint supervisord > /dev/null 2>&1 &
 
 include:

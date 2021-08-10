@@ -57,7 +57,8 @@
                                         'scope': 'parent',
                                         'parentSelector': 'form',
                                         'showFormCompany': true,
-                                        'showNoShippingPostfix': true
+                                        'showNoShippingPostfix': true,
+                                        'showVatIdField': feature('FEATURE_NEXT_15957') and changeBilling and context.customer and context.customer.guest ? true : false
                                     } %}
                                 {% endblock %}
 

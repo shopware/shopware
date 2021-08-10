@@ -54,6 +54,7 @@
         :reset-option="$tc('sw-sales-channel-switch.labelDefaultOption')"
         :value="salesChannelId"
         entity="sales_channel"
+        show-clearable-button
         @change="onChange"
     >
         <template #labelProperty="{item, labelProperty}">

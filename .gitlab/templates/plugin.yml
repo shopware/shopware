@@ -1,0 +1,176 @@
+stages:
+    - build
+    - test
+    - deploy
+
+variables:
+    PLATFORM_BRANCH: 'trunk'
+    PROJECT_ROOT: ${CI_PROJECT_DIR}
+    WEB_DOCUMENT_ROOT: $CI_PROJECT_DIR/public
+    MYSQL_ROOT_PASSWORD: root
+    DEV_IMAGE: shopware/development:7.4-composer-2
+    GIT_STRATEGY: clone
+
+default:
+    image: $DEV_IMAGE
+    services:
+        -   name: mariadb:10.4
+            alias: database
+    before_script:
+        - export PLUGIN_NAME="${PLUGIN_NAME:-${CI_PROJECT_TITLE}}"
+        - echo "$PLUGIN_NAME"
+        - zip -rq plugin.zip .
+        - mv plugin.zip /tmp/plugin.zip
+        - rm -Rf .* * || true
+        - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.shopware.com/shopware/6/product/platform.git . --branch $PLATFORM_BRANCH
+        - mkdir -p custom/plugins || true
+        - unzip -q /tmp/plugin.zip -d custom/plugins/$PLUGIN_NAME
+        - composer install
+        - mkdir -p config/jwt || true
+        - bin/console system:generate-jwt || true
+        - bin/console system:install --drop-database --basic-setup --force
+        - chown -R application:application .
+        - bin/console plugin:refresh
+        - bin/console plugin:install --refresh --activate $PLUGIN_NAME
+        - bin/console bundle:dump
+        - /entrypoint supervisord > /dev/null 2>&1 &
+        - cd custom/plugins/$PLUGIN_NAME
+        - >
+            composer config repo.platform-packages --json '{"type": "path", "url": "../../../src/*", "canonical": true}';
+        - composer require 'shopware/core:6.4.*@dev' 'shopware/storefront:6.4.*@dev' 'shopware/administration:6.4.*@dev' 'shopware/elasticsearch:6.4.*@dev'
+
+build:
+    stage: build
+    rules:
+        - exists:
+              - composer.json
+    script:
+        - '[[ ! -r src/Resources/app/administration/package.json ]] || npm clean-install --prefix src/Resources/app/administration'
+        - '[[ ! -r src/Resources/app/storefront/package.json ]] || npm clean-install --prefix src/Resources/app/storefront'
+        - '(cd vendor/shopware/administration/Resources/app/administration/ && npm ci)'
+        - npm run build --prefix vendor/shopware/administration/Resources/app/administration/
+        - '(cd vendor/shopware/storefront/Resources/app/storefront/ && npm ci)'
+        - npm run production --prefix vendor/shopware/storefront/Resources/app/storefront/
+        - rm -Rf vendor var/cache
+        - mkdir -p /tmp/plugin/$PLUGIN_NAME
+        - cp -R * /tmp/plugin/$PLUGIN_NAME
+        - cd /tmp/plugin
+        - zip -r ${CI_PROJECT_DIR}/plugin.zip $PLUGIN_NAME/
+        - '[[ -r ${CI_PROJECT_DIR}/plugin.zip ]] || failed to create plugin.zip'
+    artifacts:
+        expose_as: 'Plugin zip'
+        name: '${CI_PROJECT_TITLE}.zip'
+        paths:
+            - plugin.zip
+
+validate zip:
+    stage: test
+    image:
+        name: ghcr.io/friendsofshopware/platform-plugin-dev:v6.3.1
+        entrypoint: [""]
+    variables:
+        GIT_STRATEGY: none
+    needs:
+        - build
+    rules:
+        - exists:
+              - composer.json
+    before_script: []
+    script:
+        - plugin-uploader ext:validate $PWD/plugin.zip
+
+phpunit:
+    stage: test
+    needs: []
+    services:
+        - name: mysql:5.7
+          alias: database
+    rules:
+        - exists:
+              - phpunit.xml*
+    script:
+        - php
+            -d pcov.enabled=1 -d pcov.directory=$PWD/src -d pcov.exclude='~(vendor|tests|node_modules)~'
+            vendor/bin/phpunit
+            --configuration phpunit.xml.dist
+            --log-junit ${CI_PROJECT_DIR}/phpunit.junit.xml
+            --colors=never
+            --coverage-cobertura ${CI_PROJECT_DIR}/cobertura.xml
+            --coverage-text | sed -E -n '1,/^\s*Lines:\s*([0-9]+(\.[0-9]+)?)%/ p' # do not output covered files lines
+    coverage: '/^\s*Lines:\s*(\d+(?:\.\d+)?%)/'
+    artifacts:
+        when: always
+        reports:
+            junit: phpunit.junit.xml
+            cobertura: cobertura.xml
+
+phpstan:
+    stage: test
+    needs: []
+    rules:
+        - exists:
+              - phpstan.neon*
+    script:
+        - php vendor/shopware/core/DevOps/StaticAnalyze/PHPStan/phpstan-bootstrap.php
+        - vendor/bin/phpstan analyze src tests --error-format=gitlab --no-progress | tee ${CI_PROJECT_DIR}/phpstan-report.json
+    artifacts:
+        when: always
+        reports:
+            codequality: phpstan-report.json
+
+psalm:
+    stage: test
+    needs: []
+    rules:
+        - exists:
+              - psalm.xml*
+    script:
+        - vendor/bin/psalm --threads=$(nproc) --diff --show-info=false --report=${CI_PROJECT_DIR}/junit.xml
+    artifacts:
+        when: always
+        reports:
+            junit: junit.xml
+
+ecs:
+    stage: test
+    needs: []
+    rules:
+        - exists:
+              - ecs.php
+    script:
+        - vendor/bin/ecs
+
+validate snippets:
+    stage: test
+    needs: []
+    rules:
+        - changes:
+              - '**/*.json'
+    script:
+        - ${PROJECT_ROOT}/bin/console snippets:validate
+
+Check built JS files:
+    stage: test
+    needs: []
+    rules:
+        - exists:
+              - src/Resources/app/*
+    script:
+        - ${PROJECT_ROOT}/bin/console plugin:dump
+        - '[[ ! -r src/Resources/app/administration/package.json ]] || npm clean-install --prefix src/Resources/app/administration'
+        - '[[ ! -r src/Resources/app/storefront/package.json ]] || npm clean-install --prefix src/Resources/app/storefront'
+        - '(cd vendor/shopware/administration/Resources/app/administration/ && npm ci)'
+        - npm run build --prefix vendor/shopware/administration/Resources/app/administration/
+        - '(cd vendor/shopware/storefront/Resources/app/storefront/ && npm ci)'
+        - npm run production --prefix vendor/shopware/storefront/Resources/app/storefront/
+        - '(cd shopware/storefront/Resources/app/storefront && node copy-to-vendor.js)'
+        - >
+            if ! git diff --quiet --ignore-submodules HEAD -- src; then
+                echo "Built Javascript files differ. Update the dependencies and build again";
+                git status;
+                exit 1;
+            else
+                echo "Everything ok"
+                exit 0;
+            fi
+    allow_failure: true

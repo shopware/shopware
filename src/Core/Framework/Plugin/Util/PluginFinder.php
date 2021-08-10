@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Plugin\Composer\PackageProvider;
 use Shopware\Core\Framework\Plugin\Exception\ExceptionCollection;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
 use Shopware\Core\Framework\Plugin\Struct\PluginFromFileSystemStruct;
+use Symfony\Component\Finder\Exception\DirectoryNotFoundException;
 use Symfony\Component\Finder\Finder;
 
 class PluginFinder
@@ -45,38 +46,42 @@ class PluginFinder
     private function loadLocalPlugins(string $pluginDir, IOInterface $composerIO, ExceptionCollection $errors): array
     {
         $plugins = [];
-        $filesystemPlugins = (new Finder())
-            ->directories()
-            ->depth(0)
-            ->in($pluginDir)
-            ->sortByName()
-            ->getIterator();
 
-        foreach ($filesystemPlugins as $filesystemPlugin) {
-            $pluginPath = $filesystemPlugin->getRealPath();
+        try {
+            $filesystemPlugins = (new Finder())
+                ->directories()
+                ->depth(0)
+                ->in($pluginDir)
+                ->sortByName()
+                ->getIterator();
 
-            try {
-                $package = $this->packageProvider->getPluginComposerPackage($pluginPath, $composerIO);
-            } catch (PluginComposerJsonInvalidException $e) {
-                $errors->add($e);
+            foreach ($filesystemPlugins as $filesystemPlugin) {
+                $pluginPath = $filesystemPlugin->getRealPath();
 
-                continue;
+                try {
+                    $package = $this->packageProvider->getPluginComposerPackage($pluginPath, $composerIO);
+                } catch (PluginComposerJsonInvalidException $e) {
+                    $errors->add($e);
+
+                    continue;
+                }
+
+                if (!$this->isShopwarePluginType($package) || !$this->isPluginComposerValid($package)) {
+                    $this->addError($pluginPath, $errors);
+
+                    continue;
+                }
+
+                $pluginName = $this->getPluginNameFromPackage($package);
+
+                $plugins[$pluginName] = (new PluginFromFileSystemStruct())->assign([
+                    'baseClass' => $pluginName,
+                    'path' => $filesystemPlugin->getPathname(),
+                    'managedByComposer' => false,
+                    'composerPackage' => $package,
+                ]);
             }
-
-            if (!$this->isShopwarePluginType($package) || !$this->isPluginComposerValid($package)) {
-                $this->addError($pluginPath, $errors);
-
-                continue;
-            }
-
-            $pluginName = $this->getPluginNameFromPackage($package);
-
-            $plugins[$pluginName] = (new PluginFromFileSystemStruct())->assign([
-                'baseClass' => $pluginName,
-                'path' => $filesystemPlugin->getPathname(),
-                'managedByComposer' => false,
-                'composerPackage' => $package,
-            ]);
+        } catch (DirectoryNotFoundException $e) {
         }
 
         return $plugins;
@@ -131,6 +136,17 @@ class PluginFinder
                 'path' => $pluginPath,
                 'managedByComposer' => true,
                 'composerPackage' => $composerPackage,
+            ]);
+        }
+
+        $root = $composer->getPackage();
+        if ($this->isShopwarePluginType($root) && $this->isPluginComposerValid($root)) {
+            $pluginBaseClass = $this->getPluginNameFromPackage($root);
+            $plugins[$pluginBaseClass] = (new PluginFromFileSystemStruct())->assign([
+                'baseClass' => $pluginBaseClass,
+                'path' => '.',
+                'managedByComposer' => true,
+                'composerPackage' => $root,
             ]);
         }
 

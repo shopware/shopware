@@ -135,7 +135,7 @@ class CriteriaParser
 
         $esAggregation = $this->createAggregation($aggregation, $fieldName, $definition, $context);
 
-        if (!$path) {
+        if (!$path || $aggregation instanceof FilterAggregation) {
             return $esAggregation;
         }
 
@@ -177,30 +177,115 @@ class CriteriaParser
         }
     }
 
-    protected function parseFilterAggregation(FilterAggregation $aggregation, EntityDefinition $definition, Context $context): Bucketing\FilterAggregation
+    protected function parseFilterAggregation(FilterAggregation $aggregation, EntityDefinition $definition, Context $context): AbstractAggregation
     {
-        $query = new BoolQuery();
-        foreach ($aggregation->getFilter() as $filter) {
-            $parsed = $this->parseFilter($filter, $definition, $definition->getEntityName(), $context);
-            if ($parsed instanceof NestedQuery) {
-                $parsed = $parsed->getQuery();
-            }
-            $query->add($parsed);
-        }
-
-        $filter = new Bucketing\FilterAggregation($aggregation->getName(), $query);
-
-        $nested = $aggregation->getAggregation();
-
-        if (!$nested) {
+        if ($aggregation->getAggregation() === null) {
             throw new \RuntimeException(sprintf('Filter aggregation %s contains no nested aggregation.', $aggregation->getName()));
         }
 
-        $filter->addAggregation(
-            $this->parseNestedAggregation($nested, $definition, $context)
-        );
+        $nested = $this->parseAggregation($aggregation->getAggregation(), $definition, $context);
+        if ($nested === null) {
+            throw new \RuntimeException(sprintf('Nested filter aggregation %s can not be parsed.', $aggregation->getName()));
+        }
 
-        return $filter;
+        // when aggregation inside the filter aggregation points to a nested object (e.g. product.properties.id) we have to add all filters
+        // which points to the same association to the same "nesting" level like the nested aggregation for this association
+        $path = $nested instanceof NestedAggregation ? $nested->getPath() : null;
+        $bool = new BoolQuery();
+
+        $filters = [];
+        foreach ($aggregation->getFilter() as $filter) {
+            if ($filter instanceof MultiFilter) {
+                throw new \RuntimeException('Multi filter are not supported inside an filter aggregation');
+            }
+
+            $query = $this->parseFilter($filter, $definition, $definition->getEntityName(), $context);
+
+            if (!$query instanceof NestedQuery) {
+                $filters[] = new Bucketing\FilterAggregation($aggregation->getName(), $query);
+
+                continue;
+            }
+
+            // same property path as the "real" aggregation
+            if ($query->getPath() === $path) {
+                $bool->add($query->getQuery());
+
+                continue;
+            }
+
+            // query points to a nested document property - we have to define that the filter points to this field
+            $parsed = new NestedAggregation($aggregation->getName(), $query->getPath());
+
+            // now we can defined a filter which points to the nested field (remove NestedQuery layer)
+            $filter = new Bucketing\FilterAggregation($aggregation->getName(), $query->getQuery());
+
+            // afterwards we reset the nesting to allow following filters to point to another nested property
+            $reverse = new Bucketing\ReverseNestedAggregation($aggregation->getName());
+
+            $filter->addAggregation($reverse);
+
+            $parsed->addAggregation($filter);
+
+            $filters[] = $parsed;
+        }
+
+        // nested aggregation should have filters - we have to remap the nesting
+        $mapped = $nested;
+        if (\count($bool->getQueries()) > 0 && $nested instanceof NestedAggregation) {
+            $real = $nested->getAggregation($nested->getName());
+            if (!$real instanceof AbstractAggregation) {
+                throw new \RuntimeException(sprintf('Nested filter aggregation %s can not be parsed.', $aggregation->getName()));
+            }
+
+            $filter = new Bucketing\FilterAggregation($aggregation->getName(), $bool);
+            $filter->addAggregation($real);
+
+            $mapped = new NestedAggregation($aggregation->getName(), $nested->getPath());
+            $mapped->addAggregation($filter);
+        }
+
+        // at this point we have to walk over all filters and create one nested filter for it
+        $parent = null;
+        $root = $mapped;
+        foreach ($filters as $filter) {
+            if ($parent === null) {
+                $parent = $filter;
+                $root = $filter;
+
+                continue;
+            }
+
+            $parent->addAggregation($filter);
+
+            if (!$filter instanceof NestedAggregation) {
+                $parent = $filter;
+
+                continue;
+            }
+
+            $filter = $filter->getAggregation($filter->getName());
+            if (!$filter instanceof AbstractAggregation) {
+                throw new \RuntimeException('Expected nested+filter+reverse pattern for parsed filters to set next parent correctly');
+            }
+
+            $parent = $filter->getAggregation($filter->getName());
+            if (!$parent instanceof AbstractAggregation) {
+                throw new \RuntimeException('Expected nested+filter+reverse pattern for parsed filters to set next parent correctly');
+            }
+        }
+
+        // it can happen, that $parent is not defined if the "real" aggregation is a nested and all filters points to the same property
+        // than we return the following structure:  [nested-agg] + filter-agg + real-agg    ( [] = optional )
+        if ($parent === null) {
+            return $root;
+        }
+
+        // at this point we have some other filters which point to another nested object as the "real" aggregation
+        // than we return the following structure:  [nested-agg] + filter-agg + [reverse-nested-agg] + [nested-agg] + real-agg   ( [] = optional )
+        $parent->addAggregation($mapped);
+
+        return $root;
     }
 
     protected function parseTermsAggregation(TermsAggregation $aggregation, string $fieldName, EntityDefinition $definition, Context $context): AbstractAggregation

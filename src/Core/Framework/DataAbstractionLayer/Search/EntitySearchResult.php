@@ -5,9 +5,12 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Search;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
+use Shopware\Core\Framework\Struct\StateAwareTrait;
 
 class EntitySearchResult extends EntityCollection
 {
+    use StateAwareTrait;
+
     /**
      * @var string
      */

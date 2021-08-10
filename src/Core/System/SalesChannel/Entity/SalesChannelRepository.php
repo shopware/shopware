@@ -102,14 +102,7 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
         if (!RepositorySearchDetector::isSearchRequired($this->definition, $criteria)) {
             $entities = $this->read($criteria, $salesChannelContext);
 
-            return new EntitySearchResult(
-                $this->definition->getEntityName(),
-                $entities->count(),
-                $entities,
-                $aggregations,
-                $criteria,
-                $salesChannelContext->getContext()
-            );
+            return new EntitySearchResult($this->definition->getEntityName(), $entities->count(), $entities, $aggregations, $criteria, $salesChannelContext->getContext());
         }
 
         $ids = $this->doSearch($criteria, $salesChannelContext);
@@ -136,14 +129,8 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
             $element->addExtension('search', new ArrayEntity($data));
         }
 
-        $result = new EntitySearchResult(
-            $this->definition->getEntityName(),
-            $ids->getTotal(),
-            $entities,
-            $aggregations,
-            $criteria,
-            $salesChannelContext->getContext()
-        );
+        $result = new EntitySearchResult($this->definition->getEntityName(), $ids->getTotal(), $entities, $aggregations, $criteria, $salesChannelContext->getContext());
+        $result->addState(...$ids->getStates());
 
         $event = new EntitySearchResultLoadedEvent($this->definition, $result);
         $this->eventDispatcher->dispatch($event, $event->getName());

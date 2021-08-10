@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult;
 
 use Shopware\Core\Framework\Struct\Collection;
+use Shopware\Core\Framework\Struct\StateAwareTrait;
 
 /**
  * @method AggregationResult[]    getIterator()
@@ -12,6 +13,8 @@ use Shopware\Core\Framework\Struct\Collection;
  */
 class AggregationResultCollection extends Collection
 {
+    use StateAwareTrait;
+
     /**
      * @param AggregationResult $result
      */

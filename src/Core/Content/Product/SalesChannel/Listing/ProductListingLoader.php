@@ -96,14 +96,10 @@ class ProductListingLoader
 
         $this->addExtensions($ids, $entities, $mapping);
 
-        return new EntitySearchResult(
-            ProductDefinition::ENTITY_NAME,
-            $ids->getTotal(),
-            $entities->getEntities(),
-            $aggregations,
-            $origin,
-            $context->getContext()
-        );
+        $result = new EntitySearchResult(ProductDefinition::ENTITY_NAME, $ids->getTotal(), $entities->getEntities(), $aggregations, $origin, $context->getContext());
+        $result->addState(...$ids->getStates());
+
+        return $result;
     }
 
     private function hasOptionFilter(Criteria $criteria): bool

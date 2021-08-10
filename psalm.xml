@@ -19,6 +19,7 @@
             <!-- Compatibility fixes for doctrine annotation parser https://github.com/doctrine/annotations/issues/421 -->
             <file name="src/Core/Framework/Compatibility/AnnotationReader.php"/>
             <file name="src/Core/Framework/Compatibility/DocParser.php"/>
+            <file name="src/Elasticsearch/Test/Product/ElasticsearchProductTest.php" />
         </ignoreFiles>
     </projectFiles>
 

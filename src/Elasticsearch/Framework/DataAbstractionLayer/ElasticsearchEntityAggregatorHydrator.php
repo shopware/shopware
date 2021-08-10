@@ -103,7 +103,8 @@ class ElasticsearchEntityAggregatorHydrator extends AbstractElasticsearchAggrega
                     throw new \RuntimeException(sprintf('Filter aggregation %s contains no nested aggregation.', $aggregation->getName()));
                 }
                 $nestedResult = $result;
-                if (isset($nestedResult[$aggregation->getName()])) {
+
+                while (isset($nestedResult[$aggregation->getName()])) {
                     $nestedResult = $nestedResult[$aggregation->getName()];
                 }
 

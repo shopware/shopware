@@ -9,9 +9,11 @@ trait StateAwareTrait
      */
     private array $states = [];
 
-    public function addState(string $state): void
+    public function addState(string ...$states): void
     {
-        $this->states[$state] = $state;
+        foreach ($states as $state) {
+            $this->states[$state] = $state;
+        }
     }
 
     public function removeState(string $state): void

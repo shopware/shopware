@@ -98,9 +98,10 @@ class ProductListingRoute extends AbstractProductListingRoute
 
         $streamId = $this->extendCriteria($context, $criteria, $category);
 
-        $result = $this->listingLoader->load($criteria, $context);
+        $entities = $this->listingLoader->load($criteria, $context);
 
-        $result = ProductListingResult::createFrom($result);
+        $result = ProductListingResult::createFrom($entities);
+        $result->addState(...$entities->getStates());
 
         $result->addCurrentFilter('navigationId', $categoryId);
 

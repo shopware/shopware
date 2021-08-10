@@ -45,7 +45,9 @@ function createWrapper() {
             appModulesService: {
                 fetchAppModules: () => Promise.resolve([])
             },
-            acl: { can: () => true }
+            acl: { can: (privilege) => {
+                return privilege !== 'shouldReturnFalse';
+            } }
         }
     });
 }
@@ -205,10 +207,10 @@ describe('src/app/component/structure/sw-admin-menu', () => {
     it('should render correct admin menu entries', () => {
         const topLevelEntries = wrapper.findAll('.navigation-list-item__level-1');
 
-        // expect only one top level entry visible because sw-my-apps and second-module have no children nor a path
-        expect(topLevelEntries).toHaveLength(1);
+        // expect two top level entries visible because sw-my-apps and second-module have no children nor a path
+        expect(topLevelEntries).toHaveLength(2);
 
-        const topLevelEntry = topLevelEntries.at(0);
+        const topLevelEntry = topLevelEntries.at(1);
         expect(topLevelEntry.props('entry')).toEqual(expect.objectContaining({
             id: 'sw.second.top.level'
         }));
@@ -229,13 +231,36 @@ describe('src/app/component/structure/sw-admin-menu', () => {
         ]);
     });
 
+    it('should check privileges for main menu entry children ', () => {
+        const topLevelEntries = wrapper.findAll('.navigation-list-item__level-1');
+
+        expect(topLevelEntries).toHaveLength(2);
+
+        const topLevelEntry = topLevelEntries.at(0);
+        expect(topLevelEntry.props('entry')).toEqual(expect.objectContaining({
+            id: 'children.with.privilege'
+        }));
+
+        const childMenuEntries = topLevelEntry.findAll('.navigation-list-item__level-2');
+
+        // Only one children should be shown, the other has acl privileges
+        expect(childMenuEntries).toHaveLength(1);
+        expect(childMenuEntries.wrappers.map((childMenuEntry) => {
+            return childMenuEntry.props('entry');
+        })).toEqual([
+            expect.objectContaining({
+                id: 'children.with.privilege.second'
+            })
+        ]);
+    });
+
     describe('app menu entries', () => {
         it('renders apps under there parent navigation entry', async () => {
             Shopware.State.commit('shopwareApps/setApps', testApps);
             await wrapper.vm.$nextTick();
 
             const topLevelEntries = wrapper.findAll('.navigation-list-item__level-1');
-            const childMenuEntries = topLevelEntries.at(1).findAll('.navigation-list-item__level-2');
+            const childMenuEntries = topLevelEntries.at(2).findAll('.navigation-list-item__level-2');
 
             expect(childMenuEntries.wrappers.map((menuEntry) => {
                 return menuEntry.props('entry');
@@ -275,7 +300,7 @@ describe('src/app/component/structure/sw-admin-menu', () => {
             await wrapper.vm.$nextTick();
 
             const topLevelEntries = wrapper.findAll('.navigation-list-item__level-1');
-            const appMenuEntry = topLevelEntries.at(2).get('.navigation-list-item__level-2');
+            const appMenuEntry = topLevelEntries.at(3).get('.navigation-list-item__level-2');
 
             expect(appMenuEntry.props('entry')).toEqual(
                 expect.objectContaining({

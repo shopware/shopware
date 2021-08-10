@@ -1,7 +1,7 @@
 {
   "viewportHeight": 1080,
   "viewportWidth": 1920,
-  "baseUrl": "http://shopware.test",
+  "baseUrl": "http://localhost:8000",
   "watchForFileChanges": true,
   "requestTimeout": 60000,
   "responseTimeout": 80000,
@@ -19,8 +19,8 @@
     "admin": "/admin",
     "apiPath": "**/api",
     "locale": "en-GB",
-    "shopwareRoot": "/Users/y.tuer/Sites/shopware",
-    "localUsage": true,
+    "shopwareRoot": "/app",
+    "localUsage": false,
     "usePercy": false
   },
   "firefoxGcInterval": {

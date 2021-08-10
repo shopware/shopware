@@ -59,4 +59,4 @@ E2E:
         paths:
             - var/log/*
         reports:
-            junit: var/log/e2e/*.xml
+            junit: var/log/e2e/cypress/results/single-reports/*.xml

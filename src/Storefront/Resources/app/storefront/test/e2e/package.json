@@ -16,7 +16,7 @@
   "dependencies": {
     "@babel/core": "^7.7.7",
     "@babel/register": "^7.14.5",
-    "@shopware-ag/e2e-testsuite-platform": "^2.0.1",
+    "@shopware-ag/e2e-testsuite-platform": "^2.0.2",
     "cypress": "5.6.0",
     "cypress-multi-reporters": "^1.2.3",
     "cypress-select-tests": "^1.7.1",

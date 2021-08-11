@@ -52,6 +52,9 @@ describe('Number range: Visual testing', () => {
         cy.get('#sw-field--state').should('not.have.value', '1');
         cy.wait('@getRangeType').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
+            cy.get('.sw-loader').should('not.exist');
+            cy.get('.sw-loader--element').should('not.exist');
+            cy.contains('.sw-button-process', 'Save').should('be.visible');
         });
 
         // Take Snapshot

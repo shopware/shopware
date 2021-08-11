@@ -21,13 +21,16 @@ class NumberRangeApiService extends ApiService {
      * @returns {Promise<T>}
      */
     reserve(typeName, salesChannelId = '', preview = false, additionalHeaders = {}) {
+        const urlSuffix = salesChannelId ? `/${salesChannelId}` : '';
+        const url = `_action/number-range/reserve/${typeName}${urlSuffix}`;
+
         const headers = this.getBasicHeaders(additionalHeaders);
         const params = {
             preview: preview,
         };
 
         return this.httpClient
-            .get(`_action/number-range/reserve/${typeName}/${salesChannelId}`, {
+            .get(url, {
                 params,
                 headers,
             })

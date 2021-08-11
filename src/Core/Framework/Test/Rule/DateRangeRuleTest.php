@@ -8,10 +8,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Rule\DateRangeRule;
+use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Symfony\Component\Validator\Constraints\DateTime;
+use Symfony\Component\Validator\Constraints\DateTime as DateTimeConstraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
@@ -21,20 +22,11 @@ class DateRangeRuleTest extends TestCase
     use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $ruleRepository;
+    private EntityRepositoryInterface $ruleRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $conditionRepository;
+    private EntityRepositoryInterface $conditionRepository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     protected function setUp(): void
     {
@@ -91,7 +83,7 @@ class DateRangeRuleTest extends TestCase
                 $exceptions = iterator_to_array($stackException->getErrors());
                 static::assertCount(1, $exceptions);
                 static::assertSame('/0/value/fromDate', $exceptions[0]['source']['pointer']);
-                static::assertSame(DateTime::INVALID_FORMAT_ERROR, $exceptions[0]['code']);
+                static::assertSame(DateTimeConstraint::INVALID_FORMAT_ERROR, $exceptions[0]['code']);
             }
         }
     }
@@ -116,7 +108,7 @@ class DateRangeRuleTest extends TestCase
                 $exceptions = iterator_to_array($stackException->getErrors());
                 static::assertCount(1, $exceptions);
                 static::assertSame('/0/value/toDate', $exceptions[0]['source']['pointer']);
-                static::assertSame(DateTime::INVALID_FORMAT_ERROR, $exceptions[0]['code']);
+                static::assertSame(DateTimeConstraint::INVALID_FORMAT_ERROR, $exceptions[0]['code']);
             }
         }
     }
@@ -167,5 +159,204 @@ class DateRangeRuleTest extends TestCase
         ], $this->context);
 
         static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
+    }
+
+    /**
+     * @dataProvider matchDataProvider
+     */
+    public function testMatch(
+        ?string $fromDate,
+        ?string $toDate,
+        bool $useTime,
+        string $now,
+        bool $expectedResult
+    ): void {
+        $rule = new DateRangeRule(
+            $fromDate ? new \DateTime($fromDate) : null,
+            $toDate ? new \DateTime($toDate) : null,
+            $useTime
+        );
+        $scopeMock = $this->createMock(RuleScope::class);
+        $scopeMock->method('getCurrentTime')->willReturn(new \DateTimeImmutable($now));
+
+        $matchResult = $rule->match($scopeMock);
+
+        static::assertSame($expectedResult, $matchResult);
+    }
+
+    public function matchDataProvider(): array
+    {
+        return [
+            // from and to set, useTime = false
+            [
+                '2021-01-01 00:00:00 UTC',
+                '2021-01-01 00:00:00 UTC',
+                false,
+                '2021-01-01 00:00:00 UTC',
+                true,
+            ],
+            [
+                '2021-01-01 00:00:00 UTC',
+                '2021-01-01 00:00:00 UTC',
+                false,
+                '2020-12-31 23:59:59 UTC',
+                false,
+            ],
+            [
+                '2021-01-01 00:00:00 UTC',
+                '2021-01-01 00:00:00 UTC',
+                false,
+                '2021-01-01 23:59:59 UTC',
+                true,
+            ],
+            [
+                '2021-01-01 00:00:00 UTC',
+                '2021-01-01 00:00:00 UTC',
+                false,
+                '2021-01-02 00:00:00 UTC',
+                false,
+            ],
+
+            // from and to set, useTime = true
+            [
+                '2021-01-01 00:00:00 UTC',
+                '2021-01-01 10:00:00 UTC',
+                true,
+                '2021-01-01 00:00:00 UTC',
+                true,
+            ],
+            [
+                '2021-01-01 00:00:00 UTC',
+                '2021-01-01 10:00:00 UTC',
+                true,
+                '2020-12-31 23:59:59 UTC',
+                false,
+            ],
+            [
+                '2021-01-01 00:00:00 UTC',
+                '2021-01-01 10:00:00 UTC',
+                true,
+                '2021-01-01 09:59:59 UTC',
+                true,
+            ],
+            [
+                '2021-01-01 00:00:00 UTC',
+                '2021-01-01 10:00:00 UTC',
+                true,
+                '2021-01-01 10:00:00 UTC',
+                false,
+            ],
+
+            // only from set, useTime = false
+            [
+                '2021-01-01 00:00:00 UTC',
+                null,
+                false,
+                '2021-01-01 00:00:00 UTC',
+                true,
+            ],
+            [
+                '2021-01-01 00:00:00 UTC',
+                null,
+                false,
+                '2020-12-31 23:59:59 UTC',
+                false,
+            ],
+
+            // only from set, useTime = true
+            [
+                '2021-01-01 00:00:00 UTC',
+                null,
+                true,
+                '2021-01-01 00:00:00 UTC',
+                true,
+            ],
+            [
+                '2021-01-01 00:00:00 UTC',
+                null,
+                true,
+                '2020-12-31 23:59:59 UTC',
+                false,
+            ],
+
+            // only to set, useTime = false
+            [
+                null,
+                '2021-01-01 00:00:00 UTC',
+                false,
+                '2021-01-01 23:59:59 UTC',
+                true,
+            ],
+            [
+                null,
+                '2021-01-01 00:00:00 UTC',
+                false,
+                '2021-01-02 00:00:00 UTC',
+                false,
+            ],
+
+            // Some timezone checks
+
+            // with useTime = false
+            [
+                '2021-01-01 10:00:00 UTC',
+                '2021-01-01 20:00:00 UTC',
+                true,
+                '2021-01-01 20:00:00 -01:00',
+                false,
+            ],
+            [
+                '2021-01-01 10:00:00 UTC',
+                '2021-01-01 20:00:00 UTC',
+                true,
+                '2021-01-01 20:00:00 +01:00',
+                true,
+            ],
+            [
+                '2021-01-01 00:00:00 UTC',
+                '2021-01-01 00:00:00 UTC',
+                false,
+                '2021-01-02 02:00:00 +04:00',
+                true,
+            ],
+            [
+                '2021-01-02 00:00:00 +02:00',
+                '2021-01-02 00:00:00 +02:00',
+                false,
+                '2021-01-01 22:00:00 UTC',
+                true,
+            ],
+            [
+                '2021-01-02 00:00:00 +02:00',
+                '2021-01-02 00:00:00 +02:00',
+                false,
+                '2021-01-01 21:59:59 UTC',
+                false,
+            ],
+            // with useTime = true
+            [
+                '2021-01-01 10:00:00 +02:00',
+                '2021-01-01 20:00:00 +02:00',
+                true,
+                '2021-01-01 08:00:00 UTC',
+                true,
+            ],
+            [
+                '2021-01-01 10:00:00 +02:00',
+                '2021-01-01 20:00:00 +02:00',
+                true,
+                '2021-01-01 07:59:59 UTC',
+                false,
+            ],
+
+            // nothing set
+            [
+                null,
+                null,
+                true,
+                '2021-01-01 07:59:59 UTC',
+                true,
+            ],
+        ];
     }
 }

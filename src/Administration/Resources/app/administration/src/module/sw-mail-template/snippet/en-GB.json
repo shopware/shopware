@@ -133,6 +133,11 @@
       "titleResult": "Email header/footer",
       "messageSaveSuccess": "The email header/footer \"{name}\" has been saved.",
       "messageSaveError": "The email header/footer \"{name}\" could not be saved."
+    },
+    "modal": {
+      "title": "Multiple assignments",
+      "mainContent": "There is already a header and footer template assigned to the following Sales Channels. If you go on and save, that assignment will be overwritten with your changes.",
+      "affectedList": "The following Sales Channels are affected:"
     }
   },
   "sw-privileges": {

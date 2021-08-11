@@ -162,6 +162,38 @@
             </sw-card>
             {% endblock %}
         </sw-card-view>
+
+        <sw-modal
+            v-if="showModal"
+            :title="$tc('sw-mail-header-footer.modal.title')"
+            @modal-close="onClose"
+        >
+            <div>{{ $tc('sw-mail-header-footer.modal.mainContent') }}</div>
+            <div>{{ $tc('sw-mail-header-footer.modal.affectedList') }}</div>
+            <div class="sw-mail-header-footer-detail__sales-channel-list">
+                <div
+                    v-for="salesChannel in alreadyAssignedSalesChannels"
+                    :key="salesChannel.translated.name"
+                    class="sw-mail-header-footer-detail__sales-channel-list-entry"
+                >
+                    {{ salesChannel.translated.name }}
+                </div>
+            </div>
+
+            <template #modal-footer>
+                <sw-button @click="onClose">
+                    {{ $tc('global.default.cancel') }}
+                </sw-button>
+                <sw-button-process
+                    :is-loading="isLoading"
+                    :process-success="isSaveSuccessful"
+                    variant="primary"
+                    @click="confirmSave"
+                >
+                    {{ $tc('global.default.save') }}
+                </sw-button-process>
+            </template>
+        </sw-modal>
     </template>
     {% endblock %}
 </sw-page>

@@ -1,4 +1,5 @@
 import template from './sw-mail-header-footer-detail.html.twig';
+import './sw-mail-header-footer-detail.scss';
 
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -34,6 +35,8 @@ Component.register('sw-mail-header-footer-detail', {
             editorConfig: {
                 enableBasicAutocompletion: true,
             },
+            showModal: false,
+            alreadyAssignedSalesChannels: [],
         };
     },
 
@@ -122,6 +125,11 @@ Component.register('sw-mail-header-footer-detail', {
     },
 
     methods: {
+        onClose() {
+            this.showModal = false;
+            this.isLoading = false;
+        },
+
         async createdComponent() {
             if (this.$route.params.id) {
                 this.mailHeaderFooterId = this.$route.params.id;
@@ -163,30 +171,73 @@ Component.register('sw-mail-header-footer-detail', {
             this.$router.push({ name: 'sw.mail.template.index' });
         },
 
-        onSave() {
+        async onSave() {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            return this.mailHeaderFooterRepository.save(this.mailHeaderFooter)
-                .then(() => {
-                    return this.loadEntityData();
-                })
-                .then(() => {
-                    this.isSaveSuccessful = true;
-                })
-                .catch((error) => {
-                    const notificationError = {
-                        message: this.$tc(
-                            'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid',
-                        ),
-                    };
+            if (this.mailHeaderFooter.salesChannels.length > 0) {
+                await this.findAlreadyAssignedSalesChannels();
+            }
 
-                    this.createNotificationError(notificationError);
-                    warn(error);
-                })
-                .finally(() => {
-                    this.isLoading = false;
-                });
+            if (this.alreadyAssignedSalesChannels.length) {
+                this.showModal = true;
+                this.isLoading = false;
+
+                return;
+            }
+
+            await this.confirmSave();
+        },
+
+        async confirmSave() {
+            try {
+                this.isLoading = true;
+
+                await this.mailHeaderFooterRepository.save(this.mailHeaderFooter);
+                await this.loadEntityData();
+
+                this.isSaveSuccessful = true;
+            } catch (error) {
+                const notificationError = {
+                    message: this.$tc(
+                        'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid',
+                    ),
+                };
+
+                this.createNotificationError(notificationError);
+                warn(error);
+            } finally {
+                this.isLoading = false;
+                this.showModal = false;
+            }
+        },
+
+        async findAlreadyAssignedSalesChannels() {
+            const criteria = new Criteria();
+            const salesChannelIds = [];
+
+            this.mailHeaderFooter.salesChannels.forEach(salesChannel => {
+                salesChannelIds.push(salesChannel.id);
+            });
+
+            criteria.addFilter(Criteria.equalsAny('id', salesChannelIds));
+
+            const items = await this.salesChannelRepository.search(criteria);
+            this.alreadyAssignedSalesChannels = items.reduce((assignedSalesChannels, currentSalesChannel) => {
+                if (currentSalesChannel.mailHeaderFooterId === null) {
+                    return assignedSalesChannels;
+                }
+
+                if (!this.mailHeaderFooterId) {
+                    assignedSalesChannels.push(currentSalesChannel);
+                }
+
+                if (this.mailHeaderFooterId && currentSalesChannel.mailHeaderFooterId !== this.mailHeaderFooterId) {
+                    assignedSalesChannels.push(currentSalesChannel);
+                }
+
+                return assignedSalesChannels;
+            }, []);
         },
     },
 });

@@ -3,11 +3,13 @@
 namespace Shopware\Core\Checkout\Cart;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
-use Shopware\Core\Checkout\Cart\Event\BeforeCartSavedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartSavedEvent;
+use Shopware\Core\Checkout\Cart\Event\CartVerifyPersistEvent;
 use Shopware\Core\Checkout\Cart\Exception\CartDeserializeFailedException;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -61,10 +63,17 @@ class CartPersister implements CartPersisterInterface
      */
     public function save(Cart $cart, SalesChannelContext $context): void
     {
-        $event = new BeforeCartSavedEvent($context, $cart);
+        $shouldPersist = $cart->getLineItems()->count() > 0
+            || $cart->getAffiliateCode() !== null
+            || $cart->getCampaignCode() !== null
+            || $cart->getCustomerComment() !== null
+            || $cart->getExtension(DeliveryProcessor::MANUAL_SHIPPING_COSTS) instanceof CalculatedPrice;
+
+        $event = new CartVerifyPersistEvent($cart, $shouldPersist);
+
         $this->eventDispatcher->dispatch($event);
 
-        if (!$event->savesCart()) {
+        if (!$event->shouldBePersisted()) {
             $this->delete($cart->getToken(), $context);
 
             return;

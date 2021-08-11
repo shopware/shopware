@@ -8,18 +8,18 @@ use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class BeforeCartSavedEvent extends Event implements ShopwareSalesChannelEvent
+class CartVerifyPersistEvent extends Event implements ShopwareSalesChannelEvent
 {
     protected SalesChannelContext $context;
 
     protected Cart $cart;
 
-    protected bool $save = false;
+    protected bool $shouldPersist;
 
-    public function __construct(SalesChannelContext $context, Cart $cart)
+    public function __construct(Cart $cart, bool $shouldPersist)
     {
-        $this->context = $context;
         $this->cart = $cart;
+        $this->shouldPersist = $shouldPersist;
     }
 
     public function getContext(): Context
@@ -37,15 +37,8 @@ class BeforeCartSavedEvent extends Event implements ShopwareSalesChannelEvent
         return $this->cart;
     }
 
-    public function savesCart(): bool
+    public function shouldBePersisted(): bool
     {
-        return $this->save;
-    }
-
-    public function needsSaving(): void
-    {
-        $this->save = true;
-
-        $this->stopPropagation();
+        return $this->shouldPersist;
     }
 }

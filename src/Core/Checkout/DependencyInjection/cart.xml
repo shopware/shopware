@@ -104,19 +104,6 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Cart\Subscriber\BeforeCartSaved\AffiliateCodeBeforeCartSavedSubscriber">
-            <tag name="kernel.event_subscriber"/>
-        </service>
-        <service id="Shopware\Core\Checkout\Cart\Subscriber\BeforeCartSaved\CampaignCodeBeforeCartSavedSubscriber">
-            <tag name="kernel.event_subscriber"/>
-        </service>
-        <service id="Shopware\Core\Checkout\Cart\Subscriber\BeforeCartSaved\CustomerCommentBeforeCartSavedSubscriber">
-            <tag name="kernel.event_subscriber"/>
-        </service>
-        <service id="Shopware\Core\Checkout\Cart\Subscriber\BeforeCartSaved\LineItemsBeforeCartSavedSubscriber">
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
         <service id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\GrossPriceCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\NetPriceCalculator"/>
@@ -155,10 +142,6 @@
         <service id="Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator">
             <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder"/>
-        </service>
-
-        <service id="Shopware\Core\Checkout\Cart\Delivery\Subscriber\ManualShippingCostsBeforeCartSavedSubscriber">
-            <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\PriceActionController" public="true">

@@ -26,6 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MinAg
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\StatsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\SumAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\Bucket;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\BucketResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\DateHistogramResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Bucket\TermsResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\AvgResult;
@@ -1480,6 +1481,8 @@ class ElasticsearchProductTest extends TestCase
             );
 
             $aggregations = $aggregator->aggregate($this->productDefinition, $criteria, $data->getContext());
+
+            /** @var BucketResult $result */
             $result = $aggregations->get('properties');
             static::assertContains($data->get('xl'), $result->getKeys());
             static::assertContains($data->get('red'), $result->getKeys());
@@ -1517,6 +1520,8 @@ class ElasticsearchProductTest extends TestCase
                 )
             );
             $aggregations = $aggregator->aggregate($this->productDefinition, $criteria, $data->getContext());
+
+            /** @var BucketResult $result */
             $result = $aggregations->get('properties');
             static::assertNotContains($data->get('xl'), $result->getKeys());
             static::assertNotContains($data->get('red'), $result->getKeys());

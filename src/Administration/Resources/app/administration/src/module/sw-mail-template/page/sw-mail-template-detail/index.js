@@ -154,6 +154,10 @@ Component.register('sw-mail-template-detail', {
             }
             return false;
         },
+
+        hasTemplateData() {
+            return Object.keys(this.mailTemplateType?.templateData || {}).length > 0;
+        },
     },
 
     watch: {
@@ -194,6 +198,7 @@ Component.register('sw-mail-template-detail', {
 
             return this.mailTemplateTypeRepository.get(this.mailTemplate.mailTemplateTypeId).then((item) => {
                 this.mailTemplateType = item;
+
                 this.$refs.htmlEditor.defineAutocompletion(this.outerCompleterFunction);
                 this.$refs.plainEditor.defineAutocompletion(this.outerCompleterFunction);
             });
@@ -300,6 +305,7 @@ Component.register('sw-mail-template-detail', {
 
         onClickShowPreview() {
             this.isLoading = true;
+
             this.mailPreview = this.mailService.buildRenderPreview(
                 this.mailTemplateType,
                 this.mailTemplate,
@@ -480,6 +486,11 @@ Component.register('sw-mail-template-detail', {
 
         loadInitialAvailableVariables() {
             this.availableVariables = {};
+
+            if (!this.hasTemplateData) {
+                return;
+            }
+
             Object.keys(this.mailTemplateType.templateData).forEach(variable => {
                 const availableVariable = Shopware.Utils.get(this.mailTemplateType.templateData, variable);
                 let length = 0;

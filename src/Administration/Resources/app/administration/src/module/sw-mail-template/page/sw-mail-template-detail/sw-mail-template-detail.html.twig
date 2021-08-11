@@ -247,6 +247,7 @@
                 <template v-if="!isLoading">
                     <span v-html="mailPreview"></span>
                 </template>
+
                 {% block sw_mail_template_detail_preview_modal_footer %}
                 <template slot="modal-footer">
                     {% block sw_mail_template_detail_preview_modal_footer_cancel %}
@@ -270,6 +271,8 @@
     <template #sidebar>
         <sw-sidebar :propagate-width="true">
             {% block sw_mail_template_detail_sidebar_inner %}
+
+            {% block sw_mail_template_detail_sidebar_inner_test_mail %}
             <sw-sidebar-item
                 icon="default-object-paperplane"
                 :title="$tc('sw-mail-template.detail.sidebar.titleTestMail')"
@@ -306,11 +309,13 @@
                     {% endblock %}
                 </div>
             </sw-sidebar-item>
+            {% endblock %}
 
+            {% block sw_mail_template_detail_sidebar_inner_variables %}
             <sw-sidebar-item
                 icon="default-text-code"
                 :title="$tc('sw-mail-template.detail.sidebar.titleShowAvailableVariables')"
-                :disabled="mailTemplate.mailTemplateTypeId === undefined || mailTemplate.mailTemplateTypeId === null"
+                :disabled="isLoading || !hasTemplateData"
                 class="sw-mail-template-detail__show-available-variables"
             >
                 <div class="sw-mail-template-detail__available-variables-sidebar-container">
@@ -324,12 +329,18 @@
                         :sortable="false"
                         @get-tree-items="onGetTreeItems"
                     >
+                        {% block sw_mail_template_available_variables_tree_headline %}
                         <template slot="headline">
-                            <span></span></template>
+                            <span></span>
+                        </template>
+                        {% endblock %}
+
+                        {% block sw_mail_template_available_variables_tree_items %}
                         <template
                             slot="items"
                             slot-scope="{ treeItems, sortable, draggedItem, disableContextMenu, onChangeRoute }"
                         >
+                            {% block sw_mail_template_available_variables_tree_items_item %}
                             <sw-tree-item
                                 v-for="(item, index) in treeItems"
                                 :key="item.id"
@@ -339,33 +350,47 @@
                                 :sortable="false"
                                 :display-checkbox="false"
                             >
+                                {% block sw_mail_template_available_variables_tree_items_item_grip %}
                                 <template slot="grip">
-                                    <span></span></template>
+                                    <span></span>
+                                </template>
+                                {% endblock %}
+
+                                {% block sw_mail_template_available_variables_tree_items_item_actions %}
                                 <template #actions="{ item }">
                                     <sw-icon
-                                        v-tooltip="{message: $tc('sw-mail-template.detail.sidebar.copyTooltip'),
-                                                    width: 150,
-                                                    position: 'bottom'}"
+                                        v-tooltip="{
+                                            message: $tc('sw-mail-template.detail.sidebar.copyTooltip'),
+                                            width: 150,
+                                            position: 'bottom'
+                                        }"
                                         name="small-copy"
                                         class="sw-mail-template-detail__copy_icon"
                                         @click="onCopyVariable(item.id)"
                                     />
                                 </template>
+                                {% endblock %}
                             </sw-tree-item>
+                            {% endblock %}
                         </template>
+                        {% endblock %}
                     </sw-tree>
                     {% endblock %}
                 </div>
             </sw-sidebar-item>
+            {% endblock %}
 
+            {% block sw_mail_template_detail_sidebar_inner_preview %}
             <sw-sidebar-item
                 icon="default-eye-open"
                 :title="$tc('sw-mail-template.detail.sidebar.titleShowPreview')"
-                :disabled="showPreview"
+                :disabled="isLoading || showPreview || !hasTemplateData"
                 class="sw-mail-template-detail__show-preview-sidebar"
                 @click="onClickShowPreview"
             />
+            {% endblock %}
 
+            {% block sw_mail_template_detail_sidebar_inner_media %}
             <sw-sidebar-media-item ref="mediaSidebarItem">
                 <template
                     slot="context-menu-items"
@@ -381,6 +406,8 @@
                     {% endblock %}
                 </template>
             </sw-sidebar-media-item>
+            {% endblock %}
+
             {% endblock %}
         </sw-sidebar>
     </template>

@@ -147,14 +147,16 @@
             gap="0px 30px"
         >
             {% block sw_sales_channel_detail_domains_input_currency %}
-            <sw-entity-single-select
+            <sw-single-select
+                class="sw-sales-channel-detail-domains__domain-currency-select"
                 v-model="currentDomain.currencyId"
-                entity="currency"
-                :criteria="currencyCriteria"
                 :label="$tc('sw-sales-channel.detail.labelInputCurrency')"
                 required
                 show-clearable-button
-                @option-select="onOptionSelect"
+                :options="salesChannel.currencies"
+                label-property="name"
+                value-property="id"
+                @change="onCurrencySelect"
             />
             {% endblock %}
 

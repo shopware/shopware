@@ -195,6 +195,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         const wrapper = createWrapper({
             salesChannel: {
                 languages,
+                currencies: [],
                 domains: getExampleDomains()
             }
         }, getExampleDomains());
@@ -203,5 +204,27 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         await wrapper.vm.$nextTick();
 
         expect(wrapper.find('.sw-sales-channel-detail-domains__domain-language-select').vm.$data.results).toBe(languages);
+    });
+
+    it('should only display available currencies', async () => {
+        const currencies = [
+            {
+                id: 'test1',
+                name: 'currency1'
+            }
+        ];
+
+        const wrapper = createWrapper({
+            salesChannel: {
+                languages: [],
+                currencies,
+                domains: getExampleDomains()
+            }
+        }, getExampleDomains());
+
+        wrapper.vm.onClickOpenCreateDomainModal();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.sw-sales-channel-detail-domains__domain-currency-select').vm.$data.results).toBe(currencies);
     });
 });

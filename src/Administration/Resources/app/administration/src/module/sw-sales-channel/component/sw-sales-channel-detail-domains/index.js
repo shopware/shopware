@@ -230,6 +230,10 @@ Component.register('sw-sales-channel-detail-domains', {
             this.onOptionSelect('language', this.salesChannel.languages.get(id));
         },
 
+        onCurrencySelect(id) {
+            this.onOptionSelect('currency', this.salesChannel.currencies.get(id));
+        },
+
         onOptionSelect(name, entity) {
             this.currentDomain[name] = entity;
         },

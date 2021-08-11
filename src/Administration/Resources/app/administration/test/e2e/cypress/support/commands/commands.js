@@ -138,25 +138,6 @@ Cypress.Commands.add('openInitialPage', (url) => {
 /**
  * Logs in silently using Shopware API
  * @memberOf Cypress.Chainable#
- * @name loginViaApi
- * @function
- */
-Cypress.Commands.add('loginViaApi', () => {
-    return cy.authenticate().then((result) => {
-        return cy.window().then(() => {
-            cy.setCookie('bearerAuth', JSON.stringify(result));
-
-            // Return bearer token
-            return cy.getCookie('bearerAuth');
-        }).then(() => {
-            cy.log('Now, fixtures are created - if necessary...');
-        });
-    });
-});
-
-/**
- * Logs in silently using Shopware API
- * @memberOf Cypress.Chainable#
  * @name createReviewFixture
  * @function
  */

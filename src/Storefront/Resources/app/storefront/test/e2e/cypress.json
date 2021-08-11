@@ -25,7 +25,8 @@
     "locale": "en-GB",
     "checkoutAllowed": false,
     "shopwareRoot": "/app",
-    "localUsage": false
+    "localUsage": false,
+    "minAuthTokenLifetime": 60
   },
   "firefoxGcInterval": {
     "runMode": null,

@@ -19,7 +19,7 @@
   "dependencies": {
     "@babel/core": "^7.7.7",
     "@percy/cypress": "^3.1.0",
-    "@shopware-ag/e2e-testsuite-platform": "^2.0.1",
+    "@shopware-ag/e2e-testsuite-platform": "^2.0.2",
     "cypress-file-upload": "4.1.1",
     "cypress-multi-reporters": "^1.2.3",
     "cypress-select-tests": "^1.7.1",

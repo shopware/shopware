@@ -25,7 +25,8 @@
     "locale": "en-GB",
     "shopwareRoot": "/app",
     "localUsage": false,
-    "usePercy": false
+    "usePercy": false,
+    "minAuthTokenLifetime": 60
   },
   "firefoxGcInterval": {
     "runMode": null,

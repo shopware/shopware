@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Validation;
 
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
@@ -38,11 +39,16 @@ class EntityNotExistsValidator extends ConstraintValidator
 
         $definition = $this->definitionRegistry->getByEntityName($constraint->getEntity());
 
-        $criteria = $constraint->getCriteria();
+        $criteria = clone $constraint->getCriteria();
+        $criteria->addFilter(new EqualsFilter($constraint->getPrimaryProperty(), $value));
+
+        // Only one entity is enough to determine existence.
+        // As the property can be set in the constraint, the search above does not necessarily return just one entity.
+        $criteria->setLimit(1);
 
         $result = $this->entitySearcher->search($definition, $criteria, $constraint->getContext());
 
-        if (!$result->getTotal()) {
+        if ($result->getTotal() <= 0) {
             return;
         }
 

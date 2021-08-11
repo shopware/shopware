@@ -85,7 +85,7 @@ describe('Minimal install', () => {
         // @install: installation
         cy.get('section.content--main').should('be.visible');
         cy.get('.navigation--list .navigation--entry span').contains('Installation');
-        cy.get('.database-import-finish', { timeout: 180000 }).should('be.visible');
+        cy.get('.database-import-finish', { timeout: 300000 }).should('be.visible');
 
         // Take snapshot for visual testing
         cy.takeSnapshot(`Database migration finished`, 'section.content--main');

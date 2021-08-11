@@ -4,9 +4,12 @@ namespace Shopware\Core\Content\Product\SalesChannel\Listing;
 
 use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Struct\StateAwareTrait;
 
 class ProductListingResult extends EntitySearchResult
 {
+    use StateAwareTrait;
+
     protected ?string $sorting = null;
 
     protected array $currentFilters = [];

@@ -142,6 +142,7 @@ class EntityRepository implements EntityRepositoryInterface
         }
 
         $result = new EntitySearchResult($this->definition->getEntityName(), $ids->getTotal(), $entities, $aggregations, $criteria, $context);
+        $result->addState(...$ids->getStates());
 
         $event = new EntitySearchResultLoadedEvent($this->definition, $result);
         $this->eventDispatcher->dispatch($event, $event->getName());

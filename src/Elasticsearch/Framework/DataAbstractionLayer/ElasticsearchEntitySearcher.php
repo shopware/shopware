@@ -21,6 +21,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class ElasticsearchEntitySearcher implements EntitySearcherInterface
 {
     public const MAX_LIMIT = 10000;
+    public const RESULT_STATE = 'loaded-by-elastic';
 
     private Client $client;
 
@@ -81,7 +82,11 @@ class ElasticsearchEntitySearcher implements EntitySearcherInterface
             return $this->decorated->search($definition, $criteria, $context);
         }
 
-        return $this->hydrator->hydrate($definition, $criteria, $context, $result);
+        $result = $this->hydrator->hydrate($definition, $criteria, $context, $result);
+
+        $result->addState(self::RESULT_STATE);
+
+        return $result;
     }
 
     private function createSearch(Criteria $criteria, EntityDefinition $definition, Context $context): Search

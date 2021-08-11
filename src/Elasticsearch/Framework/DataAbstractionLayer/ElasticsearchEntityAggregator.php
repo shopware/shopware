@@ -15,6 +15,8 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class ElasticsearchEntityAggregator implements EntityAggregatorInterface
 {
+    public const RESULT_STATE = 'loaded-by-elastic';
+
     private ElasticsearchHelper $helper;
 
     private Client $client;
@@ -48,12 +50,7 @@ class ElasticsearchEntityAggregator implements EntityAggregatorInterface
         $search = $this->createSearch($definition, $criteria, $context);
 
         $this->eventDispatcher->dispatch(
-            new ElasticsearchEntityAggregatorSearchEvent(
-                $search,
-                $definition,
-                $criteria,
-                $context
-            )
+            new ElasticsearchEntityAggregatorSearchEvent($search, $definition, $criteria, $context)
         );
 
         try {
@@ -67,7 +64,10 @@ class ElasticsearchEntityAggregator implements EntityAggregatorInterface
             return $this->decorated->aggregate($definition, $criteria, $context);
         }
 
-        return $this->hydrator->hydrate($definition, $criteria, $context, $result);
+        $result = $this->hydrator->hydrate($definition, $criteria, $context, $result);
+        $result->addState(self::RESULT_STATE);
+
+        return $result;
     }
 
     private function createSearch(EntityDefinition $definition, Criteria $criteria, Context $context): Search

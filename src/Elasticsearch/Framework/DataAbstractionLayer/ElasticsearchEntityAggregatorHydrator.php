@@ -34,12 +34,11 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 class ElasticsearchEntityAggregatorHydrator extends AbstractElasticsearchAggregationHydrator
 {
-    private DefinitionInstanceRegistry $definitionInstanceRegistry;
+    private DefinitionInstanceRegistry $registry;
 
-    public function __construct(
-        DefinitionInstanceRegistry $definitionInstanceRegistry
-    ) {
-        $this->definitionInstanceRegistry = $definitionInstanceRegistry;
+    public function __construct(DefinitionInstanceRegistry $registry)
+    {
+        $this->registry = $registry;
     }
 
     public function getDecorated(): AbstractElasticsearchAggregationHydrator
@@ -104,7 +103,8 @@ class ElasticsearchEntityAggregatorHydrator extends AbstractElasticsearchAggrega
                     throw new \RuntimeException(sprintf('Filter aggregation %s contains no nested aggregation.', $aggregation->getName()));
                 }
                 $nestedResult = $result;
-                if (isset($nestedResult[$aggregation->getName()])) {
+
+                while (isset($nestedResult[$aggregation->getName()])) {
                     $nestedResult = $nestedResult[$aggregation->getName()];
                 }
 
@@ -133,7 +133,13 @@ class ElasticsearchEntityAggregatorHydrator extends AbstractElasticsearchAggrega
 
         $ids = array_column($result['buckets'], 'key');
 
-        $repository = $this->definitionInstanceRegistry->getRepository($aggregation->getEntity());
+        if (empty($ids)) {
+            $definition = $this->registry->getByEntityName($aggregation->getEntity());
+            $class = $definition->getCollectionClass();
+
+            return new EntityResult($aggregation->getName(), new $class());
+        }
+        $repository = $this->registry->getRepository($aggregation->getEntity());
 
         $entities = $repository->search(new Criteria($ids), $context);
 

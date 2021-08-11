@@ -59,6 +59,8 @@ export default class CookieConfiguration extends Plugin {
 
         this.ajaxModalExtension = null;
 
+        this._httpClient = new HttpClient();
+
         this._registerEvents();
     }
 
@@ -434,26 +436,26 @@ export default class CookieConfiguration extends Plugin {
      * @param loadIntoMemory
      */
     acceptAllCookies(loadIntoMemory = false) {
-        if (loadIntoMemory) {
-            ElementLoadingIndicatorUtil.create(this.el);
-
-            const url = window.router['frontend.cookie.offcanvas'];
-            const client = new HttpClient();
-
-            client.get(url, (response) => {
-                const dom = new DOMParser().parseFromString(response, 'text/html');
-
-                this._handleAcceptAll(dom);
-
-                ElementLoadingIndicatorUtil.remove(this.el);
-                this._hideCookieBar();
-            });
-
+        if (!loadIntoMemory) {
+            this._handleAcceptAll();
+            this.closeOffCanvas();
+                
             return;
         }
 
-        this._handleAcceptAll();
-        this.closeOffCanvas();
+
+        ElementLoadingIndicatorUtil.create(this.el);
+
+        const url = window.router['frontend.cookie.offcanvas'];
+
+        this._httpClient.get(url, (response) => {
+            const dom = new DOMParser().parseFromString(response, 'text/html');
+
+            this._handleAcceptAll(dom);
+
+            ElementLoadingIndicatorUtil.remove(this.el);
+            this._hideCookieBar();
+        });
     }
 
     /**

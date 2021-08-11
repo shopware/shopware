@@ -91,5 +91,40 @@
         "position": 100
       }
     ]
+  },
+  {
+    "name": "children-with-privilege",
+    "type": "core",
+    "icon": "default-icon",
+    "routes": {
+      "index": {
+        "path": "index",
+        "component": "sw-index"
+      }
+    },
+    "navigation": [
+      {
+        "id": "children.with.privilege",
+        "label": "children menu entry",
+        "icon": "default-icon",
+        "position": 150
+      },
+      {
+        "id": "children.with.privilege.first",
+        "path": "children.with.privilege.index",
+        "label": "Entry with privilege",
+        "position": 10,
+        "parent": "children.with.privilege",
+        "privilege": "shouldReturnFalse"
+      },
+      {
+        "id": "children.with.privilege.second",
+        "path": "children.with.privilege.index",
+        "label": "Entry without privilege",
+        "position": 20,
+        "parent": "children.with.privilege",
+        "privilege": "shouldReturnTrue"
+      }
+    ]
   }
 ]

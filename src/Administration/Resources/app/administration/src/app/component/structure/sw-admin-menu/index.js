@@ -456,7 +456,7 @@ Component.register('sw-admin-menu', {
                 [target],
             );
 
-            if (!entry.children.length) {
+            if (this.getChildren(entry).length) {
                 this.flyoutEntries = [];
                 return;
             }
@@ -466,7 +466,7 @@ Component.register('sw-admin-menu', {
                 top: `${target.getBoundingClientRect().top}px`,
             };
 
-            this.flyoutEntries = entry.children;
+            this.flyoutEntries = this.getChildren(entry);
 
             const parentEntry = this.mainMenuEntries.find((item) => {
                 return item.id === entry.parent || item.path === entry.parent;
@@ -476,6 +476,16 @@ Component.register('sw-admin-menu', {
                 return;
             }
             this.flyoutColor = parentEntry.color;
+        },
+
+        getChildren(entry) {
+            return entry.children.filter(child => {
+                if (!child.privilege) {
+                    return true;
+                }
+
+                return this.acl.can(child.privilege);
+            });
         },
 
         isPositionInPolygon(x, y, polygon) {
@@ -513,8 +523,8 @@ Component.register('sw-admin-menu', {
         },
 
         activateMenuItem(entry, target, parentEntries) {
-            if (entry.children) {
-                this.flyoutEntries = entry.children;
+            if (this.getChildren(entry)) {
+                this.flyoutEntries = this.getChildren(entry);
             }
 
             this.flyoutStyle = {
@@ -559,7 +569,7 @@ Component.register('sw-admin-menu', {
             const targetRect = element.getBoundingClientRect();
             const targetHeight = outerHeight(element);
             const targetWidth = outerWidth(element);
-            const subMenuHeight = entry.children.length * targetHeight;
+            const subMenuHeight = this.getChildren(entry).length * targetHeight;
 
             const topLeft = {
                 x: targetRect.left,

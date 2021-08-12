@@ -343,4 +343,134 @@ describe('src/app/component/structure/sw-search-bar', () => {
             ])
         );
     });
+
+    it('should show module filters container when clicking on type dropdown', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
+        searchTypeServiceTypes.all = {
+            entityName: '',
+            placeholderSnippet: '',
+            listingRoute: ''
+        };
+        wrapper = await createWrapper();
+
+        const searchInput = wrapper.find('.sw-search-bar__type--v2');
+        await searchInput.trigger('click');
+
+        // check if search results are hidden and types container are visible
+        const moduleFiltersContainer = wrapper.find('.sw-search-bar__types_module-filters-container');
+        const typesContainer = wrapper.find('.sw-search-bar__types_container');
+
+        expect(moduleFiltersContainer.exists()).toBe(true);
+        expect(typesContainer.exists()).toBe(false);
+    });
+
+    it('should change search bar type when selecting module filters from type dropdown', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
+        wrapper = await createWrapper({
+            initialSearchType: ''
+        }, {
+            all: {
+                entityName: '',
+                placeholderSnippet: '',
+                listingRoute: ''
+            },
+            ...searchTypeServiceTypes
+        });
+
+        const moduleFilterSelect = wrapper.find('.sw-search-bar__type--v2');
+        await moduleFilterSelect.trigger('click');
+
+        const moduleFilterItems = wrapper.findAll('.sw-search-bar__type-item');
+        await moduleFilterItems.at(1).trigger('click');
+
+        expect(moduleFilterSelect.text()).toBe('global.entities.product');
+    });
+
+    it('should search with repository after selecting module filter', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
+        wrapper = await createWrapper(
+            {
+                initialSearchType: 'product'
+            },
+            {
+                all: {
+                    entityName: '',
+                    placeholderSnippet: '',
+                    listingRoute: ''
+                },
+                product: {
+                    entityName: 'product',
+                    placeholderSnippet: 'sw-product.general.placeholderSearchBar',
+                    listingRoute: 'sw.product.index'
+                },
+                category: {
+                    entityName: 'category',
+                    placeholderSnippet: 'sw-category.general.placeholderSearchBar',
+                    listingRoute: 'sw.category.index'
+                },
+                customer: {
+                    entityName: 'customer',
+                    placeholderSnippet: 'sw-customer.general.placeholderSearchBar',
+                    listingRoute: 'sw.customer.index'
+                },
+                order: {
+                    entityName: 'order',
+                    placeholderSnippet: 'sw-order.general.placeholderSearchBar',
+                    listingRoute: 'sw.order.index'
+                },
+                media: {
+                    entityName: 'media',
+                    placeholderSnippet: 'sw-media.general.placeholderSearchBar',
+                    listingRoute: 'sw.media.index'
+                }
+            }
+        );
+
+        const moduleFilterSelect = wrapper.find('.sw-search-bar__type--v2');
+        await moduleFilterSelect.trigger('click');
+
+        const moduleFilterItems = wrapper.findAll('.sw-search-bar__type-item');
+        await moduleFilterItems.at(2).trigger('click');
+
+        // open search again
+        const searchInput = wrapper.find('.sw-search-bar__input');
+        await searchInput.trigger('focus');
+
+        // check if new type is set
+        const activeType = wrapper.find('.sw-search-bar__field .sw-search-bar__type--v2');
+        expect(activeType.text()).toBe('global.entities.category');
+
+        // type search value
+        await searchInput.setValue('shorts');
+        await flushPromises();
+
+        const debouncedDoListSearchWithContainer = swSearchBarComponent.methods.doListSearchWithContainer;
+        await debouncedDoListSearchWithContainer.flush();
+
+        await flushPromises();
+
+        // Make sure only repository method was called
+        expect(spyLoadTypeSearchResults).toHaveBeenCalledTimes(1);
+        expect(spyLoadTypeSearchResultsByService).toHaveBeenCalledTimes(0);
+
+        // Verify result was applied correctly from repository
+        expect(wrapper.vm.results).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({
+                    total: 2,
+                    entities: expect.arrayContaining([
+                        expect.objectContaining({
+                            name: 'Home',
+                            id: '12345'
+                        }),
+                        expect.objectContaining({
+                            name: 'Electronics',
+                            id: '55523'
+                        })
+                    ]),
+                    entity: 'category'
+                })
+            ])
+        );
+    });
 });

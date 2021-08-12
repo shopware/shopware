@@ -10,7 +10,7 @@
  * @returns {Object}
  */
 export default function createSearchTypeService() {
-    const $typeStore = {
+    const typeStore = {
         product: {
             entityName: 'product',
             placeholderSnippet: 'sw-product.general.placeholderSearchBar',
@@ -42,6 +42,20 @@ export default function createSearchTypeService() {
             listingRoute: 'sw.media.index',
         },
     };
+
+    let $typeStore = {};
+    if (Shopware.Feature.isActive('FEATURE_NEXT_6040')) {
+        $typeStore = {
+            all: {
+                entityName: '',
+                placeholderSnippet: '',
+                listingRoute: '',
+            },
+            ...typeStore,
+        };
+    } else {
+        $typeStore = typeStore;
+    }
 
     return {
         getTypeByName,

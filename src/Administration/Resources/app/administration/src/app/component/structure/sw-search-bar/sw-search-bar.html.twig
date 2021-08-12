@@ -58,11 +58,24 @@
 
             {% block sw_search_bar_type %}
             <span
-                v-if="currentSearchType"
+                v-if="currentSearchType && !feature.isActive('FEATURE_NEXT_6040')"
                 class="sw-search-bar__type"
                 :style="{ 'background-color': getEntityIconColor(currentSearchType) }"
             >
                 {{ getLabelSearchType() }}
+            </span>
+
+            <span
+                v-if="feature.isActive('FEATURE_NEXT_6040')"
+                class="sw-search-bar__type--v2"
+                :style="{ 'background-color': getEntityIconColor(currentSearchType) }"
+                @click="onOpenModuleFiltersDropDown"
+            >
+                {{ getLabelSearchType() }}
+                <sw-icon
+                    name="small-arrow-medium-down"
+                    small
+                />
             </span>
             {% endblock %}
 
@@ -222,24 +235,67 @@
         {% block sw_search_bar_types_container %}
         <div
             v-if="showTypeSelectContainer"
-            class="sw-search-bar__types_container"
+            :class="searchBarTypesContainerClasses"
         >
+            {% block sw_search_bar_types_container_header %}
             <div
-                v-for="(type, index) in typeSelectResults"
-                :key="index"
-                class="sw-search-bar__type-item"
-                :class="{ 'is--active': activeTypeListIndex === index }"
-                :style="{ 'border-color': getEntityIconColor(type.entityName) }"
-                @mouseenter="onMouseEnterSearchType(index)"
-                @click="onClickType(type.entityName)"
+                v-if="feature.isActive('FEATURE_NEXT_6040')"
+                class="sw-search-bar__header"
             >
-                <span
-                    class="sw-search-bar__type"
-                    :style="{ 'background-color': getEntityIconColor(type.entityName) }"
-                >
-                    {{ getLabelSearchType(type.entityName) }}
-                </span>
+                <p class="sw-search-bar__header-title">
+                    {{ $tc('global.sw-search-bar.moduleFiltersHeadline') }}
+                </p>
             </div>
+            {% endblock %}
+
+            <template v-if="!feature.isActive('FEATURE_NEXT_6040')">
+                <div
+                    v-for="(type, index) in typeSelectResults"
+                    :key="index"
+                    class="sw-search-bar__type-item"
+                    :class="{ 'is--active': activeTypeListIndex === index }"
+                    :style="{ 'border-color': getEntityIconColor(type.entityName) }"
+                    @mouseenter="onMouseEnterSearchType(index)"
+                    @click="onClickType(type.entityName)"
+                >
+                    <span
+                        class="sw-search-bar__type"
+                        :style="{ 'background-color': getEntityIconColor(type.entityName) }"
+                    >
+                        {{ getLabelSearchType(type.entityName) }}
+                    </span>
+                </div>
+            </template>
+
+            <template v-if="feature.isActive('FEATURE_NEXT_6040')">
+                <div
+                    v-for="(type, index) in typeSelectResults"
+                    :key="index"
+                    class="sw-search-bar__type-item"
+                    :class="{ 'is--active': activeTypeListIndex === index }"
+                    @mouseenter="onMouseEnterSearchType(index)"
+                    @click="onClickType(type.entityName)"
+                >
+                    <span
+                        class="sw-search-bar__type-item-name"
+                    >
+                        <sw-icon
+                            class="sw-search-bar__type-item-icon"
+                            :style="{ 'color': getEntityIconColor(type.entityName) }"
+                            :name="type.entityName ? getEntityIcon(type.entityName) : 'default-basic-shape-circle'"
+                        />
+
+                        {{ type.entityName ? getLabelSearchType(type.entityName) : $tc('global.sw-search-bar.searchTypeAll') }}
+                    </span>
+
+                    <p
+                        class="sw-search-bar__type--filter"
+                    >
+                        {{ $tc('global.sw-search-bar.moduleFilter') }}
+                    </p>
+                </div>
+            </template>
+
             {% block sw_search_bar_types_container_empty %}
             <div
                 v-if="typeSelectResults.length < 1"
@@ -250,10 +306,81 @@
                 {% endblock %}
             </div>
             {% endblock %}
+
             {% block sw_search_bar_types_container_tip %}
-            <p class="sw-search-bar__shortcut-tip">
+            <p
+                v-if="!feature.isActive('FEATURE_NEXT_6040')"
+                class="sw-search-bar__shortcut-tip"
+            >
                 {{ $tc('global.sw-search-bar.placeholderShortcutInfo') }}
             </p>
+            {% endblock %}
+
+            {% block sw_search_bar_types_container_footer %}
+            <div
+                v-if="feature.isActive('FEATURE_NEXT_6040')"
+                class="sw-search-bar__footer"
+            >
+                <p
+                    class="sw-search-bar__shortcut-tip"
+                    v-html="$tc('global.sw-search-bar.placeholderSearchShortcutInfo')"
+                ></p>
+
+                <a>
+                    <sw-icon
+                        :style="{ 'color': '#7d8c9b' }"
+                        name="default-action-settings"
+                        small
+                    />
+                </a>
+            </div>
+            {% endblock %}
+        </div>
+        {% endblock %}
+
+        {% block sw_search_bar_types_module_filters_container %}
+        <div
+            v-if="showModuleFiltersContainer && feature.isActive('FEATURE_NEXT_6040')"
+            class="sw-search-bar__types_module-filters-container sw-search-bar__types_container--v2"
+        >
+            <div
+                v-for="(type, index) in typeSelectResults"
+                :key="index"
+                class="sw-search-bar__type-item"
+                :class="{ 'is--active': activeTypeListIndex === index }"
+                @mouseenter="onMouseEnterSearchType(index)"
+                @click="onClickType(type.entityName)"
+            >
+                <span
+                    class="sw-search-bar__type-item-name"
+                >
+                    <sw-icon
+                        class="sw-search-bar__type-item-icon"
+                        :style="{ 'color': getEntityIconColor(type.entityName) }"
+                        :name="type.entityName ? getEntityIcon(type.entityName) : 'default-basic-shape-circle'"
+                    />
+                    {{ type.entityName ? getLabelSearchType(type.entityName) : $tc('global.sw-search-bar.searchTypeAll') }}
+                </span>
+            </div>
+
+            {% block sw_search_bar_types_module_filters_container_empty %}
+            <div
+                v-if="typeSelectResults.length < 1"
+                class="sw-search-bar__type-results-empty-message"
+            >
+                {% block sw_search_bar_types_module_filters_container_empty_text %}
+                {{ $tc('global.sw-search-bar.messageNoTypeResults') }}
+                {% endblock %}
+            </div>
+            {% endblock %}
+
+            {% block sw_search_bar_types_module_filters_container_footer %}
+            <div class="sw-search-bar__footer">
+                <p
+                    class="sw-search-bar__shortcut-tip"
+                    v-html="$tc('global.sw-search-bar.placeholderFilterShortcutInfo')"
+                ></p>
+            </div>
             {% endblock %}
         </div>
         {% endblock %}

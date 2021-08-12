@@ -9,6 +9,8 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -28,10 +30,13 @@ class ProductGenerator implements DemodataGeneratorInterface
 
     private DefinitionInstanceRegistry $registry;
 
-    public function __construct(Connection $connection, DefinitionInstanceRegistry $registry)
+    private InheritanceUpdater $updater;
+
+    public function __construct(Connection $connection, DefinitionInstanceRegistry $registry, InheritanceUpdater $updater)
     {
         $this->connection = $connection;
         $this->registry = $registry;
+        $this->updater = $updater;
     }
 
     public function getDefinition(): string
@@ -179,7 +184,21 @@ class ProductGenerator implements DemodataGeneratorInterface
 
     private function write(array $payload, Context $context): void
     {
+        $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
+
         $this->registry->getRepository('product')->create($payload, $context);
+
+        $all = array_column($payload, 'id');
+        foreach ($payload as $product) {
+            if (!isset($product['children'])) {
+                continue;
+            }
+            $all = array_merge($all, array_column($product['children'], 'id'));
+        }
+
+        $this->updater->update(ProductDefinition::ENTITY_NAME, $all, $context);
+
+        $context->removeState(EntityIndexerRegistry::DISABLE_INDEXING);
     }
 
     private function getTaxes(Context $context): EntitySearchResult

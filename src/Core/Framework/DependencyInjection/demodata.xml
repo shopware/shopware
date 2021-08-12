@@ -72,6 +72,7 @@
         <service id="Shopware\Core\Framework\Demodata\Generator\ProductGenerator">
             <argument type="service" id="Doctrine\DBAL\Connection" />
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater"/>
             <tag name="shopware.demodata_generator"/>
         </service>
 

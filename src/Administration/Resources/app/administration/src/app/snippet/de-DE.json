@@ -72,7 +72,7 @@
         },
         "productStream": {
           "title": "Indexierung der dynamischen Produktgruppen",
-          "message": "Dynamische Produktgruppe indexiert. | Noch eine dynamische Produktgruppe verbleibend ... | Circa {n} dynamische Produktgruppe verbleibend ...",
+          "message": "Dynamische Produktgruppe indexiert. | Noch eine dynamische Produktgruppe verbleibend ... | Circa {n} dynamische Produktgruppen verbleibend ...",
           "messageSuccess": "Dynamische Produktgruppen indexiert."
         },
         "category": {
@@ -87,7 +87,7 @@
         },
         "salesChannel": {
           "title": "Verkaufskanal-Indexierung",
-          "message": "Verkaufskanal indexiert. | Noch ein Verkaufskanal verbleibend ... | Circa {n} Verkaufskanal verbleibend ...",
+          "message": "Verkaufskanal indexiert. | Noch ein Verkaufskanal verbleibend ... | Circa {n} Verkaufskanäle verbleibend ...",
           "messageSuccess": "Verkaufskanäle indexiert."
         },
         "rule": {
@@ -96,7 +96,7 @@
           "messageSuccess": "Regeln indexiert."
         },
         "product": {
-          "title": "Produkt Indexierung",
+          "title": "Produkt-Indexierung",
           "message": "Produkte indexiert. | Noch ein Produkt verbleibend ... | Circa {n} Produkte verbleibend ...",
           "messageSuccess": "Produkte indexiert."
         },
@@ -111,7 +111,7 @@
         "updatesAvailableMessage": "Für einige Erweiterungen stehen Updates bereit."
       },
       "shopware-updates-listener": {
-        "updatesAvailableTitle": "Eine neue Shopware Version {version} ist verfügbar",
+        "updatesAvailableTitle": "Die neue Shopware-Version {version} ist verfügbar",
         "updatesAvailableMessage": "Starte den Auto-Updater, um die Installation zu starten.",
         "updateNow": "Update öffnen"
       }

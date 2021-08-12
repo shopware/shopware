@@ -157,6 +157,45 @@
         }
       },
       "warningText": "Canceling the bulk edit or closing the browser tab during the process will result in partly processed changes that cannot be undone."
+    },
+    "order": {
+      "textTitle": "Bulk edit: {orderTotal} orders",
+      "messageEmptyTitle": "No orders selected",
+      "messageEmptySubline": "Please go back and select orders",
+      "status": {
+        "cardTitle": "Status",
+        "payment": {
+          "label": "Change: Payment status",
+          "placeholder": "Select payment status..."
+        },
+        "shipping": {
+          "label": "Change: Shipping status",
+          "placeholder": "Select shipping status..."
+        },
+        "order": {
+          "label": "Change: Order status",
+          "placeholder": "Select order status..."
+        },
+        "statusMails": {
+          "label": "Send: Status emails",
+          "helpText": "Available only if status has been changed."
+        },
+        "documents": {
+          "label": "Send: Documents",
+          "helpText": "Available only if \"Send: Status emails\" is checked.",
+          "options": {
+            "newest": "Newest",
+            "all": "All"
+          },
+          "documentType": {
+            "invoices": "Invoices",
+            "deliveryNotes": "Delivery notes",
+            "creditNotes": "Credit notes",
+            "cancellationInvoices": "Cancellation notes"
+          },
+          "skipSentDocuments": "Skip already sent documents"
+        }
+      }
     }
   }
 }

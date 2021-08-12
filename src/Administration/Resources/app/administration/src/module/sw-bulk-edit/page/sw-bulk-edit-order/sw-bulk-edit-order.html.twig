@@ -1,0 +1,69 @@
+{% block sw_bulk_edit_order %}
+<sw-page class="sw-bulk-edit-order">
+    {% block sw_bulk_edit_order_search_bar %}
+    <template slot="search-bar">
+
+        <sw-search-bar />
+
+    </template>
+    {% endblock %}
+
+    {% block sw_bulk_edit_order_smart_bar_header %}
+    <template slot="smart-bar-header">
+
+        <h2>{{ $tc('sw-bulk-edit.order.textTitle', 0, { orderTotal: selectedIds.length }) }}</h2>
+
+    </template>
+    {% endblock %}
+
+    {% block sw_bulk_edit_order_content_smart_bar_actions %}
+    <template slot="smart-bar-actions">
+
+        {% block sw_bulk_edit_order_actions_save %}
+        <sw-button-process
+            class="sw-bulk-edit-order__save-action"
+            variant="primary"
+            :is-loading="isLoading"
+            :process-success="false"
+            :disabled="isLoading"
+        >
+            {{ $tc('sw-settings-basic-information.general.buttonSave') }}
+        </sw-button-process>
+        {% endblock %}
+
+    </template>
+    {% endblock %}
+
+    {% block sw_bulk_edit_order_content %}
+    <template slot="content">
+
+        <sw-card-view
+            v-if="selectedIds.length > 0"
+        >
+            {% block sw_bulk_edit_order_content_order_status_card %}
+            <sw-card
+                class="sw-bulk-edit-order-base__status"
+                :title="$tc('sw-bulk-edit.order.status.cardTitle')"
+                :is-loading="isLoading"
+            >
+                {% block sw_bulk_edit_order_content_order_status_section %}
+                <sw-bulk-edit-change-type-field-renderer
+                    :form-fields="statusFormFields"
+                    :bulk-edit-data="bulkEditData"
+                />
+                {% endblock %}
+            </sw-card>
+            {% endblock %}
+        </sw-card-view>
+
+        {% block sw_bulk_edit_order_empty_state %}
+        <sw-empty-state
+            v-else
+            :title="$tc('sw-bulk-edit.order.messageEmptyTitle')"
+            :subline="$tc('sw-bulk-edit.order.messageEmptySubline')"
+        />
+        {% endblock %}
+    </template>
+    {% endblock %}
+</sw-page>
+{% endblock %}

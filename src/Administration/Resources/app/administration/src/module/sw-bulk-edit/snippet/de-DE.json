@@ -157,6 +157,45 @@
         }
       },
       "warningText": "Wenn Du die Mehrfachbearbeitung abbrichts oder während des Prozesses den Browser-Tab schließt, werden die Änderungen u.U. nicht vollständig umgesetzt und es kann zu irreversiblen und ungewünschten Datenzuständen kommen."
+    },
+    "order": {
+      "textTitle": "Mehrfachbearbeitung: {orderTotal} Bestellungen",
+      "messageEmptyTitle": "Keine Bestellungen ausgewählt",
+      "messageEmptySubline": "Bitte gehe zurück und wähle Bestellungen aus.",
+      "status": {
+        "cardTitle": "Status",
+        "payment": {
+          "label": "Ändern: Zahlungsstatus",
+          "placeholder": "Zahlungsstatus auswählen ..."
+        },
+        "shipping": {
+          "label": "Ändern: Versandstatus",
+          "placeholder": "Versandstatus auswählen ..."
+        },
+        "order": {
+          "label": "Ändern: Bestellstatus",
+          "placeholder": "Bestellstatus auswählen ..."
+        },
+        "statusMails": {
+          "label": "Versende: Status-E-Mails",
+          "helpText": "Diese Option ist verfügbar, sobald mindestens ein Statuswechsel erfolgt ist."
+        },
+        "documents": {
+          "label": "Verschicken: Dokumente",
+          "helpText": "Option verfügbar, wenn \"Versende: Status-E-Mails\" angehakt ist.",
+          "options": {
+            "newest": "Neueste",
+            "all": "Alle"
+          },
+          "documentType": {
+            "invoices": "Rechnungen",
+            "deliveryNotes": "Versandbestätigungen",
+            "creditNotes": "Gutschriften",
+            "cancellationInvoices": "Storno-Rechnung"
+          },
+          "skipSentDocuments": "Bereits verschickte Dokumente überspringen"
+        }
+      }
     }
   }
 }

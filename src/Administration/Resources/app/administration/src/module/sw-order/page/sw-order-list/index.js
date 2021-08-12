@@ -426,5 +426,10 @@ Component.register('sw-order-list', {
 
             return criteria;
         },
+
+        async onBulkEditItems() {
+            await this.$nextTick();
+            this.$router.push({ name: 'sw.bulk.edit.order' });
+        },
     },
 });

@@ -6,17 +6,24 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartPersister;
+use Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor;
 use Shopware\Core\Checkout\Cart\Event\CartSavedEvent;
+use Shopware\Core\Checkout\Cart\Event\CartVerifyPersistEvent;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class CartPersisterTest extends TestCase
 {
+    use IntegrationTestBehaviour;
+
     public function testLoadWithNotExistingToken(): void
     {
         $connection = $this->createMock(Connection::class);
@@ -54,7 +61,7 @@ class CartPersisterTest extends TestCase
         static::assertEquals(new Cart('shopware', 'existing'), $cart);
     }
 
-    public function testEmptyCartShouldnBeSaved(): void
+    public function testEmptyCartShouldNotBeSaved(): void
     {
         $connection = $this->createMock(Connection::class);
         $eventDispatcher = new EventDispatcher();
@@ -67,9 +74,55 @@ class CartPersisterTest extends TestCase
 
         $persister = new CartPersister($connection, $eventDispatcher);
 
-        $calc = new Cart('shopware', 'existing');
+        $cart = new Cart('shopware', 'existing');
 
-        $persister->save($calc, Generator::createSalesChannelContext());
+        $persister->save($cart, Generator::createSalesChannelContext());
+    }
+
+    public function testEmptyCartWithManualShippingCostsExtensionIsSaved(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $eventDispatcher = new EventDispatcher();
+
+        // Cart should be not be deleted.
+        $connection->expects(static::never())->method('delete');
+
+        // Cart should be inserted or updated.
+        $connection->expects(static::once())->method('executeUpdate');
+
+        $persister = new CartPersister($connection, $eventDispatcher);
+
+        $cart = new Cart('shopware', 'existing');
+        $cart->addExtension(
+            DeliveryProcessor::MANUAL_SHIPPING_COSTS,
+            new CalculatedPrice(
+                20.0,
+                20.0,
+                new CalculatedTaxCollection(),
+                new TaxRuleCollection()
+            )
+        );
+
+        $persister->save($cart, Generator::createSalesChannelContext());
+    }
+
+    public function testEmptyCartWithCustomerCommentIsSaved(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $eventDispatcher = new EventDispatcher();
+
+        // Cart should be not be deleted.
+        $connection->expects(static::never())->method('delete');
+
+        // Cart should be inserted or updated.
+        $connection->expects(static::once())->method('executeUpdate');
+
+        $persister = new CartPersister($connection, $eventDispatcher);
+
+        $cart = new Cart('shopware', 'existing');
+        $cart->setCustomerComment('Foo');
+
+        $persister->save($cart, Generator::createSalesChannelContext());
     }
 
     public function testSaveWithItems(): void
@@ -85,17 +138,17 @@ class CartPersisterTest extends TestCase
 
         $persister = new CartPersister($connection, $eventDispatcher);
 
-        $calc = new Cart('shopware', 'existing');
-        $calc->add(
+        $cart = new Cart('shopware', 'existing');
+        $cart->add(
             (new LineItem('A', 'test'))
                 ->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()))
                 ->setLabel('test')
         );
 
-        $persister->save($calc, Generator::createSalesChannelContext());
+        $persister->save($cart, Generator::createSalesChannelContext());
     }
 
-    public function testEventIsFired(): void
+    public function testCartSavedEventIsFired(): void
     {
         $connection = $this->createMock(Connection::class);
         $eventDispatcher = new EventDispatcher();
@@ -108,14 +161,14 @@ class CartPersisterTest extends TestCase
 
         $persister = new CartPersister($connection, $eventDispatcher);
 
-        $calc = new Cart('shopware', 'existing');
-        $calc->add(
+        $cart = new Cart('shopware', 'existing');
+        $cart->add(
             (new LineItem('A', 'test'))
                 ->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()))
                 ->setLabel('test')
         );
 
-        $persister->save($calc, Generator::createSalesChannelContext());
+        $persister->save($cart, Generator::createSalesChannelContext());
 
         static::assertInstanceOf(CartSavedEvent::class, $caughtEvent);
         static::assertCount(1, $caughtEvent->getCart()->getLineItems());
@@ -128,5 +181,55 @@ class CartPersisterTest extends TestCase
     {
         $cart = unserialize(file_get_contents(__DIR__ . '/fixtures/cart.blob'));
         static::assertInstanceOf(Cart::class, $cart);
+    }
+
+    public function testCartVerifyPersistEventIsFiredAndNotPersisted(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $eventDispatcher = new EventDispatcher();
+
+        $connection->expects(static::never())->method('executeUpdate');
+        $connection->expects(static::once())->method('delete');
+
+        $caughtEvent = null;
+        $eventDispatcher->addListener(CartVerifyPersistEvent::class, function (CartVerifyPersistEvent $event) use (&$caughtEvent): void {
+            $caughtEvent = $event;
+        });
+
+        $persister = new CartPersister($connection, $eventDispatcher);
+
+        $cart = new Cart('shopware', 'existing');
+
+        $persister->save($cart, Generator::createSalesChannelContext());
+        static::assertInstanceOf(CartVerifyPersistEvent::class, $caughtEvent, CartVerifyPersistEvent::class . ' did not run');
+        static::assertFalse($caughtEvent->shouldBePersisted());
+        static::assertCount(0, $caughtEvent->getCart()->getLineItems());
+    }
+
+    public function testCartVerifyPersistEventIsFiredAndPersisted(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $eventDispatcher = new EventDispatcher();
+
+        $connection->expects(static::once())->method('executeUpdate');
+        $connection->expects(static::never())->method('delete');
+
+        $caughtEvent = null;
+        $eventDispatcher->addListener(CartVerifyPersistEvent::class, static function (CartVerifyPersistEvent $event) use (&$caughtEvent): void {
+            $caughtEvent = $event;
+        });
+
+        $persister = new CartPersister($connection, $eventDispatcher);
+
+        $cart = new Cart('shopware', 'existing');
+        $cart->addLineItems(new LineItemCollection([
+            new LineItem(Uuid::randomHex(), LineItem::PROMOTION_LINE_ITEM_TYPE, Uuid::randomHex(), 1),
+        ]));
+
+        $persister->save($cart, Generator::createSalesChannelContext());
+
+        static::assertInstanceOf(CartVerifyPersistEvent::class, $caughtEvent);
+        static::assertTrue($caughtEvent->shouldBePersisted());
+        static::assertCount(1, $caughtEvent->getCart()->getLineItems());
     }
 }

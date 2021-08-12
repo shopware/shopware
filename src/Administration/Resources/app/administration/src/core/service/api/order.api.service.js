@@ -76,6 +76,34 @@ class OrderApiService extends ApiService {
                 });
     }
 
+    addPromotionToOrder(orderId, versionId, code, additionalParams = {}, additionalHeaders = {}) {
+        const route = `_action/order/${orderId}/promotion-item`;
+        const headers = Object.assign(ApiService.getVersionHeader(versionId), this.getBasicHeaders(additionalHeaders));
+
+        return this.httpClient
+            .post(route,
+                JSON.stringify(
+                    { code },
+                ), {
+                    additionalParams,
+                    headers,
+                });
+    }
+
+    toggleAutomaticPromotions(orderId, versionId, skipAutomaticPromotions, additionalParams = {}, additionalHeaders = {}) {
+        const route = `_action/order/${orderId}/toggleAutomaticPromotions`;
+        const headers = Object.assign(ApiService.getVersionHeader(versionId), this.getBasicHeaders(additionalHeaders));
+
+        return this.httpClient
+            .post(route,
+                JSON.stringify(
+                    { skipAutomaticPromotions },
+                ), {
+                    additionalParams,
+                    headers,
+                });
+    }
+
     changeOrderAddress(orderAddressId, customerAddressId, additionalParams, additionalHeaders) {
         const route = `_action/order-address/${orderAddressId}/customer-address/${customerAddressId}`;
         const params = Object.assign({ }, additionalParams);

@@ -49,7 +49,8 @@ const orderMock = {
     itemRounding: {
         interval: 0.01,
         decimals: 2
-    }
+    },
+    lineItems: []
 };
 
 function createWrapper(privileges = []) {

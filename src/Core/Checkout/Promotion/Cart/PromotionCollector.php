@@ -363,6 +363,18 @@ class PromotionCollector implements CartDataCollectorInterface
                 $factor
             );
 
+            $originalCodeItem = $cart->getLineItems()->filter(function (LineItem $item) use ($code) {
+                if ($item->getReferencedId() === $code) {
+                    return $item;
+                }
+
+                return null;
+            })->first();
+
+            if ($originalCodeItem && \count($originalCodeItem->getExtensions()) > 0) {
+                $discountItem->setExtensions($originalCodeItem->getExtensions());
+            }
+
             $lineItems[] = $discountItem;
         }
 

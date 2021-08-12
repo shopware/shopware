@@ -24,6 +24,7 @@ use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Shipping\Aggregate\ShippingMethodPrice\ShippingMethodPriceCollection;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
@@ -522,6 +523,39 @@ class RecalculationServiceTest extends TestCase
         $versionId = $this->createVersionedOrder($order['orderId']);
 
         $this->addCreditItemToVersionedOrder($order['orderId'], $versionId, $order['total']);
+    }
+
+    public function testAddPromotionItemToOrder(): void
+    {
+        // create order
+        $cart = $this->generateDemoCart();
+        $order = $this->persistCart($cart);
+
+        // create version of order
+        $versionId = $this->createVersionedOrder($order['orderId']);
+
+        // create a promotion code with discount
+        $code = 'GET5';
+        $discountValue = 5.0;
+        $this->createPromotion($discountValue, $code);
+
+        $this->addPromotionItemToVersionedOrder($order['orderId'], $versionId, $code);
+    }
+
+    public function testToggleAutomaticPromotions(): void
+    {
+        // create order
+        $cart = $this->generateDemoCart();
+        $order = $this->persistCart($cart);
+
+        // create version of order
+        $versionId = $this->createVersionedOrder($order['orderId']);
+
+        // create an automatic promotion with discount
+        $discountValue = 5.0;
+        $promotionId = $this->createPromotion($discountValue);
+
+        $this->toggleAutomaticPromotions($order['orderId'], $versionId, $promotionId);
     }
 
     public function testCreatedVersionedOrderAndMerge(): void
@@ -1026,6 +1060,40 @@ class RecalculationServiceTest extends TestCase
         return $productId;
     }
 
+    private function createPromotion(float $discountValue, ?string $code = null): string
+    {
+        $promotionId = Uuid::randomHex();
+
+        $data = [
+            'id' => $promotionId,
+            'name' => 'auto promotion',
+            'active' => true,
+            'useCodes' => false,
+            'useSetGroups' => false,
+            'salesChannels' => [
+                ['salesChannelId' => Defaults::SALES_CHANNEL, 'priority' => 1],
+            ],
+            'discounts' => [
+                [
+                    'scope' => PromotionDiscountEntity::SCOPE_CART,
+                    'type' => PromotionDiscountEntity::TYPE_ABSOLUTE,
+                    'value' => $discountValue,
+                    'considerAdvancedRules' => false,
+                ],
+            ],
+        ];
+
+        if ($code) {
+            $data['name'] = $code;
+            $data['useCodes'] = true;
+            $data['code'] = $code;
+        }
+
+        $this->getContainer()->get('promotion.repository')->create([$data], $this->context);
+
+        return $promotionId;
+    }
+
     private function createCustomer(): string
     {
         $customerId = Uuid::randomHex();
@@ -1351,6 +1419,96 @@ class RecalculationServiceTest extends TestCase
         static::assertEquals(5, $tax5->getTaxRate());
 
         static::assertEquals($creditAmount, $tax19->getPrice() + $tax5->getPrice());
+    }
+
+    private function addPromotionItemToVersionedOrder(string $orderId, string $versionId, string $code): void
+    {
+        $orderRepository = $this->getContainer()->get('order.repository');
+
+        $data = [
+            'code' => $code,
+        ];
+
+        // add promotion item to order
+        $this->getBrowser()->request(
+            'POST',
+            sprintf(
+                '/api/_action/order/%s/promotion-item',
+                $orderId
+            ),
+            [],
+            [],
+            [
+                'HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId,
+            ],
+            json_encode($data)
+        );
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
+
+        // read versioned order
+        $criteria = new Criteria([$orderId]);
+        $criteria->addAssociation('lineItems');
+        $order = $orderRepository->search($criteria, $this->context->createWithVersionId($versionId))->get($orderId);
+        static::assertNotEmpty($order);
+        static::assertCount(3, $order->getLineItems());
+
+        $promotionItem = $order->getLineItems()->filterByProperty('referencedId', $code)->first();
+
+        static::assertNotNull($promotionItem);
+
+        $content = json_decode($response->getContent(), true);
+        static::assertCount(1, $content['errors']);
+
+        $errors = array_values($content['errors']);
+        static::assertEquals($errors[0]['message'], 'Discount GET5 has been added');
+    }
+
+    private function toggleAutomaticPromotions(string $orderId, string $versionId, string $promotionId): void
+    {
+        $orderRepository = $this->getContainer()->get('order.repository');
+
+        $data = [
+            'skipAutomaticPromotions' => false,
+        ];
+
+        // add promotion item to order
+        $this->getBrowser()->request(
+            'POST',
+            sprintf(
+                '/api/_action/order/%s/toggleAutomaticPromotions',
+                $orderId
+            ),
+            [],
+            [],
+            [
+                'HTTP_' . PlatformRequest::HEADER_VERSION_ID => $versionId,
+            ],
+            json_encode($data)
+        );
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
+
+        // read versioned order
+        $criteria = new Criteria([$orderId]);
+        $criteria->addAssociation('lineItems');
+        $order = $orderRepository->search($criteria, $this->context->createWithVersionId($versionId))->get($orderId);
+        static::assertNotEmpty($order);
+        static::assertCount(3, $order->getLineItems());
+
+        $promotionItem = $order->getLineItems()->filterByProperty('type', 'promotion')->first();
+
+        static::assertNotNull($promotionItem);
+
+        static::assertEquals($promotionItem->getPayload()['promotionId'], $promotionId);
+
+        $content = json_decode($response->getContent(), true);
+        static::assertCount(1, $content['errors']);
+
+        $errors = array_values($content['errors']);
+        static::assertEquals($errors[0]['message'], 'Discount auto promotion has been added');
     }
 
     private function createDeliveryTime(): array

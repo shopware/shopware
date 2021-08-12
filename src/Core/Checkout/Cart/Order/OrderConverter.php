@@ -58,7 +58,7 @@ class OrderConverter
 
     public const ORIGINAL_ORDER_NUMBER = 'originalOrderNumber';
 
-    private const ADMIN_EDIT_ORDER_PERMISSIONS = [
+    public const ADMIN_EDIT_ORDER_PERMISSIONS = [
         ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES => true,
         ProductCartProcessor::SKIP_PRODUCT_RECALCULATION => true,
         DeliveryProcessor::SKIP_DELIVERY_PRICE_RECALCULATION => true,

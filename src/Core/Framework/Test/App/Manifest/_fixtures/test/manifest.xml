@@ -73,7 +73,7 @@ Folgende Nutzerdaten werden auf Servern der shopware AG verarbeitet:
         <read>order</read>
     </permissions>
     <custom-fields>
-        <custom-field-set>
+        <custom-field-set global="true">
             <name>custom_field_test</name>
             <label>Custom field test</label>
             <label lang="de-DE">Zusatzfeld Test</label>

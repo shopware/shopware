@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\App\Manifest\Xml;
 
 use Shopware\Core\Framework\App\Manifest\Xml\CustomFieldTypes\CustomFieldType;
 use Shopware\Core\Framework\App\Manifest\Xml\CustomFieldTypes\CustomFieldTypeFactory;
+use Symfony\Component\Config\Util\XmlUtils;
 
 /**
  * @internal only for use by the app-system, will be considered internal from v6.4.0 onward
@@ -12,25 +13,21 @@ class CustomFieldSet extends XmlElement
 {
     public const TRANSLATABLE_FIELDS = ['label'];
 
-    /**
-     * @var array
-     */
-    protected $label;
+    protected array $label;
 
-    /**
-     * @var string
-     */
-    protected $name;
+    protected string $name;
 
     /**
      * @var string[]
      */
-    protected $relatedEntities = [];
+    protected array $relatedEntities = [];
 
     /**
      * @var CustomFieldType[]
      */
-    protected $fields = [];
+    protected array $fields = [];
+
+    protected bool $global = false;
 
     private function __construct(array $data)
     {
@@ -56,6 +53,7 @@ class CustomFieldSet extends XmlElement
 
         return [
             'name' => $this->name,
+            'global' => $this->global,
             'config' => [
                 'label' => $this->label,
                 'translated' => true,
@@ -92,9 +90,22 @@ class CustomFieldSet extends XmlElement
         return $this->fields;
     }
 
+    public function getGlobal(): bool
+    {
+        return $this->global;
+    }
+
     private static function parse(\DOMElement $element): array
     {
         $values = [];
+
+        /** @var \DOMNamedNodeMap $attributes */
+        $attributes = $element->attributes;
+
+        foreach ($attributes as $attribute) {
+            $values[$attribute->name] = XmlUtils::phpize($attribute->value);
+        }
+
         foreach ($element->childNodes as $child) {
             if (!$child instanceof \DOMElement) {
                 continue;

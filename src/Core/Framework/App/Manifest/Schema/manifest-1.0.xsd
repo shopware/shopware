@@ -195,6 +195,7 @@
             <xs:element name="related-entities" type="entity-list"/>
             <xs:element name="fields" maxOccurs="unbounded" type="custom-field-list"/>
         </xs:sequence>
+        <xs:attribute type="xs:boolean" name="global" default="false"/>
     </xs:complexType>
     <xs:complexType name="custom-field-list">
         <xs:choice maxOccurs="unbounded">

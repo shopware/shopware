@@ -1101,6 +1101,7 @@ class AppLifecycleTest extends TestCase
             ],
             'translated' => true,
         ], $customFieldSet->getConfig());
+        static::assertTrue($customFieldSet->isGlobal());
     }
 
     private function assertDefaultWebhooks(string $appId): void

@@ -115,6 +115,7 @@ class InfoControllerTest extends TestCase
                         'type' => 'string',
                     ],
                 ],
+                'aware' => [],
             ],
             [
                 'name' => 'checkout.order.placed',
@@ -129,6 +130,7 @@ class InfoControllerTest extends TestCase
                         'entityClass' => OrderDefinition::class,
                     ],
                 ],
+                'aware' => [],
             ],
             [
                 'name' => 'state_enter.order_delivery.state.shipped_partially',
@@ -143,6 +145,7 @@ class InfoControllerTest extends TestCase
                         'entityClass' => OrderDefinition::class,
                     ],
                 ],
+                'aware' => [],
             ],
         ];
 
@@ -167,8 +170,10 @@ class InfoControllerTest extends TestCase
             $actualEvents = array_values(array_filter($response, function ($x) use ($event) {
                 return $x['name'] === $event['name'];
             }));
-            sort($event['aware']);
-            sort($actualEvents[0]['aware']);
+            if (Feature::isActive('FEATURE_NEXT_8225')) {
+                sort($event['aware']);
+                sort($actualEvents[0]['aware']);
+            }
             static::assertNotEmpty($actualEvents, 'Event with name "' . $event['name'] . '" not found');
             static::assertCount(1, $actualEvents);
             static::assertEquals($event, $actualEvents[0]);

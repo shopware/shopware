@@ -167,6 +167,11 @@ parameters:
             message: '#Method Shopware\\Core\\Content\\Flow\\FlowEntity::setPayload\(\) has parameter \$payload with no typehint specified\.#'
             path: src/Core/Content/Flow/FlowEntity.php
 
+        # can be removed with feature flag FEATURE_NEXT_8225
+        -
+            message: '#Command \"framework:demodata\" does not define option \"flows\".#'
+            path: src/Core/Framework/Demodata/Command/DemodataCommand.php
+
         -
             message: '#Method Shopware\\Core\\Content\\Seo\\SeoUrlRoute\\SeoUrlRouteInterface::prepareCriteria\(\) invoked with 2 parameters, 1 required.#'
             path: src/Core/Content/Seo/SeoUrlGenerator.php

@@ -106,6 +106,7 @@
         <service id="Shopware\Core\Content\Flow\Api\FlowActionCollector">
             <argument type="tagged" tag="flow.action" />
             <argument type="service" id="event_dispatcher"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
         </service>
 
         <service id="Shopware\Core\Content\Flow\Dispatching\FlowLoader" public="true">

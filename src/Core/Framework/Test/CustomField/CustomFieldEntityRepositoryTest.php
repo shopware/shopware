@@ -57,6 +57,8 @@ class CustomFieldEntityRepositoryTest extends TestCase
 
     public function testUpdateCustomFields(): void
     {
+        static::markTestSkipped('NEXT-16212 - This test sometimes triggers a "SQLSTATE[HY000]: General error: 2006 MySQL server has gone away" error');
+
         $newSize = 22;
         $productId = Uuid::randomHex();
 

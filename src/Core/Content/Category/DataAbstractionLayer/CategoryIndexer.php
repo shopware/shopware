@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Category\DataAbstractionLayer;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\Event\CategoryIndexerEvent;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -161,7 +160,7 @@ class CategoryIndexer extends EntityIndexer
             return;
         }
 
-        $context = Context::createDefaultContext();
+        $context = $message->getContext();
 
         $this->connection->beginTransaction();
 

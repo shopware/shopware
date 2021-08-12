@@ -150,4 +150,53 @@ class MailServiceTest extends TestCase
             }));
         $mailService->send($data, Context::createDefaultContext());
     }
+
+    public function testMailSendingInTestMode(): void
+    {
+        $mailSender = $this->createMock(AbstractMailSender::class);
+        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+        $templateRenderer = $this->createMock(StringTemplateRenderer::class);
+        $mailService = new MailService(
+            $this->createMock(DataValidator::class),
+            $templateRenderer,
+            $this->getContainer()->get(MailFactory::class),
+            $mailSender,
+            $this->createMock(EntityRepositoryInterface::class),
+            $salesChannelRepository->getDefinition(),
+            $salesChannelRepository,
+            $this->getContainer()->get(SystemConfigService::class),
+            $this->createMock(EventDispatcher::class),
+            $this->createMock(LoggerInterface::class),
+            $this->createMock(UrlGeneratorInterface::class)
+        );
+
+        $salesChannel = $this->createSalesChannel();
+
+        $data = [
+            'senderName' => 'Foo Bar',
+            'recipients' => ['baz@example.com' => 'Baz'],
+            'salesChannelId' => $salesChannel['id'],
+            'contentHtml' => '<span>Test</span>',
+            'contentPlain' => 'Test',
+            'subject' => 'Test subject',
+            'testMode' => true,
+        ];
+
+        $templateData = [
+            'salesChannel' => [],
+            'order' => [
+                'deepLinkCode' => 'home',
+            ],
+        ];
+
+        $mailSender->expects(static::once())
+            ->method('send')
+            ->with(static::callback(function (Email $mail): bool {
+                $from = $mail->getFrom();
+                $this->assertCount(1, $from);
+
+                return true;
+            }));
+        $mailService->send($data, Context::createDefaultContext(), $templateData);
+    }
 }

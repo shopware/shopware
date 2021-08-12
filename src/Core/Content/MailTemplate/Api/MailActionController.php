@@ -173,7 +173,10 @@ Take a look at the `salesChannel` entity for possible values. For example `{{ sa
      */
     public function send(RequestDataBag $post, Context $context): JsonResponse
     {
-        $message = $this->mailService->send($post->all(), $context);
+        $data = $post->all();
+        $mailTemplateData = $data['mailTemplateData'] ?? [];
+
+        $message = $this->mailService->send($data, $context, $mailTemplateData);
 
         return new JsonResponse(['size' => mb_strlen($message ? $message->toString() : '')]);
     }

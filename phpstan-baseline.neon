@@ -2951,6 +2951,11 @@ parameters:
 			path: src/Core/Framework/Struct/Collection.php
 
 		-
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\:\\:getAt\\(\\) has no return typehint specified\\.$#"
+			count: 1
+			path: src/Core/Framework/Struct/Collection.php
+
+		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\:\\:last\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Struct/Collection.php

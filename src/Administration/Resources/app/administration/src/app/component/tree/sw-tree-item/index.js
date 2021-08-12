@@ -324,12 +324,12 @@ Component.register('sw-tree-item', {
             if (treeItem.children.length <= 0) {
                 this.isLoading = true;
 
-                this.getItems(treeItem.data.id);
+                this.getItems(treeItem.data.id, treeItem.data.schema);
             }
         },
 
-        getItems(args) {
-            return this.$parent.getItems(args);
+        getItems(args, schema) {
+            return this.$parent.getItems(args, schema);
         },
 
         dragStart(config, element, dragElement) {

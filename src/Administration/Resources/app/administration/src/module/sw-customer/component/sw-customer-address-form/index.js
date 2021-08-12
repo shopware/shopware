@@ -87,6 +87,12 @@ Component.register('sw-customer-address-form', {
             },
         },
 
+        countryCriteria() {
+            const criteria = new Criteria();
+            criteria.addSorting(Criteria.sort('position', 'ASC'));
+            return criteria;
+        },
+
         stateCriteria() {
             if (!this.countryId) {
                 return null;

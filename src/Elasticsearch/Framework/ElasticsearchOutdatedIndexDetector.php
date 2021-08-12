@@ -36,9 +36,7 @@ class ElasticsearchOutdatedIndexDetector
      */
     public function get(): ?array
     {
-        $allIndices = $this->client->indices()->get(
-            ['index' => implode(',', $this->getPrefixes())]
-        );
+        $allIndices = $this->getAllIndices();
 
         if (empty($allIndices)) {
             return [];
@@ -58,9 +56,7 @@ class ElasticsearchOutdatedIndexDetector
 
     public function getAllUsedIndices(): array
     {
-        $allIndices = $this->client->indices()->get(
-            ['index' => implode(',', $this->getPrefixes())]
-        );
+        $allIndices = $this->getAllIndices();
 
         if (empty($allIndices)) {
             return [];
@@ -96,5 +92,22 @@ class ElasticsearchOutdatedIndexDetector
         }
 
         return $prefixes;
+    }
+
+    private function getAllIndices(): array
+    {
+        $prefixes = array_chunk($this->getPrefixes(), 5);
+
+        $allIndices = [];
+
+        foreach ($prefixes as $prefix) {
+            $indices = $this->client->indices()->get(
+                ['index' => implode(',', $prefix)]
+            );
+
+            $allIndices = array_merge($allIndices, $indices);
+        }
+
+        return $allIndices;
     }
 }

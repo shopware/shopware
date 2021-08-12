@@ -1,4 +1,5 @@
 import template from './sw-flow-list.html.twig';
+import './sw-flow-list.scss';
 
 const { Component, Mixin, Data: { Criteria } } = Shopware;
 
@@ -9,10 +10,13 @@ Component.register('sw-flow-list', {
 
     mixins: [
         Mixin.getByName('notification'),
+        Mixin.getByName('listing'),
     ],
 
     data() {
         return {
+            sortBy: 'createdAt',
+            sortDirection: 'DESC',
             total: 0,
             isLoading: false,
             flows: null,
@@ -32,7 +36,11 @@ Component.register('sw-flow-list', {
         },
 
         flowCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(this.page, this.limit);
+            criteria
+                .addSorting(Criteria.sort(this.sortBy, this.sortDirection))
+                .addSorting(Criteria.sort('updatedAt', 'DESC'));
+
             return criteria;
         },
 
@@ -41,28 +49,28 @@ Component.register('sw-flow-list', {
                 {
                     property: 'active',
                     label: this.$tc('sw-flow.list.labelColumnActive'),
-                    sortable: false,
                     width: '80px',
+                    sortable: false,
                 },
                 {
                     property: 'name',
+                    dataIndex: 'name',
                     label: this.$tc('sw-flow.list.labelColumnName'),
-                    sortable: false,
                     allowResize: true,
                     routerLink: 'sw.flow.detail',
                     primary: true,
                 },
                 {
                     property: 'eventName',
+                    dataIndex: 'eventName',
                     label: this.$tc('sw-flow.list.labelColumnTrigger'),
-                    sortable: false,
                     allowResize: true,
                 },
                 {
                     property: 'description',
                     label: this.$tc('sw-flow.list.labelColumnDescription'),
-                    sortable: false,
                     allowResize: true,
+                    sortable: false,
                 },
             ];
         },
@@ -73,10 +81,6 @@ Component.register('sw-flow-list', {
             }
 
             return this.$tc('global.default.edit');
-        },
-
-        showListing() {
-            return this.flows?.length;
         },
     },
 
@@ -136,6 +140,11 @@ Component.register('sw-flow-list', {
                         message: this.$tc('sw-flow.flowNotification.messageDeleteError'),
                     });
                 });
+        },
+
+        updateRecords(result) {
+            this.flows = result;
+            this.total = result.total;
         },
     },
 });

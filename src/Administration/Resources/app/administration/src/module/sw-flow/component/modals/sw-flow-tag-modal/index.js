@@ -4,6 +4,7 @@ const { Component, Mixin, Context } = Shopware;
 const { ShopwareError } = Shopware.Classes;
 const { EntityCollection, Criteria } = Shopware.Data;
 const { mapState } = Component.getComponentHelper();
+const { capitalizeString } = Shopware.Utils.string;
 
 Component.register('sw-flow-tag-modal', {
     template,
@@ -190,7 +191,7 @@ Component.register('sw-flow-tag-modal', {
             if (!camelCaseText) return '';
 
             const normalText = camelCaseText.replace(/([A-Z])/g, ' $1');
-            return normalText.charAt(0).toUpperCase() + normalText.slice(1);
+            return capitalizeString(normalText);
         },
     },
 });

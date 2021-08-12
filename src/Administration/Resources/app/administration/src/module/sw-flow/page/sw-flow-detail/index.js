@@ -50,10 +50,10 @@ Component.register('sw-flow-detail', {
 
             criteria.addAssociation('sequences.rule');
             criteria.getAssociation('sequences')
+                .addSorting(Criteria.sort('displayGroup', 'ASC'))
                 .addSorting(Criteria.sort('parentId', 'ASC'))
                 .addSorting(Criteria.sort('trueCase', 'ASC'))
-                .addSorting(Criteria.sort('position', 'ASC'))
-                .addSorting(Criteria.sort('displayGroup', 'ASC'));
+                .addSorting(Criteria.sort('position', 'ASC'));
 
             return criteria;
         },

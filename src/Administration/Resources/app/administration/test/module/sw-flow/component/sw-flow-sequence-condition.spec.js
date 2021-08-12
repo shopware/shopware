@@ -70,7 +70,7 @@ function createWrapper(propsData = {}) {
                     <div class="sw-entity-single-select">
                         <input
                             class="sw-entity-single-select__selection-input"
-                            value="value"
+                            :value="value"
                             @input="$emit('change', $event.target.value, { name: 'Rule name', id: $event.target.value })"
                         />
                         <slot name="before-item-list"></slot>

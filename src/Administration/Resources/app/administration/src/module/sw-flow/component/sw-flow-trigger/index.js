@@ -4,6 +4,7 @@ import './sw-flow-trigger.scss';
 const { Component, State } = Shopware;
 const { mapPropertyErrors, mapState } = Component.getComponentHelper();
 const utils = Shopware.Utils;
+const { capitalizeString } = Shopware.Utils.string;
 
 Component.register('sw-flow-trigger', {
     template,
@@ -594,12 +595,15 @@ Component.register('sw-flow-trigger', {
             return convertTreeToArray(Object.values(mappedObj));
         },
 
-        getBreadcrumb(item) {
-            const keyWords = item.name.split('.');
+        getBreadcrumb(eventName) {
+            if (!eventName) {
+                return '';
+            }
+
+            const keyWords = eventName.split('.');
 
             return keyWords.map(key => {
-                // Uppercase first letter only
-                return key.charAt(0).toUpperCase() + key.slice(1);
+                return capitalizeString(key);
             }).join(' / ').replace(/_|-/g, ' ');
         },
 

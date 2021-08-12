@@ -249,7 +249,7 @@ describe('module/sw-flow/view/detail/sw-flow-detail-flow', () => {
         const sequencesState = Shopware.State.getters['swFlowState/sequences'];
         expect(sequencesState.length).toEqual(6);
         expect(sequencesState[sequencesState.length - 1].displayGroup).toEqual(3);
-        expect(sequencesState[sequencesState.length - 1].position).toEqual(3);
+        expect(sequencesState[sequencesState.length - 1].position).toEqual(1);
         expect(sequencesState[sequencesState.length - 1].parentId).toBeNull();
     });
 });

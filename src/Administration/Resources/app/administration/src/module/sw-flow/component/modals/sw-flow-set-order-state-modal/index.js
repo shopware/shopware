@@ -63,7 +63,7 @@ Component.register('sw-flow-set-order-state-modal', {
 
     methods: {
         createdComponent() {
-            this.config = this.sequence?.config || this.config;
+            this.config = this.sequence?.config ? { ...this.sequence?.config } : this.config;
 
             if (!this.stateMachineState.length) {
                 this.getAllStates();

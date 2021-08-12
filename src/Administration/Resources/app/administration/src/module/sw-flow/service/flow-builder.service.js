@@ -1,4 +1,5 @@
 const { Application } = Shopware;
+const { capitalizeString } = Shopware.Utils.string;
 
 Application.addServiceProvider('flowBuilderService', () => {
     return flowBuilderService();
@@ -64,7 +65,7 @@ export default function flowBuilderService() {
                 return;
             }
 
-            keyName = keyName + key.charAt(0).toUpperCase() + key.slice(1);
+            keyName += capitalizeString(key);
         });
 
         return {

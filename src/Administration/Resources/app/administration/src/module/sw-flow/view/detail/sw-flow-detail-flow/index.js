@@ -169,7 +169,7 @@ Component.register('sw-flow-detail-flow', {
 
         onAddRootSequence() {
             const newItem = this.createSequence();
-            newItem.position = this.rootSequences.length + 1;
+            newItem.position = 1;
             newItem.displayGroup = this.rootSequences[this.rootSequences.length - 1].displayGroup + 1;
 
             State.commit('swFlowState/addSequence', newItem);

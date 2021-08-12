@@ -255,12 +255,12 @@
         ],
         "phpstan": [
             "@php src/Core/DevOps/StaticAnalyze/PHPStan/phpstan-bootstrap.php",
-            "phpstan --memory-limit=2G"
+            "phpstan analyze --memory-limit=2G"
         ],
         "psalm": "psalm --config=psalm.xml --threads=4",
         "static-analyze": [
-            "@phpstan",
-            "@psalm"
+            "@phpstan src/",
+            "@psalm src/"
         ],
         "phpunit": [
             "phpunit"

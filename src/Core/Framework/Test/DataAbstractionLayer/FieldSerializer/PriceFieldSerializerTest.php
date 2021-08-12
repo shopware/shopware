@@ -156,6 +156,27 @@ class PriceFieldSerializerTest extends TestCase
         static::assertSame('{"cb7d2554b0ce847cd82f3ac9bd1c0dfca":{"net":-5.7,"gross":-5.7,"currencyId":"b7d2554b0ce847cd82f3ac9bd1c0dfca","linked":true}}', $data);
     }
 
+    public function testSerializeWithListPrice(): void
+    {
+        $data = $this->encode([
+            Defaults::CURRENCY => [
+                'net' => '5',
+                'gross' => '5',
+                'currencyId' => Defaults::CURRENCY,
+                'linked' => true,
+                'listPrice' => [
+                    'net' => '10',
+                    'gross' => '10',
+                    'currencyId' => Defaults::CURRENCY,
+                    'linked' => true,
+                ],
+            ],
+        ]);
+
+        $json = '{"cb7d2554b0ce847cd82f3ac9bd1c0dfca":{"net":5.0,"gross":5.0,"currencyId":"b7d2554b0ce847cd82f3ac9bd1c0dfca","linked":true,"listPrice":{"net":"10","gross":"10","currencyId":"b7d2554b0ce847cd82f3ac9bd1c0dfca","linked":true},"percentage":{"net":50.0,"gross":50.0}}}';
+        static::assertSame($json, $data);
+    }
+
     private function encode(array $data): string
     {
         $field = new PriceField('test', 'test');

@@ -10,7 +10,14 @@ function createWrapper() {
     return shallowMount(Shopware.Component.build('sw-product-stream-field-select'), {
         provide: {
             conditionDataProviderService: {
-                isPropertyInAllowList: () => true
+                isPropertyInAllowList: () => true,
+                allowedJsonAccessors: {
+                    'json.test': {
+                        value: 'json.test',
+                        type: 'string',
+                        trans: 'jsontest'
+                    }
+                }
             },
             productCustomFields: []
         },
@@ -46,5 +53,15 @@ describe('src/module/sw-product-stream/component/sw-product-stream-field-select'
 
         wrapper.setProps({ disabled: true });
         expect(wrapper.props('disabled')).toBe(true);
+    });
+
+    it('should return correct options with json accessor', () => {
+        const wrapper = createWrapper();
+        wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.options).toEqual([{
+            label: 'jsontest',
+            value: 'json.test'
+        }]);
     });
 });

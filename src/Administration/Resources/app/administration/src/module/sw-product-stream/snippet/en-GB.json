@@ -107,7 +107,8 @@
         "properties": "Properties",
         "property_group": "Group",
         "property_group_option": "Property value",
-        "product_manufacturer": "Manufacturer"
+        "product_manufacturer": "Manufacturer",
+        "percentage": "Percentage ratio price/list price"
       }
     },
     "detail": {

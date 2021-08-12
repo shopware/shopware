@@ -12,6 +12,7 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
         'removeNodeFromTree',
         'productCustomFields',
         'acl',
+        'conditionDataProviderService',
     ],
 
     computed: {
@@ -27,6 +28,10 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             get() {
                 if (!this.actualCondition.field) {
                     return [];
+                }
+
+                if (this.conditionDataProviderService.allowedJsonAccessors.hasOwnProperty(this.actualCondition.field)) {
+                    return [this.actualCondition.field];
                 }
 
                 if (this.isCustomField(this.actualCondition.field)) {

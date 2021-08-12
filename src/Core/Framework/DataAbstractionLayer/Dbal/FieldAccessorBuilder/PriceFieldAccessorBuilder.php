@@ -46,6 +46,11 @@ class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
             array_pop($parts);
         }
 
+        if (end($parts) === 'percentage') {
+            $jsonAccessor = 'percentage.' . $jsonAccessor;
+            array_pop($parts);
+        }
+
         // is specific currency id provided? => overwrite currency id and currency factor
         if (Uuid::isValid((string) end($parts))) {
             $currencyId = end($parts);

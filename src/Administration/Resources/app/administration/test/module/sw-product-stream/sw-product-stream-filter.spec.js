@@ -30,7 +30,13 @@ function createWrapper(privileges = []) {
         provide: {
             conditionDataProviderService: {
                 getPlaceholderData: () => {},
-                getComponentByCondition: () => {}
+                getComponentByCondition: () => {},
+                allowedJsonAccessors: {
+                    'json.test': {
+                        value: 'json.test',
+                        type: 'string'
+                    }
+                }
             },
             availableTypes: {},
             childAssociationField: {},
@@ -108,6 +114,19 @@ describe('src/module/sw-product-stream/component/sw-product-stream-filter', () =
         wrapper.vm.$nextTick();
 
         expect(wrapper.vm.isCustomField('customFields.test')).toBe(true);
+    });
+
+    it('should return correct json field', async () => {
+        const wrapper = createWrapper();
+
+        await wrapper.setProps({
+            condition: {
+                field: 'json.test'
+            }
+        });
+        wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.fields).toEqual(['json.test']);
     });
 });
 

@@ -767,6 +767,7 @@
       "state_enter_order_transaction_state_refunded": "Zahlung erreicht Status erstattet",
       "state_enter_order_transaction_state_refunded_partially": "Zahlung erreicht Status teilweise erstattet",
       "state_enter_order_transaction_state_reminded": "Zahlung erreicht Status Erinnerung versandt",
+      "state_enter_order_transaction_state_unconfirmed": "Zahlung erreicht Status unbestätigt",
       "state_leave_order_state_cancelled": "Bestellung verlässt Status abgebrochen",
       "state_leave_order_state_completed": "Bestellung verlässt Status abgeschlossen",
       "state_leave_order_state_in_progress": "Bestellung verlässt Status in Bearbeitung",
@@ -788,6 +789,7 @@
       "state_leave_order_transaction_state_refunded": "Zahlung verlässt Status erstattet",
       "state_leave_order_transaction_state_refunded_partially": "Zahlung verlässt Status teilweise erstattet",
       "state_leave_order_transaction_state_reminded": "Zahlung verlässt Status Erinnerung versandt",
+      "state_leave_order_transaction_state_unconfirmed": "Zahlung verlässt Status unbestätigt",
       "user_recovery_request": "Benutzer-Wiederherstellungsanfrage gestellt"
     },
     "tax-rates": {

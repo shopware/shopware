@@ -295,6 +295,11 @@ shopware:
               major: false
               description: "Rate Limiting against Login Bruteforce"
               # issue: NEXT-13795
+            - name: FEATURE_NEXT_13601
+              default: false
+              major: true
+              description: "Default transaction state for async app payments"
+              # issue: NEXT-13601
 
     logger:
         file_rotation_count: 14

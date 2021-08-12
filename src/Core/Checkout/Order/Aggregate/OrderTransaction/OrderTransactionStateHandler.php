@@ -91,6 +91,26 @@ class OrderTransactionStateHandler
      * @throws StateMachineInvalidEntityIdException
      * @throws StateMachineInvalidStateFieldException
      */
+    public function processUnconfirmed(string $transactionId, Context $context): void
+    {
+        $this->stateMachineRegistry->transition(
+            new Transition(
+                OrderTransactionDefinition::ENTITY_NAME,
+                $transactionId,
+                StateMachineTransitionActions::ACTION_PROCESS_UNCONFIRMED,
+                'stateId'
+            ),
+            $context
+        );
+    }
+
+    /**
+     * @throws InconsistentCriteriaIdsException
+     * @throws StateMachineNotFoundException
+     * @throws IllegalTransitionException
+     * @throws StateMachineInvalidEntityIdException
+     * @throws StateMachineInvalidStateFieldException
+     */
     public function paid(string $transactionId, Context $context): void
     {
         $this->stateMachineRegistry->transition(

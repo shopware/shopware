@@ -767,6 +767,7 @@
       "state_enter_order_transaction_state_refunded": "Payment enters status refunded",
       "state_enter_order_transaction_state_refunded_partially": "Payment enters status partially refunded",
       "state_enter_order_transaction_state_reminded": "Payment enters status reminder sent",
+      "state_enter_order_transaction_state_unconfirmed": "Payment enters status unconfirmed",
       "state_leave_order_state_cancelled": "Order leaves status cancelled",
       "state_leave_order_state_completed": "Order leaves status completed",
       "state_leave_order_state_in_progress": "Order leaves status in progress",
@@ -788,6 +789,7 @@
       "state_leave_order_transaction_state_refunded": "Payment leaves status refunded",
       "state_leave_order_transaction_state_refunded_partially": "Payment leaves status partially refunded",
       "state_leave_order_transaction_state_reminded": "Payment leaves status reminder sent",
+      "state_leave_order_transaction_state_unconfirmed": "Payment leaves status unconfirmed",
       "user_recovery_request": "User recovery request sent"
     },
     "tax-rates": {

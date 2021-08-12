@@ -83,6 +83,11 @@ class DocsAppEventCommand extends Command
         }
     }
 
+    public function getListEventPath(): string
+    {
+        return $this->listEventPath;
+    }
+
     protected function configure(): void
     {
         $this

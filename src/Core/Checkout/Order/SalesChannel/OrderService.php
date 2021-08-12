@@ -37,6 +37,7 @@ class OrderService
         OrderTransactionStates::STATE_REMINDED,
         OrderTransactionStates::STATE_FAILED,
         OrderTransactionStates::STATE_CHARGEBACK,
+        OrderTransactionStates::STATE_UNCONFIRMED,
     ];
 
     private DataValidator $dataValidator;

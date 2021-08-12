@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
@@ -24,6 +25,7 @@ use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\EqualTo;
 use Symfony\Component\Validator\Constraints\Length;
@@ -38,43 +40,36 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class ResetPasswordRoute extends AbstractResetPasswordRoute
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $customerRepository;
+    private EntityRepositoryInterface $customerRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $customerRecoveryRepository;
+    private EntityRepositoryInterface $customerRecoveryRepository;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var DataValidator
-     */
-    private $validator;
+    private DataValidator $validator;
 
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
+    private SystemConfigService $systemConfigService;
+
+    private RequestStack $requestStack;
+
+    private RateLimiter $rateLimiter;
 
     public function __construct(
         EntityRepositoryInterface $customerRepository,
         EntityRepositoryInterface $customerRecoveryRepository,
         EventDispatcherInterface $eventDispatcher,
         DataValidator $validator,
-        SystemConfigService $systemConfigService
+        SystemConfigService $systemConfigService,
+        RequestStack $requestStack,
+        RateLimiter $rateLimiter
     ) {
         $this->customerRepository = $customerRepository;
         $this->customerRecoveryRepository = $customerRecoveryRepository;
         $this->eventDispatcher = $eventDispatcher;
         $this->validator = $validator;
         $this->systemConfigService = $systemConfigService;
+        $this->requestStack = $requestStack;
+        $this->rateLimiter = $rateLimiter;
     }
 
     public function getDecorated(): AbstractResetPasswordRoute
@@ -146,6 +141,14 @@ Resets a customer's password using credentials from a password recovery mail as 
 
         if (!$customer) {
             throw new CustomerNotFoundByHashException($hash);
+        }
+
+        // reset login and pw-reset limit when password was changed
+        if (($request = $this->requestStack->getMainRequest()) !== null) {
+            $cacheKey = strtolower($customer->getEmail()) . '-' . $request->getClientIp();
+
+            $this->rateLimiter->reset(RateLimiter::LOGIN_ROUTE, $cacheKey);
+            $this->rateLimiter->reset(RateLimiter::RESET_PASSWORD, $cacheKey);
         }
 
         $customerData = [

@@ -12,11 +12,13 @@ use Shopware\Core\Framework\DependencyInjection\CompilerPass\DisableTwigCacheWar
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\EntityCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\FeatureFlagCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\FilesystemConfigMigrationCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\RateLimiterCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RouteScopeCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigLoaderConfigCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\FrameworkExtension;
 use Shopware\Core\Framework\Migration\MigrationCompilerPass;
 use Shopware\Core\Framework\Migration\MigrationSource;
+use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Symfony\Component\Config\FileLocator;
@@ -70,6 +72,7 @@ class Framework extends Bundle
         $loader->load('update.xml');
         $loader->load('seo.xml');
         $loader->load('webhook.xml');
+        $loader->load('rate-limiter.xml');
 
         if ($container->getParameter('kernel.environment') === 'test') {
             $loader->load('services_test.xml');
@@ -88,6 +91,11 @@ class Framework extends Bundle
         $container->addCompilerPass(new AssetRegistrationCompilerPass());
         $container->addCompilerPass(new FilesystemConfigMigrationCompilerPass());
         $container->addCompilerPass(new AnnotationReaderCompilerPass());
+        $container->addCompilerPass(new RateLimiterCompilerPass());
+
+        if ($container->getParameter('kernel.environment') === 'test') {
+            $container->addCompilerPass(new DisableRateLimiterCompilerPass());
+        }
 
         // configure migration directories
         $migrationSourceV3 = $container->getDefinition(MigrationSource::class . '.core.V6_3');

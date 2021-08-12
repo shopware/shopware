@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Controller;
 
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
+use Shopware\Core\Checkout\Customer\Exception\CustomerAuthThrottledException;
 use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
 use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
 use Shopware\Core\Checkout\Order\SalesChannel\AbstractCancelOrderRoute;
@@ -162,13 +163,14 @@ class AccountOrderController extends StorefrontController
     {
         try {
             $page = $this->orderPageLoader->load($request, $context);
-        } catch (GuestNotAuthenticatedException | WrongGuestCredentialsException $exception) {
+        } catch (GuestNotAuthenticatedException | WrongGuestCredentialsException | CustomerAuthThrottledException $exception) {
             return $this->redirectToRoute(
                 'frontend.account.guest.login.page',
                 [
                     'redirectTo' => 'frontend.account.order.single.page',
                     'redirectParameters' => ['deepLinkCode' => $request->get('deepLinkCode')],
                     'loginError' => ($exception instanceof WrongGuestCredentialsException),
+                    'waitTime' => ($exception instanceof CustomerAuthThrottledException) ? $exception->getWaitTime() : '',
                 ]
             );
         }

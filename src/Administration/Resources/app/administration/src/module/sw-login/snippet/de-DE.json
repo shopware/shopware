@@ -22,6 +22,7 @@
       "messageInvalidRefreshToken": "Der angegebene Refresh-Token ist ungültig.",
       "messageAccessDenied": "Der Zugriff wurde verweigert.",
       "messageGeneralRequestError": "Die Anfrage an \"{url}\" ist fehlgeschlagen.",
+      "messageAuthThrottled": "Zu viele Anmeldeversuche. Bitte warten Sie {seconds} Sekunden, bevor Sie erneut versuchen, sich anzumelden.",
       "forgottenPasswordLink": "Hast Du Dein Passwort vergessen?"
     },
     "recovery": {

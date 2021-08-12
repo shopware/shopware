@@ -40,6 +40,7 @@
 
         <service id="Shopware\Core\System\User\Api\UserRecoveryController" public="true">
             <argument type="service" id="Shopware\Core\System\User\Recovery\UserRecoveryService"/>
+            <argument type="service" id="shopware.rate_limiter"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

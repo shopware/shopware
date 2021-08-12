@@ -19,6 +19,8 @@
             <argument type="service" id="category.repository" />
             <argument type="service" id="landing_page.repository" />
             <argument type="service" id="product.repository" />
+            <argument type="service" id="Symfony\Component\HttpFoundation\RequestStack" />
+            <argument type="service" id="shopware.rate_limiter" />
         </service>
     </services>
 </container>

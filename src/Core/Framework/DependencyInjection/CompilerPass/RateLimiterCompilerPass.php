@@ -1,0 +1,41 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
+
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\RateLimiter\RateLimiter;
+use Shopware\Core\Framework\RateLimiter\RateLimiterFactory;
+use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Component\RateLimiter\Storage\CacheStorage;
+
+/**
+ * @internal (flag:FEATURE_NEXT_13795)
+ */
+class RateLimiterCompilerPass implements CompilerPassInterface
+{
+    public function process(ContainerBuilder $container): void
+    {
+        $rateLimiter = $container->getDefinition(RateLimiter::class);
+
+        /** @var array<string, array<string, string>> $rateLimiterConfig */
+        $rateLimiterConfig = $container->getParameter('shopware.api.rate_limiter');
+
+        foreach ($rateLimiterConfig as $name => $config) {
+            $def = new Definition(RateLimiterFactory::class);
+            $def->addArgument($config + ['id' => $name]); // config
+
+            $cacheDef = new Definition(CacheStorage::class);
+            $cacheDef->addArgument(new Reference($config['cache_pool']));
+
+            $def->addArgument($cacheDef);
+            $def->addArgument(new Reference($config['lock_factory']));
+
+            $rateLimiter->addMethodCall('registerLimiterFactory', [$name, $def]);
+        }
+
+        $container->setDefinition('shopware.rate_limiter', $rateLimiter);
+    }
+}

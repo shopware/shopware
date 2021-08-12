@@ -83,7 +83,7 @@ export default class FormCmsHandler extends Plugin {
             let changeContent = true;
             let content = '';
             for (let i = 0; i < response.length; i += 1) {
-                if (response[i].type === 'danger') {
+                if (response[i].type === 'danger' || response[i].type === 'info') {
                     changeContent = false;
                 }
                 content += response[i].alert;

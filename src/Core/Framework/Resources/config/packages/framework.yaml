@@ -35,6 +35,8 @@ framework:
                 tags: cache.tags
             cache.tags:
                 adapter: cache.app
+            cache.rate_limiter:
+                adapter: cache.app
     messenger:
         transports:
             default:

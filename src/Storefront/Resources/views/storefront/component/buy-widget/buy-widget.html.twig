@@ -16,8 +16,10 @@
             {% endblock %}
 
             {% block buy_widget_rich_snippets_mpn %}
-                <meta itemprop="mpn"
-                      content="{{ product.productNumber }}"/>
+                {% if product.manufacturerNumber %}
+                    <meta itemprop="mpn"
+                          content="{{ product.manufacturerNumber }}"/>
+                {% endif %}
             {% endblock %}
 
             {% block buy_widget_rich_snippets_weight %}

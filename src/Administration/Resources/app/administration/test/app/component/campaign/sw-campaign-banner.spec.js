@@ -581,7 +581,7 @@ describe('src/app/component/campaign/sw-campaign-banner', () => {
         expect(window.open).toHaveBeenCalledWith('https://www.shopware.com/campaign-link');
     });
 
-    it('should map the main action correctly [execution]', async () => {
+    it('should map the main action correctly [execution] with method "linkToExtensionStoreAndSelectCategory"', async () => {
         const campaign = createExampleCampaign();
         campaign.components.dashboardBanner.content.mainAction = {
             buttonVariant: 'primary',
@@ -612,6 +612,86 @@ describe('src/app/component/campaign/sw-campaign-banner', () => {
         expect(wrapper.vm.$router.push.mock.calls[0]).toEqual([{
             name: 'sw.extension.store.listing.app'
         }]);
+    });
+
+    it('should map the main action correctly [execution] with method "showBookingOptions"', async () => {
+        const campaign = createExampleCampaign();
+        campaign.components.dashboardBanner.content.mainAction = {
+            buttonVariant: 'primary',
+            bannerIsClickable: false,
+            cta: {
+                'en-GB': 'Show booking options'
+            },
+            execution: {
+                method: 'showBookingOptions'
+            }
+        };
+
+        Shopware.State.commit('marketing/setCampaign', campaign);
+
+        wrapper = createWrapper();
+        const mainAction = wrapper.find('.sw-campaign-banner__action');
+        expect(mainAction.text()).toEqual('Show booking options');
+
+        expect(window.open).not.toHaveBeenCalled();
+        await mainAction.find('button').trigger('click');
+        expect(window.open).toHaveBeenCalledWith('https://store.shopware.com/en/licenses');
+    });
+
+    it('should map the main action correctly [execution] with method "selectBookingOption"', async () => {
+        const campaign = createExampleCampaign();
+        campaign.components.dashboardBanner.content.mainAction = {
+            buttonVariant: 'primary',
+            bannerIsClickable: false,
+            cta: {
+                'en-GB': 'Select extension xy'
+            },
+            execution: {
+                method: 'selectBookingOption',
+                arguments: ['id', '9739']
+            }
+        };
+
+        Shopware.State.commit('marketing/setCampaign', campaign);
+
+        wrapper = createWrapper();
+        const mainAction = wrapper.find('.sw-campaign-banner__action');
+        expect(mainAction.text()).toEqual('Select extension xy');
+
+        // go to store and open category
+        expect(wrapper.vm.$router.push.mock.calls.length).toEqual(0);
+        await mainAction.find('button').trigger('click');
+        expect(wrapper.vm.$router.push.mock.calls.length).toEqual(1);
+        expect(wrapper.vm.$router.push.mock.calls[0]).toEqual([{
+            name: 'sw.extension.store.detail',
+            params: { id: '9739' }
+        }]);
+    });
+
+    it('should not execute main action method "selectBookingOption" with wrong argument', async () => {
+        const campaign = createExampleCampaign();
+        campaign.components.dashboardBanner.content.mainAction = {
+            buttonVariant: 'primary',
+            bannerIsClickable: false,
+            cta: {
+                'en-GB': 'Select extension xy'
+            },
+            execution: {
+                method: 'selectBookingOption',
+                arguments: ['id', 'string']
+            }
+        };
+
+        Shopware.State.commit('marketing/setCampaign', campaign);
+
+        wrapper = createWrapper();
+        const mainAction = wrapper.find('.sw-campaign-banner__action');
+        expect(mainAction.text()).toEqual('Select extension xy');
+
+        // go to store and open category
+        expect(wrapper.vm.$router.push.mock.calls.length).toEqual(0);
+        await mainAction.find('button').trigger('click');
+        expect(wrapper.vm.$router.push.mock.calls.length).toEqual(0);
     });
 
     it('should map the main action correctly [route]', async () => {

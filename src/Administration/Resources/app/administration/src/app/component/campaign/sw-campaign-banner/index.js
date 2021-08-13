@@ -279,7 +279,12 @@ Shopware.Component.register('sw-campaign-banner', {
         executionAction(execution) {
             try {
                 // execute the defined method in "method" with the given "arguments"
-                this[execution.method](...execution.arguments);
+                if (Array.isArray(execution?.arguments)) {
+                    this[execution.method](...execution.arguments);
+                    return;
+                }
+
+                this[execution.method]();
             } catch (error) {
                 Shopware.Utils.debug.error(error);
             }
@@ -294,6 +299,29 @@ Shopware.Component.register('sw-campaign-banner', {
             // go to route
             this.$router.push({
                 name: 'sw.extension.store.listing.app',
+            });
+        },
+
+        showBookingOptions() {
+            this.externalLinkAction({
+                'en-GB': 'https://store.shopware.com/en/licenses',
+                'de-DE': 'https://store.shopware.com/lizenzen',
+            });
+        },
+
+        selectBookingOption(filterProperty, filterValue) {
+            if (typeof filterValue === 'string') {
+                filterValue = Number.parseInt(filterValue, 10);
+            }
+
+            if (Number.isNaN(filterValue)) {
+                return;
+            }
+
+            // go to extension detail page
+            this.$router.push({
+                name: 'sw.extension.store.detail',
+                params: { [filterProperty]: String(filterValue) },
             });
         },
 

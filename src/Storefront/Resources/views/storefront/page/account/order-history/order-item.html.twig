@@ -2,6 +2,7 @@
 {% set ORDER_TRANSACTION_STATE_FAILED = constant('Shopware\\Core\\Checkout\\Order\\Aggregate\\OrderTransaction\\OrderTransactionStates::STATE_FAILED') %}
 {% set ORDER_TRANSACTION_STATE_REMINDED = constant('Shopware\\Core\\Checkout\\Order\\Aggregate\\OrderTransaction\\OrderTransactionStates::STATE_REMINDED') %}
 {% set ORDER_TRANSACTION_STATE_CANCELLED = constant('Shopware\\Core\\Checkout\\Order\\Aggregate\\OrderTransaction\\OrderTransactionStates::STATE_CANCELLED') %}
+{% set ALLOWED_TRANSACTION_STATES = constant('Shopware\\Core\\Checkout\\Order\\SalesChannel\\OrderService::ALLOWED_TRANSACTION_STATES') %}
 {% set ORDER_STATE_CANCELLED = constant('Shopware\\Core\\Checkout\\Order\\OrderStates::STATE_CANCELLED') %}
 
 {% block page_account_order_item_overview %}
@@ -73,7 +74,7 @@
                                         {% set orderState = order.stateMachineState.technicalName %}
                                         {% set orderPaymentState = order.transactions.last.stateMachineState.technicalName %}
 
-                                        {% if orderState != ORDER_STATE_CANCELLED and (orderPaymentState == ORDER_TRANSACTION_STATE_OPEN or orderPaymentState == ORDER_TRANSACTION_STATE_FAILED or orderPaymentState == ORDER_TRANSACTION_STATE_REMINDED) %}
+                                        {% if orderState != ORDER_STATE_CANCELLED and orderPaymentState in ALLOWED_TRANSACTION_STATES %}
                                             {% block page_account_order_item_context_menu_content_change_payment_button %}
                                                 {% if isPaymentNeeded %}
                                                     <a class="order-table-header-context-menu-content-link"

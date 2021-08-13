@@ -9,6 +9,9 @@
                                name="paymentMethodId"
                                value="{{ payment.id }}"
                                {% if payment.id is same as(selectedPaymentMethodId) %}checked="checked"{% endif %}
+                               {% if page.isPaymentChangeable is defined and not page.isPaymentChangeable %}
+                                   disabled="disabled"
+                               {% endif %}
                                class="custom-control-input payment-method-input">
                     {% endblock %}
 

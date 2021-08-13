@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStat
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\AbstractOrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderRouteResponse;
+use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\SalesChannel\AbstractPaymentMethodRoute;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
@@ -39,13 +40,16 @@ class AccountEditOrderPageLoader
 
     private OrderConverter $orderConverter;
 
+    private OrderService $orderService;
+
     public function __construct(
         GenericPageLoaderInterface $genericLoader,
         EventDispatcherInterface $eventDispatcher,
         AbstractOrderRoute $orderRoute,
         RequestCriteriaBuilder $requestCriteriaBuilder,
         AbstractPaymentMethodRoute $paymentMethodRoute,
-        OrderConverter $orderConverter
+        OrderConverter $orderConverter,
+        OrderService $orderService
     ) {
         $this->genericLoader = $genericLoader;
         $this->eventDispatcher = $eventDispatcher;
@@ -53,6 +57,7 @@ class AccountEditOrderPageLoader
         $this->requestCriteriaBuilder = $requestCriteriaBuilder;
         $this->paymentMethodRoute = $paymentMethodRoute;
         $this->orderConverter = $orderConverter;
+        $this->orderService = $orderService;
     }
 
     /**
@@ -69,6 +74,7 @@ class AccountEditOrderPageLoader
 
         $page = $this->genericLoader->load($request, $salesChannelContext);
 
+        /** @var AccountEditOrderPage $page */
         $page = AccountEditOrderPage::createFrom($page);
 
         if ($page->getMetaInformation()) {
@@ -84,12 +90,8 @@ class AccountEditOrderPageLoader
         }
 
         $page->setOrder($order);
-
-        $isChangeable = $orderRouteResponse->getPaymentsChangeable()[$page->getOrder()->getId()] ?? true;
-        $page->setPaymentChangeable($isChangeable);
-
+        $page->setPaymentChangeable($this->isPaymentChangeable($orderRouteResponse, $page));
         $page->setPaymentMethods($this->getPaymentMethods($salesChannelContext, $request, $order));
-
         $page->setDeepLinkCode($request->get('deepLinkCode'));
 
         $this->eventDispatcher->dispatch(
@@ -180,5 +182,13 @@ class AccountEditOrderPageLoader
         }
 
         return $stateMachineState->getTechnicalName() === OrderTransactionStates::STATE_PAID;
+    }
+
+    private function isPaymentChangeable(OrderRouteResponse $orderRouteResponse, AccountEditOrderPage $page): bool
+    {
+        $isChangeableByResponse = $orderRouteResponse->getPaymentsChangeable()[$page->getOrder()->getId()] ?? true;
+        $isChangeableByTransactionState = $this->orderService->isPaymentChangeableByTransactionState($page->getOrder());
+
+        return $isChangeableByResponse && $isChangeableByTransactionState;
     }
 }

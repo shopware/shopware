@@ -92,7 +92,7 @@ class EditOrderPageTest extends TestCase
         $request = new Request();
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
         $orderId = $this->placeRandomOrder($context);
-        $this->setOrderToPaid($orderId, $context);
+        $this->setOrderToTransactionState($orderId, $context, StateMachineTransitionActions::ACTION_PAID);
 
         /** @var AccountEditOrderPageLoader $event */
         $event = null;
@@ -155,13 +155,37 @@ class EditOrderPageTest extends TestCase
         static::assertSame($context->getCustomer()->getDefaultPaymentMethodId(), $paymentMethods[1]->getId());
     }
 
+    public function testShouldNotAllowPaymentMethodChangeOnCertainTransactionStates(): void
+    {
+        $request = new Request();
+        $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
+        $orderId = $this->placeRandomOrder($context);
+
+        $page = $this->getPageLoader()->load($request, $context);
+
+        static::assertTrue($page->isPaymentChangeable());
+
+        $this->setOrderToTransactionState(
+            $orderId,
+            $context,
+            StateMachineTransitionActions::ACTION_AUTHORIZE
+        );
+
+        $page = $this->getPageLoader()->load($request, $context);
+
+        static::assertFalse($page->isPaymentChangeable());
+    }
+
     protected function getPageLoader(): AccountEditOrderPageLoader
     {
         return $this->getContainer()->get(AccountEditOrderPageLoader::class);
     }
 
-    private function setOrderToPaid(string $orderId, SalesChannelContext $context): void
-    {
+    private function setOrderToTransactionState(
+        string $orderId,
+        SalesChannelContext $context,
+        string $transactionState
+    ): void {
         $order = $this->getOrder($orderId, $context);
 
         $stateMachineRegistry = $this->getContainer()->get(StateMachineRegistry::class);
@@ -170,7 +194,7 @@ class EditOrderPageTest extends TestCase
             new Transition(
                 OrderTransactionDefinition::ENTITY_NAME,
                 $order->getTransactions()->last()->getId(),
-                StateMachineTransitionActions::ACTION_PAID,
+                $transactionState,
                 'stateId'
             ),
             $context->getContext()

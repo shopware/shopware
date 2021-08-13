@@ -15,4 +15,5 @@ final class OrderTransactionStates
     public const STATE_AUTHORIZED = 'authorized';
     public const STATE_FAILED = 'failed';
     public const STATE_IN_PROGRESS = 'in_progress';
+    public const STATE_CHARGEBACK = 'chargeback';
 }

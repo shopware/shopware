@@ -168,6 +168,10 @@ Component.register('sw-flow-detail-flow', {
         },
 
         onAddRootSequence() {
+            if (!this.acl.can('flow.editor')) {
+                return;
+            }
+
             const newItem = this.createSequence();
             newItem.position = 1;
             newItem.displayGroup = this.rootSequences[this.rootSequences.length - 1].displayGroup + 1;

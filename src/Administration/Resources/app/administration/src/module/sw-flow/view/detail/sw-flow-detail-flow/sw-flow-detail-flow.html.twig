@@ -49,8 +49,10 @@
         >
 
             {% block sw_flow_sequence_icon_plus %}
+            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <div
                 class="sw-flow-detail-flow__position-plus"
+                :disabled="!acl.can('flow.editor')"
                 @click="onAddRootSequence"
             >
                 <sw-icon

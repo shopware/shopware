@@ -103,14 +103,9 @@
 
             {% block sw_flow_mail_send_modal_mail_template_select_before_list %}
             <ul class="sw-select-result__item-list">
+                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
-                    v-tooltip="{
-                        message: $tc('sw-privileges.tooltip.warning'),
-                        disabled: acl.can('mail_template.creator'),
-                        showOnDisabledElements: true
-                    }"
                     class="sw-select-result sw-select-result__create-new-template"
-                    :disabled="!acl.can('mail_template.creator')"
                     @click="onCreateMailTemplate"
                 >
                     {{ $tc('sw-flow.modals.mail.titleNewEmailTemplate') }}

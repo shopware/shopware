@@ -113,10 +113,14 @@
             border: 1px solid $color-gray-500;
             z-index: 2;
 
-            &:hover {
+            &:hover:not([disabled]) {
                 background: $color-shopware-brand-500;
                 color: $color-white;
                 border: none;
+            }
+
+            &:disabled {
+                background: $color-gray-100;
             }
         }
 

@@ -52,34 +52,5 @@
         </sw-container>
     </sw-card>
     {% endblock %}
-
-    {% block sw_flow_detail_general_log %}
-    <sw-card
-        v-if="!isNewFlow && flow.logs"
-        class="sw-flow-detail-general__log-card"
-        :title="$tc('sw-flow.detail.labelLogCard')"
-        :is-loading="isLoading"
-    >
-        {% block sw_flow_detail_general_log_title %}
-        <label class="sw-flow-detail-general__log-label sw-flow-detail-general__log-executed">
-            {{ $t('sw-flow.detail.labelLogExecuted', { total: 0 }) }}
-        </label>
-
-        <label class="sw-flow-detail-general__log-label sw-flow-detail-general__log-instruct">
-            {{ $tc('sw-flow.detail.labelLogInstruct') }}
-        </label>
-        {% endblock %}
-
-        {% block sw_flow_detail_general_log_grid %}
-        <sw-data-grid
-            class="sw-flow-detail-general__log-grid"
-            :data-source="[]"
-            :columns="logGridColumns"
-            :compact-mode="false"
-            :show-selection="false"
-        />
-        {% endblock %}
-    </sw-card>
-    {% endblock %}
 </div>
 {% endblock %}

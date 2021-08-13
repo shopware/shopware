@@ -41,7 +41,10 @@
 
         {% block sw_event_action_deprecated_modal_image %}
         <div class="sw-event-action-deprecated-modal__image">
-            <img :src="'/administration/static/img/flowbuilder/ui-sample.png'">
+            <img
+                alt="Flow builder UI sample"
+                :src="'/administration/static/img/flowbuilder/ui-sample.png' | asset"
+            >
         </div>
         {% endblock %}
     </sw-container>

@@ -37,7 +37,7 @@
             <sw-tabs>
                 {% block sw_flow_tabs_general_header %}
                 <sw-tabs-item
-                    v-bind="$props"
+                    class="sw-flow-detail__tab-general"
                     :route="{ name: routeDetailTab('general') }"
                 >
                     {{ $tc('sw-flow.page.generalTab') }}
@@ -46,7 +46,7 @@
 
                 {% block sw_flow_tabs_builder_header %}
                 <sw-tabs-item
-                    v-bind="$props"
+                    class="sw-flow-detail__tab-flow"
                     :route="{ name: routeDetailTab('flow') }"
                 >
                     {{ $tc('sw-flow.page.flowTab') }}

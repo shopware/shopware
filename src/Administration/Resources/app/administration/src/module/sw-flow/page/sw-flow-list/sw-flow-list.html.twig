@@ -1,5 +1,16 @@
 {% block sw_flow_list %}
 <sw-page class="sw-flow-list">
+    {% block sw_flow_list_search_bar %}
+    <template #search-bar>
+        <sw-search-bar
+            initial-search-type="flow"
+            :placeholder="$tc('sw-flow.general.placeholderSearchBar')"
+            :initial-search="term"
+            @search="onSearch"
+        />
+    </template>
+    {% endblock %}
+
     {% block sw_flow_list_smart_bar_header %}
     <template #smart-bar-header>
         {% block sw_flow_list_smart_bar_header_title %}
@@ -150,7 +161,10 @@
             >
                 {% block sw_flow_list_empty_state_icon %}
                 <template #icon>
-                    <img :src="'/administration/static/img/empty-states/settings-empty-state.svg' | asset">
+                    <img
+                        :alt="$tc('sw-flow.list.emptyStateTitle')"
+                        :src="'/administration/static/img/empty-states/settings-empty-state.svg' | asset"
+                    >
                 </template>
                 {% endblock %}
             </sw-empty-state>

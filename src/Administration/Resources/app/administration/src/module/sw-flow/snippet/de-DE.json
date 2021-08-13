@@ -2,7 +2,8 @@
   "sw-flow": {
     "general": {
       "mainMenuItemGeneral": "Flow builder",
-      "descriptionTextModule": "Flow builder"
+      "descriptionTextModule": "Flow builder",
+      "placeholderSearchBar": "Search flow builder..."
     },
     "list": {
       "textHeadline": "Flow Builder",

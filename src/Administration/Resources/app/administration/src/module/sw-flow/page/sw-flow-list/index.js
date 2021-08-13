@@ -37,6 +37,7 @@ Component.register('sw-flow-list', {
 
         flowCriteria() {
             const criteria = new Criteria(this.page, this.limit);
+            criteria.setTerm(this.term);
             criteria
                 .addSorting(Criteria.sort(this.sortBy, this.sortDirection))
                 .addSorting(Criteria.sort('updatedAt', 'DESC'));

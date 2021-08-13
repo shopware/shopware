@@ -16,7 +16,8 @@
             :disabled="disabled"
             :error="flowEventNameError"
         >
-            <template #sw-field-input="{ identification, disabled, error, size, setFocusClass, removeFocusClass, hasSuffix, hasPrefix }">
+            <template #sw-field-input="{ identification, disabled, error, size, setFocusClass, removeFocusClass }">
+                <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
                 <input
                     ref="searchInput"
                     v-model="searchTerm"
@@ -114,6 +115,7 @@
                     class="sw-flow-trigger__search-results"
                 >
                     {% block sw_flow_trigger_search_list_item %}
+                    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                     <li
                         v-for="item in searchResult"
                         :key="item.id"

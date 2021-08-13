@@ -298,6 +298,8 @@ shopware:
 
     logger:
         file_rotation_count: 14
+        exclude_exception:
+            - League\OAuth2\Server\Exception\OAuthServerException
 
     cache:
         invalidation:

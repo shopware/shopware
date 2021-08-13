@@ -307,6 +307,9 @@ class Configuration implements ConfigurationInterface
                 ->integerNode('file_rotation_count')
                     ->defaultValue(14)
                 ->end()
+                ->arrayNode('exclude_exception')
+                    ->prototype('scalar')->end()
+                ->end()
             ->end();
 
         return $rootNode;

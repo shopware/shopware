@@ -9,6 +9,11 @@ class PaymentMethod extends XmlElement
 {
     public const TRANSLATABLE_FIELDS = ['name', 'description'];
 
+    public const REQUIRED_FIELDS = [
+        'identifier',
+        'name',
+    ];
+
     /**
      * @var string
      */
@@ -41,6 +46,8 @@ class PaymentMethod extends XmlElement
 
     private function __construct(array $data)
     {
+        $this->validateRequiredElements($data, self::REQUIRED_FIELDS);
+
         foreach ($data as $property => $value) {
             $this->$property = $value;
         }

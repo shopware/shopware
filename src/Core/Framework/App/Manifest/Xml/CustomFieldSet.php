@@ -13,6 +13,13 @@ class CustomFieldSet extends XmlElement
 {
     public const TRANSLATABLE_FIELDS = ['label'];
 
+    public const REQUIRED_FIELDS = [
+        'label',
+        'name',
+        'relatedEntities',
+        'fields',
+    ];
+
     protected array $label;
 
     protected string $name;
@@ -31,6 +38,8 @@ class CustomFieldSet extends XmlElement
 
     private function __construct(array $data)
     {
+        $this->validateRequiredElements($data, self::REQUIRED_FIELDS);
+
         foreach ($data as $property => $value) {
             $this->$property = $value;
         }

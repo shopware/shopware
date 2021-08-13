@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Manifest\Xml;
 
+use Shopware\Core\Framework\App\Exception\InvalidArgumentException;
 use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
@@ -70,6 +71,15 @@ class XmlElement extends Struct
         }
 
         return $translations;
+    }
+
+    protected function validateRequiredElements(array $data, array $requiredFields): void
+    {
+        foreach ($requiredFields as $field) {
+            if (!isset($data[$field])) {
+                throw new InvalidArgumentException($field . ' must not be empty');
+            }
+        }
     }
 
     private static function getLocaleCodeFromElement(\DOMElement $element): string

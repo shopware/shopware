@@ -90,7 +90,7 @@
         </xs:complexType>
     </xs:element>
     <xs:complexType name="meta">
-        <xs:sequence>
+        <xs:choice maxOccurs="unbounded">
             <xs:element type="xs:string" name="name"/>
             <xs:element type="translatableString" name="label" maxOccurs="unbounded"/>
             <xs:element type="translatableString" name="description" maxOccurs="unbounded" minOccurs="0"/>
@@ -113,7 +113,7 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
-        </xs:sequence>
+        </xs:choice>
     </xs:complexType>
     <xs:complexType name="setup">
         <xs:all>
@@ -136,11 +136,11 @@
         </xs:all>
     </xs:complexType>
     <xs:complexType name="admin">
-        <xs:sequence>
+        <xs:choice maxOccurs="unbounded">
             <xs:element name="action-button" maxOccurs="unbounded" minOccurs="0" type="action-button"/>
             <xs:element name="module" maxOccurs="unbounded" minOccurs="0" type="module"/>
             <xs:element name="main-module" maxOccurs="1" minOccurs="0" type="main-module"/>
-        </xs:sequence>
+        </xs:choice>
     </xs:complexType>
     <xs:complexType name="permissions">
         <xs:choice maxOccurs="unbounded">
@@ -189,12 +189,12 @@
         <xs:attribute type="xs:NMTOKEN" name="event" use="required"/>
     </xs:complexType>
     <xs:complexType name="custom-field-set">
-        <xs:sequence>
+        <xs:choice maxOccurs="unbounded">
             <xs:element name="name" type="xs:string"/>
             <xs:element name="label" maxOccurs="unbounded" type="translatableString"/>
             <xs:element name="related-entities" type="entity-list"/>
             <xs:element name="fields" maxOccurs="unbounded" type="custom-field-list"/>
-        </xs:sequence>
+        </xs:choice>
         <xs:attribute type="xs:boolean" name="global" default="false"/>
     </xs:complexType>
     <xs:complexType name="custom-field-list">
@@ -284,13 +284,13 @@
         </xs:complexContent>
     </xs:complexType>
     <xs:complexType name="custom-field-single-entity-select-type">
-        <xs:sequence>
+        <xs:choice maxOccurs="unbounded">
             <xs:choice maxOccurs="unbounded">
                 <xs:group ref="custom-field-type"/>
                 <xs:element name="placeholder" type="translatableString" minOccurs="0" maxOccurs="unbounded"/>
             </xs:choice>
             <xs:element name="entity" type="xs:string"/>
-        </xs:sequence>
+        </xs:choice>
         <xs:attribute type="xs:string" name="name" use="required"/>
     </xs:complexType>
     <xs:complexType name="custom-field-multi-entity-select-type">
@@ -366,10 +366,10 @@
         </xs:restriction>
     </xs:simpleType>
     <xs:complexType name="cookies">
-        <xs:sequence>
+        <xs:choice maxOccurs="unbounded">
             <xs:element name="cookie" type="cookie" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="group" type="cookie-group" minOccurs="0" maxOccurs="unbounded"/>
-        </xs:sequence>
+        </xs:choice>
     </xs:complexType>
     <xs:complexType name="cookie-entries">
         <xs:sequence>
@@ -377,20 +377,20 @@
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="cookie">
-        <xs:sequence>
+        <xs:choice maxOccurs="unbounded">
             <xs:element type="xs:string" name="snippet-name"/>
             <xs:element type="xs:string" name="snippet-description" minOccurs="0"/>
             <xs:element type="xs:string" name="cookie"/>
             <xs:element type="xs:string" name="value" minOccurs="0"/>
             <xs:element type="xs:int" name="expiration" minOccurs="0"/>
-        </xs:sequence>
+        </xs:choice>
     </xs:complexType>
     <xs:complexType name="cookie-group">
-        <xs:sequence>
+        <xs:choice maxOccurs="unbounded">
             <xs:element type="xs:string" name="snippet-name"/>
             <xs:element type="xs:string" name="snippet-description" minOccurs="0"/>
             <xs:element name="entries" type="cookie-entries" minOccurs="0"/>
-        </xs:sequence>
+        </xs:choice>
     </xs:complexType>
     <xs:complexType name="payments">
         <xs:sequence>
@@ -398,7 +398,7 @@
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="payment-method">
-        <xs:sequence>
+        <xs:choice maxOccurs="unbounded">
             <xs:element type="xs:string" name="identifier"/>
             <xs:element type="translatableString" name="name" maxOccurs="unbounded"/>
             <xs:element type="translatableString" name="description" maxOccurs="unbounded" minOccurs="0"/>
@@ -411,6 +411,6 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
-        </xs:sequence>
+        </xs:choice>
     </xs:complexType>
 </xs:schema>

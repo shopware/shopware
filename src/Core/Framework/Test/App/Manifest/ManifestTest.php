@@ -32,4 +32,12 @@ class ManifestTest extends TestCase
 
         Manifest::createFromXmlFile(__DIR__ . '/_fixtures/invalidWebhookEventNames/manifest.xml');
     }
+
+    public function testXSChoice(): void
+    {
+        $fixedOrderManifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/xsd/fixedOrderManifest/manifest.xml');
+        $randomOrderManifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/xsd/randomOrderManifest/manifest.xml');
+
+        static::assertEquals($fixedOrderManifest->getMetadata(), $randomOrderManifest->getMetadata());
+    }
 }

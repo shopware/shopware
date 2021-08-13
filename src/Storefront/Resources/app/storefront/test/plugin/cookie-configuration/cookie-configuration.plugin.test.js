@@ -3,6 +3,7 @@
  */
 
 /* eslint-disable-next-line import/no-unresolved */
+import { call } from 'file-loader';
 import CookieStorage from 'src/helper/storage/cookie-storage.helper';
 
 import template from './offcanvas.template.html';
@@ -14,7 +15,7 @@ describe('CookieConfiguration plugin tests', () => {
 
     beforeAll(async () => {
         window.router = {
-            'frontend.cookie.offcanvas': 'https://shop.example.com/offcanvas'
+            'frontend.cookie.offcanvas': 'https://shop.example.com/offcanvas',
         };
 
         const importedCookieConfiguration = await import('src/plugin/cookie/cookie-configuration.plugin');
@@ -26,7 +27,7 @@ describe('CookieConfiguration plugin tests', () => {
         document.body.innerHTML = template;
 
         window.csrf = {
-            enabled: false
+            enabled: false,
         };
 
         window.PluginManager = {
@@ -38,10 +39,10 @@ describe('CookieConfiguration plugin tests', () => {
             },
             getPlugin: () => {
                 return {
-                    get: () => []
+                    get: () => [],
                 };
             },
-            initializePlugins: null
+            initializePlugins: null,
         };
 
         const container = document.createElement('div');
@@ -180,5 +181,14 @@ describe('CookieConfiguration plugin tests', () => {
         plugin._handleSubmit();
 
         expect(CookieStorage.getItem(optionalAndInactive[0])).toBeFalsy();
+    });
+    
+    test('Ensure that it sets the `loadIntoMemory` flag is set if the accept all button is pressed ', () => {
+        const jestFn = jest.fn()
+        plugin._httpClient.get = jestFn;
+    
+        plugin._acceptAllCookiesFromCookieBar();
+           
+        expect(jestFn).toHaveBeenCalledWith('https://shop.example.com/offcanvas', expect.any(Function));
     });
 });

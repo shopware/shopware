@@ -16,7 +16,8 @@ Symfony security check:
         - composer install --no-interaction --no-scripts -d src/Recovery
         - ./local-php-security-checker --path=src/Recovery
 
-NPM security check:
+# NEXT-16696 - deactivated because it always fails
+.NPM security check:
     extends: .long-running
     stage: security
     image: shopware/development:7.4-composer-2

@@ -63,6 +63,12 @@ Component.register('sw-settings-rule-detail-assignments', {
 
                         return criteria;
                     },
+                    api: () => {
+                        const api = Object.assign({}, Context.api);
+                        api.inheritance = true;
+
+                        return api;
+                    },
                     detailRoute: 'sw.product.detail.prices',
                     gridColumns: [
                         {
@@ -221,7 +227,9 @@ Component.register('sw-settings-rule-detail-assignments', {
 
             return Promise
                 .all(this.associationEntities.map((item) => {
-                    return item.repository.search(item.criteria(), Context.api).then((result) => {
+                    const api = item.api ? item.api() : Context.api;
+
+                    return item.repository.search(item.criteria(), api).then((result) => {
                         item.loadedData = result;
                     });
                 }))

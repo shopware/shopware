@@ -54,6 +54,7 @@ E2E:
         - mv $STOREFRONT_PATH/test/e2e/cypress/results/single-reports/*.xml var/log/e2e/ || true
         - mv $ADMIN_PATH/test/e2e/mochareports/ var/log/e2e/ || true
         - mv $STOREFRONT_PATH/test/e2e/mochareports/ var/log/e2e/ || true
+        - !reference [.upload-junit-xml, after_script]
     artifacts:
         when: always
         paths:

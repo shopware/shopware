@@ -483,4 +483,12 @@ class AppEntity extends Entity
     {
         $this->cmsBlocks = $cmsBlocks;
     }
+
+    public function jsonSerialize(): array
+    {
+        $serializedData = parent::jsonSerialize();
+        unset($serializedData['iconRaw']);
+
+        return $serializedData;
+    }
 }

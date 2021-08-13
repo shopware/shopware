@@ -13,6 +13,7 @@ class AsyncFinalizePayload implements PaymentPayloadInterface
 {
     use CloneTrait;
     use JsonSerializableTrait;
+    use RemoveAppTrait;
 
     protected Source $source;
 
@@ -20,7 +21,7 @@ class AsyncFinalizePayload implements PaymentPayloadInterface
 
     public function __construct(OrderTransactionEntity $orderTransaction)
     {
-        $this->orderTransaction = $orderTransaction;
+        $this->orderTransaction = $this->removeApp($orderTransaction);
     }
 
     public function setSource(Source $source): void

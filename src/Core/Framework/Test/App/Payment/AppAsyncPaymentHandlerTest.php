@@ -63,7 +63,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
         static::assertIsArray($content['order']['orderCustomer']['customer']);
         // sensitive data is removed
         static::assertArrayNotHasKey('password', $content['order']['orderCustomer']['customer']);
-        static::assertArrayNotHasKey('app', $content['orderTransaction']['paymentMethod']['appPaymentMethod']);
+        static::assertNull($content['orderTransaction']['paymentMethod']['appPaymentMethod']['app']);
         static::assertArrayHasKey('orderTransaction', $content);
         static::assertIsArray($content['orderTransaction']);
         static::assertCount(4, $content);
@@ -274,6 +274,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
         ], $content['source']);
         static::assertArrayHasKey('orderTransaction', $content);
         static::assertIsArray($content['orderTransaction']);
+        static::assertNull($content['orderTransaction']['paymentMethod']['appPaymentMethod']['app']);
         static::assertCount(2, $content);
         $this->assertOrderTransactionState(OrderTransactionStates::STATE_AUTHORIZED, $transactionId);
     }

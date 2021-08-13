@@ -7,7 +7,6 @@ use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -53,7 +52,7 @@ class AppPaymentMethodDefinition extends EntityDefinition
             new StringField('finalize_url', 'finalizeUrl'),
 
             new FkField('app_id', 'appId', AppDefinition::class),
-            (new ManyToOneAssociationField('app', 'app_id', AppDefinition::class))->removeFlag(ApiAware::class),
+            new ManyToOneAssociationField('app', 'app_id', AppDefinition::class),
 
             new FkField('original_media_id', 'originalMediaId', MediaDefinition::class),
             new ManyToOneAssociationField('originalMedia', 'original_media_id', MediaDefinition::class),

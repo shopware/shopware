@@ -14,6 +14,7 @@ class SyncPayPayload implements PaymentPayloadInterface
 {
     use CloneTrait;
     use JsonSerializableTrait;
+    use RemoveAppTrait;
 
     protected Source $source;
 
@@ -23,7 +24,7 @@ class SyncPayPayload implements PaymentPayloadInterface
 
     public function __construct(OrderTransactionEntity $orderTransaction, OrderEntity $order)
     {
-        $this->orderTransaction = $orderTransaction;
+        $this->orderTransaction = $this->removeApp($orderTransaction);
         $this->order = $order;
     }
 

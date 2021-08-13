@@ -152,14 +152,14 @@ Component.register('sw-settings-rule-detail-assignments', {
 
                         return criteria;
                     },
-                    detailRoute: 'sw.promotion.detail.restrictions',
+                    detailRoute: 'sw.promotion.v2.detail.conditions',
                     gridColumns: [
                         {
                             property: 'name',
                             label: 'Name',
                             rawData: true,
                             sortable: false,
-                            routerLink: 'sw.promotion.detail.restrictions',
+                            routerLink: 'sw.promotion.v2.detail.conditions',
                         },
                     ],
                 },

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -84,7 +85,7 @@ class Criteria extends Struct
     /**
      * @var string[]|array<int, string[]>
      */
-    protected $ids;
+    protected $ids = [];
 
     /**
      * @var bool
@@ -107,14 +108,17 @@ class Criteria extends Struct
     protected $title;
 
     /**
-     * @param string[]|array<int, string[]> $ids
-     *
      * @throws InconsistentCriteriaIdsException
      */
-    public function __construct(array $ids = [])
+    public function __construct(?array $ids = null)
     {
-        if (\count($ids) > \count(array_filter($ids))) {
-            throw new InconsistentCriteriaIdsException();
+        if ($ids === null) {
+            return;
+        }
+
+        $ids = array_filter($ids);
+        if (empty($ids)) {
+            Feature::throwException('FEATURE_NEXT_16710', 'Empty ids provided in criteria');
         }
 
         $this->ids = $ids;

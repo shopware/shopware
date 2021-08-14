@@ -163,7 +163,7 @@ class OrderRoute extends AbstractOrderRoute
         foreach ($order->getLineItems() ?? [] as $lineItem) {
             $payload = $lineItem->getPayload();
             if (isset($payload['promotionId']) && $payload['promotionId'] !== null) {
-                $promotionIds[] = $payload['promotionId'];
+                $promotionIds[] = (string) $payload['promotionId'];
             }
         }
 

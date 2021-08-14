@@ -119,7 +119,7 @@ class AccountEditOrderPageLoader
         if ($request->get('orderId')) {
             $criteria = new Criteria([$request->get('orderId')]);
         } else {
-            $criteria = new Criteria([]);
+            $criteria = new Criteria();
         }
         $criteria->addAssociation('lineItems.cover')
             ->addAssociation('transactions.paymentMethod')
@@ -142,7 +142,7 @@ class AccountEditOrderPageLoader
 
     private function getPaymentMethods(SalesChannelContext $context, Request $request, OrderEntity $order): PaymentMethodCollection
     {
-        $criteria = new Criteria([]);
+        $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('afterOrderEnabled', true));
 
         $routeRequest = new Request();

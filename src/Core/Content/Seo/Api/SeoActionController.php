@@ -15,7 +15,6 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Exception\InvalidSalesChannelIdException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -143,9 +142,14 @@ class SeoActionController extends AbstractController
         $config = $seoUrlRoute->getConfig();
         $repository = $this->getRepository($config);
 
-        /** @var Entity|null $entity */
+        $criteria = new Criteria();
+        if (!empty($fk)) {
+            $criteria = new Criteria([$fk]);
+        }
+        $criteria->setLimit(1);
+
         $entity = $repository
-            ->search((new Criteria($fk ? [$fk] : []))->setLimit(1), $context)
+            ->search($criteria, $context)
             ->first();
 
         if (!$entity) {

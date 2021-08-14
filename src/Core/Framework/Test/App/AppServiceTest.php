@@ -179,7 +179,7 @@ class AppServiceTest extends TestCase
             ],
         ]], $this->context);
 
-        static::assertCount(1, $this->appRepository->searchIds(new Criteria([]), $this->context)->getIds());
+        static::assertCount(1, $this->appRepository->searchIds(new Criteria(), $this->context)->getIds());
 
         $this->appService->doRefreshApps(true, $this->context);
 

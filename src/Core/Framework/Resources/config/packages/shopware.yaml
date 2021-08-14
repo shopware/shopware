@@ -163,6 +163,11 @@ shopware:
               description: "App System Store"
               # issue: NEXT-13469
               # issue: NEXT-13759
+            - name: FEATURE_NEXT_16710
+              default: false
+              major: true
+              description: "Do not allow empty ids provided in criteria"
+              # issue: NEXT-16710
             - name: FEATURE_NEXT_13810
               default: false
               major: true

@@ -86,6 +86,8 @@ class ControllerRateLimiterTest extends TestCase
 
         $this->clearCache();
 
+        $this->getContainer()->get('session')->getFlashBag()->clear();
+
         $this->translator = $this->getContainer()->get('translator');
     }
 

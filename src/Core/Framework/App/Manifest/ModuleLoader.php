@@ -7,6 +7,7 @@ use Psr\Http\Message\UriInterface;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
+use Shopware\Core\Framework\App\Hmac\RequestSigner;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -140,11 +141,11 @@ class ModuleLoader
 
         /** @var string $secret */
         $secret = $app->getAppSecret();
-        $signature = hash_hmac('sha256', $uri->getQuery(), $secret);
+        $signature = (new RequestSigner())->signPayload($uri->getQuery(), $secret);
 
         return (string) Uri::withQueryValue(
             $uri,
-            'shopware-shop-signature',
+            RequestSigner::SHOPWARE_SHOP_SIGNATURE,
             $signature
         );
     }

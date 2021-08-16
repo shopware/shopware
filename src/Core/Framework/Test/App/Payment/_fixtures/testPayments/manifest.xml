@@ -10,6 +10,7 @@
         <author>shopware AG</author>
         <copyright>(c) by shopware AG</copyright>
         <version>1.0.0</version>
+        <icon>../../../Manifest/_fixtures/test/icon.png</icon>
         <license>MIT</license>
         <privacy>https://test.com/privacy</privacy>
     </meta>

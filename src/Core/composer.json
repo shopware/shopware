@@ -99,7 +99,7 @@
         "symfony/monolog-bridge": "~5.3.0",
         "symfony/monolog-bundle": "3.6.0",
         "symfony/options-resolver": "~5.3.0",
-        "symfony/polyfill-php80": "~1.16.0",
+        "symfony/polyfill-php80": "~1.23.0",
         "symfony/process": "~5.3.0",
         "symfony/property-access": "~5.3.0",
         "symfony/property-info": "~5.3.0",

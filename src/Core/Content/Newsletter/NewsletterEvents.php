@@ -2,12 +2,16 @@
 
 namespace Shopware\Core\Content\Newsletter;
 
+use Shopware\Core\Content\Newsletter\Event\NewsletterConfirmEvent;
+use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
+use Shopware\Core\Content\Newsletter\Event\NewsletterUnsubscribeEvent;
+
 class NewsletterEvents
 {
     /**
      * @Event("Shopware\Core\Content\Newsletter\Event\NewsletterConfirmEvent")
      */
-    public const NEWSLETTER_CONFIRM_EVENT = 'newsletter.confirm';
+    public const NEWSLETTER_CONFIRM_EVENT = NewsletterConfirmEvent::class;
 
     /**
      * @Event("Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent")
@@ -42,7 +46,7 @@ class NewsletterEvents
     /**
      * @Event("Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent")
      */
-    public const NEWSLETTER_REGISTER_EVENT = 'newsletter.register';
+    public const NEWSLETTER_REGISTER_EVENT = NewsletterRegisterEvent::class;
 
     /**
      * @Event("Shopware\Core\Content\Newsletter\Event\NewsletterUpdateEvent")
@@ -54,5 +58,5 @@ class NewsletterEvents
     /**
      * @Event("Shopware\Core\Content\Newsletter\Event\NewsletterUnsubscribeEvent")
      */
-    public const NEWSLETTER_UNSUBSCRIBE_EVENT = 'newsletter.unsubscribe';
+    public const NEWSLETTER_UNSUBSCRIBE_EVENT = NewsletterUnsubscribeEvent::class;
 }

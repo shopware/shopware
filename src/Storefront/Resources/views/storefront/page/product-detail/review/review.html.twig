@@ -53,7 +53,7 @@
 							{% block page_product_detail_review_form_container %}
 								<div class="collapse multi-collapse {% if ratingSuccess == -1 %}show{% endif %}"
 									 id="review-form">
-									{% if context.customer %}
+									{% if context.customer and not context.customer.guest %}
 										<div class="product-detail-review-form">
 											{% sw_include '@Storefront/storefront/page/product-detail/review/review-form.html.twig' %}
 										</div>

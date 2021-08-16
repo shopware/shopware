@@ -207,10 +207,13 @@ This file contains the generic styling for all filter items.
     align-items: center;
     padding: 25px;
     display: none;
+}
 
-    h3 {
-        margin-bottom: 0;
-    }
+.filter-panel-offcanvas-title {
+    margin-bottom: 0;
+    font-size: $h3-font-size;
+    font-weight: $font-weight-bold;
+    color: $headings-color;
 }
 
 .filter-panel-offcanvas-close {

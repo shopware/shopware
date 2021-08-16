@@ -102,6 +102,14 @@ async function addAndCheckSelection(wrapper, element, start, end, text) {
     expect(wrapper.vm.selection).toBe(selection);
 }
 
+async function clearSelection(wrapper) {
+    const selection = document.getSelection();
+    selection.removeAllRanges();
+    document.dispatchEvent(new Event('mouseup'));
+    wrapper.vm.selection = null;
+    await wrapper.vm.$nextTick();
+}
+
 describe('src/app/component/form/sw-text-editor', () => {
     /** @type Wrapper */
     let wrapper;
@@ -411,5 +419,218 @@ describe('src/app/component/form/sw-text-editor', () => {
         const inlineMappingButton = wrapper.find('.sw-text-editor-toolbar-button__type-data-mapping');
 
         expect(inlineMappingButton.exists()).toBe(false);
+    });
+
+    it('should show the link url when you select a text block with a link', async () => {
+        wrapper = createWrapper();
+
+        await addTextToEditor(wrapper, `
+            <p id="paragraphWithoutLink">No Link</p>
+
+            <p id="paragraphWithLink">
+                <a id="linkText" href="http://shopware.com" target="_self">Shopware</a>
+            </p>
+        `);
+
+        // select "Shopware"
+        const linkText = document.getElementById('linkText');
+        await addAndCheckSelection(wrapper, linkText, 0, 8, 'Shopware');
+        document.dispatchEvent(new Event('mouseup'));
+
+        // click on link button
+        const linkButtonIcon = wrapper.find('.sw-text-editor-toolbar-button__type-link .sw-text-editor-toolbar-button__icon');
+        await linkButtonIcon.trigger('click');
+
+        // link menu should be opened
+        const linkMenu = wrapper.find('.sw-text-editor-toolbar-button__link-menu');
+        expect(linkMenu.exists()).toBe(true);
+
+        // input field should contain the correct url value
+        const linkInput = linkMenu.find('#sw-field--buttonConfig-value');
+        expect(linkInput.exists()).toBe(true);
+        expect(linkInput.element.value).toBe('http://shopware.com');
+
+        // switch field should contain correct newTab value
+        const newTabSwitch = wrapper.find('input[name="sw-field--buttonConfig-newTab"]');
+        expect(newTabSwitch.element.checked).toBe(false);
+    });
+
+    it('should show the link url with newTab active when you select a text block with a link', async () => {
+        wrapper = createWrapper();
+
+        await addTextToEditor(wrapper, `
+            <p id="paragraphWithoutLink">No Link</p>
+
+            <p id="paragraphWithLink">
+                <a id="linkText" href="http://shopware.com" target="_blank">Shopware</a>
+            </p>
+        `);
+
+        // select "Shopware"
+        const linkText = document.getElementById('linkText');
+        await addAndCheckSelection(wrapper, linkText, 0, 8, 'Shopware');
+        document.dispatchEvent(new Event('mouseup'));
+
+        // click on link button
+        const linkButtonIcon = wrapper.find('.sw-text-editor-toolbar-button__type-link .sw-text-editor-toolbar-button__icon');
+        await linkButtonIcon.trigger('click');
+
+        // link menu should be opened
+        const linkMenu = wrapper.find('.sw-text-editor-toolbar-button__link-menu');
+        expect(linkMenu.exists()).toBe(true);
+
+        // input field should contain the correct url value
+        const linkInput = linkMenu.find('#sw-field--buttonConfig-value');
+        expect(linkInput.exists()).toBe(true);
+        expect(linkInput.element.value).toBe('http://shopware.com');
+
+        // switch field should contain correct newTab value
+        const newTabSwitch = wrapper.find('input[name="sw-field--buttonConfig-newTab"]');
+        expect(newTabSwitch.element.checked).toBe(true);
+    });
+
+    it('should show no link url when you select a text block without a link', async () => {
+        wrapper = createWrapper();
+
+        await addTextToEditor(wrapper, `
+            <p id="paragraphWithoutLink">No link</p>
+
+            <p id="paragraphWithLink">
+                <a id="linkText" href="http://shopware.com" target="_blank">Shopware</a>
+            </p>
+        `);
+
+        // select "No Link"
+        const paragraphWithoutLink = document.getElementById('paragraphWithoutLink');
+        await addAndCheckSelection(wrapper, paragraphWithoutLink, 0, 7, 'No link');
+        document.dispatchEvent(new Event('mouseup'));
+
+        // click on link button
+        const linkButtonIcon = wrapper.find('.sw-text-editor-toolbar-button__type-link .sw-text-editor-toolbar-button__icon');
+        await linkButtonIcon.trigger('click');
+
+        // link menu should be opened
+        const linkMenu = wrapper.find('.sw-text-editor-toolbar-button__link-menu');
+        expect(linkMenu.exists()).toBe(true);
+
+        // input field should contain the correct url value
+        const linkInput = linkMenu.find('#sw-field--buttonConfig-value');
+        expect(linkInput.exists()).toBe(true);
+        expect(linkInput.element.value).toBe('');
+
+        // switch field should contain correct newTab value
+        const newTabSwitch = wrapper.find('input[name="sw-field--buttonConfig-newTab"]');
+        expect(newTabSwitch.element.checked).toBe(false);
+    });
+
+    it('should be able to switch from active link to non link text', async () => {
+        wrapper = createWrapper();
+
+        await addTextToEditor(wrapper, `
+            <p id="paragraphWithoutLink">No link</p>
+
+            <p id="paragraphWithLink">
+                <a id="linkText" href="http://shopware.com" target="_blank">Shopware</a>
+            </p>
+        `);
+
+        // select "Shopware"
+        const linkText = document.getElementById('linkText');
+        await addAndCheckSelection(wrapper, linkText, 0, 8, 'Shopware');
+        document.dispatchEvent(new Event('mouseup'));
+
+        // click on link button
+        let linkButtonIcon = wrapper.find('.sw-text-editor-toolbar-button__type-link .sw-text-editor-toolbar-button__icon');
+        await linkButtonIcon.trigger('click');
+
+        // link menu should be opened
+        let linkMenu = wrapper.find('.sw-text-editor-toolbar-button__link-menu');
+        expect(linkMenu.exists()).toBe(true);
+
+        // input field should contain the correct url value
+        let linkInput = linkMenu.find('#sw-field--buttonConfig-value');
+        expect(linkInput.exists()).toBe(true);
+        expect(linkInput.element.value).toBe('http://shopware.com');
+
+        // switch field should contain correct newTab value
+        let newTabSwitch = wrapper.find('input[name="sw-field--buttonConfig-newTab"]');
+        expect(newTabSwitch.element.checked).toBe(true);
+
+        // select "No Link" after the "Shopware" link was selected before
+        const paragraphWithoutLink = document.getElementById('paragraphWithoutLink');
+        await clearSelection(wrapper);
+        await addAndCheckSelection(wrapper, paragraphWithoutLink, 0, 7, 'No link');
+        document.dispatchEvent(new Event('mouseup'));
+
+        // click on link button
+        linkButtonIcon = wrapper.find('.sw-text-editor-toolbar-button__type-link .sw-text-editor-toolbar-button__icon');
+        await linkButtonIcon.trigger('click');
+
+        // link menu should be opened
+        linkMenu = wrapper.find('.sw-text-editor-toolbar-button__link-menu');
+        expect(linkMenu.exists()).toBe(true);
+
+        // input field should contain the correct url value
+        linkInput = linkMenu.find('#sw-field--buttonConfig-value');
+        expect(linkInput.exists()).toBe(true);
+        expect(linkInput.element.value).toBe('');
+
+        // switch field should contain correct newTab value
+        newTabSwitch = wrapper.find('input[name="sw-field--buttonConfig-newTab"]');
+        expect(newTabSwitch.element.checked).toBe(false);
+    });
+
+    it('should be able to switch from one link to another link', async () => {
+        wrapper = createWrapper();
+
+        await addTextToEditor(wrapper, `
+            <a id="linkOne" href="http://shopware.com" target="_blank">Shopware</a>
+            <a id="linkTwo" href="http://google.com" target="_self">Google</a>
+        `);
+
+        // select "Shopware"
+        const linkOne = document.getElementById('linkOne');
+        await addAndCheckSelection(wrapper, linkOne, 0, 8, 'Shopware');
+        document.dispatchEvent(new Event('mouseup'));
+
+        // click on link button
+        let linkButtonIcon = wrapper.find('.sw-text-editor-toolbar-button__type-link .sw-text-editor-toolbar-button__icon');
+        await linkButtonIcon.trigger('click');
+
+        // link menu should be opened
+        let linkMenu = wrapper.find('.sw-text-editor-toolbar-button__link-menu');
+        expect(linkMenu.exists()).toBe(true);
+
+        // input field should contain the correct url value
+        let linkInput = linkMenu.find('#sw-field--buttonConfig-value');
+        expect(linkInput.exists()).toBe(true);
+        expect(linkInput.element.value).toBe('http://shopware.com');
+
+        // switch field should contain correct newTab value
+        let newTabSwitch = wrapper.find('input[name="sw-field--buttonConfig-newTab"]');
+        expect(newTabSwitch.element.checked).toBe(true);
+
+        // select "Google" after the "Shopware" link was selected before
+        const linkTwo = document.getElementById('linkTwo');
+        await clearSelection(wrapper);
+        await addAndCheckSelection(wrapper, linkTwo, 0, 6, 'Google');
+        document.dispatchEvent(new Event('mouseup'));
+
+        // click on link button
+        linkButtonIcon = wrapper.find('.sw-text-editor-toolbar-button__type-link .sw-text-editor-toolbar-button__icon');
+        await linkButtonIcon.trigger('click');
+
+        // link menu should be opened
+        linkMenu = wrapper.find('.sw-text-editor-toolbar-button__link-menu');
+        expect(linkMenu.exists()).toBe(true);
+
+        // input field should contain the correct url value
+        linkInput = linkMenu.find('#sw-field--buttonConfig-value');
+        expect(linkInput.exists()).toBe(true);
+        expect(linkInput.element.value).toBe('http://google.com');
+
+        // switch field should contain correct newTab value
+        newTabSwitch = wrapper.find('input[name="sw-field--buttonConfig-newTab"]');
+        expect(newTabSwitch.element.checked).toBe(false);
     });
 });

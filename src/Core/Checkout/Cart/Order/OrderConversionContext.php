@@ -26,6 +26,8 @@ class OrderConversionContext extends Struct
      */
     protected $includeTransactions = true;
 
+    protected bool $includeOrderDate = true;
+
     public function shouldIncludeCustomer(): bool
     {
         return $this->includeCustomer;
@@ -70,6 +72,18 @@ class OrderConversionContext extends Struct
     public function setIncludeTransactions(bool $includeTransactions): OrderConversionContext
     {
         $this->includeTransactions = $includeTransactions;
+
+        return $this;
+    }
+
+    public function shouldIncludeOrderDate(): bool
+    {
+        return $this->includeOrderDate;
+    }
+
+    public function setIncludeOrderDate(bool $includeOrderDate): OrderConversionContext
+    {
+        $this->includeOrderDate = $includeOrderDate;
 
         return $this;
     }

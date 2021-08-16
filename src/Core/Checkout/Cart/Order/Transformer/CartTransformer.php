@@ -10,12 +10,11 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class CartTransformer
 {
-    public static function transform(Cart $cart, SalesChannelContext $context, string $stateId): array
+    public static function transform(Cart $cart, SalesChannelContext $context, string $stateId, bool $setOrderDate = true): array
     {
         $currency = $context->getCurrency();
 
         $data = [
-            'orderDateTime' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'price' => $cart->getPrice(),
             'shippingCosts' => $cart->getShippingCosts(),
             'stateId' => $stateId,
@@ -29,6 +28,10 @@ class CartTransformer
             'affiliateCode' => $cart->getAffiliateCode(),
             'campaignCode' => $cart->getCampaignCode(),
         ];
+
+        if ($setOrderDate) {
+            $data['orderDateTime'] = (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+        }
 
         $data['itemRounding'] = json_decode(JsonFieldSerializer::encodeJson($context->getItemRounding()), true);
         $data['totalRounding'] = json_decode(JsonFieldSerializer::encodeJson($context->getTotalRounding()), true);

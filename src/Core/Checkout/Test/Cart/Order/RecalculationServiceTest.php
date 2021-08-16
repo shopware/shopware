@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryCalculator;
-use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
@@ -61,20 +60,11 @@ class RecalculationServiceTest extends TestCase
     use TaxAddToSalesChannelTestBehaviour;
     use CountryAddToSalesChannelTestBehaviour;
 
-    /**
-     * @var SalesChannelContext
-     */
-    protected $salesChannelContext;
+    protected SalesChannelContext $salesChannelContext;
 
-    /**
-     * @var Context
-     */
-    protected $context;
+    protected Context $context;
 
-    /**
-     * @var string
-     */
-    protected $customerId;
+    protected string $customerId;
 
     protected function setUp(): void
     {
@@ -503,68 +493,64 @@ class RecalculationServiceTest extends TestCase
     {
         // create order
         $cart = $this->generateDemoCart();
-        $order = $this->persistCart($cart);
-        $orderId = $order['orderId'];
-        $oldTotal = $order['total'];
+        ['orderId' => $orderId, 'total' => $oldTotal, 'orderDateTime' => $orderDateTime] = $this->persistCart($cart);
 
         // create version of order
         $versionId = $this->createVersionedOrder($orderId);
 
-        $this->addCustomLineItemToVersionedOrder($orderId, $versionId, $oldTotal);
+        $this->addCustomLineItemToVersionedOrder($orderId, $versionId, $oldTotal, $orderDateTime);
     }
 
     public function testAddCreditItemToOrder(): void
     {
         // create order
         $cart = $this->generateDemoCart();
-        $order = $this->persistCart($cart);
+        ['orderId' => $orderId, 'total' => $total, 'orderDateTime' => $orderDateTime] = $this->persistCart($cart);
 
         // create version of order
-        $versionId = $this->createVersionedOrder($order['orderId']);
+        $versionId = $this->createVersionedOrder($orderId);
 
-        $this->addCreditItemToVersionedOrder($order['orderId'], $versionId, $order['total']);
+        $this->addCreditItemToVersionedOrder($orderId, $versionId, $total, $orderDateTime);
     }
 
     public function testAddPromotionItemToOrder(): void
     {
         // create order
         $cart = $this->generateDemoCart();
-        $order = $this->persistCart($cart);
+        ['orderId' => $orderId, 'orderDateTime' => $orderDateTime] = $this->persistCart($cart);
 
         // create version of order
-        $versionId = $this->createVersionedOrder($order['orderId']);
+        $versionId = $this->createVersionedOrder($orderId);
 
         // create a promotion code with discount
         $code = 'GET5';
         $discountValue = 5.0;
         $this->createPromotion($discountValue, $code);
 
-        $this->addPromotionItemToVersionedOrder($order['orderId'], $versionId, $code);
+        $this->addPromotionItemToVersionedOrder($orderId, $versionId, $code, $orderDateTime);
     }
 
     public function testToggleAutomaticPromotions(): void
     {
         // create order
         $cart = $this->generateDemoCart();
-        $order = $this->persistCart($cart);
+        ['orderId' => $orderId, 'orderDateTime' => $orderDateTime] = $this->persistCart($cart);
 
         // create version of order
-        $versionId = $this->createVersionedOrder($order['orderId']);
+        $versionId = $this->createVersionedOrder($orderId);
 
         // create an automatic promotion with discount
         $discountValue = 5.0;
         $promotionId = $this->createPromotion($discountValue);
 
-        $this->toggleAutomaticPromotions($order['orderId'], $versionId, $promotionId);
+        $this->toggleAutomaticPromotions($orderId, $versionId, $promotionId, $orderDateTime);
     }
 
     public function testCreatedVersionedOrderAndMerge(): void
     {
         // create order
         $cart = $this->generateDemoCart();
-        $oldOrder = $this->persistCart($cart);
-        $orderId = $oldOrder['orderId'];
-        $oldTotal = $oldOrder['total'];
+        ['orderId' => $orderId, 'total' => $oldTotal, 'orderDateTime' => $orderDateTime] = $this->persistCart($cart);
 
         // create version of order
         $versionId = $this->createVersionedOrder($orderId);
@@ -614,6 +600,7 @@ class RecalculationServiceTest extends TestCase
         /** @var TaxRule $taxRule */
         $taxRule = $product->getPrice()->getTaxRules()->first();
         static::assertSame($taxRule->getTaxRate(), $productTaxRate);
+        static::assertEquals($order->getOrderDateTime(), $orderDateTime);
     }
 
     public function testChangeShippingCosts(): void
@@ -1193,7 +1180,7 @@ class RecalculationServiceTest extends TestCase
         /** @var OrderEntity $order */
         $order = $this->getContainer()->get('order.repository')->search($criteria, $this->salesChannelContext->getContext())->get($orderId);
 
-        return ['orderId' => $orderId, 'total' => $order->getPrice()->getTotalPrice()];
+        return ['orderId' => $orderId, 'total' => $order->getPrice()->getTotalPrice(), 'orderDateTime' => $order->getOrderDateTime()];
     }
 
     private function createVersionedOrder(string $orderId): string
@@ -1287,7 +1274,7 @@ class RecalculationServiceTest extends TestCase
         return $productId;
     }
 
-    private function addCustomLineItemToVersionedOrder(string $orderId, string $versionId, float $oldTotal): void
+    private function addCustomLineItemToVersionedOrder(string $orderId, string $versionId, float $oldTotal, \DateTimeInterface $orderDateTime): void
     {
         $identifier = Uuid::randomHex();
         $data = [
@@ -1356,10 +1343,11 @@ class RecalculationServiceTest extends TestCase
         static::assertSame($calculatedTaxes->getTaxRate(), 19.0);
         static::assertSame($calculatedTaxes->getTax(), 53.18);
 
+        static::assertEquals($order->getOrderDateTime(), $orderDateTime);
         static::assertSame($customLineItem->getPrice()->getTotalPrice() + $oldTotal, $order->getAmountTotal());
     }
 
-    private function addCreditItemToVersionedOrder(string $orderId, string $versionId, float $oldTotal): void
+    private function addCreditItemToVersionedOrder(string $orderId, string $versionId, float $oldTotal, \DateTimeInterface $orderDateTime): void
     {
         $orderRepository = $this->getContainer()->get('order.repository');
 
@@ -1418,10 +1406,11 @@ class RecalculationServiceTest extends TestCase
         $tax5 = $taxRules->getElements()[5];
         static::assertEquals(5, $tax5->getTaxRate());
 
+        static::assertEquals($order->getOrderDateTime(), $orderDateTime);
         static::assertEquals($creditAmount, $tax19->getPrice() + $tax5->getPrice());
     }
 
-    private function addPromotionItemToVersionedOrder(string $orderId, string $versionId, string $code): void
+    private function addPromotionItemToVersionedOrder(string $orderId, string $versionId, string $code, \DateTimeInterface $orderDateTime): void
     {
         $orderRepository = $this->getContainer()->get('order.repository');
 
@@ -1453,6 +1442,7 @@ class RecalculationServiceTest extends TestCase
         $order = $orderRepository->search($criteria, $this->context->createWithVersionId($versionId))->get($orderId);
         static::assertNotEmpty($order);
         static::assertCount(3, $order->getLineItems());
+        static::assertEquals($order->getOrderDateTime(), $orderDateTime);
 
         $promotionItem = $order->getLineItems()->filterByProperty('referencedId', $code)->first();
 
@@ -1465,7 +1455,7 @@ class RecalculationServiceTest extends TestCase
         static::assertEquals($errors[0]['message'], 'Discount GET5 has been added');
     }
 
-    private function toggleAutomaticPromotions(string $orderId, string $versionId, string $promotionId): void
+    private function toggleAutomaticPromotions(string $orderId, string $versionId, string $promotionId, \DateTimeInterface $orderDateTime): void
     {
         $orderRepository = $this->getContainer()->get('order.repository');
 
@@ -1497,6 +1487,7 @@ class RecalculationServiceTest extends TestCase
         $order = $orderRepository->search($criteria, $this->context->createWithVersionId($versionId))->get($orderId);
         static::assertNotEmpty($order);
         static::assertCount(3, $order->getLineItems());
+        static::assertEquals($order->getOrderDateTime(), $orderDateTime);
 
         $promotionItem = $order->getLineItems()->filterByProperty('type', 'promotion')->first();
 

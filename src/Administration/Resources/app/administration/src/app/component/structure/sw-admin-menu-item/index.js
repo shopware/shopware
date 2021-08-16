@@ -160,7 +160,7 @@ Component.register('sw-admin-menu-item', {
                 compareTo = this.$route?.name;
             }
 
-            if (this.entry.path) {
+            if (this.entry.path && meta.$module.name !== 'sales-channel') {
                 return compareTo ? compareTo.replace(/-/g, '.').indexOf(path.replace(/\.index/g, '')) === 0 : false;
             }
 

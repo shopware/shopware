@@ -10,8 +10,8 @@
         </a>
     <?php endforeach; ?>
 </div>
-<script type="text/javascript" src="<?= $baseUrl; ?>../assets/common/javascript/legacy-browser.js"></script>
-<script type="text/javascript" src="<?= $baseUrl; ?>../assets/common/javascript/jquery-3.4.1.min.js"></script>
-<script type="text/javascript" src="<?= $baseUrl; ?>../assets/install/javascript/jquery.installer.js"></script>
+<script type="text/javascript" src="<?= $baseUrl; ?>../assets/common/javascript/legacy-browser.js?v=<?= $version; ?>"></script>
+<script type="text/javascript" src="<?= $baseUrl; ?>../assets/common/javascript/jquery-3.4.1.min.js?v=<?= $version; ?>"></script>
+<script type="text/javascript" src="<?= $baseUrl; ?>../assets/install/javascript/jquery.installer.js?v=<?= $version; ?>"></script>
 </body>
 </html>

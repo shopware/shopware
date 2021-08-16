@@ -11,10 +11,10 @@
     <meta name="msapplication-TileColor" content="#189eff">
     <meta name="theme-color" content="#189eff">
 
-    <link rel="stylesheet" type="text/css" href="<?= $baseUrl; ?>../assets/common/styles/reset.css" media="all"/>
-    <link rel="stylesheet" type="text/css" href="<?= $baseUrl; ?>../assets/common/styles/fonts.css" media="all"/>
-    <link rel="stylesheet" type="text/css" href="<?= $baseUrl; ?>../assets/common/styles/icons.css" media="all"/>
-    <link rel="stylesheet" type="text/css" href="<?= $baseUrl; ?>../assets/common/styles/style.css" media="all"/>
+    <link rel="stylesheet" type="text/css" href="<?= $baseUrl; ?>../assets/common/styles/reset.css?v=<?= $version; ?>" media="all"/>
+    <link rel="stylesheet" type="text/css" href="<?= $baseUrl; ?>../assets/common/styles/fonts.css?v=<?= $version; ?>" media="all"/>
+    <link rel="stylesheet" type="text/css" href="<?= $baseUrl; ?>../assets/common/styles/icons.css?v=<?= $version; ?>" media="all"/>
+    <link rel="stylesheet" type="text/css" href="<?= $baseUrl; ?>../assets/common/styles/style.css?v=<?= $version; ?>" media="all"/>
 
     <script>
         var shopwareTranslations = {

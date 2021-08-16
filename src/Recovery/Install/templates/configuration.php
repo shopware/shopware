@@ -263,7 +263,7 @@ echo $app->getContainer()->get('renderer')->fetch('_header.php'); ?>
     </div>
 </form>
 
-<script src="<?= $baseUrl; ?>../assets/common/javascript/default-currency-selector.js"></script>
+<script src="<?= $baseUrl; ?>../assets/common/javascript/default-currency-selector.js?v=<?= $version; ?>"></script>
 
 <script>
     const selectField = document.querySelector('#c_config_shop_currency');

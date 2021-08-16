@@ -173,6 +173,9 @@
         "labelLatestDocuments": "Add (latest) documents",
         "placeholderLatestDocuments": "Add documents...",
         "documentDescription": "If the selected document doesn't exist you'll have to generate it first. Otherwise no documents will be send."
+      },
+      "confirmation": {
+        "textConfirmChangeTrigger": "Are you sure you want to change the trigger event? <br> Flow sequence will reset if you press on Confirm button."
       }
     }
   },

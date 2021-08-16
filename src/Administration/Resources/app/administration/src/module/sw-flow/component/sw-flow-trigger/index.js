@@ -2,7 +2,7 @@ import template from './sw-flow-trigger.html.twig';
 import './sw-flow-trigger.scss';
 
 const { Component, State } = Shopware;
-const { mapPropertyErrors, mapState } = Component.getComponentHelper();
+const { mapPropertyErrors, mapState, mapGetters } = Component.getComponentHelper();
 const utils = Shopware.Utils;
 const { capitalizeString } = Shopware.Utils.string;
 
@@ -39,6 +39,8 @@ Component.register('sw-flow-trigger', {
             selectedTreeItem: {},
             setInputFocusClass: null,
             removeInputFocusClass: null,
+            showConfirmModal: false,
+            triggerSelect: {},
         };
     },
 
@@ -65,6 +67,7 @@ Component.register('sw-flow-trigger', {
         },
 
         ...mapState('swFlowState', ['flow']),
+        ...mapGetters('swFlowState', ['isSequenceEmpty']),
         ...mapPropertyErrors('flow', ['eventName']),
     },
 
@@ -499,10 +502,25 @@ Component.register('sw-flow-trigger', {
                 return;
             }
 
-            const { id } = item.data;
+            if (this.isSequenceEmpty) {
+                const { id } = item.data;
 
-            State.commit('swFlowState/setTriggerEvent', this.getDataByEvent(item.id));
-            this.$emit('option-select', id);
+                State.commit('swFlowState/setTriggerEvent', this.getDataByEvent(id));
+                this.$emit('option-select', id);
+            } else {
+                this.showConfirmModal = true;
+                this.triggerSelect = this.getDataByEvent(item.id);
+            }
+        },
+
+        onConfirm() {
+            State.commit('swFlowState/setTriggerEvent', this.triggerSelect);
+            this.$emit('option-select', this.triggerSelect.name);
+        },
+
+        onCloseConfirm() {
+            this.showConfirmModal = false;
+            this.triggerSelect = {};
         },
 
 
@@ -608,10 +626,16 @@ Component.register('sw-flow-trigger', {
         },
 
         onClickSearchItem(item) {
-            this.$emit('option-select', item.name);
-            State.commit('swFlowState/setTriggerEvent', item);
             this.searchTerm = this.formatEventName;
             this.searchResult = [];
+
+            if (this.isSequenceEmpty) {
+                this.$emit('option-select', item.name);
+                State.commit('swFlowState/setTriggerEvent', item);
+            } else {
+                this.showConfirmModal = true;
+                this.triggerSelect = item;
+            }
         },
 
         getEventName(eventName) {

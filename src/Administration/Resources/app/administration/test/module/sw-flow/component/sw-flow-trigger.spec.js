@@ -9,6 +9,41 @@ import 'src/app/component/utils/sw-vnode-renderer';
 
 import Vuex from 'vuex';
 import flowState from 'src/module/sw-flow/state/flow.state';
+import EntityCollection from 'src/core/data/entity-collection.data';
+import { ACTION } from 'src/module/sw-flow/constant/flow.constant';
+
+function getSequencesCollection(collection = []) {
+    return new EntityCollection(
+        '/flow_sequence',
+        'flow_sequence',
+        null,
+        { isShopwareContext: true },
+        collection,
+        collection.length,
+        null
+    );
+}
+
+const sequenceFixture = {
+    id: '2',
+    actionName: '',
+    ruleId: null,
+    parentId: '1',
+    position: 1,
+    displayGroup: 1,
+    trueCase: false,
+    config: {
+        entity: 'Customer',
+        tagIds: ['123']
+    }
+};
+
+const sequencesFixture = [
+    {
+        ...sequenceFixture,
+        actionName: ACTION.ADD_TAG
+    }
+];
 
 const mockBusinessEvents = [
     {
@@ -50,7 +85,10 @@ function createWrapper(propsData) {
                 template: '<div></div>'
             },
             'sw-vnode-renderer': Shopware.Component.build('sw-vnode-renderer'),
-            'sw-highlight-text': true
+            'sw-highlight-text': true,
+            'sw-flow-event-change-confirm-modal': {
+                template: '<div class="sw-flow-event-change-confirm-modal"></div>'
+            }
         },
         provide: {
             businessEventService: {
@@ -437,5 +475,56 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
         const emittedEvent = wrapper.emitted()['option-select'];
         expect(emittedEvent).toBeTruthy();
         expect(emittedEvent[0]).toEqual(['checkout.customer.before.login']);
+    });
+
+    it('should show confirmation modal when clicking tree item', async () => {
+        Shopware.State.commit('swFlowState/setSequences',
+            getSequencesCollection(sequencesFixture));
+        const wrapper = await createWrapper();
+
+        const searchField = wrapper.find('.sw-flow-trigger__input-field');
+        await searchField.trigger('focus');
+
+        const treeItem = wrapper.find('.tree-items .sw-tree-item:first-child .sw-tree-item__toggle');
+        await treeItem.trigger('click');
+
+        await wrapper.find('.sw-tree-item__children .sw-tree-item:first-child .sw-tree-item__toggle')
+            .trigger('click');
+
+        const transitionStub = wrapper.find('transition-stub')
+            .find('.sw-tree-item__children transition-stub .sw-tree-item:last-child');
+
+        await transitionStub.find('.sw-tree-item__content .tree-link').trigger('click');
+
+        const isSequenceEmpty = Shopware.State.getters['swFlowState/isSequenceEmpty'];
+
+        expect(isSequenceEmpty).toEqual(false);
+        expect(wrapper.find('.sw-flow-event-change-confirm-modal').exists()).toBeTruthy();
+    });
+
+    it('should show confirmation modal when pressing Enter on search item', async () => {
+        Shopware.State.commit('swFlowState/setSequences',
+            getSequencesCollection(sequencesFixture));
+
+        const wrapper = await createWrapper();
+        await wrapper.vm.$nextTick();
+
+        const searchField = wrapper.find('.sw-flow-trigger__input-field');
+        await searchField.trigger('focus');
+
+
+        await searchField.setValue('checkout');
+        await searchField.trigger('input');
+
+        window.document.dispatchEvent(new KeyboardEvent('keydown', {
+            key: 'Enter'
+        }));
+
+        await wrapper.vm.$nextTick();
+
+        const isSequenceEmpty = Shopware.State.getters['swFlowState/isSequenceEmpty'];
+
+        expect(isSequenceEmpty).toEqual(false);
+        expect(wrapper.find('.sw-flow-event-change-confirm-modal').exists()).toBeTruthy();
     });
 });

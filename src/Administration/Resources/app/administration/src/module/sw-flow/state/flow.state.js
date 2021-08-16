@@ -110,6 +110,19 @@ export default {
             return state.flow.sequences;
         },
 
+        isSequenceEmpty(state) {
+            if (!state.flow.sequences.length) {
+                return true;
+            }
+
+            if (state.flow.sequences.length > 1) {
+                return false;
+            }
+
+            const firstSequence = state.flow.sequences.first();
+            return !firstSequence.actionName && !firstSequence.ruleId;
+        },
+
         availableActions(state) {
             if (!state.triggerEvent || !state.triggerActions) return [];
 

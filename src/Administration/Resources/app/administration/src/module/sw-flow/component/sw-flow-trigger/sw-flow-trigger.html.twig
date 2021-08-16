@@ -160,5 +160,13 @@
         {% endblock %}
     </transition>
     {% endblock %}
+
+    {% block sw_flow_event_change_confirm_modal %}
+    <sw-flow-event-change-confirm-modal
+        v-if="showConfirmModal"
+        @modal-confirm="onConfirm"
+        @modal-close="onCloseConfirm"
+    />
+    {% endblock %}
 </div>
 {% endblock %}

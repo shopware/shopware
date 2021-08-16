@@ -97,41 +97,39 @@ class OrderRoute extends AbstractOrderRoute
             ->addFilter(new EqualsFilter('sent', true));
 
         $criteria->addAssociation('billingAddress');
+        $criteria->addAssociation('orderCustomer.customer');
+
+        /** @var EqualsFilter|null $deepLinkFilter */
+        $deepLinkFilter = \current(array_filter($criteria->getFilters(), static function (Filter $filter) {
+            return \in_array('order.deepLinkCode', $filter->getFields(), true)
+                || \in_array('deepLinkCode', $filter->getFields(), true);
+        })) ?: null;
 
         if ($context->getCustomer()) {
             $criteria->addFilter(new EqualsFilter('order.orderCustomer.customerId', $context->getCustomer()->getId()));
-        } elseif (!$criteria->hasEqualsFilter('deepLinkCode')) {
+        } elseif ($deepLinkFilter === null) {
             throw new CustomerNotLoggedInException();
         }
 
         $orders = $this->orderRepository->search($criteria, $context->getContext());
 
-        if ($criteria->hasEqualsFilter('deepLinkCode')) {
+        if ($deepLinkFilter !== false) {
             $orders = $this->filterOldOrders($orders);
         }
 
         // Handle guest authentication if deeplink is set
-        if (!$context->getCustomer() && $criteria->hasEqualsFilter('deepLinkCode')) {
+        if (!$context->getCustomer() && $deepLinkFilter !== null) {
             if (Feature::isActive('FEATURE_NEXT_13795')) {
-                $filters = array_filter($criteria->getFilters(), function (Filter $filter) {
-                    return \in_array('deepLinkCode', $filter->getFields(), true);
-                });
+                try {
+                    $cacheKey = strtolower($deepLinkFilter->getValue()) . '-' . $request->getClientIp();
 
-                /** @var EqualsFilter|null $deepLinkCode */
-                $deepLinkCode = \count($filters) > 0 ? $filters[0] : null;
-
-                if ($deepLinkCode !== null) {
-                    try {
-                        $cacheKey = strtolower($deepLinkCode->getValue()) . '-' . $request->getClientIp();
-
-                        $this->rateLimiter->ensureAccepted(RateLimiter::GUEST_LOGIN, $cacheKey);
-                    } catch (RateLimitExceededException $exception) {
-                        throw new CustomerAuthThrottledException($exception->getWaitTime(), $exception);
-                    }
+                    $this->rateLimiter->ensureAccepted(RateLimiter::GUEST_LOGIN, $cacheKey);
+                } catch (RateLimitExceededException $exception) {
+                    throw new CustomerAuthThrottledException($exception->getWaitTime(), $exception);
                 }
             }
 
-            /** @var OrderEntity $order */
+            /** @var OrderEntity|null $order */
             $order = $orders->first();
             $this->checkGuestAuth($order, $request);
         }
@@ -234,8 +232,12 @@ class OrderRoute extends AbstractOrderRoute
      * @throws WrongGuestCredentialsException
      * @throws GuestNotAuthenticatedException
      */
-    private function checkGuestAuth(OrderEntity $order, Request $request): void
+    private function checkGuestAuth(?OrderEntity $order, Request $request): void
     {
+        if ($order === null) {
+            throw new GuestNotAuthenticatedException();
+        }
+
         $orderCustomer = $order->getOrderCustomer();
         if ($orderCustomer === null) {
             throw new CustomerNotLoggedInException();
@@ -249,8 +251,7 @@ class OrderRoute extends AbstractOrderRoute
 
         // Verify email and zip code with this order
         if ($request->get('email', false) && $request->get('zipcode', false)) {
-            $orderAddresses = $order->getAddresses();
-            $billingAddress = $orderAddresses !== null ? $orderAddresses->get($order->getBillingAddressId()) : null;
+            $billingAddress = $order->getBillingAddress();
             if ($billingAddress === null
                 || $request->get('email') !== $orderCustomer->getEmail()
                 || $request->get('zipcode') !== $billingAddress->getZipcode()) {

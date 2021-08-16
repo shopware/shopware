@@ -54,6 +54,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @group slow
@@ -132,6 +133,10 @@ class OrderRouteTest extends TestCase
      */
     private $defaultPaymentMethodId;
 
+    private string $deepLinkCode;
+
+    private EntityRepositoryInterface $customerRepository;
+
     protected function setUp(): void
     {
         $this->context = Context::createDefaultContext();
@@ -143,6 +148,7 @@ class OrderRouteTest extends TestCase
 
         $this->contextPersister = $this->getContainer()->get(SalesChannelContextPersister::class);
         $this->orderRepository = $this->getContainer()->get('order.repository');
+        $this->customerRepository = $this->getContainer()->get('customer.repository');
         $this->orderPersister = $this->getContainer()->get(OrderPersister::class);
         $this->stateMachineRegistry = $this->getContainer()->get(StateMachineRegistry::class);
         $this->requestCriteriaBuilder = $this->getContainer()->get(RequestCriteriaBuilder::class);
@@ -204,6 +210,95 @@ class OrderRouteTest extends TestCase
         static::assertArrayHasKey(0, $response['orders']['elements']);
         static::assertArrayHasKey('id', $response['orders']['elements'][0]);
         static::assertEquals($this->orderId, $response['orders']['elements'][0]['id']);
+    }
+
+    public function testGetOrderGuest(): void
+    {
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', null);
+
+        $criteria = new Criteria([$this->orderId]);
+        $criteria->addAssociation('orderCustomer');
+        /** @var OrderEntity|null $order */
+        $order = $this->orderRepository->search($criteria, $this->context)->first();
+
+        $this->customerRepository->update([[
+            'id' => $order->getOrderCustomer()->getCustomerId(),
+            'guest' => true,
+        ]], $this->context);
+
+        $criteria = new Criteria([$this->orderId]);
+        $criteria->addFilter(new EqualsFilter('deepLinkCode', $this->deepLinkCode));
+
+        $this->browser
+            ->request(
+                'GET',
+                '/store-api/order',
+                \array_merge(
+                    $this->requestCriteriaBuilder->toArray($criteria),
+                    [
+                        'email' => 'test@example.com',
+                        'zipcode' => '59438-0403',
+                    ]
+                )
+            );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertArrayHasKey('orders', $response);
+        static::assertArrayHasKey('elements', $response['orders']);
+        static::assertArrayHasKey(0, $response['orders']['elements']);
+        static::assertArrayHasKey('id', $response['orders']['elements'][0]);
+        static::assertEquals($this->orderId, $response['orders']['elements'][0]['id']);
+    }
+
+    public function testGetOrderGuestWrongDeepLink(): void
+    {
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', null);
+
+        $criteria = new Criteria([$this->orderId]);
+        $criteria->addAssociation('orderCustomer');
+        /** @var OrderEntity|null $order */
+        $order = $this->orderRepository->search($criteria, $this->context)->first();
+
+        $this->customerRepository->update([[
+            'id' => $order->getOrderCustomer()->getCustomerId(),
+            'guest' => true,
+        ]], $this->context);
+
+        $criteria = new Criteria([$this->orderId]);
+        $criteria->addFilter(new EqualsFilter('deepLinkCode', Uuid::randomHex()));
+
+        $this->browser
+            ->request(
+                'GET',
+                '/store-api/order',
+                \array_merge(
+                    $this->requestCriteriaBuilder->toArray($criteria),
+                    [
+                        'email' => 'test@example.com',
+                        'zipcode' => '59438-0403',
+                    ]
+                )
+            );
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $this->browser->getResponse()->getStatusCode());
+    }
+
+    public function testGetOrderGuestNoOrder(): void
+    {
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', null);
+
+        $criteria = new Criteria([Uuid::randomHex()]);
+        $criteria->addFilter(new EqualsFilter('deepLinkCode', $this->deepLinkCode));
+
+        $this->browser
+            ->request(
+                'GET',
+                '/store-api/order',
+                $this->requestCriteriaBuilder->toArray($criteria),
+            );
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $this->browser->getResponse()->getStatusCode());
     }
 
     public function testGetOrderShowsValidDocuments(): void
@@ -864,7 +959,7 @@ class OrderRouteTest extends TestCase
                         'good' => true,
                     ],
                 ],
-                'deepLinkCode' => Uuid::randomHex(),
+                'deepLinkCode' => $this->deepLinkCode = Uuid::randomHex(),
                 'orderCustomer' => [
                     'email' => 'test@example.com',
                     'firstName' => 'Noe',

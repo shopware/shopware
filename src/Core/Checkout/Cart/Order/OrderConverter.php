@@ -124,7 +124,8 @@ class OrderConverter
         $data = CartTransformer::transform(
             $cart,
             $context,
-            $this->stateMachineRegistry->getInitialState(OrderStates::STATE_MACHINE, $context->getContext())->getId()
+            $this->stateMachineRegistry->getInitialState(OrderStates::STATE_MACHINE, $context->getContext())->getId(),
+            $conversionContext->shouldIncludeOrderDate()
         );
 
         if ($conversionContext->shouldIncludeCustomer()) {

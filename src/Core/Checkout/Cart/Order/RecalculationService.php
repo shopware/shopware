@@ -102,7 +102,8 @@ class RecalculationService
             ->setIncludeCustomer(false)
             ->setIncludeBillingAddress(false)
             ->setIncludeDeliveries(true)
-            ->setIncludeTransactions(false);
+            ->setIncludeTransactions(false)
+            ->setIncludeOrderDate(false);
 
         $orderData = $this->orderConverter->convertToOrder($recalculatedCart, $salesChannelContext, $conversionContext);
         $orderData['id'] = $order->getId();
@@ -151,7 +152,8 @@ class RecalculationService
             ->setIncludeCustomer(false)
             ->setIncludeBillingAddress(false)
             ->setIncludeDeliveries(true)
-            ->setIncludeTransactions(false);
+            ->setIncludeTransactions(false)
+            ->setIncludeOrderDate(false);
 
         $orderData = $this->orderConverter->convertToOrder($recalculatedCart, $salesChannelContext, $conversionContext);
         $orderData['id'] = $order->getId();
@@ -188,7 +190,8 @@ class RecalculationService
             ->setIncludeCustomer(false)
             ->setIncludeBillingAddress(false)
             ->setIncludeDeliveries(false)
-            ->setIncludeTransactions(false);
+            ->setIncludeTransactions(false)
+            ->setIncludeOrderDate(false);
 
         $orderData = $this->orderConverter->convertToOrder($recalculatedCart, $salesChannelContext, $conversionContext);
         $orderData['id'] = $order->getId();
@@ -231,7 +234,8 @@ class RecalculationService
             ->setIncludeCustomer(false)
             ->setIncludeBillingAddress(false)
             ->setIncludeDeliveries(false)
-            ->setIncludeTransactions(false);
+            ->setIncludeTransactions(false)
+            ->setIncludeOrderDate(false);
 
         $orderData = $this->orderConverter->convertToOrder($recalculatedCart, $salesChannelContext, $conversionContext);
         $orderData['id'] = $order->getId();
@@ -275,7 +279,8 @@ class RecalculationService
             ->setIncludeCustomer(false)
             ->setIncludeBillingAddress(false)
             ->setIncludeDeliveries(false)
-            ->setIncludeTransactions(false);
+            ->setIncludeTransactions(false)
+            ->setIncludeOrderDate(false);
 
         $orderData = $this->orderConverter->convertToOrder($recalculatedCart, $salesChannelContext, $conversionContext);
 

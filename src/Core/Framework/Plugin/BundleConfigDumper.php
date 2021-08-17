@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\Plugin;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @deprecated tag:v6.5.0.0 - Remove this class as not needed anymore
+ * @deprecated tag:v6.5.0 - Remove this class as not needed anymore
  */
 class BundleConfigDumper implements EventSubscriberInterface
 {

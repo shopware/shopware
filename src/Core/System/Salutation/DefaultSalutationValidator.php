@@ -13,7 +13,7 @@ use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
- * @deprecated tag:v5.6.0 This subscriber will be superfluous once salutations
+ * @deprecated tag:v6.5.0 This subscriber will be superfluous once salutations
  * are fully optional and should be removed together with the flag FEATURE_NEXT_7739.
  */
 class DefaultSalutationValidator implements EventSubscriberInterface

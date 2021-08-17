@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test;
 
+use Composer\InstalledVersions;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -32,6 +33,8 @@ class DeprecatedTagTest extends TestCase
         'Migration/MigrationStep.php',
         // example plugin
         'deprecation.plugin.js',
+        // waiting for symfony 6
+        'Framework/Csrf/SessionProvider.php',
     ];
 
     private string $rootDir;
@@ -45,7 +48,10 @@ class DeprecatedTagTest extends TestCase
         $this->rootDir = $this->getPathForClass(Kernel::class);
         $this->manifestRoot = $this->getPathForClass(Manifest::class);
 
-        static::markTestSkipped('This test is currently broken and fails on Github Actions. Will be fixed with NEXT-15105');
+        $version = $this->getShopwareVersion();
+        if (!preg_match('/^\d+\.\d+[.-].*$/', $version)) {
+            static::markTestSkipped('No valid version provided - ' . $version);
+        }
     }
 
     public function testSourceFilesForWrongDeprecatedAnnotations(): void
@@ -141,21 +147,16 @@ class DeprecatedTagTest extends TestCase
      */
     private function getShopwareVersion(): string
     {
-        $envVersion = $_SERVER['VERSION'] ?? '';
+        $envVersion = $_SERVER['VERSION'] ?? $_SERVER['TAG'] ?? '';
         if (\is_string($envVersion) && $envVersion !== '') {
-            return $envVersion;
+            $shopwareVersion = $envVersion;
+        } elseif (InstalledVersions::isInstalled('shopware/platform')) {
+            $shopwareVersion = InstalledVersions::getVersion('shopware/platform');
+        } else {
+            $shopwareVersion = InstalledVersions::getVersion('shopware/core');
         }
-        $tags = $this->exec('git tag');
 
-        $tags = array_filter(array_map(static function ($tag): ?string {
-            if (\strlen($tag) > 8) {
-                return null;
-            }
-
-            return str_replace('v', '', $tag);
-        }, $tags));
-
-        return $this->getHighestVersion($tags);
+        return ltrim($shopwareVersion, 'v ');
     }
 
     private function getManifestVersion(): string
@@ -169,7 +170,7 @@ class DeprecatedTagTest extends TestCase
             $manifestVersions[] = DeprecationTagTester::getVersionFromManifestFileName($file->getFilename());
         }
 
-        return $this->getHighestVersion($manifestVersions);
+        return $this->getHighestVersion(array_values($manifestVersions));
     }
 
     private function exec(string $command): array
@@ -188,6 +189,7 @@ class DeprecatedTagTest extends TestCase
 
     private function getHighestVersion(array $versions): string
     {
+        $versions = array_filter($versions);
         if (empty($versions)) {
             throw new \LogicException('no version applied');
         }

@@ -2,6 +2,7 @@
 {% set ORDER_TRANSACTION_STATE_FAILED = constant('Shopware\\Core\\Checkout\\Order\\Aggregate\\OrderTransaction\\OrderTransactionStates::STATE_FAILED') %}
 {% set ORDER_TRANSACTION_STATE_REMINDED = constant('Shopware\\Core\\Checkout\\Order\\Aggregate\\OrderTransaction\\OrderTransactionStates::STATE_REMINDED') %}
 {% set ORDER_TRANSACTION_STATE_CANCELLED = constant('Shopware\\Core\\Checkout\\Order\\Aggregate\\OrderTransaction\\OrderTransactionStates::STATE_CANCELLED') %}
+{% set ORDER_TRANSACTION_STATE_UNCONFIRMED = constant('Shopware\\Core\\Checkout\\Order\\Aggregate\\OrderTransaction\\OrderTransactionStates::STATE_UNCONFIRMED') %}
 {% set ALLOWED_TRANSACTION_STATES = constant('Shopware\\Core\\Checkout\\Order\\SalesChannel\\OrderService::ALLOWED_TRANSACTION_STATES') %}
 {% set ORDER_STATE_CANCELLED = constant('Shopware\\Core\\Checkout\\Order\\OrderStates::STATE_CANCELLED') %}
 
@@ -11,6 +12,7 @@
                 {% set states = [
                     ORDER_TRANSACTION_STATE_FAILED,
                     ORDER_TRANSACTION_STATE_REMINDED,
+                    ORDER_TRANSACTION_STATE_UNCONFIRMED,
                     ORDER_TRANSACTION_STATE_CANCELLED
                 ] %}
 

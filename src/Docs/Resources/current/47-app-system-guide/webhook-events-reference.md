@@ -11,6 +11,7 @@
 |`checkout.customer.login` | Triggers as soon as a customer logs in | `customer:read` | {"entity":"customer","contextToken":"string"}
 |`checkout.customer.logout` | Triggers when a customer logs out | `customer:read` | {"entity":"customer"}
 |`checkout.customer.register` | Triggers when a new customer was registered | `customer:read` | {"entity":"customer"}
+|`checkout.order.payment_method.changed` | __EMPTY__ | `order:read` `order_transaction:read` | {"entity":"order_transaction"}
 |`checkout.order.placed` | Triggers when an order is placed | `order:read` | {"entity":"order"}
 |`contact_form.send` | Triggers when a contact form is send | - | {"contactFormData":"object"}
 |`customer.group.registration.accepted` | __EMPTY__ | `customer:read` `customer_group:read` | {"entity":"customer_group"}
@@ -45,6 +46,7 @@
 |`state_enter.order_transaction.state.refunded` | __EMPTY__ | `order:read` | {"entity":"order"}
 |`state_enter.order_transaction.state.refunded_partially` | __EMPTY__ | `order:read` | {"entity":"order"}
 |`state_enter.order_transaction.state.reminded` | __EMPTY__ | `order:read` | {"entity":"order"}
+|`state_enter.order_transaction.state.unconfirmed` | __EMPTY__ | `order:read` | {"entity":"order"}
 |`state_leave.order.state.cancelled` | __EMPTY__ | `order:read` | {"entity":"order"}
 |`state_leave.order.state.completed` | __EMPTY__ | `order:read` | {"entity":"order"}
 |`state_leave.order.state.in_progress` | __EMPTY__ | `order:read` | {"entity":"order"}
@@ -66,6 +68,7 @@
 |`state_leave.order_transaction.state.refunded` | __EMPTY__ | `order:read` | {"entity":"order"}
 |`state_leave.order_transaction.state.refunded_partially` | __EMPTY__ | `order:read` | {"entity":"order"}
 |`state_leave.order_transaction.state.reminded` | __EMPTY__ | `order:read` | {"entity":"order"}
+|`state_leave.order_transaction.state.unconfirmed` | __EMPTY__ | `order:read` | {"entity":"order"}
 |`user.recovery.request` | __EMPTY__ | `user_recovery:read` | {"entity":"user_recovery","resetUrl":"string"}
 |`product.written` | Triggers when a product is written | `product:read` | {"entity":"product","operation":true,"primaryKey":"array string","payload":"array"}
 |`product.deleted` | Triggers when a product is deleted | `product:read` | {"entity":"product","operation":"update insert","primaryKey":"array string","payload":"array"}

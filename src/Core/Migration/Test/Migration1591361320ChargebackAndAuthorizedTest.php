@@ -32,24 +32,10 @@ class Migration1591361320ChargebackAndAuthorizedTest extends TestCase
         $migration = new Migration1591361320ChargebackAndAuthorized();
         $migration->update($this->connection);
 
-        $transitions = $this->fetchTransitions();
-
-        $expected = [
-            ['action_name' => 'authorize',      'from_state' => 'in_progress',      'to_state' => 'authorized'],
-            ['action_name' => 'authorize',      'from_state' => 'open',             'to_state' => 'authorized'],
-            ['action_name' => 'authorize',      'from_state' => 'reminded',         'to_state' => 'authorized'],
-            ['action_name' => 'cancel',         'from_state' => 'authorized',       'to_state' => 'cancelled'],
-            ['action_name' => 'cancel',         'from_state' => 'chargeback',       'to_state' => 'cancelled'],
-            ['action_name' => 'chargeback',     'from_state' => 'paid',             'to_state' => 'chargeback'],
-            ['action_name' => 'chargeback',     'from_state' => 'paid_partially',   'to_state' => 'chargeback'],
-            ['action_name' => 'fail',           'from_state' => 'authorized',       'to_state' => 'failed'],
-            ['action_name' => 'paid',           'from_state' => 'authorized',       'to_state' => 'paid'],
-            ['action_name' => 'paid',           'from_state' => 'chargeback',       'to_state' => 'paid'],
-            ['action_name' => 'paid_partially', 'from_state' => 'authorized',       'to_state' => 'paid_partially'],
-            ['action_name' => 'paid_partially', 'from_state' => 'chargeback',       'to_state' => 'paid_partially'],
-        ];
-
-        static::assertEquals($expected, $transitions);
+        $existingTransitions = $this->fetchTransitions();
+        foreach ($this->getExpectedTransitions() as $expectedTransition) {
+            static::assertContains($expectedTransition, $existingTransitions);
+        }
     }
 
     public function testMigrationWithExistingStates(): void
@@ -57,24 +43,10 @@ class Migration1591361320ChargebackAndAuthorizedTest extends TestCase
         $migration = new Migration1591361320ChargebackAndAuthorized();
         $migration->update($this->connection);
 
-        $transitions = $this->fetchTransitions();
-
-        $expected = [
-            ['action_name' => 'authorize',      'from_state' => 'in_progress',      'to_state' => 'authorized'],
-            ['action_name' => 'authorize',      'from_state' => 'open',             'to_state' => 'authorized'],
-            ['action_name' => 'authorize',      'from_state' => 'reminded',         'to_state' => 'authorized'],
-            ['action_name' => 'cancel',         'from_state' => 'authorized',       'to_state' => 'cancelled'],
-            ['action_name' => 'cancel',         'from_state' => 'chargeback',       'to_state' => 'cancelled'],
-            ['action_name' => 'chargeback',     'from_state' => 'paid',             'to_state' => 'chargeback'],
-            ['action_name' => 'chargeback',     'from_state' => 'paid_partially',   'to_state' => 'chargeback'],
-            ['action_name' => 'fail',           'from_state' => 'authorized',       'to_state' => 'failed'],
-            ['action_name' => 'paid',           'from_state' => 'authorized',       'to_state' => 'paid'],
-            ['action_name' => 'paid',           'from_state' => 'chargeback',       'to_state' => 'paid'],
-            ['action_name' => 'paid_partially', 'from_state' => 'authorized',       'to_state' => 'paid_partially'],
-            ['action_name' => 'paid_partially', 'from_state' => 'chargeback',       'to_state' => 'paid_partially'],
-        ];
-
-        static::assertEquals($expected, $transitions);
+        $existingTransitions = $this->fetchTransitions();
+        foreach ($this->getExpectedTransitions() as $expectedTransition) {
+            static::assertContains($expectedTransition, $existingTransitions);
+        }
     }
 
     protected function rollbackMigrationChanges(): void
@@ -115,5 +87,26 @@ AND (
 ORDER BY trans.action_name, from_state.technical_name, to_state.technical_name
 ;
         ");
+    }
+
+    /**
+     * @return \string[][]
+     */
+    private function getExpectedTransitions(): array
+    {
+        return [
+            ['action_name' => 'authorize', 'from_state' => 'in_progress', 'to_state' => 'authorized'],
+            ['action_name' => 'authorize', 'from_state' => 'open', 'to_state' => 'authorized'],
+            ['action_name' => 'authorize', 'from_state' => 'reminded', 'to_state' => 'authorized'],
+            ['action_name' => 'cancel', 'from_state' => 'authorized', 'to_state' => 'cancelled'],
+            ['action_name' => 'cancel', 'from_state' => 'chargeback', 'to_state' => 'cancelled'],
+            ['action_name' => 'chargeback', 'from_state' => 'paid', 'to_state' => 'chargeback'],
+            ['action_name' => 'chargeback', 'from_state' => 'paid_partially', 'to_state' => 'chargeback'],
+            ['action_name' => 'fail', 'from_state' => 'authorized', 'to_state' => 'failed'],
+            ['action_name' => 'paid', 'from_state' => 'authorized', 'to_state' => 'paid'],
+            ['action_name' => 'paid', 'from_state' => 'chargeback', 'to_state' => 'paid'],
+            ['action_name' => 'paid_partially', 'from_state' => 'authorized', 'to_state' => 'paid_partially'],
+            ['action_name' => 'paid_partially', 'from_state' => 'chargeback', 'to_state' => 'paid_partially'],
+        ];
     }
 }

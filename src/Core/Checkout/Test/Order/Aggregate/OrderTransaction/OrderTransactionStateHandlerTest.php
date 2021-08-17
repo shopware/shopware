@@ -22,30 +22,15 @@ class OrderTransactionStateHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $customerRepository;
+    private EntityRepositoryInterface $customerRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $orderRepository;
+    private EntityRepositoryInterface $orderRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $orderTransactionRepository;
+    private EntityRepositoryInterface $orderTransactionRepository;
 
-    /**
-     * @var StateMachineRegistry
-     */
-    private $stateMachineRegistry;
+    private StateMachineRegistry $stateMachineRegistry;
 
-    /**
-     * @var OrderTransactionStateHandler
-     */
-    private $orderTransactionStateHelper;
+    private OrderTransactionStateHandler $orderTransactionStateHelper;
 
     public function setUp(): void
     {
@@ -56,62 +41,75 @@ class OrderTransactionStateHandlerTest extends TestCase
         $this->orderTransactionStateHelper = $this->getContainer()->get(OrderTransactionStateHandler::class);
     }
 
-    public function testSetCancelState(): void
+    public function dataProviderActions(): array
     {
-        $context = Context::createDefaultContext();
-        $customerId = $this->createCustomer($context);
-        $orderId = $this->createOrder($customerId, $context);
-        $transactionId = $this->createOrderTransaction($orderId, $context);
-
-        $this->orderTransactionStateHelper->cancel($transactionId, $context);
-
-        $criteria = new Criteria([$transactionId]);
-        $criteria->addAssociation('stateMachineState');
-        $transaction = $this->orderTransactionRepository->search($criteria, $context)->first();
-
-        static::assertSame(OrderTransactionStates::STATE_CANCELLED, $transaction->getStateMachineState()->getTechnicalName());
+        return [
+            'Cancel' => [[
+                'cancel' => OrderTransactionStates::STATE_CANCELLED,
+            ]],
+            'Async Process & Pay' => [[
+                'processUnconfirmed' => OrderTransactionStates::STATE_UNCONFIRMED,
+                'paid' => OrderTransactionStates::STATE_PAID,
+            ]],
+            'Process & Pay' => [[
+                'process' => OrderTransactionStates::STATE_IN_PROGRESS,
+                'paid' => OrderTransactionStates::STATE_PAID,
+            ]],
+            'Cancel & Reopen' => [[
+                'cancel' => OrderTransactionStates::STATE_CANCELLED,
+                'reopen' => OrderTransactionStates::STATE_OPEN,
+            ]],
+            'Pay & Refund' => [[
+                'paid' => OrderTransactionStates::STATE_PAID,
+                'refund' => OrderTransactionStates::STATE_REFUNDED,
+            ]],
+            'Partially pay & Refund' => [[
+                'payPartially' => OrderTransactionStates::STATE_PARTIALLY_PAID,
+                'refund' => OrderTransactionStates::STATE_REFUNDED,
+            ]],
+            'Pay & Partially Refund' => [[
+                'paid' => OrderTransactionStates::STATE_PAID,
+                'refundPartially' => OrderTransactionStates::STATE_PARTIALLY_REFUNDED,
+            ]],
+            'Remind & Process & Fail' => [[
+                'remind' => OrderTransactionStates::STATE_REMINDED,
+                'process' => OrderTransactionStates::STATE_IN_PROGRESS,
+                'fail' => OrderTransactionStates::STATE_FAILED,
+            ]],
+            'Partially Pay & Process & Pay' => [[
+                'payPartially' => OrderTransactionStates::STATE_PARTIALLY_PAID,
+                'processUnconfirmed' => OrderTransactionStates::STATE_UNCONFIRMED,
+                'paid' => OrderTransactionStates::STATE_PAID,
+            ]],
+            'Pay & Chargeback & Cancel' => [[
+                'paid' => OrderTransactionStates::STATE_PAID,
+                'chargeback' => OrderTransactionStates::STATE_CHARGEBACK,
+                'cancel' => OrderTransactionStates::STATE_CANCELLED,
+            ]],
+        ];
     }
 
-    public function testSetCompleteState(): void
+    /**
+     * @dataProvider dataProviderActions
+     *
+     * @param array<string, string>
+     */
+    public function testAction(array $path): void
     {
         $context = Context::createDefaultContext();
         $customerId = $this->createCustomer($context);
         $orderId = $this->createOrder($customerId, $context);
         $transactionId = $this->createOrderTransaction($orderId, $context);
 
-        $this->orderTransactionStateHelper->process($transactionId, $context);
+        foreach ($path as $action => $destinationState) {
+            $this->orderTransactionStateHelper->$action($transactionId, $context);
 
-        $this->orderTransactionStateHelper->paid($transactionId, $context);
+            $criteria = new Criteria([$transactionId]);
+            $criteria->addAssociation('stateMachineState');
+            $transaction = $this->orderTransactionRepository->search($criteria, $context)->first();
 
-        $criteria = new Criteria([$transactionId]);
-        $criteria->addAssociation('stateMachineState');
-        $transaction = $this->orderTransactionRepository->search($criteria, $context)->first();
-
-        static::assertSame(OrderTransactionStates::STATE_PAID, $transaction->getStateMachineState()->getTechnicalName());
-    }
-
-    public function testSetReopenState(): void
-    {
-        $context = Context::createDefaultContext();
-        $customerId = $this->createCustomer($context);
-        $orderId = $this->createOrder($customerId, $context);
-        $transactionId = $this->createOrderTransaction($orderId, $context);
-
-        $this->orderTransactionStateHelper->cancel($transactionId, $context);
-
-        $criteria = new Criteria([$transactionId]);
-        $criteria->addAssociation('stateMachineState');
-        $transaction = $this->orderTransactionRepository->search($criteria, $context)->first();
-
-        static::assertSame(OrderTransactionStates::STATE_CANCELLED, $transaction->getStateMachineState()->getTechnicalName());
-
-        $this->orderTransactionStateHelper->reopen($transactionId, $context);
-
-        $criteria = new Criteria([$transactionId]);
-        $criteria->addAssociation('stateMachineState');
-        $transaction = $this->orderTransactionRepository->search($criteria, $context)->first();
-
-        static::assertSame(OrderTransactionStates::STATE_OPEN, $transaction->getStateMachineState()->getTechnicalName());
+            static::assertSame($destinationState, $transaction->getStateMachineState()->getTechnicalName());
+        }
     }
 
     private function createOrder(string $customerId, Context $context): string

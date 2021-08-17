@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentException;
 use Shopware\Core\Framework\App\Payment\Response\AsyncFinalizeResponse;
 use Shopware\Core\Framework\App\Payment\Response\AsyncPayResponse;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 
@@ -67,7 +68,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
         static::assertArrayHasKey('orderTransaction', $content);
         static::assertIsArray($content['orderTransaction']);
         static::assertCount(4, $content);
-        $this->assertOrderTransactionState(OrderTransactionStates::STATE_IN_PROGRESS, $transactionId);
+        $this->assertOrderTransactionState(Feature::isActive('FEATURE_NEXT_13601') ? OrderTransactionStates::STATE_UNCONFIRMED : OrderTransactionStates::STATE_IN_PROGRESS, $transactionId);
 
         $this->$finalizeFunction($token, $transactionId, $paymentMethodId);
     }

@@ -8,6 +8,8 @@ variables:
     ADMIN_PATH: $CI_PROJECT_DIR/src/Administration/Resources/app/administration
     STOREFRONT_PATH: $CI_PROJECT_DIR/src/Storefront/Resources/app/storefront
     COMPOSER_PROCESS_TIMEOUT: 7200 # 60s * 60 * 2 = 2 hours
+    DD_ENV: ci
+    DATADOG_SITE: datadoghq.eu
 
 default:
     image: shopware/development:7.4-composer-2
@@ -18,9 +20,8 @@ default:
         - chown -R application:application .
         - echo 'LogFormat "[httpd:access] %V:%p %h %l %u %t \"%r\" %>s bytesIn:%I bytesOut:%O reqTime:%{ms}T" dockerlog' > /opt/docker/etc/httpd/conf.d/20-custom-log.conf
         - /entrypoint supervisord > /dev/null 2>&1 &
-
-include:
-    - local: /.gitlab/lib/*.yml
+    after_script:
+        - !reference [.upload-junit-xml, after_script]
 
 # for jobs which should run on each MR/Pipeline
 .base:

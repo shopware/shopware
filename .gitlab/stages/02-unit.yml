@@ -150,13 +150,13 @@ PHP Full:
         - FAILED=0
         - >
             for SUITE in $TEST_SUITES; do
-                composer run phpunit -- --testsuite=$SUITE --log-junit phpunit.$SUITE.xml --colors=never || FAILED=1
+                composer run phpunit -- --testsuite=$SUITE --log-junit phpunit.$SUITE.junit.xml --colors=never || FAILED=1
             done
         - '[[ $FAILED -eq 0 ]]'
     artifacts:
         when: always
         paths:
-            - phpunit.*.xml
+            - phpunit.*.junit.xml
             - var/log/*
         reports:
-            junit: phpunit.*.xml
+            junit: phpunit.*.junit.xml

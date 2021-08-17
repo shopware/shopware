@@ -43,7 +43,7 @@
             "json": true
         },
         "mochaJunitReporterReporterOptions": {
-          "mochaFile": "cypress/results/single-reports/results-[hash].xml"
+          "mochaFile": "cypress/results/single-reports/results-[hash].junit.xml"
         }
     }
 

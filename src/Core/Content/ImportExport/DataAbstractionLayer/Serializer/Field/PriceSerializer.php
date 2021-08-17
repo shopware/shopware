@@ -40,6 +40,11 @@ class PriceSerializer extends FieldSerializer
             $price = $price instanceof Struct ? $price->jsonSerialize() : $price;
             $currencyId = $price['currencyId'];
             $currency = $this->mapToCurrencyIso($currencyId);
+
+            if (isset($price['listPrice']) && $price['listPrice'] instanceof Struct) {
+                $price['listPrice'] = $price['listPrice']->jsonSerialize();
+            }
+
             $isoPrices[$currency] = $price;
             if ($currencyId === Defaults::CURRENCY) {
                 $isoPrices['DEFAULT'] = $isoPrices[$currency];
@@ -57,15 +62,24 @@ class PriceSerializer extends FieldSerializer
             return null;
         }
 
-        foreach ($record as $curIso => $price) {
-            $cur = $this->getCurrencyIdFromIso($curIso);
+        foreach ($record as $currencyIso => $price) {
+            $currency = $this->getCurrencyIdFromIso($currencyIso);
 
-            if ($cur === null || !$this->isValidPrice($price)) {
+            if ($currency === null || !$this->isValidPrice($price)) {
                 continue;
             }
 
-            $p = new Price($cur, (float) $price['net'], (float) $price['gross'], (bool) ($price['linked'] ?? false));
-            $prices[$cur] = $p->jsonSerialize();
+            $listPrice = null;
+            if (isset($price['listPrice']) && $this->isValidPrice($price['listPrice'])) {
+                $listPrice = new Price($currency, (float) $price['listPrice']['net'], (float) $price['listPrice']['gross'], (bool) ($price['listPrice']['linked'] ?? false));
+            }
+
+            $priceStruct = new Price($currency, (float) $price['net'], (float) $price['gross'], (bool) ($price['linked'] ?? false), $listPrice);
+            $prices[$currency] = $priceStruct->jsonSerialize();
+
+            if (isset($prices[$currency]['listPrice']) && $prices[$currency]['listPrice'] instanceof Price) {
+                $prices[$currency]['listPrice'] = $prices[$currency]['listPrice']->jsonSerialize();
+            }
         }
 
         if (empty($prices)) {

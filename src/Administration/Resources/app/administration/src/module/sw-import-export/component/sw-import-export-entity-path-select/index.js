@@ -89,7 +89,15 @@ Component.register('sw-import-export-entity-path-select', {
             isExpanded: false,
             // used to track if an item was selected before closing the result list
             itemRecentlySelected: false,
-            priceProperties: ['net', 'gross', 'currencyId', 'linked', 'listPrice'],
+            priceProperties: [
+                'net',
+                'gross',
+                'currencyId',
+                'linked',
+                'listPrice.net',
+                'listPrice.gross',
+                'listPrice.linked',
+            ],
             visibilityProperties: ['all', 'link', 'search'],
         };
     },
@@ -174,6 +182,7 @@ Component.register('sw-import-export-entity-path-select', {
                     part === 'translations' ||
                     part === 'visibilities' ||
                     part === 'price' ||
+                    part === 'listPrice' ||
                     part === 'purchasePrices'
                 );
             });

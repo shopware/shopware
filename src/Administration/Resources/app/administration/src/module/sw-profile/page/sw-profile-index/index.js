@@ -37,6 +37,7 @@ Component.register('sw-profile-index', {
             confirmPasswordModal: false,
             mediaDefaultFolderId: null,
             showMediaModal: false,
+            timezoneOptions: [],
         };
     },
 
@@ -49,6 +50,7 @@ Component.register('sw-profile-index', {
     computed: {
         ...mapPropertyErrors('user', [
             'email',
+            'timeZone',
         ]),
 
         isDisabled() {
@@ -136,6 +138,7 @@ Component.register('sw-profile-index', {
 
             Promise.all(promises).then(() => {
                 this.loadLanguages();
+                this.loadTimezones();
             }).then(() => {
                 this.isUserLoading = false;
             });
@@ -181,6 +184,26 @@ Component.register('sw-profile-index', {
                 this.isUserLoading = false;
 
                 return this.languages;
+            });
+        },
+
+        loadTimezones() {
+            return import(
+                /* webpackChunkName: "time-zone-names" */
+                /* webpackMode: "lazy" */
+                '@vvo/tzdb/time-zones-names.json'
+            ).then((result) => {
+                this.timezoneOptions.push({
+                    label: 'UTC',
+                    value: 'UTC',
+                });
+
+                const loadedTimezoneOptions = result.default.map(timezone => ({
+                    label: timezone,
+                    value: timezone,
+                }));
+
+                this.timezoneOptions.push(...loadedTimezoneOptions);
             });
         },
 
@@ -246,7 +269,9 @@ Component.register('sw-profile-index', {
                 const changes = this.userRepository.getSyncChangeset([this.user]);
                 delete changes.changeset[0].changes.id;
 
-                this.userService.updateUser(changes.changeset[0].changes).then(() => {
+                this.userService.updateUser(changes.changeset[0].changes).then(async () => {
+                    await this.updateCurrentUser();
+
                     this.isLoading = false;
                     this.isSaveSuccessful = true;
 
@@ -259,12 +284,13 @@ Component.register('sw-profile-index', {
             const context = { ...Shopware.Context.api };
             context.authToken.access = authToken;
 
-            this.userRepository.save(this.user, context).then(() => {
+            this.userRepository.save(this.user, context).then(async () => {
                 // @feature-deprecated (FEATURE_NEXT_6040) tag:v6.5.0 - can be removed
                 if (this.$refs.mediaSidebarItem) {
                     this.$refs.mediaSidebarItem.getList();
                 }
 
+                await this.updateCurrentUser();
                 Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
 
                 if (this.newPassword) {
@@ -286,6 +312,15 @@ Component.register('sw-profile-index', {
                 this.newPasswordConfirm = '';
             }).catch(() => {
                 this.handleUserSaveError();
+            });
+        },
+
+        updateCurrentUser() {
+            return this.userService.getUser().then((response) => {
+                const data = response.data;
+                delete data.password;
+
+                return Shopware.State.commit('setCurrentUser', data);
             });
         },
 

@@ -50,6 +50,7 @@ Component.register('sw-users-permissions-user-detail', {
             showDeleteModal: null,
             skeletonItemAmount: 3,
             confirmPasswordModal: false,
+            timezoneOptions: [],
         };
     },
 
@@ -208,10 +209,31 @@ Component.register('sw-users-permissions-user-detail', {
                 this.loadLanguages(),
                 this.loadUser(),
                 this.loadCurrentUser(),
+                this.loadTimezones(),
             ];
 
             Promise.all(promises).then(() => {
                 this.isLoading = false;
+            });
+        },
+
+        loadTimezones() {
+            return import(
+                /* webpackChunkName: "time-zone-names" */
+                /* webpackMode: "lazy" */
+                '@vvo/tzdb/time-zones-names.json'
+            ).then((result) => {
+                this.timezoneOptions.push({
+                    label: 'UTC',
+                    value: 'UTC',
+                });
+
+                const loadedTimezoneOptions = result.default.map(timezone => ({
+                    label: timezone,
+                    value: timezone,
+                }));
+
+                this.timezoneOptions.push(...loadedTimezoneOptions);
             });
         },
 

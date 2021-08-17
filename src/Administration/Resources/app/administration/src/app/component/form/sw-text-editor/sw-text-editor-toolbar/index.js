@@ -229,10 +229,9 @@ Component.register('sw-text-editor-toolbar', {
                 this.currentColor = null;
             }
 
-            if (button.type === 'link' && this.currentLink) {
-                button.value = this.currentLink.url;
-                button.newTab = this.currentLink.newTab;
-                this.currentLink = null;
+            if (button.type === 'link') {
+                button.value = this.currentLink?.url ?? '';
+                button.newTab = this.currentLink?.newTab ?? false;
             }
 
             this.$set(button, 'active', !!this.activeTags.includes(button.tag));
@@ -307,11 +306,11 @@ Component.register('sw-text-editor-toolbar', {
             this.currentColor = null;
             this.currentLink = null;
 
-            if (!this.selection || !this.selection.baseNode) {
+            if (!this.selection || !this.selection.anchorNode) {
                 return;
             }
 
-            let parentNode = this.selection.baseNode.parentNode;
+            let parentNode = this.selection.anchorNode.parentNode;
             this.activeTags = [];
 
             while (parentNode.tagName !== 'DIV') {

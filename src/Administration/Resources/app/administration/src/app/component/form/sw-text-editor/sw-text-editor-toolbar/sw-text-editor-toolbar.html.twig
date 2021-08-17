@@ -13,8 +13,8 @@
         class="sw-text-editor-buttons is--left"
     >
         <sw-text-editor-toolbar-button
-            v-for="(button, index) in leftButtons"
-            :key="index"
+            v-for="button in leftButtons"
+            :key="button.type"
             :is-inline-edit="isInlineEdit"
             :button-config="setButtonValues(button)"
             :disabled="isDisabled(button)"
@@ -30,8 +30,8 @@
         class="sw-text-editor-buttons is--middle"
     >
         <sw-text-editor-toolbar-button
-            v-for="(button, index) in middleButtons"
-            :key="index"
+            v-for="button in middleButtons"
+            :key="button.type"
             :is-inline-edit="isInlineEdit"
             :button-config="setButtonValues(button)"
             :disabled="isDisabled(button)"
@@ -47,8 +47,8 @@
         class="sw-text-editor-buttons is--right"
     >
         <sw-text-editor-toolbar-button
-            v-for="(button, index) in rightButtons"
-            :key="index"
+            v-for="button in rightButtons"
+            :key="button.type"
             :is-inline-edit="isInlineEdit"
             :button-config="setButtonValues(button)"
             :disabled="isDisabled(button)"

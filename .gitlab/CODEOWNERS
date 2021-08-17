@@ -39,10 +39,10 @@ phpunit.xml.dist                      @product/engineering/platform-group/core
 /src/Storefront/        @product/engineering/platform-group/storefront
 
 [Operations]
-/.github/               @product/engineering/operations
-/.gitlab/               @product/engineering/operations
-/src/Core/DevOps/       @product/engineering/operations
-.gitlab-ci.yml          @product/engineering/operations
+/.github/               @product/engineering/operations @product/engineering/platform-group/core @product/engineering/platform-group/admin @product/engineering/platform-group/storefront
+/.gitlab/               @product/engineering/operations @product/engineering/platform-group/core @product/engineering/platform-group/admin @product/engineering/platform-group/storefront
+/src/Core/DevOps/       @product/engineering/operations @product/engineering/platform-group/core @product/engineering/platform-group/admin @product/engineering/platform-group/storefront
+.gitlab-ci.yml          @product/engineering/operations @product/engineering/platform-group/core @product/engineering/platform-group/admin @product/engineering/platform-group/storefront
 
 [Main]
 /adr/                   @product/engineering/platform-group/core @product/engineering/platform-group/admin @product/engineering/platform-group/storefront

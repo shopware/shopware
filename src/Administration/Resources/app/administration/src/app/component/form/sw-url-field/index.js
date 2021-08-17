@@ -87,11 +87,17 @@ Component.extend('sw-url-field', 'sw-text-field', {
             this.checkInput(this.currentValue);
         },
 
+        onInput(event) {
+            this.$emit('beforeDebounce', this.url);
+
+            this.onDebounceInput(event);
+        },
+
         /*
          * input handling is debounced to give the user a little time to enter a valid url
          * by direct-input-validation it is impossible to enter a url with port by typing
          */
-        onInput: Utils.debounce(function debounceOnInput(event) {
+        onDebounceInput: Utils.debounce(function debounceOnInput(event) {
             this.handleInput(event);
         }, 400),
 

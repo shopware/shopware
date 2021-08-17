@@ -13,6 +13,7 @@
                 v-if="!!plugin.icon"
                 class="sw-plugin-box__icon"
                 :src="`data:image/png;base64, ${plugin.icon}`"
+                alt=""
             >
             {% endblock %}
             {% block sw_plugin_box_container_plugin_data_description %}

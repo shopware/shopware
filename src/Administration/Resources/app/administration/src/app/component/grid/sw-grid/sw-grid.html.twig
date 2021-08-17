@@ -35,6 +35,7 @@
                     {% endblock %}
 
                     {% block sw_grid_slot_header_cell %}
+                    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                     <div
                         v-for="(column, columnIndex) in columns"
                         :key="columnIndex"

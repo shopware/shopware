@@ -13,6 +13,7 @@
         <img
             class="sw-cms-el-image-slider__image"
             :src="imgSrc"
+            alt=""
         >
     </div>
     {% endblock %}
@@ -28,6 +29,7 @@
             >
                 <div class="sw-cms-el-image-slider__navigation-buttons">
                     <template v-if="sliderItems && sliderItems.length > 0">
+                        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                         <div
                             v-for="(sliderItem, index) in sliderItems"
                             :key="index"

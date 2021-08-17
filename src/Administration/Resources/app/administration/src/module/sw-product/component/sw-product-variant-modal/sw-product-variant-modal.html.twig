@@ -42,6 +42,7 @@
 
             {% block sw_product_variant_modal_body_grid_bulk %}
             <template #bulk>
+                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <span
                     class="link link-danger"
                     @click="onClickBulkDelete"
@@ -352,6 +353,7 @@
     {% block sw_product_variant_modal_footer %}
     <template #modal-footer>
         {% block sw_product_variant_modal_footer_visit_main_product %}
+        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <div
             class="sw-product-variant-modal__main-product-link"
             @click="visitProduct(productEntity.id)"

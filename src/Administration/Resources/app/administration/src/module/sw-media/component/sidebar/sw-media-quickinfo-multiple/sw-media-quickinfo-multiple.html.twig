@@ -11,6 +11,7 @@
         <template slot="content">
             <ul class="sw-media-sidebar__quickactions-list">
                 {% block sw_media_quickinfo_multiple_quickactions_move %}
+                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
                     class="quickaction--move"
                     :class="quickActionClasses(!acl.can('media.editor'))"
@@ -27,6 +28,7 @@
                 {% endblock %}
 
                 {% block sw_media_quickinfo_multiple_quickactions_delete %}
+                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
                     v-if="!isPrivate"
                     class="is--danger"
@@ -44,6 +46,7 @@
                 {% endblock %}
 
                 {% block sw_media_quickinfo_folder_quickactions_dissolve %}
+                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
                     v-if="!hasMedia"
                     class="quickaction--dissolve"
@@ -73,6 +76,7 @@
 
         {% block sw_media_quickinfo_multiple_file_names_content %}
         <template slot="content">
+            <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
             <label class="sw-media-quickinfo-multiple__second-headline">{{ getFileSizeLabel }}</label>
             <sw-media-entity-mapper
                 v-for="mediaItem in items"

@@ -8,6 +8,7 @@
         class="sw_language-info__info"
         v-html="$sanitize(infoText)"
     ></span>
+    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
     <span
         v-if="infoParent"
         class="sw-language-info__link-parent"

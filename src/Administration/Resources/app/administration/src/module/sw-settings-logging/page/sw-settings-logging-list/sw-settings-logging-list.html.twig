@@ -74,6 +74,7 @@
                 slot-scope="{ item }"
             >
                 {% block sw_settings_logging_list_column_context %}
+                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <a @click="showInfoModal(item)">{{ item.context }}</a>
                 {% endblock %}
             </template>

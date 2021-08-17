@@ -9,7 +9,10 @@
             v-if="!extensionListPaginated.length && !filterByActiveState"
             class="sw-extension-my-extensions-listing__empty-state"
         >
-            <img :src="'administration/static/img/empty-states/extensions-empty-state.svg' | asset">
+            <img
+                :src="'administration/static/img/empty-states/extensions-empty-state.svg' | asset"
+                alt=""
+            >
 
             <h3 v-if="isThemeRoute">
                 {{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.themes.titleEmptyState') }}
@@ -44,7 +47,10 @@
                     v-if="!extensionListPaginated.length && filterByActiveState"
                     class="sw-extension-my-extensions-listing__empty-state"
                 >
-                    <img :src="'administration/static/img/empty-states/extensions-empty-state.svg' | asset">
+                    <img
+                        :src="'administration/static/img/empty-states/extensions-empty-state.svg' | asset"
+                        alt=""
+                    >
 
                     <h3 v-if="isThemeRoute">
                         {{ $tc('sw-extension-store.component.sw-extension-my-extensions-listing.themes.noActivePlugins') }}

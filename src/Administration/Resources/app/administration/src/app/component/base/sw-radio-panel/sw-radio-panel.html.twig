@@ -1,4 +1,5 @@
 {% block sw_radio_panel %}
+<!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
 <label class="sw-radio-panel">
     {% block sw_radio_panel_input %}
     <input
@@ -30,6 +31,7 @@
             </span>
             {% endblock %}
             {% block sw_radio_panel_body_title %}
+            <!-- eslint-disable-next-line vuejs-accessibility/role-has-required-aria-props -->
             <span
                 class="sw-radio-panel__title"
                 :class="{ 'is--truncate': truncate }"

@@ -12,7 +12,10 @@
 
             {% block sw_mail_header_footer_list_grid_empty_state_icon %}
             <template #icon>
-                <img :src="'/administration/static/img/empty-states/settings-empty-state.svg' | asset">
+                <img
+                    :src="'/administration/static/img/empty-states/settings-empty-state.svg' | asset"
+                    :alt="$tc('sw-mail-header-footer.list.emptyStateTitle')"
+                >
             </template>
             {% endblock %}
 

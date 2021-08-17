@@ -27,6 +27,7 @@
         {% block  sw_settings_country_currency_dependent_modal_content_currency_name %}
         <template #column-currencyId="{ item }">
             <div class="sw-settings-country-currency-dependent-modal__inheritance-wrapper">
+                <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
                 <label>{{ getCurrencyNameById(item.currencyId) }}</label>
             </div>
         </template>

@@ -5,6 +5,7 @@
     {% block sw_file_input_regular_header %}
     <div class="sw-file-input__header">
         {% block sw_file_input_regular_header_label %}
+        <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
         <label
             v-if="label"
             :for="id"
@@ -77,6 +78,7 @@
         ref="fileForm"
         class="sw-file-input__file-form"
     >
+        <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
         <input
             :id="id"
             ref="fileInput"

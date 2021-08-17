@@ -27,6 +27,7 @@
             >
 
                 {% block sw_image_slider_image_images_container %}
+                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <div
                     class="sw-image-slider__element-container"
                     :class="elementClasses(index)"
@@ -64,6 +65,7 @@
         <template v-if="showArrows">
 
             {% block sw_image_slider_image_container_arrow_left %}
+            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <div
                 class="sw-image-slider__arrow arrow-left"
                 @click="goToPreviousImage"
@@ -73,6 +75,7 @@
             {% endblock %}
 
             {% block sw_image_slider_image_container_arrow_right %}
+            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <div
                 class="sw-image-slider__arrow arrow-right"
                 @click="goToNextImage"

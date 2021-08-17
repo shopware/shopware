@@ -17,6 +17,7 @@
                     v-for="error in errors"
                     :key="error.message"
                 >
+                    <!-- eslint-disable-next-line vuejs-accessibility/anchor-has-content -->
                     <a
                         href="#"
                         @click.prevent="navigateToLine(error.line)"

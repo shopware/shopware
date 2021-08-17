@@ -68,7 +68,10 @@
     </template>
 
     <template v-else>
-        <img :src="'/administration/static/img/extension-store/store_illustration.svg' | asset">
+        <img
+            :src="'/administration/static/img/extension-store/store_illustration.svg' | asset"
+            alt=""
+        >
 
         <h2 class="sw-first-run-wizard-store__heading">
             {{ $tc('sw-first-run-wizard.store.headingOne') }}

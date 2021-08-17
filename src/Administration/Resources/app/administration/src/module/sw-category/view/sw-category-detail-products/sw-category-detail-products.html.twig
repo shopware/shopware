@@ -118,7 +118,10 @@
 
         {% block sw_category_detail_product_assignment_empty_state %}
         <template #empty-state>
-            <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
+            <img
+                :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                alt=""
+            >
 
             <p>{{ $tc('sw-category.base.products.productAssignmentEmptyStateDescription') }}</p>
         </template>

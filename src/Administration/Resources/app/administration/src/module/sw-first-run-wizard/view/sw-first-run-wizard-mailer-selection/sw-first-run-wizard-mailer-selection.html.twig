@@ -5,6 +5,7 @@
     <img
         class="sw-first-run-wizard-mailer-selection__illustration"
         :src="'/administration/static/img/first-run-wizard/mailer-selection.svg' | asset"
+        alt=""
     >
 
     <h4 class="sw-first-run-wizard-mailer-selection__headline">
@@ -23,6 +24,7 @@
     </p>
 
     <div class="sw-first-run-wizard-mailer-selection__selections">
+        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <div
             class="sw-first-run-wizard-mailer-selection__selection"
             :class="{ 'is--selected': mailAgent === 'local' }"
@@ -48,6 +50,7 @@
 
         </div>
 
+        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <div
             class="sw-first-run-wizard-mailer-selection__selection"
             :class="{ 'is--selected': mailAgent === 'smtp' }"

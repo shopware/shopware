@@ -156,7 +156,10 @@
                     >
                         <template #icon>
                             {% block sw_product_properties_filled_state_body_empty_state_image %}
-                            <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
+                            <img
+                                :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                                :alt="$tc('sw-product.properties.titleEmptyStateList')"
+                            >
                             {% endblock %}
                         </template>
                     </sw-empty-state>
@@ -180,7 +183,10 @@
             >
                 <template #icon>
                     {% block sw_product_properties_empty_state_image %}
-                    <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
+                    <img
+                        :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                        :alt="$tc('sw-product.properties.titleEmptyState')"
+                    >
                     {% endblock %}
                 </template>
 

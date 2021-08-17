@@ -30,6 +30,7 @@
                     <img
                         v-if="getPluginForViolation(violation).icon || getPluginForViolation(violation).iconRaw"
                         :src="'data:image/png;base64, ' + (getPluginForViolation(violation).iconRaw || getPluginForViolation(violation).icon)"
+                        alt=""
                     >
                     <strong>{{ (getPluginForViolation(violation).translated &&
                         getPluginForViolation(violation).translated.label) || getPluginForViolation(violation).label

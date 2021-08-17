@@ -9,6 +9,7 @@
     {% endblock %}
 
     {% block sw_cms_list_item_image %}
+    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
     <div
         v-if="page"
         class="sw-cms-list-item__image"
@@ -31,6 +32,7 @@
             class="sw-cms-list-item__status"
             :class="statusClasses"
         ></div>
+        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <div
             v-if="page"
             class="sw-cms-list-item__title"

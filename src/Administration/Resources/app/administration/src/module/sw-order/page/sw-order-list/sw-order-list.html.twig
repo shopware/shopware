@@ -251,6 +251,7 @@
 
                 {% block sw_order_list_bulk_selected_actions_content %}
                 <template #bulk>
+                    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                     <a
                         v-if="feature.isActive('FEATURE_NEXT_6061') && acl.can('order.editor')"
                         class="link link-primary"
@@ -264,8 +265,8 @@
                 {% block sw_order_list_bulk_edit_modal %}
                 <template #bulk-modals>
                     <sw-bulk-edit-modal
-                        ref="bulkEditModal"
                         v-if="showBulkEditModal"
+                        ref="bulkEditModal"
                         class="sw-order-bulk-edit-modal"
                         :selection="selection"
                         :bulk-grid-edit-columns="orderColumns"

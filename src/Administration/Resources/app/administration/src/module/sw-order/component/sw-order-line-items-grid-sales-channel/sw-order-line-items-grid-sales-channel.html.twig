@@ -262,6 +262,7 @@
         {% block sw_order_line_items_grid_sales_channel_bulk_actions %}
         <template #bulk>
             {% block sw_order_line_items_grid_sales_channel_bulk_actions_delete %}
+            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <a
                 class="link link-danger"
                 @click="onDeleteSelectedItems"

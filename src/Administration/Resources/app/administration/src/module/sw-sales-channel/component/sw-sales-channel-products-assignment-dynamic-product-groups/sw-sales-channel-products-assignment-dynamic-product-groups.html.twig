@@ -59,6 +59,7 @@
 
                         <template #delete-action="{ item }">
                             {% block sw_sales_channel_products_assignment_dynamic_product_groups_listing_delete_action %}
+                            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                             <span
                                 class="sw-sales-channel-products-assignment-dynamic-product-groups__link-open"
                                 @click="onOpen(item)"
@@ -92,7 +93,10 @@
                     >
                         <template #icon>
                             {% block sw_sales_channel_products_assignment_dynamic_product_groups_listing_empty_icon %}
-                            <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
+                            <img
+                                :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                                alt=""
+                            >
                             {% endblock %}
                         </template>
                     </sw-empty-state>

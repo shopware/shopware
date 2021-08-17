@@ -37,6 +37,7 @@
         />
         {% endblock %}
         {% block sw_promotion_code_form_edit_individual_link %}
+        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <a
             v-if="(promotion.useCodes && promotion.useIndividualCodes)"
             class="sw-card__quick-link sw-promotion-code-form__link-manage-individual"

@@ -44,6 +44,7 @@
     </p>
 
     {% block sw_text_editor_toolbar_table_button_table %}
+    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
     <table
         class="sw-text-editor-toolbar-table-button__table"
         @click="emitTable"
@@ -84,6 +85,7 @@
             >
 
                 {% block sw_text_editor_toolbar_table_button_table_body_col %}
+                <!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events -->
                 <td
                     v-for="colIndex in tableCols"
                     :key="colIndex"

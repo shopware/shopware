@@ -62,7 +62,10 @@
                 :title="$tc('sw-sales-channel.detail.products.titleEmptyState')"
             >
                 <template #icon>
-                    <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
+                    <img
+                        :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                        :alt="$tc('sw-sales-channel.detail.products.titleEmptyState')"
+                    >
                 </template>
             </sw-empty-state>
             {% endblock %}

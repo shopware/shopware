@@ -45,7 +45,10 @@
             empty-module
         >
             <template #icon>
-                <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
+                <img
+                    :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                    :alt="$tc('sw-product.crossselling.cardTitleCrossSelling')"
+                >
             </template>
 
             {% block sw_product_detail_empty_state_cross_selling_add %}

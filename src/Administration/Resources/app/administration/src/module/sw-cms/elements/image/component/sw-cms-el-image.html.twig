@@ -5,7 +5,10 @@
     :style="styles"
 >
     {% block sw_cms_element_image_content %}
-    <img :src="mediaUrl">
+    <img
+        :src="mediaUrl"
+        alt=""
+    >
     {% endblock %}
 </div>
 {% endblock %}

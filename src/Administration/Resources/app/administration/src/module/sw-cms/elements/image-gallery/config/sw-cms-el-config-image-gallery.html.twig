@@ -73,7 +73,10 @@
                                 :key="demo.id"
                                 class="sw-cms-el-config-image-gallery__preview-image"
                             >
-                                <img :src="demo.media.url">
+                                <img
+                                    :src="demo.media.url"
+                                    alt=""
+                                >
                             </div>
                             {% endblock %}
                         </div>

@@ -65,6 +65,7 @@
                 {{ getLabelSearchType() }}
             </span>
 
+            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <span
                 v-if="feature.isActive('FEATURE_NEXT_6040')"
                 class="sw-search-bar__type--v2"
@@ -249,6 +250,7 @@
             {% endblock %}
 
             <template v-if="!feature.isActive('FEATURE_NEXT_6040')">
+                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events vuejs-accessibility/mouse-events-have-key-events -->
                 <div
                     v-for="(type, index) in typeSelectResults"
                     :key="index"
@@ -268,6 +270,7 @@
             </template>
 
             <template v-if="feature.isActive('FEATURE_NEXT_6040')">
+                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events vuejs-accessibility/mouse-events-have-key-events -->
                 <div
                     v-for="(type, index) in typeSelectResults"
                     :key="index"
@@ -326,6 +329,7 @@
                     v-html="$tc('global.sw-search-bar.placeholderSearchShortcutInfo')"
                 ></p>
 
+                <!-- eslint-disable-next-line vuejs-accessibility/anchor-has-content -->
                 <a>
                     <sw-icon
                         :style="{ 'color': '#7d8c9b' }"
@@ -343,6 +347,7 @@
             v-if="showModuleFiltersContainer && feature.isActive('FEATURE_NEXT_6040')"
             class="sw-search-bar__types_module-filters-container sw-search-bar__types_container--v2"
         >
+            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events vuejs-accessibility/mouse-events-have-key-events -->
             <div
                 v-for="(type, index) in typeSelectResults"
                 :key="index"

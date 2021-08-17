@@ -25,7 +25,10 @@
         {% block sw_product_detail_variants_sw_card_empty_state %}
         <template v-if="!variantListHasContent && !isLoading">
             <div class="sw-product-detail-variants__generated-variants__empty-state">
-                <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
+                <img
+                    :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                    alt=""
+                >
 
                 <div class="sw-product-detail-variants__generated-variants__empty-state--label">
                     <p>{{ $tc('sw-product.variations.emptyStateDescription') }}</p>

@@ -4,6 +4,7 @@
     :class="swMediaBreadcrumbsClasses"
 >
     {% block sw_media_breadcrumbs_root_folder %}
+    <!-- eslint-disable-next-line  vuejs-accessibility/click-events-have-key-events vuejs-accessibility/anchor-has-content -->
     <a
         class="sw-media-breadcrumbs__button-back-to-root"
         @click="onBreadcrumbsItemClicked(null)"
@@ -24,6 +25,7 @@
     {% endblock %}
 
     {% block sw_media_breadcrumbs_parent_folder %}
+    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
     <a
         v-if="parentFolder"
         class="sw-media-breadcrumbs__entry sw-media-breadcrumbs__parent-folder"

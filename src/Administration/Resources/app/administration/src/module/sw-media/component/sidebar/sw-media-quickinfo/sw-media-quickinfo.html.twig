@@ -22,6 +22,7 @@
             {% block sw_media_quickinfo_quickactions_content %}
             <ul class="sw-media-sidebar__quickactions-list">
                 {% block sw_media_quickinfo_quickactions_replace %}
+                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
                     v-if="!item.private"
                     v-tooltip="{
@@ -63,6 +64,7 @@
                 </li>
                 {% endblock %}
                 {% block sw_media_quickinfo_quickactions_move %}
+                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
                     v-tooltip="{
                         message: $tc('sw-privileges.tooltip.warning'),
@@ -84,6 +86,7 @@
                 {% endblock %}
 
                 {% block sw_media_quickinfo_quickactions_copy_link %}
+                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
                     v-if="item.hasFile"
                     class="sw-media-sidebar__quickaction quickaction--copy-link"
@@ -100,6 +103,7 @@
                 {% endblock %}
 
                 {% block sw_media_quickinfo_quickactions_delete %}
+                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
                     v-if="!item.private"
                     v-tooltip="{

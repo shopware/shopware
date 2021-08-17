@@ -34,7 +34,10 @@
         >
             <template #icon>
                 {% block sw_product_add_properties_modal_filled_state_search_empty_image %}
-                <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
+                <img
+                    :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                    :alt="$tc('sw-product.properties.titleEmptyStateList')"
+                >
                 {% endblock %}
             </template>
         </sw-empty-state>
@@ -152,7 +155,10 @@
                 >
                     <template #icon>
                         {% block sw_product_add_properties_modal_values_empty_primary_image %}
-                        <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
+                        <img
+                            :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                            :alt="$tc('sw-product.properties.addPropertiesModal.titleEmptyPropertyValues')"
+                        >
                         {% endblock %}
                     </template>
                 </sw-empty-state>
@@ -167,7 +173,10 @@
                 >
                     <template #icon>
                         {% block sw_product_add_properties_modal_values_empty_secondary_image %}
-                        <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
+                        <img
+                            :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                            :alt="$tc('sw-product.properties.addPropertiesModal.titleNoPropertySelected')"
+                        >
                         {% endblock %}
                     </template>
                 </sw-empty-state>
@@ -194,7 +203,10 @@
     >
         <template #icon>
             {% block sw_product_add_properties_modal_empty_state_image %}
-            <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
+            <img
+                :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                :alt="$tc('sw-product.properties.addPropertiesModal.titleEmptyState')"
+            >
             {% endblock %}
         </template>
     </sw-empty-state>

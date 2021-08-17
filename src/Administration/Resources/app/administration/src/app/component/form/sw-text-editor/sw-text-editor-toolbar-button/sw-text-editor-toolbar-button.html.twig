@@ -6,6 +6,7 @@
 
     {% block sw_text_editor_toolbar_button_icon %}
     <template v-if="buttonConfig.icon">
+        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <div
             v-tooltip="{ appearance: tooltipAppearance, message: buttonConfig.title }"
             class="sw-text-editor-toolbar-button__icon"
@@ -26,6 +27,7 @@
     {% endblock %}
 
     {% block sw_text_editor_toolbar_button_name %}
+    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
     <div
         v-else-if="buttonConfig.name"
         v-tooltip="{ appearance: tooltipAppearance, message: buttonConfig.title }"
@@ -37,6 +39,7 @@
     {% endblock %}
 
     {% block sw_text_editor_toolbar_button_color %}
+    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
     <div
         v-else-if="buttonConfig.type === 'foreColor'"
         v-tooltip="{ appearance: tooltipAppearance, message: buttonConfig.title }"
@@ -61,6 +64,7 @@
         :class="getDropdownClasses(buttonConfig)"
     >
         <div class="sw-text-editor-toolbar-button__children-inner-container">
+            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <div
                 v-for="(child, childIndex) in buttonConfig.children"
                 :key="childIndex"

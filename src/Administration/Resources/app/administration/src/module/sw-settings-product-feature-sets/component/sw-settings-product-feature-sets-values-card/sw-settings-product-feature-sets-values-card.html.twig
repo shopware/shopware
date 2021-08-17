@@ -109,7 +109,10 @@
 
         <div class="sw-settings-product-feature-set-card__empty-state">
             {% block sw_product_feature_set_card_empty_state_image %}
-            <img :src="'administration/static/img/empty-states/settings-empty-state.svg' | asset">
+            <img
+                :src="'administration/static/img/empty-states/settings-empty-state.svg' | asset"
+                alt=""
+            >
             {% endblock %}
 
             {% block sw_product_feature_set_card_empty_state_label %}

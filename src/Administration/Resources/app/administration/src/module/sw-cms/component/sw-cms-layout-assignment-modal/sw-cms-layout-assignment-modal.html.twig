@@ -199,6 +199,7 @@
                             v-if="item.manufacturerId"
                             :to="{ name: column.routerLink, params: { id: item.manufacturerId } }"
                         >
+                            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                             <p @click="onAbort">
                                 {{ item.manufacturer.translated.name }}
                             </p>
@@ -210,8 +211,10 @@
 
                     {% block sw_cms_layout_assignment_modal_product_detail_pages_empty_state %}
                     <template #empty-state>
-                        <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
-
+                        <img
+                            :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                            alt=""
+                        >
                         <p>{{ $tc('sw-cms.components.cmsLayoutAssignmentModal.products.productAssignmentEmptyStateDescription') }}</p>
                     </template>
                     {% endblock %}

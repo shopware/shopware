@@ -189,7 +189,10 @@
     <template v-if="taxRulesEmpty || disabled">
         <div class="sw-settings-tax-rule-card__empty-state">
             {% block sw_tax_rule_card_empty_state_image %}
-            <img :src="'administration/static/img/empty-states/settings-empty-state.svg' | asset">
+            <img
+                :src="'administration/static/img/empty-states/settings-empty-state.svg' | asset"
+                alt=""
+            >
             {% endblock %}
 
             {% block sw_tax_rule_card_empty_state_label %}

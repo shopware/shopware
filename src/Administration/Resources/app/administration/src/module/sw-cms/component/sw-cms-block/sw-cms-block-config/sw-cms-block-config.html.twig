@@ -7,6 +7,7 @@
         :class="quickactionClasses"
     >
         {% block sw_cms_block_config__quickaction_duplicate %}
+        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <li
             class="sw-cms-block-config__quickaction"
             @click="onBlockDuplicate"
@@ -20,6 +21,7 @@
         {% endblock %}
 
         {% block sw_cms_block_config__quickaction_delete %}
+        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <li
             class="sw-cms-block-config__quickaction is--danger"
             @click="onBlockDelete"

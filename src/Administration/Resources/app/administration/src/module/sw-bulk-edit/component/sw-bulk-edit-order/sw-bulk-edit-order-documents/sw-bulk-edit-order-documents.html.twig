@@ -22,8 +22,8 @@
         {% block sw_bulk_edit_order_documents_type %}
         <sw-checkbox-field
             v-for="document in documentTypes"
-            v-model="value.documentType[document]"
             :key="document.id"
+            v-model="value.documentType[document]"
             :label="document.name"
         />
         {% endblock %}

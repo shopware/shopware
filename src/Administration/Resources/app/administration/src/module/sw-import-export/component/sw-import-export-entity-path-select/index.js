@@ -216,6 +216,11 @@ Component.register('sw-import-export-entity-path-select', {
                     return;
                 }
 
+                // Return if property is a lineItems association
+                if (propertyName === 'lineItems' && property.relation === 'one_to_many') {
+                    return;
+                }
+
                 // Return if property is a price
                 if (propertyName === 'price' && property.type === 'json_object') {
                     return;
@@ -236,6 +241,8 @@ Component.register('sw-import-export-entity-path-select', {
                 this.processVisibilities,
                 this.processAssignedProducts,
                 this.processPrice,
+                this.processLineItems,
+                this.processDeliveries,
                 this.processProperties,
             ];
         },
@@ -446,6 +453,67 @@ Component.register('sw-import-export-entity-path-select', {
                     const name = `${path}${priceType}.${currency.isoCode}.${propertyName}`;
                     options.push({ label: name, value: name });
                 });
+            });
+
+            return options;
+        },
+
+        processLineItems({ definition, options, properties, path }) {
+            const lineItemProperty = definition.properties.lineItems;
+
+            if (!lineItemProperty || lineItemProperty.relation !== 'one_to_many') {
+                return { definition, options, properties, path };
+            }
+
+            const newOptions = [...options, ...this.generateLineItemProperties(path)];
+            const filteredProperties = properties.filter(propertyName => {
+                return propertyName !== 'lineItems';
+            });
+
+            return {
+                properties: filteredProperties,
+                options: newOptions,
+                definition: definition,
+                path: path,
+            };
+        },
+
+        generateLineItemProperties(path) {
+            const name = `${path}lineItems`;
+
+            return [{ label: name, value: name }];
+        },
+
+        processDeliveries({ definition, options, properties, path }) {
+            const deliveryProperty = definition.properties.deliveries;
+
+            if (!deliveryProperty || deliveryProperty.relation !== 'one_to_many') {
+                return { properties, options, definition, path };
+            }
+
+            const deliveryDefinition = Shopware.EntityDefinition.get(deliveryProperty.entity);
+            const deliveryProperties = Object.keys(deliveryDefinition.properties);
+
+            const newOptions = [...options, ...this.generateDeliveryProperties(path, deliveryProperties)];
+            const filteredProperties = properties.filter(propertyName => {
+                return propertyName !== 'deliveries';
+            });
+
+            return {
+                properties: filteredProperties,
+                options: newOptions,
+                definition: definition,
+                path: path,
+            };
+        },
+
+        generateDeliveryProperties(path, properties) {
+            const options = [];
+
+            properties.forEach(propertyName => {
+                const name = `${path}deliveries.${propertyName}`;
+
+                options.push({ value: name, label: name });
             });
 
             return options;

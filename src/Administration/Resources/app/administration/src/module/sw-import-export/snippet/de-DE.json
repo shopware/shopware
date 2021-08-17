@@ -70,6 +70,7 @@
             "productLabel": "Produkt",
             "customerLabel": "Kunde",
             "categoriesLabel": "Kategorien",
+            "orderLabel": "Bestellungen",
             "mediaLabel": "Medien",
             "newsletterRecipientLabel": "Newsletter-Empfänger",
             "caretsLabel": "Caret (^)",

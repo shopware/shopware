@@ -46,6 +46,13 @@ Shopware.Component.register('sw-import-export-view-profiles', {
             criteria.addAssociation('importExportLogs');
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
 
+            if (!this.feature.isActive('FEATURE_NEXT_16119')) {
+                criteria.addFilter(Criteria.not('AND', [
+                    Criteria.equals('name', 'Default orders'),
+                    Criteria.equals('systemDefault', 1),
+                ]));
+            }
+
             return criteria;
         },
 

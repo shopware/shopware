@@ -162,6 +162,12 @@
             <tag name="shopware.import_export.entity_serializer" priority="-400"/>
         </service>
 
+        <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\OrderSerializer">
+            <argument type="service" id="order_delivery.repository" />
+
+            <tag name="shopware.import_export.entity_serializer" priority="-400" />
+        </service>
+
         <service id="Shopware\Core\Content\ImportExport\Processing\Reader\CsvReaderFactory">
             <tag name="shopware.import_export.reader_factory" />
         </service>

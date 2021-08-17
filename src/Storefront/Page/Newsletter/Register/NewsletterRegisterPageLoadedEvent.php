@@ -6,6 +6,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @deprecated tag:v6.5.0 - Will be removed
+ */
 class NewsletterRegisterPageLoadedEvent extends PageLoadedEvent
 {
     /**

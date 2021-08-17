@@ -28,6 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PasswordField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\TimeZoneField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\System\Locale\LocaleDefinition;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryDefinition;
@@ -59,6 +60,13 @@ class UserDefinition extends EntityDefinition
         return '6.0.0.0';
     }
 
+    public function getDefaults(): array
+    {
+        return [
+            'timeZone' => 'UTC',
+        ];
+    }
+
     protected function defineProtections(): EntityProtectionCollection
     {
         return new EntityProtectionCollection([new WriteProtection(Context::SYSTEM_SCOPE)]);
@@ -79,6 +87,7 @@ class UserDefinition extends EntityDefinition
             new BoolField('active', 'active'),
             new BoolField('admin', 'admin'),
             new DateTimeField('last_updated_password_at', 'lastUpdatedPasswordAt'),
+            (new TimeZoneField('time_zone', 'timeZone'))->addFlags(new Required()),
             new CustomFields(),
             new ManyToOneAssociationField('locale', 'locale_id', LocaleDefinition::class, 'id', false),
             new OneToOneAssociationField('avatarMedia', 'avatar_id', 'id', MediaDefinition::class),

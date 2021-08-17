@@ -70,6 +70,7 @@ PHP coverage:
           - phpunit.xml.dist
           - '**/Resources/views/*.html.twig'
           - '**/*.{php,xml,yaml,json}'
+          - 'adr/*'
     before_script:
         - composer install --optimize-autoloader
         - mkdir -p config/jwt || true
@@ -121,6 +122,7 @@ PHP Full:
             - phpunit.xml.dist
             - '**/Resources/views/*.html.twig'
             - '**/*.{php,xml,yaml,json}'
+            - 'adr/*'
     parallel:
         matrix:
             -   MYSQL_IMAGE: mariadb:10.4

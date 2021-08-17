@@ -26,3 +26,4 @@
 *  [2020-07-02 - Control clone behavior](2020-07-02-control-clone-behavior.md)
 *  [2020-06-25 - Implement architecture decision record](2020-06-25-Implement-architecture-decision-records.md)
 *  [2021-07-22 - Move storefront script to head with defer](2021-07-22-move-storefront-scripts-to-head.md)
+*  [2021-08-11 - Make shopware/platform stand-alone for development and testing](2021-08-11-make-platform-stand-alone.md)

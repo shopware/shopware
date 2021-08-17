@@ -22,6 +22,7 @@ module.exports = {
         'jest',
         'twig-vue',
         'inclusive-language',
+        'vuejs-accessibility',
     ],
 
     settings: {
@@ -103,6 +104,7 @@ module.exports = {
                 'plugin:vue/essential',
                 'plugin:vue/recommended',
                 'eslint:recommended',
+                'plugin:vuejs-accessibility/recommended',
             ],
             processor: 'twig-vue/twig-vue',
             files: ['**/*.html.twig'],

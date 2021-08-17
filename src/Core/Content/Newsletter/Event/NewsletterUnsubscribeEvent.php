@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Newsletter\Event;
 
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
-use Shopware\Core\Content\Newsletter\NewsletterEvents;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
@@ -18,7 +17,7 @@ class NewsletterUnsubscribeEvent extends Event implements MailActionInterface, S
 {
     use JsonSerializableTrait;
 
-    public const EVENT_NAME = NewsletterEvents::NEWSLETTER_UNSUBSCRIBE_EVENT;
+    public const EVENT_NAME = 'newsletter.unsubscribe';
 
     /**
      * @var Context

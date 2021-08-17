@@ -4,7 +4,6 @@ namespace Shopware\Core\Content\Newsletter\Event;
 
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
-use Shopware\Core\Content\Newsletter\NewsletterEvents;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
@@ -16,7 +15,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 class NewsletterRegisterEvent extends Event implements MailActionInterface, SalesChannelAware
 {
-    public const EVENT_NAME = NewsletterEvents::NEWSLETTER_REGISTER_EVENT;
+    public const EVENT_NAME = 'newsletter.register';
 
     /**
      * @var Context

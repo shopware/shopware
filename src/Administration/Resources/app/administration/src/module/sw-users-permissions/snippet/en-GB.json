@@ -119,6 +119,8 @@
         "contextMenuDelete": "Delete",
         "textChangePassword": "Pressing the \"change\" button will immediately save the new password!",
         "addAccessKey": "Create access key",
+        "noAccessKeysTitle": "No access keys available",
+        "noAccessKeysSubline": "Create access keys here",
         "labelAccessKey": "Access key",
         "labelPermissions": "Permissions",
         "disabledRoleSelectWarning": "Roles are only available for users that don't have administrator rights.",

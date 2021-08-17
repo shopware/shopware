@@ -460,7 +460,7 @@ describe('Country: Test acl privileges', () => {
             cy.get('.sw-alert__body').should('be.visible');
             cy.get('.sw-alert__body .sw-alert__message')
                 .should('be.visible')
-                .contains('Can not create a new state/region with the currently selected language. Please create a new state/region in the default system language first!');
+                .contains('Cannot create a region with the currently selected language. Please create a region using the default system language first.');
         });
     });
 

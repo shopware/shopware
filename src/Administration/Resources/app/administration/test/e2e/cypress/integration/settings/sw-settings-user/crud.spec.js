@@ -238,6 +238,9 @@ describe('User: Test crud operations', () => {
         cy.get('.sw-modal')
             .should('not.be.visible');
 
+        cy.get('.sw-settings-user-detail__grid-firstName')
+            .scrollIntoView();
+
         cy.get('.sw-settings-user-detail__grid-firstName .sw-field__error')
             .should('be.visible')
             .contains('This field must not be empty.');

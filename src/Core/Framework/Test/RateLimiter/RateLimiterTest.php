@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Api\Controller\AuthController as AdminAuthController
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -30,6 +31,9 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+/**
+ * @group slow
+ */
 class RateLimiterTest extends TestCase
 {
     use RateLimiterTestTrait;
@@ -48,10 +52,29 @@ class RateLimiterTest extends TestCase
 
     private ?TranslatorInterface $translator;
 
+    public static function setUpBeforeClass(): void
+    {
+        if (!Feature::isActive('FEATURE_NEXT_13795')) {
+            return;
+        }
+
+        DisableRateLimiterCompilerPass::disableNoLimit();
+        KernelLifecycleManager::bootKernel(true, Uuid::randomHex());
+    }
+
+    public static function tearDownAfterClass(): void
+    {
+        if (!Feature::isActive('FEATURE_NEXT_13795')) {
+            return;
+        }
+
+        DisableRateLimiterCompilerPass::enableNoLimit();
+        KernelLifecycleManager::bootKernel(true, Uuid::randomHex());
+    }
+
     public function setUp(): void
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_13795', $this);
-        DisableRateLimiterCompilerPass::disableNoLimit();
 
         $this->context = Context::createDefaultContext();
         $this->ids = new TestDataCollection($this->context);
@@ -71,7 +94,7 @@ class RateLimiterTest extends TestCase
 
     public function tearDown(): void
     {
-        DisableRateLimiterCompilerPass::disableNoLimit();
+        DisableRateLimiterCompilerPass::enableNoLimit();
     }
 
     public function testRateLimitLoginRoute(): void

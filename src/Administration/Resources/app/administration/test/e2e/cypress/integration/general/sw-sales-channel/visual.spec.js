@@ -46,7 +46,6 @@ describe('Sales Channel: Visual tests', () => {
         cy.get('.sw-entity-multi-select .sw-select-selection-list')
             .should('have.css', 'display', 'none');
 
-
         // Change background-color of the element to ensure consistent snapshots
         cy.changeElementStyling(
             '.sw-entity-multi-select .sw-select__selection',
@@ -55,6 +54,11 @@ describe('Sales Channel: Visual tests', () => {
 
         cy.get('.sw-entity-multi-select .sw-select__selection')
             .should('have.css', 'color', 'rgb(82, 102, 122)');
+
+        cy.get('.sw-tabs-item').eq(1).contains('Products');
+        cy.get('.sw-tabs-item').eq(2).contains('Theme');
+        cy.get('.sw-tabs-item').eq(3).contains('Analytics');
+
         cy.takeSnapshot('[Sales channel] Detail', '.sw-sales-channel-detail-base');
     });
 });

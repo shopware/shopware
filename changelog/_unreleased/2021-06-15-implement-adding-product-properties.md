@@ -1,7 +1,6 @@
 ---
 title: Implement adding product properties
 issue: NEXT-14021
-flag: FEATURE_NEXT_12437
 ---
 # Administration
 * Added `sw-product-add-properties-modal` component in `sw-product` module.

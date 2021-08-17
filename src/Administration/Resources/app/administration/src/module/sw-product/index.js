@@ -32,7 +32,6 @@ import './component/sw-product-add-properties-modal';
 import './view/sw-product-detail-base';
 import './view/sw-product-detail-specifications';
 import './view/sw-product-detail-context-prices';
-import './view/sw-product-detail-properties';
 import './view/sw-product-detail-variants';
 import './view/sw-product-detail-layout';
 import './view/sw-product-detail-seo';
@@ -126,14 +125,6 @@ Module.register('sw-product', {
                 prices: {
                     component: 'sw-product-detail-context-prices',
                     path: 'prices',
-                    meta: {
-                        parentPath: 'sw.product.index',
-                        privilege: 'product.viewer',
-                    },
-                },
-                properties: {
-                    component: 'sw-product-detail-properties',
-                    path: 'properties',
                     meta: {
                         parentPath: 'sw.product.index',
                         privilege: 'product.viewer',

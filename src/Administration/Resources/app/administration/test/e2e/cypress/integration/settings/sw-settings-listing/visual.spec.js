@@ -28,7 +28,7 @@ describe('Listing settings: Visual testing', () => {
         cy.wait('@getData').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
-        cy.get('.sw-card__title').contains('Product');
+        cy.get('.sw-card__title').contains(/Default Sales Channel|Product|Sorting options/g);
         cy.get('.sw-loader').should('not.exist');
         cy.takeSnapshot('[Listing] Details', '.sw-settings-listing-index');
     });

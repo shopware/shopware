@@ -1,6 +1,6 @@
 {% block sw_sales_channel_detail_products %}
 <sw-card
-    v-if="feature.isActive('FEATURE_NEXT_12437') && salesChannel && products"
+    v-if="salesChannel && products"
     class="sw-sales-channel-detail-products"
     :is-loading="isLoading"
 >

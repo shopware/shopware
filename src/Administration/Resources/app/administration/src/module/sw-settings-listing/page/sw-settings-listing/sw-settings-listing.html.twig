@@ -55,7 +55,6 @@
         <sw-card-view>
             {% block sw_settings_listing_content_card_view_default_sales_channel %}
             <sw-card
-                v-if="feature.isActive('FEATURE_NEXT_12437')"
                 class="sw-settings-listing-index__default-sales-channel-card"
                 :title="$tc('sw-settings-listing.index.defaultSalesChannel.title')"
                 :is-loading="isDefaultSalesChannelLoading"

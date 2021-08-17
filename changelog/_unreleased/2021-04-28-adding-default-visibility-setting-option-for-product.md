@@ -1,7 +1,6 @@
 ---
 title: Adding default visibility setting option for product
 issue: NEXT-14824
-flag: FEATURE_NEXT_12437
 ---
 # Administration
 *  Added `salesChannel` computed property in `src/module/sw-settings-listing/page/sw-settings-listing/index.js` to get and set default selected sales channel

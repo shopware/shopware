@@ -9,10 +9,10 @@
 
     <link rel="shortcut icon" href="<?= $baseUrl; ?>../assets/common/images/favicon.ico" type="image/x-icon" />
 
-    <link rel="stylesheet" type="text/css" href="<?= $baseUrl; ?>../assets/common/styles/reset.css" media="all"/>
-    <link rel="stylesheet" type="text/css" href="<?= $baseUrl; ?>../assets/common/styles/fonts.css" media="all"/>
-    <link rel="stylesheet" type="text/css" href="<?= $baseUrl; ?>../assets/common/styles/icons.css" media="all"/>
-    <link rel="stylesheet" type="text/css" href="<?= $baseUrl; ?>../assets/common/styles/style.css?<?= $version; ?>" media="all"/>
+    <link rel="stylesheet" type="text/css" href="<?= $baseUrl; ?>../assets/common/styles/reset.css?v=<?= $version; ?>" media="all"/>
+    <link rel="stylesheet" type="text/css" href="<?= $baseUrl; ?>../assets/common/styles/fonts.css?v=<?= $version; ?>" media="all"/>
+    <link rel="stylesheet" type="text/css" href="<?= $baseUrl; ?>../assets/common/styles/icons.css?v=<?= $version; ?>" media="all"/>
+    <link rel="stylesheet" type="text/css" href="<?= $baseUrl; ?>../assets/common/styles/style.css?v=<?= $version; ?>" media="all"/>
 
     <script>
         var shopwareTranslations = {

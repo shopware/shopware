@@ -4,7 +4,6 @@
     <sw-field
         v-model="isDefaultShippingAddressId"
         type="checkbox"
-        :disabled="isDefaultShippingAddressId"
         :label="$tc('sw-customer.detailAddresses.contextMenuDefaultShippingAddress')"
         @change="onChangeDefaultShippingAddress"
     />
@@ -15,7 +14,6 @@
         v-model="isDefaultBillingAddressId"
         class="sw-customer-address-form__set-default-billing-address-action"
         type="checkbox"
-        :disabled="isDefaultBillingAddressId"
         :label="$tc('sw-customer.detailAddresses.contextMenuDefaultBillingAddress')"
         @change="onChangeDefaultBillingAddress"
     />

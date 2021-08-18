@@ -44,7 +44,7 @@ class MessageFailedHandler implements EventSubscriberInterface
         $this->connection->executeUpdate('
             UPDATE `message_queue_stats`
             SET `size` = `size` - 1
-            WHERE `name` = :name;
+            WHERE `name` = :name AND `size` > 0;
         ', ['name' => $name]);
     }
 

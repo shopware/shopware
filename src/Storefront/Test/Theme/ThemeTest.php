@@ -224,6 +224,51 @@ class ThemeTest extends TestCase
         static::assertEquals($themeInheritedConfig, $theme);
     }
 
+    public function testThemeConfigWithMultiSelect(): void
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('technicalName', StorefrontPluginRegistry::BASE_THEME_NAME));
+
+        /** @var ThemeEntity $baseTheme */
+        $baseTheme = $this->themeRepository->search($criteria, $this->context)->first();
+
+        $name = $this->createTheme(
+            $baseTheme,
+            $this->getCustomConfigMultiSelect()
+        );
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('technicalName', $name));
+
+        /** @var ThemeEntity $inheritedTheme */
+        $inheritedTheme = $this->themeRepository->search($criteria, $this->context)->first();
+
+        $name = $this->createTheme($inheritedTheme);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('name', $name));
+
+        /** @var ThemeEntity $childTheme */
+        $childTheme = $this->themeRepository->search($criteria, $this->context)->first();
+
+        $this->themeService->updateTheme(
+            $childTheme->getId(),
+            [
+                'multi' => [
+                    'value' => ['top'],
+                ],
+            ],
+            null,
+            $this->context
+        );
+
+        $theme = $this->themeService->getThemeConfiguration($childTheme->getId(), false, $this->context);
+
+        static::assertArrayHasKey('multi', $theme['fields']);
+        static::assertArrayHasKey('value', $theme['fields']['multi']);
+        static::assertEquals(['top'], $theme['fields']['multi']['value']);
+    }
+
     public function testCompileTheme(): void
     {
         static::markTestSkipped('theme compile is not possible cause app.js does not exists');
@@ -549,5 +594,52 @@ class ThemeTest extends TestCase
         );
 
         return $name;
+    }
+
+    private function getCustomConfigMultiSelect(): array
+    {
+        return [
+            'fields' => [
+                'multi' => [
+                    'label' => [
+                        'en-GB' => 'Multi',
+                        'de-DE' => 'Multi',
+                    ],
+                    'scss' => false,
+                    'type' => 'text',
+                    'value' => [
+                        0 => 'top',
+                        1 => 'bottom',
+                    ],
+                    'custom' => [
+                        'componentName' => 'sw-multi-select',
+                        'options' => [
+                            0 => [
+                                'value' => 'bottom',
+                                'label' => [
+                                    'en-GB' => 'bottom',
+                                    'de-DE' => 'unten',
+                                ],
+                            ],
+                            1 => [
+                                'value' => 'top',
+                                'label' => [
+                                    'en-GB' => 'top',
+                                    'de-DE' => 'oben',
+                                ],
+                            ],
+                            2 => [
+                                'value' => 'middle',
+                                'label' => [
+                                    'en-GB' => 'middle',
+                                    'de-DE' => 'mittel',
+                                ],
+                            ],
+                        ],
+                    ],
+                    'editable' => true,
+                ],
+            ],
+        ];
     }
 }

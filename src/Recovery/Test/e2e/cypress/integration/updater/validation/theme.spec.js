@@ -29,6 +29,7 @@ describe('Validation of theme and cache after auto update', () => {
         cy.login();
 
         cy.get('.sw-admin-menu__sales-channel-item--0').click();
+        cy.get('a[title="Produkte"]').should('be.visible');
         cy.get('a[title="Theme"]').click();
 
         cy.contains('Theme-Zuweisung').should('be.visible');
@@ -54,6 +55,7 @@ describe('Validation of theme and cache after auto update', () => {
             .should('have.css', 'background-color', 'rgb(0, 132, 144)');
 
         cy.visit('/admin'); cy.get('.sw-admin-menu__sales-channel-item--0').click();
+        cy.get('a[title="Produkte"]').should('be.visible');
         cy.get('a[title="Theme"]').click();
 
         cy.contains('Theme-Zuweisung').should('be.visible');

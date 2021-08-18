@@ -20,7 +20,8 @@ use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PrePayment;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\MailTemplate\MailTemplateActions;
 use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
-use Shopware\Core\Content\Newsletter\NewsletterEvents;
+use Shopware\Core\Content\Newsletter\Event\NewsletterConfirmEvent;
+use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
@@ -2318,7 +2319,7 @@ class Migration1536233560BasicData extends MigrationStep
             'event_action',
             [
                 'id' => Uuid::randomBytes(),
-                'event_name' => NewsletterEvents::NEWSLETTER_REGISTER_EVENT,
+                'event_name' => NewsletterRegisterEvent::EVENT_NAME,
                 'action_name' => MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION,
                 'config' => json_encode([
                     'mail_template_type_id' => $this->getMailTypeMapping()['newsletterDoubleOptIn']['id'],
@@ -2331,7 +2332,7 @@ class Migration1536233560BasicData extends MigrationStep
             'event_action',
             [
                 'id' => Uuid::randomBytes(),
-                'event_name' => NewsletterEvents::NEWSLETTER_CONFIRM_EVENT,
+                'event_name' => NewsletterConfirmEvent::EVENT_NAME,
                 'action_name' => MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION,
                 'config' => json_encode([
                     'mail_template_type_id' => $this->getMailTypeMapping()['newsletterRegister']['id'],

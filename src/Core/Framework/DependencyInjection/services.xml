@@ -624,5 +624,10 @@ base-uri 'self';
             <argument>%shopware.html_sanitizer.sets%</argument>
             <argument>%shopware.html_sanitizer.fields%</argument>
         </service>
+
+        <service id="Shopware\Core\Framework\Log\Monolog\ExcludeExceptionHandler" decorates="monolog.handler.main" decoration-on-invalid="ignore">
+            <argument type="service" id="Shopware\Core\Framework\Log\Monolog\ExcludeExceptionHandler.inner"/>
+            <argument>%shopware.logger.exclude_exception%</argument>
+        </service>
     </services>
 </container>

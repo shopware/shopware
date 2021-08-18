@@ -156,5 +156,6 @@
             "*": "dist"
         },
         "sort-packages": true
-    }
+    },
+    "version": "6.4.4.0"
 }

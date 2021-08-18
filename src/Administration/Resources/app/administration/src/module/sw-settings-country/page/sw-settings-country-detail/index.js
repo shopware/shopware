@@ -72,7 +72,7 @@ Component.register('sw-settings-country-detail', {
         },
 
         /**
-         * @deprecated 6.5.0: Will be removed
+         * @deprecated tag:v6.5.0 - Will be removed
          * */
         currencyRepository() {
             return this.repositoryFactory.create('currency');
@@ -221,14 +221,14 @@ Component.register('sw-settings-country-detail', {
         },
 
         /**
-         * @deprecated 6.5.0: Will be removed
+         * @deprecated tag:v6.5.0 - Will be removed
          * */
         countryStateSelectionChanged(selection, selectionCount) {
             this.deleteButtonDisabled = selectionCount <= 0;
         },
 
         /**
-         * @deprecated 6.5.0: Will be removed
+         * @deprecated tag:v6.5.0 - Will be removed
          * */
         onDeleteCountryStates() {
             const selection = this.$refs.countryStateGrid.selection;
@@ -247,14 +247,14 @@ Component.register('sw-settings-country-detail', {
         },
 
         /**
-         * @deprecated 6.5.0: Will be removed
+         * @deprecated tag:v6.5.0 - Will be removed
          * */
         onAddCountryState() {
             this.currentCountryState = this.countryStateRepository.create();
         },
 
         /**
-         * @deprecated 6.5.0: Will be removed
+         * @deprecated tag:v6.5.0 - Will be removed
          * */
         onSearchCountryState() {
             this.country.states.criteria.setTerm(this.term);
@@ -262,7 +262,7 @@ Component.register('sw-settings-country-detail', {
         },
 
         /**
-         * @deprecated 6.5.0: Will be removed
+         * @deprecated tag:v6.5.0 - Will be removed
          * */
         refreshCountryStateList() {
             this.countryStateLoading = true;
@@ -273,7 +273,7 @@ Component.register('sw-settings-country-detail', {
         },
 
         /**
-         * @deprecated 6.5.0: Will be removed
+         * @deprecated tag:v6.5.0 - Will be removed
          * */
         onSaveCountryState() {
             // dont send requests if we are on local mode(creating a new country)
@@ -289,14 +289,14 @@ Component.register('sw-settings-country-detail', {
         },
 
         /**
-         * @deprecated 6.5.0: Will be removed
+         * @deprecated tag:v6.5.0 - Will be removed
          * */
         onCancelCountryState() {
             this.currentCountryState = null;
         },
 
         /**
-         * @deprecated 6.5.0: Will be removed
+         * @deprecated tag:v6.5.0 - Will be removed
          * */
         onClickCountryState(item) {
             // Create a copy with the same id which will be edited

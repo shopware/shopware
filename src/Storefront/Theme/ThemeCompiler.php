@@ -125,7 +125,7 @@ class ThemeCompiler implements ThemeCompilerInterface
     }
 
     /**
-     * @deprecated tag:v6.5.0.0 - Use AbstractThemePathBuilder instead
+     * @deprecated tag:v6.5.0 - Use AbstractThemePathBuilder instead
      */
     public static function getThemePrefix(string $salesChannelId, string $themeId): string
     {

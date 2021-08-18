@@ -396,7 +396,7 @@ class Kernel extends HttpKernel
     }
 
     /**
-     * @deprecated Remove when Symfony 5.3.7 is released and we bumped up the minimum version
+     * @deprecated tag:v6.5.0 Remove when Symfony 5.3.7 is released and we bumped up the minimum version
      * @see https://github.com/symfony/symfony/pull/42347
      */
     protected function getContainerBuilder()

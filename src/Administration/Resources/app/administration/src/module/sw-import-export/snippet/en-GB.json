@@ -129,7 +129,9 @@
                 "importExportLabel": "Import and export",
                 "importLabel": "Import",
                 "exportLabel": "Export"
-            }
+            },
+          "profileTypeDisabledText": "Clear 'usage' in order to be able to select any 'object type'.",
+          "objectTypeDisabledText": "Clear 'object type' in order to be able to select any 'usage'."
         },
         "exporter": {
             "messageExportSuccess": "The export was completed successfully.",

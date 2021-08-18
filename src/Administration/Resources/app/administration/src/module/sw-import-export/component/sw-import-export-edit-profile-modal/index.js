@@ -5,6 +5,13 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const { Criteria } = Shopware.Data;
 const { Mixin } = Shopware;
 
+const profileTypes = {
+    IMPORT: 'import',
+    EXPORT: 'export',
+    IMPORT_EXPORT: 'import-export',
+};
+
+
 /**
  * @private
  */
@@ -31,46 +38,62 @@ Shopware.Component.register('sw-import-export-edit-profile-modal', {
 
     data() {
         return {
+            /**
+             * Array containing objects of the entities which are available for selection when editing a profile
+             * object.value The name of the entity, also used as identifier in the select box
+             * object.label The label of the entity
+             * object.type Specifies the usage of the entity, possible values are 'import', 'export' or 'import-export'.
+             */
             supportedEntities: [
                 {
                     value: 'product',
                     label: this.$tc('sw-import-export.profile.productLabel'),
+                    type: profileTypes.IMPORT_EXPORT,
                 },
                 {
                     value: 'customer',
                     label: this.$tc('sw-import-export.profile.customerLabel'),
+                    type: profileTypes.IMPORT_EXPORT,
                 },
                 {
                     value: 'category',
                     label: this.$tc('sw-import-export.profile.categoriesLabel'),
+                    type: profileTypes.IMPORT_EXPORT,
                 },
                 {
                     value: 'order',
                     label: this.$tc('sw-import-export.profile.orderLabel'),
+                    type: profileTypes.EXPORT,
                 },
                 {
                     value: 'media',
                     label: this.$tc('sw-import-export.profile.mediaLabel'),
+                    type: profileTypes.IMPORT_EXPORT,
                 },
                 {
                     value: 'newsletter_recipient',
                     label: this.$tc('sw-import-export.profile.newsletterRecipientLabel'),
+                    type: profileTypes.IMPORT_EXPORT,
                 },
                 {
                     value: 'property_group_option',
                     label: this.$tc('sw-import-export.profile.propertyLabel'),
+                    type: profileTypes.IMPORT_EXPORT,
                 },
                 {
                     value: 'product_configurator_setting',
                     label: this.$tc('sw-import-export.profile.configuratorSettingLabel'),
+                    type: profileTypes.IMPORT_EXPORT,
                 },
                 {
                     value: 'product_cross_selling',
                     label: this.$tc('sw-import-export.profile.productCrossSellingLabel'),
+                    type: profileTypes.IMPORT_EXPORT,
                 },
                 {
                     value: 'promotion_individual_code',
                     label: this.$tc('sw-import-export.profile.promotionIndividualCodesLabel'),
+                    type: profileTypes.IMPORT_EXPORT,
                 },
             ],
             supportedDelimiter: [
@@ -95,15 +118,15 @@ Shopware.Component.register('sw-import-export-edit-profile-modal', {
             ],
             supportedProfileTypes: [
                 {
-                    value: 'import-export',
+                    value: profileTypes.IMPORT_EXPORT,
                     label: this.$tc('sw-import-export.profile.types.importExportLabel'),
                 },
                 {
-                    value: 'import',
+                    value: profileTypes.IMPORT,
                     label: this.$tc('sw-import-export.profile.types.importLabel'),
                 },
                 {
-                    value: 'export',
+                    value: profileTypes.EXPORT,
                     label: this.$tc('sw-import-export.profile.types.exportLabel'),
                 },
             ],
@@ -233,6 +256,54 @@ Shopware.Component.register('sw-import-export-edit-profile-modal', {
             if (newValue === false) {
                 this.profile.config.createEntities = true;
             }
+        },
+
+        shouldDisableProfileType(item) {
+            if (!this.feature.isActive('FEATURE_NEXT_8097')) {
+                return false;
+            }
+
+            if (!this.profile.sourceEntity) {
+                return false;
+            }
+            const currentEntity = this.supportedEntities.find(entity => entity.value === this.profile.sourceEntity);
+            if (currentEntity.type === profileTypes.IMPORT_EXPORT) {
+                return false;
+            }
+
+            if (currentEntity.type === profileTypes.IMPORT) {
+                return item.value !== profileTypes.IMPORT;
+            }
+
+            if (currentEntity.type === profileTypes.EXPORT) {
+                return item.value !== profileTypes.EXPORT;
+            }
+
+            return true;
+        },
+
+        shouldDisableObjectType(item) {
+            if (!this.feature.isActive('FEATURE_NEXT_8097')) {
+                return false;
+            }
+
+            if (!this.profile.type) {
+                return false;
+            }
+
+            if (this.profile.type === profileTypes.IMPORT_EXPORT) {
+                return item.type !== profileTypes.IMPORT_EXPORT;
+            }
+
+            if (this.profile.type === profileTypes.IMPORT) {
+                return ![profileTypes.IMPORT, profileTypes.IMPORT_EXPORT].includes(item.type);
+            }
+
+            if (this.profile.type === profileTypes.EXPORT) {
+                return ![profileTypes.EXPORT, profileTypes.IMPORT_EXPORT].includes(item.type);
+            }
+
+            return true;
         },
     },
 });

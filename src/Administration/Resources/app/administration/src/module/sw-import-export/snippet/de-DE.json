@@ -129,7 +129,9 @@
                 "importExportLabel": "Import und Export",
                 "importLabel": "Import",
                 "exportLabel": "Export"
-            }
+            },
+          "profileTypeDisabledText": "Leere das Feld 'Objekt-Typ', um wieder zwischen allen möglichen 'Nutzungen' auswählen zu können.",
+          "objectTypeDisabledText": "Leere das Feld 'Nutzung', um wieder zwischen allen möglichen 'Objekt-Typen' auswählen zu können."
         },
         "exporter": {
             "messageExportSuccess": "Der Export wurde erfolgreich abgeschlossen.",

@@ -58,6 +58,11 @@ describe('Import/Export - Profiles: Test crud operations', () => {
             );
 
         cy.onlyOnFeature('FEATURE_NEXT_8097', () => {
+            cy.get('.sw-import-export-edit-profile-modal__type-select')
+                .typeSingleSelectAndCheck(
+                    'Import and export',
+                    '.sw-import-export-edit-profile-modal__type-select'
+                );
             // switch to mapping tab
             cy.contains('.sw-import-export-edit-profile-modal .sw-tabs-item', 'Mappings').click();
         });

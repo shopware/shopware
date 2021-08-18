@@ -27,6 +27,7 @@ use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
 use Shopware\Core\Framework\Test\RateLimiter\RateLimiterTestTrait;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -49,6 +50,9 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+/**
+ * @group slow
+ */
 class ControllerRateLimiterTest extends TestCase
 {
     use RateLimiterTestTrait;
@@ -68,10 +72,29 @@ class ControllerRateLimiterTest extends TestCase
 
     private ?TranslatorInterface $translator;
 
+    public static function setUpBeforeClass(): void
+    {
+        if (!Feature::isActive('FEATURE_NEXT_13795')) {
+            return;
+        }
+
+        DisableRateLimiterCompilerPass::disableNoLimit();
+        KernelLifecycleManager::bootKernel(true, Uuid::randomHex());
+    }
+
+    public static function tearDownAfterClass(): void
+    {
+        if (!Feature::isActive('FEATURE_NEXT_13795')) {
+            return;
+        }
+
+        DisableRateLimiterCompilerPass::enableNoLimit();
+        KernelLifecycleManager::bootKernel(true, Uuid::randomHex());
+    }
+
     public function setUp(): void
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_13795', $this);
-        DisableRateLimiterCompilerPass::disableNoLimit();
 
         $this->context = Context::createDefaultContext();
         $this->ids = new TestDataCollection($this->context);
@@ -89,11 +112,6 @@ class ControllerRateLimiterTest extends TestCase
         $this->getContainer()->get('session')->getFlashBag()->clear();
 
         $this->translator = $this->getContainer()->get('translator');
-    }
-
-    public function tearDown(): void
-    {
-        DisableRateLimiterCompilerPass::disableNoLimit();
     }
 
     public function testGenerateAccountRecoveryRateLimit(): void

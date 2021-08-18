@@ -122,7 +122,13 @@ Component.register('sw-admin-menu-item', {
             return menuItemName.replace(/\./g, '-');
         },
 
-        subIsActive(path) {
+        subIsActive(path, entryId) {
+            // this is an extra case for the sw-sales-channel menu, without this all sales-channels
+            // would have the selection highlight as soon as one is selected.
+            if (this.$route.name?.startsWith('sw.sales.channel.')) {
+                return this.$route.params?.id === entryId;
+            }
+
             const meta = this.$route.meta;
             const adminMenuEntries = Shopware.State.get('adminMenu').adminModuleNavigation;
             let compareTo;
@@ -158,7 +164,7 @@ Component.register('sw-admin-menu-item', {
                 compareTo = this.$route?.name;
             }
 
-            if (this.entry.path && meta.$module?.name !== 'sales-channel') {
+            if (this.entry.path) {
                 return compareTo ? compareTo.replace(/-/g, '.').indexOf(path.replace(/\.index/g, '')) === 0 : false;
             }
 

@@ -12,7 +12,7 @@
     <router-link
         v-if="entryPath"
         class="sw-admin-menu__navigation-link"
-        :class="{'router-link-active': subIsActive(entryPath)}"
+        :class="{'router-link-active': subIsActive(entryPath, entry.id)}"
         :to="getLinkToProp"
     >
 

@@ -59,6 +59,7 @@
             {% endblock %}
 
             {% block sw_category_tree_field_input_field %}
+            <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
             <input
                 ref="searchInput"
                 v-model="term"
@@ -147,6 +148,7 @@
                     >
 
                         {% block sw_category_tree_field_input_results_search_results_item %}
+                        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                         <li
                             v-for="item in searchResult"
                             :key="item.id"

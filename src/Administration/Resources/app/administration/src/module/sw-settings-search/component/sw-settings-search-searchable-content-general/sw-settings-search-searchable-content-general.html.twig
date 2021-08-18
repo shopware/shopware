@@ -10,7 +10,10 @@
     >
         <template #icon>
             {% block sw_settings_search_searchable_content_general_state_image %}
-            <img :src="'administration/static/img/empty-states/settings-empty-state.svg' | asset">
+            <img
+                :src="'administration/static/img/empty-states/settings-empty-state.svg' | asset"
+                :alt="$tc('sw-settings-search.generalTab.textEmptyStateSearchableContent')"
+            >
             {% endblock %}
         </template>
     </sw-empty-state>

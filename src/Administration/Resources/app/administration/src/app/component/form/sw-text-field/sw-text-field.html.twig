@@ -18,6 +18,7 @@
     </template>
 
     <template #sw-field-input="{ identification, error, disabled, size, setFocusClass, removeFocusClass, hasSuffix, hasPrefix }">
+        <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
         <input
             v-bind="$attrs"
             :id="createInputId(identification)"

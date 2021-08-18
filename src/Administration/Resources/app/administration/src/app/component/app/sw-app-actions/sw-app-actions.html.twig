@@ -41,6 +41,7 @@
                     v-if="action.icon"
                     class="sw-app-action-button__icon"
                     :src="`data:image/png;base64, ${action.icon}`"
+                    alt=""
                 >
                 <span>{{ action.app }}</span>
             </div>
@@ -66,6 +67,7 @@
         {% endblock %}
 
         {% block sw_app_action_modal_iframe %}
+        <!-- eslint-disable-next-line vuejs-accessibility/iframe-has-title -->
         <iframe
             id="app-action-button-iframe"
             ref="innerFrame"

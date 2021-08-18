@@ -11,6 +11,7 @@
         <template slot="content">
             <ul class="sw-media-sidebar__quickactions-list">
                 {% block sw_media_quickinfo_folder_quickactions_move %}
+                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
                     v-tooltip="{
                         message: $tc('sw-privileges.tooltip.warning'),
@@ -31,6 +32,7 @@
                 {% endblock %}
 
                 {% block sw_media_quickinfo_folder_quickactions_settings %}
+                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
                     class="sw-media-sidebar__quickaction quickaction--settings"
                     @click="openFolderSettings"
@@ -45,6 +47,7 @@
                 {% endblock %}
 
                 {% block sw_media_quickinfo_folder_quickactions_dissolve %}
+                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
                     v-tooltip="{
                         message: $tc('sw-privileges.tooltip.warning'),
@@ -65,6 +68,7 @@
                 {% endblock %}
 
                 {% block sw_media_quickinfo_folder_quickactions_delete %}
+                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <li
                     v-tooltip="{
                         message: $tc('sw-privileges.tooltip.warning'),

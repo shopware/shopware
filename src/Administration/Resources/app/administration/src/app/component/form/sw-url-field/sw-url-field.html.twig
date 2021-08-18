@@ -9,6 +9,7 @@
     @inheritance-remove="$emit('inheritance-remove', $event)"
 >
     <template #sw-contextual-field-prefix="{ disabled }">
+        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
         <span
             class="sw-field__url-input__prefix"
             :class="prefixClass"
@@ -29,6 +30,7 @@
     </template>
 
     <template #sw-field-input="{ identification, error, disabled, size, setFocusClass, removeFocusClass }">
+        <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
         <input
             :id="identification"
             type="url"

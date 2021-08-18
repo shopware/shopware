@@ -39,7 +39,10 @@
         <div class="sw-product-detail-properties__empty-state">
             <template v-if="propertiesAvailable">
                 {% block sw_product_detail_properties_empty_state_image %}
-                <img :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset">
+                <img
+                    :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                    alt=""
+                >
                 {% endblock %}
 
                 {% block sw_product_detail_properties_empty_state_text %}
@@ -94,6 +97,7 @@
                         @inheritance-restore="restoreInheritance"
                         @inheritance-remove="removeInheritance"
                     />
+                    <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
                     <label class="sw-product-detail-properties__inheritance-label">
                         {{ $tc('sw-product.properties.inheritSwitchLabel') }}
                     </label>

@@ -7,6 +7,7 @@
     @inheritance-remove="$emit('inheritance-remove', $event)"
 >
     <template #sw-field-input="{identification, helpText, error, disabled, setFocusClass, removeFocusClass }">
+        <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
         <textarea
             :id="identification"
             :name="identification"

@@ -10,7 +10,7 @@ Component.extend('sw-cms-el-manufacturer-logo', 'sw-cms-el-image', {
 
     computed: {
         isProductPage() {
-            return this.cmsPageState?.currentPage?.type ?? '' === 'product_detail';
+            return this.cmsPageState?.currentPage?.type === 'product_detail';
         },
 
         styles() {

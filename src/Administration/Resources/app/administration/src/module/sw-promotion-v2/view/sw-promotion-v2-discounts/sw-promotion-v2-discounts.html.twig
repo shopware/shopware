@@ -120,7 +120,10 @@
 
             {% block sw_promotion_v2_discounts_empty_state_icon %}
             <template #icon>
-                <img :src="'/administration/static/img/empty-states/promotion-empty-state.svg' | asset">
+                <img
+                    :src="'/administration/static/img/empty-states/promotion-empty-state.svg' | asset"
+                    :alt="$tc('sw-promotion-v2.detail.discounts.emptyStateTitle')"
+                >
             </template>
             {% endblock %}
 

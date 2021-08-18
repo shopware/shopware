@@ -70,6 +70,7 @@
         {% block sw_media_upload_v2_regular_header %}
         <div class="sw-media-upload-v2__header">
             {% block sw_media_upload_v2_regular_header_label %}
+            <!-- eslint-disable-next-line vuejs-accessibility/label-has-for -->
             <label
                 v-if="label"
                 class="sw-media-upload-v2__label"
@@ -231,6 +232,7 @@
         ref="fileForm"
         class="sw-media-upload-v2__form"
     >
+        <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
         <input
             id="files"
             ref="fileInput"

@@ -122,6 +122,7 @@
 
                 {% block sw_customer_detail_addresses_grid_columns_last_name %}
                 <template #column-lastName="{ item }">
+                    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                     <a @click="onEditAddress(item.id)">
                         {{ item.lastName }}
                     </a>

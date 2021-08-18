@@ -64,6 +64,7 @@
             name="input"
             v-bind="{ placeholder, searchTerm, onSearchTermChange, onKeyDownDelete }"
         >
+            <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
             <input
                 ref="swSelectInput"
                 class="sw-select-selection-list__input"

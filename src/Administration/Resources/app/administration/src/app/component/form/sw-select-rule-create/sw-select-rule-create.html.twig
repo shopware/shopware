@@ -8,6 +8,7 @@
 
         <template #before-item-list>
             {% block sw_select_rule_create_select_before %}
+            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <div
                 class="sw-select-rule-create__create-rule-item sw-select-result"
                 @click="openCreateRuleModal"
@@ -31,6 +32,7 @@
     >
         <template #before-item-list>
             {% block sw_select_rule_create_single_select_before %}
+            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <div
                 class="sw-select-rule-create__create-rule-item sw-select-result"
                 @click="openCreateRuleModal"

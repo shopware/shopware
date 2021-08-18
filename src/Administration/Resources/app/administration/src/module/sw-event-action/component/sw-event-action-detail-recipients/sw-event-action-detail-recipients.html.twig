@@ -36,7 +36,10 @@
         >
             <template #icon>
                 {% block sw_event_action_detail_recipients_empty_state_image %}
-                <img :src="'administration/static/img/empty-states/settings-empty-state.svg' | asset">
+                <img
+                    :src="'administration/static/img/empty-states/settings-empty-state.svg' | asset"
+                    alt=""
+                >
                 {% endblock %}
             </template>
         </sw-empty-state>

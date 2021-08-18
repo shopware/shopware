@@ -120,6 +120,7 @@
     "eslint-plugin-promise": "4.2.1",
     "eslint-plugin-twig-vue": "file:twigVuePlugin",
     "eslint-plugin-vue": "7.9.0",
+    "eslint-plugin-vuejs-accessibility": "^0.7.1",
     "eventsource-polyfill": "0.9.6",
     "expose-loader": "0.7.5",
     "express": "4.17.1",

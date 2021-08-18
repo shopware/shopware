@@ -15,6 +15,7 @@
         <template #before-item-list>
 
             {% block sw_promotion_rule_select_v2_selection_before_list %}
+            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <li
                 class="sw-select-result sw-promotion-v2-rule-select__add-new-rule"
                 @click="showRuleModal = true"

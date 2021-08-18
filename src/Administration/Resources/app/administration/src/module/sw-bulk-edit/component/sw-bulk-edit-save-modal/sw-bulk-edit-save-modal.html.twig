@@ -24,8 +24,8 @@
         <div class="footer-left">
             <sw-button
                 v-for="button in buttons.left"
-                size="small"
                 :key="button.key"
+                size="small"
                 :variant="button.variant"
                 :disabled="button.disabled"
                 @click="onButtonClick(button.action)"
@@ -39,8 +39,8 @@
         <div class="footer-right">
             <sw-button
                 v-for="button in buttons.right"
-                size="small"
                 :key="button.key"
+                size="small"
                 :variant="button.variant"
                 :disabled="button.disabled"
                 @click="onButtonClick(button.action)"

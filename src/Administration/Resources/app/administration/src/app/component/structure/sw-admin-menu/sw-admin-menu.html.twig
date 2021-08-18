@@ -1,4 +1,5 @@
 {% block sw_admin_menu %}
+<!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events -->
 <aside
     class="sw-admin-menu"
     :class="adminMenuClasses"
@@ -81,6 +82,7 @@
         {% endblock %}
 
         {% block sw_admin_menu_user_actions_toggle %}
+        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events vuejs-accessibility/mouse-events-have-key-events -->
         <div
             class="sw-admin-menu__user-actions-toggle"
             :class="{'is--active': isUserActionsActive}"
@@ -125,6 +127,7 @@
         {% endblock %}
 
         {% block sw_admin_menu_user_actions %}
+        <!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events -->
         <div
             class="sw-admin-menu__user-actions"
             :class="{'is--active': isUserActionsActive}"
@@ -195,6 +198,7 @@
 
     {% block sw_admin_menu_flyout_transition %}
     <transition name="flyout">
+        <!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events -->
         <ul
             v-if="flyoutEntries.length"
             class="sw-admin-menu_flyout-holder"

@@ -1,5 +1,6 @@
 {% block sw_compact_colorpicker %}
 {% block sw_colorpicker_contextual_field %}
+<!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
 <div
     class="sw-field sw-field--colorpicker sw-field--compact-colorpicker sw-text-editor-toolbar-button__fore-color-menu"
     @click="toggleColorPicker"
@@ -44,6 +45,7 @@
     <div class="sw-colorpicker__row">
         <div class="sw-colorpicker__sliders">
             {% block sw_compact_colorpicker_hue_slider %}
+            <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
             <input
                 v-model.number="hueValue"
                 class="sw-colorpicker__colorpicker-slider-range"
@@ -55,6 +57,7 @@
             {% endblock %}
 
             {% block sw_compact_colorpicker_alpha_slider %}
+            <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
             <input
                 v-if="alpha"
                 v-model.number="alphaValue"
@@ -89,6 +92,7 @@
     <div class="sw-colorpicker__row sw-colorpicker__input-row">
         {% block sw_compact_colorpicker_inputs_hex %}
         <div class="sw-colorpicker__row-column">
+            <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
             <input
                 v-model.lazy="hexValue"
                 type="text"
@@ -104,6 +108,7 @@
 
         {% block sw_compact_colorpicker_inputs_red %}
         <div class="sw-colorpicker__row-column">
+            <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
             <input
                 v-model.number="redValue"
                 class="sw-colorpicker__colorpicker-input"
@@ -122,6 +127,7 @@
 
         {% block sw_compact_colorpicker_inputs_green %}
         <div class="sw-colorpicker__row-column">
+            <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
             <input
                 v-model.number="greenValue"
                 class="sw-colorpicker__colorpicker-input"
@@ -140,6 +146,7 @@
 
         {% block sw_compact_colorpicker_inputs_blue %}
         <div class="sw-colorpicker__row-column">
+            <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
             <input
                 v-model.number="blueValue"
                 class="sw-colorpicker__colorpicker-input"
@@ -161,6 +168,7 @@
             v-if="alpha"
             class="sw-colorpicker__row-column"
         >
+            <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
             <input
                 v-model.number="integerAlpha"
                 class="sw-colorpicker__colorpicker-input"

@@ -3,9 +3,9 @@
     :title="$tc('sw-settings-search.generalTab.labelSearchableContent')"
 >
     {% block sw_settings_search_searchable_content_title %}
-    <label class="sw-field sw-settings-search__searchable-content-title">
+    <span class="sw-field sw-settings-search__searchable-content-title">
         {{ $tc('sw-settings-search.generalTab.textDescriptionSearchableContent') }}
-    </label>
+    </span>
     {% endblock %}
 
     {% block sw_settings_search_searchable_actions %}
@@ -47,6 +47,7 @@
         <div class="sw-settings-search__searchable-content-link-text">
 
             {% block sw_settings_search_searchable_show_example_link_element %}
+            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <a
                 class="sw-settings-search__searchable-content-show-example-link"
                 @click="onShowExampleModal"

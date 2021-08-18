@@ -21,6 +21,7 @@
         {% block sw_media_preview_v2_file_type_check %}
         <template v-if="mimeTypeGroup === 'image'">
             {% block sw_media_preview_v2_file_type_image %}
+            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <img
                 v-if="!imagePreviewFailed"
                 class="sw-media-preview-v2__item"
@@ -50,6 +51,7 @@
 
         <template v-else-if="isPlayable && mimeTypeGroup === 'video'">
             {% block sw_media_preview_v2_file_type_video %}
+            <!-- eslint-disable-next-line vuejs-accessibility/media-has-caption -->
             <video
                 :controls="showControls"
                 :autoplay="autoplay"
@@ -90,6 +92,7 @@
                 size="80%"
                 multicolor
             />
+            <!-- eslint-disable-next-line vuejs-accessibility/media-has-caption -->
             <audio
                 :controls="showControls"
                 :autoplay="autoplay"
@@ -127,6 +130,7 @@
                 :src="previewUrl"
                 class="sw-media-preview-v2__item"
                 draggable="false"
+                alt=""
                 @error="removeUrlPreview"
             >
         </template>

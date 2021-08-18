@@ -62,7 +62,10 @@
             :show-description="false"
         >
             <template #icon>
-                <img :src="'administration/static/img/empty-states/settings-empty-state.svg' | asset">
+                <img
+                    :src="'administration/static/img/empty-states/settings-empty-state.svg' | asset"
+                    :alt="$tc('sw-settings-rule.detail.hasNoAssociations')"
+                >
             </template>
         </sw-empty-state>
     </sw-card>

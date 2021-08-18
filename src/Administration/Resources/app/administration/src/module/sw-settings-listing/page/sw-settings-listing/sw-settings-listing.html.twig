@@ -89,6 +89,7 @@
                     {% endblock %}
 
                     {% block sw_settings_listing_content_card_view_default_sales_channel_setting_visibility %}
+                    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                     <a
                         v-if="salesChannel.length > 0"
                         class="sw-card__quick-link"
@@ -274,7 +275,10 @@
 
                     {% block sw_settings_listing_content_card_view_options_card_empty_state_icon %}
                     <template #icon>
-                        <img :src="'administration/static/img/empty-states/settings-empty-state.svg' | asset">
+                        <img
+                            :src="'administration/static/img/empty-states/settings-empty-state.svg' | asset"
+                            :alt="$tc('sw-settings-listing.index.productSorting.emptyState.title')"
+                        >
                     </template>
                     {% endblock %}
                 </sw-empty-state>

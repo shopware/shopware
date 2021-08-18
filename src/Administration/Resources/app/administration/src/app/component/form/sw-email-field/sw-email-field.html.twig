@@ -28,6 +28,7 @@
         #sw-field-input="{ identification, error, disabled, size, setFocusClass, removeFocusClass, hasSuffix, hasPrefix }"
     >
         {% block sw_email_field_input_inner %}
+        <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
         <input
             :id="identification"
             type="email"

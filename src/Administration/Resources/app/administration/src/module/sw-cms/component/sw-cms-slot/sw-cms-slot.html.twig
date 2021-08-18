@@ -29,6 +29,7 @@
         {% block sw_cms_slot_content_overlay_content %}
         <div class="sw-cms-slot__actions">
             {% block sw_cms_slot_content_overlay_action_settings %}
+            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <div
                 v-tooltip.bottom="tooltipDisabled"
                 class="sw-cms-slot__settings-action"
@@ -43,6 +44,7 @@
             {% endblock %}
 
             {% block sw_cms_slot_content_overlay_action_swap %}
+            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <div
                 v-if="elementConfig.removable !== false"
                 class="sw-cms-slot__element-action"
@@ -97,7 +99,7 @@
         {% block sw_cms_slot_content_element_modal_selection %}
         <div class="sw-cms-slot__element-selection">
             {% block sw_cms_slot_content_element_modal_selection_element %}
-            <!-- eslint-disable vue/no-use-v-if-with-v-for -->
+            <!-- eslint-disable vue/no-use-v-if-with-v-for vuejs-accessibility/click-events-have-key-events -->
             <div
                 v-for="(element, index) in cmsElements"
                 v-if="!element.hidden && element.previewComponent"

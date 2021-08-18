@@ -98,6 +98,7 @@
                 <template #column-payload.customerName="{ item }">
 
                     {% block sw_promotion_v2_individual_codes_behavior_grid_redeemed_customer_link %}
+                    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                     <a
                         v-if="item.payload && item.payload.customerId"
                         class="sw-promotion-v2-individual-codes-behavior__redeemed-customer-name"
@@ -141,6 +142,7 @@
                 <template #bulk>
 
                     {% block sw_promotion_v2_individual_codes_behavior_grid_actions_bulk_delete %}
+                    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                     <span
                         class="sw-promotion-v2-individual-codes-behavior__code-bulk-delete-action link link-danger"
                         @click="onShowCodeBulkDeleteModal"
@@ -187,6 +189,7 @@
                 <img
                     class="sw-promotion-v2-individual-codes-behavior__empty-state-icon"
                     :src="'/administration/static/img/empty-states/promotion-empty-state.svg' | asset"
+                    :alt="$tc('sw-promotion-v2.detail.base.codes.individual.emptyStateTitle')"
                 >
             </template>
             {% endblock %}

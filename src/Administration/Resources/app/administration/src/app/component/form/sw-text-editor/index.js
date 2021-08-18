@@ -481,7 +481,8 @@ Component.register('sw-text-editor', {
                 return;
             }
 
-            if (path.includes(this.toolbar) && event?.target?.tagName !== 'INPUT') {
+            const targetTag = event?.target?.tagName;
+            if (path.includes(this.toolbar) && (targetTag !== 'INPUT' && targetTag !== 'SELECT')) {
                 event.preventDefault();
                 return;
             }

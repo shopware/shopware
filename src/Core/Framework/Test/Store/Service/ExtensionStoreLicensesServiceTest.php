@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Test\Store\Service;
 
+use GuzzleHttp\Psr7\Query;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
@@ -42,9 +43,19 @@ class ExtensionStoreLicensesServiceTest extends TestCase
 
         $this->extensionLicensesService->cancelSubscription(1, $context);
 
+        $lastRequest = $this->getRequestHandler()->getLastRequest();
         static::assertEquals(
-            '/swplatform/pluginlicenses/1/cancel?shopwareVersion=___VERSION___&language=en-GB&domain=localhost',
-            $this->getRequestHandler()->getLastRequest()->getRequestTarget()
+            '/swplatform/pluginlicenses/1/cancel',
+            $lastRequest->getUri()->getPath()
+        );
+
+        static::assertEquals(
+            [
+                'shopwareVersion' => '___VERSION___',
+                'language' => 'en-GB',
+                'domain' => 'localhost',
+            ],
+            Query::parse($lastRequest->getUri()->getQuery())
         );
     }
 

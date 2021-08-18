@@ -27,5 +27,10 @@
                 </argument>
             </argument>
         </service>
+
+        <service id="Shopware\Core\Framework\Store\Services\InstanceService">
+            <argument type="constant">Shopware\Core\Kernel::SHOPWARE_FALLBACK_VERSION</argument>
+            <argument type="string">this-is-a-unique-id</argument>
+        </service>
     </services>
 </container>

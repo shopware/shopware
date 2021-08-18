@@ -26,7 +26,7 @@ class StoreClientFactoryTest extends TestCase
 
     public function setUp(): void
     {
-        // create new sbb client factory as it is inlined in test environment because clients are created as mocks
+        // create new sbp client factory as it is inlined in test environment because clients are created as mocks
         $this->clientFactory = new StoreClientFactory(
             $this->getSystemConfigService(),
             $this->getContainer()->get(OpenSSLVerifier::class)

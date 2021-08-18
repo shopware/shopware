@@ -40,7 +40,9 @@ class ExtensionDownloaderTest extends TestCase
         $this->getRequestHandler()->append(new Response(200, [], '{"location": "http://localhost/my.zip", "type": "app"}'));
         $this->getRequestHandler()->append(new Response(200, [], file_get_contents(__DIR__ . '/../_fixtures/TestApp.zip')));
 
-        $this->extensionDownloader->download('TestApp', Context::createDefaultContext(new AdminApiSource(Uuid::randomHex())));
+        $context = $this->createAdminStoreContext();
+
+        $this->extensionDownloader->download('TestApp', $context);
         $expectedLocation = $this->getContainer()->getParameter('kernel.app_dir') . '/TestApp';
 
         static::assertFileExists($expectedLocation);
@@ -53,8 +55,10 @@ class ExtensionDownloaderTest extends TestCase
         $this->getRequestHandler()->append(new Response(200, [], '{"location": "http://localhost/my.zip"}'));
         $this->getRequestHandler()->append(new Response(500, [], ''));
 
+        $context = $this->createAdminStoreContext();
+
         static::expectException(StoreNotAvailableException::class);
-        $this->extensionDownloader->download('TestApp', Context::createDefaultContext(new AdminApiSource(Uuid::randomHex())));
+        $this->extensionDownloader->download('TestApp', $context);
     }
 
     public function testDownloadWhichIsAnComposerExtension(): void

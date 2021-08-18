@@ -17,7 +17,6 @@ use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Store\Struct\PluginDownloadDataStruct;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class StoreControllerTest extends TestCase
 {
@@ -56,7 +55,6 @@ class StoreControllerTest extends TestCase
             $pluginRepo ?? $this->getPluginRepositoryMock(),
             $pluginManagementService ?? $this->getPluginManagementServiceMock(),
             $this->getContainer()->get('user.repository'),
-            $this->getContainer()->get(SystemConfigService::class),
             null
         );
     }

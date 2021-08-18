@@ -221,4 +221,27 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
             expect(assignment.text()).toBe(validNames[index]);
         });
     });
+
+    it('should have the right link inside the template', async () => {
+        const wrapper = createWrapper([
+            'promotion'
+        ]);
+
+        // Wait for repository request
+        await wrapper.vm.$nextTick();
+
+        // Wait for loading to be disabled and re-render
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+
+        const promotionListing = wrapper.find('.sw-settings-rule-detail-assignments__entity-listing-promotion');
+
+        // expect promotion entity listing to exist
+        expect(promotionListing.exists()).toBe(true);
+
+        const detailRouteAttribute = promotionListing.attributes('detail-route');
+
+        // expect detail-route attribute to be correct
+        expect(detailRouteAttribute).toBe('sw.promotion.v2.detail.conditions');
+    });
 });

@@ -757,8 +757,6 @@ class OrderRouteTest extends TestCase
 
     public function testPaymentOrderNotManipulable(): void
     {
-        static::markTestSkipped('NEXT-16470 - Flaky');
-
         $ruleRepository = $this->getContainer()->get('rule.repository');
 
         // Get customer from USA rule

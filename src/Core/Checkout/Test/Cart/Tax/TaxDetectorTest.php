@@ -133,7 +133,52 @@ class TaxDetectorTest extends TestCase
         static::assertFalse($detector->isNetDelivery($context));
     }
 
-    public function testIsNotNetDeliveryWithCompanyFreeTaxAndVatIdPattern(): void
+    public function testIsNotNetDeliveryWithCompanyFreeTaxAndWrongVatIdPattern(): void
+    {
+        $context = $this->createMock(SalesChannelContext::class);
+
+        $countryRepository = $this->getContainer()->get('country.repository');
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('iso', 'DE'));
+        $criteria->setLimit(1);
+
+        $deCountry = $countryRepository->search($criteria, Context::createDefaultContext())->first();
+        $data = [
+            'id' => $deCountry->getId(),
+            'customerTax' => [
+                'enabled' => false,
+                'currencyId' => Defaults::CURRENCY,
+                'amount' => 0,
+            ],
+            'companyTax' => [
+                'enabled' => true,
+                'currencyId' => Defaults::CURRENCY,
+                'amount' => 0,
+            ],
+            'vatIdPattern' => '(DE)?[0-9]{9}',
+            'checkVatIdPattern' => true,
+        ];
+
+        $countryRepository->update([$data], Context::createDefaultContext());
+        $deCountry = $countryRepository->search($criteria, Context::createDefaultContext())->first();
+
+        $customer = $this->createMock(CustomerEntity::class);
+        $customer->expects(static::once())->method('getCompany')->willReturn('ABC Company');
+        $customer->expects(static::once())->method('getVatIds')->willReturn(['VN123123']);
+
+        $context->expects(static::once())->method('getShippingLocation')->willReturn(
+            ShippingLocation::createFromCountry($deCountry)
+        );
+
+        $context->expects(static::once())->method('getCustomer')->willReturn(
+            $customer
+        );
+
+        $detector = $this->getContainer()->get(TaxDetector::class);
+        static::assertFalse($detector->isNetDelivery($context));
+    }
+
+    public function testIsNetDeliveryWithCompanyFreeTaxAndWrongVatIdButVatIdCheckDisabled(): void
     {
         $context = $this->createMock(SalesChannelContext::class);
 
@@ -175,7 +220,7 @@ class TaxDetectorTest extends TestCase
         );
 
         $detector = $this->getContainer()->get(TaxDetector::class);
-        static::assertFalse($detector->isNetDelivery($context));
+        static::assertTrue($detector->isNetDelivery($context));
     }
 
     public function testIsNotNetDelivery(): void

@@ -51,15 +51,17 @@ class TaxDetector
         $vatPattern = $shippingLocationCountry->getVatIdPattern();
         $vatIds = $customer->getVatIds();
 
-        if ($vatPattern === null || empty($vatIds)) {
+        if (empty($vatIds)) {
             return false;
         }
 
-        $regex = '/^' . $vatPattern . '$/i';
+        if (!empty($vatPattern) && $shippingLocationCountry->getCheckVatIdPattern()) {
+            $regex = '/^' . $vatPattern . '$/i';
 
-        foreach ($vatIds as $vatId) {
-            if (!preg_match($regex, $vatId)) {
-                return false;
+            foreach ($vatIds as $vatId) {
+                if (!preg_match($regex, $vatId)) {
+                    return false;
+                }
             }
         }
 

@@ -36,11 +36,13 @@
       "messageSaveError": "An error occurred while saving rule \"{name}\".",
       "tabGeneral": "General",
       "tabAssignments": "Assignments",
-      "associationsWithProducts": "Products",
-      "associationsWithShippingMethods": "Shipping Methods",
-      "associationsWithPaymentMethods": "Payment Methods",
-      "associationsWithPromotions": "Promotions",
-      "associationsWithEventActions": "Business Events",
+      "associations": {
+        "products": "Products",
+        "shippingMethods": "Shipping Methods",
+        "paymentMethods": "Payment Methods",
+        "promotions": "Promotions",
+        "eventActions": "Business Events"
+      },
       "hasNoAssociations": "This rule is not in use",
       "associationsLoadingError": "Unable to load rule assignments.",
       "types": {

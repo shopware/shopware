@@ -7,7 +7,7 @@
         :key="entity.entityName"
         class="sw-settings-rule-detail-assignments__card"
         :class="'sw-settings-rule-detail-assignments__card-' + entity.entityName"
-        :title="$tc('global.entities.' + entity.entityName)"
+        :title="entity.label"
     >
         <template #grid>
             {% block sw_settings_rule_detail_assignments_entity_listing %}

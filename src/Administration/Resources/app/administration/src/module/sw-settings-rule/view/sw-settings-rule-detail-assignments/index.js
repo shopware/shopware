@@ -44,18 +44,21 @@ Component.register('sw-settings-rule-detail-assignments', {
             });
         },
 
+        /* eslint-disable max-len */
         /**
          * Definition of the associated entities of the current rule.
          * The component will render a sw-entity-listing for each association entity,
          * if results are given.
          *
-         * @type {[{entityName: String, criteria: Function, detailRoute: String, gridColumns: Array<Object>}]}
+         * @type {[{entityName: String, label: String, api: Function, criteria: Function, detailRoute: String, gridColumns: Array<Object>}]}
          * @returns {Array<Object>}
          */
+        /* eslint-enable max-len */
         associationEntitiesConfig() {
             return [
                 {
                     entityName: 'product',
+                    label: this.$tc('sw-settings-rule.detail.associations.products'),
                     criteria: () => {
                         const criteria = new Criteria();
                         criteria.setLimit(this.associationLimit);
@@ -83,6 +86,7 @@ Component.register('sw-settings-rule-detail-assignments', {
                 },
                 {
                     entityName: 'shipping_method',
+                    label: this.$tc('sw-settings-rule.detail.associations.shippingMethods'),
                     criteria: () => {
                         const criteria = new Criteria();
                         criteria.setLimit(this.associationLimit);
@@ -113,6 +117,7 @@ Component.register('sw-settings-rule-detail-assignments', {
                 },
                 {
                     entityName: 'payment_method',
+                    label: this.$tc('sw-settings-rule.detail.associations.paymentMethods'),
                     criteria: () => {
                         const criteria = new Criteria();
                         criteria.setLimit(this.associationLimit);
@@ -134,6 +139,7 @@ Component.register('sw-settings-rule-detail-assignments', {
                 },
                 {
                     entityName: 'promotion',
+                    label: this.$tc('sw-settings-rule.detail.associations.promotions'),
                     criteria: () => {
                         const criteria = new Criteria();
                         criteria.setLimit(this.associationLimit);
@@ -165,6 +171,7 @@ Component.register('sw-settings-rule-detail-assignments', {
                 },
                 {
                     entityName: 'event_action',
+                    label: this.$tc('sw-settings-rule.detail.associations.eventActions'),
                     criteria: () => {
                         const criteria = new Criteria();
                         criteria.setLimit(this.associationLimit);

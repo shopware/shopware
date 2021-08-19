@@ -16,6 +16,7 @@ Jest (Administration):
         - !reference [ .rules, long-running ]
         - changes:
             - 'src/Administration/Resources/app/administration/**/*'
+            - .gitlab/stages/02-unit.yml
     script:
         - bin/console framework:schema -s 'entity-schema' $ADMIN_PATH/test/_mocks_/entity-schema.json
         - npm --prefix $ADMIN_PATH run unit -- --silent
@@ -40,6 +41,7 @@ Jest (Storefront):
         - !reference [.rules, run]
         - changes:
             - 'src/Storefront/Resources/app/storefront/**/*'
+            - .gitlab/stages/02-unit.yml
     script:
         - npm --prefix "$STOREFRONT_PATH" run unit -- --silent
     coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
@@ -71,6 +73,7 @@ PHP coverage:
           - '**/Resources/views/*.html.twig'
           - '**/*.{php,xml,yaml,json}'
           - 'adr/*'
+          - .gitlab/stages/02-unit.yml
     before_script:
         - composer install --optimize-autoloader
         - mkdir -p config/jwt || true
@@ -83,7 +86,7 @@ PHP coverage:
             --exclude-group=skip-paratest,needsWebserver
             --testsuite "$TESTSUITE"
             --coverage-text
-            --coverage-cobertura cobertura.xml
+            --coverage-cobertura cobertura.xml | sed -E -n '1,/^\s*Lines:\s*([0-9]+(\.[0-9]+)?)%/ p' # do not output covered files lines
     coverage: '/^\s*Lines:\s*(\d+(?:\.\d+)?%)/'
     artifacts:
         when: always
@@ -123,6 +126,7 @@ PHP Full:
             - '**/Resources/views/*.html.twig'
             - '**/*.{php,xml,yaml,json}'
             - 'adr/*'
+            - .gitlab/stages/02-unit.yml
     parallel:
         matrix:
             -   MYSQL_IMAGE: mariadb:10.4

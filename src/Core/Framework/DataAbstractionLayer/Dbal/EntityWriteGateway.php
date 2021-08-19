@@ -117,16 +117,23 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
      */
     public function execute(array $commands, WriteContext $context): void
     {
-        $enableBatch = true;
-        try {
-            RetryableTransaction::retryable($this->connection, function () use ($commands, $context, &$enableBatch): void {
-                try {
+        $executeCommandsInRetryableTransaction = function ($enableBatch) use ($commands, $context): void {
+            RetryableTransaction::retryable(
+                $this->connection,
+                function () use ($commands, $context, $enableBatch): void {
                     $this->executeCommands($commands, $context, $enableBatch);
-                } finally {
-                    // Let RetryableTransaction retry RetryableExceptions with batch disabled
-                    $enableBatch = false;
                 }
-            });
+            );
+        };
+
+        try {
+            try {
+                $executeCommandsInRetryableTransaction(true);
+            } catch (\Throwable $e) {
+                // Let RetryableTransaction retry once with batch disabled
+                $context->resetExceptions();
+                $executeCommandsInRetryableTransaction(false);
+            }
         } catch (\Throwable $e) {
             $event = new WriteCommandExceptionEvent($e, $commands, $context->getContext());
             $this->eventDispatcher->dispatch($event);

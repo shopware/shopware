@@ -167,7 +167,7 @@
 
                 {% block sw_order_list_grid_columns_order_date %}
                 <template #column-orderDateTime="{ item }">
-                    {{ item.orderDateTime | date() }}
+                    <sw-time-ago :date="item.orderDateTime"/>
                 </template>
                 {% endblock %}
                 {% endblock %}

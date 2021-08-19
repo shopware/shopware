@@ -136,6 +136,8 @@ class UserEntity extends Entity
      */
     protected $updatedOrders;
 
+    protected string $timeZone;
+
     public function getStateMachineHistoryEntries(): ?StateMachineHistoryCollection
     {
         return $this->stateMachineHistoryEntries;
@@ -364,5 +366,15 @@ class UserEntity extends Entity
     public function setLastUpdatedPasswordAt(\DateTimeInterface $lastUpdatedPasswordAt): void
     {
         $this->lastUpdatedPasswordAt = $lastUpdatedPasswordAt;
+    }
+
+    public function getTimeZone(): string
+    {
+        return $this->timeZone;
+    }
+
+    public function setTimeZone(string $timeZone): void
+    {
+        $this->timeZone = $timeZone;
     }
 }

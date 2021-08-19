@@ -154,6 +154,11 @@ Shopware.Component.register('sw-import-export-importer', {
                 this.createNotificationSuccess({
                     message: this.$tc('sw-import-export.importer.messageImportSuccess', 0),
                 });
+                if (progress.processedRecords === 0) {
+                    this.createNotificationWarning({
+                        message: this.$tc('sw-import-export.importer.messageImportWarning', 0),
+                    });
+                }
                 this.onProgressFinished();
             } else if (progress.state === 'failed') {
                 this.createNotificationError({

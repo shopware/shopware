@@ -146,6 +146,7 @@
         },
         "importer": {
             "messageImportSuccess": "The import was completed successfully.",
+            "messageImportWarning": "No records imported. Please make sure your delimiters match the current profile.",
             "messageImportError": "There were errors during the import",
             "uploadCsvLabel": "Upload CSV file",
             "startImportLabel": "Start import",

@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Update\Services\PluginCompatibility;
 use Shopware\Core\Framework\Update\Steps\DeactivatePluginsStep;
-use Shopware\Core\Framework\Update\Steps\ValidResult;
+use Shopware\Core\Framework\Update\Steps\FinishResult;
 use Shopware\Core\Framework\Update\Struct\Version;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
@@ -37,9 +37,14 @@ class DeactivatePluginsStepTest extends TestCase
             static::expectException(\get_class($expectedException));
         }
 
-        $result = $deactivatePluginsStep->run(0);
+        // run the step until it is finished
+        $offset = 0;
+        do {
+            $result = $deactivatePluginsStep->run($offset);
+            $offset = $result->getOffset();
+        } while (!$result instanceof FinishResult);
 
-        static::assertInstanceOf(ValidResult::class, $result);
+        static::assertInstanceOf(FinishResult::class, $result);
     }
 
     /**
@@ -49,7 +54,10 @@ class DeactivatePluginsStepTest extends TestCase
     {
         $args = $this->getDeactivatePluginsStepConstructorArguments();
 
-        $pluginCompatibilityMock = $this->createConfiguredMock(PluginCompatibility::class, $this->getPluginsToDeactivateArrayConfiguration(self::PLUGIN_IDS));
+        $pluginCompatibilityMock = $this->createMock(PluginCompatibility::class);
+        $pluginCompatibilityMock->method('getPluginsToDeactivate')
+            ->willReturnOnConsecutiveCalls(...$this->getPluginsToDeactivateArrayConfiguration());
+
         $pluginLifecycleServiceMock = $this->createMock(PluginLifecycleService::class);
 
         $pluginLifecycleServiceMock
@@ -109,7 +117,7 @@ class DeactivatePluginsStepTest extends TestCase
     protected function getDeactivatePluginsStepConstructorArguments(): array
     {
         return [
-            'version' => $this->getVersion(),
+            'toVersion' => $this->getVersion(),
             'deactivationFilter' => $this->getDeactivationFilter(),
             'pluginCompatibility' => $this->createConfiguredMock(PluginCompatibility::class, []),
             'pluginLifecycleService' => $this->createConfiguredMock(PluginLifecycleService::class, []),
@@ -133,21 +141,31 @@ class DeactivatePluginsStepTest extends TestCase
         return $override ? (Context::createDefaultContext())->assign($override) : Context::createDefaultContext();
     }
 
-    protected function getPluginsToDeactivateArrayConfiguration(array $ids): array
+    protected function getPluginsToDeactivateArrayConfiguration(): array
     {
-        $plugins = array_map(static function (string $id): PluginEntity {
+        $returnValues = [];
+
+        foreach (self::PLUGIN_IDS as $index => $_) {
+            $ids = self::PLUGIN_IDS;
+            $ids = \array_slice($ids, $index);
+            $returnValues[] = $this->getPluginEntitiesForIds($ids);
+        }
+        $returnValues[] = [];
+
+        return $returnValues;
+    }
+
+    private function getPluginEntitiesForIds(array $ids): array
+    {
+        return array_map(static function (string $id): PluginEntity {
             $plugin = new PluginEntity();
             $plugin->setId($id);
 
             return $plugin;
         }, $ids);
-
-        return [
-            'getPluginsToDeactivate' => $plugins,
-        ];
     }
 
-    protected function getPluginsToDeactivateDefaultConfiguration(): array
+    private function getPluginsToDeactivateDefaultConfiguration(): array
     {
         $plugin = new PluginEntity();
         $plugin->setId(Uuid::randomHex());

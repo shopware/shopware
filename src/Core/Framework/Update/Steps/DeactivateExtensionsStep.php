@@ -45,29 +45,30 @@ class DeactivateExtensionsStep
      * @throws UpdateFailedException
      *
      * @return FinishResult|ValidResult
+     *
+     * Remove one plugin per run call, as this action can take some time we make a new request for each plugin
      */
     public function run(int $offset)
     {
-        $requestTime = time();
-
         $extensions = $this->pluginCompatibility->getExtensionsToDeactivate($this->toVersion, $this->context, $this->deactivationFilter);
 
         $extensionCount = \count($extensions);
-
-        foreach ($extensions as $extension) {
-            ++$offset;
-
-            $this->extensionLifecycleService->deactivate($extension->getType(), $extension->getName(), $this->context);
-
-            $deactivatedPlugins = (array) $this->systemConfigService->get(self::UPDATE_DEACTIVATED_PLUGINS) ?: [];
-            $deactivatedPlugins[] = $extension->getId();
-            $this->systemConfigService->set(self::UPDATE_DEACTIVATED_PLUGINS, $deactivatedPlugins);
-
-            if ((time() - $requestTime) >= 1) {
-                return new ValidResult($offset, $extensionCount + $offset);
-            }
+        if ($extensionCount === 0) {
+            return new FinishResult($offset, $offset);
         }
 
-        return new FinishResult($extensionCount + $offset, $extensionCount + $offset);
+        $extension = $extensions[0];
+        ++$offset;
+        $this->extensionLifecycleService->deactivate($extension->getType(), $extension->getName(), $this->context);
+
+        $deactivatedPlugins = (array) $this->systemConfigService->get(self::UPDATE_DEACTIVATED_PLUGINS) ?: [];
+        $deactivatedPlugins[] = $extension->getId();
+        $this->systemConfigService->set(self::UPDATE_DEACTIVATED_PLUGINS, $deactivatedPlugins);
+
+        if ($extensionCount === 1) {
+            return new FinishResult($offset, $offset);
+        }
+
+        return new ValidResult($offset, $extensionCount + $offset);
     }
 }

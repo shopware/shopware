@@ -329,6 +329,14 @@
         <div class="form-row country-and-state-form-elements" data-country-state-select="true">
             {% block component_address_form_country %}
                 <div class="form-group col-md-6">
+                    {% set initialCountryId = null %}
+
+                    {% if data.get('countryId') %}
+                        {% set initialCountryId = data.get('countryId') %}
+                    {% elseif page.countries|length == 1 %}
+                        {% set initialCountryId = (page.countries|first).id %}
+                    {% endif %}
+
                     {% if formViolations.getViolations("/countryId") is not empty %}
                         {% set violationPath = "/countryId" %}
                     {% elseif formViolations.getViolations("/#{prefix}/countryId") is not empty %}
@@ -347,8 +355,8 @@
                                 id="{{ prefix }}AddressCountry"
                                 name="{{ prefix }}[countryId]"
                                 required="required"
-                                data-initial-country-id="{{ data.get('countryId') }}">
-                            {% if not data.get('countryId') %}
+                                data-initial-country-id="{{ initialCountryId }}">
+                            {% if not initialCountryId %}
                                 <option disabled="disabled"
                                         value=""
                                         selected="selected">
@@ -356,7 +364,7 @@
                                 </option>
                             {% endif %}
                             {% for country in page.countries %}
-                                <option {% if country.id == data.get('countryId') or page.countries|length == 1 %}
+                                <option {% if country.id == initialCountryId %}
                                         selected="selected"
                                         {% endif %}
                                         value="{{ country.id }}"

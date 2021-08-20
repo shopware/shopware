@@ -67,6 +67,7 @@ class ThemeService
     {
         $criteria = new Criteria([$themeId]);
         $criteria->addAssociation('salesChannels');
+        /** @var ThemeEntity|null $theme */
         $theme = $this->themeRepository->search($criteria, $context)->get($themeId);
 
         if (!$theme) {
@@ -89,10 +90,22 @@ class ThemeService
         }
 
         if (\array_key_exists('configValues', $data) && $theme->getConfigValues()) {
-            $data['configValues'] = array_replace_recursive($theme->getConfigValues(), $data['configValues']);
+            $submittedChanges = $data['configValues'];
+            $currentConfig = $theme->getConfigValues();
+            $data['configValues'] = array_replace_recursive($currentConfig, $data['configValues']);
+
+            foreach ($submittedChanges as $key => $changes) {
+                if (\is_array($changes['value']) && isset($currentConfig[$key]) && \is_array($currentConfig[$key])) {
+                    $data['configValues'][$key]['value'] = array_unique($changes['value']);
+                }
+            }
         }
 
         $this->themeRepository->update([$data], $context);
+
+        if ($theme->getSalesChannels() === null) {
+            return;
+        }
 
         foreach ($theme->getSalesChannels() as $salesChannel) {
             $this->compileTheme($salesChannel->getId(), $themeId, $context, null, false);
@@ -245,16 +258,16 @@ class ThemeService
             $configuredTheme = $pluginConfig->getThemeConfig();
         }
 
-        if ($theme !== null && $theme->getBaseConfig() !== null) {
+        if ($theme->getBaseConfig() !== null) {
             $configuredTheme = array_replace_recursive($configuredTheme, $theme->getBaseConfig());
         }
 
-        if ($theme !== null && $theme->getConfigValues() !== null) {
-            $configuredThemeFields = [];
-            if (\array_key_exists('fields', $configuredTheme)) {
-                $configuredThemeFields = $configuredTheme['fields'];
+        if ($theme->getConfigValues() !== null) {
+            foreach ($theme->getConfigValues() as $fieldName => $configValue) {
+                if (isset($configuredTheme['fields']) && isset($configValue['value'])) {
+                    $configuredTheme['fields'][$fieldName]['value'] = $configValue['value'];
+                }
             }
-            $configuredTheme['fields'] = array_replace_recursive($configuredThemeFields, $theme->getConfigValues());
         }
 
         return $configuredTheme;
@@ -356,8 +369,7 @@ class ThemeService
         $criteria->addFilter(new EqualsFilter('technicalName', StorefrontPluginRegistry::BASE_THEME_NAME));
         $baseTheme = $this->themeRepository->search($criteria, $context)->first();
         $baseTranslations = $baseTheme->getLabels() ?: [];
-        $translations = array_replace_recursive($baseTranslations, $translations);
 
-        return $translations;
+        return array_replace_recursive($baseTranslations, $translations);
     }
 }

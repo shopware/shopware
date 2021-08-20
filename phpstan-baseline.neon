@@ -3991,11 +3991,6 @@ parameters:
 			path: src/Storefront/Theme/ThemeService.php
 
 		-
-			message: "#^Parameter \\#2 \\$search of function array_key_exists expects array, array\\|null given\\.$#"
-			count: 1
-			path: src/Storefront/Theme/ThemeService.php
-
-		-
 			message: "#^Method Shopware\\\\Storefront\\\\Theme\\\\ThemeService\\:\\:mergeStaticConfig\\(\\) should return array but returns array\\|null\\.$#"
 			count: 1
 			path: src/Storefront/Theme/ThemeService.php

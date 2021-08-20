@@ -56,8 +56,6 @@
     },
     "conditionModal": {
       "modalTitle": "Filter",
-      "delete": "Delete",
-      "close": "Close",
       "messageSaveError": "An error occurred while saving the filter."
     }
   },

@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Api\Controller\FallbackController;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
+use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\Compiler\DecoratorServicePass;
 use Symfony\Component\DependencyInjection\Compiler\ServiceLocatorTagPass;
@@ -421,6 +422,31 @@ class Kernel extends HttpKernel
         $c->getCompilerPassConfig()->setOptimizationPasses($newPasses);
 
         return $c;
+    }
+
+    /**
+     * Dumps the preload file to an always known location outside the generated cache folder name
+     */
+    protected function dumpContainer(ConfigCache $cache, ContainerBuilder $container, string $class, string $baseClass): void
+    {
+        parent::dumpContainer($cache, $container, $class, $baseClass);
+        $cacheDir = $this->getCacheDir();
+        $cacheName = basename($cacheDir);
+        $fileName = substr(basename($cache->getPath()), 0, -3) . 'preload.php';
+
+        $preloadFile = \dirname($cacheDir) . '/opcache-preload.php';
+
+        $loader = <<<PHP
+<?php
+
+require_once __DIR__ . '/#CACHE_PATH#';
+PHP;
+
+        file_put_contents($preloadFile, str_replace(
+            ['#CACHE_PATH#'],
+            [$cacheName . '/' . $fileName],
+            $loader
+        ));
     }
 
     private function addApiRoutes(RoutingConfigurator $routes): void

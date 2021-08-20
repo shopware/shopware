@@ -107,9 +107,6 @@ class Criteria extends Struct
      */
     protected $title;
 
-    /**
-     * @throws InconsistentCriteriaIdsException
-     */
     public function __construct(?array $ids = null)
     {
         if ($ids === null) {

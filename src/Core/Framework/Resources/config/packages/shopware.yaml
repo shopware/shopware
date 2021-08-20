@@ -200,7 +200,7 @@ shopware:
               # issue: NEXT-15053
             - name: FEATURE_NEXT_14114
               default: false
-              major: false
+              major: true
               description: "Brexit Changes"
               # issue: NEXT-14114
             - name: FEATURE_NEXT_12455

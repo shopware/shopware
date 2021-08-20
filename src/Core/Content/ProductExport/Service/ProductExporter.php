@@ -55,7 +55,11 @@ class ProductExporter implements ProductExporterInterface
         ExportBehavior $behavior,
         ?string $productExportId = null
     ): void {
-        $criteria = new Criteria(array_filter([$productExportId]));
+        $criteria = new Criteria();
+        if ($productExportId !== null) {
+            $criteria = new Criteria(array_filter([$productExportId]));
+        }
+
         $criteria
             ->addAssociation('salesChannel')
             ->addAssociation('salesChannelDomain.salesChannel')

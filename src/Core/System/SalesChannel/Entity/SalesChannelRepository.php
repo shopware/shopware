@@ -107,6 +107,12 @@ class SalesChannelRepository implements SalesChannelRepositoryInterface
 
         $ids = $this->doSearch($criteria, $salesChannelContext);
 
+        if (empty($ids->getIds())) {
+            $collection = $this->definition->getCollectionClass();
+
+            return new EntitySearchResult($this->definition->getEntityName(), $ids->getTotal(), new $collection(), $aggregations, $criteria, $salesChannelContext->getContext());
+        }
+
         $readCriteria = $criteria->cloneForRead($ids->getIds());
 
         $entities = $this->read($readCriteria, $salesChannelContext);

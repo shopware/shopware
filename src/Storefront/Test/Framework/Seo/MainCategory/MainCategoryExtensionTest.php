@@ -64,7 +64,7 @@ class MainCategoryExtensionTest extends TestCase
         static::assertEmpty($product->getMainCategories());
 
         // update main category
-        $categories = $this->categoryRepository->searchIds(new Criteria([]), Context::createDefaultContext());
+        $categories = $this->categoryRepository->searchIds(new Criteria(), Context::createDefaultContext());
 
         $this->productRepository->update([
             [

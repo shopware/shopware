@@ -741,6 +741,44 @@ class ImportExportTest extends ImportExportTestCase
         $connection->beginTransaction();
     }
 
+    public function testProductWithListPrice(): void
+    {
+        $context = Context::createDefaultContext();
+        $profile = $this->cloneDefaultProfile(ProductDefinition::ENTITY_NAME);
+
+        $mapping = $profile->getMapping();
+        $mapping[] = [
+            'key' => 'price.DEFAULT.listPrice.linked',
+            'mappedKey' => 'list_price_linked',
+        ];
+        $mapping[] = [
+            'key' => 'price.DEFAULT.listPrice.gross',
+            'mappedKey' => 'list_price_gross',
+        ];
+        $mapping[] = [
+            'key' => 'price.DEFAULT.listPrice.net',
+            'mappedKey' => 'list_price_net',
+        ];
+        $this->updateProfileMapping($profile->getId(), $mapping);
+
+        $progress = $this->import($context, ProductDefinition::ENTITY_NAME, '/fixtures/products_with_list_price.csv', 'products_with_list_price.csv', $profile->getId());
+
+        static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
+
+        $result = $this->productRepository->search(new Criteria(), Context::createDefaultContext());
+
+        static::assertSame(2, $result->count());
+        $products = $result->getElements();
+
+        static::assertSame(100.0, $products['bf44b430d7cd47fcac93310edf4fe4e1']->getPrice()->first()->getListPrice()->getNet());
+        static::assertSame(5000.0, $products['bf44b430d7cd47fcac93310edf4fe4e1']->getPrice()->first()->getListPrice()->getGross());
+        static::assertFalse($products['bf44b430d7cd47fcac93310edf4fe4e1']->getPrice()->first()->getListPrice()->getLinked());
+
+        static::assertSame(20.0, $products['bf44b430d7cd47fcac93310edf4fe4e2']->getPrice()->first()->getListPrice()->getNet());
+        static::assertSame(50.0, $products['bf44b430d7cd47fcac93310edf4fe4e2']->getPrice()->first()->getListPrice()->getGross());
+        static::assertTrue($products['bf44b430d7cd47fcac93310edf4fe4e2']->getPrice()->first()->getListPrice()->getLinked());
+    }
+
     /**
      * @dataProvider salesChannelAssignementCsvProvider
      */

@@ -163,6 +163,7 @@
             "variantsWarning": "<strong>Achtung beim Import von Varianten:</strong> Sollen die Varianten direkt vollständig importiert werden, solltest du diese ebenfalls importieren. Nutze dafür ein Profil, was Varianten-Einstellungen importiert.<br>Tust du das nicht, müssen die Varianten über den Admin gesondert manuell erstellt werden.",
             "importVariants": "Produktvarianten importieren",
             "messageImportSuccess": "Der Import wurde erfolgreich abgeschlossen.",
+            "messageImportWarning": "Keine Einträge importiert. Stelle bitte sicher, dass das Seperator-Zeichen den Einstellungen im verwendeten Profil entspricht.",
             "messageImportError": "Während des Imports traten Fehler auf."
         },
         "page": {

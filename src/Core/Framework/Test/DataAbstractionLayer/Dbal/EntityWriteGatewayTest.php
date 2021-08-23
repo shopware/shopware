@@ -13,11 +13,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\ChangeSet;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\ChangeSetAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Country\CountryEntity;
 
 class EntityWriteGatewayTest extends TestCase
 {
@@ -242,6 +244,53 @@ class EntityWriteGatewayTest extends TestCase
         static::assertTrue($changeSetForProduct2->hasChanged('stock'));
         static::assertEquals(1, $changeSetForProduct2->getBefore('stock'));
         static::assertEquals(50, $changeSetForProduct2->getAfter('stock'));
+    }
+
+    public function testCustomFieldsMergeWithIntegers(): void
+    {
+        $id = Uuid::randomHex();
+
+        $data = [
+            'id' => $id,
+            'name' => 'test',
+            'customFields' => ['a' => 1234],
+        ];
+
+        $countryRepo = $this->getContainer()->get('country.repository');
+
+        $countryRepo->upsert([$data], Context::createDefaultContext());
+
+        $data['customFields']['b'] = 1;
+        $data['customFields']['c'] = 1.56;
+        $data['customFields']['d'] = true;
+        $data['customFields']['e'] = ['a'];
+        $data['customFields']['f'] = new \stdClass();
+        $data['customFields']['g'] = 'test';
+
+        $countryRepo->upsert([$data], Context::createDefaultContext());
+
+        /** @var CountryEntity $country */
+        $country = $countryRepo->search(new Criteria([$id]), Context::createDefaultContext())->first();
+
+        $customFields = $country->getCustomFields();
+
+        static::assertIsInt($customFields['a']);
+        static::assertIsInt($customFields['b']);
+        static::assertSame(1234, $customFields['a']);
+        static::assertSame(1, $customFields['b']);
+
+        static::assertIsFloat($customFields['c']);
+        static::assertSame(1.56, $customFields['c']);
+
+        static::assertIsBool($customFields['d']);
+        static::assertTrue($customFields['d']);
+
+        static::assertIsArray($customFields['e']);
+        static::assertSame(['a'], $customFields['e']);
+
+        static::assertIsArray($customFields['f']);
+        static::assertEmpty($customFields['f']);
+        static::assertSame($customFields['g'], 'test');
     }
 
     private function createProduct(): string

@@ -27,7 +27,7 @@ shopware:
         strategy: "%env(string:default:default_cdn_strategy:SHOPWARE_CDN_STRATEGY_DEFAULT)%"
 
     api:
-        max_limit: 500
+        max_limit: 100
         api_browser:
             auth_required: true
         store:

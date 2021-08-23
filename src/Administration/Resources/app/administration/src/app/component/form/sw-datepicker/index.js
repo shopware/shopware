@@ -166,6 +166,7 @@ Component.register('sw-datepicker', {
 
                 const userTimezoneDate = utcToZonedTime(this.value, userTimeZone);
 
+                // get the time converted to the user timezone
                 return userTimezoneDate.toISOString();
             },
             set(newValue) {
@@ -174,6 +175,7 @@ Component.register('sw-datepicker', {
 
                 const utcDate = zonedTimeToUtc(new Date(newValue), userTimeZone);
 
+                // emit the UTC time so that the v-model value always work in UTC time (which is needed for the server)
                 this.$emit('input', utcDate.toISOString());
             },
         },

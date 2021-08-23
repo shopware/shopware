@@ -8,6 +8,7 @@ import 'src/app/component/form/field-base/sw-field-error';
 import 'src/app/component/base/sw-button';
 import 'src/module/sw-users-permissions/page/sw-users-permissions-user-detail';
 import 'src/app/component/base/sw-button-process';
+import TimezoneService from 'src/core/service/timezone.service';
 
 async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
@@ -138,6 +139,12 @@ async function createWrapper(privileges = []) {
 
 describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', () => {
     let wrapper;
+
+    beforeAll(() => {
+        Shopware.Service().register('timezoneService', () => {
+            return new TimezoneService();
+        });
+    });
 
     beforeEach(async () => {
         Shopware.State.get('session').languageId = '123456789';

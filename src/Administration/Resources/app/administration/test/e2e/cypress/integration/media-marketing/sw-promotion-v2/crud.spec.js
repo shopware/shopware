@@ -167,8 +167,8 @@ describe('Promotion v2: Test crud operations', () => {
 
         cy.get('.sw-data-grid__cell--name > .sw-data-grid__cell-content').contains('Funicular prices');
         cy.get('.sw-data-grid__cell--active > .sw-data-grid__cell-content > span').should('have.class', 'is--active');
-        cy.get('.sw-data-grid__cell--validFrom > .sw-data-grid__cell-content').contains('01/01/22');
-        cy.get('.sw-data-grid__cell--validUntil > .sw-data-grid__cell-content').contains('02/02/22');
+        cy.get('.sw-data-grid__cell--validFrom > .sw-data-grid__cell-content').contains('1 January 2222, 00:00');
+        cy.get('.sw-data-grid__cell--validUntil > .sw-data-grid__cell-content').contains('2 February 2222, 00:00');
     });
 
     it('@base @marketing: delete promotion', () => {

@@ -15,6 +15,7 @@ import LoginService from 'src/core/service/login.service';
 import EntityMappingService from 'src/core/service/entity-mapping.service';
 import JsonApiParser from 'src/core/service/jsonapi-parser.service';
 import ValidationService from 'src/core/service/validation.service';
+import TimezoneService from 'src/core/service/timezone.service';
 import RuleConditionService from 'src/app/service/rule-condition.service';
 import ProductStreamConditionService from 'src/app/service/product-stream-condition.service';
 import StateStyleService from 'src/app/service/state-style.service';
@@ -94,6 +95,9 @@ Application
     })
     .addServiceProvider('validationService', () => {
         return ValidationService;
+    })
+    .addServiceProvider('timezoneService', () => {
+        return new TimezoneService();
     })
     .addServiceProvider('ruleConditionDataProviderService', () => {
         return RuleConditionService();

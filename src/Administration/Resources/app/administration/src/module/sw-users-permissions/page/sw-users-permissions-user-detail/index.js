@@ -218,23 +218,20 @@ Component.register('sw-users-permissions-user-detail', {
         },
 
         loadTimezones() {
-            return import(
-                /* webpackChunkName: "time-zone-names" */
-                /* webpackMode: "lazy" */
-                '@vvo/tzdb/time-zones-names.json'
-            ).then((result) => {
-                this.timezoneOptions.push({
-                    label: 'UTC',
-                    value: 'UTC',
+            return Shopware.Service('timezoneService').loadTimezones()
+                .then((result) => {
+                    this.timezoneOptions.push({
+                        label: 'UTC',
+                        value: 'UTC',
+                    });
+
+                    const loadedTimezoneOptions = result.map(timezone => ({
+                        label: timezone,
+                        value: timezone,
+                    }));
+
+                    this.timezoneOptions.push(...loadedTimezoneOptions);
                 });
-
-                const loadedTimezoneOptions = result.default.map(timezone => ({
-                    label: timezone,
-                    value: timezone,
-                }));
-
-                this.timezoneOptions.push(...loadedTimezoneOptions);
-            });
         },
 
         loadLanguages() {

@@ -48,6 +48,10 @@ $sw-select-result-disabled-color-text: darken($color-gray-300, 15%);
         .sw-highlight-text__highlight {
             color: $sw-select-result-disabled-color-text;
         }
+
+        .sw-select-result__result-item-text {
+            color: $sw-select-result-disabled-color-text;
+        }
     }
 
     &:last-child {

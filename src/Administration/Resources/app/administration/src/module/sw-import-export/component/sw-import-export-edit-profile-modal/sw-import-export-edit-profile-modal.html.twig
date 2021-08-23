@@ -91,7 +91,34 @@
                             :disabled="profile.systemDefault"
                             :error="profileTypeError"
                             :show-clearable-button="!profile.systemDefault"
-                        />
+                        >
+                            {% block sw_import_export_edit_profile_modal_tabs_type_field_inner %}
+                            <template #result-item="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }">
+                                <li
+                                    is="sw-select-result"
+                                    v-tooltip="{
+                                        showDelay: 300,
+                                        message: $tc('sw-import-export.profile.profileTypeDisabledText'),
+                                        disabled: !shouldDisableProfileType(item)
+                                    }"
+                                    :disabled="item.disabled || shouldDisableProfileType(item)"
+                                    :class="'sw-select-option--' + item.value"
+                                    :selected="isSelected(item)"
+                                    v-bind="{ item, index }"
+                                    @item-select="setValue"
+                                >
+                                    <sw-highlight-text
+                                        v-if="highlightSearchTerm && !isSelected(item)"
+                                        :text="getKey(item, labelProperty)"
+                                        :search-term="searchTerm"
+                                    />
+                                    <template v-else>
+                                        {{ getKey(item, labelProperty) }}
+                                    </template>
+                                </li>
+                            </template>
+                            {% endblock %}
+                        </sw-single-select>
                         {% endblock %}
 
                         {% block sw_import_export_edit_profile_modal_tabs_object_type_field %}
@@ -113,7 +140,34 @@
                                 :disabled="profile.systemDefault || mappingLength > 0"
                                 :error="profileSourceEntityError"
                                 :show-clearable-button="!(profile.systemDefault || mappingLength > 0)"
-                            />
+                            >
+                                {% block sw_import_export_edit_profile_modal_tabs_object_type_field_inner %}
+                                <template #result-item="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }">
+                                    <li
+                                        is="sw-select-result"
+                                        v-tooltip="{
+                                            showDelay: 300,
+                                            message: $tc('sw-import-export.profile.objectTypeDisabledText'),
+                                            disabled: !shouldDisableObjectType(item)
+                                        }"
+                                        :disabled="item.disabled || shouldDisableObjectType(item)"
+                                        :class="'sw-select-option--' + item.value"
+                                        :selected="isSelected(item)"
+                                        v-bind="{ item, index }"
+                                        @item-select="setValue"
+                                    >
+                                        <sw-highlight-text
+                                            v-if="highlightSearchTerm && !isSelected(item)"
+                                            :text="getKey(item, labelProperty)"
+                                            :search-term="searchTerm"
+                                        />
+                                        <template v-else>
+                                            {{ getKey(item, labelProperty) }}
+                                        </template>
+                                    </li>
+                                </template>
+                                {% endblock %}
+                            </sw-single-select>
                         </span>
                         {% endblock %}
                     </sw-container>
@@ -238,7 +292,9 @@
                 <sw-button
                     class="sw-import-export-edit-profile-modal__save-action"
                     size="small"
-                    :disabled="!profile.sourceEntity || profile.sourceEntity.length <= 0"
+                    :disabled="!profile.sourceEntity
+                        || profile.sourceEntity.length <= 0
+                        || (feature.isActive('FEATURE_NEXT_8097') && !profile.type)"
                     variant="primary"
                     @click="saveProfile"
                 >

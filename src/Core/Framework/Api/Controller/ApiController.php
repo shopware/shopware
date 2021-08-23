@@ -82,7 +82,7 @@ class ApiController extends AbstractController
     /**
      * @var RequestCriteriaBuilder
      */
-    private $searchCriteriaBuilder;
+    private $criteriaBuilder;
 
     /**
      * @var CompositeEntitySearcher
@@ -107,7 +107,7 @@ class ApiController extends AbstractController
     public function __construct(
         DefinitionInstanceRegistry $definitionRegistry,
         Serializer $serializer,
-        RequestCriteriaBuilder $searchCriteriaBuilder,
+        RequestCriteriaBuilder $criteriaBuilder,
         CompositeEntitySearcher $compositeEntitySearcher,
         ApiVersionConverter $apiVersionConverter,
         EntityProtectionValidator $entityProtectionValidator,
@@ -115,7 +115,7 @@ class ApiController extends AbstractController
     ) {
         $this->definitionRegistry = $definitionRegistry;
         $this->serializer = $serializer;
-        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
+        $this->criteriaBuilder = $criteriaBuilder;
         $this->compositeEntitySearcher = $compositeEntitySearcher;
         $this->apiVersionConverter = $apiVersionConverter;
         $this->entityProtectionValidator = $entityProtectionValidator;
@@ -384,7 +384,7 @@ class ApiController extends AbstractController
         }
 
         $criteria = new Criteria();
-        $criteria = $this->searchCriteriaBuilder->handleRequest($request, $criteria, $definition, $context);
+        $criteria = $this->criteriaBuilder->handleRequest($request, $criteria, $definition, $context);
 
         $criteria->setIds([$id]);
 
@@ -571,7 +571,7 @@ class ApiController extends AbstractController
 
         $criteria = new Criteria();
         if (empty($pathSegments)) {
-            $criteria = $this->searchCriteriaBuilder->handleRequest($request, $criteria, $definition, $context);
+            $criteria = $this->criteriaBuilder->handleRequest($request, $criteria, $definition, $context);
 
             // trigger acl validation
             $nested = $this->criteriaValidator->validate($definition->getEntityName(), $criteria, $context);
@@ -600,7 +600,7 @@ class ApiController extends AbstractController
             $definition = $association->getToManyReferenceDefinition();
         }
 
-        $criteria = $this->searchCriteriaBuilder->handleRequest($request, $criteria, $definition, $context);
+        $criteria = $this->criteriaBuilder->handleRequest($request, $criteria, $definition, $context);
 
         if ($association instanceof ManyToManyAssociationField) {
             //fetch inverse association definition for filter

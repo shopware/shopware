@@ -70,10 +70,15 @@
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter"/>
         </service>
 
+        <service id="api.request_criteria_builder" class="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\ApiCriteriaValidator"/>
+        </service>
+
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser"/>
-            <argument>%shopware.api.max_limit%</argument>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\ApiCriteriaValidator"/>
+            <argument>%shopware.api.max_limit%</argument>
         </service>
 
         <service id="Shopware\Core\Framework\DataAbstractionLayer\Search\ApiCriteriaValidator">

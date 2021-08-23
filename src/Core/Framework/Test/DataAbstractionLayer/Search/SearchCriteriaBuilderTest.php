@@ -441,7 +441,7 @@ class SearchCriteriaBuilderTest extends TestCase
     private function fakeHandleRequest(int $maxLimit = 0, array $params = []): Criteria
     {
         $parser = $this->getContainer()->get(AggregationParser::class);
-        $requestBuilder = new RequestCriteriaBuilder($parser, $maxLimit, $this->getContainer()->get(ApiCriteriaValidator::class));
+        $requestBuilder = new RequestCriteriaBuilder($parser, $this->getContainer()->get(ApiCriteriaValidator::class), $maxLimit);
         $context = Context::createDefaultContext();
         $definition = $this->getContainer()->get(ProductDefinition::class);
 

@@ -26,7 +26,7 @@ use Symfony\Component\HttpFoundation\Request;
 class RequestCriteriaBuilder
 {
     /**
-     * @var int
+     * @var int|null
      */
     private $maxLimit;
 
@@ -42,8 +42,8 @@ class RequestCriteriaBuilder
 
     public function __construct(
         AggregationParser $aggregationParser,
-        int $maxLimit,
-        ApiCriteriaValidator $validator
+        ApiCriteriaValidator $validator,
+        ?int $maxLimit = null
     ) {
         $this->maxLimit = $maxLimit;
         $this->aggregationParser = $aggregationParser;
@@ -63,9 +63,12 @@ class RequestCriteriaBuilder
         return $criteria;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - Unused in core, please use the `%shopware.api.max_limit%` instead
+     */
     public function getMaxLimit(): int
     {
-        return $this->maxLimit;
+        return $this->maxLimit ?? 0;
     }
 
     public function toArray(Criteria $criteria): array
@@ -167,6 +170,10 @@ class RequestCriteriaBuilder
 
             if (isset($payload['limit'])) {
                 $this->addLimit($payload, $criteria, $searchException);
+            }
+
+            if ($criteria->getLimit() === null && $this->maxLimit !== null) {
+                $criteria->setLimit($this->maxLimit);
             }
 
             if (isset($payload['page'])) {

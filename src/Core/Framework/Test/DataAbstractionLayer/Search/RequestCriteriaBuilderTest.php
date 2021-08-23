@@ -5,7 +5,10 @@ namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\ApiCriteriaValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -24,6 +27,49 @@ class RequestCriteriaBuilderTest extends TestCase
     {
         parent::setUp();
         $this->requestCriteriaBuilder = $this->getContainer()->get(RequestCriteriaBuilder::class);
+    }
+
+    public function maxApiLimitProvider()
+    {
+        yield 'Test null max limit' => [10000, null, 10000, false];
+        yield 'Test null max limit and null limit' => [null, null, null, false];
+        yield 'Test max limit with null limit' => [null, 100, 100, false];
+        yield 'Test max limit with higher limit' => [200, 100, 100, true];
+        yield 'Test max limit with lower limit' => [50, 100, 50, false];
+    }
+
+    /**
+     * @dataProvider maxApiLimitProvider
+     */
+    public function testMaxApiLimit(?int $limit, ?int $max, ?int $expected, bool $exception = false): void
+    {
+        $body = ['limit' => $limit];
+
+        $builder = new RequestCriteriaBuilder(
+            $this->getContainer()->get(AggregationParser::class),
+            $this->getContainer()->get(ApiCriteriaValidator::class),
+            $max
+        );
+
+        $request = new Request([], $body);
+        $request->setMethod(Request::METHOD_POST);
+
+        try {
+            $criteria = $builder->handleRequest($request, new Criteria(), $this->getContainer()->get(ProductDefinition::class), Context::createDefaultContext());
+            static::assertSame($expected, $criteria->getLimit());
+        } catch (SearchRequestException $e) {
+            static::assertTrue($exception);
+        }
+
+        $request = new Request($body);
+        $request->setMethod(Request::METHOD_GET);
+
+        try {
+            $criteria = $builder->handleRequest($request, new Criteria(), $this->getContainer()->get(ProductDefinition::class), Context::createDefaultContext());
+            static::assertSame($expected, $criteria->getLimit());
+        } catch (SearchRequestException $e) {
+            static::assertTrue($exception);
+        }
     }
 
     public function testAssociationsAddedToCriteria(): void

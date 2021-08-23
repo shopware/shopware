@@ -5,6 +5,8 @@ namespace Shopware\Core\Content\Test\ImportExport\DataAbstractionLayer\Serialize
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\MediaSerializer;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\SerializerRegistry;
+use Shopware\Core\Content\ImportExport\Exception\InvalidMediaUrlException;
+use Shopware\Core\Content\ImportExport\Exception\MediaDownloadException;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
@@ -203,7 +205,32 @@ class MediaSerializerTest extends TestCase
         $config = new Config([], []);
 
         $actual = $mediaSerializer->deserialize($config, $mediaDefinition, []);
-        static::assertEmpty($actual);
+        // only the error should be in the result
+        static::assertCount(1, $actual);
+        static::assertInstanceOf(InvalidMediaUrlException::class, $actual['_error']);
+    }
+
+    public function testFailedDownload(): void
+    {
+        $serializerRegistry = $this->getContainer()->get(SerializerRegistry::class);
+        $mediaDefinition = $this->getContainer()->get(MediaDefinition::class);
+
+        $mediaService = $this->createMock(MediaService::class);
+        $fileSaver = $this->createMock(FileSaver::class);
+
+        $mediaFolderRepository = $this->getContainer()->get('media_folder.repository');
+        $mediaRepository = $this->createMock(EntityRepositoryInterface::class);
+
+        $mediaSerializer = new MediaSerializer($mediaService, $fileSaver, $mediaFolderRepository, $mediaRepository);
+        $mediaSerializer->setRegistry($serializerRegistry);
+        $config = new Config([], []);
+
+        $record = [
+            'url' => 'http://localhost/some/path/to/non/existing/image.png',
+        ];
+
+        $actual = $mediaSerializer->deserialize($config, $mediaDefinition, $record);
+        static::assertInstanceOf(MediaDownloadException::class, $actual['_error']);
     }
 
     public function testSupportsOnlyMedia(): void

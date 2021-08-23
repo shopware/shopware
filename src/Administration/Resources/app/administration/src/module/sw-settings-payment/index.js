@@ -3,6 +3,7 @@ import './page/sw-settings-payment-list';
 import './page/sw-settings-payment-detail';
 import './page/sw-settings-payment-create';
 import './acl';
+import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module } = Shopware;
 
@@ -49,4 +50,6 @@ Module.register('sw-settings-payment', {
         icon: 'default-money-card',
         privilege: 'payment.viewer',
     },
+
+    defaultSearchConfiguration,
 });

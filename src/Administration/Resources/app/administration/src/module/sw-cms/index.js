@@ -11,6 +11,8 @@ import './page/sw-cms-detail';
 import './page/sw-cms-create';
 import './acl';
 
+import defaultSearchConfiguration from './default-search-configuration';
+
 const { Module } = Shopware;
 
 Module.register('sw-cms', {
@@ -65,4 +67,6 @@ Module.register('sw-cms', {
         parent: 'sw-content',
         privilege: 'cms.viewer',
     }],
+
+    defaultSearchConfiguration,
 });

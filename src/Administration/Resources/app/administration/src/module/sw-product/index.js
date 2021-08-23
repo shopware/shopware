@@ -40,6 +40,7 @@ import './view/sw-product-detail-reviews';
 import './page/sw-product-list';
 import './page/sw-product-detail';
 import './acl';
+import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module } = Shopware;
 
@@ -190,4 +191,6 @@ Module.register('sw-product', {
         privilege: 'product.viewer',
         position: 10,
     }],
+
+    defaultSearchConfiguration,
 });

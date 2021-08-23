@@ -15,6 +15,7 @@ import './component/sw-media-breadcrumbs';
 import './component/sw-media-library';
 import './component/sw-media-modal-v2';
 import './acl';
+import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module } = Shopware;
 
@@ -59,4 +60,6 @@ Module.register('sw-media', {
         parent: 'sw-content',
         privilege: 'media.viewer',
     }],
+
+    defaultSearchConfiguration,
 });

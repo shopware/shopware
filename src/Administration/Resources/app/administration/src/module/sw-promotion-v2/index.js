@@ -23,6 +23,7 @@ import './view/sw-promotion-v2-conditions';
 import './acl';
 
 import swPromotionState from 'src/module/sw-promotion/page/sw-promotion-detail/state';
+import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module, State } = Shopware;
 State.registerModule('swPromotionDetail', swPromotionState);
@@ -139,4 +140,6 @@ Module.register('sw-promotion-v2', {
         parent: 'sw-marketing',
         privilege: 'promotion.viewer',
     }],
+
+    defaultSearchConfiguration,
 });

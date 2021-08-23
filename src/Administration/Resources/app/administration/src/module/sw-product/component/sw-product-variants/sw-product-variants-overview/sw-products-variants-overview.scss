@@ -76,8 +76,8 @@ $sw-products-variants-generated-variants-toolbar-border: $color-gray-300;
         position: relative;
 
         .sw-context-menu {
+            position: absolute;
             top: calc(100% + 10px);
-            right: 0;
             z-index: 10;
 
             .sw-tree {

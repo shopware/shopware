@@ -304,6 +304,11 @@ shopware:
               major: true
               description: "Default transaction state for async app payments"
               # issue: NEXT-13601
+            - name: FEATURE_NEXT_7530
+              default: false
+              major: true
+              description: "Improve orders UX in Administration"
+              # issue: NEXT-7530
 
     logger:
         file_rotation_count: 14

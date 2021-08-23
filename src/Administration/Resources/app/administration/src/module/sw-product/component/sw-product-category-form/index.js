@@ -28,6 +28,7 @@ Component.register('sw-product-category-form', {
             displayVisibilityDetail: false,
             multiSelectVisible: true,
             salesChannel: null,
+            defaultVisibility: 30,
         };
     },
 
@@ -110,38 +111,36 @@ Component.register('sw-product-category-form', {
         },
 
         fetchSalesChannelSystemConfig() {
-            if (!this.product.isNew()) {
+            if (typeof this.product.isNew !== 'function' || !this.product.isNew()) {
                 return Promise.reject();
             }
 
-            return this.systemConfigApiService.getValues('core.defaultSalesChannel')
-                .then(configData => {
-                    if (isEmpty(configData)) {
+            return this.systemConfigApiService.getValues('core.defaultSalesChannel').then(configData => {
+                if (isEmpty(configData)) {
+                    return Promise.resolve();
+                }
+
+                const defaultSalesChannelIds = configData?.['core.defaultSalesChannel.salesChannel'];
+                const defaultVisibilities = configData?.['core.defaultSalesChannel.visibility'];
+                this.product.active = !!configData?.['core.defaultSalesChannel.active'];
+
+                return this.fetchSalesChannelByIds(defaultSalesChannelIds).then((salesChannels) => {
+                    if (!salesChannels.length) {
                         return Promise.resolve();
                     }
 
-                    const defaultSalesChannelIds = configData?.['core.defaultSalesChannel.salesChannel'];
-                    const defaultVisibilities = configData?.['core.defaultSalesChannel.visibility'];
-                    this.product.active = !!configData?.['core.defaultSalesChannel.active'];
-
-                    return this.fetchSalesChannelByIds(defaultSalesChannelIds).then(res => {
-                        if (!res.length) {
-                            return Promise.resolve();
-                        }
-
-                        res.forEach(el => {
-                            const visibilities = this.createProductVisibilityEntity(defaultVisibilities, el);
-                            this.product.visibilities.push(visibilities);
-                        });
-
-                        return Promise.resolve();
+                    salesChannels.forEach((salesChannel) => {
+                        const visibilities = this.createProductVisibilityEntity(defaultVisibilities, salesChannel);
+                        this.product.visibilities.push(visibilities);
                     });
-                })
-                .catch(() => {
-                    this.createNotificationError({
-                        message: this.$tc('sw-product.visibility.errorMessage'),
-                    });
+
+                    return Promise.resolve();
                 });
+            }).catch(() => {
+                this.createNotificationError({
+                    message: this.$tc('sw-product.visibility.errorMessage'),
+                });
+            });
         },
 
         fetchSalesChannelByIds(ids) {
@@ -156,7 +155,7 @@ Component.register('sw-product-category-form', {
             const visibilities = this.productVisibilityRepository.create(Context.api);
 
             Object.assign(visibilities, {
-                visibility: visibility[salesChannel.id],
+                visibility: visibility[salesChannel.id] || this.defaultVisibility,
                 productId: this.product.id,
                 salesChannelId: salesChannel.id,
                 salesChannel: salesChannel,

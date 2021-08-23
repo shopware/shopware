@@ -1,5 +1,7 @@
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-manufacturer/page/sw-manufacturer-list';
+import { searchRankingPoint } from 'src/app/service/search-ranking.service';
+import Criteria from 'src/core/data/criteria.data';
 
 function createWrapper(privileges = []) {
     return mount(Shopware.Component.build('sw-manufacturer-list'), {
@@ -27,6 +29,16 @@ function createWrapper(privileges = []) {
             stateStyleDataProviderService: {},
             repositoryFactory: {
                 create: () => ({ search: () => Promise.resolve([]) })
+            },
+            searchRankingService: {
+                getSearchFieldsByEntity: () => {
+                    return {
+                        name: searchRankingPoint.HIGH_SEARCH_RANKING
+                    };
+                },
+                buildSearchQueriesForEntity: (searchFields, term, criteria) => {
+                    return criteria;
+                }
             }
         },
         mocks: {
@@ -93,5 +105,31 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
         const entityListing = wrapper.find('.sw-manufacturer-list__grid');
         expect(entityListing.exists()).toBeTruthy();
         expect(entityListing.props().allowDelete).toBeFalsy();
+    });
+
+    it('should get search ranking fields as a computed field', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
+
+        const wrapper = createWrapper();
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.searchRankingFields).toEqual({ name: searchRankingPoint.HIGH_SEARCH_RANKING });
+    });
+
+    it('should add query score to the criteria ', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
+
+        const wrapper = createWrapper();
+
+        await wrapper.vm.$nextTick();
+        wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
+            return new Criteria();
+        });
+
+        await wrapper.vm.getList();
+
+        expect(wrapper.vm.searchRankingService.buildSearchQueriesForEntity).toHaveBeenCalledTimes(1);
+        wrapper.vm.searchRankingService.buildSearchQueriesForEntity.mockRestore();
     });
 });

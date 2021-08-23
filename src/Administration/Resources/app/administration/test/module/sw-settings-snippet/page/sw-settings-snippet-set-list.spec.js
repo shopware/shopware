@@ -79,7 +79,8 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-set-list', () => {
                     create: () => ({
                         search: () => Promise.resolve(getSnippetSetData())
                     })
-                }
+                },
+                searchRankingService: {}
             },
             stubs: {
                 'sw-page': {

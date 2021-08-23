@@ -21,6 +21,7 @@ Component.register('sw-settings-customer-group-list', {
             limit: 10,
             customerGroups: null,
             sortDirection: 'ASC',
+            searchConfigEntity: 'customer_group',
         };
     },
 
@@ -61,7 +62,9 @@ Component.register('sw-settings-customer-group-list', {
         getList() {
             this.isLoading = true;
 
-            this.customerGroupRepository.search(this.allCustomerGroupsCriteria)
+            const criteria = this.addQueryScores(this.term, this.allCustomerGroupsCriteria);
+
+            this.customerGroupRepository.search(criteria)
                 .then((searchResult) => {
                     this.total = searchResult.total;
                     this.customerGroups = searchResult;

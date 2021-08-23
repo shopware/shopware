@@ -38,7 +38,8 @@ function createWrapper(privileges = []) {
 
                     return privileges.includes(identifier);
                 }
-            }
+            },
+            searchRankingService: {}
         },
         stubs: {
             'sw-page': {

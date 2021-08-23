@@ -48,7 +48,9 @@ function createWrapper(privileges = []) {
 
             detailPageLinkText(allowEdit) {
                 return allowEdit ? this.$tc('global.default.edit') : this.$tc('global.default.view');
-            }
+            },
+
+            searchRankingService: {}
         },
         stubs: {
             'sw-page': {

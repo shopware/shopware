@@ -131,7 +131,8 @@ function createWrapper(privileges = []) {
                         return Promise.resolve(mockMailTemplateData(criteria));
                     })
                 })
-            }
+            },
+            searchRankingService: {}
         }
     });
 }

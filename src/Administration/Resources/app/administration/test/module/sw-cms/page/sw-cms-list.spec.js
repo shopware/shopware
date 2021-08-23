@@ -4,6 +4,8 @@ import 'src/module/sw-cms/component/sw-cms-list-item';
 import 'src/app/component/context-menu/sw-context-button';
 import 'src/app/component/context-menu/sw-context-menu-item';
 import 'src/app/component/data-grid/sw-data-grid';
+import { searchRankingPoint } from 'src/app/service/search-ranking.service';
+import Criteria from 'src/core/data/criteria.data';
 
 function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-cms-list'), {
@@ -48,7 +50,8 @@ function createWrapper(privileges = []) {
             },
             'sw-data-grid': Shopware.Component.build('sw-data-grid'),
             'router-link': true,
-            'sw-data-grid-skeleton': true
+            'sw-data-grid-skeleton': true,
+            'sw-loader': true
         },
         mocks: {
             $route: { query: '' }
@@ -63,8 +66,17 @@ function createWrapper(privileges = []) {
             },
             repositoryFactory: {
                 create: () => ({ search: () => Promise.resolve() })
+            },
+            searchRankingService: {
+                getSearchFieldsByEntity: () => {
+                    return {
+                        name: searchRankingPoint.HIGH_SEARCH_RANKING
+                    };
+                },
+                buildSearchQueriesForEntity: (searchFields, term, criteria) => {
+                    return criteria;
+                }
             }
-
         }
     });
 }
@@ -542,5 +554,31 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             .toThrow();
         expect(linkedLayout.get('.sw-cms-list-item__status.is--active'))
             .toBeTruthy();
+    });
+
+    it('should get search ranking fields as a computed field', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
+
+        const wrapper = createWrapper();
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.searchRankingFields).toEqual({ name: searchRankingPoint.HIGH_SEARCH_RANKING });
+    });
+
+    it('should add query score to the criteria ', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
+
+        const wrapper = createWrapper();
+
+        await wrapper.vm.$nextTick();
+        wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
+            return new Criteria();
+        });
+
+        await wrapper.vm.getList();
+
+        expect(wrapper.vm.searchRankingService.buildSearchQueriesForEntity).toHaveBeenCalledTimes(1);
+        wrapper.vm.searchRankingService.buildSearchQueriesForEntity.mockRestore();
     });
 });

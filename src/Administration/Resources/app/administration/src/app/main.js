@@ -35,6 +35,7 @@ import AppCmsService from 'src/app/service/app-cms.service';
 import MediaDefaultFolderService from 'src/app/service/media-default-folder.service';
 import AppAclService from 'src/app/service/app-acl.service';
 import ShopwareDiscountCampaignService from 'src/app/service/discount-campaign.service';
+import SearchRankingService from 'src/app/service/search-ranking.service';
 
 /** Import Feature */
 import Feature from 'src/core/feature';
@@ -163,4 +164,7 @@ Application
     })
     .addServiceProvider('shopwareDiscountCampaignService', () => {
         return new ShopwareDiscountCampaignService();
+    })
+    .addServiceProvider('searchRankingService', () => {
+        return new SearchRankingService();
     });

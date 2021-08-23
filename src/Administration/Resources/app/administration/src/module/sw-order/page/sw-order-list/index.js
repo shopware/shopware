@@ -59,6 +59,7 @@ Component.register('sw-order-list', {
             storeKey: 'grid.filter.order',
             activeFilterNumber: 0,
             showBulkEditModal: false,
+            searchConfigEntity: 'order',
         };
     },
 
@@ -365,8 +366,10 @@ Component.register('sw-order-list', {
         async getList() {
             this.isLoading = true;
 
-            const criteria = await Shopware.Service('filterService')
+            let criteria = await Shopware.Service('filterService')
                 .mergeWithStoredFilters(this.storeKey, this.orderCriteria);
+
+            criteria = this.addQueryScores(this.term, criteria);
 
             this.activeFilterNumber = criteria.filters.length;
 

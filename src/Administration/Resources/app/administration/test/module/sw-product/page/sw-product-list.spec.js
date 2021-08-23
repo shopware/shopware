@@ -10,6 +10,8 @@ import 'src/app/component/base/sw-button';
 import 'src/app/component/grid/sw-pagination';
 import 'src/app/component/base/sw-empty-state';
 import 'src/app/component/structure/sw-page';
+import { searchRankingPoint } from 'src/app/service/search-ranking.service';
+import Criteria from 'src/core/data/criteria.data';
 
 const CURRENCY_ID = {
     EURO: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
@@ -256,6 +258,16 @@ function createWrapper() {
                         }
 
                         return { search: () => Promise.resolve(getCurrencyData()) };
+                    }
+                },
+                searchRankingService: {
+                    getSearchFieldsByEntity: () => {
+                        return {
+                            name: searchRankingPoint.HIGH_SEARCH_RANKING
+                        };
+                    },
+                    buildSearchQueriesForEntity: (searchFields, term, criteria) => {
+                        return criteria;
                     }
                 },
                 filterFactory: {
@@ -535,5 +547,27 @@ describe('module/sw-product/page/sw-product-list', () => {
         const productHasVariants = wrapper.vm.productHasVariants(product);
 
         expect(productHasVariants).toBe(true);
+    });
+
+    it('should get search ranking fields as a computed field', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.searchRankingFields).toEqual({ name: searchRankingPoint.HIGH_SEARCH_RANKING });
+    });
+
+    it('should add query score to the criteria ', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
+
+        await wrapper.vm.$nextTick();
+        wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
+            return new Criteria();
+        });
+
+        await wrapper.vm.getList();
+
+        expect(wrapper.vm.searchRankingService.buildSearchQueriesForEntity).toHaveBeenCalledTimes(1);
+        wrapper.vm.searchRankingService.buildSearchQueriesForEntity.mockRestore();
     });
 });

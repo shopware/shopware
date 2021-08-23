@@ -130,7 +130,7 @@ class MailService extends AbstractMailService
         $salesChannelId = $data['salesChannelId'];
         $salesChannel = null;
 
-        if ($salesChannelId !== null && !isset($templateData['salesChannel'])) {
+        if (($salesChannelId !== null && !isset($templateData['salesChannel'])) || $this->isTestMode($data)) {
             $criteria = $this->getSalesChannelDomainCriteria($salesChannelId, $context);
 
             /** @var SalesChannelEntity|null $salesChannel */
@@ -148,7 +148,7 @@ class MailService extends AbstractMailService
         $senderEmail = $this->getSender($data, $salesChannelId);
 
         $contents = $this->buildContents($data, $salesChannel);
-        if (isset($data['testMode']) && (bool) $data['testMode'] === true) {
+        if ($this->isTestMode($data)) {
             $this->templateRenderer->enableTestMode();
             if (!isset($templateData['order']) && !isset($templateData['order']['deepLinkCode']) || $templateData['order']['deepLinkCode'] === '') {
                 $templateData['order']['deepLinkCode'] = 'home';
@@ -317,5 +317,10 @@ class MailService extends AbstractMailService
             );
 
         return $criteria;
+    }
+
+    private function isTestMode(array $data = []): bool
+    {
+        return isset($data['testMode']) && (bool) $data['testMode'] === true;
     }
 }

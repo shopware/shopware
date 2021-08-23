@@ -72,6 +72,46 @@ class MailActionControllerTest extends TestCase
         static::assertSame('<h1>This is HTML</h1>', $partsByType['text/html']);
     }
 
+    public function testSendingMailWithMailTemplateData(): void
+    {
+        $data = $this->getTestData();
+        $data['contentHtml'] = '<span> {{ order.deliveries.0.trackingCodes.0 }}</span><span> {{ order.deliveries.1.trackingCodes.1 }}</span>';
+        $data['testMode'] = true;
+        $data['mailTemplateData'] = [
+            'order' => [
+                'salesChannel' => [],
+                'deepLinkCode' => 'home',
+                'deliveries' => [
+                    0 => [
+                        'trackingCodes' => ['324fsdf', '1234sdf'],
+                    ],
+                    1 => [
+                        'trackingCodes' => ['dfvv456', '435x4'],
+                    ],
+                ],
+            ],
+        ];
+
+        $this->getBrowser()->request('POST', '/api/_action/mail-template/send', $data);
+
+        // check response status code
+        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
+
+        /** @var MessageDataCollector $mailCollector */
+        $mailCollector = $this->getBrowser()->getProfile()->getCollector('mailer');
+
+        // checks that an email was sent
+        $messages = $mailCollector->getEvents()->getMessages();
+        static::assertGreaterThan(0, \count($messages));
+        /** @var Email $message */
+        $message = array_pop($messages);
+
+        $partsByType = [];
+        $partsByType['text/html'] = $message->getHtmlBody();
+
+        static::assertSame('<span>324fsdf</span><span>435x4</span>', $partsByType['text/html']);
+    }
+
     public function testSendingMailWithAttachments(): void
     {
         $data = $this->getTestDataWithAttachments();

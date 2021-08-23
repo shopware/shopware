@@ -45,6 +45,7 @@ Component.register('sw-mail-template-detail', {
             fileAccept: 'application/pdf, image/*',
             testMailSalesChannelId: null,
             availableVariables: {},
+            entitySchema: Object.fromEntries(Shopware.EntityDefinition.getDefinitionRegistry()),
         };
     },
 
@@ -292,7 +293,7 @@ Component.register('sw-mail-template-detail', {
 
             this.mailService.testMailTemplate(
                 this.testerMail,
-                this.mailTemplate,
+                this.mailPreviewContent(),
                 this.mailTemplateMedia,
                 this.testMailSalesChannelId,
             ).then(() => {
@@ -308,12 +309,42 @@ Component.register('sw-mail-template-detail', {
 
             this.mailPreview = this.mailService.buildRenderPreview(
                 this.mailTemplateType,
-                this.mailTemplate,
+                this.mailPreviewContent(),
             ).then((response) => {
                 this.mailPreview = response;
             }).finally(() => {
                 this.isLoading = false;
             });
+        },
+
+        mailPreviewContent() {
+            const mailTemplate = { ...this.mailTemplate };
+
+            if (mailTemplate.contentHtml) {
+                mailTemplate.contentHtml = this.replaceContent(mailTemplate.contentHtml);
+            }
+
+            if (mailTemplate.translated?.contentHtml) {
+                mailTemplate.translated.contentHtml = this.replaceContent(mailTemplate.translated.contentHtml);
+            }
+
+            if (mailTemplate.contentPlain) {
+                mailTemplate.contentPlain = this.replaceContent(mailTemplate.contentPlain);
+            }
+
+            if (mailTemplate.translated?.contentPlain) {
+                mailTemplate.translated.contentPlain = this.replaceContent(mailTemplate.translated.contentPlain);
+            }
+
+            return mailTemplate;
+        },
+
+        replaceContent(string) {
+            // Replace .at([index]), first -> `.[index]` to suitable with mail template data
+            return string.replace(/\.at\(([0-9]*)\)\./g, (matchs) => {
+                const index = parseInt(matchs.match(/[0-9]/g).join(''), 10);
+                return `.${index}.`;
+            }).replace(/\.first\./g, '.0.');
         },
 
         onCancelShowPreview() {
@@ -445,12 +476,13 @@ Component.register('sw-mail-template-detail', {
             return true;
         },
 
-        loadAvailableVariables(variable) {
+        loadAvailableVariables(variable, variableEntitySchema) {
             if (!this.mailTemplateType || !this.mailTemplateType.availableEntities) {
                 return [];
             }
 
             const variablePath = variable.concat('.');
+            const variableEntitySchemaPath = variableEntitySchema.concat('.');
 
             const foundVariables = Object.keys(Shopware.Utils.get(this.mailTemplateType.templateData, variable));
 
@@ -459,8 +491,14 @@ Component.register('sw-mail-template-detail', {
                 const isObject = typeof availableVariable === 'object' && availableVariable !== null;
                 const length = isObject ? Object.values(availableVariable).length : 0;
 
+                // the pattern for schema is `.at(0)` or `.at(1)` instead of `.0` or `.1`
+                const schema = this.isToManyAssociationVariable(variable) ?
+                    `${variableEntitySchemaPath}at(${parseInt(val, 10)})` :
+                    variableEntitySchemaPath + val;
+
                 return {
                     id: variablePath + val,
+                    schema,
                     name: val,
                     childCount: length,
                     parentId: variable,
@@ -474,8 +512,20 @@ Component.register('sw-mail-template-detail', {
             return true;
         },
 
-        onGetTreeItems(parent) {
-            this.loadAvailableVariables(parent);
+        isToManyAssociationVariable(variable) {
+            if (!variable) {
+                return false;
+            }
+
+            const variables = variable.split('.');
+            variables.splice(1, 0, 'properties');
+            const field = Shopware.Utils.get(this.entitySchema, `${variables.join('.')}`);
+
+            return field && field.type === 'association' && ['one_to_many', 'many_to_many'].includes(field.relation);
+        },
+
+        onGetTreeItems(parent, schema) {
+            this.loadAvailableVariables(parent, schema);
         },
 
         addVariables(variables) {
@@ -500,6 +550,7 @@ Component.register('sw-mail-template-detail', {
 
                 this.addVariables([{
                     id: variable,
+                    schema: variable,
                     name: variable,
                     childCount: length,
                     parentId: null,

@@ -129,6 +129,11 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
         return array_values($this->elements)[0] ?? null;
     }
 
+    public function getAt(int $position)
+    {
+        return array_values($this->elements)[$position] ?? null;
+    }
+
     public function last()
     {
         return array_values($this->elements)[\count($this->elements) - 1] ?? null;

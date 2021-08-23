@@ -92,8 +92,7 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
 
         await wrapper.vm.$nextTick();
 
-        const tree = wrapper.find('.sw-tree');
-        expect(tree.attributes().sortable).toBeUndefined();
+        expect(wrapper.vm.sortable).toBe(false);
     });
 
     it('should be able to delete the items in sw-tree', async () => {

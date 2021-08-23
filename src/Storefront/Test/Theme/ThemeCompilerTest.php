@@ -149,6 +149,25 @@ class ThemeCompilerTest extends TestCase
                     'type' => 'switch',
                     'value' => true,
                 ],
+                'sw-multi-test' => [
+                    'name' => 'sw-multi-test',
+                    'type' => 'text',
+                    'value' => [
+                        'top',
+                        'bottom',
+                    ],
+                    'custom' => [
+                        'componentName' => 'sw-multi-select',
+                        'options' => [
+                            [
+                                'value' => 'bottom',
+                            ],
+                            [
+                                'value' => 'top',
+                            ],
+                        ],
+                    ],
+                ],
             ],
         ];
 

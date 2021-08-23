@@ -231,22 +231,7 @@ class ThemeCompiler implements ThemeCompilerInterface
 
         $variables = [];
         foreach ($config['fields'] as $key => $data) {
-            if (!isset($data['value'])) {
-                continue;
-            }
-
-            // Do not include fields which have the scss option set to false
-            if (\array_key_exists('scss', $data) && $data['scss'] === false) {
-                continue;
-            }
-
-            // value must not be an empty string since because an empty value can not be compiled
-            if ($data['value'] === '') {
-                continue;
-            }
-
-            // if no type is set just use the value and continue
-            if (!isset($data['type'])) {
+            if (!\is_array($data) || !$this->isDumpable($data)) {
                 continue;
             }
 
@@ -275,6 +260,35 @@ class ThemeCompiler implements ThemeCompilerInterface
         $this->tempFilesystem->put('theme-variables.scss', $dump);
 
         return $dump;
+    }
+
+    private function isDumpable(array $data): bool
+    {
+        if (!isset($data['value'])) {
+            return false;
+        }
+
+        // Do not include fields which have the scss option set to false
+        if (\array_key_exists('scss', $data) && $data['scss'] === false) {
+            return false;
+        }
+
+        // Do not include fields which haa an array as value
+        if (\is_array($data['value'])) {
+            return false;
+        }
+
+        // value must not be an empty string since because an empty value can not be compiled
+        if ($data['value'] === '') {
+            return false;
+        }
+
+        // if no type is set just use the value and continue
+        if (!isset($data['type'])) {
+            return false;
+        }
+
+        return true;
     }
 
     private function getVariableDumpTemplate(): string

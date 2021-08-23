@@ -119,6 +119,8 @@
         "contextMenuDelete": "Löschen",
         "textChangePassword": "Mit einem Klick auf 'Ändern' wird das Passwort direkt gespeichert!",
         "addAccessKey": "Zugangsschlüssel erstellen",
+        "noAccessKeysTitle": "Keine Zugangsschlüssel vorhanden",
+        "noAccessKeysSubline": "Erstelle hier Zugangsschlüssel",
         "labelAccessKey": "Zugangsschlüssel",
         "labelPermissions": "Berechtigungen",
         "disabledRoleSelectWarning": "Rollen sind nur für Benutzer verfügbar, die keine Administrator-Rechte haben.",

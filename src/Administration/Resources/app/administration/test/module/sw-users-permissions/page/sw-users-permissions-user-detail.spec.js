@@ -124,7 +124,8 @@ function createWrapper(privileges = []) {
 </div>
                 `
             },
-            'sw-context-menu-item': true
+            'sw-context-menu-item': true,
+            'sw-empty-state': true
         }
     });
 }

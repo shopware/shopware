@@ -250,6 +250,13 @@
                         </template>
                         {% endblock %}
                     </sw-data-grid>
+                    <sw-empty-state
+                        v-if="integrations.length === 0"
+                        :absolute="false"
+                        :title="$tc('sw-users-permissions.users.user-detail.noAccessKeysTitle')"
+                        :subline="$tc('sw-users-permissions.users.user-detail.noAccessKeysSubline')"
+                        auto-height
+                    />
                     {% endblock %}
                 </template>
                 {% endblock %}

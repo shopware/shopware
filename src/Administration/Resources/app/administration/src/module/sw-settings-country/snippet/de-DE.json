@@ -69,7 +69,9 @@
     "labelPosition": "Position",
     "labelShortCode": "ISO",
     "tooltipPosition": "Bestimmt die Position des/der Landes/Region bei der Ausgabe in Listen.",
-    "createNewStateError": "Erstellen einer neuen Region / eines neuen Landes in der ausgewählten Sprache nicht möglich. Bitte erstelle die Region / das Land erst in der Standardsprache!"
+    "createNewStateError": "Das Erstellen einer neuen Region ist in der ausgewählten Sprache nicht möglich. Bitte erstelle die Region zunächst in der System-Standardsprache, danach kannst Du sie in weiteren Sprachen bearbeiten.",
+    "emptyTitle": "Noch keine Region vorhanden",
+    "emptySubline": "Füge Regionen hinzu"
   },
   "sw-privileges": {
     "permissions": {

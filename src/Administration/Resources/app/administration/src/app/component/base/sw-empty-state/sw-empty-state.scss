@@ -15,6 +15,10 @@
         height: 400px;
     }
 
+    &--auto-height {
+        height: auto;
+    }
+
     &__element {
         max-width: 600px;
         padding: 20px;

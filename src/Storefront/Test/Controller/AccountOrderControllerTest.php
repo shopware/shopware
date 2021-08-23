@@ -9,8 +9,10 @@ use Shopware\Core\Checkout\Test\Customer\Rule\OrderFixture;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -138,6 +140,91 @@ class AccountOrderControllerTest extends TestCase
         static::assertSame(200, $response->getStatusCode(), $response->getContent());
     }
 
+    public function testEditOrderWithDifferentSalesChannelContextShippingMethodRestoresOrderShippingMethod(): void
+    {
+        $context = Context::createDefaultContext();
+        $customer = $this->createCustomer($context);
+
+        $orderId = Uuid::randomHex();
+        $orderData = $this->getOrderData($orderId, $context);
+        $orderData[0]['orderCustomer']['customer']['id'] = $customer->getId();
+        $orderData[0]['orderCustomer']['customer']['guest'] = false;
+        $orderData[0]['orderNumber'] = 'order-number';
+
+        $criteria = new Criteria();
+        $criteria
+            ->addFilter(new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT))
+            ->addFilter(new EqualsFilter('active', true));
+
+        /** @var EntityRepositoryInterface $salesChannelRepository */
+        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+
+        /** @var SalesChannelEntity|null $salesChannel */
+        $salesChannel = $salesChannelRepository->search($criteria, $context)->first();
+        if ($salesChannel !== null) {
+            $orderData[0]['salesChannelId'] = $salesChannel->getId();
+        }
+
+        $productId = $this->createProduct($context);
+        $orderData[0]['lineItems'][0]['identifier'] = $productId;
+        $orderData[0]['lineItems'][0]['productId'] = $productId;
+
+        $orderRepo = $this->getContainer()->get('order.repository');
+        $orderRepo->create($orderData, $context);
+
+        // Change default SalesChannel ShippingMethod to another than the ordered one
+        $orderShippingMethodId = $orderData[0]['deliveries'][0]['shippingMethodId'];
+        $criteria = new Criteria();
+        $criteria->setLimit(1);
+        $criteria->addFilter(
+            new NotFilter(NotFilter::CONNECTION_AND, [
+                new EqualsFilter('id', $orderShippingMethodId),
+            ]),
+            new EqualsFilter('active', true)
+        );
+        $differentShippingMethodId = $this->getContainer()->get('shipping_method.repository')->searchIds($criteria, $context)->firstId();
+        static::assertNotNull($differentShippingMethodId);
+        static::assertNotSame($orderShippingMethodId, $differentShippingMethodId);
+
+        $salesChannelRepository->update([
+            [
+                'id' => $salesChannel->getId(),
+                'shippingMethodId' => $differentShippingMethodId,
+                'shippingMethods' => [
+                    [
+                        'id' => $differentShippingMethodId,
+                    ],
+                    [
+                        'id' => $orderShippingMethodId,
+                    ],
+                ],
+            ],
+        ], $context);
+
+        $browser = $this->login($customer->getEmail());
+        $browser->followRedirects(true);
+
+        // Load home page to verify the saleschannel got a different shipping method from the ordered one
+        $browser->request(
+            'GET',
+            $_SERVER['APP_URL'] . '/'
+        );
+
+        /** @var StorefrontResponse $response */
+        $response = $browser->getResponse();
+        static::assertSame($differentShippingMethodId, $response->getContext()->getShippingMethod()->getId());
+
+        // Test that the order edit page switches the SalesChannelContext Shipping method to the order one
+        $browser->request(
+            'GET',
+            $_SERVER['APP_URL'] . '/account/order/edit/' . $orderData[0]['id']
+        );
+
+        /** @var StorefrontResponse $response */
+        $response = $browser->getResponse();
+        static::assertSame($orderShippingMethodId, $response->getContext()->getShippingMethod()->getId());
+    }
+
     private function login(string $email): KernelBrowser
     {
         $browser = KernelLifecycleManager::createBrowser($this->getKernel());
@@ -164,6 +251,7 @@ class AccountOrderControllerTest extends TestCase
             [
                 'id' => $customerId,
                 'salesChannelId' => Defaults::SALES_CHANNEL,
+                'boundSalesChannelId' => null,
                 'defaultShippingAddress' => [
                     'id' => $addressId,
                     'firstName' => 'Max',

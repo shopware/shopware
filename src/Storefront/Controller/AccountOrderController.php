@@ -6,16 +6,18 @@ use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
 use Shopware\Core\Checkout\Cart\Exception\OrderNotFoundException;
 use Shopware\Core\Checkout\Cart\Exception\OrderPaymentMethodNotChangeable;
 use Shopware\Core\Checkout\Customer\Exception\CustomerAuthThrottledException;
+use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
 use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\AbstractCancelOrderRoute;
+use Shopware\Core\Checkout\Order\SalesChannel\AbstractOrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\AbstractSetPaymentOrderRoute;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\Exception\PaymentProcessException;
 use Shopware\Core\Checkout\Payment\SalesChannel\AbstractHandlePaymentMethodRoute;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Routing\Annotation\LoginRequired;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
@@ -58,7 +60,7 @@ class AccountOrderController extends StorefrontController
 
     private AccountOrderDetailPageLoader $orderDetailPageLoader;
 
-    private EntityRepositoryInterface $orderRepository;
+    private AbstractOrderRoute $orderRoute;
 
     private SalesChannelContextServiceInterface $contextService;
 
@@ -75,7 +77,7 @@ class AccountOrderController extends StorefrontController
         AbstractHandlePaymentMethodRoute $handlePaymentMethodRoute,
         EventDispatcherInterface $eventDispatcher,
         AccountOrderDetailPageLoader $orderDetailPageLoader,
-        EntityRepositoryInterface $orderRepository,
+        AbstractOrderRoute $orderRoute,
         SalesChannelContextServiceInterface $contextService,
         SystemConfigService $systemConfigService,
         OrderService $orderService
@@ -88,7 +90,7 @@ class AccountOrderController extends StorefrontController
         $this->handlePaymentMethodRoute = $handlePaymentMethodRoute;
         $this->eventDispatcher = $eventDispatcher;
         $this->orderDetailPageLoader = $orderDetailPageLoader;
-        $this->orderRepository = $orderRepository;
+        $this->orderRoute = $orderRoute;
         $this->contextService = $contextService;
         $this->systemConfigService = $systemConfigService;
         $this->orderService = $orderService;
@@ -187,9 +189,12 @@ class AccountOrderController extends StorefrontController
      */
     public function editOrder(string $orderId, Request $request, SalesChannelContext $context): Response
     {
-        $order = $this->orderRepository
-            ->search(new Criteria([$orderId]), $context->getContext())
-            ->first();
+        $criteria = new Criteria([$orderId]);
+        $criteria->addAssociation('deliveries');
+        $deliveriesCriteria = $criteria->getAssociation('deliveries');
+        $deliveriesCriteria->addSorting(new FieldSorting('createdAt', FieldSorting::ASCENDING));
+
+        $order = $this->orderRoute->load($request, $context, $criteria)->getOrders()->first();
 
         if ($order === null) {
             throw new OrderNotFoundException($orderId);
@@ -198,6 +203,18 @@ class AccountOrderController extends StorefrontController
         if ($context->getCurrency()->getId() !== $order->getCurrencyId()) {
             $this->contextSwitchRoute->switchContext(
                 new RequestDataBag([SalesChannelContextService::CURRENCY_ID => $order->getCurrencyId()]),
+                $context
+            );
+
+            return $this->redirectToRoute('frontend.account.edit-order.page', ['orderId' => $orderId]);
+        }
+
+        /** @var OrderDeliveryEntity|null $mostCurrentDelivery */
+        $mostCurrentDelivery = $order->getDeliveries()->last();
+
+        if ($mostCurrentDelivery !== null && $context->getShippingMethod()->getId() !== $mostCurrentDelivery->getShippingMethodId()) {
+            $this->contextSwitchRoute->switchContext(
+                new RequestDataBag([SalesChannelContextService::SHIPPING_METHOD_ID => $mostCurrentDelivery->getShippingMethodId()]),
                 $context
             );
 
@@ -251,9 +268,7 @@ class AccountOrderController extends StorefrontController
         ]);
 
         /** @var OrderEntity|null $order */
-        $order = $this->orderRepository
-            ->search(new Criteria([$orderId]), $context->getContext())
-            ->first();
+        $order = $this->orderRoute->load($request, $context, new Criteria([$orderId]))->getOrders()->first();
 
         if ($order === null) {
             throw new OrderNotFoundException($orderId);

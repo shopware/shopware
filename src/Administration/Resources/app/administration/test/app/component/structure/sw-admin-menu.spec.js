@@ -25,7 +25,7 @@ function createWrapper() {
 
     return shallowMount(adminMenuComponent, {
         localVue,
-        router: new VueRouter({ routes: Shopware.Module.getModuleRoutes() }),
+        router: new VueRouter({ routes: Shopware.Module.getModuleRoutes(), route: { meta: { $module: { name: '' } } } }),
         stubs: {
             'sw-icon': true,
             'sw-version': true,
@@ -88,8 +88,6 @@ describe('src/app/component/structure/sw-admin-menu', () => {
     afterEach(() => {
         wrapper.destroy();
     });
-
-    //
 
     it('should be a Vue.js component', async () => {
         expect(wrapper.vm).toBeTruthy();

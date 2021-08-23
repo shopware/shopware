@@ -109,6 +109,12 @@ function createWrapper(salesChannels = [], privileges = []) {
         }]
     });
 
+    router.push({
+        name: 'sw.sales.channel.detail',
+        // the id is the storeFrontWithStandardDomain sales-channel
+        params: { id: '8106c8da-4528-406e-8b47-dcae65965f6b' }
+    });
+
     return mount(Shopware.Component.build('sw-sales-channel-menu'), {
         localVue,
         router,
@@ -298,6 +304,22 @@ describe('module/sw-sales-channel/component/structure/sw-admin-menu-extension', 
 
         const salesChannelMenuEntry = wrapper.find('.sw-admin-menu__sales-channel-item');
         expect(salesChannelMenuEntry.find('button.sw-sales-channel-menu-domain-link').exists()).toBe(false);
+
+        wrapper.destroy();
+    });
+
+    it('shows just one saleschannel as selected', async () => {
+        const wrapper = createWrapper([storeFrontWithStandardDomain, headlessSalesChannel]);
+
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+
+        const links = wrapper.findAll('.sw-admin-menu__navigation-link');
+
+        const activeLinkClasses = ['router-link-active', ' router-link-active'];
+
+        expect(links.at(0).classes().some(cssClass => activeLinkClasses.includes(cssClass))).toBe(true);
+        expect(links.at(1).classes().some(cssClass => activeLinkClasses.includes(cssClass))).toBe(false);
 
         wrapper.destroy();
     });

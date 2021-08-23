@@ -39,7 +39,6 @@ function createWrapper({ propsData = {}, privileges = [] } = {}) {
     const aclService = new AclService(Shopware.State);
 
     return shallowMount(Shopware.Component.build('sw-admin-menu-item'), {
-        sync: false,
         propsData: propsData,
         stubs: {
             'sw-icon': true,
@@ -51,7 +50,7 @@ function createWrapper({ propsData = {}, privileges = [] } = {}) {
         },
         mocks: {
             $route: {
-                meta: {}
+                meta: { $module: { name: '' } }
             },
             $router
         },

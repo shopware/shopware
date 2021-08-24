@@ -26,7 +26,7 @@ default:
 # for jobs which should run on each MR/Pipeline
 .base:
     # we want our base pipeline to finish fast
-    timeout: 20m
+    timeout: 30m
     # do not download assets from previous stages by default
     dependencies: []
     rules:

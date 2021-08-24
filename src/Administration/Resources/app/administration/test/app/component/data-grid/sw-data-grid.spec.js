@@ -180,14 +180,12 @@ describe('components/data-grid/sw-data-grid', () => {
         expect(popover.exists()).toBe(true);
         expect(popover.findAll('.sw-data-grid__settings-column-item').length).toBe(2);
 
-
         // check default columns
         expect(wrapper.vm.currentColumns[0].visible).toBe(defaultUserConfig.value.columns[0].visible);
         expect(wrapper.vm.currentColumns[1].visible).toBe(defaultUserConfig.value.columns[1].visible);
 
         expect(wrapper.vm.compact).toBe(defaultUserConfig.value.compact);
         expect(wrapper.vm.previews).toBe(defaultUserConfig.value.previews);
-
 
         const valueChecked = !defaultUserConfig.value.columns[0].visible;
 
@@ -557,4 +555,3 @@ describe('components/data-grid/sw-data-grid', () => {
         });
     });
 });
-

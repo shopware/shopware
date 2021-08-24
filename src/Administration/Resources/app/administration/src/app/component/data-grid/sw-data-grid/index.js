@@ -364,19 +364,20 @@ Component.register('sw-data-grid', {
                 return;
             }
 
-            const userColumnSettings = userSettings.columns.reduce((obj, column) => {
-                return {
-                    ...obj,
-                    [column.dataIndex]: {
+
+            const userColumnSettings = Object.fromEntries(userSettings.columns.map((column, index) => {
+                return [
+                    column.dataIndex, {
                         width: column.width,
                         allowResize: column.allowResize,
                         sortable: column.sortable,
                         visible: column.visible,
                         align: column.visible,
                         naturalSorting: column.naturalSorting,
+                        position: index,
                     },
-                };
-            }, {});
+                ];
+            }));
 
             this.currentColumns = this.currentColumns.map(column => {
                 if (userColumnSettings[column.dataIndex] === undefined) {
@@ -391,7 +392,7 @@ Component.register('sw-data-grid', {
 
                         return localValue;
                     });
-            });
+            }).sort((column1, column2) => column1.position - column2.position);
         },
 
         findResizeColumns() {

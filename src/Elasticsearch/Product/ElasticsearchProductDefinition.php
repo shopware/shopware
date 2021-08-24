@@ -68,6 +68,8 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'id' => EntityMapper::KEYWORD_FIELD,
                 'parentId' => EntityMapper::KEYWORD_FIELD,
                 'active' => EntityMapper::BOOLEAN_FIELD,
+                'available' => EntityMapper::BOOLEAN_FIELD,
+                'isCloseout' => EntityMapper::BOOLEAN_FIELD,
                 'categoriesRo' => [
                     'type' => 'nested',
                     'properties' => [
@@ -208,6 +210,8 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'name' => $this->stripText($item['name'] ?? ''),
                 'ratingAverage' => (float) $item['ratingAverage'],
                 'active' => (bool) $item['active'],
+                'available' => (bool) $item['available'],
+                'isCloseout' => (bool) $item['isCloseout'],
                 'shippingFree' => (bool) $item['shippingFree'],
                 'customFields' => $this->formatCustomFields($item['customFields'] ? json_decode($item['customFields'], true) : []),
                 'visibilities' => $visibilities,
@@ -395,6 +399,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
 SELECT
     LOWER(HEX(p.id)) AS id,
     IFNULL(p.active, pp.active) AS active,
+    p.available AS available,
     :nameTranslated: AS name,
     :descriptionTranslated: AS description,
     :customFieldsTranslated: AS customFields,

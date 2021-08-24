@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\DBAL\Query\QueryBuilder as DbalQueryBuilderAlias;
+use Doctrine\DBAL\Types\Types;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
@@ -404,6 +405,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
 
         $values = [];
         $sets = [];
+        $types = [];
 
         $query = new QueryBuilder($this->connection);
         $query->update('`' . $command->getDefinition()->getEntityName() . '`');
@@ -411,14 +413,32 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         foreach ($command->getPayload() as $attribute => $value) {
             // add path and value for each attribute value pair
             $values[] = '$."' . $attribute . '"';
+            $types[] = Types::STRING;
             if (\is_array($value) || \is_object($value)) {
+                $types[] = Types::STRING;
                 $values[] = json_encode($value, \JSON_PRESERVE_ZERO_FRACTION | \JSON_UNESCAPED_UNICODE);
                 // does the same thing as CAST(?, json) but works on mariadb
                 $identityValue = \is_object($value) || self::isAssociative($value) ? '{}' : '[]';
                 $sets[] = '?, JSON_MERGE("' . $identityValue . '", ?)';
             } else {
-                $values[] = $value;
-                $sets[] = '?, ?';
+                if (!\is_bool($value)) {
+                    $values[] = $value;
+                }
+
+                $set = '?, ?';
+
+                if (\is_float($value)) {
+                    $types[] = \PDO::PARAM_STR;
+                    $set = '?, ? + 0.0';
+                } elseif (\is_int($value)) {
+                    $types[] = \PDO::PARAM_INT;
+                } elseif (\is_bool($value)) {
+                    $set = '?, ' . ($value ? 'true' : 'false');
+                } else {
+                    $types[] = \PDO::PARAM_STR;
+                }
+
+                $sets[] = $set;
             }
         }
 
@@ -436,7 +456,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         foreach ($identifier as $key => $_value) {
             $query->andWhere(EntityDefinitionQueryHelper::escape($key) . ' = ?');
         }
-        $query->setParameters(array_merge($values, array_values($identifier)));
+        $query->setParameters(array_merge($values, array_values($identifier)), $types);
 
         RetryableQuery::retryable(function () use ($query): void {
             $query->execute();

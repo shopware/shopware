@@ -9,6 +9,7 @@ Component.register('sw-bulk-edit-order', {
     template,
 
     inject: [
+        'bulkEditApiFactory',
         'repositoryFactory',
     ],
 
@@ -26,6 +27,7 @@ Component.register('sw-bulk-edit-order', {
             transactionStatus: [],
             deliveryStatus: [],
             itemsPerRequest: 100,
+            processStatus: '',
         };
     },
 
@@ -171,6 +173,7 @@ Component.register('sw-bulk-edit-order', {
                 disabled: true,
             });
 
+            // TODO: NEXT-15616 - allow sending email for status changes including document attachments
             this.$set(this.bulkEditData, 'documents', {
                 ...this.bulkEditData.documents,
                 disabled: true,
@@ -254,8 +257,8 @@ Component.register('sw-bulk-edit-order', {
                     });
 
                     return entries.map(entry => ({
-                        value: entry.id,
                         label: entry.toStateMachineState.translated.name,
+                        value: entry.actionName,
                     }));
                 }).catch(error => this.createNotificationError({
                     message: error,
@@ -269,6 +272,56 @@ Component.register('sw-bulk-edit-order', {
             criteria.addAssociation('fromStateMachineTransitions.toStateMachineState');
 
             return criteria;
+        },
+
+        onProcessData() {
+            const data = [];
+            Object.keys(this.bulkEditData).forEach(key => {
+                const item = this.bulkEditData[key];
+                const dataPush = ['orderTransactions', 'orderDeliveries', 'orders'];
+
+                if (item.isChanged && dataPush.includes(key)) {
+                    const payload = {
+                        field: key,
+                        type: item.type,
+                        value: item.value,
+                        sendMail: this.bulkEditData?.statusMails?.isChanged,
+                    };
+
+                    data.push(payload);
+                }
+            });
+
+            return data;
+        },
+
+        openModal() {
+            this.$router.push({ name: 'sw.bulk.edit.order.save' });
+        },
+
+        closeModal() {
+            this.$router.push({ name: 'sw.bulk.edit.order' });
+        },
+
+        onSave() {
+            this.isLoading = true;
+
+            const data = this.onProcessData();
+
+            const payloadChunks = chunk(this.selectedIds, this.itemsPerRequest);
+            const requests = payloadChunks.map(payload => {
+                return this.bulkEditApiFactory.getHandler('order').bulkEdit(payload, data);
+            });
+
+            return Promise.all(requests)
+                .then(() => {
+                    this.processStatus = 'success';
+                }).catch((e) => {
+                    console.error(e);
+                    this.processStatus = 'fail';
+                }).finally(() => {
+                    this.isLoading = false;
+                });
         },
     },
 });

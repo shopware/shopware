@@ -1,5 +1,6 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { config, createLocalVue, mount } from '@vue/test-utils';
 import flushPromises from 'flush-promises';
+import VueRouter from 'vue-router';
 import 'src/app/component/structure/sw-page';
 import 'src/app/component/structure/sw-card-view';
 import 'src/app/component/utils/sw-loader';
@@ -31,12 +32,80 @@ import 'src/module/sw-bulk-edit/component/sw-bulk-edit-form-field-renderer';
 import 'src/module/sw-bulk-edit/component/sw-bulk-edit-change-type';
 import 'src/module/sw-bulk-edit/component/sw-bulk-edit-order/sw-bulk-edit-order-documents';
 import 'src/app/component/form/sw-select-field';
+import 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal';
+import 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-confirm';
+import 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-process';
+import 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-success';
+import 'src/module/sw-bulk-edit/component/sw-bulk-edit-save-modal-error';
+import 'src/app/component/base/sw-modal';
 
-function createWrapper() {
+const routes = [
+    {
+        name: 'sw.bulk.edit.order',
+        path: 'index'
+    },
+    {
+        name: 'sw.bulk.edit.order.save',
+        path: '',
+        component: Shopware.Component.build('sw-bulk-edit-save-modal'),
+        meta: { $module: {
+            title: 'sw-bulk-edit-order.general.mainMenuTitle'
+        } },
+        redirect: {
+            name: 'sw.bulk.edit.order.save.confirm'
+        },
+        children: [
+            {
+                name: 'sw.bulk.edit.order.save.confirm',
+                path: 'confirm',
+                component: Shopware.Component.build('sw-bulk-edit-save-modal-confirm'),
+                meta: { $module: {
+                    title: 'sw-bulk-edit-order.general.mainMenuTitle'
+                } }
+            },
+            {
+                name: 'sw.bulk.edit.order.save.process',
+                path: 'process',
+                component: Shopware.Component.build('sw-bulk-edit-save-modal-process'),
+                meta: { $module: {
+                    title: 'sw-bulk-edit-order.general.mainMenuTitle'
+                } }
+            },
+            {
+                name: 'sw.bulk.edit.order.save.success',
+                path: 'success',
+                component: Shopware.Component.build('sw-bulk-edit-save-modal-success'),
+                meta: { $module: {
+                    title: 'sw-bulk-edit-order.general.mainMenuTitle'
+                } }
+            },
+            {
+                name: 'sw.bulk.edit.order.save.error',
+                path: 'error',
+                component: Shopware.Component.build('sw-bulk-edit-save-modal-error'),
+                meta: { $module: {
+                    title: 'sw-bulk-edit-order.general.mainMenuTitle'
+                } }
+            }
+        ]
+    }
+];
+
+const router = new VueRouter({
+    routes
+});
+
+function createWrapper(isResponseError = false) {
+    // delete global $router and $routes mocks
+    delete config.mocks.$router;
+    delete config.mocks.$route;
+
     const localVue = createLocalVue();
+    localVue.use(VueRouter);
 
-    return shallowMount(Shopware.Component.build('sw-bulk-edit-order'), {
+    return mount(Shopware.Component.build('sw-bulk-edit-order'), {
         localVue,
+        router,
         stubs: {
             'sw-page': Shopware.Component.build('sw-page'),
             'sw-loader': Shopware.Component.build('sw-loader'),
@@ -52,6 +121,7 @@ function createWrapper() {
             'sw-bulk-edit-order-documents': Shopware.Component.build('sw-bulk-edit-order-documents'),
             'sw-card': Shopware.Component.build('sw-card'),
             'sw-field': Shopware.Component.build('sw-field'),
+            'sw-modal': Shopware.Component.build('sw-modal'),
             'sw-select-base': Shopware.Component.build('sw-select-base'),
             'sw-single-select': Shopware.Component.build('sw-single-select'),
             'sw-number-field': Shopware.Component.build('sw-number-field'),
@@ -75,19 +145,12 @@ function createWrapper() {
             'sw-language-switch': true,
             'sw-notification-center': true,
             'sw-icon': true,
-            'sw-help-text': true
+            'sw-help-text': true,
+            'sw-alert': true,
+            'sw-label': true
         },
         props: {
             title: 'Foo bar'
-        },
-        mocks: {
-            $route: {
-                meta: {
-                    $module: {
-                        title: 'sw-bulk-edit-order.general.mainMenuTitle'
-                    }
-                }
-            }
         },
         provide: {
             validationService: {},
@@ -121,6 +184,10 @@ function createWrapper() {
                 getHandler: () => {
                     return {
                         bulkEdit: (selectedIds) => {
+                            if (isResponseError) {
+                                return Promise.reject(new Error('error occured'));
+                            }
+
                             if (selectedIds.length === 0) {
                                 return Promise.reject();
                             }
@@ -129,6 +196,10 @@ function createWrapper() {
                         }
                     };
                 }
+            },
+            shortcutService: {
+                startEventListener: () => {},
+                stopEventListener: () => {}
             }
         }
     });
@@ -138,6 +209,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
     let wrapper;
 
     beforeEach(() => {
+        jest.spyOn(console, 'log').mockImplementation(() => {});
         const mockResponses = global.repositoryFactoryMock.responses;
         mockResponses.addResponse({
             method: 'post',
@@ -161,6 +233,10 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
     afterEach(() => {
         wrapper.destroy();
+    });
+
+    beforeAll(() => {
+        jest.spyOn(global.console, 'error').mockImplementation(() => {});
     });
 
     it('should show all form fields', async () => {
@@ -228,5 +304,91 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         const emptyState = wrapper.find('.sw-empty-state');
         expect(emptyState.find('.sw-empty-state__title').text()).toBe('sw-bulk-edit.order.messageEmptyTitle');
+    });
+
+    it('should open confirm modal', async () => {
+        wrapper = createWrapper();
+        await flushPromises();
+
+        await wrapper.find('.sw-bulk-edit-order__save-action').trigger('click');
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.sw-bulk-edit-save-modal-confirm').exists()).toBeTruthy();
+        expect(wrapper.vm.$route.path).toEqual('/confirm');
+    });
+
+    it('should close confirm modal', async () => {
+        wrapper = createWrapper();
+        await flushPromises();
+
+        await wrapper.find('.sw-bulk-edit-order__save-action').trigger('click');
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.sw-bulk-edit-save-modal-confirm').exists()).toBeTruthy();
+
+        const footerLeft = wrapper.find('.footer-left');
+        footerLeft.find('button').trigger('click');
+
+        await wrapper.vm.$nextTick();
+        expect(wrapper.vm.$route.path).toEqual('index');
+        expect(wrapper.find('.sw-bulk-edit-save-modal-confirm').exists()).toBeFalsy();
+    });
+
+    it('should open process modal', async () => {
+        wrapper = createWrapper();
+        await flushPromises();
+
+        await wrapper.find('.sw-bulk-edit-order__save-action').trigger('click');
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.sw-bulk-edit-save-modal-confirm').exists()).toBeTruthy();
+
+        const footerRight = wrapper.find('.footer-right');
+        footerRight.find('button').trigger('click');
+
+        expect(wrapper.vm.$route.path).toEqual('/process');
+    });
+
+    it('should open success modal', async () => {
+        wrapper = createWrapper();
+        await flushPromises();
+
+        await wrapper.find('.sw-bulk-edit-order__save-action').trigger('click');
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.sw-bulk-edit-save-modal-confirm').exists()).toBeTruthy();
+
+        const footerRight = wrapper.find('.footer-right');
+        footerRight.find('button').trigger('click');
+
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.$route.path).toEqual('/success');
+    });
+
+    it('should open error modal', async () => {
+        wrapper = createWrapper(true);
+        await flushPromises();
+
+        await wrapper.find('.sw-bulk-edit-order__save-action').trigger('click');
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.sw-bulk-edit-save-modal-confirm').exists()).toBeTruthy();
+
+        const footerRight = wrapper.find('.footer-right');
+        footerRight.find('button').trigger('click');
+
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.$route.path).toEqual('/error');
     });
 });

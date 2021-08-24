@@ -63,7 +63,7 @@
         <template #actions="{ item, itemIndex }">
             {% block sw_event_action_detail_recipients_grid_action_edit %}
             <sw-context-menu-item
-                class="sw-event-action-detail-recipients__grid-action-edit"
+                class="sw-flow-mail-send-modal__grid-action-edit"
                 @click="onEditRecipient(item)"
             >
                 {{ $tc('global.default.edit') }}
@@ -72,7 +72,7 @@
 
             {% block sw_event_action_detail_recipients_grid_action_delete %}
             <sw-context-menu-item
-                class="sw-event-action-detail-recipients__grid-action-delete"
+                class="sw-flow-mail-send-modal__grid-action-delete"
                 variant="danger"
                 :disabled="!allowDeleteRecipient(itemIndex)"
                 @click="onDeleteRecipient(itemIndex)"

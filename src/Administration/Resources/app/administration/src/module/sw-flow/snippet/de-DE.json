@@ -1,9 +1,9 @@
 {
   "sw-flow": {
     "general": {
-      "mainMenuItemGeneral": "Flow builder",
-      "descriptionTextModule": "Flow builder",
-      "placeholderSearchBar": "Search flow builder..."
+      "mainMenuItemGeneral": "Flow Builder",
+      "descriptionTextModule": "Flow Builder",
+      "placeholderSearchBar": "Flow Builder durchsuchen ..."
     },
     "list": {
       "textHeadline": "Flow Builder",
@@ -26,13 +26,6 @@
       "placeholderGeneralInformationDescription": "Beschreibung eingeben ...",
       "labelGeneralInformationPriority": "Priorität",
       "labelGeneralInformationActive": "Aktiv",
-      "labelLogExecuted": "Dieser Flow wurde insgesamt \"{total}\" mal aufgeführt.",
-      "labelLogInstruct": "Click on the log file to see more details of the flow execution actions and to replay the flow.",
-      "labelLogDateExecuted": "Ausführungsdatum",
-      "labelLogTrigger": "Trigger",
-      "labelLogTriggerValue": "Trigger-Wert",
-      "labelLogActions": "Aktionen",
-      "labelLogSuccess": "Erfolg",
       "trigger": {
         "name": "Trigger",
         "placeholder": "Wähle einen Trigger aus ...",
@@ -64,8 +57,8 @@
       }
     },
     "page": {
-      "generalTab": "Allgemein",
-      "flowTab": "Flow"
+      "tabGeneral": "Allgemein",
+      "tabFlow": "Flow"
     },
     "flowNotification": {
       "messageDeleteSuccess": "Flow gelöscht.",
@@ -78,7 +71,6 @@
     },
     "actions": {
       "addTag": "Tag hinzufügen",
-      "callWebhook": "URL aufrufen (Webhook)",
       "generateDocument": "Dokument erzeugen",
       "removeTag": "Tag entfernen",
       "mailSend": "E-Mail verschicken",
@@ -91,7 +83,8 @@
       },
       "addAction": "Aktion hinzufügen",
       "tagDescription": "<div class='sw-flow-sequence-action__tags-description'><div>To: <span>{entity}<span></div><p>Tag: {tagNames}</p></div>",
-      "mailDescription": "Template: {template}"
+      "mailDescription": "Template: {template}",
+      "placeholderSelectAction": "Aktion auswählen ..."
     },
     "rule": {
       "addRule": "Regel hinzufügen",
@@ -99,11 +92,12 @@
       "contextButton": {
         "editRule": "Regel bearbeiten",
         "deleteRule": "Regel entfernen"
-      }
+      },
+      "placeholderSelectRule": "Regel auswählen ..."
     },
     "modals": {
       "buttonAddAction": "Aktion hinzufügen",
-      "buttonSaveAction": "Save action",
+      "buttonSaveAction": "Aktion speichern",
       "rule": {
         "labelAddNewRule": "Neue Regel hinzufügen",
         "tabRule": "Regel",
@@ -119,27 +113,27 @@
         "placeholderType": "Regel-Typ auswählen ..."
       },
       "tag": {
-        "labelAddTag": "Tag information",
-        "labelToField": "To",
-        "placeholderToField": "Select to to...",
+        "labelAddTag": "Tag-Information",
+        "labelToField": "Entität",
+        "placeholderToField": "Entität auswählen ...",
         "labelTagsField": "Tags",
-        "placeholderTagsField": "Enter tags..."
+        "placeholderTagsField": "Tags eingeben ..."
       },
       "status": {
-        "titleSetStatus": "Set status",
-        "labelOrderStatus": "Order status",
-        "labelPaymentStatus": "Payment status",
-        "labelDeliveryStatus": "Shipping status",
-        "placeholderOrderStatus": "Select order status...",
-        "placeholderPaymentStatus": "Select payment status...",
-        "placeholderDeliveryStatus": "Select shipping status...",
-        "messageNoStatusError": "At least one status should be selected"
+        "titleSetStatus": "Status setzen",
+        "labelOrderStatus": "Bestellstatus",
+        "labelPaymentStatus": "Zahlungsstatus",
+        "labelDeliveryStatus": "Versandstatus",
+        "placeholderOrderStatus": "Bestellstatus wählen ...",
+        "placeholderPaymentStatus": "Zahlungsstatus wählen ...",
+        "placeholderDeliveryStatus": "Versandstatus wählen ...",
+        "messageNoStatusError": "Mindestens ein Status sollte ausgewählt sein"
       },
       "document": {
-        "titleCreateDocument": "Create document",
-        "labelDocumentType": "Document type",
-        "placeholderDocumentType": "Select document type...",
-        "documentDescription": "Document type: {documentType}"
+        "titleCreateDocument": "Dokument erstellen",
+        "labelDocumentType": "Dokumenttyp",
+        "placeholderDocumentType": "Dokumenttyp auswählen ...",
+        "documentDescription": "Dokumenttyp: {documentType}"
       },
       "mail": {
         "columnRecipientName": "Name",
@@ -147,36 +141,36 @@
         "placeholderRecipientEmailAddress": "E-Mail-Adresse eingeben ...",
         "placeholderRecipientName": "Empfänger-Namen eingeben ...",
         "fieldMailTemplateDetailLink": "E-Mail-Template öffnen",
-        "titleSendMail": "Send mail",
-        "labelEmailTemplate": "Email template",
-        "placeholderEmailTemplate": "Select email template...",
-        "titleNewEmailTemplate": "New email template",
-        "tabGeneral": "General",
+        "titleSendMail": "E-Mail senden",
+        "labelEmailTemplate": "E-Mail-Template",
+        "placeholderEmailTemplate": "E-Mail-Template auswählen ...",
+        "titleNewEmailTemplate": "Neues E-Mail-Template",
+        "tabGeneral": "Allgemein",
         "tabMailText": "Mail-Text",
         "labelMailType": "Typ",
         "placeholderMailType": "Wähle einen Typ ...",
         "labelSubject": "Betreff",
         "labelSenderName": "Absender",
-        "placeholderSubject": "Enter subject...",
-        "placeholderSenderName": "Example sender name...",
+        "placeholderSubject": "Thema eingeben ...",
+        "placeholderSenderName": "Absendernamen eingeben ...",
         "labelDescription": "Beschreibung",
         "placeholderDescription": "Gib eine Beschreibung ein ...",
         "labelContentPlain": "Text",
         "labelContentHtml": "HTML",
         "placeholderPlain": "Text-Inhalt eingeben ...",
         "placeholderHtml": "HTML-Inhalt eingeben ...",
-        "buttonAddMailTemplate": "Add email template",
-        "labelDefault": "Default",
-        "labelAdmin": "Admin",
-        "labelCustom": "Custom",
-        "labelRecipient": "Recipient",
-        "placeholderRecipient": "Select email recipient...",
-        "labelLatestDocuments": "Add (latest) documents",
-        "placeholderLatestDocuments": "Add documents...",
-        "documentDescription": "If the selected document doesn't exist you'll have to generate it first. Otherwise no documents will be send."
+        "buttonAddMailTemplate": "E-Mail-Template hinzufügen",
+        "labelDefault": "Standard",
+        "labelAdmin": "Administrator",
+        "labelCustom": "Eigener Empfänger",
+        "labelRecipient": "Empfänger",
+        "placeholderRecipient": "E-Mail-Empfänger auswählen ...",
+        "labelLatestDocuments": "(Neueste) Dokumente hinzufügen",
+        "placeholderLatestDocuments": "Dokumente hinzufügen ...",
+        "documentDescription": "Falls das ausgewählte Dokument nicht existiert, musst Du es zunächst generieren, sonste werden keine Dokumente gesendet."
       },
       "confirmation": {
-        "textConfirmChangeTrigger": "Are you sure you want to change the trigger event? <br> Flow sequence will reset if you press on Confirm button."
+        "textConfirmChangeTrigger": "Bist Du sicher, dass Du das Trigger-Ereignis ändern willst? <br> Der Flow wird zurückgesetzt, sobald Du auf Bestätigen klickst."
       }
     }
   },

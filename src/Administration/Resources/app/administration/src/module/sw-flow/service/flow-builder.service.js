@@ -12,7 +12,6 @@ export default function flowBuilderService() {
         mailSend: 'default-communication-envelope',
         setOrderState: 'default-shopping-plastic-bag',
         generateDocument: 'default-documentation-file',
-        callWebhook: 'default-web-link',
         stopFlow: 'default-basic-x-circle',
     };
 
@@ -22,7 +21,6 @@ export default function flowBuilderService() {
         mailSend: 'sw-flow.actions.mailSend',
         setOrderState: 'sw-flow.actions.setOrderState',
         generateDocument: 'sw-flow.actions.generateDocument',
-        callWebhook: 'sw-flow.actions.callWebhook',
         stopFlow: 'sw-flow.actions.stopFlow',
     };
 

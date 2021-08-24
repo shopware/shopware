@@ -1,5 +1,4 @@
 import template from './sw-flow-list.html.twig';
-import './sw-flow-list.scss';
 
 const { Component, Mixin, Data: { Criteria } } = Shopware;
 

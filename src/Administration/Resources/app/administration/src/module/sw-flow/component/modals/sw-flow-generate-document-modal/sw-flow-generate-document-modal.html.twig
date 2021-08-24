@@ -5,24 +5,17 @@
     @modal-close="onClose"
 >
     {% block sw_flow_generate_document_modal_document_type %}
-    <sw-select-field
+    <sw-single-select
         v-model="documentType"
         required
         class="sw-flow-generate-document-modal__type-select"
+        :options="documentTypes"
+        label-property="translated.name"
+        value-property="technicalName"
         :label="$tc('sw-flow.modals.document.labelDocumentType')"
         :placeholder="$tc('sw-flow.modals.document.placeholderDocumentType')"
         :error="fieldError"
-    >
-        <template v-if="documentTypes && documentTypes.length">
-            <option
-                v-for="option in documentTypes"
-                :key="option.id"
-                :value="option.technicalName"
-            >
-                {{ option.translated.name }}
-            </option>
-        </template>
-    </sw-select-field>
+    />
     {% endblock %}
 
     {% block sw_flow_generate_document_modal_footer %}

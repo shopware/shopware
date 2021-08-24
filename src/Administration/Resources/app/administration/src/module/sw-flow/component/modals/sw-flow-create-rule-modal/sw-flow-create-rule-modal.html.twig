@@ -10,9 +10,9 @@
     <sw-tabs default-item="rule">
         {% block sw_flow_create_rule_headers %}
         <template #default="{ active }">
-            {% block sw_flow_create_rule_tab_header_rule %}
+            {% block sw_flow_create_rule_tab_rule %}
             <sw-tabs-item
-                class="sw-flow-create-rule-modal__rule-header-tab"
+                class="sw-flow-create-rule-modal__tab-rule"
                 v-bind="$props"
                 name="rule"
                 :active-tab="active"
@@ -21,9 +21,9 @@
             </sw-tabs-item>
             {% endblock %}
 
-            {% block sw_flow_create_rule_tab_header_details %}
+            {% block sw_flow_create_rule_tab_detail %}
             <sw-tabs-item
-                class="sw-flow-create-rule-modal__detail-header-tab"
+                class="sw-flow-create-rule-modal__tab-detail"
                 v-bind="$props"
                 name="details"
                 :active-tab="active"

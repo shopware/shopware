@@ -261,6 +261,7 @@
                             value=""
                             entity="rule"
                             :criteria="ruleCriteria"
+                            :placeholder="$tc('sw-flow.rule.placeholderSelectRule')"
                             :disabled="disabled"
                             :error="fieldError"
                             @change="(id, rule) => onRuleChange(rule)"

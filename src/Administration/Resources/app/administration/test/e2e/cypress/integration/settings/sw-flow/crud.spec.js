@@ -3,18 +3,21 @@
 import SettingsPageObject from '../../../support/pages/module/sw-settings.page-object';
 
 describe('Flow builder: Test crud operations', () => {
+    // eslint-disable-next-line no-undef
+    before(() => {
+        cy.onlyOnFeature('FEATURE_NEXT_8225');
+    });
+
     beforeEach(() => {
         cy.setToInitialState().then(() => {
             cy.loginViaApi();
         }).then(() => {
-            cy.setLocaleToEnGb();
+            cy.openInitialPage(`${Cypress.env('admin')}#/sw/flow/index`);
         });
     });
 
-    it.skip('@settings: Create and read flow', () => {
+    it('@settings: Create and read flow', () => {
         const page = new SettingsPageObject();
-
-        cy.openInitialPage(`${Cypress.env('admin')}#/sw/flow/index`);
 
         cy.server();
         cy.route({
@@ -53,7 +56,7 @@ describe('Flow builder: Test crud operations', () => {
             .contains('Order placed v1');
     });
 
-    it.skip('@settings: Try to create flow with empty required fields', () => {
+    it('@settings: Try to create flow with empty required fields', () => {
         cy.server();
         cy.route({
             url: `${Cypress.env('apiPath')}/flow`,
@@ -69,7 +72,7 @@ describe('Flow builder: Test crud operations', () => {
         // Click save without entering any data
         cy.get('.sw-flow-detail__save').click();
 
-        cy.awaitAndCheckNotification('Please choose trigger event before save.');
+        cy.awaitAndCheckNotification('Please choose trigger event before saving.');
 
         cy.get('.sw-flow-detail__tab-flow').click();
 
@@ -103,7 +106,7 @@ describe('Flow builder: Test crud operations', () => {
         cy.awaitAndCheckNotification('The flow could not be saved.');
     });
 
-    it.skip('@settings: Update and read flow', () => {
+    it('@settings: Update and read flow', () => {
         const page = new SettingsPageObject();
 
         cy.server();
@@ -138,7 +141,10 @@ describe('Flow builder: Test crud operations', () => {
             .typeSingleSelect('Generate document', '.sw-flow-sequence-action__selection-action');
 
         cy.get('.sw-flow-generate-document-modal').should('be.visible');
-        cy.get('#sw-field--documentType').select('Invoice').should('have.value', 'invoice');
+
+        cy.get('.sw-flow-generate-document-modal__type-select')
+            .typeSingleSelect('Invoice', '.sw-flow-generate-document-modal__type-select');
+
         cy.get('.sw-flow-generate-document-modal__save-button').click();
         cy.get('.sw-flow-generate-document-modal').should('not.exist');
         cy.get('li.sw-flow-sequence-action__action-item').should('have.length', 2);
@@ -156,7 +162,7 @@ describe('Flow builder: Test crud operations', () => {
             .contains('Order placed v2');
     });
 
-    it.skip('@settings: Delete flow', () => {
+    it('@settings: Delete flow', () => {
         const page = new SettingsPageObject();
 
         cy.server();

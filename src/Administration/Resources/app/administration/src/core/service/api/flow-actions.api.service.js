@@ -22,7 +22,7 @@ class FlowActionApiService extends ApiService {
         const headers = this.getBasicHeaders(additionalHeaders);
 
         return this.httpClient
-            .get('/_info/actions.json', {
+            .get('/_info/flow-actions.json', {
                 params,
                 headers,
             })

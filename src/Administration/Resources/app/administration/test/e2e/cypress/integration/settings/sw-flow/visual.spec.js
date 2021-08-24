@@ -16,7 +16,7 @@ describe('Flow builder: Visual testing', () => {
             });
     });
 
-    it.skip('@visual: @check appearance of flow builder workflow', () => {
+    it('@visual: @check appearance of flow builder workflow', () => {
         cy.onlyOnFeature('FEATURE_NEXT_8225');
 
         cy.server();
@@ -92,7 +92,8 @@ describe('Flow builder: Visual testing', () => {
         cy.get('.sw-flow-generate-document-modal').should('be.visible');
         cy.takeSnapshot('[Flow builder] Generate document modal', '.sw-flow-generate-document-modal');
 
-        cy.get('#sw-field--documentType').select('Invoice').should('have.value', 'invoice');
+        cy.get('.sw-flow-generate-document-modal__type-select')
+            .typeSingleSelect('Invoice', '.sw-flow-generate-document-modal__type-select');
         cy.get('.sw-flow-generate-document-modal__save-button').click();
         cy.get('.sw-flow-generate-document-modal').should('not.exist');
 

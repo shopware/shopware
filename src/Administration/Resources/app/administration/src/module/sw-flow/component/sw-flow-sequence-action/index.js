@@ -28,7 +28,7 @@ Component.register('sw-flow-sequence-action', {
         return {
             showAddButton: true,
             fieldError: null,
-            actionModal: '',
+            selectedAction: '',
             currentSequence: {},
         };
     },
@@ -39,7 +39,9 @@ Component.register('sw-flow-sequence-action', {
         },
 
         actionOptions() {
-            return this.convertAction(this.availableActions);
+            return this.availableActions.map((action) => {
+                return this.getActionTitle(action);
+            });
         },
 
         sequenceData() {
@@ -74,7 +76,16 @@ Component.register('sw-flow-sequence-action', {
         },
 
         modalName() {
-            return this.flowBuilderService.getActionModalName(this.actionModal);
+            return this.flowBuilderService.getActionModalName(this.selectedAction);
+        },
+
+        actionDescription() {
+            return {
+                [ACTION.STOP_FLOW]: () => this.$tc('sw-flow.actions.textStopFlowDescription'),
+                [ACTION.SET_ORDER_STATE]: (config) => this.getSetOrderStateDescription(config),
+                [ACTION.GENERATE_DOCUMENT]: (config) => this.getGenerateDocumentDescription(config),
+                [ACTION.MAIL_SEND]: (config) => this.getMailSendDescription(config),
+            };
         },
 
         ...mapState('swFlowState', ['invalidSequences', 'stateMachineState', 'documentTypes', 'mailTemplates']),
@@ -106,19 +117,19 @@ Component.register('sw-flow-sequence-action', {
                 });
                 return;
             }
-            this.actionModal = value;
+            this.selectedAction = value;
         },
 
         onSaveActionSuccess(sequence) {
             const { config, id } = sequence;
             const entity = config?.entity;
-            let actionName = this.actionModal;
+            let actionName = this.selectedAction;
 
-            if (this.actionModal === ACTION.ADD_TAG && entity) {
+            if (this.selectedAction === ACTION.ADD_TAG && entity) {
                 actionName = `action.add.${entity}.tag`;
             }
 
-            if (this.actionModal === ACTION.REMOVE_TAG && entity) {
+            if (this.selectedAction === ACTION.REMOVE_TAG && entity) {
                 actionName = `action.remove.${entity}.tag`;
             }
 
@@ -139,7 +150,7 @@ Component.register('sw-flow-sequence-action', {
 
         onCloseModal() {
             this.currentSequence = {};
-            this.actionModal = '';
+            this.selectedAction = '';
         },
 
         addAction(action) {
@@ -199,7 +210,7 @@ Component.register('sw-flow-sequence-action', {
             }
 
             this.currentSequence = sequence;
-            this.actionModal = sequence.actionName;
+            this.selectedAction = sequence.actionName;
         },
 
         removeActionContainer() {
@@ -218,12 +229,6 @@ Component.register('sw-flow-sequence-action', {
                 ...actionTitle,
                 label: this.$tc(actionTitle.label),
             };
-        },
-
-        convertAction(actions) {
-            return actions.map((action) => {
-                return this.getActionTitle(action);
-            });
         },
 
         toggleAddButton() {
@@ -259,21 +264,11 @@ Component.register('sw-flow-sequence-action', {
                 });
             }
 
-            switch (actionName) {
-                case ACTION.STOP_FLOW:
-                    return this.$tc('sw-flow.actions.textStopFlowDescription');
-                case ACTION.SET_ORDER_STATE:
-                    return this.getSetOrderStateDescription(config);
-                case ACTION.GENERATE_DOCUMENT:
-                    return this.getGenerateDocumentDescription(config);
-
-                case ACTION.MAIL_SEND:
-                    return this.getMailSendDescription(config);
-
-                default: {
-                    return '';
-                }
+            if (typeof this.actionDescription[actionName] !== 'function') {
+                return '';
             }
+
+            return this.actionDescription[actionName](config);
         },
 
         setFieldError() {

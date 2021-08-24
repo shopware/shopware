@@ -36,7 +36,17 @@ Component.register('sw-flow-detail', {
         };
     },
 
+    metaInfo() {
+        return {
+            title: this.$createTitle(this.identifier),
+        };
+    },
+
     computed: {
+        identifier() {
+            return this.flow?.name;
+        },
+
         flowRepository() {
             return this.repositoryFactory.create('flow');
         },

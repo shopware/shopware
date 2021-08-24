@@ -78,7 +78,7 @@ describe('module/sw-flow/component/sw-flow-create-rule-modal', () => {
             '.sw-flow-create-rule-modal__type'
         ];
 
-        const detailHeaderTab = wrapper.find('.sw-flow-create-rule-modal__detail-header-tab');
+        const detailHeaderTab = wrapper.find('.sw-flow-create-rule-modal__tab-detail');
         detailHeaderTab.trigger('click');
         await wrapper.vm.$nextTick();
 

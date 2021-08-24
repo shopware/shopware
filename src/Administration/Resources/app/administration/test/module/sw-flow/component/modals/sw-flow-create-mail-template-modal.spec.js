@@ -11,7 +11,7 @@ import 'src/app/component/form/field-base/sw-contextual-field';
 const generalTabFieldsClasses = [
     '.sw-flow-create-mail-template-modal__type',
     '.sw-flow-create-mail-template-modal__subject',
-    '.sw-flow-create-mail-template-modal__name',
+    '.sw-flow-create-mail-template-modal__sender-name',
     '.sw-flow-create-mail-template-modal__description'
 ];
 
@@ -20,8 +20,8 @@ const mailTextTabFieldsClasses = [
     '.sw-flow-create-mail-template-modal__content-html'
 ];
 
-const generalTabClass = '.sw-flow-create-mail-template-modal__general-tab';
-const mailTextTabClass = '.sw-flow-create-mail-template-modal__mail-text-tab';
+const generalTabClass = '.sw-flow-create-mail-template-modal__tab-general';
+const mailTextTabClass = '.sw-flow-create-mail-template-modal__tab-mail-text';
 
 const buttonSaveClass = '.sw-flow-create-mail-template-modal__save-button';
 

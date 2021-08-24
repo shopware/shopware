@@ -3,7 +3,7 @@
     "general": {
       "mainMenuItemGeneral": "Flow builder",
       "descriptionTextModule": "Flow builder",
-      "placeholderSearchBar": "Search flow builder..."
+      "placeholderSearchBar": "Search flow builder ..."
     },
     "list": {
       "textHeadline": "Flow Builder",
@@ -21,21 +21,14 @@
       "labelGeneralCard": "General information",
       "labelLogCard": "Log",
       "labelGeneralInformationName": "Name",
-      "placeholderGeneralInformationName": "Enter flow name...",
+      "placeholderGeneralInformationName": "Enter flow name ...",
       "labelGeneralInformationDescription": "Description",
-      "placeholderGeneralInformationDescription": "Enter flow description...",
+      "placeholderGeneralInformationDescription": "Enter flow description ...",
       "labelGeneralInformationPriority": "Priority",
       "labelGeneralInformationActive": "Active",
-      "labelLogExecuted": "This flow as been executed \"{total}\" time in total.",
-      "labelLogInstruct": "Click on the log file to see details of flow executions and actions, or to replay the flow entirely.",
-      "labelLogDateExecuted": "Date executed",
-      "labelLogTrigger": "Trigger",
-      "labelLogTriggerValue": "Trigger value",
-      "labelLogActions": "Actions",
-      "labelLogSuccess": "Success",
       "trigger": {
         "name": "Trigger",
-        "placeholder": "Select a start trigger...",
+        "placeholder": "Select a trigger ...",
         "title": "Select a trigger",
         "helpText": "Triggers are used to begin a flow. After selecting a trigger you will be given the chance to add conditions to refine the trigger or add actions to be executed with the trigger.",
         "textNoEvent": "No events found"
@@ -64,8 +57,8 @@
       }
     },
     "page": {
-      "generalTab": "General",
-      "flowTab": "Flow"
+      "tabGeneral": "General",
+      "tabFlow": "Flow"
     },
     "flowNotification": {
       "messageDeleteSuccess": "The flow has been deleted.",
@@ -73,12 +66,11 @@
       "messageSaveSuccess": "The flow has been saved.",
       "messageSaveError": "The flow could not be saved.",
       "messageError": "An error occurred.",
-      "messageRequiredEventName": "Please choose trigger event before save.",
-      "messageRequiredEmptyFields": "Please select a rule or action name before save."
+      "messageRequiredEventName": "Please choose trigger event before saving.",
+      "messageRequiredEmptyFields": "Please enter a rule or action name before saving."
     },
     "actions": {
       "addTag": "Add tag",
-      "callWebhook": "Call URL (Webhook)",
       "generateDocument": "Generate document",
       "removeTag": "Remove tag",
       "mailSend": "Send email",
@@ -91,7 +83,8 @@
       },
       "addAction": "Add action",
       "tagDescription": "<div class='sw-flow-sequence-action__tags-description'><div>To: <span>{entity}<span></div><p>Tag: {tagNames}</p></div>",
-      "mailDescription": "Template: {template}"
+      "mailDescription": "Template: {template}",
+      "placeholderSelectAction": "Select action ..."
     },
     "rule": {
       "addRule": "Add rule",
@@ -99,7 +92,8 @@
       "contextButton": {
         "editRule": "Edit rule",
         "deleteRule": "Delete rule"
-      }
+      },
+      "placeholderSelectRule": "Select rule ..."
     },
     "modals": {
       "buttonAddAction": "Add action",
@@ -110,80 +104,80 @@
         "detailsTab": "Details",
         "buttonAddRule": "Save and apply",
         "labelName": "Name",
-        "placeholderName": "Enter rule name...",
+        "placeholderName": "Enter rule name ...",
         "labelPriority": "Priority",
-        "placeholderPriority": "Enter rule priority...",
+        "placeholderPriority": "Enter rule priority ...",
         "labelDescription": "Description",
-        "placeholderDescription": "Enter rule description...",
+        "placeholderDescription": "Enter rule description ...",
         "labelType": "Type",
-        "placeholderType": "Select rule type..."
+        "placeholderType": "Select rule type ..."
       },
       "tag": {
         "labelAddTag": "Tag information",
-        "labelToField": "To",
-        "placeholderToField": "Select to to...",
+        "labelToField": "Entity",
+        "placeholderToField": "Select entity ...",
         "labelTagsField": "Tags",
-        "placeholderTagsField": "Enter tags..."
+        "placeholderTagsField": "Enter tags ..."
       },
       "status": {
         "titleSetStatus": "Set status",
         "labelOrderStatus": "Order status",
         "labelPaymentStatus": "Payment status",
         "labelDeliveryStatus": "Shipping status",
-        "placeholderOrderStatus": "Select order status...",
-        "placeholderPaymentStatus": "Select payment status...",
-        "placeholderDeliveryStatus": "Select shipping status...",
+        "placeholderOrderStatus": "Select order status ...",
+        "placeholderPaymentStatus": "Select payment status ...",
+        "placeholderDeliveryStatus": "Select shipping status ...",
         "messageNoStatusError": "At least one status should be selected"
       },
       "document": {
         "titleCreateDocument": "Create document",
         "labelDocumentType": "Document type",
-        "placeholderDocumentType": "Select document type...",
+        "placeholderDocumentType": "Select document type ...",
         "documentDescription": "Document type: {documentType}"
       },
       "mail": {
         "columnRecipientName": "Name",
         "columnRecipientMail": "Email address",
-        "placeholderRecipientEmailAddress": "Enter email address...",
-        "placeholderRecipientName": "Enter recipient name...",
+        "placeholderRecipientEmailAddress": "Enter email address ...",
+        "placeholderRecipientName": "Enter recipient name ...",
         "fieldMailTemplateDetailLink": "Open email template",
         "titleSendMail": "Send mail",
         "labelEmailTemplate": "Email template",
-        "placeholderEmailTemplate": "Select email template...",
+        "placeholderEmailTemplate": "Select email template ...",
         "titleNewEmailTemplate": "New email template",
         "tabGeneral": "General",
         "tabMailText": "Mail text",
         "labelMailType": "Type",
-        "placeholderMailType": "Select a type...",
+        "placeholderMailType": "Select a type ...",
         "labelSubject": "Subject",
         "labelSenderName": "Sender name",
-        "placeholderSubject": "Enter subject...",
-        "placeholderSenderName": "Example sender name...",
+        "placeholderSubject": "Enter subject ...",
+        "placeholderSenderName": "Enter sender name ...",
         "labelDescription": "Description",
-        "placeholderDescription": "Enter email template description...",
+        "placeholderDescription": "Enter email template description ...",
         "labelContentPlain": "Plain text",
         "labelContentHtml": "HTML",
-        "placeholderPlain": "Enter email template plain text...",
-        "placeholderHtml": "Enter email template HTML text...",
+        "placeholderPlain": "Enter email template plain text ...",
+        "placeholderHtml": "Enter email template HTML text ...",
         "buttonAddMailTemplate": "Add email template",
-        "labelDefault": "Default",
+        "labelDefault": "Standard",
         "labelAdmin": "Admin",
         "labelCustom": "Custom",
         "labelRecipient": "Recipient",
-        "placeholderRecipient": "Select email recipient...",
+        "placeholderRecipient": "Select email recipient ...",
         "labelLatestDocuments": "Add (latest) documents",
-        "placeholderLatestDocuments": "Add documents...",
-        "documentDescription": "If the selected document doesn't exist you'll have to generate it first. Otherwise no documents will be send."
+        "placeholderLatestDocuments": "Add documents ...",
+        "documentDescription": "If the selected document doesn't exist you'll have to generate it first. Otherwise no documents will be sent."
       },
       "confirmation": {
-        "textConfirmChangeTrigger": "Are you sure you want to change the trigger event? <br> Flow sequence will reset if you press on Confirm button."
+        "textConfirmChangeTrigger": "Are you sure you want to change the trigger event? <br> The flow sequence will be reset if you press the confirm button."
       }
     }
   },
   "sw-privileges": {
     "permissions": {
       "flow": {
-        "label": "Flow Builder"
+        "label": "Flow builder"
       }
     }
   }

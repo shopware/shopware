@@ -60,18 +60,22 @@ function createWrapper() {
             'sw-button': {
                 template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>'
             },
-            'sw-select-field': {
+            'sw-single-select': {
                 model: {
                     prop: 'value',
                     event: 'change'
                 },
+                props: ['value'],
                 template: `
-                    <select class="sw-select-field"
+                    <div class="sw-single-select">
+                        <input
+                            class="sw-single-select__selection-input"
                             :value="value"
-                            @change="$emit('change', $event.target.value)">
-                       <slot></slot>
-                    </select>`,
-                props: ['value', 'options']
+                            @input="$emit('change', $event.target.value)"
+                        />
+                        <slot></slot>
+                    </div>
+                `
             }
         }
     });
@@ -88,10 +92,13 @@ describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
         const saveButton = wrapper.find('.sw-flow-generate-document-modal__save-button');
         await saveButton.trigger('click');
 
-        const documentTypeSelect = wrapper.find('.sw-select-field');
+        const documentTypeSelect = wrapper.find('.sw-single-select');
         expect(documentTypeSelect.attributes('error')).toBeTruthy();
 
-        await documentTypeSelect.setValue('delivery_note');
+        const documentTypeInput = wrapper.find('.sw-single-select__selection-input');
+        await documentTypeInput.setValue('delivery_note');
+        await documentTypeInput.trigger('input');
+
         await saveButton.trigger('click');
 
         expect(documentTypeSelect.attributes('error')).toBeFalsy();
@@ -100,8 +107,9 @@ describe('module/sw-flow/component/sw-flow-generate-document-modal', () => {
     it('should emit process-finish when document type is selected', async () => {
         const wrapper = createWrapper();
 
-        const documentTypeSelect = wrapper.find('.sw-select-field');
-        await documentTypeSelect.setValue('invoice');
+        const documentTypeInput = wrapper.find('.sw-single-select__selection-input');
+        await documentTypeInput.setValue('invoice');
+        await documentTypeInput.trigger('input');
 
         const saveButton = wrapper.find('.sw-flow-generate-document-modal__save-button');
         await saveButton.trigger('click');

@@ -13,7 +13,6 @@ Component.register('sw-flow-sequence-condition', {
     inject: [
         'repositoryFactory',
         'flowBuilderService',
-        'acl',
     ],
 
     props: {

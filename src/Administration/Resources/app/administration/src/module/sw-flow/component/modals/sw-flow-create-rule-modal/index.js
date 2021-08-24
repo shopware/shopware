@@ -8,7 +8,6 @@ Component.register('sw-flow-create-rule-modal', {
     template,
 
     inject: [
-        'acl',
         'repositoryFactory',
         'ruleConditionDataProviderService',
     ],

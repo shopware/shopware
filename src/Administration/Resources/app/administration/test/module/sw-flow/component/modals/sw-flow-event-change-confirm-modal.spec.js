@@ -4,6 +4,8 @@ import 'src/module/sw-flow/component/modals/sw-flow-event-change-confirm-modal';
 import Vuex from 'vuex';
 import flowState from 'src/module/sw-flow/state/flow.state';
 
+import EntityCollection from 'src/core/data/entity-collection.data';
+
 const fieldClasses = [
     '.sw-flow-event-change-confirm-modal__title',
     '.sw-flow-event-change-confirm-modal__text-confirmation',
@@ -55,11 +57,39 @@ describe('module/sw-flow/component/modals/sw-flow-event-change-confirm-modal', (
         });
     });
 
-    it('should emit to modal-confirm', async () => {
+    it('should reset flow sequence when clicking on confirm button', async () => {
         const wrapper = createWrapper();
+
+        Shopware.State.commit('swFlowState/setSequences', new EntityCollection(
+            '/flow_sequence',
+            'flow_sequence',
+            null,
+            { isShopwareContext: true },
+            [{
+                id: '2',
+                actionName: '',
+                ruleId: null,
+                parentId: '1',
+                position: 1,
+                displayGroup: 1,
+                trueCase: false,
+                config: {
+                    entity: 'Customer',
+                    tagIds: ['123']
+                }
+            }],
+            1,
+            null
+        ));
+
+        let sequencesState = Shopware.State.getters['swFlowState/sequences'];
+        expect(sequencesState.length).toEqual(1);
 
         const buttonConfirm = wrapper.find(btnConfirmClass);
         await buttonConfirm.trigger('click');
+
+        sequencesState = Shopware.State.getters['swFlowState/sequences'];
+        expect(sequencesState.length).toEqual(0);
 
         expect(wrapper.emitted()['modal-confirm']).toBeTruthy();
         expect(wrapper.emitted()['modal-close']).toBeTruthy();

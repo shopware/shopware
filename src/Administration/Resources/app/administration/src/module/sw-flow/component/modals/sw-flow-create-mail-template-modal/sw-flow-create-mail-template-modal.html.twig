@@ -8,9 +8,9 @@
     {% block sw_flow_create_mail_template_modal_tab_header %}
     <sw-tabs default-item="general">
         <template #default="{ active }">
-            {% block sw_flow_create_mail_template_modal_general_tab %}
+            {% block sw_flow_create_mail_template_modal_tab_general %}
             <sw-tabs-item
-                class="sw-flow-create-mail-template-modal__general-tab"
+                class="sw-flow-create-mail-template-modal__tab-general"
                 name="general"
                 :active-tab="active"
             >
@@ -18,9 +18,9 @@
             </sw-tabs-item>
             {% endblock %}
 
-            {% block sw_flow_create_mail_template_modal_mail_text_tab %}
+            {% block sw_flow_create_mail_template_modal_tab_mail_text %}
             <sw-tabs-item
-                class="sw-flow-create-mail-template-modal__mail-text-tab"
+                class="sw-flow-create-mail-template-modal__tab-mail-text"
                 name="mailText"
                 :active-tab="active"
             >
@@ -64,7 +64,7 @@
                     {% block sw_flow_create_mail_template_modal_sender_name %}
                     <sw-text-field
                         v-model="mailTemplate.senderName"
-                        class="sw-flow-create-mail-template-modal__name"
+                        class="sw-flow-create-mail-template-modal__sender-name"
                         :label="$tc('sw-flow.modals.mail.labelSenderName')"
                         :placeholder="$tc('sw-flow.modals.mail.placeholderSenderName')"
                     />

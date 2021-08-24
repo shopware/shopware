@@ -33,25 +33,27 @@
     {% block sw_flow_content %}
     <template #content>
         <sw-card-view>
-            {% block sw_flow_tabs_headers %}
+            {% block sw_flow_tabs_header %}
             <sw-tabs>
-                {% block sw_flow_tabs_general_header %}
+                {% block sw_flow_tabs_header_general %}
                 <sw-tabs-item
                     class="sw-flow-detail__tab-general"
                     :route="{ name: routeDetailTab('general') }"
                 >
-                    {{ $tc('sw-flow.page.generalTab') }}
+                    {{ $tc('sw-flow.page.tabGeneral') }}
                 </sw-tabs-item>
                 {% endblock %}
 
-                {% block sw_flow_tabs_builder_header %}
+                {% block sw_flow_tabs_header_builder %}
                 <sw-tabs-item
                     class="sw-flow-detail__tab-flow"
                     :route="{ name: routeDetailTab('flow') }"
                 >
-                    {{ $tc('sw-flow.page.flowTab') }}
+                    {{ $tc('sw-flow.page.tabFlow') }}
                 </sw-tabs-item>
                 {% endblock %}
+
+                {% block sw_flow_tabs_header_extension %}{% endblock %}
             </sw-tabs>
             {% endblock %}
 

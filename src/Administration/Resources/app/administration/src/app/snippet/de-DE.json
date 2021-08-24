@@ -9,7 +9,7 @@
       "CONTENT__INVALID_CATEGORY_TYPE_AS_ENTRY_POINT": "Dieser Typ kann nicht gewählt werden, während die Kategorie als Einstiegspunkt festgelegt ist.",
       "SHOPWARE_INVALID_IP": "Bitte gib eine gültige IP-Adresse ein.",
       "INVALID_URL": "Bitte gib eine gültige URL ein.",
-      "INVALID_MAIL": "Bitte gib eine gültige email ein.",
+      "INVALID_MAIL": "Bitte gib eine gültige E-Mail-Adresse ein.",
       "FRAMEWORK__RATE_LIMIT_EXCEEDED": "Zu viele Anfragen. Bitte warten Sie {seconds} Sekunden, bevor Sie es erneut versuchen.",
       "DUPLICATED_URL": "Diese URL wird bereits genutzt. Bitte wähle eine andere Domain."
     },
@@ -758,7 +758,7 @@
       "product_feature_set": "Neues Template | Neue Templates",
       "custom-field-set": "Zusatzfeld-Set",
       "store_settings": "Produkt-Sortierung",
-      "flow": "Flow builder",
+      "flow": "Flow Builder",
       "module": "Modul"
     },
     "day-of-week": {

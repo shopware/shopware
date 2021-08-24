@@ -162,22 +162,21 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
                     },
                     customerAware: true,
                     extensions: [],
-                    logAware: false,
                     mailAware: true,
                     name: 'checkout.customer.login',
-                    orderAware: false,
-                    salesChannelAware: true,
-                    userAware: false,
-                    webhookAware: true
+                    aware: [
+                        'Shopware\\Core\\Framework\\Event\\CustomerAware',
+                        'Shopware\\Core\\Framework\\Event\\MailAware'
+                    ]
                 },
                 triggerActions: [
-                    { name: 'action.add.customer.tag', requirements: { customerAware: 'Shopware\\Core\\Framework\\Event\\CustomerAware' }, extensions: [] },
-                    { name: 'action.remove.customer.tag', requirements: { customerAware: 'Shopware\\Core\\Framework\\Event\\CustomerAware' }, extensions: [] },
-                    { name: 'action.remove.order.tag', requirements: { orderAware: 'Shopware\\Core\\Framework\\Event\\OrderAware' }, extensions: [] },
-                    { name: 'action.mail.send', requirements: { mailAware: 'Shopware\\Core\\Framework\\Event\\MailAware' }, extensions: [] },
-                    { name: 'action.set.order.state', requirements: { orderAware: 'Shopware\\Core\\Framework\\Event\\OrderAware' }, extensions: [] },
-                    { name: 'action.stop.flow', requirements: [], extensions: [] },
-                    { name: 'action.add.order.tag', requirements: { orderAware: 'Shopware\\Core\\Framework\\Event\\OrderAware' }, extensions: [] }
+                    { name: 'action.add.order.tag', requirements: ['Shopware\\Core\\Framework\\Event\\OrderAware'], extensions: [] },
+                    { name: 'action.add.customer.tag', requirements: ['Shopware\\Core\\Framework\\Event\\CustomerAware'], extensions: [] },
+                    { name: 'action.remove.customer.tag', requirements: ['Shopware\\Core\\Framework\\Event\\CustomerAware'], extensions: [] },
+                    { name: 'action.remove.order.tag', requirements: ['Shopware\\Core\\Framework\\Event\\OrderAware'], extensions: [] },
+                    { name: 'action.mail.send', requirements: ['Shopware\\Core\\Framework\\Event\\MailAware'], extensions: [] },
+                    { name: 'action.set.order.state', requirements: ['Shopware\\Core\\Framework\\Event\\OrderAware'], extensions: [] },
+                    { name: 'action.stop.flow', requirements: [], extensions: [] }
                 ]
             }
         });
@@ -246,12 +245,10 @@ describe('src/module/sw-flow/component/sw-flow-sequence-action', () => {
         const actionSelect = wrapper.find('.sw-single-select__selection');
         await actionSelect.trigger('click');
 
-        expect(wrapper.vm.$data.actionModal).toEqual('');
         const actionItems = wrapper.findAll('.sw-select-result');
         await actionItems.at(0).trigger('click');
         const modalElement = wrapper.find('.sw-flow-sequence-modal');
 
-        expect(wrapper.vm.$data.actionModal).toEqual(ACTION.ADD_CUSTOMER_TAG);
         expect(modalElement.exists()).toBeTruthy();
     });
 

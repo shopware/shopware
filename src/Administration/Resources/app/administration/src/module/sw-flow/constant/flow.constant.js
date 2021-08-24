@@ -7,7 +7,6 @@ export const ACTION = Object.freeze({
     REMOVE_CUSTOMER_TAG: 'action.remove.customer.tag',
     SET_ORDER_STATE: 'action.set.order.state',
     GENERATE_DOCUMENT: 'action.generate.document',
-    CALL_WEBHOOK: 'action.call.webhook',
     MAIL_SEND: 'action.mail.send',
     STOP_FLOW: 'action.stop.flow',
 });

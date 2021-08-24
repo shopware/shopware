@@ -10,7 +10,6 @@ Component.register('sw-flow-mail-send-modal', {
     template,
 
     inject: [
-        'acl',
         'repositoryFactory',
     ],
 
@@ -41,10 +40,6 @@ Component.register('sw-flow-mail-send-modal', {
             criteria.addAssociation('mailTemplateType');
 
             return criteria;
-        },
-
-        mailTemplateRepository() {
-            return this.repositoryFactory.create('mail_template');
         },
 
         documentTypeRepository() {

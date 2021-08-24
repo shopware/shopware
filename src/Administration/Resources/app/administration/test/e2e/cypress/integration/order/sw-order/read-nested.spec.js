@@ -29,6 +29,10 @@ function getLineItem(id, children = [], position = 0) {
         stackable: true,
         quantity: mockNumber * 10,
         label: `LineItem ${id}`,
+        productId: ids['1'],
+        payload: {
+            productNumber: 'NEST-1',
+        },
         children,
         price: {
             quantity: 2,

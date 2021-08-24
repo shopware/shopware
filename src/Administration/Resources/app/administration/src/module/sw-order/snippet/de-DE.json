@@ -212,7 +212,11 @@
       "enterValidTrackingCode": "Tracking-Code eingeben",
       "textCreditTax": "auto",
       "taxDetail": "{taxRate}%: {tax}",
-      "textPromotionRemoved": "Rabatt {promotion} wurde entfernt"
+      "textPromotionRemoved": "Rabatt {promotion} wurde entfernt",
+      "textMissingProductLineItems": "Die folgenden Positionen sind mit Produkten assoziiert, die gelöscht wurden:",
+      "textMissingProductLineItemsDescription": "Preise dieser Produkte können nicht neu berechnet werden. Daher werden diese Positionen beim Speichern der Bestellung in benutzerdefinierte Positionen umgewandelt.",
+      "textConvertedProductLineItems": "Die folgenden Positionen waren mit Produkten assoziiert, die gelöscht wurden:",
+      "textConvertedProductLineItemsDescription": "Preise dieser Produkte können nicht neu berechnet werden. Bitte sei besonders vorsichtig beim Bearbeiten der Bestellung."
     },
     "nestedLineItemsModal": {
       "titlePrefix": "Position: {lineItemLabel} - {price}",

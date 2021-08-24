@@ -12,6 +12,48 @@
     />
     {% endblock %}
 
+    {% block sw_order_detail_base__missing_products_alert %}
+    <sw-alert
+        v-if="missingProductLineItems.length > 0"
+        variant="warning"
+        class="sw-card"
+    >
+        {{ $tc('sw-order.detailBase.textMissingProductLineItems') }}
+
+        <ul class="sw_order_detail_base__missing_products_alert-list">
+            <li
+                v-for="lineItem in missingProductLineItems"
+                :key="lineItem.id"
+            >
+                {{ lineItem.label }}
+            </li>
+        </ul>
+
+        {{ $tc('sw-order.detailBase.textMissingProductLineItemsDescription') }}
+    </sw-alert>
+    {% endblock %}
+
+    {% block sw_order_detail_base__converted_products_alert %}
+    <sw-alert
+        v-if="convertedProductLineItems.length > 0"
+        variant="info"
+        class="sw-card"
+    >
+        {{ $tc('sw-order.detailBase.textConvertedProductLineItems') }}
+
+        <ul class="sw_order_detail_base__converted_products_alert-list">
+            <li
+                v-for="lineItem in convertedProductLineItems"
+                :key="lineItem.id"
+            >
+                {{ lineItem.label }}
+            </li>
+        </ul>
+
+        {{ $tc('sw-order.detailBase.textConvertedProductLineItemsDescription') }}
+    </sw-alert>
+    {% endblock %}
+
     {% block sw_order_detail_base__user_card %}
     <sw-order-user-card
         :key="isEditing"
@@ -124,7 +166,7 @@
                 @item-delete="saveAndRecalculate"
                 @item-edit="recalculateAndReload"
                 @existing-item-edit="saveAndRecalculate"
-                @item-added="recalculateAndReload"
+                @item-added="reloadEntityData"
                 @item-cancel="recalculateAndReload"
             />
             {% endblock %}

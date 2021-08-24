@@ -53,6 +53,8 @@ Component.register('sw-order-detail-base', {
             customFieldSets: [],
             promotions: [],
             promotionError: null,
+            missingProductLineItems: [],
+            convertedProductLineItems: [],
         };
     },
 
@@ -171,6 +173,10 @@ Component.register('sw-order-detail-base', {
                 .getAssociation('lineItems')
                 .addFilter(Criteria.equals('parentId', null))
                 .addSorting(Criteria.sort('position', 'ASC'));
+
+            if (this.acl.can('order.editor')) {
+                criteria.addAssociation('lineItems.product');
+            }
 
             criteria
                 .getAssociation('lineItems.children')
@@ -385,11 +391,14 @@ Component.register('sw-order-detail-base', {
                 this.versionContext = newContext;
                 return this.reloadEntityData();
             }).then(() => {
+                return this.convertMissingProductLineItems();
+            }).then(() => {
                 this.$emit('editing-change', true);
                 return Promise.resolve();
-            }).finally(() => {
-                this.$emit('loading-change', false);
-            });
+            })
+                .finally(() => {
+                    this.$emit('loading-change', false);
+                });
         },
 
         onSaveEdits() {
@@ -403,6 +412,8 @@ Component.register('sw-order-detail-base', {
                     this.$emit('error', error);
                 }).finally(() => {
                     this.versionContext.versionId = Shopware.Context.api.liveVersionId;
+                    this.missingProductLineItems = [];
+                    this.convertedProductLineItems = [];
                     this.reloadEntityData();
                 });
         },
@@ -420,6 +431,8 @@ Component.register('sw-order-detail-base', {
             });
 
             this.versionContext.versionId = Shopware.Context.api.liveVersionId;
+            this.missingProductLineItems = [];
+            this.convertedProductLineItems = [];
             this.reloadEntityData().then(() => {
                 this.$emit('editing-change', false);
             });
@@ -617,6 +630,29 @@ Component.register('sw-order-detail-base', {
                     this.promotionCodeTags = [...this.promotionCodeTags, { ...lineItem.payload, isInvalid: false }];
                 }
             });
+        },
+
+        convertMissingProductLineItems() {
+            this.convertedProductLineItems = this.order.lineItems.filter((lineItem) => {
+                return (lineItem.payload.isConvertedProductLineItem && lineItem.type === 'custom');
+            });
+
+            this.missingProductLineItems = this.order.lineItems.filter((lineItem) => {
+                return (!lineItem.hasOwnProperty('product') && lineItem.type === 'product');
+            });
+
+            this.missingProductLineItems.forEach((lineItem) => {
+                lineItem.type = 'custom';
+                lineItem.productId = null;
+                lineItem.referencedId = null;
+                lineItem.payload.isConvertedProductLineItem = true;
+            });
+
+            if (this.missingProductLineItems.length === 0) {
+                return Promise.resolve();
+            }
+
+            return this.orderRepository.save(this.order, this.versionContext);
         },
     },
 });

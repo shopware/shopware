@@ -54,6 +54,7 @@ function createWrapper(customProps = {}, domains = []) {
 function getExampleDomains() {
     return [
         {
+            id: '98432def39fc4624b33213a56b8c944d',
             url: 'http://secondExample.com',
             language: {
                 name: 'Deutsch'
@@ -66,9 +67,11 @@ function getExampleDomains() {
             },
             snippetSet: {
                 name: 'BASE de-DE'
-            }
+            },
+            isNew: () => false
         },
         {
+            id: '66804d24057f4d4fb683a7db3d3b3b15',
             url: 'http://firstExample.com',
             language: {
                 name: 'Deutsch'
@@ -81,7 +84,8 @@ function getExampleDomains() {
             },
             snippetSet: {
                 name: 'BASE de-DE'
-            }
+            },
+            isNew: () => false
         }
     ];
 }
@@ -226,5 +230,64 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
         await wrapper.vm.$nextTick();
 
         expect(wrapper.find('.sw-sales-channel-detail-domains__domain-currency-select').vm.$data.results).toBe(currencies);
+    });
+
+    it('verifyUrl › returns false, if the url exists either locally, or in the database', async () => {
+        const exampleDomains = getExampleDomains();
+        const wrapper = createWrapper({}, exampleDomains);
+        let localResult = false;
+        let dbResult = false;
+        wrapper.vm.domainExistsLocal = jest.fn(() => localResult);
+        wrapper.vm.domainExistsInDatabase = jest.fn(() => dbResult);
+
+        expect(await wrapper.vm.verifyUrl(exampleDomains[0])).toBeTruthy();
+
+        localResult = true;
+
+        expect(await wrapper.vm.verifyUrl(exampleDomains[0])).toBeFalsy();
+
+        localResult = false;
+        dbResult = true;
+
+        expect(await wrapper.vm.verifyUrl(exampleDomains[0])).toBeFalsy();
+    });
+
+    it('domainExistsLocal › checks if the given domains url already exists locally', () => {
+        const exampleDomains = getExampleDomains();
+        const wrapper = createWrapper({}, exampleDomains);
+        let testedDomain = { id: '8a243080f92e4c719546314b577cf82b', url: 'http://foo.bar' };
+
+        expect(wrapper.vm.domainExistsLocal(testedDomain)).toBeFalsy();
+        expect(wrapper.vm.domainExistsLocal(exampleDomains[0])).toBeFalsy();
+
+        testedDomain.url = exampleDomains[0].url;
+
+        expect(wrapper.vm.domainExistsLocal(testedDomain)).toBeTruthy();
+    });
+
+    it('isOriginalUrl › checks if "url" equals the backup domains url', () => {
+        const exampleDomains = getExampleDomains();
+        const testedDomain = exampleDomains[0];
+        const wrapper = createWrapper({}, exampleDomains);
+
+        wrapper.setData({ currentDomainBackup: exampleDomains[0] });
+        expect(wrapper.vm.isOriginalUrl(testedDomain.url)).toBeTruthy();
+
+        wrapper.setData({ currentDomainBackup: exampleDomains[1] });
+        expect(wrapper.vm.isOriginalUrl(testedDomain.url)).toBeFalsy();
+    });
+
+    it('onClickAddNewDomain › early returns, if a domain is saved with its original "url" value', async () => {
+        const exampleDomains = getExampleDomains();
+        const testedDomain = exampleDomains[0];
+        const wrapper = createWrapper({}, exampleDomains);
+
+        wrapper.vm.isOriginalUrl = jest.fn(() => true);
+        wrapper.vm.verifyUrl = jest.fn();
+        wrapper.setData({ currentDomain: testedDomain, currentDomainBackup: testedDomain });
+
+        await wrapper.vm.onClickAddNewDomain();
+
+        expect(wrapper.vm.verifyUrl).not.toBeCalled();
     });
 });

@@ -1,3 +1,4 @@
+<!-- eslint-disable vuejs-accessibility/click-events-have-key-events -->
 {% block sw_order_document_settings_modal %}
 <sw-modal
     :title="$tc('sw-order.documentModal.modalTitle')"
@@ -106,7 +107,6 @@
 
                 {% block sw_order_document_settings_modal_form_document_footer_split_button_context_create_send %}
                 <sw-context-menu-item>
-                    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                     <a
                         class="sw-order-document-settings-modal__download-button"
                         @click="onCreateDocument('send')"
@@ -118,7 +118,6 @@
 
                 {% block sw_order_document_settings_modal_form_document_footer_split_button_context_create_download %}
                 <sw-context-menu-item>
-                    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                     <a
                         class="sw-order-document-settings-modal__download-button"
                         @click="onCreateDocument('download')"

@@ -661,6 +661,7 @@
       "customer": "Kunde | Kunden",
       "customer_address": "Adresse | Adressen",
       "customer_group": "Kundengruppe | Kundengruppen",
+      "extension": "Erweiterung | Erweiterungen",
       "integration": "Integration | Integrationen",
       "language": "Sprache | Sprachen",
       "mail_header_footer": "Header & Footer",

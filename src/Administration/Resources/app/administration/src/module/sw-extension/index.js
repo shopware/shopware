@@ -64,6 +64,7 @@ Shopware.Module.register('sw-extension', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     flag: 'FEATURE_NEXT_12608',
+    entity: 'extension',
 
     routes: {
         'my-extensions': {

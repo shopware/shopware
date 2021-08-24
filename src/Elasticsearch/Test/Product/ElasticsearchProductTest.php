@@ -7,7 +7,6 @@ use Elasticsearch\Client;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
@@ -2210,41 +2209,93 @@ class ElasticsearchProductTest extends TestCase
         $context = $this->createIndexingContext();
 
         // Fetch: Default language
-        $products = $this->definition->fetch([$ids->getBytes('dal-1')], $context);
+        $esProducts = $this->definition->fetch([$ids->getBytes('dal-1')], $context);
 
-        $product = $products[$ids->get('dal-1')];
+        $esProduct = $esProducts[$ids->get('dal-1')];
 
-        $p = $this->getContainer()->get('product.repository')->search(new Criteria([$ids->get('dal-1')]), $context)->first();
+        $criteria = new Criteria([$ids->get('dal-1')]);
+        $dalProduct = $this->getContainer()->get('product.repository')->search($criteria, $context)->first();
 
-        static::assertSame((string) $p->getTranslation('name'), $product['name']);
-        static::assertSame((string) $p->getTranslation('description'), $product['description']);
-        static::assertSame($p->getTranslation('customFields'), $product['customFields']);
+        static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
+        static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
+        static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
 
         // Fetch: Second language
         $languageContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$ids->get('language-1')]);
         $languageContext->addExtensions($context->getExtensions());
-        $products = $this->definition->fetch([$ids->getBytes('dal-1')], $languageContext);
+        $esProducts = $this->definition->fetch([$ids->getBytes('dal-1')], $languageContext);
 
-        $product = $products[$ids->get('dal-1')];
+        $esProduct = $esProducts[$ids->get('dal-1')];
 
-        $p = $this->fetchProductFromDAL($ids, $languageContext);
+        $criteria = new Criteria([$ids->get('dal-1')]);
+        $dalProduct = $this->getContainer()->get('product.repository')
+            ->search($criteria, $languageContext)
+            ->first();
 
-        static::assertSame((string) $p->getTranslation('name'), $product['name']);
-        static::assertSame((string) $p->getTranslation('description'), $product['description']);
-        static::assertSame($p->getTranslation('customFields'), $product['customFields']);
+        static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
+        static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
+        static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
 
         // Fetch: Third language
         $languageContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$ids->get('language-2'), $ids->get('language-1')]);
         $languageContext->addExtensions($context->getExtensions());
-        $products = $this->definition->fetch([$ids->getBytes('dal-1')], $languageContext);
+        $esProducts = $this->definition->fetch([$ids->getBytes('dal-1')], $languageContext);
 
-        $product = $products[$ids->get('dal-1')];
+        $esProduct = $esProducts[$ids->get('dal-1')];
 
-        $p = $this->fetchProductFromDAL($ids, $languageContext);
+        $criteria = new Criteria([$ids->get('dal-1')]);
+        $dalProduct = $this->getContainer()->get('product.repository')
+            ->search($criteria, $languageContext)
+            ->first();
 
-        static::assertSame((string) $p->getTranslation('name'), $product['name']);
-        static::assertSame((string) $p->getTranslation('description'), $product['description']);
-        static::assertSame($p->getTranslation('customFields'), $product['customFields']);
+        static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
+        static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
+        static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
+
+        // Fetch: Second language variant fallback to parent
+        $languageContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$ids->get('language-2'), $ids->get('language-1')]);
+        $languageContext->addExtensions($context->getExtensions());
+        $languageContext->setConsiderInheritance(true);
+        $esProducts = $this->definition->fetch([$ids->getBytes('dal-2.1')], $languageContext);
+
+        $esProduct = $esProducts[$ids->get('dal-2.1')];
+
+        $criteria = new Criteria([$ids->get('dal-2.1')]);
+        $dalProduct = $this->getContainer()->get('product.repository')->search($criteria, $languageContext)->first();
+
+        static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
+        static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
+        static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
+
+        // Fetch: Fallback through parent to variant in other language
+        $languageContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$ids->get('language-3'), $ids->get('language-2')]);
+        $languageContext->addExtensions($context->getExtensions());
+        $languageContext->setConsiderInheritance(true);
+        $esProducts = $this->definition->fetch([$ids->getBytes('dal-2.2')], $languageContext);
+
+        $esProduct = $esProducts[$ids->get('dal-2.2')];
+
+        $criteria = new Criteria([$ids->get('dal-2.2')]);
+        $dalProduct = $this->getContainer()->get('product.repository')->search($criteria, $languageContext)->first();
+
+        static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
+        static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
+        static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
+
+        // Fetch: Fallback to parent on null-entry
+        $languageContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$ids->get('language-1')]);
+        $languageContext->addExtensions($context->getExtensions());
+        $languageContext->setConsiderInheritance(true);
+        $esProducts = $this->definition->fetch([$ids->getBytes('dal-2.2')], $languageContext);
+
+        $esProduct = $esProducts[$ids->get('dal-2.2')];
+
+        $criteria = new Criteria([$ids->get('dal-2.2')]);
+        $dalProduct = $this->getContainer()->get('product.repository')->search($criteria, $languageContext)->first();
+
+        static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
+        static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
+        static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
     }
 
     /**
@@ -2541,6 +2592,8 @@ class ElasticsearchProductTest extends TestCase
         $this->ids->set('language-1', $secondLanguage);
         $thirdLanguage = $this->createLanguage($secondLanguage);
         $this->ids->set('language-2', $thirdLanguage);
+        $fourthLanguage = $this->createLanguage();
+        $this->ids->set('language-3', $fourthLanguage);
 
         $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM custom_field');
 
@@ -3071,6 +3124,42 @@ class ElasticsearchProductTest extends TestCase
                 ->translation($secondLanguage, 'name', 'Second')
                 ->translation($thirdLanguage, 'name', 'Third')
                 ->build(),
+
+            (new ProductBuilder($this->ids, 'dal-2'))
+                ->name('Default')
+                ->category('pants')
+                ->customField('testField', 'Silk')
+                ->visibility(Defaults::SALES_CHANNEL)
+                ->tax('t1')
+                ->manufacturer('m1')
+                ->price(60)
+                ->releaseDate('2019-01-01 10:11:00')
+                ->purchasePrice(0)
+                ->stock(2)
+                ->category('c1')
+                ->category('c2')
+                ->property('red', 'color')
+                ->property('xl', 'size')
+                ->add('weight', 12.3)
+                ->add('height', 9.3)
+                ->add('width', 1.3)
+                ->translation($secondLanguage, 'name', 'Second')
+                ->translation($thirdLanguage, 'name', 'Third')
+                ->variant(
+                    (new ProductBuilder($this->ids, 'dal-2.1'))
+                        ->translation($secondLanguage, 'name', 'Variant 1 Second')
+                        ->translation($secondLanguage, 'description', 'Variant 1 Second Desc')
+                        ->build()
+                )
+                ->variant(
+                    (new ProductBuilder($this->ids, 'dal-2.2'))
+                        ->translation($secondLanguage, 'name', null)
+                        ->translation($secondLanguage, 'description', 'Variant 2 Second Desc')
+                        ->translation($thirdLanguage, 'name', 'Variant 2 Third')
+                        ->translation($thirdLanguage, 'description', 'Variant 2 Third Desc')
+                        ->build()
+                )
+                ->build(),
         ];
 
         $this->getContainer()->get('product.repository')
@@ -3115,10 +3204,5 @@ class ElasticsearchProductTest extends TestCase
         $context->addExtension('currencies', $this->getContainer()->get('currency.repository')->search(new Criteria(), Context::createDefaultContext()));
 
         return $context;
-    }
-
-    private function fetchProductFromDAL(IdsCollection $ids, Context $languageContext): ProductEntity
-    {
-        return $this->getContainer()->get('product.repository')->search(new Criteria([$ids->get('dal-1')]), $languageContext)->first();
     }
 }

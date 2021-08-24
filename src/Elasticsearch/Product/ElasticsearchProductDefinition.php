@@ -269,8 +269,8 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
 
         $coalesce = 'COALESCE(';
 
-        foreach (['product_translation_main', 'product_translation_parent'] as $join) {
-            foreach ($fields as $field) {
+        foreach ($fields as $field) {
+            foreach (['product_translation_main', 'product_translation_parent'] as $join) {
                 $coalesce .= sprintf('%s.`%s`', $join, $field) . ',';
             }
         }
@@ -280,53 +280,51 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
 
     private function getTranslationQuery(Context $context): QueryBuilder
     {
-        $table = $this->definition->getEntityName() . '_translation';
-
         $query = new QueryBuilder($this->connection);
 
-        $select = '`#alias#`.name  as `#alias#.name`, `#alias#`.description  as `#alias#.description`, `#alias#`.custom_fields  as `#alias#.custom_fields`';
+        $productAlias = 'p';
+        $query->from('product ', $productAlias);
+        $parentIdSelector = 'SELECT DISTINCT `p`.parent_id FROM `product` p WHERE p.id IN(:ids)';
+        $query->select(EntityDefinitionQueryHelper::escape($productAlias) . '.id AS product_id');
+        $query->where(EntityDefinitionQueryHelper::escape($productAlias) . '.id IN (:ids) OR '
+            . EntityDefinitionQueryHelper::escape($productAlias) . '.id IN(' . $parentIdSelector . ')');
 
-        // first language has to be the from part, in this case we have to use the system language to enforce we have a record
         $chain = $context->getLanguageIdChain();
 
-        $first = array_shift($chain);
         $firstAlias = 'product_translation.translation';
 
-        $foreignKey = EntityDefinitionQueryHelper::escape($firstAlias) . '.' . $this->definition->getEntityName() . '_id';
-
-        // used as join condition
-        $query->addSelect($foreignKey);
-
-        // set first language as from part
-        $query->addSelect(str_replace('#alias#', $firstAlias, $select));
-        $query->from(EntityDefinitionQueryHelper::escape($table), EntityDefinitionQueryHelper::escape($firstAlias));
-        $query->where(EntityDefinitionQueryHelper::escape($firstAlias) . '.language_id = :languageId');
-        $query->andWhere(EntityDefinitionQueryHelper::escape($firstAlias) . '.product_id IN(:ids)');
-        $query->andWhere(EntityDefinitionQueryHelper::escape($firstAlias) . '.product_version_id = :liveVersionId');
-        $query->setParameter('languageId', Uuid::fromHexToBytes($first));
-
         foreach ($chain as $i => $language) {
-            ++$i;
+            $languageQuery = new QueryBuilder($this->connection);
 
-            $condition = '#firstAlias#.#column# = #alias#.#column# AND #alias#.language_id = :languageId' . $i;
+            $alias = 'pt';
+            $outerAlias = 'product_translation.translation.fallback_' . $i;
+            $languageParam = ':languageId' . $i;
+            if ($i === 0) {
+                $outerAlias = $firstAlias;
+                $languageParam = ':languageId';
+            }
 
-            $alias = 'product_translation.translation.fallback_' . $i;
+            $languageQuery->from('product_translation ' . EntityDefinitionQueryHelper::escape($alias));
+            $languageQuery->andWhere(EntityDefinitionQueryHelper::escape($alias) . '.language_id = ' . $languageParam);
+            $languageQuery->addSelect(EntityDefinitionQueryHelper::escape($alias) . '.product_id');
+            $languageQuery->addSelect(EntityDefinitionQueryHelper::escape($alias) . '.name');
+            $languageQuery->addSelect(EntityDefinitionQueryHelper::escape($alias) . '.description');
+            $languageQuery->addSelect(EntityDefinitionQueryHelper::escape($alias) . '.custom_fields');
 
-            $variables = [
-                '#column#' => EntityDefinitionQueryHelper::escape($this->definition->getEntityName() . '_id'),
-                '#alias#' => EntityDefinitionQueryHelper::escape($alias),
-                '#firstAlias#' => EntityDefinitionQueryHelper::escape($firstAlias),
-            ];
-
-            $query->leftJoin(
-                EntityDefinitionQueryHelper::escape($firstAlias),
-                EntityDefinitionQueryHelper::escape($table),
-                EntityDefinitionQueryHelper::escape($alias),
-                str_replace(array_keys($variables), array_values($variables), $condition)
+            $query->addSelect(
+                EntityDefinitionQueryHelper::escape($outerAlias) . '.name AS ' . EntityDefinitionQueryHelper::escape($outerAlias . '.name'),
+                EntityDefinitionQueryHelper::escape($outerAlias) . '.description AS ' . EntityDefinitionQueryHelper::escape($outerAlias . '.description'),
+                EntityDefinitionQueryHelper::escape($outerAlias) . '.custom_fields AS ' . EntityDefinitionQueryHelper::escape($outerAlias . '.custom_fields'),
             );
 
-            $query->addSelect(str_replace('#alias#', $alias, $select));
-            $query->setParameter('languageId' . $i, Uuid::fromHexToBytes($language));
+            $query->leftJoin(
+                $productAlias,
+                '(' . $languageQuery->getSQL() . ')',
+                EntityDefinitionQueryHelper::escape($outerAlias),
+                EntityDefinitionQueryHelper::escape($productAlias) . '.id = '
+                . EntityDefinitionQueryHelper::escape($outerAlias) . '.product_id'
+            );
+            $query->setParameter($languageParam, Uuid::fromHexToBytes($language));
         }
 
         return $query;

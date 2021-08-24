@@ -19,7 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationFi
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 /**
- * @internal (flag:FEATURE_NEXT_14408)
+ * @internal
  */
 class AppCmsBlockDefinition extends EntityDefinition
 {

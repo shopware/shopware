@@ -6,7 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -50,16 +49,6 @@ class ApiAwareTest extends TestCase
         $expected = file_get_contents(__DIR__ . '/fixtures/api-aware-fields.json');
 
         $expected = json_decode($expected, true);
-
-        if (Feature::isActive('FEATURE_NEXT_14408')) {
-            $expected[] = 'app_cms_block.createdAt';
-            $expected[] = 'app_cms_block.updatedAt';
-            $expected[] = 'app_cms_block.translated';
-            $expected[] = 'app_cms_block_translation.createdAt';
-            $expected[] = 'app_cms_block_translation.updatedAt';
-            $expected[] = 'app_cms_block_translation.appCmsBlockId';
-            $expected[] = 'app_cms_block_translation.languageId';
-        }
 
         $message = 'One or more fields have been changed in their visibility for the Store Api.
         This change must be carefully controlled to ensure that no sensitive data is given out via the Store API.';

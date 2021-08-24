@@ -9,7 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 /**
- * @internal (flag:FEATURE_NEXT_14408)
+ * @internal
  */
 class AppCmsBlockTranslationDefinition extends EntityTranslationDefinition
 {

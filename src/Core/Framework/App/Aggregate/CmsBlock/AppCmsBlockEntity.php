@@ -8,7 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
 /**
- * @internal (flag:FEATURE_NEXT_14408)
+ * @internal
  */
 class AppCmsBlockEntity extends Entity
 {

@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\App\Cms;
 
 /**
- * @internal (flag:FEATURE_NEXT_14408)
+ * @internal
  */
 abstract class AbstractBlockTemplateLoader
 {

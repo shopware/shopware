@@ -169,7 +169,7 @@ class AppEntity extends Entity
     protected $paymentMethods;
 
     /**
-     * @internal (flag:FEATURE_NEXT_14408)
+     * @internal
      *
      * @var AppCmsBlockCollection|null
      */
@@ -469,7 +469,7 @@ class AppEntity extends Entity
     }
 
     /**
-     * @internal (flag:FEATURE_NEXT_14408)
+     * @internal
      */
     public function getCmsBlocks(): ?AppCmsBlockCollection
     {
@@ -477,7 +477,7 @@ class AppEntity extends Entity
     }
 
     /**
-     * @internal (flag:FEATURE_NEXT_14408)
+     * @internal
      */
     public function setCmsBlocks(AppCmsBlockCollection $cmsBlocks): void
     {

@@ -9,29 +9,24 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @internal (flag:FEATURE_NEXT_14408)
+ * @internal
  *
  * @RouteScope(scopes={"api"})
  */
 class AppCmsController extends AbstractController
 {
-    /**
-     * @internal (flag:FEATURE_NEXT_14408) - make not nullable after feature roll-out
-     */
-    private ?EntityRepositoryInterface $cmsBlockRepository;
+    private EntityRepositoryInterface $cmsBlockRepository;
 
     public function __construct(
-        ?EntityRepositoryInterface $cmsBlockRepository
+        EntityRepositoryInterface $cmsBlockRepository
     ) {
         $this->cmsBlockRepository = $cmsBlockRepository;
     }
@@ -42,10 +37,6 @@ class AppCmsController extends AbstractController
      */
     public function getBlocks(Context $context): Response
     {
-        if (!Feature::isActive('FEATURE_NEXT_14408') || $this->cmsBlockRepository === null) {
-            throw new NotFoundHttpException();
-        }
-
         $criteria = new Criteria();
         $criteria
             ->addFilter(new EqualsFilter('app.active', true))

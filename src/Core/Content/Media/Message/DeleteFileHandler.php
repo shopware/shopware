@@ -2,20 +2,21 @@
 
 namespace Shopware\Core\Content\Media\Message;
 
+use League\Flysystem\AdapterInterface;
 use League\Flysystem\FileNotFoundException;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
 
 class DeleteFileHandler extends AbstractMessageHandler
 {
-    /**
-     * @var FilesystemInterface
-     */
-    private $filesystem;
+    private FilesystemInterface $filesystemPublic;
 
-    public function __construct(FilesystemInterface $filesystem)
+    private FilesystemInterface $filesystemPrivate;
+
+    public function __construct(FilesystemInterface $filesystemPublic, FilesystemInterface $filesystemPrivate)
     {
-        $this->filesystem = $filesystem;
+        $this->filesystemPublic = $filesystemPublic;
+        $this->filesystemPrivate = $filesystemPrivate;
     }
 
     /**
@@ -25,7 +26,7 @@ class DeleteFileHandler extends AbstractMessageHandler
     {
         foreach ($message->getFiles() as $file) {
             try {
-                $this->filesystem->delete($file);
+                $this->getFileSystem($message->getVisibility())->delete($file);
             } catch (FileNotFoundException $e) {
                 //ignore file is already deleted
             }
@@ -35,5 +36,17 @@ class DeleteFileHandler extends AbstractMessageHandler
     public static function getHandledMessages(): iterable
     {
         return [DeleteFileMessage::class];
+    }
+
+    private function getFileSystem(string $visibility): FilesystemInterface
+    {
+        switch ($visibility) {
+            case AdapterInterface::VISIBILITY_PUBLIC:
+                return $this->filesystemPublic;
+            case AdapterInterface::VISIBILITY_PRIVATE:
+                return $this->filesystemPrivate;
+            default:
+                throw new \RuntimeException('Invalid filesystem visibility.');
+        }
     }
 }

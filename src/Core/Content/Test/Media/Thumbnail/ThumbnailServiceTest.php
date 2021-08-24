@@ -7,11 +7,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeEntity;
+use Shopware\Core\Content\Media\DataAbstractionLayer\MediaThumbnailRepositoryDecorator;
 use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaType\DocumentType;
 use Shopware\Core\Content\Media\MediaType\ImageType;
+use Shopware\Core\Content\Media\Message\DeleteFileHandler;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
@@ -22,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @group slow
@@ -32,30 +35,15 @@ class ThumbnailServiceTest extends TestCase
     use MediaFixtures;
     use QueueTestBehaviour;
 
-    /**
-     * @var UrlGeneratorInterface
-     */
-    private $urlGenerator;
+    private ?UrlGeneratorInterface $urlGenerator;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
-    /**
-     * @var ThumbnailService
-     */
-    private $thumbnailService;
+    private ?ThumbnailService $thumbnailService;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $mediaRepository;
+    private ?EntityRepositoryInterface $mediaRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $thumbnailRepository;
+    private ?EntityRepositoryInterface $thumbnailRepository;
 
     protected function setUp(): void
     {
@@ -423,6 +411,83 @@ class ThumbnailServiceTest extends TestCase
             [ $width, $height ] = getimagesizefromstring($fileContents);
             static::assertSame(499, $width);
             static::assertSame(266, $height);
+        }
+    }
+
+    public function testGenerateThumbnailsWithSkipDeleteMessage(): void
+    {
+        $this->setFixtureContext($this->context);
+        $media = $this->getPngWithFolder();
+
+        $this->thumbnailRepository->create([
+            [
+                'mediaId' => $media->getId(),
+                'width' => 987,
+                'height' => 987,
+            ],
+            [
+                'mediaId' => $media->getId(),
+                'width' => 150,
+                'height' => 150,
+            ],
+        ], $this->context);
+
+        $criteria = new Criteria([$media->getId()]);
+        $criteria->addAssociation('thumbnails');
+        $criteria->addAssociation('mediaFolder.configuration.mediaThumbnailSizes');
+
+        $media = $this->mediaRepository->search($criteria, $this->context)->get($media->getId());
+
+        $this->getPublicFilesystem()->putStream(
+            $this->urlGenerator->getRelativeMediaUrl($media),
+            fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb')
+        );
+
+        $mockBus = $this->createMock(MessageBusInterface::class);
+        $mockBus->expects(static::never())->method('dispatch');
+
+        $mockDeleteFile = $this->createMock(DeleteFileHandler::class);
+        $mockDeleteFile->expects(static::once())->method('handle');
+
+        $thumbnailService = new ThumbnailService(
+            new MediaThumbnailRepositoryDecorator(
+                $this->getContainer()->get('Shopware\Core\Content\Media\DataAbstractionLayer\MediaThumbnailRepositoryDecorator.inner'),
+                $this->getContainer()->get('event_dispatcher'),
+                $this->getContainer()->get(UrlGeneratorInterface::class),
+                $mockBus,
+                $mockDeleteFile
+            ),
+            $this->getContainer()->get('shopware.filesystem.public'),
+            $this->getContainer()->get('shopware.filesystem.private'),
+            $this->getContainer()->get(UrlGeneratorInterface::class),
+            $this->getContainer()->get('media_folder.repository')
+        );
+
+        $thumbnailService->generate(new MediaCollection([$media]), $this->context);
+
+        $criteria = new Criteria([$media->getId()]);
+        $criteria->addAssociation('thumbnails');
+
+        $media = $this->mediaRepository
+            ->search($criteria, $this->context)
+            ->get($media->getId());
+
+        static::assertEquals(2, $media->getThumbnails()->count());
+
+        $filteredThumbnails = $media->getThumbnails()->filter(function (MediaThumbnailEntity $thumbnail) {
+            return ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 300)
+                || ($thumbnail->getWidth() === 150 && $thumbnail->getHeight() === 150);
+        });
+
+        static::assertEquals(2, $filteredThumbnails->count());
+
+        /** @var MediaThumbnailEntity $thumbnail */
+        foreach ($filteredThumbnails as $thumbnail) {
+            $path = $this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail);
+            static::assertTrue(
+                $this->getPublicFilesystem()->has($path),
+                'Thumbnail: ' . $path . ' does not exist'
+            );
         }
     }
 }

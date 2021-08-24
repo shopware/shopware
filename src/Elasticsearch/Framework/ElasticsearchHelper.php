@@ -61,8 +61,18 @@ class ElasticsearchHelper
         $this->throwException = $throwException;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - use tryToThrow instead
+     */
     public function logOrThrowException(\Throwable $exception): bool
     {
+        return $this->tryToThrow($exception);
+    }
+
+    public function tryToThrow(\Throwable $exception): bool
+    {
+        $this->logger->critical($exception->getMessage());
+
         if ($this->environment === 'test') {
             throw $exception;
         }
@@ -74,8 +84,6 @@ class ElasticsearchHelper
         if ($this->throwException) {
             throw $exception;
         }
-
-        $this->logger->critical($exception->getMessage());
 
         return false;
     }

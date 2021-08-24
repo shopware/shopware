@@ -255,7 +255,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-detail-domains'
     it('domainExistsLocal › checks if the given domains url already exists locally', () => {
         const exampleDomains = getExampleDomains();
         const wrapper = createWrapper({}, exampleDomains);
-        let testedDomain = { id: '8a243080f92e4c719546314b577cf82b', url: 'http://foo.bar' };
+        const testedDomain = { id: '8a243080f92e4c719546314b577cf82b', url: 'http://foo.bar' };
 
         expect(wrapper.vm.domainExistsLocal(testedDomain)).toBeFalsy();
         expect(wrapper.vm.domainExistsLocal(exampleDomains[0])).toBeFalsy();

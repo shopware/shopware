@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\App\Cms\Xml;
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
 
 /**
- * @internal (flag:FEATURE_NEXT_14408)
+ * @internal
  */
 class DefaultConfig extends XmlElement
 {

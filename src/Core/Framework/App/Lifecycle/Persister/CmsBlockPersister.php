@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 
 /**
- * @internal (flag:FEATURE_NEXT_14408)
+ * @internal
  */
 class CmsBlockPersister
 {
@@ -40,10 +40,6 @@ class CmsBlockPersister
         string $defaultLocale,
         Context $context
     ): void {
-        if (!Feature::isActive('FEATURE_NEXT_14408')) {
-            return;
-        }
-
         $existingCmsBlocks = $this->getExistingCmsBlocks($appId, $context);
 
         $cmsBlocks = $cmsExtensions->getBlocks() !== null ? $cmsExtensions->getBlocks()->getBlocks() : [];

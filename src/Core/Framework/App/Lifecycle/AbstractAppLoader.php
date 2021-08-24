@@ -24,8 +24,5 @@ abstract class AbstractAppLoader
 
     abstract public function deleteApp(string $technicalName): void;
 
-    /**
-     * @internal (flag:FEATURE_NEXT_14408)
-     */
     abstract public function getCmsExtensions(AppEntity $app): ?CmsExtensions;
 }

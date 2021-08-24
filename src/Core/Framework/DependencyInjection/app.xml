@@ -84,10 +84,9 @@
         </service>
 
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\CmsBlockPersister">
-            <argument type="service" id="app_cms_block.repository" on-invalid="null"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Cms\BlockTemplateLoader" on-invalid="null"/>
+            <argument type="service" id="app_cms_block.repository"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Cms\BlockTemplateLoader"/>
             <argument type="service" id="Shopware\Core\Framework\Util\HtmlSanitizer"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_14408"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\AppService">
@@ -164,7 +163,7 @@
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\TemplatePersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\CmsBlockPersister" on-invalid="null"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\CmsBlockPersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService"/>
@@ -264,12 +263,11 @@
         </service>
 
         <service id="Shopware\Core\Framework\App\Api\AppCmsController" public="true">
-            <argument type="service" id="app_cms_block.repository" on-invalid="null"/>
+            <argument type="service" id="app_cms_block.repository"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_14408"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Command\AppPrinter">
@@ -396,16 +394,13 @@
 
         <service id="Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockDefinition">
             <tag name="shopware.entity.definition"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_14408"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Aggregate\CmsBlockTranslation\AppCmsBlockTranslationDefinition">
             <tag name="shopware.entity.definition"/>
-            <tag name="shopware.feature" flag="FEATURE_NEXT_14408"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Cms\BlockTemplateLoader">
-            <tag name="shopware.feature" flag="FEATURE_NEXT_14408"/>
         </service>
     </services>
 </container>

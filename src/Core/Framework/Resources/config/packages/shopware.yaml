@@ -232,11 +232,6 @@ shopware:
               major: false
               description: "Bulk Edit for Orders and Products"
               # issue: NEXT-6061
-            - name: FEATURE_NEXT_14408
-              default: false
-              major: false
-              description: "App System 3.0 - CMS blocks provided by apps"
-              # issue: NEXT-14408
             - name: FEATURE_NEXT_15707
               default: false
               major: false

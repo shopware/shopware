@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\App\Lifecycle;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Cms\CmsExtensions as CmsManifest;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
@@ -103,15 +102,8 @@ class AppLoader extends AbstractAppLoader
         (new Filesystem())->remove($manifest->getPath());
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_14408)
-     */
     public function getCmsExtensions(AppEntity $app): ?CmsManifest
     {
-        if (!Feature::isActive('FEATURE_NEXT_14408')) {
-            return null;
-        }
-
         $configPath = sprintf('%s/%s/Resources/cms.xml', $this->projectDir, $app->getPath());
 
         if (!file_exists($configPath)) {

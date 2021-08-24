@@ -7,7 +7,7 @@ use Shopware\Core\System\SystemConfig\Exception\XmlParsingException;
 use Symfony\Component\Config\Util\XmlUtils;
 
 /**
- * @internal (flag:FEATURE_NEXT_14408)
+ * @internal
  */
 class CmsExtensions
 {

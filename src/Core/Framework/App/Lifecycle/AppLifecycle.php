@@ -28,7 +28,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
@@ -63,10 +62,7 @@ class AppLifecycle extends AbstractAppLifecycle
 
     private PaymentMethodPersister $paymentMethodPersister;
 
-    /**
-     * @internal (flag:FEATURE_NEXT_14408) make persister not nullable on removal
-     */
-    private ?CmsBlockPersister $cmsBlockPersister;
+    private CmsBlockPersister $cmsBlockPersister;
 
     private EntityRepositoryInterface $languageRepository;
 
@@ -88,7 +84,7 @@ class AppLifecycle extends AbstractAppLifecycle
         TemplatePersister $templatePersister,
         WebhookPersister $webhookPersister,
         PaymentMethodPersister $paymentMethodPersister,
-        ?CmsBlockPersister $cmsBlockPersister,
+        CmsBlockPersister $cmsBlockPersister,
         AbstractAppLoader $appLoader,
         EventDispatcherInterface $eventDispatcher,
         AppRegistrationService $registrationService,
@@ -225,11 +221,9 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->templatePersister->updateTemplates($manifest, $id, $context);
         $this->customFieldPersister->updateCustomFields($manifest, $id, $context);
 
-        if (Feature::isActive('FEATURE_NEXT_14408') && $this->cmsBlockPersister !== null) {
-            $cmsExtensions = $this->appLoader->getCmsExtensions($app);
-            if ($cmsExtensions) {
-                $this->cmsBlockPersister->updateCmsBlocks($cmsExtensions, $id, $defaultLocale, $context);
-            }
+        $cmsExtensions = $this->appLoader->getCmsExtensions($app);
+        if ($cmsExtensions) {
+            $this->cmsBlockPersister->updateCmsBlocks($cmsExtensions, $id, $defaultLocale, $context);
         }
 
         $config = $this->appLoader->getConfiguration($app);

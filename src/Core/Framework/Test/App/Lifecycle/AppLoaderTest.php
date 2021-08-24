@@ -6,7 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 
@@ -121,12 +120,6 @@ class AppLoaderTest extends TestCase
 
         $path = str_replace($this->getContainer()->getParameter('kernel.project_dir') . '/', '', __DIR__ . '/../Manifest/_fixtures/test');
         $app = (new AppEntity())->assign(['path' => $path]);
-
-        if (!Feature::isActive('FEATURE_NEXT_14408')) {
-            static::assertNull($appLoader->getCmsExtensions($app));
-
-            return;
-        }
 
         static::assertNotNull($appLoader->getCmsExtensions($app)->getBlocks());
         static::assertCount(2, $appLoader->getCmsExtensions($app)->getBlocks()->getBlocks());

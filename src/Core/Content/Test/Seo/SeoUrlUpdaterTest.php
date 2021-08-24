@@ -64,14 +64,7 @@ class SeoUrlUpdaterTest extends TestCase
                 ],
                 'translationCodeId' => $this->ids->get('childLocale'),
             ],
-            'languages' => [
-                [
-                    'id' => $this->ids->get(self::CHILD),
-                ],
-                [
-                    'id' => Defaults::LANGUAGE_SYSTEM,
-                ],
-            ],
+            'languages' => [['id' => $this->ids->get(self::CHILD)]],
             // Add domain for child language
             'domains' => [
                 [

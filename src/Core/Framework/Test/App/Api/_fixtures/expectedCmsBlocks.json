@@ -49,7 +49,7 @@
         "backgroundColor": "#000"
       },
       "styles": "#sw-example-app--my-first-block {\n    color: red;\n    font-size: 12px;\n}\n",
-      "template": "<div id=\"sw-example-app--my-first-block\">\n    <slot name=\"left\">manufacturer-logo</slot>\n    <slot name=\"middle\">image-gallery</slot>\n    <slot name=\"right\">buy-box</slot>\n</div>\n"
+      "template": "<div class=\"sw-example-app--my-first-block\">\n  <div>\n    <h2>\n      Lorem ipsum dolor\\n\n    </h2>\n    <p>\n      Lorem ipsum dolor sit amet ...\n    </p>\n  </div><img src=\"preview.png\" alt=\"Preview image\" /></div>\n"
     },
     {
       "name": "my-second-block",
@@ -100,7 +100,7 @@
         "backgroundColor": "#000"
       },
       "styles": "#sw-example-app--my-second-block {\n    color: blue;\n    font-size: 24px;\n}\n",
-      "template": "<div id=\"sw-example-app--my-second-block\">\n    <slot name=\"left\">form</slot>\n    <slot name=\"middle\">image</slot>\n    <slot name=\"right\">youtube-video</slot>\n</div>\n"
+      "template": "<div class=\"sw-example-app--my-second-block\">\n    <div>\n        <img src=\"preview2.png\" alt=\"Preview image 2\" /></div>\n\n    </div>\n"
     }
   ]
 }

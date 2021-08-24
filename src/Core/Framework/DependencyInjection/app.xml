@@ -86,6 +86,7 @@
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\CmsBlockPersister">
             <argument type="service" id="app_cms_block.repository" on-invalid="null"/>
             <argument type="service" id="Shopware\Core\Framework\App\Cms\BlockTemplateLoader" on-invalid="null"/>
+            <argument type="service" id="Shopware\Core\Framework\Util\HtmlSanitizer"/>
             <tag name="shopware.feature" flag="FEATURE_NEXT_14408"/>
         </service>
 

@@ -37,7 +37,7 @@ class AppCmsController extends AbstractController
     }
 
     /**
-     * @Since("6.4.2.0")
+     * @Since("6.4.4.0")
      * @Route("api/app-system/cms/blocks", name="api.app_system.cms.blocks", methods={"GET"})
      */
     public function getBlocks(Context $context): Response

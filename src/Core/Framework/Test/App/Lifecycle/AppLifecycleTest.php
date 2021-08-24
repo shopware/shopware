@@ -1235,7 +1235,7 @@ class AppLifecycleTest extends TestCase
             json_encode($secondCmsBlock->getBlock())
         );
         static::assertEquals(
-            file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/Resources/cms/blocks/my-second-block/preview.html'),
+            file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/Resources/cms/blocks/my-second-block/previewExpected.html'),
             $secondCmsBlock->getTemplate()
         );
         static::assertEquals(

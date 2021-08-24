@@ -637,7 +637,8 @@
               "placeholder": "Zusatzfeld wählen..."
             }
           }
-        }
+        },
+        "customerCustomFieldRule": "Kunde mit Zusatzfeld"
       }
     },
     "sw-product-image": {

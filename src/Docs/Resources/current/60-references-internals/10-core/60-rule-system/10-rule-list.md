@@ -152,6 +152,9 @@ List of all rule classes across Shopware 6.
 [Shopware\Core\Checkout\Customer\Rule\ShippingZipCodeRule](https://github.com/shopware/platform/tree/master/src/Core/Shopware\Core\Checkout\Customer\Rule\ShippingZipCodeRule)
  : Matches multiple zip codes to the customer's active shipping address zip code. True if one zip code matches.
 
+[Shopware\Core\Checkout\Customer\Rule\CustomerCustomFieldRule](https://github.com/shopware/platform/tree/master/src/Core/Shopware\Core\Checkout\Customer\Rule\CustomerCustomFieldRule)
+: Matches if a customer has a specific custom field.
+
 ### Framework
 
 [Shopware\Core\Framework\Rule\Container\AndRule](https://github.com/shopware/platform/tree/master/src/Core/Shopware\Core\Framework\Rule\Container\AndRule)

@@ -276,7 +276,11 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         label: 'global.sw-condition.condition.lineItemCustomFieldRule',
         scopes: ['lineItem'],
     });
-
+    ruleConditionService.addCondition('customerCustomField', {
+        component: 'sw-condition-customer-custom-field',
+        label: 'global.sw-condition.condition.customerCustomFieldRule',
+        scopes: ['checkout'],
+    });
     ruleConditionService.addCondition('paymentMethod', {
         component: 'sw-condition-payment-method',
         label: 'global.sw-condition.condition.paymentMethodRule',

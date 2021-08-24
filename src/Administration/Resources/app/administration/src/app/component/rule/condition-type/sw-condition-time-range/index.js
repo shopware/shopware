@@ -13,7 +13,7 @@ Component.extend('sw-condition-time-range', 'sw-condition-base', {
             datepickerConfig: {
                 enableTime: true,
                 dateFormat: 'H:i',
-                altFormat: 'H:i \\U\\T\\C', // show the user that the time is in UTC
+                altFormat: 'H:i',
             },
         };
     },

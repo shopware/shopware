@@ -158,11 +158,11 @@ class ThemeLifecycleService
 
     private function createMediaStruct(string $path, string $mediaId, ?string $themeFolderId): ?array
     {
+        $path = $this->themeFileImporter->getRealPath($path);
+
         if (!$this->fileExists($path)) {
             return null;
         }
-
-        $path = $this->themeFileImporter->getRealPath($path);
 
         $pathinfo = pathinfo($path);
 

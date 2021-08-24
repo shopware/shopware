@@ -29,7 +29,9 @@
             <argument>%kernel.project_dir%</argument>
         </service>
 
-        <service id="Shopware\Storefront\Theme\ThemeFileImporter"/>
+        <service id="Shopware\Storefront\Theme\ThemeFileImporter">
+            <argument>%kernel.project_dir%</argument>
+        </service>
 
         <service id="Shopware\Storefront\Theme\ThemeLifecycleService">
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginRegistry"/>
@@ -45,7 +47,6 @@
 
         <service id="Shopware\Storefront\Theme\ThemeFileResolver">
             <argument type="service" id="Shopware\Storefront\Theme\ThemeFileImporter"/>
-            <argument>%kernel.project_dir%</argument>
         </service>
 
         <service id="Shopware\Storefront\Theme\ThemeService">

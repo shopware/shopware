@@ -35,6 +35,17 @@ describe('module/sw-cms/component/sw-cms-slot', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
+    it('should contain the slot name as class', async () => {
+        const wrapper = createWrapper();
+        await wrapper.setProps({
+            element: {
+                slot: 'left'
+            }
+        });
+
+        expect(wrapper.classes()).toContain('sw-cms-slot-left');
+    });
+
     it('disable the custom component', async () => {
         const wrapper = createWrapper();
         await wrapper.setProps({

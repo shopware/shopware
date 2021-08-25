@@ -9,32 +9,38 @@
       "slots": {
         "left": {
           "type": "manufacturer-logo",
-          "config": {
-            "displayMode": {
-              "source": "static",
-              "value": "cover"
+          "default": {
+            "config": {
+              "displayMode": {
+                "source": "static",
+                "value": "cover"
+              }
             }
           }
         },
         "right": {
           "type": "buy-box",
-          "config": {
-            "displayMode": {
-              "source": "static",
-              "value": "contain"
+          "default": {
+            "config": {
+              "displayMode": {
+                "source": "static",
+                "value": "contain"
+              }
             }
           }
         },
         "middle": {
           "type": "image-gallery",
-          "config": {
-            "displayMode": {
-              "source": "static",
-              "value": "auto"
-            },
-            "minHeight": {
-              "source": "static",
-              "value": "300px"
+          "default": {
+            "config": {
+              "displayMode": {
+                "source": "static",
+                "value": "auto"
+              },
+              "minHeight": {
+                "source": "static",
+                "value": "300px"
+              }
             }
           }
         }
@@ -49,7 +55,7 @@
         "backgroundColor": "#000"
       },
       "styles": "#sw-example-app--my-first-block {\n    color: red;\n    font-size: 12px;\n}\n",
-      "template": "<div id=\"sw-example-app--my-first-block\">\n    <slot name=\"left\">manufacturer-logo</slot>\n    <slot name=\"middle\">image-gallery</slot>\n    <slot name=\"right\">buy-box</slot>\n</div>\n"
+      "template": "<div class=\"sw-example-app--my-first-block\">\n  <div>\n    <h2>\n      Lorem ipsum dolor\\n\n    </h2>\n    <p>\n      Lorem ipsum dolor sit amet ...\n    </p>\n  </div><img src=\"preview.png\" alt=\"Preview image\" /></div>\n"
     },
     {
       "name": "my-second-block",
@@ -60,32 +66,38 @@
       "slots": {
         "left": {
           "type": "form",
-          "config": {
-            "displayMode": {
-              "source": "static",
-              "value": "cover"
+          "default": {
+            "config": {
+              "displayMode": {
+                "source": "static",
+                "value": "cover"
+              }
             }
           }
         },
         "right": {
           "type": "youtube-video",
-          "config": {
-            "displayMode": {
-              "source": "static",
-              "value": "contain"
+          "default": {
+            "config": {
+              "displayMode": {
+                "source": "static",
+                "value": "contain"
+              }
             }
           }
         },
         "middle": {
           "type": "image",
-          "config": {
-            "displayMode": {
-              "source": "static",
-              "value": "auto"
-            },
-            "backgroundColor": {
-              "source": "static",
-              "value": "red"
+          "default": {
+            "config": {
+              "displayMode": {
+                "source": "static",
+                "value": "auto"
+              },
+              "backgroundColor": {
+                "source": "static",
+                "value": "red"
+              }
             }
           }
         }
@@ -100,7 +112,7 @@
         "backgroundColor": "#000"
       },
       "styles": "#sw-example-app--my-second-block {\n    color: blue;\n    font-size: 24px;\n}\n",
-      "template": "<div id=\"sw-example-app--my-second-block\">\n    <slot name=\"left\">form</slot>\n    <slot name=\"middle\">image</slot>\n    <slot name=\"right\">youtube-video</slot>\n</div>\n"
+      "template": "<div class=\"sw-example-app--my-second-block\">\n    <div>\n        <img src=\"preview2.png\" alt=\"Preview image 2\" /></div>\n\n    </div>\n"
     }
   ]
 }

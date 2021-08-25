@@ -8,7 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\System\Language\LanguageEntity;
 
 /**
- * @internal (flag:FEATURE_NEXT_14408)
+ * @internal
  */
 class AppCmsBlockTranslationEntity extends Entity
 {

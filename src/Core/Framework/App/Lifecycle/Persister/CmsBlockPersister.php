@@ -11,9 +11,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Util\HtmlSanitizer;
 
 /**
- * @internal (flag:FEATURE_NEXT_14408)
+ * @internal
  */
 class CmsBlockPersister
 {
@@ -21,12 +22,16 @@ class CmsBlockPersister
 
     private AbstractBlockTemplateLoader $blockTemplateLoader;
 
+    private HtmlSanitizer $htmlSanitizer;
+
     public function __construct(
         EntityRepositoryInterface $cmsBlockRepository,
-        AbstractBlockTemplateLoader $blockTemplateLoader
+        AbstractBlockTemplateLoader $blockTemplateLoader,
+        HtmlSanitizer $htmlSanitizer
     ) {
         $this->cmsBlockRepository = $cmsBlockRepository;
         $this->blockTemplateLoader = $blockTemplateLoader;
+        $this->htmlSanitizer = $htmlSanitizer;
     }
 
     public function updateCmsBlocks(
@@ -35,17 +40,25 @@ class CmsBlockPersister
         string $defaultLocale,
         Context $context
     ): void {
-        if (!Feature::isActive('FEATURE_NEXT_14408')) {
-            return;
-        }
-
         $existingCmsBlocks = $this->getExistingCmsBlocks($appId, $context);
 
         $cmsBlocks = $cmsExtensions->getBlocks() !== null ? $cmsExtensions->getBlocks()->getBlocks() : [];
         $upserts = [];
         foreach ($cmsBlocks as $cmsBlock) {
             $payload = $cmsBlock->toEntityArray($appId, $defaultLocale);
-            $payload['template'] = $this->blockTemplateLoader->getTemplateForBlock($cmsExtensions, $cmsBlock->getName());
+
+            $template = $this->blockTemplateLoader->getTemplateForBlock($cmsExtensions, $cmsBlock->getName());
+
+            if (!Feature::isActive('FEATURE_NEXT_15172')) {
+                $template = $this->htmlSanitizer->sanitize(
+                    $template,
+                    [],
+                    false,
+                    'app_cms_block.template'
+                );
+            }
+
+            $payload['template'] = $template;
             $payload['styles'] = $this->blockTemplateLoader->getStylesForBlock($cmsExtensions, $cmsBlock->getName());
 
             /** @var AppCmsBlockEntity|null $existing */

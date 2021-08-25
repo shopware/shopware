@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\App\Cms\Xml;
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
 
 /**
- * @internal (flag:FEATURE_NEXT_14408)
+ * @internal
  */
 class Block extends XmlElement
 {
@@ -61,7 +61,9 @@ class Block extends XmlElement
         foreach ($this->slots as $slot) {
             $slots[$slot->getName()] = [
                 'type' => $slot->getType(),
-                'config' => $slot->getConfig()->toArray($defaultLocale),
+                'default' => [
+                    'config' => $slot->getConfig()->toArray($defaultLocale),
+                ],
             ];
         }
 

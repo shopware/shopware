@@ -2,6 +2,145 @@ UPGRADE FROM 6.3.x.x to 6.4
 =======================
 
 # 6.4.4.0
+## Added support for building administration without database
+
+In some setups it's common that the application is built with two steps in a `build` and `deploy` phase. The `build` process doesn't have any database connection.
+Currently, Shopware needs to build the administration a database connection, to discover which plugins are active. To avoid that behaviour we have added a new `ComposerPluginLoader` which loads all information from the installed composer plugins.
+
+To use the `ComposerPluginLoader` you have to create a file like `bin/ci` and setup the cli application with loader. There is an example:
+
+```php
+#!/usr/bin/env php
+<?php declare(strict_types=1);
+
+use Composer\InstalledVersions;
+use Shopware\Core\Framework\Plugin\KernelPluginLoader\ComposerPluginLoader;
+use Shopware\Production\HttpKernel;
+use Shopware\Production\Kernel;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Component\Console\Input\ArgvInput;
+use Symfony\Component\Dotenv\Dotenv;
+use Symfony\Component\ErrorHandler\Debug;
+
+set_time_limit(0);
+
+$classLoader = require __DIR__ . '/../vendor/autoload.php';
+
+$envFile = __DIR__ . '/../.env';
+
+if (class_exists(Dotenv::class) && is_readable($envFile) && !is_dir($envFile)) {
+    (new Dotenv())->usePutenv()->load($envFile);
+}
+
+if (!isset($_SERVER['PROJECT_ROOT'])) {
+    $_SERVER['PROJECT_ROOT'] = dirname(__DIR__);
+}
+
+$input = new ArgvInput();
+$env = $input->getParameterOption(['--env', '-e'], $_SERVER['APP_ENV'] ?? 'prod', true);
+$debug = ($_SERVER['APP_DEBUG'] ?? ($env !== 'prod')) && !$input->hasParameterOption('--no-debug', true);
+
+if ($debug) {
+    umask(0000);
+
+    if (class_exists(Debug::class)) {
+        Debug::enable();
+    }
+}
+
+$pluginLoader = new ComposerPluginLoader($classLoader, null);
+
+$kernel = new HttpKernel($env, $debug, $classLoader);
+$kernel->setPluginLoader($pluginLoader);
+
+$application = new Application($kernel->getKernel());
+$application->run($input);
+```
+
+With the new file we can now dump the plugins for the administration without database with the command `bin/ci bundle:dump`
+## New __construct dependency
+
+A new dependency has been added for the `EntityRepository` and the `SalesChannelEntityRepository`.
+If you have defined the repository class yourself in your services.xml, you have to adapt it until 6.5 as follows:
+
+```before
+<service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="product.repository">
+    <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
+    <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
+    <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
+    <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
+    <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAggregator.inner"/>
+    <argument type="service" id="event_dispatcher"/>
+</service>
+```
+
+Now you have to inject the `Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory` service after the `event_dispatcher`
+```after
+<service class="Shopware\Core\Framework\DataAbstractionLayer\EntityRepository" id="product.repository">
+    <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
+    <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface"/>
+    <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\VersionManager"/>
+    <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface"/>
+    <argument type="service" id="Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAggregator.inner"/>
+    <argument type="service" id="event_dispatcher"/>
+    <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory"/>
+</service>
+```
+Up to 6.5, a compiler pass ensures that the event factory is injected via the `setEntityLoadedEventFactory` method.
+## Compiling the Storefront theme without database
+
+We have added a new configuration to load the theme configuration from static files instead of the database. This allows building in the CI process the entire storefront assets before deploying the application.
+To enable this, create a new file `config/packages/storefront.yml` with the following content:
+
+```yaml
+storefront:
+    theme:
+        config_loader_id: Shopware\Storefront\Theme\ConfigLoader\StaticFileConfigLoader
+        available_theme_provider: Shopware\Storefront\Theme\ConfigLoader\StaticFileAvailableThemeProvider
+```
+
+With this configuration `theme:compile` will force that the configuration will be loaded from the private filesystem. Per default the private file system writes into the `files` folder. It is highly recommended saving into an external storage like s3, to have it accessible also from the CI.
+The static files can be generated using `theme:dump` (requires database access) or by changing a theme configuration option in the administration.
+## Replace computed property usage
+Replace `maintenanceIpWhitelist` with `maintenanceIpAllowlist`
+## Change response format of searchIds when using with a mapping entity 
+
+When using `repository.searchIds` method with a mapping entity, it now returns the primary keys pair in camelCase (property name) format instead of snake_case format (storage name).
+The storage keys are kept in returned data for now for backwards compatibility but will be deprecated in the next major v6.5.0
+
+Example response of a searchIds request with `product_category` repository:
+
+### Before
+
+```json
+{
+    "total": 1,
+    "data": [
+        {
+            "product_id": "0f56c10f8c8e41c4acf700e64a481d86",
+            "category_id": "7b57ce0d86de4b0da3004e3113b79640"
+        }
+    ]
+}
+```
+
+### After
+
+```json
+{
+    "total": 1,
+    "data": [
+        {
+            "product_id": "0f56c10f8c8e41c4acf700e64a481d86",
+            "productId": "0f56c10f8c8e41c4acf700e64a481d86",
+            "category_id": "7b57ce0d86de4b0da3004e3113b79640"
+            "categoryId": "7b57ce0d86de4b0da3004e3113b79640"
+        }
+    ]
+}
+```
+
+# 6.4.4.0
 
 ## Added support for building administration without database
 

@@ -59,21 +59,20 @@ Component.register('sw-settings-listing-visibility-detail', {
         },
 
         fetchSalesChannels() {
-            const salesChannelIds = this.config.map(el => el.id);
-
+            const salesChannelIds = this.config.map(config => config.id);
             const criteria = new Criteria();
 
             criteria.addFilter(Criteria.equalsAny('id', salesChannelIds));
 
             return this.salesChannelRepository.search(criteria).then(salesChannels => {
-                return this.config.map(el => {
-                    const salesChannel = salesChannels.get(el.id);
+                return this.config.map(config => {
+                    const salesChannel = salesChannels.get(config.id);
                     if (!salesChannel) {
-                        return el;
+                        return config;
                     }
 
                     return {
-                        ...el,
+                        ...config,
                         name: salesChannel.name,
                     };
                 });

@@ -47,8 +47,11 @@ Component.register('sw-cms-slot', {
         },
 
         componentClasses() {
+            const componentClass = `sw-cms-slot-${this.element.slot}`;
+
             return {
                 'is--disabled': this.disabled,
+                [componentClass]: !!this.element.slot,
             };
         },
 

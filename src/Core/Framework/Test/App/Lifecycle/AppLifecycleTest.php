@@ -30,7 +30,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SystemConfigTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -1194,10 +1193,6 @@ class AppLifecycleTest extends TestCase
 
     private function assertDefaultCmsBlocks(string $appId): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_14408')) {
-            return;
-        }
-
         /** @var EntityRepositoryInterface $cmsBlockRepository */
         $cmsBlockRepository = $this->getContainer()->get('app_cms_block.repository');
 
@@ -1235,7 +1230,7 @@ class AppLifecycleTest extends TestCase
             json_encode($secondCmsBlock->getBlock())
         );
         static::assertEquals(
-            file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/Resources/cms/blocks/my-second-block/preview.html'),
+            file_get_contents(__DIR__ . '/../Manifest/_fixtures/test/Resources/cms/blocks/my-second-block/previewExpected.html'),
             $secondCmsBlock->getTemplate()
         );
         static::assertEquals(

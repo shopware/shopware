@@ -15,6 +15,13 @@ use Symfony\Component\Finder\Finder;
  */
 class ThemeFileImporter implements ThemeFileImporterInterface
 {
+    private string $projectDir;
+
+    public function __construct(string $projectDir)
+    {
+        $this->projectDir = $projectDir;
+    }
+
     public function fileExists(string $filePath): bool
     {
         return file_exists($filePath) && !is_dir($filePath);
@@ -22,7 +29,11 @@ class ThemeFileImporter implements ThemeFileImporterInterface
 
     public function getRealPath(string $filePath): string
     {
-        return $filePath;
+        if ($filePath[0] === '/' || !file_exists($this->projectDir . '/' . $filePath)) {
+            return $filePath;
+        }
+
+        return $this->projectDir . '/' . $filePath;
     }
 
     public function getConcatenableStylePath(File $file, StorefrontPluginConfiguration $configuration): string
@@ -44,8 +55,7 @@ class ThemeFileImporter implements ThemeFileImporterInterface
             );
         }
 
-        $finder = new Finder();
-        $files = $finder->files()->in($assetPath);
+        $files = (new Finder())->files()->in($assetPath);
         $assets = [];
 
         foreach ($files as $file) {

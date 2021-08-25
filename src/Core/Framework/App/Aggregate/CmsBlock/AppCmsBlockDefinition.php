@@ -19,7 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationFi
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
 /**
- * @internal (flag:FEATURE_NEXT_14408)
+ * @internal
  */
 class AppCmsBlockDefinition extends EntityDefinition
 {
@@ -51,7 +51,7 @@ class AppCmsBlockDefinition extends EntityDefinition
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->addFlags(new Required()),
             (new JsonField('block', 'block'))->addFlags(new Required()),
-            (new LongTextField('template', 'template'))->addFlags(new Required(), new AllowHtml(false)),
+            (new LongTextField('template', 'template'))->addFlags(new Required(), new AllowHtml()),
             (new LongTextField('styles', 'styles'))->addFlags(new Required()),
             new TranslatedField('label'),
             (new TranslationsAssociationField(AppCmsBlockTranslationDefinition::class, 'app_cms_block_id'))->addFlags(new Required()),

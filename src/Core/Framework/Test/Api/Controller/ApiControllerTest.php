@@ -2138,31 +2138,13 @@ EOF;
         static::assertEquals('Access token is expired', $jsonResponse['errors'][0]['detail']);
     }
 
-    public function testPreventCreationOfSalesChannelWithoutDefaultLanguage(): void
+    private function createSalesChannel(string $id): void
     {
-        $salesChannelId = Uuid::randomHex();
-        $data = $this->getSalesChannelData($salesChannelId, $this->getNonSystemLanguageId());
-
-        $browser = $this->getBrowser();
-        $browser->request('POST', '/api/sales-channel/', $data, [], [], json_encode($data));
-
-        $response = $browser->getResponse();
-        static::assertSame(400, $response->getStatusCode());
-
-        $content = json_decode($response->getContent());
-        $error = $content->errors[0];
-
-        static::assertSame('SYSTEM__NO_GIVEN_DEFAULT_LANGUAGE_ID', $error->code);
-        static::assertSame(sprintf('SalesChannel with id "%s" has no default language id set.', $salesChannelId), $error->detail);
-    }
-
-    private function getSalesChannelData(string $salesChannelId, $languageId = Defaults::LANGUAGE_SYSTEM): array
-    {
-        return [
-            'id' => $salesChannelId,
+        $data = [
+            'id' => $id,
             'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),
             'typeId' => Defaults::SALES_CHANNEL_TYPE_API,
-            'languageId' => $languageId,
+            'languageId' => Defaults::LANGUAGE_SYSTEM,
             'currencyId' => Defaults::CURRENCY,
             'currencyVersionId' => Defaults::LIVE_VERSION,
             'paymentMethodId' => $this->getValidPaymentMethodId(),
@@ -2174,18 +2156,13 @@ EOF;
             'countryId' => $this->getValidCountryId(),
             'countryVersionId' => Defaults::LIVE_VERSION,
             'currencies' => [['id' => Defaults::CURRENCY]],
-            'languages' => [['id' => $languageId]],
+            'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
             'shippingMethods' => [['id' => $this->getValidShippingMethodId()]],
             'paymentMethods' => [['id' => $this->getValidPaymentMethodId()]],
             'countries' => [['id' => $this->getValidCountryId()]],
             'name' => 'first sales-channel',
             'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
         ];
-    }
-
-    private function createSalesChannel(string $id): void
-    {
-        $data = $this->getSalesChannelData($id);
 
         $this->getContainer()->get('sales_channel.repository')->create([$data], Context::createDefaultContext());
     }

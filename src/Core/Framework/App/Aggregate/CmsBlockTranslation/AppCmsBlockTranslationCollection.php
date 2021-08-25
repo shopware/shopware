@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\App\Aggregate\CmsBlockTranslation;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @internal (flag:FEATURE_NEXT_14408)
+ * @internal
  *
  * @method void                                  add(AppCmsBlockTranslationEntity $entity)
  * @method void                                  set(string $key, AppCmsBlockTranslationEntity $entity)

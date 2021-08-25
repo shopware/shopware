@@ -1,4 +1,4 @@
-const { Locale, Feature } = Shopware;
+const { Locale } = Shopware;
 const { debug } = Shopware.Utils;
 
 /**
@@ -35,10 +35,6 @@ export default class AppCmsService {
     constructor(appCmsBlocksService, vueAdapter) {
         this.appCmsBlocksService = appCmsBlocksService;
         this.vueAdapter = vueAdapter;
-
-        if (!Feature.isActive('FEATURE_NEXT_14408')) {
-            return;
-        }
 
         this.requestAppSystemBlocks().then((blocks) => {
             if (!blocks) {

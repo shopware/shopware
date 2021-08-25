@@ -5,6 +5,7 @@ namespace Shopware\Core\System\Test\SalesChannel\SalesChannel;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -21,10 +22,7 @@ class StructEncoderTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    /**
-     * @var StructEncoder
-     */
-    private $encoder;
+    private StructEncoder $encoder;
 
     protected function setUp(): void
     {
@@ -222,6 +220,56 @@ class StructEncoderTest extends TestCase
         static::assertArrayHasKey('name', $encoded['translated']);
         static::assertArrayNotHasKey('description', $encoded['translated']);
     }
+
+    public function testStructWithCustomFields(): void
+    {
+        $struct = new StructWithCustomFields();
+        $response = $this->encoder->encode($struct, new ResponseFields(null));
+        static::assertNull($response['customFields']);
+
+        $struct = new StructWithCustomFields();
+        $struct->setCustomFields([]);
+        $response = $this->encoder->encode($struct, new ResponseFields(null));
+        static::assertInstanceOf(\stdClass::class, $response['customFields']);
+
+        $struct = new StructWithCustomFields();
+        $struct->setCustomFields(['bla' => 'test']);
+        $response = $this->encoder->encode($struct, new ResponseFields(null));
+        static::assertSame(['bla' => 'test'], $response['customFields']);
+    }
+
+    public function testStructWithCustomFieldsInTranslated(): void
+    {
+        $struct = new StructWithCustomFields();
+        $struct->setTranslated([
+            'customFields' => null,
+        ]);
+
+        $response = $this->encoder->encode($struct, new ResponseFields(null));
+
+        static::assertNull($response['customFields']);
+        static::assertNull($response['translated']['customFields']);
+
+        $struct = new StructWithCustomFields();
+        $struct->setTranslated([
+            'customFields' => [],
+        ]);
+
+        $response = $this->encoder->encode($struct, new ResponseFields(null));
+
+        static::assertNull($response['customFields']);
+        static::assertInstanceOf(\stdClass::class, $response['translated']['customFields']);
+
+        $struct = new StructWithCustomFields();
+        $struct->setTranslated([
+            'customFields' => ['test'],
+        ]);
+
+        $response = $this->encoder->encode($struct, new ResponseFields(null));
+
+        static::assertNull($response['customFields']);
+        static::assertSame(['test'], $response['translated']['customFields']);
+    }
 }
 
 class MyTestStruct extends Struct
@@ -318,4 +366,9 @@ class MyEntityDefinition extends EntityDefinition
             new TranslatedField('description'),
         ]);
     }
+}
+
+class StructWithCustomFields extends Entity
+{
+    use EntityCustomFieldsTrait;
 }

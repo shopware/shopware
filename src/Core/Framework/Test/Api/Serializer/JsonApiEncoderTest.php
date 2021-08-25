@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException;
 use Shopware\Core\Framework\Api\Serializer\JsonApiEncoder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -29,6 +30,7 @@ use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestInternalFieldsAreFi
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestMainResourceShouldNotBeInIncluded;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\AssociationExtension;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\CustomFieldPlainTestDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendableDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendedDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendedProductDefinition;
@@ -295,6 +297,48 @@ class JsonApiEncoderTest extends TestCase
             static::assertEquals('extended_product', $included['relationships']['oneToMany']['data'][0]['type']);
             static::assertNotEmpty($included['relationships']['oneToMany']['data'][0]['id']);
         }
+    }
+
+    /**
+     * @dataProvider customFieldsProvider
+     */
+    public function testCustomFields(array $input, $output): void
+    {
+        $encoder = $this->getContainer()->get(JsonApiEncoder::class);
+
+        $definition = new CustomFieldPlainTestDefinition();
+        $definition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
+        $struct = new Entity();
+        $struct->setUniqueIdentifier(Uuid::randomHex());
+        $struct->assign($input);
+
+        $actual = json_decode($encoder->encode(new Criteria(), $definition, $struct, SerializationFixture::API_BASE_URL));
+
+        static::assertEquals($output, $actual->data->attributes->customFields);
+    }
+
+    public function customFieldsProvider(): iterable
+    {
+        yield 'Custom field null' => [
+            [
+                'customFields' => null,
+            ],
+            null,
+        ];
+
+        yield 'Custom field with empty array' => [
+            [
+                'customFields' => [],
+            ],
+            new \stdClass(),
+        ];
+
+        yield 'Custom field with values' => [
+            [
+                'customFields' => ['bla'],
+            ],
+            ['bla'],
+        ];
     }
 
     private function arrayRemove($haystack, string $keyToRemove): array

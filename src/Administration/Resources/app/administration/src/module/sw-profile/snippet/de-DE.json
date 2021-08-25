@@ -14,6 +14,7 @@
       "labelLastNameField": "Nachname",
       "labelUsernameField": "Benutzername",
       "labelEmailField": "E-Mail-Adresse",
+      "labelTimezoneField": "Zeitzone",
       "labelOldPassword": "Altes Passwort",
       "placeholderOldPassword": "Altes Passwort eingeben ...",
       "labelNewPassword": "Neues Passwort",

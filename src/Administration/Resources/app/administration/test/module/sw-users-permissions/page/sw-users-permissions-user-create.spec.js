@@ -1,6 +1,7 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-users-permissions/page/sw-users-permissions-user-detail';
 import 'src/module/sw-users-permissions/page/sw-users-permissions-user-create';
+import TimezoneService from 'src/core/service/timezone.service';
 
 function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-users-permissions-user-create'), {
@@ -82,13 +83,20 @@ function createWrapper(privileges = []) {
             },
             'sw-select-field': true,
             'sw-switch-field': true,
-            'sw-entity-multi-select': true
+            'sw-entity-multi-select': true,
+            'sw-single-select': true
         }
     });
 }
 // TODO: fix these tests and add test cases
 describe('modules/sw-users-permissions/page/sw-users-permissions-user-create', () => {
     let wrapper;
+
+    beforeAll(() => {
+        Shopware.Service().register('timezoneService', () => {
+            return new TimezoneService();
+        });
+    });
 
     beforeEach(() => {
         Shopware.State.get('session').languageId = '123456789';

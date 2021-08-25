@@ -50,6 +50,7 @@ Component.register('sw-users-permissions-user-detail', {
             showDeleteModal: null,
             skeletonItemAmount: 3,
             confirmPasswordModal: false,
+            timezoneOptions: [],
         };
     },
 
@@ -208,11 +209,29 @@ Component.register('sw-users-permissions-user-detail', {
                 this.loadLanguages(),
                 this.loadUser(),
                 this.loadCurrentUser(),
+                this.loadTimezones(),
             ];
 
             Promise.all(promises).then(() => {
                 this.isLoading = false;
             });
+        },
+
+        loadTimezones() {
+            return Shopware.Service('timezoneService').loadTimezones()
+                .then((result) => {
+                    this.timezoneOptions.push({
+                        label: 'UTC',
+                        value: 'UTC',
+                    });
+
+                    const loadedTimezoneOptions = result.map(timezone => ({
+                        label: timezone,
+                        value: timezone,
+                    }));
+
+                    this.timezoneOptions.push(...loadedTimezoneOptions);
+                });
         },
 
         loadLanguages() {

@@ -134,19 +134,32 @@
                         </option>
                     </sw-select-field>
                     {% endblock %}
-                </sw-container>
 
-                {% block sw_profile_index_info_card_email_field %}
-                <sw-text-field
-                    v-model="user.email"
-                    validation="email"
-                    required
-                    name="sw-field--email"
-                    :error="userEmailError"
-                    :label="$tc('sw-profile.index.labelEmailField')"
-                    :disabled="!acl.can('user.update_profile')"
-                />
-                {% endblock %}
+                    {% block sw_profile_index_info_card_email_field %}
+                    <sw-text-field
+                        v-model="user.email"
+                        validation="email"
+                        required
+                        name="sw-field--email"
+                        :error="userEmailError"
+                        :label="$tc('sw-profile.index.labelEmailField')"
+                        :disabled="!acl.can('user.update_profile')"
+                    />
+                    {% endblock %}
+
+                    {% block sw_profile_index_info_card_timezone_field %}
+                    <sw-single-select
+                        v-model="user.timeZone"
+                        :options="timezoneOptions"
+                        required
+                        name="sw-field--timezone"
+                        :label="$tc('sw-profile.index.labelTimezoneField')"
+                        :is-loading="timezoneOptions.length <= 0"
+                        :error="userTimeZoneError"
+                        :disabled="!acl.can('user.update_profile')"
+                    />
+                    {% endblock %}
+                </sw-container>
             </sw-card>
             {% endblock %}
 

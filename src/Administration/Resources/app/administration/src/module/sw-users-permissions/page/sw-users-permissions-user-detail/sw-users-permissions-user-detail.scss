@@ -15,9 +15,9 @@ $sw-field-help-color: $color-darkgray-200;
             "FirstName LastName"
             "EMail ProfilePicture"
             "Username ProfilePicture"
-            "Password Language"
+            "Password IsAdmin"
             "ChangePassword none"
-            "IsAdmin ."
+            "Language Timezone"
             "JobTitle AclRoles";
         grid-column-gap: 32px;
     }
@@ -72,6 +72,10 @@ $sw-field-help-color: $color-darkgray-200;
 
     .sw-settings-user-detail__grid-is-admin {
         grid-area: IsAdmin;
+    }
+
+    &__grid-timezone {
+        grid-area: Timezone;
         margin-top: 0;
     }
 

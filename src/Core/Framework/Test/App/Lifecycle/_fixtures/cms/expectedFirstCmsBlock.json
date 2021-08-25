@@ -7,32 +7,38 @@
   "slots": {
     "left": {
       "type": "manufacturer-logo",
-      "config": {
-        "displayMode": {
-          "source": "static",
-          "value": "cover"
+      "default": {
+        "config": {
+          "displayMode": {
+            "source": "static",
+            "value": "cover"
+          }
         }
       }
     },
     "right": {
       "type": "buy-box",
-      "config": {
-        "displayMode": {
-          "source": "static",
-          "value": "contain"
+      "default": {
+        "config": {
+          "displayMode": {
+            "source": "static",
+            "value": "contain"
+          }
         }
       }
     },
     "middle": {
       "type": "image-gallery",
-      "config": {
-        "displayMode": {
-          "source": "static",
-          "value": "auto"
-        },
-        "minHeight": {
-          "source": "static",
-          "value": "300px"
+      "default": {
+        "config": {
+          "displayMode": {
+            "source": "static",
+            "value": "auto"
+          },
+          "minHeight": {
+            "source": "static",
+            "value": "300px"
+          }
         }
       }
     }

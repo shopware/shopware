@@ -103,32 +103,38 @@ class BlockTest extends TestCase
                         'slots' => [
                             'left' => [
                                 'type' => 'manufacturer-logo',
-                                'config' => [
-                                    'displayMode' => [
-                                        'source' => 'static',
-                                        'value' => 'cover',
+                                'default' => [
+                                    'config' => [
+                                        'displayMode' => [
+                                            'source' => 'static',
+                                            'value' => 'cover',
+                                        ],
                                     ],
                                 ],
                             ],
                             'middle' => [
                                 'type' => 'product-slider',
-                                'config' => [
-                                    'displayMode' => [
-                                        'source' => 'static',
-                                        'value' => 'auto',
-                                    ],
-                                    'backgroundColor' => [
-                                        'source' => 'static',
-                                        'value' => 'red',
+                                'default' => [
+                                    'config' => [
+                                        'displayMode' => [
+                                            'source' => 'static',
+                                            'value' => 'auto',
+                                        ],
+                                        'backgroundColor' => [
+                                            'source' => 'static',
+                                            'value' => 'red',
+                                        ],
                                     ],
                                 ],
                             ],
                             'right' => [
                                 'type' => 'buy-box',
-                                'config' => [
-                                    'displayMode' => [
-                                        'source' => 'static',
-                                        'value' => 'contain',
+                                'default' => [
+                                    'config' => [
+                                        'displayMode' => [
+                                            'source' => 'static',
+                                            'value' => 'contain',
+                                        ],
                                     ],
                                 ],
                             ],
@@ -163,23 +169,27 @@ class BlockTest extends TestCase
                         'slots' => [
                             'left' => [
                                 'type' => 'form',
-                                'config' => [
-                                    'displayMode' => [
-                                        'source' => 'static',
-                                        'value' => 'cover',
+                                'default' => [
+                                    'config' => [
+                                        'displayMode' => [
+                                            'source' => 'static',
+                                            'value' => 'cover',
+                                        ],
                                     ],
                                 ],
                             ],
                             'right' => [
                                 'type' => 'image',
-                                'config' => [
-                                    'displayMode' => [
-                                        'source' => 'static',
-                                        'value' => 'auto',
-                                    ],
-                                    'backgroundColor' => [
-                                        'source' => 'static',
-                                        'value' => 'red',
+                                'default' => [
+                                    'config' => [
+                                        'displayMode' => [
+                                            'source' => 'static',
+                                            'value' => 'auto',
+                                        ],
+                                        'backgroundColor' => [
+                                            'source' => 'static',
+                                            'value' => 'red',
+                                        ],
                                     ],
                                 ],
                             ],

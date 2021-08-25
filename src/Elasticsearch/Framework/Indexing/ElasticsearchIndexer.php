@@ -292,7 +292,7 @@ class ElasticsearchIndexer extends AbstractMessageHandler
 
     private function init(): IndexerOffset
     {
-        $this->connection->executeUpdate('DELETE FROM elasticsearch_index_task');
+        $this->connection->executeStatement('DELETE FROM elasticsearch_index_task');
 
         $this->createScripts();
 
@@ -313,17 +313,22 @@ class ElasticsearchIndexer extends AbstractMessageHandler
 
                 $index = $alias . '_' . $timestamp->getTimestamp();
 
+                $hasAlias = $this->indexCreator->aliasExists($alias);
+
                 $this->indexCreator->createIndex($definition, $index, $alias, $context);
 
                 $iterator = $this->iteratorFactory->createIterator($definition->getEntityDefinition());
 
-                $this->connection->insert('elasticsearch_index_task', [
-                    'id' => Uuid::randomBytes(),
-                    '`entity`' => $definition->getEntityDefinition()->getEntityName(),
-                    '`index`' => $index,
-                    '`alias`' => $alias,
-                    '`doc_count`' => $iterator->fetchCount(),
-                ]);
+                // We don't need an index task, when it's the first indexing. This will allow alias swapping to nothing
+                if ($hasAlias) {
+                    $this->connection->insert('elasticsearch_index_task', [
+                        'id' => Uuid::randomBytes(),
+                        '`entity`' => $definition->getEntityDefinition()->getEntityName(),
+                        '`index`' => $index,
+                        '`alias`' => $alias,
+                        '`doc_count`' => $iterator->fetchCount(),
+                    ]);
+                }
             }
         }
 

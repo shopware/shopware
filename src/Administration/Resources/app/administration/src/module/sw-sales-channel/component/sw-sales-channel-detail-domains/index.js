@@ -167,12 +167,18 @@ Component.register('sw-sales-channel-detail-domains', {
             this.error = null;
         },
 
-        async verifyUrl(url) {
-            return !(this.domainExistsLocal(url) || await this.domainExistsInDatabase(url));
+        async verifyUrl(domain) {
+            return !(this.domainExistsLocal(domain) || await this.domainExistsInDatabase(domain.url));
         },
 
-        domainExistsLocal(url) {
-            return this.salesChannel.domains.filter((domain) => domain.url === url).length > 0;
+        domainExistsLocal(currentDomain) {
+            return this.salesChannel.domains.filter(
+                (domain) => domain.id !== currentDomain.id && domain.url === currentDomain.url,
+            ).length > 0;
+        },
+
+        isOriginalUrl(url) {
+            return url === this.currentDomainBackup.url;
         },
 
         async domainExistsInDatabase(url) {
@@ -220,20 +226,23 @@ Component.register('sw-sales-channel-detail-domains', {
         },
 
         async onClickAddNewDomain() {
-            const currentDomainId = this.currentDomain.id;
+            if (this.isOriginalUrl(this.currentDomain.url)) {
+                this.currentDomain = null;
+                return;
+            }
 
-            if (this.currentDomain.isNew() && !this.salesChannel.domains.has(currentDomainId)) {
-                const isValidDomain = await this.verifyUrl(this.currentDomain.url);
+            if (!await this.verifyUrl(this.currentDomain)) {
+                this.error = new ShopwareError({
+                    code: 'DUPLICATED_URL',
+                });
 
-                if (!isValidDomain) {
-                    this.error = new ShopwareError({
-                        code: 'DUPLICATED_URL',
-                    });
-                    return;
-                }
+                return;
+            }
 
+            if (this.currentDomain.isNew()) {
                 this.salesChannel.domains.add(this.currentDomain);
             }
+
             this.currentDomain = null;
         },
 

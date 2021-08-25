@@ -121,6 +121,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-16754 - Improve handling of card labels in rule assignments](/changelog/release-6-4-4-0/2021-08-18-improve-handling-of-card-labels-in-rule-assignments.md)
 *  [NEXT-14064 - Add missing mobile filter on search page](/changelog/release-6-4-4-0/2021-08-19-add-missing-mobile-filter-on-search-page.md)
 *  [NEXT-11961 - Fixed theme config with multi-select values](/changelog/release-6-4-4-0/2021-08-19-fixed-theme-config-with-multi-select-values.md)
+*  [NEXT-8170 - Prevent duplicated urls in sales channel domains](/changelog/release-6-4-4-0/2021-08-19-prevent-duplicated-urls-in-sales-channel-domains.md)
 *  [NEXT-16710 - Prevent empty criteria ids](/changelog/release-6-4-4-0/2021-08-20-prevent-empty-criteria-ids.md)
 *  [NEXT-13550 - Save preload file to a known folder](/changelog/release-6-4-4-0/2021-08-20-save-preload-file-to-a-known-folder.md)
 *  [NEXT-16770 - Add the slot's name to the class list](/changelog/release-6-4-4-0/2021-08-23-add-slot-name-to-class-list.md)

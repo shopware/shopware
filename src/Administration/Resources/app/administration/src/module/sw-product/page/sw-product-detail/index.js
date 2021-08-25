@@ -432,15 +432,26 @@ Component.register('sw-product-detail', {
         },
 
         getAdvancedModeSetting() {
-            return this.userModeSettingsRepository.search(this.userModeSettingsCriteria)
-                .then((items) => {
-                    if (!items.total) {
-                        return;
-                    }
+            return this.userModeSettingsRepository.search(this.userModeSettingsCriteria).then(async (items) => {
+                if (!items.total) {
+                    return;
+                }
 
-                    Shopware.State.commit('swProductDetail/setAdvancedModeSetting', items.first());
-                    Shopware.State.commit('swProductDetail/setModeSettings', this.changeModeSettings());
-                });
+                const modeSettings = items.first();
+                const defaultSettings = this.getAdvancedModeDefaultSetting().value.settings;
+
+                modeSettings.value.settings = defaultSettings.reduce((accumulator, defaultEntry) => {
+                    const foundEntry = modeSettings.value.settings.find(dbEntry => dbEntry.key === defaultEntry.key);
+                    accumulator.push(foundEntry || defaultEntry);
+
+                    return accumulator;
+                }, []);
+
+                Shopware.State.commit('swProductDetail/setAdvancedModeSetting', modeSettings);
+                Shopware.State.commit('swProductDetail/setModeSettings', this.changeModeSettings());
+
+                await this.$nextTick();
+            });
         },
 
         saveAdvancedMode() {

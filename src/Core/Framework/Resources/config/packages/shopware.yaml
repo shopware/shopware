@@ -275,6 +275,10 @@ shopware:
               default: false
               major: false
               description: "Register Doi Domain"
+            - name: FEATURE_NEXT_13410
+              default: false
+              major: true
+              description: "Make sales channels required in seo generator"
               # issue: NEXT-16200
             - name: FEATURE_NEXT_8097
               default: false

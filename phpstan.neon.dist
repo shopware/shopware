@@ -149,6 +149,10 @@ parameters:
             message: '#Command \"import:entity\" does not define option \"printErrors\".#'
             path: src/Core/Content/ImportExport/Command/ImportEntityCommand.php
 
+        -
+            message: '#Method Shopware\\Core\\Content\\Seo\\SeoUrlRoute\\SeoUrlRouteInterface::prepareCriteria\(\) invoked with 2 parameters, 1 required.#'
+            path: src/Core/Content/Seo/SeoUrlGenerator.php
+
 services:
     -
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Decoratable\DecoratableImplementsInterfaceRule

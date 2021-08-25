@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Test\Framework\Seo\DataAbstractionLayer\Indexing;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
@@ -12,6 +13,7 @@ use Shopware\Core\Content\Seo\SeoUrlUpdater;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\InheritanceUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
@@ -47,7 +49,7 @@ class SeoUrlIndexerTest extends TestCase
         $this->productRepository = $this->getContainer()->get('product.repository');
 
         $connection = $this->getContainer()->get(Connection::class);
-        $connection->exec('DELETE FROM `sales_channel`');
+        $connection->executeStatement('DELETE FROM `sales_channel`');
     }
 
     public function testDefaultNew(): void
@@ -56,7 +58,7 @@ class SeoUrlIndexerTest extends TestCase
         $salesChannelContext = $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
 
         $id = Uuid::randomHex();
-        $this->upsertProduct(['id' => $id, 'name' => 'awesome product', 'productNumber' => 'P1']);
+        $this->upsertProduct(['id' => $id, 'name' => 'awesome product', 'productNumber' => 'P1'], $salesChannelId);
 
         $product = $this->productRepository->search($this->getCriteria($id, $salesChannelId), $salesChannelContext->getContext())->first();
 
@@ -82,8 +84,8 @@ class SeoUrlIndexerTest extends TestCase
 
         $id = Uuid::randomHex();
 
-        $this->upsertProduct(['id' => $id, 'name' => 'awesome product', 'productNumber' => 'P1']);
-        $this->upsertProduct(['id' => $id, 'name' => 'awesome product', 'description' => 'this description should not matter', 'productNumber' => 'P1']);
+        $this->upsertProduct(['id' => $id, 'name' => 'awesome product', 'productNumber' => 'P1'], $salesChannelId);
+        $this->upsertProduct(['id' => $id, 'name' => 'awesome product', 'description' => 'this description should not matter', 'productNumber' => 'P1'], $salesChannelId);
 
         $product = $this->productRepository->search(
             $this->getCriteria($id, $salesChannelId),
@@ -113,9 +115,9 @@ class SeoUrlIndexerTest extends TestCase
 
         $id = Uuid::randomHex();
 
-        $this->upsertProduct(['id' => $id, 'name' => 'awesome product', 'productNumber' => 'P1']);
-        $this->upsertProduct(['id' => $id, 'name' => 'awesome product v2', 'productNumber' => 'P1']);
-        $this->upsertProduct(['id' => $id, 'name' => 'awesome product v3', 'productNumber' => 'P1']);
+        $this->upsertProduct(['id' => $id, 'name' => 'awesome product', 'productNumber' => 'P1'], $salesChannelId);
+        $this->upsertProduct(['id' => $id, 'name' => 'awesome product v2', 'productNumber' => 'P1'], $salesChannelId);
+        $this->upsertProduct(['id' => $id, 'name' => 'awesome product v3', 'productNumber' => 'P1'], $salesChannelId);
 
         $product = $this->productRepository->search($this->getCriteria($id, $salesChannelId), $salesChannelContext->getContext())->first();
         static::assertNotNull($product->getSeoUrls());
@@ -147,7 +149,7 @@ class SeoUrlIndexerTest extends TestCase
             'template' => 'foo/{{ product.name }}/bar',
         ]);
 
-        $this->upsertProduct(['id' => $id, 'name' => 'awesome product']);
+        $this->upsertProduct(['id' => $id, 'name' => 'awesome product'], $salesChannelId);
 
         /** @var ProductEntity $first */
         $first = $this->productRepository->search($this->getCriteria($id, $salesChannelId), $salesChannelContext->getContext())->first();
@@ -175,8 +177,8 @@ class SeoUrlIndexerTest extends TestCase
             'salesChannelId' => $salesChannelId,
             'template' => 'foo/{{ product.name}}/bar',
         ]);
-        $this->upsertProduct(['id' => $id, 'name' => 'awesome product']);
-        $this->upsertProduct(['id' => $id, 'name' => 'awesome product', 'description' => 'should not matter']);
+        $this->upsertProduct(['id' => $id, 'name' => 'awesome product'], $salesChannelId);
+        $this->upsertProduct(['id' => $id, 'name' => 'awesome product', 'description' => 'should not matter'], $salesChannelId);
 
         /** @var ProductEntity $first */
         $first = $this->productRepository->search($this->getCriteria($id, $salesChannelId), $salesChannelContext->getContext())->first();
@@ -211,9 +213,9 @@ class SeoUrlIndexerTest extends TestCase
             'salesChannelId' => $salesChannelId,
             'template' => 'foo/{{ product.name }}/bar',
         ]);
-        $this->upsertProduct(['id' => $id, 'name' => 'awesome product']);
-        $this->upsertProduct(['id' => $id, 'name' => 'awesome product improved']);
-        $this->upsertProduct(['id' => $id, 'name' => 'awesome product improved again']);
+        $this->upsertProduct(['id' => $id, 'name' => 'awesome product'], $salesChannelId);
+        $this->upsertProduct(['id' => $id, 'name' => 'awesome product improved'], $salesChannelId);
+        $this->upsertProduct(['id' => $id, 'name' => 'awesome product improved again'], $salesChannelId);
 
         /** @var ProductEntity $first */
         $first = $this->productRepository->search($this->getCriteria($id, $salesChannelId), $salesChannelContext->getContext())->first();
@@ -248,14 +250,14 @@ class SeoUrlIndexerTest extends TestCase
             'template' => 'foo/{{ product.name }}/bar',
         ]);
 
-        $this->upsertProduct(['id' => $id, 'name' => 'awesome product']);
+        $this->upsertProduct(['id' => $id, 'name' => 'awesome product'], $salesChannelId);
         $this->upsertTemplate([
             'id' => $id,
             'salesChannelId' => $salesChannelId,
             'template' => 'bar/{{ product.name }}/baz',
         ]);
-        $this->upsertProduct(['id' => $id, 'name' => 'awesome product improved']);
-        $this->upsertProduct(['id' => $id, 'name' => 'awesome product improved']);
+        $this->upsertProduct(['id' => $id, 'name' => 'awesome product improved'], $salesChannelId);
+        $this->upsertProduct(['id' => $id, 'name' => 'awesome product improved'], $salesChannelId);
 
         /** @var ProductEntity $first */
         $first = $this->productRepository->search($this->getCriteria($id, $salesChannelId), $salesChannelContext->getContext())->first();
@@ -292,8 +294,8 @@ class SeoUrlIndexerTest extends TestCase
         $salesChannelContext = $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
 
         $id = Uuid::randomHex();
-        $this->upsertProduct(['id' => $id, 'name' => 'awesome product', 'productNumber' => 'P1']);
-        $this->upsertProduct(['id' => $id, 'name' => 'awesome product v2', 'productNumber' => 'P1']);
+        $this->upsertProduct(['id' => $id, 'name' => 'awesome product', 'productNumber' => 'P1'], $salesChannelId);
+        $this->upsertProduct(['id' => $id, 'name' => 'awesome product v2', 'productNumber' => 'P1'], $salesChannelId);
 
         $product = $this->productRepository->search($this->getCriteria($id, $salesChannelId), $salesChannelContext->getContext())->first();
 
@@ -326,7 +328,7 @@ class SeoUrlIndexerTest extends TestCase
         ]);
 
         $id = Uuid::randomHex();
-        $this->upsertProduct(['id' => $id, 'name' => 'foo bar']);
+        $this->upsertProduct(['id' => $id, 'name' => 'foo bar'], $salesChannelId);
 
         $context = $salesChannelContext->getContext();
 
@@ -354,7 +356,7 @@ class SeoUrlIndexerTest extends TestCase
         $this->upsertProduct([
             'id' => $id,
             'name' => 'foo',
-        ]);
+        ], $salesChannelId);
 
         $context = $salesChannelContext->getContext();
 
@@ -369,7 +371,7 @@ class SeoUrlIndexerTest extends TestCase
             'customFields' => [
                 'foo' => 'bar',
             ],
-        ]);
+        ], $salesChannelId);
 
         $criteria = (new Criteria([$id]))->addAssociation('seoUrls');
         $product = $this->productRepository->search($criteria, $context)->first();
@@ -397,6 +399,12 @@ class SeoUrlIndexerTest extends TestCase
                 'tax' => ['id' => Uuid::randomHex(), 'taxRate' => 19, 'name' => 'tax'],
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 12, 'linked' => false]],
                 'stock' => 0,
+                'visibilities' => [
+                    [
+                        'salesChannelId' => $salesChannelId,
+                        'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
+                    ],
+                ],
             ],
             [
                 'id' => $id2,
@@ -409,6 +417,12 @@ class SeoUrlIndexerTest extends TestCase
                 'tax' => ['id' => Uuid::randomHex(), 'taxRate' => 19, 'name' => 'tax'],
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 12, 'linked' => false]],
                 'stock' => 0,
+                'visibilities' => [
+                    [
+                        'salesChannelId' => $salesChannelId,
+                        'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
+                    ],
+                ],
             ],
         ];
         $this->productRepository->upsert($products, Context::createDefaultContext());
@@ -451,6 +465,12 @@ class SeoUrlIndexerTest extends TestCase
                 'tax' => ['id' => Uuid::randomHex(), 'taxRate' => 19, 'name' => 'tax'],
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 12, 'linked' => false]],
                 'stock' => 0,
+                'visibilities' => [
+                    [
+                        'salesChannelId' => $salesChannelId,
+                        'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
+                    ],
+                ],
             ],
             [
                 'id' => $child1Id,
@@ -528,10 +548,20 @@ class SeoUrlIndexerTest extends TestCase
                 'tax' => ['id' => Uuid::randomHex(), 'taxRate' => 19, 'name' => 'tax'],
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 12, 'linked' => false]],
                 'stock' => 0,
+                'visibilities' => [
+                    [
+                        'salesChannelId' => $salesChannelId,
+                        'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
+                    ],
+                ],
             ],
         ];
+
         // the writer does not fire events, so seo urls are not created automatically
         $writer->insert($productDefinition, $products, WriteContext::createFromContext(Context::createDefaultContext()));
+
+        // Builds the index for visibilities
+        $this->getContainer()->get(InheritanceUpdater::class)->update('product', [$id], Context::createDefaultContext());
 
         $this->getContainer()
             ->get(SeoUrlUpdater::class)
@@ -601,7 +631,7 @@ class SeoUrlIndexerTest extends TestCase
         $this->templateRepository->upsert([$seoUrlTemplate], Context::createDefaultContext());
     }
 
-    private function upsertProduct(array $data): void
+    private function upsertProduct(array $data, string $salesChannelId): void
     {
         $defaults = [
             'manufacturer' => [
@@ -612,9 +642,22 @@ class SeoUrlIndexerTest extends TestCase
             'tax' => ['id' => Uuid::randomHex(), 'taxRate' => 19, 'name' => 'tax'],
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 12, 'linked' => false]],
             'stock' => 0,
+            'visibilities' => [
+                [
+                    'salesChannelId' => $salesChannelId,
+                    'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
+                ],
+            ],
         ];
+
         $data = array_merge($defaults, $data);
-        $this->productRepository->upsert([$data], Context::createDefaultContext());
+
+        try {
+            $this->productRepository->create([$data], Context::createDefaultContext());
+        } catch (\Throwable $e) {
+            unset($data['visibilities']);
+            $this->productRepository->upsert([$data], Context::createDefaultContext());
+        }
     }
 
     private function getCriteria(string $productId, ?string $salesChannelId = null, string $languageId = Defaults::LANGUAGE_SYSTEM): Criteria

@@ -61,7 +61,9 @@ class Block extends XmlElement
         foreach ($this->slots as $slot) {
             $slots[$slot->getName()] = [
                 'type' => $slot->getType(),
-                'config' => $slot->getConfig()->toArray($defaultLocale),
+                'default' => [
+                    'config' => $slot->getConfig()->toArray($defaultLocale),
+                ],
             ];
         }
 

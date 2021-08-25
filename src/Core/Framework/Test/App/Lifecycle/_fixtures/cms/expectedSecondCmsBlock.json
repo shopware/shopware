@@ -7,32 +7,38 @@
   "slots": {
     "left": {
       "type": "form",
-      "config": {
-        "displayMode": {
-          "source": "static",
-          "value": "cover"
+      "default": {
+        "config": {
+          "displayMode": {
+            "source": "static",
+            "value": "cover"
+          }
         }
       }
     },
     "right": {
       "type": "youtube-video",
-      "config": {
-        "displayMode": {
-          "source": "static",
-          "value": "contain"
+      "default": {
+        "config": {
+          "displayMode": {
+            "source": "static",
+            "value": "contain"
+          }
         }
       }
     },
     "middle": {
       "type": "image",
-      "config": {
-        "displayMode": {
-          "source": "static",
-          "value": "auto"
-        },
-        "backgroundColor": {
-          "source": "static",
-          "value": "red"
+      "default": {
+        "config": {
+          "displayMode": {
+            "source": "static",
+            "value": "auto"
+          },
+          "backgroundColor": {
+            "source": "static",
+            "value": "red"
+          }
         }
       }
     }

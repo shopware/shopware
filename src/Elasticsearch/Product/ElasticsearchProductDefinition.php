@@ -400,7 +400,6 @@ SELECT
     LOWER(HEX(p.id)) AS id,
     IFNULL(p.active, pp.active) AS active,
     p.available AS available,
-    IFNULL(p.is_closeout, pp.is_closeout) AS isCloseout,
     :nameTranslated: AS name,
     :descriptionTranslated: AS description,
     :customFieldsTranslated: AS customFields,

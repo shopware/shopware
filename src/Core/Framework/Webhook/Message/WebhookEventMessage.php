@@ -18,6 +18,19 @@ class WebhookEventMessage
 
     private ?string $secret;
 
+    /**
+     * @depretacted tag:v6.5.0 - This will be required in the future
+     **/
+    private ?string $languageId;
+
+    /**
+     * @depretacted tag:v6.5.0 - This will be required in the future
+     **/
+    private ?string $userLocale;
+
+    /**
+     * @depretacted tag:v6.5.0 - Parameters $languageId and $userLocale will be required
+     **/
     public function __construct(
         string $webhookEventId,
         array $payload,
@@ -25,7 +38,9 @@ class WebhookEventMessage
         string $webhookId,
         string $shopwareVersion,
         string $url,
-        ?string $secret = null
+        ?string $secret = null,
+        ?string $languageId = null,
+        ?string $userLocale = null
     ) {
         $this->webhookEventId = $webhookEventId;
         $this->payload = $payload;
@@ -34,6 +49,8 @@ class WebhookEventMessage
         $this->shopwareVersion = $shopwareVersion;
         $this->url = $url;
         $this->secret = $secret;
+        $this->languageId = $languageId;
+        $this->userLocale = $userLocale;
     }
 
     public function getPayload(): array
@@ -69,5 +86,15 @@ class WebhookEventMessage
     public function getSecret(): ?string
     {
         return $this->secret;
+    }
+
+    public function getLanguageId(): ?string
+    {
+        return $this->languageId;
+    }
+
+    public function getUserLocale(): ?string
+    {
+        return $this->userLocale;
     }
 }

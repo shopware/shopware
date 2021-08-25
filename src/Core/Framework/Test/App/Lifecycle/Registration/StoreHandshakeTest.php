@@ -5,11 +5,14 @@ namespace Shopware\Core\Framework\Test\App\Lifecycle\Registration;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Lifecycle\Registration\StoreHandshake;
 use Shopware\Core\Framework\Store\Services\StoreClient;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Kernel;
 
 class StoreHandshakeTest extends TestCase
 {
+    use IntegrationTestBehaviour;
+
     public function testUrlContainsAllNecessaryElements(): void
     {
         $shopUrl = 'test.shop.com';

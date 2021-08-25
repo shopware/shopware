@@ -34,7 +34,7 @@ class AppSyncPaymentHandler extends AbstractAppPaymentHandler implements Synchro
         }
 
         try {
-            $response = $this->payloadService->request($payUrl, $payload, $app, SyncPayResponse::class);
+            $response = $this->payloadService->request($payUrl, $payload, $app, SyncPayResponse::class, $salesChannelContext);
         } catch (ClientExceptionInterface $exception) {
             throw new AsyncPaymentProcessException($transaction->getOrderTransaction()->getId(), sprintf('App error: %s', $exception->getMessage()));
         }

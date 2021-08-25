@@ -27,6 +27,7 @@
             <argument>%env(APP_URL)%</argument>
             <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
             <argument>%kernel.shopware_version%</argument>
+            <argument type="service" id="Shopware\Core\Framework\App\AppLocaleProvider"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Validation\TranslationValidator">
@@ -231,6 +232,7 @@
 
         <service id="shopware.app_system.guzzle.middleware" class="Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware">
             <argument>%kernel.shopware_version%</argument>
+            <argument type="service" id="Shopware\Core\Framework\App\AppLocaleProvider"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\ActionButton\ActionButtonLoader">
@@ -272,6 +274,11 @@
 
         <service id="Shopware\Core\Framework\App\Command\AppPrinter">
             <argument type="service" id="app.repository"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\AppLocaleProvider" public="true">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="user.repository"/>
         </service>
 
         <!-- COMMANDS -->

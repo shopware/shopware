@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\Test\Webhook\Handler;
 
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
@@ -68,9 +70,8 @@ class WebhookEventMessageHandlerTest extends TestCase
         ]], Context::createDefaultContext());
 
         $webhookEventLogRepository = $this->getContainer()->get('webhook_event_log.repository');
-
         $webhookEventId = Uuid::randomHex();
-        $webhookEventMessage = new WebhookEventMessage($webhookEventId, ['body' => 'payload'], $appId, $webhookId, '6.4', 'https://test.com', 's3cr3t');
+        $webhookEventMessage = new WebhookEventMessage($webhookEventId, ['body' => 'payload'], $appId, $webhookId, '6.4', 'http://test.com', 's3cr3t', Defaults::LANGUAGE_SYSTEM, 'en-GB');
 
         $webhookEventLogRepository->create([[
             'id' => $webhookEventId,
@@ -97,6 +98,8 @@ class WebhookEventMessageHandlerTest extends TestCase
         static::assertGreaterThanOrEqual($body->timestamp, $timestamp);
         static::assertTrue($request->hasHeader('sw-version'));
         static::assertEquals($request->getHeaderLine('sw-version'), '6.4');
+        static::assertEquals($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE), 'en-GB');
+        static::assertEquals($request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE), Defaults::LANGUAGE_SYSTEM);
         static::assertTrue($request->hasHeader('shopware-shop-signature'));
         static::assertEquals(
             hash_hmac('sha256', $payload, 's3cr3t'),

@@ -4,11 +4,14 @@ namespace Shopware\Core\Framework\Test\App\Lifecycle\Registration;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Lifecycle\Registration\PrivateHandshake;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Kernel;
 
 class PrivateHandshakeTest extends TestCase
 {
+    use IntegrationTestBehaviour;
+
     public function testUrlContainsAllNecessaryElements(): void
     {
         $shopUrl = 'test.shop.com';

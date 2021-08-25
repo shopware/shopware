@@ -46,8 +46,16 @@ class WebhookEventMessageHandler extends AbstractMessageHandler
         /** @var string $jsonPayload */
         $jsonPayload = json_encode($payload);
 
+        $headers = ['Content-Type' => 'application/json',
+            'sw-version' => $shopwareVersion, ];
+
+        // LanguageId and UserLocale will be required from 6.5.0 onward
+        if ($message->getLanguageId() && $message->getUserLocale()) {
+            $headers = array_merge($headers, [AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE => $message->getLanguageId(), AuthMiddleware::SHOPWARE_USER_LANGUAGE => $message->getUserLocale()]);
+        }
+
         $requestContent = [
-            'headers' => ['Content-Type' => 'application/json', 'sw-version' => $shopwareVersion],
+            'headers' => $headers,
             'body' => $jsonPayload,
             'connect_timeout' => self::CONNECT_TIMEOUT,
             'timeout' => self::TIMEOUT,

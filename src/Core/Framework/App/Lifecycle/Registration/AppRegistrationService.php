@@ -9,6 +9,7 @@ use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
+use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
@@ -55,7 +56,7 @@ class AppRegistrationService
         }
 
         try {
-            $appResponse = $this->registerWithApp($manifest);
+            $appResponse = $this->registerWithApp($manifest, $context);
 
             $secret = $appResponse['secret'];
             $confirmationUrl = $appResponse['confirmation_url'];
@@ -84,12 +85,12 @@ class AppRegistrationService
      *
      * @return array<string,string>
      */
-    private function registerWithApp(Manifest $manifest): array
+    private function registerWithApp(Manifest $manifest, Context $context): array
     {
         $handshake = $this->handshakeFactory->create($manifest);
 
         $request = $handshake->assembleRequest();
-        $response = $this->httpClient->send($request);
+        $response = $this->httpClient->send($request, [AuthMiddleware::APP_REQUEST_CONTEXT => $context]);
 
         return $this->parseResponse($handshake, $response);
     }
@@ -119,6 +120,7 @@ class AppRegistrationService
                 'shopware-shop-signature' => $signature,
                 'sw-version' => $this->shopwareVersion,
             ],
+            AuthMiddleware::APP_REQUEST_CONTEXT => $context,
             'json' => $payload,
         ]);
     }

@@ -6,7 +6,9 @@ use GuzzleHttp\Psr7\Uri;
 use Psr\Http\Message\UriInterface;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
+use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Hmac\RequestSigner;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
@@ -29,16 +31,20 @@ class ModuleLoader
 
     private string $shopwareVersion;
 
+    private AppLocaleProvider $localeProvider;
+
     public function __construct(
         EntityRepositoryInterface $appRepository,
         string $shopUrl,
         ShopIdProvider $shopIdProvider,
-        string $shopwareVersion
+        string $shopwareVersion,
+        AppLocaleProvider $localeProvider
     ) {
         $this->appRepository = $appRepository;
         $this->shopUrl = $shopUrl;
         $this->shopIdProvider = $shopIdProvider;
         $this->shopwareVersion = $shopwareVersion;
+        $this->localeProvider = $localeProvider;
     }
 
     public function loadModules(Context $context): array
@@ -58,10 +64,10 @@ class ModuleLoader
         /** @var AppCollection $apps */
         $apps = $this->appRepository->search($criteria, $context)->getEntities();
 
-        return $this->formatPayload($apps);
+        return $this->formatPayload($apps, $context);
     }
 
-    private function formatPayload(AppCollection $apps): array
+    private function formatPayload(AppCollection $apps, Context $context): array
     {
         try {
             $shopId = $this->shopIdProvider->getShopId();
@@ -72,8 +78,8 @@ class ModuleLoader
         $appModules = [];
 
         foreach ($apps as $app) {
-            $modules = $this->formatModules($shopId, $app);
-            $mainModule = $this->formatMainModule($shopId, $app);
+            $modules = $this->formatModules($shopId, $app, $context);
+            $mainModule = $this->formatMainModule($shopId, $app, $context);
 
             if (empty($modules) && !$mainModule) {
                 continue;
@@ -90,26 +96,26 @@ class ModuleLoader
         return $appModules;
     }
 
-    private function formatModules(string $shopId, AppEntity $app): array
+    private function formatModules(string $shopId, AppEntity $app, Context $context): array
     {
         $modules = [];
 
         foreach ($app->getModules() as $module) {
-            $module['source'] = $this->getModuleUrlWithQuery($app, $shopId, $module);
+            $module['source'] = $this->getModuleUrlWithQuery($app, $shopId, $module, $context);
             $modules[] = $module;
         }
 
         return $modules;
     }
 
-    private function formatMainModule(string $shopId, AppEntity $app): ?array
+    private function formatMainModule(string $shopId, AppEntity $app, Context $context): ?array
     {
         if ($app->getMainModule() === null) {
             return null;
         }
 
         return [
-            'source' => $this->getUrlWithQuery($app, $shopId, $app->getMainModule()['source']),
+            'source' => $this->getUrlWithQuery($app, $shopId, $app->getMainModule()['source'], $context),
         ];
     }
 
@@ -124,7 +130,7 @@ class ModuleLoader
         return $labels;
     }
 
-    private function getModuleUrlWithQuery(AppEntity $app, string $shopId, array $module): ?string
+    private function getModuleUrlWithQuery(AppEntity $app, string $shopId, array $module, Context $context): ?string
     {
         $registeredSource = $module['source'] ?? null;
 
@@ -132,12 +138,12 @@ class ModuleLoader
             return null;
         }
 
-        return $this->getUrlWithQuery($app, $shopId, $registeredSource);
+        return $this->getUrlWithQuery($app, $shopId, $registeredSource, $context);
     }
 
-    private function getUrlWithQuery(AppEntity $app, string $shopId, string $source): string
+    private function getUrlWithQuery(AppEntity $app, string $shopId, string $source, Context $context): string
     {
-        $uri = $this->generateQueryString($source, $shopId);
+        $uri = $this->generateQueryString($source, $shopId, $context);
 
         /** @var string $secret */
         $secret = $app->getAppSecret();
@@ -150,7 +156,7 @@ class ModuleLoader
         );
     }
 
-    private function generateQueryString(string $uri, string $shopId): UriInterface
+    private function generateQueryString(string $uri, string $shopId, Context $context): UriInterface
     {
         $date = new \DateTime();
         $uri = new Uri($uri);
@@ -160,6 +166,8 @@ class ModuleLoader
             'shop-url' => $this->shopUrl,
             'timestamp' => $date->getTimestamp(),
             'sw-version' => $this->shopwareVersion,
+            AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE => $context->getLanguageId(),
+            AuthMiddleware::SHOPWARE_USER_LANGUAGE => $this->localeProvider->getLocaleFromContext($context),
         ]);
     }
 }

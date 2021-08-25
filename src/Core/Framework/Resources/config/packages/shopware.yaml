@@ -144,9 +144,15 @@ shopware:
               options:
                   - key: HTML.Trusted
                     value: true
+            - name: tidy
+              options:
+                  - key: Output.TidyFormat
+                    value: true
         fields:
             - name: product_translation.description
               sets: ["basic", "media"]
+            - name: app_cms_block.template
+              sets: ["basic", "media", "tidy"]
 
     feature:
         flags:

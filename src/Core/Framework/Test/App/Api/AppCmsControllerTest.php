@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Test\App\Api;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
@@ -13,11 +12,6 @@ class AppCmsControllerTest extends TestCase
     use GuzzleTestClientBehaviour;
     use AdminApiTestBehaviour;
     use AppSystemTestBehaviour;
-
-    protected function setUp(): void
-    {
-        Feature::skipTestIfInActive('FEATURE_NEXT_14408', $this);
-    }
 
     public function testGetBlocks(): void
     {

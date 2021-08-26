@@ -217,6 +217,10 @@
     "sw-text-preview": {
       "showMoreButton": "Show more"
     },
+    "sw-time-ago": {
+      "justNow": "Just now",
+      "minutesAgo": "One minute ago | {minutesAgo} minutes ago"
+    },
     "sw-media-field": {
       "labelToggleSearchExisting": "Search media...",
       "labelToggleUploadNew": "Upload new media",

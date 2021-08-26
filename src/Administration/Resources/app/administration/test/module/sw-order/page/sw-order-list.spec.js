@@ -74,7 +74,8 @@ function createWrapper(privileges = []) {
             'sw-data-grid-settings': true,
             'sw-empty-state': true,
             'router-link': true,
-            'sw-checkbox-field': true
+            'sw-checkbox-field': true,
+            'sw-time-ago': true
         },
         provide: {
             acl: {

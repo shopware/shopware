@@ -36,12 +36,17 @@ export default class ImportExportService extends ApiService {
      * Download the export file
      *
      * @param fileId {Entity} File entity
-     * @param accessToken
      * @returns {string}
      */
-    getDownloadUrl(fileId, accessToken) {
+    async getDownloadUrl(fileId) {
+        const accessTokenResponse = await this.httpClient.post(
+            `/_action/import-export/file/prepare-download/${fileId}`,
+            {},
+            { headers: this.getBasicHeaders() },
+        );
+
         return `${Shopware.Context.api.apiPath}/_action/${this.getApiBasePath()}/` +
-            `file/download?fileId=${fileId}&accessToken=${accessToken}`;
+            `file/download?fileId=${fileId}&accessToken=${accessTokenResponse.data.accessToken}`;
     }
 
     /**

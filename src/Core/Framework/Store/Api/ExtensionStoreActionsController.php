@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Store\Services\AbstractExtensionLifecycle;
 use Shopware\Core\Framework\Store\Services\ExtensionDownloader;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -59,11 +60,16 @@ class ExtensionStoreActionsController extends AbstractController
     /**
      * @Since("6.4.0.0")
      * @Route("/api/_action/extension/upload", name="api.extension.upload", methods={"POST"})
+     * @Acl({"system.plugin_upload"})
      */
     public function uploadExtensions(Request $request, Context $context): Response
     {
-        /** @var UploadedFile $file */
+        /** @var UploadedFile|null $file */
         $file = $request->files->get('file');
+
+        if (!$file) {
+            throw new MissingRequestParameterException('file');
+        }
 
         if ($file->getMimeType() !== 'application/zip') {
             unlink($file->getPathname());

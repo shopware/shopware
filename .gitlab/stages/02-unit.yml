@@ -124,7 +124,7 @@ PHP Full:
           changes:
             - phpunit.xml.dist
             - '**/Resources/views/*.html.twig'
-            - '**/*.{php,xml,yaml,json}'
+            - '**/*.{php,xml,yaml,json,js,twig}'
             - 'adr/*'
             - .gitlab/stages/02-unit.yml
     parallel:

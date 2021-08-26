@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\TestCaseBase;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
+use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
@@ -88,6 +89,28 @@ trait SalesChannelApiTestBehaviour
         return $this->createContext($salesChannel, $options);
     }
 
+    public function login(): string
+    {
+        $email = Uuid::randomHex() . '@example.com';
+        $customerId = $this->createCustomer('shopware', $email);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/login',
+                [
+                    'email' => $email,
+                    'password' => 'shopware',
+                ]
+            );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
+
+        return $customerId;
+    }
+
     abstract protected function getKernel(): KernelInterface;
 
     protected function getSalesChannelBrowser(): KernelBrowser
@@ -117,6 +140,73 @@ trait SalesChannelApiTestBehaviour
         $this->authorizeSalesChannelBrowser($salesChannelApiBrowser, $salesChannelOverrides);
 
         return $salesChannelApiBrowser;
+    }
+
+    private function createCustomer(?string $password = null, ?string $email = null, ?bool $guest = false): string
+    {
+        $customerId = Uuid::randomHex();
+        $addressId = Uuid::randomHex();
+
+        if ($email === null) {
+            $email = Uuid::randomHex() . '@example.com';
+        }
+
+        if ($password === null) {
+            $password = Uuid::randomHex();
+        }
+
+        $this->getContainer()->get('customer.repository')->create([
+            [
+                'id' => $customerId,
+                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'defaultShippingAddress' => [
+                    'id' => $addressId,
+                    'firstName' => 'Max',
+                    'lastName' => 'Mustermann',
+                    'street' => 'Musterstraße 1',
+                    'city' => 'Schöppingen',
+                    'zipcode' => '12345',
+                    'salutationId' => $this->getValidSalutationId(),
+                    'countryId' => $this->getValidCountryId(),
+                ],
+                'defaultBillingAddressId' => $addressId,
+                'defaultPaymentMethod' => [
+                    'name' => 'Invoice',
+                    'active' => true,
+                    'description' => 'Default payment method',
+                    'handlerIdentifier' => SyncTestPaymentHandler::class,
+                    'availabilityRule' => [
+                        'id' => Uuid::randomHex(),
+                        'name' => 'true',
+                        'priority' => 0,
+                        'conditions' => [
+                            [
+                                'type' => 'cartCartAmount',
+                                'value' => [
+                                    'operator' => '>=',
+                                    'amount' => 0,
+                                ],
+                            ],
+                        ],
+                    ],
+                    'salesChannels' => [
+                        [
+                            'id' => Defaults::SALES_CHANNEL,
+                        ],
+                    ],
+                ],
+                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                'email' => $email,
+                'password' => $password,
+                'firstName' => 'Max',
+                'lastName' => 'Mustermann',
+                'guest' => $guest,
+                'salutationId' => $this->getValidSalutationId(),
+                'customerNumber' => '12345',
+            ],
+        ], Context::createDefaultContext());
+
+        return $customerId;
     }
 
     private function createContext(array $salesChannel, array $options): SalesChannelContext

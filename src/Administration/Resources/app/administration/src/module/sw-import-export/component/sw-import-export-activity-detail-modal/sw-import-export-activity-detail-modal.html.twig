@@ -84,7 +84,7 @@
                 variant="ghost"
                 class="sw-import-export-activity-detail-modal__download-failed"
                 size="small"
-                :link="getDownloadUrl(logEntity.invalidRecordsLog.file)"
+                @click="openDownload(logEntity.invalidRecordsLog.file)"
             >
                 {{ $tc('sw-import-export.activity.detail.labelDownloadInvalidFile') }}
             </sw-button>
@@ -106,9 +106,10 @@
                     </sw-button>
                 </template>
                 {% block sw_import_export_edit_profile_modal_invalid_records_download %}
+                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <a
-                    :href="getDownloadUrl(logEntity.file)"
                     class="sw-import-export-activity-detail-modal__download"
+                    @click="openDownload(logEntity.file)"
                 >
                     {{ $tc('sw-import-export.activity.detail.labelDownloadFile') }}
                 </a>
@@ -122,7 +123,7 @@
             variant="ghost"
             class="sw-import-export-activity-detail-modal__download-button"
             size="small"
-            :link="getDownloadUrl(logEntity.file)"
+            @click="openDownload(logEntity.file)"
         >
             {{ $tc('sw-import-export.activity.detail.labelDownloadFile') }}
         </sw-button>

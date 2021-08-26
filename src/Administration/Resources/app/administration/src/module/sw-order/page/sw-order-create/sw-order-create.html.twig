@@ -50,8 +50,8 @@
 
         {% block sw_order_create_remind_payment_modal %}
         <sw-modal
-            class="sw-order-create__remind-payment-modal"
             v-if="showRemindPaymentModal"
+            class="sw-order-create__remind-payment-modal"
             :title="$tc('sw-order.create.remindPaymentModal.title')"
             :is-loading="remindPaymentModalLoading"
             @modal-close="onRemindPaymentModalClose"

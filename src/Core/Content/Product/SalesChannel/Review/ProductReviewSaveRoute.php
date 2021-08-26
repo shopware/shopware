@@ -185,6 +185,7 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
             $definition->add('id', new EntityExists([
                 'entity' => 'product_review',
                 'context' => $context,
+                'criteria' => $criteria,
             ]));
         } else {
             $criteria = new Criteria();

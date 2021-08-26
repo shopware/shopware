@@ -82,7 +82,8 @@
     "additional_permissions": {
       "system": {
         "core_update": "Update starten",
-        "plugin_maintain": "Erweiterungen verwalten"
+        "plugin_maintain": "Erweiterungen verwalten",
+        "plugin_upload": "Erweiterungen hochladen"
       }
     }
   }

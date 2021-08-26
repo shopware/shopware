@@ -12,11 +12,15 @@
         margin: 8px 6px 0 0;
     }
 
-    .sw-select-selection-list__load-more-button {
-        padding: 2px 10px;
-        margin: 8px 6px 0 0;
+    button.sw-select-selection-list__load-more-button {
+        padding: 8px 12px;
+        margin: 0 6px 0 0;
         color: $color-shopware-brand-500;
-        line-height: 26px;
+        font-size: 12px;
+        line-height: 14px;
+        border-radius: 2px;
+        height: unset;
+        border-color: $color-gray-300;
     }
 
     .sw-select-selection-list__input {
@@ -42,7 +46,6 @@
     .sw-select-selection-list__load-more-button {
         padding: 4px 12px;
         margin: 4px 6px 0 0;
-        line-height: 14px;
     }
 }
 
@@ -56,8 +59,7 @@
     }
 
     .sw-select-selection-list__load-more-button {
-        padding: 0 12px;
+        padding: 0 8px;
         margin: -1px 6px 0 0;
-        line-height: 14px;
     }
 }

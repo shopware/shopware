@@ -11,10 +11,11 @@ function createWrapper() {
         stubs: {
             'sw-base-filter': Shopware.Component.build('sw-base-filter'),
             'sw-range-filter': Shopware.Component.build('sw-range-filter'),
+            'sw-single-select': true,
             'sw-datepicker': {
                 props: ['value'],
                 template: `
-                    <div className="sw-field--datepicker">
+                    <div class="sw-field--datepicker">
                         <input type="text" ref="flatpickrInput" :value="value" @input="onChange">
                     </div>`,
                 methods: {
@@ -41,6 +42,15 @@ function createWrapper() {
 enableAutoDestroy(afterEach);
 
 describe('src/app/component/filter/sw-date-filter', () => {
+    beforeAll(() => {
+        jest.useFakeTimers('modern');
+        jest.setSystemTime(new Date(1337, 11, 31));
+    });
+
+    afterAll(() => {
+        jest.useRealTimers();
+    });
+
     it('should emit `filter-update` event when `From` value exists', async () => {
         const wrapper = createWrapper();
         const input = wrapper.find('.sw-date-filter__from').find('input');
@@ -51,7 +61,7 @@ describe('src/app/component/filter/sw-date-filter', () => {
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'releaseDate',
             [Criteria.range('releaseDate', { gte: '2021-01-22' })],
-            { from: '2021-01-22', to: null }
+            { from: '2021-01-22', to: null, timeframe: 'custom' }
         ]);
     });
 
@@ -65,7 +75,7 @@ describe('src/app/component/filter/sw-date-filter', () => {
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'releaseDate',
             [Criteria.range('releaseDate', { lte: '2021-01-25' })],
-            { from: null, to: '2021-01-25' }
+            { from: null, to: '2021-01-25', timeframe: 'custom' }
         ]);
     });
 
@@ -80,7 +90,7 @@ describe('src/app/component/filter/sw-date-filter', () => {
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'releaseDate',
             [Criteria.range('releaseDate', { gte: '2021-01-19' })],
-            { from: '2021-01-19', to: null }
+            { from: '2021-01-19', to: null, timeframe: 'custom' }
         ]);
 
         const toInput = wrapper.find('.sw-date-filter__to').find('input');
@@ -91,7 +101,7 @@ describe('src/app/component/filter/sw-date-filter', () => {
         expect(wrapper.emitted()['filter-update'][1]).toEqual([
             'releaseDate',
             [Criteria.range('releaseDate', { gte: '2021-01-19', lte: '2021-01-25' })],
-            { from: '2021-01-19', to: '2021-01-25' }
+            { from: '2021-01-19', to: '2021-01-25', timeframe: 'custom' }
         ]);
     });
 
@@ -101,7 +111,8 @@ describe('src/app/component/filter/sw-date-filter', () => {
         await wrapper.setData({
             dateValue: {
                 from: '2021-01-22',
-                to: null
+                to: null,
+                timeframe: null
             }
         });
 
@@ -118,7 +129,8 @@ describe('src/app/component/filter/sw-date-filter', () => {
         await wrapper.setData({
             dateValue: {
                 from: null,
-                to: '2021-02-01'
+                to: '2021-02-01',
+                timeframe: null
             }
         });
 
@@ -160,7 +172,7 @@ describe('src/app/component/filter/sw-date-filter', () => {
         const divider = wrapper.find('.sw-range-filter__divider');
 
         expect(divider.exists()).toBeTruthy();
-        expect(container.attributes('columns')).toBe('1fr 12px 1fr');
+        expect(container.classes()).toContain('sw-container--has-divider');
     });
 
     it('should render From field and To field in different line', async () => {
@@ -179,6 +191,130 @@ describe('src/app/component/filter/sw-date-filter', () => {
         const divider = wrapper.find('.sw-range-filter__divider');
 
         expect(divider.exists()).toBeFalsy();
-        expect(container.attributes('columns')).toBe('1fr');
+        expect(container.classes()).not.toContain('sw-container--has-divider');
+    });
+
+    it('should render timeframe field', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
+
+        const wrapper = createWrapper();
+
+        await wrapper.setProps({
+            filter: {
+                property: 'releaseDate',
+                name: 'releaseDate',
+                label: 'Release Date',
+                dateType: 'date',
+                showTimeframe: true
+            }
+        });
+
+        const timeframe = wrapper.find('.sw-date-filter__timeframe');
+
+        expect(timeframe.exists()).toBeTruthy();
+    });
+
+    const cases = {
+        'a year': {
+            timeframe: -365,
+            expectedFrom: '1336-12-31T00:00:00.000Z',
+            expectedTo: '1337-12-31T00:00:00.000Z'
+        },
+        'a quarter': {
+            timeframe: 'lastQuarter',
+            expectedFrom: '1337-07-01T00:00:00.000Z',
+            expectedTo: '1337-09-30T23:59:59.000Z'
+        },
+        'a month': {
+            timeframe: -30,
+            expectedFrom: '1337-12-01T00:00:00.000Z',
+            expectedTo: '1337-12-31T00:00:00.000Z'
+        },
+        'a week': {
+            timeframe: -7,
+            expectedFrom: '1337-12-24T00:00:00.000Z',
+            expectedTo: '1337-12-31T00:00:00.000Z'
+        },
+        'a day': {
+            timeframe: -1,
+            expectedFrom: '1337-12-30T00:00:00.000Z',
+            expectedTo: '1337-12-31T00:00:00.000Z'
+        }
+    };
+
+    Object.entries(cases).forEach(([key, timeCase]) => {
+        it(`should filter correctly for timeframe ${key}`, async () => {
+            const expected = [
+                [
+                    'releaseDate',
+                    [
+                        {
+                            field: 'releaseDate',
+                            parameters: {
+                                gte: timeCase.expectedFrom,
+                                lte: timeCase.expectedTo
+                            },
+                            type: 'range'
+                        }
+                    ],
+                    {
+                        from: timeCase.expectedFrom,
+                        timeframe: timeCase.timeframe,
+                        to: timeCase.expectedTo
+                    }
+                ]
+            ];
+
+            global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
+
+            const wrapper = createWrapper();
+
+            await wrapper.setProps({
+                filter: {
+                    property: 'releaseDate',
+                    name: 'releaseDate',
+                    label: 'Release Date',
+                    dateType: 'date',
+                    showTimeframe: true
+                }
+            });
+
+            const timeframe = wrapper.find('.sw-date-filter__timeframe');
+            expect(timeframe.exists()).toBe(true);
+
+            wrapper.vm.onTimeframeSelect(timeCase.timeframe);
+
+            expect(wrapper.emitted()['filter-update']).toEqual(expected);
+        });
+    });
+
+    it('should console.error for invalid timeframe', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_7530'];
+
+        const wrapper = createWrapper();
+
+        await wrapper.setProps({
+            filter: {
+                property: 'releaseDate',
+                name: 'releaseDate',
+                label: 'Release Date',
+                dateType: 'date',
+                showTimeframe: true
+            }
+        });
+
+        const timeframe = wrapper.find('.sw-date-filter__timeframe');
+        expect(timeframe.exists()).toBeTruthy();
+
+        global.console.error = jest.fn();
+
+        wrapper.vm.onTimeframeSelect('yeeet');
+
+        expect(global.console.error)
+            .toHaveBeenCalledWith('Timeframe yeeet is not allowed for sw-date-filter component');
+
+        global.console.error.mockReset();
+
+        expect(wrapper.emitted()['filter-update']).toBe(undefined);
     });
 });

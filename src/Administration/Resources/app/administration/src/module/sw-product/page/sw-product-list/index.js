@@ -171,6 +171,9 @@ Component.register('sw-product-list', {
                     property: 'releaseDate',
                     label: this.$tc('sw-product.filters.releaseDateFilter.label'),
                     dateType: 'datetime-local',
+                    fromFieldLabel: null,
+                    toFieldLabel: null,
+                    showTimeframe: true,
                 },
             });
         },

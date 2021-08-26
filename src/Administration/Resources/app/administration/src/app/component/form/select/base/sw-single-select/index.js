@@ -7,6 +7,8 @@ const { debounce, get } = Shopware.Utils;
 Component.register('sw-single-select', {
     template,
 
+    inject: ['feature'],
+
     mixins: [
         Mixin.getByName('remove-api-error'),
     ],
@@ -130,6 +132,10 @@ Component.register('sw-single-select', {
          * @returns {Array}
          */
         visibleResults() {
+            if (this.feature.isActive('FEATURE_NEXT_7530')) {
+                return this.results.filter(result => !result.hidden);
+            }
+
             return this.results;
         },
     },

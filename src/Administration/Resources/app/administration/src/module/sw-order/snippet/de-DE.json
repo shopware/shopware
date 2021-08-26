@@ -352,7 +352,18 @@
         "textNoCriteria": "Keine Dokumente zugewiesen"
       },
       "orderDateFilter": {
-        "label": "Bestelldatum"
+        "label": "Bestelldatum",
+        "options": {
+          "lastYear": "Letztes Jahr",
+          "lastQuarter": "Letzes Quartal",
+          "lastMonth": "Letzter Monat",
+          "lastWeek": "Letzte Woche",
+          "lastDay": "Letzter Tag",
+          "custom": "Benutzerdefiniert"
+        }
+      },
+      "orderValueFilter": {
+        "label": "Bestellwert"
       },
       "statusFilter": {
         "label": "Bestellstatus",

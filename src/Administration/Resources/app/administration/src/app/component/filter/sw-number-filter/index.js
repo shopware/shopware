@@ -41,6 +41,22 @@ Component.register('sw-number-filter', {
     },
 
     methods: {
+        fromToFieldLabel(type) {
+            const key = `${type}FieldLabel`;
+
+            if (!this.filter.hasOwnProperty(key)) {
+                return this.$tc(`global.default.${type}`);
+            }
+
+            const label = this.filter[key];
+
+            if (!label) {
+                return null;
+            }
+
+            return label;
+        },
+
         updateFilter(params) {
             if (!this.numberValue.from && !this.numberValue.to) {
                 this.$emit('filter-reset', this.filter.name);

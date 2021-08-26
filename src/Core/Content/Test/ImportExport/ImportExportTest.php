@@ -432,6 +432,24 @@ class ImportExportTest extends ImportExportTestCase
         static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
     }
 
+    public function testProductsCoverIsUpdated(): void
+    {
+        $context = Context::createDefaultContext();
+        $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
+
+        $progress = $this->import($context, ProductDefinition::ENTITY_NAME, '/fixtures/products_with_updated_cover.csv', 'products.csv');
+
+        static::assertSame(Progress::STATE_SUCCEEDED, $progress->getState());
+
+        /** @var ProductEntity $product */
+        $product = $this->productRepository->search(
+            (new Criteria(['e5c8b8f701034e8dbea72ac0fc32521e']))->addAssociation('media'),
+            Context::createDefaultContext()
+        )->first();
+
+        static::assertEquals(1, $product->getMedia()->count());
+    }
+
     /**
      * @group slow
      */

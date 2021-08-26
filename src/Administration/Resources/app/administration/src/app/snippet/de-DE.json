@@ -508,11 +508,13 @@
       "placeholderSearchField": "Finde Produkte, Kunden, Bestellungen ...",
       "placeholderTypeSearchField": "Alle {entity} durchsuchen ...",
       "placeholderShortcutInfo": "Tipp: Über die \"f\"-Taste, kannst Du die Suche schneller öffnen.",
-      "placeholderSearchShortcutInfo": "Tipp: Über die <span>f</span>-Taste, kannst Du die Suche schneller öffnen.",
+      "placeholderSearchShortcutInfo": "Drücke <span>f</span>, um die Suche zu öffnen.",
       "moduleFiltersHeadline": "Modulfilter",
-      "placeholderFilterShortcutInfo": "Type <span>#</span> in the search to quickly set a module filter.",
+      "placeholderFilterShortcutInfo": "Gib <span>#</span> in die Suche ein, um Modulfilter festzulegen.",
       "searchTypeAll": "Alle",
-      "moduleFilter": "Modulfilter"
+      "moduleFilter": "Modulfilter",
+      "messageNoResultsV2": "Wir haben keine genauen Übereinstimmungen für \"{term}\" gefunden.",
+      "messageNoResultsDetailV2": "Versuche es mit anderen Schlüsselwörtern oder überprüfe die Suchbegriffe nach Tippfehlern."
     },
     "sw-search-bar-item": {
       "typeLabelCustomer": "Kunde",

@@ -808,4 +808,70 @@ describe('src/app/component/structure/sw-search-bar', () => {
             expect(module.entities[0].privilege).toBe(`${term}.viewer`);
         });
     });
+
+    it('should always show search result panel correctly', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
+        wrapper = await createWrapper(
+            {
+                initialSearchType: 'product'
+            },
+            {
+                all: {
+                    entityName: '',
+                    placeholderSnippet: '',
+                    listingRoute: ''
+                },
+                product: {
+                    entityName: 'product',
+                    placeholderSnippet: 'sw-product.general.placeholderSearchBar',
+                    listingRoute: 'sw.product.index'
+                },
+                category: {
+                    entityName: 'category',
+                    placeholderSnippet: 'sw-category.general.placeholderSearchBar',
+                    listingRoute: 'sw.category.index'
+                },
+                customer: {
+                    entityName: 'customer',
+                    placeholderSnippet: 'sw-customer.general.placeholderSearchBar',
+                    listingRoute: 'sw.customer.index'
+                },
+                order: {
+                    entityName: 'order',
+                    placeholderSnippet: 'sw-order.general.placeholderSearchBar',
+                    listingRoute: 'sw.order.index'
+                },
+                media: {
+                    entityName: 'media',
+                    placeholderSnippet: 'sw-media.general.placeholderSearchBar',
+                    listingRoute: 'sw.media.index'
+                }
+            }
+        );
+
+        const moduleFilterSelect = wrapper.find('.sw-search-bar__type--v2');
+        await moduleFilterSelect.trigger('click');
+
+        const moduleFilterItems = wrapper.findAll('.sw-search-bar__type-item');
+        await moduleFilterItems.at(2).trigger('click');
+
+        const searchInput = wrapper.find('.sw-search-bar__input');
+        await searchInput.trigger('focus');
+
+        const moduleFilterFooter = wrapper.find('.sw-search-bar__types_container--v2 .sw-search-bar__footer');
+        expect(moduleFilterFooter.exists()).toBeTruthy();
+
+        await searchInput.setValue('home');
+        await flushPromises();
+
+        const debouncedDoListSearchWithContainer = swSearchBarComponent.methods.doListSearchWithContainer;
+        await debouncedDoListSearchWithContainer.flush();
+
+        await flushPromises();
+        expect(spyLoadTypeSearchResults).toHaveBeenCalledTimes(1);
+        expect(spyLoadTypeSearchResultsByService).toHaveBeenCalledTimes(0);
+
+        const resultsFooter = wrapper.find('.sw-search-bar__results--v2 .sw-search-bar__footer');
+        expect(resultsFooter.exists()).toBeTruthy();
+    });
 });

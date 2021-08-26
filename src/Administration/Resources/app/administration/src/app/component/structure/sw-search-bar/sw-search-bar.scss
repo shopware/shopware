@@ -213,7 +213,38 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
         }
 
         &--v2 {
-            display: block;
+            max-height: 633px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+            padding: 0;
+            grid-gap: 0;
+
+            &.is-empty-state {
+                min-height: auto;
+            }
+
+            .sw-search-bar__results-wrapper-content {
+                overflow: auto;
+                padding: 25px;
+            }
+
+            .sw-search-bar__shortcut-tip {
+                line-height: 22px;
+                font-size: $font-size-extra-small;
+                color: $color-darkgray-200;
+                margin: 0;
+
+                span {
+                    text-transform: uppercase;
+                    border: 1px solid $color-gray-500;
+                    border-radius: 3px;
+                    background-color: $color-white;
+                    padding: 0 4px;
+                    margin: 0 3px;
+                }
+            }
         }
     }
 
@@ -225,6 +256,10 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
 
     .sw-search-bar__results-empty-message {
         padding: 10px 16px;
+
+        &--v2 {
+            padding: 0;
+        }
 
         .sw-icon {
             color: $sw-search-bar-result-color-icon;
@@ -327,6 +362,22 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
         color: lighten($color-darkgray-200, 25%);
         margin: 20px 3px 0 3px;
     }
+
+    &__results-empty-text {
+        color: $color-darkgray-200;
+        font-size: $font-size-default;
+        font-weight: $font-weight-semi-bold;
+        letter-spacing: 0.09px;
+        line-height: 25px;
+    }
+
+    &__results-empty-detail {
+        color: $color-darkgray-200;
+        font-size: $font-size-small;
+        font-weight: normal;
+        etter-spacing: 0.1px;
+        line-height: 22px;
+    }
 }
 
 .sw-search-bar__type-item {
@@ -338,7 +389,6 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
 
     &.is--active {
         border: 1px solid;
-        margin: 2px;
     }
 
     @media screen and (max-width: 350px) {

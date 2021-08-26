@@ -552,6 +552,7 @@
         "orderCountRule": "Anzahl Bestellungen",
         "salesChannelRule": "Verkaufskanal",
         "currencyRule": "Währung",
+        "languageRule": "Sprache",
         "billingCountryRule": "Rechnungsland",
         "billingStreetRule": "Rechnungsstraße",
         "billingZipCodeRule": "Rechnungsadresse-PLZ",

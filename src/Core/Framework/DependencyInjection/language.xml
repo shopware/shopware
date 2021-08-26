@@ -50,5 +50,9 @@
             <argument type="service" id="logger" />
         </service>
 
+        <service id="Shopware\Core\System\Language\Rule\LanguageRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
     </services>
 </container>

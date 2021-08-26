@@ -31,6 +31,11 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         label: 'global.sw-condition.condition.currencyRule',
         scopes: ['global'],
     });
+    ruleConditionService.addCondition('language', {
+        component: 'sw-condition-language',
+        label: 'global.sw-condition.condition.languageRule',
+        scopes: ['global'],
+    });
     ruleConditionService.addCondition('customerBillingCountry', {
         component: 'sw-condition-billing-country',
         label: 'global.sw-condition.condition.billingCountryRule',

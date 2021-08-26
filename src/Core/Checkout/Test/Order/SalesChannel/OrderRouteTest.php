@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Cart\Rule\PaymentMethodRule;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Customer\Rule\BillingCountryRule;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Document\DocumentGenerator\DeliveryNoteGenerator;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
@@ -47,6 +48,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
@@ -133,6 +135,8 @@ class OrderRouteTest extends TestCase
      */
     private $defaultPaymentMethodId;
 
+    private string $defaultCountryId;
+
     private string $deepLinkCode;
 
     private EntityRepositoryInterface $customerRepository;
@@ -141,8 +145,13 @@ class OrderRouteTest extends TestCase
     {
         $this->context = Context::createDefaultContext();
 
+        $this->defaultCountryId = $this->getValidCountryId(null);
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => Defaults::SALES_CHANNEL,
+            'countryId' => $this->defaultCountryId,
+            'countries' => \array_map(static function (CountryEntity $country) {
+                return ['id' => $country->getId()];
+            }, $this->getValidCountries()->getEntities()->getElements()),
         ]);
         $this->assignSalesChannelContext($this->browser);
 
@@ -757,62 +766,67 @@ class OrderRouteTest extends TestCase
 
     public function testPaymentOrderNotManipulable(): void
     {
-        $ruleRepository = $this->getContainer()->get('rule.repository');
-
-        // Get customer from USA rule
-        $ruleCriteria = new Criteria();
-        $ruleCriteria->addFilter(new EqualsFilter('name', 'Customers from USA'));
-
-        $ruleId = $ruleRepository->search($ruleCriteria, $this->context)->first()->getId();
-
-        $paymentId = $this->createCustomPaymentWithRule($ruleId);
-
         $ids = new IdsCollection();
 
-        $this->getContainer()->get('product.repository')->create(
-            [
-                (new ProductBuilder($ids, '1000'))
-                    ->price(10)
-                    ->name('Test product')
-                    ->active(true)
-                    ->visibility()
-                    ->build(),
-            ],
-            $ids->getContext()
-        );
+        // get non default country id
+        $countryId = $this->getValidCountries()->filter(function (CountryEntity $country) {
+            return $country->getId() !== $this->defaultCountryId;
+        })->first()->getId();
 
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/checkout/cart/line-item',
-                [],
-                [],
-                ['CONTENT_TYPE' => 'application/json'],
-                json_encode([
-                    'items' => [
-                        [
-                            'id' => $ids->get('1000'),
-                            'referencedId' => $ids->get('1000'),
-                            'quantity' => 1,
-                            'type' => 'product',
-                        ],
+        // create rule for that country now, so it is set in the order
+        $ruleId = Uuid::randomHex();
+        $this->getContainer()->get('rule.repository')->create([[
+            'id' => $ruleId,
+            'name' => 'test',
+            'priority' => 1,
+            'conditions' => [[
+                'type' => (new BillingCountryRule())->getName(),
+                'value' => [
+                    'operator' => '=',
+                    'countryIds' => [$countryId],
+                ],
+            ]],
+        ]], $ids->getContext());
+
+        $this->getContainer()->get('product.repository')->create([
+            (new ProductBuilder($ids, '1000'))
+                ->price(10)
+                ->name('Test product')
+                ->active(true)
+                ->visibility()
+                ->build(),
+        ], $ids->getContext());
+
+        $this->browser->request(
+            'POST',
+            '/store-api/checkout/cart/line-item',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode([
+                'items' => [
+                    [
+                        'id' => $ids->get('1000'),
+                        'referencedId' => $ids->get('1000'),
+                        'quantity' => 1,
+                        'type' => 'product',
                     ],
-                ])
-            );
+                ],
+            ])
+        );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertCount(0, $response['errors']);
 
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/checkout/order',
-                [],
-                [],
-                ['CONTENT_TYPE' => 'application/json'],
-                \json_encode([])
-            );
+        $this->browser->request(
+            'POST',
+            '/store-api/checkout/order',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            \json_encode([])
+        );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
@@ -820,41 +834,33 @@ class OrderRouteTest extends TestCase
 
         $orderId = $response['id'];
 
-        // Get USA country id
-        $countryCriteria = new Criteria();
-        $countryCriteria->addFilter(new EqualsFilter('iso3', 'USA'));
-
-        $countryId = $this->getContainer()->get('country.repository')->search($countryCriteria, $this->context)->first()->getId();
-
-        // Set customer country to USA
-        $this->getContainer()->get('customer.repository')->update([
-            [
-                'id' => $this->customerId,
-                'defaultBillingAddress' => [
-                    'firstName' => 'Max',
-                    'lastName' => 'Mustermann',
-                    'street' => 'Musterstraße 1',
-                    'city' => 'Schöppingen',
-                    'zipcode' => '12345',
-                    'salutationId' => $this->getValidSalutationId(),
-                    'countryId' => $countryId,
-                ],
+        // change customer country, so rule is valid
+        $this->getContainer()->get('customer.repository')->update([[
+            'id' => $this->customerId,
+            'defaultBillingAddress' => [
+                'firstName' => 'Max',
+                'lastName' => 'Mustermann',
+                'street' => 'Musterstraße 1',
+                'city' => 'Schöppingen',
+                'zipcode' => '12345',
+                'salutationId' => $this->getValidSalutationId(),
+                'countryId' => $countryId,
             ],
-        ], $this->context);
+        ]], $this->context);
+        $paymentId = $this->createCustomPaymentWithRule($ruleId);
 
         // Request payment change
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/order/payment',
-                [],
-                [],
-                ['CONTENT_TYPE' => 'application/json'],
-                \json_encode([
-                    'orderId' => $orderId,
-                    'paymentMethodId' => $paymentId,
-                ])
-            );
+        $this->browser->request(
+            'POST',
+            '/store-api/order/payment',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            \json_encode([
+                'orderId' => $orderId,
+                'paymentMethodId' => $paymentId,
+            ])
+        );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
@@ -872,6 +878,19 @@ class OrderRouteTest extends TestCase
             ->addFilter(new EqualsFilter('active', true));
 
         return $repository->search($criteria, $this->context);
+    }
+
+    protected function getValidCountries(): EntitySearchResult
+    {
+        /** @var EntityRepositoryInterface $repository */
+        $repository = $this->getContainer()->get('country.repository');
+
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('taxFree', 0))
+            ->addFilter(new EqualsFilter('active', true))
+            ->addFilter(new EqualsFilter('shippingAvailable', true));
+
+        return $repository->search($criteria, Context::createDefaultContext());
     }
 
     private function createOrder(string $customerId, string $email, string $password): string

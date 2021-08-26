@@ -8,13 +8,12 @@ describe('create product and add to cart', ()=>{
     beforeEach(() => {
         cy.setLocaleToEnGb().then(() => {
             cy.loginViaApi();
-        }).then(() => {
-            cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
         });
     });
 
     it('@base @catalogue: should create product', ()=>{
-              
+        
+        cy.visit(`${Cypress.env('admin')}#/sw/product/index`); 
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -59,7 +58,8 @@ describe('create product and add to cart', ()=>{
         // General > Deliverability
         cy.get('input[name=sw-field--product-stock]').typeAndCheck('100');
         cy.get('input[name=sw-field--product-is-closeout]').click();
-        cy.get('#deliveryTimeId').typeSingleSelectAndCheck('2-5 Tage','#deliveryTimeId');
+        const delivery = Cypress.env('locale') === 'en-GB' ? '2-5 days' : '2-5 Tage';
+        cy.get('#deliveryTimeId').typeSingleSelectAndCheck(delivery,'#deliveryTimeId');
         cy.get('#sw-field--product-restock-time').typeAndCheck('10');
         cy.get('.sw-product-deliverability__shipping-free').click();
         cy.get('.sw-product-deliverability__min-purchase [type]').typeAndCheck('1');

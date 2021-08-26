@@ -9,7 +9,10 @@
     {% endblock %}
 
     {% block sw_import_export_importer_file_input %}
-    <sw-file-input v-model="importFile">
+    <sw-file-input
+        v-model="importFile"
+        :key="isLoading"
+    >
         <template #caption-label>
             {{ $tc('sw-import-export.importer.labelUploadCaption') }}
         </template>
@@ -86,7 +89,7 @@
         {% block sw_import_export_importer_modal_exporter %}
         <sw-import-export-importer
             :source-entity="importModalProfile"
-            @import-finish="$emit('import-finish')"
+            @import-started="$emit('import-started')"
         />
         {% endblock %}
 
@@ -106,11 +109,6 @@
     {% block sw_import_export_importer_progress %}
     <sw-import-export-progress
         activity-type="import"
-        :offset="progressOffset"
-        :total="progressTotal"
-        :log-entry="progressLogEntry"
-        :state="progressState"
-        :is-loading="isLoading"
         :disable-button="disableImporting"
         @process-start="onStartProcess"
         @process-start-dryrun="onStartDryRunProcess"

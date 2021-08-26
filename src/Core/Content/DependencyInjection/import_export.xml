@@ -58,6 +58,7 @@
             <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter" />
             <argument type="service" id="Shopware\Core\Content\ImportExport\ImportExportFactory"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="messenger.bus.shopware"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
@@ -198,6 +199,12 @@
             <argument type="tagged" tag="shopware.import_export.writer_factory"/>
             <argument type="tagged" tag="shopware.import_export.pipe_factory"/>
 
+        </service>
+
+        <service id="Shopware\Core\Content\ImportExport\Message\ImportExportHandler" public="true">
+            <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="service" id="Shopware\Core\Content\ImportExport\ImportExportFactory"/>
+            <tag name="messenger.message_handler" />
         </service>
 
         <service id="Shopware\Core\Content\ImportExport\Service\DeleteExpiredFilesService">

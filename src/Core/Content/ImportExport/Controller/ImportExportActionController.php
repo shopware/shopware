@@ -3,11 +3,10 @@
 namespace Shopware\Core\Content\ImportExport\Controller;
 
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogDefinition;
-use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
-use Shopware\Core\Content\ImportExport\Exception\ProcessingException;
 use Shopware\Core\Content\ImportExport\Exception\ProfileNotFoundException;
 use Shopware\Core\Content\ImportExport\ImportExportFactory;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
+use Shopware\Core\Content\ImportExport\Message\ImportExportMessage;
 use Shopware\Core\Content\ImportExport\Service\DownloadService;
 use Shopware\Core\Content\ImportExport\Service\ImportExportService;
 use Shopware\Core\Content\ImportExport\Service\SupportedFeaturesService;
@@ -32,6 +31,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
@@ -59,6 +59,8 @@ class ImportExportActionController extends AbstractController
 
     private DefinitionInstanceRegistry $definitionInstanceRegistry;
 
+    private MessageBusInterface $messageBus;
+
     public function __construct(
         SupportedFeaturesService $supportedFeaturesService,
         ImportExportService $initiationService,
@@ -68,7 +70,8 @@ class ImportExportActionController extends AbstractController
         ImportExportLogDefinition $logDefinition,
         ApiVersionConverter $apiVersionConverter,
         ImportExportFactory $importExportFactory,
-        DefinitionInstanceRegistry $definitionInstanceRegistry
+        DefinitionInstanceRegistry $definitionInstanceRegistry,
+        MessageBusInterface $messageBus
     ) {
         $this->supportedFeaturesService = $supportedFeaturesService;
         $this->importExportService = $initiationService;
@@ -79,6 +82,7 @@ class ImportExportActionController extends AbstractController
         $this->apiVersionConverter = $apiVersionConverter;
         $this->importExportFactory = $importExportFactory;
         $this->definitionInstanceRegistry = $definitionInstanceRegistry;
+        $this->messageBus = $messageBus;
     }
 
     /**
@@ -138,26 +142,16 @@ class ImportExportActionController extends AbstractController
      * @Since("6.0.0.0")
      * @Route("/api/_action/import-export/process", name="api.action.import_export.process", methods={"POST"})
      */
-    public function process(Request $request, Context $context): JsonResponse
+    public function process(Request $request, Context $context): Response
     {
         $logId = strtolower((string) $request->request->get('logId'));
-        $offset = $request->request->getInt('offset');
 
         $importExport = $this->importExportFactory->create($logId, 50, 50);
         $logEntity = $importExport->getLogEntity();
 
-        if (
-            $logEntity->getActivity() === ImportExportLogEntity::ACTIVITY_IMPORT
-            || $logEntity->getActivity() === ImportExportLogEntity::ACTIVITY_DRYRUN
-        ) {
-            $progress = $importExport->import($context, $offset);
-        } elseif ($logEntity->getActivity() === ImportExportLogEntity::ACTIVITY_EXPORT) {
-            $progress = $importExport->export($context, new Criteria(), $offset);
-        } else {
-            throw new ProcessingException('Unknown activity');
-        }
+        $this->messageBus->dispatch(new ImportExportMessage($context, $logEntity->getId(), $logEntity->getActivity()));
 
-        return new JsonResponse(['progress' => $progress->jsonSerialize()]);
+        return new Response('', Response::HTTP_NO_CONTENT);
     }
 
     /**

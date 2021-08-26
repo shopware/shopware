@@ -101,13 +101,12 @@ describe('Import/Export:  Visual tests', () => {
 
         // Process request should be successful
         cy.wait('@process').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
+            expect(xhr).to.have.property('status', 204);
         });
 
         // Import export log request should be successful
         cy.wait('@importExportLog').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
-            cy.get('.sw-import-export-progress__stats-list-success').contains('Export successful');
         });
 
         // Change color of the element to ensure consistent snapshots
@@ -163,7 +162,7 @@ describe('Import/Export:  Visual tests', () => {
 
         // Process request should be successful
         cy.wait('@process').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
+            expect(xhr).to.have.property('status', 204);
         });
 
         // Import export log request should be successful
@@ -181,7 +180,6 @@ describe('Import/Export:  Visual tests', () => {
         cy.changeElementStyling('.sw-data-grid__cell--createdAt', 'color : #fff');
 
         // Take snapshot for visual testing
-        cy.contains('Import successful').should('be.visible');
         cy.takeSnapshot('[Import export] Detail, Overview after import', '.sw-import-export-activity');
     });
 });

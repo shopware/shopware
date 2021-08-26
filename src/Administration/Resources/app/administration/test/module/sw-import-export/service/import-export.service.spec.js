@@ -33,7 +33,7 @@ describe('core/service/login.service.js', () => {
         expect(importExportService).toHaveProperty('trackProgress');
     });
 
-    it('should return the createdLog on export and track the progress ', async () => {
+    it('should return the createdLog on export and start process', async () => {
         const { importExportService, clientMock } = importExportServiceFactory();
 
         clientMock.onPost('/_action/import-export/prepare')
@@ -43,25 +43,19 @@ describe('core/service/login.service.js', () => {
                 }
             });
 
-        clientMock.onPost('/_action/import-export/process').reply((config) => {
-            const data = JSON.parse(config.data);
-            const total = 10;
-            const offset = data.offset + 1;
-            const state = offset === total ? 'succeeded' : 'progress';
-            return [200, { progress: { logId: data.logId, total, offset, state } }];
+        clientMock.onPost('/_action/import-export/process').reply(() => {
+            return [204];
         });
 
-        const callback = jest.fn(progress => progress);
+        const callback = jest.fn();
         const createdLog = await importExportService.export('profileId', callback);
 
-        // Expect 10 calls, because total is 10 and offset increased by 1
-        expect(callback).toHaveBeenCalledTimes(10);
-        expect(callback).toHaveNthReturnedWith(1, { logId: 'createdLogId', offset: 1, state: 'progress', total: 10 });
-        expect(callback).toHaveLastReturnedWith({ logId: 'createdLogId', offset: 10, state: 'succeeded', total: 10 });
+        // Expect callback to have been called
+        expect(callback).toHaveBeenCalledTimes(1);
         expect(createdLog.data).toEqual({ log: { id: 'createdLogId' } });
     });
 
-    it('should return the createdLog on import and track the progress ', async () => {
+    it('should return the createdLog on import and start process', async () => {
         const { importExportService, clientMock } = importExportServiceFactory();
 
         clientMock.onPost('/_action/import-export/prepare')
@@ -71,21 +65,15 @@ describe('core/service/login.service.js', () => {
                 }
             });
 
-        clientMock.onPost('/_action/import-export/process').reply((config) => {
-            const data = JSON.parse(config.data);
-            const total = 10;
-            const offset = data.offset + 1;
-            const state = offset === total ? 'succeeded' : 'progress';
-            return [200, { progress: { logId: data.logId, total, offset, state } }];
+        clientMock.onPost('/_action/import-export/process').reply(() => {
+            return [204];
         });
 
-        const callback = jest.fn(progress => progress);
+        const callback = jest.fn();
         const createdLog = await importExportService.import('profileId', 'testFile', callback);
 
-        // Expect 10 calls, because total is 10 and offset increased by 1
-        expect(callback).toHaveBeenCalledTimes(10);
-        expect(callback).toHaveNthReturnedWith(1, { logId: 'createdLogId', offset: 1, state: 'progress', total: 10 });
-        expect(callback).toHaveLastReturnedWith({ logId: 'createdLogId', offset: 10, state: 'succeeded', total: 10 });
+        // Expect callback to have been called
+        expect(callback).toHaveBeenCalledTimes(1);
         expect(createdLog.data).toEqual({ log: { id: 'createdLogId' } });
     });
 });

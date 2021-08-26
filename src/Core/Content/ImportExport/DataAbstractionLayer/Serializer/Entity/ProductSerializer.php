@@ -27,12 +27,16 @@ class ProductSerializer extends EntitySerializer
 
     private EntityRepositoryInterface $salesChannelRepository;
 
+    private EntityRepositoryInterface $productMediaRepository;
+
     public function __construct(
         EntityRepositoryInterface $visibilityRepository,
-        EntityRepositoryInterface $salesChannelRepository
+        EntityRepositoryInterface $salesChannelRepository,
+        EntityRepositoryInterface $productMediaRepository
     ) {
         $this->visibilityRepository = $visibilityRepository;
         $this->salesChannelRepository = $salesChannelRepository;
+        $this->productMediaRepository = $productMediaRepository;
     }
 
     /**
@@ -88,7 +92,9 @@ class ProductSerializer extends EntitySerializer
     {
         $entity = \is_array($entity) ? $entity : iterator_to_array($entity);
 
-        yield from parent::deserialize($config, $definition, $entity);
+        $deserialized = parent::deserialize($config, $definition, $entity);
+        $deserialized = \is_array($deserialized) ? $deserialized : iterator_to_array($deserialized);
+        yield from $deserialized;
 
         $productId = $entity['id'] ?? null;
 
@@ -120,6 +126,10 @@ class ProductSerializer extends EntitySerializer
 
         if ($visibilities !== []) {
             yield 'visibilities' => $this->findVisibilityIds($visibilities);
+        }
+
+        if (isset($deserialized['id'], $deserialized['cover']['media']['id'])) {
+            yield 'cover' => $this->findCoverProductMediaId($deserialized['id'], $deserialized['cover']);
         }
     }
 
@@ -182,5 +192,20 @@ class ProductSerializer extends EntitySerializer
         )->getIds();
 
         return array_unique(array_merge($ids, $additionalIds));
+    }
+
+    private function findCoverProductMediaId(string $productId, array $cover): array
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('productId', $productId));
+        $criteria->addFilter(new EqualsFilter('mediaId', $cover['media']['id']));
+
+        $id = $this->productMediaRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
+
+        if ($id) {
+            $cover['id'] = $id;
+        }
+
+        return $cover;
     }
 }

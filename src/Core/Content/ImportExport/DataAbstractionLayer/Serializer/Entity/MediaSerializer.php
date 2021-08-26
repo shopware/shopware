@@ -73,7 +73,7 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
 
         $media = null;
         if (isset($deserialized['id'])) {
-            $media = $this->mediaRepository->search(new Criteria([$entity['id']]), Context::createDefaultContext())->first();
+            $media = $this->mediaRepository->search(new Criteria([$deserialized['id']]), Context::createDefaultContext())->first();
         }
 
         if ($media === null || $media->getUrl() !== $url) {

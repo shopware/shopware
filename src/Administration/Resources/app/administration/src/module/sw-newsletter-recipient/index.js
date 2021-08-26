@@ -2,6 +2,7 @@ import './page/sw-newsletter-recipient-list/index';
 import './page/sw-newsletter-recipient-detail/index';
 import './component/sw-newsletter-recipient-filter-switch';
 import './acl';
+import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module } = Shopware;
 
@@ -46,4 +47,6 @@ Module.register('sw-newsletter-recipient', {
         label: 'sw-newsletter-recipient.general.mainMenuItemGeneral',
         parent: 'sw-marketing',
     }],
+
+    defaultSearchConfiguration,
 });

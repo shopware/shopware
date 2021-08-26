@@ -3,6 +3,8 @@ import './page/sw-settings-customer-group-detail';
 
 import './acl';
 
+import defaultSearchConfiguration from './default-search-configuration';
+
 const { Module } = Shopware;
 
 Module.register('sw-settings-customer-group', {
@@ -57,4 +59,6 @@ Module.register('sw-settings-customer-group', {
         icon: 'default-avatar-multiple',
         privilege: 'customer_groups.viewer',
     },
+
+    defaultSearchConfiguration,
 });

@@ -25,6 +25,8 @@ import './component/sw-sales-channel-products-assignment-dynamic-product-groups'
 
 import './acl';
 
+import defaultSearchConfiguration from './default-search-configuration';
+
 const { Module } = Shopware;
 
 Module.register('sw-sales-channel', {
@@ -97,4 +99,6 @@ Module.register('sw-sales-channel', {
             },
         },
     },
+
+    defaultSearchConfiguration,
 });

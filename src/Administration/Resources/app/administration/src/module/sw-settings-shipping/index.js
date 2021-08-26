@@ -5,7 +5,7 @@ import './component/sw-settings-shipping-price-matrices';
 import './component/sw-settings-shipping-price-matrix';
 import './component/sw-settings-shipping-tax-cost';
 import './acl';
-
+import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module } = Shopware;
 
@@ -55,4 +55,6 @@ Module.register('sw-settings-shipping', {
         icon: 'default-package-open',
         privilege: 'shipping.viewer',
     },
+
+    defaultSearchConfiguration,
 });

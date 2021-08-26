@@ -5,6 +5,7 @@ import './component/sw-property-option-detail';
 import './component/sw-property-detail-base';
 import './component/sw-property-option-list';
 import './acl';
+import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module } = Shopware;
 
@@ -19,6 +20,7 @@ Module.register('sw-property', {
     icon: 'default-symbol-products',
     favicon: 'icon-module-products.png',
     entity: 'property',
+    searchEntity: 'property_group',
 
     routes: {
         index: {
@@ -72,4 +74,6 @@ Module.register('sw-property', {
         position: 40,
         privilege: 'property.viewer',
     }],
+
+    defaultSearchConfiguration,
 });

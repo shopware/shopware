@@ -35,6 +35,7 @@ import './component/sw-order-create-invalid-promotion-modal';
 import './component/sw-order-create-promotion-modal';
 import '../sw-customer/component/sw-customer-address-form';
 import '../sw-customer/component/sw-customer-address-form-options';
+import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module } = Shopware;
 
@@ -128,4 +129,6 @@ Module.register('sw-order', {
         parent: 'sw-order',
         privilege: 'order.viewer',
     }],
+
+    defaultSearchConfiguration,
 });

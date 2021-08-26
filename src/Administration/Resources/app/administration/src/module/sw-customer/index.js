@@ -11,6 +11,7 @@ import './component/sw-customer-address-form-options';
 import './component/sw-customer-default-addresses';
 import './component/sw-customer-card';
 import './acl';
+import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module } = Shopware;
 
@@ -113,4 +114,6 @@ Module.register('sw-customer', {
         parent: 'sw-customer',
         privilege: 'customer.viewer',
     }],
+
+    defaultSearchConfiguration,
 });

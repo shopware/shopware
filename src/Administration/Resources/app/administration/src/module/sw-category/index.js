@@ -23,6 +23,8 @@ import './view/sw-category-detail-seo';
 
 import './acl';
 
+import defaultSearchConfiguration from './default-search-configuration';
+
 const { Module } = Shopware;
 
 Module.register('sw-category', {
@@ -148,4 +150,6 @@ Module.register('sw-category', {
         privilege: 'category.viewer',
         position: 20,
     }],
+
+    defaultSearchConfiguration,
 });

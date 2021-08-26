@@ -38,10 +38,10 @@
       "tabAssignments": "Assignments",
       "associations": {
         "products": "Products",
-        "shippingMethods": "Shipping Methods",
-        "paymentMethods": "Payment Methods",
+        "shippingMethods": "Shipping methods",
+        "paymentMethods": "Payment methods",
         "promotions": "Promotions",
-        "eventActions": "Business Events"
+        "eventActions": "Business events"
       },
       "hasNoAssociations": "This rule is not in use",
       "associationsLoadingError": "Unable to load rule assignments.",

@@ -52,7 +52,12 @@
       "buttonCancelOrder": "Cancel",
       "messageSaveError": "Order could not be saved.",
       "messageSwitchCustomerError": "An error occurred during switching customer",
-      "messageFetchCustomerAddressesError": "An error occurred during fetching customer addresses"
+      "messageFetchCustomerAddressesError": "An error occurred during fetching customer addresses",
+      "remindPaymentModal": {
+        "title": "Remind payment",
+        "text": "Do you want to remind the customer to pay this order with \"{paymentMethodName}\"?",
+        "primaryAction": "Remind"
+      }
     },
     "createBase": {
       "labelDetailsCard": "Details",
@@ -82,7 +87,8 @@
         "placeholderPaymentMethod": "Select payment method...",
         "placeholderShippingMethod": "Select shipping method...",
         "placeholderOrderLanguage": "Select order language...",
-        "placeholderCurrency": "Select currency..."
+        "placeholderCurrency": "Select currency...",
+        "helpTextPaymentMethod": "Only payments which are compatible with the after order payment process are available."
       },
       "cardTitleLineItems": "Items",
       "placeholderSearchBarItem": "Search items...",

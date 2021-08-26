@@ -91,6 +91,10 @@ describe('Order: Create order', () => {
         cy.contains('Save order')
             .click();
 
+        // deny payment reminder
+        cy.get('.sw-order-create__remind-payment-modal-decline')
+            .click();
+
         cy.wait('@saveOrder').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
@@ -382,6 +386,10 @@ describe('Order: Create order', () => {
         cy.contains('Save order')
             .click();
 
+        // deny payment reminder
+        cy.get('.sw-order-create__remind-payment-modal-decline')
+            .click();
+
         cy.wait('@saveOrder').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
@@ -545,6 +553,10 @@ describe('Order: Create order', () => {
         cy.contains('Save order')
             .click();
 
+        // deny payment reminder
+        cy.get('.sw-order-create__remind-payment-modal-decline')
+            .click();
+
         cy.wait('@saveOrder').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
         });
@@ -654,6 +666,10 @@ describe('Order: Create order', () => {
 
         // save order
         cy.contains('Save order')
+            .click();
+
+        // deny payment reminder
+        cy.get('.sw-order-create__remind-payment-modal-decline')
             .click();
 
         cy.wait('@saveOrder').then((xhr) => {

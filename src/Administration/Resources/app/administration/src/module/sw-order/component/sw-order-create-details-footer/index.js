@@ -6,24 +6,25 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-order-create-details-footer', {
     template,
 
+    /**
+     * @deprecated tag:v6.5.0 will be removed without replacement.
+     */
     inject: ['feature'],
 
     props: {
-        // FIXME: add required attribute and or default value
-        // eslint-disable-next-line vue/require-default-prop
+        cart: {
+            type: Object,
+            required: true,
+        },
+
         customer: {
             type: Object,
+            default: null,
         },
 
         isCustomerActive: {
             type: Boolean,
             default: false,
-        },
-
-        // FIXME: add required attribute and or default value
-        // eslint-disable-next-line vue/require-default-prop
-        cart: {
-            type: Object,
         },
     },
 
@@ -54,6 +55,18 @@ Component.register('sw-order-create-details-footer', {
             if (this.salesChannelId) {
                 criteria.addFilter(Criteria.equals('salesChannels.id', this.salesChannelId));
             }
+
+            return criteria;
+        },
+
+        paymentMethodCriteria() {
+            const criteria = new Criteria();
+
+            if (this.salesChannelId) {
+                criteria.addFilter(Criteria.equals('salesChannels.id', this.salesChannelId));
+            }
+
+            criteria.addFilter(Criteria.equals('afterOrderEnabled', 1));
 
             return criteria;
         },

@@ -47,6 +47,43 @@
             @close="closeInvalidCodeModal"
         />
         {% endblock %}
+
+        {% block sw_order_create_remind_payment_modal %}
+        <sw-modal
+            class="sw-order-create__remind-payment-modal"
+            v-if="showRemindPaymentModal"
+            :title="$tc('sw-order.create.remindPaymentModal.title')"
+            :is-loading="remindPaymentModalLoading"
+            @modal-close="onRemindPaymentModalClose"
+        >
+            {% block sw_order_create_remind_payment_modal_content %}
+            <p>{{ $tc('sw-order.create.remindPaymentModal.text', 0, {paymentMethodName: paymentMethodName }) }}</p>
+            {% endblock %}
+
+            <template #modal-footer>
+                {% block sw_order_create_remind_payment_modal_footer %}
+                <sw-button
+                    class="sw-order-create__remind-payment-modal-decline"
+                    size="small"
+                    @click="onRemindPaymentModalClose"
+                >
+                    {{ $tc('global.default.no') }}
+                </sw-button>
+
+                <sw-button
+                    class="sw-order-create__remind-payment-modal-remind"
+                    variant="primary"
+                    size="small"
+                    @click="onRemindCustomer"
+                >
+                    {{ $tc('sw-order.create.remindPaymentModal.primaryAction') }}
+                </sw-button>
+                {% endblock %}
+
+            </template>
+        </sw-modal>
+        {% endblock %}
+
     </template>
     {% endblock %}
 </sw-page>

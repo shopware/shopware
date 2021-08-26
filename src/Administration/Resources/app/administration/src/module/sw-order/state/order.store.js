@@ -158,5 +158,10 @@ export default {
                 .modifyShippingCosts(salesChannelId, contextToken, shippingCosts)
                 .then(response => commit('setCart', response.data.data));
         },
+
+        remindPayment(_, { orderTransactionId }) {
+            return Service('orderStateMachineService')
+                .transitionOrderTransactionState(orderTransactionId, 'remind');
+        },
     },
 };

@@ -10,6 +10,7 @@ variables:
     COMPOSER_PROCESS_TIMEOUT: 7200 # 60s * 60 * 2 = 2 hours
     DD_ENV: ci
     DATADOG_SITE: datadoghq.eu
+    MYSQL_INITDB_SKIP_TZINFO: 1
 
 default:
     image: shopware/development:7.4-composer-2

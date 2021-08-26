@@ -1,0 +1,21 @@
+{% block sw_condition_value_content %}
+<div class="sw-condition-language sw-condition__condition-value">
+    {% block sw_condition_language_field_operator %}
+    <sw-condition-operator-select
+        v-bind="{ operators, condition }"
+        :disabled="disabled"
+    />
+    {% endblock %}
+
+    {% block sw_condition_language_field_language_ids %}
+    <sw-entity-multi-select
+        v-if="!isEmpty"
+        size="medium"
+        entity="language"
+        :disabled="disabled"
+        :entity-collection="languages"
+        @change="setLanguageIds"
+    />
+    {% endblock %}
+</div>
+{% endblock %}

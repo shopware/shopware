@@ -183,4 +183,7 @@ List of all rule classes across Shopware 6.
 [Shopware\Core\System\Currency\Rule\CurrencyRule](https://github.com/shopware/platform/tree/master/src/Core/Shopware\Core\System\Currency\Rule\CurrencyRule)
  : Match a specific currency to the current context.
 
+[Shopware\Core\System\Language\Rule\LanguageRule](https://github.com/shopware/platform/tree/master/src/Core/Shopware\Core\System\Language\Rule\LanguageRule)
+ : Match a specific language to the current context.
+
 

@@ -548,6 +548,7 @@
         "orderCountRule": "Count of orders",
         "salesChannelRule": "Sales Channel",
         "currencyRule": "Currency",
+        "languageRule": "Language",
         "billingCountryRule": "Billing country",
         "billingStreetRule": "Billing street",
         "billingZipCodeRule": "Billing postal code",

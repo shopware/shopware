@@ -212,7 +212,11 @@
       "enterValidTrackingCode": "Enter tracking code",
       "textCreditTax": "auto",
       "taxDetail": "{taxRate}%: {tax}",
-      "textPromotionRemoved": "Discount {promotion} has been removed"
+      "textPromotionRemoved": "Discount {promotion} has been removed",
+      "textMissingProductLineItems": "The following items are associated to products that have been deleted:",
+      "textMissingProductLineItemsDescription": "Prices of these products cannot be recalculated. Therefore, these items will be converted to custom items when saving this order.",
+      "textConvertedProductLineItems": "The following items were associated to products that have been deleted:",
+      "textConvertedProductLineItemsDescription": "Prices of these products cannot be recalculated. Please take extra care when editing the order."
     },
     "nestedLineItemsModal": {
       "titlePrefix": "Item: {lineItemLabel} - {price}",

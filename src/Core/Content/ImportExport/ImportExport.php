@@ -187,6 +187,10 @@ class ImportExport
             }
 
             try {
+                if (isset($record['_error']) && $record['_error'] instanceof \Throwable) {
+                    throw $record['_error'];
+                }
+
                 if (Feature::isActive('FEATURE_NEXT_8097')) {
                     // ensure that the raw csv row has all the fields, which are marked as required by the user.
                     $this->ensureUserRequiredFields($row, $config);

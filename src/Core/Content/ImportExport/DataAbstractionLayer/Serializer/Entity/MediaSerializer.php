@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity;
 
+use Shopware\Core\Content\ImportExport\Exception\InvalidMediaUrlException;
+use Shopware\Core\Content\ImportExport\Exception\MediaDownloadException;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderEntity;
 use Shopware\Core\Content\Media\File\FileSaver;
@@ -68,6 +70,8 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
 
         $url = $entity['url'] ?? null;
         if ($url === null || !filter_var($url, \FILTER_VALIDATE_URL)) {
+            $deserialized['_error'] = new InvalidMediaUrlException($url);
+
             return $deserialized;
         }
 
@@ -87,6 +91,13 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
             $pathInfo = pathinfo($parsed['path']);
 
             $media = $this->fetchFileFromURL((string) $url, $pathInfo['extension'] ?? '');
+
+            if ($media === null) {
+                $deserialized['_error'] = new MediaDownloadException($url);
+
+                return $deserialized;
+            }
+
             $this->cacheMediaFiles[$deserialized['id']] = [
                 'media' => $media,
                 'destination' => $pathInfo['filename'],
@@ -170,7 +181,7 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
         return $fallback->getId();
     }
 
-    private function fetchFileFromURL(string $url, string $extension): MediaFile
+    private function fetchFileFromURL(string $url, string $extension): ?MediaFile
     {
         $request = new Request();
         $request->query->set('url', $url);
@@ -179,6 +190,14 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
         $request->request->set('extension', $extension);
         $request->headers->set('content-type', 'application/json');
 
-        return $this->mediaService->fetchFile($request);
+        try {
+            $file = $this->mediaService->fetchFile($request);
+            if ($file !== null && $file->getFileSize() > 0) {
+                return $file;
+            }
+        } catch (\Throwable $throwable) {
+        }
+
+        return null;
     }
 }

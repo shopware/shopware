@@ -47,12 +47,12 @@
       "associationsLoadingError": "Die Zuweisungen der Regel konnten nicht geladen werden.",
       "types": {
         "shipping": "Versandart",
-        "payment": "Zahlungart",
+        "payment": "Zahlungsart",
         "price": "Preis"
       }
     },
     "conditionFilter": {
-      "infoText": "Nutze Filter um zu definieren, welche Positionen diese Bedingung erfüllen müssen."
+      "infoText": "Nutze Filter, um zu definieren welche Positionen diese Bedingung erfüllen müssen."
     },
     "conditionModal": {
       "modalTitle": "Filter",

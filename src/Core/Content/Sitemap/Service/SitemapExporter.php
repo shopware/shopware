@@ -116,13 +116,33 @@ class SitemapExporter implements SitemapExporterInterface
         $languageId = $context->getSalesChannel()->getLanguageId();
         $domainsEntity = $context->getSalesChannel()->getDomains();
 
-        $sitemapHandles = [];
+        $sitemapDomains = [];
         if ($domainsEntity instanceof SalesChannelDomainCollection) {
             foreach ($domainsEntity as $domain) {
                 if ($domain->getLanguageId() === $languageId) {
-                    $sitemapHandles[$domain->getUrl()] = $this->sitemapHandleFactory->create($this->filesystem, $context, $domain->getUrl());
+                    $urlParts = \parse_url($domain->getUrl());
+
+                    if ($urlParts === false) {
+                        continue;
+                    }
+
+                    $arrayKey = ($urlParts['host'] ?? '') . ($urlParts['path'] ?? '');
+
+                    if (\array_key_exists($arrayKey, $sitemapDomains) && $sitemapDomains[$arrayKey]['scheme'] === 'https') {
+                        continue;
+                    }
+
+                    $sitemapDomains[$arrayKey] = [
+                        'url' => $domain->getUrl(),
+                        'scheme' => $urlParts['scheme'] ?? '',
+                    ];
                 }
             }
+        }
+
+        $sitemapHandles = [];
+        foreach ($sitemapDomains as $sitemapDomain) {
+            $sitemapHandles[$sitemapDomain['url']] = $this->sitemapHandleFactory->create($this->filesystem, $context, $sitemapDomain['url']);
         }
 
         if (empty($sitemapHandles)) {

@@ -134,7 +134,8 @@
           "objectTypeDisabledText": "Leere das Feld 'Nutzung', um wieder zwischen allen möglichen 'Objekt-Typen' auswählen zu können."
         },
         "exporter": {
-            "messageExportSuccess": "Der Export wurde erfolgreich abgeschlossen.",
+            "messageExportStarted": "Der Export wurde erfolgreich gestartet.",
+            "messageExportSuccess": "Der Export \"{profile}\" wurde erfolgreich abgeschlossen.",
             "startExportLabel": "Export starten",
             "showLogLabel": "Log anzeigen",
             "exportActivityLabel": "Export-Aktivität",
@@ -147,8 +148,10 @@
             "exportVariants": "Produktvarianten exportieren"
         },
         "importer": {
-            "messageExportSuccess": "Der Import wurde erfolgreich abgeschlossen.",
-            "messageExportError": "Es sind Fehler während des Importierens aufgetreten.",
+            "messageImportStarted": "Der Import wurde erfolgreich gestartet.",
+            "messageImportSuccess": "Der Import \"{profile}\" wurde erfolgreich abgeschlossen.",
+            "messageImportError": "Während des Imports \"{profile}\" traten Fehler auf.",
+            "messageImportWarning": "Keine Einträge importiert. Stelle bitte sicher, dass das Seperator-Zeichen den Einstellungen im verwendeten Profil entspricht.",
             "uploadCsvLabel": "CSV-Datei hochladen",
             "startImportLabel": "Import starten",
             "selectProfileLabel": "Profil auswählen",
@@ -161,10 +164,7 @@
             "close": "Schließen",
             "labelUploadCaption": "Wähle eine Datei zum Hochladen",
             "variantsWarning": "<strong>Achtung beim Import von Varianten:</strong> Sollen die Varianten direkt vollständig importiert werden, solltest du diese ebenfalls importieren. Nutze dafür ein Profil, was Varianten-Einstellungen importiert.<br>Tust du das nicht, müssen die Varianten über den Admin gesondert manuell erstellt werden.",
-            "importVariants": "Produktvarianten importieren",
-            "messageImportSuccess": "Der Import wurde erfolgreich abgeschlossen.",
-            "messageImportWarning": "Keine Einträge importiert. Stelle bitte sicher, dass das Seperator-Zeichen den Einstellungen im verwendeten Profil entspricht.",
-            "messageImportError": "Während des Imports traten Fehler auf."
+            "importVariants": "Produktvarianten importieren"
         },
         "page": {
             "profileTab": "Profile",
@@ -174,21 +174,7 @@
         "progress": {
             "startImportLabel": "Import starten",
             "startImportDryrunLabel": "Testlauf starten",
-            "startExportLabel": "Export starten",
-            "entriesLabel": "Einträge",
-            "fileSizeLabel": "kB",
-            "successTitle": "erfolgreich",
-            "downloadFileLabel": "Datei herunterladen",
-            "succeededImportText": "Importieren erfolgreich",
-            "succeededExportText": "Exportieren erfolgreich",
-            "failedImportText": "Import fehlgeschlagen",
-            "progressImportText": "Importiere ...",
-            "progressExportText": "Exportiere ...",
-            "downloadFailedLabel": "Fehlgeschlagene Einträge herunterladen",
-            "successfulImportsText": "{records} Einträge erfolgreich importiert",
-            "failedImportsText": "{failedRecords} Einträge konnten nicht importiert werden. Die fehlgeschlagenen Einträge können heruntergeladen, bearbeitet und erneut importiert werden.",
-            "failedExportText": "Export fehlgeschlagen",
-            "showLogFileLabel": "Öffne Log-Eintrag"
+            "startExportLabel": "Export starten"
         }
     },
   "sw-privileges": {

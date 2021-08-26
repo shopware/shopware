@@ -72,7 +72,7 @@ describe('Import/Export - Check import dry run functionality', () => {
 
         // Process request should be successful
         cy.wait('@process').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
+            expect(xhr).to.have.property('status', 204);
         });
 
         // Import export log request should be successful
@@ -80,16 +80,10 @@ describe('Import/Export - Check import dry run functionality', () => {
             expect(xhr).to.have.property('status', 200);
         });
 
-        // Progress bar and log should be visible
-        cy.get('.sw-import-export-progress__progress-bar-bar').should('be.visible');
-        cy.get('.sw-import-export-progress__stats').should('be.visible');
-
         // The activity logs should contain an entry for the succeeded import
         cy.get(`.sw-import-export-activity ${page.elements.dataGridRow}--0`).should('be.visible');
         cy.get(`.sw-import-export-activity ${page.elements.dataGridRow}--0 .sw-data-grid__cell--profileName`)
             .should('contain', 'E2E');
-        cy.get(`.sw-import-export-activity ${page.elements.dataGridRow}--0 .sw-data-grid__cell--profileName .sw-label`)
-            .should('be.visible');
         cy.get(`.sw-import-export-activity ${page.elements.dataGridRow}--0 .sw-data-grid__cell--state`)
             .should('contain', 'Succeeded');
 

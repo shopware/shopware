@@ -84,21 +84,15 @@ export default class ImportExportService extends ApiService {
     /**
      * @param logEntry {String} log entity
      * @param callback
-     * @param progress
      * @returns {Promise<void>}
      */
-    async trackProgress(logEntry, callback, progress) {
-        const { data: { progress: newProgress } } = await this.httpClient.post('/_action/import-export/process', {
+    async trackProgress(logEntry, callback) {
+        await this.httpClient.post('/_action/import-export/process', {
             logId: logEntry.data.log.id,
-            offset: (progress?.offset) ? progress.offset : 0,
         }, { headers: this.getBasicHeaders() });
 
-        callback.call(this, newProgress);
+        callback.call(this);
 
-        if (newProgress.offset >= newProgress.total) {
-            return logEntry;
-        }
-
-        return this.trackProgress(logEntry, callback, newProgress);
+        return logEntry;
     }
 }

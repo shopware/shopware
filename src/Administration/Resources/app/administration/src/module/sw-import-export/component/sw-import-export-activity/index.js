@@ -42,6 +42,21 @@ Shopware.Component.register('sw-import-export-activity', {
             selectedProfile: null,
             selectedLog: null,
             selectedResult: null,
+            activitiesReloadIntervall: 10000,
+            activitiesReloadTimer: null,
+            stateText: {
+                import: {
+                    succeeded: 'sw-import-export.importer.messageImportSuccess',
+                    failed: 'sw-import-export.importer.messageImportError',
+                },
+                dryrun: {
+                    succeeded: 'sw-import-export.importer.messageImportSuccess',
+                    failed: 'sw-import-export.importer.messageImportError',
+                },
+                export: {
+                    succeeded: 'sw-import-export.exporter.messageExportSuccess',
+                },
+            },
         };
     },
 
@@ -130,10 +145,38 @@ Shopware.Component.register('sw-import-export-activity', {
                     primary: false,
                 }];
         },
+
+        hasActivitiesInProgress() {
+            if (!this.logs) {
+                return false;
+            }
+
+            return this.logs.filter(log => log.state === 'progress').length > 0;
+        },
+    },
+
+    watch: {
+        hasActivitiesInProgress(hasActivitiesInProgress) {
+            if (hasActivitiesInProgress && !this.activitiesReloadTimer) {
+                this.activitiesReloadTimer = window.setInterval(
+                    this.updateActivitiesInProgress.bind(this),
+                    this.activitiesReloadIntervall,
+                );
+            } else if (this.activitiesReloadTimer) {
+                window.clearInterval(this.activitiesReloadTimer);
+                this.activitiesReloadTimer = null;
+            }
+        },
     },
 
     created() {
         this.createdComponent();
+    },
+
+    destroyed() {
+        if (this.activitiesReloadTimer) {
+            window.clearInterval(this.activitiesReloadTimer);
+        }
     },
 
     methods: {
@@ -147,6 +190,54 @@ Shopware.Component.register('sw-import-export-activity', {
             this.logs = await this.logRepository.search(this.activityCriteria);
 
             this.isLoading = false;
+        },
+
+        async updateActivitiesInProgress() {
+            const criteria = Criteria.fromCriteria(this.activityCriteria);
+            criteria.setIds(this.logs.filter(log => log.state === 'progress').getIds());
+            const currentInProgress = await this.logRepository.search(criteria);
+
+            this.updateActivitiesFromLogs(currentInProgress);
+        },
+
+        updateActivitiesFromLogs(logs) {
+            Object.values(logs).forEach((log) => {
+                const activity = this.logs.get(log.id);
+
+                if (!activity) {
+                    return;
+                }
+
+                const originalState = activity.state;
+                Object.keys(log).forEach(key => {
+                    activity[key] = log[key];
+                });
+
+                if (originalState === log.state) {
+                    return;
+                }
+
+                const config = {
+                    message: this.$t(this.stateText[log.activity][log.state], {
+                        profile: log.profileName,
+                    }),
+                    autoClose: false,
+                };
+
+                if (log.state === 'succeeded') {
+                    this.createNotificationSuccess(config);
+
+                    if (log.activity === 'import' && log.records === 0) {
+                        this.createNotificationWarning({
+                            message: this.$tc('sw-import-export.importer.messageImportWarning', 0),
+                        });
+                    }
+
+                    return;
+                }
+
+                this.createNotificationError(config);
+            });
         },
 
         async onOpenProfile(id) {

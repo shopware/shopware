@@ -24,8 +24,20 @@ class EntitySerializer extends AbstractEntitySerializer
         }
 
         $fields = $definition->getFields();
+        $extensionFields = $definition->getExtensionFields();
 
         foreach ($entity as $key => $value) {
+            if ($key === 'extensions') {
+                foreach ($value as $extensionKey => $extensionValue) {
+                    if (isset($extensionFields[$extensionKey])) {
+                        $serializer = $this->serializerRegistry->getFieldSerializer($extensionFields[$extensionKey]);
+                        yield from $serializer->serialize($config, $extensionFields[$extensionKey], $extensionValue);
+                    }
+                }
+
+                continue;
+            }
+
             $field = $fields->get($key);
             if ($field === null) {
                 yield $key => $value; // pass-through

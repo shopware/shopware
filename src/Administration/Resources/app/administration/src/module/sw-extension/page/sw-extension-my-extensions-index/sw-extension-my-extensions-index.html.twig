@@ -13,7 +13,7 @@
     <template #search-bar>
         {% block sw_extension_my_extensions_index_smart_bar_search_slot_search_bar %}
         <sw-search-bar
-            :initial-search-type="$tc('sw-extension.my-extensions.listing.initialSearchType')"
+            initial-search-type="extension"
             :placeholder="$tc('sw-extension.my-extensions.listing.placeholderSearchBar')"
             @search="onSearch"
         />

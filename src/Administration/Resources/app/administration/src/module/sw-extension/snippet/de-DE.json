@@ -13,7 +13,7 @@
     "my-extensions": {
       "listing": {
         "initialSearchType": "Erweiterungen",
-        "placeholderSearchBar": "Durchsuche alle Erweiterungen ...",
+        "placeholderSearchBar": "Finde Erweiterungen...",
         "controls": {
           "labelActiveStateSwitch": "Inaktive Erweiterungen ausblenden",
           "filterOptions": {
@@ -105,7 +105,6 @@
     },
     "listing": {
       "tabs": {
-        "extensions": "Erweiterungen",
         "themes": "Themes"
       },
       "placeHolderCategories": "Alle Kategorien",

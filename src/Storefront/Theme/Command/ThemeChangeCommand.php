@@ -78,7 +78,8 @@ class ThemeChangeCommand extends Command
     protected function configure(): void
     {
         $this->addArgument('theme-name', InputArgument::OPTIONAL, 'Theme name');
-        $this->addOption('all', null, InputOption::VALUE_NONE, 'Set theme for all sales channel');
+        $this->addOption('sales-channel', 's', InputOption::VALUE_REQUIRED, 'Sales Channel ID. Can not be used together with --all.');
+        $this->addOption('all', null, InputOption::VALUE_NONE, 'Set theme for all sales channel Can not be used together with -s');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -88,15 +89,32 @@ class ThemeChangeCommand extends Command
 
         /** @var SalesChannelCollection $salesChannels */
         $salesChannels = $this->salesChannelRepository->search(new Criteria(), $this->context)->getEntities();
+        $salesChannelOption = $input->getOption('sales-channel');
+
+        if ($salesChannelOption && $input->getOption('all')) {
+            $this->io->error('You can use either --sales-channel or --all, not both at the same time.');
+
+            return self::FAILURE;
+        }
 
         if (!$input->getOption('all')) {
-            $question = new ChoiceQuestion('Please select a sales channel:', $this->getSalesChannelChoices($salesChannels));
-            $answer = $helper->ask($input, $output, $question);
-            $parsedSalesChannel = $this->parseSalesChannelAnswer($answer, $salesChannels);
-            if ($parsedSalesChannel === null) {
-                return self::FAILURE;
+            if ($salesChannelOption) {
+                $selectedSalesChannel = $salesChannels->get($salesChannelOption);
+                if ($selectedSalesChannel === null) {
+                    $this->io->error('Could not find sales channel with ID ' . $salesChannelOption);
+
+                    return self::FAILURE;
+                }
+                $salesChannels = new SalesChannelCollection([$selectedSalesChannel]);
+            } else {
+                $question = new ChoiceQuestion('Please select a sales channel:', $this->getSalesChannelChoices($salesChannels));
+                $answer = $helper->ask($input, $output, $question);
+                $parsedSalesChannel = $this->parseSalesChannelAnswer($answer, $salesChannels);
+                if ($parsedSalesChannel === null) {
+                    return self::FAILURE;
+                }
+                $salesChannels = new SalesChannelCollection([$parsedSalesChannel]);
             }
-            $salesChannels = new SalesChannelCollection([$parsedSalesChannel]);
         }
 
         if (!$input->getArgument('theme-name')) {

@@ -18,7 +18,7 @@ class Migration1617896006MakeNameNullable extends MigrationStep
 ALTER TABLE `cms_page_translation` MODIFY COLUMN `name` VARCHAR(255) NULL;
 SQL;
 
-        $connection->executeUpdate($sql);
+        $connection->executeStatement($sql);
     }
 
     public function updateDestructive(Connection $connection): void

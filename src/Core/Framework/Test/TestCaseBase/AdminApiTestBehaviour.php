@@ -127,7 +127,7 @@ trait AdminApiTestBehaviour
      * @throws \RuntimeException
      * @throws DBALException
      */
-    public function authorizeBrowser(TestBrowser $browser, array $scopes = [], ?array $aclPermissions = null): void
+    public function authorizeBrowser(KernelBrowser $browser, array $scopes = [], ?array $aclPermissions = null): void
     {
         $username = Uuid::randomHex();
         $password = Uuid::randomHex();

@@ -131,8 +131,17 @@ Shopware.Component.register('sw-import-export-progress', {
     },
 
     methods: {
-        getDownloadUrl(id, accessToken) {
-            return this.importExport.getDownloadUrl(id, accessToken);
+        /**
+         * @deprecated tag:v6.5.0 - Remove unused method, use openDownload instead
+         */
+        getDownloadUrl() {
+            Shopware.Utils.debug.error('The method getDownloadUrl has been replaced with openDownload.');
+
+            return '';
+        },
+
+        async openDownload(id) {
+            return window.open(await this.importExport.getDownloadUrl(id), '_blank');
         },
 
         onShowLog(item) {

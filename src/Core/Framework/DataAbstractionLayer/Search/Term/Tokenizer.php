@@ -7,10 +7,10 @@ class Tokenizer implements TokenizerInterface
     public function tokenize(string $string): array
     {
         $string = mb_strtolower(html_entity_decode($string), 'UTF-8');
-        $string = trim(str_replace(['.', '-', '/', '\\'], ' ', $string));
+        $string = trim(str_replace(['.', '/', '\\'], ' ', $string));
         $string = str_replace('<', ' <', $string);
         $string = strip_tags($string);
-        $string = trim(preg_replace("/[^\pL_0-9]/u", ' ', $string));
+        $string = trim(preg_replace("/[^\pL\-_0-9]/u", ' ', $string));
 
         $tags = explode(' ', $string);
 

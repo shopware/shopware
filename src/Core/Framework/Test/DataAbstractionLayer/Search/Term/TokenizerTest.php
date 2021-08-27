@@ -31,6 +31,10 @@ class TokenizerTest extends TestCase
                 '!Example"§$%``=)(/&%%$§""!',
                 ['example'],
             ],
+            [
+                'Synergistic Copper DM-10000 FaceMaster',
+                ['synergistic', 'copper', 'dm-10000', 'facemaster'],
+            ],
         ];
     }
 }

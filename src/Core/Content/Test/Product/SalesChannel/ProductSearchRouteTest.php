@@ -81,7 +81,7 @@ class ProductSearchRouteTest extends TestCase
 
         $this->browser->request(
             'POST',
-            '/store-api/search?search=Product-Test',
+            '/store-api/search?search=Test-Product',
             [
             ]
         );
@@ -636,11 +636,7 @@ class ProductSearchRouteTest extends TestCase
             ],
             [
                 'Incredible-Copper-Vitro',
-                [
-                    'Rustic Copper Drastic Plastic',
-                    'Incredible Plastic Duoflex',
-                    'Fantastic Copper Ginger Vitro',
-                ],
+                [],
             ],
             [
                 'Incredible%$^$%^Copper%$^$^$%^Vitro',
@@ -720,7 +716,6 @@ class ProductSearchRouteTest extends TestCase
     private function createData(): void
     {
         $product = [
-            'name' => 'test',
             'stock' => 10,
             'price' => [
                 ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],

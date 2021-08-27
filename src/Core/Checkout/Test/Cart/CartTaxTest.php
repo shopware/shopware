@@ -71,7 +71,8 @@ class CartTaxTest extends TestCase
         float $countryTaxFreeFrom,
         float $countryCompanyTaxFreeFrom,
         int $quantity,
-        ?array $vatIds = null
+        ?array $vatIds = null,
+        bool $checkVatIdPattern = true
     ): void {
         $this->createShippingMethod();
 
@@ -100,7 +101,15 @@ class CartTaxTest extends TestCase
             'taxFreeFrom' => $currencyTaxFreeFrom,
         ]], $this->ids->context);
 
-        $this->updateCountry($countryId, $countryTaxFree, $countryTaxFreeFrom, $countryCompanyTaxFree, $countryCompanyTaxFreeFrom);
+        $this->updateCountry(
+            $countryId,
+            $countryTaxFree,
+            $countryTaxFreeFrom,
+            $countryCompanyTaxFree,
+            $countryCompanyTaxFreeFrom,
+            Defaults::CURRENCY,
+            $checkVatIdPattern
+        );
 
         $this->browser->request(
             'POST',
@@ -142,7 +151,8 @@ class CartTaxTest extends TestCase
         float $countryTaxFreeFrom,
         float $countryCompanyTaxFreeFrom,
         int $quantity,
-        ?array $vatIds = null
+        ?array $vatIds = null,
+        bool $checkVatIdPattern = true
     ): void {
         $currencyId = Uuid::fromBytesToHex($this->getCurrencyIdByIso('CHF'));
 
@@ -178,7 +188,9 @@ class CartTaxTest extends TestCase
             $countryTaxFree,
             $countryTaxFreeFrom,
             $countryCompanyTaxFree,
-            $countryCompanyTaxFreeFrom
+            $countryCompanyTaxFreeFrom,
+            Defaults::CURRENCY,
+            $checkVatIdPattern
         );
 
         $this->browser->request(
@@ -312,6 +324,7 @@ class CartTaxTest extends TestCase
      * float $countryCompanyTaxFreeFrom
      * int $quantity
      * ?array vatIds
+     * ?bool checkVatIdPattern
      *
      * @return array[]
      */
@@ -338,7 +351,10 @@ class CartTaxTest extends TestCase
             'case 18 tax-free' => ['tax-free', 0, false, true, 0, 1000, 2],
             'case 19 tax-free' => ['tax-free', 0, false, true, 0, 999.99, 3],
             'case 20 tax-free' => ['tax-free', 0, true, false, 1000, 0, 3],
-            'case 21 no tax-free' => ['no tax-free', 0, true, true, 1000, 100, 1, ['DE1234567890123']],
+            'case 21 no tax-free' => ['no tax-free', 0, true, true, 1000, 100, 1, ['DE1234567890123'], true],
+            'case 22 tax-free' => ['tax-free', 0, false, true, 1000, 100, 1, ['DE1234567890123'], false],
+            'case 23 tax-free' => ['tax-free', 0, false, true, 1000, 100, 1, ['DE123456789'], false],
+            'case 24 tax-free' => ['tax-free', 0, false, true, 1000, 100, 1, ['DE123456789'], true],
         ];
     }
 
@@ -429,7 +445,8 @@ class CartTaxTest extends TestCase
         float $countryTaxFreeFrom,
         bool $countryCompanyTaxFree,
         float $countryCompanyTaxFreeFrom,
-        string $currencyId = Defaults::CURRENCY
+        string $currencyId = Defaults::CURRENCY,
+        bool $checkVatIdPattern = true
     ): void {
         $this->countryRepository->update([[
             'id' => $countryId,
@@ -444,6 +461,7 @@ class CartTaxTest extends TestCase
                 'amount' => $countryCompanyTaxFreeFrom,
             ],
             'vatIdPattern' => '(DE)?[0-9]{9}',
+            'checkVatIdPattern' => $checkVatIdPattern,
         ]], $this->ids->context);
     }
 

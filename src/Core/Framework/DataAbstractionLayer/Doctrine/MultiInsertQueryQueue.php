@@ -79,12 +79,11 @@ class MultiInsertQueryQueue
         }
 
         $grouped = $this->prepare();
-
-        foreach ($grouped as $query) {
-            RetryableQuery::retryable($this->connection, function () use ($query): void {
+        RetryableTransaction::retryable($this->connection, function () use ($grouped): void {
+            foreach ($grouped as $query) {
                 $this->connection->executeStatement($query);
-            });
-        }
+            }
+        });
         unset($grouped);
 
         $this->inserts = [];

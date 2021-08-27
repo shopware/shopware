@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
-use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
@@ -109,14 +109,11 @@ class ProductStreamUpdater extends EntityIndexer
             }
         }
 
-        RetryableQuery::retryable($this->connection, function () use ($binary): void {
+        RetryableTransaction::retryable($this->connection, function () use ($insert, $binary): void {
             $this->connection->executeStatement(
                 'DELETE FROM product_stream_mapping WHERE product_stream_id = :id',
                 ['id' => $binary],
             );
-        });
-
-        RetryableQuery::retryable($this->connection, function () use ($insert): void {
             $insert->execute();
         });
     }
@@ -177,15 +174,12 @@ class ProductStreamUpdater extends EntityIndexer
             }
         }
 
-        RetryableQuery::retryable($this->connection, function () use ($ids): void {
+        RetryableTransaction::retryable($this->connection, function () use ($ids, $insert): void {
             $this->connection->executeStatement(
                 'DELETE FROM product_stream_mapping WHERE product_id IN (:ids)',
                 ['ids' => Uuid::fromHexToBytesList($ids)],
                 ['ids' => Connection::PARAM_STR_ARRAY]
             );
-        });
-
-        RetryableQuery::retryable($this->connection, function () use ($insert): void {
             $insert->execute();
         });
     }

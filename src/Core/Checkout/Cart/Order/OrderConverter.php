@@ -137,7 +137,6 @@ class OrderConverter
             $data['orderCustomer'] = CustomerTransformer::transform($customer);
         }
 
-        $context->getLanguageIdChain();
         $data['languageId'] = $context->getSalesChannel()->getLanguageId();
 
         $convertedLineItems = LineItemTransformer::transformCollection($cart->getLineItems());

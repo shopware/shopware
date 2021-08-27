@@ -13,10 +13,7 @@ class RetryableQuery
      */
     private $connection;
 
-    /**
-     * @var Statement
-     */
-    private $query;
+    private Statement $query;
 
     /**
      * @param Connection $param1

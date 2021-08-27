@@ -180,52 +180,21 @@ class SearchKeywordUpdater
 
     private function insertKeywords(array $keywords): void
     {
-        $queue = new MultiInsertQueryQueue($this->connection, 50);
+        $queue = new MultiInsertQueryQueue($this->connection, 50, true);
         foreach ($keywords as $insert) {
             $queue->addInsert(ProductSearchKeywordDefinition::ENTITY_NAME, $insert);
         }
-
-        // try batch insert
-        try {
-            $queue->execute();
-        } catch (\Exception $e) {
-            // catch deadlock exception and retry with single insert
-            $query = new RetryableQuery(
-                $this->connection,
-                $this->connection->prepare('
-                    INSERT IGNORE INTO `product_search_keyword` (`id`, `version_id`, `product_version_id`, `language_id`, `product_id`, `keyword`, `ranking`, `created_at`)
-                    VALUES (:id, :version_id, :product_version_id, :language_id, :product_id, :keyword, :ranking, :created_at)
-                ')
-            );
-
-            foreach ($keywords as $keyword) {
-                $query->execute($keyword);
-            }
-        }
+        $queue->execute();
     }
 
     private function insertDictionary(array $dictionary): void
     {
-        $queue = new MultiInsertQueryQueue($this->connection, 50, false, true);
+        $queue = new MultiInsertQueryQueue($this->connection, 50, true, true);
 
         foreach ($dictionary as $insert) {
             $queue->addInsert(ProductKeywordDictionaryDefinition::ENTITY_NAME, $insert);
         }
-
-        // try batch insert
-        try {
-            $queue->execute();
-        } catch (\Exception $e) {
-            // catch deadlock exception and retry with single insert
-            $query = new RetryableQuery(
-                $this->connection,
-                $this->connection->prepare('INSERT IGNORE INTO `product_keyword_dictionary` (`id`, `language_id`, `keyword`) VALUES (:id, :language_id, :keyword)')
-            );
-
-            foreach ($dictionary as $insert) {
-                $query->execute($insert);
-            }
-        }
+        $queue->execute();
     }
 
     private function buildCriteria(array $accessors, Criteria $criteria, Context $context): void

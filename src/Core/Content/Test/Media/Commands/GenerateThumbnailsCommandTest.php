@@ -7,6 +7,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Commands\GenerateThumbnailsCommand;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
+use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -212,6 +213,56 @@ class GenerateThumbnailsCommandTest extends TestCase
         $output = new BufferedOutput();
 
         $this->runCommand($this->thumbnailCommand, $input, $output);
+    }
+
+    public function testItCallsUpdateThumbnailsWithStrictArgument(): void
+    {
+        $this->createValidMediaFiles();
+        $newMedia = $this->getNewMediaEntities();
+
+        $input = new StringInput('--strict');
+        $output = new BufferedOutput();
+
+        $thumbnailServiceMock = $this->getMockBuilder(ThumbnailService::class)
+            ->disableOriginalConstructor()->getMock();
+
+        $thumbnailServiceMock->expects(static::exactly(\count($this->initialMediaIds) + $newMedia->count()))
+            ->method('updateThumbnails')
+            ->with(static::anything(), $this->context, true);
+
+        $command = new GenerateThumbnailsCommand(
+            $thumbnailServiceMock,
+            $this->mediaRepository,
+            $this->mediaFolderRepository,
+            $this->getContainer()->get('messenger.bus.shopware')
+        );
+
+        $this->runCommand($command, $input, $output);
+    }
+
+    public function testItCallsUpdateThumbnailsWithoutStrictArgument(): void
+    {
+        $this->createValidMediaFiles();
+        $newMedia = $this->getNewMediaEntities();
+
+        $input = new StringInput('');
+        $output = new BufferedOutput();
+
+        $thumbnailServiceMock = $this->getMockBuilder(ThumbnailService::class)
+            ->disableOriginalConstructor()->getMock();
+
+        $thumbnailServiceMock->expects(static::exactly(\count($this->initialMediaIds) + $newMedia->count()))
+            ->method('updateThumbnails')
+            ->with(static::anything(), $this->context, false);
+
+        $command = new GenerateThumbnailsCommand(
+            $thumbnailServiceMock,
+            $this->mediaRepository,
+            $this->mediaFolderRepository,
+            $this->getContainer()->get('messenger.bus.shopware')
+        );
+
+        $this->runCommand($command, $input, $output);
     }
 
     protected function assertThumbnailExists(MediaEntity $media, MediaThumbnailEntity $thumbnail): void

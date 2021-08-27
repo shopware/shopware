@@ -490,4 +490,68 @@ class ThumbnailServiceTest extends TestCase
             );
         }
     }
+
+    public function strictModeConditionsProvider(): array
+    {
+        return [[true], [false]];
+    }
+
+    /**
+     * @dataProvider strictModeConditionsProvider
+     */
+    public function testUpdateThumbnailStrictMode(bool $strict): void
+    {
+        $this->setFixtureContext($this->context);
+        $media = $this->getPngWithFolder();
+
+        $this->thumbnailRepository->create([
+            [
+                'mediaId' => $media->getId(),
+                'width' => 200,
+                'height' => 200,
+            ],
+        ], $this->context);
+
+        $criteria = new Criteria([$media->getId()]);
+        $criteria->addAssociation('thumbnails');
+        $criteria->addAssociation('mediaFolder.configuration.mediaThumbnailSizes');
+
+        $media = $this->mediaRepository->search($criteria, $this->context)->get($media->getId());
+
+        $this->getPublicFilesystem()->putStream(
+            $this->urlGenerator->getRelativeMediaUrl($media),
+            fopen(__DIR__ . '/../fixtures/shopware-logo.png', 'rb')
+        );
+
+        $this->thumbnailService->generate(new MediaCollection([$media]), $this->context);
+
+        $criteria = new Criteria([$media->getId()]);
+        $criteria->addAssociation('thumbnails');
+
+        $media = $this->mediaRepository
+            ->search($criteria, $this->context)
+            ->get($media->getId());
+
+        $thumbnail = $media->getThumbnails()->first();
+        $thumbnailPath = $this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail);
+
+        if ($this->getPublicFilesystem()->has($thumbnailPath)) {
+            // Make sure the file is deleted from filesystem
+            $this->getPublicFilesystem()->delete($thumbnailPath);
+        }
+
+        $this->thumbnailService->updateThumbnails($media, $this->context, $strict);
+
+        if ($strict) {
+            static::assertTrue(
+                $this->getPublicFilesystem()->has($thumbnailPath),
+                'Thumbnail: ' . $thumbnailPath . ' does not exist, but it should be regenerated when in strict mode.'
+            );
+        } else {
+            static::assertFalse(
+                $this->getPublicFilesystem()->has($thumbnailPath),
+                'Thumbnail: ' . $thumbnailPath . ' does exist, but it should not be regenerated when not in strict mode.'
+            );
+        }
+    }
 }

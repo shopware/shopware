@@ -156,8 +156,10 @@ class ThumbnailService
     /**
      * @throws FileTypeNotSupportedException
      * @throws ThumbnailCouldNotBeSavedException
+     *
+     * @deprecated tag:v6.5.0 - Parameter $strict will be mandatory in future implementation
      */
-    public function updateThumbnails(MediaEntity $media, Context $context): int
+    public function updateThumbnails(MediaEntity $media, Context $context /* , bool $strict = false */): int
     {
         if (!$this->mediaCanHaveThumbnails($media, $context)) {
             $this->deleteAssociatedThumbnails($media, $context);
@@ -175,6 +177,8 @@ class ThumbnailService
             return 0;
         }
 
+        $strict = \func_get_args()[2] ?? false;
+
         $tobBeCreatedSizes = new MediaThumbnailSizeCollection($config->getMediaThumbnailSizes()->getElements());
         $toBeDeletedThumbnails = new MediaThumbnailCollection($media->getThumbnails()->getElements());
 
@@ -182,6 +186,7 @@ class ThumbnailService
             foreach ($toBeDeletedThumbnails as $thumbnail) {
                 if ($thumbnail->getWidth() === $thumbnailSize->getWidth()
                     && $thumbnail->getHeight() === $thumbnailSize->getHeight()
+                    && ($strict === false || $this->getFileSystem($media)->has($this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail)))
                 ) {
                     $toBeDeletedThumbnails->remove($thumbnail->getId());
                     $tobBeCreatedSizes->remove($thumbnailSize->getId());

@@ -1,0 +1,69 @@
+{% block sw_condition_value_content %}
+<div class="sw-condition-customer-custom-field sw-condition__condition-value">
+
+    {% block sw_condition_customer_custom_field_fieldset %}
+    <sw-arrow-field :disabled="disabled">
+        <sw-entity-single-select
+            ref="selectedFieldSet"
+            v-model="selectedFieldSet"
+            entity="custom_field_set"
+            :criteria="customFieldSetCriteria"
+            :placeholder="$tc('global.sw-condition.condition.lineItemCustomField.field.fieldSetSelect.placeholder')"
+            :disabled="disabled"
+            size="medium"
+            show-clearable-button
+            @change="onFieldSetChange"
+        >
+            <template #selection-label-property="slotProps">
+                {{ getInlineSnippet(slotProps.item.config.label) || slotProps.item.name }}
+            </template>
+            <template #result-label-property="slotProps">
+                {{ getInlineSnippet(slotProps.item.config.label) || slotProps.item.name }}
+            </template>
+        </sw-entity-single-select>
+    </sw-arrow-field>
+    {% endblock %}
+    {% block sw_condition_customer_custom_field_field %}
+    <sw-arrow-field
+        v-if="selectedFieldSet"
+        :disabled="disabled"
+    >
+        <sw-entity-single-select
+            ref="selectedField"
+            v-model="selectedField"
+            entity="custom_field"
+            :criteria="customFieldCriteria"
+            :placeholder="$tc('global.sw-condition.condition.lineItemCustomField.field.customFieldSelect.placeholder')"
+            :disabled="disabled"
+            size="medium"
+            show-clearable-button
+            @change="onFieldChange"
+        >
+            <template #selection-label-property="slotProps">
+                {{ getInlineSnippet(slotProps.item.config.label) || slotProps.item.name }}
+            </template>
+            <template #result-label-property="slotProps">
+                {{ getInlineSnippet(slotProps.item.config.label) || slotProps.item.name }}
+            </template>
+        </sw-entity-single-select>
+    </sw-arrow-field>
+    {% endblock %}
+    {% block sw_condition_customer_custom_field_operator %}
+    <sw-condition-operator-select
+        v-if="renderedField"
+        v-model="operator"
+        v-bind="{ operators, condition }"
+        :disabled="disabled"
+    />
+    {% endblock %}
+    {% block sw_condition_customer_custom_field_value %}
+    <sw-form-field-renderer
+        v-if="renderedField"
+        v-model="renderedFieldValue"
+        :config="renderedField.config"
+        :disabled="disabled"
+        size="medium"
+    />
+    {% endblock %}
+</div>
+{% endblock %}

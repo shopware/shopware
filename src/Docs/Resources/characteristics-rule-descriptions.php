@@ -197,6 +197,10 @@ EOD
 Matches multiple zip codes to the customer's active shipping address zip code. True if one zip code matches.
 EOD
     ,
+    Shopware\Core\Checkout\Customer\Rule\CustomerCustomFieldRule::class => <<<'EOD'
+Matches if a customer has a specific custom field.
+EOD
+    ,
     Shopware\Core\Framework\Rule\Container\AndRule::class => <<<'EOD'
 Composition of rules. Matches if all match.
 EOD

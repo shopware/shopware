@@ -637,7 +637,8 @@
               "placeholder": "Select custom field..."
             }
           }
-        }
+        },
+        "customerCustomFieldRule": "Customer with custom field"
       }
     },
     "sw-product-image": {

@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Store\Api\ExtensionStoreActionsController;
 use Shopware\Core\Framework\Store\Services\ExtensionDownloader;
 use Shopware\Core\Framework\Store\Services\ExtensionLifecycleService;
+use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,6 +20,7 @@ use Symfony\Component\HttpFoundation\Response;
 class ExtensionStoreActionsControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use AdminApiTestBehaviour;
 
     public function setUp(): void
     {
@@ -57,6 +59,33 @@ class ExtensionStoreActionsControllerTest extends TestCase
 
         static::expectException(PluginNotAZipFileException::class);
         $controller->uploadExtensions($request, Context::createDefaultContext());
+    }
+
+    public function testUploadExtensionsWithInvalidPermissions(): void
+    {
+        $browser = $this->getBrowser();
+        $this->authorizeBrowser($browser, [], ['system.plugin_maintain']);
+
+        $browser->request('POST', '/api/_action/extension/upload');
+        $response = $browser->getResponse();
+
+        static::assertEquals(403, $response->getStatusCode());
+        $body = \json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertEquals('FRAMEWORK__MISSING_PRIVILEGE_ERROR', $body['errors'][0]['code']);
+    }
+
+    public function testUploadExtensionsWithValidPermissions(): void
+    {
+        $browser = $this->getBrowser();
+        $this->authorizeBrowser($browser, [], ['system.plugin_upload']);
+
+        $browser->request('POST', '/api/_action/extension/upload');
+        $response = $browser->getResponse();
+
+        // If we get a missing parameter exception, the request reached the controller and was not blocked due to ACL
+        static::assertEquals(400, $response->getStatusCode());
+        $body = \json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertEquals('FRAMEWORK__MISSING_REQUEST_PARAMETER', $body['errors'][0]['code']);
     }
 
     public function testUploadExtensionsWithUnpackError(): void

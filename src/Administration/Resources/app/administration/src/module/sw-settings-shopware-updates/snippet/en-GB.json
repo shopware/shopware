@@ -82,7 +82,8 @@
     "additional_permissions": {
       "system": {
         "core_update": "Run updates",
-        "plugin_maintain": "Maintain extensions"
+        "plugin_maintain": "Maintain extensions",
+        "plugin_upload": "Upload Extensions"
       }
     }
   }

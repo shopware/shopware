@@ -155,6 +155,17 @@ class ImportExportActionController extends AbstractController
     }
 
     /**
+     * @Since("6.4.3.1")
+     * @Route("/api/_action/import-export/file/prepare-download/{fileId}", name="api.action.import_export.file.prepare-download", methods={"POST"})
+     */
+    public function prepareDownload(string $fileId, Context $context): Response
+    {
+        $token = $this->downloadService->regenerateToken($context, $fileId);
+
+        return new JsonResponse(['accessToken' => $token]);
+    }
+
+    /**
      * @Since("6.0.0.0")
      * @Route("/api/_action/import-export/file/download", name="api.action.import_export.file.download", defaults={"auth_required"=false}, methods={"GET"})
      */

@@ -41,7 +41,7 @@ class ImportExportFileDefinition extends EntityDefinition
             (new DateTimeField('expire_date', 'expireDate'))->addFlags(new Required()),
             new IntField('size', 'size'),
             new OneToOneAssociationField('log', 'id', 'file_id', ImportExportLogDefinition::class, false),
-            (new StringField('access_token', 'accessToken'))->addFlags(new Required()),
+            new StringField('access_token', 'accessToken'),
         ]);
     }
 }

@@ -85,10 +85,10 @@
             </sw-context-menu-item>
             {% endblock %}
             {% block sw_import_export_activity_listing_actions_download_file %}
+            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
             <a
-                class="sw-import-export-activity__download-action sw-external-link"
-                :href="getDownloadUrl(item.fileId, item.file.accessToken)"
-                target="_blank"
+                class="sw-import-export-activity__download-action"
+                @click="openDownload(item.fileId)"
             >
                 <sw-context-menu-item>
                     {{ $tc('sw-import-export.activity.contextMenu.downloadFile') }}
@@ -102,10 +102,10 @@
             {% endblock %}
             {% block sw_import_export_activity_listing_actions_download_invalid %}
             <template v-if="item.invalidRecordsLog">
+                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                 <a
-                    class="sw-import-export-activity__download-action sw-external-link"
-                    :href="getDownloadUrl(item.invalidRecordsLog.fileId, item.invalidRecordsLog.file.accessToken)"
-                    target="_blank"
+                    class="sw-import-export-activity__download-action"
+                    @click="openDownload(item.invalidRecordsLog.fileId)"
                 >
                     <sw-context-menu-item>
                         {{ $tc('sw-import-export.activity.contextMenu.downloadInvalidFile') }}

@@ -10,8 +10,8 @@
 
     {% block sw_import_export_importer_file_input %}
     <sw-file-input
-        v-model="importFile"
         :key="isLoading"
+        v-model="importFile"
     >
         <template #caption-label>
             {{ $tc('sw-import-export.importer.labelUploadCaption') }}

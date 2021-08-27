@@ -20,7 +20,7 @@ Component.register('sw-notification-center-item', {
                 'sw-notification-center-item__header--is-new': !this.notification.visited,
             };
         },
-        // @deprecated tag:v.6.5.0 - use "sw-time-ago" component instead
+        // @deprecated tag:v6.5.0 - use "sw-time-ago" component instead
         dateFormatted() {
             if (this.isNotificationFromSameDay()) {
                 return date(

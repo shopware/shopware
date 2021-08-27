@@ -115,13 +115,13 @@ class CachedProductReviewRouteTest extends TestCase
             (new ProductBuilder($ids, 'product'))
                 ->price(100)
                 ->visibility()
-                ->review('Super', 'Amazing product!!!!')
+                ->review('Super', 'Amazing product!!!!', 3, Defaults::SALES_CHANNEL, DEFAULTS::LANGUAGE_SYSTEM, false)
                 ->build(),
 
             (new ProductBuilder($ids, 'other-product'))
                 ->price(100)
                 ->visibility()
-                ->review('Super', 'Amazing product!!!!')
+                ->review('other-product', 'Amazing other-product!!!!')
                 ->build(),
         ];
 
@@ -136,7 +136,6 @@ class CachedProductReviewRouteTest extends TestCase
 
         $dispatcher = $this->getContainer()->get('event_dispatcher');
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
-
         $listener->expects(static::exactly($calls))->method('__invoke');
         $dispatcher->addListener('product_review.loaded', $listener);
 
@@ -149,6 +148,8 @@ class CachedProductReviewRouteTest extends TestCase
 
         $route->load($productId, new Request(), $this->context, new Criteria());
         $route->load($productId, new Request(), $this->context, new Criteria());
+
+        $dispatcher->removeListener('product_review.loaded', $listener);
     }
 
     public function invalidationProvider()

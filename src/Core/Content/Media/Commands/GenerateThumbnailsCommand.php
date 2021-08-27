@@ -64,6 +64,11 @@ class GenerateThumbnailsCommand extends Command
      */
     private $isAsync;
 
+    /**
+     * @var bool
+     */
+    private $isStrict;
+
     public function __construct(
         ThumbnailService $thumbnailService,
         EntityRepositoryInterface $mediaRepository,
@@ -104,6 +109,12 @@ class GenerateThumbnailsCommand extends Command
                 InputOption::VALUE_NONE,
                 'Queue up batch jobs instead of generating thumbnails directly'
             )
+            ->addOption(
+                'strict',
+                's',
+                InputOption::VALUE_NONE,
+                'Additionally checks that physical files for existing thumbnails are present'
+            )
         ;
     }
 
@@ -133,6 +144,7 @@ class GenerateThumbnailsCommand extends Command
         $this->folderFilter = $this->getFolderFilterFromInput($input, $context);
         $this->batchSize = $this->getBatchSizeFromInput($input);
         $this->isAsync = $input->getOption('async');
+        $this->isStrict = $input->getOption('strict');
     }
 
     private function getBatchSizeFromInput(InputInterface $input): int
@@ -181,7 +193,7 @@ class GenerateThumbnailsCommand extends Command
             /** @var MediaEntity $media */
             foreach ($result->getEntities() as $media) {
                 try {
-                    if ($this->thumbnailService->updateThumbnails($media, $context) > 0) {
+                    if ($this->thumbnailService->updateThumbnails($media, $context, $this->isStrict) > 0) {
                         ++$generated;
                     } else {
                         ++$skipped;
@@ -254,6 +266,7 @@ class GenerateThumbnailsCommand extends Command
         $this->io->comment('Generating batch jobs...');
         while (($result = $mediaIterator->fetch()) !== null) {
             $msg = new UpdateThumbnailsMessage();
+            $msg->setIsStrict($this->isStrict);
             $msg->setMediaIds($result->getEntities()->getIds());
             $msg->withContext($context);
 

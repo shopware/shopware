@@ -8,6 +8,7 @@ use Shopware\Core\Content\Media\Message\GenerateThumbnailsHandler;
 use Shopware\Core\Content\Media\Message\GenerateThumbnailsMessage;
 use Shopware\Core\Content\Media\Message\UpdateThumbnailsMessage;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
+use Shopware\Core\Content\Media\Thumbnail\ThumbnailService;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -154,5 +155,61 @@ class GenerateThumbnailsHandlerTest extends TestCase
                 'Thumbnail: ' . $path . ' does not exist'
             );
         }
+    }
+
+    public function testDiffersBetweenUpdateAndGenerateMessage(): void
+    {
+        $thumbnailServiceMock = $this->getMockBuilder(ThumbnailService::class)
+            ->disableOriginalConstructor()->getMock();
+
+        $handler = new GenerateThumbnailsHandler($thumbnailServiceMock, $this->mediaRepository);
+
+        $randomCriteria = (new Criteria())
+            /* @see GenerateThumbnailsHandler Association as in target method is required for the ease of PHPUnit's constraint evaluation */
+            ->addAssociation('mediaFolder.configuration.mediaThumbnailSizes')
+            ->setLimit(5);
+
+        $testEntities1 = $this->mediaRepository->search($randomCriteria->setOffset(0), $this->context)->getEntities();
+        $testEntities2 = $this->mediaRepository->search($randomCriteria->setOffset(5), $this->context)->getEntities();
+        $testEntities3 = $this->mediaRepository->search($randomCriteria->setOffset(10), $this->context)->getEntities();
+
+        $generateMessage = new GenerateThumbnailsMessage();
+        $generateMessage->setMediaIds($testEntities1->getIds());
+        $generateMessage->withContext($this->context);
+
+        $updateMessage1 = new UpdateThumbnailsMessage();
+        $updateMessage1->setMediaIds($testEntities2->getIds());
+        $updateMessage1->withContext($this->context);
+        $updateMessage1->setIsStrict(true);
+
+        $updateMessage2 = new UpdateThumbnailsMessage();
+        $updateMessage2->setMediaIds($testEntities3->getIds());
+        $updateMessage2->withContext($this->context);
+        $updateMessage2->setIsStrict(false);
+
+        $thumbnailServiceMock->expects(static::once())
+            ->method('generate')
+            ->with($testEntities1, $this->context)
+            ->willReturn($testEntities1->count());
+
+        $consecutiveUpdateMessageParams = [
+            // For UpdateMessage 1
+            ...array_map(function ($entity) {
+                return [$entity, $this->context, true];
+            }, array_values($testEntities2->getElements())),
+            // For UpdateMessage 2
+            ...array_map(function ($entity) {
+                return [$entity, $this->context, false];
+            }, array_values($testEntities3->getElements())),
+        ];
+
+        $thumbnailServiceMock->expects(static::exactly($testEntities2->count() + $testEntities3->count()))
+            ->method('updateThumbnails')
+            ->withConsecutive(...$consecutiveUpdateMessageParams)
+            ->willReturn(1);
+
+        $handler->handle($generateMessage);
+        $handler->handle($updateMessage1);
+        $handler->handle($updateMessage2);
     }
 }

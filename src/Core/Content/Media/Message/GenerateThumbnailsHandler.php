@@ -35,7 +35,13 @@ class GenerateThumbnailsHandler extends AbstractMessageHandler
         /** @var MediaCollection $entities */
         $entities = $this->mediaRepository->search($criteria, $context)->getEntities();
 
-        $this->thumbnailService->generate($entities, $context);
+        if ($msg instanceof UpdateThumbnailsMessage) {
+            foreach ($entities as $media) {
+                $this->thumbnailService->updateThumbnails($media, $context, $msg->isStrict());
+            }
+        } else {
+            $this->thumbnailService->generate($entities, $context);
+        }
     }
 
     public static function getHandledMessages(): iterable

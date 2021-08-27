@@ -266,6 +266,7 @@ class GenerateThumbnailsCommand extends Command
         $this->io->comment('Generating batch jobs...');
         while (($result = $mediaIterator->fetch()) !== null) {
             $msg = new UpdateThumbnailsMessage();
+            $msg->setIsStrict($this->isStrict);
             $msg->setMediaIds($result->getEntities()->getIds());
             $msg->withContext($context);
 

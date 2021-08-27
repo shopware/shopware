@@ -231,8 +231,6 @@ class SeoUrlPersister
             $query->setParameter('salesChannelId', Uuid::fromHexToBytes($salesChannelId));
         }
 
-        RetryableQuery::retryable($this->connection, function () use ($query): void {
-            $query->execute();
-        });
+        $query->execute();
     }
 }

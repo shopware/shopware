@@ -941,11 +941,6 @@ parameters:
 			path: src/Core/Content/Media/File/FileSaver.php
 
 		-
-			message: "#^Parameter \\#1 \\$hostname of function gethostbyname expects string, string\\|false\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/Media/File/FileUrlValidator.php
-
-		-
 			message: "#^Cannot call method getId\\(\\) on Shopware\\\\Core\\\\Content\\\\Media\\\\Aggregate\\\\MediaFolderConfiguration\\\\MediaFolderConfigurationEntity\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/Media/MediaFolderService.php

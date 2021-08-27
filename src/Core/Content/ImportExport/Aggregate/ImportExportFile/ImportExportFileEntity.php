@@ -37,7 +37,7 @@ class ImportExportFileEntity extends Entity
     protected $log;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $accessToken;
 
@@ -91,12 +91,12 @@ class ImportExportFileEntity extends Entity
         $this->log = $log;
     }
 
-    public function getAccessToken(): string
+    public function getAccessToken(): ?string
     {
         return $this->accessToken;
     }
 
-    public function setAccessToken(string $accessToken): void
+    public function setAccessToken(?string $accessToken): void
     {
         $this->accessToken = $accessToken;
     }

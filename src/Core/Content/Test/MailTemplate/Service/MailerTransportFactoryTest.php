@@ -70,6 +70,25 @@ class MailerTransportFactoryTest extends TestCase
 
         static::assertEquals(\get_class($original), \get_class($mailer));
     }
+
+    public function testFactoryWithLocalAndInvalidConfig(): void
+    {
+        $original = new SendmailTransport();
+
+        $factory = $this->getContainer()->get('mailer.transport_factory');
+
+        static::expectException(\RuntimeException::class);
+        static::expectExceptionMessage('Given sendmail option "-t && echo bla" is invalid');
+
+        $mailer = $factory->create(
+            new ConfigService([
+                'core.mailerSettings.emailAgent' => 'local',
+                'core.mailerSettings.sendMailOptions' => '-t && echo bla',
+            ])
+        );
+
+        static::assertEquals(\get_class($original), \get_class($mailer));
+    }
 }
 
 class ConfigService extends SystemConfigService

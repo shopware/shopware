@@ -115,7 +115,7 @@ class CachedProductReviewRouteTest extends TestCase
             (new ProductBuilder($ids, 'product'))
                 ->price(100)
                 ->visibility()
-                ->review('Super', 'Amazing product!!!!')
+                ->review('Super', 'Amazing product!!!!', 3, Defaults::SALES_CHANNEL, Defaults::LANGUAGE_SYSTEM, false)
                 ->build(),
 
             (new ProductBuilder($ids, 'other-product'))
@@ -149,6 +149,8 @@ class CachedProductReviewRouteTest extends TestCase
 
         $route->load($productId, new Request(), $this->context, new Criteria());
         $route->load($productId, new Request(), $this->context, new Criteria());
+
+        $dispatcher->removeListener('product_review.loaded', $listener);
     }
 
     public function invalidationProvider()

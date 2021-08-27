@@ -52,7 +52,7 @@
     {% block sw_extension_my_extensions_index_smart_bar_actions %}
     <template #smart-bar-actions>
         {% block sw_extension_my_extensions_index_smart_bar_actions_file_upload %}
-        <sw-extension-file-upload />
+        <sw-extension-file-upload v-if="acl.can('system.plugin_upload')" />
         {% endblock %}
     </template>
     {% endblock %}

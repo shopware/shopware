@@ -18,15 +18,9 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  */
 class DownloadService
 {
-    /**
-     * @var FilesystemInterface
-     */
-    private $filesystem;
+    private FilesystemInterface $filesystem;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $fileRepository;
+    private EntityRepositoryInterface $fileRepository;
 
     public function __construct(FilesystemInterface $filesystem, EntityRepositoryInterface $fileRepository)
     {
@@ -34,20 +28,32 @@ class DownloadService
         $this->fileRepository = $fileRepository;
     }
 
-    public function regenerateToken(Context $context, string $fileId): void
+    public function regenerateToken(Context $context, string $fileId): string
     {
+        $token = ImportExportFileEntity::generateAccessToken();
+
         $this->fileRepository->update(
-            [['id' => $fileId, 'accessToken' => ImportExportFileEntity::generateAccessToken()]],
+            [['id' => $fileId, 'accessToken' => $token]],
             $context
         );
+
+        return $token;
     }
 
     public function createFileResponse(Context $context, string $fileId, string $accessToken): Response
     {
         $entity = $this->findFile($context, $fileId);
-        if ($entity->getAccessToken() !== $accessToken) {
+
+        $fileAccessToken = (string) $entity->getAccessToken();
+
+        if ($fileAccessToken === '' || $entity->getAccessToken() !== $accessToken || !$this->isModifiedRecently($entity)) {
             throw new InvalidFileAccessTokenException();
         }
+
+        $this->fileRepository->update(
+            [['id' => $fileId, 'accessToken' => null]],
+            $context
+        );
 
         $headers = [
             'Content-Disposition' => HeaderUtils::makeDisposition(
@@ -77,5 +83,16 @@ class DownloadService
         }
 
         return $entity;
+    }
+
+    private function isModifiedRecently(ImportExportFileEntity $entity): bool
+    {
+        if ($entity->getUpdatedAt() === null) {
+            return false;
+        }
+
+        $diff = time() - $entity->getUpdatedAt()->getTimestamp();
+
+        return $diff < 300;
     }
 }

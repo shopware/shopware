@@ -60,7 +60,7 @@ class ProductBuilder
 
     protected array $translations = [];
 
-    protected array $reviews = [];
+    protected array $productReviews = [];
 
     public function __construct(IdsCollection $ids, string $number, int $stock = 1, string $taxKey = 't1')
     {
@@ -290,14 +290,23 @@ class ProductBuilder
         return $this;
     }
 
-    public function review(string $title, string $content, float $points = 3, string $salesChannelId = Defaults::SALES_CHANNEL, string $languageId = Defaults::LANGUAGE_SYSTEM): self
-    {
-        $this->reviews[] = [
+    public function review(
+        string $title,
+        string $content,
+        float $points = 3,
+        string $salesChannelId = Defaults::SALES_CHANNEL,
+        string $languageId = Defaults::LANGUAGE_SYSTEM,
+        bool $status = true,
+        ?string $customerId = null
+    ): self {
+        $this->productReviews[] = [
             'title' => $title,
             'content' => $content,
             'points' => $points,
             'languageId' => $languageId,
             'salesChannelId' => $salesChannelId,
+            'status' => $status,
+            'customerId' => $customerId,
         ];
 
         return $this;

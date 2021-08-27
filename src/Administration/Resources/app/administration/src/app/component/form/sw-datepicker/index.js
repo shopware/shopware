@@ -66,6 +66,7 @@ Component.register('sw-datepicker', {
         dateType: {
             type: String,
             default: 'date',
+            /* @deprecated tag:v6.5.0 'datetime-local' can be removed */
             validValues: ['time', 'date', 'datetime', 'datetime-local'],
             validator(value) {
                 return ['time', 'date', 'datetime', 'datetime-local'].includes(value);
@@ -135,6 +136,7 @@ Component.register('sw-datepicker', {
         },
 
         enableTime() {
+            /* @deprecated tag:v6.5.0 'datetime-local' can be removed */
             return this.noCalendar || ['datetime', 'datetime-local'].includes(this.dateType);
         },
 

@@ -93,6 +93,7 @@ class ThemeChangeCommand extends Command
 
         if ($salesChannelOption && $input->getOption('all')) {
             $this->io->error('You can use either --sales-channel or --all, not both at the same time.');
+
             return self::FAILURE;
         }
 
@@ -101,6 +102,7 @@ class ThemeChangeCommand extends Command
                 $selectedSalesChannel = $salesChannels->get($salesChannelOption);
                 if ($selectedSalesChannel === null) {
                     $this->io->error('Could not find sales channel with ID ' . $salesChannelOption);
+
                     return self::FAILURE;
                 }
                 $salesChannels = new SalesChannelCollection([$selectedSalesChannel]);

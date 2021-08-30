@@ -93,7 +93,7 @@ class ProductCategoryDenormalizer
             return;
         }
 
-        $queue = new MultiInsertQueryQueue($this->connection, 250);
+        $queue = new MultiInsertQueryQueue($this->connection, 250, true);
         foreach ($inserts as $insert) {
             $queue->addInsert('product_category_tree', $insert);
         }

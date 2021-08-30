@@ -180,7 +180,7 @@ class SearchKeywordUpdater
 
     private function insertKeywords(array $keywords): void
     {
-        $queue = new MultiInsertQueryQueue($this->connection, 50);
+        $queue = new MultiInsertQueryQueue($this->connection, 50, true);
         foreach ($keywords as $insert) {
             $queue->addInsert(ProductSearchKeywordDefinition::ENTITY_NAME, $insert);
         }
@@ -189,7 +189,7 @@ class SearchKeywordUpdater
 
     private function insertDictionary(array $dictionary): void
     {
-        $queue = new MultiInsertQueryQueue($this->connection, 50, false, true);
+        $queue = new MultiInsertQueryQueue($this->connection, 50, true, true);
 
         foreach ($dictionary as $insert) {
             $queue->addInsert(ProductKeywordDictionaryDefinition::ENTITY_NAME, $insert);

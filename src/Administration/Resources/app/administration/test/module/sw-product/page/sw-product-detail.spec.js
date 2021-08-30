@@ -1,5 +1,6 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
+import EntityCollection from 'src/core/data/entity-collection.data';
 import 'src/module/sw-product/page/sw-product-detail';
 import 'src/module/sw-product/component/sw-product-settings-mode';
 
@@ -45,7 +46,7 @@ const advancedModeSettings = {
 };
 
 describe('module/sw-product/page/sw-product-detail', () => {
-    function createWrapper() {
+    function createWrapper(searchFunction = () => Promise.resolve({})) {
         const localVue = createLocalVue();
         localVue.use(Vuex);
         localVue.directive('tooltip', {
@@ -73,9 +74,7 @@ describe('module/sw-product/page/sw-product-detail', () => {
                         create: () => {
                             return {};
                         },
-                        search: () => {
-                            return Promise.resolve({});
-                        },
+                        search: searchFunction,
                         get: () => {
                             return Promise.resolve({
                                 variation: []
@@ -84,7 +83,6 @@ describe('module/sw-product/page/sw-product-detail', () => {
                     })
                 }
             },
-
             stubs: {
                 'sw-page': {
                     template:
@@ -219,5 +217,48 @@ describe('module/sw-product/page/sw-product-detail', () => {
         invisibleTabItem.forEach(item => {
             expect(wrapper.find(item).attributes().style).toBe('display: none;');
         });
+    });
+
+    it('should always show the correct menu, even with the defaults not matching the userConfig', async () => {
+        wrapper.destroy();
+
+        const keys = ['general_information', 'prices', 'deliverability'];
+        const mockKey = 'mock_key_without_result';
+        wrapper = createWrapper((criteria) => {
+            if (criteria.filters[0]?.value !== 'mode.setting.advancedModeSettings') {
+                return Promise.resolve([]);
+            }
+
+            const settings = [...keys, mockKey].map((key) => {
+                return {
+                    enabled: false,
+                    key,
+                    label: key,
+                    name: 'general'
+                };
+            });
+
+            const result = new EntityCollection('/route', 'userModeSettings', {}, {}, [{
+                value: {
+                    advancedMode: { label: 'sw-product.general.textAdvancedMode', enabled: true },
+                    settings
+                }
+            }], 1);
+
+            return Promise.resolve(result);
+        });
+
+        await wrapper.vm.$nextTick();
+        const resultSettings = wrapper.vm.advancedModeSetting.value.settings;
+
+        resultSettings.forEach((entry) => {
+            expect(entry.enabled).toBe(!keys.includes(entry.key));
+        });
+
+        keys.forEach((key) => {
+            expect(resultSettings.some(entry => entry.key === key)).toBe(true);
+        });
+
+        expect(resultSettings.some(entry => entry.key === mockKey)).toBeFalsy();
     });
 });

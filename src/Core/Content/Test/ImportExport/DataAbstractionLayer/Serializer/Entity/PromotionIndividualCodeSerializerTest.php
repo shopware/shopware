@@ -118,6 +118,7 @@ class PromotionIndividualCodeSerializerTest extends TestCase
                 ],
                 'id' => $this->promoId,
                 'useIndividualCodes' => true,
+                'useCodes' => true,
             ],
             'code' => 'PrefixWXMPU',
         ], $deserialized);
@@ -150,6 +151,7 @@ class PromotionIndividualCodeSerializerTest extends TestCase
                 ],
                 'id' => $this->promoId,
                 'useIndividualCodes' => true,
+                'useCodes' => true,
             ],
             'code' => 'testCode',
             'id' => $this->promoCodeId,

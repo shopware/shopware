@@ -636,19 +636,21 @@ Component.register('sw-category-detail', {
         },
 
         saveSlotConfig() {
-            if (this.category.cmsPage.locked) {
+            if (this.category.cmsPage.locked || Object.values(this.category.slotConfig).length < 1) {
                 return Promise.resolve();
             }
 
             this.category.cmsPage.sections.forEach((section) => {
                 section.blocks.forEach((block) => {
                     block.slots.forEach((slot) => {
-                        slot.config = this.category.slotConfig[slot.id];
+                        if (this.category.slotConfig[slot.id]) {
+                            slot.config = this.category.slotConfig[slot.id];
+                        }
                     });
                 });
             });
 
-            return this.cmsPageRepository.save(this.category.cmsPage, Shopware.Context.api, true);
+            return this.cmsPageRepository.save(this.category.cmsPage, Shopware.Context.api);
         },
 
         checkForEntryPointOverwrite() {

@@ -59,7 +59,9 @@ class ThemeApiService extends ApiService {
     getConfiguration(themeId) {
         const apiRoute = `/_action/${this.getApiBasePath()}/${themeId}/configuration`;
 
-        const additionalHeaders = {};
+        const additionalHeaders = {
+            'sw-language-id': Shopware.State.get('session').languageId
+        };
 
         return this.httpClient.get(
             apiRoute,
@@ -74,7 +76,9 @@ class ThemeApiService extends ApiService {
     getStructuredFields(themeId) {
         const apiRoute = `/_action/${this.getApiBasePath()}/${themeId}/structured-fields`;
 
-        const additionalHeaders = {};
+        const additionalHeaders = {
+            'sw-language-id': Shopware.State.get('session').languageId
+        };
 
         return this.httpClient.get(
             apiRoute,

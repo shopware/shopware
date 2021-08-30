@@ -310,7 +310,7 @@
                                                             'data': data.get('shippingAddress'),
                                                             'hideCustomerTypeSelect': false,
                                                             'customToggleTarget': true,
-                                                            'accountType': data.get('accountType')
+                                                            'accountType': data.get('shippingAddress').get('accountType')
                                                         } %}
                                                     {% endblock %}
 

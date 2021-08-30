@@ -82,30 +82,24 @@ Component.register('sw-system-config', {
     },
 
     methods: {
-        createdComponent() {
+        async createdComponent() {
             this.isLoading = true;
-            this.readConfig()
-                .then(() => {
-                    this.readAll().then(() => {
-                        this.isLoading = false;
-                    });
-                })
-                .catch((error) => {
-                    if (error?.response?.data?.errors) {
-                        this.createErrorNotification(error.response.data.errors);
-                    }
-                });
+            try {
+                await this.readConfig();
+                await this.readAll();
+            } catch (error) {
+                if (error?.response?.data?.errors) {
+                    this.createErrorNotification(error.response.data.errors);
+                }
+            } finally {
+                this.isLoading = false;
+            }
         },
-        readConfig() {
-            return this.systemConfigApiService
-                .getConfig(this.domain)
-                .then(data => {
-                    this.config = data;
-                });
+        async readConfig() {
+            this.config = await this.systemConfigApiService.getConfig(this.domain);
         },
         readAll() {
             this.isLoading = true;
-
             // Return when data for this salesChannel was already loaded
             if (this.actualConfigData.hasOwnProperty(this.currentSalesChannelId)) {
                 this.isLoading = false;
@@ -114,16 +108,16 @@ Component.register('sw-system-config', {
 
             return this.loadCurrentSalesChannelConfig();
         },
-        loadCurrentSalesChannelConfig() {
+        async loadCurrentSalesChannelConfig() {
             this.isLoading = true;
 
-            return this.systemConfigApiService.getValues(this.domain, this.currentSalesChannelId)
-                .then(values => {
-                    this.$set(this.actualConfigData, this.currentSalesChannelId, values);
-                })
-                .finally(() => {
-                    this.isLoading = false;
-                });
+            try {
+                const values = await this.systemConfigApiService.getValues(this.domain, this.currentSalesChannelId);
+
+                this.$set(this.actualConfigData, this.currentSalesChannelId, values);
+            } finally {
+                this.isLoading = false;
+            }
         },
         saveAll() {
             this.isLoading = true;

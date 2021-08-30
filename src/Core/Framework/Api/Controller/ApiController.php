@@ -178,6 +178,7 @@ class ApiController extends AbstractController
      *      )
      * )
      * @Route("/api/_search", name="api.composite.search", methods={"GET","POST"}, requirements={"version"="\d+"})
+     * @major-deprecated (flag:FEATURE_NEXT_6040) - will be removed
      */
     public function compositeSearch(Request $request, Context $context): JsonResponse
     {

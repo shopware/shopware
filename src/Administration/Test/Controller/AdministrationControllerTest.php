@@ -40,8 +40,6 @@ class AdministrationControllerTest extends TestCase
     protected function setup(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
-
-        $this->connection = $this->getContainer()->get(Connection::class);
         $newLanguageId = $this->insertOtherLanguage();
         $this->createSearchConfigFieldForNewLanguage($newLanguageId);
 

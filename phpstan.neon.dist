@@ -193,6 +193,18 @@ parameters:
         -
             message: '#Constructor of class Shopware\\Core\\System\\SalesChannel\\Exception\\LanguageOfSalesChannelDomainDeleteException has an unused parameter \$language\.#'
             path: src/Core/System/SalesChannel/Exception/LanguageOfSalesChannelDomainDeleteException.php
+
+        # can be removed with feature flag FEATURE_NEXT_6040
+        -
+            message: "#^Service \"Shopware\\\\Administration\\\\Service\\\\AdminSearcher\" is not registered in the container\\.$#"
+            count: 1
+            path: src/Administration/Test/Service/AdminSearcherTest.php
+        # can be removed with feature flag FEATURE_NEXT_6040
+        -
+            message: "#^Property Shopware\\\\Administration\\\\Test\\\\Service\\\\AdminSearcherTest\\:\\:\\$searcher \\(Shopware\\\\Administration\\\\Service\\\\AdminSearcher\\) does not accept object\\|null\\.$#"
+            count: 1
+            path: src/Administration/Test/Service/AdminSearcherTest.php
+
 services:
     -
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Decoratable\DecoratableImplementsInterfaceRule

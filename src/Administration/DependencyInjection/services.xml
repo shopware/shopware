@@ -30,6 +30,26 @@
             </call>
         </service>
 
+        <service id="Shopware\Administration\Controller\AdminSearchController" public="true">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Administration\Service\AdminSearcher"/>
+            <argument type="service" id="serializer"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\Acl\AclCriteriaValidator"/>
+
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+
+            <tag name="shopware.feature" flag="FEATURE_NEXT_6040"/>
+        </service>
+
+        <service id="Shopware\Administration\Service\AdminSearcher">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+
+            <tag name="shopware.feature" flag="FEATURE_NEXT_6040"/>
+        </service>
+
         <service id="Shopware\Administration\Framework\Routing\AdministrationRouteScope">
             <argument>%shopware_administration.path_name%</argument>
             <tag name="shopware.route_scope"/>

@@ -163,6 +163,10 @@ Component.register('sw-datepicker', {
                     return null;
                 }
 
+                if (this.dateType === 'time') {
+                    return this.value;
+                }
+
                 // convert from UTC timezone to user timezone (represented as UTC)
                 const userTimeZone = Shopware?.State?.get('session')?.currentUser?.timeZone ?? 'UTC';
 
@@ -172,6 +176,11 @@ Component.register('sw-datepicker', {
                 return userTimezoneDate.toISOString();
             },
             set(newValue) {
+                if (this.dateType === 'time') {
+                    this.$emit('input', newValue);
+                    return;
+                }
+
                 // convert from user timezone (represented as UTC) to UTC timezone
                 const userTimeZone = Shopware?.State?.get('session')?.currentUser?.timeZone ?? 'UTC';
 

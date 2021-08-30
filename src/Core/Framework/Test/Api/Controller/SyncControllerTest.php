@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -511,12 +512,11 @@ class SyncControllerTest extends TestCase
         ];
 
         $headers = [
-            'HTTP_indexing-skip' => ProductIndexer::SEARCH_KEYWORD_UPDATER,
+            'HTTP_' . PlatformRequest::HEADER_INDEXING_SKIP => ProductIndexer::SEARCH_KEYWORD_UPDATER,
         ];
         $this->getBrowser()->request('POST', '/api/_action/sync', [], [], $headers, json_encode($data));
-        $json = json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertTrue($json['success']);
+        static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
 
         $connection = $this->getContainer()->get(Connection::class);
 

@@ -31,7 +31,7 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
     /**
      * @var EntityIndexer[]
      */
-    private $indexer;
+    private iterable $indexer;
 
     private MessageBusInterface $messageBus;
 
@@ -153,8 +153,6 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
             }
 
             $this->messageBus->dispatch(new IterateEntityIndexerMessage($message->getIndexer(), $next->getOffset(), $message->getSkip()));
-
-            return;
         }
     }
 

@@ -10,15 +10,9 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class RegisteredIndexerSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var IndexerQueuer
-     */
-    private $indexerQueuer;
+    private IndexerQueuer $indexerQueuer;
 
-    /**
-     * @var EntityIndexerRegistry
-     */
-    private $indexerRegistry;
+    private EntityIndexerRegistry $indexerRegistry;
 
     public function __construct(IndexerQueuer $indexerQueuer, EntityIndexerRegistry $indexerRegistry)
     {
@@ -64,7 +58,7 @@ class RegisteredIndexerSubscriber implements EventSubscriberInterface
                 continue;
             }
 
-            $skipList = array_values(array_diff($indexer->getAvailableIndexers(), $options));
+            $skipList = array_values(array_diff($indexer->getOptions(), $options));
 
             $this->indexerRegistry->sendIndexingMessage([$indexerName], $skipList);
         }

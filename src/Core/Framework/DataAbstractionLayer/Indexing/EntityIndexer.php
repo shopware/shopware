@@ -59,7 +59,7 @@ abstract class EntityIndexer
      *
      * @return string[]
      */
-    public function getAvailableIndexers(): array
+    public function getOptions(): array
     {
         return [];
     }

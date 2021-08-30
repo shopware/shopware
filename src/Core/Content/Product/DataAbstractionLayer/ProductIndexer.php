@@ -210,7 +210,7 @@ class ProductIndexer extends EntityIndexer
         $this->eventDispatcher->dispatch(new ProductIndexerEvent($ids, $childrenIds, $parentIds, $context, $message->getSkip()));
     }
 
-    public function getAvailableIndexers(): array
+    public function getOptions(): array
     {
         return [
             self::INHERITANCE_UPDATER,

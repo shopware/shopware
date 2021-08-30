@@ -19,30 +19,15 @@ class MediaFolderIndexer extends EntityIndexer
 {
     public const CHILD_COUNT_UPDATER = 'media_folder.child-count';
 
-    /**
-     * @var IteratorFactory
-     */
-    private $iteratorFactory;
+    private IteratorFactory $iteratorFactory;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $folderRepository;
+    private EntityRepositoryInterface $folderRepository;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var ChildCountUpdater
-     */
-    private $childCountUpdater;
+    private ChildCountUpdater $childCountUpdater;
 
     public function __construct(
         IteratorFactory $iteratorFactory,
@@ -143,7 +128,7 @@ class MediaFolderIndexer extends EntityIndexer
         $this->eventDispatcher->dispatch(new MediaFolderIndexerEvent($ids, $message->getContext(), $message->getSkip()));
     }
 
-    public function getAvailableIndexers(): array
+    public function getOptions(): array
     {
         return [
             self::CHILD_COUNT_UPDATER,

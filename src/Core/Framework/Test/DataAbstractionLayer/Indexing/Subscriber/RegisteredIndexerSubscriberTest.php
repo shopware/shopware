@@ -13,7 +13,7 @@ class RegisteredIndexerSubscriberTest extends TestCase
     public function testSendsMessage(): void
     {
         $productIndexer = $this->createMock(ProductIndexer::class);
-        $productIndexer->method('getAvailableIndexers')->willReturn(['seo', 'search', 'other-stuff']);
+        $productIndexer->method('getOptions')->willReturn(['seo', 'search', 'other-stuff']);
 
         $queuer = $this->createMock(IndexerQueuer::class);
         $queuer->expects(static::once())->method('getIndexers')->willReturn(['product.indexer' => ['seo']]);
@@ -33,7 +33,7 @@ class RegisteredIndexerSubscriberTest extends TestCase
     public function testSendsMessageWithoutOptions(): void
     {
         $productIndexer = $this->createMock(ProductIndexer::class);
-        $productIndexer->method('getAvailableIndexers')->willReturn(['seo', 'search', 'other-stuff']);
+        $productIndexer->method('getOptions')->willReturn(['seo', 'search', 'other-stuff']);
 
         $queuer = $this->createMock(IndexerQueuer::class);
         $queuer->expects(static::once())->method('getIndexers')->willReturn(['product.indexer' => []]);
@@ -67,7 +67,7 @@ class RegisteredIndexerSubscriberTest extends TestCase
     public function testIgnoresUnknownIndexer(): void
     {
         $productIndexer = $this->createMock(ProductIndexer::class);
-        $productIndexer->method('getAvailableIndexers')->willReturn(['seo', 'search', 'other-stuff']);
+        $productIndexer->method('getOptions')->willReturn(['seo', 'search', 'other-stuff']);
 
         $queuer = $this->createMock(IndexerQueuer::class);
         $queuer->expects(static::once())->method('getIndexers')->willReturn(['product.indexer' => ['seo'], 'unknown.indexer' => []]);

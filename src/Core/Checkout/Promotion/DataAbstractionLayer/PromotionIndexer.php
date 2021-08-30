@@ -18,30 +18,15 @@ class PromotionIndexer extends EntityIndexer
     public const EXCLUSION_UPDATER = 'promotion.exclusion';
     public const REDEMPTION_UPDATER = 'promotion.redemption';
 
-    /**
-     * @var IteratorFactory
-     */
-    private $iteratorFactory;
+    private IteratorFactory $iteratorFactory;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $repository;
+    private EntityRepositoryInterface $repository;
 
-    /**
-     * @var PromotionExclusionUpdater
-     */
-    private $exclusionUpdater;
+    private PromotionExclusionUpdater $exclusionUpdater;
 
-    /**
-     * @var PromotionRedemptionUpdater
-     */
-    private $redemptionUpdater;
+    private PromotionRedemptionUpdater $redemptionUpdater;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
     public function __construct(
         IteratorFactory $iteratorFactory,
@@ -115,7 +100,7 @@ class PromotionIndexer extends EntityIndexer
         $this->eventDispatcher->dispatch(new PromotionIndexerEvent($ids, $message->getContext(), $message->getSkip()));
     }
 
-    public function getAvailableIndexers(): array
+    public function getOptions(): array
     {
         return [
             self::EXCLUSION_UPDATER,

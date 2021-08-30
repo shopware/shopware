@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\IndexerQueuer;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 class IndexerQueuerTest extends TestCase
 {
@@ -26,16 +27,24 @@ class IndexerQueuerTest extends TestCase
 
         IndexerQueuer::registerIndexer($connection, 'test.indexer', ['test1']);
         IndexerQueuer::registerIndexer($connection, 'test.indexer', ['test2']);
+        IndexerQueuer::registerIndexer($connection, 'foo.indexer', []);
+        IndexerQueuer::registerIndexer($connection, 'fooba.indexer', ['ba']);
+
+        $all = (new IndexerQueuer($connection))->getIndexers();
+        ksort($all);
 
         static::assertSame([
+            'foo.indexer' => [],
+            'fooba.indexer' => ['ba'],
             'test.indexer' => ['test1', 'test2'],
-        ], (new IndexerQueuer($connection))->getIndexers());
+        ], $all);
     }
 
     public function testOldEntriesGetsMerged(): void
     {
         $connection = $this->getContainer()->get(Connection::class);
         $connection->insert('system_config', [
+            'id' => Uuid::randomBytes(),
             'configuration_key' => IndexerQueuer::INDEXER_KEY,
             'configuration_value' => json_encode(['_value' => ['test.indexer' => 1]]),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -56,6 +65,7 @@ class IndexerQueuerTest extends TestCase
     {
         $connection = $this->getContainer()->get(Connection::class);
         $connection->insert('system_config', [
+            'id' => Uuid::randomBytes(),
             'configuration_key' => IndexerQueuer::INDEXER_KEY,
             'configuration_value' => json_encode(['_value' => ['test.indexer' => 1]]),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
@@ -71,6 +81,7 @@ class IndexerQueuerTest extends TestCase
     {
         $connection = $this->getContainer()->get(Connection::class);
         $connection->insert('system_config', [
+            'id' => Uuid::randomBytes(),
             'configuration_key' => IndexerQueuer::INDEXER_KEY,
             'configuration_value' => json_encode(['_value' => ['test.indexer' => 1]]),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),

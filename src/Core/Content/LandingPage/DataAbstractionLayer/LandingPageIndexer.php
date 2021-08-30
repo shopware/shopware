@@ -16,25 +16,13 @@ class LandingPageIndexer extends EntityIndexer
 {
     public const MANY_TO_MANY_ID_FIELD_UPDATER = 'landing_page.many-to-many-id-field';
 
-    /**
-     * @var IteratorFactory
-     */
-    private $iteratorFactory;
+    private IteratorFactory $iteratorFactory;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $repository;
+    private EntityRepositoryInterface $repository;
 
-    /**
-     * @var ManyToManyIdFieldUpdater
-     */
-    private $manyToManyIdFieldUpdater;
+    private ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
     public function __construct(
         IteratorFactory $iteratorFactory,
@@ -100,7 +88,7 @@ class LandingPageIndexer extends EntityIndexer
         $this->eventDispatcher->dispatch(new LandingPageIndexerEvent($ids, $context, $message->getSkip()));
     }
 
-    public function getAvailableIndexers(): array
+    public function getOptions(): array
     {
         return [
             self::MANY_TO_MANY_ID_FIELD_UPDATER,

@@ -2106,11 +2106,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/TranslationsAssociationFieldSerializer.php
 
 		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Indexing\\\\EntityIndexerRegistry\\:\\:\\$indexer \\(array\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Indexing\\\\EntityIndexer\\>\\) does not accept iterable\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Indexing/EntityIndexerRegistry.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Indexing\\\\EntityIndexerRegistry\\:\\:handle\\(\\) has parameter \\$message with no typehint specified\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Indexing/EntityIndexerRegistry.php

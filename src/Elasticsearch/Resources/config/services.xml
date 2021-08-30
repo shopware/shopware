@@ -245,6 +245,7 @@
             <argument type="service" id="logger"/>
             <argument type="service" id="currency.repository"/>
             <argument type="service" id="language.repository"/>
+            <argument type="service" id="event_dispatcher"/>
             <argument>%elasticsearch.indexing_batch_size%</argument>
             <tag name="messenger.message_handler"/>
         </service>

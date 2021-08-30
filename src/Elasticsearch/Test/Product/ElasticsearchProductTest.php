@@ -63,6 +63,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\SessionTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAggregator;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
@@ -228,7 +229,12 @@ class ElasticsearchProductTest extends TestCase
 
             $this->indexElasticSearch();
 
-            $languages = $this->languageRepository->searchIds(new Criteria(), $context);
+            $criteria = new Criteria();
+            $criteria->addFilter(
+                new NandFilter([new EqualsFilter('salesChannelDomains.id', null)])
+            );
+
+            $languages = $this->languageRepository->searchIds($criteria, $context);
 
             foreach ($languages->getIds() as $languageId) {
                 $index = $this->helper->getIndexName($this->productDefinition, $languageId);
@@ -1959,7 +1965,13 @@ class ElasticsearchProductTest extends TestCase
             $this->helper->setEnabled(true);
 
             $context = $this->getContainer()->get(SalesChannelContextFactory::class)
-                ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+                ->create(
+                    Uuid::randomHex(),
+                    Defaults::SALES_CHANNEL,
+                    [
+                        SalesChannelContextService::LANGUAGE_ID => Defaults::LANGUAGE_SYSTEM,
+                    ]
+                );
 
             $request = new Request();
 
@@ -2027,7 +2039,14 @@ class ElasticsearchProductTest extends TestCase
             $cases = $this->providerCheapestPriceFilter();
 
             $context = $this->getContainer()->get(SalesChannelContextFactory::class)
-                ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+                ->create(
+                    Uuid::randomHex(),
+                    Defaults::SALES_CHANNEL,
+                    [
+                        SalesChannelContextService::LANGUAGE_ID => Defaults::LANGUAGE_SYSTEM,
+                    ]
+                );
+
             $context->getContext()->addState(Context::STATE_ELASTICSEARCH_AWARE);
 
             $searcher = $this->createEntitySearcher();
@@ -2112,7 +2131,14 @@ class ElasticsearchProductTest extends TestCase
     {
         try {
             $context = $this->getContainer()->get(SalesChannelContextFactory::class)
-                ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+                ->create(
+                    Uuid::randomHex(),
+                    Defaults::SALES_CHANNEL,
+                    [
+                        SalesChannelContextService::LANGUAGE_ID => Defaults::LANGUAGE_SYSTEM,
+                    ]
+                );
+
             $context->getContext()->addState(Context::STATE_ELASTICSEARCH_AWARE);
 
             $cases = $this->providerCheapestPriceSorting();

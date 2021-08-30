@@ -8,9 +8,11 @@ use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Api\Sync\SyncResult;
 use Shopware\Core\Framework\Api\Sync\SyncServiceInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -73,6 +75,11 @@ to an asynchronous process in the background. You can control the behaviour with
      *          in="header",
      *          @OA\Schema(type="string", enum={"use-queue-indexing", "disable-indexing"})
      *     ),
+     *     @OA\Header(
+     *          header="indexing-skip",
+     *          description="Contains indexer names that should be skipped comma seperated",
+     *          @OA\Schema(type="string")
+     *     ),
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
@@ -129,6 +136,12 @@ a list of identifiers can be provided.",
      */
     public function sync(Request $request, Context $context): JsonResponse
     {
+        $indexingSkips = array_filter(explode(',', $request->headers->get(PlatformRequest::HEADER_INDEXING_SKIP, '')));
+
+        if (\count($indexingSkips) > 0) {
+            $context->addExtension(EntityIndexerRegistry::EXTENSION_INDEXER_SKIP, new ArrayStruct($indexingSkips));
+        }
+
         if (Feature::isActive('FEATURE_NEXT_15815')) {
             $behavior = new SyncBehavior(
                 $request->headers->get(PlatformRequest::HEADER_INDEXING_BEHAVIOR)

@@ -99,9 +99,9 @@ abstract class MigrationStep
         $connection->executeUpdate($query, $params);
     }
 
-    protected function registerIndexer(Connection $connection, string $name): void
+    protected function registerIndexer(Connection $connection, string $name, array $indexerToRun = []): void
     {
-        IndexerQueuer::registerIndexer($connection, $name, static::class);
+        IndexerQueuer::registerIndexer($connection, $name, $indexerToRun);
     }
 
     protected function addAdditionalPrivileges(Connection $connection, array $privileges): void

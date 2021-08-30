@@ -9,12 +9,15 @@ use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
 use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubscriberInterface
 {
+    public const EXTENSION_INDEXER_SKIP = 'indexer-skip';
+
     /**
      * @deprecated tag:v6.5.0 - `$context->addExtension(EntityIndexerRegistry::USE_INDEXING_QUEUE, ...)` will be ignored, use `context->addState(EntityIndexerRegistry::USE_INDEXING_QUEUE)` instead
      */
@@ -92,18 +95,27 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
 
     public function refresh(EntityWrittenContainerEvent $event): void
     {
+        $context = $event->getContext();
+
         if ($this->working) {
             return;
         }
         $this->working = true;
 
-        if ($this->disabled($event->getContext())) {
+        if ($this->disabled($context)) {
             $this->working = false;
 
             return;
         }
 
-        $useQueue = $this->useQueue($event->getContext());
+        $skips = [];
+        if ($context->hasExtension(self::EXTENSION_INDEXER_SKIP)) {
+            /** @var ArrayStruct $skip */
+            $skip = $context->getExtension(self::EXTENSION_INDEXER_SKIP);
+            $skips = $skip->all();
+        }
+
+        $useQueue = $this->useQueue($context);
 
         foreach ($this->indexer as $indexer) {
             $message = $indexer->update($event);
@@ -113,6 +125,7 @@ class EntityIndexerRegistry extends AbstractMessageHandler implements EventSubsc
             }
 
             $message->setIndexer($indexer->getName());
+            $message->setSkip($skips);
 
             $this->sendOrHandle($message, $useQueue);
         }

@@ -97,4 +97,11 @@ class SalesChannelIndexer extends EntityIndexer
 
         $this->eventDispatcher->dispatch(new SalesChannelIndexerEvent($ids, $message->getContext(), $message->getSkip()));
     }
+
+    public function getAvailableIndexers(): array
+    {
+        return [
+            self::MANY_TO_MANY_UPDATER,
+        ];
+    }
 }

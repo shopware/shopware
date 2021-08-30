@@ -10,27 +10,38 @@ class IndexerQueuer
 {
     public const INDEXER_KEY = 'core.scheduled_indexers';
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     public function __construct(Connection $connection)
     {
         $this->connection = $connection;
     }
 
+    /**
+     * @return array<string, string[]>
+     */
     public function getIndexers(): array
     {
         $current = self::fetchCurrent($this->connection);
 
+        $indexers = [];
+
         if ($current !== null) {
             $decodedValue = json_decode($current['configuration_value'], true);
 
-            return array_keys($decodedValue['_value'] ?? []);
+            $indexers = $decodedValue['_value'] ?? [];
         }
 
-        return [];
+        $newList = [];
+        /**
+         * @var string $indexerName
+         * @var string|array $options */
+        foreach ($indexers as $indexerName => $options) {
+            // Upgrade possible old format to empty array
+            $newList[$indexerName] = \is_array($options) ? $options : [];
+        }
+
+        return $newList;
     }
 
     public function finishIndexer(array $names): void
@@ -43,16 +54,17 @@ class IndexerQueuer
         }
 
         $newList = [];
-        foreach (array_keys($indexerList) as $indexer) {
-            if (!\in_array($indexer, $names, true)) {
-                $newList[$indexer] = 1;
+        foreach ($indexerList as $indexerName => $options) {
+            if (!\in_array($indexerName, $names, true)) {
+                // Upgrade possible old format to empty array
+                $newList[$indexerName] = \is_array($options) ? $options : [];
             }
         }
 
         self::upsert($this->connection, $current['id'] ?? null, $newList);
     }
 
-    public static function registerIndexer(Connection $connection, string $name, string $migration): void
+    public static function registerIndexer(Connection $connection, string $name, array $requiredIndexers = []): void
     {
         $current = self::fetchCurrent($connection);
 
@@ -65,7 +77,14 @@ class IndexerQueuer
             $indexerList = $decodedValue['_value'] ?? [];
         }
 
-        $indexerList[$name] = 1;
+        // Upgrade old entries to new format
+        foreach ($indexerList as $key => $value) {
+            if (\is_int($value)) {
+                $indexerList[$key] = [];
+            }
+        }
+
+        $indexerList[$name] = isset($indexerList[$name]) ? array_merge($indexerList[$name], $requiredIndexers) : $requiredIndexers;
 
         self::upsert($connection, $id, $indexerList);
     }

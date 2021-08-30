@@ -183,6 +183,15 @@ class CategoryIndexer extends EntityIndexer
         $this->eventDispatcher->dispatch(new CategoryIndexerEvent($ids, $context, $message->getSkip()));
     }
 
+    public function getAvailableIndexers(): array
+    {
+        return [
+            self::CHILD_COUNT_UPDATER,
+            self::TREE_UPDATER,
+            self::BREADCRUMB_UPDATER,
+        ];
+    }
+
     private function fetchChildren(array $categoryIds, string $versionId): array
     {
         $query = $this->connection->createQueryBuilder();

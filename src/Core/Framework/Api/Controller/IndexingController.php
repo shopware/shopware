@@ -7,6 +7,7 @@ use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -50,7 +51,9 @@ class IndexingController extends AbstractController
      */
     public function indexing(Request $request): JsonResponse
     {
-        $this->registry->sendIndexingMessage();
+        $indexingSkips = array_filter(explode(',', $request->headers->get(PlatformRequest::HEADER_INDEXING_SKIP, '')));
+
+        $this->registry->sendIndexingMessage([], $indexingSkips);
 
         return new JsonResponse();
     }
@@ -65,6 +68,11 @@ class IndexingController extends AbstractController
 for the next request. `finish: true` in the response indicates that the indexer is finished",
      *     operationId="iterate",
      *     tags={"Admin API", "System Operations"},
+     *     @OA\Header(
+     *          header="indexing-skip",
+     *          description="Contains indexer names that should be skipped comma seperated",
+     *          @OA\Schema(type="string")
+     *     ),
      *     @OA\RequestBody(
      *         @OA\JsonContent(
      *             @OA\Property(
@@ -103,6 +111,8 @@ for the next request. `finish: true` in the response indicates that the indexer 
      */
     public function iterate(string $indexer, Request $request): JsonResponse
     {
+        $indexingSkips = array_filter(explode(',', $request->headers->get(PlatformRequest::HEADER_INDEXING_SKIP, '')));
+
         if (!$request->request->has('offset')) {
             throw new BadRequestHttpException('Parameter `offset` missing');
         }
@@ -115,6 +125,8 @@ for the next request. `finish: true` in the response indicates that the indexer 
         if ($message === null) {
             return new JsonResponse(['finish' => true]);
         }
+
+        $message->setSkip($indexingSkips);
 
         if ($indexer) {
             $indexer->handle($message);
@@ -150,8 +162,11 @@ for the next request. `finish: true` in the response indicates that the indexer 
             throw new BadRequestHttpException('Parameter `ids` is no array or empty');
         }
 
+        $skips = array_filter(explode(',', $request->headers->get(PlatformRequest::HEADER_INDEXING_SKIP, '')));
+
         $message = new ProductIndexingMessage($ids, null);
         $message->setIndexer('product.indexer');
+        $message->setSkip($skips);
 
         $this->messageBus->dispatch($message);
 

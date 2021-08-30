@@ -143,6 +143,13 @@ class MediaFolderIndexer extends EntityIndexer
         $this->eventDispatcher->dispatch(new MediaFolderIndexerEvent($ids, $message->getContext(), $message->getSkip()));
     }
 
+    public function getAvailableIndexers(): array
+    {
+        return [
+            self::CHILD_COUNT_UPDATER,
+        ];
+    }
+
     private function fetchChildren(array $parentIds): array
     {
         $childIds = $this->connection->fetchAll(

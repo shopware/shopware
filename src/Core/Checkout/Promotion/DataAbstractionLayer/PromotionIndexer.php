@@ -115,6 +115,14 @@ class PromotionIndexer extends EntityIndexer
         $this->eventDispatcher->dispatch(new PromotionIndexerEvent($ids, $message->getContext(), $message->getSkip()));
     }
 
+    public function getAvailableIndexers(): array
+    {
+        return [
+            self::EXCLUSION_UPDATER,
+            self::REDEMPTION_UPDATER,
+        ];
+    }
+
     private function isGeneratingIndividualCode(EntityWrittenContainerEvent $event): bool
     {
         $events = $event->getEvents();

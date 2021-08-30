@@ -99,4 +99,11 @@ class CustomerIndexer extends EntityIndexer
 
         $this->eventDispatcher->dispatch(new CustomerIndexerEvent($ids, $context, $message->getSkip()));
     }
+
+    public function getAvailableIndexers(): array
+    {
+        return [
+            self::MANY_TO_MANY_ID_FIELD_UPDATER,
+        ];
+    }
 }

@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\Api\Controller;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexingMessage;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
@@ -486,5 +487,40 @@ class SyncControllerTest extends TestCase
             ['name' => ProductIndexingMessage::class]
         );
         static::assertEmpty($messages);
+    }
+
+    public function testSkipIndexer(): void
+    {
+        $id1 = Uuid::randomHex();
+        $data = [
+            [
+                'action' => SyncController::ACTION_UPSERT,
+                'entity' => ProductDefinition::ENTITY_NAME,
+                'payload' => [
+                    [
+                        'id' => $id1,
+                        'productNumber' => Uuid::randomHex(),
+                        'stock' => 1,
+                        'manufacturer' => ['name' => 'test'],
+                        'tax' => ['name' => 'test', 'taxRate' => 15],
+                        'name' => 'CREATE-1',
+                        'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
+                    ],
+                ],
+            ],
+        ];
+
+        $headers = [
+            'HTTP_indexing-skip' => ProductIndexer::SEARCH_KEYWORD_UPDATER,
+        ];
+        $this->getBrowser()->request('POST', '/api/_action/sync', [], [], $headers, json_encode($data));
+        $json = json_decode($this->getBrowser()->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertTrue($json['success']);
+
+        $connection = $this->getContainer()->get(Connection::class);
+
+        $count = (int) $connection->fetchOne('SELECT COUNT(*) FROM product_search_keyword WHERE product_id = ?', [Uuid::fromHexToBytes($id1)]);
+        static::assertSame(0, $count, 'Search keywords should be empty as we skipped it');
     }
 }

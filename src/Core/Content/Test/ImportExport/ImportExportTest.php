@@ -430,6 +430,17 @@ class ImportExportTest extends ImportExportTestCase
         $progress = $this->import($context, ProductDefinition::ENTITY_NAME, '/fixtures/products.csv', 'products.csv');
 
         static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
+
+        $criteria = new Criteria();
+        $criteria->addAssociation('options.group');
+        $criteria->addAssociation('configuratorSettings');
+        $criteria->addFilter(new EqualsFilter('parentId', 'e5c8b8f701034e8dbea72ac0fc32521e'));
+
+        /** @var ProductEntity $result */
+        $result = $this->productRepository->search($criteria, Context::createDefaultContext())->first();
+
+        static::assertCount(2, $result->getVariation());
+        static::assertEquals(2, $result->getConfiguratorSettings()->count());
     }
 
     public function testProductsCoverIsUpdated(): void
@@ -744,7 +755,7 @@ class ImportExportTest extends ImportExportTestCase
         $connection->rollBack();
         $connection->executeUpdate('DELETE FROM `product`');
 
-        $progress = $this->import(Context::createDefaultContext(), ProductDefinition::ENTITY_NAME, '/fixtures/products_with_invalid.csv', 'products.csv', null, true);
+        $progress = $this->import(Context::createDefaultContext(), ProductDefinition::ENTITY_NAME, '/fixtures/products_with_invalid_dryrun.csv', 'products.csv', null, true);
         static::assertImportExportFailed($progress);
 
         $ids = $this->productRepository->searchIds(new Criteria(), Context::createDefaultContext());

@@ -75,7 +75,7 @@ class OrderStateChangeEventListener implements EventSubscriberInterface
         $this->businessEventCollector = $businessEventCollector;
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             'state_machine.order.state_changed' => 'onOrderStateChange',

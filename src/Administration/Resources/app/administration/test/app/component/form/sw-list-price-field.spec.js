@@ -68,7 +68,7 @@ describe('components/form/sw-list-price-field', () => {
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should renders correctly', () => {
+    it('should be rendered correctly', () => {
         const wrapper = setup();
         expect(wrapper.element).toMatchSnapshot();
     });
@@ -95,6 +95,13 @@ describe('components/form/sw-list-price-field', () => {
         };
         await wrapper.vm.listPriceChanged(listPrice);
         expect(wrapper.vm.priceForCurrency.listPrice).toBeNull();
+    });
+
+    it('should set purchasePrice to default value when the input purchasePrices is empty', async () => {
+        const wrapper = setup({ hidePurchasePrices: true });
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.sw-list-price-field__purchase-price').exists()).toBeFalsy();
     });
 
     it('should set the correct inherited state when inherited', async () => {

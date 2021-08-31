@@ -537,12 +537,7 @@ Component.register('sw-product-detail', {
                     gross: null,
                 }];
 
-                this.product.purchasePrices = [{
-                    currencyId: this.defaultCurrency.id,
-                    net: 0,
-                    linked: true,
-                    gross: 0,
-                }];
+                this.product.purchasePrices = this.getDefaultPurchasePrices();
 
                 if (this.defaultFeatureSet && this.defaultFeatureSet.length > 0) {
                     this.product.featureSetId = this.defaultFeatureSet[0].id;
@@ -559,8 +554,12 @@ Component.register('sw-product-detail', {
                 this.productId || this.product.id,
                 Shopware.Context.api,
                 this.productCriteria,
-            ).then((res) => {
-                Shopware.State.commit('swProductDetail/setProduct', res);
+            ).then((product) => {
+                if (!product.purchasePrices?.length > 0) {
+                    product.purchasePrices = this.getDefaultPurchasePrices();
+                }
+
+                Shopware.State.commit('swProductDetail/setProduct', product);
 
                 if (this.product.parentId) {
                     this.loadParentProduct();
@@ -570,6 +569,15 @@ Component.register('sw-product-detail', {
 
                 Shopware.State.commit('swProductDetail/setLoading', ['product', false]);
             });
+        },
+
+        getDefaultPurchasePrices() {
+            return [{
+                currencyId: this.defaultCurrency.id,
+                net: 0,
+                linked: true,
+                gross: 0,
+            }];
         },
 
         loadParentProduct() {

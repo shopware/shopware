@@ -212,6 +212,7 @@ class ProductGenerator implements DemodataGeneratorInterface
         array $manufacturer
     ): array {
         $price = $this->faker->randomFloat(2, 1, 1000);
+        $purchasePrice = $this->faker->randomFloat(2, 1, 1000);
         $tax = $taxes->get(array_rand($taxes->getIds()));
         $taxRate = 1 + ($tax->getTaxRate() / 100);
 
@@ -219,6 +220,7 @@ class ProductGenerator implements DemodataGeneratorInterface
             'id' => Uuid::randomHex(),
             'productNumber' => Uuid::randomHex(),
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => $price, 'net' => $price / $taxRate, 'linked' => true]],
+            'purchasePrices' => [['currencyId' => Defaults::CURRENCY, 'gross' => $purchasePrice, 'net' => $purchasePrice / $taxRate, 'linked' => true]],
             'name' => $this->faker->productName,
             'description' => $this->faker->text(),
             'taxId' => $tax->getId(),

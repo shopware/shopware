@@ -261,4 +261,17 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
         expect(resultSettings.some(entry => entry.key === mockKey)).toBeFalsy();
     });
+
+    it('should set purchasePrices to default value when given purchasePrices are empty', async () => {
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.product.purchasePrices).toStrictEqual([
+            {
+                currencyId: undefined,
+                gross: 0,
+                net: 0,
+                linked: true
+            }
+        ]);
+    });
 });

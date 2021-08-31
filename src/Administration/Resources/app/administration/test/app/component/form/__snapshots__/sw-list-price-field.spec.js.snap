@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`components/form/sw-list-price-field should renders correctly 1`] = `
+exports[`components/form/sw-list-price-field should be rendered correctly 1`] = `
 <div
   class="sw-list-price-field"
 >
@@ -18,7 +18,7 @@ exports[`components/form/sw-list-price-field should renders correctly 1`] = `
   </div>
    
   <div
-    class="sw-list-price-field__price"
+    class="sw-list-price-field__purchase-price"
   >
     <sw-price-field-stub
       class="sw-purchase-price-field"

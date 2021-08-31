@@ -26,8 +26,8 @@
 
     {% block sw_product_price_form_purchase_price_field %}
     <div
-        v-if="purchasePrices && purchasePrices.length && showSettingPrice"
-        class="sw-list-price-field__price"
+        v-if="!hidePurchasePrices && showSettingPrice"
+        class="sw-list-price-field__purchase-price"
     >
         {% block sw_product_price_form_purchase_price_field_content %}
         <sw-price-field

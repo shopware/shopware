@@ -81,6 +81,7 @@
                 :allow-column-edit="true"
                 identifier="sw-order-list"
                 :disable-data-fetching="true"
+                :maximum-select-items="1000"
                 @column-sort="onSortColumn"
                 @page-change="onPageChange"
                 @selection-change="updateSelection"
@@ -263,7 +264,7 @@
                 {% endblock %}
 
                 {% block sw_order_list_bulk_edit_modal %}
-                <template #bulk-modals>
+                <template #bulk-modals="{ selection }">
                     <sw-bulk-edit-modal
                         v-if="showBulkEditModal"
                         ref="bulkEditModal"

@@ -280,6 +280,10 @@
         &.sw-data-grid__bulk-selected-count {
             text-align: right;
         }
+
+        &.sw-data-grid__bulk-max-selection {
+            color: $color-crimson-500;
+        }
     }
 
     .sw-data-grid__body .sw-data-grid__row {

@@ -10,9 +10,10 @@
     {% block sw_bulk_edit_modal_grid %}
     <sw-data-grid
         ref="bulkEditGrid"
-        identifier="sw-bulk-edit-grid"
+        :identifier="identifier"
         :data-source="paginateRecords"
         :columns="bulkGridEditColumns"
+        :pre-selection="selection"
         :show-selection="true"
         :show-actions="false"
         :skeleton-item-amount="limit"

@@ -206,7 +206,9 @@
       "labelSettingsCompactMode": "Use compact view",
       "labelSettingsPreviewImages": "Show preview images",
       "labelColumnHide": "Hide column",
-      "labelSelectionCount": "Selected:"
+      "labelSelectionCount": "Selected:",
+      "labelDeSelectAll": "Deselect all",
+      "maximumSelectionExceed": "Maximum amount of items selected"
     },
     "sw-pagination": {
       "labelItemsPerPage": "Items per page:"

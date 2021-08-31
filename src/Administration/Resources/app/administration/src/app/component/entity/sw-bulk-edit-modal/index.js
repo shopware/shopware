@@ -10,14 +10,16 @@ Component.register('sw-bulk-edit-modal', {
         selection: {
             type: Object,
             required: false,
-            default: null,
+            default() {
+                return {};
+            },
         },
 
         steps: {
             type: Array,
             required: false,
             default() {
-                return [10, 25, 50];
+                return [10, 25, 50, 75, 100];
             },
         },
 
@@ -30,18 +32,15 @@ Component.register('sw-bulk-edit-modal', {
     data() {
         return {
             records: [],
-            bulkEditSelection: null,
+            bulkEditSelection: this.selection,
             limit: 10,
             page: 1,
+            identifier: 'sw-bulk-edit-grid',
         };
     },
 
     computed: {
         itemCount() {
-            if (this.bulkEditSelection === undefined || this.bulkEditSelection === null) {
-                return 0;
-            }
-
             return Object.keys(this.bulkEditSelection).length;
         },
 
@@ -54,20 +53,13 @@ Component.register('sw-bulk-edit-modal', {
         this.createdComponent();
     },
 
-    mounted() {
-        this.mountedComponent();
-    },
-
     methods: {
         createdComponent() {
-            if (this.selection) {
-                this.records = Object.values(this.selection);
-                this.bulkEditSelection = this.selection;
-            }
-        },
+            const records = Object.values(this.selection);
 
-        mountedComponent() {
-            this.$refs.bulkEditGrid.selectAll(true);
+            if (records.length > 0) {
+                this.records = records;
+            }
         },
 
         paginate({ page = 1, limit = 10 }) {
@@ -80,11 +72,10 @@ Component.register('sw-bulk-edit-modal', {
         },
 
         editItems() {
-            const entityIds = Object.keys(this.selection);
-
             this.$emit('modal-close');
-            if (entityIds.length > 0) {
-                Shopware.State.commit('shopwareApps/setSelectedIds', entityIds);
+
+            if (this.itemCount > 0) {
+                Shopware.State.commit('shopwareApps/setSelectedIds', Object.keys(this.bulkEditSelection));
                 this.$emit('edit-items');
             }
         },

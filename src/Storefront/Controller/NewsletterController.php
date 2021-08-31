@@ -181,6 +181,10 @@ class NewsletterController extends StorefrontController
         $dataBag->set('lastName', $customer->getLastName());
         $dataBag->set('zipCode', $customer->getDefaultShippingAddress()->getZipCode());
         $dataBag->set('city', $customer->getDefaultShippingAddress()->getCity());
+        $dataBag->set(
+            'street',
+            ($customer->getDefaultShippingAddress() ? $customer->getDefaultShippingAddress()->getStreet() : null)
+        );
 
         return $dataBag;
     }

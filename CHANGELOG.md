@@ -129,6 +129,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-16830 - Fix theme path in ThemeRefresh command](/changelog/release-6-4-4-0/2021-08-24-fix-theme-path-in-themerefresh-command.md)
 *  [NEXT-16770 - Sanitize App CMS block preview](/changelog/release-6-4-4-0/2021-08-24-sanitize-app-cms-block-preview.md)
 *  [NEXT-16770 - Fix JSON structure of App CMS blocks](/changelog/release-6-4-4-0/2021-08-25-fix-json-structure-of-app-cms-blocks.md)
+*  [NEXT-16968 - Pin symfony/translation to 5.3.4](./changelog/release-6-4-4-0/2021-08-30-pin-symfony-translation-to-5-3-4.md)
 
 ## 6.4.3.0
 *  [NEXT-14114 - Add the new field is tax-free from to table currency and country.](/changelog/release-6-4-3-0/2021-03-10-add-new-field-tax-free-from-to-table-currency-and-country.md)

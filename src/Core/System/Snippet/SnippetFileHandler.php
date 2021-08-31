@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\System\Snippet;
 
+use Shopware\Administration\Administration;
+use Shopware\Storefront\Storefront;
 use Symfony\Component\Finder\Finder;
 
 class SnippetFileHandler
@@ -27,12 +29,29 @@ class SnippetFileHandler
 
     public function findAdministrationSnippetFiles(): array
     {
-        return $this->findSnippetFilesByPath(__DIR__ . '/../../../Administration/Resources/app/*/src/');
+        if (!($bundleDir = $this->getBundleDir(Administration::class))) {
+            return [];
+        }
+
+        return $this->findSnippetFilesByPath($bundleDir . '/Resources/app/*/src/');
     }
 
     public function findStorefrontSnippetFiles(): array
     {
-        return $this->findSnippetFilesByPath(__DIR__ . '/../../../Storefront/Resources/snippet/');
+        if (!($bundleDir = $this->getBundleDir(Storefront::class))) {
+            return [];
+        }
+
+        return $this->findSnippetFilesByPath($bundleDir . '/Resources/snippet/');
+    }
+
+    private function getBundleDir(string $bundleClass): ?string
+    {
+        if (!class_exists($bundleClass)) {
+            return null;
+        }
+
+        return \dirname((string) (new \ReflectionClass($bundleClass))->getFileName());
     }
 
     private function findSnippetFilesByPath(string $path): array

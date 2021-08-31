@@ -8,7 +8,9 @@ Component.extend('sw-condition-line-item-list-price', 'sw-condition-base', {
 
     computed: {
         operators() {
-            return this.conditionDataProviderService.getOperatorSet('number');
+            return this.conditionDataProviderService.addEmptyOperatorToOperatorSet(
+                this.conditionDataProviderService.getOperatorSet('number'),
+            );
         },
 
         amount: {

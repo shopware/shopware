@@ -65,6 +65,7 @@ class LineItemListPriceRule extends Rule
                         self::OPERATOR_EQ,
                         self::OPERATOR_GT,
                         self::OPERATOR_LT,
+                        self::OPERATOR_EMPTY,
                     ]
                 ),
             ],
@@ -85,7 +86,7 @@ class LineItemListPriceRule extends Rule
         $listPrice = $calculatedPrice->getListPrice();
 
         if (!$listPrice instanceof ListPrice) {
-            return false;
+            return $this->operator === self::OPERATOR_EMPTY;
         }
 
         $listPriceAmount = $listPrice->getPrice();
@@ -110,6 +111,9 @@ class LineItemListPriceRule extends Rule
 
             case self::OPERATOR_NEQ:
                 return FloatComparator::notEquals($listPriceAmount, $this->amount);
+
+            case self::OPERATOR_EMPTY:
+                return false;
 
             default:
                 throw new UnsupportedOperatorException($this->operator, self::class);

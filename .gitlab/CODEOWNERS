@@ -1,5 +1,4 @@
 [Core]
-/src/Core/Checkout/Cart/              @product/engineering/platform-group/core
 /src/Core/DevOps/                     @product/engineering/platform-group/core
 /src/Core/Framework/                  @product/engineering/platform-group/core
 /src/Core/Migration/                  @product/engineering/platform-group/core
@@ -11,6 +10,9 @@
 /bin/                                 @product/engineering/platform-group/core
 /public/                              @product/engineering/platform-group/core
 /config/bundles.php                   @product/engineering/platform-group/core
+/src/**/*Route.php                    @product/engineering/platform-group/core
+/src/**/*Definition.php               @product/engineering/platform-group/core
+/src/**/Cart/                         @product/engineering/platform-group/core
 composer.json                         @product/engineering/platform-group/core
 /vendor-bin/*/composer.json           @product/engineering/platform-group/core
 ecs.php                               @product/engineering/platform-group/core

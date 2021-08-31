@@ -1,7 +1,7 @@
 import template from './sw-product-variants-configurator-prices.html.twig';
 import './sw-product-variants-configurator-prices.scss';
 
-const { Component } = Shopware;
+const { Component, Feature } = Shopware;
 const { Criteria } = Shopware.Data;
 
 Component.register('sw-product-variants-configurator-prices', {
@@ -73,8 +73,11 @@ Component.register('sw-product-variants-configurator-prices', {
         'activeGroup'() {
             this.getOptionsForGroup();
         },
+        /* @deprecated tag:v6.5.0 watcher is not debounced anymore, use `@search-term-change` handler */
         'term'() {
-            this.getOptionsForGroup();
+            if (!Feature.isActive('FEATURE_NEXT_16271')) {
+                this.getOptionsForGroup();
+            }
         },
     },
 
@@ -83,6 +86,11 @@ Component.register('sw-product-variants-configurator-prices', {
     },
 
     methods: {
+        onSearchTermChange() {
+            if (Feature.isActive('FEATURE_NEXT_16271')) {
+                this.getOptionsForGroup();
+            }
+        },
         mountedComponent() {
             this.isLoading = false;
             this.loadCurrencies();

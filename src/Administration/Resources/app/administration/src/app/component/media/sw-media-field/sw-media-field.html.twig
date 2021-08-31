@@ -104,7 +104,10 @@
             class="sw-media-field__media-selection"
         >
             {% block sw_media_field_search_field %}
-            <sw-simple-search-field v-model="searchTerm" />
+            <sw-simple-search-field
+                v-model="searchTerm"
+                @search-term-change="onSearchTermChange"
+            />
             {% endblock %}
 
             {% block sw_media_field_media_list %}

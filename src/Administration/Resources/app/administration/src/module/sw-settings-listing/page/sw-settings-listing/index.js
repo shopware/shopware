@@ -301,7 +301,6 @@ Component.register('sw-settings-listing', {
 
             if (!searchTerm) {
                 this.fetchProductSortingOptions();
-
                 return;
             }
 

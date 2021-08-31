@@ -315,6 +315,12 @@ shopware:
               major: true
               description: "Cart merged event"
               # issue: NEXT-16824
+            - name: FEATURE_NEXT_16271
+              default: false
+              major: true
+              description: "Refactor `sw-simple-search-field` component to a transparent wrapper component"
+              # issue: NEXT-16271
+
 
     logger:
         file_rotation_count: 14

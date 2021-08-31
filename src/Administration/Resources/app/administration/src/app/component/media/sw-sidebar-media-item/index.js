@@ -1,7 +1,7 @@
 import template from './sw-sidebar-media-item.html.twig';
 import './sw-sidebar-media-item.scss';
 
-const { Component, Context } = Shopware;
+const { Component, Context, Feature } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
@@ -77,9 +77,12 @@ Component.register('sw-sidebar-media-item', {
     },
 
     watch: {
+        /* @deprecated tag:v6.5.0 watcher not debounced anymore, use `@search-term-change` event */
         term() {
-            this.page = 1;
-            this.getList();
+            if (!Feature.isActive('FEATURE_NEXT_16271')) {
+                this.page = 1;
+                this.getList();
+            }
         },
 
         initialFolderId() {
@@ -102,6 +105,13 @@ Component.register('sw-sidebar-media-item', {
     methods: {
         createdComponent() {
             this.initializeContent();
+        },
+
+        onSearchTermChange() {
+            if (Feature.isActive('FEATURE_NEXT_16271')) {
+                this.page = 1;
+                this.getList();
+            }
         },
 
         initializeContent() {

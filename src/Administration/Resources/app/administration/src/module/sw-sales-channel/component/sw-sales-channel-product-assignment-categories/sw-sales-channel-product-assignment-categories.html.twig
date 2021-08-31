@@ -21,6 +21,7 @@
                     variant="form"
                     size="small"
                     :placeholder="$tc('sw-sales-channel.detail.productAssignmentModal.categories.textSearch')"
+                    @search-term-change="onSearchTermChange"
                 />
                 {% endblock %}
             </sw-card-section>

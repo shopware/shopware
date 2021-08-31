@@ -32,6 +32,7 @@ class KeyMappingPipe extends AbstractPipe
 
         $mapped = [];
         foreach ($flat as $key => $value) {
+            $key = str_replace('extensions.', '', $key);
             $mapping = $this->mapping->get($key);
             if ($mapping === null) {
                 continue;

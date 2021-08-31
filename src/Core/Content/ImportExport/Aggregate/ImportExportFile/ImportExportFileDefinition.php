@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -40,7 +41,7 @@ class ImportExportFileDefinition extends EntityDefinition
             (new StringField('path', 'path'))->addFlags(new Required()),
             (new DateTimeField('expire_date', 'expireDate'))->addFlags(new Required()),
             new IntField('size', 'size'),
-            new OneToOneAssociationField('log', 'id', 'file_id', ImportExportLogDefinition::class, false),
+            (new OneToOneAssociationField('log', 'id', 'file_id', ImportExportLogDefinition::class, false))->addFlags(new CascadeDelete()),
             new StringField('access_token', 'accessToken'),
         ]);
     }

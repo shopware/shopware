@@ -264,5 +264,15 @@
 
             <tag name="console.command"/>
         </service>
+
+        <service id="Shopware\Core\Content\ImportExport\ScheduledTask\CleanupImportExportFileTask">
+            <tag name="shopware.scheduled.task"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ImportExport\ScheduledTask\CleanupImportExportFileTaskHandler">
+            <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="Shopware\Core\Content\ImportExport\Service\DeleteExpiredFilesService"/>
+            <tag name="messenger.message_handler"/>
+        </service>
     </services>
 </container>

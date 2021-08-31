@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Api\Controller;
+namespace Shopware\Storefront\Test\Controller\Api;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Api\Controller\CaptchaController;
+use Shopware\Storefront\Controller\Api\CaptchaController;
 use Shopware\Storefront\Framework\Captcha\AbstractCaptcha;
 
 class CaptchaControllerTest extends TestCase

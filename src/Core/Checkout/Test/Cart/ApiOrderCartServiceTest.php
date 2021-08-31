@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Administration\Test\Service;
+namespace Shopware\Core\Checkout\Test\Cart;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Administration\Service\AdminOrderCartService;
+use Shopware\Core\Checkout\Cart\ApiOrderCartService;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCollector;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -15,29 +15,17 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
-class AdminOrderCartServiceTest extends TestCase
+class ApiOrderCartServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var SalesChannelContextPersister
-     */
-    private $contextPersister;
+    private SalesChannelContextPersister $contextPersister;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
+    private SalesChannelContext $salesChannelContext;
 
-    /**
-     * @var AdminOrderCartService
-     */
-    private $adminOrderCartService;
+    private ApiOrderCartService $adminOrderCartService;
 
     protected function setUp(): void
     {
@@ -46,7 +34,7 @@ class AdminOrderCartServiceTest extends TestCase
         $this->contextPersister = new SalesChannelContextPersister($this->connection, $eventDispatcher);
         $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
-        $this->adminOrderCartService = $this->getContainer()->get(AdminOrderCartService::class);
+        $this->adminOrderCartService = $this->getContainer()->get(ApiOrderCartService::class);
     }
 
     public function testAddPermission(): void

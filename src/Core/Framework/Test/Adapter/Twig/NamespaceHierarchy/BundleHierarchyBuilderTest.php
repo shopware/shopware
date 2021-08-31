@@ -46,13 +46,10 @@ class BundleHierarchyBuilderTest extends TestCase
 
         $bundleHierarchyBuilder = $this->getContainer()->get(BundleHierarchyBuilder::class);
 
-        static::assertEquals([
-            'SwagThemeTest',
-            'Elasticsearch',
-            'Storefront',
-            'Administration',
-            'Framework',
-        ], array_keys($bundleHierarchyBuilder->buildNamespaceHierarchy([])));
+        static::assertEquals(array_merge(
+            ['SwagThemeTest'],
+            $this->getCoreNamespaceHierarchy()
+        ), array_keys($bundleHierarchyBuilder->buildNamespaceHierarchy([])));
     }
 
     public function testItExcludesInactiveApps(): void
@@ -88,12 +85,7 @@ class BundleHierarchyBuilderTest extends TestCase
 
         $bundleHierarchyBuilder = $this->getContainer()->get(BundleHierarchyBuilder::class);
 
-        static::assertEquals([
-            'Elasticsearch',
-            'Storefront',
-            'Administration',
-            'Framework',
-        ], array_keys($bundleHierarchyBuilder->buildNamespaceHierarchy([])));
+        static::assertEquals($this->getCoreNamespaceHierarchy(), array_keys($bundleHierarchyBuilder->buildNamespaceHierarchy([])));
     }
 
     public function testItExcludesInactiveAppTemplates(): void
@@ -130,12 +122,7 @@ class BundleHierarchyBuilderTest extends TestCase
 
         $bundleHierarchyBuilder = $this->getContainer()->get(BundleHierarchyBuilder::class);
 
-        static::assertEquals([
-            'Elasticsearch',
-            'Storefront',
-            'Administration',
-            'Framework',
-        ], array_keys($bundleHierarchyBuilder->buildNamespaceHierarchy([])));
+        static::assertEquals($this->getCoreNamespaceHierarchy(), array_keys($bundleHierarchyBuilder->buildNamespaceHierarchy([])));
     }
 
     public function testItExcludesAppNamespacesWithNoTemplates(): void
@@ -165,11 +152,26 @@ class BundleHierarchyBuilderTest extends TestCase
 
         $bundleHierarchyBuilder = $this->getContainer()->get(BundleHierarchyBuilder::class);
 
-        static::assertEquals([
+        static::assertEquals($this->getCoreNamespaceHierarchy(), array_keys($bundleHierarchyBuilder->buildNamespaceHierarchy([])));
+    }
+
+    /**
+     * @return string[]
+     */
+    private function getCoreNamespaceHierarchy(): array
+    {
+        $coreHierarchy = [
             'Elasticsearch',
             'Storefront',
             'Administration',
             'Framework',
-        ], array_keys($bundleHierarchyBuilder->buildNamespaceHierarchy([])));
+        ];
+        // Remove not installed core bundles from hierarchy
+        return array_values(
+            array_intersect(
+                $coreHierarchy,
+                array_keys($this->getContainer()->getParameter('kernel.bundles'))
+            )
+        );
     }
 }

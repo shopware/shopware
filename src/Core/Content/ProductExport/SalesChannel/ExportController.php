@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\ProductExport\SalesChannel;
 use League\Flysystem\FilesystemInterface;
 use Monolog\Logger;
 use OpenApi\Annotations as OA;
+use Shopware\Core\Content\ProductExport\Event\ProductExportContentTypeEvent;
 use Shopware\Core\Content\ProductExport\Event\ProductExportLoggingEvent;
 use Shopware\Core\Content\ProductExport\Exception\ExportNotFoundException;
 use Shopware\Core\Content\ProductExport\Exception\ExportNotGeneratedException;
@@ -19,7 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
-use Shopware\Storefront\Event\ProductExportContentTypeEvent;
+use Shopware\Storefront\Event\ProductExportContentTypeEvent as StorefrontProductExportContentTypeEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -148,6 +149,11 @@ class ExportController
                 $contentType = 'text/xml';
 
                 break;
+        }
+
+        if (\class_exists(StorefrontProductExportContentTypeEvent::class)) {
+            $event = new StorefrontProductExportContentTypeEvent($fileFormat, $contentType);
+            $this->eventDispatcher->dispatch($event);
         }
 
         $event = new ProductExportContentTypeEvent($fileFormat, $contentType);

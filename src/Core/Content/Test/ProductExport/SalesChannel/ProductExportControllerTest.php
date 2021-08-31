@@ -19,15 +19,9 @@ class ProductExportControllerTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $repository;
+    private EntityRepositoryInterface $repository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     protected function setUp(): void
     {
@@ -198,7 +192,7 @@ class ProductExportControllerTest extends TestCase
                 'fileFormat' => ProductExportEntity::FILE_FORMAT_CSV,
                 'interval' => 0,
                 'headerTemplate' => 'name,url',
-                'bodyTemplate' => "{{ product.name }},{{ seoUrl('frontend.detail.page', {'productId': product.id}) }}",
+                'bodyTemplate' => '{{ product.name }}',
                 'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
                 'storefrontSalesChannelId' => $salesChannelId,
                 'salesChannelId' => Defaults::SALES_CHANNEL,
@@ -226,7 +220,7 @@ class ProductExportControllerTest extends TestCase
                 'fileFormat' => ProductExportEntity::FILE_FORMAT_XML,
                 'interval' => 0,
                 'headerTemplate' => '<root>',
-                'bodyTemplate' => "<product><name>{{ product.name }}</name><url>{{ seoUrl('frontend.detail.page', {'productId': product.id}) }}</url></product>",
+                'bodyTemplate' => '<product><name>{{ product.name }}</name></product>',
                 'footerTemplate' => '</root>',
                 'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
                 'storefrontSalesChannelId' => $salesChannelId,

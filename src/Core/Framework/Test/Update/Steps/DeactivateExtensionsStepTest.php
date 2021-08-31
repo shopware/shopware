@@ -37,8 +37,6 @@ class DeactivateExtensionsStepTest extends TestCase
 
     private EntityRepositoryInterface $pluginRepository;
 
-    private EntityRepositoryInterface $themeRepository;
-
     private EntityRepositoryInterface $salesChannelRepository;
 
     private ApiClient $apiClient;
@@ -57,7 +55,6 @@ class DeactivateExtensionsStepTest extends TestCase
         $this->lifecycleService = $this->getContainer()->get(ExtensionLifecycleService::class);
         $this->appRepository = $this->getContainer()->get('app.repository');
         $this->pluginRepository = $this->getContainer()->get('plugin.repository');
-        $this->themeRepository = $this->getContainer()->get('theme.repository');
         $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
         $userId = Uuid::randomHex();
         $storeToken = Uuid::randomHex();

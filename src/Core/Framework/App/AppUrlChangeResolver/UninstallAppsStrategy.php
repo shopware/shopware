@@ -23,25 +23,16 @@ class UninstallAppsStrategy extends AbstractAppUrlChangeStrategy
 {
     public const STRATEGY_NAME = 'uninstall-apps';
 
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfigService;
+    private SystemConfigService $systemConfigService;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $appRepository;
+    private EntityRepositoryInterface $appRepository;
 
-    /**
-     * @var ThemeAppLifecycleHandler
-     */
-    private $themeLifecycleHandler;
+    private ?ThemeAppLifecycleHandler $themeLifecycleHandler;
 
     public function __construct(
         EntityRepositoryInterface $appRepository,
         SystemConfigService $systemConfigService,
-        ThemeAppLifecycleHandler $themeLifecycleHandler
+        ?ThemeAppLifecycleHandler $themeLifecycleHandler
     ) {
         $this->systemConfigService = $systemConfigService;
         $this->appRepository = $appRepository;
@@ -72,7 +63,11 @@ class UninstallAppsStrategy extends AbstractAppUrlChangeStrategy
         $apps = $this->appRepository->search(new Criteria(), $context)->getEntities();
 
         foreach ($apps as $app) {
-            $this->themeLifecycleHandler->handleUninstall(new AppDeactivatedEvent($app, $context));
+            // Delete app manually, to not inform the app backend about the deactivation
+            // as the app is still running in the old shop with the same shopId
+            if ($this->themeLifecycleHandler) {
+                $this->themeLifecycleHandler->handleUninstall(new AppDeactivatedEvent($app, $context));
+            }
             $this->appRepository->delete([['id' => $app->getId()]], $context);
         }
 

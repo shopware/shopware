@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Storefront\Theme\ThemeDefinition;
 
 /**
  * @group skip-paratest
@@ -49,6 +50,39 @@ class ApiAwareTest extends TestCase
         $expected = file_get_contents(__DIR__ . '/fixtures/api-aware-fields.json');
 
         $expected = json_decode($expected, true);
+
+        if ($this->getContainer()->has(ThemeDefinition::class)) {
+            $expected = array_merge(
+                $expected,
+                [
+                    'theme.id',
+                    'theme.technicalName',
+                    'theme.name',
+                    'theme.author',
+                    'theme.description',
+                    'theme.labels',
+                    'theme.helpTexts',
+                    'theme.customFields',
+                    'theme.previewMediaId',
+                    'theme.parentThemeId',
+                    'theme.baseConfig',
+                    'theme.configValues',
+                    'theme.active',
+                    'theme.media',
+                    'theme.createdAt',
+                    'theme.updatedAt',
+                    'theme.translated',
+                    'theme_translation.description',
+                    'theme_translation.labels',
+                    'theme_translation.helpTexts',
+                    'theme_translation.customFields',
+                    'theme_translation.createdAt',
+                    'theme_translation.updatedAt',
+                    'theme_translation.themeId',
+                    'theme_translation.languageId',
+                ]
+            );
+        }
 
         $message = 'One or more fields have been changed in their visibility for the Store Api.
         This change must be carefully controlled to ensure that no sensitive data is given out via the Store API.';

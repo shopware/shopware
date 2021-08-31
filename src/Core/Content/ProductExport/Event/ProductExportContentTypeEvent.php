@@ -1,23 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Event;
+namespace Shopware\Core\Content\ProductExport\Event;
 
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @deprecated tag:v6.5.0 - Use @see \Shopware\Core\Content\ProductExport\Event\ProductExportContentTypeEvent instead
- */
 class ProductExportContentTypeEvent extends Event
 {
-    /**
-     * @var string
-     */
-    private $fileFormat;
+    private string $fileFormat;
 
-    /**
-     * @var string
-     */
-    private $contentType;
+    private string $contentType;
 
     public function __construct(string $fileFormat, string $contentType)
     {

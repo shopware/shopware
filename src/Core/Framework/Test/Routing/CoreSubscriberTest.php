@@ -3,9 +3,11 @@
 namespace Shopware\Core\Framework\Test\Routing;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Administration\Controller\AdministrationController;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\PlatformRequest;
+use Shopware\Storefront\Controller\ProductController;
 
 class CoreSubscriberTest extends TestCase
 {
@@ -46,6 +48,10 @@ class CoreSubscriberTest extends TestCase
      */
     public function testStorefrontNoCsp(): void
     {
+        if (!$this->getContainer()->has(ProductController::class)) {
+            static::markTestSkipped('Storefront CSP test need storefront bundle to be installed');
+        }
+
         $browser = $this->getBrowser();
         $browser->request('GET', $_SERVER['APP_URL']);
         $response = $browser->getResponse();
@@ -57,6 +63,10 @@ class CoreSubscriberTest extends TestCase
 
     public function testAdminHasCsp(): void
     {
+        if (!$this->getContainer()->has(AdministrationController::class)) {
+            static::markTestSkipped('Admin CSP test need admin bundle to be installed');
+        }
+
         $browser = $this->getBrowser();
         $browser->request('GET', $_SERVER['APP_URL'] . '/admin');
         $response = $browser->getResponse();

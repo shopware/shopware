@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Theme\Exception\ThemeAssignmentException;
 use Shopware\Storefront\Theme\ThemeService;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class AppStateServiceThemeTest extends TestCase
@@ -26,41 +27,23 @@ class AppStateServiceThemeTest extends TestCase
     use AppSystemTestBehaviour;
     use StorefrontPluginRegistryTestBehaviour;
 
-    /**
-     * @var ThemeService
-     */
-    private $themeService;
+    private ?ThemeService $themeService;
 
-    /**
-     * @var EntityRepository
-     */
-    private $appRepo;
+    private EntityRepository $appRepo;
 
-    /**
-     * @var EntityRepository
-     */
-    private $themeRepo;
+    private ?EntityRepository $themeRepo;
 
-    /**
-     * @var AppStateService
-     */
-    private $appStateService;
+    private AppStateService $appStateService;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var EntityRepository
-     */
-    private $templateRepo;
+    private EntityRepository $templateRepo;
 
     public function setUp(): void
     {
-        $this->themeService = $this->getContainer()->get(ThemeService::class);
+        $this->themeService = $this->getContainer()->get(ThemeService::class, ContainerInterface::NULL_ON_INVALID_REFERENCE);
         $this->appRepo = $this->getContainer()->get('app.repository');
-        $this->themeRepo = $this->getContainer()->get('theme.repository');
+        $this->themeRepo = $this->getContainer()->get('theme.repository', ContainerInterface::NULL_ON_INVALID_REFERENCE);
         $this->templateRepo = $this->getContainer()->get('app_template.repository');
         $this->appStateService = $this->getContainer()->get(AppStateService::class);
         $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');
@@ -68,6 +51,9 @@ class AppStateServiceThemeTest extends TestCase
 
     public function testAppWithAThemeInUseCannotBeDeactivated(): void
     {
+        if (!$this->themeService) {
+            static::markTestSkipped('AppThemeServiceTest needs storefront to be installed.');
+        }
         $context = Context::createDefaultContext();
         $this->loadAppsFromDir(__DIR__ . '/../../Theme/fixtures/Apps/theme');
         $criteria = new Criteria();
@@ -87,6 +73,9 @@ class AppStateServiceThemeTest extends TestCase
 
     public function testAppWithAChildThemeInUseCannotBeDeactivated(): void
     {
+        if (!$this->themeService) {
+            static::markTestSkipped('AppThemeServiceTest needs storefront to be installed.');
+        }
         $context = Context::createDefaultContext();
         $this->loadAppsFromDir(__DIR__ . '/../../Theme/fixtures/Apps/theme');
         $criteria = new Criteria();
@@ -173,7 +162,14 @@ class AppStateServiceThemeTest extends TestCase
         $criteria->addFilter(new EqualsFilter('appId', $appId));
         $criteria->addFilter(new EqualsFilter('active', true));
 
-        static::assertEquals(2, $this->templateRepo->search($criteria, $context)->getTotal());
+        // We expect 1 storefront twig template and svg image to be stored in the DB
+        $expectedTemplates = 2;
+        if (!$this->themeService) {
+            // if the storefront is not installed we only expect the storefront twig template
+            // as the assets can not be imported without parsing the theme.json file
+            $expectedTemplates = 1;
+        }
+        static::assertEquals($expectedTemplates, $this->templateRepo->search($criteria, $context)->getTotal());
 
         $this->eventDispatcher->removeListener(AppActivatedEvent::class, $onAppActivation);
     }

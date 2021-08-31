@@ -91,8 +91,11 @@ class DeactivatePluginsStepTest extends TestCase
         $exceptions = [
             new \Exception('foo'),
             null,
-            new ThemeAssignmentException('foo', [], [], new SalesChannelCollection()),
         ];
+
+        if (class_exists(ThemeAssignmentException::class)) {
+            $exceptions[] = new ThemeAssignmentException('foo', [], [], new SalesChannelCollection());
+        }
 
         $args['pluginCompatibility'] = $this->createConfiguredMock(PluginCompatibility::class, $this->getPluginsToDeactivateDefaultConfiguration());
 

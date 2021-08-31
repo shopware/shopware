@@ -4,6 +4,9 @@ namespace Shopware\Core\System\Test\SalesChannel\Command;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SalesChannel\Command\SalesChannelMaintenanceDisableCommand;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -59,11 +62,15 @@ class SalesChannelMaintenanceDisableCommandTest extends TestCase
 
     public function testAllSalesChannelIds(): void
     {
+        /** @var EntityRepositoryInterface $salesChannelRepository */
+        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+        $count = $salesChannelRepository->search(new Criteria(), Context::createDefaultContext())->getTotal();
+
         $commandTester = new CommandTester($this->getContainer()->get(SalesChannelMaintenanceDisableCommand::class));
         $commandTester->execute(['--all' => true]);
 
         static::assertEquals(
-            'Updated maintenance mode for 2 sales channel(s)',
+            sprintf('Updated maintenance mode for %d sales channel(s)', $count),
             $commandTester->getDisplay()
         );
     }

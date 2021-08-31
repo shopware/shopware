@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Test\Store\ExtensionBehaviour;
 use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * @group skip-paratest
@@ -35,7 +36,7 @@ class ExtensionLifecycleServiceTest extends TestCase
 
     private EntityRepositoryInterface $pluginRepository;
 
-    private EntityRepositoryInterface $themeRepository;
+    private ?EntityRepositoryInterface $themeRepository;
 
     private EntityRepositoryInterface $salesChannelRepository;
 
@@ -48,7 +49,7 @@ class ExtensionLifecycleServiceTest extends TestCase
 
         $this->appRepository = $this->getContainer()->get('app.repository');
         $this->pluginRepository = $this->getContainer()->get('plugin.repository');
-        $this->themeRepository = $this->getContainer()->get('theme.repository');
+        $this->themeRepository = $this->getContainer()->get('theme.repository', ContainerInterface::NULL_ON_INVALID_REFERENCE);
         $this->salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
         $this->context = new Context(new SystemSource(), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
     }
@@ -167,6 +168,10 @@ class ExtensionLifecycleServiceTest extends TestCase
 
     public function testExtensionCantBeRemovedIfAThemeIsAssigned(): void
     {
+        if (!$this->themeRepository) {
+            static::markTestSkipped('ExtensionLifecycleServiceTest needs storefront to be installed.');
+        }
+
         $this->installApp(__DIR__ . '/../_fixtures/TestAppTheme');
         $this->lifecycleService->activate('app', 'TestAppTheme', $this->context);
 
@@ -199,6 +204,10 @@ class ExtensionLifecycleServiceTest extends TestCase
 
     public function testExtensionCantBeRemovedIfAChildThemeIsAssigned(): void
     {
+        if (!$this->themeRepository) {
+            static::markTestSkipped('ExtensionLifecycleServiceTest needs storefront to be installed.');
+        }
+
         $this->installApp(__DIR__ . '/../_fixtures/TestAppTheme');
         $this->lifecycleService->activate('app', 'TestAppTheme', $this->context);
 
@@ -237,6 +246,10 @@ class ExtensionLifecycleServiceTest extends TestCase
 
     public function testExtensionCanBeRemovedIfThemeIsNotAssigned(): void
     {
+        if (!$this->themeRepository) {
+            static::markTestSkipped('ExtensionLifecycleServiceTest needs storefront to be installed.');
+        }
+
         $this->installApp(__DIR__ . '/../_fixtures/TestAppTheme');
         $this->lifecycleService->activate('app', 'TestAppTheme', $this->context);
 

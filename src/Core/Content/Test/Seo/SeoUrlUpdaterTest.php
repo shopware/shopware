@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Storefront\Framework\Seo\SeoUrlRoute\LandingPageSeoUrlRoute;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 
 class SeoUrlUpdaterTest extends TestCase
 {
@@ -23,17 +23,19 @@ class SeoUrlUpdaterTest extends TestCase
     private const CHILD = 'de-TEST';
 
     /**
-     * @var TestDataCollection
+     * @see \Shopware\Storefront\Framework\Seo\SeoUrlRoute\LandingPageSeoUrlRoute::ROUTE_NAME
      */
-    private $ids;
+    private const LANDING_PAGE_SEO_URL_ROUTE_NAME = 'frontend.landing.page';
 
-    /**
-     * @var array
-     */
-    private $salesChannel;
+    private TestDataCollection $ids;
+
+    private array $salesChannel;
 
     protected function setUp(): void
     {
+        if (!$this->getContainer()->has(ProductPageSeoUrlRoute::class)) {
+            static::markTestSkipped('SeoUrl tests need the storefront bundle to be present.');
+        }
         parent::setUp();
 
         $this->ids = new TestDataCollection();
@@ -102,7 +104,7 @@ class SeoUrlUpdaterTest extends TestCase
         // Search for created seo url
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('foreignKey', $id));
-        $criteria->addFilter(new EqualsFilter('routeName', LandingPageSeoUrlRoute::ROUTE_NAME));
+        $criteria->addFilter(new EqualsFilter('routeName', self::LANDING_PAGE_SEO_URL_ROUTE_NAME));
         $criteria->addFilter(new EqualsFilter('salesChannelId', $this->salesChannel['id']));
         $seoUrl = $this->getContainer()->get('seo_url.repository')->search(
             $criteria,

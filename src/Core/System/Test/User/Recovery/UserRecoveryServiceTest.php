@@ -18,52 +18,21 @@ class UserRecoveryServiceTest extends TestCase
 
     private const VALID_EMAIL = 'info@shopware.com';
 
-    /**
-     * @var UserRecoveryService
-     */
-    private $userRecoveryService;
+    private UserRecoveryService $userRecoveryService;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $userRecoveryRepo;
+    private EntityRepositoryInterface $userRecoveryRepo;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $userRepo;
+    private EntityRepositoryInterface $userRepo;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
     protected function setUp(): void
     {
         $container = $this->getContainer();
         $this->userRepo = $container->get('user.repository');
         $this->userRecoveryRepo = $container->get('user_recovery.repository');
-        $this->userRecoveryService = new UserRecoveryService(
-            $this->userRecoveryRepo,
-            $this->userRepo,
-            $container->get('router'),
-            $container->get('Shopware\Core\Framework\Event\BusinessEventDispatcher')
-        );
+        $this->userRecoveryService = $container->get(UserRecoveryService::class);
         $this->context = Context::createDefaultContext();
-    }
-
-    protected function tearDown(): void
-    {
-        $userRecoveryRepo = $this->getContainer()->get('user_recovery.repository');
-        $ids = $userRecoveryRepo->searchIds(new Criteria(), $this->context)->getIds();
-
-        foreach ($ids as $id) {
-            $deleteData = [
-                'id' => $id,
-            ];
-
-            $userRecoveryRepo->delete([$deleteData], $this->context);
-        }
     }
 
     public function testGenerateUserRecoveryWithExistingUser(): void

@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\Annotation\Concept\ExtensionPattern\Decoratable;
+use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 /**
@@ -135,11 +136,11 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
 
     private function getStyleFiles(string $technicalName): array
     {
-        if (!$this->kernel->getContainer()->has('Shopware\Storefront\Theme\StorefrontPluginRegistry')) {
+        if (!$this->kernel->getContainer()->has(StorefrontPluginRegistry::class)) {
             return [];
         }
 
-        $registry = $this->kernel->getContainer()->get('Shopware\Storefront\Theme\StorefrontPluginRegistry');
+        $registry = $this->kernel->getContainer()->get(StorefrontPluginRegistry::class);
         $config = $registry->getConfigurations()->getByTechnicalName($technicalName);
 
         if (!$config) {

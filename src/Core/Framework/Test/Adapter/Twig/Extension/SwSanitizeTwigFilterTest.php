@@ -1,19 +1,16 @@
 <?php declare(strict_types=1);
 
+namespace Shopware\Core\Framework\Test\Adapter\Twig\Extension;
+
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Twig\Extension\SwSanitizeTwigFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Storefront\Framework\Twig\Extension\SwSanitizeTwigFilter;
 
 class SwSanitizeTwigFilterTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private $unfilteredString = '<div style="background-color:#0E75FB;">test</div>';
-
-    /**
-     * @var SwSanitizeTwigFilter
-     */
-    private $swSanitize;
+    private SwSanitizeTwigFilter $swSanitize;
 
     public function setUp(): void
     {

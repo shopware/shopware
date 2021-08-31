@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\CacheWarmer\WarmableInterface;
 use Symfony\Component\Translation\Formatter\MessageFormatterInterface;
 use Symfony\Component\Translation\MessageCatalogueInterface;
+use Symfony\Component\Translation\Translator as SymfonyTranslator;
 use Symfony\Component\Translation\TranslatorBagInterface;
 use Symfony\Contracts\Translation\LocaleAwareInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -182,6 +183,11 @@ class Translator extends AbstractTranslator
         $this->isCustomized = [];
         $this->fallbackLocale = null;
         $this->snippetSetId = null;
+        if ($this->translator instanceof SymfonyTranslator) {
+            // Reset FallbackLocale in memory cache of symfony implementation
+            // set fallback values from Framework/Resources/config/translation.yaml
+            $this->translator->setFallbackLocales(['en_GB', 'en']);
+        }
     }
 
     /**

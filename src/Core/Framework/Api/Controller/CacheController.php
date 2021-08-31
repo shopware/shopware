@@ -24,25 +24,13 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class CacheController extends AbstractController
 {
-    /**
-     * @var CacheClearer
-     */
-    private $cacheClearer;
+    private CacheClearer $cacheClearer;
 
-    /**
-     * @var AdapterInterface
-     */
-    private $adapter;
+    private AdapterInterface $adapter;
 
-    /**
-     * @var CacheWarmer|null
-     */
-    private $cacheWarmer;
+    private ?CacheWarmer $cacheWarmer;
 
-    /**
-     * @var EntityIndexerRegistry
-     */
-    private $indexerRegistry;
+    private EntityIndexerRegistry $indexerRegistry;
 
     public function __construct(
         CacheClearer $cacheClearer,

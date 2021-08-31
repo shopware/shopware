@@ -35,8 +35,8 @@ describe('create product and add to cart', ()=>{
         cy.get('.product-basic-form__switches').find('.sw-field--switch__input').click();
 
         // General > Prices
-        const rate = Cypress.env('locale') === 'en-GB' ? 'Standard rate' : 'Standard-Satz';
-        cy.get('select[name=sw-field--product-taxId]').select(rate);
+        //const rate = Cypress.env('locale') === 'en-GB' ? 'Standard rate' : 'Standard-Satz';
+        cy.get('select[name=sw-field--product-taxId]').select('Standard-Satz');
         cy.get('.sw-list-price-field > :nth-child(1) #sw-price-field-gross').type('14.99');
         cy.get('.sw-list-price-field > :nth-child(1) #sw-price-field-gross').blur();
         cy.wait('@calculatePrice').then(() => {
@@ -58,8 +58,8 @@ describe('create product and add to cart', ()=>{
         // General > Deliverability
         cy.get('input[name=sw-field--product-stock]').typeAndCheck('100');
         cy.get('input[name=sw-field--product-is-closeout]').click();
-        const delivery = Cypress.env('locale') === 'en-GB' ? '2-5 days' : '2-5 Tage';
-        cy.get('#deliveryTimeId').typeSingleSelectAndCheck(delivery,'#deliveryTimeId');
+        //const delivery = Cypress.env('locale') === 'en-GB' ? '2-5 days' : '2-5 Tage';
+        cy.get('#deliveryTimeId').typeSingleSelectAndCheck('2-5 Tage','#deliveryTimeId');
         cy.get('#sw-field--product-restock-time').typeAndCheck('10');
         cy.get('.sw-product-deliverability__shipping-free').click();
         cy.get('.sw-product-deliverability__min-purchase [type]').typeAndCheck('1');
@@ -68,8 +68,8 @@ describe('create product and add to cart', ()=>{
     
         // General > Visibility & structure
         cy.get('.sw-product-detail__select-visibility').scrollIntoView();
-        const saleschannel = Cypress.env('testDataUsage') ? 'Footwear' : 'E2E install test';
-        cy.get('.sw-product-detail__select-visibility').typeMultiSelectAndCheck(saleschannel);
+        //const saleschannel = Cypress.env('testDataUsage') ? 'Footwear' : 'E2E install test';
+        cy.get('.sw-product-detail__select-visibility').typeMultiSelectAndCheck('Footwear');
         cy.get('.sw-product-detail__select-visibility .sw-select-selection-list__input').type('{esc}');
         cy.get('.sw-category-tree__input-field').type('Angebote');
         cy.get('.sw-category-tree-field__search-results').contains('Angebote').click();
@@ -81,8 +81,8 @@ describe('create product and add to cart', ()=>{
             expect(xhr).to.have.property('status', 200);
         });
         cy.get('.sw-loader').should('not.exist');
-        const save = Cypress.env('locale') === 'en-GB' ? 'Save' : 'Speichern';
-        cy.get(page.elements.productSaveAction).contains(save);
+        //const save = Cypress.env('locale') === 'en-GB' ? 'Save' : 'Speichern';
+        cy.get(page.elements.productSaveAction).contains('Speichern');
        
         // Check from product listing
         cy.get(page.elements.smartBarBack).click();

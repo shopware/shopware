@@ -108,7 +108,8 @@ class ThemeDumpCommandTest extends TestCase
 
         foreach ($themes as $themeId => $salesChannelId) {
             $this->createSalesChannel([
-                'id' => $salesChannelId, 'domains' => [
+                'id' => $salesChannelId,
+                'domains' => [
                     [
                         'languageId' => Defaults::LANGUAGE_SYSTEM,
                         'currencyId' => Defaults::CURRENCY,

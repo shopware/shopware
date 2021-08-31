@@ -276,6 +276,11 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         label: 'global.sw-condition.condition.lineItemCustomFieldRule',
         scopes: ['lineItem'],
     });
+    ruleConditionService.addCondition('cartLineItemStock', {
+        component: 'sw-condition-line-item-stock',
+        label: 'global.sw-condition.condition.lineItemStockRule',
+        scopes: ['lineItem'],
+    });
     ruleConditionService.addCondition('customerCustomField', {
         component: 'sw-condition-customer-custom-field',
         label: 'global.sw-condition.condition.customerCustomFieldRule',

@@ -13,10 +13,7 @@ class FeatureDumpCommand extends Command
 {
     protected static $defaultName = 'feature:dump';
 
-    /**
-     * @var Kernel
-     */
-    private $kernel;
+    private Kernel $kernel;
 
     public function __construct(Kernel $kernel)
     {
@@ -37,7 +34,7 @@ class FeatureDumpCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         file_put_contents(
-            $this->kernel->getCacheDir() . '/../../config_js_features.json',
+            $this->kernel->getProjectDir() . '/var/config_js_features.json',
             json_encode(Feature::getAll())
         );
 

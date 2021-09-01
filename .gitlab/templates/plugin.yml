@@ -174,3 +174,16 @@ Check built JS files:
                 exit 0;
             fi
     allow_failure: true
+
+Template filled:
+    stage: test
+    image: bash
+    needs: []
+    rules:
+        - exists:
+              - TEMPLATE
+          if: $CI_PROJECT_TITLE != "SwagPluginTemplate"
+    before_script: []
+    script:
+        - echo "run './bin/init $CI_PROJECT_TITLE'"
+        - exit 1

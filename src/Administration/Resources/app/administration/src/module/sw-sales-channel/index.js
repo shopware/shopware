@@ -77,6 +77,13 @@ Module.register('sw-sales-channel', {
                         privilege: 'sales_channel.viewer',
                     },
                 },
+                theme: {
+                    component: 'sw-sales-channel-detail-theme',
+                    path: 'theme',
+                    meta: {
+                        privilege: 'sales_channel.viewer',
+                    },
+                },
                 analytics: {
                     component: 'sw-sales-channel-detail-analytics',
                     path: 'analytics',

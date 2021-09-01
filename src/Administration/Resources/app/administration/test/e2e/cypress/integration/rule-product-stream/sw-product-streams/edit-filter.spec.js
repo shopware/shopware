@@ -137,6 +137,61 @@ describe('Dynamic product group: Test various filters', () => {
         cy.get('button.sw-button .icon--small-default-checkmark-line-medium').should('be.visible');
     });
 
+    it('@base @rule: search and add products with operator "Is equal to any of"', () => {
+        cy.server();
+        cy.route({
+            url: `${Cypress.env('apiPath')}/search/product`,
+            method: 'post'
+        }).as('getData');
+
+        const page = new ProductStreamObject();
+
+        // Verify product stream details
+        cy.clickContextMenuItem(
+            '.sw-entity-listing__context-menu-edit-action',
+            page.elements.contextMenuButton,
+            `${page.elements.dataGridRow}--0`
+        );
+        cy.get(page.elements.loader).should('not.exist');
+        cy.get(page.elements.smartBarHeader).contains('1st Productstream');
+
+        cy.get('.sw-product-stream-filter').as('currentProductStreamFilter');
+
+        page.fillFilterWithEntityMultiSelect(
+            '@currentProductStreamFilter',
+            {
+                field: 'Product',
+                operator: 'Is equal to any of',
+                value: ['Product name']
+            }
+        );
+
+        cy.get('body').click(0,0);
+        cy.get('.sw-select-result-list-popover-wrapper').should('not.exist');
+
+        cy.get('@currentProductStreamFilter').within(() => {
+            cy.get('.sw-select input').last().type('Manu');
+
+            cy.wait('@getData');
+
+            cy.get('.sw-select input').last().type('facturer');
+
+            cy.wait('@getData');
+
+            cy.wait(500);
+
+            const selectResultList = cy.window().then(() => {
+                return cy.wrap(Cypress.$('.sw-select-result-list-popover-wrapper'));
+            });
+
+            selectResultList.find('.sw-select-result').contains('Product Manufacturer').click({ force: true });
+
+            cy.wait('@getData');
+
+            cy.get('.sw-select-selection-list').find('[data-id]').should('have.length', 2);
+        });
+    });
+
     it('@base @rule: Should be able to filter with Manufacture', () => {
         const page = new ProductStreamObject();
 

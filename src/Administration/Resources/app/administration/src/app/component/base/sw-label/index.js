@@ -41,9 +41,9 @@ Component.register('sw-label', {
             type: String,
             required: false,
             default: 'default',
-            validValues: ['default', 'pill', 'circle'],
+            validValues: ['default', 'pill', 'circle', 'badged'],
             validator(value) {
-                return ['default', 'pill', 'circle'].includes(value);
+                return ['default', 'pill', 'circle', 'badged'].includes(value);
             },
         },
         ghost: {

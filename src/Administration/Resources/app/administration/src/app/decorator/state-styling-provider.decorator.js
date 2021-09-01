@@ -39,6 +39,12 @@ Application.addServiceProviderDecorator('stateStyleDataProviderService', (stateS
         variant: 'progress',
     });
 
+    stateStyleService.addStyle('order_transaction.state', 'unconfirmed', {
+        icon: 'progress',
+        color: 'progress',
+        variant: 'progress',
+    });
+
     stateStyleService.addStyle('order_transaction.state', 'in_progress', {
         icon: 'progress',
         color: 'progress',

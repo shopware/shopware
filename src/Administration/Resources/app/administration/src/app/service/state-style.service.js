@@ -22,6 +22,7 @@ export default function createStateStyleService() {
     const $icons = {
         neutral: 'small-arrow-small-down',
         progress: 'small-default-circle-small',
+        warning: 'small-exclamationmark',
         done: 'small-default-checkmark-line-small',
         danger: 'small-default-x-line-small',
     };

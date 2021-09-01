@@ -53,7 +53,7 @@ describe('Order: Test order state', () => {
         page.setOrderState({
             stateTitle: 'Reminded',
             type: 'payment',
-            signal: 'neutral',
+            signal: 'warning',
             call: 'remind'
         });
 

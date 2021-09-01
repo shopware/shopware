@@ -74,6 +74,15 @@
             />
             {% endblock %}
 
+            {% block sw_order_detail_base_show_state_history_button %}
+            {# needs to be (re)moved to the correct place(s) when details tab is correctly added #}
+            <sw-button
+                v-if="feature.isActive('FEATURE_NEXT_7530')"
+                @click="showStateHistoryModal = true"
+            >
+                Show Status History
+            </sw-button>
+            {% endblock %}
         </sw-container>
         {% endblock %}
 
@@ -124,6 +133,15 @@
             :sets="customFieldSets"
         />
     </sw-card>
+    {% endblock %}
+
+    {% block sw_order_detail_base_state_history_modal %}
+    <sw-order-state-history-modal
+        v-if="showStateHistoryModal && feature.isActive('FEATURE_NEXT_7530')"
+        :order="order"
+        :is-loading="isLoading"
+        @modal-close="showStateHistoryModal = false"
+    />
     {% endblock %}
 </div>
 {% endblock %}

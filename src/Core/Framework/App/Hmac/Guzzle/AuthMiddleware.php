@@ -6,7 +6,9 @@ use GuzzleHttp\Exception\InvalidArgumentException;
 use GuzzleHttp\Exception\ServerException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\Hmac\RequestSigner;
+use Shopware\Core\Framework\Context;
 
 class AuthMiddleware
 {
@@ -16,17 +18,26 @@ class AuthMiddleware
 
     public const VALIDATED_RESPONSE = 'validated_response';
 
+    public const APP_REQUEST_CONTEXT = 'app_request_context';
+
+    public const SHOPWARE_CONTEXT_LANGUAGE = 'sw-context-language';
+
+    public const SHOPWARE_USER_LANGUAGE = 'sw-user-language';
+
     private string $shopwareVersion;
 
-    public function __construct(string $shopwareVersion)
+    private AppLocaleProvider $localeProvider;
+
+    public function __construct(string $shopwareVersion, AppLocaleProvider $localeProvider)
     {
         $this->shopwareVersion = $shopwareVersion;
+        $this->localeProvider = $localeProvider;
     }
 
     public function __invoke(callable $handler): \Closure
     {
         return function (RequestInterface $request, array $options) use ($handler) {
-            $request = $this->getDefaultHeaderRequest($request);
+            $request = $this->getDefaultHeaderRequest($request, $options);
 
             if (!isset($options[self::APP_REQUEST_TYPE])) {
                 return $handler($request, $options);
@@ -48,7 +59,7 @@ class AuthMiddleware
 
             $request = $signature->signRequest($request, $secret);
 
-            $requiredAuthentic = empty($optionsRequestType[AuthMiddleware::VALIDATED_RESPONSE]) ? false : true;
+            $requiredAuthentic = !empty($optionsRequestType[AuthMiddleware::VALIDATED_RESPONSE]);
 
             if (!$requiredAuthentic) {
                 return $handler($request, $options);
@@ -72,12 +83,27 @@ class AuthMiddleware
         };
     }
 
-    public function getDefaultHeaderRequest(RequestInterface $request): RequestInterface
+    public function getDefaultHeaderRequest(RequestInterface $request, array $options): RequestInterface
     {
+        if (isset($options[self::APP_REQUEST_CONTEXT])) {
+            $context = $options[self::APP_REQUEST_CONTEXT];
+            if (!($context instanceof Context)) {
+                throw new InvalidArgumentException('app_request_context must be instance of Context');
+            }
+            $request = $this->getLanguageHeaderRequest($request, $context);
+        }
+
         if ($request->hasHeader('sw-version')) {
             return clone $request;
         }
 
         return $request->withAddedHeader('sw-version', $this->shopwareVersion);
+    }
+
+    private function getLanguageHeaderRequest(RequestInterface $request, Context $context): RequestInterface
+    {
+        $request = $request->withAddedHeader(self::SHOPWARE_CONTEXT_LANGUAGE, $context->getLanguageId());
+
+        return $request->withAddedHeader(self::SHOPWARE_USER_LANGUAGE, $this->localeProvider->getLocaleFromContext($context));
     }
 }

@@ -15,6 +15,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
+use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
 use Shopware\Core\Framework\App\Manifest\Xml\Permissions;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
@@ -406,6 +407,8 @@ class WebhookDispatcherTest extends TestCase
         );
 
         static::assertNotEmpty($request->getHeaderLine('sw-version'));
+        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
+        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
     }
 
     public function testDoesNotDispatchBusinessEventIfAppIsInactive(): void
@@ -620,6 +623,8 @@ class WebhookDispatcherTest extends TestCase
         );
 
         static::assertNotEmpty($request->getHeaderLine('sw-version'));
+        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
+        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
     }
 
     public function testDoesNotDispatchBusinessEventIfAppUrlChangeWasDetected(): void
@@ -973,6 +978,8 @@ class WebhookDispatcherTest extends TestCase
         );
 
         static::assertNotEmpty($request->getHeaderLine('sw-version'));
+        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
+        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
     }
 
     public function testItDoesDispatchAppLifecycleEventForInactiveApp(): void
@@ -1134,10 +1141,12 @@ class WebhookDispatcherTest extends TestCase
                 static::assertEquals($webhookId, $message->getWebhookId());
                 static::assertEquals($shopwareVersion, $message->getShopwareVersion());
                 static::assertEquals('s3cr3t', $message->getSecret());
+                static::assertEquals(Defaults::LANGUAGE_SYSTEM, $message->getLanguageId());
+                static::assertEquals('en-GB', $message->getUserLocale());
 
                 return true;
             }))
-            ->willReturn(new Envelope(new WebhookEventMessage($webhookEventId, $payload, $appId, $webhookId, $shopwareVersion, 'https://test.com', 's3cr3t')));
+            ->willReturn(new Envelope(new WebhookEventMessage($webhookEventId, $payload, $appId, $webhookId, '6.4', 'http://test.com', 's3cr3t', Defaults::LANGUAGE_SYSTEM, 'en-GB')));
 
         $webhookDispatcher = new WebhookDispatcher(
             $this->getContainer()->get('event_dispatcher'),
@@ -1262,10 +1271,12 @@ class WebhookDispatcherTest extends TestCase
                 static::assertEquals($shopwareVersion, $message->getShopwareVersion());
                 static::assertNull($message->getAppId());
                 static::assertNull($message->getSecret());
+                static::assertEquals(Defaults::LANGUAGE_SYSTEM, $message->getLanguageId());
+                static::assertEquals('en-GB', $message->getUserLocale());
 
                 return true;
             }))
-            ->willReturn(new Envelope(new WebhookEventMessage($webhookEventId, $payload, null, $webhookId, $shopwareVersion, 'https://test.com', null)));
+            ->willReturn(new Envelope(new WebhookEventMessage($webhookEventId, $payload, null, $webhookId, '6.4', 'http://test.com', 's3cr3t', Defaults::LANGUAGE_SYSTEM, 'en-GB')));
 
         $webhookDispatcher = new WebhookDispatcher(
             $this->getContainer()->get('event_dispatcher'),

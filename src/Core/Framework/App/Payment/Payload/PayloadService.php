@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal only for use by the app-system
@@ -46,9 +47,12 @@ class PayloadService
         $this->shopUrl = $shopUrl;
     }
 
-    public function request(string $url, PaymentPayloadInterface $payload, AppEntity $app, string $responseClass): ?Struct
+    /**
+     * @depretacted tag:v6.5.0 - Parameter $context will be required
+     **/
+    public function request(string $url, PaymentPayloadInterface $payload, AppEntity $app, string $responseClass, ?SalesChannelContext $context = null): ?Struct
     {
-        $optionRequest = $this->getRequestOptions($payload, $app);
+        $optionRequest = $this->getRequestOptions($payload, $app, $context);
 
         try {
             $response = $this->client->post($url, $optionRequest);
@@ -61,7 +65,7 @@ class PayloadService
         }
     }
 
-    private function getRequestOptions(PaymentPayloadInterface $payload, AppEntity $app): array
+    private function getRequestOptions(PaymentPayloadInterface $payload, AppEntity $app, ?SalesChannelContext $context = null): array
     {
         $payload->setSource($this->buildSource($app));
         $encoded = $this->encode($payload);
@@ -76,14 +80,22 @@ class PayloadService
             throw new AppRegistrationException('App secret missing');
         }
 
-        return [
+        $optionRequest = [
             AuthMiddleware::APP_REQUEST_TYPE => [
                 AuthMiddleware::APP_SECRET => $secret,
                 AuthMiddleware::VALIDATED_RESPONSE => true,
             ],
-            'headers' => ['Content-Type' => 'application/json'],
+            'headers' => [
+                'Content-Type' => 'application/json',
+            ],
             'body' => $jsonPayload,
         ];
+
+        if ($context !== null) {
+            $optionRequest = array_merge($optionRequest, [AuthMiddleware::APP_REQUEST_CONTEXT => $context->getContext()]);
+        }
+
+        return $optionRequest;
     }
 
     private function buildSource(AppEntity $app): Source

@@ -46,7 +46,7 @@ class AppAsyncPaymentHandler extends AbstractAppPaymentHandler implements Asynch
         }
 
         try {
-            $response = $this->payloadService->request($url, $payload, $app, AsyncPayResponse::class);
+            $response = $this->payloadService->request($url, $payload, $app, AsyncPayResponse::class, $salesChannelContext);
         } catch (ClientExceptionInterface $exception) {
             throw new AsyncPaymentProcessException($transaction->getOrderTransaction()->getId(), sprintf('App error: %s', $exception->getMessage()));
         }
@@ -89,7 +89,7 @@ class AppAsyncPaymentHandler extends AbstractAppPaymentHandler implements Asynch
         }
 
         try {
-            $response = $this->payloadService->request($url, $payload, $app, AsyncFinalizeResponse::class);
+            $response = $this->payloadService->request($url, $payload, $app, AsyncFinalizeResponse::class, $salesChannelContext);
         } catch (ClientExceptionInterface $exception) {
             throw new AsyncPaymentFinalizeException($transaction->getOrderTransaction()->getId(), sprintf('App error: %s', $exception->getMessage()));
         }

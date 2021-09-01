@@ -7,15 +7,19 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\Event\AppChangedEvent;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
 use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
+use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Hmac\RequestSigner;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
@@ -69,7 +73,7 @@ class WebhookDispatcher implements EventDispatcherInterface
         $this->guzzle = $guzzle;
         $this->shopUrl = $shopUrl;
         // inject container, so we can later get the ShopIdProvider and the webhook repository
-        // ShopIdProvider and webhook repository can not be injected directly as it would lead to a circular reference
+        // ShopIdProvider, AppLocaleProvider and webhook repository can not be injected directly as it would lead to a circular reference
         $this->container = $container;
         $this->eventFactory = $eventFactory;
         $this->shopwareVersion = $shopwareVersion;
@@ -89,7 +93,12 @@ class WebhookDispatcher implements EventDispatcherInterface
         $event = $this->dispatcher->dispatch($event, $eventName);
 
         foreach ($this->eventFactory->createHookablesFor($event) as $hookable) {
-            $this->callWebhooks($hookable->getName(), $hookable);
+            $context = Context::createDefaultContext();
+            if ($event instanceof BusinessEventInterface || $event instanceof AppChangedEvent || $event instanceof EntityWrittenContainerEvent) {
+                $context = $event->getContext();
+            }
+
+            $this->callWebhooks($hookable->getName(), $hookable, $context);
         }
 
         // always return the original event and never our wrapped events
@@ -161,7 +170,7 @@ class WebhookDispatcher implements EventDispatcherInterface
         $this->privileges = [];
     }
 
-    private function callWebhooks(string $eventName, Hookable $event): void
+    private function callWebhooks(string $eventName, Hookable $event, Context $context): void
     {
         /** @var WebhookCollection $webhooksForEvent */
         $webhooksForEvent = $this->getWebhooks()->filterForEvent($eventName);
@@ -173,6 +182,8 @@ class WebhookDispatcher implements EventDispatcherInterface
         $payload = $event->getWebhookPayload();
         $affectedRoleIds = $webhooksForEvent->getAclRoleIdsAsBinary();
         $requests = [];
+        $languageId = $context->getLanguageId();
+        $userLocale = $this->getAppLocaleProvider()->getLocaleFromContext($context);
 
         foreach ($webhooksForEvent as $webhook) {
             if ($webhook->getApp() !== null && !$this->isEventDispatchingAllowed($webhook->getApp(), $event, $affectedRoleIds)) {
@@ -205,6 +216,8 @@ class WebhookDispatcher implements EventDispatcherInterface
                     [
                         'Content-Type' => 'application/json',
                         'sw-version' => $this->shopwareVersion,
+                        AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE => $languageId,
+                        AuthMiddleware::SHOPWARE_USER_LANGUAGE => $userLocale,
                     ],
                     $jsonPayload
                 );
@@ -222,7 +235,7 @@ class WebhookDispatcher implements EventDispatcherInterface
 
                 $appId = $webhook->getApp() !== null ? $webhook->getApp()->getId() : null;
                 $secret = $webhook->getApp() !== null ? $webhook->getApp()->getAppSecret() : null;
-                $webhookEventMessage = new WebhookEventMessage($webhookEventId, $payload, $appId, $webhook->getId(), $this->shopwareVersion, $webhook->getUrl(), $secret);
+                $webhookEventMessage = new WebhookEventMessage($webhookEventId, $payload, $appId, $webhook->getId(), $this->shopwareVersion, $webhook->getUrl(), $secret, $languageId, $userLocale);
 
                 if (!$this->container->has('webhook_event_log.repository')) {
                     throw new ServiceNotFoundException('webhook_event_log.repository');
@@ -319,5 +332,14 @@ class WebhookDispatcher implements EventDispatcherInterface
         }
 
         return $this->container->get(ShopIdProvider::class);
+    }
+
+    private function getAppLocaleProvider(): AppLocaleProvider
+    {
+        if (!$this->container->has(AppLocaleProvider::class)) {
+            throw new ServiceNotFoundException(AppLocaleProvider::class);
+        }
+
+        return $this->container->get(AppLocaleProvider::class);
     }
 }

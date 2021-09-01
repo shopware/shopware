@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\MessageQueue\Middleware;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -246,7 +247,7 @@ class RetryMiddlewareTest extends MiddlewareTestCase
         $deadMessageId = Uuid::randomHex();
         $webhookId = Uuid::randomHex();
         $webhookEventId = Uuid::randomHex();
-        $webhookEventMessage = new WebhookEventMessage($webhookEventId, [], null, $webhookId, '6.4', 'http://test.com', null);
+        $webhookEventMessage = new WebhookEventMessage($webhookEventId, [], null, $webhookId, '6.4', 'http://test.com', null, Defaults::LANGUAGE_SYSTEM, 'en-GB');
         $envelope = new Envelope($webhookEventMessage);
 
         $response = new Response(404);

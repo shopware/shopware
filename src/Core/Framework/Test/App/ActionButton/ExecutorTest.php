@@ -11,6 +11,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ActionButton\AppAction;
 use Shopware\Core\Framework\App\ActionButton\Executor;
 use Shopware\Core\Framework\App\Exception\ActionProcessException;
+use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Util\Random;
@@ -68,6 +69,8 @@ class ExecutorTest extends TestCase
         );
 
         static::assertNotEmpty($request->getHeaderLine('sw-version'));
+        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
+        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
     }
 
     public function testExecutorReturnMessageWithFailedRequests(): void
@@ -120,6 +123,8 @@ class ExecutorTest extends TestCase
         );
 
         static::assertNotEmpty($request->getHeaderLine('sw-version'));
+        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
+        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
     }
 
     public function testContentIsCorrect(): void
@@ -180,6 +185,8 @@ class ExecutorTest extends TestCase
         );
 
         static::assertNotEmpty($request->getHeaderLine('sw-version'));
+        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
+        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
     }
 
     public function testExecutorReturnEmptyResponseBody(): void
@@ -219,6 +226,8 @@ class ExecutorTest extends TestCase
         );
 
         static::assertNotEmpty($request->getHeaderLine('sw-version'));
+        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
+        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
     }
 
     public function testExecutorReturnMessageWithWrongHMac(): void

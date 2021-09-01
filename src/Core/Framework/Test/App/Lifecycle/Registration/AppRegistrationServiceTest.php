@@ -7,7 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
+use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Lifecycle\Registration\HandshakeFactory;
@@ -77,7 +79,8 @@ class AppRegistrationServiceTest extends TestCase
         $uriWithoutQuery = $registrationRequest->getUri()->withQuery('');
         static::assertEquals($manifest->getSetup()->getRegistrationUrl(), (string) $uriWithoutQuery);
         static::assertNotEmpty($registrationRequest->getHeaderLine('sw-version'));
-
+        static::assertNotEmpty($registrationRequest->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
+        static::assertNotEmpty($registrationRequest->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
         $this->assertRequestIsSigned($registrationRequest, $manifest->getSetup()->getSecret());
 
         $app = $this->fetchApp($id);
@@ -101,6 +104,8 @@ class AppRegistrationServiceTest extends TestCase
         );
 
         static::assertNotEmpty($confirmationReq->getHeaderLine('sw-version'));
+        static::assertNotEmpty($registrationRequest->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
+        static::assertNotEmpty($registrationRequest->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
     }
 
     public function testRegistrationConfirmFails(): void
@@ -192,7 +197,8 @@ class AppRegistrationServiceTest extends TestCase
             $this->shopUrl,
             $shopIdProviderMock,
             $this->getContainer()->get(StoreClient::class),
-            Kernel::SHOPWARE_FALLBACK_VERSION
+            Kernel::SHOPWARE_FALLBACK_VERSION,
+            $this->getContainer()->get(AppLocaleProvider::class)
         );
 
         $registrator = new AppRegistrationService(
@@ -201,7 +207,8 @@ class AppRegistrationServiceTest extends TestCase
             $this->getContainer()->get('app.repository'),
             $this->shopUrl,
             $this->getContainer()->get(ShopIdProvider::class),
-            Kernel::SHOPWARE_FALLBACK_VERSION
+            Kernel::SHOPWARE_FALLBACK_VERSION,
+            $this->getContainer()->get(AppLocaleProvider::class)
         );
 
         static::expectException(AppRegistrationException::class);
@@ -219,7 +226,11 @@ class AppRegistrationServiceTest extends TestCase
         $registrationRequest = $this->getPastRequest(0);
         $confirmationRequest = $this->getPastRequest(1);
         static::assertNotEmpty($registrationRequest->getHeaderLine('sw-version'));
+        static::assertNotEmpty($registrationRequest->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
+        static::assertNotEmpty($registrationRequest->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
         static::assertNotEmpty($confirmationRequest->getHeaderLine('sw-version'));
+        static::assertNotEmpty($confirmationRequest->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
+        static::assertNotEmpty($confirmationRequest->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
     }
 
     public function testDoesNotRegisterIfNoSetupElementIsProvided(): void

@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Content\Media\DataAbstractionLayer;
 
+use League\Flysystem\AdapterInterface;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\Event\MediaThumbnailDeletedEvent;
+use Shopware\Core\Content\Media\Message\DeleteFileHandler;
 use Shopware\Core\Content\Media\Message\DeleteFileMessage;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Framework\Context;
@@ -21,6 +23,8 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 class MediaThumbnailRepositoryDecorator implements EntityRepositoryInterface
 {
+    public const SYNCHRONE_FILE_DELETE = 'synchrone-file-delete';
+
     private UrlGeneratorInterface $urlGenerator;
 
     private EventDispatcherInterface $eventDispatcher;
@@ -29,16 +33,20 @@ class MediaThumbnailRepositoryDecorator implements EntityRepositoryInterface
 
     private MessageBusInterface $messageBus;
 
+    private DeleteFileHandler $deleteFileHandler;
+
     public function __construct(
         EntityRepositoryInterface $innerRepo,
         EventDispatcherInterface $eventDispatcher,
         UrlGeneratorInterface $urlGenerator,
-        MessageBusInterface $messageBus
+        MessageBusInterface $messageBus,
+        DeleteFileHandler $deleteFileHandler
     ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->urlGenerator = $urlGenerator;
         $this->innerRepo = $innerRepo;
         $this->messageBus = $messageBus;
+        $this->deleteFileHandler = $deleteFileHandler;
     }
 
     public function delete(array $ids, Context $context): EntityWrittenContainerEvent
@@ -124,7 +132,8 @@ class MediaThumbnailRepositoryDecorator implements EntityRepositoryInterface
         }
 
         $thumbnailIds = [];
-        $thumbnailPaths = [];
+        $privatePaths = [];
+        $publicPaths = [];
 
         foreach ($thumbnails as $thumbnail) {
             $thumbnailIds[] = [
@@ -132,14 +141,19 @@ class MediaThumbnailRepositoryDecorator implements EntityRepositoryInterface
                 'mediaId' => $thumbnail->getMediaId(),
             ];
 
-            if ($thumbnail->getMedia() !== null) {
-                $thumbnailPaths[] = $this->urlGenerator->getRelativeThumbnailUrl($thumbnail->getMedia(), $thumbnail);
+            if ($thumbnail->getMedia() === null) {
+                continue;
+            }
+
+            if ($thumbnail->getMedia()->isPrivate()) {
+                $privatePaths[] = $this->urlGenerator->getRelativeThumbnailUrl($thumbnail->getMedia(), $thumbnail);
+            } else {
+                $publicPaths[] = $this->urlGenerator->getRelativeThumbnailUrl($thumbnail->getMedia(), $thumbnail);
             }
         }
 
-        $deleteMsg = new DeleteFileMessage();
-        $deleteMsg->setFiles($thumbnailPaths);
-        $this->messageBus->dispatch($deleteMsg);
+        $this->performFileDelete($context, $privatePaths, AdapterInterface::VISIBILITY_PRIVATE);
+        $this->performFileDelete($context, $publicPaths, AdapterInterface::VISIBILITY_PUBLIC);
 
         $delete = $this->innerRepo->delete($thumbnailIds, $context);
 
@@ -147,5 +161,22 @@ class MediaThumbnailRepositoryDecorator implements EntityRepositoryInterface
         $this->eventDispatcher->dispatch($event, $event::EVENT_NAME);
 
         return $delete;
+    }
+
+    private function performFileDelete(Context $context, array $paths, string $visibility): void
+    {
+        if (\count($paths) <= 0) {
+            return;
+        }
+
+        $deleteMsg = new DeleteFileMessage();
+        $deleteMsg->setFiles($paths);
+        $deleteMsg->setVisibility($visibility);
+
+        if ($context->hasState(self::SYNCHRONE_FILE_DELETE)) {
+            $this->deleteFileHandler->handle($deleteMsg);
+        } else {
+            $this->messageBus->dispatch($deleteMsg);
+        }
     }
 }

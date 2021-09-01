@@ -9,6 +9,7 @@ use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollectio
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailEntity;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnailSize\MediaThumbnailSizeEntity;
+use Shopware\Core\Content\Media\DataAbstractionLayer\MediaThumbnailRepositoryDecorator;
 use Shopware\Core\Content\Media\Exception\FileTypeNotSupportedException;
 use Shopware\Core\Content\Media\Exception\ThumbnailCouldNotBeSavedException;
 use Shopware\Core\Content\Media\MediaCollection;
@@ -78,6 +79,11 @@ class ThumbnailService
             $generate[] = $media;
         }
 
+        if (!empty($delete)) {
+            $context->addState(MediaThumbnailRepositoryDecorator::SYNCHRONE_FILE_DELETE);
+            $this->thumbnailRepository->delete($delete, $context);
+        }
+
         $updates = [];
         foreach ($generate as $media) {
             if ($media->getMediaFolder() === null || $media->getMediaFolder()->getConfiguration() === null) {
@@ -94,10 +100,6 @@ class ThumbnailService
         }
 
         $updates = array_values(array_filter($updates));
-
-        if (!empty($delete)) {
-            $this->thumbnailRepository->delete($delete, $context);
-        }
 
         if (empty($updates)) {
             return 0;

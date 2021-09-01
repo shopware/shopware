@@ -62,6 +62,8 @@ class ProductBuilder
 
     protected array $productReviews = [];
 
+    protected bool $closeout = false;
+
     public function __construct(IdsCollection $ids, string $number, int $stock = 1, string $taxKey = 't1')
     {
         $this->ids = $ids;
@@ -249,7 +251,13 @@ class ProductBuilder
 
         $data = array_merge($data, $this->_dynamic);
 
-        return array_filter($data);
+        return array_filter($data, function ($value) {
+            if (\is_array($value) && empty($value)) {
+                return false;
+            }
+
+            return $value !== null;
+        });
     }
 
     public function property(string $key, string $group): self
@@ -308,6 +316,13 @@ class ProductBuilder
             'status' => $status,
             'customerId' => $customerId,
         ];
+
+        return $this;
+    }
+
+    public function closeout(): ProductBuilder
+    {
+        $this->closeout = true;
 
         return $this;
     }

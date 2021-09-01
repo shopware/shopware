@@ -5,6 +5,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const AssetsPlugin = require('assets-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const ESLintPlugin = require('eslint-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const WebpackCopyAfterBuildPlugin = require('@shopware-ag/webpack-copy-after-build');
@@ -190,6 +191,11 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                 test: /\.(js|tsx?|vue)$/,
                 loader: 'babel-loader',
                 include: [
+                    /**
+                     * Only needed for unit tests in plugins. It throws an ESLint error
+                     * in production build
+                     */
+                    path.resolve(__dirname, 'src'),
                     fs.realpathSync(path.resolve(pluginPath, '..', 'src')),
                     path.resolve(pluginPath, '..', 'test'),
                 ],
@@ -591,6 +597,29 @@ const configsForPlugins = pluginEntries.map((plugin) => {
                         },
                     },
                 }),
+
+                ...(() => {
+                    if (isProd) {
+                        return [
+                            new ESLintPlugin({
+                                context: path.resolve(plugin.path),
+                                useEslintrc: false,
+                                baseConfig: {
+                                    parser: 'babel-eslint',
+                                    parserOptions: {
+                                        sourceType: 'module'
+                                    },
+                                    plugins: [ 'plugin-rules' ],
+                                    rules: {
+                                        'plugin-rules/no-src-imports': 'error'
+                                    }
+                                }
+                            }),
+                        ];
+                    }
+
+                    return [];
+                })(),
 
                 ...(() => {
                     if (fs.existsSync(assetPath)) {

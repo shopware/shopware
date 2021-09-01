@@ -1,0 +1,67 @@
+{% block sw_bulk_edit_product_visibility %}
+<div class="sw-bulk-edit-product-visibility">
+    {% block sw_bulk_edit_product_visibility_select %}
+    <sw-inherit-wrapper
+        ref="productVisibilitiesInheritance"
+        v-model="product.visibilities"
+        :inherited-value="product.visibilities"
+        class="sw-product-category-form__visibility_field"
+        :custom-remove-inheritance-function="visibilitiesRemoveInheritanceFunction"
+        is-association
+    >
+        <template #content="{ currentValue, isInherited, updateCurrentValue }">
+            <sw-product-visibility-select
+                ref="productVisibility"
+                :key="isInherited"
+                class="sw-product-detail__select-visibility"
+                :entity-collection="currentValue"
+                :placeholder="$tc('sw-product.visibility.placeholderVisibility')"
+                @change="updateCurrentValue"
+            />
+        </template>
+    </sw-inherit-wrapper>
+    {% endblock %}
+
+    {% block sw_bulk_edit_product_visibility_advanced %}
+    <sw-container
+        v-if="product.visibilities.length > 0"
+        columns="1fr"
+        justify="end"
+    >
+        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+        <a
+            class="sw-card__quick-link advanced-visibility"
+            @click="openModal"
+        >
+            {{ $tc('sw-product.visibility.linkAdvancedVisibility') }} <sw-icon
+                name="default-arrow-simple-right"
+                small
+            />
+        </a>
+    </sw-container>
+    {% endblock %}
+
+    {% block sw_bulk_edit_product_visibility_advanced_modal %}
+    <sw-modal
+        v-if="displayVisibilityDetail"
+        :title="$tc('sw-product.visibility.textHeadline')"
+        class="sw-product-category-form__visibility_modal"
+        @modal-close="closeModal"
+    >
+        <p>{{ $tc('sw-product.visibility.visibilityModalDescription') }}</p>
+
+        <sw-product-visibility-detail />
+
+        <template slot="modal-footer">
+            <sw-button
+                variant="primary"
+                size="small"
+                @click="closeModal"
+            >
+                {{ $tc('sw-product.visibility.closeModal') }}
+            </sw-button>
+        </template>
+    </sw-modal>
+    {% endblock %}
+</div>
+{% endblock %}

@@ -28,6 +28,7 @@ Component.register('sw-bulk-edit-order', {
             deliveryStatus: [],
             itemsPerRequest: 100,
             processStatus: '',
+            order: {},
         };
     },
 
@@ -44,6 +45,10 @@ Component.register('sw-bulk-edit-order', {
 
         stateMachineStateRepository() {
             return this.repositoryFactory.create('state_machine_state');
+        },
+
+        orderRepository() {
+            return this.repositoryFactory.create('order');
         },
 
         statusFormFields() {
@@ -136,6 +141,8 @@ Component.register('sw-bulk-edit-order', {
         async createdComponent() {
             this.isLoading = true;
 
+            this.order = this.orderRepository.create(Shopware.Context.api);
+
             this.bulkEditService = Shopware.Service('bulkEditService');
 
             if (!Shopware.State.getters['context/isSystemDefaultLanguage']) {
@@ -177,12 +184,13 @@ Component.register('sw-bulk-edit-order', {
             this.$set(this.bulkEditData, 'documents', {
                 ...this.bulkEditData.documents,
                 disabled: true,
-                value: {
-                    target: null,
-                    documentType: {},
-                    skipSentDocuments: null,
-                },
             });
+
+            this.order.documents = {
+                target: null,
+                documentType: {},
+                skipSentDocuments: null,
+            };
         },
 
         fetchStatusOptions(field) {

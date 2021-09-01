@@ -15,6 +15,20 @@ Component.register('sw-bulk-edit-change-type-field-renderer', {
             type: Array,
             required: true,
         },
+        entity: {
+            type: Object,
+            required: true,
+        },
+        disabled: {
+            type: Boolean,
+            default: false,
+        },
+    },
+
+    data() {
+        return {
+            isDisplayingValue: true,
+        };
     },
 
     methods: {
@@ -39,6 +53,11 @@ Component.register('sw-bulk-edit-change-type-field-renderer', {
                 this.getConfigValue(formField, 'allowClear') === true ||
                 this.getConfigValue(formField, 'allowAdd') === true ||
                 this.getConfigValue(formField, 'allowRemove') === true;
+        },
+
+        onChangeValue(value, fieldName) {
+            this.bulkEditData[fieldName].value = value;
+            this.$emit('change-value', fieldName, value);
         },
     },
 });

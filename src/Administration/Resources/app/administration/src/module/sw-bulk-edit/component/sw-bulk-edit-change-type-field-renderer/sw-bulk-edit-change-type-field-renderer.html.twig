@@ -17,6 +17,7 @@
                 :label="!formField.config.changeLabel ? $tc('sw-bulk-edit.general.defaultChangeLabel') : formField.config.changeLabel"
                 :help-text="formField.helpText"
                 :disabled="!!bulkEditData[formField.name].disabled"
+                @change="onChangeValue($event, formField.name)"
             />
             {% endblock %}
 
@@ -30,22 +31,36 @@
                 :allow-remove="getConfigValue(formField, 'allowRemove')"
             >
                 <template #value-field="{ isDisplayingValue }">
-                    <sw-bulk-edit-form-field-renderer
-                        v-if="isDisplayingValue"
-                        :key="`formField-${index}`"
-                        v-model="bulkEditData[formField.name].value"
-                        v-bind="formField"
-                    />
+                    <slot
+                        name="valueFieldWithBoxType"
+                        v-bind="{formField, entity, index, isDisplayingValue }"
+                    >
+                        <sw-bulk-edit-form-field-renderer
+                            v-if="isDisplayingValue"
+                            v-bind="formField"
+                            :key="`formField-${index}`"
+                            v-model="entity[formField.name]"
+                            @input="onChangeValue($event, formField.name)"
+                        />
+                    </slot>
                 </template>
             </sw-bulk-edit-change-type>
             {% endblock %}
+
             {% block sw_bulk_edit_change_type_field_renderer_change_form_value_field_without_change_type %}
-            <sw-bulk-edit-form-field-renderer
-                v-else
-                :key="`formField-${index}`"
-                v-model="bulkEditData[formField.name].value"
-                v-bind="formField"
-            />
+            <template v-if="!showSelectBoxType(formField)">
+                <slot
+                    name="valueField"
+                    v-bind="{formField, entity, index, isDisplayingValue }"
+                >
+                    <sw-bulk-edit-form-field-renderer
+                        v-bind="formField"
+                        :key="`formField-${index}`"
+                        v-model="entity[formField.name]"
+                        @input="onChangeValue($event, formField.name)"
+                    />
+                </slot>
+            </template>
             {% endblock %}
         </sw-container>
         {% endblock %}

@@ -1,5 +1,7 @@
 import BulkEditBaseHandler from './bulk-edit-base.handler';
 
+const types = Shopware.Utils.types;
+
 /**
  * @class
  * @extends BulkEditBaseHandler
@@ -9,17 +11,23 @@ class BulkEditProductHandler extends BulkEditBaseHandler {
         super();
         this.name = 'bulkEditProductHandler';
 
-        this.entityName = null;
+        this.entityName = 'product';
         this.entityIds = [];
     }
 
     async bulkEdit(entityIds, payload) {
-        this.entityName = 'product';
         this.entityIds = entityIds;
 
         const syncPayload = await this.buildBulkSyncPayload(payload);
 
-        return this.syncService.sync(syncPayload, {}, { 'single-operation': 1 });
+        if (types.isEmpty(syncPayload)) {
+            return Promise.resolve({ success: true });
+        }
+
+        return this.syncService.sync(syncPayload, {}, {
+            'single-operation': 1,
+            'sw-language-id': Shopware.Context.api.languageId,
+        });
     }
 }
 

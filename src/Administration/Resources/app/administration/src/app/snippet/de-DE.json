@@ -649,6 +649,7 @@
         "lineItemDimensionLengthRule": "Positionen mit Länge",
         "lineItemDimensionWeightRule": "Positionen mit Gewicht",
         "lineItemListPriceRule": "Positionen mit Streichpreis",
+        "lineItemStockRule": "Positionen mit verfügbarem Bestand",
         "paymentMethodRule": "Zahlungsart",
         "shippingMethodRule": "Versandart",
         "lineItemGoodsTotalRule": "Gesamtanzahl Produkte im Warenkorb",

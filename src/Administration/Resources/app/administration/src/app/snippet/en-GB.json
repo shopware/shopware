@@ -649,6 +649,7 @@
         "lineItemDimensionLengthRule": "Line item length",
         "lineItemDimensionWeightRule": "Line item weight",
         "lineItemListPriceRule": "Line item list price",
+        "lineItemStockRule": "Line item available stock",
         "paymentMethodRule": "Payment method",
         "shippingMethodRule": "Shipping method",
         "lineItemGoodsTotalRule": "Total number of products in cart",

@@ -29,11 +29,12 @@ trait CartRuleHelperTrait
         float $weight = 50.0,
         ?float $height = null,
         ?float $width = null,
-        ?float $length = null
+        ?float $length = null,
+        int $stock = 9999
     ): LineItem {
         return ($this->createLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, $quantity))->setDeliveryInformation(
             new DeliveryInformation(
-                9999,
+                $stock,
                 $weight,
                 $freeDelivery,
                 null,

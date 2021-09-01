@@ -1,7 +1,7 @@
 import template from './sw-cms-layout-modal.html.twig';
 import './sw-cms-layout-modal.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component, Mixin, Feature } = Shopware;
 const { Criteria } = Shopware.Data;
 
 Component.register('sw-cms-layout-modal', {
@@ -92,7 +92,11 @@ Component.register('sw-cms-layout-modal', {
         },
 
         onSearch(value) {
-            if (!value.length || value.length <= 0) {
+            if (Feature.isActive('FEATURE_NEXT_16271')) {
+                if (!value.length || value.length <= 0) {
+                    this.term = null;
+                }
+            } else if (!value.length || value.length <= 0) {
                 this.term = null;
             } else {
                 this.term = value;

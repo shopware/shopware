@@ -11,7 +11,10 @@
     {% block sw_sidebar_media_item_content %}
     <div class="sw-sidebar-media-item__content">
         {% block sw_sidebar_media_item_search_field %}
-        <sw-simple-search-field v-model="term" />
+        <sw-simple-search-field
+            v-model="term"
+            @search-term-change="onSearchTermChange"
+        />
         {% endblock %}
 
         {% block sw_sidebar_media_item_folder_navigation %}

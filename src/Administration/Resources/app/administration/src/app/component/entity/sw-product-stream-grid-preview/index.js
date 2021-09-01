@@ -1,7 +1,7 @@
 import template from './sw-product-stream-grid-preview.html.twig';
 import './sw-product-stream-grid-preview.scss';
 
-const { Component, Context } = Shopware;
+const { Component, Context, Feature } = Shopware;
 const { Criteria } = Shopware.Data;
 
 Component.register('sw-product-stream-grid-preview', {
@@ -111,9 +111,12 @@ Component.register('sw-product-stream-grid-preview', {
     },
 
     watch: {
+        /* @deprecated tag:v6.5.0 watcher not debounced anymore, use `@search-term-change` event */
         searchTerm() {
-            this.page = 1;
-            this.loadProducts();
+            if (!Feature.isActive('FEATURE_NEXT_16271')) {
+                this.page = 1;
+                this.loadProducts();
+            }
         },
 
         async filters(filtersValue) {
@@ -133,6 +136,12 @@ Component.register('sw-product-stream-grid-preview', {
     },
 
     methods: {
+        onSearchTermChange() {
+            if (Feature.isActive('FEATURE_NEXT_16271')) {
+                this.page = 1;
+                this.loadProducts();
+            }
+        },
         async createdComponent() {
             if (!this.filters) {
                 return;

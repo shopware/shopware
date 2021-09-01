@@ -1,7 +1,7 @@
 import template from './sw-users-permissions-user-listing.html.twig';
 import './sw-users-permissions-user-listing.scss';
 
-const { Component, Data, Mixin, State } = Shopware;
+const { Component, Data, Mixin, State, Feature } = Shopware;
 const { Criteria } = Data;
 
 Component.register('sw-users-permissions-user-listing', {
@@ -94,7 +94,9 @@ Component.register('sw-users-permissions-user-listing', {
         },
 
         onSearch(value) {
-            this.term = value;
+            if (!Feature.isActive('FEATURE_NEXT_16271')) {
+                this.term = value;
+            }
             this.getList();
         },
 

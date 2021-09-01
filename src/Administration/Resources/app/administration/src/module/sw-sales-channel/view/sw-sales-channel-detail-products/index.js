@@ -1,7 +1,7 @@
 import template from './sw-sales-channel-detail-products.html.twig';
 import './sw-sales-channel-detail-products.scss';
 
-const { Component, Mixin, Context } = Shopware;
+const { Component, Mixin, Context, Feature } = Shopware;
 const { EntityCollection, Criteria } = Shopware.Data;
 
 Component.register('sw-sales-channel-detail-products', {
@@ -202,7 +202,9 @@ Component.register('sw-sales-channel-detail-products', {
         },
 
         onChangeSearchTerm(searchTerm) {
-            this.searchTerm = searchTerm;
+            if (!Feature.isActive('FEATURE_NEXT_16271')) {
+                this.searchTerm = searchTerm;
+            }
             if (searchTerm) {
                 this.page = 1;
             }

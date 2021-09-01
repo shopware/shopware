@@ -1,7 +1,7 @@
 import template from './sw-users-permissions-role-listing.html.twig';
 import './sw-users-permissions-role-listing.scss';
 
-const { Component, Data, Mixin } = Shopware;
+const { Component, Data, Mixin, Feature } = Shopware;
 const { Criteria } = Data;
 
 Component.register('sw-users-permissions-role-listing', {
@@ -91,7 +91,9 @@ Component.register('sw-users-permissions-role-listing', {
         },
 
         onSearch(searchTerm) {
-            this.term = searchTerm;
+            if (!Feature.isActive('FEATURE_NEXT_16271')) {
+                this.term = searchTerm;
+            }
             this.$emit('get-list');
         },
 

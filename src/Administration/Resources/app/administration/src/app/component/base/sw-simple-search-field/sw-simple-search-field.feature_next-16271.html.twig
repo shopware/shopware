@@ -1,0 +1,29 @@
+{% block sw_simple_search_field %}
+<div class="sw-simple-search-field">
+    {% block sw_simple_search_field_input %}
+    <sw-field
+        type="text"
+        class="sw-simple-search-field__input"
+        :class="fieldClasses"
+        :placeholder="placeholder"
+        v-bind="$attrs"
+        :value="value"
+        v-on="$listeners"
+        @input="onInput"
+    />
+    {% endblock %}
+
+    {% block sw_simple_search_field_search_icon %}
+    <slot name="sw-simple-search-field-icon">
+        {% block sw_simple_search_field_slot_search_icon %}
+        <sw-icon
+            v-if="icon"
+            class="sw-simple-search-field__search-icon"
+            :name="icon"
+            small
+        />
+        {% endblock %}
+    </slot>
+    {% endblock %}
+</div>
+{% endblock %}

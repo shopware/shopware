@@ -8,9 +8,9 @@
 
     {% block sw_search_bar_item_icon %}
     <sw-icon
-        v-if="entityIconName && feature.isActive('FEATURE_NEXT_6040')"
-        :name="entityIconName"
-        :color="entityIconColor"
+        v-if="iconName && feature.isActive('FEATURE_NEXT_6040')"
+        :name="iconName"
+        :color="iconColor"
     />
     {% endblock %}
 
@@ -216,6 +216,42 @@
         </span>
         {% endblock %}
 
+    </router-link>
+    {% endblock %}
+
+    {% block sw_search_bar_item_module %}
+    <router-link
+        v-else-if="type === 'module' && feature.isActive('FEATURE_NEXT_6040')"
+        ref="routerLink"
+        class="sw-search-bar-item__link"
+        :to="routeName"
+    >
+        {% block sw_search_bar_item_module_label %}
+        <span
+            class="sw-search-bar-item__label"
+        >
+            {% block sw_search_bar_item_module_label_module %}
+            <sw-highlight-text
+                :search-term="searchTerm"
+                :text="moduleName"
+            />
+            {% endblock %}
+
+            {% block sw_search_bar_item_module_label_shortcut %}
+            <sw-shortcut-overview-item
+                v-if="shortcut"
+                title=""
+                :content="shortcut"
+            />
+            {% endblock %}
+
+            {% block sw_search_bar_item_module_label_action %}
+            <sw-highlight-text
+                :text="$tc(`global.sw-search-bar-item.${item?.action ? 'typeLabelAction': 'typeLabelModule' }`)"
+            />
+            {% endblock %}
+        </span>
+        {% endblock %}
     </router-link>
     {% endblock %}
 </li>

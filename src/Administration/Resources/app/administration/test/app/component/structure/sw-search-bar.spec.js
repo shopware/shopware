@@ -3,6 +3,9 @@ import { shallowMount, createLocalVue } from '@vue/test-utils';
 import flushPromises from 'flush-promises';
 import 'src/app/component/structure/sw-search-bar';
 
+const { Module } = Shopware;
+const register = Module.register;
+
 const swSearchBarComponent = Shopware.Component.build('sw-search-bar');
 const searchTypeServiceTypes = {
     product: {
@@ -40,7 +43,7 @@ const searchTypeServiceTypes = {
 const spyLoadTypeSearchResults = jest.spyOn(swSearchBarComponent.methods, 'loadTypeSearchResults');
 const spyLoadTypeSearchResultsByService = jest.spyOn(swSearchBarComponent.methods, 'loadTypeSearchResultsByService');
 
-function createWrapper(props, searchTypes = searchTypeServiceTypes) {
+function createWrapper(props, searchTypes = searchTypeServiceTypes, privileges = []) {
     const localVue = createLocalVue();
 
     return shallowMount(swSearchBarComponent, {
@@ -60,10 +63,27 @@ function createWrapper(props, searchTypes = searchTypeServiceTypes) {
             }
         },
         provide: {
-            searchService: {},
+            searchService: {
+                search: () => Promise.resolve({ data: [] })
+            },
             repositoryFactory: {
-                create: () => ({
+                create: (entity) => ({
                     search: () => {
+                        if (entity === 'sales_channel') {
+                            return Promise.resolve([{
+                                id: '8a243080f92e4c719546314b577cf82b',
+                                translated: { name: 'Storefront' },
+                                type: { translated: { name: 'Storefront' } }
+                            }]);
+                        }
+
+                        if (entity === 'sales_channel_type') {
+                            return Promise.resolve([{
+                                id: 'xxxxxxx',
+                                translated: { name: 'Storefront' }
+                            }]);
+                        }
+
                         const result = [
                             {
                                 name: 'Home',
@@ -81,6 +101,13 @@ function createWrapper(props, searchTypes = searchTypeServiceTypes) {
             },
             searchTypeService: {
                 getTypes: () => searchTypes
+            },
+            acl: {
+                can: (identifier) => {
+                    if (!identifier) { return true; }
+
+                    return privileges.includes(identifier);
+                }
             }
         },
         propsData: props
@@ -104,6 +131,10 @@ describe('src/app/component/structure/sw-search-bar', () => {
                 return Promise.resolve(result);
             }
         });
+    });
+
+    beforeEach(() => {
+        Module.getModuleRegistry().clear();
     });
 
     afterEach(() => {
@@ -472,5 +503,309 @@ describe('src/app/component/structure/sw-search-bar', () => {
                 })
             ])
         );
+    });
+
+    it('should search for module and action with a default module', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
+
+        register('sw-order', {
+            title: 'Orders',
+            color: '#A092F0',
+            icon: 'default-shopping-paper-bag',
+            entity: 'order',
+
+            routes: {
+                index: {
+                    component: 'sw-order-list',
+                    path: 'index',
+                    meta: {
+                        privilege: 'order.viewer'
+                    }
+                },
+
+                create: {
+                    component: 'sw-order-create',
+                    path: 'create',
+                    meta: {
+                        privilege: 'order.creator'
+                    }
+                }
+            }
+        });
+
+        wrapper = await createWrapper(
+            {
+                initialSearchType: '',
+                initialSearch: ''
+            },
+            searchTypeServiceTypes,
+            ['order.viewer', 'order.creator']
+        );
+
+        // open search
+        const searchInput = wrapper.find('.sw-search-bar__input');
+        await searchInput.trigger('focus');
+
+        await searchInput.setValue('ord');
+        expect(searchInput.element.value).toBe('ord');
+
+        await flushPromises();
+
+        const doGlobalSearch = swSearchBarComponent.methods.doGlobalSearch;
+        await doGlobalSearch.flush();
+
+        await flushPromises();
+
+        const module = wrapper.vm.results[0];
+
+        expect(module.entity).toBe('module');
+        expect(module.total).toBe(2);
+
+        expect(module.entities[0].route.name).toBe('sw.order.index');
+        expect(module.entities[1].route.name).toBe('sw.order.create');
+    });
+
+    it('should search for module and action with config module', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
+
+        register('sw-category', {
+            title: 'Categories',
+            color: '#57D9A3',
+            icon: 'default-symbol-products',
+            entity: 'category',
+
+            searchMatcher: (regex, labelType, manifest) => {
+                const match = labelType.toLowerCase().match(regex);
+
+                if (!match) {
+                    return false;
+                }
+
+                return [
+                    {
+                        icon: manifest.icon,
+                        color: manifest.color,
+                        label: labelType,
+                        entity: manifest.entity,
+                        route: manifest.routes.index
+                    },
+                    {
+                        icon: manifest.icon,
+                        color: manifest.color,
+                        route: { name: 'sw.category.landingPageDetail', params: { id: 'create' } },
+                        entity: 'landing_page',
+                        privilege: manifest.routes.landingPageDetail?.meta.privilege,
+                        action: true
+                    }
+                ];
+            },
+
+            routes: {
+                index: {
+                    components: 'sw-category-detail',
+                    meta: {
+                        privilege: 'category.viewer'
+                    }
+                },
+
+                landingPageDetail: {
+                    component: 'sw-category-detail',
+                    meta: {
+                        privilege: 'category.viewer'
+                    }
+                }
+            }
+        });
+
+        wrapper = await createWrapper(
+            {
+                initialSearchType: '',
+                initialSearch: ''
+            },
+            searchTypeServiceTypes,
+            ['category.viewer']
+        );
+
+        // open search
+        const searchInput = wrapper.find('.sw-search-bar__input');
+        await searchInput.trigger('focus');
+
+        await searchInput.setValue('cat');
+        expect(searchInput.element.value).toBe('cat');
+
+        await flushPromises();
+
+        const doGlobalSearch = swSearchBarComponent.methods.doGlobalSearch;
+        await doGlobalSearch.flush();
+
+        await flushPromises();
+
+        const module = wrapper.vm.results[0];
+
+        expect(module.entity).toBe('module');
+        expect(module.total).toBe(2);
+
+        expect(module.entities[0].route.name).toBe('sw.category.index');
+        expect(module.entities[1].route.name).toBe('sw.category.landingPageDetail');
+        expect(module.entities[1].route.params).toEqual({ id: 'create' });
+    });
+
+    it('should search for module and action with sales channel', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
+
+        wrapper = await createWrapper(
+            {
+                initialSearchType: '',
+                initialSearch: ''
+            },
+            searchTypeServiceTypes,
+            ['sales_channel.viewer', 'sales_channel.creator']
+        );
+
+        // open search
+        const searchInput = wrapper.find('.sw-search-bar__input');
+        await searchInput.trigger('focus');
+
+        await searchInput.setValue('sto');
+        expect(searchInput.element.value).toBe('sto');
+
+        await flushPromises();
+
+        const doGlobalSearch = swSearchBarComponent.methods.doGlobalSearch;
+        await doGlobalSearch.flush();
+
+        await flushPromises();
+
+        const searchBarItemStub = wrapper.find('sw-search-bar-item-stub');
+        expect(searchBarItemStub.attributes().type).toBe('module');
+
+        const module = wrapper.vm.results[0];
+
+        expect(module.entity).toBe('module');
+        expect(module.total).toBe(2);
+        expect(module.entities[0].label).toBe('Storefront');
+        expect(module.entities[0].route.name).toBe('sw.sales.channel.detail');
+        expect(module.entities[1].label).toBe('Storefront');
+        expect(module.entities[1].route.name).toBe('sw.sales.channel.create');
+    });
+
+    ['order', 'product', 'customer'].forEach(term => {
+        it(`should search for module and action with the term "${term}" when the ACL privilege is missing`, async () => {
+            global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
+
+            register(`sw-${term}`, {
+                title: `${term}s`,
+                color: '#A092F0',
+                icon: 'default-shopping-paper-bag',
+                entity: term,
+
+                routes: {
+                    index: {
+                        component: `sw-${term}-list`,
+                        path: 'index',
+                        meta: {
+                            privilege: `${term}.viewer`
+                        }
+                    },
+
+                    create: {
+                        component: `sw-${term}-create`,
+                        path: 'create',
+                        meta: {
+                            privilege: `${term}.creator`
+                        }
+                    }
+                }
+            });
+
+            wrapper = await createWrapper(
+                {
+                    initialSearchType: '',
+                    initialSearch: ''
+                }
+            );
+
+            // open search
+            const searchInput = wrapper.find('.sw-search-bar__input');
+            await searchInput.trigger('focus');
+
+            await searchInput.setValue(term);
+            expect(searchInput.element.value).toBe(term);
+
+            await flushPromises();
+
+            const doGlobalSearch = swSearchBarComponent.methods.doGlobalSearch;
+            await doGlobalSearch.flush();
+
+            await flushPromises();
+
+            expect(wrapper.vm.results).toEqual([]);
+        });
+    });
+
+    ['order', 'product', 'customer'].forEach(term => {
+        it(`should search for module and action with the term "${term}" when the ACL is can view`, async () => {
+            global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
+
+            register(`sw-${term}`, {
+                title: `${term}s`,
+                color: '#A092F0',
+                icon: 'default-shopping-paper-bag',
+                entity: term,
+
+                routes: {
+                    index: {
+                        component: `sw-${term}-list`,
+                        path: 'index',
+                        meta: {
+                            privilege: `${term}.viewer`
+                        }
+                    },
+
+                    create: {
+                        component: `sw-${term}-create`,
+                        path: 'create',
+                        meta: {
+                            privilege: `${term}.creator`
+                        }
+                    }
+                }
+            });
+
+            wrapper = await createWrapper(
+                {
+                    initialSearchType: '',
+                    initialSearch: ''
+                },
+                searchTypeServiceTypes,
+                [`${term}.viewer`]
+            );
+
+            // open search
+            const searchInput = wrapper.find('.sw-search-bar__input');
+            await searchInput.trigger('focus');
+
+            await searchInput.setValue(term);
+            expect(searchInput.element.value).toBe(term);
+
+            await flushPromises();
+
+            const doGlobalSearch = swSearchBarComponent.methods.doGlobalSearch;
+            await doGlobalSearch.flush();
+
+            await flushPromises();
+
+            const module = wrapper.vm.results[0];
+
+            expect(module.entity).toBe('module');
+            expect(module.total).toBe(1);
+
+            expect(module.entities[0].icon).toBe('default-shopping-paper-bag');
+            expect(module.entities[0].color).toBe('#A092F0');
+            expect(module.entities[0].label).toBe(`${term}s`);
+            expect(module.entities[0].entity).toBe(term);
+            expect(module.entities[0].route.name).toBe(`sw.${term}.index`);
+            expect(module.entities[0].privilege).toBe(`${term}.viewer`);
+        });
     });
 });

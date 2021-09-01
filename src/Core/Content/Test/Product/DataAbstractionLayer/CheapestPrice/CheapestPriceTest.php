@@ -319,7 +319,26 @@ class CheapestPriceTest extends TestCase
                             ->build()
                     )
                     ->build(),
+
+                // even not available variants/products should be calculated correctly
+                (new ProductBuilder($ids, 'p.14'))
+                    ->price(180)
+                    ->closeout()
+                    ->visibility(Defaults::SALES_CHANNEL)
+                    ->variant(
+                        (new ProductBuilder($ids, 'v.14.1'))
+                            ->stock(0)
+                            ->build()
+                    )
+                    ->variant(
+                        (new ProductBuilder($ids, 'v.14.2'))
+                            ->price(181)
+                            ->stock(2)
+                            ->build()
+                    )
+                    ->build(),
             ];
+
             $this->getContainer()->get('product.repository')
                 ->create($products, $ids->getContext());
             $criteria = new Criteria($ids->all());
@@ -590,27 +609,27 @@ class CheapestPriceTest extends TestCase
     public function providerSorting()
     {
         yield 'Test sorting without rules' => [
-            'ids' => ['v.4.1', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'v.3.1', 'v.3.2', 'p.5', 'v.6.1', 'v.6.2', 'v.7.1', 'v.7.2', 'v.8.1', 'v.8.2', 'v.10.2', 'v.9.1', 'v.10.1', 'v.9.2', 'v.11.1', 'v.11.2', 'v.12.1', 'v.12.2', 'v.13.1', 'v.13.2'],
+            'ids' => ['v.4.1', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'v.3.1', 'v.3.2', 'p.5', 'v.6.1', 'v.6.2', 'v.7.1', 'v.7.2', 'v.8.1', 'v.8.2', 'v.10.2', 'v.9.1', 'v.10.1', 'v.9.2', 'v.11.1', 'v.11.2', 'v.12.1', 'v.12.2', 'v.14.1', 'v.14.2', 'v.13.1', 'v.13.2'],
             'rules' => [],
         ];
 
         yield 'Test sorting with rule a' => [
-            'ids' => ['v.4.1', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'v.3.1', 'v.3.2', 'p.5', 'v.6.1', 'v.6.2', 'v.7.2', 'v.10.2', 'v.7.1', 'v.10.1', 'v.8.1', 'v.9.1', 'v.9.2', 'v.8.2', 'v.11.1', 'v.11.2', 'v.12.2', 'v.12.1', 'v.13.2', 'v.13.1'],
+            'ids' => ['v.4.1', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'v.3.1', 'v.3.2', 'p.5', 'v.6.1', 'v.6.2', 'v.7.2', 'v.10.2', 'v.7.1', 'v.10.1', 'v.8.1', 'v.9.1', 'v.9.2', 'v.8.2', 'v.11.1', 'v.11.2', 'v.14.1', 'v.14.2', 'v.12.2', 'v.12.1', 'v.13.2', 'v.13.1'],
             'rules' => ['rule-a'],
         ];
 
         yield 'Test sorting with rule b' => [
-            'ids' => ['v.4.1', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'v.3.1', 'v.3.2', 'p.5', 'v.6.1', 'v.6.2', 'v.7.1', 'v.7.2', 'v.8.1', 'v.8.2', 'v.10.2', 'v.9.1', 'v.10.1', 'v.9.2', 'v.12.1', 'v.11.1', 'v.11.2', 'v.12.2', 'v.13.1', 'v.13.2'],
+            'ids' => ['v.4.1', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'v.3.1', 'v.3.2', 'p.5', 'v.6.1', 'v.6.2', 'v.7.1', 'v.7.2', 'v.8.1', 'v.8.2', 'v.10.2', 'v.9.1', 'v.10.1', 'v.9.2', 'v.12.1', 'v.14.1', 'v.14.2', 'v.11.1', 'v.11.2', 'v.12.2', 'v.13.1', 'v.13.2'],
             'rules' => ['rule-b'],
         ];
 
         yield 'Test sorting with rule a+b' => [
-            'ids' => ['v.4.1', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'v.3.1', 'v.3.2', 'p.5', 'v.6.1', 'v.6.2', 'v.7.2', 'v.10.2', 'v.7.1', 'v.10.1', 'v.8.1', 'v.9.1', 'v.9.2', 'v.8.2', 'v.11.1', 'v.11.2', 'v.12.2', 'v.12.1', 'v.13.2', 'v.13.1'],
+            'ids' => ['v.4.1', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'v.3.1', 'v.3.2', 'p.5', 'v.6.1', 'v.6.2', 'v.7.2', 'v.10.2', 'v.7.1', 'v.10.1', 'v.8.1', 'v.9.1', 'v.9.2', 'v.8.2', 'v.11.1', 'v.11.2', 'v.14.1', 'v.14.2', 'v.12.2', 'v.12.1', 'v.13.2', 'v.13.1'],
             'rules' => ['rule-a', 'rule-b'],
         ];
 
         yield 'Test sorting with rule b+a' => [
-            'ids' => ['v.4.1', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'v.3.1', 'v.3.2', 'p.5', 'v.6.1', 'v.6.2', 'v.7.2', 'v.10.2', 'v.7.1', 'v.10.1', 'v.8.1', 'v.9.1', 'v.9.2', 'v.8.2', 'v.12.1', 'v.11.1', 'v.11.2', 'v.12.2', 'v.13.1', 'v.13.2'],
+            'ids' => ['v.4.1', 'p.1', 'v.4.2', 'v.2.2', 'v.2.1', 'v.3.1', 'v.3.2', 'p.5', 'v.6.1', 'v.6.2', 'v.7.2', 'v.10.2', 'v.7.1', 'v.10.1', 'v.8.1', 'v.9.1', 'v.9.2', 'v.8.2', 'v.12.1', 'v.14.1', 'v.14.2', 'v.11.1', 'v.11.2', 'v.12.2', 'v.13.1', 'v.13.2'],
             'rules' => ['rule-b', 'rule-a'],
         ];
     }
@@ -627,7 +646,7 @@ class CheapestPriceTest extends TestCase
         yield 'Test 140€ filter without rule' => ['from' => 140, 'to' => 141, 'expected' => ['v.8.1', 'v.8.2']];
         yield 'Test 150€ filter/10 without rule' => ['from' => 150, 'to' => 151, 'expected' => ['v.9.1', 'v.10.2']];
         yield 'Test 170€ filter without rule' => ['from' => 170, 'to' => 171, 'expected' => ['v.11.1', 'v.11.2']];
-        yield 'Test 180€ filter without rule' => ['from' => 180, 'to' => 181, 'expected' => ['v.12.1', 'v.12.2']];
+        yield 'Test 180€ filter without rule' => ['from' => 180, 'to' => 181, 'expected' => ['v.12.1', 'v.12.2', 'v.14.1', 'v.14.2']];
         yield 'Test 190€ filter without rule' => ['from' => 190, 'to' => 191, 'expected' => ['v.13.1', 'v.13.2']];
         yield 'Test 70€ filter with rule-a' => ['rules' => ['rule-a'], 'from' => 70, 'to' => 71, 'expected' => ['p.1', 'v.4.2']];
         yield 'Test 79€ filter with rule-a' => ['rules' => ['rule-a'], 'from' => 79, 'to' => 80, 'expected' => ['v.2.1', 'v.2.2']];
@@ -650,7 +669,7 @@ class CheapestPriceTest extends TestCase
         yield 'Test 170€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 170, 'to' => 171, 'expected' => ['v.8.2']];
         yield 'Test 160€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 160, 'to' => 161, 'expected' => ['v.8.1', 'v.9.1', 'v.9.2', 'v.10.1']];
         yield 'Test 200€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 200, 'to' => 201, 'expected' => ['v.13.2']];
-        yield 'Test 180€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 180, 'to' => 181, 'expected' => ['v.12.1']];
+        yield 'Test 180€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 180, 'to' => 181, 'expected' => ['v.12.1', 'v.14.1', 'v.14.2']];
         yield 'Test 190€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 190, 'to' => 191, 'expected' => ['v.11.1', 'v.11.2', 'v.12.2', 'v.13.1']];
     }
 
@@ -695,6 +714,9 @@ class CheapestPriceTest extends TestCase
                 'p.13' => ['cheapest' => 190, 'price' => 190, 'prices' => []],
                 'v.13.1' => ['cheapest' => 190, 'price' => 190, 'prices' => []],
                 'v.13.2' => ['cheapest' => 190, 'price' => 190, 'prices' => []],
+                'p.14' => ['cheapest' => 180, 'price' => 180, 'prices' => []],
+                'v.14.1' => ['cheapest' => 180, 'price' => 180, 'prices' => []],
+                'v.14.2' => ['cheapest' => 180, 'price' => 181, 'prices' => []],
             ],
         ];
         yield 'test with rule a' => [
@@ -736,6 +758,9 @@ class CheapestPriceTest extends TestCase
                 'p.13' => ['cheapest' => 210, 'price' => 190, 'prices' => [230, 220]],
                 'v.13.1' => ['cheapest' => 210, 'price' => 190, 'prices' => [230, 220]],
                 'v.13.2' => ['cheapest' => 210, 'price' => 190, 'prices' => [220, 210]],
+                'p.14' => ['cheapest' => 180, 'price' => 180, 'prices' => []],
+                'v.14.1' => ['cheapest' => 180, 'price' => 180, 'prices' => []],
+                'v.14.2' => ['cheapest' => 180, 'price' => 181, 'prices' => []],
             ],
         ];
         yield 'test with rule b' => [
@@ -777,6 +802,9 @@ class CheapestPriceTest extends TestCase
                 'p.13' => ['cheapest' => 190, 'price' => 190, 'prices' => []],
                 'v.13.1' => ['cheapest' => 190, 'price' => 190, 'prices' => []],
                 'v.13.2' => ['cheapest' => 190, 'price' => 190, 'prices' => [210, 200]],
+                'p.14' => ['cheapest' => 180, 'price' => 180, 'prices' => []],
+                'v.14.1' => ['cheapest' => 180, 'price' => 180, 'prices' => []],
+                'v.14.2' => ['cheapest' => 180, 'price' => 181, 'prices' => []],
             ],
         ];
         yield 'test with rule a+b' => [
@@ -818,6 +846,9 @@ class CheapestPriceTest extends TestCase
                 'p.13' => ['cheapest' => 210, 'price' => 190, 'prices' => [230, 220]],
                 'v.13.1' => ['cheapest' => 210, 'price' => 190, 'prices' => [230, 220]],
                 'v.13.2' => ['cheapest' => 210, 'price' => 190, 'prices' => [220, 210]],
+                'p.14' => ['cheapest' => 180, 'price' => 180, 'prices' => []],
+                'v.14.1' => ['cheapest' => 180, 'price' => 180, 'prices' => []],
+                'v.14.2' => ['cheapest' => 180, 'price' => 181, 'prices' => []],
             ],
         ];
         yield 'test with rule b+a' => [
@@ -859,6 +890,9 @@ class CheapestPriceTest extends TestCase
                 'p.13' => ['cheapest' => 200, 'price' => 190, 'prices' => [230, 220]],
                 'v.13.1' => ['cheapest' => 200, 'price' => 190, 'prices' => [230, 220]],
                 'v.13.2' => ['cheapest' => 200, 'price' => 190, 'prices' => [210, 200]],
+                'p.14' => ['cheapest' => 180, 'price' => 180, 'prices' => []],
+                'v.14.1' => ['cheapest' => 180, 'price' => 180, 'prices' => []],
+                'v.14.2' => ['cheapest' => 180, 'price' => 181, 'prices' => []],
             ],
         ];
         yield 'test with rule c' => [
@@ -900,6 +934,9 @@ class CheapestPriceTest extends TestCase
                 'p.13' => ['cheapest' => 190, 'price' => 190, 'prices' => []],
                 'v.13.1' => ['cheapest' => 190, 'price' => 190, 'prices' => []],
                 'v.13.2' => ['cheapest' => 190, 'price' => 190, 'prices' => []],
+                'p.14' => ['cheapest' => 180, 'price' => 180, 'prices' => []],
+                'v.14.1' => ['cheapest' => 180, 'price' => 180, 'prices' => []],
+                'v.14.2' => ['cheapest' => 180, 'price' => 181, 'prices' => []],
             ],
         ];
 
@@ -943,6 +980,9 @@ class CheapestPriceTest extends TestCase
                 'p.13' => ['cheapest' => 380, 'price' => 380, 'prices' => []],
                 'v.13.1' => ['cheapest' => 380, 'price' => 380, 'prices' => []],
                 'v.13.2' => ['cheapest' => 380, 'price' => 380, 'prices' => []],
+                'p.14' => ['cheapest' => 360, 'price' => 360, 'prices' => []],
+                'v.14.1' => ['cheapest' => 360, 'price' => 360, 'prices' => []],
+                'v.14.2' => ['cheapest' => 360, 'price' => 362, 'prices' => []],
             ],
         ];
         yield 'test with rule a and other currency' => [
@@ -984,6 +1024,9 @@ class CheapestPriceTest extends TestCase
                 'p.13' => ['cheapest' => 420, 'price' => 380, 'prices' => [460, 440]],
                 'v.13.1' => ['cheapest' => 420, 'price' => 380, 'prices' => [460, 440]],
                 'v.13.2' => ['cheapest' => 420, 'price' => 380, 'prices' => [440, 420]],
+                'p.14' => ['cheapest' => 360, 'price' => 360, 'prices' => []],
+                'v.14.1' => ['cheapest' => 360, 'price' => 360, 'prices' => []],
+                'v.14.2' => ['cheapest' => 360, 'price' => 362, 'prices' => []],
             ],
         ];
         yield 'test with rule b and other currency' => [
@@ -1025,6 +1068,9 @@ class CheapestPriceTest extends TestCase
                 'p.13' => ['cheapest' => 380, 'price' => 380, 'prices' => []],
                 'v.13.1' => ['cheapest' => 380, 'price' => 380, 'prices' => []],
                 'v.13.2' => ['cheapest' => 380, 'price' => 380, 'prices' => [420, 400]],
+                'p.14' => ['cheapest' => 360, 'price' => 360, 'prices' => []],
+                'v.14.1' => ['cheapest' => 360, 'price' => 360, 'prices' => []],
+                'v.14.2' => ['cheapest' => 360, 'price' => 362, 'prices' => []],
             ],
         ];
 
@@ -1067,6 +1113,9 @@ class CheapestPriceTest extends TestCase
                 'p.13' => ['cheapest' => 420, 'price' => 380, 'prices' => [460, 440]],
                 'v.13.1' => ['cheapest' => 420, 'price' => 380, 'prices' => [460, 440]],
                 'v.13.2' => ['cheapest' => 420, 'price' => 380, 'prices' => [440, 420]],
+                'p.14' => ['cheapest' => 360, 'price' => 360, 'prices' => []],
+                'v.14.1' => ['cheapest' => 360, 'price' => 360, 'prices' => []],
+                'v.14.2' => ['cheapest' => 360, 'price' => 362, 'prices' => []],
             ],
         ];
 
@@ -1109,6 +1158,9 @@ class CheapestPriceTest extends TestCase
                 'p.13' => ['cheapest' => 400, 'price' => 380, 'prices' => [460, 440]],
                 'v.13.1' => ['cheapest' => 400, 'price' => 380, 'prices' => [460, 440]],
                 'v.13.2' => ['cheapest' => 400, 'price' => 380, 'prices' => [420, 400]],
+                'p.14' => ['cheapest' => 360, 'price' => 360, 'prices' => []],
+                'v.14.1' => ['cheapest' => 360, 'price' => 360, 'prices' => []],
+                'v.14.2' => ['cheapest' => 360, 'price' => 362, 'prices' => []],
             ],
         ];
 
@@ -1151,6 +1203,9 @@ class CheapestPriceTest extends TestCase
                 'p.13' => ['cheapest' => 380, 'price' => 380, 'prices' => []],
                 'v.13.1' => ['cheapest' => 380, 'price' => 380, 'prices' => []],
                 'v.13.2' => ['cheapest' => 380, 'price' => 380, 'prices' => []],
+                'p.14' => ['cheapest' => 360, 'price' => 360, 'prices' => []],
+                'v.14.1' => ['cheapest' => 360, 'price' => 360, 'prices' => []],
+                'v.14.2' => ['cheapest' => 360, 'price' => 362, 'prices' => []],
             ],
         ];
     }
@@ -1177,10 +1232,12 @@ class CheapestPriceTest extends TestCase
 
         $actual = array_values($result->getIds());
 
-        foreach ($expected as $index => $key) {
-            $id = $actual[$index];
-            static::assertEquals($ids->get($key), $id, sprintf('Case `%s` failed for %s', $message, $key));
+        $actualArray = [];
+        foreach ($actual as $id) {
+            $actualArray[] = $ids->getKey($id);
         }
+
+        static::assertEquals($expected, $actualArray, $message);
     }
 
     private function providerAggregation()

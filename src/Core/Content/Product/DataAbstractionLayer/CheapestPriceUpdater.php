@@ -145,7 +145,6 @@ class CheapestPriceUpdater
 
         $query->andWhere('product.id IN (:ids) OR product.parent_id IN (:ids)');
         $query->andWhere('product.version_id = :version');
-        $query->andWhere('product.available = 1');
         $query->andWhere('IFNULL(product.active, parent.active) = 1');
         $query->andWhere('(product.child_count = 0 OR product.parent_id IS NOT NULL)');
 
@@ -183,7 +182,6 @@ class CheapestPriceUpdater
         $query->leftJoin('product', 'product', 'parent', 'product.parent_id = parent.id');
         $query->andWhere('product.id IN (:ids) OR product.parent_id IN (:ids)');
         $query->andWhere('product.version_id = :version');
-        $query->andWhere('product.available = 1 OR (product.parent_id IS NULL AND product.child_count > 0)');
         $query->andWhere('IFNULL(product.active, parent.active) = 1');
 
         $query->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY);

@@ -61,7 +61,7 @@ function getInstallationPath(context, isDevMode) {
  */
 function getAssetsPath(installationPath, isDevMode) {
     if (isDevMode) {
-        return '';
+        return '/bundles/';
     }
 
     return `${installationPath}/bundles/`;

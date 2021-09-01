@@ -6,13 +6,13 @@
     <title>Shopware administration</title>
     <link rel="icon" type="image/png" sizes="32x32" href="/static/img/favicon/favicon-32x32.png" id="dynamic-favicon">
 
-    <link href="/static/css/vendors-node.css" rel="stylesheet">
-    <link href="/static/css/app.css" rel="stylesheet">
+    <link href="bundles/administration/static/css/vendors-node.css" rel="stylesheet">
+    <link href="bundles/administration/static/css/app.css" rel="stylesheet">
 
-    <script type="text/javascript" src="/static/js/runtime.js"></script>
-    <script type="text/javascript" src="/static/js/vendors-node.js"></script>
-    <script type="text/javascript" src="/static/js/commons.js"></script>
-    <script type="text/javascript" src="/static/js/app.js"></script>
+    <script type="text/javascript" src="bundles/administration/static/js/runtime.js"></script>
+    <script type="text/javascript" src="bundles/administration/static/js/vendors-node.js"></script>
+    <script type="text/javascript" src="bundles/administration/static/js/commons.js"></script>
+    <script type="text/javascript" src="bundles/administration/static/js/app.js"></script>
 
 </head>
 <body>

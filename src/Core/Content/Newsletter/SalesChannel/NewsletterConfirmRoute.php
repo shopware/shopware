@@ -118,6 +118,7 @@ class NewsletterConfirmRoute extends AbstractNewsletterConfirmRoute
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter($identifier, $value));
+        $criteria->addAssociation('salutation');
         $criteria->setLimit(1);
 
         $newsletterRecipient = $this->newsletterRecipientRepository->search($criteria, $context)->getEntities()->first();

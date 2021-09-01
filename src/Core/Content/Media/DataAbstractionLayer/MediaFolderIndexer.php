@@ -19,30 +19,15 @@ class MediaFolderIndexer extends EntityIndexer
 {
     public const CHILD_COUNT_UPDATER = 'media_folder.child-count';
 
-    /**
-     * @var IteratorFactory
-     */
-    private $iteratorFactory;
+    private IteratorFactory $iteratorFactory;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $folderRepository;
+    private EntityRepositoryInterface $folderRepository;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var ChildCountUpdater
-     */
-    private $childCountUpdater;
+    private ChildCountUpdater $childCountUpdater;
 
     public function __construct(
         IteratorFactory $iteratorFactory,
@@ -109,15 +94,15 @@ class MediaFolderIndexer extends EntityIndexer
         );
 
         foreach ($ids as $id) {
-            $folder = $this->connection->fetchAssoc(
+            $folder = $this->connection->fetchAssociative(
                 'SELECT LOWER(HEX(child.id)) as id,
-                       child.use_parent_configuration,
-                       LOWER(HEX(child.media_folder_configuration_id)) as media_folder_configuration_id,
                        LOWER(HEX(parent.media_folder_configuration_id)) AS parent_configuration_id
                 FROM media_folder child
                     LEFT JOIN media_folder as parent
                         ON parent.id = child.parent_id
-                WHERE child.id = :id',
+                WHERE child.id = :id
+                    AND child.media_folder_configuration_id != parent.media_folder_configuration_id
+                    AND child.use_parent_configuration = 1',
                 ['id' => Uuid::fromHexToBytes($id)]
             );
 
@@ -125,15 +110,14 @@ class MediaFolderIndexer extends EntityIndexer
                 continue;
             }
 
-            $configId = $folder['media_folder_configuration_id'];
-            if ($folder['use_parent_configuration'] && $folder['parent_configuration_id']) {
-                $configId = $folder['parent_configuration_id'];
-            }
+            $children = $this->fetchChildren([$id]);
 
-            $update->execute([
-                'id' => Uuid::fromHexToBytes($folder['id']),
-                'configId' => Uuid::fromHexToBytes($configId),
-            ]);
+            foreach (array_merge([$id], $children) as $folderId) {
+                $update->execute([
+                    'id' => Uuid::fromHexToBytes($folderId),
+                    'configId' => Uuid::fromHexToBytes($folder['parent_configuration_id']),
+                ]);
+            }
         }
 
         if ($message->allow(self::CHILD_COUNT_UPDATER)) {

@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\DataAbstractionLayer\MediaFolderIndexer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -17,25 +16,13 @@ class MediaFolderConfigIndexerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $folderRepository;
+    private EntityRepositoryInterface $folderRepository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var MediaFolderIndexer
-     */
-    private $configIndexer;
+    private MediaFolderIndexer $configIndexer;
 
     protected function setUp(): void
     {
@@ -201,7 +188,8 @@ class MediaFolderConfigIndexerTest extends TestCase
             )
             ->execute();
 
-        $this->configIndexer->handle(new EntityIndexingMessage([$parentId, $child1Id, $child1_1Id]));
+        $message = $this->configIndexer->iterate(['offset' => 0]);
+        $this->configIndexer->handle($message);
 
         $children = $this->folderRepository->search(new Criteria([$child1Id, $child1_1Id]), $this->context);
 

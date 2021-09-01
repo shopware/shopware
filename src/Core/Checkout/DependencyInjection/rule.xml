@@ -48,6 +48,10 @@
             <tag name="shopware.rule.definition"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Cart\Rule\CartVolumeRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Cart\Rule\CartHasDeliveryFreeItemRule">
             <tag name="shopware.rule.definition"/>
         </service>
@@ -181,6 +185,10 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Rule\LineItemDimensionWeightRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Rule\LineItemDimensionVolumeRule">
             <tag name="shopware.rule.definition"/>
         </service>
 

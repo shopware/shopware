@@ -14,6 +14,9 @@ List of all rule classes across Shopware 6.
 [Shopware\Core\Checkout\Cart\Rule\CartHasDeliveryFreeItemRule](https://github.com/shopware/platform/tree/master/src/Core/Shopware\Core\Checkout\Cart\Rule\CartHasDeliveryFreeItemRule)
  : Matches if the cart has a free delivery item.
 
+[Shopware\Core\Checkout\Cart\Rule\CartVolumeRule](https://github.com/shopware/platform/tree/master/src/Core/Shopware\Core\Checkout\Cart\Rule\CartVolumeRule)
+ : Matches a specific number to the current cart's total volume.
+
 [Shopware\Core\Checkout\Cart\Rule\CartWeightRule](https://github.com/shopware/platform/tree/master/src/Core/Shopware\Core\Checkout\Cart\Rule\CartWeightRule)
  : Matches a specific number to the current cart's total weight.
 
@@ -37,6 +40,9 @@ List of all rule classes across Shopware 6.
 
 [Shopware\Core\Checkout\Cart\Rule\LineItemDimensionLengthRule](https://github.com/shopware/platform/tree/master/src/Core/Shopware\Core\Checkout\Cart\Rule\LineItemDimensionLengthRule)
  : Matches a specific line item's length.
+
+[Shopware\Core\Checkout\Cart\Rule\LineItemDimensionVolumeRule](https://github.com/shopware/platform/tree/master/src/Core/Shopware\Core\Checkout\Cart\Rule\LineItemDimensionVolumeRule)
+ : Matches a specific line item's volume.
 
 [Shopware\Core\Checkout\Cart\Rule\LineItemDimensionWeightRule](https://github.com/shopware/platform/tree/master/src/Core/Shopware\Core\Checkout\Cart\Rule\LineItemDimensionWeightRule)
  : Matches a specific line item's weight.
@@ -76,6 +82,9 @@ List of all rule classes across Shopware 6.
 
 [Shopware\Core\Checkout\Cart\Rule\LineItemRule](https://github.com/shopware/platform/tree/master/src/Core/Shopware\Core\Checkout\Cart\Rule\LineItemRule)
  : Matches multiple identifiers to a line item's keys. True if one identifier matches.
+
+[Shopware\Core\Checkout\Cart\Rule\LineItemStock](https://github.com/shopware/platform/tree/master/src/Core/Shopware\Core\Checkout\Cart\Rule\LineItemStock)
+ : Matches a specific line item's available stock.
 
 [Shopware\Core\Checkout\Cart\Rule\LineItemTagRule](https://github.com/shopware/platform/tree/master/src/Core/Shopware\Core\Checkout\Cart\Rule\LineItemTagRule)
  : Matches multiple tags to a line item's tag. True if one tag matches.

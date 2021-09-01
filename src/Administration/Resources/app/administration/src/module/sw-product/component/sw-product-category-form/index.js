@@ -115,26 +115,28 @@ Component.register('sw-product-category-form', {
                 return Promise.reject();
             }
 
-            return this.systemConfigApiService.getValues('core.defaultSalesChannel').then(configData => {
+            return this.systemConfigApiService.getValues('core.defaultSalesChannel').then(async (configData) => {
                 if (isEmpty(configData)) {
-                    return Promise.resolve();
+                    return;
                 }
 
                 const defaultSalesChannelIds = configData?.['core.defaultSalesChannel.salesChannel'];
                 const defaultVisibilities = configData?.['core.defaultSalesChannel.visibility'];
                 this.product.active = !!configData?.['core.defaultSalesChannel.active'];
 
-                return this.fetchSalesChannelByIds(defaultSalesChannelIds).then((salesChannels) => {
-                    if (!salesChannels.length) {
-                        return Promise.resolve();
-                    }
+                if (!defaultSalesChannelIds || defaultSalesChannelIds.length <= 0) {
+                    return;
+                }
 
-                    salesChannels.forEach((salesChannel) => {
-                        const visibilities = this.createProductVisibilityEntity(defaultVisibilities, salesChannel);
-                        this.product.visibilities.push(visibilities);
-                    });
+                const salesChannels = await this.fetchSalesChannelByIds(defaultSalesChannelIds);
 
-                    return Promise.resolve();
+                if (!salesChannels.length) {
+                    return;
+                }
+
+                salesChannels.forEach((salesChannel) => {
+                    const visibilities = this.createProductVisibilityEntity(defaultVisibilities, salesChannel);
+                    this.product.visibilities.push(visibilities);
                 });
             }).catch(() => {
                 this.createNotificationError({

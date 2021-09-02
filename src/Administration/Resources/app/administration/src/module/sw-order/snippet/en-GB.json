@@ -408,6 +408,16 @@
       },
       "messageEmptyTitle": "Nothing found",
       "messageEmptySubline": "Edit your filters to find results."
+    },
+    "components": {
+      "selectDocumentTypeModal": {
+        "title": "Create document",
+        "primaryAction": "Create document",
+        "helpText": {
+          "storno": "A cancellation invoice can't be created without an invoice.",
+          "credit_note": "To create a credit note, add a credit item first."
+        }
+      }
     }
   },
   "sw-privileges": {

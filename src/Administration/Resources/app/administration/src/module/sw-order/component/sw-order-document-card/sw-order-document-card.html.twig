@@ -23,7 +23,7 @@
                 <template #filter>
                     {% block sw_order_document_card_header_create_document_context_button %}
                     <sw-context-button
-                        v-if="!attachView"
+                        v-if="!attachView && !feature.isActive('FEATURE_NEXT_7530')"
                         :disabled="!acl.can('order.editor')"
                     >
 
@@ -65,6 +65,26 @@
                         {% endblock %}
 
                     </sw-context-button>
+
+                    <sw-button
+                        v-if="!attachView && feature.isActive('FEATURE_NEXT_7530')"
+                        slot="button"
+                        v-tooltip="{
+                            message: $tc('sw-privileges.tooltip.warning'),
+                            disabled: acl.can('order.editor'),
+                            showOnDisabledElements: true
+                        }"
+                        size="small"
+                        :disabled="!acl.can('order.editor')"
+                        class="sw-order-document-grid-button"
+                        @click="onShowSelectDocumentTypeModal"
+                    >
+
+                        {% block sw_order_document_card_header_create_document_button_label %}
+                        {{ $tc('sw-order.documentCard.labelCreateNew') }}
+                        {% endblock %}
+
+                    </sw-button>
                     {% endblock %}
 
                 </template>
@@ -155,6 +175,15 @@
         @page-leave="onCancelCreation"
         @document-create="onCreateDocument"
         @preview-show="onPreview"
+    />
+    {% endblock %}
+
+    {% block sw_order_document_card_grid_column_document_type_modal %}
+    <sw-order-select-document-type-modal
+        v-if="showSelectDocumentTypeModal"
+        v-model="currentDocumentType"
+        :order="order"
+        @modal-close="onCloseSelectDocumentTypeModal"
     />
     {% endblock %}
 

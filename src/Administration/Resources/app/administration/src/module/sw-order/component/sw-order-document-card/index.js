@@ -17,6 +17,7 @@ Component.register('sw-order-document-card', {
         'documentService',
         'numberRangeService',
         'repositoryFactory',
+        'feature',
         'acl',
     ],
 
@@ -56,6 +57,7 @@ Component.register('sw-order-document-card', {
             attachment: {},
             isLoadingDocument: false,
             isLoadingPreview: false,
+            showSelectDocumentTypeModal: false,
         };
     },
 
@@ -247,7 +249,10 @@ Component.register('sw-order-document-card', {
         },
 
         onPrepareDocument(documentType) {
-            this.currentDocumentType = documentType;
+            if (!this.feature.isActive('FEATURE_NEXT_7530')) {
+                this.currentDocumentType = documentType;
+            }
+
             this.showModal = true;
         },
 
@@ -318,6 +323,18 @@ Component.register('sw-order-document-card', {
 
         onLoadingPreview() {
             this.isLoadingPreview = true;
+        },
+
+        onShowSelectDocumentTypeModal() {
+            this.showSelectDocumentTypeModal = true;
+        },
+
+        onCloseSelectDocumentTypeModal(persist) {
+            this.showSelectDocumentTypeModal = false;
+
+            if (persist) {
+                this.onPrepareDocument();
+            }
         },
     },
 });

@@ -134,32 +134,9 @@ class ElasticsearchIndexer extends AbstractMessageHandler
 
         $messages = $this->generateMessages($definition, $ids);
 
-        $indices = [];
-
         /** @var ElasticsearchIndexingMessage $message */
         foreach ($messages as $message) {
             $this->handle($message);
-
-            $data = $message->getData();
-            if (!$data instanceof IndexingDto) {
-                continue;
-            }
-
-            $indices[] = $data->getIndex();
-        }
-
-        $indices = array_unique($indices);
-        $indices = array_filter($indices, fn (string $index) => $this->client->indices()->exists(['index' => $index]));
-
-        if (empty($indices)) {
-            return;
-        }
-
-        try {
-            $this->client->indices()->refresh([
-                'index' => implode(',', array_unique($indices)),
-            ]);
-        } catch (\Exception $e) {
         }
     }
 

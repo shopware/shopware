@@ -470,7 +470,6 @@ export default class ListingPlugin extends Plugin {
             }
         });
 
-        // TODO: Use the cmsSlotReloadService for replacing and reloading the elements
         window.PluginManager.initializePlugins();
 
         this.$emitter.publish('Listing/afterRenderResponse', { response });

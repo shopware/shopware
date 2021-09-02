@@ -305,6 +305,11 @@ shopware:
               major: true
               description: "Default transaction state for async app payments"
               # issue: NEXT-13601
+            - name: FEATURE_NEXT_16992
+              default: false
+              major: true
+              description: "Remove page_product_detail_not_available and buy_widget_not_available block"
+              # issue: NEXT-16992
             - name: FEATURE_NEXT_7530
               default: false
               major: true

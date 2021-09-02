@@ -56,9 +56,11 @@
             {% endblock %}
         {% endblock %}
 
-        {% block page_product_detail_not_available %}
-            {#TODO: NEXT-2784 - product not available message#}
-        {% endblock %}
+        {% if not feature('FEATURE_NEXT_16992') %}
+            {# @deprecated tag:v6.5.0 tag:)(FEATURE_NEXT_16992) - Block will be removed in v6.5.0 #}
+            {% block page_product_detail_not_available %}
+            {% endblock %}
+        {% endif %}
 
         {% block page_product_detail_buy_container %}
             <div itemprop="offers"

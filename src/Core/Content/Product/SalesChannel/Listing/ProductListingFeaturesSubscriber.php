@@ -218,7 +218,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
     {
         $aggregations = [];
 
-        if ($request->get('reduce-aggregations', null) === null) {
+        if ($request->get('reduce-aggregations') === null) {
             foreach ($filters as $filter) {
                 $aggregations = array_merge($aggregations, $filter->getAggregations());
             }
@@ -243,7 +243,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
                 }
 
                 $aggregation = new FilterAggregation(
-                    $aggregation->getName() . '-filtered',
+                    $aggregation->getName(),
                     $aggregation,
                     $excluded->getFilters()
                 );

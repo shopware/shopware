@@ -195,10 +195,6 @@ class CriteriaParser
 
         $filters = [];
         foreach ($aggregation->getFilter() as $filter) {
-            if ($filter instanceof MultiFilter) {
-                throw new \RuntimeException('Multi filter are not supported inside an filter aggregation');
-            }
-
             $query = $this->parseFilter($filter, $definition, $definition->getEntityName(), $context);
 
             if (!$query instanceof NestedQuery) {

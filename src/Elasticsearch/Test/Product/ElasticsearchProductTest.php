@@ -267,6 +267,8 @@ class ElasticsearchProductTest extends TestCase
                     ->build(),
             ], $context);
 
+            $this->refreshIndex();
+
             $criteria = new Criteria();
             $criteria->addFilter(new EqualsFilter('productNumber', 'u7'));
 
@@ -275,6 +277,8 @@ class ElasticsearchProductTest extends TestCase
             static::assertCount(1, $result->getIds());
 
             $this->productRepository->delete([['id' => $ids->get('u7')]], $context);
+
+            $this->refreshIndex();
             $result = $this->productRepository->searchIds($criteria, $context);
             static::assertCount(0, $result->getIds());
         } catch (\Exception $e) {

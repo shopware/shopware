@@ -29,14 +29,18 @@ class ProductSerializer extends EntitySerializer
 
     private EntityRepositoryInterface $productMediaRepository;
 
+    private EntityRepositoryInterface $productConfiguratorSettingRepository;
+
     public function __construct(
         EntityRepositoryInterface $visibilityRepository,
         EntityRepositoryInterface $salesChannelRepository,
-        EntityRepositoryInterface $productMediaRepository
+        EntityRepositoryInterface $productMediaRepository,
+        EntityRepositoryInterface $productConfiguratorSettingRepository
     ) {
         $this->visibilityRepository = $visibilityRepository;
         $this->salesChannelRepository = $salesChannelRepository;
         $this->productMediaRepository = $productMediaRepository;
+        $this->productConfiguratorSettingRepository = $productConfiguratorSettingRepository;
     }
 
     /**
@@ -131,6 +135,10 @@ class ProductSerializer extends EntitySerializer
         if (isset($deserialized['id'], $deserialized['cover']['media']['id'])) {
             yield 'cover' => $this->findCoverProductMediaId($deserialized['id'], $deserialized['cover']);
         }
+
+        if (!empty($deserialized['parentId']) && !empty($deserialized['options'])) {
+            yield 'configuratorSettings' => $this->findConfiguratorSettings($deserialized['parentId'], $deserialized['options']);
+        }
     }
 
     public function supports(string $entity): bool
@@ -207,5 +215,35 @@ class ProductSerializer extends EntitySerializer
         }
 
         return $cover;
+    }
+
+    private function findConfiguratorSettings(string $parentId, array $options): array
+    {
+        $configuratorSettings = [];
+
+        foreach ($options as $option) {
+            if (empty($option['id'])) {
+                continue;
+            }
+
+            $configuratorSetting = [
+                'optionId' => $option['id'],
+                'productId' => $parentId,
+            ];
+
+            $criteria = new Criteria();
+            $criteria->addFilter(new EqualsFilter('productId', $parentId));
+            $criteria->addFilter(new EqualsFilter('optionId', $option['id']));
+
+            $id = $this->productConfiguratorSettingRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
+
+            if ($id) {
+                $configuratorSetting['id'] = $id;
+            }
+
+            $configuratorSettings[] = $configuratorSetting;
+        }
+
+        return $configuratorSettings;
     }
 }

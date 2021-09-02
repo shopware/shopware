@@ -25,6 +25,15 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('index_prefix')->end()
                 ->scalarNode('throw_exception')->end()
                 ->scalarNode('logger_level')->defaultValue($debug ? Logger::DEBUG : Logger::ERROR)->end()
+                ->arrayNode('ssl')
+                    ->children()
+                        ->scalarNode('cert_path')->end()
+                        ->scalarNode('cert_password')->end()
+                        ->scalarNode('cert_key_path')->end()
+                        ->scalarNode('cert_key_password')->end()
+                        ->booleanNode('verify_server_cert')->defaultValue(true)->end()
+                    ->end()
+                ->end()
             ->end();
 
         return $treeBuilder;

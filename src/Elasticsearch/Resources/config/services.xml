@@ -91,6 +91,7 @@
             <argument>%elasticsearch.hosts%</argument>
             <argument type="service" id="shopware.elasticsearch.logger" />
             <argument>%kernel.debug%</argument>
+            <argument>%elasticsearch.ssl%</argument>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Indexing\IndexCreator">

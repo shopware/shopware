@@ -170,6 +170,10 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
         })(),
     },
 
+    externals: {
+        Shopware: 'Shopware',
+    },
+
     // Sync with .eslintrc.js
     resolve: {
         extensions: ['.js', '.vue', '.json', '.less', '.twig'],

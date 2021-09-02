@@ -223,9 +223,9 @@ class ContainerProvider implements ServiceProviderInterface
         $container['migration.sources'] = static function ($c) {
             return [
                 new CoreMigrationSource('core', []),
-                $this->createMigrationSource('V6_3', true),
-                $this->createMigrationSource('V6_4', true),
-                $this->createMigrationSource('V6_5'),
+                self::createMigrationSource('V6_3', true),
+                self::createMigrationSource('V6_4', true),
+                self::createMigrationSource('V6_5'),
             ];
         };
 
@@ -244,7 +244,7 @@ class ContainerProvider implements ServiceProviderInterface
         };
     }
 
-    private function createMigrationSource(string $version, bool $addReplacements = false): CoreMigrationSource
+    private static function createMigrationSource(string $version, bool $addReplacements = false): CoreMigrationSource
     {
         if (file_exists(SW_PATH . '/platform/src/Core/schema.sql')) {
             $coreBasePath = SW_PATH . '/platform/src/Core';

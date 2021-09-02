@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
@@ -21,30 +22,15 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class SyncService implements SyncServiceInterface
 {
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $definitionRegistry;
+    private DefinitionInstanceRegistry $definitionRegistry;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var ApiVersionConverter
-     */
-    private $apiVersionConverter;
+    private ApiVersionConverter $apiVersionConverter;
 
-    /**
-     * @var EntityWriterInterface
-     */
-    private $writer;
+    private EntityWriterInterface $writer;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
     public function __construct(
         DefinitionInstanceRegistry $definitionRegistry,
@@ -65,7 +51,14 @@ class SyncService implements SyncServiceInterface
      */
     public function sync(array $operations, Context $context, SyncBehavior $behavior): SyncResult
     {
-        if ($behavior->getIndexingBehavior() !== null) {
+        if (\count($behavior->getSkipIndexers())) {
+            $context->addExtension(EntityIndexerRegistry::EXTENSION_INDEXER_SKIP, new ArrayEntity($behavior->getSkipIndexers()));
+        }
+
+        if (
+            $behavior->getIndexingBehavior() !== null
+            && \in_array($behavior->getIndexingBehavior(), [EntityIndexerRegistry::DISABLE_INDEXING, EntityIndexerRegistry::USE_INDEXING_QUEUE], true)
+        ) {
             $context->addExtension($behavior->getIndexingBehavior(), new ArrayEntity());
         }
 

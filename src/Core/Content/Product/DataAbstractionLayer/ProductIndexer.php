@@ -210,6 +210,22 @@ class ProductIndexer extends EntityIndexer
         $this->eventDispatcher->dispatch(new ProductIndexerEvent($ids, $childrenIds, $parentIds, $context, $message->getSkip()));
     }
 
+    public function getOptions(): array
+    {
+        return [
+            self::INHERITANCE_UPDATER,
+            self::STOCK_UPDATER,
+            self::VARIANT_LISTING_UPDATER,
+            self::CHILD_COUNT_UPDATER,
+            self::MANY_TO_MANY_ID_FIELD_UPDATER,
+            self::CATEGORY_DENORMALIZER_UPDATER,
+            self::CHEAPEST_PRICE_UPDATER,
+            self::RATING_AVERAGE_UPDATER,
+            self::STREAM_UPDATER,
+            self::SEARCH_KEYWORD_UPDATER,
+        ];
+    }
+
     private function getChildrenIds(array $ids): array
     {
         $childrenIds = $this->connection->fetchAll(

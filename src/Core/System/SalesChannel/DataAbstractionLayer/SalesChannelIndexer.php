@@ -16,25 +16,13 @@ class SalesChannelIndexer extends EntityIndexer
 {
     public const MANY_TO_MANY_UPDATER = 'sales_channel.many-to-many';
 
-    /**
-     * @var IteratorFactory
-     */
-    private $iteratorFactory;
+    private IteratorFactory $iteratorFactory;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $repository;
+    private EntityRepositoryInterface $repository;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var ManyToManyIdFieldUpdater
-     */
-    private $manyToManyUpdater;
+    private ManyToManyIdFieldUpdater $manyToManyUpdater;
 
     public function __construct(
         IteratorFactory $iteratorFactory,
@@ -96,5 +84,12 @@ class SalesChannelIndexer extends EntityIndexer
         }
 
         $this->eventDispatcher->dispatch(new SalesChannelIndexerEvent($ids, $message->getContext(), $message->getSkip()));
+    }
+
+    public function getOptions(): array
+    {
+        return [
+            self::MANY_TO_MANY_UPDATER,
+        ];
     }
 }

@@ -22,40 +22,19 @@ class CategoryIndexer extends EntityIndexer
     public const TREE_UPDATER = 'category.tree';
     public const BREADCRUMB_UPDATER = 'category.breadcrumb';
 
-    /**
-     * @var IteratorFactory
-     */
-    private $iteratorFactory;
+    private IteratorFactory $iteratorFactory;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $repository;
+    private EntityRepositoryInterface $repository;
 
-    /**
-     * @var ChildCountUpdater
-     */
-    private $childCountUpdater;
+    private ChildCountUpdater $childCountUpdater;
 
-    /**
-     * @var TreeUpdater
-     */
-    private $treeUpdater;
+    private TreeUpdater $treeUpdater;
 
-    /**
-     * @var CategoryBreadcrumbUpdater
-     */
-    private $breadcrumbUpdater;
+    private CategoryBreadcrumbUpdater $breadcrumbUpdater;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
     public function __construct(
         Connection $connection,
@@ -181,6 +160,15 @@ class CategoryIndexer extends EntityIndexer
         $this->connection->commit();
 
         $this->eventDispatcher->dispatch(new CategoryIndexerEvent($ids, $context, $message->getSkip()));
+    }
+
+    public function getOptions(): array
+    {
+        return [
+            self::CHILD_COUNT_UPDATER,
+            self::TREE_UPDATER,
+            self::BREADCRUMB_UPDATER,
+        ];
     }
 
     private function fetchChildren(array $categoryIds, string $versionId): array

@@ -9,9 +9,12 @@ if (Feature::isActive('FEATURE_NEXT_15815')) {
     {
         protected ?string $indexingBehavior;
 
-        public function __construct(?string $indexingBehavior = null)
+        protected array $skipIndexers = [];
+
+        public function __construct(?string $indexingBehavior = null, array $skipIndexers = [])
         {
             $this->indexingBehavior = $indexingBehavior;
+            $this->skipIndexers = $skipIndexers;
         }
 
         /**
@@ -26,6 +29,11 @@ if (Feature::isActive('FEATURE_NEXT_15815')) {
         {
             return $this->indexingBehavior;
         }
+
+        public function getSkipIndexers(): array
+        {
+            return $this->skipIndexers;
+        }
     }
 } else {
     class SyncBehavior
@@ -36,14 +44,18 @@ if (Feature::isActive('FEATURE_NEXT_15815')) {
 
         protected ?string $indexingBehavior;
 
+        protected array $skipIndexers = [];
+
         public function __construct(
             bool $failOnError,
             bool $singleOperation = false,
-            ?string $indexingBehavior = null
+            ?string $indexingBehavior = null,
+            array $skipIndexers = []
         ) {
             $this->failOnError = $failOnError;
             $this->singleOperation = $singleOperation;
             $this->indexingBehavior = $indexingBehavior;
+            $this->skipIndexers = $skipIndexers;
         }
 
         public function failOnError(): bool
@@ -59,6 +71,11 @@ if (Feature::isActive('FEATURE_NEXT_15815')) {
         public function getIndexingBehavior(): ?string
         {
             return $this->indexingBehavior;
+        }
+
+        public function getSkipIndexers(): array
+        {
+            return $this->skipIndexers;
         }
     }
 }

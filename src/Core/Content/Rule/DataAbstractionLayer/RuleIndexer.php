@@ -26,35 +26,17 @@ class RuleIndexer extends EntityIndexer implements EventSubscriberInterface
 {
     public const PAYLOAD_UPDATER = 'rule.payload';
 
-    /**
-     * @var IteratorFactory
-     */
-    private $iteratorFactory;
+    private IteratorFactory $iteratorFactory;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $repository;
+    private EntityRepositoryInterface $repository;
 
-    /**
-     * @var RulePayloadUpdater
-     */
-    private $payloadUpdater;
+    private RulePayloadUpdater $payloadUpdater;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var CartRuleLoader
-     */
-    private $cartRuleLoader;
+    private CartRuleLoader $cartRuleLoader;
 
     public function __construct(
         Connection $connection,

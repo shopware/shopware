@@ -60,12 +60,24 @@ describe('Order: Test order state', () => {
         cy.get('.sw-order-detail-base__document-grid').scrollIntoView();
         cy.get('.sw-order-detail-base__document-grid').should('be.visible');
         cy.get(page.elements.loader).should('not.exist');
-        cy.clickContextMenuItem(
-            '.sw-context-menu-item',
-            '.sw-order-document-grid-button',
-            null,
-            'Invoice'
-        );
+
+        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+            cy.clickContextMenuItem(
+                '.sw-context-menu-item',
+                '.sw-order-document-grid-button',
+                null,
+                'Invoice'
+            );
+        });
+
+        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get('.sw-order-document-grid-button').should('be.visible').click();
+            cy.get('.sw-order-select-document-type-modal').should('be.visible');
+
+            cy.get('.sw-field__radio-group').contains('Invoice').click();
+
+            cy.get('.sw-modal__footer .sw-button--primary').click();
+        });
 
         // Generate invoice
         cy.get('.sw-order-document-settings-modal__settings-modal').should('be.visible');
@@ -170,12 +182,24 @@ describe('Order: Test order state', () => {
         cy.get('.sw-order-detail-base__document-grid').scrollIntoView();
         cy.get('.sw-order-detail-base__document-grid').should('be.visible');
         cy.get(page.elements.loader).should('not.exist');
-        cy.clickContextMenuItem(
-            '.sw-context-menu-item',
-            '.sw-order-document-grid-button',
-            null,
-            'Invoice'
-        );
+
+        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+            cy.clickContextMenuItem(
+                '.sw-context-menu-item',
+                '.sw-order-document-grid-button',
+                null,
+                'Invoice'
+            );
+        });
+
+        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get('.sw-order-document-grid-button').should('be.visible').click();
+            cy.get('.sw-order-select-document-type-modal').should('be.visible');
+
+            cy.get('.sw-field__radio-group').contains('Invoice').click();
+
+            cy.get('.sw-modal__footer .sw-button--primary').click();
+        });
 
         cy.wait('@reserveDocumentNumberRange').then((xhr) => {
             expect(xhr).to.have.property('status', 200);
@@ -234,12 +258,25 @@ describe('Order: Test order state', () => {
                 // Start to create a second invoice
                 cy.get('.sw-order-detail-base__document-grid').scrollIntoView();
                 cy.get('.sw-order-detail-base__document-grid').should('be.visible');
-                cy.clickContextMenuItem(
-                    '.sw-context-menu-item',
-                    '.sw-order-document-grid-button',
-                    null,
-                    'Invoice'
-                );
+
+
+                cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+                    cy.clickContextMenuItem(
+                        '.sw-context-menu-item',
+                        '.sw-order-document-grid-button',
+                        null,
+                        'Invoice'
+                    );
+                });
+
+                cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
+                    cy.get('.sw-order-document-grid-button').should('be.visible').click();
+                    cy.get('.sw-order-select-document-type-modal').should('be.visible');
+
+                    cy.get('.sw-field__radio-group').contains('Invoice').click();
+
+                    cy.get('.sw-modal__footer .sw-button--primary').click();
+                });
 
                 cy.wait('@reserveDocumentNumberRange')
                     .then((xhr) => {

@@ -81,12 +81,24 @@ describe('Order: Create credit note', () => {
         cy.get('.sw-order-detail-base__document-grid').scrollIntoView();
         cy.get('.sw-order-detail-base__document-grid').should('be.visible');
         cy.get(page.elements.loader).should('not.exist');
-        cy.clickContextMenuItem(
-            '.sw-context-menu-item',
-            '.sw-order-document-grid-button',
-            null,
-            'Invoice'
-        );
+
+        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+            cy.clickContextMenuItem(
+                '.sw-context-menu-item',
+                '.sw-order-document-grid-button',
+                null,
+                'Invoice'
+            );
+        });
+
+        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get('.sw-order-document-grid-button').should('be.visible').click();
+            cy.get('.sw-order-select-document-type-modal').should('be.visible');
+
+            cy.get('.sw-field__radio-group').contains('Invoice').click();
+
+            cy.get('.sw-modal__footer .sw-button--primary').click();
+        });
 
         // Generate preview
         cy.get('.sw-order-document-settings-modal__settings-modal').should('be.visible');
@@ -114,17 +126,29 @@ describe('Order: Create credit note', () => {
         cy.reload();
         cy.get('.sw-order-detail-base__document-grid').scrollIntoView();
 
-        cy.clickContextMenuItem(
-            '.sw-context-menu-item',
-            '.sw-order-document-grid-button',
-            null,
-            'Credit note'
-        );
+        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+            cy.clickContextMenuItem(
+                '.sw-context-menu-item',
+                '.sw-order-document-grid-button',
+                null,
+                'Credit note'
+            );
+        });
+
+        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get('.sw-order-document-grid-button').should('be.visible').click();
+            cy.get('.sw-order-select-document-type-modal').should('be.visible');
+
+            cy.get('.sw-field__radio-group').contains('Credit note').click();
+
+            cy.get('.sw-modal__footer .sw-button--primary').click();
+        });
 
         cy.get('#sw-field--documentConfig-custom-invoiceNumber').select('1000');
+        cy.get('#sw-field--documentConfig-documentComment').type('Always get a credit note');
 
-        cy.get('.sw-modal__footer button.sw-button--primary').should('be.visible');
-        cy.get('.sw-modal__footer button.sw-button--primary').click();
+        cy.get('.sw-modal__footer .sw-button--primary').should('be.visible');
+        cy.get('.sw-modal__footer .sw-button--primary').click();
 
         cy.wait('@createCreditNote').then((xhr) => {
             expect(xhr).to.have.property('status', 200);

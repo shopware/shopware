@@ -63,6 +63,14 @@ class JsonEntityEncoder
         $includes = $criteria->getIncludes() ?? [];
         $decoded = $this->filterIncludes($includes, $decoded, $entity);
 
+        if (isset($decoded['customFields']) && $decoded['customFields'] === []) {
+            $decoded['customFields'] = new \stdClass();
+        }
+
+        if (isset($decoded['translated']['customFields']) && $decoded['translated']['customFields'] === []) {
+            $decoded['translated']['customFields'] = new \stdClass();
+        }
+
         return $this->removeNotAllowedFields($decoded, $definition, $baseUrl);
     }
 

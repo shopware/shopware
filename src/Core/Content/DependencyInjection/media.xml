@@ -314,11 +314,12 @@
 
         <service id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaFolderIndexer">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
-            <argument type="service" id="Shopware\Core\Content\Media\DataAbstractionLayer\MediaThumbnailRepositoryDecorator"/>
+            <argument type="service" id="media_folder.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <tag name="shopware.entity_indexer"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater"/>
+
+            <tag name="shopware.entity_indexer"/>
         </service>
     </services>
 </container>

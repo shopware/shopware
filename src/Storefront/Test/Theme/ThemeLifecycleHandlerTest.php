@@ -6,10 +6,12 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Storefront;
 use Shopware\Storefront\Test\Theme\fixtures\SimplePlugin\SimplePlugin;
 use Shopware\Storefront\Test\Theme\fixtures\SimplePluginWithoutCompilation\SimplePluginWithoutCompilation;
@@ -37,15 +39,9 @@ class ThemeLifecycleHandlerTest extends TestCase
      */
     private $configurationRegistryMock;
 
-    /**
-     * @var ThemeLifecycleHandler
-     */
-    private $themeLifecycleHandler;
+    private ThemeLifecycleHandler $themeLifecycleHandler;
 
-    /**
-     * @var StorefrontPluginConfigurationFactory
-     */
-    private $configFactory;
+    private StorefrontPluginConfigurationFactory $configFactory;
 
     public function setUp(): void
     {
@@ -65,6 +61,57 @@ class ThemeLifecycleHandlerTest extends TestCase
 
         $this->getContainer()->get(Connection::class)->executeUpdate('DELETE FROM `theme_sales_channel`');
         $this->assignThemeToDefaultSalesChannel();
+    }
+
+    public function testHandleThemeInstallOrUpdateWillRecompileThemeIfNecessary(): void
+    {
+        $installConfig = $this->configFactory->createFromBundle(new SimplePlugin());
+
+        $this->themeServiceMock->expects(static::once())
+            ->method('compileTheme')
+            ->with(
+                Defaults::SALES_CHANNEL,
+                static::isType('string'),
+                static::isInstanceOf(Context::class),
+                static::callback(function (StorefrontPluginConfigurationCollection $configs): bool {
+                    // assert installConfig is used when compiling the theme
+                    return $configs->count() === 2;
+                })
+            );
+
+        $configs = new StorefrontPluginConfigurationCollection([
+            $this->configFactory->createFromBundle(new Storefront()),
+            $installConfig,
+        ]);
+
+        $this->themeLifecycleHandler->handleThemeInstallOrUpdate($installConfig, $configs, Context::createDefaultContext());
+    }
+
+    public function testHandleThemeInstallOrUpdateWillRecompileOnlyTouchedTheme(): void
+    {
+        $salesChannelId = $this->createSalesChannel();
+        $themeId = $this->createTheme('SimpleTheme', $salesChannelId);
+        $installConfig = $this->configFactory->createFromBundle(new SimpleTheme());
+        $installConfig->setStyleFiles(FileCollection::createFromArray(['onlyForFile']));
+
+        $this->themeServiceMock->expects(static::once())
+            ->method('compileTheme')
+            ->with(
+                $salesChannelId,
+                $themeId,
+                static::isInstanceOf(Context::class),
+                static::callback(function (StorefrontPluginConfigurationCollection $configs): bool {
+                    // assert installConfig is used when compiling the theme
+                    return $configs->count() === 2;
+                })
+            );
+
+        $configs = new StorefrontPluginConfigurationCollection([
+            $this->configFactory->createFromBundle(new Storefront()),
+            $installConfig,
+        ]);
+
+        $this->themeLifecycleHandler->handleThemeInstallOrUpdate($installConfig, $configs, Context::createDefaultContext());
     }
 
     public function testHandleThemeUninstallWillRecompileThemeIfNecessary(): void
@@ -162,5 +209,64 @@ class ThemeLifecycleHandlerTest extends TestCase
                 ],
             ],
         ], $context);
+    }
+
+    private function createTheme(string $name, string $salesChannelId): string
+    {
+        $id = Uuid::randomHex();
+
+        $repository = $this->getContainer()->get('theme.repository');
+
+        $repository->create([
+            [
+                'id' => $id,
+                'technicalName' => $name,
+                'name' => $name,
+                'author' => 'test',
+                'active' => true,
+                'salesChannels' => [
+                    [
+                        'id' => $salesChannelId,
+                    ],
+                ],
+            ],
+        ], Context::createDefaultContext());
+
+        return $id;
+    }
+
+    private function createSalesChannel(): string
+    {
+        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+
+        $id = Uuid::randomHex();
+        $payload = [[
+            'id' => $id,
+            'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),
+            'typeId' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
+            'languageId' => Defaults::LANGUAGE_SYSTEM,
+            'currencyId' => Defaults::CURRENCY,
+            'active' => true,
+            'currencyVersionId' => Defaults::LIVE_VERSION,
+            'paymentMethodId' => $this->getValidPaymentMethodId(),
+            'paymentMethodVersionId' => Defaults::LIVE_VERSION,
+            'shippingMethodId' => $this->getValidShippingMethodId(),
+            'shippingMethodVersionId' => Defaults::LIVE_VERSION,
+            'navigationCategoryId' => $this->getValidCategoryId(),
+            'navigationCategoryVersionId' => Defaults::LIVE_VERSION,
+            'countryId' => $this->getValidCountryId(),
+            'countryVersionId' => Defaults::LIVE_VERSION,
+            'currencies' => [['id' => Defaults::CURRENCY]],
+            'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
+            'shippingMethods' => [['id' => $this->getValidShippingMethodId()]],
+            'paymentMethods' => [['id' => $this->getValidPaymentMethodId()]],
+            'countries' => [['id' => $this->getValidCountryId()]],
+            'name' => 'first sales-channel',
+            'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+        ]];
+
+        $salesChannelRepository->create($payload, Context::createDefaultContext());
+
+        return $id;
     }
 }

@@ -44,7 +44,7 @@ class ContactFormServiceTest extends TestCase
         $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, $phpunit): void {
             $eventDidRun = true;
             $phpunit->assertStringContainsString('Contact email address: test@shopware.com', $event->getContents()['text/html']);
-            $phpunit->assertStringContainsString('essage: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
+            $phpunit->assertStringContainsString('Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
         };
 
         $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
@@ -100,7 +100,7 @@ class ContactFormServiceTest extends TestCase
         $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, $phpunit): void {
             $eventDidRun = true;
             $phpunit->assertStringContainsString('Contact email address: test@shopware.com', $event->getContents()['text/html']);
-            $phpunit->assertStringContainsString('essage: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
+            $phpunit->assertStringContainsString('Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
         };
 
         $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
@@ -143,7 +143,7 @@ class ContactFormServiceTest extends TestCase
         $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, $phpunit): void {
             $eventDidRun = true;
             $phpunit->assertStringContainsString('Contact email address: test@shopware.com', $event->getContents()['text/html']);
-            $phpunit->assertStringContainsString('essage: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
+            $phpunit->assertStringContainsString('Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
         };
 
         $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
@@ -186,7 +186,7 @@ class ContactFormServiceTest extends TestCase
         $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, $phpunit): void {
             $eventDidRun = true;
             $phpunit->assertStringContainsString('Contact email address: test@shopware.com', $event->getContents()['text/html']);
-            $phpunit->assertStringContainsString('essage: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
+            $phpunit->assertStringContainsString('Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
         };
 
         $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
@@ -229,7 +229,7 @@ class ContactFormServiceTest extends TestCase
         $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, $phpunit): void {
             $eventDidRun = true;
             $phpunit->assertStringContainsString('Contact email address: test@shopware.com', $event->getContents()['text/html']);
-            $phpunit->assertStringContainsString('essage: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
+            $phpunit->assertStringContainsString('Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
         };
 
         $dispatcher->addListener(MailSentEvent::class, $listenerClosure);

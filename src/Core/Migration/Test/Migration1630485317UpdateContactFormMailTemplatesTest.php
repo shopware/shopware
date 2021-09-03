@@ -8,9 +8,9 @@ use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Migration\Migration1604669773UpdateMailTemplate;
+use Shopware\Core\Migration\V6_4\Migration1630485317UpdateContactFormMailTemplates;
 
-class Migration1604669773UpdateMailTemplateTest extends TestCase
+class Migration1630485317UpdateContactFormMailTemplatesTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
@@ -84,7 +84,7 @@ EOF;
     public function testMailUpdateSuccessful(): void
     {
         $connection = $this->getContainer()->get(Connection::class);
-        $migration = new Migration1604669773UpdateMailTemplate();
+        $migration = new Migration1630485317UpdateContactFormMailTemplates();
 
         $this->resetMails();
 
@@ -108,7 +108,7 @@ EOF;
     public function testDoesNotOverwriteModifiedTemplates(): void
     {
         $connection = $this->getContainer()->get(Connection::class);
-        $migration = new Migration1604669773UpdateMailTemplate();
+        $migration = new Migration1630485317UpdateContactFormMailTemplates();
 
         $this->resetMails();
 

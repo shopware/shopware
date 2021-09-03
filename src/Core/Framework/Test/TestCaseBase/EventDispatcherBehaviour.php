@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
@@ -13,7 +13,7 @@ trait EventDispatcherBehaviour
         $this->registered[] = [
             'dispatcher' => $dispatcher,
             'name' => $eventName,
-            'callback' => $callback
+            'callback' => $callback,
         ];
 
         $dispatcher->addListener($eventName, $callback);

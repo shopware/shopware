@@ -160,7 +160,7 @@ class SyncServiceTest extends TestCase
         $listener->expects(static::once())
             ->method('__invoke');
 
-        $dispatcher->addListener(EntityWrittenContainerEvent::class, $listener);
+        $this->addEventListener($dispatcher, EntityWrittenContainerEvent::class, $listener);
 
         $operations = [
             new SyncOperation('manufacturers', 'product_manufacturer', SyncOperation::ACTION_UPSERT, [
@@ -214,7 +214,7 @@ class SyncServiceTest extends TestCase
         $listener->expects(static::once())
             ->method('__invoke');
 
-        $dispatcher->addListener(EntityWrittenContainerEvent::class, $listener);
+        $this->addEventListener($dispatcher, EntityWrittenContainerEvent::class, $listener);
 
         $operations = [
             new SyncOperation('write', 'product_manufacturer', SyncOperation::ACTION_UPSERT, [

@@ -541,7 +541,7 @@ class FileSaverTest extends TestCase
             $eventDidRun = true;
         };
 
-        $dispatcher->addListener(MediaFileExtensionWhitelistEvent::class, $listenerClosure);
+        $this->addEventListener($dispatcher, MediaFileExtensionWhitelistEvent::class, $listenerClosure);
 
         $tempFile = tempnam(sys_get_temp_dir(), '');
         copy(self::TEST_IMAGE, $tempFile);

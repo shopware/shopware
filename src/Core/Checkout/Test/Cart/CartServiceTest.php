@@ -96,7 +96,7 @@ class CartServiceTest extends TestCase
     public function testCreateNewWithEvent(): void
     {
         $caughtEvent = null;
-        $this->getContainer()->get('event_dispatcher')->addListener(CartCreatedEvent::class, static function (CartCreatedEvent $event) use (&$caughtEvent): void {
+        $this->addEventListener($this->getContainer()->get('event_dispatcher'), CartCreatedEvent::class, static function (CartCreatedEvent $event) use (&$caughtEvent): void {
             $caughtEvent = $event;
         });
 
@@ -116,7 +116,7 @@ class CartServiceTest extends TestCase
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 
         $isMerged = null;
-        $dispatcher->addListener(BeforeLineItemAddedEvent::class, static function (BeforeLineItemAddedEvent $addedEvent) use (&$isMerged): void {
+        $this->addEventListener($dispatcher, BeforeLineItemAddedEvent::class, static function (BeforeLineItemAddedEvent $addedEvent) use (&$isMerged): void {
             $isMerged = $addedEvent->isMerged();
         });
 
@@ -151,7 +151,7 @@ class CartServiceTest extends TestCase
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
 
-        $dispatcher->addListener(AfterLineItemAddedEvent::class, $listener);
+        $this->addEventListener($dispatcher, AfterLineItemAddedEvent::class, $listener);
 
         $cartService = $this->getContainer()->get(CartService::class);
 
@@ -173,7 +173,7 @@ class CartServiceTest extends TestCase
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
 
-        $dispatcher->addListener(BeforeLineItemRemovedEvent::class, $listener);
+        $this->addEventListener($dispatcher, BeforeLineItemRemovedEvent::class, $listener);
 
         $cartService = $this->getContainer()->get(CartService::class);
 
@@ -199,7 +199,7 @@ class CartServiceTest extends TestCase
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
 
-        $dispatcher->addListener(AfterLineItemRemovedEvent::class, $listener);
+        $this->addEventListener($dispatcher, AfterLineItemRemovedEvent::class, $listener);
 
         $cartService = $this->getContainer()->get(CartService::class);
 
@@ -225,7 +225,7 @@ class CartServiceTest extends TestCase
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
 
-        $dispatcher->addListener(BeforeLineItemQuantityChangedEvent::class, $listener);
+        $this->addEventListener($dispatcher, BeforeLineItemQuantityChangedEvent::class, $listener);
 
         $cartService = $this->getContainer()->get(CartService::class);
 
@@ -249,7 +249,7 @@ class CartServiceTest extends TestCase
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
 
-        $dispatcher->addListener(AfterLineItemQuantityChangedEvent::class, $listener);
+        $this->addEventListener($dispatcher, AfterLineItemQuantityChangedEvent::class, $listener);
 
         $cartService = $this->getContainer()->get(CartService::class);
 
@@ -353,7 +353,7 @@ class CartServiceTest extends TestCase
             $phpunit->assertStringContainsString('Shipping costs: €0.00', $event->getContents()['text/html']);
         };
 
-        $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
+        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $cartService->order($cart, $context, new RequestDataBag());
 

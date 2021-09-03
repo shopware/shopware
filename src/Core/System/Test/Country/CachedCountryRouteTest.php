@@ -117,7 +117,7 @@ class CachedCountryRouteTest extends TestCase
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
 
         $listener->expects(static::exactly($calls))->method('__invoke');
-        $dispatcher->addListener('country.loaded', $listener);
+        $this->addEventListener($dispatcher, 'country.loaded', $listener);
 
         $before();
 

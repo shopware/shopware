@@ -143,7 +143,8 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
         $this->addDomain($domainUrlTest['domain']);
 
         $caughtEvent = null;
-        $this->getContainer()->get('event_dispatcher')->addListener(
+        $this->addEventListener(
+            $this->getContainer()->get('event_dispatcher'),
             CustomerAccountRecoverRequestEvent::EVENT_NAME,
             static function (CustomerAccountRecoverRequestEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;
@@ -178,14 +179,16 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 
         $caughtEvent = null;
-        $dispatcher->addListener(
+        $this->addEventListener(
+            $dispatcher,
             CustomerAccountRecoverRequestEvent::EVENT_NAME,
             static function (CustomerAccountRecoverRequestEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;
             }
         );
 
-        $dispatcher->addListener(
+        $this->addEventListener(
+            $dispatcher,
             PasswordRecoveryUrlEvent::class,
             static function (PasswordRecoveryUrlEvent $event): void {
                 $event->setRecoveryUrl($event->getRecoveryUrl() . '/?somethingSpecial=1');

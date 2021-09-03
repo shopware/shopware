@@ -86,7 +86,7 @@ class MailSendSubscriberTest extends TestCase
         );
 
         $mailFilterEvent = null;
-        $this->getContainer()->get('event_dispatcher')->addListener(MailSendSubscriberBridgeEvent::class, static function ($event) use (&$mailFilterEvent): void {
+        $this->addEventListener($this->getContainer()->get('event_dispatcher'), MailSendSubscriberBridgeEvent::class, static function ($event) use (&$mailFilterEvent): void {
             $mailFilterEvent = $event;
         });
 
@@ -173,7 +173,7 @@ class MailSendSubscriberTest extends TestCase
             $snippetSetId = $translator->getSnippetSetId();
         };
 
-        $this->getContainer()->get('event_dispatcher')->addListener(MailSendSubscriberBridgeEvent::class, $function);
+        $this->addEventListener($this->getContainer()->get('event_dispatcher'), MailSendSubscriberBridgeEvent::class, $function);
 
         $subscriber->sendMail(new BusinessEvent('test', $event, $config));
 

@@ -75,7 +75,7 @@ class DeleteCustomerRouteTest extends TestCase
         /** @var TraceableEventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 
-        $dispatcher->addListener(CustomerDeletedEvent::class, $this->callbackFn);
+        $this->addEventListener($dispatcher, CustomerDeletedEvent::class, $this->callbackFn);
 
         static::assertArrayNotHasKey(
             CustomerDeletedEvent::class,

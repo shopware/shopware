@@ -58,7 +58,7 @@ class NewsletterUnsubscribeRouteTest extends TestCase
         $listener->expects(static::once())->method('__invoke');
 
         $dispatcher = $this->getContainer()->get('event_dispatcher');
-        $dispatcher->addListener(NewsletterUnsubscribeEvent::class, $listener);
+        $this->addEventListener($dispatcher, NewsletterUnsubscribeEvent::class, $listener);
 
         $this->browser
             ->request(

@@ -145,16 +145,16 @@ describe('Wishlist: for wishlist page', () => {
 
                 cy.wait('@add-to-cart').then(xhr => {
                     expect(xhr).to.have.property('status', 200);
-                });
 
-                cy.wait('@offcanvas').then(xhr => {
-                    expect(xhr).to.have.property('status', 200);
-                    cy.get('.offcanvas.is-open.cart-offcanvas').should('exist');
-                    cy.get('.offcanvas.is-open.cart-offcanvas').find('.cart-item-label').contains(product.name);
+                    cy.wait('@offcanvas').then(xhr => {
+                        expect(xhr).to.have.property('status', 200);
+                        cy.get('.offcanvas.is-open.cart-offcanvas').should('exist');
+                        cy.get('.offcanvas.is-open.cart-offcanvas').find('.cart-item-label').contains(product.name);
 
-                    // Wishlist product should still exist
-                    cy.get('.cms-listing-row .cms-listing-col').contains(product.name);
-                    cy.get(`.cms-listing-row .cms-listing-col`).contains(product.manufacturer.name);
+                        // Wishlist product should still exist
+                        cy.get('.cms-listing-row .cms-listing-col').contains(product.name);
+                        cy.get(`.cms-listing-row .cms-listing-col`).contains(product.manufacturer.name);
+                    });
                 });
             });
         });

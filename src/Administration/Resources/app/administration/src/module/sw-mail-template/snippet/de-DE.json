@@ -133,6 +133,11 @@
       "titleResult": "E-Mail-Kopf- und Fußzeile",
       "messageSaveSuccess": "Die E-Mail-Kopf- und Fußzeile \"{name}\" wurde erfolgreich gespeichert.",
       "messageSaveError": "Die E-Mail-Kopf- und Fußzeile \"{name}\" konnte nicht gespeichert werden."
+    },
+    "modal": {
+      "title": "Mehrere Zuweisungen",
+      "mainContent": "Für die folgenden Verkaufskanäle existiert bereits ein Kopf- und Fußzeilen-Template. Wenn Du dieses Template speicherst, wird die Zuweisung des bisherigen Templates überschrieben.",
+      "affectedList": "Die folgenden Verkaufskanäle sind betroffen:"
     }
   },
   "sw-privileges": {

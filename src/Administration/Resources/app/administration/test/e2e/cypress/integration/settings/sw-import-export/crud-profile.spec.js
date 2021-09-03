@@ -208,6 +208,8 @@ describe('Import/Export - Profiles: Test crud operations', () => {
     });
 
     it('@settings @base: Update and read profile in different content language', () => {
+        // sw-simple-search component got refactored on NEXT-16271 to address loosing input issue
+        cy.onlyOnFeature('FEATURE_NEXT_16271');
         cy.server();
         cy.route({
             url: `${Cypress.env('apiPath')}/import-export-profile/*`,

@@ -804,6 +804,7 @@ Component.register('sw-text-editor', {
 
         onContentChange() {
             this.isEmpty = this.emptyCheck(this.getContentValue());
+            this.placeholderVisible = this.isEmpty;
 
             this.setWordCount();
         },
@@ -823,6 +824,9 @@ Component.register('sw-text-editor', {
         emitHtmlContent(value) {
             this.content = value;
             this.$emit('input', value);
+
+            this.isEmpty = this.emptyCheck(this.content);
+            this.placeholderVisible = this.isEmpty;
         },
 
         getContentValue() {

@@ -29,6 +29,8 @@ Component.register('sw-sales-channel-menu', {
         salesChannelCriteria() {
             const criteria = new Criteria();
 
+            criteria.setPage(1);
+            criteria.setLimit(500);
             criteria.addSorting(Criteria.sort('sales_channel.name', 'ASC'));
             criteria.addAssociation('type');
             criteria.addAssociation('domains');

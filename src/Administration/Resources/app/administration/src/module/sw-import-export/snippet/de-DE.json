@@ -18,10 +18,13 @@
             },
             "contextMenu": {
                 "showLog": "Öffne Logeintrag",
+                "showLogInfo": "Öffne Log-Informationen",
                 "downloadFile": "Datei herunterladen",
+                "downloadImportFile": "Import-Datei herunterladen",
+                "downloadExportFile": "Export-Datei herunterladen",
                 "showProfile": "Profil anzeigen",
                 "downloadInvalidFile": "Fehlerhafte Einträge herunterladen",
-                "showResults": "Ergebnistabelle anzeigen"
+                "showResults": "Zusammenfassung anzeigen"
             },
             "detail": {
                 "modalTitle": "Log-Informationen",
@@ -33,23 +36,61 @@
                 "labelFailedRecords": "Fehlgeschlagene Einträge",
                 "labelSize": "Dateigröße",
                 "labelUser": "Benutzer",
-                "labelDate": "Datum /  Zeit",
+                "labelDate": "Datum / Zeit",
                 "labelState": "Status",
                 "exportLabel": "Export",
                 "importLabel": "Import",
+                "dryrunLabel": "Testlauf",
                 "labelDownloadFile": "Datei herunterladen",
                 "labelDownloadInvalidFile": "Fehlerhafte Einträge herunterladen",
                 "helpTextFailedRecords": "Fehlgeschlagene Einträge können runtergeladen, bearbeitet und neu importiert werden."
             },
+            "logInfo": {
+              "modalTitle": "Log-Informationen",
+              "labelClose": "Schließen",
+              "labelFilename": "Dateiname",
+              "labelType": "Typ",
+              "labelExportRecords": "Exportierte Einträge",
+              "labelSize": "Dateigröße",
+              "labelUser": "Benutzer",
+              "labelDate": "Datum / Zeit",
+              "labelState": "Status",
+              "labelProfile": "Profil",
+              "exportLabel": "Export",
+              "importLabel": "Import",
+              "dryrunLabel": "Testlauf",
+              "labelDownloadFile": "Export-Datei herunterladen"
+            },
             "result": {
-              "modalTitle": "Ergebnistabelle",
-              "entityName": "Objekt-Typ Name",
-              "insert": "Erstellt",
-              "update": "Aktualisiert",
-              "insertError": "Erstellungsfehler",
-              "updateError": "Aktualisierungsfehler",
-              "insertSkip": "Erstellung übersprungen",
-              "updateSkip": "Aktualisierung übersprungen"
+              "modalTitle": "Zusammenfassung des Imports",
+              "activityHeadline": "Importaktivitäten: damit verbundene Änderungen",
+              "activityDescription": "Die folgenden Entitäten waren von dem {entity} import betroffen.",
+              "entityName": "Datensätze",
+              "changes": "Änderungen",
+              "errors": "Fehler",
+              "skipped": "Übersprungen",
+              "labelDownloadFile": "Import-Datei herunterladen",
+              "labelDownloadInvalidFile": "Fehlerhafte Einträge herunterladen",
+              "mainEntity": {
+                "title": "Importaktivität: {entity}",
+                "insert": "Erstellt",
+                "update": "Aktualisiert",
+                "insertError": "Erstellungsfehler",
+                "updateError": "Aktualisierungsfehler",
+                "insertSkip": "Erstellung übersprungen",
+                "updateSkip": "Aktualisierung übersprungen"
+              },
+              "logInfo": {
+                "title": "Log-Informationen",
+                "labelFilename": "Dateiname",
+                "labelType": "Typ",
+                "labelImported": "Importierte Einträge",
+                "labelSize": "Dateigröße",
+                "labelState": "Status",
+                "labelUser": "Benutzer",
+                "labelProfile": "Profil",
+                "labelDate": "Datum / Zeit"
+              }
             },
             "status": {
                 "progress": "Importiere ...",

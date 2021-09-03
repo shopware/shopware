@@ -1,14 +1,13 @@
-import template from './sw-import-export-activity-detail-modal.html.twig';
-import './sw-import-export-activity-detail-modal.scss';
+import template from './sw-import-export-activity-log-info-modal.html.twig';
+import './sw-import-export-activity-log-info-modal.scss';
 
 const { Mixin } = Shopware;
 const { format } = Shopware.Utils;
 
 /**
- * @deprecated tag:v6.5.0 - Remove component + snippets. This component is replaced by the `sw-import-export-activity-log-info-modal` and `sw-import-export-activity-result-modal`.
  * @private
  */
-Shopware.Component.register('sw-import-export-activity-detail-modal', {
+Shopware.Component.register('sw-import-export-activity-log-info-modal', {
     template,
 
     inject: ['importExport'],
@@ -29,22 +28,13 @@ Shopware.Component.register('sw-import-export-activity-detail-modal', {
 
     computed: {
         typeText() {
-            return this.$tc(`sw-import-export.activity.detail.${this.logEntity.activity}Label`);
+            return this.$tc(`sw-import-export.activity.logInfo.${this.logEntity.activity}Label`);
         },
     },
 
     methods: {
         calculateFileSize(size) {
             return format.fileSize(size);
-        },
-
-        /**
-         * @deprecated tag:v6.5.0 - Remove unused method, use openDownload instead
-         */
-        getDownloadUrl() {
-            Shopware.Utils.debug.error('The method getDownloadUrl has been replaced with openDownload.');
-
-            return '';
         },
 
         async openDownload(id) {

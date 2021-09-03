@@ -44,6 +44,8 @@ Shopware.Component.register('sw-import-export-activity', {
             selectedResult: null,
             activitiesReloadIntervall: 10000,
             activitiesReloadTimer: null,
+            showDetailModal: false,
+            showResultModal: false,
             stateText: {
                 import: {
                     succeeded: 'sw-import-export.importer.messageImportSuccess',
@@ -90,6 +92,7 @@ Shopware.Component.register('sw-import-export-activity', {
             criteria.setPage(1);
             criteria.addAssociation('user');
             criteria.addAssociation('file');
+            criteria.addAssociation('profile');
 
             return criteria;
         },
@@ -152,6 +155,12 @@ Shopware.Component.register('sw-import-export-activity', {
             }
 
             return this.logs.filter(log => log.state === 'progress').length > 0;
+        },
+
+        downloadFileText() {
+            return this.type === 'export' ?
+                this.$tc('sw-import-export.activity.contextMenu.downloadExportFile') :
+                this.$tc('sw-import-export.activity.contextMenu.downloadImportFile');
         },
     },
 
@@ -261,24 +270,22 @@ Shopware.Component.register('sw-import-export-activity', {
 
         onShowLog(item) {
             this.selectedLog = item;
+            this.showDetailModal = true;
         },
 
-        onShowResult(result) {
-            const items = [];
-
-            Object.keys(result).forEach((entityName) => {
-                items.push({ ...{ entityName }, ...result[entityName] });
-            });
-
-            this.selectedResult = items;
+        onShowResult(item) {
+            this.selectedLog = item;
+            this.showResultModal = true;
         },
 
         closeSelectedLog() {
             this.selectedLog = null;
+            this.showDetailModal = false;
         },
 
         closeSelectedResult() {
             this.selectedResult = null;
+            this.showResultModal = false;
         },
 
         /**

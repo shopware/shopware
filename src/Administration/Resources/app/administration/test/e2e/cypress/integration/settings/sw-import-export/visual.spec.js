@@ -115,6 +115,20 @@ describe('Import/Export:  Visual tests', () => {
 
         // Take snapshot for visual testing
         cy.takeSnapshot('[Import export] Detail, Overview after export', '.sw-import-export-activity');
+
+        cy.onlyOnFeature('FEATURE_NEXT_8097', () => {
+            // check reworked log info modal
+            cy.clickContextMenuItem(
+                '.sw-import-export-activity__log-info-action',
+                '.sw-context-button__button',
+                '.sw-data-grid__row--0'
+            );
+
+            cy.get('.sw-import-export-activity-log-info-modal').should('be.visible');
+            cy.get('.sw-import-export-activity-log-info-modal__description-list').should('be.visible');
+            // Take snapshot for visual testing
+            cy.takeSnapshot('[Import export] reworked log info modal after export', '.sw-import-export-activity-log-info-modal');
+        });
     });
 
     it('@visual: check appearance of basic import workflow', () => {
@@ -181,5 +195,19 @@ describe('Import/Export:  Visual tests', () => {
 
         // Take snapshot for visual testing
         cy.takeSnapshot('[Import export] Detail, Overview after import', '.sw-import-export-activity');
+
+        cy.onlyOnFeature('FEATURE_NEXT_8097', () => {
+            // check added summary modal
+            cy.clickContextMenuItem(
+                '.sw-import-export-activity__results-action',
+                '.sw-context-button__button',
+                '.sw-data-grid__row--0'
+            );
+
+            cy.get('.sw-import-export-activity-result-modal').should('be.visible');
+            cy.get('.sw-import-export-activity-result-modal__info').should('be.visible');
+            // Take snapshot for visual testing
+            cy.takeSnapshot('[Import export] summary modal after import', '.sw-import-export-activity-result-modal');
+        });
     });
 });

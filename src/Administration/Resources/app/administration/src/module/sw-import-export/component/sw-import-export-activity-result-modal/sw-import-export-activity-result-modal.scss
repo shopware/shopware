@@ -1,0 +1,75 @@
+@import "~scss/variables";
+
+.sw-import-export-activity-result-modal {
+    .sw-import-export-activity-result-modal &__color-badge {
+        margin: 0 5px 0 0;
+    }
+
+    &__acitvity-headline {
+        font-size: $font-size-default;
+        font-weight: $font-weight-semi-bold;
+    }
+
+    &__acitvity-description {
+        font-size: $font-size-small;
+        margin-bottom: 12px;
+    }
+
+    &__info {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-gap: 28px;
+    }
+
+    .sw-card {
+        width: 100%;
+    }
+
+    .sw-card .sw-card__title {
+        display: block;
+        position: static;
+        width: 100%;
+        text-align: left;
+        background-color: $color-gray-100;
+        color: $color-darkgray-200;
+        font-size: $font-size-default;
+        font-weight: $font-weight-semi-bold;
+        margin: 0;
+        padding: 24px;
+        border: 1px solid $color-gray-300;
+        border-bottom: none;
+        border-top-left-radius: $border-radius-default;
+        border-top-right-radius: $border-radius-default;
+    }
+
+    .sw-card .sw-card__content {
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+    }
+
+    &__main-activity-content,
+    &__log-info-content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto auto auto auto;
+        grid-gap: 16px;
+    }
+
+    &__main-activity,
+    &__log-info {
+        display: grid;
+        grid-template-rows: min-content 1fr;
+    }
+
+    &__list-item {
+        font-size: $font-size-small;
+    }
+
+    &__list-item dt {
+        font-weight: $font-weight-semi-bold;
+    }
+
+    &__download-section {
+        margin-bottom: 32px;
+    }
+}

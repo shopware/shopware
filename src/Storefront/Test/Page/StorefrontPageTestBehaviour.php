@@ -239,7 +239,7 @@ trait StorefrontPageTestBehaviour
 
     protected function catchEvent(string $eventName, &$eventResult): void
     {
-        $this->getContainer()->get('event_dispatcher')->addListener($eventName, static function ($event) use (&$eventResult): void {
+        $this->addEventListener($this->getContainer()->get('event_dispatcher'), $eventName, static function ($event) use (&$eventResult): void {
             $eventResult = $event;
         });
     }

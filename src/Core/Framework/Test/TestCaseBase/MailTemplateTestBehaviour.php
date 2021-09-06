@@ -13,6 +13,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 trait MailTemplateTestBehaviour
 {
+    use EventDispatcherBehaviour;
+
     public static function assertMailEvent(
         string $expectedClass,
         $event,
@@ -29,7 +31,8 @@ trait MailTemplateTestBehaviour
 
     protected function catchEvent(string $eventName, &$eventResult): void
     {
-        $this->getContainer()->get('event_dispatcher')->addListener($eventName, static function ($event) use (&$eventResult): void {
+        $eventDispatcher = $this->getContainer()->get('event_dispatcher');
+        $this->addEventListener($eventDispatcher, $eventName, static function ($event) use (&$eventResult): void {
             $eventResult = $event;
         });
     }

@@ -361,7 +361,8 @@ class RegisterRouteTest extends TestCase
         /** @var EventDispatcherInterface $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 
-        $dispatcher->addListener(
+        $this->addEventListener(
+            $dispatcher,
             CustomerConfirmRegisterUrlEvent::class,
             static function (CustomerConfirmRegisterUrlEvent $event): void {
                 $event->setConfirmUrl($event->getConfirmUrl());
@@ -369,7 +370,8 @@ class RegisterRouteTest extends TestCase
         );
 
         $caughtEvent = null;
-        $dispatcher->addListener(
+        $this->addEventListener(
+            $dispatcher,
             CustomerDoubleOptInRegistrationEvent::class,
             static function (CustomerDoubleOptInRegistrationEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;

@@ -47,7 +47,7 @@ class ContactFormServiceTest extends TestCase
             $phpunit->assertStringContainsString('Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
         };
 
-        $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
+        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $validationEventDidRun = false;
         $validationListenerClosure = static function () use (&$validationEventDidRun): void {
@@ -56,7 +56,7 @@ class ContactFormServiceTest extends TestCase
 
         $validationEventName = 'framework.validation.contact_form.create';
 
-        $dispatcher->addListener($validationEventName, $validationListenerClosure);
+        $this->addEventListener($dispatcher, $validationEventName, $validationListenerClosure);
 
         $systemConfig = $this->getContainer()->get(SystemConfigService::class);
         $systemConfig->set('core.basicInformation.firstNameFieldRequired', true);
@@ -103,7 +103,7 @@ class ContactFormServiceTest extends TestCase
             $phpunit->assertStringContainsString('Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
         };
 
-        $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
+        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $systemConfig = $this->getContainer()->get(SystemConfigService::class);
         $systemConfig->set('core.basicInformation.firstNameFieldRequired', true);
@@ -146,7 +146,7 @@ class ContactFormServiceTest extends TestCase
             $phpunit->assertStringContainsString('Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
         };
 
-        $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
+        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $systemConfig = $this->getContainer()->get(SystemConfigService::class);
         $systemConfig->set('core.basicInformation.firstNameFieldRequired', false);
@@ -189,7 +189,7 @@ class ContactFormServiceTest extends TestCase
             $phpunit->assertStringContainsString('Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
         };
 
-        $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
+        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $systemConfig = $this->getContainer()->get(SystemConfigService::class);
         $systemConfig->set('core.basicInformation.firstNameFieldRequired', false);
@@ -232,7 +232,7 @@ class ContactFormServiceTest extends TestCase
             $phpunit->assertStringContainsString('Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
         };
 
-        $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
+        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $systemConfig = $this->getContainer()->get(SystemConfigService::class);
         $systemConfig->set('core.basicInformation.firstNameFieldRequired', false);

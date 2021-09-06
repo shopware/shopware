@@ -122,11 +122,11 @@ class EntityRepositoryTest extends TestCase
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
-        $dispatcher->addListener('locale.written', $listener);
+        $this->addEventListener($dispatcher, 'locale.written', $listener);
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
-        $dispatcher->addListener('locale_translation.written', $listener);
+        $this->addEventListener($dispatcher, 'locale_translation.written', $listener);
 
         $repository->create(
             [
@@ -191,7 +191,7 @@ class EntityRepositoryTest extends TestCase
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
-        $dispatcher->addListener('locale.loaded', $listener);
+        $this->addEventListener($dispatcher, 'locale.loaded', $listener);
 
         $criteria = new Criteria([$id]);
         $locale = $repository->search($criteria, $context);
@@ -250,15 +250,15 @@ class EntityRepositoryTest extends TestCase
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
-        $dispatcher->addListener('product.loaded', $listener);
+        $this->addEventListener($dispatcher, 'product.loaded', $listener);
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
-        $dispatcher->addListener('product_manufacturer.loaded', $listener);
+        $this->addEventListener($dispatcher, 'product_manufacturer.loaded', $listener);
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
-        $dispatcher->addListener('tax.loaded', $listener);
+        $this->addEventListener($dispatcher, 'tax.loaded', $listener);
 
         $criteria = new Criteria([$id, $id2]);
         $criteria->addAssociation('manufacturer');
@@ -304,23 +304,23 @@ class EntityRepositoryTest extends TestCase
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
-        $dispatcher->addListener('product.written', $listener);
+        $this->addEventListener($dispatcher, 'product.written', $listener);
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
-        $dispatcher->addListener('product_manufacturer.written', $listener);
+        $this->addEventListener($dispatcher, 'product_manufacturer.written', $listener);
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
-        $dispatcher->addListener('tax.written', $listener);
+        $this->addEventListener($dispatcher, 'tax.written', $listener);
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
-        $dispatcher->addListener('product_price.written', $listener);
+        $this->addEventListener($dispatcher, 'product_price.written', $listener);
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
-        $dispatcher->addListener('rule.written', $listener);
+        $this->addEventListener($dispatcher, 'rule.written', $listener);
 
         $repository->create(
             [
@@ -386,19 +386,19 @@ class EntityRepositoryTest extends TestCase
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
-        $dispatcher->addListener('product.loaded', $listener);
+        $this->addEventListener($dispatcher, 'product.loaded', $listener);
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
-        $dispatcher->addListener('product_manufacturer.loaded', $listener);
+        $this->addEventListener($dispatcher, 'product_manufacturer.loaded', $listener);
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
-        $dispatcher->addListener('tax.loaded', $listener);
+        $this->addEventListener($dispatcher, 'tax.loaded', $listener);
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
-        $dispatcher->addListener('product_price.loaded', $listener);
+        $this->addEventListener($dispatcher, 'product_price.loaded', $listener);
 
         $criteria = new Criteria([$id, $id2]);
         $criteria->addAssociation('prices');

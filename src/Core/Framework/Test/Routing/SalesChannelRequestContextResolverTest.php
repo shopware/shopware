@@ -112,7 +112,7 @@ class SalesChannelRequestContextResolverTest extends TestCase
             $phpunit->assertSame($currencyId, $event->getSalesChannelContext()->getContext()->getCurrencyId());
         };
 
-        $dispatcher->addListener(SalesChannelContextResolvedEvent::class, $listenerContextEventClosure);
+        $this->addEventListener($dispatcher, SalesChannelContextResolvedEvent::class, $listenerContextEventClosure);
 
         $resolver->resolve($request);
 

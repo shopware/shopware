@@ -137,7 +137,7 @@ class CachedProductReviewRouteTest extends TestCase
         $dispatcher = $this->getContainer()->get('event_dispatcher');
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::exactly($calls))->method('__invoke');
-        $dispatcher->addListener('product_review.loaded', $listener);
+        $this->addEventListener($dispatcher, 'product_review.loaded', $listener);
 
         $before($ids);
 

@@ -140,7 +140,7 @@ class OrderServiceTest extends TestCase
             $eventDidRun = true;
         };
 
-        $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
+        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $this->orderService->orderDeliveryStateTransition(
             $orderDeliveryId,
@@ -188,7 +188,7 @@ class OrderServiceTest extends TestCase
             $eventDidRun = true;
         };
 
-        $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
+        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $this->salesChannelContext
             ->getContext()
@@ -250,7 +250,7 @@ class OrderServiceTest extends TestCase
             $eventDidRun = true;
         };
 
-        $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
+        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $this->orderService->orderDeliveryStateTransition(
             $orderDeliveryId,
@@ -329,7 +329,7 @@ class OrderServiceTest extends TestCase
             $eventDidRun = true;
         };
 
-        $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
+        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $this->orderService->orderTransactionStateTransition(
             $orderTransactionId,
@@ -377,7 +377,7 @@ class OrderServiceTest extends TestCase
             $eventDidRun = true;
         };
 
-        $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
+        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $this->salesChannelContext
             ->getContext()
@@ -467,7 +467,7 @@ class OrderServiceTest extends TestCase
             $eventDidRun = true;
         };
 
-        $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
+        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $this->orderService->createOrder($data, $this->salesChannelContext);
 
@@ -520,7 +520,7 @@ class OrderServiceTest extends TestCase
             $eventDidRun = true;
         };
 
-        $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
+        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $this->orderService->orderStateTransition($orderId, 'cancel', new ParameterBag(), $this->salesChannelContext->getContext());
 
@@ -573,7 +573,7 @@ class OrderServiceTest extends TestCase
             $eventDidRun = true;
         };
 
-        $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
+        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $this->orderService->createOrder($data, $this->salesChannelContext);
 
@@ -608,7 +608,7 @@ class OrderServiceTest extends TestCase
             $eventDidRun = true;
         };
 
-        $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
+        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $this->orderService->createOrder($data, $this->salesChannelContext);
 

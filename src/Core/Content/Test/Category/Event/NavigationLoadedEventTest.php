@@ -33,7 +33,7 @@ class NavigationLoadedEventTest extends TestCase
         $listener->expects(static::once())->method('__invoke');
 
         $dispatcher = $this->getContainer()->get('event_dispatcher');
-        $dispatcher->addListener(NavigationLoadedEvent::class, $listener);
+        $this->addEventListener($dispatcher, NavigationLoadedEvent::class, $listener);
 
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);

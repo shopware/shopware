@@ -127,7 +127,7 @@ class SalesChannelDefinitionTest extends TestCase
         $dispatcher = $this->getContainer()->get('event_dispatcher');
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
-        $dispatcher->addListener('sales_channel.product.loaded', $listener);
+        $this->addEventListener($dispatcher, 'sales_channel.product.loaded', $listener);
 
         $context = $this->factory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
 

@@ -117,7 +117,7 @@ class CachedSalutationRouteTest extends TestCase
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
 
         $listener->expects(static::exactly($calls))->method('__invoke');
-        $dispatcher->addListener('salutation.loaded', $listener);
+        $this->addEventListener($dispatcher, 'salutation.loaded', $listener);
 
         $before();
 

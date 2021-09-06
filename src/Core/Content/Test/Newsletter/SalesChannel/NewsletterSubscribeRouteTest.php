@@ -190,7 +190,7 @@ class NewsletterSubscribeRouteTest extends TestCase
         $listener->expects(static::never())->method('__invoke');
 
         $dispatcher = $this->getContainer()->get('event_dispatcher');
-        $dispatcher->addListener(NewsletterRegisterEvent::class, $listener);
+        $this->addEventListener($dispatcher, NewsletterRegisterEvent::class, $listener);
 
         $context = Context::createDefaultContext();
         $newsletterRecipientRepository = $this->getContainer()->get('newsletter_recipient.repository');
@@ -233,7 +233,8 @@ class NewsletterSubscribeRouteTest extends TestCase
             /** @var EventDispatcherInterface $dispatcher */
             $dispatcher = $this->getContainer()->get('event_dispatcher');
 
-            $dispatcher->addListener(
+            $this->addEventListener(
+                $dispatcher,
                 NewsletterSubscribeUrlEvent::class,
                 static function (NewsletterSubscribeUrlEvent $event): void {
                     $event->setSubscribeUrl($event->getSubscribeUrl() . '?specialParam=false');
@@ -241,7 +242,8 @@ class NewsletterSubscribeRouteTest extends TestCase
             );
 
             $caughtEvent = null;
-            $dispatcher->addListener(
+            $this->addEventListener(
+                $dispatcher,
                 NewsletterRegisterEvent::class,
                 static function (NewsletterRegisterEvent $event) use (&$caughtEvent): void {
                     $caughtEvent = $event;
@@ -283,7 +285,8 @@ class NewsletterSubscribeRouteTest extends TestCase
             $dispatcher = $this->getContainer()->get('event_dispatcher');
 
             $caughtEvent = null;
-            $dispatcher->addListener(
+            $this->addEventListener(
+                $dispatcher,
                 NewsletterRegisterEvent::class,
                 static function (NewsletterRegisterEvent $event) use (&$caughtEvent): void {
                     $caughtEvent = $event;

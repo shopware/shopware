@@ -16,6 +16,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
+use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -23,6 +24,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 class CartPersisterTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use EventDispatcherBehaviour;
 
     public function testLoadWithNotExistingToken(): void
     {
@@ -155,7 +157,7 @@ class CartPersisterTest extends TestCase
         $connection->expects(static::once())->method('executeUpdate');
 
         $caughtEvent = null;
-        $eventDispatcher->addListener(CartSavedEvent::class, static function (CartSavedEvent $event) use (&$caughtEvent): void {
+        $this->addEventListener($eventDispatcher, CartSavedEvent::class, static function (CartSavedEvent $event) use (&$caughtEvent): void {
             $caughtEvent = $event;
         });
 
@@ -192,7 +194,7 @@ class CartPersisterTest extends TestCase
         $connection->expects(static::once())->method('delete');
 
         $caughtEvent = null;
-        $eventDispatcher->addListener(CartVerifyPersistEvent::class, function (CartVerifyPersistEvent $event) use (&$caughtEvent): void {
+        $this->addEventListener($eventDispatcher, CartVerifyPersistEvent::class, function (CartVerifyPersistEvent $event) use (&$caughtEvent): void {
             $caughtEvent = $event;
         });
 
@@ -215,7 +217,7 @@ class CartPersisterTest extends TestCase
         $connection->expects(static::never())->method('delete');
 
         $caughtEvent = null;
-        $eventDispatcher->addListener(CartVerifyPersistEvent::class, static function (CartVerifyPersistEvent $event) use (&$caughtEvent): void {
+        $this->addEventListener($eventDispatcher, CartVerifyPersistEvent::class, static function (CartVerifyPersistEvent $event) use (&$caughtEvent): void {
             $caughtEvent = $event;
         });
 

@@ -79,7 +79,7 @@ Shopware.Module.register('sw-extension', {
                 color: manifest.color,
                 label: labelType,
                 entity: manifest.entity,
-                route: 'sw.extension.store',
+                route: manifest.routes.store,
                 privilege: manifest.routes.index?.meta.privilege,
             },
         ];

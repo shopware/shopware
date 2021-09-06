@@ -49,6 +49,9 @@ $sw-search-bar-item-label-hover-color-text: $color-shopware-brand-500;
     &--v2 {
         display: flex;
         justify-items: center;
+        padding: 3px 30px;
+        margin: 0;
+        border-radius: 0;
 
         .sw-search-bar-item__link {
             flex: 1;
@@ -82,6 +85,10 @@ $sw-search-bar-item-label-hover-color-text: $color-shopware-brand-500;
 
         &.is--active .sw-shortcut-overview-item {
             display: block;
+        }
+
+        .sw-highlight-text:last-child {
+            color: $color-gray-500;
         }
     }
 }

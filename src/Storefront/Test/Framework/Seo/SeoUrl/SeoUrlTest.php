@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Test\Framework\Seo\SeoUrl;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\LandingPage\LandingPageEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
@@ -479,6 +480,12 @@ class SeoUrlTest extends TestCase
                     'isModified' => true,
                 ],
             ],
+            'visibilities' => [
+                [
+                    'salesChannelId' => Defaults::SALES_CHANNEL,
+                    'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
+                ],
+            ],
         ]);
 
         $criteria = new Criteria([$id]);
@@ -619,6 +626,12 @@ class SeoUrlTest extends TestCase
                 ],
             ],
             'stock' => 0,
+            'visibilities' => [
+                [
+                    'salesChannelId' => Defaults::SALES_CHANNEL,
+                    'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
+                ],
+            ],
         ];
 
         $insert = array_merge($insert, $overrides);

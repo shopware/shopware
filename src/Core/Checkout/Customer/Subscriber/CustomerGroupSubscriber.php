@@ -141,7 +141,14 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
                 foreach ($languageIds as $languageId) {
                     $title = $this->getTranslatedTitle($group->getTranslations(), $languageCollection->get($languageId));
 
-                    $buildUrls[$languageId][] = [
+                    if (!isset($buildUrls[$languageId])) {
+                        $buildUrls[$languageId] = [
+                            'urls' => [],
+                            'salesChannel' => $registrationSalesChannel,
+                        ];
+                    }
+
+                    $buildUrls[$languageId]['urls'][] = [
                         'salesChannelId' => $registrationSalesChannel->getId(),
                         'foreignKey' => $group->getId(),
                         'routeName' => self::ROUTE_NAME,
@@ -153,7 +160,7 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
             }
         }
 
-        foreach ($buildUrls as $languageId => $urls) {
+        foreach ($buildUrls as $languageId => $config) {
             $context = new Context(
                 $context->getSource(),
                 $context->getRuleIds(),
@@ -161,7 +168,13 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
                 [$languageId]
             );
 
-            $this->persister->updateSeoUrls($context, self::ROUTE_NAME, array_column($urls, 'foreignKey'), $urls);
+            $this->persister->updateSeoUrls(
+                $context,
+                self::ROUTE_NAME,
+                array_column($config['urls'], 'foreignKey'),
+                $config['urls'],
+                $config['salesChannel']
+            );
         }
     }
 

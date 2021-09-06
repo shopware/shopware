@@ -194,6 +194,7 @@ class SeoUrlGeneratorTest extends TestCase
         $ids = new IdsCollection();
         $product = (new ProductBuilder($ids, 'parent'))
             ->price(100)
+            ->visibility($this->salesChannelId)
             ->variant(
                 (new ProductBuilder($ids, 'red'))
                     ->tax(null)
@@ -211,7 +212,7 @@ class SeoUrlGeneratorTest extends TestCase
 
         $urls = $this->getContainer()
             ->get(Connection::class)
-            ->fetchAll(
+            ->fetchAllAssociative(
                 'SELECT LOWER(HEX(foreign_key)) as foreign_key, seo_path_info FROM seo_url WHERE route_name = :route AND foreign_key IN (:ids) AND sales_channel_id = :channel',
                 [
                     'route' => 'frontend.detail.page',

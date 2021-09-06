@@ -49,10 +49,13 @@ class SeoUrlGenerator
         $this->requestStack = $requestStack;
     }
 
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_13410) Parameter $salesChannel will be required
+     */
     public function generate(array $ids, string $template, SeoUrlRouteInterface $route, Context $context, ?SalesChannelEntity $salesChannel): iterable
     {
         $criteria = new Criteria($ids);
-        $route->prepareCriteria($criteria);
+        $route->prepareCriteria($criteria, $salesChannel);
 
         $config = $route->getConfig();
 
@@ -65,9 +68,9 @@ class SeoUrlGenerator
             return new RepositoryIterator($repository, $context, $criteria);
         });
 
-        while ($entities = $iterator->fetch()) {
-            $this->setTwigTemplate($config, $template);
+        $this->setTwigTemplate($config, $template);
 
+        while ($entities = $iterator->fetch()) {
             yield from $this->generateUrls($route, $config, $salesChannel, $entities);
         }
     }
@@ -90,6 +93,9 @@ class SeoUrlGenerator
         );
     }
 
+    /**
+     * @internal (flag:FEATURE_NEXT_13410) Parameter $salesChannel will be required
+     */
     private function generateUrls(SeoUrlRouteInterface $seoUrlRoute, SeoUrlRouteConfig $config, ?SalesChannelEntity $salesChannel, EntityCollection $entities): iterable
     {
         $request = $this->requestStack->getMainRequest();

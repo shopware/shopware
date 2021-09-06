@@ -19,7 +19,7 @@ class NoEntitiesForPreviewException extends ShopwareHttpException
 
     public function getStatusCode(): int
     {
-        return Response::HTTP_NO_CONTENT;
+        return Response::HTTP_BAD_REQUEST;
     }
 
     public function getErrorCode(): string

@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
 
@@ -88,23 +89,31 @@ class SeoUrlUpdater
             $languageId = $config['languageId'];
             $template = $config['template'] ?? '';
 
+            if ($template === '') {
+                continue;
+            }
+
             $chain = $languageChains[$languageId];
             $context = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);
             $context->setConsiderInheritance(true);
 
             $salesChannel = $salesChannels->get($salesChannelId);
 
-            // generate new  seo urls
+            if ($salesChannel === null && Feature::isActive('FEATURE_NEXT_13410')) {
+                continue;
+            }
+
+            // generate new seo urls
             $urls = $this->seoUrlGenerator->generate($ids, $template, $route, $context, $salesChannel);
 
             // persist seo urls to storage
-            $this->seoUrlPersister->updateSeoUrls($context, $routeName, $ids, $urls);
+            $this->seoUrlPersister->updateSeoUrls($context, $routeName, $ids, $urls, $salesChannel);
         }
     }
 
     private function loadTemplates(array $routes): array
     {
-        $domains = $this->connection->fetchAll(
+        $domains = $this->connection->fetchAllAssociative(
             'SELECT DISTINCT
                LOWER(HEX(sales_channel.id)) as salesChannelId,
                LOWER(HEX(domains.language_id)) as languageId
@@ -114,11 +123,11 @@ class SeoUrlUpdater
                AND sales_channel.active = 1'
         );
 
-        if ($routes === []) {
+        if ($routes === [] || $domains === []) {
             return [];
         }
 
-        $modified = $this->connection->fetchAll(
+        $modified = $this->connection->fetchAllAssociative(
             'SELECT LOWER(HEX(sales_channel_id)) as sales_channel_id, route_name, template
              FROM seo_url_template
              WHERE route_name IN (:routes)',

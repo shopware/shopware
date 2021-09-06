@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Test\Framework\Seo\Api;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Seo\Exception\SeoUrlRouteNotFoundException;
 use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateEntity;
@@ -41,7 +42,6 @@ class SeoActionControllerTest extends TestCase
 
     public function testValidateInvalid(): void
     {
-        $this->createTestProduct();
         $template = new SeoUrlTemplateEntity();
         $template->setRouteName('frontend.detail.page');
         $template->setTemplate('{{ product.name }');
@@ -58,12 +58,15 @@ class SeoActionControllerTest extends TestCase
 
     public function testValidateValid(): void
     {
-        $this->createTestProduct();
+        $salesChannelId = Uuid::randomHex();
+        $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
+
+        $this->createTestProduct($salesChannelId);
         $template = new SeoUrlTemplateEntity();
         $template->setRouteName('frontend.detail.page');
         $template->setTemplate('{{ product.name }}');
-        $template->setEntityName($this->getContainer()->get(ProductDefinition::class)->getEntityName());
-        $template->setSalesChannelId(null);
+        $template->setEntityName(ProductDefinition::ENTITY_NAME);
+        $template->setSalesChannelId($salesChannelId);
 
         $this->getBrowser()->request('POST', '/api/_action/seo-url-template/validate', $template->jsonSerialize());
         $response = $this->getBrowser()->getResponse();
@@ -111,19 +114,20 @@ class SeoActionControllerTest extends TestCase
 
     public function testPreview(): void
     {
+        $this->createStorefrontSalesChannelContext(Defaults::SALES_CHANNEL, 'test');
         $this->createTestProduct();
 
         $data = [
             'routeName' => ProductPageSeoUrlRoute::ROUTE_NAME,
             'entityName' => $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
             'template' => '{{ product.name }}',
-            'salesChannelId' => null,
+            'salesChannelId' => Defaults::SALES_CHANNEL,
         ];
         $this->getBrowser()->request('POST', '/api/_action/seo-url-template/preview', $data);
 
         $response = $this->getBrowser()->getResponse();
-        static::assertEquals(200, $response->getStatusCode(), $response->getContent());
 
+        static::assertEquals(200, $response->getStatusCode(), $response->getContent());
         $data = json_decode($response->getContent(), true);
 
         static::assertEquals('test', $data[0]['seoPathInfo']);
@@ -179,7 +183,7 @@ class SeoActionControllerTest extends TestCase
         $salesChannelId = Uuid::randomHex();
         $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
 
-        $id = $this->createTestProduct();
+        $id = $this->createTestProduct($salesChannelId);
 
         $seoUrls = $this->getSeoUrls($id, true, $salesChannelId);
         static::assertCount(1, $seoUrls);
@@ -221,7 +225,7 @@ class SeoActionControllerTest extends TestCase
         $salesChannelId = Uuid::randomHex();
         $this->createStorefrontSalesChannelContext($salesChannelId, 'test');
 
-        $id = $this->createTestProduct();
+        $id = $this->createTestProduct($salesChannelId);
 
         $seoUrls = $this->getSeoUrls($id, true, $salesChannelId);
         static::assertCount(1, $seoUrls);
@@ -280,7 +284,7 @@ class SeoActionControllerTest extends TestCase
         return json_decode($content, true)['data'];
     }
 
-    private function createTestProduct(): string
+    private function createTestProduct(string $salesChannelId = Defaults::SALES_CHANNEL): string
     {
         $id = Uuid::randomHex();
         $product = [
@@ -301,6 +305,12 @@ class SeoActionControllerTest extends TestCase
             ],
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'stock' => 0,
+            'visibilities' => [
+                [
+                    'salesChannelId' => $salesChannelId,
+                    'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
+                ],
+            ],
         ];
         $this->getBrowser()->request('POST', '/api/product', [], [], [], json_encode($product));
 

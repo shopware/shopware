@@ -5,7 +5,9 @@ namespace Shopware\Core\Framework\Test\DependencyInjection\CompilerPass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\EntityCompilerPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
@@ -38,5 +40,36 @@ class EntityCompilerPassTest extends TestCase
         // Make sure the correct aliases have been set
         static::assertNotNull($container->getAlias('Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface $customerRepository'));
         static::assertNotNull($container->getAlias('Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface $customerAddressRepository'));
+    }
+
+    public function testEntityRepositoryAutowiringForAlreadyDefinedRepositories(): void
+    {
+        $container = new ContainerBuilder();
+
+        $container
+            ->register(ProductDefinition::class, ProductDefinition::class)
+            ->addTag('shopware.entity.definition')
+        ;
+
+        $container
+            ->register(DefinitionInstanceRegistry::class, DefinitionInstanceRegistry::class)
+            ->addArgument(new Reference('service_container'))
+            ->addArgument([
+                ProductDefinition::ENTITY_NAME => ProductDefinition::class,
+            ])
+            ->addArgument([
+                ProductDefinition::ENTITY_NAME => 'product.repository',
+            ])
+        ;
+
+        $container
+            ->register('product.repository', EntityRepository::class)
+            ->addArgument(new Reference(ProductDefinition::class))
+        ;
+
+        $entityCompilerPass = new EntityCompilerPass();
+        $entityCompilerPass->process($container);
+
+        static::assertTrue($container->hasAlias('Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface $productRepository'));
     }
 }

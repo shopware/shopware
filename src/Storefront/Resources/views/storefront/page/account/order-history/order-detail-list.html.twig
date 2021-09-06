@@ -1,5 +1,6 @@
 {% block page_account_order_item_detail_body %}
-    <div class="order-detail-content-body">
+    {# @deprecated tag:v6.5.0 - class `order-detail-content-body` will be removed, use `order-detail-content-list` instead #}
+    <div class="order-detail-content-body order-detail-content-list">
         {% block page_account_order_item_detail_line_items %}
             {% for lineItem in order.nestedLineItems %}
                 {% block page_account_order_item_detail_line_item %}

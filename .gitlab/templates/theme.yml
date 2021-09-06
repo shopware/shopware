@@ -1,0 +1,82 @@
+stages:
+    - test
+
+variables:
+    PLATFORM_BRANCH: 'trunk'
+    PROJECT_ROOT: ${CI_PROJECT_DIR}
+    WEB_DOCUMENT_ROOT: $CI_PROJECT_DIR/public
+    LOG_STDOUT: $CI_PROJECT_DIR/stdout.log
+    MYSQL_ROOT_PASSWORD: root
+    DEV_IMAGE: shopware/development:7.4-composer-2
+    GIT_STRATEGY: clone
+
+default:
+    image: $DEV_IMAGE
+    services:
+        -   name: mariadb:10.4
+            alias: database
+    before_script:
+        - export PLUGIN_NAME="${PLUGIN_NAME:-${CI_PROJECT_TITLE}}"
+        - echo "$PLUGIN_NAME"
+        - zip -rq plugin.zip .
+        - mv plugin.zip /tmp/plugin.zip
+        - rm -Rf .* * || true
+        - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.shopware.com/shopware/6/product/platform.git . --branch $PLATFORM_BRANCH
+        - mkdir -p custom/apps custom/plugins config/jwt  || true
+        - unzip -q /tmp/plugin.zip -d custom/apps/$PLUGIN_NAME
+        - composer install
+        - bin/console system:generate-jwt || true
+        - bin/console system:install --drop-database --basic-setup --force
+        - chown -R application:application .
+        - bin/console app:install --activate $THEME_NAME
+        - bin/console theme:change $THEME_NAME --all
+        - /entrypoint supervisord > /dev/null 2>&1 &
+        - cd custom/apps/$PLUGIN_NAME
+
+validate snippets:
+    stage: test
+    needs: []
+    rules:
+        - changes:
+              - '**/*.json'
+    script:
+        - ${PROJECT_ROOT}/bin/console snippets:validate
+
+Check built JS files:
+    stage: test
+    needs: []
+    rules:
+        - exists:
+              - src/Resources/app/*
+    script:
+        - ${PROJECT_ROOT}/bin/console plugin:dump
+        - '[[ ! -r src/Resources/app/administration/package.json ]] || npm clean-install --prefix src/Resources/app/administration'
+        - '[[ ! -r src/Resources/app/storefront/package.json ]] || npm clean-install --prefix src/Resources/app/storefront'
+        - '(cd vendor/shopware/administration/Resources/app/administration/ && npm ci)'
+        - npm run build --prefix vendor/shopware/administration/Resources/app/administration/
+        - '(cd vendor/shopware/storefront/Resources/app/storefront/ && npm ci)'
+        - npm run production --prefix vendor/shopware/storefront/Resources/app/storefront/
+        - '(cd shopware/storefront/Resources/app/storefront && node copy-to-vendor.js)'
+        - >
+            if ! git diff --quiet --ignore-submodules HEAD -- src; then
+                echo "Built Javascript files differ. Update the dependencies and build again";
+                git status;
+                exit 1;
+            else
+                echo "Everything ok"
+                exit 0;
+            fi
+    allow_failure: true
+
+Template filled:
+    stage: test
+    image: bash
+    needs: []
+    rules:
+        - exists:
+              - TEMPLATE
+          if: $CI_PROJECT_TITLE != "SwagPluginTemplate"
+    before_script: []
+    script:
+        - echo "run './bin/init $CI_PROJECT_TITLE'"
+        - exit 1

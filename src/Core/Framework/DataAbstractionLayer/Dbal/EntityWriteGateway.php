@@ -41,6 +41,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValida
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\WriteCommandExceptionEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -117,7 +118,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
      */
     public function execute(array $commands, WriteContext $context): void
     {
-        $executeCommandsInRetryableTransaction = function ($enableBatch) use ($commands, $context): void {
+        $executeCommandsInRetryableTransaction = function (?bool $enableBatch = null) use ($commands, $context): void {
             RetryableTransaction::retryable(
                 $this->connection,
                 function () use ($commands, $context, $enableBatch): void {
@@ -127,12 +128,16 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         };
 
         try {
-            try {
-                $executeCommandsInRetryableTransaction(true);
-            } catch (\Throwable $e) {
-                // Let RetryableTransaction retry once with batch disabled
-                $context->resetExceptions();
-                $executeCommandsInRetryableTransaction(false);
+            if (Feature::isActive('FEATURE_NEXT_16640')) {
+                $executeCommandsInRetryableTransaction();
+            } else {
+                try {
+                    $executeCommandsInRetryableTransaction(true);
+                } catch (\Throwable $e) {
+                    // Let RetryableTransaction retry once with batch disabled
+                    $context->resetExceptions();
+                    $executeCommandsInRetryableTransaction(false);
+                }
             }
         } catch (\Throwable $e) {
             $event = new WriteCommandExceptionEvent($e, $commands, $context->getContext());
@@ -142,7 +147,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         }
     }
 
-    private function executeCommands(array $commands, WriteContext $context, bool $enableBatch): void
+    private function executeCommands(array $commands, WriteContext $context, ?bool $enableBatch): void
     {
         // throws exception on violation and then aborts/rollbacks this transaction
         $event = new PreWriteValidationEvent($context, $commands);
@@ -156,96 +161,115 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         $mappings = new MultiInsertQueryQueue($this->connection, $this->batchSize, false, true);
         $inserts = new MultiInsertQueryQueue($this->connection, $this->batchSize);
 
-        foreach ($commands as $command) {
-            if (!$command->isValid()) {
-                continue;
-            }
-            $command->setFailed(false);
-            $current = $command->getDefinition()->getEntityName();
-
-            if ($current !== $previous) {
-                $mappings->execute();
-                $inserts->execute();
-            }
-            $previous = $current;
-
-            try {
-                $definition = $command->getDefinition();
-                $table = $definition->getEntityName();
-
-                if ($command instanceof DeleteCommand) {
-                    $mappings->execute();
-                    $inserts->execute();
-
-                    RetryableQuery::retryable($this->connection, function () use ($command, $table): void {
-                        $this->connection->delete(
-                            EntityDefinitionQueryHelper::escape($table),
-                            $command->getPrimaryKey()
-                        );
-                    });
-
+        try {
+            foreach ($commands as $command) {
+                if (!$command->isValid()) {
                     continue;
                 }
+                $command->setFailed(false);
+                $current = $command->getDefinition()->getEntityName();
 
-                if ($command instanceof JsonUpdateCommand) {
+                if ($current !== $previous) {
                     $mappings->execute();
                     $inserts->execute();
-
-                    $this->executeJsonUpdate($command);
-
-                    continue;
                 }
+                $previous = $current;
 
-                if ($definition instanceof MappingEntityDefinition && $command instanceof InsertCommand) {
-                    $mappings->addInsert($definition->getEntityName(), $command->getPayload());
+                try {
+                    $definition = $command->getDefinition();
+                    $table = $definition->getEntityName();
 
-                    if (!$enableBatch) {
+                    if ($command instanceof DeleteCommand) {
                         $mappings->execute();
-                    }
-
-                    continue;
-                }
-
-                if ($command instanceof UpdateCommand) {
-                    $mappings->execute();
-                    $inserts->execute();
-
-                    RetryableQuery::retryable($this->connection, function () use ($command, $table): void {
-                        $this->connection->update(
-                            EntityDefinitionQueryHelper::escape($table),
-                            $this->escapeColumnKeys($command->getPayload()),
-                            $command->getPrimaryKey()
-                        );
-                    });
-
-                    continue;
-                }
-
-                if ($command instanceof InsertCommand) {
-                    $inserts->addInsert($definition->getEntityName(), $command->getPayload());
-
-                    if (!$enableBatch) {
                         $inserts->execute();
+
+                        RetryableQuery::retryable($this->connection, function () use ($command, $table): void {
+                            $this->connection->delete(
+                                EntityDefinitionQueryHelper::escape($table),
+                                $command->getPrimaryKey()
+                            );
+                        });
+
+                        continue;
                     }
 
-                    continue;
-                }
+                    if ($command instanceof JsonUpdateCommand) {
+                        $mappings->execute();
+                        $inserts->execute();
 
-                throw new UnsupportedCommandTypeException($command);
-            } catch (\Exception $e) {
-                $command->setFailed(true);
-                $innerException = $this->exceptionHandlerRegistry->matchException($e, $command);
+                        $this->executeJsonUpdate($command);
+
+                        continue;
+                    }
+
+                    if ($definition instanceof MappingEntityDefinition && $command instanceof InsertCommand) {
+                        $mappings->addInsert($definition->getEntityName(), $command->getPayload());
+
+                        if (!$enableBatch) {
+                            $mappings->execute();
+                        }
+
+                        continue;
+                    }
+
+                    if ($command instanceof UpdateCommand) {
+                        $mappings->execute();
+                        $inserts->execute();
+
+                        RetryableQuery::retryable($this->connection, function () use ($command, $table): void {
+                            $this->connection->update(
+                                EntityDefinitionQueryHelper::escape($table),
+                                $this->escapeColumnKeys($command->getPayload()),
+                                $command->getPrimaryKey()
+                            );
+                        });
+
+                        continue;
+                    }
+
+                    if ($command instanceof InsertCommand) {
+                        $inserts->addInsert($definition->getEntityName(), $command->getPayload());
+
+                        if (!$enableBatch) {
+                            $inserts->execute();
+                        }
+
+                        continue;
+                    }
+
+                    throw new UnsupportedCommandTypeException($command);
+                } catch (\Exception $e) {
+                    $command->setFailed(true);
+
+                    if (Feature::isActive('FEATURE_NEXT_16640')) {
+                        $innerException = $this->exceptionHandlerRegistry->matchException($e);
+                    } else {
+                        $innerException = $this->exceptionHandlerRegistry->matchException($e, $command);
+                    }
+                    if ($innerException instanceof \Exception) {
+                        $e = $innerException;
+                    }
+                    $context->getExceptions()->add($e);
+
+                    throw $e;
+                }
+            }
+
+            $mappings->execute();
+            $inserts->execute();
+        } catch (Exception $e) {
+            if (Feature::isActive('FEATURE_NEXT_16640')) {
+                // Match exception without passing a specific command when feature-flag 16640 is active
+                $innerException = $this->exceptionHandlerRegistry->matchException($e);
                 if ($innerException instanceof \Exception) {
                     $e = $innerException;
                 }
                 $context->getExceptions()->add($e);
-
-                throw $e;
             }
+
+            throw $e;
         }
 
-        $mappings->execute();
-        $inserts->execute();
 
         // throws exception on violation and then aborts/rollbacks this transaction
         $event = new PostWriteValidationEvent($context, $commands);

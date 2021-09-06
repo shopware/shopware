@@ -14,6 +14,9 @@ author_github: hanneswernery
 * Deprecated argument usage `(\Closure $closure)` in static function `retryable` in
   `src/Core/Framework/DataAbstractionLayer/Doctrine/RetryableQuery.php`. Use arguments
   `(Doctrine\DBAL\Connection $connection, \Closure $closure)` instead.
+* Remove second argument `Command $command` from
+  `Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface` behind feature flag
+  _FEATURE_NEXT_16640_.
 ___
 # Upgrade Information
 If multiple `RetryableQuery` are used within the same SQL transaction, and a deadlock occurs, the whole transaction is

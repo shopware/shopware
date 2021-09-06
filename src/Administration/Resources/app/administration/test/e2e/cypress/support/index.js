@@ -23,3 +23,10 @@ require('./commands/commands');
 Cypress.Cookies.defaults({
     preserve: ['_test-api-dbName', '_apiAuth']
 })
+
+// this sets the default browser locale to the environment variable
+Cypress.on('window:before:load', (window) => {
+    Object.defineProperty(window.navigator, 'language', {
+        value: Cypress.env('locale')
+    })
+})

@@ -14,15 +14,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class ChildCountUpdater
 {
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $registry;
+    private DefinitionInstanceRegistry $registry;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     public function __construct(DefinitionInstanceRegistry $registry, Connection $connection)
     {
@@ -58,13 +52,14 @@ class ChildCountUpdater
                 (
                     SELECT parent_id, count(id) total
                     FROM   #entity#
+                    WHERE parent_id in (:ids)
                     %s
                     GROUP BY parent_id
                 ) child ON parent.id = child.parent_id
             SET parent.child_count = IFNULL(child.total, 0)
             WHERE parent.id IN (:ids)
             %s',
-            $versionAware ? 'WHERE version_id = :version' : '',
+            $versionAware ? 'AND version_id = :version' : '',
             $versionAware ? 'AND parent.version_id = :version' : ''
         );
 

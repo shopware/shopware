@@ -58,7 +58,6 @@ class EntityCompilerPass implements CompilerPassInterface
                 $repository = $container->getDefinition($repositoryId);
                 //@deprecated tag:v6.5.0 (flag:FEATURE_NEXT_16155) - remove add method call
                 $repository->addMethodCall('setEntityLoadedEventFactory', [new Reference(EntityLoadedEventFactory::class)]);
-                $repository->setPublic(true);
             } catch (ServiceNotFoundException $exception) {
                 $repository = new Definition(
                     EntityRepository::class,
@@ -72,11 +71,11 @@ class EntityCompilerPass implements CompilerPassInterface
                         new Reference(EntityLoadedEventFactory::class),
                     ]
                 );
-                $repository->setPublic(true);
-
                 $container->setDefinition($repositoryId, $repository);
-                $container->registerAliasForArgument($repositoryId, EntityRepositoryInterface::class);
             }
+            $repository->setPublic(true);
+            $container->registerAliasForArgument($repositoryId, EntityRepositoryInterface::class);
+
             $repositoryNameMap[$entity] = $repositoryId;
         }
 

@@ -171,6 +171,11 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         label: 'global.sw-condition.condition.weightOfCartRule',
         scopes: ['cart'],
     });
+    ruleConditionService.addCondition('cartVolume', {
+        component: 'sw-condition-volume-of-cart',
+        label: 'global.sw-condition.condition.volumeOfCartRule',
+        scopes: ['cart'],
+    });
     ruleConditionService.addCondition('cartLineItemTag', {
         component: 'sw-condition-line-item-tag',
         label: 'global.sw-condition.condition.lineItemTagRule',
@@ -249,6 +254,11 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
     ruleConditionService.addCondition('cartLineItemDimensionWeight', {
         component: 'sw-condition-line-item-dimension-weight',
         label: 'global.sw-condition.condition.lineItemDimensionWeightRule',
+        scopes: ['lineItem'],
+    });
+    ruleConditionService.addCondition('cartLineItemDimensionVolume', {
+        component: 'sw-condition-line-item-dimension-volume',
+        label: 'global.sw-condition.condition.lineItemDimensionVolumeRule',
         scopes: ['lineItem'],
     });
     ruleConditionService.addCondition('cartLineItemOfManufacturer', {

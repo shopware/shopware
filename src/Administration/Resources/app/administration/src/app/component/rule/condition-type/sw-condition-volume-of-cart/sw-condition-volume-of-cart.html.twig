@@ -1,0 +1,24 @@
+{% block sw_condition_value_content %}
+<div class="sw-condition-volume-of-cart sw-condition__condition-value">
+    {% block sw_condition_volume_of_cart_field_operator %}
+    <sw-condition-operator-select
+        v-bind="{ operators, condition}"
+        :disabled="disabled"
+    />
+    {% endblock %}
+
+    {% block sw_condition_volume_of_cart_field_weight %}
+    <sw-number-field
+        v-model="volume"
+        size="medium"
+        :step="0.01"
+        :digits="3"
+        :disabled="disabled"
+    >
+        <template #suffix>
+            <span>mm&sup3;</span>
+        </template>
+    </sw-number-field>
+    {% endblock %}
+</div>
+{% endblock %}

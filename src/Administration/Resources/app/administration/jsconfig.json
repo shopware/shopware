@@ -11,7 +11,8 @@
             "src/*": ["./src/*"],
             "module/*": ["./src/module/*"],
             "scss/*": ["./src/app/assets/scss/*"],
-            "assets/*": ["./static/*"]
+            "assets/*": ["./static/*"],
+            "Shopware": ["./src/core/shopware"],
         }
     },
     "include": ["src/**/*", "types/**/*"],

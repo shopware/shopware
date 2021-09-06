@@ -49,22 +49,30 @@ class SystemUpdateFinishCommand extends Command
         $output->writeln('Run Post Update');
         $output->writeln('');
 
-        $containerWithoutPlugins = $this->rebootKernelWithoutPlugins();
+        /** @var Kernel $kernel */
+        $kernel = $this->container->get('kernel');
+        $pluginLoader = $kernel->getPluginLoader();
 
-        $context = Context::createDefaultContext();
-        $systemConfigService = $this->container->get(SystemConfigService::class);
-        $oldVersion = $systemConfigService->getString(UpdateController::UPDATE_PREVIOUS_VERSION_KEY);
+        try {
+            $containerWithoutPlugins = $this->rebootKernelWithoutPlugins();
 
-        $newVersion = $containerWithoutPlugins->getParameter('kernel.shopware_version');
-        if (!\is_string($newVersion)) {
-            throw new \RuntimeException('Container parameter "kernel.shopware_version" needs to be a string');
+            $context = Context::createDefaultContext();
+            $systemConfigService = $this->container->get(SystemConfigService::class);
+            $oldVersion = $systemConfigService->getString(UpdateController::UPDATE_PREVIOUS_VERSION_KEY);
+
+            $newVersion = $containerWithoutPlugins->getParameter('kernel.shopware_version');
+            if (!\is_string($newVersion)) {
+                throw new \RuntimeException('Container parameter "kernel.shopware_version" needs to be a string');
+            }
+
+            /** @var EventDispatcherInterface $eventDispatcherWithoutPlugins */
+            $eventDispatcherWithoutPlugins = $this->rebootKernelWithoutPlugins()->get('event_dispatcher');
+            $eventDispatcherWithoutPlugins->dispatch(new UpdatePreFinishEvent($context, $oldVersion, $newVersion));
+
+            $this->runMigrations($output);
+        } finally {
+            $kernel->reboot(null, $pluginLoader);
         }
-
-        /** @var EventDispatcherInterface $eventDispatcherWithoutPlugins */
-        $eventDispatcherWithoutPlugins = $this->rebootKernelWithoutPlugins()->get('event_dispatcher');
-        $eventDispatcherWithoutPlugins->dispatch(new UpdatePreFinishEvent($context, $oldVersion, $newVersion));
-
-        $this->runMigrations($output);
 
         /** @var EventDispatcherInterface $eventDispatcher */
         $eventDispatcher = $this->container->get('event_dispatcher');

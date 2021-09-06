@@ -686,7 +686,7 @@ A list of all sales channels will be displayed:
 ```
 Please select a sales channel:
   [0] Storefront | 138b4f705b174bf895366487df70cc22
-  [1] Headless | 98432def39fc4624b33213a56b8c944d
+  [1] Headless | 98432def39fc4624b33213a56b8c944f
 ```
 
 Select one by entering the corresponding number (0, 1...). 
@@ -695,7 +695,7 @@ Afterwards you can choose a theme for the selected sales channel:
 ```
 Please select a sales channel:
   [0] Storefront | 138b4f705b174bf895366487df70cc22
-  [1] Headless | 98432def39fc4624b33213a56b8c944d
+  [1] Headless | 98432def39fc4624b33213a56b8c944f
  > 0
 Please select a theme:
   [0] Storefront
@@ -705,7 +705,7 @@ The selected theme will be assigned to the sales channel and compiled:
 ```
 Please select a sales channel:
   [0] Storefront | 138b4f705b174bf895366487df70cc22
-  [1] Headless | 98432def39fc4624b33213a56b8c944d
+  [1] Headless | 98432def39fc4624b33213a56b8c944f
  > 0
 Please select a theme:
   [0] Storefront

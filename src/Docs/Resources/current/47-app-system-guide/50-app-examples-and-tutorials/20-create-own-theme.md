@@ -49,7 +49,7 @@ $ bin/console theme:change
 	
 Please select a sales channel:
 [0] Storefront | 64bbbe810d824c339a6c191779b2c205
-[1] Headless | 98432def39fc4624b33213a56b8c944d
+[1] Headless | 98432def39fc4624b33213a56b8c944f
 > 0
 
 Please select a theme:

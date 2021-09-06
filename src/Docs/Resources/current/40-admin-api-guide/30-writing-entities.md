@@ -217,7 +217,7 @@ PATCH /api/v3/product/b7d2554b0ce847cd82f3ac9bd1c0dfca
 {
     "id": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
     "categories": [
-        { "id": "98432def39fc4624b33213a56b8c944d", "name": "First category" },
+        { "id": "98432def39fc4624b33213a56b8c944f", "name": "First category" },
         { "id": "2fbb5fe2e29a4d70aa5854ce7ce3e20b", "name": "Second category" },
         { "id": "b7d2554b0ce847cd82f3ac9bd1c0dfca", "name": "Third category" }
     ]
@@ -233,7 +233,7 @@ PATCH /api/v3/product/b7d2554b0ce847cd82f3ac9bd1c0dfca
 {
     "id": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
     "categories": [
-        { "id": "98432def39fc4624b33213a56b8c944d" },
+        { "id": "98432def39fc4624b33213a56b8c944f" },
         { "id": "2fbb5fe2e29a4d70aa5854ce7ce3e20b" },
         { "id": "b7d2554b0ce847cd82f3ac9bd1c0dfca" }
     ]
@@ -272,13 +272,13 @@ PATCH {{host}}/api/v3/product/b7d2554b0ce847cd82f3ac9bd1c0dfca
 {
     "id": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
     "manufacturer": { 
-        "id": "98432def39fc4624b33213a56b8c944d", 
+        "id": "98432def39fc4624b33213a56b8c944f", 
         "name": "My manufcaturer" 
     }
 }
 ```
 
-With the above payload, the system first checks whether a manufacturer with the id `98432def39fc4624b33213a56b8c944d` exists. If this is not the case, a new manufacturer with this ID is created.
+With the above payload, the system first checks whether a manufacturer with the id `98432def39fc4624b33213a56b8c944f` exists. If this is not the case, a new manufacturer with this ID is created.
 If the manufacturer already exists, the name of the manufacturer is updated. Then the manufacturer will be linked to the product.
 
 **3: The entity should be linked exclusively *(performant)***
@@ -289,7 +289,7 @@ PATCH {{host}}/api/v3/product/b7d2554b0ce847cd82f3ac9bd1c0dfca
 {
     "id": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
     "manufacturer": { 
-        "id": "98432def39fc4624b33213a56b8c944d" 
+        "id": "98432def39fc4624b33213a56b8c944f" 
     }
 }
 ```
@@ -298,7 +298,7 @@ PATCH {{host}}/api/v3/product/b7d2554b0ce847cd82f3ac9bd1c0dfca
 PATCH {{host}}/api/v3/product/b7d2554b0ce847cd82f3ac9bd1c0dfca
 {
     "id": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
-    "manufacturerId": "98432def39fc4624b33213a56b8c944d"
+    "manufacturerId": "98432def39fc4624b33213a56b8c944f"
 }
 ```
 
@@ -337,7 +337,7 @@ In this case, it is necessary that the ID of the entity is also given. If this i
 ```
 PATCH /api/v3/country
 {
-    "id": "98432def39fc4624b33213a56b8c944d",
+    "id": "98432def39fc4624b33213a56b8c944f",
     "name" : "new country",
     "states": [
         { "id": "b7d2554b0ce847cd82f3ac9bd1c0dfca", "name": "new name" }
@@ -719,7 +719,7 @@ Since visibility can be configured per sales channel, the entity also has its ow
         { "currencyId" : "b7d2554b0ce847cd82f3ac9bd1c0dfca", "gross": 15, "net": 10, "linked" : false }
     ],
     "visibilities": [
-        { "id": "5f78f2d4b19f49648eb1b38881463da0", "salesChannelId": "98432def39fc4624b33213a56b8c944d", "visibility": 20 },
+        { "id": "5f78f2d4b19f49648eb1b38881463da0", "salesChannelId": "98432def39fc4624b33213a56b8c944f", "visibility": 20 },
         { "id": "b7d2554b0ce847cd82f3ac9bd1c0dfca", "salesChannelId": "ddcb57c32d6e4b598d8b6082a9ca7b42", "visibility": 30 }
     ]
 }

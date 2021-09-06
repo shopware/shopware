@@ -85,8 +85,8 @@ class ProductSearchKeywordTest extends TestCase
             'price' => [
                 ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
             ],
-            'manufacturer' => ['id' => '98432def39fc4624b33213a56b8c944d', 'name' => 'test'],
-            'tax' => ['id' => '98432def39fc4624b33213a56b8c944d', 'name' => 'test', 'taxRate' => 15],
+            'manufacturer' => ['id' => '98432def39fc4624b33213a56b8c944f', 'name' => 'test'],
+            'tax' => ['id' => '98432def39fc4624b33213a56b8c944f', 'name' => 'test', 'taxRate' => 15],
             'customSearchKeywords' => $searchKeyword,
         ];
 

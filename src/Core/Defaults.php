@@ -8,6 +8,11 @@ namespace Shopware\Core;
  */
 final class Defaults
 {
+    /**
+     * Don't rely on this id, the headless sales channel could be deleted. This will be used in the tests.
+     *
+     * @internal
+     */
     public const SALES_CHANNEL = '98432def39fc4624b33213a56b8c944d';
 
     /**

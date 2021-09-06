@@ -123,10 +123,6 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
 
     private function resolveContextSource(Request $request): ContextSource
     {
-        if ($request->attributes->has(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)) {
-            return new SalesChannelApiSource(Defaults::SALES_CHANNEL);
-        }
-
         if ($userId = $request->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_USER_ID)) {
             return $this->getAdminApiSource($userId);
         }

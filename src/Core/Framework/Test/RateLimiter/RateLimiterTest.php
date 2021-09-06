@@ -176,7 +176,7 @@ class RateLimiterTest extends TestCase
                 static::assertEquals('FRAMEWORK__AUTH_THROTTLED', $response['errors'][0]['code']);
             } else {
                 static::assertEquals(400, $response['errors'][0]['status']);
-                static::assertEquals(10, $response['errors'][0]['code']);
+                static::assertEquals(6, $response['errors'][0]['code']);
             }
         }
     }

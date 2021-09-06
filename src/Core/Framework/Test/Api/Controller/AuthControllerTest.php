@@ -67,9 +67,7 @@ class AuthControllerTest extends TestCase
         static::assertCount(1, $response['errors']);
         static::assertEquals(Response::HTTP_BAD_REQUEST, $response['errors'][0]['status']);
 
-        // invalid credentials should throw invalid_grant message, as by OAuth 2 specs
-        // see https://github.com/thephpleague/oauth2-server/pull/967
-        static::assertEquals(OAuthServerException::invalidGrant()->getMessage(), $response['errors'][0]['title']);
+        static::assertEquals(OAuthServerException::invalidCredentials()->getMessage(), $response['errors'][0]['title']);
     }
 
     public function testAccessWithInvalidToken(): void

@@ -2,28 +2,24 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching;
 
-use Shopware\Core\Content\Flow\FlowCollection;
-use Shopware\Core\Content\Flow\FlowEntity;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Doctrine\DBAL\Connection;
+use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 /**
- * @internal API
+ * @internal (flag:FEATURE_NEXT_8225) - Internal used for FlowBuilder feature
  */
 class FlowLoader extends AbstractFlowLoader
 {
-    private EntityRepositoryInterface $repository;
+    private Connection $connection;
 
-    private array $flows = [];
+    private LoggerInterface $logger;
 
-    public function __construct(EntityRepositoryInterface $repository)
+    public function __construct(Connection $connection, LoggerInterface $logger)
     {
-        $this->repository = $repository;
+        $this->connection = $connection;
+        $this->logger = $logger;
     }
 
     public function getDecorated(): AbstractFlowLoader
@@ -31,42 +27,36 @@ class FlowLoader extends AbstractFlowLoader
         throw new DecorationPatternException(self::class);
     }
 
-    public function load(string $eventName, Context $context): FlowCollection
+    public function load(): array
     {
-        if (\array_key_exists($eventName, $this->flows)) {
-            return $this->flows[$eventName];
-        }
-
-        $criteria = new Criteria();
-        $criteria->addFilter(
-            new EqualsFilter('active', true),
-            new EqualsFilter('eventName', $eventName),
+        $flows = $this->connection->fetchAllAssociative(
+            'SELECT `event_name`, LOWER(HEX(`id`)) as `id`, `name`, `payload` FROM `flow`
+                WHERE `active` = 1 AND `invalid` = 0 AND `payload` IS NOT NULL
+                ORDER BY `priority` DESC',
         );
-        $criteria->addFilter(new EqualsFilter('active', true));
-        $criteria->addSorting(new FieldSorting('priority', FieldSorting::DESCENDING));
 
-        $repositoryIterator = new RepositoryIterator($this->repository, $context, $criteria);
-        $flows = new FlowCollection();
-        while (($result = $repositoryIterator->fetch()) !== null) {
-            /** @var FlowEntity $flow */
-            foreach ($result->getEntities() as $flow) {
-                if (!$flow->isInvalid() && $flow->getPayload()) {
-                    $flows->add($flow);
-                }
-            }
-
-            if ($result->count() < 50) {
-                break;
-            }
+        if (empty($flows)) {
+            return [];
         }
 
-        $this->flows[$eventName] = $flows;
+        foreach ($flows as $key => $flow) {
+            try {
+                $payload = unserialize($flow['payload']);
+            } catch (\Throwable $e) {
+                $this->logger->error(
+                    "Flow payload is invalid:\n"
+                    . 'Flow name: ' . $flow['name'] . "\n"
+                    . 'Flow id: ' . $flow['id'] . "\n"
+                    . $e->getMessage() . "\n"
+                    . 'Error Code: ' . $e->getCode() . "\n"
+                );
 
-        return $flows;
-    }
+                continue;
+            }
 
-    public function reset(): void
-    {
-        $this->flows = [];
+            $flows[$key]['payload'] = $payload;
+        }
+
+        return FetchModeHelper::group($flows);
     }
 }

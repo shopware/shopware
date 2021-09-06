@@ -6,9 +6,9 @@ use Shopware\Core\Content\Flow\Dispatching\Struct\Flow;
 use Shopware\Core\Content\Flow\Dispatching\Struct\Sequence;
 
 /**
- * @internal API
+ * @internal (flag:FEATURE_NEXT_8225) - Internal used for FlowBuilder feature
  */
-class FlowsBuilder
+class FlowBuilder
 {
     public function build(string $id, array $flowSequences): Flow
     {

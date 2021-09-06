@@ -6,11 +6,12 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Checkout\Order\OrderDefinition;
+use Shopware\Core\Content\Flow\Dispatching\AbstractFlowLoader;
 use Shopware\Core\Content\Flow\Dispatching\Action\StopFlowAction;
 use Shopware\Core\Content\Flow\Dispatching\FlowDispatcher;
+use Shopware\Core\Content\Flow\Dispatching\FlowLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Event\BusinessEvents;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -34,6 +35,8 @@ class FlowDispatcherTest extends TestCase
 
     private TestDataCollection $ids;
 
+    private ?AbstractFlowLoader $flowLoader;
+
     protected function setUp(): void
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_8225', $this);
@@ -48,7 +51,11 @@ class FlowDispatcherTest extends TestCase
 
         $this->dispatcher->addSubscriber($this->flowActionTestSubscriber);
 
+        $this->flowLoader = $this->getContainer()->get(FlowLoader::class);
+
         $this->ids = new TestDataCollection(Context::createDefaultContext());
+
+        $this->resetCachedFlows();
     }
 
     protected function tearDown(): void
@@ -60,7 +67,7 @@ class FlowDispatcherTest extends TestCase
         }
     }
 
-    public function testAllEventsPassthru(): void
+    public function testAllEventsPassThrough(): void
     {
         $context = Context::createDefaultContext();
         $event = new TestFlowBusinessEvent($context);
@@ -90,7 +97,6 @@ class FlowDispatcherTest extends TestCase
 
         $this->dispatcher->dispatch($event);
 
-        static::assertEquals(1, $this->flowActionTestSubscriber->events[BusinessEvents::GLOBAL_EVENT] ?? 0);
         static::assertEquals(1, $this->flowActionTestSubscriber->actions['unit_test_action_true'] ?? 0);
         static::assertEquals(0, $this->flowActionTestSubscriber->actions['unit_test_action_false'] ?? 0);
     }
@@ -105,7 +111,6 @@ class FlowDispatcherTest extends TestCase
 
         $this->dispatcher->dispatch($event);
 
-        static::assertEquals(1, $this->flowActionTestSubscriber->events[BusinessEvents::GLOBAL_EVENT] ?? 0);
         static::assertEquals(0, $this->flowActionTestSubscriber->actions['unit_test_action_true'] ?? 0);
         static::assertEquals(1, $this->flowActionTestSubscriber->actions['unit_test_action_false'] ?? 0);
     }
@@ -127,7 +132,6 @@ class FlowDispatcherTest extends TestCase
 
         $this->dispatcher->dispatch($event);
 
-        static::assertEquals(1, $this->flowActionTestSubscriber->events[BusinessEvents::GLOBAL_EVENT] ?? 0);
         static::assertEquals(1, $this->flowActionTestSubscriber->actions['unit_test_action_true'] ?? 0);
         static::assertEquals(0, $this->flowActionTestSubscriber->actions['unit_test_action_false'] ?? 0);
         static::assertEquals($eventConfig, $this->flowActionTestSubscriber->lastActionConfig);
@@ -143,7 +147,6 @@ class FlowDispatcherTest extends TestCase
 
         $this->dispatcher->dispatch($event);
 
-        static::assertEquals(1, $this->flowActionTestSubscriber->events[BusinessEvents::GLOBAL_EVENT] ?? 0);
         static::assertEquals(0, $this->flowActionTestSubscriber->actions['unit_test_action_true'] ?? 0);
         static::assertEquals(0, $this->flowActionTestSubscriber->actions['unit_test_action_false'] ?? 0);
         static::assertEquals(0, $this->flowActionTestSubscriber->actions['unit_test_action_next'] ?? 0);
@@ -209,7 +212,6 @@ class FlowDispatcherTest extends TestCase
 
         $this->dispatcher->dispatch($event);
 
-        static::assertEquals(1, $this->flowActionTestSubscriber->events[BusinessEvents::GLOBAL_EVENT] ?? 0);
         static::assertEquals(1, $this->flowActionTestSubscriber->actions['unit_test_action_true'] ?? 0);
         static::assertEquals(0, $this->flowActionTestSubscriber->actions['unit_test_action_false'] ?? 0);
         static::assertEquals(2, $this->flowActionTestSubscriber->actions['unit_test_action_next'] ?? 0);
@@ -235,12 +237,12 @@ class FlowDispatcherTest extends TestCase
                     [
                         'id' => $sequenceId,
                         'parentId' => null,
-                        'ruleId' => $this->ids->create('ruleId'),
+                        'ruleId' => $this->ids->get('ruleId'),
                         'actionName' => null,
                         'config' => [],
                         'position' => 1,
                         'rule' => [
-                            'id' => $this->ids->create('ruleId'),
+                            'id' => $this->ids->get('ruleId'),
                             'name' => 'Test rule',
                             'priority' => 1,
                             'conditions' => [
@@ -282,7 +284,6 @@ class FlowDispatcherTest extends TestCase
 
         $this->dispatcher->dispatch($event);
 
-        static::assertEquals(1, $this->flowActionTestSubscriber->events[BusinessEvents::GLOBAL_EVENT] ?? 0);
         static::assertEquals(2, $this->flowActionTestSubscriber->actions['unit_test_action_true'] ?? 0);
         static::assertEquals(0, $this->flowActionTestSubscriber->actions['unit_test_action_false'] ?? 0);
         static::assertEquals(1, $this->flowActionTestSubscriber->actions['unit_test_action_next'] ?? 0);
@@ -355,7 +356,6 @@ class FlowDispatcherTest extends TestCase
 
         $this->dispatcher->dispatch($event);
 
-        static::assertEquals(1, $this->flowActionTestSubscriber->events[BusinessEvents::GLOBAL_EVENT] ?? 0);
         static::assertEquals(1, $this->flowActionTestSubscriber->actions['unit_test_action_true'] ?? 0);
         static::assertEquals(0, $this->flowActionTestSubscriber->actions['unit_test_action_false'] ?? 0);
         static::assertEquals(0, $this->flowActionTestSubscriber->actions['unit_test_action_next'] ?? 0);
@@ -419,5 +419,20 @@ class FlowDispatcherTest extends TestCase
             ], $additionSequence),
         ],
         ], $additionFlow), Context::createDefaultContext());
+    }
+
+    private function resetCachedFlows(): void
+    {
+        $class = new \ReflectionClass($this->flowLoader);
+
+        if ($class->hasProperty('flows')) {
+            $class = new \ReflectionClass($this->flowLoader);
+            $property = $class->getProperty('flows');
+            $property->setAccessible(true);
+            $property->setValue(
+                $this->flowLoader,
+                []
+            );
+        }
     }
 }

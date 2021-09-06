@@ -25,7 +25,7 @@ class FlowEvent extends Event
         $this->config = $config ?? [];
     }
 
-    public function getEvent(): BusinessEventInterface
+    public function getEvent(): FlowEventAware
     {
         return $this->state->event;
     }

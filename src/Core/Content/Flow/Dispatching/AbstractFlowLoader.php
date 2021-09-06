@@ -2,17 +2,12 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching;
 
-use Shopware\Core\Content\Flow\FlowCollection;
-use Shopware\Core\Framework\Context;
-
 /**
- * @internal API
+ * @internal (flag:FEATURE_NEXT_8225) - Internal used for FlowBuilder feature
  */
 abstract class AbstractFlowLoader
 {
     abstract public function getDecorated(): AbstractFlowLoader;
 
-    abstract public function load(string $eventName, Context $context): FlowCollection;
-
-    abstract public function reset(): void;
+    abstract public function load(): array;
 }

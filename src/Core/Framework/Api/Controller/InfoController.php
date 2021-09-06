@@ -243,7 +243,7 @@ class InfoController extends AbstractController
     }
 
     /**
-     * @Since("6.4.0.0")
+     * @Since("6.4.5.0")
      * @Route("/api/_info/flow-actions.json", name="api.info.actions", methods={"GET"})
      *
      * @internal (flag:FEATURE_NEXT_8225)

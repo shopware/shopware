@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Test\ContactForm;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContactForm\SalesChannel\ContactFormRoute;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;

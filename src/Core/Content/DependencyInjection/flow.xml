@@ -110,20 +110,23 @@
         </service>
 
         <service id="Shopware\Core\Content\Flow\Dispatching\FlowLoader" public="true">
-            <argument type="service" id="flow.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="logger"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
+        </service>
+
+        <service id="Shopware\Core\Content\Flow\Dispatching\CachedFlowLoader" decorates="Shopware\Core\Content\Flow\Dispatching\FlowLoader" decoration-priority="-1000" public="true">
+            <argument type="service" id="Shopware\Core\Content\Flow\Dispatching\CachedFlowLoader.inner"/>
+            <argument type="service" id="cache.object"/>
+            <argument type="service" id="logger" />
+
+            <tag name="kernel.event_subscriber" />
             <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
         </service>
 
         <service id="Shopware\Core\Content\Flow\Indexing\FlowPayloadUpdater">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="Shopware\Core\Content\Flow\Dispatching\FlowsBuilder"/>
-
-            <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
-        </service>
-
-        <service id="Shopware\Core\Content\Flow\Indexing\FlowPayloadSubscriber">
-            <argument type="service" id="Shopware\Core\Content\Flow\Indexing\FlowPayloadUpdater"/>
-            <tag name="kernel.event_subscriber"/>
+            <argument type="service" id="Shopware\Core\Content\Flow\Dispatching\FlowBuilder"/>
 
             <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
         </service>
@@ -133,14 +136,13 @@
             <argument type="service" id="flow.repository"/>
             <argument type="service" id="Shopware\Core\Content\Flow\Indexing\FlowPayloadUpdater"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\Content\Flow\Dispatching\FlowLoader"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="shopware.entity_indexer"/>
             <tag name="kernel.event_subscriber"/>
             <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
         </service>
 
-        <service id="Shopware\Core\Content\Flow\Dispatching\FlowsBuilder">
+        <service id="Shopware\Core\Content\Flow\Dispatching\FlowBuilder">
             <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
         </service>
 

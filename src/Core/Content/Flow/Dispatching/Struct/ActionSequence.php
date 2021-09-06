@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Flow\Dispatching\Struct;
 
 /**
- * @internal API
+ * @internal (flag:FEATURE_NEXT_8225) - Internal used for FlowBuilder feature
  */
 class ActionSequence extends Sequence
 {

@@ -40,6 +40,8 @@ class Migration1625583619MoveDataFromEventActionToFlow extends MigrationStep
         }
 
         $this->insertFlow($connection);
+
+        $this->registerIndexer($connection, 'flow.indexer');
     }
 
     public function updateDestructive(Connection $connection): void

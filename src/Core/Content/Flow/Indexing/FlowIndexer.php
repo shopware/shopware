@@ -3,15 +3,12 @@
 namespace Shopware\Core\Content\Flow\Indexing;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Content\Flow\Dispatching\AbstractFlowLoader;
 use Shopware\Core\Content\Flow\Events\FlowIndexerEvent;
 use Shopware\Core\Content\Flow\FlowDefinition;
-use Shopware\Core\Content\Flow\FlowEvents;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
-use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
@@ -35,8 +32,6 @@ class FlowIndexer extends EntityIndexer implements EventSubscriberInterface
 
     private EventDispatcherInterface $eventDispatcher;
 
-    private AbstractFlowLoader $flowLoader;
-
     private Connection $connection;
 
     public function __construct(
@@ -44,14 +39,12 @@ class FlowIndexer extends EntityIndexer implements EventSubscriberInterface
         EntityRepositoryInterface $repository,
         FlowPayloadUpdater $payloadUpdater,
         EventDispatcherInterface $eventDispatcher,
-        AbstractFlowLoader $flowLoader,
         Connection $connection
     ) {
         $this->iteratorFactory = $iteratorFactory;
         $this->repository = $repository;
         $this->payloadUpdater = $payloadUpdater;
         $this->eventDispatcher = $eventDispatcher;
-        $this->flowLoader = $flowLoader;
         $this->connection = $connection;
     }
 
@@ -68,7 +61,6 @@ class FlowIndexer extends EntityIndexer implements EventSubscriberInterface
             PluginPostUpdateEvent::class => 'refreshPlugin',
             PluginPostDeactivateEvent::class => 'refreshPlugin',
             PluginPostUninstallEvent::class => 'refreshPlugin',
-            FlowEvents::FLOW_WRITTEN_EVENT => 'onFlowWritten',
         ];
     }
 
@@ -125,10 +117,5 @@ class FlowIndexer extends EntityIndexer implements EventSubscriberInterface
         $this->payloadUpdater->update($ids);
 
         $this->eventDispatcher->dispatch(new FlowIndexerEvent($ids, $message->getContext()));
-    }
-
-    public function onFlowWritten(EntityWrittenEvent $event): void
-    {
-        $this->flowLoader->reset();
     }
 }

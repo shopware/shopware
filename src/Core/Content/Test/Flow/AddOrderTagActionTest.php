@@ -6,8 +6,10 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
+use Shopware\Core\Content\Flow\Dispatching\AbstractFlowLoader;
 use Shopware\Core\Content\Flow\Dispatching\Action\AddOrderTagAction;
 use Shopware\Core\Content\Flow\Dispatching\Action\RemoveOrderTagAction;
+use Shopware\Core\Content\Flow\Dispatching\FlowLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -19,6 +21,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class AddOrderTagActionTest extends TestCase
 {
     use OrderActionTrait;
+
+    private ?AbstractFlowLoader $flowLoader;
 
     protected function setUp(): void
     {
@@ -40,6 +44,10 @@ class AddOrderTagActionTest extends TestCase
 
         // all business event should be inactive.
         $this->connection->executeStatement('DELETE FROM event_action;');
+
+        $this->flowLoader = $this->getContainer()->get(FlowLoader::class);
+
+        $this->resetCachedFlows();
     }
 
     public function testAddOrderTagAction(): void
@@ -230,5 +238,20 @@ class AddOrderTagActionTest extends TestCase
                 'name' => 'test tag3',
             ],
         ], $this->ids->context);
+    }
+
+    private function resetCachedFlows(): void
+    {
+        $class = new \ReflectionClass($this->flowLoader);
+
+        if ($class->hasProperty('flows')) {
+            $class = new \ReflectionClass($this->flowLoader);
+            $property = $class->getProperty('flows');
+            $property->setAccessible(true);
+            $property->setValue(
+                $this->flowLoader,
+                []
+            );
+        }
     }
 }

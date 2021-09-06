@@ -6,7 +6,9 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
+use Shopware\Core\Content\Flow\Dispatching\AbstractFlowLoader;
 use Shopware\Core\Content\Flow\Dispatching\Action\AddCustomerTagAction;
+use Shopware\Core\Content\Flow\Dispatching\FlowLoader;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -38,6 +40,8 @@ class AddCustomerTagActionTest extends TestCase
 
     private ?EntityRepository $customerRepository;
 
+    private ?AbstractFlowLoader $flowLoader;
+
     protected function setUp(): void
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_8225', $this);
@@ -58,6 +62,10 @@ class AddCustomerTagActionTest extends TestCase
 
         // all business event should be inactive.
         $this->connection->executeStatement('DELETE FROM event_action;');
+
+        $this->flowLoader = $this->getContainer()->get(FlowLoader::class);
+
+        $this->resetCachedFlows();
     }
 
     public function testAddCustomerTagAction(): void
@@ -200,5 +208,20 @@ class AddCustomerTagActionTest extends TestCase
                 'name' => 'test tag3',
             ],
         ], $this->ids->context);
+    }
+
+    private function resetCachedFlows(): void
+    {
+        $class = new \ReflectionClass($this->flowLoader);
+
+        if ($class->hasProperty('flows')) {
+            $class = new \ReflectionClass($this->flowLoader);
+            $property = $class->getProperty('flows');
+            $property->setAccessible(true);
+            $property->setValue(
+                $this->flowLoader,
+                []
+            );
+        }
     }
 }

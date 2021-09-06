@@ -14,7 +14,9 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStat
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PrePayment;
+use Shopware\Core\Content\Flow\Dispatching\AbstractFlowLoader;
 use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction;
+use Shopware\Core\Content\Flow\Dispatching\FlowLoader;
 use Shopware\Core\Content\Flow\Dispatching\FlowState;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -37,6 +39,8 @@ class SetOrderStateActionTest extends TestCase
     private ?StateMachineRegistry $stateMachineRegistry;
 
     private ?EntityRepositoryInterface $orderRepository;
+
+    private ?AbstractFlowLoader $flowLoader;
 
     protected function setUp(): void
     {
@@ -61,6 +65,10 @@ class SetOrderStateActionTest extends TestCase
 
         // all business event should be inactive.
         $this->connection->executeStatement('DELETE FROM event_action;');
+
+        $this->flowLoader = $this->getContainer()->get(FlowLoader::class);
+
+        $this->resetCachedFlows();
     }
 
     public function testSetAvailableOrderState(): void
@@ -394,5 +402,20 @@ class SetOrderStateActionTest extends TestCase
             ->addFilter(new EqualsFilter('stateMachine.technicalName', $stateMachine));
 
         return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
+    }
+
+    private function resetCachedFlows(): void
+    {
+        $class = new \ReflectionClass($this->flowLoader);
+
+        if ($class->hasProperty('flows')) {
+            $class = new \ReflectionClass($this->flowLoader);
+            $property = $class->getProperty('flows');
+            $property->setAccessible(true);
+            $property->setValue(
+                $this->flowLoader,
+                []
+            );
+        }
     }
 }

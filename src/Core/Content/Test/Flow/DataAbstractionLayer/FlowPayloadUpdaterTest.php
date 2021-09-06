@@ -76,7 +76,7 @@ class FlowPayloadUpdaterTest extends TestCase
 
         $expected = [$sequence];
 
-        static::assertSame(serialize(new Flow($this->ids->get('flow_id'), $expected)), serialize($flow->getPayload()));
+        static::assertSame(serialize(new Flow($this->ids->get('flow_id'), $expected)), $flow->getPayload());
     }
 
     public function testUpdate(): void
@@ -129,7 +129,7 @@ class FlowPayloadUpdaterTest extends TestCase
 
         $expected = [$sequence];
 
-        static::assertSame(serialize(new Flow($this->ids->get('flow_id'), $expected)), serialize($flow->getPayload()));
+        static::assertSame(serialize(new Flow($this->ids->get('flow_id'), $expected)), $flow->getPayload());
     }
 
     private function createTestData(): void

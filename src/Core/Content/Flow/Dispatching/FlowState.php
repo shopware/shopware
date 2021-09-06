@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching;
 
-use Shopware\Core\Framework\Event\BusinessEventInterface;
+use Shopware\Core\Framework\Event\FlowEventAware;
 
 /**
  * @internal (flag:FEATURE_NEXT_8225)
@@ -15,9 +15,9 @@ class FlowState
 
     public bool $stop = false;
 
-    public BusinessEventInterface $event;
+    public FlowEventAware $event;
 
-    public function __construct(BusinessEventInterface $event)
+    public function __construct(FlowEventAware $event)
     {
         $this->event = $event;
     }

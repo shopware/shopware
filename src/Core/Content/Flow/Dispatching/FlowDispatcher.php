@@ -7,15 +7,15 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Flow\Dispatching\Struct\Flow;
 use Shopware\Core\Content\Flow\Exception\ExecuteSequenceException;
 use Shopware\Core\Framework\Event\BusinessEvent;
-use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\FlowEvent;
+use Shopware\Core\Framework\Event\FlowEventAware;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @internal API
+ * @internal (flag:FEATURE_NEXT_8225) - Internal used for FlowBuilder feature
  */
 class FlowDispatcher implements EventDispatcherInterface
 {
@@ -47,7 +47,7 @@ class FlowDispatcher implements EventDispatcherInterface
     {
         $event = $this->dispatcher->dispatch($event, $eventName);
 
-        if (!$event instanceof BusinessEventInterface) {
+        if (!$event instanceof FlowEventAware) {
             return $event;
         }
 
@@ -112,18 +112,11 @@ class FlowDispatcher implements EventDispatcherInterface
         return $this->dispatcher->hasListeners($eventName);
     }
 
-    private function callFlowExecutor(BusinessEventInterface $event): void
+    private function callFlowExecutor(FlowEventAware $event): void
     {
-        /** @var AbstractFlowLoader|null $flowLoader */
-        $flowLoader = $this->container->get(FlowLoader::class);
+        $flows = $this->getFlows($event->getName());
 
-        if ($flowLoader === null) {
-            throw new ServiceNotFoundException(FlowExecutor::class);
-        }
-
-        $flows = $flowLoader->load($event->getName(), $event->getContext());
-
-        if ($flows->count() === 0) {
+        if (empty($flows)) {
             return;
         }
 
@@ -134,16 +127,16 @@ class FlowDispatcher implements EventDispatcherInterface
             throw new ServiceNotFoundException(FlowExecutor::class);
         }
 
-        foreach ($flows->getElements() as $flow) {
+        foreach ($flows as $flowId => $flow) {
             try {
                 /** @var Flow $payload */
-                $payload = $flow->getPayload();
+                $payload = $flow['payload'];
                 $flowExecutor->execute($payload, $event);
             } catch (ExecuteSequenceException $e) {
                 $this->logger->error(
                     "Could not execute flow with error message:\n"
-                    . 'Flow name: ' . $flow->getName() . "\n"
-                    . 'Flow id: ' . $e->getFlowId() . "\n"
+                    . 'Flow name: ' . $flow['name'] . "\n"
+                    . 'Flow id: ' . $flowId . "\n"
                     . 'Sequence id: ' . $e->getSequenceId() . "\n"
                     . $e->getMessage() . "\n"
                     . 'Error Code: ' . $e->getCode() . "\n"
@@ -151,12 +144,31 @@ class FlowDispatcher implements EventDispatcherInterface
             } catch (\Throwable $e) {
                 $this->logger->error(
                     "Could not execute flow with error message:\n"
-                    . 'Flow name: ' . $flow->getName() . "\n"
-                    . 'Flow id: ' . $flow->getId() . "\n"
+                    . 'Flow name: ' . $flow['name'] . "\n"
+                    . 'Flow id: ' . $flowId . "\n"
                     . $e->getMessage() . "\n"
                     . 'Error Code: ' . $e->getCode() . "\n"
                 );
             }
         }
+    }
+
+    private function getFlows(string $eventName): array
+    {
+        /** @var AbstractFlowLoader|null $flowLoader */
+        $flowLoader = $this->container->get(FlowLoader::class);
+
+        if ($flowLoader === null) {
+            throw new ServiceNotFoundException(FlowExecutor::class);
+        }
+
+        $flows = $flowLoader->load();
+
+        $result = [];
+        if (\array_key_exists($eventName, $flows)) {
+            $result = $flows[$eventName];
+        }
+
+        return $result;
     }
 }

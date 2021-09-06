@@ -7,12 +7,12 @@ use Shopware\Core\Content\Flow\Dispatching\Struct\Flow;
 use Shopware\Core\Content\Flow\Dispatching\Struct\IfSequence;
 use Shopware\Core\Content\Flow\Dispatching\Struct\Sequence;
 use Shopware\Core\Content\Flow\Exception\ExecuteSequenceException;
-use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\FlowEvent;
+use Shopware\Core\Framework\Event\FlowEventAware;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @internal API
+ * @internal (flag:FEATURE_NEXT_8225) - Internal used for FlowBuilder feature
  */
 class FlowExecutor
 {
@@ -23,7 +23,7 @@ class FlowExecutor
         $this->dispatcher = $dispatcher;
     }
 
-    public function execute(Flow $flow, BusinessEventInterface $event): void
+    public function execute(Flow $flow, FlowEventAware $event): void
     {
         $state = new FlowState($event);
         $state->flowId = $flow->getId();

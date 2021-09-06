@@ -21,6 +21,7 @@ use Shopware\Core\Content\Flow\Dispatching\Action\SetOrderStateAction;
 use Shopware\Core\Content\Flow\FlowDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
@@ -282,6 +283,14 @@ class FlowGenerator implements DemodataGeneratorInterface
     // Randomly create 10 tags
     private function createTags(Context $context): void
     {
+        $tagRepository = $this->registry->getRepository('tag');
+
+        $tags = $tagRepository->searchIds(new Criteria(), $context)->firstId();
+
+        if ($tags !== null) {
+            return;
+        }
+
         $payload = [];
 
         for ($i = 0; $i < 10; ++$i) {
@@ -290,7 +299,7 @@ class FlowGenerator implements DemodataGeneratorInterface
             ];
         }
 
-        $this->registry->getRepository('tag')->create($payload, $context);
+        $tagRepository->create($payload, $context);
     }
 
     private function write(array $payload, Context $context): void
@@ -332,17 +341,17 @@ class FlowGenerator implements DemodataGeneratorInterface
             case AddOrderTagAction::getName():
                 return [
                     'entity' => 'order',
-                    'tagIds' => $this->faker->randomElements($tagIds, rand(1, 10)),
+                    'tagIds' => $this->faker->randomElements($tagIds, rand(1, \count($tagIds))),
                 ];
             case AddCustomerTagAction::getName():
                 return [
                     'entity' => 'customer',
-                    'tagIds' => $this->faker->randomElements($tagIds, rand(1, 10)),
+                    'tagIds' => $this->faker->randomElements($tagIds, rand(1, \count($tagIds))),
                 ];
             case RemoveCustomerTagAction::getName():
                 return [
                     'entity' => 'customer',
-                    'tagIds' => $this->faker->randomElements($tagIds, rand(1, 10)),
+                    'tagIds' => $this->faker->randomElements($tagIds, rand(1, \count($tagIds))),
                 ];
             case GenerateDocumentAction::getName():
                 return [

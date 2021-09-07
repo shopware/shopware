@@ -36,6 +36,14 @@
         name="sw-field-input"
         v-bind="{identification, error, disabled}"
     ></slot>
+
     <sw-field-error :error="error" />
+
+    <div
+        v-if="$slots.hint"
+        class="sw-field__hint"
+    >
+        <slot name="hint"></slot>
+    </div>
 </div>
 {% endblock %}

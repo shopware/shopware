@@ -7,6 +7,8 @@ variables:
     PLATFORM_BRANCH: 'trunk'
     PROJECT_ROOT: ${CI_PROJECT_DIR}
     WEB_DOCUMENT_ROOT: $CI_PROJECT_DIR/public
+    ADMIN_PATH: $CI_PROJECT_DIR/src/Administration/Resources/app/administration
+    STOREFRONT_PATH: $CI_PROJECT_DIR/src/Storefront/Resources/app/storefront
     MYSQL_ROOT_PASSWORD: root
     DEV_IMAGE: shopware/development:7.4-composer-2
     GIT_STRATEGY: clone
@@ -54,6 +56,8 @@ build:
         - /opt/shopware/bin/console system:install --drop-database --basic-setup --force
         - export PLUGIN_NAME="${PLUGIN_NAME:-${CI_PROJECT_TITLE}}"
         - ln -s "$PWD" "/plugins/$PLUGIN_NAME"
+        - '[[ ! -r src/Resources/app/administration/package.json ]] || npm clean-install --prefix src/Resources/app/administration'
+        - '[[ ! -r src/Resources/app/storefront/package.json ]] || npm clean-install --prefix src/Resources/app/storefront'
     script:
         - pack-plugin $PLUGIN_NAME
         - '[[ -r $PLUGIN_NAME.zip ]] || failed to create $PLUGIN_NAME.zip'
@@ -175,6 +179,19 @@ Check built JS files:
                 exit 0;
             fi
     allow_failure: true
+
+Jest (Administration):
+    stage: test
+    needs: []
+    rules:
+        - exists:
+              - src/Resources/app/administration/jest.config.js
+    script:
+        - '(cd vendor/shopware/administration/Resources/app/administration/ && npm ci)'
+        - cd src/Resources/app/administration/
+        - npm ci
+        - '$(npm bin)/jest --config jest.config.js --ci'
+    coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
 
 Template filled:
     stage: test

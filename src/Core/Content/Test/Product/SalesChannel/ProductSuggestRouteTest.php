@@ -77,7 +77,7 @@ class ProductSuggestRouteTest extends TestCase
 
         $this->browser->request(
             'POST',
-            '/store-api/search-suggest?search=Product-Test',
+            '/store-api/search-suggest?search=Test-product',
             [
                 'total-count-mode' => Criteria::TOTAL_COUNT_MODE_EXACT,
                 'limit' => 10,
@@ -338,24 +338,36 @@ class ProductSuggestRouteTest extends TestCase
                 ['Incredible Plastic Duoflex'],
             ],
             [
-                'Incredible-%Plastic     ',
+                'Incredible%Plastic     ',
                 ['Incredible Plastic Duoflex'],
             ],
             [
                 'Incredible$^%&%$&$Plastic     ',
-                ['Incredible Plastic Duoflex'],
+                [
+                    'Incredible Plastic Duoflex',
+                    'Incredible-Copper-Vitro',
+                ],
             ],
             [
                 '(๑★ .̫ ★๑)Incredible$^%&%$&$Plastic(๑★ .̫ ★๑)     ',
-                ['Incredible Plastic Duoflex'],
+                [
+                    'Incredible Plastic Duoflex',
+                    'Incredible-Copper-Vitro',
+                ],
             ],
             [
                 '‰€€Incredible$^%&%$&$Plastic‰€€     ',
-                ['Incredible Plastic Duoflex'],
+                [
+                    'Incredible Plastic Duoflex',
+                    'Incredible-Copper-Vitro',
+                ],
             ],
             [
                 '³²¼¼³¬½{¬]Incredible³²¼¼³¬½{¬]$^%&%$&$Plastic     ',
-                ['Incredible Plastic Duoflex'],
+                [
+                    'Incredible Plastic Duoflex',
+                    'Incredible-Copper-Vitro',
+                ],
             ],
             [
                 'astic Concrete',
@@ -400,14 +412,13 @@ class ProductSuggestRouteTest extends TestCase
                     'Rustic Copper Drastic Plastic',
                     'Incredible Plastic Duoflex',
                     'Fantastic Copper Ginger Vitro',
+                    'Incredible-Copper-Vitro',
                 ],
             ],
             [
                 'Incredible-Copper-Vitro',
                 [
-                    'Rustic Copper Drastic Plastic',
-                    'Incredible Plastic Duoflex',
-                    'Fantastic Copper Ginger Vitro',
+                    'Incredible-Copper-Vitro',
                 ],
             ],
             [
@@ -416,6 +427,7 @@ class ProductSuggestRouteTest extends TestCase
                     'Rustic Copper Drastic Plastic',
                     'Incredible Plastic Duoflex',
                     'Fantastic Copper Ginger Vitro',
+                    'Incredible-Copper-Vitro',
                 ],
             ],
             [
@@ -424,6 +436,7 @@ class ProductSuggestRouteTest extends TestCase
                     'Rustic Copper Drastic Plastic',
                     'Incredible Plastic Duoflex',
                     'Fantastic Copper Ginger Vitro',
+                    'Incredible-Copper-Vitro',
                 ],
             ],
             [
@@ -432,6 +445,7 @@ class ProductSuggestRouteTest extends TestCase
                     'Rustic Copper Drastic Plastic',
                     'Incredible Plastic Duoflex',
                     'Fantastic Copper Ginger Vitro',
+                    'Incredible-Copper-Vitro',
                 ],
             ],
             [
@@ -440,6 +454,7 @@ class ProductSuggestRouteTest extends TestCase
                     'Rustic Copper Drastic Plastic',
                     'Incredible Plastic Duoflex',
                     'Fantastic Copper Ginger Vitro',
+                    'Incredible-Copper-Vitro',
                 ],
             ],
             [
@@ -488,7 +503,6 @@ class ProductSuggestRouteTest extends TestCase
     private function createData(): void
     {
         $product = [
-            'name' => 'test',
             'stock' => 10,
             'price' => [
                 ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
@@ -566,12 +580,14 @@ class ProductSuggestRouteTest extends TestCase
             'Incredible Plastic Duoflex',
             'Fantastic Concrete Comveyer',
             'Fantastic Copper Ginger Vitro',
+            'Incredible-Copper-Vitro',
         ];
         $productsNumber = [
             '123123123',
             '765752342',
             '834157484',
             '9095345345',
+            '232323232',
         ];
 
         foreach ($productsName as $index => $name) {

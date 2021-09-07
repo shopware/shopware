@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\Exception\CartDeserializeFailedException;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -18,15 +19,9 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class CartPersister implements CartPersisterInterface
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
     public function __construct(Connection $connection, EventDispatcherInterface $eventDispatcher)
     {
@@ -73,8 +68,10 @@ class CartPersister implements CartPersisterInterface
 
         $this->eventDispatcher->dispatch($event);
 
+        $this->connection->beginTransaction();
         if (!$event->shouldBePersisted()) {
             $this->delete($cart->getToken(), $context);
+            $this->connection->commit();
 
             return;
         }
@@ -104,14 +101,19 @@ class CartPersister implements CartPersisterInterface
             'rule_ids' => json_encode($context->getRuleIds()),
         ];
 
-        $this->connection->executeUpdate($sql, $data);
+        $query = new RetryableQuery($this->connection->prepare($sql));
+        $query->execute($data);
+        $this->connection->commit();
 
         $this->eventDispatcher->dispatch(new CartSavedEvent($context, $cart));
     }
 
     public function delete(string $token, SalesChannelContext $context): void
     {
-        $this->connection->delete('`cart`', ['token' => $token]);
+        $query = new RetryableQuery(
+            $this->connection->prepare('DELETE FROM `cart` WHERE `token` = :token')
+        );
+        $query->execute(['token' => $token]);
     }
 
     private function serializeCart(Cart $cart): string

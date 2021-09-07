@@ -27,6 +27,9 @@ class ClientRepository implements ClientRepositoryInterface
 
         if ($grantType === 'client_credentials' && $clientSecret !== null) {
             $values = $this->getByAccessKey($clientIdentifier);
+            if (!$values) {
+                return false;
+            }
 
             return password_verify($clientSecret, $values['secret_access_key']);
         }
@@ -44,10 +47,14 @@ class ClientRepository implements ClientRepositoryInterface
 
         $values = $this->getByAccessKey($clientIdentifier);
 
+        if (!$values) {
+            return null;
+        }
+
         return new ApiClient($clientIdentifier, true, $values['label'] ?? Uuid::fromBytesToHex($values['user_id']));
     }
 
-    private function getByAccessKey(string $clientIdentifier): array
+    private function getByAccessKey(string $clientIdentifier): ?array
     {
         $origin = AccessKeyHelper::getOrigin($clientIdentifier);
 
@@ -59,10 +66,10 @@ class ClientRepository implements ClientRepositoryInterface
             return $this->getIntegrationByAccessKey($clientIdentifier);
         }
 
-        throw OAuthServerException::invalidCredentials();
+        return null;
     }
 
-    private function getUserByAccessKey(string $clientIdentifier): array
+    private function getUserByAccessKey(string $clientIdentifier): ?array
     {
         $key = $this->connection->createQueryBuilder()
             ->select(['user_id', 'secret_access_key'])
@@ -73,13 +80,13 @@ class ClientRepository implements ClientRepositoryInterface
             ->fetch();
 
         if (!$key) {
-            throw OAuthServerException::invalidCredentials();
+            return null;
         }
 
         return $key;
     }
 
-    private function getIntegrationByAccessKey(string $clientIdentifier): array
+    private function getIntegrationByAccessKey(string $clientIdentifier): ?array
     {
         $key = $this->connection->createQueryBuilder()
             ->select(['integration.id AS id', 'label', 'secret_access_key', 'app.active as active'])
@@ -91,13 +98,13 @@ class ClientRepository implements ClientRepositoryInterface
             ->fetch();
 
         if (!$key) {
-            throw OAuthServerException::invalidCredentials();
+            return null;
         }
 
         // inactive apps cannot access the api
         // if the integration is not associated to an app `active` will be null
         if ($key['active'] === '0') {
-            throw OAuthServerException::invalidCredentials();
+            return null;
         }
 
         return $key;

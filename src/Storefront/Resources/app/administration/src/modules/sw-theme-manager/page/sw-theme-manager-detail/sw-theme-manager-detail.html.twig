@@ -103,20 +103,18 @@
                                                         <p>{{ theme.description |truncate(140) }}</p>
                                                     </div>
 
-                                                    <div v-if="theme.salesChannels.length > 0"
-                                                         class="sw-theme-manager-detail__info-saleschannels">
-                                                        <p>{{ $tc('sw-theme-manager.detail.salesChannel') }}:</p>
+                                                    <sw-entity-multi-select
+                                                        v-model="theme.salesChannels"
+                                                        class="sw-theme-manager-detail__saleschannels-select"
+                                                        :label="$tc('sw-theme-manager.detail.salesChannel')"
+                                                        :disabled="!acl.can('theme.editor')"
+                                                        :helpText="isDefaultTheme ? $tc('sw-theme-manager.detail.salesChannelHelpText') : null"
+                                                        :selectionDisablingMethod="selectionDisablingMethod">
+                                                        <template #result-item="{ item, index }">
+                                                            <span v-if="!isThemeCompatible(item)"></span>
+                                                        </template>
+                                                    </sw-entity-multi-select>
 
-                                                        <span class="sw-theme-manager-detail__saleschannel"
-                                                              v-for="salesChannel, index in theme.salesChannels">
-                                                                <router-link :to="{ name: 'sw.sales.channel.detail.theme', params: { id: salesChannel.id } }"
-                                                                             class="sw-theme-manager-detail__saleschannel-link">
-                                                                    <span>
-                                                                        {{ salesChannel.name }}<template v-if="index < theme.salesChannels.length - 1">, </template>
-                                                                    </span>
-                                                                </router-link>
-                                                            </span>
-                                                    </div>
                                                 </div>
                                             {% endblock %}
                                         </div>
@@ -338,15 +336,53 @@
 
             {% block sw_theme_manager_detail_save_modal %}
                 <sw-modal v-if="showSaveModal"
+                          class="sw-theme-manager-detail-modal"
                           @modal-close="onCloseSaveModal"
                           :title="$tc('sw-theme-manager.modal.modalTitleSave')"
-                          variant="small">
+                          variant="large">
 
                     {% block sw_theme_manager_detail_save_modal_info %}
                         <div class="sw_theme_manager__confirm-save-text">
                             {{ $tc('sw-theme-manager.modal.textSaveInfo', 0,
                             { themeName: theme.name }) }}
                         </div>
+                    {% endblock %}
+
+                    {% block sw_theme_manager_detail_save_modal_already_assigned_warning %}
+                        <sw-alert
+                            v-if="overwrittenSalesChannelAssignments.length > 0"
+                            variant="warning">
+
+                            <div class="sw-theme-manager-detail__sales-channel-warning" v-if="overwrittenSalesChannelAssignments.length === 1">
+                                <span v-html="$tc('sw-theme-manager.modal.salesChannelAlreadyAssignedModal.descriptionSingle', 0, { newThemeName: theme.name })"></span>
+                            </div>
+
+                            <div class="sw-theme-manager-detail__sales-channel-warning" v-else>
+                                <span v-html="$tc('sw-theme-manager.modal.salesChannelAlreadyAssignedModal.descriptionMultiple', 0, { newThemeName: theme.name })"></span>
+                            </div>
+
+                            <div v-for="salesChannel in overwrittenSalesChannelAssignments">
+                                <b>{{ salesChannel.oldThemeName }}</b> ({{ salesChannel.salesChannelName }})
+                            </div>
+                        </sw-alert>
+                    {% endblock %}
+
+                    {% block sw_theme_manager_detail_save_modal_removed_warning %}
+                        <sw-alert
+                            v-if="removedSalesChannels.length > 0"
+                            variant="warning">
+                            <div class="sw-theme-manager-detail__sales-channel-warning" v-if="removedSalesChannels.length === 1">
+                                <span v-html="$tc('sw-theme-manager.modal.salesChannelRemovedModal.descriptionSingle', 0, { defaultThemeName: defaultTheme.name })"></span>
+                            </div>
+
+                            <div class="sw-theme-manager-detail__sales-channel-warning" v-else>
+                                <span v-html="$tc('sw-theme-manager.modal.salesChannelRemovedModal.descriptionMultiple', 0, { defaultThemeName: defaultTheme.name })"></span>
+                            </div>
+
+                            <div v-for="salesChannel in removedSalesChannels">
+                                <b>{{ theme.name }}</b> ({{ salesChannel.name }})
+                            </div>
+                        </sw-alert>
                     {% endblock %}
 
                     {% block sw_theme_manager_detail_save_modal_footer %}

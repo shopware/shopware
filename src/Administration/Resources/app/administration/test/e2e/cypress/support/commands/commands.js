@@ -26,3 +26,62 @@ Cypress.Commands.add('takeSnapshot', (title, selectorToCheck = null, width = nul
     }
     cy.percySnapshot(title, width);
 });
+
+/**
+ * Returns dynamic sales channel associations, such as the country, shipping method, payment method and a default category id
+ * @memberOf Cypress.Chainable#
+ * @name createDefaultSalesChannel
+ * @function
+ */
+Cypress.Commands.add('createDefaultSalesChannel', () => {
+    const data = {};
+
+    return cy.searchViaAdminApi({
+        endpoint: 'payment-method',
+        data: {
+            field: 'name',
+            value: 'Invoice',
+        },
+    })
+        .then((paymentMethod) => {
+            data.paymentMethod = paymentMethod;
+
+            return cy.searchViaAdminApi({
+                endpoint: 'shipping-method',
+                data: {
+                    field: 'name',
+                    value: 'Standard',
+                },
+            });
+        })
+        .then((shippingMethod) => {
+            data.shippingMethod = shippingMethod;
+
+            return cy.searchViaAdminApi({
+                endpoint: 'category',
+                data: {
+                    field: 'name',
+                    value: 'Home',
+                },
+            });
+        })
+        .then((category) => {
+            data.category = category;
+
+            return cy.searchViaAdminApi({
+                endpoint: 'country',
+                data: {
+                    field: 'name',
+                    value: 'USA',
+                },
+            });
+        })
+        .then((country) => {
+            return cy.createDefaultFixture('sales-channel', {
+                paymentMethodId: data.paymentMethod.id,
+                countryId: country.id,
+                navigationCategoryId: data.category.id,
+                shippingMethodId: data.shippingMethod.id,
+            });
+        });
+});

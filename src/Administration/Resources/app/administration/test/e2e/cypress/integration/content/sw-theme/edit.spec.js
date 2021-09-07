@@ -45,7 +45,7 @@ describe('Theme: Test common editing of theme', () => {
 
         cy.get('.sw-modal').should('be.visible');
         cy.get('.sw_theme_manager__confirm-save-text')
-            .contains('Do you really want to save the changes? This will change the visualization of your shop.');
+            .contains('Do you really want to save the changes? This will change the appearance of your shops.');
         cy.get('.sw-modal__footer > .sw-button--primary').click();
 
         cy.wait('@saveData').its('response.statusCode').should('equal', 200);
@@ -125,7 +125,7 @@ describe('Theme: Test common editing of theme', () => {
 
         cy.get('.sw-modal').should('be.visible');
         cy.get('.sw_theme_manager__confirm-save-text')
-            .contains('Do you really want to save the changes? This will change the visualization of your shop.');
+            .contains('Do you really want to save the changes? This will change the appearance of your shops.');
         cy.get('.sw-modal__footer > .sw-button--primary').click();
 
         cy.wait('@saveData').its('response.statusCode').should('equal', 200);

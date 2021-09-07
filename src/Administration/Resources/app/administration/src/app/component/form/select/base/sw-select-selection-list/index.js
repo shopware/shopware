@@ -63,6 +63,11 @@ Component.register('sw-select-selection-list', {
             required: false,
             default: false,
         },
+        selectionDisablingMethod: {
+            type: Function,
+            required: false,
+            default: () => false,
+        },
         hideLabels: {
             type: Boolean,
             required: false,
@@ -77,6 +82,14 @@ Component.register('sw-select-selection-list', {
     },
 
     methods: {
+        isSelectionDisabled(selection) {
+            if (this.disabled) {
+                return true;
+            }
+
+            return this.selectionDisablingMethod(selection);
+        },
+
         onClickInvisibleCount() {
             this.$emit('total-count-click');
         },

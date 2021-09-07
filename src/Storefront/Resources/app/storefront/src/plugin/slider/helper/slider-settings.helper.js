@@ -18,6 +18,10 @@ export default class SliderSettingsHelper {
         const viewportWidth = window.breakpoints[viewport.toLowerCase()];
         const selectedViewportSettings = responsiveSettings[viewportWidth];
 
+        if (!selectedViewportSettings) {
+            return settings;
+        }
+
         return deepmerge(settings, selectedViewportSettings);
     }
 

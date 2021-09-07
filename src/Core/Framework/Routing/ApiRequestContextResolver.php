@@ -16,7 +16,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\HttpFoundation\Request;
 
 class ApiRequestContextResolver implements RequestContextResolverInterface

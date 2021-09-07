@@ -192,5 +192,8 @@
 
             <tag name="kernel.event_subscriber"/>
         </service>
+        <service id="Shopware\Core\System\SalesChannel\Subscriber\SalesChannelTypeValidator">
+            <tag name="kernel.event_subscriber"/>
+        </service>
     </services>
 </container>

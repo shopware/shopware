@@ -585,6 +585,10 @@
         "customerTagRule": "Kunden Tag",
         "customerNumberRule": "Kundennummer",
         "differentAddressesRule": "Abweichende Adressen",
+        "emailRule": {
+          "label": "E-Mail-Adresse des Kunden",
+          "placeholder": "Eindeutige E-Mail-Adresse eingeben, oder \"*\" als Platzhalterzeichen verwenden ..."
+        },
         "isNewCustomerRule": "Neuer Kunde",
         "lastNameRule": "Nachname",
         "isCompanyRule": "Firmenkunde",

@@ -157,6 +157,10 @@ Component.register('sw-datepicker', {
             return listeners;
         },
 
+        userTimeZone() {
+            return Shopware?.State?.get('session')?.currentUser?.timeZone ?? 'UTC';
+        },
+
         timezoneFormattedValue: {
             get() {
                 if (!this.value) {
@@ -168,9 +172,7 @@ Component.register('sw-datepicker', {
                 }
 
                 // convert from UTC timezone to user timezone (represented as UTC)
-                const userTimeZone = Shopware?.State?.get('session')?.currentUser?.timeZone ?? 'UTC';
-
-                const userTimezoneDate = utcToZonedTime(this.value, userTimeZone);
+                const userTimezoneDate = utcToZonedTime(this.value, this.userTimeZone);
 
                 // get the time converted to the user timezone
                 return userTimezoneDate.toISOString();
@@ -182,9 +184,7 @@ Component.register('sw-datepicker', {
                 }
 
                 // convert from user timezone (represented as UTC) to UTC timezone
-                const userTimeZone = Shopware?.State?.get('session')?.currentUser?.timeZone ?? 'UTC';
-
-                const utcDate = zonedTimeToUtc(new Date(newValue), userTimeZone);
+                const utcDate = zonedTimeToUtc(new Date(newValue), this.userTimeZone);
 
                 // emit the UTC time so that the v-model value always work in UTC time (which is needed for the server)
                 this.$emit('input', utcDate.toISOString());

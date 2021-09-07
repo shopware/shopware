@@ -30,6 +30,11 @@
         />
     </template>
 
+    <template #hint>
+        <sw-icon name="solid-clock" size="12px"/>
+        {{ userTimeZone }}
+    </template>
+
     <template #sw-contextual-field-suffix>
         <sw-icon
             :name="suffixName"

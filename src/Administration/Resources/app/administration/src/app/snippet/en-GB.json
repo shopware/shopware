@@ -585,6 +585,10 @@
         "customerTagRule": "Customer tag",
         "customerNumberRule": "Customer number",
         "differentAddressesRule": "Different addresses",
+        "emailRule": {
+          "label": "Customer email address",
+          "placeholder": "Enter a distinct email address or use \"*\" as a wildcard character ..."
+        },
         "isNewCustomerRule": "New customer",
         "lastNameRule": "Last name",
         "isCompanyRule": "Business customer",

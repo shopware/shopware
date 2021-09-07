@@ -1,0 +1,19 @@
+{% block sw_condition_value_content %}
+<div class="sw-condition-email sw-condition__condition-value">
+    {% block sw_condition_email_field_operator %}
+    <sw-condition-operator-select
+        v-bind="{ operators, condition }"
+        :disabled="disabled"
+    />
+    {% endblock %}
+
+    {% block sw_condition_email_field_email %}
+    <sw-text-field
+        v-model="email"
+        size="medium"
+        :placeholder="$tc('global.sw-condition.condition.emailRule.placeholder')"
+        :disabled="disabled"
+    />
+    {% endblock %}
+</div>
+{% endblock %}

@@ -71,6 +71,11 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         label: 'global.sw-condition.condition.differentAddressesRule',
         scopes: ['checkout'],
     });
+    ruleConditionService.addCondition('customerEmail', {
+        component: 'sw-condition-email',
+        label: 'global.sw-condition.condition.emailRule.label',
+        scopes: ['checkout'],
+    });
     ruleConditionService.addCondition('customerIsNewCustomer', {
         component: 'sw-condition-is-new-customer',
         label: 'global.sw-condition.condition.isNewCustomerRule',

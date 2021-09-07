@@ -22,11 +22,11 @@ class SalesChannelTypeValidator implements EventSubscriberInterface
     public function preWriteValidateEvent(PreWriteValidationEvent $event): void
     {
         foreach ($event->getCommands() as $command) {
-            if (!$command instanceof DeleteCommand || $command->getDefinition() instanceof SalesChannelTypeDefinition) {
+            if (!$command instanceof DeleteCommand || !$command->getDefinition() instanceof SalesChannelTypeDefinition) {
                 continue;
             }
 
-            $id = Uuid::fromBytesToHex($command->getPrimaryKey()['sales_channel_type_id']);
+            $id = Uuid::fromBytesToHex($command->getPrimaryKey()['id']);
 
             if (\in_array($id, [Defaults::SALES_CHANNEL_TYPE_API, Defaults::SALES_CHANNEL_TYPE_STOREFRONT, Defaults::SALES_CHANNEL_TYPE_PRODUCT_COMPARISON], true)) {
                 $event->getExceptions()->add(new DefaultSalesChannelTypeCannotBeDeleted($id));

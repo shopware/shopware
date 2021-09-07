@@ -7,13 +7,13 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Exception\DefaultSalesChannelTypeCannotBeDeleted;
 
 class SalesChannelTypeValidatorTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use SalesChannelFunctionalTestBehaviour;
 
     /**
      * @dataProvider listAvailable
@@ -57,6 +57,18 @@ class SalesChannelTypeValidatorTest extends TestCase
         ], $context);
 
         static::assertNull($repo->searchIds(new Criteria([$id]), $context)->firstId());
+    }
+
+    public function testDeleteSalesChannel(): void
+    {
+        $id = $this->createSalesChannel()['id'];
+
+        $repo = $this->getContainer()->get('sales_channel.repository');
+        $repo->delete([
+            [
+                'id' => $id,
+            ],
+        ], Context::createDefaultContext());
     }
 
     public function listAvailable(): array

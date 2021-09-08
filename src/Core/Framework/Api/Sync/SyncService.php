@@ -51,6 +51,8 @@ class SyncService implements SyncServiceInterface
      */
     public function sync(array $operations, Context $context, SyncBehavior $behavior): SyncResult
     {
+        $context = clone $context;
+
         if (\count($behavior->getSkipIndexers())) {
             $context->addExtension(EntityIndexerRegistry::EXTENSION_INDEXER_SKIP, new ArrayEntity($behavior->getSkipIndexers()));
         }

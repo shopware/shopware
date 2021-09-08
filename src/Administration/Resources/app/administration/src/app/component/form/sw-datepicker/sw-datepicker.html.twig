@@ -30,8 +30,14 @@
         />
     </template>
 
-    <template #hint>
-        <sw-icon name="solid-clock" size="12px"/>
+    <template
+        v-if="showTimeZoneHint"
+        #hint
+    >
+        <sw-icon
+            name="solid-clock"
+            size="12px"
+        />
         {{ userTimeZone }}
     </template>
 

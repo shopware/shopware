@@ -96,7 +96,7 @@ export default class ImportExportService extends ApiService {
             logId: logEntry.data.log.id,
         }, { headers: this.getBasicHeaders() });
 
-        callback.call(this);
+        callback.call(this, logEntry.data.log);
 
         return logEntry;
     }

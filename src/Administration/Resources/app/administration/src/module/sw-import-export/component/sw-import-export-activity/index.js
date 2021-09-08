@@ -184,10 +184,20 @@ Shopware.Component.register('sw-import-export-activity', {
             return this.fetchActivities();
         },
 
+        addActivity(log) {
+            this.logs.addAt(log, 0);
+        },
+
         async fetchActivities() {
             this.isLoading = true;
 
-            this.logs = await this.logRepository.search(this.activityCriteria);
+            const logs = await this.logRepository.search(this.activityCriteria);
+
+            if (this.logs) {
+                this.updateActivitiesFromLogs(logs);
+            }
+
+            this.logs = logs;
 
             this.isLoading = false;
         },
@@ -230,6 +240,7 @@ Shopware.Component.register('sw-import-export-activity', {
                     if (log.activity === 'import' && log.records === 0) {
                         this.createNotificationWarning({
                             message: this.$tc('sw-import-export.importer.messageImportWarning', 0),
+                            autoClose: false,
                         });
                     }
 

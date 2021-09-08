@@ -16,7 +16,6 @@ variables:
     MYSQL_CMD: '' # use $MYSQL8_CMD for mysql >= 8
     MYSQL8_CMD: 'mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON'
 
-
 default:
     image: $DEV_IMAGE
     services:
@@ -170,6 +169,21 @@ Jest (Administration):
     script:
         - '(cd $CI_PROJECT_DIR/vendor/shopware/administration/Resources/app/administration/ && npm ci)'
         - cd ${PLUGIN_SOURCE_DIR}Resources/app/administration/
+        - npm ci
+        - '$(npm bin)/jest --config jest.config.js --ci'
+    coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
+
+Jest (Storefront):
+    stage: test
+    needs: []
+    rules:
+        - exists:
+              - ${PLUGIN_SOURCE_DIR}Resources/app/storefront/jest.config.js
+    variables:
+        ADMIN_PATH: $CI_PROJECT_DIR/${PLUGIN_SOURCE_DIR}Administration/Resources/app/administration
+        STOREFRONT_PATH: $CI_PROJECT_DIR/${PLUGIN_SOURCE_DIR}Storefront/Resources/app/storefront
+    script:
+        - cd ${PLUGIN_SOURCE_DIR}Resources/app/storefront/
         - npm ci
         - '$(npm bin)/jest --config jest.config.js --ci'
     coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'

@@ -190,6 +190,10 @@ Component.register('sw-datepicker', {
                 this.$emit('input', utcDate.toISOString());
             },
         },
+
+        showTimeZoneHint() {
+            return this.dateType === 'datetime';
+        },
     },
 
     watch: {

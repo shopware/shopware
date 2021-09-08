@@ -102,8 +102,24 @@ describe('src/app/component/form/sw-datepicker', () => {
         expect(wrapper.find('label').text()).toEqual('Label from slot');
     });
 
-    it('should show the UTC timezone as a hint when no timezone was selected', () => {
+    it('should not show the actual user timezone as a hint when it is not a datetime', () => {
+        Shopware.State.get('session').currentUser = {
+            timeZone: 'Europe/Berlin'
+        };
+
         wrapper = createWrapper();
+
+        const hint = wrapper.find('.sw-field__hint');
+
+        expect(hint.exists()).toBe(false);
+    });
+
+    it('should show the UTC timezone as a hint when no timezone was selected and when datetime is datetime', () => {
+        wrapper = createWrapper({
+            propsData: {
+                dateType: 'datetime'
+            }
+        });
 
         const hint = wrapper.find('.sw-field__hint');
         const clockIcon = hint.find('sw-icon-stub[name="solid-clock"]');
@@ -112,12 +128,16 @@ describe('src/app/component/form/sw-datepicker', () => {
         expect(clockIcon.isVisible()).toBe(true);
     });
 
-    it('should show the actual user timezone as a hint', () => {
+    it('should show the actual user timezone as a hint when datetime is datetime', () => {
         Shopware.State.get('session').currentUser = {
             timeZone: 'Europe/Berlin'
         };
 
-        wrapper = createWrapper();
+        wrapper = createWrapper({
+            propsData: {
+                dateType: 'datetime'
+            }
+        });
 
         const hint = wrapper.find('.sw-field__hint');
         const clockIcon = hint.find('sw-icon-stub[name="solid-clock"]');

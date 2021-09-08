@@ -64,7 +64,7 @@ build zip:
         - ln -s "$PWD" "/plugins/$PLUGIN_NAME"
     script:
         - pack-plugin $PLUGIN_NAME
-        - '[[ -r $PLUGIN_NAME.zip ]] || echo "failed to create $PLUGIN_NAME.zip. Please run ./bin/init $PLUGIN_NAME" && exit 1'
+        - '[[ -r $PLUGIN_NAME.zip ]] || (echo "failed to create $PLUGIN_NAME.zip. Please run ./bin/init $PLUGIN_NAME" && exit 1)'
         - mv $PLUGIN_NAME.zip ${CI_PROJECT_DIR}/$PLUGIN_NAME.zip
     artifacts:
         name: '${CI_PROJECT_TITLE}.zip'

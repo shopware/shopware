@@ -66,7 +66,7 @@ Build Zip:
         - '[[ ! -r ${PLUGIN_SOURCE_DIR}Resources/app/storefront/package.json ]] || npm clean-install --prefix ${PLUGIN_SOURCE_DIR}Resources/app/storefront'
     script:
         - pack-plugin $PLUGIN_NAME
-        - '[[ -r $PLUGIN_NAME.zip ]] || failed to create $PLUGIN_NAME.zip'
+        - '[[ -r $PLUGIN_NAME.zip ]] || echo failed to create $PLUGIN_NAME.zip. Please run ./bin/init $PLUGIN_NAME'
         - mv $PLUGIN_NAME.zip ${CI_PROJECT_DIR}/$PLUGIN_NAME.zip
     artifacts:
         name: '${CI_PROJECT_TITLE}.zip'

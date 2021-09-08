@@ -44,5 +44,9 @@ if ($_SERVER['APP_DEBUG']) {
 
 $kernel = new HttpKernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG'], $classLoader);
 
+if ($_SERVER['COMPOSER_PLUGIN_LOADER'] ?? false) {
+    $kernel->setPluginLoader(new \Shopware\Core\Framework\Plugin\KernelPluginLoader\ComposerPluginLoader($classLoader));
+}
+
 $application = new Application($kernel->getKernel());
 $application->run($input);

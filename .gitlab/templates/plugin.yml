@@ -1,0 +1,228 @@
+stages:
+    - build
+    - test
+    - deploy
+
+variables:
+    PROJECT_ROOT: ${CI_PROJECT_DIR}
+    WEB_DOCUMENT_ROOT: $CI_PROJECT_DIR/public
+    MYSQL_ROOT_PASSWORD: root
+    GIT_STRATEGY: clone
+    # things plugins might want to override
+    PLATFORM_BRANCH: 'trunk'
+    DEV_IMAGE: shopware/development:7.4-composer-2
+    PLUGIN_SOURCE_DIR: 'src/' # use '' if it starts in the root dir
+    MYSQL_IMAGE: 'mysql:5.7'
+    MYSQL_CMD: 'mysqld' # use $MYSQL8_CMD for mysql >= 8
+    MYSQL8_CMD: 'mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON'
+
+default:
+    image: $DEV_IMAGE
+    services:
+        - name: mysql:5.7
+          alias: database
+          entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
+    before_script:
+        - export PLUGIN_NAME="${PLUGIN_NAME:-${CI_PROJECT_TITLE}}"
+        - echo "$PLUGIN_NAME"
+        - zip -rq plugin.zip .
+        - mv plugin.zip /tmp/plugin.zip
+        - rm -Rf .* * || true
+        - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.shopware.com/shopware/6/product/platform.git . --branch $PLATFORM_BRANCH
+        - mkdir -p custom/plugins || true
+        - unzip -q /tmp/plugin.zip -d custom/plugins/$PLUGIN_NAME
+        - composer install
+        - mkdir -p config/jwt || true
+        - bin/console system:generate-jwt || true
+        - bin/console system:install --drop-database --basic-setup --force
+        - chown -R application:application .
+        - bin/console plugin:refresh
+        - bin/console plugin:install --activate $PLUGIN_NAME
+        - bin/console bundle:dump
+        - /entrypoint supervisord > /dev/null 2>&1 &
+        - cd custom/plugins/$PLUGIN_NAME
+        - >
+            composer config repo.platform-packages --json '{"type": "path", "url": "../../../src/*", "canonical": true}';
+        - composer require 'shopware/core:6.4.*@dev' 'shopware/storefront:6.4.*@dev' 'shopware/administration:6.4.*@dev' 'shopware/elasticsearch:6.4.*@dev'
+
+build zip:
+    stage: build
+    image:
+        name: ghcr.io/friendsofshopware/platform-plugin-dev:v6.4.4
+        entrypoint: [""]
+    rules:
+        - exists:
+              - composer.json
+    variables:
+        DATABASE_URL: "mysql://root:root@database:3306/root?sslmode=disable&charset=utf8mb4"
+        PROJECT_ROOT: /opt/shopware
+        ADMIN_PATH: $CI_PROJECT_DIR/${PLUGIN_SOURCE_DIR}Administration/Resources/app/administration
+        STOREFRONT_PATH: $CI_PROJECT_DIR/${PLUGIN_SOURCE_DIR}Storefront/Resources/app/storefront
+    before_script:
+        - /opt/shopware/bin/console system:install --drop-database --basic-setup --force
+        - export PLUGIN_NAME="${PLUGIN_NAME:-${CI_PROJECT_TITLE}}"
+        - ln -s "$PWD" "/plugins/$PLUGIN_NAME"
+    script:
+        - pack-plugin $PLUGIN_NAME
+        - '[[ -r $PLUGIN_NAME.zip ]] || (echo "failed to create $PLUGIN_NAME.zip. Please run ./bin/init $PLUGIN_NAME" && exit 1)'
+        - mv $PLUGIN_NAME.zip ${CI_PROJECT_DIR}/$PLUGIN_NAME.zip
+    artifacts:
+        name: '${CI_PROJECT_TITLE}.zip'
+        paths:
+            - '*.zip'
+
+validate zip:
+    stage: test
+    image:
+        name: ghcr.io/friendsofshopware/platform-plugin-dev:v6.4.1
+        entrypoint: [""]
+    variables:
+        GIT_STRATEGY: none
+    needs:
+        - build zip
+    rules:
+        - exists:
+              - composer.json
+          if: '$CI_PROJECT_TITLE != "SwagPluginTemplate"'
+    before_script: []
+    script:
+        - export PLUGIN_NAME="${PLUGIN_NAME:-${CI_PROJECT_TITLE}}"
+        - plugin-uploader ext:validate $PWD/$PLUGIN_NAME.zip
+
+phpunit:
+    stage: test
+    needs: []
+    rules:
+        - exists:
+              - phpunit.xml*
+    script:
+        - php
+            -d pcov.enabled=1 -d pcov.directory=$PWD/src -d pcov.exclude='~(vendor|tests|node_modules)~'
+            vendor/bin/phpunit
+            --configuration phpunit.xml.dist
+            --log-junit ${CI_PROJECT_DIR}/phpunit.junit.xml
+            --colors=never
+            --coverage-cobertura ${CI_PROJECT_DIR}/cobertura.xml
+            --coverage-text | sed -E -n '1,/^\s*Lines:\s*([0-9]+(\.[0-9]+)?)%/ p' # do not output covered files lines
+    coverage: '/^\s*Lines:\s*(\d+(?:\.\d+)?%)/'
+    artifacts:
+        when: always
+        reports:
+            junit: phpunit.junit.xml
+            cobertura: cobertura.xml
+
+phpstan:
+    stage: test
+    needs: []
+    rules:
+        - exists:
+              - phpstan.neon*
+    script:
+        - php vendor/shopware/core/DevOps/StaticAnalyze/PHPStan/phpstan-bootstrap.php
+        - vendor/bin/phpstan analyze --error-format=gitlab --no-progress | tee ${CI_PROJECT_DIR}/phpstan-report.json
+    artifacts:
+        when: always
+        reports:
+            codequality: phpstan-report.json
+
+psalm:
+    stage: test
+    needs: []
+    rules:
+        - exists:
+              - psalm.xml*
+    script:
+        - vendor/bin/psalm --threads=$(nproc) --diff --show-info=false --report=${CI_PROJECT_DIR}/junit.xml
+    artifacts:
+        when: always
+        reports:
+            junit: junit.xml
+
+ecs:
+    stage: test
+    needs: []
+    rules:
+        - exists:
+              - ecs.php
+    script:
+        - vendor/bin/ecs
+
+validate snippets:
+    stage: test
+    needs: []
+    rules:
+        - changes:
+              - '**/*.json'
+    script:
+        - ${PROJECT_ROOT}/bin/console snippets:validate
+
+jest (administration):
+    stage: test
+    needs: []
+    rules:
+        # exists does not support variables, so we cannot use ${PLUGIN_SOURCE_DIR} here
+        - exists:
+              - src/Resources/app/administration/jest.config.js
+              - Resources/app/administration/jest.config.js
+    variables:
+        ADMIN_PATH: $CI_PROJECT_DIR/${PLUGIN_SOURCE_DIR}Administration/Resources/app/administration
+        STOREFRONT_PATH: $CI_PROJECT_DIR/${PLUGIN_SOURCE_DIR}Storefront/Resources/app/storefront
+    script:
+        - '(cd vendor/shopware/administration/Resources/app/administration/ && npm ci)'
+        - cd ${PLUGIN_SOURCE_DIR}Resources/app/administration/
+        - npm ci
+        - '$(npm bin)/jest --config jest.config.js --ci'
+    coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
+
+jest (storefront):
+    stage: test
+    needs: []
+    rules:
+        # exists does not support variables, so we cannot use ${PLUGIN_SOURCE_DIR} here
+        - exists:
+              - Resources/app/storefront/jest.config.js
+              - src/Resources/app/storefront/jest.config.js
+    variables:
+        ADMIN_PATH: $CI_PROJECT_DIR/${PLUGIN_SOURCE_DIR}Administration/Resources/app/administration
+        STOREFRONT_PATH: $CI_PROJECT_DIR/${PLUGIN_SOURCE_DIR}Storefront/Resources/app/storefront
+    script:
+        - cd ${PLUGIN_SOURCE_DIR}Resources/app/storefront/
+        - npm ci
+        - '$(npm bin)/jest --config jest.config.js --ci'
+    coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
+
+template filled:
+    stage: test
+    image: bash
+    needs: []
+    rules:
+        - exists:
+              - TEMPLATE
+          if: $CI_PROJECT_TITLE != "SwagPluginTemplate"
+    before_script: []
+    script:
+        - echo "run './bin/init $CI_PROJECT_TITLE'"
+        - exit 1
+
+upload zip to store:
+    stage: deploy
+    environment:
+        name: account.shopware.com
+        url: 'https://account.shopware.com'
+    image:
+        name: ghcr.io/friendsofshopware/platform-plugin-dev:v6.4.4
+        entrypoint: [""]
+    variables:
+        GIT_STRATEGY: none
+    needs:
+        - build zip
+        - validate zip
+    rules:
+        - exists:
+              - composer.json
+          if: '$ACCOUNT_USER && $ACCOUNT_PASSWORD && $CI_PROJECT_TITLE != "SwagPluginTemplate"'
+          when: manual
+    before_script: []
+    script:
+        - export PLUGIN_NAME="${PLUGIN_NAME:-${CI_PROJECT_TITLE}}"
+        - plugin-uploader ext:upload "$(realpath "$PLUGIN_NAME.zip")"

@@ -222,6 +222,10 @@ class HttpKernel
     private function getProjectDir()
     {
         if ($this->projectDir === null) {
+            if ($dir = $_ENV['PROJECT_ROOT'] ?? $_SERVER['PROJECT_ROOT'] ?? false) {
+                return $this->projectDir = $dir;
+            }
+
             $r = new \ReflectionObject($this);
 
             if (!file_exists($dir = $r->getFileName())) {

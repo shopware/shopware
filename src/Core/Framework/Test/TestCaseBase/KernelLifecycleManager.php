@@ -151,16 +151,7 @@ class KernelLifecycleManager
      */
     public static function getKernelClass(): string
     {
-        if (!EnvironmentHelper::hasVariable('KERNEL_CLASS')) {
-            throw new \LogicException(
-                sprintf(
-                    'You must set the KERNEL_CLASS environment variable to the fully-qualified class name of your Kernel in phpunit.xml / phpunit.xml.dist or override the %1$s::createKernel() or %1$s::getKernelClass() method.',
-                    static::class
-                )
-            );
-        }
-
-        if (!class_exists($class = EnvironmentHelper::getVariable('KERNEL_CLASS'))) {
+        if (!class_exists($class = EnvironmentHelper::getVariable('KERNEL_CLASS', Kernel::class))) {
             throw new \RuntimeException(
                 sprintf(
                     'Class "%s" doesn\'t exist or cannot be autoloaded. Check that the KERNEL_CLASS value in phpunit.xml matches the fully-qualified class name of your Kernel or override the %s::createKernel() method.',

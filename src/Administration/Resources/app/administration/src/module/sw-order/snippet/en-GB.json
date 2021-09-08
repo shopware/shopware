@@ -352,7 +352,18 @@
         "textNoCriteria": "No documents assigned"
       },
       "orderDateFilter": {
-        "label": "Order date"
+        "label": "Order date",
+        "options": {
+          "lastYear": "Last year",
+          "lastQuarter": "Last quarter",
+          "lastMonth": "Last month",
+          "lastWeek": "Last week",
+          "lastDay": "Last day",
+          "custom": "Custom"
+        }
+      },
+      "orderValueFilter": {
+        "label": "Order value"
       },
       "statusFilter": {
         "label": "Order status",

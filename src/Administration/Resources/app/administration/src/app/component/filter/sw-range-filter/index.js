@@ -7,6 +7,8 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-range-filter', {
     template,
 
+    inject: ['feature'],
+
     props: {
         value: {
             type: Object,
@@ -26,10 +28,16 @@ Component.register('sw-range-filter', {
     },
 
     computed: {
+        /**
+         * @feature-deprecated (flag:FEATURE_NEXT_7530) will be dropped
+         */
         columns() {
             return this.isShowDivider ? '1fr 12px 1fr' : '1fr';
         },
 
+        /**
+         * @feature-deprecated (flag:FEATURE_NEXT_7530) will be dropped
+         */
         gap() {
             return this.isShowDivider ? '4px' : '12px';
         },

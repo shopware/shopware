@@ -178,6 +178,11 @@ Component.register('sw-datepicker', {
                 return userTimezoneDate.toISOString();
             },
             set(newValue) {
+                if (newValue === null) {
+                    this.$emit('input', null);
+                    return;
+                }
+
                 if (this.dateType === 'time') {
                     this.$emit('input', newValue);
                     return;

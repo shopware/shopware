@@ -1,15 +1,26 @@
 {% block sw_date_filter %}
 <sw-range-filter
-    class="sw-date-filter"
+    :class="'sw-date-filter' + ((filter.showTimeframe) ? ' --has-timeframe' : '')"
     :value="dateValue"
     :title="filter.label"
     :active="active"
     :show-reset-button="!!dateValue.from || !!dateValue.to"
-    :is-show-divider="!isDateTimeType"
+    :is-show-divider="showDivider"
     :property="filter.property"
     @filter-update="updateFilter"
     @filter-reset="resetFilter"
 >
+    {% block sw_date_filter_timeframe %}
+    <sw-single-select
+        v-if="feature.isActive('FEATURE_NEXT_7530') && filter.showTimeframe"
+        v-model="dateValue.timeframe"
+        class="sw-date-filter__timeframe"
+        placeholder="Select timeframe"
+        :options="timeframeOptions"
+        @change="onTimeframeSelect"
+    />
+    {% endblock %}
+
     {% block sw_date_filter_from_field %}
     <template #from-field>
         <sw-datepicker
@@ -18,7 +29,8 @@
             class="sw-date-filter__from"
             :date-type="dateType"
             :placeholder="filter.fromPlaceholder"
-            :label="$tc('global.default.from')"
+            :label="fromToFieldLabel('from')"
+            @input="resetTimeframe"
         />
     </template>
     {% endblock %}
@@ -31,7 +43,8 @@
             class="sw-date-filter__to"
             :date-type="dateType"
             :placeholder="filter.toPlaceholder"
-            :label="$tc('global.default.to')"
+            :label="fromToFieldLabel('to')"
+            @input="resetTimeframe"
         />
     </template>
     {% endblock %}

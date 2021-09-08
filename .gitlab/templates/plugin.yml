@@ -37,7 +37,7 @@ default:
         - bin/console system:install --drop-database --basic-setup --force
         - chown -R application:application .
         - bin/console plugin:refresh
-        - bin/console plugin:install --refresh --activate $PLUGIN_NAME
+        - bin/console plugin:install --activate $PLUGIN_NAME
         - bin/console bundle:dump
         - /entrypoint supervisord > /dev/null 2>&1 &
         - cd custom/plugins/$PLUGIN_NAME

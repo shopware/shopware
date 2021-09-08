@@ -71,7 +71,7 @@
         {% block sw_import_export_exporter_modal_exporter %}
         <sw-import-export-exporter
             :source-entity="exportModalProfile"
-            @export-started="$emit('export-started')"
+            @export-started="$emit('export-started', $event)"
         />
         {% endblock %}
 

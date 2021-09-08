@@ -89,7 +89,7 @@
         {% block sw_import_export_importer_modal_exporter %}
         <sw-import-export-importer
             :source-entity="importModalProfile"
-            @import-started="$emit('import-started')"
+            @import-started="$emit('import-started', $event)"
         />
         {% endblock %}
 

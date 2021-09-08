@@ -101,17 +101,13 @@ Shopware.Component.register('sw-import-export-exporter', {
             });
         },
 
-        handleProgress() {
+        handleProgress(log) {
             this.createNotificationSuccess({
                 message: this.$tc('sw-import-export.exporter.messageExportStarted', 0),
             });
 
-            this.onProgressStarted();
-        },
-
-        onProgressStarted() {
             this.isLoading = false;
-            this.$emit('export-started');
+            this.$emit('export-started', log);
         },
 
         setExportModalProfile(profileName) {

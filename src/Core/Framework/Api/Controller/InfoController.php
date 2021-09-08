@@ -108,7 +108,7 @@ class InfoController extends AbstractController
         $apiType = $request->query->getAlpha('type', DefinitionService::TypeJsonApi);
         $data = $this->definitionService->generate(OpenApi3Generator::FORMAT, DefinitionService::API, $apiType);
 
-        return $this->json($data);
+        return new JsonResponse($data);
     }
 
     /**
@@ -119,7 +119,7 @@ class InfoController extends AbstractController
     {
         $data = $this->definitionService->getSchema(OpenApi3Generator::FORMAT, DefinitionService::API);
 
-        return $this->json($data);
+        return new JsonResponse($data);
     }
 
     /**
@@ -130,7 +130,7 @@ class InfoController extends AbstractController
     {
         $data = $this->definitionService->getSchema(EntitySchemaGenerator::FORMAT, DefinitionService::API);
 
-        return $this->json($data);
+        return new JsonResponse($data);
     }
 
     /**
@@ -190,7 +190,7 @@ class InfoController extends AbstractController
      */
     public function config(): JsonResponse
     {
-        return $this->json([
+        return new JsonResponse([
             'version' => $this->params->get('kernel.shopware_version'),
             'versionRevision' => $this->params->get('kernel.shopware_version_revision'),
             'adminWorker' => [
@@ -229,7 +229,7 @@ class InfoController extends AbstractController
      */
     public function infoShopwareVersion(): JsonResponse
     {
-        return $this->json([
+        return new JsonResponse([
             'version' => $this->params->get('kernel.shopware_version'),
         ]);
     }

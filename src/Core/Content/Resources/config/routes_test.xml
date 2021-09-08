@@ -5,4 +5,6 @@
         https://symfony.com/schema/routing/routing-1.0.xsd">
 
     <import resource="../../Test/Media/File/MediaFileFetchRedirectTestController.php" type="annotation" />
+
+    <import resource="../../Test/**/*Route.php" type="annotation" />
 </routes>

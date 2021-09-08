@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\DependencyInjection\CompilerPass;
 use Shopware\Core\Content\Category\Service\NavigationLoader;
 use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
 use Shopware\Core\Content\Seo\HreflangLoaderInterface;
+use Shopware\Core\Content\Seo\SeoUrlUpdater;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
@@ -18,6 +19,7 @@ class ContainerVisibilityCompilerPass implements CompilerPassInterface
         NavigationLoader::class,
         HreflangLoaderInterface::class,
         ProductLineItemFactory::class,
+        SeoUrlUpdater::class,
     ];
 
     public function process(ContainerBuilder $container): void

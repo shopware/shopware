@@ -4,7 +4,8 @@ namespace Shopware\Core\Content\Test\Seo\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
+use Shopware\Core\Content\Test\TestNavigationSeoUrlRoute;
+use Shopware\Core\Content\Test\TestProductSeoUrlRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -17,21 +18,12 @@ class StoreApiSeoResolverTest extends TestCase
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
-    /**
-     * @see \Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute::ROUTE_NAME
-     */
-    private const NAVIGATION_SEO_URL_ROUTE_NAME = 'frontend.navigation.page';
-
     private KernelBrowser $browser;
 
     private TestDataCollection $ids;
 
     protected function setUp(): void
     {
-        if (!$this->isSeoRoutePresent()) {
-            static::markTestSkipped('SeoRoute test need the storefront bundle to be present.');
-        }
-
         $this->ids = new TestDataCollection(Context::createDefaultContext());
 
         $this->createData();
@@ -76,7 +68,7 @@ class StoreApiSeoResolverTest extends TestCase
         static::assertIsArray($response['extensions']);
         static::assertArrayHasKey('seoUrls', $response);
         static::assertCount(1, $response['seoUrls']);
-        static::assertSame(self::NAVIGATION_SEO_URL_ROUTE_NAME, $response['seoUrls'][0]['routeName']);
+        static::assertSame(TestNavigationSeoUrlRoute::ROUTE_NAME, $response['seoUrls'][0]['routeName']);
         static::assertSame($this->ids->get('category'), $response['seoUrls'][0]['foreignKey']);
         static::assertSame('foo', $response['seoUrls'][0]['pathInfo']);
     }
@@ -98,7 +90,7 @@ class StoreApiSeoResolverTest extends TestCase
         static::assertIsArray($response['extensions']);
         static::assertArrayHasKey('seoUrls', $response);
         static::assertCount(1, $response['seoUrls']);
-        static::assertSame(self::NAVIGATION_SEO_URL_ROUTE_NAME, $response['seoUrls'][0]['routeName']);
+        static::assertSame(TestNavigationSeoUrlRoute::ROUTE_NAME, $response['seoUrls'][0]['routeName']);
         static::assertSame($this->ids->get('category'), $response['seoUrls'][0]['foreignKey']);
         static::assertSame('foo', $response['seoUrls'][0]['pathInfo']);
 
@@ -115,6 +107,15 @@ class StoreApiSeoResolverTest extends TestCase
             ],
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'active' => true,
+            'seoUrls' => [
+                [
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'routeName' => TestProductSeoUrlRoute::ROUTE_NAME,
+                    'pathInfo' => 'foo',
+                    'seoPathInfo' => 'foo',
+                    'isCanonical' => true,
+                ],
+            ],
         ];
 
         $products = [];
@@ -155,7 +156,7 @@ class StoreApiSeoResolverTest extends TestCase
             'seoUrls' => [
                 [
                     'languageId' => Defaults::LANGUAGE_SYSTEM,
-                    'routeName' => self::NAVIGATION_SEO_URL_ROUTE_NAME,
+                    'routeName' => TestNavigationSeoUrlRoute::ROUTE_NAME,
                     'pathInfo' => 'foo',
                     'seoPathInfo' => 'foo',
                     'isCanonical' => true,
@@ -181,12 +182,5 @@ class StoreApiSeoResolverTest extends TestCase
 
         $this->getContainer()->get('product.repository')
             ->update($products, $this->ids->context);
-    }
-
-    private function isSeoRoutePresent(): bool
-    {
-        return $this->getContainer()
-            ->get(SeoUrlRouteRegistry::class)
-            ->findByRouteName(self::NAVIGATION_SEO_URL_ROUTE_NAME) !== null;
     }
 }

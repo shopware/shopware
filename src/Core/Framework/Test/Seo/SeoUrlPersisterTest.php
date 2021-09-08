@@ -9,6 +9,7 @@ use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlGenerator;
 use Shopware\Core\Content\Seo\SeoUrlPersister;
+use Shopware\Core\Content\Test\TestNavigationSeoUrlRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -19,7 +20,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
-use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
 
 class SeoUrlPersisterTest extends TestCase
 {
@@ -314,15 +314,14 @@ class SeoUrlPersisterTest extends TestCase
 
     public function testUpdateSeoUrlsShouldMarkSeoUrlAsDeleted(): void
     {
-        $isActive = false;
-        $category = $this->createCategory($isActive);
+        $category = $this->createCategory(false);
         $this->createSeoUrlInDatabase($category->getId(), $this->salesChannel->getId());
 
         $seoUrls = $this->generateSeoUrls($category->getId());
 
         $this->seoUrlPersister->updateSeoUrls(
             Context::createDefaultContext(),
-            'frontend.navigation.page',
+            TestNavigationSeoUrlRoute::ROUTE_NAME,
             [$category->getId()],
             $seoUrls,
             $this->salesChannel
@@ -425,8 +424,8 @@ class SeoUrlPersisterTest extends TestCase
         $this->seoUrlRepository->create([
             [
                 'foreignKey' => $categoryId,
-                'routeName' => 'frontend.navigation.page',
-                'pathInfo' => sprintf('navigation/%s', $categoryId),
+                'routeName' => TestNavigationSeoUrlRoute::ROUTE_NAME,
+                'pathInfo' => sprintf('test/%s', $categoryId),
                 'salesChannelId' => $salesChannelId,
                 'seoPathInfo' => 'FancyCategory',
                 'isCanonical' => true,
@@ -437,10 +436,6 @@ class SeoUrlPersisterTest extends TestCase
 
     private function generateSeoUrls(string $categoryId): iterable
     {
-        if (!$this->getContainer()->has(NavigationPageSeoUrlRoute::class)) {
-            static::markTestSkipped('Test needs StorefrontBundle to be installed');
-        }
-
         /** @var SalesChannelEntity|null $salesChannel */
         $salesChannel = $this->getContainer()->get('sales_channel.repository')
             ->search(
@@ -456,7 +451,7 @@ class SeoUrlPersisterTest extends TestCase
         return $this->seoUrlGenerator->generate(
             [$categoryId],
             'mytemplate',
-            $this->getContainer()->get(NavigationPageSeoUrlRoute::class),
+            $this->getContainer()->get(TestNavigationSeoUrlRoute::class),
             Context::createDefaultContext(),
             $salesChannel
         );

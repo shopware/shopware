@@ -4,20 +4,25 @@ stages:
     - deploy
 
 variables:
-    PLATFORM_BRANCH: 'trunk'
     PROJECT_ROOT: ${CI_PROJECT_DIR}
     WEB_DOCUMENT_ROOT: $CI_PROJECT_DIR/public
-    ADMIN_PATH: $CI_PROJECT_DIR/src/Administration/Resources/app/administration
-    STOREFRONT_PATH: $CI_PROJECT_DIR/src/Storefront/Resources/app/storefront
     MYSQL_ROOT_PASSWORD: root
-    DEV_IMAGE: shopware/development:7.4-composer-2
     GIT_STRATEGY: clone
+    # things plugins might want to override
+    PLATFORM_BRANCH: 'trunk'
+    DEV_IMAGE: shopware/development:7.4-composer-2
+    PLUGIN_SOURCE_DIR: 'src/' # use '' if it starts in the root dir
+    MYSQL_IMAGE: 'mysql:5.7'
+    MYSQL_CMD: '' # use $MYSQL8_CMD for mysql >= 8
+    MYSQL8_CMD: 'mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON'
+
 
 default:
     image: $DEV_IMAGE
     services:
-        -   name: mariadb:10.4
-            alias: database
+        - name: mysql:5.7
+          alias: database
+          entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
     before_script:
         - export PLUGIN_NAME="${PLUGIN_NAME:-${CI_PROJECT_TITLE}}"
         - echo "$PLUGIN_NAME"
@@ -52,12 +57,14 @@ Build Zip:
     variables:
         DATABASE_URL: "mysql://root:root@database:3306/root?sslmode=disable&charset=utf8mb4"
         PROJECT_ROOT: /opt/shopware
+        ADMIN_PATH: $CI_PROJECT_DIR/${PLUGIN_SOURCE_DIR}Administration/Resources/app/administration
+        STOREFRONT_PATH: $CI_PROJECT_DIR/${PLUGIN_SOURCE_DIR}Storefront/Resources/app/storefront
     before_script:
         - /opt/shopware/bin/console system:install --drop-database --basic-setup --force
         - export PLUGIN_NAME="${PLUGIN_NAME:-${CI_PROJECT_TITLE}}"
         - ln -s "$PWD" "/plugins/$PLUGIN_NAME"
-        - '[[ ! -r src/Resources/app/administration/package.json ]] || npm clean-install --prefix src/Resources/app/administration'
-        - '[[ ! -r src/Resources/app/storefront/package.json ]] || npm clean-install --prefix src/Resources/app/storefront'
+        - '[[ ! -r ${PLUGIN_SOURCE_DIR}Resources/app/administration/package.json ]] || npm clean-install --prefix ${PLUGIN_SOURCE_DIR}Resources/app/administration'
+        - '[[ ! -r ${PLUGIN_SOURCE_DIR}Resources/app/storefront/package.json ]] || npm clean-install --prefix ${PLUGIN_SOURCE_DIR}Resources/app/storefront'
     script:
         - pack-plugin $PLUGIN_NAME
         - '[[ -r $PLUGIN_NAME.zip ]] || failed to create $PLUGIN_NAME.zip'
@@ -87,9 +94,6 @@ validate zip:
 phpunit:
     stage: test
     needs: []
-    services:
-        - name: mysql:5.7
-          alias: database
     rules:
         - exists:
               - phpunit.xml*
@@ -154,41 +158,18 @@ Validate snippets:
     script:
         - ${PROJECT_ROOT}/bin/console snippets:validate
 
-Check built JS files:
-    stage: test
-    needs: []
-    rules:
-        - exists:
-              - src/Resources/app/*
-    script:
-        - ${PROJECT_ROOT}/bin/console plugin:dump
-        - '[[ ! -r src/Resources/app/administration/package.json ]] || npm clean-install --prefix src/Resources/app/administration'
-        - '[[ ! -r src/Resources/app/storefront/package.json ]] || npm clean-install --prefix src/Resources/app/storefront'
-        - '(cd vendor/shopware/administration/Resources/app/administration/ && npm ci)'
-        - npm run build --prefix vendor/shopware/administration/Resources/app/administration/
-        - '(cd vendor/shopware/storefront/Resources/app/storefront/ && npm ci)'
-        - npm run production --prefix vendor/shopware/storefront/Resources/app/storefront/
-        - '(cd shopware/storefront/Resources/app/storefront && node copy-to-vendor.js)'
-        - >
-            if ! git diff --quiet --ignore-submodules HEAD -- src; then
-                echo "Built Javascript files differ. Update the dependencies and build again";
-                git status;
-                exit 1;
-            else
-                echo "Everything ok"
-                exit 0;
-            fi
-    allow_failure: true
-
 Jest (Administration):
     stage: test
     needs: []
     rules:
         - exists:
-              - src/Resources/app/administration/jest.config.js
+              - ${PLUGIN_SOURCE_DIR}Resources/app/administration/jest.config.js
+    variables:
+        ADMIN_PATH: $CI_PROJECT_DIR/${PLUGIN_SOURCE_DIR}Administration/Resources/app/administration
+        STOREFRONT_PATH: $CI_PROJECT_DIR/${PLUGIN_SOURCE_DIR}Storefront/Resources/app/storefront
     script:
-        - '(cd vendor/shopware/administration/Resources/app/administration/ && npm ci)'
-        - cd src/Resources/app/administration/
+        - '(cd $CI_PROJECT_DIR/vendor/shopware/administration/Resources/app/administration/ && npm ci)'
+        - cd ${PLUGIN_SOURCE_DIR}Resources/app/administration/
         - npm ci
         - '$(npm bin)/jest --config jest.config.js --ci'
     coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'

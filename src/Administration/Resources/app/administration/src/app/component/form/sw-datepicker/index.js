@@ -192,7 +192,10 @@ Component.register('sw-datepicker', {
         },
 
         showTimeZoneHint() {
-            return this.dateType === 'datetime';
+            return [
+                'datetime',
+                'datetime-local',
+            ].includes(this.dateType);
         },
     },
 

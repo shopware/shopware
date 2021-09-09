@@ -21,10 +21,7 @@ class PriceFieldSerializerTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    /**
-     * @var PriceFieldSerializer
-     */
-    protected $serializer;
+    protected PriceFieldSerializer $serializer;
 
     public function setUp(): void
     {
@@ -80,7 +77,7 @@ class PriceFieldSerializerTest extends TestCase
         static::assertSame('{"cb7d2554b0ce847cd82f3ac9bd1c0dfca":{"net":5.5,"gross":5.5,"currencyId":"b7d2554b0ce847cd82f3ac9bd1c0dfca","linked":true}}', $data);
     }
 
-    public function testEncoindingWithMultiplePrices(): void
+    public function testEncodingWithMultiplePrices(): void
     {
         $data = $this->encode([
             [
@@ -175,6 +172,86 @@ class PriceFieldSerializerTest extends TestCase
 
         $json = '{"cb7d2554b0ce847cd82f3ac9bd1c0dfca":{"net":5.0,"gross":5.0,"currencyId":"b7d2554b0ce847cd82f3ac9bd1c0dfca","linked":true,"listPrice":{"net":"10","gross":"10","currencyId":"b7d2554b0ce847cd82f3ac9bd1c0dfca","linked":true},"percentage":{"net":50.0,"gross":50.0}}}';
         static::assertSame($json, $data);
+    }
+
+    public function testSerializeWithZeroNetListPrice(): void
+    {
+        $data = $this->encode([
+            Defaults::CURRENCY => [
+                'net' => '5',
+                'gross' => '5',
+                'currencyId' => Defaults::CURRENCY,
+                'linked' => true,
+                'listPrice' => [
+                    'net' => '0',
+                    'gross' => '10',
+                    'currencyId' => Defaults::CURRENCY,
+                    'linked' => true,
+                ],
+            ],
+        ]);
+
+        $json = '{"cb7d2554b0ce847cd82f3ac9bd1c0dfca":{"net":5.0,"gross":5.0,"currencyId":"b7d2554b0ce847cd82f3ac9bd1c0dfca","linked":true,"listPrice":{"net":"0","gross":"10","currencyId":"b7d2554b0ce847cd82f3ac9bd1c0dfca","linked":true},"percentage":{"net":0.0,"gross":50.0}}}';
+        static::assertSame($json, $data);
+    }
+
+    public function testSerializeWithZeroGrossListPrice(): void
+    {
+        $data = $this->encode([
+            Defaults::CURRENCY => [
+                'net' => '5',
+                'gross' => '5',
+                'currencyId' => Defaults::CURRENCY,
+                'linked' => true,
+                'listPrice' => [
+                    'net' => '10',
+                    'gross' => '0',
+                    'currencyId' => Defaults::CURRENCY,
+                    'linked' => true,
+                ],
+            ],
+        ]);
+
+        $json = '{"cb7d2554b0ce847cd82f3ac9bd1c0dfca":{"net":5.0,"gross":5.0,"currencyId":"b7d2554b0ce847cd82f3ac9bd1c0dfca","linked":true,"listPrice":{"net":"10","gross":"0","currencyId":"b7d2554b0ce847cd82f3ac9bd1c0dfca","linked":true},"percentage":{"net":50.0,"gross":0.0}}}';
+        static::assertSame($json, $data);
+    }
+
+    public function testSerializeWithZeroListPrice(): void
+    {
+        $data = $this->encode([
+            Defaults::CURRENCY => [
+                'net' => '5',
+                'gross' => '5',
+                'currencyId' => Defaults::CURRENCY,
+                'linked' => true,
+                'listPrice' => [
+                    'net' => '0',
+                    'gross' => '0',
+                    'currencyId' => Defaults::CURRENCY,
+                    'linked' => true,
+                ],
+            ],
+        ]);
+
+        $json = '{"cb7d2554b0ce847cd82f3ac9bd1c0dfca":{"net":5.0,"gross":5.0,"currencyId":"b7d2554b0ce847cd82f3ac9bd1c0dfca","linked":true,"listPrice":{"net":"0","gross":"0","currencyId":"b7d2554b0ce847cd82f3ac9bd1c0dfca","linked":true},"percentage":null}}';
+        static::assertSame($json, $data);
+    }
+
+    public function testDecodeIsBackwardCompatible(): void
+    {
+        $json = '{"cb7d2554b0ce847cd82f3ac9bd1c0dfca":{"net":5.0,"gross":5.0,"currencyId":"b7d2554b0ce847cd82f3ac9bd1c0dfca","linked":true,"listPrice":{"net":"10","gross":"10","currencyId":"b7d2554b0ce847cd82f3ac9bd1c0dfca","linked":true}}}';
+
+        $field = new PriceField('test', 'test');
+
+        $decoded = $this->serializer->decode($field, $json);
+
+        $price = $decoded->get(Defaults::CURRENCY);
+
+        static::assertSame(5.0, $price->getNet());
+        static::assertSame(5.0, $price->getGross());
+        static::assertSame(10.0, $price->getListPrice()->getNet());
+        static::assertSame(10.0, $price->getListPrice()->getGross());
+        static::assertNull($price->getPercentage());
     }
 
     private function encode(array $data): string

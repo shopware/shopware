@@ -69,3 +69,13 @@ github sync:
       - git remote add github https://${GITHUB_SYNC_USER}:${GITHUB_SYNC_TOKEN}@github.com/shopware/platform
       - git fetch github
       - .gitlab/bin/git_sync.bash origin github
+
+deploy to cloud staging:
+    stage: deploy
+    when: manual
+    inherit:
+        variables: false
+    trigger: shopware-cloud/project-template
+    variables:
+        VERSION_ORIGIN_REF: '$CI_MERGE_REQUEST_PROJECT_PATH!$CI_MERGE_REQUEST_IID'
+        CUSTOM_VERSION: 'shopware/platform:dev-${CI_COMMIT_BRANCH}${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME} as 6.4.x-dev'

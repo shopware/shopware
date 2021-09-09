@@ -251,7 +251,8 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         expect(wrapper.find('.sw-bulk-edit-change-field-renderer').exists()).toBeTruthy();
     });
 
-    it('should disable status mails and documents by default', async () => {
+    // TODO: NEXT-6061 - unskip when we allow to send status mails and documents
+    it.skip('should disable status mails and documents by default', async () => {
         wrapper = await createWrapper();
 
         await flushPromises();
@@ -260,7 +261,8 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         expect(wrapper.find('.sw-bulk-edit-change-field-documents .sw-field__checkbox input').attributes().disabled).toBeTruthy();
     });
 
-    it('should enable status mails when one of the status fields has changed', async () => {
+    // TODO: NEXT-6061 - unskip when we allow to send status mails and documents
+    it.skip('should enable status mails when one of the status fields has changed', async () => {
         wrapper = createWrapper();
 
         await flushPromises();
@@ -280,7 +282,8 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         expect(wrapper.find('.sw-bulk-edit-change-field-statusMails .sw-field__checkbox input').attributes().disabled).toBeFalsy();
     });
 
-    it('should enable documents when status mails is enabled', async () => {
+    // TODO: NEXT-6061 - unskip when we allow to send status mails and documents
+    it.skip('should enable documents when status mails is enabled', async () => {
         wrapper = createWrapper();
 
         await flushPromises();

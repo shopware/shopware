@@ -215,7 +215,11 @@
                     >
                         {% block sw_product_list_bulk_edit_grid_columns_name %}
                         <template #column-name="{ item }">
-                            <router-link :to="{ name: 'sw.product.detail', params: { id: item.id } }">
+                            <router-link
+                                :to="{ name: 'sw.product.detail', params: { id: item.id } }"
+                                target="_blank"
+                                rel="noreferrer noopener"
+                            >
                                 {{ item.translated ? item.translated.name : item.name }}
                             </router-link>
                         </template>

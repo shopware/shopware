@@ -28,6 +28,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\NonIdPrimaryKeyTestDefinition;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -37,36 +39,19 @@ use Shopware\Core\System\Tax\TaxEntity;
 class EntityReaderTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use DataAbstractionLayerFieldTestBehaviour;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $productRepository;
+    private EntityRepositoryInterface $productRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $categoryRepository;
+    private EntityRepositoryInterface $categoryRepository;
 
-    /**
-     * @var EntityRepository
-     */
-    private $languageRepository;
+    private EntityRepository $languageRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $taxRepository;
+    private EntityRepositoryInterface $taxRepository;
 
-    /**
-     * @var string
-     */
-    private $deLanguageId;
+    private string $deLanguageId;
 
     protected function setUp(): void
     {
@@ -75,6 +60,33 @@ class EntityReaderTest extends TestCase
         $this->categoryRepository = $this->getContainer()->get('category.repository');
         $this->languageRepository = $this->getContainer()->get('language.repository');
         $this->deLanguageId = $this->getDeDeLanguageId();
+
+        $this->registerDefinition(NonIdPrimaryKeyTestDefinition::class);
+
+        $this->connection->rollBack();
+
+        $this->connection->executeUpdate('
+            DROP TABLE IF EXISTS `non_id_primary_key_test`;
+            CREATE TABLE `non_id_primary_key_test` (
+                `test_field` BINARY(16) NOT NULL,
+                `name` VARCHAR(255) NULL,
+                `created_at` DATETIME(3) NOT NULL,
+                `updated_at` DATETIME(3) NULL,
+                PRIMARY KEY (`test_field`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        ');
+
+        $this->connection->beginTransaction();
+    }
+
+    protected function tearDown(): void
+    {
+        $this->connection->rollBack();
+
+        $this->connection->executeUpdate('DROP TABLE `non_id_primary_key_test`');
+        $this->connection->beginTransaction();
+
+        parent::tearDown();
     }
 
     public function testTranslated(): void
@@ -1890,5 +1902,86 @@ class EntityReaderTest extends TestCase
 
             static::assertTrue($translations->count() >= 2);
         }
+    }
+
+    public function testSearchWithNonIdPK(): void
+    {
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
+
+        $data = [
+            [
+                'testField' => $id1,
+                'name' => 'test1',
+            ],
+            [
+                'testField' => $id2,
+                'name' => 'test2',
+            ],
+        ];
+
+        /** @var EntityRepositoryInterface $repository */
+        $repository = $this->getContainer()->get('non_id_primary_key_test.repository');
+
+        $repository->create($data, Context::createDefaultContext());
+
+        $result = $repository->search(new Criteria(), Context::createDefaultContext());
+
+        static::assertEquals(2, $result->getTotal());
+    }
+
+    public function testReadWithNonIdPKOverPropertyName(): void
+    {
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
+
+        $data = [
+            [
+                'testField' => $id1,
+                'name' => 'test1',
+            ],
+            [
+                'testField' => $id2,
+                'name' => 'test2',
+            ],
+        ];
+
+        /** @var EntityRepositoryInterface $repository */
+        $repository = $this->getContainer()->get('non_id_primary_key_test.repository');
+
+        $repository->create($data, Context::createDefaultContext());
+
+        $result = $repository->search(new Criteria([['testField' => $id1]]), Context::createDefaultContext());
+
+        static::assertEquals(1, $result->getTotal());
+    }
+
+    /**
+     * @deprecated tag: v6.5.0 - Can be safely removed when we remove support for reading of storage
+     */
+    public function testReadWithNonIdPKOverStorageName(): void
+    {
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
+
+        $data = [
+            [
+                'testField' => $id1,
+                'name' => 'test1',
+            ],
+            [
+                'testField' => $id2,
+                'name' => 'test2',
+            ],
+        ];
+
+        /** @var EntityRepositoryInterface $repository */
+        $repository = $this->getContainer()->get('non_id_primary_key_test.repository');
+
+        $repository->create($data, Context::createDefaultContext());
+
+        $result = $repository->search(new Criteria([['test_field' => $id1]]), Context::createDefaultContext());
+
+        static::assertEquals(1, $result->getTotal());
     }
 }

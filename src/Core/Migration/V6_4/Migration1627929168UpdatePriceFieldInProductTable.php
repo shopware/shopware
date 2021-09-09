@@ -3,7 +3,6 @@
 namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 class Migration1627929168UpdatePriceFieldInProductTable extends MigrationStep
@@ -15,33 +14,47 @@ class Migration1627929168UpdatePriceFieldInProductTable extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $connection->executeUpdate(
+        $connection->executeStatement(
             'UPDATE product
              SET price = JSON_SET(
                 price,
-                CONCAT("$.c", :currencyId, ".percentage"),
+                "$.cb7d2554b0ce847cd82f3ac9bd1c0dfca.percentage",
                 JSON_OBJECT(
                     "net",
-                    COALESCE(ROUND((
-                        100 - JSON_UNQUOTE(JSON_EXTRACT(
-                        price, CONCAT("$.c", :currencyId, ".net")
-                        )) / JSON_UNQUOTE(JSON_EXTRACT(price, CONCAT("$.c", :currencyId, ".listPrice.net"))) * 100
-                        ),2), 0),
+                    COALESCE(
+                        ROUND(
+                            (
+                                IF(
+                                    IFNULL(JSON_UNQUOTE(JSON_EXTRACT(price, "$.cb7d2554b0ce847cd82f3ac9bd1c0dfca.listPrice.net")), 0) = 0, 0,
+                                    100 - JSON_UNQUOTE(JSON_EXTRACT(price, CONCAT("$.cb7d2554b0ce847cd82f3ac9bd1c0dfca.net"))) /
+                                    JSON_UNQUOTE(JSON_EXTRACT(price, "$.cb7d2554b0ce847cd82f3ac9bd1c0dfca.listPrice.net")) * 100
+                                )
+                            ),
+                            2
+                        ),
+                        0
+                    ),
                     "gross",
-                    COALESCE(ROUND((
-                        100 - JSON_UNQUOTE(JSON_EXTRACT(
-                        price, CONCAT("$.c", :currencyId, ".gross")
-                        )) / JSON_UNQUOTE(JSON_EXTRACT(price, CONCAT("$.c", :currencyId, ".listPrice.gross"))) * 100
-                        ),2), 0)
-                    )
+                    COALESCE(
+                        ROUND(
+                                (
+                                    IF (
+                                        IFNULL(JSON_UNQUOTE(JSON_EXTRACT(price, "$.cb7d2554b0ce847cd82f3ac9bd1c0dfca.listPrice.gross")), 0) = 0,
+                                        0,
+                                        100 - JSON_UNQUOTE(JSON_EXTRACT(price, CONCAT("$.cb7d2554b0ce847cd82f3ac9bd1c0dfca.gross"))) /
+                                        JSON_UNQUOTE(JSON_EXTRACT(price, "$.cb7d2554b0ce847cd82f3ac9bd1c0dfca.listPrice.gross")) * 100
+                                    )
+                                )
+                            ,2
+                        ),
+                    0)
+                )
              )
-             WHERE JSON_UNQUOTE(JSON_EXTRACT(price, CONCAT("$.c", :currencyId, ".listPrice"))) IS NOT NULL',
-            ['currencyId' => Defaults::CURRENCY]
+             WHERE JSON_UNQUOTE(JSON_EXTRACT(price, "$.cb7d2554b0ce847cd82f3ac9bd1c0dfca.listPrice")) IS NOT NULL'
         );
     }
 
     public function updateDestructive(Connection $connection): void
     {
-        // implement update destructive
     }
 }

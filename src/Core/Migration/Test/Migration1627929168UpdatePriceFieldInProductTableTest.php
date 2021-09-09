@@ -20,11 +20,43 @@ class Migration1627929168UpdatePriceFieldInProductTableTest extends TestCase
     use KernelTestBehaviour;
     use DatabaseTransactionBehaviour;
 
+    private string $previousSqlMode;
+
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        $con = $this->getContainer()->get(Connection::class);
+
+        $this->previousSqlMode = $con->fetchOne('SELECT @@sql_mode');
+
+        $current = array_filter(explode(',', $this->previousSqlMode));
+
+        if (!\in_array('STRICT_ALL_TABLES', $current, true)) {
+            $current[] = 'STRICT_ALL_TABLES';
+        }
+
+        if (!\in_array('ERROR_FOR_DIVISION_BY_ZERO', $current, true)) {
+            $current[] = 'ERROR_FOR_DIVISION_BY_ZERO';
+        }
+
+        $con->executeStatement(sprintf('SET @@session.sql_mode = "%s"', implode(',', $current)));
+    }
+
+    public function tearDown(): void
+    {
+        parent::tearDown();
+        $con = $this->getContainer()->get(Connection::class);
+
+        $con->executeStatement(sprintf('SET @@session.sql_mode = "%s"', $this->previousSqlMode));
+    }
+
     /**
      * @dataProvider dataProvider
      */
     public function testUpdatePriceColumn(array $price, ?array $percentageResult): void
     {
+        $this->getContainer()->get(Connection::class)->executeStatement('SET @@session.sql_mode = "STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION"');
         $productId = $this->createProduct($price);
 
         $migration = new Migration1627929168UpdatePriceFieldInProductTable();
@@ -130,6 +162,44 @@ class Migration1627929168UpdatePriceFieldInProductTableTest extends TestCase
                     $currencyId => ['net' => 50, 'gross' => 50],
                 ],
             ],
+            'Product with list price with 0 in net' => [
+                [
+                    Defaults::CURRENCY => [
+                        'gross' => 5,
+                        'net' => 5,
+                        'linked' => true,
+                        'currencyId' => Defaults::CURRENCY,
+                        'listPrice' => [
+                            'gross' => 5,
+                            'net' => 0,
+                            'linked' => false,
+                            'currencyId' => Defaults::CURRENCY,
+                        ],
+                    ],
+                ],
+                [
+                    Defaults::CURRENCY => ['net' => 0, 'gross' => 0],
+                ],
+            ],
+            'Product with list price with 0 in gross' => [
+                [
+                    Defaults::CURRENCY => [
+                        'gross' => 5,
+                        'net' => 5,
+                        'linked' => true,
+                        'currencyId' => Defaults::CURRENCY,
+                        'listPrice' => [
+                            'gross' => 5,
+                            'net' => 0,
+                            'linked' => false,
+                            'currencyId' => Defaults::CURRENCY,
+                        ],
+                    ],
+                ],
+                [
+                    Defaults::CURRENCY => ['net' => 0, 'gross' => 0],
+                ],
+            ],
         ];
     }
 
@@ -155,6 +225,9 @@ class Migration1627929168UpdatePriceFieldInProductTableTest extends TestCase
         ];
 
         $this->getContainer()->get('product.repository')->create([$product], Context::createDefaultContext());
+
+        // The ProductFieldSerializer writes the percentage for us. This is bad for testing this migration. Remove it here again
+        $this->getContainer()->get(Connection::class)->executeStatement('UPDATE product SET price = JSON_REMOVE(price, "$.cb7d2554b0ce847cd82f3ac9bd1c0dfca.percentage")');
 
         return $id;
     }

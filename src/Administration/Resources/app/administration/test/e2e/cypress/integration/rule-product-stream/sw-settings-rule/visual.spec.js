@@ -145,6 +145,17 @@ describe('Rule builder: Visual tests', () => {
 
             cy.get('button.sw-button').contains('Subcondition').click();
             cy.get('.sw-condition').should('have.length', 2);
+
+            cy.get('.sw-condition').eq(1).as('subcontainer');
+            cy.get('@subcontainer').should('be.visible');
+
+            page.createBasicInputCondition({
+                selector: '@subcontainer',
+                type: 'Total number of products in cart',
+                operator: 'Is equal to',
+                inputName: 'count',
+                value: 100
+            });
         });
 
         // Take snapshot for visual testing
@@ -152,5 +163,14 @@ describe('Rule builder: Visual tests', () => {
         cy.get(page.elements.loader).should('not.exist');
         cy.get('.sw-condition').should('be.visible');
         cy.takeSnapshot('[Rule builder] Detail, rule with conditions', '.sw-condition');
+
+        // open filter modal
+        cy.get('.sw-condition-line-item-goods-total__filter')
+            .should('be.visible')
+            .click();
+
+        // Take snapshot for visual testing
+        cy.get('.sw-modal').should('be.visible');
+        cy.takeSnapshot('[Rule builder] Detail, condition modal', '.sw-modal');
     });
 });

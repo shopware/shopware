@@ -1,7 +1,7 @@
 {% block sw_condition_modal %}
 <sw-modal
     class="sw-condition-modal"
-    variant="full"
+    variant="large"
     :title="$tc('sw-settings-rule.conditionModal.modalTitle')"
     @modal-close="closeModal"
 >
@@ -18,23 +18,28 @@
 
     {% block sw_condition_modal_footer %}
     <template #modal-footer>
-        {% block sw_condition_modal_footer_delete %}
+        {# @deprecated tag:v6.5.0 - block will be removed. Use "sw_condition_modal_footer_cancel" instead #}
+        {% block sw_condition_modal_footer_delete %}{% endblock %}
+
+        {# @deprecated tag:v6.5.0 - block will be removed. Use "sw_condition_modal_footer_save" instead #}
+        {% block sw_condition_modal_footer_close %}{% endblock %}
+
+        {% block sw_condition_modal_footer_cancel %}
         <sw-button
-            variant="danger"
             size="small"
-            @click="deleteAndClose"
+            @click="$emit('modal-close')"
         >
-            {{ $tc('sw-settings-rule.conditionModal.delete') }}
+            {{ $tc('global.default.cancel') }}
         </sw-button>
         {% endblock %}
 
-        {% block sw_condition_modal_footer_close %}
+        {% block sw_condition_modal_footer_save %}
         <sw-button
             variant="primary"
             size="small"
             @click="saveAndCloseModal"
         >
-            {{ $tc('sw-settings-rule.conditionModal.close') }}
+            {{ $tc('global.default.save') }}
         </sw-button>
         {% endblock %}
     </template>

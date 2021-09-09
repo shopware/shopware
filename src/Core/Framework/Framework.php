@@ -130,7 +130,7 @@ class Framework extends Bundle
             throw new \RuntimeException('Container parameter "kernel.cache_dir" needs to be a string');
         }
 
-        Feature::registerFeatures($featureFlags, $cacheDir . '/shopware_features.php');
+        Feature::registerFeatures($featureFlags);
 
         $this->registerEntityExtensions(
             $this->container->get(DefinitionInstanceRegistry::class),
@@ -173,10 +173,6 @@ class Framework extends Bundle
         $configLoader->load($confDir . '/{packages}/' . $environment . '/*' . Kernel::CONFIG_EXTS, 'glob');
         if ($environment === 'e2e') {
             $configLoader->load($confDir . '/{packages}/prod/*' . Kernel::CONFIG_EXTS, 'glob');
-        }
-        $shopwareFeaturesPath = $cacheDir . '/shopware_features.php';
-        if (is_readable($shopwareFeaturesPath)) {
-            $configLoader->load($shopwareFeaturesPath, 'php');
         }
     }
 

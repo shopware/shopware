@@ -171,6 +171,62 @@ class TranslatorTest extends TestCase
         $this->translator->resetInMemoryCache();
     }
 
+    public function testTranslatorCustomLocaleAndFallback(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $snippets = [
+            [
+                'translationKey' => 'new.unit.test.key',
+                'value' => 'Realized with Unit test',
+                'setId' => $this->getSnippetSetIdForLocale('en-GB'),
+                'author' => 'Shopware',
+            ],
+            [
+                'translationKey' => 'new.unit.test.key',
+                'value' => 'Realisiert mit Unit test',
+                'setId' => $this->getSnippetSetIdForLocale('de-DE'),
+                'author' => 'Shopware',
+            ],
+        ];
+        $this->snippetRepository->create($snippets, $context);
+
+        // fake request
+        $request = new Request();
+
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID, $this->getSnippetSetIdForLocale('en-GB'));
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE, 'en-GB');
+
+        $this->getContainer()->get(RequestStack::class)->push($request);
+
+        // get overwritten string
+        static::assertEquals(
+            $snippets[0]['value'],
+            $this->translator->trans('new.unit.test.key', [], null, 'en-GB')
+        );
+        static::assertEquals(
+            $snippets[1]['value'],
+            $this->translator->trans('new.unit.test.key', [], null, 'de-DE')
+        );
+        static::assertEquals(
+            $snippets[0]['value'],
+            $this->translator->trans('new.unit.test.key', [], null, 'en')
+        );
+        static::assertEquals(
+            $snippets[1]['value'],
+            $this->translator->trans('new.unit.test.key', [], null, 'de-DE')
+        );
+        static::assertEquals(
+            $snippets[0]['value'],
+            $this->translator->trans('new.unit.test.key')
+        );
+
+        static::assertSame(
+            $request,
+            $this->getContainer()->get(RequestStack::class)->pop()
+        );
+    }
+
     public function testDeleteSnippet(): void
     {
         $snippetRepository = $this->getContainer()->get('snippet.repository');

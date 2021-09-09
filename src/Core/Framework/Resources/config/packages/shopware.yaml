@@ -329,6 +329,11 @@ shopware:
               major: true
               description: "Refactor `sw-simple-search-field` component to a transparent wrapper component"
               # issue: NEXT-16271
+            - name: FEATURE_NEXT_17016
+              default: false
+              major: true
+              description: "Add, update or improve the selection and specification of Rule Builder Condition Fields."
+              # issue: NEXT-17016
 
 
     logger:

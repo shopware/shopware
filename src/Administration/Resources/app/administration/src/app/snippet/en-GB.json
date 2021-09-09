@@ -508,11 +508,13 @@
       "placeholderSearchField": "Find products, customers, orders...",
       "placeholderTypeSearchField": "Search \"{entity}\"...",
       "placeholderShortcutInfo": "Hint: Press the \"f\" key to get to the search bar faster.",
-      "placeholderSearchShortcutInfo": "Hint: Press the <span>f</span> key to get to the search bar faster.",
+      "placeholderSearchShortcutInfo": "Press <span>f</span> to search.",
       "moduleFiltersHeadline": "Module filters",
       "placeholderFilterShortcutInfo": "Type <span>#</span> in the search to quickly set a module filter.",
       "searchTypeAll": "All",
-      "moduleFilter": "Module filter"
+      "moduleFilter": "Module filter",
+      "messageNoResultsV2": "We didn't find any exact matches for \"{term}\".",
+      "messageNoResultsDetailV2": "You might want to try using different keywords or check your inputs for typos."
     },
     "sw-search-bar-item": {
       "typeLabelCustomer": "Customer",

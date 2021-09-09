@@ -8,6 +8,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Seo\Hreflang\HreflangCollection;
 use Shopware\Core\Content\Seo\HreflangLoaderInterface;
 use Shopware\Core\Content\Seo\HreflangLoaderParameter;
+use Shopware\Core\Content\Test\TestProductSeoUrlRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -17,7 +18,6 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelD
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 
 class HreflangResolverTest extends TestCase
 {
@@ -31,10 +31,6 @@ class HreflangResolverTest extends TestCase
 
     protected function setUp(): void
     {
-        if (!$this->getContainer()->has(ProductPageSeoUrlRoute::class)) {
-            static::markTestSkipped('SeoRoute/Hreflang tests need the storefront bundle to be present.');
-        }
-
         parent::setUp();
         $this->cleanDefaultSalesChannelDomain();
 
@@ -78,9 +74,9 @@ class HreflangResolverTest extends TestCase
                 'id' => Uuid::randomHex(),
                 'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
                 'languageId' => $this->salesChannelContext->getSalesChannel()->getDomains()->first()->getLanguageId(),
-                'routeName' => 'frontend.detail.page',
+                'routeName' => TestProductSeoUrlRoute::ROUTE_NAME,
                 'foreignKey' => $productId,
-                'pathInfo' => '/detail/' . $productId,
+                'pathInfo' => '/test/' . $productId,
                 'seoPathInfo' => '/test-path',
             ],
         ], $this->salesChannelContext->getContext());
@@ -121,9 +117,9 @@ class HreflangResolverTest extends TestCase
                 'id' => Uuid::randomHex(),
                 'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
                 'languageId' => $languages->first()->getId(),
-                'routeName' => 'frontend.detail.page',
+                'routeName' => TestProductSeoUrlRoute::ROUTE_NAME,
                 'foreignKey' => $productId,
-                'pathInfo' => '/detail/' . $productId,
+                'pathInfo' => '/test/' . $productId,
                 'seoPathInfo' => 'test-path',
                 'isCanonical' => true,
             ],
@@ -134,9 +130,9 @@ class HreflangResolverTest extends TestCase
                 'id' => Uuid::randomHex(),
                 'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
                 'languageId' => $languages->last()->getId(),
-                'routeName' => 'frontend.detail.page',
+                'routeName' => TestProductSeoUrlRoute::ROUTE_NAME,
                 'foreignKey' => $productId,
-                'pathInfo' => '/detail/' . $productId,
+                'pathInfo' => '/test/' . $productId,
                 'seoPathInfo' => 'test-path',
                 'isCanonical' => true,
             ],
@@ -195,9 +191,9 @@ class HreflangResolverTest extends TestCase
                 'id' => Uuid::randomHex(),
                 'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
                 'languageId' => $languages->first()->getId(),
-                'routeName' => 'frontend.detail.page',
+                'routeName' => TestProductSeoUrlRoute::ROUTE_NAME,
                 'foreignKey' => $productId,
-                'pathInfo' => '/detail/' . $productId,
+                'pathInfo' => '/test/' . $productId,
                 'seoPathInfo' => 'test-path',
                 'isCanonical' => true,
             ],
@@ -208,9 +204,9 @@ class HreflangResolverTest extends TestCase
                 'id' => Uuid::randomHex(),
                 'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
                 'languageId' => $languages->last()->getId(),
-                'routeName' => 'frontend.detail.page',
+                'routeName' => TestProductSeoUrlRoute::ROUTE_NAME,
                 'foreignKey' => $productId,
-                'pathInfo' => '/detail/' . $productId,
+                'pathInfo' => '/test/' . $productId,
                 'seoPathInfo' => 'test-path',
                 'isCanonical' => true,
             ],
@@ -275,9 +271,9 @@ class HreflangResolverTest extends TestCase
                 'id' => Uuid::randomHex(),
                 'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
                 'languageId' => $languages->first()->getId(),
-                'routeName' => 'frontend.detail.page',
+                'routeName' => TestProductSeoUrlRoute::ROUTE_NAME,
                 'foreignKey' => $productId,
-                'pathInfo' => '/detail/' . $productId,
+                'pathInfo' => '/test/' . $productId,
                 'seoPathInfo' => 'test-path',
                 'isCanonical' => true,
             ],
@@ -288,9 +284,9 @@ class HreflangResolverTest extends TestCase
                 'id' => Uuid::randomHex(),
                 'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
                 'languageId' => $languages->last()->getId(),
-                'routeName' => 'frontend.detail.page',
+                'routeName' => TestProductSeoUrlRoute::ROUTE_NAME,
                 'foreignKey' => $productId,
-                'pathInfo' => '/detail/' . $productId,
+                'pathInfo' => '/test/' . $productId,
                 'seoPathInfo' => 'test-path',
                 'isCanonical' => true,
             ],
@@ -320,7 +316,7 @@ class HreflangResolverTest extends TestCase
 
     private function createParameter(string $productId): HreflangLoaderParameter
     {
-        return new HreflangLoaderParameter('frontend.detail.page', [
+        return new HreflangLoaderParameter(TestProductSeoUrlRoute::ROUTE_NAME, [
             'productId' => $productId,
         ], $this->salesChannelContext);
     }

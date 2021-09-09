@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayer
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\DateDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 
 class DateFieldSerializerTest extends TestCase
 {
@@ -24,25 +25,13 @@ class DateFieldSerializerTest extends TestCase
     use CacheTestBehaviour;
     use DataAbstractionLayerFieldTestBehaviour;
 
-    /**
-     * @var DateFieldSerializer
-     */
-    private $serializer;
+    private DateFieldSerializer $serializer;
 
-    /**
-     * @var DateField
-     */
-    private $field;
+    private DateField $field;
 
-    /**
-     * @var EntityExistence
-     */
-    private $existence;
+    private EntityExistence $existence;
 
-    /**
-     * @var WriteParameterBag
-     */
-    private $parameters;
+    private WriteParameterBag $parameters;
 
     protected function setUp(): void
     {
@@ -95,5 +84,20 @@ class DateFieldSerializerTest extends TestCase
         $decoded = $this->serializer->decode($this->field, $encoded);
 
         static::assertEquals($input[1], $decoded, 'Output should be ' . print_r($input[1], true));
+    }
+
+    public function testSerializerValidatesRequiredField(): void
+    {
+        $kvPair = new KeyValuePair('date', null, true);
+        $this->field->removeFlag(Required::class);
+
+        $encoded = $this->serializer->encode($this->field, $this->existence, $kvPair, $this->parameters)->current();
+        $decoded = $this->serializer->decode($this->field, $encoded);
+
+        static::assertNull($decoded);
+
+        $this->field->addFlags(new Required());
+        static::expectException(WriteConstraintViolationException::class);
+        $this->serializer->encode($this->field, $this->existence, $kvPair, $this->parameters)->current();
     }
 }

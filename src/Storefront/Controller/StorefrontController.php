@@ -40,7 +40,7 @@ abstract class StorefrontController extends AbstractController
 
         $salesChannelContext = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
 
-        $view = $this->get(TemplateFinder::class)->find($view, false, null);
+        $view = $this->getTemplateFinder()->find($view, false, null);
 
         $event = new StorefrontRenderEvent($view, $parameters, $request, $salesChannelContext);
         $this->get('event_dispatcher')->dispatch($event);
@@ -190,6 +190,8 @@ abstract class StorefrontController extends AbstractController
     protected function renderView(string $view, array $parameters = []): string
     {
         if (isset($this->twig)) {
+            $view = $this->getTemplateFinder()->find($view);
+
             return $this->twig->render($view, $parameters);
         }
 
@@ -201,5 +203,10 @@ abstract class StorefrontController extends AbstractController
         Feature::triggerDeprecated('FEATURE_NEXT_15687', '6.4.3.0', '6.5.0.0', $message);
 
         return parent::renderView($view, $parameters);
+    }
+
+    protected function getTemplateFinder(): TemplateFinder
+    {
+        return $this->get(TemplateFinder::class);
     }
 }

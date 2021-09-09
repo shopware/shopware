@@ -248,6 +248,15 @@
           },
           "skipSentDocuments": "Bereits verschickte Dokumente überspringen"
         }
+      },
+      "customFields": {
+        "cardTitle": "Freitextfelder",
+        "changeLabel": "Ändern: {name}"
+      },
+      "tags": {
+        "cardTitle": "Tags",
+        "changeLabel": "Ändern: Tags",
+        "placeholder": "Gib einen Tag ein ..."
       }
     }
   }

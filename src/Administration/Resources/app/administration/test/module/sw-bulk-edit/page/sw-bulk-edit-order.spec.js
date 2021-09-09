@@ -199,6 +199,18 @@ function createWrapper(isResponseError = false) {
                             }
 
                             return Promise.resolve();
+                        },
+
+                        bulkEditStatus: (selectedIds) => {
+                            if (isResponseError) {
+                                return Promise.reject(new Error('error occured'));
+                            }
+
+                            if (selectedIds.length === 0) {
+                                return Promise.reject();
+                            }
+
+                            return Promise.resolve();
                         }
                     };
                 }
@@ -234,11 +246,11 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         });
 
         Shopware.State.commit('shopwareApps/setSelectedIds', [Shopware.Utils.createId()]);
-        wrapper = createWrapper();
     });
 
     afterEach(() => {
         wrapper.destroy();
+        wrapper.vm.$router.push({ path: 'confirm' });
     });
 
     beforeAll(() => {
@@ -246,7 +258,8 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
     });
 
     it('should show all form fields', async () => {
-        wrapper = createWrapper();
+        wrapper = await createWrapper();
+        await flushPromises();
 
         expect(wrapper.find('.sw-bulk-edit-change-field-renderer').exists()).toBeTruthy();
     });
@@ -374,9 +387,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         const footerRight = wrapper.find('.footer-right');
         footerRight.find('button').trigger('click');
 
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.$route.path).toEqual('/success');
     });
@@ -384,6 +395,16 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
     it('should open error modal', async () => {
         wrapper = createWrapper(true);
         await flushPromises();
+
+        wrapper.setData({
+            bulkEditData: {
+                ...wrapper.vm.bulkEditData,
+                orderTransactions: {
+                    isChanged: true,
+                    value: '1'
+                }
+            }
+        });
 
         await wrapper.find('.sw-bulk-edit-order__save-action').trigger('click');
 
@@ -394,10 +415,38 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         const footerRight = wrapper.find('.footer-right');
         footerRight.find('button').trigger('click');
 
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.vm.$route.path).toEqual('/error');
+    });
+
+    it('should show tags and custom fields card', async () => {
+        wrapper = createWrapper();
+        await flushPromises();
+
+        const tagsCard = wrapper.find('.sw-bulk-edit-order-base__tags');
+        expect(tagsCard).toBeTruthy();
+
+        const customFieldsCard = wrapper.find('.sw-card sw-bulk-edit-order-base__custom_fields');
+        expect(customFieldsCard).toBeTruthy();
+
+        wrapper.vm.bulkEditData.customFields.isChanged = true;
+        wrapper.vm.bulkEditData.customFields.value = {
+            field1: 'abc'
+        };
+
+        await tagsCard.find('.sw-bulk-edit-change-field__change input').trigger('click');
+        await wrapper.vm.$nextTick();
+
+        const { syncData } = wrapper.vm.onProcessData();
+        await wrapper.vm.$nextTick();
+
+        const changeTagField = syncData[0];
+        expect(changeTagField.field).toBe('tags');
+        expect(changeTagField.type).toBe('overwrite');
+
+        const changeCustomField = syncData[1];
+        expect(changeCustomField.field).toBe('customFields');
+        expect(changeCustomField.value).toBe(wrapper.vm.bulkEditData.customFields.value);
     });
 });

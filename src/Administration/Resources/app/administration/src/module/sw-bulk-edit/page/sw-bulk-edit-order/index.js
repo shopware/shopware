@@ -51,6 +51,21 @@ Component.register('sw-bulk-edit-order', {
             return this.repositoryFactory.create('order');
         },
 
+        customFieldSetRepository() {
+            return this.repositoryFactory.create('custom_field_set');
+        },
+
+        customFieldSetCriteria() {
+            const criteria = new Criteria(1, 100);
+
+            criteria.addFilter(Criteria.equals('relations.entityName', 'order'));
+            criteria
+                .getAssociation('customFields')
+                .addSorting(Criteria.sort('config.customFieldPosition', 'ASC', true));
+
+            return criteria;
+        },
+
         statusFormFields() {
             return [
                 {
@@ -100,6 +115,24 @@ Component.register('sw-bulk-edit-order', {
                 //         changeLabel: this.$tc('sw-bulk-edit.order.status.documents.label'),
                 //     },
                 // },
+            ];
+        },
+
+        tagsFormFields() {
+            return [
+                {
+                    name: 'tags',
+                    config: {
+                        componentName: 'sw-entity-tag-select',
+                        entityCollection: this.order.tags,
+                        allowOverwrite: true,
+                        allowClear: true,
+                        allowAdd: true,
+                        allowRemove: true,
+                        changeLabel: this.$tc('sw-bulk-edit.order.tags.changeLabel'),
+                        placeholder: this.$tc('sw-bulk-edit.order.tags.placeholder'),
+                    },
+                },
             ];
         },
     },
@@ -154,6 +187,7 @@ Component.register('sw-bulk-edit-order', {
                 this.fetchStatusOptions('orders.id'),
                 this.fetchStatusOptions('orderTransactions.order.id'),
                 this.fetchStatusOptions('orderDeliveries.order.id'),
+                this.loadCustomFieldSets(),
             ]);
 
             this.isLoading = false;
@@ -164,6 +198,7 @@ Component.register('sw-bulk-edit-order', {
         loadBulkEditData() {
             const bulkEditFormGroups = [
                 this.statusFormFields,
+                this.tagsFormFields,
             ];
 
             bulkEditFormGroups.forEach((bulkEditForms) => {
@@ -174,6 +209,12 @@ Component.register('sw-bulk-edit-order', {
                         value: null,
                     });
                 });
+            });
+
+            this.$set(this.bulkEditData, 'customFields', {
+                isChanged: false,
+                type: 'overwrite',
+                value: {},
             });
 
             this.$set(this.bulkEditData, 'statusMails', {
@@ -284,20 +325,28 @@ Component.register('sw-bulk-edit-order', {
         },
 
         onProcessData() {
-            const data = [];
+            const data = {
+                statusData: [],
+                syncData: [],
+            };
+
             Object.keys(this.bulkEditData).forEach(key => {
                 const item = this.bulkEditData[key];
                 const dataPush = ['orderTransactions', 'orderDeliveries', 'orders'];
 
-                if (item.isChanged && dataPush.includes(key)) {
+                if (item.isChanged) {
                     const payload = {
                         field: key,
                         type: item.type,
                         value: item.value,
-                        sendMail: this.bulkEditData?.statusMails?.isChanged,
                     };
 
-                    data.push(payload);
+                    if (dataPush.includes(key)) {
+                        payload.sendMail = this.bulkEditData?.statusMails?.isChanged;
+                        data.statusData.push(payload);
+                    } else {
+                        data.syncData.push(payload);
+                    }
                 }
             });
 
@@ -315,11 +364,20 @@ Component.register('sw-bulk-edit-order', {
         onSave() {
             this.isLoading = true;
 
-            const data = this.onProcessData();
+            const { statusData, syncData } = this.onProcessData();
+            const bulkEditOrderHandler = this.bulkEditApiFactory.getHandler('order');
 
             const payloadChunks = chunk(this.selectedIds, this.itemsPerRequest);
-            const requests = payloadChunks.map(payload => {
-                return this.bulkEditApiFactory.getHandler('order').bulkEdit(payload, data);
+            const requests = [];
+
+            payloadChunks.forEach(payload => {
+                if (statusData.length) {
+                    requests.push(bulkEditOrderHandler.bulkEditStatus(payload, statusData));
+                }
+
+                if (syncData.length) {
+                    requests.push(bulkEditOrderHandler.bulkEdit(payload, syncData));
+                }
             });
 
             return Promise.all(requests)
@@ -331,6 +389,16 @@ Component.register('sw-bulk-edit-order', {
                 }).finally(() => {
                     this.isLoading = false;
                 });
+        },
+
+        loadCustomFieldSets() {
+            return this.customFieldSetRepository.search(this.customFieldSetCriteria).then((res) => {
+                this.customFieldSets = res;
+            });
+        },
+
+        onCustomFieldsChange(status) {
+            this.bulkEditData.customFields.isChanged = status;
         },
     },
 });

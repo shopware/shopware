@@ -1,3 +1,5 @@
+# this is a ci template for shopware plugins. See https://docs.gitlab.com/ee/ci/yaml/#include
+
 stages:
     - build
     - test
@@ -15,6 +17,13 @@ variables:
     MYSQL_IMAGE: 'mysql:5.7'
     MYSQL_CMD: 'mysqld' # use $MYSQL8_CMD for mysql >= 8
     MYSQL8_CMD: 'mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON'
+
+workflow:
+    rules:
+        # do not run on push
+        -   if: '$CI_PIPELINE_SOURCE == "push"'
+            when: never
+        -   when: always
 
 default:
     image: $DEV_IMAGE

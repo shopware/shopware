@@ -1984,4 +1984,38 @@ class EntityReaderTest extends TestCase
 
         static::assertEquals(1, $result->getTotal());
     }
+
+    public function testDirectlyReadFromTranslationEntity(): void
+    {
+        $repo = $this->getContainer()->get('category.repository');
+
+        $id = Uuid::randomHex();
+
+        $cats = [
+            [
+                'id' => $id,
+                'name' => 'system',
+                'translations' => [
+                    'de-DE' => [
+                        'name' => 'deutsch',
+                    ],
+                ],
+            ],
+        ];
+
+        $repo->create($cats, Context::createDefaultContext());
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('name', 'system'));
+
+        $result = $this->getContainer()->get('category_translation.repository')->search($criteria, Context::createDefaultContext());
+
+        static::assertEquals(1, $result->getTotal());
+
+        /** @var CategoryTranslationEntity $translation */
+        $translation = $result->first();
+        static::assertEquals('system', $translation->getName());
+        static::assertEquals(Defaults::LANGUAGE_SYSTEM, $translation->getLanguageId());
+        static::assertEquals($id, $translation->getCategoryId());
+    }
 }

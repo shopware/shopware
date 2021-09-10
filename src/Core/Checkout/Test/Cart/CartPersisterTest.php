@@ -3,8 +3,6 @@
 namespace Shopware\Core\Checkout\Test\Cart;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Statement;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartPersister;

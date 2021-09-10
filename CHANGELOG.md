@@ -139,6 +139,10 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-16770 - Fix JSON structure of App CMS blocks](/changelog/release-6-4-4-0/2021-08-25-fix-json-structure-of-app-cms-blocks.md)
 *  [NEXT-16968 - Pin symfony/translation to 5.3.4](./changelog/release-6-4-4-0/2021-08-30-pin-symfony-translation-to-5-3-4.md)
 
+## 6.4.3.1
+*  [NEXT-15675 - Improve file download](/changelog/release-6-4-3-1/2021-07-29-improve-file-download.md)
+*  [NEXT-15671 - Add `system.plugin_upload` privilege](./changelog/release-6-4-3-1/2021-07-30-add-plugin-upload-privilege.md)
+
 ## 6.4.3.0
 *  [NEXT-14114 - Add the new field is tax-free from to table currency and country.](/changelog/release-6-4-3-0/2021-03-10-add-new-field-tax-free-from-to-table-currency-and-country.md)
 *  [NEXT-14118 - Add VAT id required to each country setting](/changelog/release-6-4-3-0/2021-03-21-add-vat-id-required-to-each-country-setting.md)

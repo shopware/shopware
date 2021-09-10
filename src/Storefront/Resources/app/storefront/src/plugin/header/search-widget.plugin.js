@@ -170,17 +170,16 @@ export default class SearchWidgetPlugin extends Plugin {
      * @private
      */
     _registerInputFocus() {
-        try {
-            this._toggleButton = DomAccess.querySelector(document, this.options.searchWidgetCollapseButtonSelector);
-        } catch (e) {
-            // something went wrong
-            throw new Error(`the search-toggle-btn doesn´t own the "${this.options.searchWidgetCollapseButtonSelector}" class. So the search-input-field wont´t have an autofocus, on Mobile.`);
+        this._toggleButton = DomAccess.querySelector(document, this.options.searchWidgetCollapseButtonSelector, false);
+        
+        if (this._toggleButton) {
+            const event = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
+            this._toggleButton.addEventListener(event, () => {
+                setTimeout(() => this._focusInput(), 0);
+            });
+        } else {
+            console.warn(`the search-toggle-btn doesn´t own the "${this.options.searchWidgetCollapseButtonSelector}" class or does not exist. So the search-input-field wont´t have an autofocus, on Mobile.`);
         }
-
-        const event = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
-        this._toggleButton.addEventListener(event, () => {
-            setTimeout(() => this._focusInput(), 0);
-        });
     }
 
     /**
@@ -188,7 +187,7 @@ export default class SearchWidgetPlugin extends Plugin {
      * @private
      */
     _focusInput() {
-        if (!this._toggleButton.classList.contains(this.options.searchWidgetCollapseClass)) {
+        if (this._toggleButton && !this._toggleButton.classList.contains(this.options.searchWidgetCollapseClass)) {
             this._toggleButton.blur(); // otherwise iOS won´t focus the field.
             this._inputField.setAttribute('tabindex', '-1');
             this._inputField.focus();

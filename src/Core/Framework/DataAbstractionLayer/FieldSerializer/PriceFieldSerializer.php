@@ -73,15 +73,23 @@ class PriceFieldSerializer extends AbstractFieldSerializer
                 $price['gross'] = (float) $price['gross'];
                 $price['net'] = (float) $price['net'];
 
-                if (isset($price['listPrice']) && isset($price['listPrice']['gross'])) {
-                    $price['percentage'] = [
-                        'net' => round(100 - $price['net'] / $price['listPrice']['net'] * 100, 2),
-                        'gross' => round(100 - $price['gross'] / $price['listPrice']['gross'] * 100, 2),
-                    ];
+                if (isset($price['listPrice'])) {
+                    $price['percentage'] = null;
                 }
 
-                if (\array_key_exists('listPrice', $price) && $price['listPrice'] === null) {
-                    $price['percentage'] = null;
+                if (($price['listPrice']['net'] ?? 0) > 0 || ($price['listPrice']['gross'] ?? 0) > 0) {
+                    $price['percentage'] = [
+                        'net' => 0.0,
+                        'gross' => 0.0,
+                    ];
+
+                    if (($price['listPrice']['net'] ?? 0) > 0) {
+                        $price['percentage']['net'] = round(100 - $price['net'] / $price['listPrice']['net'] * 100, 2);
+                    }
+
+                    if (($price['listPrice']['gross'] ?? 0) > 0) {
+                        $price['percentage']['gross'] = round(100 - $price['gross'] / $price['listPrice']['gross'] * 100, 2);
+                    }
                 }
 
                 $converted['c' . $price['currencyId']] = $price;
@@ -137,7 +145,7 @@ class PriceFieldSerializer extends AbstractFieldSerializer
                         (float) $data['gross'],
                         (bool) $data['linked'],
                     ),
-                    $row['percentage']
+                    $row['percentage'] ?? null
                 )
             );
         }

@@ -163,6 +163,48 @@ class ThemeTest extends TestCase
         static::assertEquals($themeInheritedConfig, $theme);
     }
 
+    /**
+     * Check if a Theme without fieldconfigs will also be updateable
+     */
+    public function testInheritedBlankThemeConfig(): void
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('technicalName', StorefrontPluginRegistry::BASE_THEME_NAME));
+
+        /** @var ThemeEntity $baseTheme */
+        $baseTheme = $this->themeRepository->search($criteria, $this->context)->first();
+
+        $name = $this->createBlankTheme($baseTheme);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('name', $name));
+
+        /** @var ThemeEntity $childTheme */
+        $childTheme = $this->themeRepository->search($criteria, $this->context)->first();
+
+        $this->themeService->updateTheme(
+            $childTheme->getId(),
+            [
+                'sw-color-brand-primary' => [
+                    'value' => '#ff00ff',
+                ],
+            ],
+            null,
+            $this->context
+        );
+
+        $theme = $this->themeService->getThemeConfiguration($childTheme->getId(), false, $this->context);
+        $themeInheritedConfig = ThemeFixtures::getThemeInheritedConfig();
+
+        foreach ($themeInheritedConfig['fields'] as $key => $field) {
+            if ($field['type'] === 'media') {
+                $themeInheritedConfig['fields'][$key]['value'] = $theme['fields'][$key]['value'];
+            }
+        }
+
+        static::assertEquals($themeInheritedConfig, $theme);
+    }
+
     public function testInheritedSecondLevelThemeConfig(): void
     {
         $criteria = new Criteria();
@@ -555,6 +597,31 @@ class ThemeTest extends TestCase
                     'labels' => $parentTheme->getLabels(),
                     'customFields' => $parentTheme->getCustomFields(),
                     'previewMediaId' => $parentTheme->getPreviewMediaId(),
+                    'active' => true,
+                ],
+            ],
+            $this->context
+        );
+
+        return $name;
+    }
+
+    private function createBlankTheme(ThemeEntity $parentTheme): string
+    {
+        $name = 'test' . Uuid::randomHex();
+
+        $id = Uuid::randomHex();
+        $this->themeRepository->create(
+            [
+                [
+                    'id' => $id,
+                    'parentThemeId' => $parentTheme->getId(),
+                    'name' => $name,
+                    'technicalName' => $name,
+                    'createdAt' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    'description' => $parentTheme->getDescription(),
+                    'author' => $parentTheme->getAuthor(),
+                    'labels' => $parentTheme->getLabels(),
                     'active' => true,
                 ],
             ],

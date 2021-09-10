@@ -264,7 +264,7 @@ class ThemeService
 
         if ($theme->getConfigValues() !== null) {
             foreach ($theme->getConfigValues() as $fieldName => $configValue) {
-                if (isset($configuredTheme['fields']) && isset($configValue['value'])) {
+                if (isset($configValue['value'])) {
                     $configuredTheme['fields'][$fieldName]['value'] = $configValue['value'];
                 }
             }

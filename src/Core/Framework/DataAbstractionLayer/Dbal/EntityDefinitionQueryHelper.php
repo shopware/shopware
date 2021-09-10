@@ -559,8 +559,23 @@ class EntityDefinitionQueryHelper
 
             $where = [];
 
-            foreach ($primaryKey as $storageName => $value) {
-                $field = $definition->getFields()->getByStorageName($storageName);
+            foreach ($primaryKey as $propertyName => $value) {
+                $field = $definition->getFields()->get($propertyName);
+
+                /*
+                 * @deprecated tag:v6.5.0 - with 6.5.0 the only passing the propertyName will be supported
+                 */
+                if (!$field) {
+                    $field = $definition->getFields()->getByStorageName($propertyName);
+                }
+
+                if (!$field) {
+                    throw new UnmappedFieldException($propertyName, $definition);
+                }
+
+                if (!$field instanceof StorageAware) {
+                    throw new \RuntimeException('Only storage aware fields are supported in read condition');
+                }
 
                 if ($field instanceof IdField || $field instanceof FkField) {
                     $value = Uuid::fromHexToBytes($value);
@@ -568,11 +583,17 @@ class EntityDefinitionQueryHelper
 
                 $key = 'pk' . Uuid::randomHex();
 
-                $accessor = EntityDefinitionQueryHelper::escape($definition->getEntityName()) . '.' . EntityDefinitionQueryHelper::escape($storageName);
+                $accessor = EntityDefinitionQueryHelper::escape($definition->getEntityName()) . '.' . EntityDefinitionQueryHelper::escape($field->getStorageName());
 
-                $where[] = $accessor . ' = :' . $key;
+                /*
+                 * @deprecated tag:v6.5.0 - check for duplication in accessors will be removed,
+                 * when we only support propertyNames to be used in search and when IdSearchResult only returns the propertyNames
+                 */
+                if (!\array_key_exists($accessor, $where)) {
+                    $where[$accessor] = $accessor . ' = :' . $key;
 
-                $query->setParameter($key, $value);
+                    $query->setParameter($key, $value);
+                }
             }
 
             $wheres[] = '(' . implode(' AND ', $where) . ')';

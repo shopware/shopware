@@ -3,6 +3,8 @@
 namespace Shopware\Core\Checkout\Test\Cart;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Statement;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartPersister;
@@ -16,8 +18,11 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class CartPersisterTest extends TestCase
@@ -231,5 +236,47 @@ class CartPersisterTest extends TestCase
         static::assertInstanceOf(CartVerifyPersistEvent::class, $caughtEvent);
         static::assertTrue($caughtEvent->shouldBePersisted());
         static::assertCount(1, $caughtEvent->getCart()->getLineItems());
+    }
+
+    public function testCartVerifyPersistEventIsFiredAndModified(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $eventDispatcher = new EventDispatcher();
+
+        $caughtEvent = null;
+        $handler = static function (CartVerifyPersistEvent $event) use (&$caughtEvent): void {
+            $caughtEvent = $event;
+            $event->setShouldPersist(false);
+        };
+        $eventDispatcher->addListener(CartVerifyPersistEvent::class, $handler);
+
+        $persister = new CartPersister($connection, $eventDispatcher);
+
+        $cart = new Cart('shopware', 'existing');
+        $cart->addLineItems(new LineItemCollection([
+            new LineItem(Uuid::randomHex(), LineItem::PROMOTION_LINE_ITEM_TYPE, Uuid::randomHex(), 1),
+        ]));
+
+        $connection->expects(static::once())
+            ->method('delete')
+            ->with('`cart`', ['token' => $cart->getToken()]);
+
+        $persister->save(
+            $cart,
+            $this->getSalesChannelContext($cart->getToken())
+        );
+
+        static::assertInstanceOf(CartVerifyPersistEvent::class, $caughtEvent);
+        static::assertFalse($caughtEvent->shouldBePersisted());
+        static::assertCount(1, $caughtEvent->getCart()->getLineItems());
+
+        $eventDispatcher->removeListener(CartVerifyPersistEvent::class, $handler);
+    }
+
+    private function getSalesChannelContext(string $token): SalesChannelContext
+    {
+        return $this->getContainer()
+            ->get(SalesChannelContextFactory::class)
+            ->create($token, Defaults::SALES_CHANNEL);
     }
 }

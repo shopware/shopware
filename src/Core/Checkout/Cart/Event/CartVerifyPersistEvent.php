@@ -16,8 +16,9 @@ class CartVerifyPersistEvent extends Event implements ShopwareSalesChannelEvent
 
     protected bool $shouldPersist;
 
-    public function __construct(Cart $cart, bool $shouldPersist)
+    public function __construct(SalesChannelContext $context, Cart $cart, bool $shouldPersist)
     {
+        $this->context = $context;
         $this->cart = $cart;
         $this->shouldPersist = $shouldPersist;
     }
@@ -40,5 +41,10 @@ class CartVerifyPersistEvent extends Event implements ShopwareSalesChannelEvent
     public function shouldBePersisted(): bool
     {
         return $this->shouldPersist;
+    }
+
+    public function setShouldPersist(bool $persist): void
+    {
+        $this->shouldPersist = $persist;
     }
 }

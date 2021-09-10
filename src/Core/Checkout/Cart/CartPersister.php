@@ -69,7 +69,7 @@ class CartPersister implements CartPersisterInterface
             || $cart->getCustomerComment() !== null
             || $cart->getExtension(DeliveryProcessor::MANUAL_SHIPPING_COSTS) instanceof CalculatedPrice;
 
-        $event = new CartVerifyPersistEvent($cart, $shouldPersist);
+        $event = new CartVerifyPersistEvent($context, $cart, $shouldPersist);
 
         $this->eventDispatcher->dispatch($event);
 

@@ -56,7 +56,6 @@ class Migration1627929168UpdatePriceFieldInProductTableTest extends TestCase
      */
     public function testUpdatePriceColumn(array $price, ?array $percentageResult): void
     {
-        $this->getContainer()->get(Connection::class)->executeStatement('SET @@session.sql_mode = "STRICT_ALL_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION"');
         $productId = $this->createProduct($price);
 
         $migration = new Migration1627929168UpdatePriceFieldInProductTable();

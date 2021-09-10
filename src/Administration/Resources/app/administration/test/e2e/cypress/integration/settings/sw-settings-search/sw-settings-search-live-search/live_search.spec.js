@@ -64,7 +64,7 @@ describe('Search settings: Live Search', () => {
 
         cy.get('.sw-single-select').should('be.visible');
 
-        // typeSingleSelect seems to be buggy and require this delay
+        // typeSingleSelect seems to be buggy and require this delay, @see NEXT-17177
         cy.wait(500);
         // select a sales channel to search
         cy.get('.sw-single-select')
@@ -90,7 +90,7 @@ describe('Search settings: Live Search', () => {
             method: 'post'
         }).as('searchKeywords');
 
-        // typeSingleSelect seems to be buggy and require this delay
+        // typeSingleSelect seems to be buggy and require this delay, @see NEXT-17177
         cy.wait(500);
         cy.get('.sw-single-select').should('be.visible');
 
@@ -119,7 +119,7 @@ describe('Search settings: Live Search', () => {
             method: 'post'
         }).as('searchKeywords');
 
-        // typeSingleSelect seems to be buggy and require this delay
+        // typeSingleSelect seems to be buggy and require this delay, @see NEXT-17177
         cy.wait(500);
         // select a sales channel to search
         cy.get('.sw-single-select')

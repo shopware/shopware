@@ -63,6 +63,8 @@
                     })|sw_sanitize }}
                 </p>
             {% endblock %}
+        {% else %}
+            {% block component_delivery_information_default %}{% endblock %}
         {% endif %}
     </div>
 {% endblock %}

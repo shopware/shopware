@@ -40,6 +40,7 @@ class Migration1627541488AddForeignKeyForSalesChannelIdIntoSystemConfigTableTest
             'navigationCategoryId' => $this->getValidCategoryId(),
             'countryId' => $this->getValidCountryId(),
             'accessKey' => $salesChannelId,
+            'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
         ];
 
         $this->salesChannelRepository->create([$data], Context::createDefaultContext());

@@ -56,6 +56,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Storefront\Controller\AccountOrderController;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -71,70 +72,27 @@ class OrderRouteTest extends TestCase
     use PromotionTestFixtureBehaviour;
     use PromotionIntegrationTestBehaviour;
 
-    /**
-     * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
-     */
-    private $browser;
+    private KernelBrowser $browser;
 
-    /**
-     * @var EntityRepositoryInterface|null
-     */
-    private $orderRepository;
+    private ?EntityRepositoryInterface $orderRepository;
 
-    /**
-     * @var object|null
-     */
-    private $orderPersister;
+    private ?OrderPersister $orderPersister;
 
-    /**
-     * @var object|null
-     */
-    private $processor;
+    private ?StateMachineRegistry $stateMachineRegistry;
 
-    /**
-     * @var object|null
-     */
-    private $stateMachineRegistry;
+    private string $orderId;
 
-    /**
-     * @var string
-     */
-    private $orderId;
+    private SalesChannelContextPersister $contextPersister;
 
-    /**
-     * @var SalesChannelContextPersister
-     */
-    private $contextPersister;
+    private RequestCriteriaBuilder $requestCriteriaBuilder;
 
-    /**
-     * @var RequestCriteriaBuilder
-     */
-    private $requestCriteriaBuilder;
+    private string $customerId;
 
-    /**
-     * @var string
-     */
-    private $customerId;
+    private string $email;
 
-    /**
-     * @var string
-     */
-    private $email;
+    private string $password;
 
-    /**
-     * @var string
-     */
-    private $password;
-
-    /**
-     * @var Context
-     */
-    private $context;
-
-    /**
-     * @var string
-     */
-    private $defaultPaymentMethodId;
+    private string $defaultPaymentMethodId;
 
     private string $defaultCountryId;
 
@@ -149,11 +107,13 @@ class OrderRouteTest extends TestCase
         $this->defaultCountryId = $this->getValidCountryId(null);
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => Defaults::SALES_CHANNEL,
+            'languages' => [],
             'countryId' => $this->defaultCountryId,
             'countries' => \array_map(static function (CountryEntity $country) {
                 return ['id' => $country->getId()];
             }, $this->getValidCountries()->getEntities()->getElements()),
         ]);
+
         $this->assignSalesChannelContext($this->browser);
 
         $this->contextPersister = $this->getContainer()->get(SalesChannelContextPersister::class);

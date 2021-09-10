@@ -170,6 +170,7 @@ class SalesChannelRepositoryTest extends TestCase
             'navigationCategoryId' => $this->getValidCategoryId(),
             'countryId' => $this->getValidCountryId(),
             'accessKey' => $id,
+            'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
         ];
 
         $this->salesChannelRepository->create([$data], Context::createDefaultContext());

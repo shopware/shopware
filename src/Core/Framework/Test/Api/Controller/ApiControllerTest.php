@@ -27,6 +27,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
+use Shopware\Core\System\Test\SalesChannel\Validation\SalesChannelValidatorTest;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -2138,10 +2139,44 @@ EOF;
         static::assertEquals('Access token is expired', $jsonResponse['errors'][0]['detail']);
     }
 
-    private function createSalesChannel(string $id): void
+    public function testPreventCreationOfSalesChannelWithoutDefaultSalesChannelLanguage(): void
     {
-        $data = [
-            'id' => $id,
+        $salesChannelId = Uuid::randomHex();
+        $data = $this->getSalesChannelData($salesChannelId, $this->getNonSystemLanguageId());
+
+        $browser = $this->getBrowser();
+        $browser->request('POST', '/api/sales-channel/', $data, [], [], json_encode($data));
+
+        $response = $browser->getResponse();
+        static::assertSame(400, $response->getStatusCode());
+
+        $content = json_decode($response->getContent());
+        $error = $content->errors[0];
+
+        static::assertSame(sprintf(SalesChannelValidatorTest::INSERT_VALIDATION_MESSAGE, $salesChannelId), $error->detail);
+    }
+
+    public function testPreventDeletionOfDefaultSalesChannelLanguageFromLanguageList(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $this->createSalesChannel($salesChannelId);
+
+        $browser = $this->getBrowser();
+        $browser->request('DELETE', '/api/sales-channel/' . $salesChannelId . '/languages/' . Defaults::LANGUAGE_SYSTEM);
+
+        $response = $browser->getResponse();
+        static::assertSame(400, $response->getStatusCode());
+
+        $content = json_decode($response->getContent());
+        $error = $content->errors[0];
+
+        static::assertSame(sprintf(SalesChannelValidatorTest::DELETE_VALIDATION_MESSAGE, $salesChannelId), $error->detail);
+    }
+
+    private function getSalesChannelData(string $salesChannelId, $languageId = Defaults::LANGUAGE_SYSTEM): array
+    {
+        return [
+            'id' => $salesChannelId,
             'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),
             'typeId' => Defaults::SALES_CHANNEL_TYPE_API,
             'languageId' => Defaults::LANGUAGE_SYSTEM,
@@ -2156,13 +2191,18 @@ EOF;
             'countryId' => $this->getValidCountryId(),
             'countryVersionId' => Defaults::LIVE_VERSION,
             'currencies' => [['id' => Defaults::CURRENCY]],
-            'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
+            'languages' => [['id' => $languageId]],
             'shippingMethods' => [['id' => $this->getValidShippingMethodId()]],
             'paymentMethods' => [['id' => $this->getValidPaymentMethodId()]],
             'countries' => [['id' => $this->getValidCountryId()]],
             'name' => 'first sales-channel',
             'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
         ];
+    }
+
+    private function createSalesChannel(string $id): void
+    {
+        $data = $this->getSalesChannelData($id);
 
         $this->getContainer()->get('sales_channel.repository')->create([$data], Context::createDefaultContext());
     }

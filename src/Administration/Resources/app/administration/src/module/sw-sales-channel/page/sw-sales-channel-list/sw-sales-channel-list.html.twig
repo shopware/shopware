@@ -1,0 +1,140 @@
+{% block sw_sales_channel_list %}
+<sw-page class="sw-sales-channel-list">
+    {% block sw_sales_channel_list_search_bar %}
+    <template #search-bar>
+        <sw-search-bar
+            initial-search-type="sales_channel"
+            :placeholder="$tc('sw-sales-channel.list.placeholderSearchBar')"
+            :initial-search="term"
+            @search="onSearch"
+        />
+    </template>
+    {% endblock %}
+
+    {% block sw_sales_channel_list_smart_bar_header %}
+    <template #smart-bar-header>
+        {% block sw_sales_channel_list_smart_bar_header_title %}
+        <h2>
+            {% block sw_sales_channel_list_smart_bar_header_title_text %}
+            {{ $tc('sw-sales-channel.list.title') }}
+            {% endblock %}
+
+            {% block sw_sales_channel_list_smart_bar_header_amount %}
+            <span
+                v-if="!isLoading"
+                class="sw-page__smart-bar-amount"
+            >
+                ({{ total }})
+            </span>
+            {% endblock %}
+        </h2>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_sales_channel_list_actions %}
+    <template #smart-bar-actions>
+        {% block sw_sales_channel_list_smart_bar_actions %}
+        <sw-button
+            v-tooltip.bottom="{
+                message: $tc('sw-privileges.tooltip.warning'),
+                disabled: acl.can('sales_channel.creator'),
+                showOnDisabledElements: true
+            }"
+            :disabled="!acl.can('sales_channel.creator')"
+            variant="primary"
+            @click="onAddSalesChannel"
+        >
+            {{ $tc('sw-sales-channel.list.buttonAddSalesChannel') }}
+        </sw-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_sales_channel_list_content %}
+    <sw-card-view slot="content">
+        {% block sw_sales_channel_list_content_card %}
+        <sw-card
+            :is-loading="isLoading"
+            :title="$tc('sw-sales-channel.list.title')"
+            :subtitle="$tc('sw-sales-channel.list.subTitle')"
+        >
+            {% block sw_sales_channel_list_grid %}
+            <sw-entity-listing
+                slot="grid"
+                :is-loading="isLoading"
+                :columns="salesChannelColumns"
+                :repository="salesChannelRepository"
+                :items="salesChannels"
+                :full-page="false"
+                :show-selection="false"
+                :plain-appearance="true"
+                :show-settings="false"
+                :allow-column-edit="false"
+            >
+                {% block sw_sales_channel_list_grid_column_name %}
+                <template #column-name="{ item }">
+                    <sw-icon
+                        :name="item.type.iconName"
+                        size="18px"
+                    />
+                    <router-link
+                        :to="{
+                            name: 'sw.sales.channel.detail',
+                            params: { id: item.id }
+                        }"
+                    >{{ item.translated.name || item.name }}</router-link>
+                </template>
+                {% endblock %}
+
+                {% block sw_sales_channel_list_grid_column_product_visibilites %}
+                <template #column-product_visibilities="{ item }">
+                    {{ getCountForSalesChannel(item.id) }}
+                    {{ $tc('sw-sales-channel.list.productsCount') }}
+                </template>
+                {% endblock %}
+
+                {% block sw_sales_channel_list_grid_column_status %}
+                <template #column-status="{ item }">
+                    <template v-if="item.maintenance">
+                        <sw-status color="orange">
+                            {{ $tc('sw-sales-channel.list.status.maintenance') }}
+                        </sw-status>
+                    </template>
+
+                    <template v-else-if="item.active">
+                        <sw-status color="green">
+                            {{ $tc('sw-sales-channel.list.status.online') }}
+                        </sw-status>
+                    </template>
+
+                    <template v-else>
+                        <sw-status color="gray">
+                            {{ $tc('sw-sales-channel.list.status.offline') }}
+                        </sw-status>
+                    </template>
+                </template>
+                {% endblock %}
+
+                {% block sw_sales_channel_list_grid_actions %}
+                <template #actions="{ item }">
+                    {% block sw_sales_channel_list_grid_actions_item_detail %}
+                    <sw-context-menu-item
+                        :router-link="{
+                            name: 'sw.sales.channel.detail',
+                            params: { id: item.id }
+                        }"
+                    >
+                        {{ $tc('sw-sales-channel.list.contextMenuEdit') }}
+                    </sw-context-menu-item>
+                    {% endblock %}
+                </template>
+                {% endblock %}
+            </sw-entity-listing>
+            {% endblock %}
+        </sw-card>
+        {% endblock %}
+    </sw-card-view>
+    {% endblock %}
+</sw-page>
+{% endblock %}

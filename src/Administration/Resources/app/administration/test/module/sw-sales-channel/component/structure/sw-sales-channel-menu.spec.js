@@ -106,6 +106,13 @@ function createWrapper(salesChannels = [], privileges = []) {
                 name: 'sw-sales-channel-detail',
                 template: '<div class="sw-sales-channel-detail"></div>'
             })
+        }, {
+            name: 'sw.sales.channel.list',
+            path: '/sw/sales/channel/list',
+            component: localVue.component('sw-sales-channel-list', {
+                name: 'sw-sales-channel-list',
+                template: '<div class="sw-sales-channel-list"></div>'
+            })
         }]
     });
 
@@ -122,7 +129,9 @@ function createWrapper(salesChannels = [], privileges = []) {
             // eslint does not allow vue js templating syntax when used in a string
             // eslint-disable-next-line no-template-curly-in-string
             'sw-icon': { props: ['name'], template: '<div :class="`sw-icon sw-icon--${name}`"></div>' },
-            'sw-admin-menu-item': Shopware.Component.build('sw-admin-menu-item')
+            'sw-admin-menu-item': Shopware.Component.build('sw-admin-menu-item'),
+            'sw-context-button': true,
+            'sw-context-menu-item': true
         },
         provide: {
             acl: {
@@ -134,22 +143,26 @@ function createWrapper(salesChannels = [], privileges = []) {
             },
             repositoryFactory: {
                 create: () => ({
-                    search: (criteria, context) => Promise.resolve(new EntityCollection(
-                        'sales-channel',
-                        'sales_channel',
-                        context,
-                        criteria,
-                        salesChannels,
-                        salesChannels.length,
-                        null
-                    ))
+                    search: (criteria, context) => {
+                        const salesChannelsWithLimit = salesChannels.slice(0, criteria.limit);
+
+                        return Promise.resolve(new EntityCollection(
+                            'sales-channel',
+                            'sales_channel',
+                            context,
+                            criteria,
+                            salesChannelsWithLimit,
+                            salesChannels.length,
+                            null
+                        ));
+                    }
                 })
             }
         }
     });
 }
 
-describe('module/sw-sales-channel/component/structure/sw-admin-menu-extension', () => {
+describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu', () => {
     beforeEach(() => {
         Shopware.State.get('session').languageId = defaultAdminLanguageId;
     });
@@ -320,6 +333,85 @@ describe('module/sw-sales-channel/component/structure/sw-admin-menu-extension', 
 
         expect(links.at(0).classes().some(cssClass => activeLinkClasses.includes(cssClass))).toBe(true);
         expect(links.at(1).classes().some(cssClass => activeLinkClasses.includes(cssClass))).toBe(false);
+
+        wrapper.destroy();
+    });
+
+    it('shows "more" when more than 7 sales channels are available', async () => {
+        const wrapper = createWrapper([
+            storeFrontWithStandardDomain,
+            storefrontWithoutDefaultDomain,
+            headlessSalesChannel,
+            storefrontWithoutDomains,
+            inactiveStorefront,
+            {
+                id: '1a',
+                translated: { name: '1a' },
+                type: {
+                    id: Shopware.Defaults.apiSalesChannelTypeId,
+                    iconName: 'default-shopping-basket'
+                }
+            },
+            {
+                id: '2b',
+                translated: { name: '2b' },
+                type: {
+                    id: Shopware.Defaults.apiSalesChannelTypeId,
+                    iconName: 'default-shopping-basket'
+                }
+            },
+            {
+                id: '3c',
+                translated: { name: '3c' },
+                type: {
+                    id: Shopware.Defaults.apiSalesChannelTypeId,
+                    iconName: 'default-shopping-basket'
+                }
+            }
+        ]);
+
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+
+        // check if "more" item is visible
+        const moreItems = wrapper.find('.sw-admin-menu__sales-channel-more-items');
+        expect(moreItems.isVisible()).toBe(true);
+        expect(moreItems.text()).toContain('sw-sales-channel.general.titleMenuMoreItems');
+
+        wrapper.destroy();
+    });
+
+    it('hide "more" when less than 7 sales channels are available', async () => {
+        const wrapper = createWrapper([
+            storeFrontWithStandardDomain,
+            storefrontWithoutDefaultDomain,
+            headlessSalesChannel,
+            storefrontWithoutDomains,
+            inactiveStorefront,
+            {
+                id: '1a',
+                translated: { name: '1a' },
+                type: {
+                    id: Shopware.Defaults.apiSalesChannelTypeId,
+                    iconName: 'default-shopping-basket'
+                }
+            },
+            {
+                id: '2b',
+                translated: { name: '2b' },
+                type: {
+                    id: Shopware.Defaults.apiSalesChannelTypeId,
+                    iconName: 'default-shopping-basket'
+                }
+            }
+        ]);
+
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+
+        // check if "more" item is hidden
+        const moreItems = wrapper.find('.sw-admin-menu__sales-channel-more-items');
+        expect(moreItems.exists()).toBe(false);
 
         wrapper.destroy();
     });

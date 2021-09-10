@@ -59,7 +59,8 @@ export default class RuleBuilderPageObject {
 
                 selectResultList().scrollIntoView();
                 selectResultList()
-                    .contains(type)
+                    // find the exact type in the results and not only a substring!
+                    .contains('.sw-select-result', new RegExp('^\\s*' + type + '\\s*$'))
                     .scrollIntoView()
                     .click();
             });

@@ -1,4 +1,4 @@
-const { Application } = Shopware;
+const { Application, Feature } = Shopware;
 
 Application.addServiceProviderDecorator('ruleConditionDataProviderService', (ruleConditionService) => {
     ruleConditionService.addCondition('dateRange', {
@@ -136,11 +136,14 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         label: 'global.sw-condition.condition.lineItemRule',
         scopes: ['lineItem'],
     });
-    ruleConditionService.addCondition('cartLineItemsInCart', {
-        component: 'sw-condition-line-items-in-cart',
-        label: 'global.sw-condition.condition.lineItemsInCartRule',
-        scopes: ['cart'],
-    });
+    /** @major-deprecated (flag:FEATURE_NEXT_17016) This rule will be removed. Use cartLineItem instead. */
+    if (!Feature.isActive('FEATURE_NEXT_17016')) {
+        ruleConditionService.addCondition('cartLineItemsInCart', {
+            component: 'sw-condition-line-items-in-cart',
+            label: 'global.sw-condition.condition.lineItemsInCartRule',
+            scopes: ['cart'],
+        });
+    }
     ruleConditionService.addCondition('cartLineItemsInCartCount', {
         component: 'sw-condition-line-items-in-cart-count',
         label: 'global.sw-condition.condition.lineItemsInCartCountRule',

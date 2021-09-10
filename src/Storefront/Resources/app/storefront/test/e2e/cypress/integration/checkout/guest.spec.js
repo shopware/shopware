@@ -40,8 +40,13 @@ describe(`Checkout as Guest`, () => {
         cy.get('input[name="lastName"]').type('Doe');
 
         cy.get(`${accountPage.elements.registerForm} input[name="email"]`).type('john-doe-for-testing@example.com');
-        cy.get('.register-guest-control.custom-checkbox label').scrollIntoView();
-        cy.get('.register-guest-control.custom-checkbox label').click(1, 1);
+
+        cy.window().then(win => {
+            if (!win.features['FEATURE_NEXT_16236']) {
+                cy.get('.register-guest-control.custom-checkbox label').scrollIntoView();
+                cy.get('.register-guest-control.custom-checkbox label').click(1, 1);
+            }
+        });
 
         cy.get('input[name="billingAddress[street]"]').type('123 Main St');
         cy.get('input[name="billingAddress[zipcode]"]').type('9876');
@@ -160,8 +165,13 @@ describe(`Checkout as Guest`, () => {
             cy.get(`.register-shipping ${shippingAddressCompanySelector}`).should('be.visible').should('have.attr', 'required');
 
             cy.get(`${accountPage.elements.registerForm} input[name="email"]`).type('john-doe-for-testing@example.com');
-            cy.get('.register-guest-control.custom-checkbox label').scrollIntoView();
-            cy.get('.register-guest-control.custom-checkbox label').click(1, 1);
+
+            cy.window().then(win => {
+                if (!win.features['FEATURE_NEXT_16236']) {
+                    cy.get('.register-guest-control.custom-checkbox label').scrollIntoView();
+                    cy.get('.register-guest-control.custom-checkbox label').click(1, 1);
+                }
+            });
 
             cy.get('input[name="billingAddress[street]"]').type('123 Main St');
             cy.get('input[name="billingAddress[zipcode]"]').type('9876');

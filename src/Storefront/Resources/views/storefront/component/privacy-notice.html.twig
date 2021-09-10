@@ -33,7 +33,8 @@
                     {% block component_privacy_label %}
                         <label>
                             {{ "general.privacyNotice"|trans({
-                                '%url%': path('frontend.cms.page',{ id: config('core.basicInformation.privacyPage') })
+                                '%privacyUrl%': path('frontend.cms.page',{ id: config('core.basicInformation.privacyPage') }),
+                                '%tosUrl%': path('frontend.cms.page',{ id: config('core.basicInformation.tosPage') })
                             })|raw }}
                         </label>
                     {% endblock %}

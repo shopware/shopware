@@ -61,9 +61,32 @@ class CsrfPlaceholderHandlerTest extends TestCase
 
         $response = $csrfPlaceholderHandler->replaceCsrfToken($response, $request);
 
-        static::assertStringNotContainsString('__token1__', $response->getContent());
-        static::assertStringNotContainsString('__token2__', $response->getContent());
-        static::assertStringNotContainsString('__token3__', $response->getContent());
+        static::assertStringNotContainsString('1b4dfebfc2584cf58b63c72c20d521d0token1#', $response->getContent());
+        static::assertStringNotContainsString('1b4dfebfc2584cf58b63c72c20d521d0token2#', $response->getContent());
+        static::assertStringNotContainsString('1b4dfebfc2584cf58b63c72c20d521d0token3#', $response->getContent());
+    }
+
+    public function testCsrfReplacement404(): void
+    {
+        $request = new Request();
+        $request->setSession(new Session(new MockArraySessionStorage()));
+        $this->getContainer()->get('request_stack')->push($request);
+
+        $csrfPlaceholderHandler = $this->createCsrfPlaceholderHandler();
+
+        $response = new Response($this->getContentWithCsrfPLaceholder(), 404, ['Content-Type' => 'text/html']);
+
+        $expectedContent = file_get_contents(__DIR__ . '/fixtures/Storefront/Resources/views/csrfTest/csrfTestRendered.html.twig');
+        static::assertEquals(
+            $expectedContent,
+            $response->getContent()
+        );
+
+        $response = $csrfPlaceholderHandler->replaceCsrfToken($response, $request);
+
+        static::assertStringNotContainsString('1b4dfebfc2584cf58b63c72c20d521d0token1#', $response->getContent());
+        static::assertStringNotContainsString('1b4dfebfc2584cf58b63c72c20d521d0token2#', $response->getContent());
+        static::assertStringNotContainsString('1b4dfebfc2584cf58b63c72c20d521d0token3#', $response->getContent());
     }
 
     public function testReplaceWithCsrfDisabledShouldNotReplace(): void

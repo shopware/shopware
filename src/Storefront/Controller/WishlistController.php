@@ -170,10 +170,15 @@ class WishlistController extends StorefrontController
      */
     public function ajaxAdd(string $productId, SalesChannelContext $context, CustomerEntity $customer): JsonResponse
     {
-        $this->addWishlistRoute->add($productId, $context, $customer);
+        try {
+            $this->addWishlistRoute->add($productId, $context, $customer);
+            $success = true;
+        } catch (\Throwable $exception) {
+            $success = false;
+        }
 
         return new JsonResponse([
-            'success' => true,
+            'success' => $success,
         ]);
     }
 
@@ -184,10 +189,15 @@ class WishlistController extends StorefrontController
      */
     public function ajaxRemove(string $productId, SalesChannelContext $context, CustomerEntity $customer): JsonResponse
     {
-        $this->removeWishlistProductRoute->delete($productId, $context, $customer);
+        try {
+            $this->removeWishlistProductRoute->delete($productId, $context, $customer);
+            $success = true;
+        } catch (\Throwable $exception) {
+            $success = false;
+        }
 
         return new JsonResponse([
-            'success' => true,
+            'success' => $success,
         ]);
     }
 

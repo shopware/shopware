@@ -232,6 +232,10 @@ shopware:
               major: false
               description: "Bulk Edit for Orders and Products"
               # issue: NEXT-6061
+            - name: FEATURE_NEXT_15998
+              default: false
+              major: false
+              # issue: NEXT-15998
             - name: FEATURE_NEXT_15707
               default: false
               major: false

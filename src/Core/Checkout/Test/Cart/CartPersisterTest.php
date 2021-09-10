@@ -248,6 +248,36 @@ class CartPersisterTest extends TestCase
         static::assertCount(1, $caughtEvent->getCart()->getLineItems());
     }
 
+    public function testCartVerifyPersistEventIsFiredAndModified(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $eventDispatcher = new EventDispatcher();
+
+        $this->expectSqlQuery($connection, 'DELETE FROM `cart`');
+
+        $caughtEvent = null;
+        $this->addEventListener($eventDispatcher, CartVerifyPersistEvent::class, static function (CartVerifyPersistEvent $event) use (&$caughtEvent): void {
+            $caughtEvent = $event;
+            $event->setShouldPersist(false);
+        });
+
+        $persister = new CartPersister($connection, $eventDispatcher);
+
+        $cart = new Cart('shopware', 'existing');
+        $cart->addLineItems(new LineItemCollection([
+            new LineItem(Uuid::randomHex(), LineItem::PROMOTION_LINE_ITEM_TYPE, Uuid::randomHex(), 1),
+        ]));
+
+        $persister->save(
+            $cart,
+            $this->getSalesChannelContext($cart->getToken())
+        );
+
+        static::assertInstanceOf(CartVerifyPersistEvent::class, $caughtEvent);
+        static::assertFalse($caughtEvent->shouldBePersisted());
+        static::assertCount(1, $caughtEvent->getCart()->getLineItems());
+    }
+
     private function getSalesChannelContext(string $token): SalesChannelContext
     {
         return $this->getContainer()

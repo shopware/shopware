@@ -2,14 +2,12 @@ import template from './sw-settings-listing.html.twig';
 import './sw-settings-listing.scss';
 
 const { Component } = Shopware;
-const { EntityCollection, Criteria } = Shopware.Data;
-const { isEmpty } = Shopware.Utils.types;
-const { cloneDeep } = Shopware.Utils.object;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-settings-listing', {
     template,
 
-    inject: ['repositoryFactory', 'systemConfigApiService', 'feature'],
+    inject: ['repositoryFactory'],
 
     mixins: [
         'notification',
@@ -29,7 +27,15 @@ Component.register('sw-settings-listing', {
             isProductSortingOptionsCardLoading: false,
             isDefaultSalesChannelLoading: false,
             customFields: [],
+            /**
+             * @deprecated tag:v6.5.0 -
+             *  Use displayVisibilityDetail in `sw-settings-listing-default-sales-channel-card` instead
+             */
             displayVisibilityDetail: false,
+            /**
+             * @deprecated tag:v6.5.0 -
+             *  Use configData in `sw-settings-listing-default-sales-channel-card` instead
+             */
             configData: {
                 null: {
                     'core.defaultSalesChannel.salesChannel': [],
@@ -37,6 +43,10 @@ Component.register('sw-settings-listing', {
                     'core.defaultSalesChannel.visibility': {},
                 },
             },
+            /**
+             * @deprecated tag:v6.5.0 -
+             *  Use visibilityConfig in `sw-settings-listing-default-sales-channel-card` instead
+             */
             visibilityConfig: [],
         };
     },
@@ -54,6 +64,10 @@ Component.register('sw-settings-listing', {
             return this.repositoryFactory.create('sales_channel');
         },
 
+        /**
+         * @deprecated tag:v6.5.0 -
+         *  Use salesChannel in `sw-settings-listing-default-sales-channel-card` instead
+         */
         salesChannel: {
             get() {
                 return this.configData?.null?.['core.defaultSalesChannel.salesChannel'];
@@ -120,33 +134,6 @@ Component.register('sw-settings-listing', {
         },
     },
 
-    watch: {
-        salesChannel: {
-            handler() {
-                if (!this.salesChannel.length) {
-                    this.visibilityConfig = [];
-                    return;
-                }
-
-                const salesChannelIds = this.salesChannel.map(el => el.id);
-                this.visibilityConfig = this.visibilityConfig.filter(el => salesChannelIds.includes(el.id));
-
-                const configData = new Map();
-                this.visibilityConfig.forEach(el => configData.set(el.id, { ...el }));
-
-                this.salesChannel.forEach(el => {
-                    configData.set(el, {
-                        id: el,
-                        visibility: this.configData.null?.['core.defaultSalesChannel.visibility'][el] || 30,
-                    });
-                });
-
-                this.visibilityConfig = [...configData.values()];
-            },
-            deep: true,
-        },
-    },
-
     created() {
         this.createdComponent();
     },
@@ -159,7 +146,6 @@ Component.register('sw-settings-listing', {
         createdComponent() {
             this.fetchProductSortingOptions();
             this.fetchCustomFields();
-            this.fetchSalesChannelsSystemConfig();
         },
 
         fetchProductSortingOptions() {
@@ -188,7 +174,8 @@ Component.register('sw-settings-listing', {
 
             const saveProductSortingOptions = await this.saveProductSortingOptions();
 
-            const saveSalesChannelVisibilityConfig = await this.saveSalesChannelVisibilityConfig();
+            const saveSalesChannelVisibilityConfig = await this.$refs.defaultSalesChannelCard
+                .saveSalesChannelVisibilityConfig();
 
             Promise.all([saveSalesChannelConfig, saveProductSortingOptions, saveSalesChannelVisibilityConfig])
                 .then(() => {
@@ -371,51 +358,36 @@ Component.register('sw-settings-listing', {
             return sortingKey === this.$refs.systemConfig.actualConfigData.null['core.listing.defaultSorting'];
         },
 
-        fetchSalesChannelsSystemConfig() {
-            this.isDefaultSalesChannelLoading = true;
+        /**
+         * @deprecated tag:6.5.0 -
+         *  Use `fetchSalesChannelsSystemConfig()` in `sw-settings-listing-default-sales-channel-card` instead
+         */
+        fetchSalesChannelsSystemConfig() {},
 
-            const salesChannelEntity = new EntityCollection(
-                this.salesChannelRepository.route,
-                this.salesChannelRepository.entityName,
-                Shopware.Context.api,
-            );
+        /**
+         * @deprecated tag:6.5.0 -
+         *  Use `displayAdvancedVisibility()` in `sw-settings-listing-default-sales-channel-card` instead
+         */
+        displayAdvancedVisibility() {},
 
-            this.systemConfigApiService.getValues('core.defaultSalesChannel').then(configData => {
-                this.isDefaultSalesChannelLoading = false;
+        /**
+         * @deprecated tag:6.5.0 -
+         *  Use `closeAdvancedVisibility()` in `sw-settings-listing-default-sales-channel-card` instead
+         */
+        closeAdvancedVisibility() {},
 
-                if (!isEmpty(configData)) {
-                    this.configData.null = configData;
-                    this.salesChannel.forEach(el => salesChannelEntity.add(el));
-                    this.salesChannel = salesChannelEntity;
+        /**
+         * @deprecated tag:6.5.0 -
+         *  Use `updateSalesChannel()` in `sw-settings-listing-default-sales-channel-card` instead
+         */
+        updateSalesChannel() {},
 
-                    return;
-                }
-
-                this.salesChannel = salesChannelEntity;
-            });
-        },
-
-        displayAdvancedVisibility() {
-            this.displayVisibilityDetail = true;
-        },
-
-        closeAdvancedVisibility() {
-            this.displayVisibilityDetail = false;
-
-            this.visibilityConfig = cloneDeep(this.$refs.visibilityConfig.items);
-
-            this.configData.null['core.defaultSalesChannel.visibility'] = {};
-            this.visibilityConfig.forEach(el => {
-                this.configData.null['core.defaultSalesChannel.visibility'][el.id] = el.visibility;
-            });
-        },
-
-        updateSalesChannel(salesChannel) {
-            this.salesChannel = salesChannel;
-        },
-
+        /**
+         * @deprecated tag:6.5.0 -
+         *  Use `saveSalesChannelVisibilityConfig()` in `sw-settings-listing-default-sales-channel-card` instead
+         */
         saveSalesChannelVisibilityConfig() {
-            return this.systemConfigApiService.batchSave(this.configData);
+            return Promise.resolve();
         },
     },
 });

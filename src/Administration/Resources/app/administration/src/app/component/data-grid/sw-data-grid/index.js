@@ -153,7 +153,7 @@ Component.register('sw-data-grid', {
         isRecordSelectable: {
             type: Function,
             required: false,
-            default: function (item) {
+            default(item) {
                 if (this.feature.isActive('FEATURE_NEXT_6061')) {
                     return !this.reachMaximumSelectionExceed
                         || Object.keys(this.selection).includes(item[this.itemIdentifierProperty]);

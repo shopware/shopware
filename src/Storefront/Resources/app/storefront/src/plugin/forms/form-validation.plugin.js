@@ -11,17 +11,17 @@ import Iterator from 'src/helper/iterator.helper';
  *
  * To check if two fields are equal, set the data attribute this.options.equalAttr to
  * the same value on both fields.
- * If a field has the options.equalAttr post-fixed with -message, it will show this
+ * If a field has the options.equalAttr suffixed with `-message`, it will show this
  * message below the field if invalid.
  *
  * <input data-form-validation-equal='myEqualValidation'>
  * <input data-form-validation-equal='myEqualValidation' data-form-validation-equal-message='the fields should be equal'>
  *
  * To check for min length on a field you have to pass the min number to the options.lengthAttr.
- * If a field has the options.lengthAttr post-fixed with -message, it will show this
+ * If a field has the options.lengthAttr suffixed with `-message`, it will show this
  * message below the field if invalid.
  *
- * <input data-form-validation-length='8' data-form-validation-equal-message='this field must be at lest 8 characters long'>
+ * <input data-form-validation-length='8' data-form-validation-equal-message='this field must be at least 8 characters long'>
  *
  */
 export default class FormValidation extends Plugin {
@@ -160,7 +160,7 @@ export default class FormValidation extends Plugin {
         const confirmField = fields[1];
         const confirmFieldValue = confirmField.value.trim();
 
-        if (confirmFieldValue.length > 0 ) {
+        if (confirmFieldValue.length > 0) {
             Iterator.iterate(fields, field => {
                 field.dispatchEvent(new CustomEvent(this.options.eventName, {target: event.target}));
             });

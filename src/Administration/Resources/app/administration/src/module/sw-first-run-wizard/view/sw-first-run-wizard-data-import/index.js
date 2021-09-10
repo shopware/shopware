@@ -50,7 +50,7 @@ Component.register('sw-first-run-wizard-data-import', {
                     label: this.$tc('sw-first-run-wizard.general.buttonNext'),
                     position: 'right',
                     variant: 'primary',
-                    action: 'sw.first.run.wizard.index.mailer.selection',
+                    action: 'sw.first.run.wizard.index.defaults',
                     disabled: this.isInstallingPlugin,
                 },
             ];

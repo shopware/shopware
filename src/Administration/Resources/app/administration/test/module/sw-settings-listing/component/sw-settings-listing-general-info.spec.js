@@ -19,7 +19,6 @@ describe('src/module/sw-settings-listing/component/sw-settings-listing-option-ge
                 tooltip() {}
             },
             propsData: {
-                next5983: true,
                 sortingOption: {
                     label: 'Price descending'
                 },

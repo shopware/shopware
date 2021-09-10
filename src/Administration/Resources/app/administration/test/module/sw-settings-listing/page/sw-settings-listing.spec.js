@@ -1,26 +1,12 @@
 import { shallowMount } from '@vue/test-utils';
-import uuid from 'src/../test/_helper_/uuid';
 import 'src/module/sw-settings-listing/page/sw-settings-listing';
+
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/grid/sw-pagination';
-import 'src/app/component/form/sw-field';
-import 'src/app/component/form/select/entity/sw-entity-multi-select';
-import 'src/app/component/form/select/entity/sw-entity-multi-id-select';
-import 'src/app/component/form/sw-switch-field';
-import 'src/app/component/form/sw-checkbox-field';
-import 'src/app/component/form/select/base/sw-select-base';
-import 'src/app/component/form/field-base/sw-base-field';
-import 'src/app/component/form/field-base/sw-field-error';
-import 'src/app/component/form/field-base/sw-block-field';
-import 'src/app/component/form/select/base/sw-select-selection-list';
-import 'src/app/component/form/select/base/sw-select-result-list';
-import 'src/app/component/form/select/base/sw-select-result';
-import 'src/app/component/base/sw-highlight-text';
-import 'src/app/component/utils/sw-popover';
-import 'src/app/component/base/sw-label';
 
 describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
-    let defaultSalesChannelData = {};
+    const testedSortingKey = 'tested-sorting-key';
+    let wrapper;
 
     function getProductSortingEntities() {
         const entities = [
@@ -186,7 +172,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
             },
             {
                 locked: false,
-                key: 'listing-prive',
+                key: 'listing-price',
                 position: 1,
                 active: true,
                 fields: [
@@ -207,7 +193,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
             },
             {
                 locked: false,
-                key: 'sadfsfad',
+                key: testedSortingKey,
                 position: 1,
                 active: false,
                 fields: [
@@ -218,10 +204,10 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                         naturalSorting: 0
                     }
                 ],
-                label: 'sadfsfad',
+                label: testedSortingKey,
                 createdAt: '2020-08-10T06:19:44.820+00:00',
                 updatedAt: null,
-                translated: { label: 'sadfsfad' },
+                translated: { label: testedSortingKey },
                 apiAlias: null,
                 id: 'cfa9d75ca8124da3ad83fc7a180fcc98',
                 translations: []
@@ -249,7 +235,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
             },
             {
                 locked: false,
-                key: 'asdfsafasdasss',
+                key: 'random-key',
                 position: 1,
                 active: false,
                 fields: [
@@ -260,17 +246,17 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                         naturalSorting: 0
                     }
                 ],
-                label: 'asdfsaf',
+                label: 'random-key',
                 createdAt: '2020-08-10T06:19:53.126+00:00',
                 updatedAt: null,
-                translated: { label: 'asdfsaf' },
+                translated: { label: 'random-key' },
                 apiAlias: null,
                 id: 'e311624e917d4ed0b898231cb3a83bdf',
                 translations: []
             },
             {
                 locked: false,
-                key: 'asdfsafasd',
+                key: 'dont-care-key',
                 position: 1,
                 active: false,
                 fields: [
@@ -281,17 +267,17 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                         naturalSorting: 0
                     }
                 ],
-                label: 'asdfsasdasdaaf',
+                label: 'dont-care-key',
                 createdAt: '2020-08-10T06:19:53.126+00:00',
                 updatedAt: null,
-                translated: { label: 'asdfsaf' },
+                translated: { label: 'dont-care-key' },
                 apiAlias: null,
                 id: '23456787654321234567876588',
                 translations: []
             },
             {
                 locked: false,
-                key: 'random-test',
+                key: 'irrelevant-key',
                 position: 1,
                 active: false,
                 fields: [
@@ -302,10 +288,10 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                         naturalSorting: 0
                     }
                 ],
-                label: 'asdfsasdasdaaf',
+                label: 'irrelevant-key',
                 createdAt: '2020-08-10T06:19:53.126+00:00',
                 updatedAt: null,
-                translated: { label: 'asdfsaf' },
+                translated: { label: 'irrelevant-key' },
                 apiAlias: null,
                 id: '23456787654321234567876577',
                 translations: []
@@ -320,35 +306,10 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
     function createWrapper() {
         return shallowMount(Shopware.Component.build('sw-settings-listing'), {
             provide: {
-                next5983: true,
-                feature: {
-                    isActive: () => true
-                },
                 repositoryFactory: {
-                    create: (entity) => ({
-                        search: () => {
-                            if (entity === 'sales_channel') {
-                                return Promise.resolve(createEntityCollection([
-                                    {
-                                        name: 'Storefront',
-                                        translated: { name: 'Storefront' },
-                                        id: uuid.get('storefront')
-                                    },
-                                    {
-                                        name: 'Headless',
-                                        translated: { name: 'Headless' },
-                                        id: uuid.get('headless')
-                                    }
-                                ]));
-                            }
-
-                            return Promise.resolve(getProductSortingEntities());
-                        }
+                    create: () => ({
+                        search: () => Promise.resolve(getProductSortingEntities())
                     })
-                },
-                systemConfigApiService: {
-                    getConfig: () => Promise.resolve(),
-                    getValues: () => Promise.resolve(defaultSalesChannelData)
                 }
             },
             stubs: {
@@ -362,57 +323,31 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                         };
                     },
                     template: `
-<div class="sw-system-config">
-  <div v-for="(config, index) in singleConfig">
-      <slot name="afterElements" v-bind="{ config, index }"></slot>
-  </div>
-</div>`
+                        <div class="sw-system-config">
+                            <div v-for="(config, index) in singleConfig">
+                                <slot name="afterElements" v-bind="{ config, index }"></slot>
+                            </div>
+                        </div>
+                    `
                 },
-                'sw-single-select': true,
                 'sw-card-view': {
                     template: '<div><slot></slot></div>'
                 },
                 'sw-card': {
                     template: '<div><slot></slot></div>'
                 },
-                'sw-empty-state': {
-                    template: '<div class="sw-empty-state"></div>'
-                },
-                'sw-data-grid': Shopware.Component.build('sw-data-grid'),
-                'sw-checkbox-field': Shopware.Component.build('sw-checkbox-field'),
                 'sw-context-button': true,
                 'sw-context-menu-item': true,
-                'router-link': true,
-                'sw-pagination': Shopware.Component.build('sw-pagination'),
+                'sw-data-grid': Shopware.Component.build('sw-data-grid'),
+                'sw-empty-state': true,
                 'sw-icon': true,
-                'sw-field': true,
-                'sw-container': true,
-                'sw-entity-multi-select': Shopware.Component.build('sw-entity-multi-select'),
-                'sw-entity-multi-id-select': Shopware.Component.build('sw-entity-multi-id-select'),
-                'sw-switch-field': Shopware.Component.build('sw-switch-field'),
-                'sw-select-base': Shopware.Component.build('sw-select-base'),
-                'sw-base-field': Shopware.Component.build('sw-base-field'),
-                'sw-field-error': Shopware.Component.build('sw-field-error'),
-                'sw-block-field': Shopware.Component.build('sw-block-field'),
-                'sw-select-selection-list': Shopware.Component.build('sw-select-selection-list'),
-                'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
-                'sw-select-result': Shopware.Component.build('sw-select-result'),
-                'sw-popover': Shopware.Component.build('sw-popover'),
-                'sw-label': Shopware.Component.build('sw-label'),
-                'sw-highlight-text': Shopware.Component.build('sw-highlight-text'),
-                'sw-loader': true,
-                'sw-modal': true,
-                'sw-settings-listing-visibility-detail': true,
-                'sw-button': true
+                'sw-pagination': Shopware.Component.build('sw-pagination'),
+                'sw-single-select': true,
+                'sw-settings-listing-default-sales-channel': true,
+                'router-link': true
             }
         });
     }
-
-    function createEntityCollection(entities = []) {
-        return new Shopware.Data.EntityCollection('sales_channel', 'sales_channel', {}, null, entities);
-    }
-
-    let wrapper;
 
     beforeEach(() => {
         wrapper = createWrapper();
@@ -468,11 +403,10 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
     it('should set inactive product sorting to be active when set as default sorting', async () => {
         let defaultSorting;
 
-        const defaultSortingKey = 'sadfsfad';
         const productSortings = wrapper.vm.productSortingOptions;
 
         Object.entries(productSortings).forEach(([, productSorting]) => {
-            if (productSorting.key === defaultSortingKey) {
+            if (productSorting.key === testedSortingKey) {
                 defaultSorting = productSorting;
             }
         });
@@ -481,74 +415,10 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
         expect(defaultSorting.active).toBeFalsy();
 
         // sets the default sorting option
-        wrapper.vm.$refs.systemConfig.actualConfigData = { null: { 'core.listing.defaultSorting': defaultSortingKey } };
+        wrapper.vm.$refs.systemConfig.actualConfigData = { null: { 'core.listing.defaultSorting': testedSortingKey } };
         wrapper.vm.setDefaultSortingActive();
 
         expect(defaultSorting.active).toBeTruthy();
-    });
-
-    it('should render data correctly at Default Sales Channel card when there is no default sales channel data', async () => {
-        const setVisibilityButton = wrapper.find('.sw-settings-listing-index__default-sales-channel-card .sw-card__quick-link');
-        const activeSwitch = wrapper.find('.sw-settings-listing-index__default-sales-channel-card .sw-field--switch input');
-
-        expect(activeSwitch.element.checked).toBe(true);
-        expect(setVisibilityButton.exists()).toBeFalsy();
-    });
-
-    it('should render data correctly at Default Sales Channel card when there is default sales channel data', async () => {
-        defaultSalesChannelData = {
-            'core.defaultSalesChannel.active': false,
-            'core.defaultSalesChannel.salesChannel': [{
-                id: '98432def39fc4624b33213a56b8c944d',
-                name: 'Headless'
-            }],
-            'core.defaultSalesChannel.visibility': { '98432def39fc4624b33213a56b8c944d': 10 }
-        };
-
-        wrapper = createWrapper();
-        wrapper.vm.$refs.systemConfig.actualConfigData = { null: { 'core.listing.defaultSorting': 'name-asc' } };
-        await wrapper.vm.$nextTick();
-
-        const setVisibilityButton = wrapper.find('.sw-settings-listing-index__default-sales-channel-card .sw-card__quick-link');
-        const activeSwitch = wrapper.find('.sw-settings-listing-index__default-sales-channel-card .sw-field--switch input');
-
-        expect(activeSwitch.element.checked).toBe(false);
-        expect(setVisibilityButton.exists()).toBeTruthy();
-    });
-
-    it('should display "Set visibility for selected Sales Channels" button when a sales channel is selected', async () => {
-        const salesChannelCard = wrapper.find('.sw-settings-listing-index__default-sales-channel-card');
-
-        salesChannelCard.find('.sw-select__selection').trigger('click');
-
-        await salesChannelCard.find('input').trigger('change');
-        await wrapper.vm.$nextTick();
-
-        const list = wrapper.find('.sw-select-result-list__item-list').findAll('li');
-
-        list.at(0).trigger('click');
-        await wrapper.vm.$nextTick();
-
-        expect(salesChannelCard.find('.sw-card__quick-link').exists()).toBeTruthy();
-    });
-
-    it('should display modal when clicking "Set visibility for selected Sales Channels" button', async () => {
-        const salesChannelCard = wrapper.find('.sw-settings-listing-index__default-sales-channel-card');
-
-        salesChannelCard.find('.sw-select__selection').trigger('click');
-
-        await salesChannelCard.find('input').trigger('change');
-        await wrapper.vm.$nextTick();
-
-        const list = wrapper.find('.sw-select-result-list__item-list').findAll('li');
-
-        list.at(0).trigger('click');
-        await wrapper.vm.$nextTick();
-
-        salesChannelCard.find('.sw-card__quick-link').trigger('click');
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.find('.sw-settings-listing-index__visibility-modal').exists()).toBeTruthy();
     });
 
     it('should render the default sorting selectbox only on first card', async () => {

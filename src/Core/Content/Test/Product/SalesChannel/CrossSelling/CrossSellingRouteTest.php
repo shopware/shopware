@@ -67,6 +67,7 @@ class CrossSellingRouteTest extends TestCase
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => Defaults::SALES_CHANNEL,
+            'languages' => [],
         ]);
     }
 

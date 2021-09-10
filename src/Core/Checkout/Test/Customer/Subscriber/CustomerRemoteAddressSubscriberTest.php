@@ -18,14 +18,14 @@ class CustomerRemoteAddressSubscriberTest extends TestCase
     use SalesChannelFunctionalTestBehaviour;
     use LineItemTestFixtureBehaviour;
 
-    /**
-     * @var KernelBrowser
-     */
-    private $browser;
+    private KernelBrowser $browser;
 
     public function setUp(): void
     {
-        $this->browser = $this->createCustomSalesChannelBrowser(['id' => Defaults::SALES_CHANNEL]);
+        $this->browser = $this->createCustomSalesChannelBrowser([
+            'id' => Defaults::SALES_CHANNEL,
+            'languages' => [],
+        ]);
         $this->assignSalesChannelContext($this->browser);
     }
 

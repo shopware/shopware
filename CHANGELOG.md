@@ -1,6 +1,14 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/2020-08-03-Implement-New-Changelog.md).
 
+## 6.4.4.1
+*  [NEXT-15675 - Improve file download](/changelog/release-6-4-4-1/2021-07-29-improve-file-download.md)
+*  [NEXT-17058 - Bugfix autowiring type+name for already defined repositories](/changelog/release-6-4-4-1/2021-09-06-bugfix-autowiring-type-name-for-already-defined-repositories.md) ([mynameisbogdan](https://github.com/mynameisbogdan))
+*  [NEXT-17059 - Fixed Theme Inheritance](/changelog/release-6-4-4-1/2021-09-08-fixed-theme-inheritance.md)
+*  [NEXT-17072 - Fixed PriceFieldSerializer percentage calculation](/changelog/release-6-4-4-1/2021-09-09-fixed-price-field-serializer-percentage-calculation.md)
+*  [NEXT-17170 - Add missing context to CartVerifyPersistEvent](/changelog/release-6-4-4-1/2021-09-10-add-missing-context-to-cartverifypersistevent.md)
+*  [NEXT-17105 - Fixed EntitySearcher for PrimaryKeys other than `id`](/changelog/release-6-4-4-1/2021-09-10-fixed-entity-reader-for-non-id-pks.md)
+
 ## 6.4.4.0
 *  [NEXT-16588 - Add support for .well-known/change-password](/changelog/release-6-4-4-0/2020-11-22-add-well-known-change-password.md) ([Joshua Behrens](https://github.com/JoshuaBehrens))
 *  [NEXT-16516 - Sidebar flash on cookie accept all](/changelog/release-6-4-4-0/2021-04-08-sidebar-flash-on-cookie-accept-all.md) ([Rune Laenen](https://github.com/runelaenen))

@@ -83,22 +83,23 @@ Component.register('sw-bulk-edit-order', {
                         options: this.orderStatus,
                     },
                 },
-                {
-                    name: 'statusMails',
-                    helpText: this.$tc('sw-bulk-edit.order.status.statusMails.helpText'),
-                    config: {
-                        hidden: true,
-                        changeLabel: this.$tc('sw-bulk-edit.order.status.statusMails.label'),
-                    },
-                },
-                {
-                    name: 'documents',
-                    helpText: this.$tc('sw-bulk-edit.order.status.documents.helpText'),
-                    config: {
-                        componentName: 'sw-bulk-edit-order-documents',
-                        changeLabel: this.$tc('sw-bulk-edit.order.status.documents.label'),
-                    },
-                },
+                // TODO: NEXT-6061 - allow sending email for status changes including document attachments
+                // {
+                //     name: 'statusMails',
+                //     helpText: this.$tc('sw-bulk-edit.order.status.statusMails.helpText'),
+                //     config: {
+                //         hidden: true,
+                //         changeLabel: this.$tc('sw-bulk-edit.order.status.statusMails.label'),
+                //     },
+                // },
+                // {
+                //     name: 'documents',
+                //     helpText: this.$tc('sw-bulk-edit.order.status.documents.helpText'),
+                //     config: {
+                //         componentName: 'sw-bulk-edit-order-documents',
+                //         changeLabel: this.$tc('sw-bulk-edit.order.status.documents.label'),
+                //     },
+                // },
             ];
         },
     },

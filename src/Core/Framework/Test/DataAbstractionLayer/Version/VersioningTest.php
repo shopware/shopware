@@ -54,6 +54,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Tax\TaxDefinition;
+use Shopware\Core\Test\TestDefaults;
 
 /**
  * @group slow
@@ -1770,7 +1771,7 @@ class VersioningTest extends TestCase
 
         $context = $this->salesChannelContextFactory->create(
             Uuid::randomHex(),
-            Defaults::SALES_CHANNEL,
+            TestDefaults::SALES_CHANNEL,
             [
                 SalesChannelContextService::CUSTOMER_ID => $customerId,
                 SalesChannelContextService::PAYMENT_METHOD_ID => $paymentMethodId,
@@ -1806,7 +1807,7 @@ class VersioningTest extends TestCase
                 [
                     'id' => $id,
                     'customerId' => $this->createCustomer(),
-                    'salesChannelId' => Defaults::SALES_CHANNEL,
+                    'salesChannelId' => TestDefaults::SALES_CHANNEL,
                     'title' => 'Title',
                     'content' => 'Content',
                 ],
@@ -1855,7 +1856,7 @@ class VersioningTest extends TestCase
             'stock' => 10,
             'active' => true,
             'visibilities' => [
-                ['salesChannelId' => Defaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ['salesChannelId' => TestDefaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
             ],
         ];
 
@@ -1889,7 +1890,7 @@ class VersioningTest extends TestCase
             'password' => 'shopware',
             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultBillingAddressId' => $addressId,
             'defaultShippingAddressId' => $addressId,
             'addresses' => [
@@ -2024,7 +2025,7 @@ class VersioningTest extends TestCase
             ],
             'salesChannels' => [
                 [
-                    'id' => Defaults::SALES_CHANNEL,
+                    'id' => TestDefaults::SALES_CHANNEL,
                 ],
             ],
         ];

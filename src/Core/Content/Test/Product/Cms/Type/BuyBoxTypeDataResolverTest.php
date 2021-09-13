@@ -29,6 +29,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
 
 class BuyBoxTypeDataResolverTest extends TestCase
@@ -239,7 +240,7 @@ class BuyBoxTypeDataResolverTest extends TestCase
             'width' => 102,
             'length' => 103,
             'visibilities' => [
-                ['salesChannelId' => Defaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ['salesChannelId' => TestDefaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
             ],
             'translations' => [
                 Defaults::LANGUAGE_SYSTEM => [
@@ -258,7 +259,7 @@ class BuyBoxTypeDataResolverTest extends TestCase
         for ($i = 1; $i <= 3; ++$i) {
             $reviews[] = [
                 'languageId' => Defaults::LANGUAGE_SYSTEM,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'productId' => $productId,
                 'title' => 'Test',
                 'content' => 'test',
@@ -275,6 +276,6 @@ class BuyBoxTypeDataResolverTest extends TestCase
     {
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
 
-        return $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        return $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 }

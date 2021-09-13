@@ -18,6 +18,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -36,7 +37,7 @@ class StorefrontSubscriberTest extends TestCase
     public function setUp(): void
     {
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
-        $this->salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $this->salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 
     public function testItAddsShopIdParam(): void

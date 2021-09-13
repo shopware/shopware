@@ -13,12 +13,12 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
+use Shopware\Core\Test\TestDefaults;
 
 class TaxCalculationTypeTest extends TestCase
 {
@@ -35,7 +35,7 @@ class TaxCalculationTypeTest extends TestCase
     ): void {
         $context = $this->getContainer()
             ->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $taxState = $useNet ? CartPrice::TAX_STATE_NET : CartPrice::TAX_STATE_GROSS;
         $context->setTaxState($taxState);

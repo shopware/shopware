@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1622010069AddCartRules;
 use Shopware\Core\Migration\V6_4\Migration1625816310AddDefaultToCartRuleIds;
+use Shopware\Core\Test\TestDefaults;
 
 class Migration1625816310AddDefaultToCartRuleIdsTest extends TestCase
 {
@@ -32,7 +33,7 @@ class Migration1625816310AddDefaultToCartRuleIdsTest extends TestCase
                 'shipping_method_id' => Uuid::fromHexToBytes($this->getValidShippingMethodId()),
                 'payment_method_id' => Uuid::fromHexToBytes($this->getValidPaymentMethodId()),
                 'country_id' => Uuid::fromHexToBytes($this->getValidCountryId()),
-                'sales_channel_id' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL),
+                'sales_channel_id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL),
                 'customer_id' => null,
                 'price' => 10,
                 'line_item_count' => 1,

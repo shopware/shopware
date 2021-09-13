@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 
 class PromotionRedemptionUpdaterTest extends TestCase
 {
@@ -93,7 +94,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
 
         $token = Uuid::randomHex();
 
-        return $salesChannelContextFactory->create($token, Defaults::SALES_CHANNEL, $options);
+        return $salesChannelContextFactory->create($token, TestDefaults::SALES_CHANNEL, $options);
     }
 
     private function createOrder(string $customerId): void
@@ -115,7 +116,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
                 'paymentMethodId' => $this->fetchFirstIdFromTable('payment_method'),
                 'currencyId' => Defaults::CURRENCY,
                 'currencyFactor' => 1.0,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'billingAddressId' => Uuid::randomHex(),
                 'addresses' => [
                     [

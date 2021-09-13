@@ -18,6 +18,7 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelD
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 
 class HreflangResolverTest extends TestCase
 {
@@ -37,7 +38,7 @@ class HreflangResolverTest extends TestCase
         $this->seoUrlRepository = $this->getContainer()->get('seo_url.repository');
 
         $contextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
-        $this->salesChannelContext = $contextFactory->create('', Defaults::SALES_CHANNEL);
+        $this->salesChannelContext = $contextFactory->create('', TestDefaults::SALES_CHANNEL);
 
         $this->hreflangResolver = $this->getContainer()->get(HreflangLoaderInterface::class);
 
@@ -326,7 +327,7 @@ class HreflangResolverTest extends TestCase
         $connection = $this->getContainer()->get(Connection::class);
 
         $connection->delete(SalesChannelDomainDefinition::ENTITY_NAME, [
-            'sales_channel_id' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL),
+            'sales_channel_id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL),
         ]);
     }
 

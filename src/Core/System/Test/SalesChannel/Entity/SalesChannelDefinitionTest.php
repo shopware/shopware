@@ -22,6 +22,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
+use Shopware\Core\Test\TestDefaults;
 
 class SalesChannelDefinitionTest extends TestCase
 {
@@ -116,7 +117,7 @@ class SalesChannelDefinitionTest extends TestCase
             ],
             'visibilities' => [
                 [
-                    'salesChannelId' => Defaults::SALES_CHANNEL,
+                    'salesChannelId' => TestDefaults::SALES_CHANNEL,
                     'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
                 ],
             ],
@@ -129,7 +130,7 @@ class SalesChannelDefinitionTest extends TestCase
         $listener->expects(static::once())->method('__invoke');
         $this->addEventListener($dispatcher, 'sales_channel.product.loaded', $listener);
 
-        $context = $this->factory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $context = $this->factory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('categories');

@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Controller\AddressController;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Symfony\Component\HttpFoundation\Request;
@@ -40,7 +41,7 @@ class AddressControllerTest extends TestCase
         [$id1, $id2] = $this->createCustomers();
 
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL, [SalesChannelContextService::CUSTOMER_ID => $id1]);
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, [SalesChannelContextService::CUSTOMER_ID => $id1]);
 
         static::assertInstanceOf(CustomerEntity::class, $context->getCustomer());
         static::assertSame($id1, $context->getCustomer()->getId());
@@ -83,7 +84,7 @@ class AddressControllerTest extends TestCase
             ->get(SalesChannelContextFactory::class)
             ->create(
                 Uuid::randomHex(),
-                Defaults::SALES_CHANNEL,
+                TestDefaults::SALES_CHANNEL,
                 [
                     SalesChannelContextService::CUSTOMER_ID => $customerId,
                 ]
@@ -117,7 +118,7 @@ class AddressControllerTest extends TestCase
             ->get(SalesChannelContextFactory::class)
             ->create(
                 Uuid::randomHex(),
-                Defaults::SALES_CHANNEL,
+                TestDefaults::SALES_CHANNEL,
                 [
                     SalesChannelContextService::CUSTOMER_ID => $customerId,
                 ]
@@ -156,7 +157,7 @@ class AddressControllerTest extends TestCase
         $customers = [
             [
                 'id' => $customerId,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultBillingAddress' => [
                     'id' => $addressId,
                     'salutationId' => $salutationId,
@@ -183,7 +184,7 @@ class AddressControllerTest extends TestCase
         $this->customerRepository->create($customers, Context::createDefaultContext());
 
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL, [SalesChannelContextService::CUSTOMER_ID => $customerId]);
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, [SalesChannelContextService::CUSTOMER_ID => $customerId]);
 
         static::assertInstanceOf(CustomerEntity::class, $context->getCustomer());
         static::assertSame($customerId, $context->getCustomer()->getId());
@@ -220,7 +221,7 @@ class AddressControllerTest extends TestCase
         $customers = [
             [
                 'id' => $id1,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultShippingAddress' => [
                     'id' => $id1,
                     'firstName' => 'not',
@@ -243,7 +244,7 @@ class AddressControllerTest extends TestCase
             ],
             [
                 'id' => $id2,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultShippingAddress' => [
                     'id' => $id2,
                     'firstName' => 'not',

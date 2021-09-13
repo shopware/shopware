@@ -28,6 +28,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 
 class ProductCartProcessorTest extends TestCase
 {
@@ -137,7 +138,7 @@ class ProductCartProcessorTest extends TestCase
         $this->getContainer()->get('product.repository')->create([$product], $ids->getContext());
 
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $result = $this->getContainer()->get(CartRuleLoader::class)
             ->loadByToken($context, Uuid::randomHex());
@@ -174,7 +175,7 @@ class ProductCartProcessorTest extends TestCase
         $service = $this->getContainer()->get(CartService::class);
         $token = $this->ids->create('token');
         $context = $this->getContainer()->get(SalesChannelContextService::class)
-            ->get(new SalesChannelContextServiceParameters(Defaults::SALES_CHANNEL, $token));
+            ->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $token));
 
         $product = $this->getContainer()->get(ProductLineItemFactory::class)
             ->create($this->ids->get('product'));
@@ -198,7 +199,7 @@ class ProductCartProcessorTest extends TestCase
         ];
 
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create($token, Defaults::SALES_CHANNEL, $options);
+            ->create($token, TestDefaults::SALES_CHANNEL, $options);
 
         $product = $this->getContainer()->get(ProductLineItemFactory::class)
             ->create($this->ids->get('product'));
@@ -222,7 +223,7 @@ class ProductCartProcessorTest extends TestCase
         ];
 
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create($token, Defaults::SALES_CHANNEL, $options);
+            ->create($token, TestDefaults::SALES_CHANNEL, $options);
 
         $product = $this->getContainer()->get(ProductLineItemFactory::class)
             ->create($this->ids->get('product'));
@@ -245,7 +246,7 @@ class ProductCartProcessorTest extends TestCase
 
         $token = $this->ids->create('token');
         $salesChannelContextService = $this->getContainer()->get(SalesChannelContextService::class);
-        $context = $salesChannelContextService->get(new SalesChannelContextServiceParameters(Defaults::SALES_CHANNEL, $token, null, Defaults::CURRENCY));
+        $context = $salesChannelContextService->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $token, null, Defaults::CURRENCY));
         $cartService = $this->getContainer()->get(CartService::class);
         $cart = $cartService->getCart($token, $context);
         $product = $this->getContainer()->get(ProductLineItemFactory::class)->create($this->ids->get('product'));
@@ -525,7 +526,7 @@ class ProductCartProcessorTest extends TestCase
         ];
 
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create($token, Defaults::SALES_CHANNEL, $options);
+            ->create($token, TestDefaults::SALES_CHANNEL, $options);
 
         $product = $this->getContainer()->get(ProductLineItemFactory::class)
             ->create($this->ids->get('product'));
@@ -560,7 +561,7 @@ class ProductCartProcessorTest extends TestCase
         ];
 
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create($token, Defaults::SALES_CHANNEL, $options);
+            ->create($token, TestDefaults::SALES_CHANNEL, $options);
 
         $config = [
             'quantity' => $quantity,
@@ -611,7 +612,7 @@ class ProductCartProcessorTest extends TestCase
         ];
 
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create($token, Defaults::SALES_CHANNEL, $options);
+            ->create($token, TestDefaults::SALES_CHANNEL, $options);
 
         $definition = new QuantityPriceDefinition(10, new TaxRuleCollection(), 1);
 
@@ -647,7 +648,7 @@ class ProductCartProcessorTest extends TestCase
         ];
 
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create($token, Defaults::SALES_CHANNEL, $options);
+            ->create($token, TestDefaults::SALES_CHANNEL, $options);
 
         $product = $this->getContainer()->get(ProductLineItemFactory::class)
             ->create($this->ids->get('product'));
@@ -677,7 +678,7 @@ class ProductCartProcessorTest extends TestCase
         ];
 
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create($token, Defaults::SALES_CHANNEL, $options);
+            ->create($token, TestDefaults::SALES_CHANNEL, $options);
 
         $product = $this->getContainer()->get(ProductLineItemFactory::class)
             ->create($this->ids->get('product'));
@@ -710,7 +711,7 @@ class ProductCartProcessorTest extends TestCase
         $token = $this->ids->create('token');
 
         return $this->getContainer()->get(SalesChannelContextService::class)
-            ->get(new SalesChannelContextServiceParameters(Defaults::SALES_CHANNEL, $token));
+            ->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $token));
     }
 
     private function createProduct(?array $additionalData = []): void
@@ -734,7 +735,7 @@ class ProductCartProcessorTest extends TestCase
             'width' => 102,
             'length' => 103,
             'visibilities' => [
-                ['salesChannelId' => Defaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ['salesChannelId' => TestDefaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
             ],
             'translations' => [
                 Defaults::LANGUAGE_SYSTEM => [
@@ -803,10 +804,10 @@ class ProductCartProcessorTest extends TestCase
                         'territory' => 'test',
                     ],
                     'salesChannels' => [
-                        ['id' => Defaults::SALES_CHANNEL],
+                        ['id' => TestDefaults::SALES_CHANNEL],
                     ],
                     'salesChannelDefaultAssignments' => [
-                        ['id' => Defaults::SALES_CHANNEL],
+                        ['id' => TestDefaults::SALES_CHANNEL],
                     ],
                 ],
             ],

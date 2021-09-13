@@ -6,11 +6,11 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Checkout\Promotion\Util\PromotionCodeService;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\Test\TestDefaults;
 
 class PromotionCodeServiceTest extends TestCase
 {
@@ -128,7 +128,7 @@ class PromotionCodeServiceTest extends TestCase
         $promotionRepository = $this->getContainer()->get('promotion.repository');
         $codeRepository = $this->getContainer()->get('promotion_individual_code.repository');
         $salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
         $context = $salesChannelContext->getContext();
 
         $id = Uuid::randomHex();
@@ -157,7 +157,7 @@ class PromotionCodeServiceTest extends TestCase
     {
         $promotionRepository = $this->getContainer()->get('promotion.repository');
         $salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $id = Uuid::randomHex();
         $duplicatePattern = 'TEST_%d%s_END';
@@ -182,7 +182,7 @@ class PromotionCodeServiceTest extends TestCase
         ];
         $promotionRepository = $this->getContainer()->get('promotion.repository');
         $salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $this->createPromotionWithCustomData($data, $promotionRepository, $salesChannelContext);
 
@@ -199,7 +199,7 @@ class PromotionCodeServiceTest extends TestCase
     private function addCodesAndAssertCount(string $id, int $newCodeAmount, int $expectedCodeAmount): void
     {
         $salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
         $promotionRepository = $this->getContainer()->get('promotion.repository');
         $criteria = (new Criteria())
             ->addAssociation('individualCodes');

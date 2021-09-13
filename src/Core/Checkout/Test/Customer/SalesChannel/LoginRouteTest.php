@@ -20,6 +20,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 /**
@@ -251,7 +252,7 @@ class LoginRouteTest extends TestCase
             'price' => 1,
             'payment_method_id' => $defaultPaymentMethod,
             'shipping_method_id' => $defaultShippingMethod,
-            'sales_channel_id' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL),
+            'sales_channel_id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }
@@ -264,7 +265,7 @@ class LoginRouteTest extends TestCase
 
         return $this->getContainer()->get(SalesChannelContextFactory::class)->create(
             $contextToken,
-            $salesChannelId ?? Defaults::SALES_CHANNEL,
+            $salesChannelId ?? TestDefaults::SALES_CHANNEL,
             $salesChannelData
         );
     }
@@ -276,7 +277,7 @@ class LoginRouteTest extends TestCase
 
         $customer = [
             'id' => $customerId,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultShippingAddress' => [
                 'id' => $addressId,
                 'firstName' => 'Max',
@@ -309,7 +310,7 @@ class LoginRouteTest extends TestCase
                 ],
                 'salesChannels' => [
                     [
-                        'id' => Defaults::SALES_CHANNEL,
+                        'id' => TestDefaults::SALES_CHANNEL,
                     ],
                 ],
             ],

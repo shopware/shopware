@@ -19,6 +19,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -58,7 +59,7 @@ class CrossSellingRouteTest extends TestCase
             null,
             null,
             (new SalesChannelEntity())->assign([
-                'id' => Defaults::SALES_CHANNEL,
+                'id' => TestDefaults::SALES_CHANNEL,
                 'taxCalculationType' => SalesChannelDefinition::CALCULATION_TYPE_VERTICAL,
             ])
         );
@@ -66,7 +67,7 @@ class CrossSellingRouteTest extends TestCase
         $this->route = $this->getContainer()->get(ProductCrossSellingRoute::class);
 
         $this->browser = $this->createCustomSalesChannelBrowser([
-            'id' => Defaults::SALES_CHANNEL,
+            'id' => TestDefaults::SALES_CHANNEL,
             'languages' => [],
         ]);
     }

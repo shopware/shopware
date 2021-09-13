@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\Test\TestDefaults;
 
 class NewsletterRecipientServiceTest extends TestCase
 {
@@ -36,7 +37,7 @@ class NewsletterRecipientServiceTest extends TestCase
         self::expectException(ConstraintViolationException::class);
 
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
-        $context = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $this->getContainer()->get(NewsletterSubscribeRoute::class)
             ->subscribe($dataBag, $context, false);
@@ -149,7 +150,7 @@ class NewsletterRecipientServiceTest extends TestCase
         self::expectException(NewsletterRecipientNotFoundException::class);
 
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
-        $context = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
         $this->getContainer()
             ->get(NewsletterConfirmRoute::class)
             ->confirm($dataBag, $context);
@@ -164,7 +165,7 @@ class NewsletterRecipientServiceTest extends TestCase
         self::expectException(ConstraintViolationException::class);
 
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
-        $context = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
         $this->getContainer()
             ->get(NewsletterConfirmRoute::class)
             ->confirm($dataBag, $context);
@@ -181,7 +182,7 @@ class NewsletterRecipientServiceTest extends TestCase
         ]);
 
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
-        $context = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
         $property = ReflectionHelper::getProperty(Context::class, 'languageIdChain');
         $property->setValue($context, [Defaults::LANGUAGE_SYSTEM]);
 
@@ -217,7 +218,7 @@ class NewsletterRecipientServiceTest extends TestCase
         self::expectException(NewsletterRecipientNotFoundException::class);
 
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
-        $context = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
         $this->getContainer()
             ->get(NewsletterUnsubscribeRoute::class)
             ->unsubscribe($dataBag, $context);
@@ -235,7 +236,7 @@ class NewsletterRecipientServiceTest extends TestCase
         ]);
 
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
-        $context = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
         $this->getContainer()
             ->get(NewsletterUnsubscribeRoute::class)
             ->unsubscribe($dataBag, $context);

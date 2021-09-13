@@ -23,6 +23,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 
 class ProductStreamBuilderTest extends TestCase
 {
@@ -62,7 +63,7 @@ class ProductStreamBuilderTest extends TestCase
         $this->productRepository = $this->getContainer()->get('sales_channel.product.repository');
 
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
-        $this->salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $this->salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 
     public function testBuildFilters(): void
@@ -206,7 +207,7 @@ class ProductStreamBuilderTest extends TestCase
         $productRepository = $this->getContainer()->get('product.repository');
         $manufacturerId = Uuid::randomHex();
         $taxId = Uuid::randomHex();
-        $salesChannelId = Defaults::SALES_CHANNEL;
+        $salesChannelId = TestDefaults::SALES_CHANNEL;
         $products = [];
 
         for ($i = 0; $i < 10; ++$i) {

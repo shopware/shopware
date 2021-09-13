@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder;
 use Shopware\Storefront\Page\Product\Review\ReviewLoaderResult;
@@ -86,7 +87,7 @@ class ProductControllerTest extends TestCase
             'manufacturer' => ['name' => 'test'],
             'visibilities' => [
                 [
-                    'salesChannelId' => Defaults::SALES_CHANNEL,
+                    'salesChannelId' => TestDefaults::SALES_CHANNEL,
                     'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
                 ],
             ],
@@ -109,7 +110,7 @@ class ProductControllerTest extends TestCase
         $data = [
             [
                 'id' => $customerId,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultShippingAddress' => [
                     'id' => $addressId,
                     'firstName' => 'Max',

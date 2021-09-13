@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class SalesChannelContextPersisterTest extends TestCase
@@ -48,19 +49,19 @@ class SalesChannelContextPersisterTest extends TestCase
         $this->connection->insert('sales_channel_api_context', [
             'token' => $token,
             'payload' => json_encode($expected),
-            'sales_channel_id' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL),
+            'sales_channel_id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL),
         ]);
 
-        static::assertSame($expected, $this->contextPersister->load($token, Defaults::SALES_CHANNEL));
+        static::assertSame($expected, $this->contextPersister->load($token, TestDefaults::SALES_CHANNEL));
     }
 
     public function testLoadByCustomerId(): void
     {
         $token = Uuid::randomHex();
         $customerId = $this->createCustomer();
-        $this->contextPersister->save($token, [], Defaults::SALES_CHANNEL, $customerId);
+        $this->contextPersister->save($token, [], TestDefaults::SALES_CHANNEL, $customerId);
 
-        static::assertNotEmpty($result = $this->contextPersister->load($token, Defaults::SALES_CHANNEL, $customerId));
+        static::assertNotEmpty($result = $this->contextPersister->load($token, TestDefaults::SALES_CHANNEL, $customerId));
         static::assertEquals($token, $result['token']);
     }
 
@@ -68,7 +69,7 @@ class SalesChannelContextPersisterTest extends TestCase
     {
         $token = Random::getAlphanumericString(32);
 
-        static::assertSame([], $this->contextPersister->load($token, Defaults::SALES_CHANNEL));
+        static::assertSame([], $this->contextPersister->load($token, TestDefaults::SALES_CHANNEL));
     }
 
     public function testLoadCustomerNotExisting(): void
@@ -76,7 +77,7 @@ class SalesChannelContextPersisterTest extends TestCase
         $customerId = Uuid::randomHex();
         $token = Random::getAlphanumericString(32);
 
-        static::assertSame([], $this->contextPersister->load($token, Defaults::SALES_CHANNEL, $customerId));
+        static::assertSame([], $this->contextPersister->load($token, TestDefaults::SALES_CHANNEL, $customerId));
     }
 
     public function testSaveWithoutExistingContext(): void
@@ -87,9 +88,9 @@ class SalesChannelContextPersisterTest extends TestCase
             'expired' => false,
         ];
 
-        $this->contextPersister->save($token, $expected, Defaults::SALES_CHANNEL);
+        $this->contextPersister->save($token, $expected, TestDefaults::SALES_CHANNEL);
 
-        static::assertSame($expected, $this->contextPersister->load($token, Defaults::SALES_CHANNEL));
+        static::assertSame($expected, $this->contextPersister->load($token, TestDefaults::SALES_CHANNEL));
     }
 
     public function testSaveNewCustomerContextWithoutExistingCustomer(): void
@@ -103,9 +104,9 @@ class SalesChannelContextPersisterTest extends TestCase
 
         $customerId = $this->createCustomer();
 
-        $this->contextPersister->save($token, $expected, Defaults::SALES_CHANNEL, $customerId);
+        $this->contextPersister->save($token, $expected, TestDefaults::SALES_CHANNEL, $customerId);
 
-        $result = $this->contextPersister->load($token, Defaults::SALES_CHANNEL, $customerId);
+        $result = $this->contextPersister->load($token, TestDefaults::SALES_CHANNEL, $customerId);
 
         static::assertNotEmpty($result);
 
@@ -123,7 +124,7 @@ class SalesChannelContextPersisterTest extends TestCase
                 'first' => 'test',
                 'second' => 'second test',
             ]),
-            'sales_channel_id' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL),
+            'sales_channel_id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL),
         ]);
 
         $this->contextPersister->save(
@@ -132,7 +133,7 @@ class SalesChannelContextPersisterTest extends TestCase
                 'second' => 'overwritten',
                 'third' => 'third test',
             ],
-            Defaults::SALES_CHANNEL
+            TestDefaults::SALES_CHANNEL
         );
 
         $expected = [
@@ -142,7 +143,7 @@ class SalesChannelContextPersisterTest extends TestCase
             'third' => 'third test',
         ];
 
-        $actual = $this->contextPersister->load($token, Defaults::SALES_CHANNEL);
+        $actual = $this->contextPersister->load($token, TestDefaults::SALES_CHANNEL);
         ksort($actual);
 
         static::assertSame($expected, $actual);
@@ -160,14 +161,14 @@ class SalesChannelContextPersisterTest extends TestCase
                 'first' => 'test',
                 'second' => 'second test',
             ]),
-            'sales_channel_id' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL),
+            'sales_channel_id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL),
             'customer_id' => Uuid::fromHexToBytes($customerId),
         ]);
 
         $this->contextPersister->save($token, [
             'second' => 'overwritten',
             'third' => 'third test',
-        ], Defaults::SALES_CHANNEL, $customerId);
+        ], TestDefaults::SALES_CHANNEL, $customerId);
 
         $expected = [
             'expired' => false,
@@ -176,7 +177,7 @@ class SalesChannelContextPersisterTest extends TestCase
             'third' => 'third test',
             'token' => $token,
         ];
-        $actual = $this->contextPersister->load($token, Defaults::SALES_CHANNEL, $customerId);
+        $actual = $this->contextPersister->load($token, TestDefaults::SALES_CHANNEL, $customerId);
         ksort($actual);
 
         static::assertSame($expected, $actual);
@@ -217,8 +218,8 @@ class SalesChannelContextPersisterTest extends TestCase
         $this->contextPersister->save($token2, [], $salesChannel2['id'], $customerId);
 
         // Without saved context sales channel
-        static::assertEmpty($this->contextPersister->load($token1, Defaults::SALES_CHANNEL, $customerId));
-        static::assertEmpty($this->contextPersister->load($token2, Defaults::SALES_CHANNEL, $customerId));
+        static::assertEmpty($this->contextPersister->load($token1, TestDefaults::SALES_CHANNEL, $customerId));
+        static::assertEmpty($this->contextPersister->load($token2, TestDefaults::SALES_CHANNEL, $customerId));
 
         $contextPayload1 = $this->contextPersister->load(Uuid::randomHex(), $salesChannel1['id'], $customerId);
         static::assertNotEmpty($contextPayload1);
@@ -235,7 +236,7 @@ class SalesChannelContextPersisterTest extends TestCase
         $token = Random::getAlphanumericString(32);
 
         $context = $this->createMock(SalesChannelContext::class);
-        $salesChannel = (new SalesChannelEntity())->assign(['id' => Defaults::SALES_CHANNEL]);
+        $salesChannel = (new SalesChannelEntity())->assign(['id' => TestDefaults::SALES_CHANNEL]);
         $context->method('getSalesChannel')->willReturn($salesChannel);
         $newToken = $this->contextPersister->replace($token, $context);
 
@@ -253,11 +254,11 @@ class SalesChannelContextPersisterTest extends TestCase
                 'first' => 'test',
                 'second' => 'second test',
             ]),
-            'sales_channel_id' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL),
+            'sales_channel_id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL),
         ]);
 
         $context = $this->createMock(SalesChannelContext::class);
-        $salesChannel = (new SalesChannelEntity())->assign(['id' => Defaults::SALES_CHANNEL]);
+        $salesChannel = (new SalesChannelEntity())->assign(['id' => TestDefaults::SALES_CHANNEL]);
         $context->method('getSalesChannel')->willReturn($salesChannel);
 
         $newToken = $this->contextPersister->replace($token, $context);
@@ -281,14 +282,14 @@ class SalesChannelContextPersisterTest extends TestCase
             'shipping_method_id' => Uuid::fromHexToBytes($this->getValidShippingMethodId()),
             'payment_method_id' => Uuid::fromHexToBytes($this->getValidPaymentMethodId()),
             'country_id' => Uuid::fromHexToBytes($this->getValidCountryId()),
-            'sales_channel_id' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL),
+            'sales_channel_id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL),
             'created_at' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         static::assertTrue($this->cartExists($token));
 
         $context = $this->createMock(SalesChannelContext::class);
-        $salesChannel = (new SalesChannelEntity())->assign(['id' => Defaults::SALES_CHANNEL]);
+        $salesChannel = (new SalesChannelEntity())->assign(['id' => TestDefaults::SALES_CHANNEL]);
         $context->method('getSalesChannel')->willReturn($salesChannel);
 
         $newToken = $this->contextPersister->replace($token, $context);
@@ -320,7 +321,7 @@ class SalesChannelContextPersisterTest extends TestCase
         $token = Uuid::randomHex();
 
         $customerId = $this->createCustomer();
-        $persister->save($token, [], Defaults::SALES_CHANNEL, $customerId);
+        $persister->save($token, [], TestDefaults::SALES_CHANNEL, $customerId);
 
         if ($tokenAgeInDays !== 0) {
             // change age
@@ -331,7 +332,7 @@ class SalesChannelContextPersisterTest extends TestCase
             );
         }
 
-        $result = $persister->load($token, Defaults::SALES_CHANNEL, $customerId);
+        $result = $persister->load($token, TestDefaults::SALES_CHANNEL, $customerId);
 
         static::assertSame($result['expired'], $expectedExpired, print_r([$tokenAgeInDays, $lifeTimeInterval, $expectedExpired], true));
     }
@@ -364,7 +365,7 @@ class SalesChannelContextPersisterTest extends TestCase
 
         $customer = [
             'id' => $customerId,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultShippingAddress' => $shippingAddress,
             'defaultBillingAddress' => $billingAddress,
             'defaultPaymentMethodId' => $this->getAvailablePaymentMethod()->getId(),

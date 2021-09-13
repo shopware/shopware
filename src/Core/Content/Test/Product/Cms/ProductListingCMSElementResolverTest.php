@@ -11,11 +11,11 @@ use Shopware\Core\Content\Product\Cms\ProductListingCmsElementResolver;
 use Shopware\Core\Content\Product\SalesChannel\Exception\ProductSortingNotFoundException;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
 
 class ProductListingCMSElementResolverTest extends TestCase
@@ -446,6 +446,6 @@ class ProductListingCMSElementResolverTest extends TestCase
     {
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
 
-        return $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        return $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 }

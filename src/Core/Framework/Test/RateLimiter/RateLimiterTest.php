@@ -10,7 +10,6 @@ use Shopware\Core\Checkout\Customer\Password\LegacyPasswordVerifier;
 use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
 use Shopware\Core\Checkout\Test\Customer\Rule\OrderFixture;
 use Shopware\Core\Checkout\Test\Customer\SalesChannel\CustomerTestTrait;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Controller\AuthController as AdminAuthController;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
@@ -26,6 +25,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\User\Api\UserRecoveryController;
 use Shopware\Core\System\User\Recovery\UserRecoveryService;
 use Shopware\Core\System\User\UserEntity;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Request;
@@ -150,7 +150,7 @@ class RateLimiterTest extends TestCase
         $route->login(new RequestDataBag([
             'email' => 'loginTest@example.com',
             'password' => 'shopware',
-        ]), $this->salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL));
+        ]), $this->salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL));
     }
 
     public function testRateLimitOauth(): void

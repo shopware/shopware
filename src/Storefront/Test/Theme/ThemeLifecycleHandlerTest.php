@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Storefront;
 use Shopware\Storefront\Test\Theme\fixtures\SimplePlugin\SimplePlugin;
 use Shopware\Storefront\Test\Theme\fixtures\SimplePluginWithoutCompilation\SimplePluginWithoutCompilation;
@@ -70,7 +71,7 @@ class ThemeLifecycleHandlerTest extends TestCase
         $this->themeServiceMock->expects(static::once())
             ->method('compileTheme')
             ->with(
-                Defaults::SALES_CHANNEL,
+                TestDefaults::SALES_CHANNEL,
                 static::isType('string'),
                 static::isInstanceOf(Context::class),
                 static::callback(function (StorefrontPluginConfigurationCollection $configs): bool {
@@ -121,7 +122,7 @@ class ThemeLifecycleHandlerTest extends TestCase
         $this->themeServiceMock->expects(static::once())
             ->method('compileTheme')
             ->with(
-                Defaults::SALES_CHANNEL,
+                TestDefaults::SALES_CHANNEL,
                 static::isType('string'),
                 static::isInstanceOf(Context::class),
                 static::callback(function (StorefrontPluginConfigurationCollection $configs): bool {
@@ -180,7 +181,7 @@ class ThemeLifecycleHandlerTest extends TestCase
         try {
             $this->themeLifecycleHandler->handleThemeUninstall($uninstalledConfig, Context::createDefaultContext());
         } catch (ThemeAssignmentException $e) {
-            static::assertEquals([Defaults::SALES_CHANNEL], array_values($e->getStillAssignedSalesChannels()->getIds()));
+            static::assertEquals([TestDefaults::SALES_CHANNEL], array_values($e->getStillAssignedSalesChannels()->getIds()));
             $wasThrown = true;
         }
 
@@ -204,7 +205,7 @@ class ThemeLifecycleHandlerTest extends TestCase
                 'id' => $themeId,
                 'salesChannels' => [
                     [
-                        'id' => Defaults::SALES_CHANNEL,
+                        'id' => TestDefaults::SALES_CHANNEL,
                     ],
                 ],
             ],

@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\Framework\Test\TestCaseBase;
 
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 trait CountryAddToSalesChannelTestBehaviour
@@ -16,7 +16,7 @@ trait CountryAddToSalesChannelTestBehaviour
     /**
      * @param string[] $additionalCountryIds
      */
-    protected function addCountriesToSalesChannel(array $additionalCountryIds = [], string $salesChannelId = Defaults::SALES_CHANNEL): void
+    protected function addCountriesToSalesChannel(array $additionalCountryIds = [], string $salesChannelId = TestDefaults::SALES_CHANNEL): void
     {
         /** @var EntityRepositoryInterface $salesChannelRepository */
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');

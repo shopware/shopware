@@ -26,6 +26,7 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\System\Currency\Rule\CurrencyRule;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 
 /**
  * @group rules
@@ -281,7 +282,7 @@ class LineItemListPriceRuleTest extends TestCase
             'active' => true,
             'visibilities' => [
                 [
-                    'salesChannelId' => Defaults::SALES_CHANNEL,
+                    'salesChannelId' => TestDefaults::SALES_CHANNEL,
                     'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
                 ],
             ],
@@ -292,7 +293,7 @@ class LineItemListPriceRuleTest extends TestCase
             ->create([$data], Context::createDefaultContext());
 
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create('test', Defaults::SALES_CHANNEL);
+            ->create('test', TestDefaults::SALES_CHANNEL);
 
         $service = $this->getContainer()->get(CartService::class);
 
@@ -330,7 +331,7 @@ class LineItemListPriceRuleTest extends TestCase
 
         // create new context for other currency
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create('test', Defaults::SALES_CHANNEL, ['currencyId' => $ids->get('currency')]);
+            ->create('test', TestDefaults::SALES_CHANNEL, ['currencyId' => $ids->get('currency')]);
 
         // fetch cart for recalculation
         $cart = $service->getCart('test', $context, CartService::SALES_CHANNEL, false);

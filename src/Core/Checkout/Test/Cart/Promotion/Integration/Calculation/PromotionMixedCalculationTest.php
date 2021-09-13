@@ -10,13 +10,13 @@ use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscou
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionIntegrationTestBehaviour;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionSetGroupTestFixtureBehaviour;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 
 class PromotionMixedCalculationTest extends TestCase
 {
@@ -49,7 +49,7 @@ class PromotionMixedCalculationTest extends TestCase
     {
         parent::setUp();
 
-        $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->promotionRepository = $this->getContainer()->get('promotion.repository');
@@ -73,7 +73,7 @@ class PromotionMixedCalculationTest extends TestCase
         $productId = Uuid::randomHex();
         $promotionId1 = Uuid::randomHex();
         $promotionId2 = Uuid::randomHex();
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         // add a new sample product
         $this->createTestFixtureProduct($productId, 60, 19, $this->getContainer(), $context);
@@ -113,7 +113,7 @@ class PromotionMixedCalculationTest extends TestCase
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
         $code = 'BF' . Random::getAlphanumericString(5);
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         // add a new sample product
         $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer(), $context);

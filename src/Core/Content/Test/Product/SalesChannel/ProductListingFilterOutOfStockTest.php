@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
 
 class ProductListingFilterOutOfStockTest extends TestCase
@@ -39,7 +40,7 @@ class ProductListingFilterOutOfStockTest extends TestCase
 
         $parent = $this->getContainer()->get(Connection::class)->fetchColumn(
             'SELECT LOWER(HEX(navigation_category_id)) FROM sales_channel WHERE id = :id',
-            ['id' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL)]
+            ['id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL)]
         );
 
         $this->categoryId = Uuid::randomHex();
@@ -63,7 +64,7 @@ class ProductListingFilterOutOfStockTest extends TestCase
         $request = new Request();
 
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $listing = $this->getContainer()
             ->get(ProductListingRoute::class)
@@ -105,7 +106,7 @@ class ProductListingFilterOutOfStockTest extends TestCase
         $request = new Request();
 
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $listing = $this->getContainer()
             ->get(ProductListingRoute::class)
@@ -214,7 +215,7 @@ class ProductListingFilterOutOfStockTest extends TestCase
                 'configuratorSettings' => $configurator,
                 'visibilities' => [
                     [
-                        'salesChannelId' => Defaults::SALES_CHANNEL,
+                        'salesChannelId' => TestDefaults::SALES_CHANNEL,
                         'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
                     ],
                 ],

@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1618989442AddProductConfigurationSettingsUniqKey;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 
 class Migration1618989442AddProductConfigurationSettingsUniqKeyTest extends TestCase
 {
@@ -55,7 +56,7 @@ class Migration1618989442AddProductConfigurationSettingsUniqKeyTest extends Test
 
         $this->context = $this->getContainer()
             ->get(SalesChannelContextFactory::class)
-            ->create('test', Defaults::SALES_CHANNEL);
+            ->create('test', TestDefaults::SALES_CHANNEL);
 
         $this->loader = $this->getContainer()->get(ProductConfiguratorLoader::class);
 
@@ -270,7 +271,7 @@ class Migration1618989442AddProductConfigurationSettingsUniqKeyTest extends Test
                 'configuratorGroupConfig' => null,
                 'visibilities' => [
                     [
-                        'salesChannelId' => Defaults::SALES_CHANNEL,
+                        'salesChannelId' => TestDefaults::SALES_CHANNEL,
                         'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
                     ],
                 ],

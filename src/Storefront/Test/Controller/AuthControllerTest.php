@@ -21,6 +21,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Controller\AuthController;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Shopware\Storefront\Page\Account\Overview\AccountOverviewPage;
@@ -82,7 +83,7 @@ class AuthControllerTest extends TestCase
 
         static::assertEquals($browser->getRequest()->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID), $session->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID));
 
-        $session->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, Defaults::SALES_CHANNEL);
+        $session->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, TestDefaults::SALES_CHANNEL);
 
         $browser->request('GET', '/account');
 
@@ -106,7 +107,7 @@ class AuthControllerTest extends TestCase
 
         static::assertEquals($browser->getRequest()->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID), $session->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID));
 
-        $session->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, Defaults::SALES_CHANNEL);
+        $session->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, TestDefaults::SALES_CHANNEL);
 
         $browser->request('GET', '/account');
 
@@ -239,7 +240,7 @@ class AuthControllerTest extends TestCase
         $this->createProductOnDatabase($productId, 'test.123', $context);
         $salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
             $contextToken,
-            Defaults::SALES_CHANNEL
+            TestDefaults::SALES_CHANNEL
         );
 
         $this->getContainer()->get(SalesChannelContextPersister::class)->save(
@@ -249,7 +250,7 @@ class AuthControllerTest extends TestCase
                 'billingAddressId' => null,
                 'shippingAddressId' => null,
             ],
-            Defaults::SALES_CHANNEL,
+            TestDefaults::SALES_CHANNEL,
             $customer->getId()
         );
 
@@ -273,7 +274,7 @@ class AuthControllerTest extends TestCase
 
         $salesChannelContextNew = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
             Uuid::randomHex(),
-            Defaults::SALES_CHANNEL
+            TestDefaults::SALES_CHANNEL
         );
 
         $this->getContainer()->get(AuthController::class)->login($request, $requestDataBag, $salesChannelContextNew);
@@ -302,7 +303,7 @@ class AuthControllerTest extends TestCase
             'visibilities' => [
                 [
                     'id' => $productId,
-                    'salesChannelId' => Defaults::SALES_CHANNEL,
+                    'salesChannelId' => TestDefaults::SALES_CHANNEL,
                     'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
                 ],
             ],
@@ -342,7 +343,7 @@ class AuthControllerTest extends TestCase
         $data = [
             [
                 'id' => $customerId,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultShippingAddress' => [
                     'id' => $addressId,
                     'firstName' => 'Max',

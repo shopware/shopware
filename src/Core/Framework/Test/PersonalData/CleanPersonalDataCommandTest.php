@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Demodata\PersonalData\CleanPersonalDataCommand;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
@@ -241,7 +242,7 @@ class CleanPersonalDataCommandTest extends TestCase
             'paymentMethodId' => $this->fetchFirstIdFromTable('payment_method'),
             'currencyId' => Defaults::CURRENCY,
             'currencyFactor' => 1.0,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'billingAddressId' => $addressId,
             'addresses' => [
                 [
@@ -286,7 +287,7 @@ class CleanPersonalDataCommandTest extends TestCase
 
         $guest = [
             'id' => $id,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultShippingAddress' => $address,
             'defaultPaymentMethodId' => $this->fetchFirstIdFromTable('payment_method'),
             'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
@@ -316,7 +317,7 @@ class CleanPersonalDataCommandTest extends TestCase
             'shipping_method_id' => Uuid::fromHexToBytes($this->fetchFirstIdFromTable('shipping_method')),
             'payment_method_id' => Uuid::fromHexToBytes($this->fetchFirstIdFromTable('payment_method')),
             'country_id' => Uuid::fromHexToBytes($this->fetchFirstIdFromTable('country')),
-            'sales_channel_id' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL),
+            'sales_channel_id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL),
             'created_at' => $dateTime->format('Y-m-d H:i:s'),
         ];
 

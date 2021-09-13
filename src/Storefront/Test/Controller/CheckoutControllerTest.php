@@ -33,6 +33,7 @@ use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Controller\CheckoutController;
 use Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
@@ -186,9 +187,9 @@ class CheckoutControllerTest extends TestCase
 
         $salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
             $contextToken,
-            Defaults::SALES_CHANNEL
+            TestDefaults::SALES_CHANNEL
         );
-        $this->updateSalesChannel(Defaults::SALES_CHANNEL);
+        $this->updateSalesChannel(TestDefaults::SALES_CHANNEL);
         $request = $this->createRequest();
         $request->attributes->add([
             '_route' => 'frontend.cart.offcanvas',
@@ -280,7 +281,7 @@ class CheckoutControllerTest extends TestCase
             'visibilities' => [
                 [
                     'id' => $productId,
-                    'salesChannelId' => Defaults::SALES_CHANNEL,
+                    'salesChannelId' => TestDefaults::SALES_CHANNEL,
                     'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
                 ],
             ],
@@ -330,7 +331,7 @@ class CheckoutControllerTest extends TestCase
         $customer = [
             [
                 'id' => $customerId,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultShippingAddress' => [
                     'id' => $customerId,
                     'firstName' => 'Test',
@@ -378,7 +379,7 @@ class CheckoutControllerTest extends TestCase
             'visibilities' => [
                 [
                     'id' => $productId,
-                    'salesChannelId' => Defaults::SALES_CHANNEL,
+                    'salesChannelId' => TestDefaults::SALES_CHANNEL,
                     'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
                 ],
             ],
@@ -464,7 +465,7 @@ class CheckoutControllerTest extends TestCase
 
     private function createSalesChannelContext(string $contextToken, ?bool $withFailedPaymentMethod = false): SalesChannelContext
     {
-        $this->updateSalesChannel(Defaults::SALES_CHANNEL);
+        $this->updateSalesChannel(TestDefaults::SALES_CHANNEL);
         $salesChannelData = [
             SalesChannelContextService::CUSTOMER_ID => $this->createCustomer(),
         ];
@@ -474,7 +475,7 @@ class CheckoutControllerTest extends TestCase
 
         return $this->getContainer()->get(SalesChannelContextFactory::class)->create(
             $contextToken,
-            Defaults::SALES_CHANNEL,
+            TestDefaults::SALES_CHANNEL,
             $salesChannelData
         );
     }
@@ -498,7 +499,7 @@ class CheckoutControllerTest extends TestCase
                 'handlerIdentifier' => SyncTestFailedPaymentHandler::class,
                 'salesChannels' => [
                     [
-                        'id' => Defaults::SALES_CHANNEL,
+                        'id' => TestDefaults::SALES_CHANNEL,
                     ],
                 ],
             ],

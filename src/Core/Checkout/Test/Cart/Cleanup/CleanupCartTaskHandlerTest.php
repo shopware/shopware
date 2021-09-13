@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 
 class CleanupCartTaskHandlerTest extends TestCase
 {
@@ -66,7 +67,7 @@ class CleanupCartTaskHandlerTest extends TestCase
             'payment_method_id' => $this->getContainer()->get(Connection::class)->fetchOne('SELECT id FROM payment_method LIMIT 1'),
             'country_id' => $this->getContainer()->get(Connection::class)->fetchOne('SELECT id FROM country LIMIT 1'),
             'customer_id' => null,
-            'sales_channel_id' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL),
+            'sales_channel_id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL),
             'created_at' => $date->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'updated_at' => $updatedAt === null ? null : $updatedAt->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];

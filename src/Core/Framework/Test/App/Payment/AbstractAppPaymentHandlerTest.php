@@ -27,6 +27,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
+use Shopware\Core\Test\TestDefaults;
 
 abstract class AbstractAppPaymentHandlerTest extends TestCase
 {
@@ -122,7 +123,7 @@ abstract class AbstractAppPaymentHandlerTest extends TestCase
             'password' => 'shopware',
             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultBillingAddressId' => $addressId,
             'defaultShippingAddressId' => $addressId,
             'addresses' => [
@@ -168,7 +169,7 @@ abstract class AbstractAppPaymentHandlerTest extends TestCase
             'paymentMethodId' => $paymentMethodId,
             'currencyId' => Defaults::CURRENCY,
             'currencyFactor' => 1.0,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'billingAddressId' => $addressId,
             'addresses' => [
                 [
@@ -225,7 +226,7 @@ abstract class AbstractAppPaymentHandlerTest extends TestCase
     {
         return $this->salesChannelContextFactory->create(
             Uuid::randomHex(),
-            Defaults::SALES_CHANNEL,
+            TestDefaults::SALES_CHANNEL,
             [SalesChannelContextService::PAYMENT_METHOD_ID => $paymentMethodId]
         );
     }

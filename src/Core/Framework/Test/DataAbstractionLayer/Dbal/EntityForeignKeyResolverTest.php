@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
+use Shopware\Core\Test\TestDefaults;
 
 class EntityForeignKeyResolverTest extends TestCase
 {
@@ -211,7 +212,7 @@ class EntityForeignKeyResolverTest extends TestCase
             'billingAddressId' => $ids->create('billing-address' . $i),
             'currencyId' => Defaults::CURRENCY,
             'languageId' => Defaults::LANGUAGE_SYSTEM,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'orderDateTime' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'currencyFactor' => 1,
             'stateId' => $this->getStateId('open', 'order.state'),

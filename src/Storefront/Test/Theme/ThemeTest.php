@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\App\StorefrontPluginRegistryTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Test\Theme\fixtures\ThemeFixtures;
 use Shopware\Storefront\Theme\ConfigLoader\DatabaseConfigLoader;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
@@ -339,7 +340,7 @@ class ThemeTest extends TestCase
             $this->context
         );
 
-        $themeCompiled = $this->themeService->assignTheme($childTheme->getId(), Defaults::SALES_CHANNEL, $this->context);
+        $themeCompiled = $this->themeService->assignTheme($childTheme->getId(), TestDefaults::SALES_CHANNEL, $this->context);
 
         static::assertTrue($themeCompiled);
     }
@@ -367,7 +368,7 @@ class ThemeTest extends TestCase
         $themeCompilerMock->expects(static::exactly(2))
             ->method('compileTheme')
             ->with(
-                new IsEqual(Defaults::SALES_CHANNEL),
+                new IsEqual(TestDefaults::SALES_CHANNEL),
                 new Callback(static function (string $value) use (&$_expectedTheme): bool {
                     return $value === $_expectedTheme;
                 }),
@@ -525,10 +526,10 @@ class ThemeTest extends TestCase
 
         $_expectedColor = '#b1900f';
         $_expectedTheme = $childTheme->getId();
-        $themeService->compileTheme(Defaults::SALES_CHANNEL, $childTheme->getId(), $this->context);
+        $themeService->compileTheme(TestDefaults::SALES_CHANNEL, $childTheme->getId(), $this->context);
         $_expectedColor = '#008490';
         $_expectedTheme = $baseTheme->getId();
-        $themeService->compileTheme(Defaults::SALES_CHANNEL, $baseTheme->getId(), $this->context);
+        $themeService->compileTheme(TestDefaults::SALES_CHANNEL, $baseTheme->getId(), $this->context);
     }
 
     public function testRefreshPlugin(): void

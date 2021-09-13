@@ -29,6 +29,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -119,7 +120,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
 
         $this->salesChannel = $this->getContainer()->get('sales_channel.repository')->search(
-            new Criteria([Defaults::SALES_CHANNEL]),
+            new Criteria([TestDefaults::SALES_CHANNEL]),
             Context::createDefaultContext()
         )->first();
     }
@@ -387,9 +388,9 @@ class ProductListingFeaturesSubscriberTest extends TestCase
         $this->systemConfigService->set('core.listing.productsPerPage', 12);
 
         if ($systemConfigLimit !== null) {
-            $this->systemConfigService->set('core.listing.productsPerPage', $systemConfigLimit, Defaults::SALES_CHANNEL);
+            $this->systemConfigService->set('core.listing.productsPerPage', $systemConfigLimit, TestDefaults::SALES_CHANNEL);
         } else {
-            $this->systemConfigService->delete('core.listing.productsPerPage', Defaults::SALES_CHANNEL);
+            $this->systemConfigService->delete('core.listing.productsPerPage', TestDefaults::SALES_CHANNEL);
         }
 
         $criteria = new Criteria();
@@ -799,7 +800,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
     {
         $parent = $this->getContainer()->get(Connection::class)->fetchColumn(
             'SELECT LOWER(HEX(navigation_category_id)) FROM sales_channel WHERE id = :id',
-            ['id' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL)]
+            ['id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL)]
         );
 
         $this->getContainer()->get('category.repository')
@@ -811,7 +812,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
             ->create([$product], Context::createDefaultContext());
 
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $listing = $this->getContainer()
             ->get(ProductListingRoute::class)
@@ -850,7 +851,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'visibilities' => [
                 [
-                    'salesChannelId' => Defaults::SALES_CHANNEL,
+                    'salesChannelId' => TestDefaults::SALES_CHANNEL,
                     'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
                 ],
             ],

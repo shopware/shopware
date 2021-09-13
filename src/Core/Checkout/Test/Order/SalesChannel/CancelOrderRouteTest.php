@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -168,7 +169,7 @@ class CancelOrderRouteTest extends TestCase
                 'paymentMethodId' => $this->getValidPaymentMethodId(),
                 'currencyId' => Defaults::CURRENCY,
                 'currencyFactor' => 1.0,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'billingAddressId' => $billingAddressId = Uuid::randomHex(),
                 'addresses' => [
                     [

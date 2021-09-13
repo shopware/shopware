@@ -25,6 +25,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Event\StateMachineTransitionEvent;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -268,7 +269,7 @@ class SetPaymentOrderRouteTest extends TestCase
                 'stateId' => $this->getStateMachineState(),
                 'currencyId' => Defaults::CURRENCY,
                 'currencyFactor' => 1.0,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'billingAddressId' => $billingAddressId = Uuid::randomHex(),
                 'addresses' => [
                     [

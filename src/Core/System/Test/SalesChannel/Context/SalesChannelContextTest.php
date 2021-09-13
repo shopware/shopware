@@ -19,6 +19,7 @@ use Shopware\Core\System\Tax\TaxRuleType\EntireCountryRuleTypeFilter;
 use Shopware\Core\System\Tax\TaxRuleType\IndividualStatesRuleTypeFilter;
 use Shopware\Core\System\Tax\TaxRuleType\ZipCodeRangeRuleTypeFilter;
 use Shopware\Core\System\Tax\TaxRuleType\ZipCodeRuleTypeFilter;
+use Shopware\Core\Test\TestDefaults;
 
 class SalesChannelContextTest extends TestCase
 {
@@ -650,7 +651,7 @@ class SalesChannelContextTest extends TestCase
 
         $token = Uuid::randomHex();
 
-        return $salesChannelContextFactory->create($token, Defaults::SALES_CHANNEL, $options);
+        return $salesChannelContextFactory->create($token, TestDefaults::SALES_CHANNEL, $options);
     }
 
     private function loadTaxRuleTypes(): EntityCollection
@@ -694,7 +695,7 @@ class SalesChannelContextTest extends TestCase
 
         $customer = [
             'id' => $customerId,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultShippingAddress' => $shippingAddress,
             'defaultBillingAddress' => $billingAddress,
             'defaultPaymentMethodId' => $this->getAvailablePaymentMethod()->getId(),

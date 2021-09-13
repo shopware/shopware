@@ -29,6 +29,7 @@ use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
+use Shopware\Core\Test\TestDefaults;
 
 class OrderRepositoryTest extends TestCase
 {
@@ -113,7 +114,7 @@ class OrderRepositoryTest extends TestCase
             'stock' => 10,
             'active' => true,
             'visibilities' => [
-                ['salesChannelId' => Defaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ['salesChannelId' => TestDefaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
             ],
         ];
 
@@ -132,7 +133,7 @@ class OrderRepositoryTest extends TestCase
 
         $context = $this->salesChannelContextFactory->create(
             Uuid::randomHex(),
-            Defaults::SALES_CHANNEL,
+            TestDefaults::SALES_CHANNEL,
             [
                 SalesChannelContextService::CUSTOMER_ID => $customerId,
             ]
@@ -171,7 +172,7 @@ class OrderRepositoryTest extends TestCase
             'password' => 'shopware',
             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultBillingAddressId' => $addressId,
             'defaultShippingAddressId' => $addressId,
             'addresses' => [
@@ -211,7 +212,7 @@ class OrderRepositoryTest extends TestCase
                 'paymentMethodId' => $this->getValidPaymentMethodId(),
                 'currencyId' => Defaults::CURRENCY,
                 'currencyFactor' => 1,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'deliveries' => [
                     [
                         'stateId' => $this->stateMachineRegistry->getInitialState(OrderDeliveryStates::STATE_MACHINE, $context)->getId(),
@@ -269,7 +270,7 @@ class OrderRepositoryTest extends TestCase
                         'guest' => true,
                         'group' => ['name' => 'testse2323'],
                         'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-                        'salesChannelId' => Defaults::SALES_CHANNEL,
+                        'salesChannelId' => TestDefaults::SALES_CHANNEL,
                         'defaultBillingAddressId' => $addressId,
                         'defaultShippingAddressId' => $addressId,
                         'addresses' => [

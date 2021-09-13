@@ -6,6 +6,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 
 /**
  * How to use:
@@ -130,7 +131,7 @@ class ProductBuilder
         return $this;
     }
 
-    public function visibility(string $salesChannelId = Defaults::SALES_CHANNEL, int $visibility = ProductVisibilityDefinition::VISIBILITY_ALL): self
+    public function visibility(string $salesChannelId = TestDefaults::SALES_CHANNEL, int $visibility = ProductVisibilityDefinition::VISIBILITY_ALL): self
     {
         $this->visibilities[$salesChannelId] = ['salesChannelId' => $salesChannelId, 'visibility' => $visibility];
 
@@ -302,7 +303,7 @@ class ProductBuilder
         string $title,
         string $content,
         float $points = 3,
-        string $salesChannelId = Defaults::SALES_CHANNEL,
+        string $salesChannelId = TestDefaults::SALES_CHANNEL,
         string $languageId = Defaults::LANGUAGE_SYSTEM,
         bool $status = true,
         ?string $customerId = null

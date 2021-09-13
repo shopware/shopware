@@ -16,13 +16,13 @@ use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscou
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCalculator;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 
 class PromotionCalculatorTest extends TestCase
 {
@@ -43,7 +43,7 @@ class PromotionCalculatorTest extends TestCase
         $salesChannelService = $container->get(SalesChannelContextService::class);
         $this->salesChannelContext = $salesChannelService->get(
             new SalesChannelContextServiceParameters(
-                Defaults::SALES_CHANNEL,
+                TestDefaults::SALES_CHANNEL,
                 Uuid::randomHex()
             )
         );

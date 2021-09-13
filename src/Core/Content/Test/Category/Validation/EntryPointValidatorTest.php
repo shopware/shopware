@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Test\Category\Validation;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -13,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
+use Shopware\Core\Test\TestDefaults;
 
 class EntryPointValidatorTest extends TestCase
 {
@@ -41,7 +41,7 @@ class EntryPointValidatorTest extends TestCase
         $categoryId = $this->getValidCategoryId();
         $this->salesChannelRepository->update([
             [
-                'id' => Defaults::SALES_CHANNEL,
+                'id' => TestDefaults::SALES_CHANNEL,
                 'navigationCategoryId' => $categoryId,
             ],
         ], $context);
@@ -63,7 +63,7 @@ class EntryPointValidatorTest extends TestCase
         $this->expectException(WriteException::class);
         $this->salesChannelRepository->update([
             [
-                'id' => Defaults::SALES_CHANNEL,
+                'id' => TestDefaults::SALES_CHANNEL,
                 'serviceCategory' => [
                     'id' => $categoryId,
                     'type' => CategoryDefinition::TYPE_LINK,
@@ -78,7 +78,7 @@ class EntryPointValidatorTest extends TestCase
         $categoryId = $this->getValidCategoryId();
         $this->salesChannelRepository->update([
             [
-                'id' => Defaults::SALES_CHANNEL,
+                'id' => TestDefaults::SALES_CHANNEL,
                 'footerCategory' => [
                     'id' => $categoryId,
                     'type' => CategoryDefinition::TYPE_PAGE,

@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1627929168UpdatePriceFieldInProductTable;
+use Shopware\Core\Test\TestDefaults;
 
 class Migration1627929168UpdatePriceFieldInProductTableTest extends TestCase
 {
@@ -217,7 +218,7 @@ class Migration1627929168UpdatePriceFieldInProductTableTest extends TestCase
             'manufacturer' => ['name' => 'test'],
             'visibilities' => [
                 [
-                    'salesChannelId' => Defaults::SALES_CHANNEL,
+                    'salesChannelId' => TestDefaults::SALES_CHANNEL,
                     'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
                 ],
             ],

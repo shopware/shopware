@@ -8,12 +8,12 @@ use Shopware\Core\Checkout\Payment\Cart\PaymentMethodValidator;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 
 class PaymentMethodValidatorTest extends TestCase
 {
@@ -47,8 +47,8 @@ class PaymentMethodValidatorTest extends TestCase
 
         /** @var EntityRepositoryInterface $salesChannelRepo */
         $salesChannelRepo = $this->getContainer()->get('sales_channel.repository');
-        $salesChannel = $salesChannelRepo->search(new Criteria([Defaults::SALES_CHANNEL]), Context::createDefaultContext())
-            ->get(Defaults::SALES_CHANNEL);
+        $salesChannel = $salesChannelRepo->search(new Criteria([TestDefaults::SALES_CHANNEL]), Context::createDefaultContext())
+            ->get(TestDefaults::SALES_CHANNEL);
 
         $context = Generator::createSalesChannelContext(
             null,
@@ -70,8 +70,8 @@ class PaymentMethodValidatorTest extends TestCase
 
         /** @var EntityRepositoryInterface $salesChannelRepo */
         $salesChannelRepo = $this->getContainer()->get('sales_channel.repository');
-        $salesChannel = $salesChannelRepo->search(new Criteria([Defaults::SALES_CHANNEL]), Context::createDefaultContext())
-            ->get(Defaults::SALES_CHANNEL);
+        $salesChannel = $salesChannelRepo->search(new Criteria([TestDefaults::SALES_CHANNEL]), Context::createDefaultContext())
+            ->get(TestDefaults::SALES_CHANNEL);
 
         $paymentMethod = (new PaymentMethodEntity())->assign(
             [

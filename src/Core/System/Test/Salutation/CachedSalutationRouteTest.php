@@ -3,7 +3,6 @@
 namespace Shopware\Core\System\Test\Salutation;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheTracer;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\StatsAggregation;
@@ -23,6 +22,7 @@ use Shopware\Core\System\Salutation\SalesChannel\CachedSalutationRoute;
 use Shopware\Core\System\Salutation\SalesChannel\SalutationRoute;
 use Shopware\Core\System\Salutation\SalesChannel\SalutationRouteResponse;
 use Shopware\Core\System\Salutation\SalutationCollection;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\HttpFoundation\Request;
@@ -43,7 +43,7 @@ class CachedSalutationRouteTest extends TestCase
         parent::setUp();
 
         $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 
     /**

@@ -24,6 +24,7 @@ use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\HttpFoundation\Request;
@@ -44,7 +45,7 @@ class CachedProductReviewRouteTest extends TestCase
         parent::setUp();
 
         $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 
     /**
@@ -115,7 +116,7 @@ class CachedProductReviewRouteTest extends TestCase
             (new ProductBuilder($ids, 'product'))
                 ->price(100)
                 ->visibility()
-                ->review('Super', 'Amazing product!!!!', 3, Defaults::SALES_CHANNEL, DEFAULTS::LANGUAGE_SYSTEM, false)
+                ->review('Super', 'Amazing product!!!!', 3, TestDefaults::SALES_CHANNEL, DEFAULTS::LANGUAGE_SYSTEM, false)
                 ->build(),
 
             (new ProductBuilder($ids, 'other-product'))
@@ -211,7 +212,7 @@ class CachedProductReviewRouteTest extends TestCase
         ];
     }
 
-    private static function review(string $id, string $productId, string $title, string $content, float $points = 3, string $salesChannelId = Defaults::SALES_CHANNEL, string $languageId = Defaults::LANGUAGE_SYSTEM): array
+    private static function review(string $id, string $productId, string $title, string $content, float $points = 3, string $salesChannelId = TestDefaults::SALES_CHANNEL, string $languageId = Defaults::LANGUAGE_SYSTEM): array
     {
         return [
             'id' => $id,

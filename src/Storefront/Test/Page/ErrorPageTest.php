@@ -4,13 +4,13 @@ namespace Shopware\Storefront\Test\Page;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Page\Navigation\Error\ErrorPage;
 use Shopware\Storefront\Page\Navigation\Error\ErrorPageLoadedEvent;
 use Shopware\Storefront\Page\Navigation\Error\ErrorPageLoader;
@@ -55,7 +55,7 @@ class ErrorPageTest extends TestCase
         $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
         $this->systemConfigRepository = $this->getContainer()->get('system_config.repository');
         $this->cmsPageRepository = $this->getContainer()->get('cms_page.repository');
-        $this->salesChannelContext = $contextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $this->salesChannelContext = $contextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $this->errorLayoutId = $this->createPage();
         $this->systemConfigService->set('core.basicInformation.http404Page', $this->errorLayoutId);

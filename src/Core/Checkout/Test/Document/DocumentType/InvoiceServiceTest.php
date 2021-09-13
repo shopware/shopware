@@ -37,6 +37,7 @@ use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 
 class InvoiceServiceTest extends TestCase
 {
@@ -81,7 +82,7 @@ class InvoiceServiceTest extends TestCase
 
         $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
             Uuid::randomHex(),
-            Defaults::SALES_CHANNEL,
+            TestDefaults::SALES_CHANNEL,
             [
                 SalesChannelContextService::CUSTOMER_ID => $customerId,
                 SalesChannelContextService::SHIPPING_METHOD_ID => $shippingMethodId,
@@ -259,7 +260,7 @@ class InvoiceServiceTest extends TestCase
                 'stock' => 10,
                 'active' => true,
                 'visibilities' => [
-                    ['salesChannelId' => Defaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                    ['salesChannelId' => TestDefaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
                 ],
             ];
 
@@ -298,7 +299,7 @@ class InvoiceServiceTest extends TestCase
             'password' => 'shopware',
             'defaultPaymentMethodId' => $this->getDefaultPaymentMethod(),
             'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultBillingAddressId' => $addressId,
             'defaultShippingAddressId' => $addressId,
             'addresses' => [
@@ -410,7 +411,7 @@ class InvoiceServiceTest extends TestCase
             ],
             'salesChannels' => [
                 [
-                    'id' => Defaults::SALES_CHANNEL,
+                    'id' => TestDefaults::SALES_CHANNEL,
                 ],
             ],
         ];

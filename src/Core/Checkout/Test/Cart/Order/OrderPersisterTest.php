@@ -30,6 +30,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\Test\TestDefaults;
 
 class OrderPersisterTest extends TestCase
 {
@@ -115,7 +116,7 @@ class OrderPersisterTest extends TestCase
         );
 
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $processedCart = $this->cartProcessor->process($cart, $context, new CartBehavior());
 
@@ -170,7 +171,7 @@ class OrderPersisterTest extends TestCase
         $salesChannelContext->method('getCustomer')->willReturn($customer);
 
         $context = Context::createDefaultContext();
-        $salesChannel->setId(Defaults::SALES_CHANNEL);
+        $salesChannel->setId(TestDefaults::SALES_CHANNEL);
         $salesChannelContext->method('getSalesChannel')->willReturn($salesChannel);
         $salesChannelContext->method('getContext')->willReturn($context);
 

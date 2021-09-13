@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\IpUtils;
 
@@ -23,7 +24,7 @@ class CustomerRemoteAddressSubscriberTest extends TestCase
     public function setUp(): void
     {
         $this->browser = $this->createCustomSalesChannelBrowser([
-            'id' => Defaults::SALES_CHANNEL,
+            'id' => TestDefaults::SALES_CHANNEL,
             'languages' => [],
         ]);
         $this->assignSalesChannelContext($this->browser);
@@ -69,7 +70,7 @@ class CustomerRemoteAddressSubscriberTest extends TestCase
         $this->getContainer()->get('customer.repository')->create([
             [
                 'id' => $customerId,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultShippingAddress' => [
                     'id' => $addressId,
                     'firstName' => 'Max',

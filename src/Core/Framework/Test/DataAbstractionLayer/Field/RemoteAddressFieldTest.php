@@ -27,6 +27,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\IpUtils;
 
 class RemoteAddressFieldTest extends TestCase
@@ -132,7 +133,7 @@ class RemoteAddressFieldTest extends TestCase
     {
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
 
-        return $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        return $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 
     private function createOrderWithRemoteAddress(string $remoteAddress): string
@@ -161,7 +162,7 @@ class RemoteAddressFieldTest extends TestCase
             'paymentMethodId' => $this->getValidPaymentMethodId(),
             'currencyId' => Defaults::CURRENCY,
             'currencyFactor' => 1.0,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'billingAddressId' => $addressId,
             'addresses' => [
                 [
@@ -201,7 +202,7 @@ class RemoteAddressFieldTest extends TestCase
             'password' => 'shopware',
             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultBillingAddressId' => $addressId,
             'defaultShippingAddressId' => $addressId,
             'remoteAddress' => '127.0.0.1',

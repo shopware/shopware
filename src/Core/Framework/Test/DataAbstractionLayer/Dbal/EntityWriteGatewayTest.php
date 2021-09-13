@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValida
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
+use Shopware\Core\Test\TestDefaults;
 
 class EntityWriteGatewayTest extends TestCase
 {
@@ -311,7 +312,7 @@ class EntityWriteGatewayTest extends TestCase
                 ['id' => $id, 'name' => 'test'],
             ],
             'visibilities' => [
-                ['id' => $id, 'salesChannelId' => Defaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ['id' => $id, 'salesChannelId' => TestDefaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
             ],
         ];
 

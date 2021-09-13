@@ -33,6 +33,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Controller\AccountOrderController;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -85,7 +86,7 @@ class CartServiceTest extends TestCase
             'manufacturer' => ['name' => 'test'],
             'active' => true,
             'visibilities' => [
-                ['salesChannelId' => Defaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ['salesChannelId' => TestDefaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
             ],
         ];
 
@@ -285,7 +286,7 @@ class CartServiceTest extends TestCase
             'manufacturer' => ['name' => 'test'],
             'active' => true,
             'visibilities' => [
-                ['salesChannelId' => Defaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ['salesChannelId' => TestDefaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
             ],
         ];
 
@@ -326,7 +327,7 @@ class CartServiceTest extends TestCase
 
         $newtoken = $this->accountService->login($mail, $context);
 
-        $context = $contextService->get(new SalesChannelContextServiceParameters(Defaults::SALES_CHANNEL, $newtoken));
+        $context = $contextService->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $newtoken));
 
         $lineItem = (new ProductLineItemFactory())->create($this->productId);
 
@@ -336,7 +337,7 @@ class CartServiceTest extends TestCase
 
         $cart = $cartService->add($cart, $lineItem, $context);
 
-        $this->assignMailtemplatesToSalesChannel(Defaults::SALES_CHANNEL, $context->getContext());
+        $this->assignMailtemplatesToSalesChannel(TestDefaults::SALES_CHANNEL, $context->getContext());
         $this->setDomainForSalesChannel('http://shopware.local', Defaults::LANGUAGE_SYSTEM, $context->getContext());
 
         $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
@@ -365,7 +366,7 @@ class CartServiceTest extends TestCase
     public function testCartCreatedWithGivenToken(): void
     {
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
-        $context = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $token = Uuid::randomHex();
         $cartService = $this->getContainer()->get(CartService::class);
@@ -382,7 +383,7 @@ class CartServiceTest extends TestCase
 
         $this->customerRepository->create([
             [
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultShippingAddress' => [
                     'id' => $addressId,
                     'firstName' => 'not',
@@ -411,7 +412,7 @@ class CartServiceTest extends TestCase
         $this->addCountriesToSalesChannel();
 
         return $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 
     private function setDomainForSalesChannel(string $domain, string $languageId, Context $context): void
@@ -421,7 +422,7 @@ class CartServiceTest extends TestCase
 
         try {
             $data = [
-                'id' => Defaults::SALES_CHANNEL,
+                'id' => TestDefaults::SALES_CHANNEL,
                 'domains' => [
                     [
                         'languageId' => $languageId,

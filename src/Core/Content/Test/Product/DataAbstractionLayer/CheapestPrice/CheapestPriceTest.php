@@ -24,6 +24,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 
 class CheapestPriceTest extends TestCase
 {
@@ -109,13 +110,13 @@ class CheapestPriceTest extends TestCase
                 (new ProductBuilder($ids, 'p.1'))
                     ->price(70)
                     ->price(99, null, 'currency')
-                    ->visibility(Defaults::SALES_CHANNEL)
+                    ->visibility(TestDefaults::SALES_CHANNEL)
                     ->build(),
 
                 // no rule = 79€
                 (new ProductBuilder($ids, 'p.2'))
                     ->price(80)
-                    ->visibility(Defaults::SALES_CHANNEL)
+                    ->visibility(TestDefaults::SALES_CHANNEL)
                     ->variant(
                         (new ProductBuilder($ids, 'v.2.1'))
                             ->build()
@@ -131,7 +132,7 @@ class CheapestPriceTest extends TestCase
                 // no rule = 90€
                 (new ProductBuilder($ids, 'p.3'))
                     ->price(90)
-                    ->visibility(Defaults::SALES_CHANNEL)
+                    ->visibility(TestDefaults::SALES_CHANNEL)
                     ->variant(
                         (new ProductBuilder($ids, 'v.3.1'))
                             ->build()
@@ -146,7 +147,7 @@ class CheapestPriceTest extends TestCase
                 // no rule = 60€
                 (new ProductBuilder($ids, 'p.4'))
                     ->price(100)
-                    ->visibility(Defaults::SALES_CHANNEL)
+                    ->visibility(TestDefaults::SALES_CHANNEL)
                     ->variant(
                         (new ProductBuilder($ids, 'v.4.1'))
                             ->price(60)
@@ -165,7 +166,7 @@ class CheapestPriceTest extends TestCase
                     ->price(110)
                     ->prices('rule-a', 130)
                     ->prices('rule-a', 120, 'default', null, 3)
-                    ->visibility(Defaults::SALES_CHANNEL)
+                    ->visibility(TestDefaults::SALES_CHANNEL)
                     ->build(),
 
                 // no rule = 120€  ||  rule-a = 130€
@@ -175,7 +176,7 @@ class CheapestPriceTest extends TestCase
                     ->prices('rule-a', 140, 'default', null, 3)
                     ->prices('rule-a', 199, 'currency')
                     ->prices('rule-a', 188, 'currency', null, 3)
-                    ->visibility(Defaults::SALES_CHANNEL)
+                    ->visibility(TestDefaults::SALES_CHANNEL)
                     ->variant(
                         (new ProductBuilder($ids, 'v.6.1'))
                             ->prices('rule-a', 140)
@@ -195,7 +196,7 @@ class CheapestPriceTest extends TestCase
                     ->price(130)
                     ->prices('rule-a', 150)
                     ->prices('rule-a', 140, 'default', null, 3)
-                    ->visibility(Defaults::SALES_CHANNEL)
+                    ->visibility(TestDefaults::SALES_CHANNEL)
                     ->variant(
                         (new ProductBuilder($ids, 'v.7.1'))
                             ->prices('rule-a', 160)
@@ -213,7 +214,7 @@ class CheapestPriceTest extends TestCase
                     ->price(140)
                     ->prices('rule-a', 160)
                     ->prices('rule-a', 150, 'default', null, 3)
-                    ->visibility(Defaults::SALES_CHANNEL)
+                    ->visibility(TestDefaults::SALES_CHANNEL)
                     ->variant(
                         (new ProductBuilder($ids, 'v.8.1'))
                             ->prices('rule-a', 170)
@@ -231,7 +232,7 @@ class CheapestPriceTest extends TestCase
                 // no-rule = 150€   ||   rule-a  = 160€
                 (new ProductBuilder($ids, 'p.9'))
                     ->price(150)
-                    ->visibility(Defaults::SALES_CHANNEL)
+                    ->visibility(TestDefaults::SALES_CHANNEL)
                     ->variant(
                         (new ProductBuilder($ids, 'v.9.1'))
                             ->prices('rule-a', 170)
@@ -248,7 +249,7 @@ class CheapestPriceTest extends TestCase
                 // no rule = 150€  ||  rule-a = 150€
                 (new ProductBuilder($ids, 'p.10'))
                     ->price(160)
-                    ->visibility(Defaults::SALES_CHANNEL)
+                    ->visibility(TestDefaults::SALES_CHANNEL)
                     ->variant(
                         (new ProductBuilder($ids, 'v.10.1'))
                             ->prices('rule-a', 170)
@@ -269,7 +270,7 @@ class CheapestPriceTest extends TestCase
                     ->prices('rule-a', 180, 'default', null, 3)
                     ->prices('rule-b', 200)
                     ->prices('rule-b', 190, 'default', null, 3)
-                    ->visibility(Defaults::SALES_CHANNEL)
+                    ->visibility(TestDefaults::SALES_CHANNEL)
                     ->variant(
                         (new ProductBuilder($ids, 'v.11.1'))
                             ->build()
@@ -283,7 +284,7 @@ class CheapestPriceTest extends TestCase
                 // no rule = 180 ||  rule-a = 210  || rule-b = 180 || a+b = 210 || b+a = 200/180
                 (new ProductBuilder($ids, 'p.12'))
                     ->price(180)
-                    ->visibility(Defaults::SALES_CHANNEL)
+                    ->visibility(TestDefaults::SALES_CHANNEL)
                     ->variant(
                         (new ProductBuilder($ids, 'v.12.1'))
                             ->prices('rule-a', 220)
@@ -303,7 +304,7 @@ class CheapestPriceTest extends TestCase
                 // no rule = 190 ||  rule-a = 220  || rule-b = 190 || a+b = 220 || b+a = 210/190
                 (new ProductBuilder($ids, 'p.13'))
                     ->price(190)
-                    ->visibility(Defaults::SALES_CHANNEL)
+                    ->visibility(TestDefaults::SALES_CHANNEL)
                     ->prices('rule-a', 230)
                     ->prices('rule-a', 220, 'default', null, 3)
                     ->variant(
@@ -324,7 +325,7 @@ class CheapestPriceTest extends TestCase
                 (new ProductBuilder($ids, 'p.14'))
                     ->price(180)
                     ->closeout()
-                    ->visibility(Defaults::SALES_CHANNEL)
+                    ->visibility(TestDefaults::SALES_CHANNEL)
                     ->variant(
                         (new ProductBuilder($ids, 'v.14.1'))
                             ->stock(0)
@@ -363,10 +364,10 @@ class CheapestPriceTest extends TestCase
             $cases = $this->calculationProvider($ids);
 
             $default = $this->getContainer()->get(SalesChannelContextFactory::class)
-                ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+                ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
             $currency = $this->getContainer()->get(SalesChannelContextFactory::class)
-                ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL, ['currencyId' => $ids->get('currency')]);
+                ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, ['currencyId' => $ids->get('currency')]);
 
             $contexts = [
                 Defaults::CURRENCY => $default,
@@ -449,10 +450,10 @@ class CheapestPriceTest extends TestCase
             $cases = $this->calculationProvider($ids);
 
             $default = $this->getContainer()->get(SalesChannelContextFactory::class)
-                ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+                ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
             $currency = $this->getContainer()->get(SalesChannelContextFactory::class)
-                ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL, ['currencyId' => $ids->get('currency')]);
+                ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, ['currencyId' => $ids->get('currency')]);
 
             $contexts = [
                 Defaults::CURRENCY => $default,
@@ -517,7 +518,7 @@ class CheapestPriceTest extends TestCase
             $cases = $this->providerFilterPrice();
 
             $context = $this->getContainer()->get(SalesChannelContextFactory::class)
-                ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+                ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
             foreach ($cases as $message => $case) {
                 $criteria = new Criteria(array_values($ids->all()));
@@ -557,7 +558,7 @@ class CheapestPriceTest extends TestCase
     {
         try {
             $context = $this->getContainer()->get(SalesChannelContextFactory::class)
-                ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+                ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
             $cases = $this->providerSorting();
             foreach ($cases as $message => $case) {
@@ -584,7 +585,7 @@ class CheapestPriceTest extends TestCase
             $criteria->addAggregation(new StatsAggregation('price', 'product.cheapestPrice'));
 
             $context = $this->getContainer()->get(SalesChannelContextFactory::class)
-                ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+                ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
             $cases = $this->providerAggregation();
             foreach ($cases as $message => $case) {

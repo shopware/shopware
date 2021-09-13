@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 
 class VersioningCustomFieldTest extends TestCase
 {
@@ -145,7 +146,7 @@ class VersioningCustomFieldTest extends TestCase
                     ],
                 ],
             ],
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'stateId' => Uuid::randomHex(),
             'orderDateTime' => new \DateTime(),
             'customFields' => [

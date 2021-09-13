@@ -15,7 +15,6 @@ use Shopware\Core\Checkout\Payment\PaymentService;
 use Shopware\Core\Checkout\Test\Customer\Rule\OrderFixture;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\AsyncTestPaymentHandler as AsyncTestPaymentHandlerV630;
 use Shopware\Core\Checkout\Test\Payment\JWTFactoryV2Test;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -26,6 +25,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
@@ -138,7 +138,7 @@ class PaymentControllerTest extends TestCase
     private function getSalesChannelContext(string $paymentMethodId): SalesChannelContext
     {
         return $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL, [
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, [
                 SalesChannelContextService::PAYMENT_METHOD_ID => $paymentMethodId,
             ]);
     }

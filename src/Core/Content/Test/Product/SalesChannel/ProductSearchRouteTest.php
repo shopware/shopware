@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -341,7 +342,7 @@ class ProductSearchRouteTest extends TestCase
 
         $salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
             'token',
-            Defaults::SALES_CHANNEL,
+            TestDefaults::SALES_CHANNEL,
             [
                 SalesChannelContextService::LANGUAGE_ID => $languageId ?? Defaults::LANGUAGE_SYSTEM,
             ]
@@ -893,7 +894,7 @@ class ProductSearchRouteTest extends TestCase
                 'id' => $this->getDeDeLanguageId(),
                 'salesChannelDomains' => [
                     [
-                        'salesChannelId' => Defaults::SALES_CHANNEL,
+                        'salesChannelId' => TestDefaults::SALES_CHANNEL,
                         'currencyId' => Defaults::CURRENCY,
                         'snippetSetId' => $this->getSnippetSetIdForLocale('de-DE'),
                         'url' => $_SERVER['APP_URL'] . '/de',

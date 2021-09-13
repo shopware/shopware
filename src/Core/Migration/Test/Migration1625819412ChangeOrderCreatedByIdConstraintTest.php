@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1625819412ChangeOrderCreatedByIdConstraint;
+use Shopware\Core\Test\TestDefaults;
 
 class Migration1625819412ChangeOrderCreatedByIdConstraintTest extends TestCase
 {
@@ -122,7 +123,7 @@ class Migration1625819412ChangeOrderCreatedByIdConstraintTest extends TestCase
             'paymentMethodId' => $this->fetchFirstIdFromTable('payment_method'),
             'currencyId' => Defaults::CURRENCY,
             'currencyFactor' => 1.0,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'billingAddressId' => $addressId,
             'addresses' => [
                 [

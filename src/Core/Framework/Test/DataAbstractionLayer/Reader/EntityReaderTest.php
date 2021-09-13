@@ -35,6 +35,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Tax\TaxEntity;
+use Shopware\Core\Test\TestDefaults;
 
 class EntityReaderTest extends TestCase
 {
@@ -793,7 +794,7 @@ class EntityReaderTest extends TestCase
                 'email' => 'test@test.com' . $id,
                 'defaultShippingAddressId' => $defaultAddressId,
                 'defaultBillingAddressId' => $defaultAddressId,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'group' => ['name' => 'test'],
                 'addresses' => [
@@ -842,7 +843,7 @@ class EntityReaderTest extends TestCase
                 'email' => 'test@test.com' . $id,
                 'defaultShippingAddressId' => $defaultAddressId,
                 'defaultBillingAddressId' => $defaultAddressId,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'group' => ['name' => 'test'],
                 'addresses' => [
@@ -893,7 +894,7 @@ class EntityReaderTest extends TestCase
             'salutationId' => $this->getValidSalutationId(),
             'password' => 'A',
             'email' => 'test@example.com',
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'group' => ['name' => 'test'],
         ];
@@ -989,7 +990,7 @@ class EntityReaderTest extends TestCase
             'lastName' => 'Test',
             'customerNumber' => 'A',
             'password' => 'A',
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'group' => ['name' => 'test'],
         ];
@@ -1111,7 +1112,7 @@ class EntityReaderTest extends TestCase
                 'email' => 'test@test.com' . Uuid::randomHex(),
                 'defaultShippingAddressId' => $defaultAddressId,
                 'defaultBillingAddressId' => $defaultAddressId,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'group' => ['name' => 'test'],
                 'addresses' => [
@@ -1183,7 +1184,7 @@ class EntityReaderTest extends TestCase
                 'email' => 'test@test.com' . Uuid::randomHex(),
                 'defaultShippingAddressId' => $defaultAddressId,
                 'defaultBillingAddressId' => $defaultAddressId,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'group' => ['name' => 'test'],
                 'addresses' => [

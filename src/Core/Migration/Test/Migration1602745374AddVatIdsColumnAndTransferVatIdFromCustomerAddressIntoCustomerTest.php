@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\Migration1604056363CustomerWishlist;
+use Shopware\Core\Test\TestDefaults;
 
 class Migration1602745374AddVatIdsColumnAndTransferVatIdFromCustomerAddressIntoCustomerTest extends TestCase
 {
@@ -205,7 +206,7 @@ class Migration1602745374AddVatIdsColumnAndTransferVatIdFromCustomerAddressIntoC
         $password = 'shopware';
         $data = [
             'id' => $this->ids->create('customer_id'),
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultShippingAddress' => [
                 'id' => $this->ids->create('address_id'),
                 'firstName' => 'Huy',

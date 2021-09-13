@@ -44,6 +44,7 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\Locale\LocaleDefinition;
+use Shopware\Core\Test\TestDefaults;
 
 class EntityRepositoryTest extends TestCase
 {
@@ -584,7 +585,7 @@ class EntityRepositoryTest extends TestCase
         $paymentMethod = $this->getValidPaymentMethodId();
         $record = [
             'id' => $recordA,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultShippingAddress' => $address,
             'defaultPaymentMethodId' => $paymentMethod,
             'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,

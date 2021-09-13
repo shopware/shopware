@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\Migration1610523548FixCustomerColumns;
+use Shopware\Core\Test\TestDefaults;
 
 /**
  * @deprecated tag:v6.5.0
@@ -152,7 +153,7 @@ class Migration1610523548FixCustomerColumnsTest extends TestCase
             'password' => 'shopware',
             'defaultPaymentMethodId' => $this->getDefaultPaymentMethodId(),
             'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultBillingAddressId' => $billingAddressId,
             'defaultShippingAddressId' => $shippingAddressId,
             'doubleOptInRegistration' => true,

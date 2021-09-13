@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 
 class AdministrationControllerTest extends TestCase
 {
@@ -215,7 +216,7 @@ class AdministrationControllerTest extends TestCase
         $this->customerRepository->create([
             [
                 'id' => $customerId,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultShippingAddress' => [
                     'id' => $addressId,
                     'firstName' => 'Max',
@@ -248,7 +249,7 @@ class AdministrationControllerTest extends TestCase
                     ],
                     'salesChannels' => [
                         [
-                            'id' => Defaults::SALES_CHANNEL,
+                            'id' => TestDefaults::SALES_CHANNEL,
                         ],
                     ],
                 ],

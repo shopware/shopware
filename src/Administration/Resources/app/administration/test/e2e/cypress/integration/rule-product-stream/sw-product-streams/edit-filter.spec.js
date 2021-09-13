@@ -137,7 +137,7 @@ describe('Dynamic product group: Test various filters', () => {
         cy.get('button.sw-button .icon--small-default-checkmark-line-medium').should('be.visible');
     });
 
-    it.only('@base @rule: search and add products with operator "Is equal to any of"', () => {
+    it('@base @rule: search and add products with operator "Is equal to any of"', () => {
         cy.server();
         cy.route({
             url: `${Cypress.env('apiPath')}/search/product`,

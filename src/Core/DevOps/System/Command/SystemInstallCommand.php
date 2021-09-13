@@ -6,7 +6,6 @@ namespace Shopware\Core\DevOps\System\Command;
 
 use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\DriverManager;
-use Doctrine\DBAL\FetchMode;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Kernel;
@@ -31,7 +30,7 @@ class SystemInstallCommand extends Command
 
     protected function configure(): void
     {
-        $this->addOption('create-database', null, InputOption::VALUE_NONE, "Create database if it doesn't exist.")
+        $this->addOption('create-database', null, InputOption::VALUE_NONE, 'Create database if it doesn\'t exist.')
             ->addOption('drop-database', null, InputOption::VALUE_NONE, 'Drop existing database')
             ->addOption('basic-setup', null, InputOption::VALUE_NONE, 'Create storefront sales channel and admin user')
             ->addOption('force', 'f', InputOption::VALUE_NONE, 'Force install even if install.lock exists')
@@ -76,67 +75,13 @@ class SystemInstallCommand extends Command
             return self::FAILURE;
         }
 
-        $dsnWithoutDb = sprintf(
-            '%s://%s%s:%s',
-            $params['scheme'],
-            isset($params['pass'], $params['user']) ? ($params['user'] . ':' . $params['pass'] . '@') : '',
-            $params['host'],
-            $params['port'] ?? 3306
-        );
-
-        $parameters = [
-            'url' => $dsnWithoutDb,
-            'charset' => 'utf8mb4',
-            'driverOptions' => [
-                \PDO::ATTR_STRINGIFY_FETCHES => true,
-            ],
-        ];
-
-        if ($sslCa = EnvironmentHelper::getVariable('DATABASE_SSL_CA')) {
-            $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_CA] = $sslCa;
-        }
-
-        if ($sslCert = EnvironmentHelper::getVariable('DATABASE_SSL_CERT')) {
-            $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_CERT] = $sslCert;
-        }
-
-        if ($sslCertKey = EnvironmentHelper::getVariable('DATABASE_SSL_KEY')) {
-            $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_KEY] = $sslCertKey;
-        }
-
-        if (EnvironmentHelper::getVariable('DATABASE_SSL_DONT_VERIFY_SERVER_CERT')) {
-            $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
-        }
-
-        $connection = DriverManager::getConnection($parameters, new Configuration());
-
-        $output->writeln('Prepare installation');
-        $output->writeln('');
-
-        $dropDatabase = $input->getOption('drop-database');
-        if ($dropDatabase) {
-            $connection->executeUpdate('DROP DATABASE IF EXISTS `' . $dbName . '`');
-            $output->writeln('Drop database `' . $dbName . '`');
-        }
-
-        $createDatabase = $input->getOption('create-database') || $dropDatabase;
-        if ($createDatabase) {
-            $connection->executeUpdate('CREATE DATABASE IF NOT EXISTS `' . $dbName . '` CHARACTER SET `utf8mb4` COLLATE `utf8mb4_unicode_ci`');
-            $output->writeln('Created database `' . $dbName . '`');
-        }
-
-        $connection->exec('USE `' . $dbName . '`');
-
-        $tables = $connection->query('SHOW TABLES')->fetchAll(FetchMode::COLUMN);
-
-        if (!\in_array('migration', $tables, true)) {
-            $output->writeln('Importing base schema.sql');
-            $connection->exec($this->getBaseSchema());
-        }
-
-        $output->writeln('');
+        $this->initializeDatabase($params, $dbName, $output, $input);
 
         $commands = [
+            [
+                'command' => 'system:generate-jwt',
+                'allowedToFail' => true,
+            ],
             [
                 'command' => 'database:migrate',
                 'identifier' => 'core',
@@ -243,6 +188,69 @@ class SystemInstallCommand extends Command
         }
 
         return self::SUCCESS;
+    }
+
+    private function initializeDatabase(array $params, string $dbName, ShopwareStyle $output, InputInterface $input): void
+    {
+        $dsnWithoutDb = sprintf(
+            '%s://%s%s:%s',
+            $params['scheme'],
+            isset($params['pass'], $params['user']) ? ($params['user'] . ':' . $params['pass'] . '@') : '',
+            $params['host'],
+            $params['port'] ?? 3306
+        );
+
+        $parameters = [
+            'url' => $dsnWithoutDb,
+            'charset' => 'utf8mb4',
+            'driverOptions' => [
+                \PDO::ATTR_STRINGIFY_FETCHES => true,
+            ],
+        ];
+
+        if ($sslCa = EnvironmentHelper::getVariable('DATABASE_SSL_CA')) {
+            $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_CA] = $sslCa;
+        }
+
+        if ($sslCert = EnvironmentHelper::getVariable('DATABASE_SSL_CERT')) {
+            $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_CERT] = $sslCert;
+        }
+
+        if ($sslCertKey = EnvironmentHelper::getVariable('DATABASE_SSL_KEY')) {
+            $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_KEY] = $sslCertKey;
+        }
+
+        if (EnvironmentHelper::getVariable('DATABASE_SSL_DONT_VERIFY_SERVER_CERT')) {
+            $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
+        }
+
+        $connection = DriverManager::getConnection($parameters, new Configuration());
+
+        $output->writeln('Prepare installation');
+        $output->writeln('');
+
+        $dropDatabase = $input->getOption('drop-database');
+        if ($dropDatabase) {
+            $connection->executeStatement('DROP DATABASE IF EXISTS `' . $dbName . '`');
+            $output->writeln('Drop database `' . $dbName . '`');
+        }
+
+        $createDatabase = $input->getOption('create-database') || $dropDatabase;
+        if ($createDatabase) {
+            $connection->executeStatement('CREATE DATABASE IF NOT EXISTS `' . $dbName . '` CHARACTER SET `utf8mb4` COLLATE `utf8mb4_unicode_ci`');
+            $output->writeln('Created database `' . $dbName . '`');
+        }
+
+        $connection->executeStatement('USE `' . $dbName . '`');
+
+        $tables = $connection->fetchFirstColumn('SHOW TABLES');
+
+        if (!\in_array('migration', $tables, true)) {
+            $output->writeln('Importing base schema.sql');
+            $connection->executeStatement($this->getBaseSchema());
+        }
+
+        $output->writeln('');
     }
 
     private function getBaseSchema(): string

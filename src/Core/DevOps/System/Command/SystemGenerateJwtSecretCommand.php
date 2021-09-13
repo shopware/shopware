@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Shopware\Core\DevOps\System\Command;
 
+use Shopware\Core\DevOps\System\Service\JwtCertificateGenerator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -16,10 +17,13 @@ class SystemGenerateJwtSecretCommand extends Command
 
     private string $projectDir;
 
-    public function __construct(string $projectDir)
+    private JwtCertificateGenerator $jwtCertificateGenerator;
+
+    public function __construct(string $projectDir, JwtCertificateGenerator $jwtCertificateGenerator)
     {
         parent::__construct();
         $this->projectDir = $projectDir;
+        $this->jwtCertificateGenerator = $jwtCertificateGenerator;
     }
 
     public function execute(InputInterface $input, OutputInterface $output): int
@@ -74,41 +78,7 @@ class SystemGenerateJwtSecretCommand extends Command
             return self::FAILURE;
         }
 
-        $key = openssl_pkey_new([
-            'digest_alg' => 'aes256',
-            'private_key_type' => \OPENSSL_KEYTYPE_RSA,
-            'encrypt_key' => $passphrase,
-            'encrypt_key_cipher' => \OPENSSL_CIPHER_AES_256_CBC,
-        ]);
-
-        if ($key === false) {
-            $io->error('Failed to generate key');
-
-            return self::FAILURE;
-        }
-
-        // export private key
-        $result = openssl_pkey_export_to_file($key, $privateKeyPath, $passphrase);
-        if ($result === false) {
-            $io->error('Could not export private key to file');
-
-            return self::FAILURE;
-        }
-
-        chmod($privateKeyPath, 0660);
-
-        if ($publicKeyPath) {
-            // export public key
-            $keyData = openssl_pkey_get_details($key);
-            if ($keyData === false) {
-                $io->error('Failed to export public key');
-
-                return self::FAILURE;
-            }
-
-            file_put_contents($publicKeyPath, $keyData['key']);
-            chmod($publicKeyPath, 0660);
-        }
+        $this->jwtCertificateGenerator->generate($privateKeyPath, $publicKeyPath, $passphrase);
 
         return 0;
     }

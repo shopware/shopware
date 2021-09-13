@@ -15,5 +15,12 @@
             <argument>%kernel.project_dir%</argument>
             <tag name="console.command"/>
         </service>
+
+        <service id="Shopware\Core\DevOps\System\Command\SystemGenerateJwtSecretCommand">
+            <argument>%kernel.project_dir%</argument>
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\DevOps\System\Service\JwtCertificateGenerator"/>
     </services>
 </container>

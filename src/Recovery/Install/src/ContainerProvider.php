@@ -6,6 +6,7 @@ use Doctrine\DBAL\DriverManager;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use Psr\Log\NullLogger;
+use Shopware\Core\DevOps\System\Service\JwtCertificateGenerator;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader as CoreMigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationRuntime as CoreMigrationRuntime;
@@ -178,7 +179,10 @@ class ContainerProvider implements ServiceProviderInterface
         };
 
         $container['jwt_certificate.writer'] = static function () {
-            return new JwtCertificateService(SW_PATH . '/config/jwt/');
+            return new JwtCertificateService(
+                SW_PATH . '/config/jwt/',
+                new JwtCertificateGenerator()
+            );
         };
 
         $container['webserver.check'] = static function ($c) {

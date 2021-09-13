@@ -1,9 +1,10 @@
 import { email } from 'src/core/service/validation.service';
 import template from './sw-profile-index.html.twig';
+import swProfileState from '../../state/sw-profile.state';
 
-const { Component, Mixin } = Shopware;
+const { Component, Mixin, State, Utils } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapPropertyErrors } = Component.getComponentHelper();
+const { mapState, mapPropertyErrors } = Component.getComponentHelper();
 
 Component.register('sw-profile-index', {
     template,
@@ -48,6 +49,11 @@ Component.register('sw-profile-index', {
     },
 
     computed: {
+        ...mapState('swProfile', [
+            'searchPreferences',
+            'userSearchPreferences',
+        ]),
+
         ...mapPropertyErrors('user', [
             'email',
             'timeZone',
@@ -73,6 +79,10 @@ Component.register('sw-profile-index', {
             return this.repositoryFactory.create('media');
         },
 
+        userConfigRepository() {
+            return this.repositoryFactory.create('user_config');
+        },
+
         userMediaCriteria() {
             if (this.user.id) {
                 // ???
@@ -95,6 +105,10 @@ Component.register('sw-profile-index', {
                 return;
             }
 
+            if (!this.acl.can('media.creator')) {
+                return;
+            }
+
             this.setMediaItem({ targetId: this.user.avatarMedia.id });
         },
 
@@ -103,12 +117,20 @@ Component.register('sw-profile-index', {
         },
     },
 
+    beforeCreate() {
+        State.registerModule('swProfile', swProfileState);
+    },
+
     created() {
         this.createdComponent();
     },
 
     beforeMount() {
         this.beforeMountComponent();
+    },
+
+    beforeDestroy() {
+        State.unregisterModule('swProfile');
     },
 
     methods: {
@@ -126,7 +148,7 @@ Component.register('sw-profile-index', {
                 this.userPromise,
             ];
 
-            if (this.feature.isActive('FEATURE_NEXT_6040')) {
+            if (this.feature.isActive('FEATURE_NEXT_6040') && this.acl.can('media.creator')) {
                 this.getMediaDefaultFolderId()
                     .then((id) => {
                         this.mediaDefaultFolderId = id;
@@ -278,6 +300,10 @@ Component.register('sw-profile-index', {
                 return;
             }
 
+            if (this.feature.isActive('FEATURE_NEXT_6040')) {
+                this.saveUserSearchPreferences();
+            }
+
             const context = { ...Shopware.Context.api };
             context.authToken.access = authToken;
 
@@ -406,6 +432,73 @@ Component.register('sw-profile-index', {
 
         getMediaDefaultFolderId() {
             return this.mediaDefaultFolderService.getDefaultFolderId('user');
+        },
+
+        saveUserSearchPreferences() {
+            const value = this.searchPreferences.map(({ entityName, fields }) => {
+                return {
+                    [entityName]: this.getEntitySearchPreferences(fields),
+                };
+            });
+
+            this.userSearchPreferences.value = value;
+
+            return this.userConfigRepository.save(this.userSearchPreferences);
+        },
+
+        /**
+        * @description Get search preferences from a particular entity
+        * @param {array} fields
+        * [
+        *   ...
+        *   {
+        *      fieldName: 'company',
+        *      _searchable: true,
+        *      _score: 500,
+        *      group: [
+        *          { fieldName: 'company', _score: 500, _searchable: true },
+        *          { fieldName: 'defaultBillingAddress.company', _score: 500, _searchable: true },
+        *          { fieldName: 'defaultShippingAddress.company', _score: 500, _searchable: true }
+        *       ]
+        *   }
+        *   ...
+        * ]
+        * @returns {object} A transformation from fields
+        * {
+        *    ...
+        *    company: {
+        *        _score: 500,
+        *        _searchable: true
+        *    }
+        *    defaultBillingAddress: {
+        *        company: {
+        *            _score: 500,
+        *            _searchable: true
+        *        }
+        *    }
+        *    defaultShippingAddress: {
+        *        company: {
+        *            _score: 500,
+        *            _searchable: true
+        *        }
+        *    }
+        *    ...
+        * }
+        */
+        getEntitySearchPreferences(fields) {
+            let searchPreferences = {};
+
+            fields.forEach((field) => {
+                field.group.forEach((group) => {
+                    const newSearchPreference = Utils.object.set({}, group.fieldName, {
+                        _searchable: field._searchable,
+                        _score: field._score,
+                    });
+                    searchPreferences = Utils.object.deepMergeObject(searchPreferences, newSearchPreference);
+                });
+            });
+
+            return searchPreferences;
         },
     },
 });

@@ -163,7 +163,9 @@ class AuthController extends StorefrontController
      */
     public function login(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
-        if ($context->getCustomer()) {
+        $customer = $context->getCustomer();
+
+        if ($customer !== null && $customer->getGuest() === false) {
             return $this->createActionResponse($request);
         }
 

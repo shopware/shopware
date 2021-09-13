@@ -318,3 +318,116 @@ Cypress.Commands.overwrite('cleanUpPreviousState', (orig) => {
 
     return orig();
 });
+
+/**
+ * Login by guest account
+ * @memberOf Cypress.Chainable#
+ * @name loginByGuestAccountViaApi
+ * @function
+ */
+Cypress.Commands.add('loginByGuestAccountViaApi', (userData) => {
+    const addressId = uuid().replace(/-/g, '');
+    const customerId = uuid().replace(/-/g, '');
+    let customerJson = {};
+    let customerAddressJson = {};
+    let finalAddressRawData = {};
+    let countryId = '';
+    let groupId = '';
+    let paymentId = '';
+    let salesChannelId = '';
+    let salutationId = '';
+
+    return cy.fixture('guest').then((result) => {
+        customerJson = Cypress._.merge(result, userData);
+
+        return cy.fixture('guest-address')
+    }).then((result) => {
+        customerAddressJson = result;
+
+        return cy.searchViaAdminApi({
+            endpoint: 'country',
+            data: {
+                field: 'iso',
+                value: 'DE'
+            }
+        });
+    }).then((result) => {
+        countryId = result.id;
+
+        return cy.searchViaAdminApi({
+            endpoint: 'payment-method',
+            data: {
+                field: 'name',
+                value: 'Invoice'
+            }
+        });
+    }).then((result) => {
+        paymentId = result.id;
+
+        return cy.searchViaAdminApi({
+            endpoint: 'sales-channel',
+            data: {
+                field: 'name',
+                value: 'Storefront'
+            }
+        });
+    }).then((result) => {
+        salesChannelId = result.id;
+
+        return cy.searchViaAdminApi({
+            endpoint: 'customer-group',
+            data: {
+                field: 'name',
+                value: 'Standard customer group'
+            }
+        });
+    }).then((result) => {
+        groupId = result.id;
+
+        return cy.searchViaAdminApi({
+            endpoint: 'salutation',
+            data: {
+                field: 'displayName',
+                value: 'Mr.'
+            }
+        });
+    }).then((salutation) => {
+        salutationId = salutation.id;
+
+        finalAddressRawData = Cypress._.merge({
+            billingAddress: {
+                customerId: customerId,
+                salutationId: salutationId,
+                id: addressId,
+                countryId: countryId
+            }
+        }, customerAddressJson);
+    }).then(() => {
+        return Cypress._.merge(customerJson, {
+            salutationId: salutationId,
+            defaultPaymentMethodId: paymentId,
+            salesChannelId: salesChannelId,
+            groupId: groupId,
+            defaultBillingAddressId: addressId,
+            defaultShippingAddressId: addressId,
+            storefrontUrl: Cypress.config('baseUrl'),
+            _csrf_token: '1b4dfebfc2584cf58b63c72c20d521d0frontend.store-api.proxy#'
+        });
+    }).then((result) => {
+        return Cypress._.merge(result, finalAddressRawData);
+    }).then((result) => {
+        cy.getSalesChannelId().then((salesChannelAccessKey) => {
+            const requestConfig = {
+                headers: {
+                    'SW-Access-Key': salesChannelAccessKey,
+                    'cookie': 'csrf[frontend.store-api.proxy]=1b4dfebfc2584cf58b63c72c20d521d0frontend.store-api.proxy#'
+                },
+                body: result,
+                method: 'POST',
+                url: `_proxy/store-api?path=store-api/account/register&response=true`
+            };
+
+            cy.request(requestConfig);
+        });
+    });
+});

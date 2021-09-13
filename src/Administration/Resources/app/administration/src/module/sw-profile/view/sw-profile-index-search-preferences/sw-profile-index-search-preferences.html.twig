@@ -1,5 +1,102 @@
 {% block sw_profile_index_search_preferences %}
 <div class="sw-profile-index-search-preferences">
-    {# TODO: NEXT-15903 - Add search preferences #}
+    {% block sw_profile_index_search_preferences_searchable_elements %}
+    <sw-card
+        class="sw-profile-index-search-preferences-searchable-elements"
+        :title="$tc('sw-profile.tabSearchPreferences.cardSearchableElements.title')"
+        :is-loading="isLoading"
+    >
+        {% block sw_profile_index_search_preferences_searchable_elements_content %}
+        <sw-container
+            v-if="searchPreferences.length > 0"
+            rows="auto auto auto"
+            gap="24px"
+        >
+            {% block sw_profile_index_search_preferences_searchable_elements_header %}
+            <p>{{ $tc('sw-profile.tabSearchPreferences.cardSearchableElements.description') }}</p>
+
+            <sw-container
+                columns="auto auto auto 1fr"
+                gap="8px"
+            >
+                {% block sw_profile_index_search_preferences_searchable_elements_button_select %}
+                <sw-button
+                    class="sw-profile-index-search-preferences-searchable-elements__button-select-all"
+                    @click="onSelect(true)"
+                >
+                    {{ $tc('sw-profile.tabSearchPreferences.cardSearchableElements.buttonSelect') }}
+                </sw-button>
+                {% endblock %}
+
+                {% block sw_profile_index_search_preferences_searchable_elements_button_deselect %}
+                <sw-button
+                    class="sw-profile-index-search-preferences-searchable-elements__button-deselect-all"
+                    @click="onSelect(false)"
+                >
+                    {{ $tc('sw-profile.tabSearchPreferences.cardSearchableElements.buttonDeselect') }}
+                </sw-button>
+                {% endblock %}
+
+                {% block sw_profile_index_search_preferences_searchable_elements_button_reset %}
+                <sw-button
+                    class="sw-profile-index-search-preferences-searchable-elements__button-reset-to-default"
+                    @click="onReset"
+                >
+                    {{ $tc('sw-profile.tabSearchPreferences.cardSearchableElements.buttonReset') }}
+                </sw-button>
+                {% endblock %}
+            </sw-container>
+            {% endblock %}
+
+            {% block sw_profile_index_search_preferences_searchable_elements_body %}
+            <div class="sw-profile-index-search-preferences-searchable-elements__entity-container">
+                {% block sw_profile_index_search_preferences_searchable_elements_entities %}
+                <ul
+                    v-for="searchPreference in searchPreferences"
+                    :key="searchPreference.entityName"
+                    class="sw-profile-index-search-preferences-searchable-elements__entity"
+                >
+                    {% block sw_profile_index_search_preferences_searchable_elements_entity_fields %}
+                    <li class="sw-profile-index-search-preferences-searchable-elements__entity-field">
+                        {% block sw_profile_index_search_preferences_searchable_elements_entity %}
+                        <sw-checkbox-field
+                            v-model="searchPreference._searchable"
+                            v-tooltip="{
+                                message: $tc('sw-profile.tabSearchPreferences.cardSearchableElements.tooltipMessage'),
+                                disabled: acl.can(`${searchPreference.entityName}.editor`),
+                                showOnDisabledElements: true
+                            }"
+                            :ghost-value="searchPreference._ghostValue"
+                            :label="getModuleTitle(searchPreference.entityName)"
+                            :disabled="!acl.can(`${searchPreference.entityName}.editor`)"
+                            @change="onChangeEntity($event, searchPreference)"
+                        />
+                        {% endblock %}
+
+                        {% block sw_profile_index_search_preferences_searchable_elements_fields %}
+                        <ul class="sw-profile-index-search-preferences-searchable-elements__entity">
+                            <li
+                                v-for="field in searchPreference.fields"
+                                :key="field.fieldName"
+                                class="sw-profile-index-search-preferences-searchable-elements__entity-field"
+                            >
+                                <sw-checkbox-field
+                                    v-model="field._searchable"
+                                    :label="$tc(`sw-profile.tabSearchPreferences.modules.${searchPreference.entityName}.${field.fieldName}`)"
+                                    :disabled="!acl.can(`${searchPreference.entityName}.editor`)"
+                                />
+                            </li>
+                        </ul>
+                        {% endblock %}
+                    </li>
+                    {% endblock %}
+                </ul>
+                {% endblock %}
+            </div>
+            {% endblock %}
+        </sw-container>
+        {% endblock %}
+    </sw-card>
+    {% endblock %}
 </div>
 {% endblock %}

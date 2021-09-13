@@ -12,6 +12,14 @@
         </input-field>
 
         <input-field type="bool">
+            <name>createCustomerAccountDefault</name>
+            <label>Create customer account by default</label>
+            <label lang="de-DE">Standardmäßig ein Kundenkonto anlegen</label>
+            <helpText>If this setting is inactive, no customer account is created on the checkout page. The user then makes a purchase as a guest in the default setting.</helpText>
+            <helpText lang="de-DE">Wenn diese Einstellung inaktiv ist, wird auf der Checkoutseite kein Kundenkonto erstellt. Der Nutzer kauft dann im Standard als Gast ein.</helpText>
+        </input-field>
+
+        <input-field type="bool">
             <name>customerIpAddressesNotAnonymously</name>
             <label>Save customer IP addresses as plain text</label>
             <label lang="de-DE">Kunden-IP-Adressen als Klartext speichern</label>

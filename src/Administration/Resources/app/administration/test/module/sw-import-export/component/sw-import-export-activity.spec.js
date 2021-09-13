@@ -4,6 +4,7 @@ import 'src/app/component/base/sw-modal';
 import 'src/app/component/grid/sw-grid';
 import 'src/app/component/grid/sw-grid-row';
 import 'src/app/component/grid/sw-grid-column';
+import 'src/app/component/base/sw-card';
 import 'src/module/sw-import-export/component/sw-import-export-activity';
 import 'src/module/sw-import-export/component/sw-import-export-activity-detail-modal';
 import 'src/module/sw-import-export/component/sw-import-export-activity-result-modal';
@@ -24,6 +25,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
                 'sw-grid': Shopware.Component.build('sw-grid'),
                 'sw-grid-row': Shopware.Component.build('sw-grid-row'),
                 'sw-grid-column': Shopware.Component.build('sw-grid-column'),
+                'sw-card': Shopware.Component.build('sw-card'),
                 'sw-icon': true,
                 'sw-description-list': true,
                 'sw-color-badge': true,
@@ -116,7 +118,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
             state: 'succeeded'
         };
 
-        await wrapper.setData({ selectedLog: logEntity });
+        await wrapper.setData({ selectedLog: logEntity, showDetailModal: true });
 
         const detailModal = wrapper.find('.sw-import-export-activity-detail-modal');
 
@@ -129,41 +131,79 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         global.activeFeatureFlags = ['FEATURE_NEXT_8097'];
 
         const { wrapper } = createWrapper();
-        const logResult = {
-            product: {
-                insert: 1,
-                update: 2,
-                insertError: 3,
-                updateError: 4,
-                insertSkip: 5,
-                updateSkip: 6
+
+        const logEntity = {
+            id: 'id',
+            file: {
+                originalName: 'originalName',
+                id: 'fileId',
+                accessToken: 'accessToken',
+                size: 100
+            },
+            type: 'import',
+            username: 'username',
+            records: 1,
+            createdAt: '2020-04-03T12:23:02+00:00',
+            state: 'succeeded',
+            profile: {
+                sourceEntity: 'product'
+            },
+            result: {
+                product: {
+                    insert: 1,
+                    update: 2,
+                    insertError: 3,
+                    updateError: 4,
+                    insertSkip: 5,
+                    updateSkip: 6
+                },
+                tax: {
+                    insert: 7,
+                    update: 8,
+                    insertError: 9,
+                    updateError: 10,
+                    insertSkip: 11,
+                    updateSkip: 12
+                }
             }
         };
 
-        await wrapper.vm.onShowResult(logResult);
-
+        await wrapper.vm.onShowResult(logEntity);
         const resultModal = wrapper.find('.sw-import-export-activity-result-modal');
 
         expect(wrapper.vm).toBeTruthy();
         expect(resultModal.vm).toBeTruthy();
-        expect(resultModal.vm.result).toEqual([{
-            entityName: 'product',
+        expect(resultModal.vm.mainEntityResult).toEqual({
             insert: 1,
             update: 2,
             insertError: 3,
             updateError: 4,
             insertSkip: 5,
             updateSkip: 6
+        });
+        expect(resultModal.vm.result).toEqual([{
+            entityName: 'tax',
+            insert: 7,
+            update: 8,
+            insertError: 9,
+            updateError: 10,
+            insertSkip: 11,
+            updateSkip: 12
         }]);
 
-        const columnClassPrefix = '.sw-import-export-activity-result-modal__column-product';
-        expect(resultModal.find(`${columnClassPrefix}-label`).text()).toBe('product');
-        expect(resultModal.find(`${columnClassPrefix}-insert`).text()).toBe('1');
-        expect(resultModal.find(`${columnClassPrefix}-update`).text()).toBe('2');
-        expect(resultModal.find(`${columnClassPrefix}-insert-error`).text()).toBe('3');
-        expect(resultModal.find(`${columnClassPrefix}-update-error`).text()).toBe('4');
-        expect(resultModal.find(`${columnClassPrefix}-insert-skip`).text()).toBe('5');
-        expect(resultModal.find(`${columnClassPrefix}-update-skip`).text()).toBe('6');
+        const mainActivityPrefix = '.sw-import-export-activity-result-modal__main-activity';
+        expect(resultModal.find(`${mainActivityPrefix}-insert dd`).text()).toBe('1');
+        expect(resultModal.find(`${mainActivityPrefix}-update dd`).text()).toBe('2');
+        expect(resultModal.find(`${mainActivityPrefix}-insert-error dd`).text()).toBe('3');
+        expect(resultModal.find(`${mainActivityPrefix}-update-error dd`).text()).toBe('4');
+        expect(resultModal.find(`${mainActivityPrefix}-insert-skip dd`).text()).toBe('5');
+        expect(resultModal.find(`${mainActivityPrefix}-update-skip dd`).text()).toBe('6');
+
+        const columnClassPrefix = '.sw-import-export-activity-result-modal__column-tax';
+        expect(resultModal.find(`${columnClassPrefix}-label`).text()).toBe('tax');
+        expect(resultModal.find(`${columnClassPrefix}-changes`).text()).toBe('15');
+        expect(resultModal.find(`${columnClassPrefix}-errors`).text()).toBe('19');
+        expect(resultModal.find(`${columnClassPrefix}-skipped`).text()).toBe('23');
     });
 
     it('should show the correct label', async () => {

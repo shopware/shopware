@@ -18,10 +18,13 @@
             },
             "contextMenu": {
                 "showLog": "Open log entry",
+                "showLogInfo": "Open log information",
                 "downloadFile": "Download file",
+                "downloadImportFile": "Download import file",
+                "downloadExportFile": "Download export file",
                 "showProfile": "Show profile",
                 "downloadInvalidFile": "Download invalid records",
-                "showResults": "Show result table"
+                "showResults": "Show summary"
             },
             "detail": {
                 "modalTitle": "Log information",
@@ -33,23 +36,61 @@
                 "labelFailedRecords": "Failed records",
                 "labelSize": "File size",
                 "labelUser": "User",
-                "labelDate": "Date / Time",
+                "labelDate": "Date / time",
                 "labelState": "Status",
                 "exportLabel": "Export",
                 "importLabel": "Import",
+                "dryrunLabel": "Dry run",
                 "labelDownloadFile": "Download file",
                 "helpTextFailedRecords": "Failed records can be downloaded, edited and re-imported.",
                 "labelDownloadInvalidFile": "Download failed records"
             },
+            "logInfo": {
+              "modalTitle": "Log information",
+              "labelClose": "Close",
+              "labelFilename": "Filename",
+              "labelType": "Type",
+              "labelExportRecords": "Exported records",
+              "labelSize": "File size",
+              "labelUser": "User",
+              "labelDate": "Date / time",
+              "labelState": "Status",
+              "labelProfile": "Profile",
+              "exportLabel": "Export",
+              "importLabel": "Import",
+              "dryrunLabel": "Dry run",
+              "labelDownloadFile": "Download export file"
+            },
             "result": {
-              "modalTitle": "Result table",
-              "entityName": "Object type name",
-              "insert": "Created",
-              "update": "Updated",
-              "insertError": "Creation error",
-              "updateError": "Update error",
-              "insertSkip": "Creation skipped",
-              "updateSkip": "Update skipped"
+              "modalTitle": "Import summary",
+              "activityHeadline": "Import activity: related changes",
+              "activityDescription": "The following entities were affected by the {entity} import.",
+              "entityName": "Data sets",
+              "changes": "Changes",
+              "errors": "Errors",
+              "skipped": "Skipped",
+              "labelDownloadFile": "Download import file",
+              "labelDownloadInvalidFile": "Download failed records",
+              "mainEntity": {
+                "title": "Import activity: {entity}",
+                "insert": "Created",
+                "update": "Updated",
+                "insertError": "Creation error",
+                "updateError": "Update error",
+                "insertSkip": "Creation skipped",
+                "updateSkip": "Update skipped"
+              },
+              "logInfo": {
+                "title": "Log information",
+                "labelFilename": "Filename",
+                "labelType": "Type",
+                "labelImported": "Imported records",
+                "labelSize": "File size",
+                "labelState": "Status",
+                "labelUser": "User",
+                "labelProfile": "Profile",
+                "labelDate": "Date / time"
+              }
             },
             "status": {
                 "progress": "Processing",

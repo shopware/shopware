@@ -35,6 +35,7 @@ class RuleLoader extends AbstractRuleLoader
     {
         $criteria = new Criteria();
         $criteria->addSorting(new FieldSorting('priority', FieldSorting::DESCENDING));
+        $criteria->addSorting(new FieldSorting('id'));
         $criteria->setLimit(500);
         $criteria->setTitle('cart-rule-loader::load-rules');
 

@@ -1764,6 +1764,59 @@ class DeliveryCalculatorTest extends TestCase
         static::assertSame((float) 1, $deliveries->getShippingCosts()->first()->getTotalPrice());
     }
 
+    public function testCalculateFloatingNumberPrecision(): void
+    {
+        $validRuleId = Uuid::randomHex();
+        $shippingMethod = new ShippingMethodEntity();
+        $shippingMethod->setId(Uuid::randomHex());
+        $shippingMethod->setTaxType(ShippingMethodEntity::TAX_TYPE_AUTO);
+
+        $price = new ShippingMethodPriceEntity();
+        $price->setUniqueIdentifier(Uuid::randomHex());
+        $price->setCurrencyPrice(new PriceCollection([
+            new Price(
+                Defaults::CURRENCY,
+                5,
+                5,
+                false
+            ),
+        ]));
+        $price->setCalculation(DeliveryCalculator::CALCULATION_BY_PRICE);
+        $price->setQuantityStart(0.1 + 0.2);
+
+        $shippingMethod->setPrices(new ShippingMethodPriceCollection([$price]));
+
+        $context = $this->createMock(SalesChannelContext::class);
+        $baseContext = $this->createMock(Context::class);
+        $baseContext->expects(static::atLeastOnce())->method('getCurrencyFactor')->willReturn(1.0);
+
+        $context->expects(static::atLeastOnce())->method('getContext')->willReturn($baseContext);
+        $context->expects(static::atLeastOnce())->method('getRuleIds')->willReturn([$validRuleId]);
+        $context->expects(static::atLeastOnce())->method('getShippingMethod')->willReturn($shippingMethod);
+        $context->method('getItemRounding')->willReturn(new CashRoundingConfig(2, 0.01, true));
+
+        $lineItem = new LineItem(Uuid::randomHex(), 'product');
+        $lineItem->setDeliveryInformation(
+            new DeliveryInformation(
+                1,
+                1.0,
+                false,
+                null,
+                $this->deliveryTime
+            )
+        );
+        $lineItem->setPrice(new CalculatedPrice(0.3, 0.3, new CalculatedTaxCollection(), new TaxRuleCollection()));
+
+        $deliveries = $this->buildDeliveries(new LineItemCollection([$lineItem]), $context);
+
+        $data = new CartDataCollection();
+        $data->set(DeliveryProcessor::buildKey($shippingMethod->getId()), $shippingMethod);
+
+        $this->deliveryCalculator->calculate($data, new Cart('test', 'test'), $deliveries, $context);
+
+        static::assertSame(5.0, $deliveries->first()->getShippingCosts()->getTotalPrice());
+    }
+
     public function mixedShippingProvider(): array
     {
         return [

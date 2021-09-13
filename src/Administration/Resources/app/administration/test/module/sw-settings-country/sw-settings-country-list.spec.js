@@ -61,7 +61,8 @@ function createWrapper(privileges = []) {
             },
             feature: {
                 isActive: () => true
-            }
+            },
+            searchRankingService: {}
         },
 
         stubs: {

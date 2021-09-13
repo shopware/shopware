@@ -51,6 +51,7 @@ Component.register('sw-customer-list', {
             ],
             storeKey: 'grid.filter.customer',
             activeFilterNumber: 0,
+            searchConfigEntity: 'customer',
         };
     },
 
@@ -210,10 +211,12 @@ Component.register('sw-customer-list', {
             const criteria = await Shopware.Service('filterService')
                 .mergeWithStoredFilters(this.storeKey, this.defaultCriteria);
 
+            const newCriteria = this.addQueryScores(this.term, this.defaultCriteria);
+
             this.activeFilterNumber = criteria.filters.length;
 
             try {
-                const items = await this.customerRepository.search(this.defaultCriteria);
+                const items = await this.customerRepository.search(newCriteria);
 
                 this.total = items.total;
                 this.customers = items;

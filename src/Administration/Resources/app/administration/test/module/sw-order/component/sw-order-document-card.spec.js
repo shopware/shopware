@@ -31,7 +31,8 @@ function createWrapper(privileges = []) {
                 create: () => ({
                     search: () => Promise.resolve([])
                 })
-            }
+            },
+            searchRankingService: {}
         },
         mocks: {
             $route: {

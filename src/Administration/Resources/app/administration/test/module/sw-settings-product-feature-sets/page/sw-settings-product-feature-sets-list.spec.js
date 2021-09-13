@@ -100,7 +100,8 @@ function createWrapper(additionalOptions = {}, privileges = []) {
             validationService: {},
             mixins: [
                 Mixin.getByName('listing')
-            ]
+            ],
+            searchRankingService: {}
         },
         ...additionalOptions
     });

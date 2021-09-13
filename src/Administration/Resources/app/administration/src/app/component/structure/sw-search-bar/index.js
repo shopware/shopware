@@ -21,6 +21,7 @@ Component.register('sw-search-bar', {
         'repositoryFactory',
         'acl',
         'feature',
+        'searchRankingService',
     ],
 
     shortcuts: {
@@ -142,6 +143,14 @@ Component.register('sw-search-bar', {
             });
 
             return modules;
+        },
+
+        userSearchPreference() {
+            if (!this.feature.isActive('FEATURE_NEXT_6040')) {
+                return {};
+            }
+
+            return this.searchRankingService.getUserSearchPreference();
         },
     },
 
@@ -383,7 +392,10 @@ Component.register('sw-search-bar', {
         loadResults(searchTerm) {
             this.isLoading = true;
             this.results = [];
+            const payload = {};
             if (this.feature.isActive('FEATURE_NEXT_6040')) {
+                payload.query = this.searchRankingService.buildGlobalSearchQueries(this.userSearchPreference, searchTerm);
+
                 const entities = this.getModuleEntities(searchTerm);
 
                 // eslint-disable-next-line no-unused-expressions
@@ -394,7 +406,7 @@ Component.register('sw-search-bar', {
                 });
             }
 
-            this.searchService.search({ term: searchTerm }).then((response) => {
+            this.searchService.search({ term: searchTerm, payload }).then((response) => {
                 response.data.forEach((item) => {
                     item.entities = Object.values(item.entities);
                 });
@@ -435,11 +447,19 @@ Component.register('sw-search-bar', {
 
             const entityName = this.searchTypes[this.currentSearchType].entityName;
             const repository = this.repositoryFactory.create(entityName);
-            const criteria = new Criteria();
+            let criteria = new Criteria();
 
             criteria.setTerm(searchTerm);
             if (this.feature.isActive('FEATURE_NEXT_6040')) {
                 criteria.setLimit(10);
+
+                if (this.userSearchPreference.hasOwnProperty(entityName)) {
+                    criteria = this.searchRankingService.buildSearchQueriesForEntity(
+                        this.userSearchPreference[entityName],
+                        searchTerm,
+                        criteria,
+                    );
+                }
             }
 
             repository.search(criteria, Shopware.Context.api).then((response) => {

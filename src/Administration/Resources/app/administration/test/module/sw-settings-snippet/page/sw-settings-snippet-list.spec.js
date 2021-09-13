@@ -90,7 +90,8 @@ describe('module/sw-settings-snippet/page/sw-settings-snippet-list', () => {
                     save: () => Promise.resolve(),
                     delete: () => Promise.resolve(),
                     getFilter: () => Promise.resolve()
-                }
+                },
+                searchRankingService: {}
             },
             mocks: {
                 $route: {

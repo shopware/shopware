@@ -31,7 +31,8 @@ function createWrapper(privileges = []) {
             },
             acl: {
                 can: key => (key ? privileges.includes(key) : true)
-            }
+            },
+            searchRankingService: {}
         },
         stubs: {
             'sw-page': {

@@ -4,6 +4,13 @@ import ProductPageObject from '../../../support/pages/module/sw-product.page-obj
 
 const page = new ProductPageObject();
 
+function setCustomSearchKeywordIsSearchable() {
+    cy.window().then(($w) => {
+        $w.Shopware.Module.getModuleByEntityName('product')
+            .manifest.defaultSearchConfiguration.customSearchKeywords._searchable = true;
+    });
+}
+
 describe('Product: Search Keyword product', () => {
     beforeEach(() => {
         cy.setToInitialState()
@@ -19,6 +26,10 @@ describe('Product: Search Keyword product', () => {
     });
 
     it('@catalogue: edit a products search keyword', () => {
+        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
+            setCustomSearchKeywordIsSearchable();
+        });
+
         cy.server();
         cy.route({
             url: `${Cypress.env('apiPath')}/_action/sync`,
@@ -28,7 +39,6 @@ describe('Product: Search Keyword product', () => {
             url: `${Cypress.env('apiPath')}/search/product`,
             method: 'post'
         }).as('searchData');
-
         // Data grid should be visible
         cy.get('.sw-product-list-grid').should('be.visible');
 

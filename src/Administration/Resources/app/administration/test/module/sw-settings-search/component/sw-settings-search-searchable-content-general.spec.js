@@ -33,7 +33,8 @@ function createWrapper() {
                         return Promise.resolve();
                     }
                 })
-            }
+            },
+            searchRankingService: {}
 
         },
 

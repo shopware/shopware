@@ -19,6 +19,7 @@ Component.register('sw-manufacturer-list', {
             sortBy: 'name',
             sortDirection: 'ASC',
             total: 0,
+            searchConfigEntity: 'product_manufacturer',
         };
     },
 
@@ -67,7 +68,9 @@ Component.register('sw-manufacturer-list', {
         getList() {
             this.isLoading = true;
 
-            return this.manufacturerRepository.search(this.manufacturerCriteria)
+            const criteria = this.addQueryScores(this.term, this.manufacturerCriteria);
+
+            return this.manufacturerRepository.search(criteria)
                 .then(searchResult => {
                     this.manufacturers = searchResult;
                     this.total = searchResult.total;

@@ -5,6 +5,9 @@ import 'src/app/component/entity/sw-entity-listing';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/context-menu/sw-context-menu-item';
 
+import { searchRankingPoint } from 'src/app/service/search-ranking.service';
+import Criteria from 'src/core/data/criteria.data';
+
 function mockApiCall(type) {
     switch (type) {
         case 'language' || 'languageFilters':
@@ -142,6 +145,16 @@ function createWrapper(privileges = []) {
             },
             repositoryFactory: {
                 create: (type) => new MockRepositoryFactory(type)
+            },
+            searchRankingService: {
+                getSearchFieldsByEntity: () => {
+                    return {
+                        name: searchRankingPoint.HIGH_SEARCH_RANKING
+                    };
+                },
+                buildSearchQueriesForEntity: (searchFields, term, criteria) => {
+                    return criteria;
+                }
             }
         }
     });
@@ -192,5 +205,31 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
 
         expect(wrapper.find('.sw-entity-listing__context-menu-edit-action').classes().includes('is--disabled')).toBe(false);
         expect(wrapper.find('.sw-entity-listing__context-menu-edit-delete').classes().includes('is--disabled')).toBe(false);
+    });
+
+    it('should get search ranking fields as a computed field', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
+
+        const wrapper = createWrapper();
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.searchRankingFields).toEqual({ name: searchRankingPoint.HIGH_SEARCH_RANKING });
+    });
+
+    it('should add query score to the criteria ', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
+
+        const wrapper = createWrapper();
+
+        await wrapper.vm.$nextTick();
+        wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
+            return new Criteria();
+        });
+
+        await wrapper.vm.getList();
+
+        expect(wrapper.vm.searchRankingService.buildSearchQueriesForEntity).toHaveBeenCalledTimes(1);
+        wrapper.vm.searchRankingService.buildSearchQueriesForEntity.mockRestore();
     });
 });

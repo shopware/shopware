@@ -21,6 +21,7 @@ Component.register('sw-settings-shipping-list', {
             sortDirection: 'ASC',
             skeletonItemAmount: 3,
             showDeleteModal: false,
+            searchConfigEntity: 'shipping_method',
         };
     },
 
@@ -93,7 +94,10 @@ Component.register('sw-settings-shipping-list', {
     methods: {
         getList() {
             this.isLoading = true;
-            this.shippingRepository.search(this.listingCriteria).then((items) => {
+
+            const criteria = this.addQueryScores(this.term, this.listingCriteria);
+
+            this.shippingRepository.search(criteria).then((items) => {
                 this.total = items.total;
                 this.shippingMethods = items;
 

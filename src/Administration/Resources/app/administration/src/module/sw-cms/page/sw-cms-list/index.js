@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-cms-list', {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'feature'],
+    inject: ['repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -30,6 +30,7 @@ Component.register('sw-cms-list', {
             defaultMediaFolderId: null,
             listMode: 'grid',
             assignablePageTypes: ['categories', 'products'],
+            searchConfigEntity: 'cms_page',
         };
     },
 
@@ -145,7 +146,9 @@ Component.register('sw-cms-list', {
         getList() {
             this.isLoading = true;
 
-            return this.pageRepository.search(this.listCriteria).then((searchResult) => {
+            const criteria = this.addQueryScores(this.term, this.listCriteria);
+
+            return this.pageRepository.search(criteria).then((searchResult) => {
                 this.total = searchResult.total;
                 this.pages = searchResult;
 

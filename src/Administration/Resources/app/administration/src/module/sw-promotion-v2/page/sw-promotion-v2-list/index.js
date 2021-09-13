@@ -1,7 +1,7 @@
 import template from './sw-promotion-v2-list.html.twig';
 import './sw-promotion-v2-list.scss';
 
-const { Component } = Shopware;
+const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 Component.register('sw-promotion-v2-list', {
@@ -13,7 +13,7 @@ Component.register('sw-promotion-v2-list', {
     ],
 
     mixins: [
-        'listing',
+        Mixin.getByName('listing'),
     ],
 
     data() {
@@ -24,6 +24,7 @@ Component.register('sw-promotion-v2-list', {
             showDeleteModal: false,
             sortBy: 'createdAt',
             sortDirection: 'DESC',
+            searchConfigEntity: 'promotion',
         };
     },
 
@@ -62,7 +63,9 @@ Component.register('sw-promotion-v2-list', {
         getList() {
             this.isLoading = true;
 
-            return this.promotionRepository.search(this.promotionCriteria).then((searchResult) => {
+            const criteria = this.addQueryScores(this.term, this.promotionCriteria);
+
+            return this.promotionRepository.search(criteria).then((searchResult) => {
                 this.isLoading = false;
                 this.total = searchResult.total;
                 this.promotions = searchResult;

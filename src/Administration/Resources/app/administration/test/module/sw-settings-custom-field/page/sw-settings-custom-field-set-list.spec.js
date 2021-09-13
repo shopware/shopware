@@ -71,7 +71,8 @@ function createWrapper(privileges = []) {
                 Mixin.getByName('notification'),
                 Mixin.getByName('sw-inline-snippet'),
                 Mixin.getByName('discard-detail-page-changes')('set')
-            ]
+            ],
+            searchRankingService: {}
         },
         stubs: {
             'sw-page': {

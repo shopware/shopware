@@ -3,6 +3,7 @@ import 'src/module/sw-order/page/sw-order-list';
 import 'src/app/component/data-grid/sw-data-grid';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
+import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 
 const mockItem = {
     orderNumber: '1',
@@ -75,6 +76,7 @@ function createWrapper(privileges = []) {
             'sw-empty-state': true,
             'router-link': true,
             'sw-checkbox-field': true,
+            'sw-data-grid-skeleton': true,
             'sw-time-ago': true
         },
         provide: {
@@ -95,13 +97,29 @@ function createWrapper(privileges = []) {
             repositoryFactory: {
                 create: () => ({ search: () => Promise.resolve([]) })
             },
-            filterFactory: {}
+            filterFactory: {},
+            searchRankingService: {
+                getSearchFieldsByEntity: () => {
+                    return {
+                        name: searchRankingPoint.HIGH_SEARCH_RANKING
+                    };
+                },
+                buildSearchQueriesForEntity: (searchFields, term, criteria) => {
+                    return criteria;
+                }
+            }
         },
         mocks: {
             $route: { query: '' }
         }
     });
 }
+
+Shopware.Service().register('filterService', () => {
+    return {
+        mergeWithStoredFilters: (storeKey, criteria) => criteria
+    };
+});
 
 describe('src/module/sw-order/page/sw-order-list', () => {
     let wrapper;
@@ -148,5 +166,27 @@ describe('src/module/sw-order/page/sw-order-list', () => {
 
         expect(firstRow.find('.sw-order-list__manual-order-label').exists()).toBeTruthy();
         expect(secondRow.find('.sw-order-list__manual-order-label').exists()).toBeFalsy();
+    });
+
+    it('should get search ranking fields as a computed field', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.searchRankingFields).toEqual({ name: searchRankingPoint.HIGH_SEARCH_RANKING });
+    });
+
+    it('should add query score to the criteria ', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
+
+        await wrapper.vm.$nextTick();
+        wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
+            return new Criteria();
+        });
+
+        await wrapper.vm.getList();
+
+        expect(wrapper.vm.searchRankingService.buildSearchQueriesForEntity).toHaveBeenCalledTimes(1);
+        wrapper.vm.searchRankingService.buildSearchQueriesForEntity.mockRestore();
     });
 });

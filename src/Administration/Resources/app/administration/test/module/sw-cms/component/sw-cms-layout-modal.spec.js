@@ -10,7 +10,8 @@ function createWrapper() {
                         return Promise.resolve([]);
                     })
                 })
-            }
+            },
+            searchRankingService: {}
         },
         stubs: {
             'sw-modal': true,

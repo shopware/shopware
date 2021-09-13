@@ -1,6 +1,8 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import 'src/module/sw-settings-shipping/page/sw-settings-shipping-list';
+import { searchRankingPoint } from 'src/app/service/search-ranking.service';
+import Criteria from 'src/core/data/criteria.data';
 
 function createWrapper(privileges = []) {
     const localVue = createLocalVue();
@@ -20,7 +22,11 @@ function createWrapper(privileges = []) {
         },
         provide: {
             repositoryFactory: {
-                create: () => ({})
+                create: () => ({
+                    search: jest.fn(() => {
+                        return Promise.resolve([]);
+                    })
+                })
             },
             acl: {
                 can: (identifier) => {
@@ -28,8 +34,17 @@ function createWrapper(privileges = []) {
 
                     return privileges.includes(identifier);
                 }
+            },
+            searchRankingService: {
+                getSearchFieldsByEntity: () => {
+                    return {
+                        name: searchRankingPoint.HIGH_SEARCH_RANKING
+                    };
+                },
+                buildSearchQueriesForEntity: (searchFields, term, criteria) => {
+                    return criteria;
+                }
             }
-
         },
         stubs: {
             'sw-page': {
@@ -105,6 +120,32 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
         expect(entityListing.attributes()['allow-delete']).toBe('true');
 
         expect(button.attributes().disabled).toBeUndefined();
+    });
+
+    it('should get search ranking fields as a computed field', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
+
+        const wrapper = createWrapper();
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.searchRankingFields).toEqual({ name: searchRankingPoint.HIGH_SEARCH_RANKING });
+    });
+
+    it('should add query score to the criteria ', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
+
+        const wrapper = createWrapper();
+
+        await wrapper.vm.$nextTick();
+        wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
+            return new Criteria();
+        });
+
+        await wrapper.vm.getList();
+
+        expect(wrapper.vm.searchRankingService.buildSearchQueriesForEntity).toHaveBeenCalledTimes(1);
+        wrapper.vm.searchRankingService.buildSearchQueriesForEntity.mockRestore();
     });
 });
 

@@ -1,5 +1,6 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-import-export/view/sw-import-export-view-profiles';
+import ImportExportService from 'src/module/sw-import-export/service/importExport.service';
 
 
 function createWrapper() {
@@ -10,6 +11,9 @@ function createWrapper() {
             'sw-button': true,
             'sw-entity-listing': true,
             'sw-import-export-edit-profile-modal': true
+        },
+        provide: {
+            importExport: new ImportExportService()
         }
     });
 }

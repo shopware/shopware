@@ -18,6 +18,11 @@ class ImportExportLogEntity extends Entity
     public const ACTIVITY_INVALID_RECORDS_EXPORT = 'invalid_records_export';
 
     /**
+     * @internal (flag:FEATURE_NEXT_15998)
+     */
+    public const ACTIVITY_TEMPLATE = 'template';
+
+    /**
      * @var string
      */
     protected $activity;

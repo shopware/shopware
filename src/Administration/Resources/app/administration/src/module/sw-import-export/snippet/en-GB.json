@@ -142,6 +142,7 @@
             "csvDescriptionBlock": "Separators are used to separate individual fields. Enclosure characters are used to ignore specific control characters contained therein. For example, if the separator appears in continuous text.",
             "cancelLabel": "Cancel",
             "addMappingLabel": "Add new mapping",
+            "downloadTemplateLabel": "Download template",
             "deleteLabel": "Delete",
             "systemDefaultInfoText": "You are viewing a system default profile which cannot be modified. You can either create a new profile or duplicate a system default profile.",
             "mapping": {

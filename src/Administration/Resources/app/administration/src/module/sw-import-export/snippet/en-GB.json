@@ -148,7 +148,8 @@
                 "fileValueLabel": "CSV name",
                 "entityLabel": "Database entry",
                 "isRequired": "Required",
-                "defaultValue": "Default value"
+                "defaultValue": "Default value",
+                "notMapped": "Not mapped"
             },
             "typeColumn": "Type",
             "nameColumn": "Name",

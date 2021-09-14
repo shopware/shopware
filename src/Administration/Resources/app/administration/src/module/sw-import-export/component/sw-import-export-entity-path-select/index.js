@@ -10,6 +10,8 @@ const { debounce, get, flow } = Shopware.Utils;
 Component.register('sw-import-export-entity-path-select', {
     template,
 
+    inject: ['feature'],
+
     mixins: [
         Mixin.getByName('remove-api-error'),
     ],
@@ -99,6 +101,12 @@ Component.register('sw-import-export-entity-path-select', {
                 'listPrice.linked',
             ],
             visibilityProperties: ['all', 'link', 'search'],
+            /* @internal (flag:FEATURE_NEXT_15998) */
+            notMappedItem: {
+                label: this.$tc('sw-import-export.profile.mapping.notMapped'),
+                relation: undefined,
+                value: '',
+            },
         };
     },
 
@@ -126,11 +134,22 @@ Component.register('sw-import-export-entity-path-select', {
 
         singleSelection: {
             get() {
+                if (
+                    this.feature.isActive('FEATURE_NEXT_15998') &&
+                    (this.currentValue === '' || this.currentValue === null)
+                ) {
+                    return this.notMappedItem;
+                }
+
                 return this.results.find(option => {
                     return this.getKey(option, this.valueProperty) === this.currentValue;
                 });
             },
             set(newValue) {
+                if (this.feature.isActive('FEATURE_NEXT_15998') && newValue === null) {
+                    newValue = '';
+                }
+
                 this.currentValue = this.getKey(newValue, this.valueProperty);
             },
         },
@@ -142,7 +161,16 @@ Component.register('sw-import-export-entity-path-select', {
         visibleResults() {
             if (this.singleSelection) {
                 const results = [];
-                results.push(this.singleSelection);
+
+                if (this.feature.isActive('FEATURE_NEXT_15998')) {
+                    if (this.singleSelection.value !== this.notMappedItem.value) {
+                        // not mapped position is always visible above everything and doesn't need to be added here.
+                        results.push(this.singleSelection);
+                    }
+                } else {
+                    results.push(this.singleSelection);
+                }
+
                 const value = this.getKey(this.singleSelection, this.valueProperty);
                 this.results.forEach(option => {
                     // Prevent duplicate options
@@ -321,7 +349,7 @@ Component.register('sw-import-export-entity-path-select', {
             // Empty the selection if the search term is empty
             if (this.searchInput === '' && !this.itemRecentlySelected) {
                 this.$emit('before-selection-clear', this.singleSelection, this.value);
-                this.currentValue = null;
+                this.currentValue = '';
             }
 
             this.$refs.swSelectInput.blur();

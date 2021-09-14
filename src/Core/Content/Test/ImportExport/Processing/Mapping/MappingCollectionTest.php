@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Test\ImportExport\Processing\Mapping;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Processing\Mapping\Mapping;
 use Shopware\Core\Content\ImportExport\Processing\Mapping\MappingCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 
 class MappingCollectionTest extends TestCase
@@ -92,5 +93,50 @@ class MappingCollectionTest extends TestCase
         $this->expectExceptionMessage('key is required in mapping');
 
         MappingCollection::fromIterable([$mappingFoo]);
+    }
+
+    public function testNotMappedNotOverridden(): void
+    {
+        if (!Feature::isActive('FEATURE_NEXT_15998')) {
+            static::markTestSkipped('NEXT-15998');
+        }
+
+        $mapping1 = new Mapping('foo', 'bar');
+        $mapping1Visited = false;
+        $mapping2 = new Mapping('', 'zxcv');
+        $mapping2Visited = false;
+        $mapping3 = new Mapping('', 'asdf');
+        $mapping3Visited = false;
+        $mapping4 = new Mapping('', 'uiop');
+        $mapping4Visited = false;
+        $mappingCollection = new MappingCollection([$mapping1, $mapping2, $mapping3, $mapping4]);
+
+        // key lookup should still work if the key was not empty
+        $firstByKey = $mappingCollection->get('foo');
+        static::assertNotNull($firstByKey);
+        static::assertSame('bar', $firstByKey->getMappedKey());
+
+        // it should not be possible to get the 'one' mapping that has the key of an empty string ''
+        static::assertNull($mappingCollection->get(''));
+
+        // but every Mapping should be in the collection regardless of empty keys
+        static::assertCount(4, $mappingCollection);
+
+        foreach ($mappingCollection as $mapped) {
+            if ($mapped->getMappedKey() === 'bar') {
+                $mapping1Visited = true;
+            } elseif ($mapped->getMappedKey() === 'zxcv') {
+                $mapping2Visited = true;
+            } elseif ($mapped->getMappedKey() === 'asdf') {
+                $mapping3Visited = true;
+            } elseif ($mapped->getMappedKey() === 'uiop') {
+                $mapping4Visited = true;
+            }
+        }
+
+        static::assertTrue($mapping1Visited);
+        static::assertTrue($mapping2Visited);
+        static::assertTrue($mapping3Visited);
+        static::assertTrue($mapping4Visited);
     }
 }

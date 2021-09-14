@@ -203,7 +203,7 @@ class DatabaseConfigLoader extends AbstractConfigLoader
             if (
                 $data['value'] === ''
                 || (\array_key_exists('scss', $data) && $data['scss'] === false)
-                || $data['type'] !== 'media'
+                || (isset($data['type']) && $data['type'] !== 'media')
                 || !Uuid::isValid($data['value'])
             ) {
                 continue;
@@ -230,7 +230,7 @@ class DatabaseConfigLoader extends AbstractConfigLoader
             if (
                 $data['value'] === ''
                 || (\array_key_exists('scss', $data) && $data['scss'] === false)
-                || $data['type'] !== 'media'
+                || (isset($data['type']) && $data['type'] !== 'media')
                 || !Uuid::isValid($data['value'])
                 || !$mediaResult->has($data['value'])
             ) {

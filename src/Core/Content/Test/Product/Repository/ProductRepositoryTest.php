@@ -38,6 +38,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\System\Tax\TaxEntity;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -3100,10 +3101,10 @@ class ProductRepositoryTest extends TestCase
                         'territory' => 'test',
                     ],
                     'salesChannels' => [
-                        ['id' => Defaults::SALES_CHANNEL],
+                        ['id' => TestDefaults::SALES_CHANNEL],
                     ],
                     'salesChannelDefaultAssignments' => [
-                        ['id' => Defaults::SALES_CHANNEL],
+                        ['id' => TestDefaults::SALES_CHANNEL],
                     ],
                 ],
             ],

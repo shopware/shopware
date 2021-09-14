@@ -6,11 +6,11 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Event\NavigationLoadedEvent;
 use Shopware\Core\Content\Category\Service\NavigationLoader;
 use Shopware\Core\Content\Category\Service\NavigationLoaderInterface;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\Test\TestDefaults;
 
 class NavigationLoadedEventTest extends TestCase
 {
@@ -36,7 +36,7 @@ class NavigationLoadedEventTest extends TestCase
         $this->addEventListener($dispatcher, NavigationLoadedEvent::class, $listener);
 
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $navigationId = $context->getSalesChannel()->getNavigationCategoryId();
 

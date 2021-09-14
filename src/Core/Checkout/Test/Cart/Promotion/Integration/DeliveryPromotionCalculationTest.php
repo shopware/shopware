@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 
 /**
  * @group slow
@@ -60,7 +61,7 @@ class DeliveryPromotionCalculationTest extends TestCase
         $this->promotionRepository = $this->getContainer()->get('promotion.repository');
         $this->token = Uuid::randomHex();
         $this->cartService = $this->getContainer()->get(CartService::class);
-        $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)->create($this->token, Defaults::SALES_CHANNEL);
+        $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)->create($this->token, TestDefaults::SALES_CHANNEL);
     }
 
     public function tearDown(): void

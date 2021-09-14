@@ -13,6 +13,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 
@@ -46,7 +47,7 @@ class SeoActionControllerTest extends TestCase
         $template->setRouteName('frontend.detail.page');
         $template->setTemplate('{{ product.name }');
         $template->setEntityName($this->getContainer()->get(ProductDefinition::class)->getEntityName());
-        $template->setSalesChannelId(Defaults::SALES_CHANNEL);
+        $template->setSalesChannelId(TestDefaults::SALES_CHANNEL);
 
         $this->getBrowser()->request('POST', '/api/_action/seo-url-template/validate', $template->jsonSerialize());
         $response = $this->getBrowser()->getResponse();
@@ -114,14 +115,14 @@ class SeoActionControllerTest extends TestCase
 
     public function testPreview(): void
     {
-        $this->createStorefrontSalesChannelContext(Defaults::SALES_CHANNEL, 'test');
+        $this->createStorefrontSalesChannelContext(TestDefaults::SALES_CHANNEL, 'test');
         $this->createTestProduct();
 
         $data = [
             'routeName' => ProductPageSeoUrlRoute::ROUTE_NAME,
             'entityName' => $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
             'template' => '{{ product.name }}',
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
         ];
         $this->getBrowser()->request('POST', '/api/_action/seo-url-template/preview', $data);
 
@@ -166,7 +167,7 @@ class SeoActionControllerTest extends TestCase
         $template->setRouteName('unknown.route');
         $template->setTemplate('{{ product.name }}');
         $template->setEntityName($this->getContainer()->get(ProductDefinition::class)->getEntityName());
-        $template->setSalesChannelId(Defaults::SALES_CHANNEL);
+        $template->setSalesChannelId(TestDefaults::SALES_CHANNEL);
 
         $this->getBrowser()->request('POST', '/api/_action/seo-url-template/validate', $template->jsonSerialize());
         $response = $this->getBrowser()->getResponse();
@@ -284,7 +285,7 @@ class SeoActionControllerTest extends TestCase
         return json_decode($content, true)['data'];
     }
 
-    private function createTestProduct(string $salesChannelId = Defaults::SALES_CHANNEL): string
+    private function createTestProduct(string $salesChannelId = TestDefaults::SALES_CHANNEL): string
     {
         $id = Uuid::randomHex();
         $product = [

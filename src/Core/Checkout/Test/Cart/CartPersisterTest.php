@@ -18,12 +18,12 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class CartPersisterTest extends TestCase
@@ -282,7 +282,7 @@ class CartPersisterTest extends TestCase
     {
         return $this->getContainer()
             ->get(SalesChannelContextFactory::class)
-            ->create($token, Defaults::SALES_CHANNEL);
+            ->create($token, TestDefaults::SALES_CHANNEL);
     }
 
     private function expectSqlQuery(MockObject $connection, string $beginOfSql): void

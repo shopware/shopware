@@ -530,7 +530,7 @@ Cypress.Commands.add('createProductVariantFixture', () => {
                 id: '15532b3fd3ea4c1dbef6e9e9816e0715',
                 name: 'Red',
             }, {
-                id: '98432def39fc4624b33213a56b8c944d',
+                id: '98432def39fc4624b33213a56b8c944f',
                 name: 'Green',
             }],
         });

@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Event\CartMergedSubscriber;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -79,7 +80,7 @@ class CartMergedSubscriberTest extends TestCase
 
         return $this->getContainer()->get(SalesChannelContextFactory::class)->create(
             $contextToken,
-            Defaults::SALES_CHANNEL,
+            TestDefaults::SALES_CHANNEL,
             $salesChannelData
         );
     }
@@ -99,7 +100,7 @@ class CartMergedSubscriberTest extends TestCase
             'taxId' => $this->getValidTaxId(),
             'active' => true,
             'visibilities' => [
-                ['salesChannelId' => Defaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ['salesChannelId' => TestDefaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
             ],
         ];
         $this->getContainer()->get('product.repository')->create([$data], $context);

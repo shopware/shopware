@@ -28,6 +28,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Response;
@@ -217,35 +218,35 @@ class SalesChannelProxyControllerTest extends TestCase
 
     public function testUpdatingPromotionAfterUpdateProductLineItem(): void
     {
-        $salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $productId = Uuid::randomHex();
         $promotionCode = 'BF99';
 
         $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer(), $salesChannelContext);
 
-        $browser = $this->createCart(Defaults::SALES_CHANNEL);
+        $browser = $this->createCart(TestDefaults::SALES_CHANNEL);
 
-        $this->addProduct($browser, Defaults::SALES_CHANNEL, $productId);
+        $this->addProduct($browser, TestDefaults::SALES_CHANNEL, $productId);
 
         // Save promotion to database
         $this->createTestFixturePercentagePromotion(Uuid::randomHex(), $promotionCode, 100, null, $this->getContainer());
 
         // Add promotion code to our cart (not existing in DB)
-        $this->addPromotionCodeByAPI($browser, Defaults::SALES_CHANNEL, $promotionCode);
+        $this->addPromotionCodeByAPI($browser, TestDefaults::SALES_CHANNEL, $promotionCode);
 
-        $cart = $this->getCart($browser, Defaults::SALES_CHANNEL);
+        $cart = $this->getCart($browser, TestDefaults::SALES_CHANNEL);
 
-        $this->updateLineItemQuantity($browser, Defaults::SALES_CHANNEL, $cart['lineItems'][0]['id'], 3);
+        $this->updateLineItemQuantity($browser, TestDefaults::SALES_CHANNEL, $cart['lineItems'][0]['id'], 3);
 
-        $cart = $this->getCart($browser, Defaults::SALES_CHANNEL);
+        $cart = $this->getCart($browser, TestDefaults::SALES_CHANNEL);
         static::assertCount(2, $cart['lineItems']);
     }
 
     public function testSwitchCustomerWithoutSalesChannelId(): void
     {
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
-        $salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
         $customerId = $this->createCustomer($salesChannelContext, 'info@example.com', 'shopware');
 
         $this->getBrowser()->request('PATCH', $this->getRootProxyUrl('/switch-customer'), [
@@ -264,7 +265,7 @@ class SalesChannelProxyControllerTest extends TestCase
     {
         $salesChannelId = Uuid::randomHex();
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
-        $salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
         $customerId = $this->createCustomer($salesChannelContext, 'info@example.com', 'shopware');
         $this->getBrowser()->request('PATCH', $this->getRootProxyUrl('/switch-customer'), [
             'salesChannelId' => $salesChannelId,
@@ -316,7 +317,7 @@ class SalesChannelProxyControllerTest extends TestCase
         $salesChannel = $this->createSalesChannel();
 
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
-        $salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
         $customerId = $this->createCustomer($salesChannelContext, 'info@example.com', 'shopware');
 
         $browser = $this->createCart($salesChannel['id']);
@@ -402,8 +403,8 @@ class SalesChannelProxyControllerTest extends TestCase
         $productId = Uuid::randomHex();
         $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer(), $salesChannelContext);
 
-        $browser = $this->createCart(Defaults::SALES_CHANNEL, $salesChannelContext->getToken());
-        $this->addProduct($browser, Defaults::SALES_CHANNEL, $productId);
+        $browser = $this->createCart(TestDefaults::SALES_CHANNEL, $salesChannelContext->getToken());
+        $this->addProduct($browser, TestDefaults::SALES_CHANNEL, $productId);
 
         $browser->request(
             'PATCH',
@@ -416,7 +417,7 @@ class SalesChannelProxyControllerTest extends TestCase
                     'unitPrice' => 20,
                     'totalPrice' => 20,
                 ],
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
             ])
         );
 
@@ -426,7 +427,7 @@ class SalesChannelProxyControllerTest extends TestCase
         static::assertTrue($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
         static::assertNotEmpty($response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
-        $cart = $this->getCart($browser, Defaults::SALES_CHANNEL);
+        $cart = $this->getCart($browser, TestDefaults::SALES_CHANNEL);
 
         //assert shipping costs in cart
         static::assertArrayHasKey('unitPrice', $cart['deliveries'][0]['shippingCosts']);
@@ -440,7 +441,7 @@ class SalesChannelProxyControllerTest extends TestCase
 
         $browser->request(
             'PATCH',
-            $this->getUrl(Defaults::SALES_CHANNEL, '/context'),
+            $this->getUrl(TestDefaults::SALES_CHANNEL, '/context'),
             [],
             [],
             [],
@@ -454,7 +455,7 @@ class SalesChannelProxyControllerTest extends TestCase
         static::assertTrue($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
         static::assertNotEmpty($response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
-        $cart = $this->getCart($browser, Defaults::SALES_CHANNEL);
+        $cart = $this->getCart($browser, TestDefaults::SALES_CHANNEL);
 
         //assert shipping method in cart is changed but shipping costs in cart is not changed
         static::assertArrayHasKey('name', $cart['deliveries'][0]['shippingMethod']);
@@ -476,14 +477,14 @@ class SalesChannelProxyControllerTest extends TestCase
         $payload[SalesChannelContextService::PERMISSIONS][ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES] = true;
         $this->contextPersister->save($salesChannelContext->getToken(), $payload, $salesChannelContext->getSalesChannel()->getId());
 
-        $browser = $this->createCart(Defaults::SALES_CHANNEL);
+        $browser = $this->createCart(TestDefaults::SALES_CHANNEL);
 
         $firstProductId = $this->ids->get('p1');
         $secondProductId = $this->ids->get('p2');
         $this->createTestFixtureProduct($firstProductId, 119, 19, $this->getContainer(), $salesChannelContext);
         $this->createTestFixtureProduct($secondProductId, 200, 10, $this->getContainer(), $salesChannelContext);
 
-        $this->addSingleLineItem($browser, Defaults::SALES_CHANNEL, [
+        $this->addSingleLineItem($browser, TestDefaults::SALES_CHANNEL, [
             'id' => $firstProductId,
             'label' => $firstProductId,
             'referencedId' => $firstProductId,
@@ -499,7 +500,7 @@ class SalesChannelProxyControllerTest extends TestCase
             ],
         ], $salesChannelContext->getToken());
 
-        $this->addSingleLineItem($browser, Defaults::SALES_CHANNEL, [
+        $this->addSingleLineItem($browser, TestDefaults::SALES_CHANNEL, [
             'id' => $secondProductId,
             'label' => $secondProductId,
             'referencedId' => $firstProductId,
@@ -517,7 +518,7 @@ class SalesChannelProxyControllerTest extends TestCase
 
         $this->modifyShippingCostsManually($browser, 20, $salesChannelContext->getToken());
 
-        $cart = $this->getStoreApiCart($browser, Defaults::SALES_CHANNEL, $salesChannelContext->getToken());
+        $cart = $this->getStoreApiCart($browser, TestDefaults::SALES_CHANNEL, $salesChannelContext->getToken());
 
         $shippingCosts = $cart['deliveries'][0]['shippingCosts'];
 
@@ -535,11 +536,11 @@ class SalesChannelProxyControllerTest extends TestCase
         //using store-api through proxy to remove all items in cart
         $this->storeAPIRemoveLineItems($browser, [$firstProductId, $secondProductId], $salesChannelContext->getToken());
 
-        $cart = $this->getStoreApiCart($browser, Defaults::SALES_CHANNEL, $salesChannelContext->getToken());
+        $cart = $this->getStoreApiCart($browser, TestDefaults::SALES_CHANNEL, $salesChannelContext->getToken());
         static::assertEmpty($cart['deliveries']);
 
         //adding a new product item to cart.
-        $this->addSingleLineItem($browser, Defaults::SALES_CHANNEL, [
+        $this->addSingleLineItem($browser, TestDefaults::SALES_CHANNEL, [
             'id' => $firstProductId,
             'label' => $firstProductId,
             'referencedId' => $firstProductId,
@@ -555,7 +556,7 @@ class SalesChannelProxyControllerTest extends TestCase
             ],
         ], $salesChannelContext->getToken());
 
-        $cart = $this->getStoreApiCart($browser, Defaults::SALES_CHANNEL, $salesChannelContext->getToken());
+        $cart = $this->getStoreApiCart($browser, TestDefaults::SALES_CHANNEL, $salesChannelContext->getToken());
 
         //after re-adding a line item, there is one tax rate and the manual shipping costs are restored.
         $shippingCosts = $cart['deliveries'][0]['shippingCosts'];
@@ -579,14 +580,14 @@ class SalesChannelProxyControllerTest extends TestCase
         $payload[SalesChannelContextService::PERMISSIONS][ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES] = true;
         $this->contextPersister->save($salesChannelContext->getToken(), $payload, $salesChannelContext->getSalesChannel()->getId());
 
-        $browser = $this->createCart(Defaults::SALES_CHANNEL);
+        $browser = $this->createCart(TestDefaults::SALES_CHANNEL);
 
         $firstProductId = $this->ids->get('p1');
         $secondProductId = $this->ids->get('p2');
         $this->createTestFixtureProduct($firstProductId, 119, 19, $this->getContainer(), $salesChannelContext);
         $this->createTestFixtureProduct($secondProductId, 200, 10, $this->getContainer(), $salesChannelContext);
 
-        $this->addSingleLineItem($browser, Defaults::SALES_CHANNEL, [
+        $this->addSingleLineItem($browser, TestDefaults::SALES_CHANNEL, [
             'id' => $firstProductId,
             'label' => $firstProductId,
             'referencedId' => $firstProductId,
@@ -602,7 +603,7 @@ class SalesChannelProxyControllerTest extends TestCase
             ],
         ], $salesChannelContext->getToken());
 
-        $this->addSingleLineItem($browser, Defaults::SALES_CHANNEL, [
+        $this->addSingleLineItem($browser, TestDefaults::SALES_CHANNEL, [
             'id' => $secondProductId,
             'label' => $secondProductId,
             'referencedId' => $firstProductId,
@@ -616,7 +617,7 @@ class SalesChannelProxyControllerTest extends TestCase
 
         $this->modifyShippingCostsManually($browser, 20, $salesChannelContext->getToken());
 
-        $cart = $this->getStoreApiCart($browser, Defaults::SALES_CHANNEL, $salesChannelContext->getToken());
+        $cart = $this->getStoreApiCart($browser, TestDefaults::SALES_CHANNEL, $salesChannelContext->getToken());
 
         $shippingCosts = $cart['deliveries'][0]['shippingCosts'];
 
@@ -634,7 +635,7 @@ class SalesChannelProxyControllerTest extends TestCase
         $this->storeAPIRemoveLineItems($browser, [$firstProductId], $salesChannelContext->getToken());
 
         //adding a new product item to cart.
-        $this->addSingleLineItem($browser, Defaults::SALES_CHANNEL, [
+        $this->addSingleLineItem($browser, TestDefaults::SALES_CHANNEL, [
             'id' => $firstProductId,
             'label' => $firstProductId,
             'referencedId' => $firstProductId,
@@ -650,7 +651,7 @@ class SalesChannelProxyControllerTest extends TestCase
             ],
         ], $salesChannelContext->getToken());
 
-        $cart = $this->getStoreApiCart($browser, Defaults::SALES_CHANNEL, $salesChannelContext->getToken());
+        $cart = $this->getStoreApiCart($browser, TestDefaults::SALES_CHANNEL, $salesChannelContext->getToken());
 
         //shipping costs is still based on manual value
         $shippingCosts = $cart['deliveries'][0]['shippingCosts'];
@@ -670,9 +671,9 @@ class SalesChannelProxyControllerTest extends TestCase
         $productId = Uuid::randomHex();
         $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer(), $salesChannelContext);
 
-        $browser = $this->createCart(Defaults::SALES_CHANNEL, $salesChannelContext->getToken());
-        $this->addProduct($browser, Defaults::SALES_CHANNEL, $productId);
-        $cart = $this->getCart($browser, Defaults::SALES_CHANNEL);
+        $browser = $this->createCart(TestDefaults::SALES_CHANNEL, $salesChannelContext->getToken());
+        $this->addProduct($browser, TestDefaults::SALES_CHANNEL, $productId);
+        $cart = $this->getCart($browser, TestDefaults::SALES_CHANNEL);
 
         //assert shipping cost in cart is default from sales channel
         static::assertArrayHasKey('totalPrice', $cart['deliveries'][0]['shippingCosts']);
@@ -680,7 +681,7 @@ class SalesChannelProxyControllerTest extends TestCase
 
         //create a new shipping method and request to change
         $shippingMethodId = $this->createShippingMethod();
-        $browser->request('PATCH', $this->getUrl(Defaults::SALES_CHANNEL, '/context'), [
+        $browser->request('PATCH', $this->getUrl(TestDefaults::SALES_CHANNEL, '/context'), [
             'shippingMethodId' => $shippingMethodId,
         ]);
 
@@ -689,7 +690,7 @@ class SalesChannelProxyControllerTest extends TestCase
         static::assertTrue($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
         static::assertNotEmpty($response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
-        $cart = $this->getCart($browser, Defaults::SALES_CHANNEL);
+        $cart = $this->getCart($browser, TestDefaults::SALES_CHANNEL);
 
         //assert shipping method and cost are changed
         static::assertArrayHasKey('name', $cart['deliveries'][0]['shippingMethod']);
@@ -711,12 +712,12 @@ class SalesChannelProxyControllerTest extends TestCase
 
         $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer(), $salesChannelContext);
 
-        $browser = $this->createCart(Defaults::SALES_CHANNEL);
+        $browser = $this->createCart(TestDefaults::SALES_CHANNEL);
 
         $taxForCustomItem = 20;
         $taxForProductItem = 10;
 
-        $this->addSingleLineItem($browser, Defaults::SALES_CHANNEL, [
+        $this->addSingleLineItem($browser, TestDefaults::SALES_CHANNEL, [
             'id' => $productId,
             'label' => $productId,
             'referencedId' => $productId,
@@ -732,7 +733,7 @@ class SalesChannelProxyControllerTest extends TestCase
             ],
         ], $salesChannelContext->getToken());
 
-        $this->addSingleLineItem($browser, Defaults::SALES_CHANNEL, [
+        $this->addSingleLineItem($browser, TestDefaults::SALES_CHANNEL, [
             'id' => $this->ids->get('p2'),
             'label' => $this->ids->get('p2'),
             'referencedId' => $this->ids->get('p2'),
@@ -748,7 +749,7 @@ class SalesChannelProxyControllerTest extends TestCase
             ],
         ], $salesChannelContext->getToken());
 
-        $this->addSingleLineItem($browser, Defaults::SALES_CHANNEL, [
+        $this->addSingleLineItem($browser, TestDefaults::SALES_CHANNEL, [
             'id' => $this->ids->get('p3'),
             'label' => $this->ids->get('p3'),
             'referencedId' => $this->ids->get('p3'),
@@ -760,7 +761,7 @@ class SalesChannelProxyControllerTest extends TestCase
             ],
         ], $salesChannelContext->getToken());
 
-        $cart = $this->getStoreApiCart($browser, Defaults::SALES_CHANNEL, $salesChannelContext->getToken());
+        $cart = $this->getStoreApiCart($browser, TestDefaults::SALES_CHANNEL, $salesChannelContext->getToken());
 
         //assert there are 3 items in cart
         static::assertArrayHasKey('lineItems', $cart);
@@ -796,14 +797,14 @@ class SalesChannelProxyControllerTest extends TestCase
         $salesChannelContext = $this->createDefaultSalesChannelContext();
         $this->createTestFixtureFixedDiscountPromotion(Uuid::randomHex(), 40, PromotionDiscountEntity::SCOPE_CART, null, $this->getContainer(), $salesChannelContext);
 
-        $browser = $this->createCart(Defaults::SALES_CHANNEL, $salesChannelContext->getToken());
+        $browser = $this->createCart(TestDefaults::SALES_CHANNEL, $salesChannelContext->getToken());
 
         $productId = Uuid::randomHex();
         $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer(), $salesChannelContext);
-        $this->addProduct($browser, Defaults::SALES_CHANNEL, $productId);
+        $this->addProduct($browser, TestDefaults::SALES_CHANNEL, $productId);
 
         //There are 2 line items in cart including 1 product and 1 automatic promotion
-        $cart = $this->getCart($browser, Defaults::SALES_CHANNEL);
+        $cart = $this->getCart($browser, TestDefaults::SALES_CHANNEL);
         static::assertCount(2, $cart['lineItems']);
         static::assertSame('product', $cart['lineItems'][0]['type']);
         static::assertSame('promotion', $cart['lineItems'][1]['type']);
@@ -817,7 +818,7 @@ class SalesChannelProxyControllerTest extends TestCase
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
 
         //There is 1 line item in cart. It is product
-        $cart = $this->getCart($browser, Defaults::SALES_CHANNEL);
+        $cart = $this->getCart($browser, TestDefaults::SALES_CHANNEL);
         static::assertCount(1, $cart['lineItems']);
         static::assertNotSame('promotion', $cart['lineItems'][0]['type']);
     }
@@ -827,19 +828,19 @@ class SalesChannelProxyControllerTest extends TestCase
         $salesChannelContext = $this->createDefaultSalesChannelContext();
         $this->createTestFixtureFixedDiscountPromotion(Uuid::randomHex(), 40, PromotionDiscountEntity::SCOPE_CART, null, $this->getContainer(), $salesChannelContext);
 
-        $browser = $this->createCart(Defaults::SALES_CHANNEL, $salesChannelContext->getToken());
+        $browser = $this->createCart(TestDefaults::SALES_CHANNEL, $salesChannelContext->getToken());
 
         $productId = Uuid::randomHex();
         $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer(), $salesChannelContext);
-        $this->addProduct($browser, Defaults::SALES_CHANNEL, $productId);
+        $this->addProduct($browser, TestDefaults::SALES_CHANNEL, $productId);
 
         // Add promotion code into cart
         $promotionCode = Random::getAlphanumericString(5);
         $this->createTestFixtureAbsolutePromotion(Uuid::randomHex(), $promotionCode, 100, $this->getContainer());
-        $this->addPromotionCodeByAPI($browser, Defaults::SALES_CHANNEL, $promotionCode);
+        $this->addPromotionCodeByAPI($browser, TestDefaults::SALES_CHANNEL, $promotionCode);
 
         // Check there are automatic promotion and promotion code in cart
-        $cart = $this->getCart($browser, Defaults::SALES_CHANNEL);
+        $cart = $this->getCart($browser, TestDefaults::SALES_CHANNEL);
         static::assertCount(3, $cart['lineItems']);
         static::assertSame('product', $cart['lineItems'][0]['type']);
         static::assertSame('promotion', $cart['lineItems'][1]['type']);
@@ -856,7 +857,7 @@ class SalesChannelProxyControllerTest extends TestCase
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
 
         // Check automatic promotion code is disabled and exist the promotion code in cart
-        $cart = $this->getCart($browser, Defaults::SALES_CHANNEL);
+        $cart = $this->getCart($browser, TestDefaults::SALES_CHANNEL);
         static::assertCount(2, $cart['lineItems']);
         static::assertSame($promotionCode, $cart['lineItems'][1]['referencedId']);
     }
@@ -866,13 +867,13 @@ class SalesChannelProxyControllerTest extends TestCase
         $salesChannelContext = $this->createDefaultSalesChannelContext();
         $this->createTestFixtureFixedDiscountPromotion(Uuid::randomHex(), 40, PromotionDiscountEntity::SCOPE_CART, null, $this->getContainer(), $salesChannelContext);
 
-        $browser = $this->createCart(Defaults::SALES_CHANNEL, $salesChannelContext->getToken());
+        $browser = $this->createCart(TestDefaults::SALES_CHANNEL, $salesChannelContext->getToken());
 
         $productId = Uuid::randomHex();
         $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer(), $salesChannelContext);
-        $this->addProduct($browser, Defaults::SALES_CHANNEL, $productId);
+        $this->addProduct($browser, TestDefaults::SALES_CHANNEL, $productId);
 
-        $cart = $this->getCart($browser, Defaults::SALES_CHANNEL);
+        $cart = $this->getCart($browser, TestDefaults::SALES_CHANNEL);
 
         static::assertCount(2, $cart['lineItems']);
         static::assertSame('product', $cart['lineItems'][0]['type']);
@@ -888,7 +889,7 @@ class SalesChannelProxyControllerTest extends TestCase
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
 
         // Check automatic promotion is disabled
-        $cart = $this->getCart($browser, Defaults::SALES_CHANNEL);
+        $cart = $this->getCart($browser, TestDefaults::SALES_CHANNEL);
         static::assertCount(1, $cart['lineItems']);
         static::assertNotSame('promotion', $cart['lineItems'][0]['type']);
 
@@ -902,7 +903,7 @@ class SalesChannelProxyControllerTest extends TestCase
         static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
 
         // Check automatic promotion is enabled
-        $cart = $this->getCart($browser, Defaults::SALES_CHANNEL);
+        $cart = $this->getCart($browser, TestDefaults::SALES_CHANNEL);
         static::assertCount(2, $cart['lineItems']);
         static::assertSame('product', $cart['lineItems'][0]['type']);
         static::assertSame('promotion', $cart['lineItems'][1]['type']);
@@ -936,9 +937,9 @@ class SalesChannelProxyControllerTest extends TestCase
 
             $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer(), $salesChannelContext);
 
-            $browser = $this->createCart(Defaults::SALES_CHANNEL, $salesChannelContext->getToken());
+            $browser = $this->createCart(TestDefaults::SALES_CHANNEL, $salesChannelContext->getToken());
 
-            $this->addSingleLineItem($browser, Defaults::SALES_CHANNEL, [
+            $this->addSingleLineItem($browser, TestDefaults::SALES_CHANNEL, [
                 'id' => $productId,
                 'label' => $productId,
                 'referencedId' => $productId,
@@ -954,7 +955,7 @@ class SalesChannelProxyControllerTest extends TestCase
                 ],
             ], $salesChannelContext->getToken());
 
-            $this->addSingleLineItem($browser, Defaults::SALES_CHANNEL, [
+            $this->addSingleLineItem($browser, TestDefaults::SALES_CHANNEL, [
                 'id' => $this->ids->get('p2'),
                 'label' => $this->ids->get('p2'),
                 'referencedId' => $this->ids->get('p2'),
@@ -966,7 +967,7 @@ class SalesChannelProxyControllerTest extends TestCase
                 ],
             ], $salesChannelContext->getToken());
 
-            $cart = $this->getCart($browser, Defaults::SALES_CHANNEL);
+            $cart = $this->getCart($browser, TestDefaults::SALES_CHANNEL);
 
             static::assertCount(2, $cart['lineItems']);
             static::assertSame('product', $cart['lineItems'][0]['type']);
@@ -1258,7 +1259,7 @@ class SalesChannelProxyControllerTest extends TestCase
                     'unitPrice' => $price,
                     'totalPrice' => $price,
                 ],
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
             ])
         );
     }
@@ -1267,7 +1268,7 @@ class SalesChannelProxyControllerTest extends TestCase
     {
         $browser->request(
             'DELETE',
-            $this->getStoreApiUrl(Defaults::SALES_CHANNEL, '/checkout/cart/line-item'),
+            $this->getStoreApiUrl(TestDefaults::SALES_CHANNEL, '/checkout/cart/line-item'),
             [],
             [],
             [
@@ -1352,7 +1353,7 @@ class SalesChannelProxyControllerTest extends TestCase
         $this->customerRepository->create([
             [
                 'id' => $customerId,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultShippingAddress' => [
                     'id' => $addressId,
                     'firstName' => 'Max',
@@ -1390,7 +1391,7 @@ class SalesChannelProxyControllerTest extends TestCase
     {
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
 
-        return $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        return $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 
     private function createShippingMethod(): string
@@ -1442,7 +1443,7 @@ class SalesChannelProxyControllerTest extends TestCase
 
         $saleChannelShippingMethodRepository = $this->getContainer()->get('sales_channel_shipping_method.repository');
         $saleChannelShippingMethodRepository->create([[
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'shippingMethodId' => $shippingMethodId,
         ]], $this->context);
 

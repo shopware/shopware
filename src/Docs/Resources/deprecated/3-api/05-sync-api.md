@@ -11,7 +11,7 @@ As request body several operations can be sent which can be of type `upsert` or 
         "action": "upsert",
         "entity": "tax",
         "payload": [
-            {"id": "98432def39fc4624b33213a56b8c944d", "name": "example", "taxRate": 19},
+            {"id": "98432def39fc4624b33213a56b8c944f", "name": "example", "taxRate": 19},
             {"name": "example", "taxRate": 19},
             {}
         ]
@@ -20,7 +20,7 @@ As request body several operations can be sent which can be of type `upsert` or 
         "action": "delete",
         "entity": "product",
         "payload": [
-            {"id": "98432def39fc4624b33213a56b8c944d"}
+            {"id": "98432def39fc4624b33213a56b8c944f"}
         ]
     }
 ]

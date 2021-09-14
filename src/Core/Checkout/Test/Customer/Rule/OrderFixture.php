@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\Test\EntityFixturesBase;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
 trait OrderFixture
@@ -44,7 +45,7 @@ trait OrderFixture
                 'paymentMethodId' => $this->getValidPaymentMethodId(),
                 'currencyId' => Defaults::CURRENCY,
                 'currencyFactor' => 1,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'orderDateTime' => '2019-04-01 08:36:43.267',
                 'deliveries' => [
                     [
@@ -108,7 +109,7 @@ trait OrderFixture
                         'guest' => true,
                         'group' => ['name' => 'testse2323'],
                         'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-                        'salesChannelId' => Defaults::SALES_CHANNEL,
+                        'salesChannelId' => TestDefaults::SALES_CHANNEL,
                         'defaultBillingAddressId' => $addressId,
                         'defaultShippingAddressId' => $addressId,
                         'addresses' => [

@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 
 /**
  * @group store-api
@@ -193,7 +194,7 @@ class ResetPasswordRouteTest extends TestCase
         $addressId = Uuid::randomHex();
         $customer = [
             'id' => $customerId,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultShippingAddress' => [
                 'id' => $addressId,
                 'firstName' => 'Max',
@@ -225,7 +226,7 @@ class ResetPasswordRouteTest extends TestCase
                 ],
                 'salesChannels' => [
                     [
-                        'id' => Defaults::SALES_CHANNEL,
+                        'id' => TestDefaults::SALES_CHANNEL,
                     ],
                 ],
             ],

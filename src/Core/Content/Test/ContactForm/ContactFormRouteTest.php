@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -38,7 +39,7 @@ class ContactFormRouteTest extends TestCase
             'id' => $this->ids->create('sales-channel'),
         ]);
 
-        $this->assignMailtemplatesToSalesChannel(Defaults::SALES_CHANNEL, $this->ids->context);
+        $this->assignMailtemplatesToSalesChannel(TestDefaults::SALES_CHANNEL, $this->ids->context);
     }
 
     public function testContactFormSendMail(): void
@@ -298,7 +299,7 @@ class ContactFormRouteTest extends TestCase
                 'name' => Uuid::randomHex(),
                 'url' => Uuid::randomHex(),
                 'salesChannels' => [
-                    ['id' => Defaults::SALES_CHANNEL],
+                    ['id' => TestDefaults::SALES_CHANNEL],
                 ],
                 'slotConfig' => $slotConfig,
             ],

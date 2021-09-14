@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1620820321AddDefaultDomainForHeadlessSaleschannel;
+use Shopware\Core\Test\TestDefaults;
 
 class Migration1620820321AddDefaultDomainForHeadlessSaleschannelTest extends TestCase
 {
@@ -27,7 +28,7 @@ class Migration1620820321AddDefaultDomainForHeadlessSaleschannelTest extends Tes
     public function testItAddsDefaultDomainToHeadlessSalesChannel(): void
     {
         $statement = $this->connection->prepare('SELECT COUNT(*) FROM `sales_channel_domain` WHERE `sales_channel_id` = :salesChannelId');
-        $statement->bindValue('salesChannelId', Uuid::fromHexToBytes(Defaults::SALES_CHANNEL));
+        $statement->bindValue('salesChannelId', Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL));
 
         static::assertEquals(0, $statement->fetchOne());
 
@@ -47,7 +48,7 @@ class Migration1620820321AddDefaultDomainForHeadlessSaleschannelTest extends Tes
 
         (new Migration1620820321AddDefaultDomainForHeadlessSaleschannel())->update($this->connection);
 
-        $statement->execute(['salesChannelId' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL)]);
+        $statement->execute(['salesChannelId' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL)]);
         static::assertEquals(1, $statement->fetchOne());
 
         $statement->execute(['salesChannelId' => Uuid::fromHexToBytes($firstApiSalesChannelId)]);
@@ -63,7 +64,7 @@ class Migration1620820321AddDefaultDomainForHeadlessSaleschannelTest extends Tes
     public function testItDoesNotBreakIfNoHeadlessSalesChannelIsPresent(): void
     {
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
-        $salesChannelRepository->delete([['id' => Defaults::SALES_CHANNEL]], Context::createDefaultContext());
+        $salesChannelRepository->delete([['id' => TestDefaults::SALES_CHANNEL]], Context::createDefaultContext());
 
         (new Migration1620820321AddDefaultDomainForHeadlessSaleschannel())->update($this->connection);
     }

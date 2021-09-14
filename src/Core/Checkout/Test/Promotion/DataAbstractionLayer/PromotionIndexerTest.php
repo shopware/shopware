@@ -8,7 +8,6 @@ use Shopware\Core\Checkout\Promotion\DataAbstractionLayer\PromotionIndexingMessa
 use Shopware\Core\Checkout\Promotion\PromotionDefinition;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
 use Shopware\Core\Checkout\Test\Customer\SalesChannel\CustomerTestTrait;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -17,6 +16,7 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 
 class PromotionIndexerTest extends TestCase
 {
@@ -94,6 +94,6 @@ class PromotionIndexerTest extends TestCase
 
         $token = Uuid::randomHex();
 
-        return $salesChannelContextFactory->create($token, Defaults::SALES_CHANNEL, $options);
+        return $salesChannelContextFactory->create($token, TestDefaults::SALES_CHANNEL, $options);
     }
 }

@@ -29,6 +29,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 
 class ProcessorTest extends TestCase
 {
@@ -54,7 +55,7 @@ class ProcessorTest extends TestCase
     {
         $this->processor = $this->getContainer()->get(Processor::class);
         $this->factory = $this->getContainer()->get(SalesChannelContextFactory::class);
-        $this->context = $this->factory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $this->context = $this->factory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 
     public function testDeliveryCreatedForDeliverableLineItem(): void
@@ -76,7 +77,7 @@ class ProcessorTest extends TestCase
             'stock' => 10,
             'active' => true,
             'visibilities' => [
-                ['salesChannelId' => Defaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ['salesChannelId' => TestDefaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
             ],
         ];
 
@@ -157,7 +158,7 @@ class ProcessorTest extends TestCase
             'stock' => 10,
             'active' => true,
             'visibilities' => [
-                ['salesChannelId' => Defaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ['salesChannelId' => TestDefaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
             ],
         ];
 
@@ -252,7 +253,7 @@ class ProcessorTest extends TestCase
             'stock' => 10,
             'active' => true,
             'visibilities' => [
-                ['salesChannelId' => Defaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ['salesChannelId' => TestDefaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
             ],
         ];
 
@@ -360,7 +361,7 @@ class ProcessorTest extends TestCase
             'isCloseout' => true,
             'active' => true,
             'visibilities' => [
-                ['salesChannelId' => Defaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ['salesChannelId' => TestDefaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
             ],
         ];
     }

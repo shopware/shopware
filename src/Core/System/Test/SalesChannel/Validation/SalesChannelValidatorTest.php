@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 
 class SalesChannelValidatorTest extends TestCase
 {
@@ -199,11 +200,11 @@ class SalesChannelValidatorTest extends TestCase
         static::expectException(WriteException::class);
         static::expectExceptionMessage(sprintf(
             self::DELETE_VALIDATION_MESSAGE,
-            Defaults::SALES_CHANNEL
+            TestDefaults::SALES_CHANNEL
         ));
 
         $this->getSalesChannelLanguageRepository()->delete([[
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'languageId' => Defaults::LANGUAGE_SYSTEM,
         ]], Context::createDefaultContext());
     }

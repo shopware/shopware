@@ -39,6 +39,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 use Shopware\Core\System\StateMachine\StateMachineDefinition;
 use Shopware\Core\System\StateMachine\StateMachineEntity;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -351,7 +352,7 @@ class PaymentServiceTest extends TestCase
     private function getSalesChannelContext(string $paymentMethodId): SalesChannelContext
     {
         return $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL, [
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, [
                 SalesChannelContextService::PAYMENT_METHOD_ID => $paymentMethodId,
             ]);
     }
@@ -402,7 +403,7 @@ class PaymentServiceTest extends TestCase
             'paymentMethodId' => $paymentMethodId,
             'currencyId' => Defaults::CURRENCY,
             'currencyFactor' => 1.0,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'billingAddressId' => $addressId,
             'addresses' => [
                 [
@@ -442,7 +443,7 @@ class PaymentServiceTest extends TestCase
             'password' => 'shopware',
             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultBillingAddressId' => $addressId,
             'defaultShippingAddressId' => $addressId,
             'addresses' => [

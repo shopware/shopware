@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 
 class ProductStreamUpdaterTest extends TestCase
 {
@@ -30,7 +31,7 @@ class ProductStreamUpdaterTest extends TestCase
     {
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->productStreamRepository = $this->getContainer()->get('product_stream.repository');
-        $this->salesChannel = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $this->salesChannel = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
         $this->productStreamUpdater = $this->getContainer()->get(ProductStreamUpdater::class);
     }
 

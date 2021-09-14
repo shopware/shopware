@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 trait BasicTestDataBehaviour
@@ -145,7 +146,7 @@ trait BasicTestDataBehaviour
     /**
      * @param string|null $salesChannelId (null when no saleschannel filtering)
      */
-    protected function getValidCountryId(?string $salesChannelId = Defaults::SALES_CHANNEL): string
+    protected function getValidCountryId(?string $salesChannelId = TestDefaults::SALES_CHANNEL): string
     {
         /** @var EntityRepositoryInterface $repository */
         $repository = $this->getContainer()->get('country.repository');

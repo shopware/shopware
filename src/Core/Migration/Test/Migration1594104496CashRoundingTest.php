@@ -8,6 +8,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 
 class Migration1594104496CashRoundingTest extends TestCase
 {
@@ -129,7 +130,7 @@ class Migration1594104496CashRoundingTest extends TestCase
             'shipping_costs' => json_encode([]),
             'state_id' => $this->connection->fetchColumn('SELECT id FROM state_machine_state LIMIT 1'),
             'currency_factor' => 1,
-            'sales_channel_id' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL),
+            'sales_channel_id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL),
         ];
 
         $this->connection->insert('`order`', $data);

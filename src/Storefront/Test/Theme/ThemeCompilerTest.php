@@ -4,12 +4,12 @@ namespace Shopware\Storefront\Test\Theme;
 
 use League\Flysystem\Filesystem;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedScriptsEvent;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
 use Shopware\Storefront\Event\ThemeCompilerEnrichScssVariablesEvent;
@@ -391,7 +391,7 @@ PHP_EOL;
         $config->setAssetPaths(['bla']);
 
         $compiler->compileTheme(
-            Defaults::SALES_CHANNEL,
+            TestDefaults::SALES_CHANNEL,
             'test',
             $config,
             new StorefrontPluginConfigurationCollection()

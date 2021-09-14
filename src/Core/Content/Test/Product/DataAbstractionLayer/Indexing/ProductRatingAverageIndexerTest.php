@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 
 /**
  * @group slow
@@ -59,7 +60,7 @@ class ProductRatingAverageIndexerTest extends TestCase
         $this->reviewRepository = $this->getContainer()->get('product_review.repository');
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->customerRepository = $this->getContainer()->get('customer.repository');
-        $this->salesChannel = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $this->salesChannel = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->productIndexer = $this->getContainer()->get(ProductIndexer::class);
     }
@@ -375,7 +376,7 @@ SQL;
         $this->customerRepository->create([
             [
                 'id' => $customerID,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultShippingAddress' => [
                     'id' => $addressId,
                     'firstName' => 'Max',

@@ -22,6 +22,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 
 class DeliveryBuilderTest extends TestCase
 {
@@ -49,7 +50,7 @@ class DeliveryBuilderTest extends TestCase
         $this->processor = $this->getContainer()->get(DeliveryProcessor::class);
 
         $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 
     public function testEmptyCart(): void

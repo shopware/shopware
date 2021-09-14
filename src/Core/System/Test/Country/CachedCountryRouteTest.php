@@ -3,7 +3,6 @@
 namespace Shopware\Core\System\Test\Country;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheTracer;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\StatsAggregation;
@@ -23,6 +22,7 @@ use Shopware\Core\System\Country\SalesChannel\CountryRoute;
 use Shopware\Core\System\Country\SalesChannel\CountryRouteResponse;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\HttpFoundation\Request;
@@ -43,7 +43,7 @@ class CachedCountryRouteTest extends TestCase
         parent::setUp();
 
         $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 
     /**
@@ -52,7 +52,7 @@ class CachedCountryRouteTest extends TestCase
     public function cleanup(): void
     {
         $this->getContainer()->get('cache.object')
-            ->invalidateTags([CachedCountryRoute::buildName(Defaults::SALES_CHANNEL)]);
+            ->invalidateTags([CachedCountryRoute::buildName(TestDefaults::SALES_CHANNEL)]);
     }
 
     /**
@@ -107,7 +107,7 @@ class CachedCountryRouteTest extends TestCase
     public function testInvalidation(\Closure $before, \Closure $after, int $calls): void
     {
         $this->getContainer()->get('cache.object')
-            ->invalidateTags([CachedCountryRoute::buildName(Defaults::SALES_CHANNEL)]);
+            ->invalidateTags([CachedCountryRoute::buildName(TestDefaults::SALES_CHANNEL)]);
 
         $route = $this->getContainer()->get(CountryRoute::class);
 
@@ -155,7 +155,7 @@ class CachedCountryRouteTest extends TestCase
                 $data = [
                     'id' => $ids->get('country'),
                     'name' => 'test',
-                    'salesChannels' => [['id' => Defaults::SALES_CHANNEL]],
+                    'salesChannels' => [['id' => TestDefaults::SALES_CHANNEL]],
                 ];
 
                 $this->getContainer()->get('country.repository')->create([$data], $ids->getContext());
@@ -188,7 +188,7 @@ class CachedCountryRouteTest extends TestCase
                 $data = [
                     'id' => $ids->get('country'),
                     'name' => 'test',
-                    'salesChannels' => [['id' => Defaults::SALES_CHANNEL]],
+                    'salesChannels' => [['id' => TestDefaults::SALES_CHANNEL]],
                 ];
 
                 $this->getContainer()->get('country.repository')->create([$data], $ids->getContext());
@@ -228,7 +228,7 @@ class CachedCountryRouteTest extends TestCase
                 $data = [
                     'id' => $ids->get('country'),
                     'name' => 'test',
-                    'salesChannels' => [['id' => Defaults::SALES_CHANNEL]],
+                    'salesChannels' => [['id' => TestDefaults::SALES_CHANNEL]],
                 ];
 
                 $this->getContainer()->get('country.repository')->create([$data], $ids->getContext());
@@ -255,7 +255,7 @@ class CachedCountryRouteTest extends TestCase
             function () use ($ids): void {
                 $data = [
                     'countryId' => $ids->get('country'),
-                    'salesChannelId' => Defaults::SALES_CHANNEL,
+                    'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 ];
 
                 $this->getContainer()->get('sales_channel_country.repository')
@@ -269,7 +269,7 @@ class CachedCountryRouteTest extends TestCase
                 $data = [
                     'id' => $ids->get('country'),
                     'name' => 'test',
-                    'salesChannels' => [['id' => Defaults::SALES_CHANNEL]],
+                    'salesChannels' => [['id' => TestDefaults::SALES_CHANNEL]],
                 ];
 
                 $this->getContainer()->get('country.repository')->create([$data], $ids->getContext());
@@ -277,7 +277,7 @@ class CachedCountryRouteTest extends TestCase
             function () use ($ids): void {
                 $data = [
                     'countryId' => $ids->get('country'),
-                    'salesChannelId' => Defaults::SALES_CHANNEL,
+                    'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 ];
 
                 $this->getContainer()->get('sales_channel_country.repository')

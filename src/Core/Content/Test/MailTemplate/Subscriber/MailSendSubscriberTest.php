@@ -32,6 +32,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class MailSendSubscriberTest extends TestCase
@@ -68,7 +69,7 @@ class MailSendSubscriberTest extends TestCase
             'recipients' => $recipients,
         ]);
 
-        $event = new ContactFormEvent($context, Defaults::SALES_CHANNEL, new MailRecipientStruct($contactFormRecipients), new DataBag());
+        $event = new ContactFormEvent($context, TestDefaults::SALES_CHANNEL, new MailRecipientStruct($contactFormRecipients), new DataBag());
 
         $mailService = new TestEmailService();
         $subscriber = new MailSendSubscriber(
@@ -144,7 +145,7 @@ class MailSendSubscriberTest extends TestCase
             'recipients' => ['test@example.com' => 'Shopware ag'],
         ]);
 
-        $event = new ContactFormEvent($context, Defaults::SALES_CHANNEL, new MailRecipientStruct(['test@example.com' => 'Shopware ag']), new DataBag());
+        $event = new ContactFormEvent($context, TestDefaults::SALES_CHANNEL, new MailRecipientStruct(['test@example.com' => 'Shopware ag']), new DataBag());
         $translator = $this->getContainer()->get(Translator::class);
 
         if ($translator->getSnippetSetId()) {
@@ -198,7 +199,7 @@ class MailSendSubscriberTest extends TestCase
             'password' => 'shopware',
             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultBillingAddressId' => $addressId,
             'defaultShippingAddressId' => $addressId,
             'addresses' => [
@@ -246,7 +247,7 @@ class MailSendSubscriberTest extends TestCase
             'paymentMethodId' => $this->getValidPaymentMethodId(),
             'currencyId' => Defaults::CURRENCY,
             'currencyFactor' => 1.0,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'billingAddressId' => $billingAddressId,
             'addresses' => [
                 [

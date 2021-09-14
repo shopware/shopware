@@ -9,10 +9,10 @@ use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Checkout\Promotion\Subscriber\Storefront\StorefrontCartSubscriber;
 use Shopware\Core\Content\Product\Cart\ProductLineItemFactory;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Session\Session;
 
 trait PromotionIntegrationTestBehaviour
@@ -26,7 +26,7 @@ trait PromotionIntegrationTestBehaviour
     public function getContext(): SalesChannelContext
     {
         if ($this->context === null) {
-            $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+            $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
         }
 
         return $this->context;

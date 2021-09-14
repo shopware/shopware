@@ -6,10 +6,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Profiler\Profiler;
 use Symfony\Component\Mailer\DataCollector\MessageDataCollector;
@@ -190,7 +190,7 @@ class MailActionControllerTest extends TestCase
             'subject' => 'My precious subject',
             'senderName' => 'No Reply',
             'mediaIds' => [],
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
         ];
     }
 
@@ -199,7 +199,7 @@ class MailActionControllerTest extends TestCase
         $testData['mailTemplateType'] = [
             'templateData' => [
                 'salesChannel' => [
-                    'id' => Defaults::SALES_CHANNEL,
+                    'id' => TestDefaults::SALES_CHANNEL,
                 ],
             ],
         ];
@@ -256,7 +256,7 @@ class MailActionControllerTest extends TestCase
             'footerHtml' => ' <h1>Footer</h1>',
             'salesChannels' => [
                 [
-                    'id' => Defaults::SALES_CHANNEL,
+                    'id' => TestDefaults::SALES_CHANNEL,
                 ],
             ],
         ];

@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\EntityProtection;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -17,6 +16,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigDefinition;
 use Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyDefinition;
+use Shopware\Core\Test\TestDefaults;
 
 class EntityProtectionValidatorTest extends TestCase
 {
@@ -191,7 +191,7 @@ class EntityProtectionValidatorTest extends TestCase
         $this->getBrowser()
             ->request(
                 'DELETE',
-                '/api/sales-channel/' . Defaults::SALES_CHANNEL
+                '/api/sales-channel/' . TestDefaults::SALES_CHANNEL
             );
 
         $response = $this->getBrowser()->getResponse();

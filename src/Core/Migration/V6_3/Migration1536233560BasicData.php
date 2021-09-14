@@ -894,7 +894,7 @@ class Migration1536233560BasicData extends MigrationStep
         $defaultCountry = $countryStatement->fetchColumn();
         $rootCategoryId = $connection->executeQuery('SELECT id FROM category')->fetchColumn();
 
-        $id = Uuid::fromHexToBytes(Defaults::SALES_CHANNEL);
+        $id = Uuid::fromHexToBytes('98432def39fc4624b33213a56b8c944d');
         $languageEN = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
         $languageDE = Uuid::fromHexToBytes($this->getDeDeLanguageId());
 
@@ -1413,7 +1413,7 @@ class Migration1536233560BasicData extends MigrationStep
             'id' => Uuid::randomBytes(),
             'configuration_key' => 'core.newsletter.subscribeDomain',
             'configuration_value' => '{"_value": "http://localhost"}',
-            'sales_channel_id' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL),
+            'sales_channel_id' => Uuid::fromHexToBytes('98432def39fc4624b33213a56b8c944d'),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 

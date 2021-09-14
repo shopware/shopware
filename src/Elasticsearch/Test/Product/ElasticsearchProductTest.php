@@ -65,6 +65,7 @@ use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAggregator;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
@@ -121,7 +122,7 @@ class ElasticsearchProductTest extends TestCase
 
         $this->navigationId = $this->connection->fetchColumn(
             'SELECT LOWER(HEX(navigation_category_id)) FROM sales_channel WHERE id = :id',
-            ['id' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL)]
+            ['id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL)]
         );
 
         $this->registerDefinition(ExtendedProductDefinition::class);
@@ -1971,7 +1972,7 @@ class ElasticsearchProductTest extends TestCase
             $context = $this->getContainer()->get(SalesChannelContextFactory::class)
                 ->create(
                     Uuid::randomHex(),
-                    Defaults::SALES_CHANNEL,
+                    TestDefaults::SALES_CHANNEL,
                     [
                         SalesChannelContextService::LANGUAGE_ID => Defaults::LANGUAGE_SYSTEM,
                     ]
@@ -2045,7 +2046,7 @@ class ElasticsearchProductTest extends TestCase
             $context = $this->getContainer()->get(SalesChannelContextFactory::class)
                 ->create(
                     Uuid::randomHex(),
-                    Defaults::SALES_CHANNEL,
+                    TestDefaults::SALES_CHANNEL,
                     [
                         SalesChannelContextService::LANGUAGE_ID => Defaults::LANGUAGE_SYSTEM,
                     ]
@@ -2137,7 +2138,7 @@ class ElasticsearchProductTest extends TestCase
             $context = $this->getContainer()->get(SalesChannelContextFactory::class)
                 ->create(
                     Uuid::randomHex(),
-                    Defaults::SALES_CHANNEL,
+                    TestDefaults::SALES_CHANNEL,
                     [
                         SalesChannelContextService::LANGUAGE_ID => Defaults::LANGUAGE_SYSTEM,
                     ]
@@ -2679,7 +2680,7 @@ class ElasticsearchProductTest extends TestCase
                 ->name('Silk')
                 ->category('navi')
                 ->customField('testField', 'Silk')
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->tax('t1')
                 ->manufacturer('m1')
                 ->price(50)
@@ -2699,7 +2700,7 @@ class ElasticsearchProductTest extends TestCase
                 ->name('Rubber')
                 ->category('navi')
                 ->customField('testField', 'Rubber')
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->tax('t1')
                 ->manufacturer('m2')
                 ->price(100)
@@ -2718,7 +2719,7 @@ class ElasticsearchProductTest extends TestCase
                 ->name('Stilk')
                 ->category('navi')
                 ->customField('testField', 'Stilk')
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->tax('t2')
                 ->manufacturer('m2')
                 ->price(150)
@@ -2734,7 +2735,7 @@ class ElasticsearchProductTest extends TestCase
                 ->name('Grouped 1')
                 ->category('navi')
                 ->customField('testField', 'Grouped 1')
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->tax('t2')
                 ->manufacturer('m2')
                 ->price(200)
@@ -2748,7 +2749,7 @@ class ElasticsearchProductTest extends TestCase
                 ->name('Grouped 2')
                 ->category('navi')
                 ->customField('testField', 'Grouped 2')
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->tax('t3')
                 ->manufacturer('m3')
                 ->price(250)
@@ -2761,7 +2762,7 @@ class ElasticsearchProductTest extends TestCase
                 ->name('Spachtelmasse of some awesome company')
                 ->category('navi')
                 ->customField('testField', 'Spachtelmasse')
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->tax('t3')
                 ->manufacturer('m3')
                 ->price(300)
@@ -2773,7 +2774,7 @@ class ElasticsearchProductTest extends TestCase
             (new ProductBuilder($this->ids, 'product-7'))
                 ->name('Test Product for Timezone ReleaseDate')
                 ->category('navi')
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->tax('t3')
                 ->price(300)
                 ->releaseDate('2024-12-11 23:59:00')
@@ -2783,7 +2784,7 @@ class ElasticsearchProductTest extends TestCase
                 ->name('Other product')
                 ->category('navi')
                 ->customField('testField', 'Other product')
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->tax('t3')
                 ->manufacturer('m3')
                 ->price(300)
@@ -2795,7 +2796,7 @@ class ElasticsearchProductTest extends TestCase
                 ->name('Other product')
                 ->category('navi')
                 ->customField('testField', 'Other product')
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->tax('t3')
                 ->manufacturer('m3')
                 ->price(300)
@@ -2807,7 +2808,7 @@ class ElasticsearchProductTest extends TestCase
                 ->name('Other product')
                 ->category('navi')
                 ->customField('testField', 'Other product')
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->tax('t3')
                 ->manufacturer('m3')
                 ->price(300)
@@ -2819,7 +2820,7 @@ class ElasticsearchProductTest extends TestCase
                 ->name('Other product')
                 ->category('navi')
                 ->customField('testField', 'Other product')
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->tax('t3')
                 ->manufacturer('m3')
                 ->price(300)
@@ -2831,7 +2832,7 @@ class ElasticsearchProductTest extends TestCase
                 ->name('Other product')
                 ->category('navi')
                 ->customField('testField', 'Other product')
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->tax('t3')
                 ->manufacturer('m3')
                 ->price(300)
@@ -2843,7 +2844,7 @@ class ElasticsearchProductTest extends TestCase
                 ->name('aa')
                 ->category('navi')
                 ->customField('testField', 'aa')
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->tax('t1')
                 ->manufacturer('m2')
                 ->price(100)
@@ -2856,7 +2857,7 @@ class ElasticsearchProductTest extends TestCase
                 ->name('Aa')
                 ->category('navi')
                 ->customField('testField', 'Aa')
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->tax('t1')
                 ->manufacturer('m2')
                 ->price(100)
@@ -2869,7 +2870,7 @@ class ElasticsearchProductTest extends TestCase
                 ->name('AA')
                 ->category('navi')
                 ->customField('testField', 'AA')
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->tax('t1')
                 ->manufacturer('m2')
                 ->price(100)
@@ -2882,7 +2883,7 @@ class ElasticsearchProductTest extends TestCase
                 ->name('Ba')
                 ->category('navi')
                 ->customField('testField', 'Ba')
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->tax('t1')
                 ->manufacturer('m2')
                 ->price(100)
@@ -2895,7 +2896,7 @@ class ElasticsearchProductTest extends TestCase
                 ->name('BA')
                 ->category('navi')
                 ->customField('testField', 'BA')
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->tax('t1')
                 ->manufacturer('m2')
                 ->price(100)
@@ -2908,7 +2909,7 @@ class ElasticsearchProductTest extends TestCase
                 ->name('BB')
                 ->category('navi')
                 ->customField('testField', 'BB')
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->tax('t1')
                 ->manufacturer('m2')
                 ->price(100)
@@ -2922,13 +2923,13 @@ class ElasticsearchProductTest extends TestCase
             (new ProductBuilder($this->ids, 'p.1'))
                 ->price(70)
                 ->price(99, null, 'currency')
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->build(),
 
             // no rule = 79€
             (new ProductBuilder($this->ids, 'p.2'))
                 ->price(80)
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->variant(
                     (new ProductBuilder($this->ids, 'v.2.1'))
                         ->build()
@@ -2944,7 +2945,7 @@ class ElasticsearchProductTest extends TestCase
             // no rule = 90€
             (new ProductBuilder($this->ids, 'p.3'))
                 ->price(90)
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->variant(
                     (new ProductBuilder($this->ids, 'v.3.1'))
                         ->build()
@@ -2959,7 +2960,7 @@ class ElasticsearchProductTest extends TestCase
             // no rule = 60€
             (new ProductBuilder($this->ids, 'p.4'))
                 ->price(100)
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->variant(
                     (new ProductBuilder($this->ids, 'v.4.1'))
                         ->price(60)
@@ -2978,7 +2979,7 @@ class ElasticsearchProductTest extends TestCase
                 ->price(110)
                 ->prices('rule-a', 130)
                 ->prices('rule-a', 120, 'default', null, 3)
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->build(),
 
             // no rule = 120€  ||  rule-a = 130€
@@ -2988,7 +2989,7 @@ class ElasticsearchProductTest extends TestCase
                 ->prices('rule-a', 140, 'default', null, 3)
                 ->prices('rule-a', 199, 'currency')
                 ->prices('rule-a', 188, 'currency', null, 3)
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->variant(
                     (new ProductBuilder($this->ids, 'v.6.1'))
                         ->prices('rule-a', 140)
@@ -3008,7 +3009,7 @@ class ElasticsearchProductTest extends TestCase
                 ->price(130)
                 ->prices('rule-a', 150)
                 ->prices('rule-a', 140, 'default', null, 3)
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->variant(
                     (new ProductBuilder($this->ids, 'v.7.1'))
                         ->prices('rule-a', 160)
@@ -3026,7 +3027,7 @@ class ElasticsearchProductTest extends TestCase
                 ->price(140)
                 ->prices('rule-a', 160)
                 ->prices('rule-a', 150, 'default', null, 3)
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->variant(
                     (new ProductBuilder($this->ids, 'v.8.1'))
                         ->prices('rule-a', 170)
@@ -3044,7 +3045,7 @@ class ElasticsearchProductTest extends TestCase
             // no-rule = 150€   ||   rule-a  = 160€
             (new ProductBuilder($this->ids, 'p.9'))
                 ->price(150)
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->variant(
                     (new ProductBuilder($this->ids, 'v.9.1'))
                         ->prices('rule-a', 170)
@@ -3061,7 +3062,7 @@ class ElasticsearchProductTest extends TestCase
             // no rule = 150€  ||  rule-a = 150€
             (new ProductBuilder($this->ids, 'p.10'))
                 ->price(160)
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->variant(
                     (new ProductBuilder($this->ids, 'v.10.1'))
                         ->prices('rule-a', 170)
@@ -3082,7 +3083,7 @@ class ElasticsearchProductTest extends TestCase
                 ->prices('rule-a', 180, 'default', null, 3)
                 ->prices('rule-b', 200)
                 ->prices('rule-b', 190, 'default', null, 3)
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->variant(
                     (new ProductBuilder($this->ids, 'v.11.1'))
                         ->build()
@@ -3096,7 +3097,7 @@ class ElasticsearchProductTest extends TestCase
             // no rule = 180 ||  rule-a = 210  || rule-b = 180 || a+b = 210 || b+a = 200/180
             (new ProductBuilder($this->ids, 'p.12'))
                 ->price(180)
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->variant(
                     (new ProductBuilder($this->ids, 'v.12.1'))
                         ->prices('rule-a', 220)
@@ -3116,7 +3117,7 @@ class ElasticsearchProductTest extends TestCase
             // no rule = 190 ||  rule-a = 220  || rule-b = 190 || a+b = 220 || b+a = 210/190
             (new ProductBuilder($this->ids, 'p.13'))
                 ->price(190)
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->prices('rule-a', 230)
                 ->prices('rule-a', 220, 'default', null, 3)
                 ->variant(
@@ -3137,7 +3138,7 @@ class ElasticsearchProductTest extends TestCase
                 ->name('Default')
                 ->category('navi')
                 ->customField('testField', 'Silk')
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->tax('t1')
                 ->manufacturer('m1')
                 ->price(50)
@@ -3159,7 +3160,7 @@ class ElasticsearchProductTest extends TestCase
                 ->name('Default')
                 ->category('pants')
                 ->customField('testField', 'Silk')
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->tax('t1')
                 ->manufacturer('m1')
                 ->price(60)
@@ -3215,10 +3216,10 @@ class ElasticsearchProductTest extends TestCase
                         'territory' => 'test',
                     ],
                     'salesChannels' => [
-                        ['id' => Defaults::SALES_CHANNEL],
+                        ['id' => TestDefaults::SALES_CHANNEL],
                     ],
                     'salesChannelDefaultAssignments' => [
-                        ['id' => Defaults::SALES_CHANNEL],
+                        ['id' => TestDefaults::SALES_CHANNEL],
                     ],
                 ],
             ],

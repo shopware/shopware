@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -68,7 +69,7 @@ class CachedSitemapRouteTest extends TestCase
 
         $domain = [
             'url' => 'http://shopware.test',
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'languageId' => Defaults::LANGUAGE_SYSTEM,
             'currencyId' => Defaults::CURRENCY,
             'snippetSetId' => $snippetSetId,
@@ -78,7 +79,7 @@ class CachedSitemapRouteTest extends TestCase
             ->create([$domain], Context::createDefaultContext());
 
         $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $products = [
             (new ProductBuilder($ids, 'first'))

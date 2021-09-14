@@ -27,6 +27,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextRestoredEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Contracts\EventDispatcher\Event;
 
@@ -336,7 +337,7 @@ class SalesChannelContextRestorerTest extends TestCase
             'taxId' => $this->getValidTaxId(),
             'active' => true,
             'visibilities' => [
-                ['salesChannelId' => Defaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ['salesChannelId' => TestDefaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
             ],
         ];
         $this->getContainer()->get('product.repository')->create([$data], $context);
@@ -352,7 +353,7 @@ class SalesChannelContextRestorerTest extends TestCase
 
         return $this->getContainer()->get(SalesChannelContextFactory::class)->create(
             $contextToken,
-            Defaults::SALES_CHANNEL,
+            TestDefaults::SALES_CHANNEL,
             $salesChannelData
         );
     }
@@ -389,7 +390,7 @@ class SalesChannelContextRestorerTest extends TestCase
         $data = [
             [
                 'id' => $customerId,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultShippingAddress' => [
                     'id' => $addressId,
                     'firstName' => 'Max',

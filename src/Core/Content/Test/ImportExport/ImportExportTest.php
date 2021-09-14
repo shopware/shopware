@@ -38,6 +38,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ImportExportTest extends ImportExportTestCase
@@ -201,7 +202,7 @@ class ImportExportTest extends ImportExportTestCase
             'hash' => 'asdf',
             'status' => NewsletterSubscribeRoute::STATUS_DIRECT,
             'confirmedAt' => new \DateTimeImmutable('2020-02-29 13:37'),
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
         ];
         /** @var EntityRepositoryInterface $repo */
         $repo = $this->getContainer()->get('newsletter_recipient.repository');

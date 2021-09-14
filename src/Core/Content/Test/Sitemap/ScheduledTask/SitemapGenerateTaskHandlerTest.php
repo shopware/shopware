@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviou
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -69,7 +70,7 @@ class SitemapGenerateTaskHandlerTest extends TestCase
         $salesChannelContext = $this->createStorefrontSalesChannelContext(Uuid::randomHex(), 'test-sitemap-task-handler');
 
         $nonDefaults = array_values(array_filter(array_map(function (string $id): ?array {
-            if ($id === Defaults::SALES_CHANNEL) {
+            if ($id === TestDefaults::SALES_CHANNEL) {
                 return null;
             }
 
@@ -96,7 +97,7 @@ class SitemapGenerateTaskHandlerTest extends TestCase
         ], Context::createDefaultContext());
 
         $message = new SitemapMessage(
-            Defaults::SALES_CHANNEL,
+            TestDefaults::SALES_CHANNEL,
             Defaults::LANGUAGE_SYSTEM,
             null,
             null,
@@ -115,7 +116,7 @@ class SitemapGenerateTaskHandlerTest extends TestCase
         $salesChannelIds = $this->salesChannelRepository->searchIds(new Criteria(), Context::createDefaultContext())->getIds();
 
         $nonDefaults = array_values(array_filter(array_map(function (string $id): ?array {
-            if ($id === Defaults::SALES_CHANNEL) {
+            if ($id === TestDefaults::SALES_CHANNEL) {
                 return null;
             }
 
@@ -125,7 +126,7 @@ class SitemapGenerateTaskHandlerTest extends TestCase
         $this->salesChannelRepository->delete($nonDefaults, Context::createDefaultContext());
 
         $newSalesChannelId = Uuid::randomHex();
-        while ($newSalesChannelId < Defaults::SALES_CHANNEL) {
+        while ($newSalesChannelId < TestDefaults::SALES_CHANNEL) {
             $newSalesChannelId = Uuid::randomHex();
         }
 
@@ -133,7 +134,7 @@ class SitemapGenerateTaskHandlerTest extends TestCase
 
         $this->salesChannelDomainRepository->create([
             [
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'languageId' => Defaults::LANGUAGE_SYSTEM,
                 'currencyId' => Defaults::CURRENCY,
                 'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
@@ -166,7 +167,7 @@ class SitemapGenerateTaskHandlerTest extends TestCase
         ], Context::createDefaultContext());
 
         $message = new SitemapMessage(
-            Defaults::SALES_CHANNEL,
+            TestDefaults::SALES_CHANNEL,
             Defaults::LANGUAGE_SYSTEM,
             null,
             null,

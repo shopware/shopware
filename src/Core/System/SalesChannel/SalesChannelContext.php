@@ -115,6 +115,9 @@ class SalesChannelContext extends Struct
      */
     private $domainId;
 
+    /**
+     * @deprecated tag:v6.5.0 - Parameter $fallbackCustomerGroup is deprecated and will be removed
+     */
     public function __construct(
         Context $baseContext,
         string $token,
@@ -154,6 +157,9 @@ class SalesChannelContext extends Struct
         return $this->currentCustomerGroup;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - Fallback customer group is deprecated and will be removed, use getCurrentCustomerGroup instead
+     */
     public function getFallbackCustomerGroup(): CustomerGroupEntity
     {
         return $this->fallbackCustomerGroup;

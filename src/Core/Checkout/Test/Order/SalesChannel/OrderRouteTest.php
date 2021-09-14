@@ -55,6 +55,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
+use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Controller\AccountOrderController;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -106,7 +107,7 @@ class OrderRouteTest extends TestCase
 
         $this->defaultCountryId = $this->getValidCountryId(null);
         $this->browser = $this->createCustomSalesChannelBrowser([
-            'id' => Defaults::SALES_CHANNEL,
+            'id' => TestDefaults::SALES_CHANNEL,
             'languages' => [],
             'countryId' => $this->defaultCountryId,
             'countries' => \array_map(static function (CountryEntity $country) {
@@ -145,7 +146,7 @@ class OrderRouteTest extends TestCase
 
         /** @var AbstractSalesChannelContextFactory $salesChannelContextFactory */
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
-        $salesChannelContext = $salesChannelContextFactory->create($response['contextToken'], Defaults::SALES_CHANNEL);
+        $salesChannelContext = $salesChannelContextFactory->create($response['contextToken'], TestDefaults::SALES_CHANNEL);
 
         $newToken = $this->contextPersister->replace($response['contextToken'], $salesChannelContext);
         $this->contextPersister->save(
@@ -155,7 +156,7 @@ class OrderRouteTest extends TestCase
                 'billingAddressId' => null,
                 'shippingAddressId' => null,
             ],
-            Defaults::SALES_CHANNEL,
+            TestDefaults::SALES_CHANNEL,
             $this->customerId
         );
 
@@ -732,7 +733,7 @@ class OrderRouteTest extends TestCase
         static::assertCount(1, $response['orders']['elements']);
         static::assertArrayHasKey('id', $response['orders']['elements'][0]);
         static::assertEquals($this->orderId, $response['orders']['elements'][0]['id']);
-        static::assertEquals(Defaults::SALES_CHANNEL, $response['orders']['elements'][0]['salesChannelId']);
+        static::assertEquals(TestDefaults::SALES_CHANNEL, $response['orders']['elements'][0]['salesChannelId']);
     }
 
     public function testPaymentOrderNotManipulable(): void
@@ -890,7 +891,7 @@ class OrderRouteTest extends TestCase
                 'paymentMethodId' => $this->defaultPaymentMethodId,
                 'currencyId' => Defaults::CURRENCY,
                 'currencyFactor' => 1,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'transactions' => [
                     [
                         'id' => Uuid::randomHex(),
@@ -957,7 +958,7 @@ class OrderRouteTest extends TestCase
                     'customerNumber' => 'Test',
                     'customer' => [
                         'id' => $customerId,
-                        'salesChannelId' => Defaults::SALES_CHANNEL,
+                        'salesChannelId' => TestDefaults::SALES_CHANNEL,
                         'defaultShippingAddress' => [
                             'id' => $addressId,
                             'firstName' => 'Max',
@@ -990,7 +991,7 @@ class OrderRouteTest extends TestCase
                             ],
                             'salesChannels' => [
                                 [
-                                    'id' => Defaults::SALES_CHANNEL,
+                                    'id' => TestDefaults::SALES_CHANNEL,
                                 ],
                             ],
                         ],
@@ -1063,7 +1064,7 @@ class OrderRouteTest extends TestCase
                 'availabilityRuleId' => $ruleId,
                 'salesChannels' => [
                     [
-                        'id' => Defaults::SALES_CHANNEL,
+                        'id' => TestDefaults::SALES_CHANNEL,
                     ],
                 ],
             ],
@@ -1092,7 +1093,7 @@ class OrderRouteTest extends TestCase
             'visibilities' => [
                 [
                     'id' => $productId,
-                    'salesChannelId' => Defaults::SALES_CHANNEL,
+                    'salesChannelId' => TestDefaults::SALES_CHANNEL,
                     'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
                 ],
             ],
@@ -1107,6 +1108,6 @@ class OrderRouteTest extends TestCase
     {
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
 
-        return $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL, [SalesChannelContextService::CUSTOMER_ID => $this->customerId]);
+        return $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, [SalesChannelContextService::CUSTOMER_ID => $this->customerId]);
     }
 }

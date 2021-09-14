@@ -9,7 +9,6 @@ use Shopware\Core\Content\Category\SalesChannel\CachedCategoryRoute;
 use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
 use Shopware\Core\Content\Test\Cms\LayoutBuilder;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -17,6 +16,7 @@ use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -37,7 +37,7 @@ class CachedCategoryRouteTest extends TestCase
 
         $this->context = $this->getContainer()
             ->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 
     /**
@@ -262,7 +262,7 @@ class CachedCategoryRouteTest extends TestCase
     {
         $context = $this->getContainer()
             ->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $ids->set('navigation', $context->getSalesChannel()->getNavigationCategoryId());
 
@@ -311,7 +311,7 @@ class CachedCategoryRouteTest extends TestCase
 
         $this->context = $this->getContainer()
             ->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $builder = new LayoutBuilder($ids, 'layout');
         $builder

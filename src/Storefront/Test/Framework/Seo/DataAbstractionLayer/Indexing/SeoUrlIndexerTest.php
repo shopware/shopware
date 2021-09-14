@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 
 /**
@@ -623,7 +624,7 @@ class SeoUrlIndexerTest extends TestCase
     private function upsertTemplate(array $data): void
     {
         $seoUrlTemplateDefaults = [
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'entityName' => $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
             'routeName' => ProductPageSeoUrlRoute::ROUTE_NAME,
         ];

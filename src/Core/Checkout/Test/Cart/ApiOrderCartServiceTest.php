@@ -6,13 +6,13 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\ApiOrderCartService;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionCollector;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class ApiOrderCartServiceTest extends TestCase
@@ -33,7 +33,7 @@ class ApiOrderCartServiceTest extends TestCase
         $eventDispatcher = new EventDispatcher();
         $this->contextPersister = new SalesChannelContextPersister($this->connection, $eventDispatcher);
         $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
         $this->adminOrderCartService = $this->getContainer()->get(ApiOrderCartService::class);
     }
 

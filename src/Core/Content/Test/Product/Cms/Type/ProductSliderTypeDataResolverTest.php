@@ -35,6 +35,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
 
 class ProductSliderTypeDataResolverTest extends TestCase
@@ -216,7 +217,7 @@ class ProductSliderTypeDataResolverTest extends TestCase
 
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
 
-        $salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $resolverContext = new ResolverContext(
             $salesChannelContext,
@@ -439,7 +440,7 @@ class ProductSliderTypeDataResolverTest extends TestCase
         $productRepository = $this->getContainer()->get('product.repository');
         $manufacturerId = Uuid::randomHex();
         $taxId = Uuid::randomHex();
-        $salesChannelId = Defaults::SALES_CHANNEL;
+        $salesChannelId = TestDefaults::SALES_CHANNEL;
         $products = [];
 
         $widths = [

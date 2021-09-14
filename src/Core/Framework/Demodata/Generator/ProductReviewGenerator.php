@@ -49,6 +49,7 @@ class ProductReviewGenerator implements DemodataGeneratorInterface
 
         $customerIds = $this->getCustomerIds();
         $productIds = $this->getProductIds();
+        $salesChannelIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM sales_channel');
         $points = [1, 2, 3, 4, 5];
 
         $payload = [];
@@ -58,7 +59,7 @@ class ProductReviewGenerator implements DemodataGeneratorInterface
                 'id' => Uuid::randomHex(),
                 'productId' => $context->getFaker()->randomElement($productIds),
                 'customerId' => $context->getFaker()->randomElement($customerIds),
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => $salesChannelIds[array_rand($salesChannelIds)],
                 'languageId' => Defaults::LANGUAGE_SYSTEM,
                 'title' => $context->getFaker()->sentence,
                 'content' => $context->getFaker()->text,

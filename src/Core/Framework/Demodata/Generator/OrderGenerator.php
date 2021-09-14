@@ -101,6 +101,8 @@ LEFT JOIN product_translation trans ON product.id = trans.product_id
 LIMIT 150
 SQL;
 
+        $salesChannelIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM sales_channel');
+
         $products = $this->connection->fetchAll($sql);
         $customerIds = $this->connection->fetchAll('SELECT LOWER(HEX(id)) as id FROM customer LIMIT 10');
         $customerIds = array_column($customerIds, 'id');
@@ -119,7 +121,7 @@ SQL;
             $products
         );
 
-        $salesChannelContext = $this->contextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $salesChannelContext = $this->contextFactory->create(Uuid::randomHex(), $salesChannelIds[array_rand($salesChannelIds)]);
 
         $blueprint = $this->cartService->getCart(Uuid::randomHex(), $salesChannelContext);
         $blueprint->addLineItems(new LineItemCollection($lineItems));
@@ -134,7 +136,7 @@ SQL;
         for ($i = 1; $i <= $numberOfItems; ++$i) {
             $customerId = $context->getFaker()->randomElement($customerIds);
 
-            $salesChannelContext = $this->getContext($customerId);
+            $salesChannelContext = $this->getContext($customerId, $salesChannelIds);
 
             $itemCount = random_int(3, 5);
 
@@ -171,7 +173,7 @@ SQL;
         $context->getConsole()->progressFinish();
     }
 
-    private function getContext(string $customerId): SalesChannelContext
+    private function getContext(string $customerId, array $salesChannelIds): SalesChannelContext
     {
         if (isset($this->contexts[$customerId])) {
             return $this->contexts[$customerId];
@@ -181,7 +183,7 @@ SQL;
             SalesChannelContextService::CUSTOMER_ID => $customerId,
         ];
 
-        $context = $this->contextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL, $options);
+        $context = $this->contextFactory->create(Uuid::randomHex(), $salesChannelIds[array_rand($salesChannelIds)], $options);
 
         return $this->contexts[$customerId] = $context;
     }

@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 
 class SearchKeywordUpdaterTest extends TestCase
 {
@@ -37,7 +38,7 @@ class SearchKeywordUpdaterTest extends TestCase
                 'id' => $this->getDeDeLanguageId(),
                 'salesChannelDomains' => [
                     [
-                        'salesChannelId' => Defaults::SALES_CHANNEL,
+                        'salesChannelId' => TestDefaults::SALES_CHANNEL,
                         'currencyId' => Defaults::CURRENCY,
                         'snippetSetId' => $this->getSnippetSetIdForLocale('de-DE'),
                         'url' => $_SERVER['APP_URL'] . '/de',

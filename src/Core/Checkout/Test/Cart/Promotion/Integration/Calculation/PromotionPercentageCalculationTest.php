@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\Test\TestDefaults;
 
 class PromotionPercentageCalculationTest extends TestCase
 {
@@ -65,7 +66,7 @@ class PromotionPercentageCalculationTest extends TestCase
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
         $code = 'BF' . Random::getAlphanumericString(5);
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         // add a new sample product
         $this->createTestFixtureProduct($productId, 29, 17, $this->getContainer(), $context);
@@ -104,7 +105,7 @@ class PromotionPercentageCalculationTest extends TestCase
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
         $code = 'BF' . Random::getAlphanumericString(5);
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         // add a new sample product
         $this->createTestFixtureProduct($productId, 100, 20, $this->getContainer(), $context);
@@ -163,7 +164,7 @@ class PromotionPercentageCalculationTest extends TestCase
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
         $code = 'BF' . Random::getAlphanumericString(5);
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         // add a new sample product
         $this->createTestFixtureProduct($productId, 100, 20, $this->getContainer(), $context);
@@ -201,7 +202,7 @@ class PromotionPercentageCalculationTest extends TestCase
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
         $code = 'BF' . Random::getAlphanumericString(5);
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $productGross = 100;
         $percentage = 50;
@@ -245,7 +246,7 @@ class PromotionPercentageCalculationTest extends TestCase
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
         $code = 'BF' . Random::getAlphanumericString(5);
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         // add a new sample product
         $this->createTestFixtureProduct($productId, 0, 19, $this->getContainer(), $context);

@@ -212,12 +212,13 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 
         $groupIds = array_keys(array_flip($groupIds));
 
-        //fallback customer group is hard coded to 'EK'
         $criteria = new Criteria($groupIds);
         $criteria->setTitle('context-factory::customer-group');
 
         $customerGroups = $this->customerGroupRepository->search($criteria, $context);
-        $fallbackGroup = $customerGroups->get(Defaults::FALLBACK_CUSTOMER_GROUP);
+
+        /** @deprecated tag:v6.5.0 - Fallback customer group is deprecated and will be removed */
+        $fallbackGroup = $customerGroups->has(Defaults::FALLBACK_CUSTOMER_GROUP) ? $customerGroups->get(Defaults::FALLBACK_CUSTOMER_GROUP) : $customerGroups->get($salesChannel->getCustomerGroupId());
         $customerGroup = $customerGroups->get($groupId);
 
         //loads tax rules based on active customer and delivery address
@@ -280,7 +281,6 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         $criteria = new Criteria();
         $criteria->setTitle('context-factory::taxes');
         $criteria->addAssociation('rules.type');
-        $criteria->addExtension('test', new Criteria());
 
         $taxes = $this->taxRepository->search($criteria, $context)->getEntities();
 

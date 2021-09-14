@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\Cleanup\CleanupSalesChannelContextTaskHandler;
+use Shopware\Core\Test\TestDefaults;
 
 class CleanupSalesChannelContextTaskHandlerTest extends TestCase
 {
@@ -53,7 +54,7 @@ class CleanupSalesChannelContextTaskHandlerTest extends TestCase
                 'key' => 'value',
                 'expired' => false,
             ]),
-            'sales_channel_id' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL),
+            'sales_channel_id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL),
         ];
 
         if ($date) {

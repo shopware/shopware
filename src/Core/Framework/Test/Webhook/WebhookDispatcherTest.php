@@ -34,6 +34,7 @@ use Shopware\Core\Framework\Webhook\WebhookDispatcher;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\Envelope;
@@ -72,7 +73,7 @@ class WebhookDispatcherTest extends TestCase
         $this->appendNewResponse(new Response(200));
 
         $event = new CustomerBeforeLoginEvent(
-            $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL),
+            $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
             'test@example.com'
         );
 
@@ -226,7 +227,7 @@ class WebhookDispatcherTest extends TestCase
     public function testNoRegisteredWebhook(): void
     {
         $event = new CustomerBeforeLoginEvent(
-            $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL),
+            $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
             'test@example.com'
         );
 
@@ -262,7 +263,7 @@ class WebhookDispatcherTest extends TestCase
         $event = new BusinessEvent(
             MailSendSubscriber::ACTION_NAME,
             new CustomerBeforeLoginEvent(
-                $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL),
+                $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
                 'test@example.com'
             )
         );
@@ -362,7 +363,7 @@ class WebhookDispatcherTest extends TestCase
         $this->appendNewResponse(new Response(200));
 
         $event = new CustomerBeforeLoginEvent(
-            $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL),
+            $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
             'test@example.com'
         );
 
@@ -454,7 +455,7 @@ class WebhookDispatcherTest extends TestCase
         $this->appendNewResponse(new Response(200));
 
         $event = new CustomerLoginEvent(
-            $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL),
+            $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
             (new CustomerEntity())->assign(['firstName' => 'first', 'lastName' => 'last']),
             'testToken'
         );
@@ -506,7 +507,7 @@ class WebhookDispatcherTest extends TestCase
         $this->appendNewResponse(new Response(200));
 
         $event = new CustomerLoginEvent(
-            $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL),
+            $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
             (new CustomerEntity())->assign(['firstName' => 'first', 'lastName' => 'last']),
             'testToken'
         );
@@ -573,7 +574,7 @@ class WebhookDispatcherTest extends TestCase
         $this->appendNewResponse(new Response(200));
 
         $event = new CustomerLoginEvent(
-            $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL),
+            $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
             (new CustomerEntity())->assign(['firstName' => 'first', 'lastName' => 'last']),
             'testToken'
         );
@@ -673,7 +674,7 @@ class WebhookDispatcherTest extends TestCase
         ]);
 
         $event = new CustomerLoginEvent(
-            $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL),
+            $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
             (new CustomerEntity())->assign(['firstName' => 'first', 'lastName' => 'last']),
             'testToken'
         );

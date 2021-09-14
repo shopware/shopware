@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 
 class CustomerRepositoryTest extends TestCase
 {
@@ -87,7 +88,7 @@ class CustomerRepositoryTest extends TestCase
         $records = [
             [
                 'id' => $recordA,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultShippingAddress' => $address,
                 'defaultPaymentMethodId' => $paymentMethod,
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
@@ -100,7 +101,7 @@ class CustomerRepositoryTest extends TestCase
             ],
             [
                 'id' => $recordB,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultShippingAddress' => $address,
                 'defaultPaymentMethodId' => $paymentMethod,
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
@@ -113,7 +114,7 @@ class CustomerRepositoryTest extends TestCase
             ],
             [
                 'id' => $recordC,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultShippingAddress' => $address,
                 'defaultPaymentMethodId' => $paymentMethod,
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
@@ -126,7 +127,7 @@ class CustomerRepositoryTest extends TestCase
             ],
             [
                 'id' => $recordD,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultShippingAddress' => $address,
                 'defaultPaymentMethodId' => $paymentMethod,
                 'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
@@ -177,7 +178,7 @@ class CustomerRepositoryTest extends TestCase
         $this->repository->create([
             [
                 'id' => $customerId,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultShippingAddress' => [
                     'firstName' => 'not',
                     'lastName' => 'not',
@@ -210,7 +211,7 @@ class CustomerRepositoryTest extends TestCase
         $data = [
             [
                 'id' => $customerId,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultShippingAddress' => [
                     'id' => $addressId,
                     'firstName' => 'Max',

@@ -108,6 +108,8 @@ class CustomerGenerator implements DemodataGeneratorInterface
             ->executeQuery('SELECT id FROM country WHERE active = 1')
             ->fetchAll(FetchMode::COLUMN);
 
+        $salesChannelIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM sales_channel');
+
         $customer = [
             'id' => $id,
             'customerNumber' => '1337',
@@ -118,7 +120,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
             'password' => 'shopware',
             'defaultPaymentMethodId' => $this->getDefaultPaymentMethod(),
             'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => $salesChannelIds[array_rand($salesChannelIds)],
             'defaultBillingAddressId' => $billingAddressId,
             'defaultShippingAddressId' => $shippingAddressId,
             'addresses' => [
@@ -161,6 +163,8 @@ class CustomerGenerator implements DemodataGeneratorInterface
         $netCustomerGroupId = $this->createNetCustomerGroup($context->getContext());
         $customerGroups = [Defaults::FALLBACK_CUSTOMER_GROUP, $netCustomerGroupId];
 
+        $salesChannelIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM sales_channel');
+
         $payload = [];
         for ($i = 0; $i < $numberOfItems; ++$i) {
             $id = Uuid::randomHex();
@@ -200,7 +204,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
                 'password' => 'shopware',
                 'defaultPaymentMethodId' => $this->getDefaultPaymentMethod(),
                 'groupId' => $customerGroups[array_rand($customerGroups)],
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => $salesChannelIds[array_rand($salesChannelIds)],
                 'defaultBillingAddressId' => $addresses[array_rand($addresses)]['id'],
                 'defaultShippingAddressId' => $addresses[array_rand($addresses)]['id'],
                 'addresses' => $addresses,

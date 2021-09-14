@@ -16,7 +16,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
-use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\HttpFoundation\Request;
 
 class ApiRequestContextResolver implements RequestContextResolverInterface
@@ -123,10 +122,6 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
 
     private function resolveContextSource(Request $request): ContextSource
     {
-        if ($request->attributes->has(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST)) {
-            return new SalesChannelApiSource(Defaults::SALES_CHANNEL);
-        }
-
         if ($userId = $request->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_USER_ID)) {
             return $this->getAdminApiSource($userId);
         }

@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Test\App;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\AppLocaleProvider;
 use Shopware\Core\Framework\Context;
@@ -11,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\Test\TestDefaults;
 
 class AppLocaleProviderTest extends TestCase
 {
@@ -35,7 +35,7 @@ class AppLocaleProviderTest extends TestCase
 
     public function testGetLocaleWithSalesChannelSource(): void
     {
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
         $locale = $this->localeProvider->getLocaleFromContext($context->getContext());
 
         static::assertEquals('en-GB', $locale);

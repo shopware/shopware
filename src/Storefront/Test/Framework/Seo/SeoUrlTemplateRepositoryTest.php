@@ -6,12 +6,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateDefinition;
 use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateEntity;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 
 class SeoUrlTemplateRepositoryTest extends TestCase
@@ -23,7 +23,7 @@ class SeoUrlTemplateRepositoryTest extends TestCase
         $id = Uuid::randomHex();
         $template = [
             'id' => $id,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'routeName' => ProductPageSeoUrlRoute::ROUTE_NAME,
             'entityName' => $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
             'template' => ProductPageSeoUrlRoute::DEFAULT_TEMPLATE,
@@ -70,7 +70,7 @@ class SeoUrlTemplateRepositoryTest extends TestCase
         $id = Uuid::randomHex();
         $template = [
             'id' => $id,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'routeName' => ProductPageSeoUrlRoute::ROUTE_NAME,
             'entityName' => $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
             'template' => ProductPageSeoUrlRoute::DEFAULT_TEMPLATE,
@@ -95,14 +95,14 @@ class SeoUrlTemplateRepositoryTest extends TestCase
         $templates = [
             [
                 'id' => null,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'routeName' => ProductPageSeoUrlRoute::ROUTE_NAME,
                 'entityName' => $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
                 'template' => ProductPageSeoUrlRoute::DEFAULT_TEMPLATE,
             ],
             [
                 'id' => null,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'routeName' => ProductPageSeoUrlRoute::ROUTE_NAME,
                 'entityName' => $this->getContainer()->get(ProductDefinition::class)->getEntityName(),
                 'template' => '',

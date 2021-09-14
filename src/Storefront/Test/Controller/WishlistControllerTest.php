@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Shopware\Storefront\Page\Wishlist\GuestWishlistPage;
 use Shopware\Storefront\Page\Wishlist\WishlistPage;
@@ -235,7 +236,7 @@ class WishlistControllerTest extends TestCase
         $data = [
             [
                 'id' => $this->customerId,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultShippingAddress' => [
                     'id' => $addressId,
                     'firstName' => 'Max',
@@ -304,7 +305,7 @@ class WishlistControllerTest extends TestCase
             'manufacturer' => ['name' => 'test'],
             'visibilities' => [
                 [
-                    'salesChannelId' => $salesChannelId ?? Defaults::SALES_CHANNEL,
+                    'salesChannelId' => $salesChannelId ?? TestDefaults::SALES_CHANNEL,
                     'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
                 ],
             ],

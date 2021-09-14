@@ -29,6 +29,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 
 class DocumentApiTest extends TestCase
 {
@@ -70,7 +71,7 @@ class DocumentApiTest extends TestCase
 
         $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
             Uuid::randomHex(),
-            Defaults::SALES_CHANNEL,
+            TestDefaults::SALES_CHANNEL,
             [
                 SalesChannelContextService::CUSTOMER_ID => $customerId,
                 SalesChannelContextService::SHIPPING_METHOD_ID => $shippingMethod->getId(),
@@ -181,7 +182,7 @@ class DocumentApiTest extends TestCase
                 'stock' => 10,
                 'active' => true,
                 'visibilities' => [
-                    ['salesChannelId' => Defaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                    ['salesChannelId' => TestDefaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
                 ],
             ];
 
@@ -222,7 +223,7 @@ class DocumentApiTest extends TestCase
             'password' => 'shopware',
             'defaultPaymentMethodId' => $paymentMethodId,
             'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultBillingAddressId' => $addressId,
             'defaultShippingAddressId' => $addressId,
             'addresses' => [

@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 
 class ProductExportRepositoryTest extends TestCase
 {
@@ -49,7 +50,7 @@ class ProductExportRepositoryTest extends TestCase
                 'interval' => 0,
                 'bodyTemplate' => 'test',
                 'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
-                'storefrontSalesChannelId' => Defaults::SALES_CHANNEL,
+                'storefrontSalesChannelId' => TestDefaults::SALES_CHANNEL,
                 'salesChannelId' => $this->getSalesChannelId(),
                 'salesChannelDomainId' => $this->getSalesChannelDomainId(),
                 'generateByCronjob' => false,
@@ -75,7 +76,7 @@ class ProductExportRepositoryTest extends TestCase
                 'interval' => 0,
                 'bodyTemplate' => 'test',
                 'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
-                'storefrontSalesChannelId' => Defaults::SALES_CHANNEL,
+                'storefrontSalesChannelId' => TestDefaults::SALES_CHANNEL,
                 'salesChannelId' => $this->getSalesChannelId(),
                 'salesChannelDomainId' => $this->getSalesChannelDomainId(),
                 'generateByCronjob' => false,
@@ -107,7 +108,7 @@ class ProductExportRepositoryTest extends TestCase
                 'interval' => 0,
                 'bodyTemplate' => 'test',
                 'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
-                'storefrontSalesChannelId' => Defaults::SALES_CHANNEL,
+                'storefrontSalesChannelId' => TestDefaults::SALES_CHANNEL,
                 'salesChannelId' => $this->getSalesChannelId(),
                 'salesChannelDomainId' => $this->getSalesChannelDomainId(),
                 'generateByCronjob' => false,
@@ -128,7 +129,7 @@ class ProductExportRepositoryTest extends TestCase
                 'interval' => 0,
                 'bodyTemplate' => 'test',
                 'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
-                'storefrontSalesChannelId' => Defaults::SALES_CHANNEL,
+                'storefrontSalesChannelId' => TestDefaults::SALES_CHANNEL,
                 'salesChannelId' => $this->getSalesChannelId(),
                 'salesChannelDomainId' => $this->getSalesChannelDomainId(),
                 'generateByCronjob' => false,
@@ -150,7 +151,7 @@ class ProductExportRepositoryTest extends TestCase
                 'interval' => 0,
                 'bodyTemplate' => 'test',
                 'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
-                'storefrontSalesChannelId' => Defaults::SALES_CHANNEL,
+                'storefrontSalesChannelId' => TestDefaults::SALES_CHANNEL,
                 'salesChannelId' => $this->getSalesChannelId(),
                 'salesChannelDomainId' => $this->getSalesChannelDomainId(),
                 'generateByCronjob' => false,
@@ -178,7 +179,7 @@ class ProductExportRepositoryTest extends TestCase
                 'interval' => 0,
                 'bodyTemplate' => 'test',
                 'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
-                'storefrontSalesChannelId' => Defaults::SALES_CHANNEL,
+                'storefrontSalesChannelId' => TestDefaults::SALES_CHANNEL,
                 'salesChannelId' => $this->getSalesChannelId(),
                 'salesChannelDomainId' => $this->getSalesChannelDomainId(),
                 'generateByCronjob' => false,
@@ -206,7 +207,7 @@ class ProductExportRepositoryTest extends TestCase
                 'interval' => 0,
                 'bodyTemplate' => 'test',
                 'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
-                'storefrontSalesChannelId' => Defaults::SALES_CHANNEL,
+                'storefrontSalesChannelId' => TestDefaults::SALES_CHANNEL,
                 'salesChannelId' => $this->getSalesChannelId(),
                 'salesChannelDomainId' => $this->getSalesChannelDomainId(),
                 'generateByCronjob' => false,
@@ -269,7 +270,7 @@ class ProductExportRepositoryTest extends TestCase
         $productRepository = $this->getContainer()->get('product.repository');
         $manufacturerId = Uuid::randomHex();
         $taxId = Uuid::randomHex();
-        $salesChannelId = Defaults::SALES_CHANNEL;
+        $salesChannelId = TestDefaults::SALES_CHANNEL;
         $products = [];
 
         for ($i = 0; $i < 10; ++$i) {

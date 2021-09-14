@@ -29,6 +29,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryEntity;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Response;
 
 class StateMachineActionControllerTest extends TestCase
@@ -175,7 +176,7 @@ class StateMachineActionControllerTest extends TestCase
         ];
 
         $salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL, $options);
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, $options);
 
         $productId = Uuid::randomHex();
         $product = [
@@ -239,7 +240,7 @@ class StateMachineActionControllerTest extends TestCase
         ];
 
         $salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL, $options);
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, $options);
 
         $productId = Uuid::randomHex();
         $product = [
@@ -317,7 +318,7 @@ class StateMachineActionControllerTest extends TestCase
             ],
             'availabilityRuleId' => $rule['id'],
             'deliveryTimeId' => $this->getContainer()->get(Connection::class)->fetchColumn('SELECT LOWER(HEX(id)) FROm delivery_time LIMIT 1'),
-            'salesChannels' => [['id' => Defaults::SALES_CHANNEL]],
+            'salesChannels' => [['id' => TestDefaults::SALES_CHANNEL]],
         ];
 
         $this->getContainer()->get('shipping_method.repository')
@@ -349,7 +350,7 @@ class StateMachineActionControllerTest extends TestCase
             'paymentMethodId' => $this->getValidPaymentMethodId(),
             'currencyId' => Defaults::CURRENCY,
             'currencyFactor' => 1.0,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'billingAddressId' => $billingAddressId,
             'addresses' => [
                 [
@@ -390,7 +391,7 @@ class StateMachineActionControllerTest extends TestCase
             'password' => 'shopware',
             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultBillingAddressId' => $addressId,
             'defaultShippingAddressId' => $addressId,
             'addresses' => [

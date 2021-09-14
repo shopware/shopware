@@ -29,6 +29,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
+use Shopware\Core\Test\TestDefaults;
 
 class OrderStateChangeEventListenerTest extends TestCase
 {
@@ -161,7 +162,7 @@ class OrderStateChangeEventListenerTest extends TestCase
             'billingAddressId' => $ids->create('billing-address'),
             'currencyId' => Defaults::CURRENCY,
             'languageId' => Defaults::LANGUAGE_SYSTEM,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'orderDateTime' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'currencyFactor' => 1,
             'stateId' => $this->getStateId('open', 'order.state'),

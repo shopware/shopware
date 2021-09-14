@@ -34,7 +34,7 @@ You have to add the prefix for your configuration as the `domain` query paramete
 The api call will return a JSON-Object containing all of your configuration values.
 A sample Request and Response may look like this.
 ```
-GET /api/v{version}/_action/system-config?domain=DemoApp.config&salesChannelId=98432def39fc4624b33213a56b8c944d
+GET /api/v{version}/_action/system-config?domain=DemoApp.config&salesChannelId=98432def39fc4624b33213a56b8c944f
 {
     "DemoApp.config.field1": true,
     "DemoApp.config.field2": "sucessfully configured"

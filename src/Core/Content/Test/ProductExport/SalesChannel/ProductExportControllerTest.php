@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Response;
 
 class ProductExportControllerTest extends TestCase
@@ -195,7 +196,7 @@ class ProductExportControllerTest extends TestCase
                 'bodyTemplate' => '{{ product.name }}',
                 'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
                 'storefrontSalesChannelId' => $salesChannelId,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'salesChannelDomainId' => $salesChannelDomainId,
                 'generateByCronjob' => false,
                 'currencyId' => Defaults::CURRENCY,
@@ -224,7 +225,7 @@ class ProductExportControllerTest extends TestCase
                 'footerTemplate' => '</root>',
                 'productStreamId' => '137b079935714281ba80b40f83f8d7eb',
                 'storefrontSalesChannelId' => $salesChannelId,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'salesChannelDomainId' => $salesChannelDomainId,
                 'generateByCronjob' => false,
                 'currencyId' => Defaults::CURRENCY,

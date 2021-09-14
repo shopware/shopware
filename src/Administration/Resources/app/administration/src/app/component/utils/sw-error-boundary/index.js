@@ -19,7 +19,9 @@ Shopware.Component.register('sw-error-boundary', {
 
     computed: {
         logEntryRepository() {
-            return this.repositoryFactory.create('log_entry');
+            return this.repositoryFactory.create('log_entry', null, {
+                keepApiErrors: true,
+            });
         },
     },
 

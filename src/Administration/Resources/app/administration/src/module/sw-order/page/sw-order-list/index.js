@@ -458,9 +458,15 @@ Component.register('sw-order-list', {
         },
 
         getVariantFromOrderState(order) {
-            return this.stateStyleDataProviderService.getStyle(
+            const style = this.stateStyleDataProviderService.getStyle(
                 'order.state', order.stateMachineState.technicalName,
-            ).variant;
+            );
+
+            if (this.feature.isActive('FEATURE_NEXT_7530')) {
+                return style.colorCode;
+            }
+
+            return style.variant;
         },
 
         getVariantFromPaymentState(order) {
@@ -471,15 +477,28 @@ Component.register('sw-order-list', {
                     technicalName = order.transactions[i].stateMachineState.technicalName;
                 }
             }
-            return this.stateStyleDataProviderService.getStyle(
+
+            const style = this.stateStyleDataProviderService.getStyle(
                 'order_transaction.state', technicalName,
-            ).variant;
+            );
+
+            if (this.feature.isActive('FEATURE_NEXT_7530')) {
+                return style.colorCode;
+            }
+
+            return style.variant;
         },
 
         getVariantFromDeliveryState(order) {
-            return this.stateStyleDataProviderService.getStyle(
+            const style = this.stateStyleDataProviderService.getStyle(
                 'order_delivery.state', order.deliveries[0].stateMachineState.technicalName,
-            ).variant;
+            );
+
+            if (this.feature.isActive('FEATURE_NEXT_7530')) {
+                return style.colorCode;
+            }
+
+            return style.variant;
         },
 
         loadFilterValues() {

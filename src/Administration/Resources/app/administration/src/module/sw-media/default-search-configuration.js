@@ -1,6 +1,7 @@
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 
 const defaultSearchConfiguration = {
+    _searchable: false,
     fileName: {
         _searchable: false,
         _score: searchRankingPoint.HIGH_SEARCH_RANKING,

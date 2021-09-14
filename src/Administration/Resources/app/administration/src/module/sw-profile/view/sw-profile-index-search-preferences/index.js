@@ -57,20 +57,6 @@ Component.register('sw-profile-index-search-preferences', {
         },
     },
 
-    watch: {
-        searchPreferences: {
-            deep: true,
-            immediate: true,
-            handler(newSearchPreferences, oldSearchPreferences) {
-                if (!oldSearchPreferences || newSearchPreferences.length <= 0) {
-                    return;
-                }
-
-                this.updateSearchPreferences(newSearchPreferences);
-            },
-        },
-    },
-
     created() {
         this.createdComponent();
     },
@@ -124,6 +110,7 @@ Component.register('sw-profile-index-search-preferences', {
         *    ...
         *    {
         *        customer: {
+        *            _searchable: false,
         *            company: {
         *                _searchable: false,
         *                _score: 500,
@@ -149,7 +136,6 @@ Component.register('sw-profile-index-search-preferences', {
         *    ...
         *    {
         *        entityName: 'customer'
-        *        _ghostValue: false,
         *        _searchable: false,
         *        fields: [
         *            {
@@ -174,19 +160,24 @@ Component.register('sw-profile-index-search-preferences', {
             const searchPreferences = [];
 
             entities = Object.assign({}, ...entities);
-            Object.entries(entities).forEach(([entityName, entitySearchPreferences]) => {
-                const fieldsGroup = {};
-                Object.entries(entitySearchPreferences).forEach(([key, value]) => {
-                    const fields = this.flattenFields(value, `${key}.`);
-                    this.groupFields(fields, fieldsGroup);
-                });
-
-                const fields = Object.values(fieldsGroup);
-                searchPreferences.push({ entityName, fields });
+            Object.entries(entities).forEach(([entityName, { _searchable, ...rest }]) => {
+                const fields = this.getFields(rest);
+                searchPreferences.push({ entityName, _searchable, fields });
             });
             searchPreferences.sort((a, b) => b.fields.length - a.fields.length);
 
             return searchPreferences;
+        },
+
+        getFields(data) {
+            const fieldsGroup = {};
+
+            Object.entries(data).forEach(([key, value]) => {
+                const fields = this.flattenFields(value, `${key}.`);
+                this.groupFields(fields, fieldsGroup);
+            });
+
+            return Object.values(fieldsGroup);
         },
 
         flattenFields(fields, prefix = '') {
@@ -221,60 +212,44 @@ Component.register('sw-profile-index-search-preferences', {
             });
         },
 
-        updateSearchPreferences(data) {
-            data.forEach((item, index) => {
-                data[index]._ghostValue = item.fields.some((field) => {
-                    return field._searchable === true;
-                });
-                data[index]._searchable = item.fields.every((field) => {
-                    return field._searchable === true;
-                });
-            });
-        },
-
         getModuleTitle(entityName) {
-            return this.$tc(Module.getModuleByEntityName(entityName)?.manifest.title);
+            const module = Module.getModuleByEntityName(entityName);
+
+            return this.$tc(module?.manifest.title);
         },
 
-        onChangeEntity(event, data) {
-            data.fields.forEach((field) => {
-                field._searchable = event;
-            });
-        },
-
-        onSelect(value) {
-            this.searchPreferences.forEach((item) => {
-                if (!this.acl.can(`${item.entityName}.editor`)) {
+        onSelect(event) {
+            this.searchPreferences.forEach((searchPreference) => {
+                if (!this.acl.can(`${searchPreference.entityName}.editor`)) {
                     return;
                 }
 
-                item._searchable = value;
-                item.fields.forEach((field) => {
-                    field._searchable = value;
+                searchPreference._searchable = event;
+                searchPreference.fields.forEach((field) => {
+                    field._searchable = event;
                 });
             });
         },
 
         onReset() {
             const searchPreferences = this.getEntitySearchPreferences(this.defaultSearchPreferences);
-            const editableEntities = searchPreferences.filter(({ entityName }) => {
-                return this.acl.can(`${entityName}.editor`);
+            const toReset = searchPreferences.filter((searchPreference) => {
+                return this.acl.can(`${searchPreference.entityName}.editor`);
             });
 
             this.searchPreferences.forEach((searchPreference, index) => {
-                editableEntities.forEach((entity) => {
-                    if (entity.entityName === searchPreference.entityName) {
-                        this.updateSearchPreferencesFields(entity, index);
+                toReset.forEach((item) => {
+                    if (item.entityName === searchPreference.entityName) {
+                        this.resetSearchPreference(item, this.searchPreferences[index]);
                     }
                 });
             });
         },
 
-        updateSearchPreferencesFields(entity, index) {
-            this.searchPreferences[index].fields = this.searchPreferences[index].fields.map((field) => {
-                const newField = entity.fields.find((item) => item.fieldName === field.fieldName);
-
-                return newField || field;
+        resetSearchPreference(toReset, searchPreference) {
+            searchPreference._searchable = toReset._searchable;
+            searchPreference.fields = searchPreference.fields.map((field) => {
+                return toReset.fields.find((item) => item.fieldName === field.fieldName) || field;
             });
         },
     },

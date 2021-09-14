@@ -50,15 +50,12 @@
 
             {% block sw_profile_index_search_preferences_searchable_elements_body %}
             <div class="sw-profile-index-search-preferences-searchable-elements__entity-container">
-                {% block sw_profile_index_search_preferences_searchable_elements_entities %}
                 <ul
                     v-for="searchPreference in searchPreferences"
                     :key="searchPreference.entityName"
                     class="sw-profile-index-search-preferences-searchable-elements__entity"
                 >
-                    {% block sw_profile_index_search_preferences_searchable_elements_entity_fields %}
                     <li class="sw-profile-index-search-preferences-searchable-elements__entity-field">
-                        {% block sw_profile_index_search_preferences_searchable_elements_entity %}
                         <sw-checkbox-field
                             v-model="searchPreference._searchable"
                             v-tooltip="{
@@ -66,14 +63,9 @@
                                 disabled: acl.can(`${searchPreference.entityName}.editor`),
                                 showOnDisabledElements: true
                             }"
-                            :ghost-value="searchPreference._ghostValue"
                             :label="getModuleTitle(searchPreference.entityName)"
                             :disabled="!acl.can(`${searchPreference.entityName}.editor`)"
-                            @change="onChangeEntity($event, searchPreference)"
                         />
-                        {% endblock %}
-
-                        {% block sw_profile_index_search_preferences_searchable_elements_fields %}
                         <ul class="sw-profile-index-search-preferences-searchable-elements__entity">
                             <li
                                 v-for="field in searchPreference.fields"
@@ -83,15 +75,12 @@
                                 <sw-checkbox-field
                                     v-model="field._searchable"
                                     :label="$tc(`sw-profile.tabSearchPreferences.modules.${searchPreference.entityName}.${field.fieldName}`)"
-                                    :disabled="!acl.can(`${searchPreference.entityName}.editor`)"
+                                    :disabled="!acl.can(`${searchPreference.entityName}.editor`) || !searchPreference._searchable"
                                 />
                             </li>
                         </ul>
-                        {% endblock %}
                     </li>
-                    {% endblock %}
                 </ul>
-                {% endblock %}
             </div>
             {% endblock %}
         </sw-container>

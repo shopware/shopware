@@ -348,6 +348,11 @@ shopware:
               major: true
               description: "Change customer creation behaviour on checkout/register page to opt in customer account."
               # issue: NEXT-16236
+            - name: FEATURE_NEXT_16769
+              default: false
+              major: true
+              description: "Prepared payment flow"
+              # issue: NEXT-16769
 
     logger:
         file_rotation_count: 14

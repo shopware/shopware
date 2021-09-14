@@ -1928,6 +1928,7 @@ class EntityReaderTest extends TestCase
         $result = $repository->search(new Criteria(), Context::createDefaultContext());
 
         static::assertEquals(2, $result->getTotal());
+        static::assertEquals(2, $result->count());
     }
 
     public function testReadWithNonIdPKOverPropertyName(): void
@@ -1954,6 +1955,7 @@ class EntityReaderTest extends TestCase
         $result = $repository->search(new Criteria([['testField' => $id1]]), Context::createDefaultContext());
 
         static::assertEquals(1, $result->getTotal());
+        static::assertEquals(1, $result->count());
     }
 
     /**
@@ -1983,6 +1985,7 @@ class EntityReaderTest extends TestCase
         $result = $repository->search(new Criteria([['test_field' => $id1]]), Context::createDefaultContext());
 
         static::assertEquals(1, $result->getTotal());
+        static::assertEquals(1, $result->count());
     }
 
     public function testDirectlyReadFromTranslationEntity(): void
@@ -2011,6 +2014,7 @@ class EntityReaderTest extends TestCase
         $result = $this->getContainer()->get('category_translation.repository')->search($criteria, Context::createDefaultContext());
 
         static::assertEquals(1, $result->getTotal());
+        static::assertEquals(1, $result->count());
 
         /** @var CategoryTranslationEntity $translation */
         $translation = $result->first();

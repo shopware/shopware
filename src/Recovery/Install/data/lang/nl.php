@@ -64,7 +64,6 @@ return [
     'database-configuration_field_host' => 'Server:',
     'database-configuration_advanced_settings' => 'Meer instellingen',
     'database-configuration_field_port' => 'Port:',
-    'database-configuration_field_socket' => 'Socket (optioneel):',
     'database-configuration_field_user' => 'Gebruiker:',
     'database-configuration_field_password' => 'Wachtwoord:',
     'database-configuration_field_database' => 'Naam databank:',

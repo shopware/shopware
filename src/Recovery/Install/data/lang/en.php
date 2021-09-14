@@ -322,7 +322,6 @@ return [
     'database-configuration_field_host' => 'Server:',
     'database-configuration_advanced_settings' => 'Advanced settings',
     'database-configuration_field_port' => 'Port:',
-    'database-configuration_field_socket' => 'Socket (optional):',
     'database-configuration_field_user' => 'User:',
     'database-configuration_field_password' => 'Password:',
     'database-configuration_field_database' => 'Database name:',

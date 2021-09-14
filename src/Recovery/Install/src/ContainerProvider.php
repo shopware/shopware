@@ -2,7 +2,6 @@
 
 namespace Shopware\Recovery\Install;
 
-use Doctrine\DBAL\DriverManager;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use Psr\Log\NullLogger;
@@ -11,14 +10,12 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader as CoreMigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationRuntime as CoreMigrationRuntime;
 use Shopware\Core\Framework\Migration\MigrationSource as CoreMigrationSource;
-use Shopware\Recovery\Common\DumpIterator;
 use Shopware\Recovery\Common\HttpClient\CurlClient;
 use Shopware\Recovery\Common\Service\JwtCertificateService;
 use Shopware\Recovery\Common\Service\Notification;
 use Shopware\Recovery\Common\Service\UniqueIdGenerator;
 use Shopware\Recovery\Common\SystemLocker;
 use Shopware\Recovery\Install\Service\BlueGreenDeploymentService;
-use Shopware\Recovery\Install\Service\DatabaseService;
 use Shopware\Recovery\Install\Service\EnvConfigWriter;
 use Shopware\Recovery\Install\Service\TranslationService;
 use Shopware\Recovery\Install\Service\WebserverCheck;
@@ -134,17 +131,6 @@ class ContainerProvider implements ServiceProviderInterface
             return new TranslationService($c->offsetGet('translations'));
         };
 
-        // dump class contains state so we define it as factory here
-        $container['database.dump_iterator'] = $container->factory(static function () {
-            if (file_exists(SW_PATH . '/platform/src/Core/schema.sql')) {
-                $dumpFile = SW_PATH . '/platform/src/Core/schema.sql';
-            } else {
-                $dumpFile = SW_PATH . '/vendor/shopware/core/schema.sql';
-            }
-
-            return new DumpIterator($dumpFile);
-        });
-
         $container['http-client'] = static function () {
             return new CurlClient();
         };
@@ -158,10 +144,6 @@ class ContainerProvider implements ServiceProviderInterface
             $check->addFile('public/recovery/install/data');
 
             return $check;
-        };
-
-        $container['db'] = static function (): void {
-            throw new \RuntimeException('Identifier DB not initialized yet');
         };
 
         $container['uniqueid.generator'] = static function () {
@@ -192,10 +174,6 @@ class ContainerProvider implements ServiceProviderInterface
             );
         };
 
-        $container['database.service'] = static function ($c) {
-            return new DatabaseService($c['db']);
-        };
-
         $container['menu.helper'] = static function ($c) {
             $routes = $c['config']['menu.helper']['routes'];
 
@@ -215,13 +193,8 @@ class ContainerProvider implements ServiceProviderInterface
             );
         };
 
-        $container['dbal'] = static function ($c) {
-            $options = [
-                'pdo' => $c['db'],
-                'driver' => 'pdo_mysql',
-            ];
-
-            return DriverManager::getConnection($options);
+        $container['dbal'] = static function (): void {
+            throw new \RuntimeException('Identifier dbal not initialized yet');
         };
 
         $container['migration.sources'] = static function ($c) {

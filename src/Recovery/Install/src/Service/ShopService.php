@@ -2,6 +2,7 @@
 
 namespace Shopware\Recovery\Install\Service;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
@@ -11,17 +12,11 @@ use Shopware\Recovery\Install\Struct\Shop;
 
 class ShopService
 {
-    /**
-     * @var \PDO
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var SystemConfigService
-     */
-    private $systemConfig;
+    private SystemConfigService $systemConfig;
 
-    public function __construct(\PDO $connection, SystemConfigService $systemConfig)
+    public function __construct(Connection $connection, SystemConfigService $systemConfig)
     {
         $this->connection = $connection;
         $this->systemConfig = $systemConfig;

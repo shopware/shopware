@@ -54,11 +54,6 @@ echo $app->getContainer()->get('renderer')->fetch('_header.php'); ?>
         </p>
 
         <p>
-            <label for="c_database_socket"><?= $t->t('database-configuration_field_socket'); ?></label>
-            <input type="text" value="<?= isset($parameters['c_database_socket']) ? $parameters['c_database_socket'] : ''; ?>" name="c_database_socket" id="c_database_socket" />
-        </p>
-
-        <p>
             <label for="c_database_ssl_ca_path"><?= $t->t('database-configuration_field_ssl_ca_path'); ?></label>
             <input type="text" value="<?= isset($parameters['c_database_ssl_ca_path']) ? $parameters['c_database_ssl_ca_path'] : ''; ?>" name="c_database_ssl_ca_path" id="c_database_ssl_ca_path" />
         </p>

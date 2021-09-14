@@ -2,17 +2,17 @@
 
 namespace Shopware\Recovery\Install\Command;
 
+use Doctrine\DBAL\Connection;
 use Pimple\Container;
+use Shopware\Core\DevOps\System\Service\DatabaseConnectionFactory;
+use Shopware\Core\DevOps\System\Service\DatabaseInitializer;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
-use Shopware\Recovery\Common\DumpIterator;
 use Shopware\Recovery\Common\IOHelper;
 use Shopware\Recovery\Common\Service\JwtCertificateService;
 use Shopware\Recovery\Common\Service\SystemConfigService;
-use Shopware\Recovery\Install\DatabaseFactory;
 use Shopware\Recovery\Install\DatabaseInteractor;
 use Shopware\Recovery\Install\Service\AdminService;
 use Shopware\Recovery\Install\Service\BlueGreenDeploymentService;
-use Shopware\Recovery\Install\Service\DatabaseService;
 use Shopware\Recovery\Install\Service\EnvConfigWriter;
 use Shopware\Recovery\Install\Service\ShopService;
 use Shopware\Recovery\Install\Service\WebserverCheck;
@@ -80,32 +80,26 @@ class InstallCommand extends Command
         $jwtCertificateService = $container->offsetGet('jwt_certificate.writer');
         $jwtCertificateService->generate();
 
-        $connectionInfo = new DatabaseConnectionInformation();
-        $connectionInfo = $this->getConnectionInfoFromArgs($input, $connectionInfo);
+        $connectionInfo = DatabaseConnectionInformation::fromCommandInputs($input);
         $connectionInfo = $this->getConnectionInfoFromInteractiveShell(
             $this->IOHelper,
             $connectionInfo
         );
-        $dbName = $connectionInfo->databaseName;
-        $connectionInfo->databaseName = null;
 
         $conn = $this->initDatabaseConnection($connectionInfo, $container);
-        $databaseService = new DatabaseService($conn);
-        $databaseService->createDatabase($dbName);
-
-        $connectionInfo->databaseName = $dbName;
-        $databaseService->selectDatabase($connectionInfo->databaseName);
+        $databaseInitializer = new DatabaseInitializer($conn);
+        $databaseInitializer->createDatabase($connectionInfo->getDatabaseName());
 
         /** @var BlueGreenDeploymentService $blueGreenDeploymentService */
         $blueGreenDeploymentService = $container->offsetGet('blue.green.deployment.service');
         $blueGreenDeploymentService->setEnvironmentVariable();
 
-        $skipImport = $databaseService->containsShopwareSchema()
+        $skipImport = $databaseInitializer->hasShopwareTables($connectionInfo->getDatabaseName())
             && $input->getOption('no-skip-import')
             && $this->shouldSkipImport();
 
         if (!$skipImport) {
-            $this->importDatabase();
+            $this->importDatabase($databaseInitializer, $connectionInfo->getDatabaseName());
         }
 
         $shop = new Shop();
@@ -343,13 +337,13 @@ class InstallCommand extends Command
         return $shop;
     }
 
-    protected function initDatabaseConnection(DatabaseConnectionInformation $connectionInfo, Container $container): \PDO
+    protected function initDatabaseConnection(DatabaseConnectionInformation $connectionInfo, Container $container): Connection
     {
-        $databaseFactory = new DatabaseFactory();
-        $conn = $databaseFactory->createPDOConnection($connectionInfo);
-        $container->offsetSet('db', $conn);
+        $connection = DatabaseConnectionFactory::createConnection($connectionInfo, true);
 
-        return $conn;
+        $container->offsetSet('dbal', $connection);
+
+        return $connection;
     }
 
     protected function shouldSkipImport(): bool
@@ -382,14 +376,12 @@ class InstallCommand extends Command
             $connectionInfo
         );
 
-        $databaseFactory = new DatabaseFactory();
-
         do {
-            $pdo = null;
+            $connection = null;
 
             try {
-                $pdo = $databaseFactory->createPDOConnection($databaseConnectionInformation);
-            } catch (\PDOException $e) {
+                $connection = DatabaseConnectionFactory::createConnection($connectionInfo, true);
+            } catch (\Doctrine\DBAL\Exception $e) {
                 $IOHelper->writeln('');
                 $IOHelper->writeln(sprintf('Got database error: %s', $e->getMessage()));
                 $IOHelper->writeln('');
@@ -398,17 +390,17 @@ class InstallCommand extends Command
                     $databaseConnectionInformation
                 );
             }
-        } while (!$pdo);
+        } while (!$connection);
 
-        $databaseService = new DatabaseService($pdo);
+        $databaseInitializer = new DatabaseInitializer($connection);
 
-        $omitSchemas = ['information_schema', 'mysql', 'sys', 'performance_schema'];
-        $databaseNames = $databaseService->getSchemas($omitSchemas);
+        $ignoredSchemas = ['information_schema', 'mysql', 'sys', 'performance_schema'];
+        $databaseNames = $databaseInitializer->getExistingDatabases($ignoredSchemas);
 
         $defaultChoice = null;
-        if ($connectionInfo->databaseName) {
-            if (\in_array($connectionInfo->databaseName, $databaseNames, true)) {
-                $defaultChoice = array_search($connectionInfo->databaseName, $databaseNames, true);
+        if ($connectionInfo->getDatabaseName()) {
+            if (\in_array($connectionInfo->getDatabaseName(), $databaseNames, true)) {
+                $defaultChoice = array_search($connectionInfo->getDatabaseName(), $databaseNames, true);
             }
         }
 
@@ -419,39 +411,18 @@ class InstallCommand extends Command
         $databaseName = $databaseInteractor->askQuestion($question);
 
         if ($databaseName === $choices[0]) {
-            $databaseName = $databaseInteractor->createDatabase($pdo);
+            $databaseName = $databaseInteractor->createDatabase($databaseInitializer);
         }
 
-        $databaseService->selectDatabase($databaseName);
-
-        if (!$databaseInteractor->continueWithExistingTables($databaseName, $pdo)) {
+        if (!$databaseInteractor->continueWithExistingTables($databaseName, $databaseInitializer)) {
             $IOHelper->writeln('Installation aborted.');
 
             exit;
         }
 
-        $databaseConnectionInformation->databaseName = $databaseName;
+        $databaseConnectionInformation->setDatabaseName($databaseName);
 
         return $databaseConnectionInformation;
-    }
-
-    /**
-     * @return DatabaseConnectionInformation
-     */
-    protected function getConnectionInfoFromArgs(InputInterface $input, DatabaseConnectionInformation $connectionInfo)
-    {
-        $connectionInfo->username = $input->getOption('db-user');
-        $connectionInfo->hostname = $input->getOption('db-host');
-        $connectionInfo->port = $input->getOption('db-port');
-        $connectionInfo->databaseName = $input->getOption('db-name');
-        $connectionInfo->socket = $input->getOption('db-socket');
-        $connectionInfo->password = $input->getOption('db-password');
-        $connectionInfo->sslCaPath = $input->getOption('db-ssl-ca');
-        $connectionInfo->sslCertPath = $input->getOption('db-ssl-cert');
-        $connectionInfo->sslCertKeyPath = $input->getOption('db-ssl-key');
-        $connectionInfo->sslDontVerifyServerCert = $input->getOption('db-ssl-dont-verify-cert') === '1' ? true : false;
-
-        return $connectionInfo;
     }
 
     private function addDbOptions(): void
@@ -470,12 +441,6 @@ class InstallCommand extends Command
                 InputOption::VALUE_REQUIRED,
                 'Database port',
                 '3306'
-            )
-            ->addOption(
-                'db-socket',
-                null,
-                InputOption::VALUE_REQUIRED,
-                'Database socket'
             )
             ->addOption(
                 'db-user',
@@ -634,58 +599,14 @@ class InstallCommand extends Command
         ;
     }
 
-    /**
-     * @return Container
-     */
-    private function getContainer()
+    private function importDatabase(DatabaseInitializer $databaseInitializer, string $database): void
     {
-        return $this->container;
-    }
-
-    /**
-     * Import database.
-     */
-    private function importDatabase(): void
-    {
-        /** @var \PDO $conn */
-        $conn = $this->getContainer()->offsetGet('db');
-
         $this->IOHelper->cls();
         $this->IOHelper->writeln('<info>=== Import Database ===</info>');
 
-        $preSql = <<<'EOT'
-SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
-SET time_zone = "+00:00";
-SET FOREIGN_KEY_CHECKS = 0;
-';
-EOT;
-        $conn->query($preSql);
-
-        /** @var DumpIterator $dump */
-        $dump = $this->getContainer()->offsetGet('database.dump_iterator');
-        $this->dumpProgress($conn, $dump);
+        $databaseInitializer->initializeShopwareDb($database);
 
         $this->runMigrations();
-
-        $conn->query('SET FOREIGN_KEY_CHECKS = 1;');
-    }
-
-    private function dumpProgress(\PDO $conn, DumpIterator $dump): void
-    {
-        $totalCount = $dump->count();
-
-        $progress = $this->IOHelper->createProgressBar($totalCount);
-        $progress->setRedrawFrequency(20);
-        $progress->start();
-
-        foreach ($dump as $sql) {
-            // Execute each query one by one
-            // https://bugs.php.net/bug.php?id=61613
-            $conn->exec($sql);
-            $progress->advance();
-        }
-        $progress->finish();
-        $this->IOHelper->writeln('');
     }
 
     private function runMigrations(): void

@@ -51,24 +51,15 @@ MAILER_URL=null://localhost
         $key = Key::createNewRandomKey();
         $secret = $key->saveToAsciiSafeString();
 
-        $dbUrl = sprintf(
-            'mysql://%s:%s@%s:%s/%s',
-            rawurlencode($info->username),
-            rawurlencode($info->password),
-            rawurlencode($info->hostname),
-            rawurlencode((string) $info->port),
-            rawurlencode($info->databaseName)
-        );
-
         $defaults = $this->defaultEnvVars;
         $appEnvVars = array_filter([
             'APP_ENV' => 'prod',
             'APP_SECRET' => $secret,
             'APP_URL' => 'http://' . $shop->host . $shop->basePath,
-            'DATABASE_SSL_CA' => $info->sslCaPath,
-            'DATABASE_SSL_CERT' => $info->sslCertPath,
-            'DATABASE_SSL_KEY' => $info->sslCertKeyPath,
-            'DATABASE_SSL_DONT_VERIFY_SERVER_CERT' => $info->sslDontVerifyServerCert ? '1' : '',
+            'DATABASE_SSL_CA' => $info->getSslCaPath(),
+            'DATABASE_SSL_CERT' => $info->getSslCertPath(),
+            'DATABASE_SSL_KEY' => $info->getSslCertKeyPath(),
+            'DATABASE_SSL_DONT_VERIFY_SERVER_CERT' => $info->getSslDontVerifyServerCert() ? '1' : '',
         ]);
 
         // override app env vars
@@ -81,7 +72,7 @@ MAILER_URL=null://localhost
 
         $additionalEnvVars = array_merge(
             [
-                'DATABASE_URL' => $dbUrl,
+                'DATABASE_URL' => $info->asDsn(),
                 'COMPOSER_HOME' => SW_PATH . '/var/cache/composer',
                 'INSTANCE_ID' => $this->instanceId,
                 'BLUE_GREEN_DEPLOYMENT' => (int) $_ENV['BLUE_GREEN_DEPLOYMENT'],

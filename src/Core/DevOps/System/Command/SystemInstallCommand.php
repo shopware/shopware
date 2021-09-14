@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Shopware\Core\DevOps\System\Command;
 
-use Doctrine\DBAL\Configuration;
-use Doctrine\DBAL\DriverManager;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\DevOps\System\Service\DatabaseConnectionFactory;
+use Shopware\Core\DevOps\System\Service\DatabaseInitializer;
+use Shopware\Core\DevOps\System\Struct\DatabaseConnectionInformation;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
-use Shopware\Core\Kernel;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -47,35 +47,13 @@ class SystemInstallCommand extends Command
         $_ENV['BLUE_GREEN_DEPLOYMENT'] = $_SERVER['BLUE_GREEN_DEPLOYMENT'] = $isBlueGreen;
         putenv('BLUE_GREEN_DEPLOYMENT=' . $isBlueGreen);
 
-        $dsn = trim((string) (EnvironmentHelper::getVariable('DATABASE_URL', getenv('DATABASE_URL'))));
-        if ($dsn === '') {
-            $output->error("Environment variable 'DATABASE_URL' not defined.");
-
-            return self::FAILURE;
-        }
-
         if (!$input->getOption('force') && file_exists($this->projectDir . '/install.lock')) {
             $output->comment('install.lock already exists. Delete it or pass --force to do it anyway.');
 
             return self::FAILURE;
         }
 
-        $params = parse_url($dsn);
-        if ($params === false) {
-            $output->error('dsn invalid');
-
-            return self::FAILURE;
-        }
-
-        $path = $params['path'] ?? '/';
-        $dbName = substr($path, 1);
-        if (!isset($params['scheme']) || !isset($params['host']) || trim($dbName) === '') {
-            $output->error('dsn invalid');
-
-            return self::FAILURE;
-        }
-
-        $this->initializeDatabase($params, $dbName, $output, $input);
+        $this->initializeDatabase($output, $input);
 
         $commands = [
             [
@@ -190,79 +168,35 @@ class SystemInstallCommand extends Command
         return self::SUCCESS;
     }
 
-    private function initializeDatabase(array $params, string $dbName, ShopwareStyle $output, InputInterface $input): void
+    private function initializeDatabase(ShopwareStyle $output, InputInterface $input): void
     {
-        $dsnWithoutDb = sprintf(
-            '%s://%s%s:%s',
-            $params['scheme'],
-            isset($params['pass'], $params['user']) ? ($params['user'] . ':' . $params['pass'] . '@') : '',
-            $params['host'],
-            $params['port'] ?? 3306
-        );
+        $databaseConnectionInformation = DatabaseConnectionInformation::fromEnv();
 
-        $parameters = [
-            'url' => $dsnWithoutDb,
-            'charset' => 'utf8mb4',
-            'driverOptions' => [
-                \PDO::ATTR_STRINGIFY_FETCHES => true,
-            ],
-        ];
-
-        if ($sslCa = EnvironmentHelper::getVariable('DATABASE_SSL_CA')) {
-            $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_CA] = $sslCa;
-        }
-
-        if ($sslCert = EnvironmentHelper::getVariable('DATABASE_SSL_CERT')) {
-            $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_CERT] = $sslCert;
-        }
-
-        if ($sslCertKey = EnvironmentHelper::getVariable('DATABASE_SSL_KEY')) {
-            $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_KEY] = $sslCertKey;
-        }
-
-        if (EnvironmentHelper::getVariable('DATABASE_SSL_DONT_VERIFY_SERVER_CERT')) {
-            $parameters['driverOptions'][\PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
-        }
-
-        $connection = DriverManager::getConnection($parameters, new Configuration());
+        $connection = DatabaseConnectionFactory::createConnection($databaseConnectionInformation, true);
 
         $output->writeln('Prepare installation');
         $output->writeln('');
 
+        $databaseInitializer = new DatabaseInitializer($connection);
+
         $dropDatabase = $input->getOption('drop-database');
         if ($dropDatabase) {
-            $connection->executeStatement('DROP DATABASE IF EXISTS `' . $dbName . '`');
-            $output->writeln('Drop database `' . $dbName . '`');
+            $databaseInitializer->dropDatabase($databaseConnectionInformation->getDatabaseName());
+            $output->writeln('Drop database `' . $databaseConnectionInformation->getDatabaseName() . '`');
         }
 
         $createDatabase = $input->getOption('create-database') || $dropDatabase;
         if ($createDatabase) {
-            $connection->executeStatement('CREATE DATABASE IF NOT EXISTS `' . $dbName . '` CHARACTER SET `utf8mb4` COLLATE `utf8mb4_unicode_ci`');
-            $output->writeln('Created database `' . $dbName . '`');
+            $databaseInitializer->createDatabase($databaseConnectionInformation->getDatabaseName());
+            $output->writeln('Created database `' . $databaseConnectionInformation->getDatabaseName() . '`');
         }
 
-        $connection->executeStatement('USE `' . $dbName . '`');
+        $importedBaseSchema = $databaseInitializer->initializeShopwareDb($databaseConnectionInformation->getDatabaseName());
 
-        $tables = $connection->fetchFirstColumn('SHOW TABLES');
-
-        if (!\in_array('migration', $tables, true)) {
-            $output->writeln('Importing base schema.sql');
-            $connection->executeStatement($this->getBaseSchema());
+        if ($importedBaseSchema) {
+            $output->writeln('Imported base schema.sql');
         }
 
         $output->writeln('');
-    }
-
-    private function getBaseSchema(): string
-    {
-        $kernelClass = new \ReflectionClass(Kernel::class);
-        $directory = \dirname((string) $kernelClass->getFileName());
-
-        $path = $directory . '/schema.sql';
-        if (!is_readable($path) || is_dir($path)) {
-            throw new \RuntimeException('schema.sql not found or readable in ' . $directory);
-        }
-
-        return (string) file_get_contents($path);
     }
 }

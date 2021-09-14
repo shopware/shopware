@@ -1,8 +1,11 @@
 <?php declare(strict_types=1);
 
+use Doctrine\DBAL\Connection;
 use HansOtt\PSR7Cookies\SetCookie;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Shopware\Core\DevOps\System\Service\DatabaseConnectionFactory;
+use Shopware\Core\DevOps\System\Service\DatabaseInitializer;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Recovery\Common\HttpClient\Client;
@@ -14,12 +17,10 @@ use Shopware\Recovery\Common\Steps\ResultMapper;
 use Shopware\Recovery\Common\Steps\ValidResult;
 use Shopware\Recovery\Common\Utils;
 use Shopware\Recovery\Install\ContainerProvider;
-use Shopware\Recovery\Install\DatabaseFactory;
 use Shopware\Recovery\Install\Requirements;
 use Shopware\Recovery\Install\RequirementsPath;
 use Shopware\Recovery\Install\Service\AdminService;
 use Shopware\Recovery\Install\Service\BlueGreenDeploymentService;
-use Shopware\Recovery\Install\Service\DatabaseService;
 use Shopware\Recovery\Install\Service\EnvConfigWriter;
 use Shopware\Recovery\Install\Service\ShopService;
 use Shopware\Recovery\Install\Struct\AdminUser;
@@ -54,11 +55,10 @@ if (isset($_SESSION['databaseConnectionInfo'])) {
     $connectionInfo = $_SESSION['databaseConnectionInfo'];
 
     try {
-        $databaseFactory = new DatabaseFactory();
-        $connection = $databaseFactory->createPDOConnection($connectionInfo);
+        $connection = DatabaseConnectionFactory::createConnection($connectionInfo);
 
         // Init db in container
-        $container->offsetSet('db', $connection);
+        $container->offsetSet('dbal', $connection);
     } catch (\Exception $e) {
         // Jump to form
         throw $e;
@@ -271,66 +271,42 @@ $app->any('/database-configuration/', function (ServerRequestInterface $request,
         return $this->renderer->render($response, 'database-configuration.php', []);
     }
 
-    // Initiate database object
-    $databaseParameters = [
-        'user' => $_SESSION['parameters']['c_database_user'] ?? '',
-        'password' => $_SESSION['parameters']['c_database_password'] ?? '',
-        'host' => $_SESSION['parameters']['c_database_host'] ?? '',
-        'port' => $_SESSION['parameters']['c_database_port'] ?? '',
-        'socket' => $_SESSION['parameters']['c_database_socket'] ?? '',
-        'database' => $_SESSION['parameters']['c_database_schema'] ?? '',
-        'sslCaPath' => $_SESSION['parameters']['c_database_ssl_ca_path'] ?? '',
-        'sslCertPath' => $_SESSION['parameters']['c_database_ssl_cert_path'] ?? '',
-        'sslCertKeyPath' => $_SESSION['parameters']['c_database_ssl_cert_key_path'] ?? '',
-        'sslDontVerifyCert' => $_SESSION['parameters']['c_database_ssl_dont_verify_cert'] ?? '0',
-    ];
+    $postData = (array) $request->getParsedBody();
 
-    if (empty($databaseParameters['user'])
-        || empty($databaseParameters['host'])
-        || empty($databaseParameters['port'])
-        || empty($databaseParameters['database'])
+    if (empty($postData['c_database_user'])
+        || empty($postData['c_database_host'])
+        || empty($postData['c_database_port'])
+        || empty($postData['c_database_schema'])
     ) {
         return $this->renderer->render($response, 'database-configuration.php', [
             'error' => $translationService->t('database-configuration_error_required_fields'),
         ]);
     }
 
-    $connectionInfo = new DatabaseConnectionInformation();
-    $connectionInfo->username = $databaseParameters['user'];
-    $connectionInfo->hostname = $databaseParameters['host'];
-    $connectionInfo->port = $databaseParameters['port'];
-    $connectionInfo->databaseName = $databaseParameters['database'];
-    $connectionInfo->password = $databaseParameters['password'];
-    $connectionInfo->socket = $databaseParameters['socket'];
-    $connectionInfo->sslCaPath = $databaseParameters['sslCaPath'];
-    $connectionInfo->sslCertPath = $databaseParameters['sslCertPath'];
-    $connectionInfo->sslCertKeyPath = $databaseParameters['sslCertKeyPath'];
-    $connectionInfo->sslDontVerifyServerCert = $databaseParameters['sslDontVerifyCert'] === '1';
+    $connectionInfo = DatabaseConnectionInformation::fromPostData($postData);
 
     try {
         try {
-            $databaseFactory = new DatabaseFactory();
-            $connection = $databaseFactory->createPDOConnection($connectionInfo); // check connection
-        } catch (\PDOException $e) {
+            // check connection
+            $connection = DatabaseConnectionFactory::createConnection($connectionInfo);
+        } catch (\Doctrine\DBAL\Exception $e) {
             // Unknown database https://dev.mysql.com/doc/refman/8.0/en/server-error-reference.html#error_er_bad_db_error
             if ($e->getCode() !== 1049) {
                 throw $e;
             }
 
-            $connectionInfo->databaseName = '';
-            $connection = $databaseFactory->createPDOConnection($connectionInfo);
+            $connection = DatabaseConnectionFactory::createConnection($connectionInfo, true);
 
-            $service = new DatabaseService($connection);
-            $service->createDatabase($databaseParameters['database']);
-            $connectionInfo->databaseName = $databaseParameters['database'];
+            $service = new DatabaseInitializer($connection);
+            $service->createDatabase($connectionInfo->getDatabaseName());
 
-            $connection->exec('USE `' . $connectionInfo->databaseName . '`');
+            $connection->executeStatement('USE `' . $connectionInfo->getDatabaseName() . '`');
         }
-    } catch (Exception $e) {
+    } catch (\Exception $e) {
         return $this->renderer->render($response, 'database-configuration.php', ['error' => $e->getMessage()]);
     } finally {
         // Init db in container
-        $container->offsetSet('db', $connection ?? null);
+        $container->offsetSet('dbal', $connection ?? null);
     }
 
     $_SESSION['databaseConnectionInfo'] = $connectionInfo;
@@ -339,10 +315,9 @@ $app->any('/database-configuration/', function (ServerRequestInterface $request,
     $blueGreenDeploymentService = $container->offsetGet('blue.green.deployment.service');
     $blueGreenDeploymentService->setEnvironmentVariable();
 
-    /** @var DatabaseService $databaseService */
-    $databaseService = $container->offsetGet('database.service');
+    $service = new DatabaseInitializer($container->offsetGet('dbal'));
 
-    if ($databaseService->hasTables($connectionInfo->databaseName)) {
+    if ($service->getTableCount($connectionInfo->getDatabaseName())) {
         return $this->renderer->render($response, 'database-configuration.php', [
             'error' => $translationService->t('database-configuration_non_empty_database'),
         ]);
@@ -400,7 +375,7 @@ $app->any('/configuration/', function (ServerRequestInterface $request, Response
     $translationService = $container->offsetGet('translation.service');
 
     try {
-        $db = $container->offsetGet('db');
+        $connection = $container->offsetGet('dbal');
     } catch (\Exception $e) {
         $menuHelper->setCurrent('database-configuration');
 
@@ -409,12 +384,8 @@ $app->any('/configuration/', function (ServerRequestInterface $request, Response
         ]);
     }
 
-    // setting up a database connection
-    $connection = (new DatabaseFactory())->createPDOConnection($_SESSION['databaseConnectionInfo']);
-
     // getting iso code of all countries
-    $statement = $connection->prepare('SELECT iso3, iso FROM country');
-    $statement->execute();
+    $countries = $connection->fetchAllAssociative('SELECT iso3, iso FROM country');
 
     // formatting string e.g. "en-GB" to "GB"
     $localeIsoCode = mb_substr($localeForLanguage($_SESSION['language']), -2, 2);
@@ -425,7 +396,7 @@ $app->any('/configuration/', function (ServerRequestInterface $request, Response
             'iso3' => $country['iso3'],
             'default' => $country['iso'] === $localeIsoCode ? true : false,
         ];
-    }, $statement->fetchAll());
+    }, $countries);
 
     // make iso codes available for the select field
     $viewAttributes['countryIsos'] = $countryIsos;
@@ -451,9 +422,9 @@ $app->any('/configuration/', function (ServerRequestInterface $request, Response
             'basePath' => str_replace('/recovery/install/index.php', '', $_SERVER['SCRIPT_NAME']),
         ]);
 
-        $systemConfigService = new SystemConfigService($db);
-        $shopService = new ShopService($db, $systemConfigService);
-        $adminService = new AdminService($db);
+        $systemConfigService = new SystemConfigService($connection);
+        $shopService = new ShopService($connection, $systemConfigService);
+        $adminService = new AdminService($connection);
 
         if (!isset($_SESSION[BlueGreenDeploymentService::ENV_NAME])) {
             $menuHelper->setCurrent('database-configuration');
@@ -602,18 +573,11 @@ $app->any('/database-import/importDatabase', function (ServerRequestInterface $r
     $total = isset($parameters['total']) ? (int) $parameters['total'] : 0;
 
     if ($offset === 0) {
-        /** @var \PDO $db */
-        $db = $container->offsetGet('db');
+        /** @var Connection $db */
+        $connection = $container->offsetGet('dbal');
 
-        /* @var \Shopware\Recovery\Common\DumpIterator $dumpIterator */
-        foreach ($container['database.dump_iterator'] as $query) {
-            try {
-                $db->query($query);
-            } catch (PDOException $e) {
-                // ignore pdo errors
-                continue;
-            }
-        }
+        $databaseInitializer = new DatabaseInitializer($connection);
+        $databaseInitializer->initializeShopwareDb();
 
         $coreMigrations->sync();
     }
@@ -652,20 +616,10 @@ $app->any('/database-import/importDatabase', function (ServerRequestInterface $r
 $app->post('/check-database-connection', function (ServerRequestInterface $request, ResponseInterface $response) use ($container) {
     $postData = (array) $request->getParsedBody();
 
-    $connectionInfo = new DatabaseConnectionInformation([
-        'username' => $postData['c_database_user'],
-        'hostname' => $postData['c_database_host'],
-        'port' => $postData['c_database_port'],
-        'password' => $postData['c_database_password'],
-        'socket' => $postData['c_database_socket'],
-        'sslCaPath' => $postData['c_database_ssl_ca_path'],
-        'sslCertPath' => $postData['c_database_ssl_cert_path'],
-        'sslCertKeyPath' => $postData['c_database_ssl_cert_key_path'],
-        'sslDontVerifyServerCert' => isset($postData['c_database_ssl_dont_verify_cert']) ? true : false,
-    ]);
+    $connectionInfo = DatabaseConnectionInformation::fromPostData($postData);
 
     try {
-        $connection = (new DatabaseFactory())->createPDOConnection($connectionInfo);
+        $connection = DatabaseConnectionFactory::createConnection($connectionInfo, true);
     } catch (\Exception $e) {
         return $response->withHeader('Content-Type', 'application/json')
             ->withStatus(200)
@@ -673,21 +627,20 @@ $app->post('/check-database-connection', function (ServerRequestInterface $reque
     }
 
     // Init db in container
-    $container->offsetSet('db', $connection);
+    $container->offsetSet('dbal', $connection);
 
-    /** @var DatabaseService $databaseService */
-    $databaseService = $container->offsetGet('database.service');
+    $databaseInitializer = new DatabaseInitializer($connection);
 
     // No need for listing the following schemas
-    $omitSchemas = ['information_schema', 'performance_schema', 'sys', 'mysql'];
-    $databaseNames = $databaseService->getSchemas($omitSchemas);
+    $ignoredSchemas = ['information_schema', 'performance_schema', 'sys', 'mysql'];
+    $databaseNames = $databaseInitializer->getExistingDatabases($ignoredSchemas);
 
     $result = [];
     foreach ($databaseNames as $databaseName) {
         $result[] = [
             'value' => $databaseName,
             'display' => $databaseName,
-            'hasTables' => $databaseService->hasTables($databaseName),
+            'hasTables' => $databaseInitializer->getTableCount($databaseName) > 0,
         ];
     }
 

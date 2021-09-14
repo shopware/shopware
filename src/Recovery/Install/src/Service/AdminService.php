@@ -2,18 +2,16 @@
 
 namespace Shopware\Recovery\Install\Service;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Recovery\Install\Struct\AdminUser;
 
 class AdminService
 {
-    /**
-     * @var \PDO
-     */
-    private $connection;
+    private Connection $connection;
 
-    public function __construct(\PDO $connection)
+    public function __construct(Connection $connection)
     {
         $this->connection = $connection;
     }

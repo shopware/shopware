@@ -78,7 +78,6 @@ PHP coverage:
     before_script:
         - composer install --optimize-autoloader
         - mkdir -p config/jwt || true
-        - bin/console system:generate-jwt-secret
     script:
         - PHP_OPTIONS="-d pcov.enabled=1 -d pcov.directory=$PWD/src -d pcov.exclude='~(vendor|Test|node_modules)~'"
         - php $PHP_OPTIONS vendor/bin/phpunit

@@ -23,7 +23,7 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory">
+        <service id="Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory" lazy="true">
             <argument type="service" id="Shopware\Core\Framework\Webhook\BusinessEventEncoder"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\Hookable\WriteResultMerger"/>
         </service>

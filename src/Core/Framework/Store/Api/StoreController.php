@@ -131,6 +131,7 @@ class StoreController extends AbstractController
     }
 
     /**
+     * @deprecated tag:v6.5.0 Unused method will be removed
      * @Since("6.0.0.0")
      * @Route("/api/_action/store/licenses", name="api.custom.store.licenses", methods={"GET"})
      */

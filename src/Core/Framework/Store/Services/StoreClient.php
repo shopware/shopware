@@ -463,6 +463,9 @@ class StoreClient
         }
     }
 
+    /**
+     * @deprecated tag:v6.5.0 Unused method will be removed
+     */
     public function getLicenses(Context $context): array
     {
         if ($this->optionsProvider === null) {

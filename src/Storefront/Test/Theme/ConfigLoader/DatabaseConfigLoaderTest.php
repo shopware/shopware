@@ -115,7 +115,7 @@ class DatabaseConfigLoaderTest extends TestCase
             'child',
             [
                 'base' => [
-                    'base-field-1' => self::field('#000'),
+                    'base-field-1' => self::fieldUntyped('#000'),
                 ],
                 'parent' => [
                     'parent-field-1' => self::field('#000'),
@@ -155,5 +155,10 @@ class DatabaseConfigLoaderTest extends TestCase
     private static function field(string $value): array
     {
         return ['type' => 'color', 'value' => $value];
+    }
+
+    private static function fieldUntyped(string $value): array
+    {
+        return ['value' => $value];
     }
 }

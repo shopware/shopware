@@ -84,11 +84,11 @@ describe('Wishlist: for wishlist page', () => {
             method: 'post'
         }).as('guestPagelet');
 
-        cy.visit('/');
-
         cy.window().then((win) => {
             win.localStorage.setItem('wishlist-' + win.salesChannelId, JSON.stringify({[product.id]: "20201220"}));
-            cy.visit('/wishlist');
+
+            // Reload the page once after local storage update
+            cy.reload();
 
             cy.title().should('eq', 'Your wishlist');
 
@@ -125,16 +125,15 @@ describe('Wishlist: for wishlist page', () => {
         cy.route({
             url: '/widgets/checkout/info',
             method: 'get'
-        }).as('offcanvas');
-
-        cy.visit('/');
+        }).as('checkoutInfo');
 
         cy.window().then(win => {
             win.localStorage.setItem('wishlist-' + win.salesChannelId, JSON.stringify({[product.id]: "20201220"}));
 
-            cy.visit('/wishlist');
+            // Reload the page once after local storage update
+            cy.reload();
 
-            cy.title().should('eq', 'Your wishlist')
+            cy.title().should('eq', 'Your wishlist');
 
             cy.wait('@guestPagelet').then(xhr => {
                 expect(xhr).to.have.property('status', 200);
@@ -146,7 +145,7 @@ describe('Wishlist: for wishlist page', () => {
                 cy.wait('@add-to-cart').then(xhr => {
                     expect(xhr).to.have.property('status', 200);
 
-                    cy.wait('@offcanvas').then(xhr => {
+                    cy.wait('@checkoutInfo').then(xhr => {
                         expect(xhr).to.have.property('status', 200);
                         cy.get('.offcanvas.is-open.cart-offcanvas').should('exist');
                         cy.get('.offcanvas.is-open.cart-offcanvas').find('.cart-item-label').contains(product.name);

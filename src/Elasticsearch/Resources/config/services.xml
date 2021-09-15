@@ -86,7 +86,7 @@
 
         <service id="Shopware\Elasticsearch\Framework\Indexing\EntityMapper"/>
 
-        <service id="Elasticsearch\Client" public="true">
+        <service id="Elasticsearch\Client" public="true" lazy="true">
             <factory class="Shopware\Elasticsearch\Framework\ClientFactory" method="createClient" />
             <argument>%elasticsearch.hosts%</argument>
             <argument type="service" id="shopware.elasticsearch.logger" />

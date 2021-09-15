@@ -3,20 +3,53 @@
 stages:
     - build
     - test
+    - E2E
+    - visual
     - deploy
 
 variables:
     PROJECT_ROOT: ${CI_PROJECT_DIR}
     WEB_DOCUMENT_ROOT: $CI_PROJECT_DIR/public
+    LOG_STDOUT: $CI_PROJECT_DIR/var/log/stdout.log
     MYSQL_ROOT_PASSWORD: root
     GIT_STRATEGY: clone
+    # cypress
+    CYPRESS_baseUrl: 'http://localhost:8000'
+    CYPRESS_localUsage: 1
+    CYPRESS_shopwareRoot: $CI_PROJECT_DIR
+    SHOPWARE_HTTP_CACHE_ENABLED: 0
+    CYPRESS_screenshotsFolder: $CI_PROJECT_DIR/var/log/screenshots
+    # percy
+    PERCY_TARGET_BRANCH: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
+    PERCY_TARGET_COMMIT: $CI_MERGE_REQUEST_DIFF_BASE_SHA
+    PERCY_BRANCH: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+    PERCY_COMMIT: $CI_COMMIT_SHA
     # things plugins might want to override
-    PLATFORM_BRANCH: 'trunk'
-    DEV_IMAGE: shopware/development:7.4-composer-2
-    PLUGIN_SOURCE_DIR: 'src/' # use '' if it starts in the root dir
-    MYSQL_IMAGE: 'mysql:5.7'
-    MYSQL_CMD: 'mysqld' # use $MYSQL8_CMD for mysql >= 8
-    MYSQL8_CMD: 'mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON'
+    PLUGIN_NAME:
+        value: ${CI_PROJECT_TITLE}
+        description: 'Plugin name. Default is ${CI_PROJECT_TITLE}'
+    PLATFORM_BRANCH:
+        value: trunk
+        description: 'The shopware/platform branch that is used'
+    DEV_IMAGE:
+        value: shopware/development:7.4-composer-2
+        description: 'base docker image used. Can be changed to test other php versions. Example: shopware/development:8.0-composer-2'
+    PLUGIN_SOURCE_DIR:
+        value: src/
+        description: 'Defines the src dir. Use "" (empty string) if it starts in the root dir.'
+    MYSQL_IMAGE:
+        value: mysql:5.7
+        description: 'database image to use. Possible values: "mysql:8.0.19" (also change $MYSQL_CMD!), "mariadb:10.3", "mariadb:10.4"'
+    MYSQL_CMD:
+        value: mysqld
+        description: 'Copy from $MYSQL8_CMD for mysql >= 8'
+    MYSQL8_CMD:
+        value: 'mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON'
+        description: 'mysql 8 needs a special auth option to work with shopware/platform'
+    BROWSER:
+        value: chrome
+        description: 'Browser to use for cypress and percy tests. Possible values: "chrome", "firefox", "electron"'
+
 
 workflow:
     rules:
@@ -40,14 +73,20 @@ default:
         - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.shopware.com/shopware/6/product/platform.git . --branch $PLATFORM_BRANCH
         - mkdir -p custom/plugins || true
         - unzip -q /tmp/plugin.zip -d custom/plugins/$PLUGIN_NAME
-        - composer install
+        - composer install --quiet
         - mkdir -p config/jwt || true
         - bin/console system:generate-jwt || true
-        - bin/console system:install --drop-database --basic-setup --force
+        - bin/console system:install --drop-database --basic-setup --force >/dev/null
         - chown -R application:application .
         - bin/console plugin:refresh
         - bin/console plugin:install --activate $PLUGIN_NAME
+        - >
+          if bin/console debug:container --parameter kernel.plugin_infos --format json | grep -q "$PLUGIN_NAME";
+            then echo "$PLUGIN_NAME is active";
+            else echo "$PLUGIN_NAME is not active"; exit 1;
+          fi
         - bin/console bundle:dump
+        - bin/console assets:install
         - /entrypoint supervisord > /dev/null 2>&1 &
         - cd custom/plugins/$PLUGIN_NAME
         - >
@@ -213,6 +252,115 @@ template filled:
         - echo "run './bin/init $CI_PROJECT_TITLE'"
         - exit 1
 
+.base e2e:
+    stage: E2E
+    needs:
+        - build zip
+    before_script:
+        - export PLUGIN_NAME="${PLUGIN_NAME:-${CI_PROJECT_TITLE}}"
+        - echo "$PLUGIN_NAME"
+        - mv "$PLUGIN_NAME.zip" /tmp/plugin.zip
+        - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.shopware.com/shopware/6/product/platform.git . --branch $PLATFORM_BRANCH
+        - mkdir -p custom/plugins || true
+        - unzip -q /tmp/plugin.zip -d custom/plugins
+        - composer install --quiet
+        - mkdir -p config/jwt || true
+        - bin/console system:generate-jwt || true
+        - bin/console system:install --drop-database --basic-setup --force >/dev/null
+        - bin/console bundle:dump
+        - chown -R application:application .
+        # build before activating the plugin. The zip should already contain the compiled files and we should test those
+        - '(cd src/Administration/Resources/app/administration/ && npm ci && npm run build)'
+        - '(cd src/Storefront/Resources/app/storefront/ && npm ci && npm run production && node copy-to-vendor.js)'
+        - bin/console theme:compile
+        - bin/console theme:change --all Storefront
+        - bin/console plugin:refresh
+        - bin/console plugin:install --activate $PLUGIN_NAME
+        - >
+          if bin/console debug:container --parameter kernel.plugin_infos --format json | grep -q "$PLUGIN_NAME";
+            then echo "$PLUGIN_NAME is active";
+            else echo "$PLUGIN_NAME is not active"; exit 1;
+          fi
+        - bin/console assets:install
+        - /entrypoint supervisord > /dev/null 2>&1 &
+        - bin/console e2e:dump-db
+        - cd custom/plugins/$PLUGIN_NAME/${PLUGIN_SOURCE_DIR}${E2E_PROJECT_PATH}
+        - npm ci
+    script:
+        - ./node_modules/.bin/cypress run
+            --browser $BROWSER
+            --headless
+            --env grep=visual,invert=1
+    after_script:
+        - export PLUGIN_NAME="${PLUGIN_NAME:-${CI_PROJECT_TITLE}}"
+        - cd custom/plugins/$PLUGIN_NAME/${PLUGIN_SOURCE_DIR}${E2E_PROJECT_PATH}
+        - mkdir $CI_PROJECT_DIR/var/log/e2e || true
+        - mkdir -p cypress/mochareports || true
+        - npx mochawesome-merge cypress/results/mocha/*.json > cypress/mochareports/report.json
+        - npx marge cypress/mochareports/*.json -f report -o mochareports
+        - mv cypress/results/single-reports/*.xml $CI_PROJECT_DIR/var/log/e2e/ || true
+        - mv mochareports/ $CI_PROJECT_DIR/var/log/e2e/ || true
+    artifacts:
+        when: always
+        paths:
+            - var/log/*
+        reports:
+            junit: var/log/e2e/*.xml
+
+cypress admin:
+    extends: .base e2e
+    variables:
+        GIT_STRATEGY: none
+        E2E_PROJECT_PATH: Resources/app/administration/test/e2e/
+        APP_ENV: e2e
+    rules:
+        -   exists:
+                - Resources/app/administration/test/e2e/cypress.json
+                - src/Resources/app/administration/test/e2e/cypress.json
+
+cypress storefront:
+    extends: .base e2e
+    variables:
+        GIT_STRATEGY: none
+        E2E_PROJECT_PATH: Resources/app/storefront/test/e2e/
+        APP_ENV: e2e
+    rules:
+        -   exists:
+                - Resources/app/storefront/test/e2e/cypress.json
+                - src/Resources/app/storefront/test/e2e/cypress.json
+
+percy admin:
+    extends: cypress admin
+    stage: visual
+    rules:
+        -   if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
+            when: never
+        -   exists:
+                - Resources/app/administration/test/e2e/.percy*
+                - src/Resources/app/administration/test/e2e/.percy*
+            if: '$CI_PIPELINE_SOURCE == "schedule" || $CI_MERGE_REQUEST_LABELS =~ /.*visual::all.*/'
+    script:
+        - ./node_modules/.bin/percy exec -- ./node_modules/.bin/cypress run
+                --browser $BROWSER
+                --headless
+                --env grep=visual
+
+percy storefront:
+    extends: cypress storefront
+    stage: visual
+    rules:
+        -   if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
+            when: never
+        -   exists:
+                - Resources/app/storefront/test/e2e/.percy*
+                - src/Resources/app/storefront/test/e2e/.percy*
+            if: '$CI_PIPELINE_SOURCE == "schedule" || $CI_MERGE_REQUEST_LABELS =~ /.*visual::all.*/'
+    script:
+        - ./node_modules/.bin/percy exec -- ./node_modules/.bin/cypress run
+            --browser $BROWSER
+            --headless
+            --env grep=visual
+
 upload zip to store:
     stage: deploy
     environment:
@@ -225,7 +373,6 @@ upload zip to store:
         GIT_STRATEGY: none
     needs:
         - build zip
-        - validate zip
     rules:
         - exists:
               - composer.json

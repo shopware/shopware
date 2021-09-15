@@ -103,8 +103,15 @@
             <argument type="collection">
                 <argument>%shopware.filesystem.asset.url%</argument>
             </argument>
-            <argument type="service" id="assets.empty_version_strategy"/>
+            <argument type="service" id="shopware.asset.asset.version_strategy"/>
             <tag name="shopware.asset" asset="asset"/>
+        </service>
+
+        <service id="shopware.asset.asset_without_versioning" class="Shopware\Core\Framework\Adapter\Asset\FallbackUrlPackage">
+            <argument type="collection">
+                <argument>%shopware.filesystem.asset.url%</argument>
+            </argument>
+            <argument type="service" id="assets.empty_version_strategy"/>
         </service>
 
         <service id="shopware.asset.sitemap" class="Shopware\Core\Framework\Adapter\Asset\FallbackUrlPackage">

@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Api\Controller;
 
 use OpenApi\Annotations as OA;
 use Shopware\Core\Content\Flow\Api\FlowActionCollector;
-use Shopware\Core\Framework\Adapter\Asset\LastModifiedVersionStrategy;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
@@ -305,9 +304,7 @@ class InfoController extends AbstractController
             return [];
         }
 
-        $strategy = new LastModifiedVersionStrategy($bundlePath);
-
-        return [$strategy->applyVersion($path)];
+        return [$path];
     }
 
     private function getAdministrationScripts(Bundle $bundle): array
@@ -319,8 +316,6 @@ class InfoController extends AbstractController
             return [];
         }
 
-        $strategy = new LastModifiedVersionStrategy($bundlePath);
-
-        return [$strategy->applyVersion($path)];
+        return [$path];
     }
 }

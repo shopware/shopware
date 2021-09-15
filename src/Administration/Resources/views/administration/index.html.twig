@@ -34,7 +34,7 @@
 <script nonce="{{ cspNonce }}" src="{{ asset('static/js/app.js', '@Administration') }}"></script>
 
 <script nonce="{{ cspNonce }}">
-    /*
+    {#
         root-level domain configuration
 
         host:               shopware.next
@@ -56,7 +56,7 @@
         uri:                http://localhost/next/web/admin
         basePath:           /next/web
         pathInfo:           /admin
-    */
+    #}
     Shopware.Application.start({
         apiContext: {
             host: '{{ app.request.host }}',

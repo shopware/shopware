@@ -85,7 +85,9 @@ class KeywordSearchTermInterpreterTest extends TestCase
 
         sort($expected);
         sort($keywords);
-        static::assertEquals($expected, $keywords);
+        // @todo check for flaky test: Remove if the cause is found NEXT-17291
+        $query = $this->connection->executeQuery('SELECT keyword FROM product_keyword_dictionary');
+        static::assertEquals($expected, $keywords, print_r($query->fetchAllAssociative(), true));
     }
 
     /**

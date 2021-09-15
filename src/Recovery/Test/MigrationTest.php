@@ -2,7 +2,6 @@
 
 namespace Shopware\Recovery\Test;
 
-use OpenApi\Annotations\RequestBody;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Migration\MigrationSource;
 use Shopware\Recovery\Common\IOHelper;
@@ -21,7 +20,6 @@ use Slim\Http\Uri;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
-use Symfony\Component\Mime\Header\Headers;
 
 class MigrationTest extends TestCase
 {

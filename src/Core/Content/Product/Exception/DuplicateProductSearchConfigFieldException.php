@@ -7,9 +7,13 @@ use Symfony\Component\HttpFoundation\Response;
 
 class DuplicateProductSearchConfigFieldException extends ShopwareHttpException
 {
-    public function __construct(string $fieldName = '', \Throwable $e)
+    public function __construct(string $fieldName, \Throwable $e)
     {
-        parent::__construct('Product search config for provided field already exists.', [], $e);
+        parent::__construct(
+            'Product search config with field {{ fieldName }} already exists.',
+            ['fieldName' => $fieldName],
+            $e
+        );
     }
 
     public function getErrorCode(): string

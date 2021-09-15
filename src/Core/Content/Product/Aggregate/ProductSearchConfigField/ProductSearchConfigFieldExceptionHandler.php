@@ -27,13 +27,11 @@ class ProductSearchConfigFieldExceptionHandler implements ExceptionHandlerInterf
         }
 
         if (preg_match('/SQLSTATE\[23000\]:.*1062 Duplicate.*uniq.search_config_field.field__config_id\'/', $e->getMessage())) {
-            $fieldName = '';
-            if (!Feature::isActive('FEATURE_NEXT_16640')) {
-                $payload = $command->getPayload();
-                $fieldName = $payload['field'] ?? '';
-            }
+            $field = [];
+            preg_match('/Duplicate entry \'(.*)\' for key/', $e->getMessage(), $field);
+            $field = substr($field[1], 0, strrpos($field[1], '-'));
 
-            return new DuplicateProductSearchConfigFieldException($fieldName, $e);
+            return new DuplicateProductSearchConfigFieldException($field, $e);
         }
 
         return null;

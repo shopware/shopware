@@ -106,7 +106,7 @@ describe('Number Range: Test acl privileges', () => {
         cy.get(page.elements.numberRangeSaveAction).click();
 
         // Verify creation
-        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
+        cy.wait('@saveData').its('response.statusCode').should('equal', 200);
 
         cy.get(page.elements.smartBarBack).click();
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Name e2e');

@@ -19,7 +19,7 @@ describe('Promotion v2: Test crud operations', () => {
         const testPromoCode = 'WelcomeIAmAPromotionCode';
 
         // Select fixed code type and edit manually
-        cy.get(promotionCodeFixedSelector).should('not.exist');
+        cy.get(promotionCodeFixedSelector).should('not.be.visible');
         cy.get('#sw-field--selectedCodeType').select('Fixed promotion code');
         cy.get(promotionCodeFixedSelector).should('be.visible');
         cy.get(promotionCodeFixedSelector).type(testPromoCode);
@@ -38,7 +38,7 @@ describe('Promotion v2: Test crud operations', () => {
     });
 
     it("@base @marketing: show empty state, if there're no individual codes", () => {
-        cy.get('.sw-promotion-v2-individual-codes-behavior__empty-state').should('not.exist');
+        cy.get('.sw-promotion-v2-individual-codes-behavior__empty-state').should('not.be.visible');
         cy.get('#sw-field--selectedCodeType').select('Individual promotion codes');
         cy.get('.sw-promotion-v2-individual-codes-behavior__empty-state').should('be.visible');
         cy.get('.sw-promotion-v2-individual-codes-behavior__empty-state-generate-action')
@@ -50,23 +50,23 @@ describe('Promotion v2: Test crud operations', () => {
     });
 
     it.only('@base @marketing: generate and save individual promotion codes and replace afterwards with a custom pattern', () => {
-        cy.route({
-            url: `${Cypress.env('apiPath')}/_action/promotion/codes/preview?codePattern=pre_%s%s%s%s%s_post`,
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/_action/promotion/codes/preview?codePattern=pre_%25s%25s%25s%25s%25s_post`,
             method: 'GET'
         }).as('previewCode1');
-        cy.route({
-            url: `${Cypress.env('apiPath')}/_action/promotion/codes/preview?codePattern=pre_%s%s_post`,
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/_action/promotion/codes/preview?codePattern=pre_%25s%25s_post`,
             method: 'GET'
         }).as('previewCode2');
-        cy.route({
-            url: `${Cypress.env('apiPath')}/_action/promotion/codes/preview?codePattern=new_%d%d%d_new!`,
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/_action/promotion/codes/preview?codePattern=new_%25d%25d%25d_new!`,
             method: 'GET'
         }).as('previewCode3');
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/promotion/codes/replace-individual`,
             method: 'PATCH'
         }).as('generateCodes');
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/promotion`,
             method: 'POST'
         }).as('loadCodes');
@@ -91,9 +91,7 @@ describe('Promotion v2: Test crud operations', () => {
             .type('_post{enter}');
 
         // Generate first preview
-        cy.wait('@previewCode1').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@previewCode1').its('response.statusCode').should('equal', 200);
         cy.get('.sw-promotion-v2-generate-codes-modal__button-generate').should('not.be.disabled');
         cy.get('#sw-field--preview').then((content) => {
             expect(content[0].value).to.match(/pre_([A-Z]){5}_post/);
@@ -104,9 +102,7 @@ describe('Promotion v2: Test crud operations', () => {
             .clear()
             .type('2{enter}');
 
-        cy.wait('@previewCode2').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@previewCode2').its('response.statusCode').should('equal', 200);
         cy.get('.sw-promotion-v2-generate-codes-modal__button-generate').should('not.be.disabled');
         cy.get('#sw-field--preview').then((content) => {
             expect(content[0].value).to.match(/pre_([A-Z]){2}_post/);
@@ -123,9 +119,7 @@ describe('Promotion v2: Test crud operations', () => {
         cy.get('.sw-promotion-v2-generate-codes-modal').should('be.visible');
 
         // Check new preview
-        cy.wait('@previewCode2').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@previewCode2').its('response.statusCode').should('equal', 200);
         cy.get('.sw-promotion-v2-generate-codes-modal__button-generate').should('not.be.disabled');
         cy.get('#sw-field--preview').then((content) => {
             expect(content[0].value).to.match(/pre_([A-Z]){2}_post/);
@@ -137,9 +131,7 @@ describe('Promotion v2: Test crud operations', () => {
             .type('15{enter}');
         cy.get('.sw-promotion-v2-generate-codes-modal__button-generate').click();
 
-        cy.wait('@generateCodes').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@generateCodes').its('response.statusCode').should('equal', 204);
 
         cy.get('.sw-promotion-v2-generate-codes-modal').should('not.exist');
         cy.get('.sw-promotion-v2-individual-codes-behavior__empty-state').should('not.exist');
@@ -167,9 +159,7 @@ describe('Promotion v2: Test crud operations', () => {
             .type('20{enter}');
 
         // Check new preview
-        cy.wait('@previewCode3').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@previewCode3').its('response.statusCode').should('equal', 200);
         cy.get('.sw-promotion-v2-generate-codes-modal__button-generate').should('not.be.disabled');
         cy.get('#sw-field--preview').then((content) => {
             expect(content[0].value).to.match(/new_([0-9]){3}_new!/);
@@ -177,19 +167,16 @@ describe('Promotion v2: Test crud operations', () => {
 
         cy.get('.sw-promotion-v2-generate-codes-modal__button-generate').click();
 
-        cy.wait('@generateCodes').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@generateCodes').its('response.statusCode').should('equal', 204);
 
         cy.get('.sw-promotion-v2-generate-codes-modal').should('not.exist');
 
-        cy.wait('@loadCodes').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
-        cy.get('.sw-loader').should('not.be.visible');
+        cy.wait('@loadCodes').its('response.statusCode').should('equal', 200);
+        cy.get('.sw-loader').should('not.exist');
 
         // Check generated and overridden codes
         cy.get('.sw-data-grid__cell--code > .sw-data-grid__cell-content > span').then((content) => {
+            expect(content).to.have.length(20);
             expect(content[0].innerText).to.match(/new_([0-9]){3}_new!/);
         });
     });

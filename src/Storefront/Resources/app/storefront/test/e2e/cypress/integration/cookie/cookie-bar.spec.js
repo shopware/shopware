@@ -56,16 +56,16 @@ describe('Test if the cookie bar works correctly', () => {
             .click();
 
         // wait until the offcanvas is open
-        cy.wait('@cookieOffcanvas').then(() => {
-            // wait until the offcanvas is closed
-            cy.get('.offcanvas-cookie').should('not.be.visible');
+        cy.wait('@cookieOffcanvas');
 
-            // reload
-            cy.reload(true);
+        // wait until the offcanvas is closed
+        cy.get('.offcanvas-cookie').should('not.exist');
 
-            // check if cookie bar is non existent
-            cy.get('.cms-element-product-listing').should('be.visible');
-            cy.get('.cookie-permission-container').should('not.be.visible');
-        });
+        // reload
+        cy.reload(true);
+
+        // check if cookie bar is non existent
+        cy.get('.cms-element-product-listing').should('be.visible');
+        cy.get('.cookie-permission-container').should('not.be.visible');
     });
 });

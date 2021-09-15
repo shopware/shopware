@@ -113,7 +113,7 @@ describe('Dynamic product group: Add Boolean fields to condition', () => {
             method: 'post'
         }).as('saveCustomFieldSet');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
             method: 'post'
         }).as('saveData');
@@ -165,8 +165,8 @@ describe('Dynamic product group: Add Boolean fields to condition', () => {
         cy.get('.sw-form-field-renderer-input-field__my_custom_boolean_field input').scrollIntoView().click();
 
         cy.intercept({
-            url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'patch'
+            url: `${Cypress.env('apiPath')}/_action/sync`,
+            method: 'post'
         }).as('saveProduct');
 
         cy.get('.sw-product-detail__save-button-group').click();

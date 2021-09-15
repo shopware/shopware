@@ -237,8 +237,8 @@ describe('Product: Test variants', () => {
         cy.get('.sw-data-grid__inline-edit-save').click();
 
         // Validate product
-        cy.wait('@productCall')
-            .its('response.statusCode').should('equal', 200);
+        cy.wait('@saveProduct')
+            .its('response.statusCode').should('equal', 204);
         cy.awaitAndCheckNotification('Product "Green" has been saved.');
 
         cy.get('.sw-data-grid__row--0 .sw-product-variants-overview__variation-link').click();
@@ -340,7 +340,7 @@ describe('Product: Test variants', () => {
         cy.get('.sw-data-grid__row--0 .sw-data-grid__inline-edit-save').click();
 
         // Validate product
-        cy.wait('@productCall')
+        cy.wait('@saveProduct')
             .its('response.statusCode').should('equal', 200);
         cy.awaitAndCheckNotification('Product "Green" has been saved.');
         cy.get('.sw-data-grid-skeleton').should('not.exist');

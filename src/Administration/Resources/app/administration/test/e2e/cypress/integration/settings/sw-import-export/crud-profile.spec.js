@@ -122,8 +122,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
     });
 
     it('@settings @base: Duplicate profile', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/import-export-profile`,
             method: 'post'
         }).as('saveData');
@@ -194,7 +193,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         // Save request should be successful
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
-        cy.get('.sw-import-export-edit-profile-modal').should('not.exist');
+        cy.get('.sw-modal.sw-import-export-edit-profile-modal').should('not.exist');
 
         // Verify updated profile is in listing
         cy.get('.sw-import-export-view-profiles__listing').should('be.visible');
@@ -204,21 +203,19 @@ describe('Import/Export - Profiles: Test crud operations', () => {
     it('@settings @base: Update and read profile in different content language', () => {
         // sw-simple-search component got refactored on NEXT-16271 to address loosing input issue
         cy.onlyOnFeature('FEATURE_NEXT_16271');
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/import-export-profile/*`,
             method: 'patch'
         }).as('saveData');
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/import-export-profile`,
             method: 'post'
         }).as('loadData');
 
         // change content language to german
         cy.get('.sw-language-switch__select').typeSingleSelectAndCheck('Deutsch', '.sw-language-switch__select');
-        cy.wait('@loadData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@loadData')
+            .its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-import-export-view-profiles__listing').should('be.visible');
 
@@ -243,9 +240,8 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get('.sw-import-export-edit-profile-modal__save-action').click();
 
         // Save request should be successful
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData')
+    .its('response.statusCode').should('equal', 204);
 
         cy.get('.sw-import-export-edit-profile-modal').should('not.be.visible');
 
@@ -259,9 +255,8 @@ describe('Import/Export - Profiles: Test crud operations', () => {
 
         // switch back to english
         cy.get('.sw-language-switch__select').typeSingleSelectAndCheck('English', '.sw-language-switch__select');
-        cy.wait('@loadData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@loadData')
+    .its('response.statusCode').should('equal', 200);
 
         // Update the search
         cy.get('.sw-import-export-view-profiles__search input[type="text"]').click();
@@ -275,8 +270,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
     });
 
     it('@settings @base: Create profile disabled in different content language', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/import-export-profile`,
             method: 'post'
         }).as('loadData');
@@ -286,9 +280,8 @@ describe('Import/Export - Profiles: Test crud operations', () => {
 
         // change content language to german
         cy.get('.sw-language-switch__select').typeSingleSelectAndCheck('Deutsch', '.sw-language-switch__select');
-        cy.wait('@loadData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@loadData')
+    .its('response.statusCode').should('equal', 200);
 
         // check that the add new profile button is disabled in other languages
         cy.get('.sw-import-export-view-profiles__create-action').should('be.disabled');
@@ -352,8 +345,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
     it('@settings @base: Create an export profile', () => {
         cy.onlyOnFeature('FEATURE_NEXT_8097');
 
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/import-export-profile`,
             method: 'post'
         }).as('saveData');
@@ -397,9 +389,8 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get('.sw-import-export-edit-profile-modal__save-action').click();
 
         // Save request should be successful
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData')
+    .its('response.statusCode').should('equal', 204);
 
         cy.get('.sw-import-export-edit-profile-modal').should('not.be.visible');
         cy.get(`${page.elements.dataGridRow}`).should('contain', 'Basic');

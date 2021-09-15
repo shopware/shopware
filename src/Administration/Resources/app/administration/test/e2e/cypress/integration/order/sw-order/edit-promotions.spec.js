@@ -65,16 +65,15 @@ describe('Order: Test promotions in existing orders', () => {
         });
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/order`,
             method: 'post'
         }).as('orderCall');
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/order/**/promotion-item`,
             method: 'post'
         }).as('orderAddPromotionCall');
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/order/**/`,
             method: 'post'
         }).as('orderRemovePromotionCall');
@@ -92,9 +91,8 @@ describe('Order: Test promotions in existing orders', () => {
         cy.contains('Edit')
             .click();
 
-        cy.wait('@orderCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@orderCall')
+            .its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-data-grid__row--0').scrollIntoView();
 
@@ -105,9 +103,8 @@ describe('Order: Test promotions in existing orders', () => {
             .typeAndCheck('GET5')
             .type('{enter}');
 
-        cy.wait('@orderAddPromotionCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@orderAddPromotionCall')
+    .its('response.statusCode').should('equal', 200);
         cy.awaitAndCheckNotification('Discount GET5 has been added');
 
         cy.get('.sw-data-grid__row--1')
@@ -137,12 +134,11 @@ describe('Order: Test promotions in existing orders', () => {
         });
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/order`,
             method: 'post'
         }).as('orderCall');
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/order/**/toggleAutomaticPromotions`,
             method: 'post'
         }).as('toggleAutomaticPromotionsCall');
@@ -160,9 +156,8 @@ describe('Order: Test promotions in existing orders', () => {
         cy.contains('Edit')
             .click();
 
-        cy.wait('@orderCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@orderCall')
+    .its('response.statusCode').should('equal', 200);
 
         cy.get('input[name="sw-field--disabledAutoPromotionVisibility"]').should('be.checked');
 
@@ -170,9 +165,8 @@ describe('Order: Test promotions in existing orders', () => {
             .scrollIntoView()
             .click();
 
-        cy.wait('@toggleAutomaticPromotionsCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@toggleAutomaticPromotionsCall')
+    .its('response.statusCode').should('equal', 200);
         cy.awaitAndCheckNotification('Discount Automatic promotion has been added');
 
         cy.get('.sw-data-grid__row--1')
@@ -184,9 +178,8 @@ describe('Order: Test promotions in existing orders', () => {
         cy.get('.sw-order-detail-summary__switch-promotions')
             .click();
 
-        cy.wait('@toggleAutomaticPromotionsCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@toggleAutomaticPromotionsCall')
+    .its('response.statusCode').should('equal', 200);
 
         cy.awaitAndCheckNotification('Discount Automatic promotion has been removed');
         cy.get('input[name="sw-field--disabledAutoPromotionVisibility"]').should('be.checked');

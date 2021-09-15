@@ -21,7 +21,7 @@ describe('Number range: Visual testing', () => {
             url: `**/${Cypress.env('apiPath')}/search/number-range`,
             method: 'post'
         }).as('getData');
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/number-range-type`,
             method: 'post'
         }).as('getRangeType');
@@ -48,12 +48,10 @@ describe('Number range: Visual testing', () => {
         cy.get('.sw-loader__element').should('not.exist');
         cy.get('#sw-field--preview').should('not.have.value', '');
         cy.get('#sw-field--state').should('not.have.value', '1');
-        cy.wait('@getRangeType').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-            cy.get('.sw-loader').should('not.exist');
-            cy.get('.sw-loader--element').should('not.exist');
-            cy.contains('.sw-button-process', 'Save').should('be.visible');
-        });
+        cy.wait('@getRangeType').its('response.statusCode').should('equal', 200);
+        cy.get('.sw-loader').should('not.exist');
+        cy.get('.sw-loader--element').should('not.exist');
+        cy.contains('.sw-button-process', 'Save').should('be.visible');
 
         // Take Snapshot
         cy.takeSnapshot('[Number range] Details', '.sw-number_range-quickinfo__alert-global-type');

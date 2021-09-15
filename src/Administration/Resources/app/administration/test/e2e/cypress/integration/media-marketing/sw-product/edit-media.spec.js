@@ -73,7 +73,6 @@ describe('Product: Edit product media', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
-        cy.server();
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
             method: 'post'

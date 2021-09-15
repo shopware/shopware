@@ -10,9 +10,10 @@ describe('Minimal auto update', () => {
 
     it('@update: Check customer', () => {
         // Request we want to wait for later
-        cy.intercept({
-            method: 'POST',
-            url: '/api/v*/search/customer',
+        cy.server();
+        cy.route({
+            url: '/api/search/customer',
+            method: 'POST'
         }).as('dataRequest');
 
         cy.visit('/admin#/sw/customer/index');
@@ -24,7 +25,8 @@ describe('Minimal auto update', () => {
 
         cy.get('.smart-bar__header').contains('Heino Knopf');
 
-        cy.wait('@dataRequest')
-            .its('response.statusCode').should('equal', 200);
+        cy.wait('@dataRequest').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
     });
 });

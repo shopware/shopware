@@ -76,11 +76,11 @@ describe('Snippets: Test crud operations', () => {
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--id`).contains('aWonderful.customSnip');
 
         // Edit snippet
-        cy.clickContextMenuItem(
-            '.sw-settings-snippet-list__edit-action',
-            page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
-        );
+        cy.get('.sw-data-grid__row--0 .sw-context-button__button').click({
+            scrollBehavior: false
+        });
+        cy.get('.sw-settings-snippet-list__edit-action').click();
+
         cy.get(page.elements.smartBarHeader).contains('aWonderful.customSnip');
         // sometimes vue renders really slow placeholder values and intercepts our typing… so we ensure that vue filled that value before
         cy.get('.sw-settings-snippet-detail__translation-field--1 input[name=sw-field--snippet-value]')

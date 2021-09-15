@@ -99,9 +99,7 @@ describe('Mail templates: Test crud privileges', () => {
             .typeAndCheck('Contact form');
 
         // wait until result of filtered mail templates has been loaded
-        cy.wait('@searchMailTemplate').then(xhr => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@searchMailTemplate').its('response.statusCode').should('equal', 200);
         cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.get(`${page.elements.dataGridRow}--1`).should('not.exist');
         cy.get(`${page.elements.dataGridRow}--0`).should('be.visible');

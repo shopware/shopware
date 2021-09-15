@@ -29,8 +29,7 @@ describe('Checkout: Use rounding', () => {
     });
 
     it('@base @checkout: Run checkout with 0.50', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: '/api/currency/**',
             method: 'patch'
         }).as('saveData');
@@ -47,10 +46,8 @@ describe('Checkout: Use rounding', () => {
             .typeSingleSelectAndCheck('0.50', '.sw-settings-price-rounding__grand-interval-select');
 
         cy.get('.sw-settings-currency-detail__save-action').click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-            cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
+        cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
         cy.get('.sw-loader').should('not.exist');
 
         cy.visit('/');

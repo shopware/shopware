@@ -12,8 +12,7 @@ describe('Sales Channel: Adding domains to a sales-channel', () => {
                 cy.openInitialPage(Cypress.env('admin'));
             });
 
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/sales-channel-domain`,
             method: 'post'
         }).as('verifyDomain');
@@ -37,9 +36,8 @@ describe('Sales Channel: Adding domains to a sales-channel', () => {
 
         page.addExampleDomain();
 
-        cy.wait('@verifyDomain').then((xhr) => {
-            cy.get('.sw-sales-channel-detail-domains .sw-data-grid__body').find('.sw-data-grid__row').should('have.length', 2);
-        });
+        cy.wait('@verifyDomain');
+        cy.get('.sw-sales-channel-detail-domains .sw-data-grid__body').find('.sw-data-grid__row').should('have.length', 2);
     });
 
     it('@general: Can\'t add the same domain URL twice', () => {
@@ -48,12 +46,10 @@ describe('Sales Channel: Adding domains to a sales-channel', () => {
         page.openSalesChannel('Storefront', 1);
 
         page.addExampleDomain();
-        cy.wait('@verifyDomain').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
+        cy.wait('@verifyDomain').its('response.statusCode').should('equal', 200);
 
-            page.addExampleDomain();
-            cy.contains('.sw-block-field', 'Url').should('have.class', 'has--error');
-        });
+        page.addExampleDomain();
+        cy.contains('.sw-block-field', 'Url').should('have.class', 'has--error');
     });
 
     it('@general: Can re-add a previously deleted domain', () => {
@@ -77,9 +73,8 @@ describe('Sales Channel: Adding domains to a sales-channel', () => {
             cy.get('#sw-field--currentDomain-url').clear().type(url);
             cy.contains('.sw-button--primary', 'Add domain').click();
 
-            cy.wait('@verifyDomain').then((xhr) => {
-                cy.get('.sw-sales-channel-detail-domains .sw-data-grid__body').find('.sw-data-grid__row').should('have.length', 1);
-            });
+            cy.wait('@verifyDomain');
+            cy.get('.sw-sales-channel-detail-domains .sw-data-grid__body').find('.sw-data-grid__row').should('have.length', 1);
         });
     });
 });

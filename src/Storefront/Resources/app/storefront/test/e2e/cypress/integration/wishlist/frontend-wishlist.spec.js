@@ -1,32 +1,32 @@
-import AccountPageObject from "../../support/pages/account.page-object";
+import AccountPageObject from '../../support/pages/account.page-object';
 
 const page = new AccountPageObject();
 
 const customer = {
     firstName: 'John',
     lastName: 'Doe',
-    email: "tester@example.com",
-    password: "shopware"
+    email: 'tester@example.com',
+    password: 'shopware',
 };
 
 const product = {
-    "id": "6dfd9dc216ab4ac99598b837ac600368",
-    "name": "Test product 1",
-    "stock": 1,
-    "productNumber": "RS-1",
-    "descriptionLong": "Product description",
-    "price": [
+    'id': '6dfd9dc216ab4ac99598b837ac600368',
+    'name': 'Test product 1',
+    'stock': 1,
+    'productNumber': 'RS-1',
+    'descriptionLong': 'Product description',
+    'price': [
         {
-            "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
-            "net": 8.40,
-            "linked": false,
-            "gross": 10
-        }
+            'currencyId': 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+            'net': 8.40,
+            'linked': false,
+            'gross': 10,
+        },
     ],
-    "url": "/product-name.html",
-    "manufacturer": {
-        "id": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
-        "name": "Test variant manufacturer"
+    'url': '/product-name.html',
+    'manufacturer': {
+        'id': 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+        'name': 'Test variant manufacturer',
     },
 };
 
@@ -37,15 +37,15 @@ describe('Wishlist: for wishlist page', () => {
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {
-                    Authorization: `Bearer ${result.access}`
+                    Authorization: `Bearer ${result.access}`,
                 },
                 method: 'post',
-                url: `api/_action/system-config/batch`,
+                url: 'api/_action/system-config/batch',
                 body: {
                     null: {
-                        'core.cart.wishlistEnabled': true // enable wishlist
-                    }
-                }
+                        'core.cart.wishlistEnabled': true, // enable wishlist
+                    },
+                },
             };
 
             return cy.request(requestConfig);
@@ -57,8 +57,8 @@ describe('Wishlist: for wishlist page', () => {
                     productId: response.id,
                     customer: {
                         username: customer.email,
-                        password: customer.password
-                    }
+                        password: customer.password,
+                    },
                 }).then(() => {
                     cy.visit('/wishlist');
                 });
@@ -74,7 +74,7 @@ describe('Wishlist: for wishlist page', () => {
 
         cy.visit('/wishlist');
         cy.get('.cms-listing-row .cms-listing-col').contains(product.name);
-        cy.get(`.cms-listing-row .cms-listing-col`).contains(product.manufacturer.name);
+        cy.get('.cms-listing-row .cms-listing-col').contains(product.manufacturer.name);
     });
 
     it('@wishlist does load wishlist page on guest state', () => {
@@ -84,31 +84,31 @@ describe('Wishlist: for wishlist page', () => {
         }).as('guestPagelet');
 
         cy.window().then((win) => {
-            win.localStorage.setItem('wishlist-' + win.salesChannelId, JSON.stringify({[product.id]: "20201220"}));
+            win.localStorage.setItem('wishlist-' + win.salesChannelId, JSON.stringify({[product.id]: '20201220'}));
 
             // Reload the page once after local storage update
             cy.reload();
 
             cy.title().should('eq', 'Your wishlist');
 
-        cy.wait('@guestPagelet')
-            .its('response.statusCode').should('equal', 200);
+            cy.wait('@guestPagelet')
+                .its('response.statusCode').should('equal', 200);
 
             cy.get('.cms-listing-row .cms-listing-col').contains(product.name);
-            cy.get(`.cms-listing-row .cms-listing-col`).contains(product.manufacturer.name);
+            cy.get('.cms-listing-row .cms-listing-col').contains(product.manufacturer.name);
             cy.get('.product-wishlist-form [type="submit"]').click();
 
-        cy.wait('@guestPagelet').its('response.statusCode').should('equal', 200)
-            .then(() => {
-                expect(localStorage.getItem('wishlist-products')).to.equal(null)
-            });
+            cy.wait('@guestPagelet').its('response.statusCode').should('equal', 200)
+                .then(() => {
+                    expect(localStorage.getItem('wishlist-products')).to.equal(null)
+                });
 
             cy.get('.cms-listing-row h1').contains('Your wishlist is empty')
             cy.get('.cms-listing-row p').contains('Keep an eye on products you like by adding them to your wishlist.');
         });
     });
 
-    it('@wishlist add to cart button work on guest page', () => {
+    it.only('@wishlist add to cart button work on guest page', () => {
         cy.intercept({
             method: 'POST',
             url: '/wishlist/guest-pagelet',
@@ -123,32 +123,28 @@ describe('Wishlist: for wishlist page', () => {
         }).as('checkoutInfo');
 
         cy.window().then(win => {
-            win.localStorage.setItem('wishlist-' + win.salesChannelId, JSON.stringify({[product.id]: "20201220"}));
+            win.localStorage.setItem('wishlist-' + win.salesChannelId, JSON.stringify({[product.id]: '20201220'}));
 
             // Reload the page once after local storage update
             cy.reload();
 
             cy.title().should('eq', 'Your wishlist');
 
-            cy.wait('@guestPagelet').its('response.statusCode').should('equal', 200).then(() => {
-                cy.get('.cms-listing-row .cms-listing-col').contains(product.name);
-                cy.get(`.cms-listing-row .cms-listing-col`).contains(product.manufacturer.name);
-                cy.get('.cms-listing-row .cms-listing-col .product-action .btn-buy').should('exist');
-                cy.get('.cms-listing-row .cms-listing-col .product-action .btn-buy').click();
+            cy.wait('@guestPagelet').its('response.statusCode').should('equal', 200);
+            cy.get('.cms-listing-row .cms-listing-col').contains(product.name);
+            cy.get('.cms-listing-row .cms-listing-col').contains(product.manufacturer.name);
+            cy.get('.cms-listing-row .cms-listing-col .product-action .btn-buy').should('exist');
+            cy.get('.cms-listing-row .cms-listing-col .product-action .btn-buy').click();
 
-                cy.wait('@guestPagelet')
-                    .its('response.statusCode').should('equal', 200);
+            cy.wait('@add-to-cart').its('response.statusCode').should('equal', 302);
 
-                cy.wait('@checkoutInfo').its('response.statusCode').should('equal', 200).then(() => {
-                        cy.get('.offcanvas.is-open.cart-offcanvas').should('exist');
-                        cy.get('.offcanvas.is-open.cart-offcanvas').find('.cart-item-label').contains(product.name);
+            cy.wait('@checkoutInfo').its('response.statusCode').should('equal', 200);
+            cy.get('.offcanvas.is-open.cart-offcanvas').should('exist');
+            cy.get('.offcanvas.is-open.cart-offcanvas').find('.cart-item-label').contains(product.name);
 
-                        // Wishlist product should still exist
-                        cy.get('.cms-listing-row .cms-listing-col').contains(product.name);
-                        cy.get(`.cms-listing-row .cms-listing-col`).contains(product.manufacturer.name);
-                    });
-                });
-            });
+            // Wishlist product should still exist
+            cy.get('.cms-listing-row .cms-listing-col').contains(product.name);
+            cy.get('.cms-listing-row .cms-listing-col').contains(product.manufacturer.name);
         });
     });
 

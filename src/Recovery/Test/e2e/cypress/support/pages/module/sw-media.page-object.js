@@ -1,3 +1,4 @@
+/* global cy */
 import elements from '../sw-general.page-object';
 
 export default class MediaPageObject {
@@ -36,9 +37,19 @@ export default class MediaPageObject {
         return this;
     }
 
-    uploadImageUsingFileUpload(path) {
-        cy.get(this.elements.uploadInput).attachFile(path);
-        
+    uploadImageUsingFileUpload(path, name) {
+        cy.fixture(path).then(fileContent => {
+            cy.get(this.elements.uploadInput).upload(
+                {
+                    fileContent,
+                    fileName: name,
+                    mimeType: 'image/png'
+                }, {
+                    subjectType: 'input'
+                }
+            );
+        });
+
         cy.get('.sw-media-preview-v2__item').should('be.visible');
 
         return this;
@@ -113,8 +124,9 @@ export default class MediaPageObject {
         cy.get('li.quickaction--delete').click();
         cy.get(`${this.elements.modal}__body`).contains(`Are you sure you want to delete "${fileName}"?`);
         cy.get('.sw-media-modal-delete__confirm').click();
-        cy.wait('@deleteData')
-            .its('response.statusCode').should('equal', 204);
+        cy.wait('@deleteData').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
+        });
         cy.get(`input[placeholder="${fileName}"]`).should('not.exist');
     }
 

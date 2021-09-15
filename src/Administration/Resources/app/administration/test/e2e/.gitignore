@@ -40,3 +40,6 @@ build/
 dist/
 
 !**/.gitkeep
+
+# Cypress downloads
+downloads/*

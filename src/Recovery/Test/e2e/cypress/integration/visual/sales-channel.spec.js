@@ -21,13 +21,15 @@ describe('Sales Channel: Visual tests', () => {
         const page = new SalesChannelPageObject();
 
         // Request we want to wait for later
-        cy.intercept({
-            method: 'POST',
-            url: `**/${Cypress.env('apiPath')}/sales-channel`,
+        cy.server();
+        cy.route({
+            url: `${Cypress.env('apiPath')}/sales-channel`,
+            method: 'post'
         }).as('saveData');
 
         // Open sales channel
         const saleschannel = Cypress.env('testDataUsage') ? 'Footwear' : 'E2E install test';
+
 
         cy.contains(saleschannel).click();
         cy.get('.sw-loader').should('not.exist');

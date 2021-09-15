@@ -32,6 +32,10 @@
     "runMode": null,
     "openMode": null
   },
+  "retries": {
+    "runMode": 2,
+    "openMode": 0
+  },
   "reporter": "cypress-multi-reporters",
     "reporterOptions": {
         "reporterEnabled": "mochawesome, mocha-junit-reporter",

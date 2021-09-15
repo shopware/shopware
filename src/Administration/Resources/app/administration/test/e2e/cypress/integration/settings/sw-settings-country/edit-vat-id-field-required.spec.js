@@ -19,13 +19,13 @@ describe('Country: Test can setting VAT id field required', () => {
             method: 'post'
         }).as('saveSettings');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/country/*`,
             method: 'patch'
         }).as('saveCountry');
 
         cy.get('input[name="core.loginRegistration.showAccountTypeSelection"]').scrollIntoView();
-        cy.get('input[name="core.loginRegistration.showAccountTypeSelection"]').should('be.visible');
+        cy.get('input[name="core.loginRegistration.showAccountTypeSelection"]').should('exist');
 
         cy.get('input[name="core.loginRegistration.showAccountTypeSelection"]').click().should('have.value', 'on');
         cy.get('.smart-bar__content .sw-button--primary').click();
@@ -43,9 +43,8 @@ describe('Country: Test can setting VAT id field required', () => {
         cy.get('.sw-settings-country-general__vat-id-required .sw-field--switch__input').click();
         cy.get(settingPage.elements.countrySaveAction).click();
 
-        cy.wait('@saveCountry').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveCountry')
+            .its('response.statusCode').should('equal', 204);
 
         cy.visit('/account/login');
         const accountTypeSelector = '.register-form select[name="accountType"]';

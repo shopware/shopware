@@ -129,8 +129,6 @@ describe('Product: Test variants', () => {
             .its('response.statusCode').should('equal', 200);
         cy.wait('@searchCall')
             .its('response.statusCode').should('equal', 200);
-        cy.wait('@searchCall')
-            .its('response.statusCode').should('equal', 200);
         cy.wait('@loadPropertyGroup')
             .its('response.statusCode').should('equal', 200);
 

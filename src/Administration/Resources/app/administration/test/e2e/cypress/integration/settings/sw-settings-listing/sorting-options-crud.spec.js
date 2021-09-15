@@ -92,7 +92,7 @@ describe('Listing: Test crud operations', () => {
             .contains('1');
     });
 
-    it.only('@settings: create product sorting with custom field criteria', () => {
+    it('@settings: create product sorting with custom field criteria', () => {
         cy.intercept({
             url: '/api/search/custom-field-set',
             method: 'post'
@@ -191,11 +191,11 @@ describe('Listing: Test crud operations', () => {
             .click();
 
         // check api request
-        cy.wait('@saveData')
+        cy.wait('@updateData')
             .its('response.statusCode').should('equal', 204);
 
         // custom field selection should be visible on inlineEdit
-        cy.get(customFieldSelection).should('not.be.visible');
+        cy.get(customFieldSelection).should('not.exist');
         cy.get('.sw-data-grid__table .sw-data-grid__body .sw-data-grid__cell-content').first().dblclick({ force: true });
         cy.get(customFieldSelection).should('be.visible');
 

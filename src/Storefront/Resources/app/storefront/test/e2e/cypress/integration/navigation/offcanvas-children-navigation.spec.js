@@ -65,8 +65,7 @@ describe('Offcanvas navigation with regards to children visibility', () => {
         });
 
         it('@navigation: Check menu entries for visible children', () => {
-            cy.server();
-            cy.route({
+            cy.intercept({
                 url: '/widgets/menu/offcanvas*',
                 method: 'GET'
             }).as('offcanvasMenuRequest');

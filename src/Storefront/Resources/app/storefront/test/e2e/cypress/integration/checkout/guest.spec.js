@@ -133,7 +133,7 @@ describe(`Checkout as Guest`, () => {
             // check Company, Department, VatId fields not exists in register address form
             cy.get(`.register-shipping ${billingAddressCompanySelector}`).should('not.exist');
             cy.get(`.register-shipping ${billingAddressDepartmentSelector}`).should('not.exist');
-            cy.get(`.register-shipping ${vatIdsSelector}`).should('not.be.visible');
+            cy.get(`.register-shipping ${vatIdsSelector}`).should('not.exist');
 
             cy.get('.register-different-shipping label[for="differentShippingAddress"]').click();
             // check Company, Department, VatId fields not exists in register shipping address form
@@ -148,13 +148,13 @@ describe(`Checkout as Guest`, () => {
 
             cy.get(accountTypeSelector).typeAndSelect('Commercial');
             // check Company, Department, VatId fields not exists in register address form
-            cy.get(`.register-address ${billingAddressCompanySelector}`).should('not.be.visible');
-            cy.get(`.register-address ${billingAddressDepartmentSelector}`).should('not.be.visible');
+            cy.get(`.register-address ${billingAddressCompanySelector}`).should('not.exist');
+            cy.get(`.register-address ${billingAddressDepartmentSelector}`).should('not.exist');
             cy.get(`.register-address ${vatIdsSelector}`).should('not.exist');
 
             // check Company, Department, VatId fields not exists in register shipping address form
-            cy.get(`.register-shipping ${shippingAddressCompanySelector}`).should('not.exist');
-            cy.get(`.register-shipping ${shippingAddressDepartmentSelector}`).should('not.exist');
+            cy.get(`.register-shipping ${shippingAddressCompanySelector}`).should('not.be.visible');
+            cy.get(`.register-shipping ${shippingAddressDepartmentSelector}`).should('not.be.visible');
             cy.get(`.register-shipping ${vatIdsSelector}`).should('not.exist');
 
             cy.get(billingAddressCompanySelector).should('be.visible');

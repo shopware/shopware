@@ -10,9 +10,10 @@ describe('Minimal auto update', () => {
 
     it('@update: Check product', () => {
         // Request we want to wait for later
-        cy.intercept({
-            method: 'POST',
-            url: '/api/v*/search/product',
+        cy.server();
+        cy.route({
+            url: '/api/search/product',
+            method: 'POST'
         }).as('dataRequest');
 
         cy.visit('/admin#/sw/product/index');
@@ -23,7 +24,8 @@ describe('Minimal auto update', () => {
         cy.contains('.sw-data-grid__cell--name', 'Travel Pack | Proof Black').click();
         cy.get('.smart-bar__header').contains('Travel Pack | Proof Black');
 
-        cy.wait('@dataRequest')
-            .its('response.statusCode').should('equal', 200);
+        cy.wait('@dataRequest').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
     });
 });

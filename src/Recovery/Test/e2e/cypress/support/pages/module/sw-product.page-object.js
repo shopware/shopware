@@ -1,3 +1,4 @@
+/* global cy */
 import elements from '../sw-general.page-object';
 
 export default class ProductPageObject {
@@ -36,13 +37,14 @@ export default class ProductPageObject {
         const optionString = totalCount === 1 ? 'option' : 'options';
 
         // Request we want to wait for later
-        cy.intercept({
-            url: `_action/sync`,
+        cy.server();
+        cy.route({
+            url: `${Cypress.env('apiPath')}/_action/sync`,
             method: 'post'
         }).as('productCall');
-        cy.intercept({
-            method: 'POST',
-            url: `**/${Cypress.env('apiPath')}/search/product`,
+        cy.route({
+            url: `${Cypress.env('apiPath')}/search/product`,
+            method: 'post'
         }).as('searchCall');
 
         cy.contains(propertyName).click();
@@ -68,14 +70,16 @@ export default class ProductPageObject {
         cy.get('.sw-product-modal-variant-generation__notification-modal .sw-button--primary')
             .click();
 
-        cy.wait('@productCall')
-            .its('response.statusCode').should('equal', 204);
+        cy.wait('@productCall').then((xhr) => {
+            expect(xhr).to.have.property('status', 204);
+        });
 
         cy.get('.sw-product-modal-variant-generation__notification-modal').should('not.exist');
         cy.get('.generate-variant-progress-bar__description').contains(`0 of ${totalCount} variations generated`);
 
-        cy.wait('@searchCall')
-            .its('response.statusCode').should('equal', 200);
+        cy.wait('@searchCall').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        });
         cy.get('.sw-product-modal-variant-generation').should('not.exist');
     }
 }

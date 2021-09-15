@@ -46,11 +46,8 @@ describe('Mail templates: Test acl privileges', () => {
 
         cy.get(page.elements.smartBarBack).click();
 
-        cy.wait(['@loadMailTemplates', '@loadMailHeaderFooter']).then(xhrs => {
-            xhrs.forEach(xhr => {
-                expect(xhr).to.have.property('status', 200);
-            });
-        });
+        cy.wait('@loadMailTemplates').its('response.statusCode').should('equal', 200);
+        cy.wait('@loadMailHeaderFooter').its('response.statusCode').should('equal', 200);
 
         // wait up to 3 seconds for template listing, because it will push put the mailheader/footer out of viewport
         cy.get('#mailTemplateGrid.sw-mail-templates-list-grid .sw-data-grid__row', { timeout: 3000 }).should('be.visible');
@@ -116,9 +113,7 @@ describe('Mail templates: Test acl privileges', () => {
         );
 
         // wait for data loading
-        cy.wait('@loadMailTemplates').then(xhr => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@loadMailTemplates').its('response.statusCode').should('equal', 200);
 
         // wait up to 3 seconds for template listing, because it will push put the mailheader/footer out of viewport
         cy.get('#mailTemplateTypes', { timeout: 3000 }).should('be.visible');
@@ -140,11 +135,8 @@ describe('Mail templates: Test acl privileges', () => {
         cy.get(`${page.elements.mailTemplateGridList} ${page.elements.dataGridRow}--0 ${page.elements.mailTemplateColumnDescription}`)
             .contains('Default description');
 
-        cy.wait(['@loadMailTemplates', '@loadMailHeaderFooter']).then(xhrs => {
-            xhrs.forEach(xhr => {
-                expect(xhr).to.have.property('status', 200);
-            });
-        });
+        cy.wait('@loadMailTemplates').its('response.statusCode').should('equal', 200);
+        cy.wait('@loadMailHeaderFooter').its('response.statusCode').should('equal', 200);
 
         // wait up to 3 seconds for template listing, because it will push put the mailheader/footer out of viewport
         cy.get('#mailTemplateGrid.sw-mail-templates-list-grid .sw-data-grid__row', { timeout: 3000 }).should('be.visible');
@@ -297,9 +289,7 @@ describe('Mail templates: Test acl privileges', () => {
         cy.wait('@deleteMailTemplate').its('response.statusCode').should('equal', 204);
 
         // wait for data loading
-        cy.wait('@loadMailTemplates').then(xhr => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@loadMailTemplates').its('response.statusCode').should('equal', 200);
 
         // wait up to 3 seconds for template listing, because it will push put the mailheader/footer out of viewport
         cy.get('#mailTemplateGrid.sw-mail-templates-list-grid .sw-data-grid__row', { timeout: 3000 }).should('be.visible');
@@ -392,11 +382,8 @@ describe('Mail templates: Test acl privileges', () => {
         // TODO: verify fields will do when NEXT-7072 search function is fixed
 
         // wait for data loading
-        cy.wait(['@loadMailTemplates', '@loadMailHeaderFooter']).then(xhrs => {
-            xhrs.forEach(xhr => {
-                expect(xhr).to.have.property('status', 200);
-            });
-        });
+        cy.wait('@loadMailTemplates').its('response.statusCode').should('equal', 200);
+        cy.wait('@loadMailHeaderFooter').its('response.statusCode').should('equal', 200);
 
         // wait up to 3 seconds for template listing, because it will push put the mailheader/footer out of viewport
         cy.get('#mailTemplateGrid.sw-mail-templates-list-grid .sw-data-grid__row', { timeout: 3000 }).should('be.visible');

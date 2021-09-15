@@ -15,9 +15,10 @@
 
 require('@babel/register');
 
+const selectTestsWithGrep = require('cypress-select-tests/grep');
+
 // TODO Check incompatibility and reintegrate as soon as possible
 // const logToOutput = require('cypress-log-to-output');
-// const selectTestsWithGrep = require('cypress-select-tests/grep');
 
 module.exports = (on, config) => {
     // logToOutput.install(on);
@@ -32,6 +33,9 @@ module.exports = (on, config) => {
             return launchOptions;
         }
     });
+
+    // `config` is the resolved Cypress config
+    on('file:preprocessor', selectTestsWithGrep(config));
 
     on('before:browser:launch', () => {
         config.env.projectRoot = config.env.projectRoot || config.env.shopwareRoot;

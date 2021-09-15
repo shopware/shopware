@@ -10,14 +10,12 @@ describe('Mail header & footer template: Sales Channel assignment', () => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
             });
 
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/mail-template`,
             method: 'post'
         }).as('getData');
 
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/mail-header-footer`,
             method: 'post'
         }).as('saveTemplate');
@@ -31,9 +29,8 @@ describe('Mail header & footer template: Sales Channel assignment', () => {
         });
 
         cy.get('#sw-mail-template').click();
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getData')
+            .its('response.statusCode').should('equal', 200);
 
         cy.contains('.sw-card__title', 'Headers and Footers').should('exist').scrollIntoView().should('be.visible');
 
@@ -53,11 +50,9 @@ describe('Mail header & footer template: Sales Channel assignment', () => {
 
         cy.contains('.sw-button-process__content', 'Save').click();
 
-        cy.wait('@saveTemplate').then(xhr => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@saveTemplate').its('response.statusCode').should('equal', 200);
 
-        cy.get('.sw-button__loader').should('not.be.visible');
+        cy.get('.sw-button__loader').should('not.exist');
         cy.get('.smart-bar__back-btn').click();
         cy.get('#mailHeaderFooterGrid').find('.sw-data-grid__body .sw-data-grid__row').first().find('.sw-data-grid__cell--salesChannels-name').contains('Storefront');
     });
@@ -70,9 +65,8 @@ describe('Mail header & footer template: Sales Channel assignment', () => {
         });
 
         cy.get('#sw-mail-template').click();
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getData')
+    .its('response.statusCode').should('equal', 200);
 
         cy.contains('.sw-card__title', 'Headers and Footers').should('exist').scrollIntoView().should('be.visible');
 
@@ -92,11 +86,9 @@ describe('Mail header & footer template: Sales Channel assignment', () => {
 
         cy.contains('.sw-button-process__content', 'Save').click();
 
-        cy.wait('@saveTemplate').then(xhr => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@saveTemplate').its('response.statusCode').should('equal', 200);
 
-        cy.get('.sw-button__loader').should('not.be.visible');
+        cy.get('.sw-button__loader').should('not.exist');
         cy.get('.smart-bar__back-btn').click();
         cy.get('#mailHeaderFooterGrid').find('.sw-data-grid__body .sw-data-grid__row').first().find('.sw-data-grid__cell--salesChannels-name').contains('Storefront');
 
@@ -122,9 +114,7 @@ describe('Mail header & footer template: Sales Channel assignment', () => {
 
         cy.get('.sw-modal__footer').contains('.sw-button-process__content', 'Save').click();
 
-        cy.wait('@saveTemplate').then(xhr => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@saveTemplate').its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-button__loader').should('not.be.visible');
         cy.get('.smart-bar__back-btn').click();
@@ -139,9 +129,8 @@ describe('Mail header & footer template: Sales Channel assignment', () => {
         });
 
         cy.get('#sw-mail-template').click();
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getData')
+    .its('response.statusCode').should('equal', 200);
 
         cy.contains('.sw-card__title', 'Headers and Footers').should('exist').scrollIntoView().should('be.visible');
 
@@ -164,11 +153,9 @@ describe('Mail header & footer template: Sales Channel assignment', () => {
 
         cy.contains('.sw-button-process__content', 'Save').click();
 
-        cy.wait('@saveTemplate').then(xhr => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@saveTemplate').its('response.statusCode').should('equal', 200);
 
-        cy.get('.sw-button__loader').should('not.be.visible');
+        cy.get('.sw-button__loader').should('not.exist');
         cy.get('.smart-bar__back-btn').click();
         cy.contains('.sw-data-grid__row', 'Example').should('exist').contains('.sw-data-grid__cell-content', 'Storefront');
 
@@ -191,11 +178,9 @@ describe('Mail header & footer template: Sales Channel assignment', () => {
 
         cy.get('.sw-modal__footer').contains('.sw-button-process__content', 'Save').click();
 
-        cy.wait('@saveTemplate').then(xhr => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@saveTemplate').its('response.statusCode').should('equal', 200);
 
-        cy.get('.sw-button__loader').should('not.be.visible');
+        cy.get('.sw-button__loader').should('not.exist');
         cy.get('.smart-bar__back-btn').click();
 
         cy.contains('.sw-data-grid__row', 'Default email footer').should('exist').contains('.sw-data-grid__cell-content', 'Storefront');

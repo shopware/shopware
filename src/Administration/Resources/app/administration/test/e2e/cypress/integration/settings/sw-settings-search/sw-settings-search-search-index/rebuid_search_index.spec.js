@@ -25,7 +25,7 @@ describe('Search settings: Search Index', () => {
 
         cy.get('.sw-button__loader').should('not.exist');
         cy.awaitAndCheckNotification('Product indexes built.');
-        cy.get('.sw-settings-search__search-index-rebuilding-progress').should('not.visible');
+        cy.get('.sw-settings-search__search-index-rebuilding-progress').should('not.exist');
     });
 
     it('@settings: should show the warning popup when leaving before indexing process finish', () => {

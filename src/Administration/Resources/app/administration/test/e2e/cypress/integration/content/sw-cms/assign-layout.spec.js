@@ -97,7 +97,6 @@ describe('CMS: Test assignment of layouts to categories and shop pages', () => {
         // Verify request is successful and contains landingPages
         cy.wait('@saveData')
             .its('response.statusCode').should('equal', 204);
-        // expect(xhr.request.body).to.have.property('landingPages');
 
 
         // Collapse category and expand landing page tree
@@ -169,7 +168,6 @@ describe('CMS: Test assignment of layouts to categories and shop pages', () => {
 
         // Verify request is successful and contains categories
         cy.wait('@saveData').its('response.statusCode').should('equal', 204);
-        // expect(xhr.request.body).to.have.property('categories');
 
         // Verify layout is assigned to category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
@@ -227,7 +225,6 @@ describe('CMS: Test assignment of layouts to categories and shop pages', () => {
 
         // Verify shop page request was successful
         cy.wait('@saveShopPageData').its('response.statusCode').should('equal', 204);
-        // expect(xhr.request.body.null).to.have.property('core.basicInformation.contactPage');
 
         cy.get('.sw-cms-layout-assignment-modal').should('not.exist');
 

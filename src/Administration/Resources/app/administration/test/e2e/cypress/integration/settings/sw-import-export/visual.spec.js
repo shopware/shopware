@@ -18,7 +18,7 @@ describe('Import/Export:  Visual tests', () => {
         cy.loginViaApi().then(() => {
             // freezes the system time to Jan 1, 2018
             const now = new Date(2018, 1, 1);
-            cy.clock(now);
+            cy.clock(now, ['Date']);
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/import-export/index`);
         });
@@ -87,8 +87,12 @@ describe('Import/Export:  Visual tests', () => {
         cy.takeSnapshot('[Import export] Detail, Export overview', '.sw-import-export-view-export');
 
         // Select fixture profile for product entity
-        cy.get('.sw-import-export-exporter__profile-select').click();
-        cy.contains('Default product').click();
+        cy.get('.sw-import-export-exporter__profile-select')
+            .typeSingleSelectAndCheck(
+                'Default product',
+                '.sw-import-export-exporter__profile-select'
+            )
+
         cy.get('.sw-import-export-progress__start-process-action').click();
 
         // Prepare request should be successful
@@ -102,7 +106,6 @@ describe('Import/Export:  Visual tests', () => {
         // Import export log request should be successful
         cy.wait('@importExportLog')
             .its('response.statusCode').should('equal', 200);
-        cy.get('.sw-import-export-progress__stats-list-success').contains('Export successful');
 
         // Change color of the element to ensure consistent snapshots
         cy.changeElementStyling('.sw-data-grid__cell--createdAt a', 'color : #fff');

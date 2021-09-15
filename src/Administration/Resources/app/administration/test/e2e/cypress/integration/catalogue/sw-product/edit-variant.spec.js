@@ -266,15 +266,6 @@ describe('Product: Test variants', () => {
 
         cy.get(page.elements.loader).should('not.exist');
 
-        // Wait for every needed xhr request to load the current product
-        // `@searchCall` was defined in `page.generateVariants`
-        cy.wait(['@searchCall', '@loadPropertyGroup'])
-            .then((xhrs) => {
-                xhrs.forEach((xhr) => {
-                    expect(xhr).its('response.statusCode').should('equal', 200);
-                });
-            });
-
         cy.get('.sw-product-variants-overview').should('be.visible');
 
         // Activate diversification

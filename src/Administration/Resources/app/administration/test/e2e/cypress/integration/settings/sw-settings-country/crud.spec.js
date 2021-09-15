@@ -16,39 +16,6 @@ describe('Country: Test crud operations', () => {
             });
     });
 
-    it('@settings: create and read country', () => {
-        cy.skipOnFeature('FEATURE_NEXT_14114');
-        const page = new SettingsPageObject();
-
-        // Request we want to wait for later
-        cy.intercept({
-            url: `${Cypress.env('apiPath')}/country`,
-            method: 'post'
-        }).as('saveData');
-
-        cy.get('a[href="#/sw/settings/country/create"]').click();
-
-        // Create country
-        cy.get('input[name=sw-field--country-name]').typeAndCheck('01.Niemandsland');
-
-        // Check tax free companies field exists and clicks
-        cy.contains('Tax free (B2C)').should('be.visible');
-        cy.contains('Tax free (B2C)').click();
-
-        // Check validate vat id for correct format field exists and clicks
-        cy.contains('Validate VAT Reg.No. format').should('be.visible');
-        cy.contains('Validate VAT Reg.No. format').click();
-
-        cy.get(page.elements.countrySaveAction).click();
-
-        // Verify creation
-        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
-
-        cy.get(page.elements.smartBarBack).click();
-        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName}`).should('be.visible')
-            .contains('01.Niemandsland');
-    });
-
     it('@settings: update and read country', () => {
         const page = new SettingsPageObject();
 
@@ -127,10 +94,10 @@ describe('Country: Test crud operations', () => {
         cy.get('.sw-loader').should('not.exist');
 
         // Check tax free companies field exists and clicks
-        cy.get('input[name="sw-field--country-customerTax-enabled"]').should('be.visible');
+        cy.get('input[name="sw-field--country-customerTax-enabled"]').should('exist');
         cy.get('input[name="sw-field--country-customerTax-enabled"]').check().then(() => {
-            cy.get('.sw-settings-country-general-customer-tax').should('be.visible');
-            cy.get('input[name=sw-field--country-customerTax-amount]').should('be.visible');
+            cy.get('.sw-settings-country-general-customer-tax').should('exist');
+            cy.get('input[name=sw-field--country-customerTax-amount]').should('exist');
         });
 
         cy.get('input[name=sw-field--country-customerTax-amount]').type('300');

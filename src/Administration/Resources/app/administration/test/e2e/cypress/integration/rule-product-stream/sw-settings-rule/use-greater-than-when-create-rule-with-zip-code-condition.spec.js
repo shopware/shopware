@@ -85,9 +85,7 @@ describe('Rule builder: Test use greater/lower than on zipcode condition', () =>
 
         const page = new RulePageObject();
 
-        cy.server();
-
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/rule/*`,
             method: 'patch'
         }).as('saveData');
@@ -119,8 +117,7 @@ describe('Rule builder: Test use greater/lower than on zipcode condition', () =>
 
         // Verify rule
         cy.get('button.sw-button').contains('Save').click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
     });
 });

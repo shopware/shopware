@@ -21,7 +21,7 @@ describe('Country: Visual testing', () => {
             url: `${Cypress.env('apiPath')}/search/country`,
             method: 'post'
         }).as('getData');
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/country/**/states`,
             method: 'post'
         }).as('getStates');
@@ -47,16 +47,15 @@ describe('Country: Visual testing', () => {
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-loader__element').should('not.exist');
         cy.get('input[name="sw-field--country-name"]').should('not.have.value', '');
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getData')
+            .its('response.statusCode').should('equal', 200);
 
         // Take Snapshot
         cy.takeSnapshot('[Country] Detail', '.sw-settings-country-general__options-container');
 
         cy.get('.sw-loader').should('not.exist');
 
-        cy.get('input[name="sw-field--country-customerTax-enabled"]').should('be.visible');
+        cy.get('input[name="sw-field--country-customerTax-enabled"]').should('exist');
         cy.get('input[name="sw-field--country-customerTax-enabled"]').check().then(() => {
             cy.get('.sw-settings-country-general-customer-tax').should('be.visible');
             cy.get('input[name=sw-field--country-customerTax-amount]').should('be.visible');

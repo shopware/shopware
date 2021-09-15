@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@babel/core": "^7.7.7",
-    "@shopware-ag/e2e-testsuite-platform": "3.0.0-alpha.4",
+    "@shopware-ag/e2e-testsuite-platform": "3.0.0-alpha.5",
     "cypress": "7.6.0",
     "cypress-multi-reporters": "^1.5.0",
     "cypress-select-tests": "^1.7.1",
@@ -27,6 +27,7 @@
     "uuid": "3.3.3"
   },
   "devDependencies": {
+    "eslint-plugin-chai-friendly": "^0.7.2",
     "mochawesome-merge": "^4.0.0",
     "mochawesome-report-generator": "^4.1.0"
   }

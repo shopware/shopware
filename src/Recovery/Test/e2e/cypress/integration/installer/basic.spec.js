@@ -211,16 +211,17 @@ describe('Minimal install', () => {
         cy.get('.sw-first-run-wizard-finish').should('be.visible');
         cy.get('.sw-step-display .sw-step-item.sw-step-item--success span').contains('Shopware Store');
 
-        cy.intercept({
-            method: 'POST',
-            url: '/api/v2/_action/store/frw/finish',
+        cy.server();
+        cy.route({
+            url: '/api/_action/store/frw/finish',
+            method: 'post'
         }).as('finishCall');
 
         cy.get('.sw-button span').contains('Finish').click();
 
-        // Check API response
-        cy.wait('@finishCall')
-            .its('response.statusCode').should('equal', 200);
+        cy.wait('@finishCall').then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
+        }, { responseTimeout: 60000 });
 
         cy.location().should((loc) => {
             expect(loc.pathname).to.eq(`${Cypress.env('admin')}`);

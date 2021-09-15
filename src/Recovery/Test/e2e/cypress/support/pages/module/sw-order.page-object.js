@@ -1,3 +1,4 @@
+/* global cy */
 import elements from '../sw-general.page-object';
 
 export default class OrderPageObject {
@@ -15,9 +16,10 @@ export default class OrderPageObject {
         const callType = type === 'payment' ? '_transaction' : '';
 
         // Request we want to wait for later
-        cy.intercept({
-            url: `/api/v*/_action/order${callType}/**/state/${call}`,
-            method: 'POST',
+        cy.server();
+        cy.route({
+            url: `/api/_action/order${callType}/**/state/${call}`,
+            method: 'post'
         }).as(`${call}Call`);
 
 
@@ -40,16 +42,17 @@ export default class OrderPageObject {
         cy.get('.sw-order-state-change-modal-attach-documents__button')
             .click();
 
-        cy.wait(`@${call}Call`)
-            .its('response.statusCode').should('equal', 200);
+        cy.wait(`@${call}Call`).then((xhr) => {
+            expect(xhr).to.have.property('status', 200);
 
-        cy.get(`.sw-order-state-${scope}__${type}-state .sw-loader__element`).should('not.exist');
-        cy.get(this.elements.loader).should('not.exist');
-        cy.get(this.elements.smartBarHeader).click();
+            cy.get(`.sw-order-state-${scope}__${type}-state .sw-loader__element`).should('not.exist');
+            cy.get(this.elements.loader).should('not.exist');
+            cy.get(this.elements.smartBarHeader).click();
 
-        if (scope === 'select') {
-            cy.get(stateColor).should('be.visible');
-        }
+            if (scope === 'select') {
+                cy.get(stateColor).should('be.visible');
+            }
+        });
     }
 
     checkOrderHistoryEntry({ type, stateTitle, signal = 'neutral', position = 0 }) {

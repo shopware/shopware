@@ -74,50 +74,48 @@ describe('Product: Test variants visibilities', () => {
             .typeMultiSelectAndCheckMultiple(['Storefront']);
 
         cy.get(page.elements.productSaveAction).click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
+        cy.wait('@saveData').its('response.statusCode').should('equal', 200);
 
-            cy.get('.sw-product-detail__select-visibility')
-                .scrollIntoView();
-            cy.get('.sw-product-detail__select-visibility')
-                .should('contain', 'Storefront');
+        cy.get('.sw-product-detail__select-visibility')
+            .scrollIntoView();
+        cy.get('.sw-product-detail__select-visibility')
+            .should('contain', 'Storefront');
 
-            // switch variants tab
-            cy.get('.sw-product-detail__tab-variants').click();
-            cy.get(page.elements.loader).should('not.exist');
-            cy.get('.sw-product-variants-overview').should('be.visible');
+        // switch variants tab
+        cy.get('.sw-product-detail__tab-variants').click();
+        cy.get(page.elements.loader).should('not.exist');
+        cy.get('.sw-product-variants-overview').should('be.visible');
 
-            cy.get('.sw-data-grid__body').contains('Green');
-            cy.get('.sw-data-grid__body').contains('Green').click();
+        cy.get('.sw-data-grid__body').contains('Green');
+        cy.get('.sw-data-grid__body').contains('Green').click();
 
-            // remove inherited
-            cy.get('.sw-product-detail__select-visibility')
-                .scrollIntoView();
-            cy.get('.sw-product-category-form__visibility_field .sw-inheritance-switch').click();
-            cy.get('.sw-product-detail__select-visibility')
-                .typeMultiSelectAndCheckMultiple(['Headless']);
+        // remove inherited
+        cy.get('.sw-product-detail__select-visibility')
+            .scrollIntoView();
+        cy.get('.sw-product-category-form__visibility_field .sw-inheritance-switch').click();
+        cy.get('.sw-product-detail__select-visibility')
+            .typeMultiSelectAndCheckMultiple(['Headless']);
 
-            // Save product
-            cy.get(page.elements.productSaveAction).click();
-            cy.wait('@saveData')
-                .its('response.statusCode').should('equal', 200);
+        // Save product
+        cy.get(page.elements.productSaveAction).click();
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 200);
 
-            cy.get('.sw-product-detail__select-visibility')
-                .scrollIntoView();
-            cy.get('.sw-product-detail__select-visibility')
-                .should('contain', 'Headless');
+        cy.get('.sw-product-detail__select-visibility')
+            .scrollIntoView();
+        cy.get('.sw-product-detail__select-visibility')
+            .should('contain', 'Headless');
 
-            cy.get('.sw-card__back-link').scrollIntoView();
-            cy.get('.sw-card__back-link').should('be.visible');
-            cy.get('.sw-card__back-link').click({ waitForAnimations: false });
+        cy.get('.sw-card__back-link').scrollIntoView();
+        cy.get('.sw-card__back-link').should('be.visible');
+        cy.get('.sw-card__back-link').click({ waitForAnimations: false });
 
-            cy.get('.sw-product-detail__tab-general').click();
-            cy.get(page.elements.loader).should('not.exist');
+        cy.get('.sw-product-detail__tab-general').click();
+        cy.get(page.elements.loader).should('not.exist');
 
-            cy.get('.sw-product-detail__select-visibility')
-                .scrollIntoView();
-            cy.get('.sw-product-detail__select-visibility')
-                .should('contain', 'Storefront');
-        });
+        cy.get('.sw-product-detail__select-visibility')
+            .scrollIntoView();
+        cy.get('.sw-product-detail__select-visibility')
+            .should('contain', 'Storefront');
     });
 });

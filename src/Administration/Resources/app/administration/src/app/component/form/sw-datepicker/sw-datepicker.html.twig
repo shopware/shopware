@@ -5,6 +5,7 @@
     v-bind="$attrs"
     :required="required"
     :name="formFieldName"
+    :disabled="disabled"
     @sw-contextual-field-suffix-clicked="openDatepicker"
     @inheritance-restore="$emit('inheritance-restore', $event)"
     @inheritance-remove="$emit('inheritance-remove', $event)"

@@ -96,7 +96,7 @@ class EntityCollection extends Collection
 
         foreach ($ids as $id) {
             if (\is_array($id)) {
-                $id = implode('-', $id);
+                $id = implode('-', array_unique($id));
             }
 
             if (\array_key_exists($id, $this->elements)) {

@@ -1,0 +1,10 @@
+{% block sw_status %}
+<span
+    class="sw-status"
+    :class="statusClass"
+    v-bind="$attrs"
+>
+    <sw-color-badge :rounded="true" />
+    <slot></slot>
+</span>
+{% endblock %}

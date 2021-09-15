@@ -52,7 +52,8 @@ describe('Order: Read order', () => {
         cy.get('.sw-order-detail-base__line-item-grid-card').scrollIntoView();
         cy.clickContextMenuItem(
             '.sw-context-menu__content',
-            page.elements.contextMenuButton
+            page.elements.contextMenuButton,
+            '.sw-order-detail-base'
         );
         cy.get(page.elements.smartBarHeader).contains('Product name');
     });

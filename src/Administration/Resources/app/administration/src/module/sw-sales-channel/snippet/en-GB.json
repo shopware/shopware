@@ -7,7 +7,25 @@
   "sw-sales-channel": {
     "general": {
       "tooltipOpenStorefront": "Open storefront",
-      "titleMenuItems": "Sales Channels"
+      "titleMenuItems": "Sales Channels",
+      "titleMenuMoreItems": "More",
+      "manageSalesChannels": "Manage Sales Channels"
+    },
+    "list": {
+      "title": "Sales Channels",
+      "subTitle": "Sales Channels let you sell items to your customers through social media, storefronts, marketplaces or in person.",
+      "placeholderSearchBar": "Search Sales Channels...",
+      "buttonAddSalesChannel": "Add Sales Channel",
+      "columnName": "Sales Channel",
+      "columnStatus": "Status",
+      "status": {
+        "maintenance": "Maintenance",
+        "online": "Online",
+        "offline": "Offline"
+      },
+      "contextMenuEdit": "Edit",
+      "productsLabel": "Products",
+      "productsCount": "products"
     },
     "modal": {
       "title": "Add Sales Channel",

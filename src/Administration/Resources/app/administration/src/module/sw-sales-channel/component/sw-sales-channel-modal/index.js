@@ -76,6 +76,12 @@ Component.register('sw-sales-channel-modal', {
             }
         },
 
+        openRoute(route) {
+            this.onCloseModal();
+
+            this.$router.push(route);
+        },
+
         isProductComparisonSalesChannelType(salesChannelTypeId) {
             return salesChannelTypeId === Defaults.productComparisonTypeId;
         },

@@ -140,7 +140,7 @@ describe('Custom Fields: Test crud operations', () => {
         cy.get('.sw-settings-set-detail__save-action').click();
         cy.get('.sw-loader').should('not.exist');
 
-        cy.get('.sw-context-button__button').click();
+        cy.get('.sw-grid__row--0 .sw-context-button__button').click();
         cy.get('.sw-context-menu-item:nth-of-type(1)').click();
 
         cy.get('#sw-field--currentCustomField-config-customFieldPosition')
@@ -190,7 +190,7 @@ describe('Custom Fields: Test crud operations', () => {
         cy.get('.sw-grid-row.sw-grid__row--0 a').click();
 
         // delete custom field
-        cy.get('.sw-context-button__button').click();
+        cy.get('.sw-grid__row--0 .sw-context-button__button').click();
         cy.get('.sw-context-menu-item:nth-of-type(2)').click();
 
         cy.get('.sw-modal').should('be.visible');
@@ -208,7 +208,7 @@ describe('Custom Fields: Test crud operations', () => {
         cy.visit(`${Cypress.env('admin')}#/sw/settings/custom/field/index`);
 
         // delete custom field set
-        cy.get('.sw-context-button__button').click();
+        cy.get('.sw-grid__row--0 .sw-context-button__button').click();
         cy.get('.sw-context-menu-item--danger').click();
 
         cy.get('.sw-modal').should('be.visible');

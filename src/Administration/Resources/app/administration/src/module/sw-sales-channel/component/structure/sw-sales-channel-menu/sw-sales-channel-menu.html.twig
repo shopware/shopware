@@ -15,11 +15,27 @@
         </div>
         {% endblock %}
 
+        {% block sw_sales_channel_menu_headline_context_button %}
+        <sw-context-button
+            class="sw-admin-menu__headline-context-menu"
+            icon="default-action-more-vertical"
+        >
+            {% block sw_sales_channel_menu_headline_context_button_item %}
+            <sw-context-menu-item
+                class="sw-admin-menu__headline-context-menu-manage-sales-channels"
+                :router-link="{ name: 'sw.sales.channel.list' }"
+            >
+                {{ $tc('sw-sales-channel.general.manageSalesChannels') }}
+            </sw-context-menu-item>
+            {% endblock %}
+        </sw-context-button>
+        {% endblock %}
+
         {% block sw_sales_channel_menu_headline_action %}
         <button
             v-if="canCreateSalesChannels"
             class="sw-admin-menu__headline-action"
-            @click="showModal=true"
+            @click="openSalesChannelModal"
         >
             <sw-icon
                 class="sw-admin-menu__headline-icon"
@@ -63,6 +79,15 @@
                     {% endblock %}
                 </template>
             </sw-admin-menu-item>
+            {% endblock %}
+
+            {% block sw_sales_channel_menu_navigation_more_items %}
+            <sw-admin-menu-item
+                v-if="moreSalesChannelAvailable"
+                :entry="moreItemsEntry"
+                class="sw-admin-menu__sales-channel-more-items"
+                icon-size="16px"
+            />
             {% endblock %}
         </ul>
         {% endblock %}

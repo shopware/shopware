@@ -18,6 +18,14 @@ Shopware.Component.register('sw-extension-my-extensions-index', {
                 this.updateRouteQueryTerm(newTerm);
             },
         },
+
+        queryParams() {
+            return {
+                term: this.searchValue || undefined,
+                limit: this.$route.query.limit,
+                page: 1,
+            };
+        },
     },
 
     methods: {

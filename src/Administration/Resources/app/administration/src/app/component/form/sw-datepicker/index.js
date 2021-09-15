@@ -84,6 +84,12 @@ Component.register('sw-datepicker', {
             default: false,
             required: false,
         },
+
+        disabled: {
+            type: Boolean,
+            default: false,
+            required: false,
+        },
     },
 
     data() {
@@ -232,6 +238,10 @@ Component.register('sw-datepicker', {
          */
         timezoneFormattedValue(newValue) {
             this.setDatepickerValue(newValue);
+        },
+
+        disabled(isDisabled) {
+            this.flatpickrInstance._input.disabled = isDisabled;
         },
     },
 

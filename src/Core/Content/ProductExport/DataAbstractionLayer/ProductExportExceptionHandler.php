@@ -23,13 +23,11 @@ class ProductExportExceptionHandler implements ExceptionHandlerInterface
         }
 
         if (preg_match('/SQLSTATE\[23000\]:.*1062 Duplicate.*file_name\'/', $e->getMessage())) {
-            $fileName = '';
-            if (!Feature::isActive('FEATURE_NEXT_16640')) {
-                $payload = $command->getPayload();
-                $fileName = $payload['file_name'] ?? '';
-            }
+            $file = [];
+            preg_match('/Duplicate entry \'(.*)\' for key/', $e->getMessage(), $file);
+            $file = substr($file[1], 0, strrpos($file[1], '-'));
 
-            return new DuplicateFileNameException($fileName, $e);
+            return new DuplicateFileNameException($file, $e);
         }
 
         return null;

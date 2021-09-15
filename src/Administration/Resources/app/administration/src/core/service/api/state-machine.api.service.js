@@ -11,8 +11,15 @@ class StateMachineApiService extends ApiService {
         this.name = 'stateMachineService';
     }
 
-    getState(entity, entityId, additionalParams = {}, additionalHeaders = {}) {
-        const route = `_action/state-machine/${entity}/${entityId}/state`;
+    /**
+     * @param {string} stateFieldName Specify a different field name to be considered by
+     *   the StateMachineActionController.
+     */
+    getState(entity, entityId, stateFieldName, additionalParams = {}, additionalHeaders = {}) {
+        let route = `_action/state-machine/${entity}/${entityId}/state`;
+        if (stateFieldName) {
+            route += `?stateFieldName=${stateFieldName}`;
+        }
 
         const headers = this.getBasicHeaders(additionalHeaders);
 
@@ -23,8 +30,15 @@ class StateMachineApiService extends ApiService {
             });
     }
 
-    transitionState(entity, entityId, actionName, additionalParams = {}, additionalHeaders = {}) {
-        const route = `_action/state-machine/${entity}/${entityId}/state/${actionName}`;
+    /**
+     * @param {string} stateFieldName Specify a different field name to be considered by
+     *   the StateMachineActionController.
+     */
+    transitionState(entity, entityId, actionName, stateFieldName, additionalParams = {}, additionalHeaders = {}) {
+        let route = `_action/state-machine/${entity}/${entityId}/state/${actionName}`;
+        if (stateFieldName) {
+            route += `?stateFieldName=${stateFieldName}`;
+        }
 
         const headers = this.getBasicHeaders(additionalHeaders);
 

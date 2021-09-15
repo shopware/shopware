@@ -12,14 +12,15 @@ class StateMachineApiService extends ApiService {
     }
 
     /**
-     * @param {string} stateFieldName Specify a different field name to be considered by
-     *   the StateMachineActionController.
+     * @param {string} stateFieldName (optional) Specify a different property of the base entity
+     *   that holds the state id (e.g. `stateId`)
      */
-    getState(entity, entityId, stateFieldName, additionalParams = {}, additionalHeaders = {}) {
-        let route = `_action/state-machine/${entity}/${entityId}/state`;
-        if (stateFieldName) {
-            route += `?stateFieldName=${stateFieldName}`;
-        }
+    getState(entity, entityId, stateFieldName, additionalParams = {}, additionalHeaders = {}, additionalQueryParams = {}) {
+        const query = ApiService.makeQueryParams({
+            stateFieldName,
+            ...additionalQueryParams
+        });
+        const route = `_action/state-machine/${entity}/${entityId}/state${query}`;
 
         const headers = this.getBasicHeaders(additionalHeaders);
 
@@ -31,14 +32,15 @@ class StateMachineApiService extends ApiService {
     }
 
     /**
-     * @param {string} stateFieldName Specify a different field name to be considered by
-     *   the StateMachineActionController.
+     * @param {string} stateFieldName (optional) Specify a different property of the base entity
+     *   that holds the state id (e.g. `stateId`)
      */
-    transitionState(entity, entityId, actionName, stateFieldName, additionalParams = {}, additionalHeaders = {}) {
-        let route = `_action/state-machine/${entity}/${entityId}/state/${actionName}`;
-        if (stateFieldName) {
-            route += `?stateFieldName=${stateFieldName}`;
-        }
+    transitionState(entity, entityId, actionName, stateFieldName, additionalParams = {}, additionalHeaders = {}, additionalQueryParams = {}) {
+        const query = ApiService.makeQueryParams({
+            stateFieldName,
+            ...additionalQueryParams
+        });
+        const route = `_action/state-machine/${entity}/${entityId}/state/${actionName}${query}`;
 
         const headers = this.getBasicHeaders(additionalHeaders);
 

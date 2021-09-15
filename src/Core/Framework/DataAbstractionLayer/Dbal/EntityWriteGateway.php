@@ -118,25 +118,24 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
      */
     public function execute(array $commands, WriteContext $context): void
     {
-        $executeCommandsInRetryableTransaction = function (?bool $enableBatch = null) use ($commands, $context): void {
-            RetryableTransaction::retryable(
-                $this->connection,
-                function () use ($commands, $context, $enableBatch): void {
-                    $this->executeCommands($commands, $context, $enableBatch);
-                }
-            );
-        };
-
         try {
             if (Feature::isActive('FEATURE_NEXT_16640')) {
-                $executeCommandsInRetryableTransaction();
+                //@internal (flag:FEATURE_NEXT_16640) keep the IF part. Remove complete else part
+                RetryableTransaction::retryable($this->connection, function () use ($commands, $context): void {
+                    $this->executeCommands($commands, $context, false);
+                });
             } else {
                 try {
-                    $executeCommandsInRetryableTransaction(true);
+                    RetryableTransaction::retryable($this->connection, function () use ($commands, $context): void {
+                        $this->executeCommands($commands, $context, true);
+                    });
                 } catch (\Throwable $e) {
                     // Let RetryableTransaction retry once with batch disabled
                     $context->resetExceptions();
-                    $executeCommandsInRetryableTransaction(false);
+
+                    RetryableTransaction::retryable($this->connection, function () use ($commands, $context): void {
+                        $this->executeCommands($commands, $context, false);
+                    });
                 }
             }
         } catch (\Throwable $e) {
@@ -147,7 +146,10 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         }
     }
 
-    private function executeCommands(array $commands, WriteContext $context, ?bool $enableBatch): void
+    /**
+     * @internal (flag:FEATURE_NEXT_16640) Remove enableBatch parameter. Keep true cases. Batch will always be active
+     */
+    private function executeCommands(array $commands, WriteContext $context, bool $enableBatch): void
     {
         // throws exception on violation and then aborts/rollbacks this transaction
         $event = new PreWriteValidationEvent($context, $commands);
@@ -161,6 +163,11 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
         $mappings = new MultiInsertQueryQueue($this->connection, $this->batchSize, false, true);
         $inserts = new MultiInsertQueryQueue($this->connection, $this->batchSize);
 
+        $executeInserts = function () use ($mappings, $inserts): void {
+            $mappings->execute();
+            $inserts->execute();
+        };
+
         try {
             foreach ($commands as $command) {
                 if (!$command->isValid()) {
@@ -170,8 +177,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                 $current = $command->getDefinition()->getEntityName();
 
                 if ($current !== $previous) {
-                    $mappings->execute();
-                    $inserts->execute();
+                    $executeInserts();
                 }
                 $previous = $current;
 
@@ -180,23 +186,17 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                     $table = $definition->getEntityName();
 
                     if ($command instanceof DeleteCommand) {
-                        $mappings->execute();
-                        $inserts->execute();
+                        $executeInserts();
 
                         RetryableQuery::retryable($this->connection, function () use ($command, $table): void {
-                            $this->connection->delete(
-                                EntityDefinitionQueryHelper::escape($table),
-                                $command->getPrimaryKey()
-                            );
+                            $this->connection->delete(EntityDefinitionQueryHelper::escape($table), $command->getPrimaryKey());
                         });
 
                         continue;
                     }
 
                     if ($command instanceof JsonUpdateCommand) {
-                        $mappings->execute();
-                        $inserts->execute();
-
+                        $executeInserts();
                         $this->executeJsonUpdate($command);
 
                         continue;
@@ -205,6 +205,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                     if ($definition instanceof MappingEntityDefinition && $command instanceof InsertCommand) {
                         $mappings->addInsert($definition->getEntityName(), $command->getPayload());
 
+                        // @internal (flag:FEATURE_NEXT_16640) Remove complete IF case and body
                         if (!$enableBatch) {
                             $mappings->execute();
                         }
@@ -213,8 +214,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                     }
 
                     if ($command instanceof UpdateCommand) {
-                        $mappings->execute();
-                        $inserts->execute();
+                        $executeInserts();
 
                         RetryableQuery::retryable($this->connection, function () use ($command, $table): void {
                             $this->connection->update(
@@ -230,6 +230,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                     if ($command instanceof InsertCommand) {
                         $inserts->addInsert($definition->getEntityName(), $command->getPayload());
 
+                        // @internal (flag:FEATURE_NEXT_16640) Remove complete IF case and body
                         if (!$enableBatch) {
                             $inserts->execute();
                         }
@@ -241,6 +242,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
                 } catch (\Exception $e) {
                     $command->setFailed(true);
 
+                    // @internal (flag:FEATURE_NEXT_16640) Keep IF part, remove ELSE part
                     if (Feature::isActive('FEATURE_NEXT_16640')) {
                         $innerException = $this->exceptionHandlerRegistry->matchException($e);
                     } else {
@@ -258,6 +260,7 @@ class EntityWriteGateway implements EntityWriteGatewayInterface
             $mappings->execute();
             $inserts->execute();
         } catch (Exception $e) {
+            // @internal (flag:FEATURE_NEXT_16640) Keep IF body
             if (Feature::isActive('FEATURE_NEXT_16640')) {
                 // Match exception without passing a specific command when feature-flag 16640 is active
                 $innerException = $this->exceptionHandlerRegistry->matchException($e);

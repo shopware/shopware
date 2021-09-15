@@ -6,7 +6,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\Exception\LanguageForeignKeyDeleteException;
 
 class LanguageExceptionHandler implements ExceptionHandlerInterface
@@ -31,13 +30,7 @@ class LanguageExceptionHandler implements ExceptionHandlerInterface
         }
 
         if (preg_match('/SQLSTATE\[23000\]:.*(1217|1216).*a foreign key constraint/', $e->getMessage())) {
-            $formattedKey = '';
-            if (!Feature::isActive('FEATURE_NEXT_16640')) {
-                $primaryKey = $command->getPrimaryKey();
-                $formattedKey = isset($primaryKey['id']) ? Uuid::fromBytesToHex($primaryKey['id']) : '';
-            }
-
-            return new LanguageForeignKeyDeleteException($formattedKey, $e);
+            return new LanguageForeignKeyDeleteException('', $e);
         }
 
         return null;

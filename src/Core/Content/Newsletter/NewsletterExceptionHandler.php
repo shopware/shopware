@@ -6,7 +6,6 @@ use Shopware\Core\Content\Newsletter\Exception\LanguageOfNewsletterDeleteExcepti
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageDefinition;
 
 class NewsletterExceptionHandler implements ExceptionHandlerInterface
@@ -29,13 +28,7 @@ class NewsletterExceptionHandler implements ExceptionHandlerInterface
         }
 
         if (preg_match('/SQLSTATE\[23000\]:.*1451.*a foreign key constraint.*newsletter_recipient.*CONSTRAINT `fk.newsletter_recipient.language_id`/', $e->getMessage())) {
-            $languageId = '';
-            if (!Feature::isActive('FEATURE_NEXT_16640')) {
-                $primaryKey = $command->getPrimaryKey();
-                $languageId = isset($primaryKey['id']) ? Uuid::fromBytesToHex($primaryKey['id']) : '';
-            }
-
-            return new LanguageOfNewsletterDeleteException($languageId, $e);
+            return new LanguageOfNewsletterDeleteException('', $e);
         }
 
         return null;

@@ -27,11 +27,9 @@ class ProductSortingExceptionHandler implements ExceptionHandlerInterface
         }
 
         if (preg_match('/SQLSTATE\[23000\]:.*1062 Duplicate.*uniq.product_sorting.url_key\'/', $e->getMessage())) {
-            $key = '';
-            if (!Feature::isActive('FEATURE_NEXT_16640')) {
-                $payload = $command->getPayload();
-                $key = $payload['url_key'] ?? '';
-            }
+            $key = [];
+            preg_match('/Duplicate entry \'(.*)\' for key/', $e->getMessage(), $key);
+            $key = $key[1];
 
             return new DuplicateProductSortingKeyException($key, $e);
         }

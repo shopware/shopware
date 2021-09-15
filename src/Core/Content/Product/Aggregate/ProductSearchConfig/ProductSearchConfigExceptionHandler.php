@@ -27,13 +27,7 @@ class ProductSearchConfigExceptionHandler implements ExceptionHandlerInterface
         }
 
         if (preg_match('/SQLSTATE\[23000\]:.*1062 Duplicate.*uniq.product_search_config.language_id\'/', $e->getMessage())) {
-            $languageId = '';
-            if (!Feature::isActive('FEATURE_NEXT_16640')) {
-                $payload = $command->getPayload();
-                $languageId = $payload['language_id'] ?? '';
-            }
-
-            return new DuplicateProductSearchConfigLanguageException($languageId, $e);
+            return new DuplicateProductSearchConfigLanguageException('', $e);
         }
 
         return null;

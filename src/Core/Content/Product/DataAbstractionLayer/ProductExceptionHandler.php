@@ -28,13 +28,12 @@ class ProductExceptionHandler implements ExceptionHandlerInterface
         }
 
         if (preg_match('/SQLSTATE\[23000\]:.*1062 Duplicate.*uniq.product.product_number__version_id\'/', $e->getMessage())) {
-            $productNumber = '';
-            if (!Feature::isActive('FEATURE_NEXT_16640')) {
-                $payload = $command->getPayload();
-                $productNumber = $payload['product_number'] ?? '';
-            }
+            $number = [];
+            preg_match('/Duplicate entry \'(.*)\' for key/', $e->getMessage(), $number);
 
-            return new DuplicateProductNumberException($productNumber, $e);
+            $number = substr($number[1], 0, strrpos($number[1], '-'));
+
+            return new DuplicateProductNumberException($number, $e);
         }
 
         return null;

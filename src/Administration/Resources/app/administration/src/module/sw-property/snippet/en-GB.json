@@ -7,7 +7,7 @@
     },
     "list": {
       "textProperties": "Properties",
-      "buttonAddProperty": "Add",
+      "buttonAddProperty": "Add property",
       "columnName": "Property",
       "columnOptions": "Property values",
       "columnFilterable": "Display in product filter",

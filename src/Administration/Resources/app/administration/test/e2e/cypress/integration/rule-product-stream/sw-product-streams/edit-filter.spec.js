@@ -166,19 +166,21 @@ describe('Dynamic product group: Test various filters', () => {
             }
         );
 
-        cy.get('body').click(0,0);
+        cy.get('body').click(0, 0);
         cy.get('.sw-select-result-list-popover-wrapper').should('not.exist');
 
         cy.get('@currentProductStreamFilter').within(() => {
             cy.get('.sw-select input').last().type('Manu');
 
-            cy.wait('@getData');
+            cy.wait('@getData').then(xhr => {
+                expect(xhr).to.have.property('status', 200);
+            });
 
             cy.get('.sw-select input').last().type('facturer');
 
-            cy.wait('@getData');
-
-            cy.wait(500);
+            cy.wait('@getData').then(xhr => {
+                expect(xhr).to.have.property('status', 200);
+            });
 
             const selectResultList = cy.window().then(() => {
                 return cy.wrap(Cypress.$('.sw-select-result-list-popover-wrapper'));
@@ -186,9 +188,11 @@ describe('Dynamic product group: Test various filters', () => {
 
             selectResultList.find('.sw-select-result').contains('Product Manufacturer').click({ force: true });
 
-            cy.wait('@getData');
+            cy.wait('@getData').then(xhr => {
+                expect(xhr).to.have.property('status', 200);
+            });
 
-            cy.get('.sw-select-selection-list').find('[data-id]').should('have.length', 2);
+            cy.get('.sw-select-selection-list').find('[data-id]', { timeout: 1000 }).should('have.length', 2);
         });
     });
 

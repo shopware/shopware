@@ -25,6 +25,16 @@ describe('Mail templates: Test acl privileges', () => {
             cy.visit(`${Cypress.env('admin')}#/sw/mail/template/index`);
         });
 
+        cy.route({
+            url: `${Cypress.env('apiPath')}/search/mail-template`,
+            method: 'POST'
+        }).as('loadMailTemplates');
+
+        cy.route({
+            url: `${Cypress.env('apiPath')}/search/mail-header-footer`,
+            method: 'POST'
+        }).as('loadMailHeaderFooter');
+
         // open email template
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
@@ -36,10 +46,14 @@ describe('Mail templates: Test acl privileges', () => {
 
         cy.get(page.elements.smartBarBack).click();
 
-        // wait for data loading
-        cy.wait(3000);
+        cy.wait(['@loadMailTemplates', '@loadMailHeaderFooter']).then(xhrs => {
+            xhrs.forEach(xhr => {
+                expect(xhr).to.have.property('status', 200);
+            });
+        });
 
-        // scroll to email header footer
+        // wait up to 3 seconds for template listing, because it will push put the mailheader/footer out of viewport
+        cy.get('#mailTemplateGrid.sw-mail-templates-list-grid .sw-data-grid__row', { timeout: 3000 }).should('be.visible');
         cy.get(page.elements.mailHeaderFooterGridList).scrollIntoView();
 
         cy.clickContextMenuItem(
@@ -76,6 +90,16 @@ describe('Mail templates: Test acl privileges', () => {
         }).as('saveMailTemplate');
 
         cy.route({
+            url: `${Cypress.env('apiPath')}/search/mail-template`,
+            method: 'POST'
+        }).as('loadMailTemplates');
+
+        cy.route({
+            url: `${Cypress.env('apiPath')}/search/mail-header-footer`,
+            method: 'POST'
+        }).as('loadMailHeaderFooter');
+
+        cy.route({
             url: `${Cypress.env('apiPath')}/mail-header-footer/*`,
             method: 'patch'
         }).as('saveMailHeaderFooter');
@@ -92,7 +116,12 @@ describe('Mail templates: Test acl privileges', () => {
         );
 
         // wait for data loading
-        cy.wait(3000);
+        cy.wait('@loadMailTemplates').then(xhr => {
+            expect(xhr).to.have.property('status', 200);
+        });
+
+        // wait up to 3 seconds for template listing, because it will push put the mailheader/footer out of viewport
+        cy.get('#mailTemplateTypes', { timeout: 3000 }).should('be.visible');
 
         // update fields
         cy.get('#sw-field--mailTemplate-description').clear().type('Default description');
@@ -113,6 +142,15 @@ describe('Mail templates: Test acl privileges', () => {
         cy.get(`${page.elements.mailTemplateGridList} ${page.elements.dataGridRow}--0 ${page.elements.mailTemplateColumnDescription}`)
             .contains('Default description');
 
+        cy.wait(['@loadMailTemplates', '@loadMailHeaderFooter']).then(xhrs => {
+            xhrs.forEach(xhr => {
+                expect(xhr).to.have.property('status', 200);
+            });
+        });
+
+        // wait up to 3 seconds for template listing, because it will push put the mailheader/footer out of viewport
+        cy.get('#mailTemplateGrid.sw-mail-templates-list-grid .sw-data-grid__row', { timeout: 3000 }).should('be.visible');
+
         // scroll to email header footer
         cy.get(page.elements.mailHeaderFooterGridList).scrollIntoView();
 
@@ -122,11 +160,8 @@ describe('Mail templates: Test acl privileges', () => {
             `${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--0`
         );
 
-        // wait for data loading
-        cy.wait(3000);
-
         // update fields
-        cy.get('#sw-field--mailHeaderFooter-description').clear().type('Edited description');
+        cy.get('#sw-field--mailHeaderFooter-description', { timeout: 3000 }).clear().type('Edited description');
 
         // do saving action
         cy.get(page.elements.mailHeaderFooterSaveAction).click();
@@ -248,6 +283,11 @@ describe('Mail templates: Test acl privileges', () => {
             method: 'delete'
         }).as('deleteMailHeaderFooter');
 
+        cy.route({
+            url: `${Cypress.env('apiPath')}/search/mail-template`,
+            method: 'POST'
+        }).as('loadMailTemplates');
+
         cy.clickContextMenuItem(
             '.sw-context-menu-item--danger',
             page.elements.contextMenuButton,
@@ -267,7 +307,12 @@ describe('Mail templates: Test acl privileges', () => {
         });
 
         // wait for data loading
-        cy.wait(3000);
+        cy.wait('@loadMailTemplates').then(xhr => {
+            expect(xhr).to.have.property('status', 200);
+        });
+
+        // wait up to 3 seconds for template listing, because it will push put the mailheader/footer out of viewport
+        cy.get('#mailTemplateGrid.sw-mail-templates-list-grid .sw-data-grid__row', { timeout: 3000 }).should('be.visible');
 
         // scroll to email header footer
         cy.get(page.elements.mailHeaderFooterGridList).scrollIntoView();
@@ -325,6 +370,16 @@ describe('Mail templates: Test acl privileges', () => {
             method: 'patch'
         }).as('saveMailHeaderFooter');
 
+        cy.route({
+            url: `${Cypress.env('apiPath')}/search/mail-template`,
+            method: 'POST'
+        }).as('loadMailTemplates');
+
+        cy.route({
+            url: `${Cypress.env('apiPath')}/search/mail-header-footer`,
+            method: 'POST'
+        }).as('loadMailHeaderFooter');
+
         // open email template
         cy.clickContextMenuItem(
             '.sw-mail-template-list-grid__duplicate-action',
@@ -333,7 +388,7 @@ describe('Mail templates: Test acl privileges', () => {
         );
 
         // wait for data loading
-        cy.wait(3000);
+        cy.get('#mailTemplateTypes', { timeout: 3000 }).should('be.visible');
 
         // update fields
         cy.get('#sw-field--mailTemplate-description').clear().type('Duplicated description');
@@ -351,7 +406,14 @@ describe('Mail templates: Test acl privileges', () => {
         // TODO: verify fields will do when NEXT-7072 search function is fixed
 
         // wait for data loading
-        cy.wait(3000);
+        cy.wait(['@loadMailTemplates', '@loadMailHeaderFooter']).then(xhrs => {
+            xhrs.forEach(xhr => {
+                expect(xhr).to.have.property('status', 200);
+            });
+        });
+
+        // wait up to 3 seconds for template listing, because it will push put the mailheader/footer out of viewport
+        cy.get('#mailTemplateGrid.sw-mail-templates-list-grid .sw-data-grid__row', { timeout: 3000 }).should('be.visible');
 
         // scroll to email header footer
         cy.get(page.elements.mailHeaderFooterGridList).scrollIntoView();
@@ -363,7 +425,7 @@ describe('Mail templates: Test acl privileges', () => {
         );
 
         // wait for data loading
-        cy.wait(3000);
+        cy.get('#sw-field--mailHeaderFooter-description', { timeout: 3000 }).should('be.visible');
 
         cy.get('#sw-field--mailHeaderFooter-description').clear().type('Duplicated description');
 

@@ -22,10 +22,6 @@ class ProductSortingExceptionHandler implements ExceptionHandlerInterface
         if ($e->getCode() !== 0) {
             return null;
         }
-        if (!Feature::isActive('FEATURE_NEXT_16640') && $command->getDefinition()->getEntityName() !== ProductSortingDefinition::ENTITY_NAME) {
-            return null;
-        }
-
         if (preg_match('/SQLSTATE\[23000\]:.*1062 Duplicate.*uniq.product_sorting.url_key\'/', $e->getMessage())) {
             $key = [];
             preg_match('/Duplicate entry \'(.*)\' for key/', $e->getMessage(), $key);

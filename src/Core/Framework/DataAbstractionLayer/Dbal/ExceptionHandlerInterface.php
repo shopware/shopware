@@ -17,5 +17,5 @@ interface ExceptionHandlerInterface
     /**
      * @internal (flag:FEATURE_NEXT_16640) - second parameter WriteCommand $command will be removed
      */
-    public function matchException(\Exception $e, ?WriteCommand $command = null): ?\Exception;
+    public function matchException(\Exception $e, WriteCommand $command): ?\Exception;
 }

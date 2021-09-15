@@ -6,7 +6,6 @@ use Shopware\Core\Checkout\Order\Exception\LanguageOfOrderDeleteException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\System\Language\LanguageDefinition;
 
 class OrderExceptionHandler implements ExceptionHandlerInterface
 {
@@ -23,10 +22,6 @@ class OrderExceptionHandler implements ExceptionHandlerInterface
         if ($e->getCode() !== 0) {
             return null;
         }
-        if (!Feature::isActive('FEATURE_NEXT_16640') && $command->getDefinition()->getEntityName() !== LanguageDefinition::ENTITY_NAME) {
-            return null;
-        }
-
         if (preg_match('/SQLSTATE\[23000\]:.*1451.*a foreign key constraint.*order.*CONSTRAINT `fk.language_id`/', $e->getMessage())) {
             return new LanguageOfOrderDeleteException('', $e);
         }

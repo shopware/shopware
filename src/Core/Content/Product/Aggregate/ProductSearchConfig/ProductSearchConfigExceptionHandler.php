@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductSearchConfig;
 use Shopware\Core\Content\Product\Exception\DuplicateProductSearchConfigLanguageException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
-use Shopware\Core\Framework\Feature;
 
 class ProductSearchConfigExceptionHandler implements ExceptionHandlerInterface
 {
@@ -22,10 +21,6 @@ class ProductSearchConfigExceptionHandler implements ExceptionHandlerInterface
         if ($e->getCode() !== 0) {
             return null;
         }
-        if (!Feature::isActive('FEATURE_NEXT_16640') && $command->getDefinition()->getEntityName() !== ProductSearchConfigDefinition::ENTITY_NAME) {
-            return null;
-        }
-
         if (preg_match('/SQLSTATE\[23000\]:.*1062 Duplicate.*uniq.product_search_config.language_id\'/', $e->getMessage())) {
             return new DuplicateProductSearchConfigLanguageException('', $e);
         }

@@ -101,7 +101,7 @@ class CartPersister implements CartPersisterInterface
             'rule_ids' => json_encode($context->getRuleIds()),
         ];
 
-        $query = new RetryableQuery($this->connection->prepare($sql));
+        $query = new RetryableQuery($this->connection, $this->connection->prepare($sql));
         $query->execute($data);
         $this->connection->commit();
 
@@ -111,6 +111,7 @@ class CartPersister implements CartPersisterInterface
     public function delete(string $token, SalesChannelContext $context): void
     {
         $query = new RetryableQuery(
+            $this->connection,
             $this->connection->prepare('DELETE FROM `cart` WHERE `token` = :token')
         );
         $query->execute(['token' => $token]);

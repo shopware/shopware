@@ -5,7 +5,6 @@ namespace Shopware\Core\System\SalesChannel;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\Feature;
-use Shopware\Core\System\Language\LanguageDefinition;
 use Shopware\Core\System\SalesChannel\Exception\LanguageOfSalesChannelDomainDeleteException;
 
 class SalesChannelExceptionHandler implements ExceptionHandlerInterface
@@ -21,9 +20,6 @@ class SalesChannelExceptionHandler implements ExceptionHandlerInterface
     public function matchException(\Exception $e, ?WriteCommand $command = null): ?\Exception
     {
         if ($e->getCode() !== 0) {
-            return null;
-        }
-        if (!Feature::isActive('FEATURE_NEXT_16640') && $command->getDefinition()->getEntityName() !== LanguageDefinition::ENTITY_NAME) {
             return null;
         }
 

@@ -3,7 +3,6 @@
 namespace Shopware\Core\Content\ProductExport\DataAbstractionLayer;
 
 use Shopware\Core\Content\ProductExport\Exception\DuplicateFileNameException;
-use Shopware\Core\Content\ProductExport\ProductExportDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\Feature;
@@ -18,14 +17,11 @@ class ProductExportExceptionHandler implements ExceptionHandlerInterface
         if ($e->getCode() !== 0) {
             return null;
         }
-        if (!Feature::isActive('FEATURE_NEXT_16640') && $command->getDefinition()->getEntityName() !== ProductExportDefinition::ENTITY_NAME) {
-            return null;
-        }
 
         if (preg_match('/SQLSTATE\[23000\]:.*1062 Duplicate.*file_name\'/', $e->getMessage())) {
             $file = [];
             preg_match('/Duplicate entry \'(.*)\' for key/', $e->getMessage(), $file);
-            $file = substr($file[1], 0, strrpos($file[1], '-'));
+            $file = $file[1];
 
             return new DuplicateFileNameException($file, $e);
         }

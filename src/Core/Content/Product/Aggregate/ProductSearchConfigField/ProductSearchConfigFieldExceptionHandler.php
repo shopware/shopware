@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Product\Aggregate\ProductSearchConfigField;
 use Shopware\Core\Content\Product\Exception\DuplicateProductSearchConfigFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
-use Shopware\Core\Framework\Feature;
 
 class ProductSearchConfigFieldExceptionHandler implements ExceptionHandlerInterface
 {
@@ -22,14 +21,10 @@ class ProductSearchConfigFieldExceptionHandler implements ExceptionHandlerInterf
         if ($e->getCode() !== 0) {
             return null;
         }
-        if (!Feature::isActive('FEATURE_NEXT_16640') && $command->getDefinition()->getEntityName() !== ProductSearchConfigFieldDefinition::ENTITY_NAME) {
-            return null;
-        }
-
         if (preg_match('/SQLSTATE\[23000\]:.*1062 Duplicate.*uniq.search_config_field.field__config_id\'/', $e->getMessage())) {
             $field = [];
             preg_match('/Duplicate entry \'(.*)\' for key/', $e->getMessage(), $field);
-            $field = substr($field[1], 0, strrpos($field[1], '-'));
+            $field = substr($field[1], 0, (int) strrpos($field[1], '-'));
 
             return new DuplicateProductSearchConfigFieldException($field, $e);
         }

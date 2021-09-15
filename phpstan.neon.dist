@@ -175,7 +175,24 @@ parameters:
         -
             message: '#Method Shopware\\Core\\Content\\Seo\\SeoUrlRoute\\SeoUrlRouteInterface::prepareCriteria\(\) invoked with 2 parameters, 1 required.#'
             path: src/Core/Content/Seo/SeoUrlGenerator.php
-
+        -
+            message: '#Constructor of class Shopware\\Core\\Checkout\\Customer\\Exception\\DuplicateWishlistProductException has an unused parameter \$productId\.#'
+            path: src/Core/Checkout/Customer/Exception/DuplicateWishlistProductException.php
+        -
+            message: '#Constructor of class Shopware\\Core\\Checkout\\Order\\Exception\\LanguageOfOrderDeleteException has an unused parameter \$language\.#'
+            path: src/Core/Checkout/Order/Exception/LanguageOfOrderDeleteException.php
+        -
+            message: '#Constructor of class Shopware\\Core\\Content\\Newsletter\\Exception\\LanguageOfNewsletterDeleteException has an unused parameter \$language\.#'
+            path: src/Core/Content/Newsletter/Exception/LanguageOfNewsletterDeleteException.php
+        -
+            message: '#Parameter \#3 \$length of function substr expects int, int<0, max>\|false given\.#'
+            path: src/Core/Content/Product/DataAbstractionLayer/ProductExceptionHandler.php
+        -
+            message: '#Constructor of class Shopware\\Core\\System\\Language\\Exception\\LanguageForeignKeyDeleteException has an unused parameter \$language\.#'
+            path: src/Core/System/Language/Exception/LanguageForeignKeyDeleteException.php
+        -
+            message: '#Constructor of class Shopware\\Core\\System\\SalesChannel\\Exception\\LanguageOfSalesChannelDomainDeleteException has an unused parameter \$language\.#'
+            path: src/Core/System/SalesChannel/Exception/LanguageOfSalesChannelDomainDeleteException.php
 services:
     -
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Decoratable\DecoratableImplementsInterfaceRule

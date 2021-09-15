@@ -3,10 +3,8 @@
 namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
 use Shopware\Core\Content\Product\Exception\DuplicateProductNumberException;
-use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
-use Shopware\Core\Framework\Feature;
 
 class ProductExceptionHandler implements ExceptionHandlerInterface
 {
@@ -23,14 +21,10 @@ class ProductExceptionHandler implements ExceptionHandlerInterface
         if ($e->getCode() !== 0) {
             return null;
         }
-        if (!Feature::isActive('FEATURE_NEXT_16640') && $command->getDefinition()->getEntityName() !== ProductDefinition::ENTITY_NAME) {
-            return null;
-        }
 
         if (preg_match('/SQLSTATE\[23000\]:.*1062 Duplicate.*uniq.product.product_number__version_id\'/', $e->getMessage())) {
             $number = [];
             preg_match('/Duplicate entry \'(.*)\' for key/', $e->getMessage(), $number);
-
             $number = substr($number[1], 0, strrpos($number[1], '-'));
 
             return new DuplicateProductNumberException($number, $e);

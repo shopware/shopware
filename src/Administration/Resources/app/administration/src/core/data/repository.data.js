@@ -113,12 +113,15 @@ export default class Repository {
      * @param {Object} context
      * @returns {Promise<Promise>}
      */
-    saveWithRest(entity, context) {
+    async saveWithRest(entity, context) {
         const { changes, deletionQueue } = this.changesetGenerator.generate(entity);
 
-        return this.errorResolver.resetApiErrors()
-            .then(() => this.sendDeletions(deletionQueue, context))
-            .then(() => this.sendChanges(entity, changes, context));
+        if (!this.options.keepApiErrors) {
+            await this.errorResolver.resetApiErrors();
+        }
+
+        await this.sendDeletions(deletionQueue, context);
+        return this.sendChanges(entity, changes, context);
     }
 
     /**
@@ -127,7 +130,7 @@ export default class Repository {
      * @param {Object} context
      * @returns {Promise<void>|Promise<T>}
      */
-    saveWithSync(entity, context) {
+    async saveWithSync(entity, context) {
         const { changes, deletionQueue } = this.changesetGenerator.generate(entity);
 
         if (entity.isNew()) {
@@ -156,24 +159,27 @@ export default class Repository {
             return Promise.resolve();
         }
 
-        return this.errorResolver.resetApiErrors().then(() => {
-            return this.httpClient
-                .post('_action/sync', operations, { headers, version: this.options.version })
-                .catch((errorResponse) => {
-                    const errors = [];
-                    const result = errorResponse?.response?.data?.errors ?? [];
+        if (!this.options.keepApiErrors) {
+            await this.errorResolver.resetApiErrors();
+        }
 
-                    result.forEach((error) => {
-                        if (error.source.pointer.startsWith('/write/')) {
-                            error.source.pointer = error.source.pointer.substring(6);
-                            errors.push(error);
-                        }
-                    });
 
-                    this.errorResolver.handleWriteErrors({ errors }, [{ entity, changes }]);
-                    throw errorResponse;
+        return this.httpClient
+            .post('_action/sync', operations, { headers, version: this.options.version })
+            .catch((errorResponse) => {
+                const errors = [];
+                const result = errorResponse?.response?.data?.errors ?? [];
+
+                result.forEach((error) => {
+                    if (error.source.pointer.startsWith('/write/')) {
+                        error.source.pointer = error.source.pointer.substring(6);
+                        errors.push(error);
+                    }
                 });
-        });
+
+                this.errorResolver.handleWriteErrors({ errors }, [{ entity, changes }]);
+                throw errorResponse;
+            });
     }
 
     /**
@@ -235,12 +241,15 @@ export default class Repository {
      * @param {Boolean} failOnError
      * @returns {Promise<any[]>}
      */
-    sync(entities, context = Shopware.Context.api, failOnError = true) {
+    async sync(entities, context = Shopware.Context.api, failOnError = true) {
         const { changeset, deletions } = this.getSyncChangeset(entities);
 
-        return this.errorResolver.resetApiErrors()
-            .then(() => this.sendDeletions(deletions, context))
-            .then(() => this.sendUpserts(changeset, failOnError, context));
+        if (!this.options.keepApiErrors) {
+            await this.errorResolver.resetApiErrors();
+        }
+
+        await this.sendDeletions(deletions, context);
+        return this.sendUpserts(changeset, failOnError, context);
     }
 
     /**

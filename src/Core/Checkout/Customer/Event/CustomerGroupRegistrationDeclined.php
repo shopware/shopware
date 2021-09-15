@@ -7,14 +7,16 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\MailActionInterface;
+use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class CustomerGroupRegistrationDeclined extends Event implements MailActionInterface, SalesChannelAware
+class CustomerGroupRegistrationDeclined extends Event implements MailActionInterface, SalesChannelAware, CustomerAware, MailAware
 {
     public const EVENT_NAME = 'customer.group.registration.declined';
 
@@ -89,5 +91,13 @@ class CustomerGroupRegistrationDeclined extends Event implements MailActionInter
     public function getCustomerGroup(): CustomerGroupEntity
     {
         return $this->customerGroup;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_8225)
+     */
+    public function getCustomerId(): string
+    {
+        return $this->getCustomer()->getId();
     }
 }

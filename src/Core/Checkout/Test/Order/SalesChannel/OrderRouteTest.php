@@ -41,6 +41,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -99,7 +100,7 @@ class OrderRouteTest extends TestCase
 
     private string $deepLinkCode;
 
-    private EntityRepositoryInterface $customerRepository;
+    private ?EntityRepositoryInterface $customerRepository;
 
     protected function setUp(): void
     {
@@ -395,6 +396,8 @@ class OrderRouteTest extends TestCase
 
     public function testSetAnotherPaymentMethodToOrder(): void
     {
+        Feature::skipTestIfActive('FEATURE_NEXT_8225', $this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_8225', $this);
         if (!$this->getContainer()->has(AccountOrderController::class)) {
             // ToDo: NEXT-16882 - Reactivate tests again
             static::markTestSkipped('Order mail tests should be fixed without storefront in NEXT-16882');
@@ -442,6 +445,7 @@ class OrderRouteTest extends TestCase
 
     public function testUpdatedRulesOnPaymentMethodChange(): void
     {
+        Feature::skipTestIfActive('FEATURE_NEXT_8225', $this);
         if (!$this->getContainer()->has(AccountOrderController::class)) {
             // ToDo: NEXT-16882 - Reactivate tests again
             static::markTestSkipped('Order mail tests should be fixed without storefront in NEXT-16882');

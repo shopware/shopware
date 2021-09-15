@@ -36,8 +36,10 @@ describe('Event actions: Visual testing', () => {
         cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.takeSnapshot('[Event action] Listing', '.sw-event-action-list__grid');
 
-        cy.contains('.sw-data-grid__row--0 a', 'Guest account registered with double opt-in').click();
-        cy.get('.sw-loader').should('not.exist');
-        cy.takeSnapshot('[Event action] Detail', '.sw-event-action-detail');
+        cy.skipOnFeature('FEATURE_NEXT_8225', () => {
+            cy.contains('.sw-data-grid__row--0 a', 'Guest account registered with double opt-in').click();
+            cy.get('.sw-loader').should('not.exist');
+            cy.takeSnapshot('[Event action] Detail', '.sw-event-action-detail');
+        });
     });
 });

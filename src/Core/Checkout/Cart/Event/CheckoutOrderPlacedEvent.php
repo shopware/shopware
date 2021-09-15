@@ -9,32 +9,22 @@ use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\MailActionInterface;
+use Shopware\Core\Framework\Event\MailAware;
+use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class CheckoutOrderPlacedEvent extends Event implements MailActionInterface, SalesChannelAware
+class CheckoutOrderPlacedEvent extends Event implements MailActionInterface, SalesChannelAware, OrderAware, MailAware
 {
     public const EVENT_NAME = 'checkout.order.placed';
 
-    /**
-     * @var OrderEntity
-     */
-    private $order;
+    private OrderEntity $order;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
-    /**
-     * @var MailRecipientStruct|null
-     */
-    private $mailRecipientStruct;
+    private ?MailRecipientStruct $mailRecipientStruct = null;
 
-    /**
-     * @var string
-     */
-    private $salesChannelId;
+    private string $salesChannelId;
 
     public function __construct(Context $context, OrderEntity $order, string $salesChannelId, ?MailRecipientStruct $mailRecipientStruct = null)
     {
@@ -52,6 +42,14 @@ class CheckoutOrderPlacedEvent extends Event implements MailActionInterface, Sal
     public function getOrder(): OrderEntity
     {
         return $this->order;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_8225)
+     */
+    public function getOrderId(): string
+    {
+        return $this->order->getId();
     }
 
     public static function getAvailableData(): EventDataCollection

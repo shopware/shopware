@@ -5,16 +5,18 @@ namespace Shopware\Core\Checkout\Customer\Event;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\MailActionInterface;
+use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class CustomerRegisterEvent extends Event implements MailActionInterface, SalesChannelAware, ShopwareSalesChannelEvent
+class CustomerRegisterEvent extends Event implements MailActionInterface, SalesChannelAware, ShopwareSalesChannelEvent, CustomerAware, MailAware
 {
     public const EVENT_NAME = 'checkout.customer.register';
 
@@ -79,5 +81,13 @@ class CustomerRegisterEvent extends Event implements MailActionInterface, SalesC
     public function getSalesChannelId(): string
     {
         return $this->salesChannelContext->getSalesChannel()->getId();
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_8225)
+     */
+    public function getCustomerId(): string
+    {
+        return $this->getCustomer()->getId();
     }
 }

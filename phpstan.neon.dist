@@ -136,6 +136,17 @@ parameters:
         -
             message: '#Parameter \#2 \$success of class Shopware\\Core\\Framework\\Api\\Sync\\SyncResult constructor expects bool, array given\.#'
             path: src/Core/Framework/Api/Sync/SyncService.php
+        # This will be removed after removing flag FEATURE_NEXT_8225
+        -
+            message: '#Service \"Shopware\\Core\\Content\\Flow\\Dispatching\\FlowExecutor\" is not registered in the container\.#'
+            path: src/Core/Content/Flow/Dispatching/FlowDispatcher.php
+        -
+            message: '#Service \"Shopware\\Core\\Content\\Flow\\Dispatching\\FlowLoader\" is not registered in the container\.#'
+            path: src/Core/Content/Flow/Dispatching/FlowDispatcher.php
+        # EventDispatcherInterface::dispatch() should be return object
+        -
+            message: '#Method Shopware\\Core\\Content\\Flow\\Dispatching\\FlowDispatcher::dispatch\(\) should return TEvent of object but returns \(Shopware\\Core\\Framework\\Event\\BusinessEvent&Shopware\\Core\\Framework\\Event\\FlowEventAware\&TEvent of object\)\|\(Shopware\\Core\\Framework\\Event\\FlowEvent&Shopware\\Core\\Framework\\Event\\FlowEventAware\&TEvent of object\)\.#'
+            path: src/Core/Content/Flow/Dispatching/FlowDispatcher.php
         # can be removed with feature flag FEATURE_NEXT_12455
         -
             message: '#Command \"import:entity\" does not define option \"rollbackOnError\".#'
@@ -148,6 +159,18 @@ parameters:
         -
             message: '#Command \"import:entity\" does not define option \"printErrors\".#'
             path: src/Core/Content/ImportExport/Command/ImportEntityCommand.php
+        # Ignore these error because the payload property in FlowEntity have 3 specific types
+        -
+            message: '#Method Shopware\\Core\\Content\\Flow\\FlowEntity::getPayload\(\) has no return typehint specified\.#'
+            path: src/Core/Content/Flow/FlowEntity.php
+        -
+            message: '#Method Shopware\\Core\\Content\\Flow\\FlowEntity::setPayload\(\) has parameter \$payload with no typehint specified\.#'
+            path: src/Core/Content/Flow/FlowEntity.php
+
+        # can be removed with feature flag FEATURE_NEXT_8225
+        -
+            message: '#Command \"framework:demodata\" does not define option \"flows\".#'
+            path: src/Core/Framework/Demodata/Command/DemodataCommand.php
 
         -
             message: '#Method Shopware\\Core\\Content\\Seo\\SeoUrlRoute\\SeoUrlRouteInterface::prepareCriteria\(\) invoked with 2 parameters, 1 required.#'

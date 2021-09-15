@@ -9,6 +9,7 @@ use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -33,6 +34,7 @@ class ContactFormRouteTest extends TestCase
 
     protected function setUp(): void
     {
+        Feature::skipTestIfActive('FEATURE_NEXT_8225', $this);
         $this->ids = new TestDataCollection(Context::createDefaultContext());
 
         $this->browser = $this->createCustomSalesChannelBrowser([

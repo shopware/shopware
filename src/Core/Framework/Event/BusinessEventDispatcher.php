@@ -14,6 +14,9 @@ use Shopware\Core\Framework\Event\EventAction\EventActionDefinition;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @feature-deprecated (flag:FEATURE_NEXT_8225) tag:v6.5.0 - Will be removed in v6.5.0, use FlowDispatcher instead.
+ */
 class BusinessEventDispatcher implements EventDispatcherInterface
 {
     /**
@@ -45,7 +48,7 @@ class BusinessEventDispatcher implements EventDispatcherInterface
     {
         $event = $this->dispatcher->dispatch($event, $eventName);
 
-        if (!$event instanceof BusinessEventInterface) {
+        if (!$event instanceof BusinessEventInterface || $event instanceof FlowEvent) {
             return $event;
         }
 

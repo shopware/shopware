@@ -18,12 +18,17 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaI
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\BusinessEvent;
 use Shopware\Core\Framework\Event\MailActionInterface;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Contracts\EventDispatcher\Event;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @feature-deprecated (flag:FEATURE_NEXT_8225) tag:v6.5.0.0 - Will be removed in v6.5.0.0 Use SendMailAction instead
+ */
 class MailSendSubscriber implements EventSubscriberInterface
 {
     public const ACTION_NAME = MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION;
@@ -89,8 +94,12 @@ class MailSendSubscriber implements EventSubscriberInterface
      * @throws SalesChannelNotFoundException
      * @throws InconsistentCriteriaIdsException
      */
-    public function sendMail(BusinessEvent $event): void
+    public function sendMail(Event $event): void
     {
+        if (Feature::isActive('FEATURE_NEXT_8225') || !$event instanceof BusinessEvent) {
+            return;
+        }
+
         $mailEvent = $event->getEvent();
 
         $extension = $event->getContext()->getExtension(self::MAIL_CONFIG_EXTENSION);

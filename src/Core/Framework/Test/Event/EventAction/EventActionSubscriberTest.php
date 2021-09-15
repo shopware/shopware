@@ -5,15 +5,21 @@ namespace Shopware\Core\Framework\Test\Event\EventAction;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
+/**
+ * @feature-deprecated (flag:FEATURE_NEXT_8225) tag:v6.5.0 - Will be removed in v6.5.0.
+ */
 class EventActionSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
     public function testDeleteCascade(): void
     {
+        static::markTestSkipped('The data has been moved from Business events to Flow builder');
+
         $sql = '
             SELECT LOWER(HEX(id)) as id, JSON_UNQUOTE(JSON_EXTRACT(event_action.config, "$.mail_template_id")) as mail_id
             FROM event_action

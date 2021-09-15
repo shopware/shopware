@@ -5,16 +5,18 @@ namespace Shopware\Core\Checkout\Customer\Event;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\MailActionInterface;
+use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class DoubleOptInGuestOrderEvent extends Event implements MailActionInterface, SalesChannelAware
+class DoubleOptInGuestOrderEvent extends Event implements MailActionInterface, SalesChannelAware, CustomerAware, MailAware
 {
     public const EVENT_NAME = 'checkout.customer.double_opt_in_guest_order';
 
@@ -89,5 +91,13 @@ class DoubleOptInGuestOrderEvent extends Event implements MailActionInterface, S
     public function getContext(): Context
     {
         return $this->salesChannelContext->getContext();
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_8225)
+     */
+    public function getCustomerId(): string
+    {
+        return $this->getCustomer()->getId();
     }
 }

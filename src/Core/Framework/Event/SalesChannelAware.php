@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Event;
 
-interface SalesChannelAware
+interface SalesChannelAware extends FlowEventAware
 {
     public function getSalesChannelId(): string;
 }

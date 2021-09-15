@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Test\ContactForm;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContactForm\SalesChannel\ContactFormRoute;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -30,6 +31,7 @@ class ContactFormServiceTest extends TestCase
 
     public function testContactFormSendMail(): void
     {
+        Feature::skipTestIfActive('FEATURE_NEXT_8225', $this);
         /** @var AbstractSalesChannelContextFactory $salesChannelContextFactory */
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
@@ -215,6 +217,7 @@ class ContactFormServiceTest extends TestCase
 
     public function testContactFormOptionalFieldsSendMail(): void
     {
+        Feature::skipTestIfInActive('FEATURE_NEXT_8225', $this);
         /** @var AbstractSalesChannelContextFactory $salesChannelContextFactory */
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);

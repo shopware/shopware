@@ -4,12 +4,11 @@ namespace Shopware\Core\Checkout\Customer\Event;
 
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class CustomerConfirmRegisterUrlEvent extends Event implements SalesChannelAware, ShopwareSalesChannelEvent
+class CustomerConfirmRegisterUrlEvent extends Event implements ShopwareSalesChannelEvent
 {
     private string $confirmUrl;
 

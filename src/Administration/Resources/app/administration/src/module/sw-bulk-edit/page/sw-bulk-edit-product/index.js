@@ -63,6 +63,9 @@ Component.register('sw-bulk-edit-product', {
             return this.repositoryFactory.create('product');
         },
 
+        hasSelectedChanges() {
+            return Object.values(this.bulkEditProduct).some(field => field.isChanged) || this.bulkEditSelected.length > 0;
+        },
         customFieldSetCriteria() {
             const criteria = new Criteria(1, 100);
 
@@ -567,8 +570,6 @@ Component.register('sw-bulk-edit-product', {
                     this.defineBulkEditData(bulkEditForm.name);
                 });
             });
-
-            this.defineBulkEditData('customFields', {});
         },
 
         loadCustomFieldSets() {
@@ -631,12 +632,24 @@ Component.register('sw-bulk-edit-product', {
             }
         },
 
-        onCustomFieldsChange(status) {
-            this.bulkEditProduct.customFields.isChanged = status;
+        onCustomFieldsChange(value) {
+            if (Object.keys(value).length <= 0) {
+                this.bulkEditSelected = this.bulkEditSelected.filter(change => change.field !== 'customFields');
+                return;
+            }
+
+            const change = {
+                field: 'customFields',
+                type: 'overwrite',
+                value: value,
+            };
+
+            this.bulkEditSelected.push(change);
         },
 
         onProcessData() {
             let hasListPrice = false;
+
             Object.keys(this.bulkEditProduct).forEach(key => {
                 const bulkEditField = this.bulkEditProduct[key];
                 if (!bulkEditField.isChanged) {
@@ -655,8 +668,6 @@ Component.register('sw-bulk-edit-product', {
                     bulkEditField.type === 'clear') {
                     bulkEditValue = null;
                     bulkEditField.type = 'overwrite';
-                } else if (key === 'customFields') {
-                    bulkEditValue = bulkEditField.value;
                 } else if (key === 'searchKeywords') {
                     key = 'customSearchKeywords';
                 }

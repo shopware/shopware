@@ -148,7 +148,8 @@
                 "fileValueLabel": "CSV-Name",
                 "entityLabel": "Datenbank-Eintrag",
                 "isRequired": "Erforderlich",
-                "defaultValue": "Standard-Wert"
+                "defaultValue": "Standard-Wert",
+                "notMapped": "Nicht zugeordnet"
             },
             "typeColumn": "Typ",
             "nameColumn": "Name",

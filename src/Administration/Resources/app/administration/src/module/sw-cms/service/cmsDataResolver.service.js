@@ -18,38 +18,49 @@ const slots = {};
 
 function resolve(page) {
     const loadedData = [];
-
-    contextService = Shopware.Context.api;
-    repoFactory = Shopware.Service('repositoryFactory');
-    cmsService = Shopware.Service('cmsService');
-    cmsElements = cmsService.getCmsElementRegistry();
-
     const slotEntityList = {};
-    page.sections.forEach((section) => {
-        section.blocks.forEach((block) => {
-            block.slots.forEach((slot) => {
-                slots[slot.id] = slot;
-                initSlotConfig(slot);
-                initSlotDefaultData(slot);
 
-                const slotData = cmsElements[slot.type].collect(slot);
-                if (Object.keys(slotData).length > 0) {
-                    slotEntityList[slot.id] = slotData;
-                }
+    try {
+        contextService = Shopware.Context.api;
+        repoFactory = Shopware.Service('repositoryFactory');
+        cmsService = Shopware.Service('cmsService');
+        cmsElements = cmsService.getCmsElementRegistry();
+
+        page.sections.forEach((section) => {
+            section.blocks.forEach((block) => {
+                block.slots.forEach((slot) => {
+                    slots[slot.id] = slot;
+                    initSlotConfig(slot);
+                    initSlotDefaultData(slot);
+                    const cmsElement = cmsElements[slot.type];
+
+
+                    if (!cmsElement) {
+                        warn(`Missing registration for slot type ${slot.type}.
+                        Slot ${slot.id} Block ${block.name} (${block.id}) Section ${section.name} (${section.id})`);
+                        return;
+                    }
+
+                    const slotData = cmsElement.collect(slot);
+                    if (Object.keys(slotData).length > 0) {
+                        slotEntityList[slot.id] = slotData;
+                    }
+                });
             });
         });
-    });
 
-    const { directReads, searches } = optimizeCriteriaObjects(slotEntityList);
+        const { directReads, searches } = optimizeCriteriaObjects(slotEntityList);
 
-    loadedData.push(
-        fetchByIdentifier(directReads),
-    );
+        loadedData.push(
+            fetchByIdentifier(directReads),
+        );
 
-    loadedData.push(
-        fetchByCriteria(searches),
-    );
-
+        loadedData.push(
+            fetchByCriteria(searches),
+        );
+    } catch (e) {
+        return Promise.resolve(e);
+    }
 
     return Promise.all(loadedData).then(([readResults, searchResults]) => {
         Object.entries(slotEntityList).forEach(([slotId, slotEntityData]) => {
@@ -64,7 +75,11 @@ function resolve(page) {
                 }
             });
 
-            cmsElements[slot.type].enrich(slot, slotEntities);
+            const cmsElement = cmsElements[slot.type];
+
+            if (cmsElement) {
+                cmsElement.enrich(slot, slotEntities);
+            }
         });
 
         return true;

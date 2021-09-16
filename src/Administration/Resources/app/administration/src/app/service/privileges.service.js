@@ -14,6 +14,7 @@ export default class PrivilegesService {
         'language:read', // for entityInit and languageSwitch
         'locale:read', // for localeToLanguage service
         'message_queue_stats:read', // for message queue
+        'log_entry:create', // for sw-error-boundary
     ];
 
     /**

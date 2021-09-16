@@ -846,9 +846,9 @@
       "Reduced rate 2": "Stark ermäßigter Satz"
     },
     "sw-bulk-edit-modal": {
-      "bulkEdit": "Mehrfach-Bearbeitung",
-      "startBulkEdit": "Beginne die Mehrfach-Bearbeitung",
-      "bulkEditModalTitle": "Mehrfach-Bearbeitung - {count} Element ausgewählt | Mehrfach-Bearbeitung - {count} Elemente ausgewählt"
+      "bulkEdit": "Mehrfachänderung",
+      "startBulkEdit": "Beginne die Mehrfachänderung",
+      "bulkEditModalTitle": "Mehrfachänderung - {count} Element ausgewählt | Mehrfachänderung - {count} Elemente ausgewählt"
     }
   },
   "sw-text-editor-toolbar": {

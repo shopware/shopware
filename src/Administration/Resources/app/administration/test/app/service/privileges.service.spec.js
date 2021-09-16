@@ -533,6 +533,7 @@ describe('src/app/service/acl.service.js', () => {
         expect(allPrivilegesWithDependencies).toStrictEqual([
             'language:read',
             'locale:read',
+            'log_entry:create',
             'message_queue_stats:read',
             'rule.editor',
             'rule.viewer',
@@ -617,6 +618,7 @@ describe('src/app/service/acl.service.js', () => {
             'rule:update',
             'language:read',
             'locale:read',
+            'log_entry:create',
             'message_queue_stats:read'
         ].sort());
     });
@@ -732,6 +734,7 @@ describe('src/app/service/acl.service.js', () => {
             'rule:update',
             'language:read',
             'locale:read',
+            'log_entry:create',
             'message_queue_stats:read'
         ].sort());
     });
@@ -784,6 +787,7 @@ describe('src/app/service/acl.service.js', () => {
         expect(allPrivilegesWithDependencies).toStrictEqual([
             'language:read',
             'locale:read',
+            'log_entry:create',
             'message_queue_stats:read',
             'product.editor',
             'product.viewer',
@@ -799,6 +803,7 @@ describe('src/app/service/acl.service.js', () => {
         expect(allPrivilegesWithDependencies).toStrictEqual([
             'language:read',
             'locale:read',
+            'log_entry:create',
             'message_queue_stats:read',
             'plugin:update',
             'plugin:read',

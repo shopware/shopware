@@ -11,6 +11,7 @@ Component.register('sw-bulk-edit-product', {
     template,
 
     inject: [
+        'feature',
         'bulkEditApiFactory',
         'repositoryFactory',
     ],
@@ -185,7 +186,7 @@ Component.register('sw-bulk-edit-product', {
             return [{
                 name: 'properties',
                 config: {
-                    componentName: 'sw-product-detail-properties',
+                    componentName: 'sw-product-properties',
                     allowOverwrite: true,
                     allowClear: true,
                     allowAdd: true,
@@ -327,8 +328,8 @@ Component.register('sw-bulk-edit-product', {
                     value: this.product.searchKeywords,
                     allowOverwrite: true,
                     allowClear: true,
-                    allowAdd: true,
-                    allowRemove: true,
+                    allowAdd: false,
+                    allowRemove: false,
                     changeLabel: this.$tc('sw-bulk-edit.product.assignment.searchKeywords.changeLabel'),
                     placeholder: this.$tc('sw-bulk-edit.product.assignment.searchKeywords.placeholder'),
                 },

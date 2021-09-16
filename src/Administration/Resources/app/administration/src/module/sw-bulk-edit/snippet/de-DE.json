@@ -1,8 +1,8 @@
 {
   "sw-bulk-edit": {
     "general": {
-      "mainMenuTitle": "Mehrfach-Bearbeitung",
-      "descriptionTextModule": "Modul zur Mehrfach-Bearbeitung von Daten",
+      "mainMenuTitle": "Mehrfachänderung",
+      "descriptionTextModule": "Modul zur Mehrfachänderung von Daten",
       "defaultChangeLabel": "Ändern:"
     },
     "changeTypes": {
@@ -12,8 +12,8 @@
       "remove": "Entfernen"
     },
     "product": {
-      "textTitle": "Mehrfach-Bearbeitung: {productTotal} Produkte",
-      "messageEmptyTitle": "Keine Produkte für die Mehrfachbearbeitung ausgewählt",
+      "textTitle": "Mehrfachänderung: {productTotal} Produkte",
+      "messageEmptyTitle": "Keine Produkte für die Mehrfachänderung ausgewählt",
       "messageEmptySubline": "Gehe zurück und wähle Produkte aus.",
       "generalInformation": {
         "cardTitle": "Allgemeine Informationen",
@@ -184,14 +184,14 @@
     },
     "modal": {
       "confirm": {
-        "title": "Mehrfachbearbeitung - Änderungen anwenden?",
+        "title": "Mehrfachänderung - Änderungen anwenden?",
         "description": "Bist Du sicher, dass Du die Änderungen auf {itemCount} ausgewählte Entität anwenden möchtest? Die Änderungen können nicht rückgängig gemacht werden. | Bist Du sicher, dass Du die Änderungen auf die {itemCount} ausgewählten Entitäten anwenden möchtest? Die Änderungen können nicht rückgängig gemacht werden.",
         "buttons": {
           "applyChanges": "Änderungen anwenden"
         }
       },
       "process": {
-        "title": "Mehrfachbearbeitung - Prozess gestartet",
+        "title": "Mehrfachänderung - Prozess gestartet",
         "description": "Abhängig von der Anzahl ausgewählter Entitäten und den jeweiligen Änderungen, kann dieser Vorgang einige Zeit in Anspruch nehmen.",
         "helpText": "Bitte beachte, dass Du während des Mehrfachbearbeitungsvorgangs keine manuellen Änderungen an den Entitäten vornimmst, da dies unvorhergesehene Effekte haben kann.",
         "buttons": {
@@ -199,20 +199,20 @@
         }
       },
       "success": {
-        "title": "Mehrfachbearbeitung - Abgeschlossen",
-        "description": "Die Mehrfachbearbeitung der ausgewählten Entitäten ist abgeschlossen."
+        "title": "Mehrfachänderung - Abgeschlossen",
+        "description": "Die Mehrfachänderung der ausgewählten Entitäten ist abgeschlossen."
       },
       "error": {
-        "title": "Mehrfachbearbeitung - Fehler",
-        "description": "Die Mehrfachbearbeitung der ausgewählten Entitäten ist abgeschlossen, aber es sind Fehler aufgetreten. Details hierzu findest Du in der Log-Datei.",
+        "title": "Mehrfachänderung - Fehler",
+        "description": "Die Mehrfachänderung der ausgewählten Entitäten ist abgeschlossen, aber es sind Fehler aufgetreten.",
         "buttons": {
           "openLog": "Log-Datei öffnen"
         }
       },
-      "warningText": "Wenn Du die Mehrfachbearbeitung abbrichts oder während des Prozesses den Browser-Tab schließt, werden die Änderungen u.U. nicht vollständig umgesetzt und es kann zu irreversiblen und ungewünschten Datenzuständen kommen."
+      "warningText": "Wenn Du die Mehrfachänderung abbrichts oder während des Prozesses den Browser-Tab schließt, werden die Änderungen u.U. nicht vollständig umgesetzt und es kann zu irreversiblen und ungewünschten Datenzuständen kommen."
     },
     "order": {
-      "textTitle": "Mehrfachbearbeitung: {orderTotal} Bestellungen",
+      "textTitle": "Mehrfachänderung: {orderTotal} Bestellungen",
       "messageEmptyTitle": "Keine Bestellungen ausgewählt",
       "messageEmptySubline": "Bitte gehe zurück und wähle Bestellungen aus.",
       "status": {

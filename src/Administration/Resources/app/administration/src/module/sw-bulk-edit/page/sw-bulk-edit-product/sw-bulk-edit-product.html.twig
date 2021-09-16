@@ -57,6 +57,7 @@
 
             {% block sw_bulk_edit_product_content_prices_card %}
             <sw-card
+                v-if="feature.isActive('FEATURE_NEXT_17261')"
                 class="sw-bulk-edit-product-base__prices"
                 :title="$tc('sw-bulk-edit.product.prices.cardTitle')"
             >
@@ -73,6 +74,7 @@
 
             {% block sw_bulk_edit_product_content_advanced_prices_card %}
             <sw-card
+                v-if="feature.isActive('FEATURE_NEXT_17261')"
                 class="sw-bulk-edit-product-base__advanced-prices"
                 :title="$tc('sw-bulk-edit.product.advancedPrices.cardTitle')"
             >

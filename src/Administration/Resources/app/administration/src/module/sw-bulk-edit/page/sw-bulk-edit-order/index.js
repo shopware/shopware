@@ -212,9 +212,8 @@ Component.register('sw-bulk-edit-order', {
             });
 
             this.$set(this.bulkEditData, 'customFields', {
-                isChanged: false,
                 type: 'overwrite',
-                value: {},
+                value: null,
             });
 
             this.$set(this.bulkEditData, 'statusMails', {
@@ -334,7 +333,7 @@ Component.register('sw-bulk-edit-order', {
                 const item = this.bulkEditData[key];
                 const dataPush = ['orderTransactions', 'orderDeliveries', 'orders'];
 
-                if (item.isChanged) {
+                if (item.isChanged || (key === 'customFields' && item.value)) {
                     const payload = {
                         field: key,
                         type: item.type,
@@ -397,8 +396,8 @@ Component.register('sw-bulk-edit-order', {
             });
         },
 
-        onCustomFieldsChange(status) {
-            this.bulkEditData.customFields.isChanged = status;
+        onCustomFieldsChange(value) {
+            this.bulkEditData.customFields.value = value;
         },
     },
 });

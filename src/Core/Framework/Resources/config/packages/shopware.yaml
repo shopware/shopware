@@ -358,7 +358,11 @@ shopware:
               major: true
               description: "Change ExceptionHandlerInterface by removing Command $command argument"
               # issue: NEXT-16640
-
+            - name: FEATURE_NEXT_17261
+              default: false
+              major: false
+              description: "Bulk Edit for Customers and Documents"
+              # issue: NEXT-17261
 
     logger:
         file_rotation_count: 14

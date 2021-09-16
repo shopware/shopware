@@ -126,12 +126,12 @@ class ProductGenerator implements DemodataGeneratorInterface
 
     private function buildCombinations(array $properties): array
     {
-        $properties = $this->faker->randomElements($properties, random_int(2, 4));
+        $properties = $this->faker->randomElements($properties, random_int(min(\count($properties), 1), min(\count($properties), 4)));
 
         $mapped = [];
         // reduce permutation count
         foreach ($properties as $index => $values) {
-            $mapped[$index] = $this->faker->randomElements($values, random_int(2, 4));
+            $mapped[$index] = $this->faker->randomElements($values, random_int(min(\count($values), 2), min(\count($values), 4)));
         }
         $properties = $mapped;
 

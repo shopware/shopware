@@ -26,11 +26,11 @@ framework:
         app: cache.adapter.filesystem
         pools:
             cache.object:
-                default_lifetime: 10800
+                default_lifetime: 172800
                 adapter: cache.app
                 tags: cache.tags
             cache.http:
-                default_lifetime: 10800
+                default_lifetime: 172800
                 adapter: cache.app
                 tags: cache.tags
             cache.tags:

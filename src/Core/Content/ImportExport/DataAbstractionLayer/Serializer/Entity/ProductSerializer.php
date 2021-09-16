@@ -228,7 +228,9 @@ class ProductSerializer extends EntitySerializer
 
             $configuratorSetting = [
                 'optionId' => $option['id'],
-                'productId' => $parentId,
+                'product' => [
+                    'id' => $parentId,
+                ],
             ];
 
             $criteria = new Criteria();

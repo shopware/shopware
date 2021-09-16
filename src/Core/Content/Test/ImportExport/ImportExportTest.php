@@ -441,6 +441,13 @@ class ImportExportTest extends ImportExportTestCase
         $result = $this->productRepository->search($criteria, Context::createDefaultContext())->first();
 
         static::assertCount(2, $result->getVariation());
+
+        $criteria->resetFilters();
+        $criteria->addFilter(new EqualsFilter('id', 'e5c8b8f701034e8dbea72ac0fc32521e'));
+
+        /** @var ProductEntity $result */
+        $result = $this->productRepository->search($criteria, Context::createDefaultContext())->first();
+
         static::assertEquals(2, $result->getConfiguratorSettings()->count());
     }
 

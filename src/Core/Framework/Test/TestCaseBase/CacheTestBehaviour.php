@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\TestCaseBase;
 use Shopware\Core\Checkout\Cart\Address\AddressValidator;
 use Shopware\Core\Content\Flow\Dispatching\CachedFlowLoader;
 use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCacheClearer;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -25,7 +26,9 @@ trait CacheTestBehaviour
 
         $this->resetInternalCache(ProductPriceCalculator::class, 'units', null);
 
-        $this->resetInternalCache(CachedFlowLoader::class, 'flows', []);
+        if (Feature::isActive('FEATURE_NEXT_8225')) {
+            $this->resetInternalCache(CachedFlowLoader::class, 'flows', []);
+        }
     }
 
     abstract protected function getContainer(): ContainerInterface;

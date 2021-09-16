@@ -16,17 +16,18 @@ use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationEntity;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\ParentAssociationCanNotBeFetched;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\NonIdPrimaryKeyTestDefinition;
@@ -48,7 +49,7 @@ class EntityReaderTest extends TestCase
 
     private EntityRepositoryInterface $categoryRepository;
 
-    private EntityRepository $languageRepository;
+    private EntityRepositoryInterface $languageRepository;
 
     private EntityRepositoryInterface $taxRepository;
 
@@ -2022,5 +2023,141 @@ class EntityReaderTest extends TestCase
         static::assertEquals('system', $translation->getName());
         static::assertEquals(Defaults::LANGUAGE_SYSTEM, $translation->getLanguageId());
         static::assertEquals($id, $translation->getCategoryId());
+    }
+
+    /**
+     * @dataProvider casesToManyPaginated
+     */
+    public function testLoadToManyPaginated(array $data, callable $modifier, array $expected): void
+    {
+        $id = Uuid::randomHex();
+        $this->categoryRepository->upsert([
+            [
+                'id' => $id,
+                'name' => 'test',
+                'seoUrls' => $data,
+            ],
+        ], Context::createDefaultContext());
+
+        $criteria = new Criteria([$id]);
+        $modifier($criteria);
+
+        /** @var CategoryEntity $result */
+        $result = $this->categoryRepository->search($criteria, Context::createDefaultContext())->first();
+
+        $urls = $result->getSeoUrls()->map(function (SeoUrlEntity $e) {
+            return $e->getSeoPathInfo();
+        });
+
+        static::assertSame($expected, array_values($urls));
+    }
+
+    public function casesToManyPaginated(): iterable
+    {
+        yield 'Multi sort' => [
+            [
+                [
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'routeName' => 'test2',
+                    'pathInfo' => 'test2',
+                    'seoPathInfo' => 'active',
+                    'isCanonical' => true,
+                ],
+                [
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'routeName' => 'test',
+                    'pathInfo' => 'test',
+                    'seoPathInfo' => 'not-active',
+                    'isCanonical' => false,
+                ],
+                [
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'routeName' => 'test',
+                    'pathInfo' => 'test',
+                    'seoPathInfo' => 'not-active2',
+                    'isCanonical' => false,
+                    'isDeleted' => true,
+                ],
+            ],
+            function (Criteria $criteria): void {
+                $criteria->getAssociation('seoUrls')->addSorting(
+                    new FieldSorting('isCanonical', FieldSorting::DESCENDING),
+                    new FieldSorting('isDeleted', FieldSorting::ASCENDING),
+                );
+            },
+            [
+                'active',
+                'not-active',
+                'not-active2',
+            ],
+        ];
+
+        yield 'Sorting join new table' => [
+            [
+                [
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'routeName' => 'test2',
+                    'pathInfo' => 'test2',
+                    'seoPathInfo' => 'active',
+                    'isCanonical' => true,
+                ],
+                [
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'routeName' => 'test',
+                    'pathInfo' => 'test',
+                    'seoPathInfo' => 'not-active',
+                    'isCanonical' => false,
+                ],
+            ],
+            function (Criteria $criteria): void {
+                $criteria->getAssociation('seoUrls')->addSorting(
+                    new FieldSorting('salesChannel.id', FieldSorting::DESCENDING),
+                    new FieldSorting('isCanonical', FieldSorting::DESCENDING)
+                );
+            },
+            [
+                'active',
+                'not-active',
+            ],
+        ];
+
+        yield 'Sort and boost using query' => [
+            [
+                [
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'routeName' => 'test2',
+                    'pathInfo' => 'test2',
+                    'seoPathInfo' => 'active',
+                    'isCanonical' => true,
+                ],
+                [
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'routeName' => 'test-query',
+                    'pathInfo' => 'test-query',
+                    'seoPathInfo' => 'active-query',
+                    'isCanonical' => false,
+                ],
+                [
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'routeName' => 'test',
+                    'pathInfo' => 'test',
+                    'seoPathInfo' => 'not-active',
+                    'isCanonical' => false,
+                ],
+            ],
+            function (Criteria $criteria): void {
+                $filter = new OrFilter([
+                    new EqualsFilter('isCanonical', true),
+                ]);
+                $filter->addQuery(new EqualsFilter('seoPathInfo', 'active-query'));
+
+                $criteria->getAssociation('seoUrls')->addFilter($filter);
+                $criteria->getAssociation('seoUrls')->addSorting(new FieldSorting('isCanonical', FieldSorting::ASCENDING));
+            },
+            [
+                'active-query',
+                'active',
+            ],
+        ];
     }
 }

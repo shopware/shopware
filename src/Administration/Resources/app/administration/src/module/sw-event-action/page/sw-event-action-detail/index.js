@@ -5,6 +5,9 @@ const snakeCase = Shopware.Utils.string.snakeCase;
 const { Component, Utils, Mixin, Data: { Criteria }, Classes: { ShopwareError } } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
+/**
+ * @major-deprecated (flag:FEATURE_NEXT_8225) - will be removed. Please use `sw-flow` - Flow builder instead.
+ */
 Component.register('sw-event-action-detail', {
     template,
 
@@ -13,6 +16,7 @@ Component.register('sw-event-action-detail', {
         'businessEventService',
         'acl',
         'customFieldDataProviderService',
+        'feature',
     ],
 
     mixins: [

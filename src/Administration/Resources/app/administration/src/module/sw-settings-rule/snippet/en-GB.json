@@ -48,7 +48,8 @@
       "types": {
         "shipping": "Shipping",
         "payment": "Payment",
-        "price": "Price"
+        "price": "Price",
+        "flowBuilder": "Flow builder"
       }
     },
     "conditionFilter": {

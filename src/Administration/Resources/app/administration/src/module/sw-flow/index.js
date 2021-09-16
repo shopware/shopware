@@ -1,9 +1,28 @@
 import './page/sw-flow-list';
 import './page/sw-flow-detail';
+import './view/detail/sw-flow-detail-flow';
+import './component/sw-flow-sequence-modal';
+import './view/detail/sw-flow-detail-general';
+import './component/sw-flow-trigger';
+import './component/sw-flow-sequence';
+import './component/sw-flow-sequence-action';
+import './component/sw-flow-sequence-condition';
+import './component/sw-flow-sequence-selector';
+import './component/modals/sw-flow-create-rule-modal';
+import './component/modals/sw-flow-tag-modal';
+import './component/modals/sw-flow-set-order-state-modal';
+import './component/modals/sw-flow-generate-document-modal';
+import './component/modals/sw-flow-mail-send-modal';
+import './component/modals/sw-flow-create-mail-template-modal';
+import './component/modals/sw-flow-event-change-confirm-modal';
 
+import './service/flow-builder.service';
 import './acl';
 
-const { Module } = Shopware;
+import flowState from './state/flow.state';
+
+const { Module, State } = Shopware;
+State.registerModule('swFlowState', flowState);
 
 Module.register('sw-flow', {
     flag: 'FEATURE_NEXT_8225',
@@ -32,7 +51,7 @@ Module.register('sw-flow', {
             path: 'detail/:id',
             meta: {
                 parentPath: 'sw.flow.index',
-                privilege: 'flow.creator',
+                privilege: 'flow.viewer',
             },
             props: {
                 default(route) {
@@ -42,7 +61,7 @@ Module.register('sw-flow', {
                 },
             },
             redirect: {
-                name: 'sw.flow.create.general',
+                name: 'sw.flow.detail.general',
             },
             children: {
                 general: {
@@ -50,7 +69,7 @@ Module.register('sw-flow', {
                     path: 'general',
                     meta: {
                         parentPath: 'sw.flow.index',
-                        privilege: 'flow.creator',
+                        privilege: 'flow.viewer',
                     },
                 },
                 flow: {
@@ -58,7 +77,7 @@ Module.register('sw-flow', {
                     path: 'flow',
                     meta: {
                         parentPath: 'sw.flow.index',
-                        privilege: 'flow.creator',
+                        privilege: 'flow.viewer',
                     },
                 },
             },
@@ -79,7 +98,7 @@ Module.register('sw-flow', {
                     path: 'general',
                     meta: {
                         parentPath: 'sw.flow.index',
-                        privilege: 'flow.creator',
+                        privilege: 'flow.viewer',
                     },
                 },
                 flow: {
@@ -87,7 +106,7 @@ Module.register('sw-flow', {
                     path: 'flow',
                     meta: {
                         parentPath: 'sw.flow.index',
-                        privilege: 'flow.creator',
+                        privilege: 'flow.viewer',
                     },
                 },
             },

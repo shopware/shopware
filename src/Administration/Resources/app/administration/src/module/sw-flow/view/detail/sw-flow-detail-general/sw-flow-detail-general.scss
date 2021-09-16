@@ -1,0 +1,22 @@
+@import "~scss/variables";
+
+.sw-flow-detail-general {
+    &__log-label {
+        display: block;
+        margin-bottom: 16px;
+        font-size: $font-size-small;
+    }
+
+    &__log-grid {
+        margin-left: -30px;
+        margin-right: -30px;
+
+        &.sw-data-grid.sw-data-grid--actions .sw-data-grid__cell {
+            border-right: 0;
+        }
+
+        &.sw-data-grid .sw-data-grid__cell--actions {
+            box-shadow: none;
+        }
+    }
+}

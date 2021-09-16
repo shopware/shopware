@@ -1,0 +1,45 @@
+{% block sw_flow_event_change_confirm_modal %}
+<sw-modal
+    class="sw-flow-event-change-confirm-modal"
+    variant="small"
+    @modal-close="onClose"
+>
+    <template #modal-header>
+        {% block sw_flow_event_change_confirm_modal_header %}
+        <sw-icon
+            name="default-badge-warning"
+        />
+
+        <h4 class="sw-flow-event-change-confirm-modal__title">
+            {{ $tc('global.default.warning') }}
+        </h4>
+        {% endblock %}
+    </template>
+
+    <p
+        class="sw-flow-event-change-confirm-modal__text-confirmation"
+        v-html="$tc('sw-flow.modals.confirmation.textConfirmChangeTrigger')"
+    ></p>
+
+    <template #modal-footer>
+        {% block sw_flow_event_change_confirm_footer_cancel_button %}
+        <sw-button
+            class="sw-flow-event-change-confirm-modal__cancel-button"
+            @click="onClose"
+        >
+            {{ $tc('global.default.cancel') }}
+        </sw-button>
+        {% endblock %}
+
+        {% block sw_flow_event_change_confirm_footer_save_button %}
+        <sw-button
+            class="sw-flow-event-change-confirm-modal__confirm-button"
+            variant="primary"
+            @click="onConfirm"
+        >
+            {{ $tc('global.default.confirm') }}
+        </sw-button>
+        {% endblock %}
+    </template>
+</sw-modal>
+{% endblock %}

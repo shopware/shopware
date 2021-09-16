@@ -1,0 +1,8 @@
+{% block sw_flow_sequence_modal %}
+<component
+    :is="modalName"
+    v-bind="{ sequence }"
+    @process-finish="processSuccess"
+    @modal-close="onClose"
+/>
+{% endblock %}

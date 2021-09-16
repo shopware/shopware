@@ -1,0 +1,203 @@
+{% block sw_flow_mail_send_modal %}
+<sw-modal
+    class="sw-flow-mail-send-modal"
+    :title="$tc('sw-flow.modals.mail.titleSendMail')"
+    @modal-close="onClose"
+>
+    {% block sw_flow_mail_send_modal_recipient %}
+    <sw-single-select
+        v-model="mailRecipient"
+        class="sw-flow-mail-send-modal__recipient"
+        :options="recipientOptions"
+        :label="$tc('sw-flow.modals.mail.labelRecipient')"
+        :placeholder="$tc('sw-flow.modals.mail.placeholderRecipient')"
+        @change="onChangeRecipient"
+    />
+    {% endblock %}
+    {% block sw_flow_mail_send_modal_recipient_emails_grid %}
+    <sw-data-grid
+        v-if="showRecipientEmails"
+        ref="recipientsGrid"
+        class="sw-flow-mail-send-modal__recipient-grid"
+        :class="recipientGridError ? 'has--error' : ''"
+        :data-source="recipients"
+        :columns="recipientColumns"
+        :show-selection="false"
+        :plain-appearance="true"
+        @inline-edit-save="saveRecipient"
+        @inline-edit-cancel="cancelSaveRecipient"
+    >
+
+        {% block sw_event_action_detail_recipients_grid_column_email %}
+        <template #column-email="{ item, column, isInlineEdit, compact }">
+            <sw-text-field
+                v-if="isInlineEdit"
+                v-model="item.email"
+                class="sw-flow-mail-send-modal__recipient-email"
+                :size="compact ? 'small' : 'default'"
+                :error="item.errorMail"
+                :placeholder="$tc('sw-flow.modals.mail.placeholderRecipientEmailAddress')"
+            />
+            <template v-else>
+                {{ item.email }}
+            </template>
+        </template>
+        {% endblock %}
+
+        {% block sw_event_action_detail_recipients_grid_column_name %}
+        <template #column-name="{ item, column, isInlineEdit, compact }">
+            <sw-text-field
+                v-if="isInlineEdit"
+                v-model="item.name"
+                class="sw-flow-mail-send-modal__recipient-name"
+                :size="compact ? 'small' : 'default'"
+                :error="item.errorName"
+                :placeholder="$tc('sw-flow.modals.mail.placeholderRecipientName')"
+            />
+            <template v-else>
+                {{ item.name }}
+            </template>
+        </template>
+        {% endblock %}
+
+        <template #actions="{ item, itemIndex }">
+            {% block sw_event_action_detail_recipients_grid_action_edit %}
+            <sw-context-menu-item
+                class="sw-flow-mail-send-modal__grid-action-edit"
+                @click="onEditRecipient(item)"
+            >
+                {{ $tc('global.default.edit') }}
+            </sw-context-menu-item>
+            {% endblock %}
+
+            {% block sw_event_action_detail_recipients_grid_action_delete %}
+            <sw-context-menu-item
+                class="sw-flow-mail-send-modal__grid-action-delete"
+                variant="danger"
+                :disabled="!allowDeleteRecipient(itemIndex)"
+                @click="onDeleteRecipient(itemIndex)"
+            >
+                {{ $tc('global.default.delete') }}
+            </sw-context-menu-item>
+            {% endblock %}
+        </template>
+    </sw-data-grid>
+    {% endblock %}
+
+    {% block sw_flow_mail_send_modal_mail_template_select %}
+    <sw-entity-single-select
+        v-model="mailTemplateId"
+        class="sw-flow-mail-send-modal__mail-template-select"
+        required
+        entity="mail_template"
+        value-property="title"
+        label-property="description"
+        :criteria="mailTemplateCriteria"
+        :label="$tc('sw-flow.modals.mail.labelEmailTemplate')"
+        :placeholder="$tc('sw-flow.modals.mail.placeholderEmailTemplate')"
+        :error="mailTemplateIdError"
+        @change="(id, template) => onChangeMailTemplate(id, template)"
+    >
+
+        <template #before-item-list>
+
+            {% block sw_flow_mail_send_modal_mail_template_select_before_list %}
+            <ul class="sw-select-result__item-list">
+                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+                <li
+                    class="sw-select-result sw-select-result__create-new-template"
+                    @click="onCreateMailTemplate"
+                >
+                    {{ $tc('sw-flow.modals.mail.titleNewEmailTemplate') }}
+                </li>
+            </ul>
+            {% endblock %}
+        </template>
+
+        <template #selection-label-property="{ item }">
+            <strong>{{ item.translated.description }}</strong>
+            <template v-if="item.translated.description">
+                -
+            </template>
+            {{ item.mailTemplateType.translated.name }}
+        </template>
+
+        <template #result-label-property="{ item, highlightSearchTerm, labelProperty, searchTerm }">
+            <strong>
+                <sw-highlight-text
+                    :text="item.translated.description"
+                    :search-term="searchTerm"
+                />
+            </strong>
+            {{ item.mailTemplateType.translated.name }}
+        </template>
+    </sw-entity-single-select>
+    {% endblock %}
+
+    {% block sw_flow_mail_send_modal_mail_template_detail_link %}
+    <div class="sw-flow-mail-send-modal__mail-template-detail">
+        <router-link
+            v-if="mailTemplateId"
+            target="_blank"
+            rel="noopener"
+            :to="{ name: 'sw.mail.template.detail', params: { id: mailTemplateId } }"
+        >
+            {{ $tc('sw-flow.modals.mail.fieldMailTemplateDetailLink') }}
+        </router-link>
+    </div>
+    {% endblock %}
+
+    {% block sw_flow_mail_send_modal_document_types %}
+    <sw-entity-multi-id-select
+        v-model="documentTypeIds"
+        :repository="documentTypeRepository"
+        class="sw-flow-mail-send-modal__document-types"
+        :label="$tc('sw-flow.modals.mail.labelLatestDocuments')"
+        :placeholder="$tc('sw-flow.modals.mail.placeholderLatestDocuments')"
+    />
+    {% endblock %}
+
+    {% block sw_flow_mail_send_create_new_template %}
+    <sw-flow-create-mail-template-modal
+        v-if="showCreateMailTemplateModal"
+        class="sw-flow-mail-send-modal__create-mail-template"
+        @process-finish="onCreateMailTemplateSuccess"
+        @modal-close="onCloseCreateMailTemplateModal"
+    />
+    {% endblock %}
+
+    {% block sw_flow_mail_send_modal_document_warning %}
+    <sw-alert
+        class="sw-flow-mail-send-modal__document_warning"
+        variant="info"
+    >
+        {{ $tc('sw-flow.modals.mail.documentDescription') }}
+    </sw-alert>
+    {% endblock %}
+
+    {% block sw_flow_mail_send_modal_footer %}
+    <template #modal-footer>
+        {% block sw_flow_mail_send_modal_footer_cancel_button %}
+        <sw-button
+            class="sw-flow-mail-send-modal__cancel-button"
+            @click="onClose"
+        >
+            {{ $tc('global.default.cancel') }}
+        </sw-button>
+        {% endblock %}
+
+        {% block sw_flow_mail_send_modal_footer_save_button %}
+        <sw-button
+            class="sw-flow-mail-send-modal__save-button"
+            variant="primary"
+            @click="onAddAction"
+        >
+            {{ sequence.id
+                ? $tc('sw-flow.modals.buttonSaveAction')
+                : $tc('sw-flow.modals.buttonAddAction') }}
+        </sw-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
+</sw-modal>
+{% endblock %}

@@ -1,0 +1,121 @@
+@import "~scss/variables";
+@import "~scss/mixins";
+
+$sw-flow-trigger-transition-results: all ease-in-out 0.2s;
+
+.sw-flow-trigger {
+    &__event-selection {
+        width: 100%;
+
+        .sw-tree {
+            border: unset;
+            max-width: 274px;
+        }
+
+        .sw-tree-item {
+            &.is--no-children {
+                .sw-tree-item__element {
+                    cursor: pointer;
+                }
+            }
+
+            .sw-tree-item__label {
+                text-transform: capitalize;
+            }
+        }
+
+        .sw-tree-item__children .sw-tree-item__element .sw-tree-item__icon {
+            width: auto;
+        }
+    }
+
+    &.overlay {
+        position: relative;
+
+        .sw-flow-trigger__select-toolbar {
+            margin-bottom: 3px;
+        }
+    }
+
+    &.overlay .sw-flow-trigger__event-selection {
+        position: absolute;
+        z-index: $z-index-flyout;
+        border-radius: $border-radius-default;
+        background-color: $color-white;
+        background-clip: padding-box;
+        box-shadow: 0 1px 6px 0 lighten($color-darkgray-200, 30%);
+    }
+
+    .sw-flow-trigger__search-field {
+        margin-bottom: 0;
+
+        .sw-field__label label {
+            font-size: $font-size-default;
+            text-transform: uppercase;
+            font-weight: $font-weight-semi-bold;
+        }
+
+        .sw-block-field__block input {
+            text-transform: capitalize;
+        }
+    }
+
+    &__search-results {
+        padding: 12px;
+        max-height: 600px;
+        overflow: auto;
+
+        li.sw-flow-trigger__search-result {
+            transition: background-color 0.1s ease;
+            cursor: pointer;
+            list-style: none;
+            display: flex;
+            padding: 0 12px 10px 12px;
+            border-radius: $border-radius-default;
+
+            &:hover,
+            &.is--focus {
+                background-color: lighten($color-shopware-brand-500, 40);
+            }
+        }
+
+        li .sw-flow-trigger__search-result-icon {
+            margin-right: 12px;
+        }
+
+        li .sw-flow-trigger__search-result-name {
+            font-size: $font-size-small;
+            padding-top: 3px;
+        }
+    }
+
+    &__empty {
+        padding: 12px;
+    }
+
+    &__loader.sw-loader {
+        @include size(16px);
+
+        position: static;
+        margin-right: 10px;
+
+        .sw-loader__container {
+            transform: none;
+            left: 0;
+            top: 0;
+        }
+    }
+
+    // Vue.js transitions
+    .sw-flow-trigger__fade-down-enter-active,
+    .sw-flow-trigger__fade-down-leave-active {
+        transition: $sw-flow-trigger-transition-results;
+        transform: translateY(0);
+    }
+
+    .sw-flow-trigger__fade-down-enter,
+    .sw-flow-trigger__fade-down-leave-to {
+        transform: translateY(-8px);
+        opacity: 0;
+    }
+}

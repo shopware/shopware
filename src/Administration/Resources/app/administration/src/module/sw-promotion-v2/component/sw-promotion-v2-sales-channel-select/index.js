@@ -71,9 +71,11 @@ Component.register('sw-promotion-v2-sales-channel-select', {
 
     methods: {
         createdComponent() {
-            this.salesChannelRepository.search(new Criteria()).then((searchresult) => {
-                this.salesChannels = searchresult;
-            });
+            this.salesChannelRepository
+                .search(new Criteria(1, 500))
+                .then(searchresult => {
+                    this.salesChannels = searchresult;
+                });
         },
 
         getChangeset(salesChannelsIds) {

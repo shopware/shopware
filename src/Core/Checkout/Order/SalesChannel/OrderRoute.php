@@ -17,7 +17,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
@@ -120,14 +119,12 @@ class OrderRoute extends AbstractOrderRoute
 
         // Handle guest authentication if deeplink is set
         if (!$context->getCustomer() && $deepLinkFilter !== null) {
-            if (Feature::isActive('FEATURE_NEXT_13795')) {
-                try {
-                    $cacheKey = strtolower($deepLinkFilter->getValue()) . '-' . $request->getClientIp();
+            try {
+                $cacheKey = strtolower($deepLinkFilter->getValue()) . '-' . $request->getClientIp();
 
-                    $this->rateLimiter->ensureAccepted(RateLimiter::GUEST_LOGIN, $cacheKey);
-                } catch (RateLimitExceededException $exception) {
-                    throw new CustomerAuthThrottledException($exception->getWaitTime(), $exception);
-                }
+                $this->rateLimiter->ensureAccepted(RateLimiter::GUEST_LOGIN, $cacheKey);
+            } catch (RateLimitExceededException $exception) {
+                throw new CustomerAuthThrottledException($exception->getWaitTime(), $exception);
             }
 
             /** @var OrderEntity|null $order */
@@ -135,7 +132,7 @@ class OrderRoute extends AbstractOrderRoute
             $this->checkGuestAuth($order, $request);
         }
 
-        if (Feature::isActive('FEATURE_NEXT_13795') && isset($cacheKey)) {
+        if (isset($cacheKey)) {
             $this->rateLimiter->reset(RateLimiter::GUEST_LOGIN, $cacheKey);
         }
 

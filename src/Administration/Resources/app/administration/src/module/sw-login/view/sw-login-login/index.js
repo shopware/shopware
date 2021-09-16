@@ -22,10 +22,6 @@ Component.register('sw-login-login', {
 
     computed: {
         showLoginAlert() {
-            if (!Shopware.Feature.isActive('FEATURE_NEXT_13795')) {
-                return false;
-            }
-
             return typeof this.loginAlertMessage === 'string' && this.loginAlertMessage.length >= 1;
         },
     },
@@ -122,7 +118,7 @@ Component.register('sw-login-login', {
             let error = response.response.data.errors;
             error = Array.isArray(error) ? error[0] : error;
 
-            if (Shopware.Feature.isActive('FEATURE_NEXT_13795') && parseInt(error.status, 10) === 429) {
+            if (parseInt(error.status, 10) === 429) {
                 const seconds = error?.meta?.parameters?.seconds;
                 this.loginAlertMessage = this.$tc('sw-login.index.messageAuthThrottled', 0, { seconds });
 

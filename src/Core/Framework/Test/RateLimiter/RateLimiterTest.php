@@ -12,8 +12,8 @@ use Shopware\Core\Checkout\Test\Customer\Rule\OrderFixture;
 use Shopware\Core\Checkout\Test\Customer\SalesChannel\CustomerTestTrait;
 use Shopware\Core\Framework\Api\Controller\AuthController as AdminAuthController;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
+use Shopware\Core\Framework\RateLimiter\RateLimiterFactory;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -28,7 +28,11 @@ use Shopware\Core\System\User\UserEntity;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Lock\LockFactory;
+use Symfony\Component\RateLimiter\Policy\NoLimiter;
+use Symfony\Component\RateLimiter\Storage\CacheStorage;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
@@ -54,28 +58,18 @@ class RateLimiterTest extends TestCase
 
     public static function setUpBeforeClass(): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_13795')) {
-            return;
-        }
-
         DisableRateLimiterCompilerPass::disableNoLimit();
         KernelLifecycleManager::bootKernel(true, Uuid::randomHex());
     }
 
     public static function tearDownAfterClass(): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_13795')) {
-            return;
-        }
-
         DisableRateLimiterCompilerPass::enableNoLimit();
         KernelLifecycleManager::bootKernel(true, Uuid::randomHex());
     }
 
     public function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_13795', $this);
-
         $this->context = Context::createDefaultContext();
         $this->ids = new TestDataCollection($this->context);
 
@@ -278,5 +272,29 @@ class RateLimiterTest extends TestCase
 
         static::expectException(\RuntimeException::class);
         $rateLimiter->reset('test', 'test-key');
+    }
+
+    public function testIgnoreLimitWhenDisabled(): void
+    {
+        $config = [
+            'enabled' => false,
+            'id' => 'test_limit',
+            'policy' => 'time_backoff',
+            'reset' => '5 minutes',
+            'limits' => [
+                [
+                    'limit' => 3,
+                    'interval' => '10 seconds',
+                ],
+            ],
+        ];
+
+        $factory = new RateLimiterFactory(
+            $config,
+            new CacheStorage(new ArrayAdapter()),
+            $this->createMock(LockFactory::class)
+        );
+
+        static::assertInstanceOf(NoLimiter::class, $factory->create('example'));
     }
 }

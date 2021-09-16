@@ -72,10 +72,6 @@ function createWrapper() {
 describe('module/sw-login/login.spec.js', () => {
     let wrapper;
 
-    beforeAll(() => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_13795'];
-    });
-
     beforeEach(() => {
         wrapper = createWrapper();
     });

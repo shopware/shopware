@@ -7,10 +7,6 @@ Component.register('sw-login-recovery-info', {
 
     computed: {
         rateLimitTime() {
-            if (!Shopware.Feature.isActive('FEATURE_NEXT_13795')) {
-                return null;
-            }
-
             const waitTime = this.$route.params?.waitTime;
             if (typeof waitTime !== 'number') {
                 return null;

@@ -9,7 +9,6 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -164,7 +163,7 @@ Take a look at the settings of a category containing a concact form in the admin
     {
         $this->validateContactForm($data, $context);
 
-        if (Feature::isActive('FEATURE_NEXT_13795') && ($request = $this->requestStack->getMainRequest()) !== null && $request->getClientIp() !== null) {
+        if (($request = $this->requestStack->getMainRequest()) !== null && $request->getClientIp() !== null) {
             $this->rateLimiter->ensureAccepted(RateLimiter::CONTACT_FORM, $request->getClientIp());
         }
 

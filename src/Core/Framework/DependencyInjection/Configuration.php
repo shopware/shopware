@@ -122,6 +122,7 @@ class Configuration implements ConfigurationInterface
                     ->useAttributeAsKey('name')
                     ->arrayPrototype()
                         ->children()
+                            ->booleanNode('enabled')->defaultTrue()->end()
                             ->scalarNode('lock_factory')->defaultValue('lock.factory')->end()
                             ->scalarNode('policy')->end()
                             ->scalarNode('limit')->end()

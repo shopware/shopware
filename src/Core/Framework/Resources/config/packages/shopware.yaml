@@ -34,6 +34,7 @@ shopware:
             context_lifetime: 'P1D' # 1 day interval, see also https://www.php.net/manual/en/dateinterval.construct.php#refsect1-dateinterval.construct-parameters
         rate_limiter:
             login:
+                enabled: true
                 policy: 'time_backoff'
                 reset: '24 hours' # reset limit after this time if no more requests failed
                 limits:
@@ -44,6 +45,7 @@ shopware:
                     - limit: 20
                       interval: '60 seconds'
             guest_login:
+                enabled: true
                 policy: 'time_backoff'
                 reset: '24 hours'
                 limits:
@@ -54,6 +56,7 @@ shopware:
                     - limit: 20
                       interval: '60 seconds'
             oauth:
+                enabled: true
                 policy: 'time_backoff'
                 reset: '24 hours'
                 limits:
@@ -64,6 +67,7 @@ shopware:
                     - limit: 20
                       interval: '60 seconds'
             reset_password:
+                enabled: true
                 policy: 'time_backoff'
                 reset: '24 hours'
                 limits:
@@ -74,6 +78,7 @@ shopware:
                     - limit: 10
                       interval: '90 seconds'
             user_recovery:
+                enabled: true
                 policy: 'time_backoff'
                 reset: '24 hours'
                 limits:
@@ -84,6 +89,7 @@ shopware:
                     - limit: 10
                       interval: '90 seconds'
             contact_form:
+                enabled: true
                 policy: 'time_backoff'
                 reset: '24 hours'
                 limits:
@@ -303,11 +309,11 @@ shopware:
               major: true
               description: "VAT id field for guest"
               # issue: NEXT-15957
-            - name: FEATURE_NEXT_13795
+            - name: FEATURE_NEXT_16223
               default: false
               major: false
-              description: "Rate Limiting against Login Bruteforce"
-              # issue: NEXT-13795
+              description: "Remove CORS header in storefront"
+              # issue: NEXT-16223
             - name: FEATURE_NEXT_13601
               default: false
               major: true

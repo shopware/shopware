@@ -37,3 +37,72 @@ shopware:
               default: false
               major: false
               description: "test feature flag"
+
+    api:
+        rate_limiter:
+            login:
+                enabled: true
+                policy: 'time_backoff'
+                reset: '24 hours' # reset limit after this time if no more requests failed
+                limits:
+                    -   limit: 10
+                        interval: '10 seconds'
+                    -   limit: 15
+                        interval: '30 seconds'
+                    -   limit: 20
+                        interval: '60 seconds'
+            guest_login:
+                enabled: true
+                policy: 'time_backoff'
+                reset: '24 hours'
+                limits:
+                    -   limit: 10
+                        interval: '10 seconds'
+                    -   limit: 15
+                        interval: '30 seconds'
+                    -   limit: 20
+                        interval: '60 seconds'
+            oauth:
+                enabled: true
+                policy: 'time_backoff'
+                reset: '24 hours'
+                limits:
+                    -   limit: 10
+                        interval: '10 seconds'
+                    -   limit: 15
+                        interval: '30 seconds'
+                    -   limit: 20
+                        interval: '60 seconds'
+            reset_password:
+                enabled: true
+                policy: 'time_backoff'
+                reset: '24 hours'
+                limits:
+                    -   limit: 3
+                        interval: '30 seconds'
+                    -   limit: 5
+                        interval: '60 seconds'
+                    -   limit: 10
+                        interval: '90 seconds'
+            user_recovery:
+                enabled: true
+                policy: 'time_backoff'
+                reset: '24 hours'
+                limits:
+                    -   limit: 3
+                        interval: '30 seconds'
+                    -   limit: 5
+                        interval: '60 seconds'
+                    -   limit: 10
+                        interval: '90 seconds'
+            contact_form:
+                enabled: true
+                policy: 'time_backoff'
+                reset: '24 hours'
+                limits:
+                    -   limit: 3
+                        interval: '30 seconds'
+                    -   limit: 5
+                        interval: '60 seconds'
+                    -   limit: 10
+                        interval: '90 seconds'

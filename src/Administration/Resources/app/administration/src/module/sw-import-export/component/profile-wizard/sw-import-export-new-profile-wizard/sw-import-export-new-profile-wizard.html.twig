@@ -1,0 +1,129 @@
+{% block sw_import_export_new_profile_wizard %}
+<sw-wizard
+    ref="wizard"
+    class="sw-import-export-new-profile-wizard"
+    variant="full"
+    :right-button-disabled="nextButtonDisabled"
+    :active-page="currentlyActivePage"
+    @close="onClose"
+    @finish="onFinish"
+    @current-page-change="onCurrentPageChange"
+>
+    {% block sw_import_export_new_profile_wizard_page_general %}
+    <sw-wizard-page
+        :position="0"
+        :title="pageTitleSnippet('sw-import-export.profile.generalTab')"
+    >
+        <sw-import-export-new-profile-wizard-general-page
+            :profile="profile"
+            @next-disable="onNextDisable"
+            @next-allow="onNextAllow"
+        />
+    </sw-wizard-page>
+    {% endblock %}
+    {% block sw_import_export_new_profile_wizard_page_csv %}
+    <sw-wizard-page
+        :position="csvUploadPagePosition"
+        :title="pageTitleSnippet('sw-import-export.profile.csvUploadTab')"
+    >
+        <sw-import-export-new-profile-wizard-csv-page
+            :profile="profile"
+            @next-disable="onNextDisable"
+            @next-allow="onNextAllow"
+        />
+    </sw-wizard-page>
+    {% endblock %}
+    {% block sw_import_export_new_profile_wizard_page_mapping %}
+    <sw-wizard-page
+        :position="2"
+        :title="pageTitleSnippet('sw-import-export.profile.mappingsTab')"
+    >
+        <sw-import-export-new-profile-wizard-mapping-page
+            :profile="profile"
+            :system-required-fields="systemRequiredFields"
+            @next-disable="onNextDisable"
+            @next-allow="onNextAllow"
+        />
+    </sw-wizard-page>
+    {% endblock %}
+
+    {% block sw_import_export_new_profile_wizard_footer_right_button %}
+    <template #footer-right-button>
+        <div class="sw-import-export-new-profile-wizard__footer-right-button-group">
+            {% block sw_import_export_new_profile_wizard_footer_right_button_finish %}
+            <sw-button
+                v-if="showNextButton"
+                size="small"
+                variant="primary"
+                :disabled="nextButtonDisabled"
+                @click="onFinish"
+            >
+                {{ $tc('sw-import-export.profile.addProfileLabel') }}
+            </sw-button>
+            {% endblock %}
+
+            <template v-else>
+                {% block sw_import_export_new_profile_wizard_footer_right_button_skip %}
+                <sw-button
+                    v-if="showCsvSkipButton"
+                    size="small"
+                    @click="onNextPage"
+                >
+                    {{ $tc('sw-import-export.profile.skipCsvUpload') }}
+                </sw-button>
+                {% endblock %}
+
+                {% block sw_import_export_new_profile_wizard_footer_right_button_next %}
+                <sw-button
+                    size="small"
+                    variant="primary"
+                    :disabled="nextButtonDisabled"
+                    @click="onNextPage"
+                >
+                    {{ $tc('sw-wizard.nextButton') }}
+                </sw-button>
+            {% endblock %}
+            </template>
+        </div>
+    </template>
+    {% endblock %}
+
+    {% block sw_import_export_new_profile_wizard_violation_modal %}
+    <sw-modal
+        v-if="showValidationError"
+        :title="$tc('global.default.error')"
+        class="sw-import-export-new-profile-wizard__violation-modal"
+        @modal-close="resetViolations"
+    >
+
+        {% block sw_import_export_new_profile_wizard_violation_modal_message %}
+        <p>{{ $tc('sw-import-export.profile.violationMessage') }}</p>
+        {% endblock %}
+
+        {% block sw_import_export_new_profile_wizard_violation_modal_required_fields %}
+        <ul>
+            {% block sw_import_export_new_profile_wizard_violation_modal_required_field %}
+            <li
+                v-for="requiredField in missingRequiredFields"
+                :key="requiredField"
+            >
+                {{ requiredField }}
+            </li>
+            {% endblock %}
+        </ul>
+        {% endblock %}
+
+        {% block sw_import_export_new_profile_wizard_violation_modal_footer %}
+        <template slot="modal-footer">
+            <sw-button
+                size="small"
+                @click="resetViolations"
+            >
+                {{ $tc('sw-import-export.profile.closeViolation') }}
+            </sw-button>
+        </template>
+        {% endblock %}
+    </sw-modal>
+    {% endblock %}
+</sw-wizard>
+{% endblock %}

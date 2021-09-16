@@ -13,6 +13,7 @@ use Shopware\Core\Content\ImportExport\Processing\Pipe\PipeFactory;
 use Shopware\Core\Content\ImportExport\Processing\Reader\CsvReader;
 use Shopware\Core\Content\ImportExport\Processing\Reader\CsvReaderFactory;
 use Shopware\Core\Content\ImportExport\Processing\Writer\CsvFileWriterFactory;
+use Shopware\Core\Content\ImportExport\Service\FileService;
 use Shopware\Core\Content\ImportExport\Service\ImportExportService;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
@@ -119,6 +120,7 @@ abstract class ImportExportTestCase extends TestCase
             $pipeFactory->create($logEntity),
             $readerFactory->create($logEntity),
             $writerFactory->create($logEntity),
+            $this->getContainer()->get(FileService::class),
             5,
             5
         );

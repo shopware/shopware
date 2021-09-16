@@ -114,9 +114,19 @@
 
     {% block sw_import_export_view_profile_modal %}
     <sw-import-export-edit-profile-modal
+        :show="showProfileEditModal"
         :profile="selectedProfile"
         @profile-save="saveSelectedProfile"
         @profile-close="closeSelectedProfile"
+    />
+    {% endblock %}
+
+    {% block sw_import_export_view_new_profile_wizard %}
+    <sw-import-export-new-profile-wizard
+        v-if="showNewProfileWizard && feature.isActive('FEATURE_NEXT_15998')"
+        :profile="selectedProfile"
+        @profile-save="saveSelectedProfile"
+        @close="onCloseNewProfileWizard"
     />
     {% endblock %}
 </div>

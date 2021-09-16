@@ -18,6 +18,7 @@ use Shopware\Core\Content\ImportExport\Processing\Mapping\CriteriaBuilder;
 use Shopware\Core\Content\ImportExport\Processing\Pipe\AbstractPipe;
 use Shopware\Core\Content\ImportExport\Processing\Reader\AbstractReader;
 use Shopware\Core\Content\ImportExport\Processing\Writer\AbstractWriter;
+use Shopware\Core\Content\ImportExport\Service\AbstractFileService;
 use Shopware\Core\Content\ImportExport\Service\ImportExportService;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
@@ -102,6 +103,8 @@ class ImportExport
      */
     private ?array $failedWriteCommands = null;
 
+    private AbstractFileService $fileService;
+
     public function __construct(
         ImportExportService $importExportService,
         ImportExportLogEntity $logEntity,
@@ -112,6 +115,7 @@ class ImportExport
         AbstractPipe $pipe,
         AbstractReader $reader,
         AbstractWriter $writer,
+        AbstractFileService $fileService,
         int $importLimit = 250,
         int $exportLimit = 250
     ) {
@@ -126,6 +130,7 @@ class ImportExport
         $this->connection = $connection;
         $this->importLimit = $importLimit;
         $this->exportLimit = $exportLimit;
+        $this->fileService = $fileService;
     }
 
     public function import(Context $context, int $offset = 0): Progress
@@ -406,9 +411,14 @@ class ImportExport
         $progress->setState(Progress::STATE_SUCCEEDED);
         $this->importExportService->saveProgress($progress);
 
-        $this->importExportService->updateFile(
+        $fileId = $logEntity->getFileId();
+        if ($fileId === null) {
+            throw new ProcessingException('log does not have a file id');
+        }
+
+        $this->fileService->updateFile(
             Context::createDefaultContext(),
-            $logEntity->getFileId(),
+            $fileId,
             ['size' => $this->filesystem->getSize($target)]
         );
 

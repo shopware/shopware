@@ -108,6 +108,9 @@
             "messageDuplicateSuccess": "Das Profil wurde erfolgreich dupliziert.",
             "messageDuplicateError": "Das Profil konnte nicht dupliziert werden.",
             "messageSearchParentProfileError": "Anfrage kann nicht verarbeitet werden",
+            "messageCsvTemplateUploadError": "CSV-Datei kann nicht verarbeitet werden.",
+            "messageCsvTemplateUploadEmptyError": "CSV-Datei enthält keine Spalten.",
+            "messageCsvTemplateUploadWarning": "Die importierte Zuordnung ist möglicherweise falsch. Die CSV-Datei enthält nur eine Spalte. Überprüfe die Einstellung des Separator-Zeichens.",
             "productLabel": "Produkt",
             "customerLabel": "Kunde",
             "categoriesLabel": "Kategorien",
@@ -123,7 +126,7 @@
             "addProfileLabel": "Profil hinzufügen",
             "addNewProfileLabel": "Neues Profil hinzufügen",
             "addNewProfileTooltipLanguage": "Profile können nur in der System-Standardsprache erstellt werden.",
-            "openLabel": "Öffnen",
+            "openLabel": "Bearbeiten",
             "indicatorHeadline" : "Feld-Indikatoren",
             "duplicateLabel": "Duplizieren",
             "copyOfLabel": "Kopie von:",
@@ -131,6 +134,7 @@
             "closeProfileLabel": "Profil schließen",
             "generalTab": "Allgemein",
             "fieldIndicatorsTab": "Feld-Indikator",
+            "csvUploadTab": "CSV-Datei hochladen",
             "mappingsTab": "Zuweisungen",
             "profileNameFieldLabel": "Profilname",
             "objectTypeFieldLabel": "Objekt-Typ",
@@ -144,7 +148,7 @@
             "cancelLabel": "Abbrechen",
             "addMappingLabel": "Neues Mapping hinzufügen",
             "downloadTemplateLabel": "Template herunterladen",
-            "deleteLabel": "Löschen",
+            "deleteLabel": "Profil löschen",
             "systemDefaultInfoText": "Dies ist ein Systemstandardprofil, das nicht geändert werden kann. Du kannst entweder ein neues Profil erstellen oder ein Systemstandardprofil duplizieren.",
             "mapping": {
                 "fileValueLabel": "CSV-Name",
@@ -160,6 +164,7 @@
             "defaultTypeLabel": "Standard",
             "propertyLabel": "Eigenschaften",
             "mappingDescription": "Verwenden Sie die folgende Tabelle, um die CSV-Spaltennamen den Datenbankeinträgen zuzuordnen. Leere Pflichtfelder führen beim Import zu einem Fehler, es sei denn, es wurde ein Standardwert festgelegt.",
+            "mappingAutomatedDescription": "Shopware hat {automatedCount} Datenbankeinträge automatisch der Datenbank zugeordnet. Bitte ordnen Sie die fehlenden Einträge dem richtigen Datenbankeintrag zu. Erforderliche Felder führen zu einem Fehler beim Import, es sei denn, es wurde ein Standardwert festgelegt. Der Standardwert wird verwendet, um leere Datenbankeinträge für Importe zu füllen.",
             "mappingEmptyState": "Es wurde noch kein benutzerdefiniertes Mapping angelegt.",
             "configuratorSettingLabel": "Varianten-Konfiguration",
             "productCrossSellingLabel": "Cross-Selling",
@@ -167,6 +172,7 @@
             "closeViolation": "Schließen",
             "violationMessage": "Dein Profil ist noch nicht gültig. Du musst Zuordnungen zu den unten angezeigten Pflichtfeldern hinzufügen, um das Profil zu speichern:",
             "importSettingsHeadline": "Import-Einstellungen",
+            "fieldIndicatorsHeadline": "Feld-Indikatoren",
             "createEntitiesLabel": "Neue Datensätze erstellen",
             "updateEntitiesLabel": "Vorhandene Daten aktualisieren",
             "typeFieldLabel": "Nutzung",
@@ -176,7 +182,9 @@
                 "exportLabel": "Export"
             },
           "profileTypeDisabledText": "Leere das Feld 'Objekt-Typ', um wieder zwischen allen möglichen 'Nutzungen' auswählen zu können.",
-          "objectTypeDisabledText": "Leere das Feld 'Nutzung', um wieder zwischen allen möglichen 'Objekt-Typen' auswählen zu können."
+          "objectTypeDisabledText": "Leere das Feld 'Nutzung', um wieder zwischen allen möglichen 'Objekt-Typen' auswählen zu können.",
+          "csvUploadText": "Erstelle das Mapping aus einer vorhandenen CSV-Datei.",
+          "skipCsvUpload": "Überspringe Upload"
         },
         "exporter": {
             "messageExportStarted": "Der Export wurde erfolgreich gestartet.",
@@ -207,7 +215,7 @@
             "directImportVariantsLabel": "Varianten-Einstellungen importieren",
             "directImportPropertiesLabel": "Eigenschaften importieren",
             "close": "Schließen",
-            "labelUploadCaption": "Wähle eine Datei zum Hochladen",
+            "labelUploadCaption": "Wähle eine CSV-Datei zum Hochladen",
             "variantsWarning": "<strong>Achtung beim Import von Varianten:</strong> Sollen die Varianten direkt vollständig importiert werden, solltest du diese ebenfalls importieren. Nutze dafür ein Profil, was Varianten-Einstellungen importiert.<br>Tust du das nicht, müssen die Varianten über den Admin gesondert manuell erstellt werden.",
             "importVariants": "Produktvarianten importieren"
         },

@@ -641,11 +641,6 @@ parameters:
 			path: src/Core/Content/ImportExport/ImportExport.php
 
 		-
-			message: "#^Parameter \\#2 \\$fileId of method Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Service\\\\ImportExportService\\:\\:updateFile\\(\\) expects string, string\\|null given\\.$#"
-			count: 1
-			path: src/Core/Content/ImportExport/ImportExport.php
-
-		-
 			message: "#^Cannot call method getOriginalName\\(\\) on Shopware\\\\Core\\\\Content\\\\ImportExport\\\\Aggregate\\\\ImportExportFile\\\\ImportExportFileEntity\\|null\\.$#"
 			count: 1
 			path: src/Core/Content/ImportExport/ImportExport.php

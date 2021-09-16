@@ -108,6 +108,9 @@
             "messageDuplicateSuccess": "The profile was duplicated successfully.",
             "messageDuplicateError": "The profile could not be duplicated.",
             "messageSearchParentProfileError": "Cannot process request",
+            "messageCsvTemplateUploadError": "Cannot process CSV file.",
+            "messageCsvTemplateUploadEmptyError": "CSV file does not contain any columns.",
+            "messageCsvTemplateUploadWarning": "Imported mapping may be incorrect. CSV file only contains one column. Check CSV separator setting.",
             "productLabel": "Product",
             "customerLabel": "Customer",
             "categoriesLabel": "Categories",
@@ -123,7 +126,7 @@
             "addProfileLabel": "Add profile",
             "addNewProfileLabel": "Add new profile",
             "addNewProfileTooltipLanguage": "Profiles can only be created in the default system language",
-            "openLabel": "Open",
+            "openLabel": "Edit",
             "indicatorHeadline" : "Field Indicators",
             "duplicateLabel": "Duplicate",
             "copyOfLabel": "Copy of:",
@@ -131,6 +134,7 @@
             "closeProfileLabel": "Close profile",
             "generalTab": "General",
             "fieldIndicatorsTab": "Field indicator",
+            "csvUploadTab": "Upload CSV file",
             "mappingsTab": "Mappings",
             "profileNameFieldLabel": "Profile name",
             "objectTypeFieldLabel": "Object type",
@@ -144,7 +148,7 @@
             "cancelLabel": "Cancel",
             "addMappingLabel": "Add new mapping",
             "downloadTemplateLabel": "Download template",
-            "deleteLabel": "Delete",
+            "deleteLabel": "Delete profile",
             "systemDefaultInfoText": "You are viewing a system default profile which cannot be modified. You can either create a new profile or duplicate a system default profile.",
             "mapping": {
                 "fileValueLabel": "CSV name",
@@ -159,6 +163,7 @@
             "customTypeLabel": "Custom",
             "defaultTypeLabel": "Default",
             "propertyLabel": "Properties",
+            "mappingAutomatedDescription": "Shopware mapped {automatedCount} database entries to the database automatically. Please map the missing entries to the correct database entry. Empty required fields will cause an error during the import unless a default value has been set. Default values will be used to fill empty database entries for imports.",
             "mappingDescription": "Use the table below to map the CSV column names to Shopware database entries. Empty required fields will cause an error during the import unless a default value has been set.",
             "mappingEmptyState": "No custom mapping provided yet.",
             "configuratorSettingLabel": "Variant configuration settings",
@@ -167,6 +172,7 @@
             "closeViolation": "Close",
             "violationMessage": "Your profile is not valid, yet. You need to add mappings to the required fields shown below to save the profile:",
             "importSettingsHeadline": "Import settings",
+            "fieldIndicatorsHeadline": "Field indicators",
             "createEntitiesLabel": "Create new Entities",
             "updateEntitiesLabel": "Update existing data",
             "typeFieldLabel": "Usage",
@@ -176,7 +182,9 @@
                 "exportLabel": "Export"
             },
           "profileTypeDisabledText": "Clear 'usage' in order to be able to select any 'object type'.",
-          "objectTypeDisabledText": "Clear 'object type' in order to be able to select any 'usage'."
+          "objectTypeDisabledText": "Clear 'object type' in order to be able to select any 'usage'.",
+          "csvUploadText": "Create mapping from an existing CSV file.",
+          "skipCsvUpload": "Skip CSV upload"
         },
         "exporter": {
             "messageExportStarted": "The export was started successfully.",
@@ -207,7 +215,7 @@
             "directImportVariantsLabel": "Import variant settings",
             "directImportPropertiesLabel": "Import properties",
             "close": "Close",
-            "labelUploadCaption": "Select a file to upload",
+            "labelUploadCaption": "Select a CSV file to upload",
             "variantsWarning": "<strong>Attention when importing variants: </strong> If the variants are to be imported completely directly, you should also import them. Use a profile that imports variant settings.<br>If you don't do this, the variants must be created manually by the admin.",
             "importVariants": "Import product variants"
         },

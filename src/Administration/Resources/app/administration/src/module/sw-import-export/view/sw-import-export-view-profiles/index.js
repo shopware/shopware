@@ -24,6 +24,8 @@ Shopware.Component.register('sw-import-export-view-profiles', {
             searchTerm: null,
             sortBy: 'name',
             sortDirection: 'ASC',
+            showProfileEditModal: false,
+            showNewProfileWizard: false,
         };
     },
 
@@ -116,16 +118,25 @@ Shopware.Component.register('sw-import-export-view-profiles', {
             const profile = this.profileRepository.create();
             profile.fileType = 'text/csv';
             profile.mapping = [];
-            this.$set(profile, 'config', {});
+            profile.config = {};
             if (this.feature.isActive('FEATURE_NEXT_8097')) {
                 profile.config.createEntities = true;
                 profile.config.updateEntities = true;
             }
-            this.$set(profile, 'translated', {});
+            if (this.feature.isActive('FEATURE_NEXT_15998')) {
+                profile.type = 'import-export';
+            }
+            profile.translated = {};
             profile.delimiter = ';';
             profile.enclosure = '"';
 
+            this.selectedProfile = null;
             this.selectedProfile = profile;
+            if (this.feature.isActive('FEATURE_NEXT_15998')) {
+                this.showNewProfileWizard = true;
+            } else {
+                this.showProfileEditModal = true;
+            }
         },
 
         async onEditProfile(id) {
@@ -145,6 +156,7 @@ Shopware.Component.register('sw-import-export-view-profiles', {
             }
 
             this.selectedProfile = profile;
+            this.showProfileEditModal = true;
         },
 
         onDuplicateProfile(item) {
@@ -172,6 +184,7 @@ Shopware.Component.register('sw-import-export-view-profiles', {
                 }
 
                 this.selectedProfile = profile;
+                this.showProfileEditModal = true;
                 return this.loadProfiles(); // refresh the list in any case (even if the modal is canceled)
                 // because the duplicate already exists.
             }).catch(() => {
@@ -193,13 +206,16 @@ Shopware.Component.register('sw-import-export-view-profiles', {
         },
 
         closeSelectedProfile() {
+            this.showProfileEditModal = false;
             this.selectedProfile = null;
         },
 
         saveSelectedProfile() {
             this.isLoading = true;
             return this.profileRepository.save(this.selectedProfile, Shopware.Context.api).then(() => {
+                this.showProfileEditModal = false;
                 this.selectedProfile = null;
+                this.onCloseNewProfileWizard();
                 this.createNotificationSuccess({
                     message: this.$tc('sw-import-export.profile.messageSaveSuccess', 0),
                 });
@@ -217,6 +233,11 @@ Shopware.Component.register('sw-import-export-view-profiles', {
             return isSystemDefault ?
                 this.$tc('sw-import-export.profile.defaultTypeLabel') :
                 this.$tc('sw-import-export.profile.customTypeLabel');
+        },
+
+        onCloseNewProfileWizard() {
+            this.showNewProfileWizard = false;
+            this.selectedProfile = null;
         },
     },
 });

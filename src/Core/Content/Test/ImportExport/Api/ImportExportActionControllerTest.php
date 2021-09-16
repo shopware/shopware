@@ -131,9 +131,7 @@ class ImportExportActionControllerTest extends TestCase
 
     public function testStartingDryRunImport(): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_8097')) {
-            static::markTestSkipped('FEATURE_NEXT_8097');
-        }
+        Feature::skipTestIfInActive('FEATURE_NEXT_8097', $this);
 
         $data = $this->prepareImportExportActionControllerTestData(1);
 
@@ -155,6 +153,105 @@ class ImportExportActionControllerTest extends TestCase
             $content = json_decode($response->getContent(), true);
             static::assertSame(ImportExportLogEntity::ACTIVITY_DRYRUN, $content['log']['activity']);
         }
+    }
+
+    /**
+     * @dataProvider mappingFromProvider
+     */
+    public function testMappingFromTemplate(string $sourceEntity, string $fileContent, array $expectedMapping, ?int $expectedErrorCode = null, ?string $expectedErrorMessage = null): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_15998', $this);
+
+        $file = [];
+        if ($fileContent !== '') {
+            $file = ['file' => $this->getUploadFile('text/csv', '', $fileContent)];
+        }
+
+        $parameters = [];
+        if ($sourceEntity !== '') {
+            $parameters = ['sourceEntity' => $sourceEntity];
+        }
+
+        $client = $this->getBrowser();
+        $client->request(
+            'POST',
+            '/api/_action/import-export/mapping-from-template',
+            $parameters,
+            $file,
+            ['Content-Type' => 'multipart/formdata']
+        );
+
+        $response = $client->getResponse();
+        $content = json_decode($response->getContent(), true);
+
+        if ($expectedErrorCode !== null) {
+            static::assertSame($expectedErrorCode, $response->getStatusCode());
+        }
+
+        if ($expectedErrorMessage !== null) {
+            static::assertSame($expectedErrorMessage, $content['errors'][0]['detail']);
+        }
+
+        if ($expectedErrorCode !== null || $expectedErrorMessage !== null) {
+            return;
+        }
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $result = array_map(function ($mapping) {
+            return ['key' => $mapping['key'], 'mappedKey' => $mapping['mappedKey']];
+        }, $content);
+        static::assertSame($expectedMapping, $result);
+    }
+
+    public function mappingFromProvider(): iterable
+    {
+        yield 'Product entity with mapped keys' => [
+            'sourceEntity' => 'product',
+            'fileContent' => 'id;productNumber;foo;bar;manufacturer_id',
+            'expectedMapping' => [
+                ['key' => 'id', 'mappedKey' => 'id'],
+                ['key' => 'productNumber', 'mappedKey' => 'productNumber'],
+                ['key' => '', 'mappedKey' => 'foo'],
+                ['key' => '', 'mappedKey' => 'bar'],
+                ['key' => 'manufacturer.id', 'mappedKey' => 'manufacturer_id'],
+            ],
+        ];
+
+        yield 'Product entity without mapped keys' => [
+            'sourceEntity' => 'product',
+            'fileContent' => 'test;noValid;foo;bar;lastOne',
+            'expectedMapping' => [
+                ['key' => '', 'mappedKey' => 'test'],
+                ['key' => '', 'mappedKey' => 'noValid'],
+                ['key' => '', 'mappedKey' => 'foo'],
+                ['key' => '', 'mappedKey' => 'bar'],
+                ['key' => '', 'mappedKey' => 'lastOne'],
+            ],
+        ];
+
+        yield 'Not existing source entity' => [
+            'sourceEntity' => 'invalid-entity',
+            'fileContent' => 'test;noValid;foo;bar;lastOne',
+            'expectedMapping' => [],
+            'expectedErrorCode' => 500,
+            'expectedErrorMessage' => 'Definition for entity "invalid-entity" does not exist.',
+        ];
+
+        yield 'Invalid source entity parameter' => [
+            'sourceEntity' => '',
+            'fileContent' => 'test;noValid;foo;bar;lastOne',
+            'expectedMapping' => [],
+            'expectedErrorCode' => 400,
+            'expectedErrorMessage' => 'The parameter "sourceEntity" is invalid.',
+        ];
+
+        yield 'Invalid file parameter' => [
+            'sourceEntity' => 'product',
+            'fileContent' => '',
+            'expectedMapping' => [],
+            'expectedErrorCode' => 400,
+            'expectedErrorMessage' => 'The parameter "file" is invalid.',
+        ];
     }
 
     /**
@@ -215,24 +312,24 @@ class ImportExportActionControllerTest extends TestCase
         return ['text/csv'];
     }
 
-    private function getUploadFile(string $type = 'text/csv', string $forceFileName = ''): UploadedFile
+    private function getUploadFile(string $type = 'text/csv', string $forceFileName = '', ?string $content = null): UploadedFile
     {
         $file = tempnam(sys_get_temp_dir(), 'upl');
 
         switch ($type) {
             case 'text/html':
-                $content = '<!DOCTYPE html><html><body></body></html>';
+                $content = $content ?? '<!DOCTYPE html><html><body></body></html>';
                 $fileName = 'test.html';
 
                 break;
             case 'text/xml':
-                $content = '<?xml version="1.0" ?><foo></foo>';
+                $content = $content ?? '<?xml version="1.0" ?><foo></foo>';
                 $fileName = 'test.xml';
 
                 break;
             case 'text/csv':
             default:
-                $content = '"foo";"bar";"123"';
+                $content = $content ?? '"foo";"bar";"123"';
                 $fileName = 'test.csv';
         }
         file_put_contents($file, $content);

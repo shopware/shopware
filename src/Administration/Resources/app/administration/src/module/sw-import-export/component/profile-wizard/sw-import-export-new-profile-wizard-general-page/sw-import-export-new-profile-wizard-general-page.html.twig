@@ -1,0 +1,15 @@
+{% block sw_import_export_new_profile_wizard_general_page %}
+<div class="sw-import-export-new-profile-wizard-general-page">
+    {% block sw_import_export_new_profile_wizard_general_page_general %}
+    <sw-import-export-edit-profile-general :profile="profile" />
+    {% endblock %}
+
+    {% block sw_import_export_new_profile_wizard_general_page_indicators %}
+    <sw-import-export-edit-profile-field-indicators :profile="profile" />
+    {% endblock %}
+
+    {% block sw_import_export_new_profile_wizard_general_page_import_settings %}
+    <sw-import-export-edit-profile-import-settings :profile="profile" />
+    {% endblock %}
+</div>
+{% endblock %}

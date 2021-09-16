@@ -18,22 +18,21 @@ class UserChangePasswordCommand extends Command
 {
     protected static $defaultName = 'user:change-password';
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $userRepository;
+    private EntityRepositoryInterface $userRepository;
 
     public function __construct(EntityRepositoryInterface $userRepository)
     {
-        $this->userRepository = $userRepository;
         parent::__construct();
+
+        $this->userRepository = $userRepository;
     }
 
     protected function configure(): void
     {
         $this
             ->addArgument('username', InputArgument::REQUIRED)
-            ->addOption('password', 'p', InputOption::VALUE_REQUIRED, 'New password for the user');
+            ->addOption('password', 'p', InputOption::VALUE_REQUIRED, 'New password for the user')
+        ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -44,19 +43,26 @@ class UserChangePasswordCommand extends Command
         $username = $input->getArgument('username');
         $password = $input->getOption('password');
 
+        if (!$password) {
+            $passwordQuestion = new Question('Enter new password for user');
+            $passwordQuestion->setValidator(static function ($value): string {
+                if ($value === null || trim($value) === '') {
+                    throw new \RuntimeException('The password cannot be empty');
+                }
+
+                return $value;
+            });
+            $passwordQuestion->setHidden(true);
+            $passwordQuestion->setMaxAttempts(3);
+
+            $password = $io->askQuestion($passwordQuestion);
+        }
+
         $userId = $this->getUserId($username, $context);
         if ($userId === null) {
             $io->error(sprintf('The user "%s" does not exist.', $username));
 
             return self::FAILURE;
-        }
-
-        if (empty($password)) {
-            $passwordQuestion = new Question('New password for the user');
-            $passwordQuestion->setHidden(true);
-            $passwordQuestion->setMaxAttempts(3);
-
-            $password = $io->askQuestion($passwordQuestion);
         }
 
         $this->userRepository->update([

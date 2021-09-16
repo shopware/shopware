@@ -37,7 +37,10 @@ class UserChangePasswordCommandTest extends TestCase
     public function testUnknownUser(): void
     {
         $commandTester = new CommandTester($this->getContainer()->get(UserChangePasswordCommand::class));
-        $commandTester->execute(['username' => self::TEST_USERNAME]);
+        $commandTester->execute([
+            'username' => self::TEST_USERNAME,
+            '--password' => self::TEST_PASSWORD,
+        ]);
 
         $expected = 'The user "' . self::TEST_USERNAME . '" does not exist.';
         static::assertStringContainsString($expected, $commandTester->getDisplay());
@@ -64,6 +67,19 @@ class UserChangePasswordCommandTest extends TestCase
 
         $passwordVerify = password_verify($newPassword, $user->getPassword());
         static::assertTrue($passwordVerify);
+    }
+
+    public function testEmptyPasswordOption(): void
+    {
+        $commandTester = new CommandTester($this->getContainer()->get(UserChangePasswordCommand::class));
+
+        static::expectException(\RuntimeException::class);
+        static::expectExceptionMessage('The password cannot be empty');
+
+        $commandTester->setInputs(['', '', '']);
+        $commandTester->execute([
+            'username' => self::TEST_USERNAME,
+        ]);
     }
 
     private function createUser(): string

@@ -48,6 +48,7 @@ class FlowPayloadUpdater
         $listFlowSequence = FetchModeHelper::group($listFlowSequence);
 
         $update = new RetryableQuery(
+            $this->connection,
             $this->connection->prepare('UPDATE `flow` SET payload = :payload, invalid = :invalid WHERE `id` = :id')
         );
 

@@ -27,7 +27,7 @@ class RatingAverageUpdater
 
         $versionId = Uuid::fromHexToBytes($context->getVersionId());
 
-        RetryableQuery::retryable(function () use ($ids, $versionId): void {
+        RetryableQuery::retryable($this->connection, function () use ($ids, $versionId): void {
             $this->connection->executeUpdate(
                 'UPDATE product SET rating_average = NULL WHERE (parent_id IN (:ids) OR id IN (:ids)) AND version_id = :version',
                 ['ids' => Uuid::fromHexToBytesList($ids), 'version' => $versionId],
@@ -52,6 +52,7 @@ class RatingAverageUpdater
         $averages = $query->execute()->fetchAll();
 
         $query = new RetryableQuery(
+            $this->connection,
             $this->connection->prepare('UPDATE product SET rating_average = :average WHERE id = :id AND version_id = :version')
         );
 

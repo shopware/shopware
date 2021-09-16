@@ -13,16 +13,20 @@ class ProductSearchConfigFieldExceptionHandler implements ExceptionHandlerInterf
         return ExceptionHandlerInterface::PRIORITY_DEFAULT;
     }
 
-    public function matchException(\Exception $e, WriteCommand $command): ?\Exception
+    /**
+     * @internal (flag:FEATURE_NEXT_16640) - second parameter WriteCommand $command will be removed
+     */
+    public function matchException(\Exception $e, ?WriteCommand $command = null): ?\Exception
     {
-        if ($e->getCode() !== 0 || $command->getDefinition()->getEntityName() !== ProductSearchConfigFieldDefinition::ENTITY_NAME) {
+        if ($e->getCode() !== 0) {
             return null;
         }
-
         if (preg_match('/SQLSTATE\[23000\]:.*1062 Duplicate.*uniq.search_config_field.field__config_id\'/', $e->getMessage())) {
-            $payload = $command->getPayload();
+            $field = [];
+            preg_match('/Duplicate entry \'(.*)\' for key/', $e->getMessage(), $field);
+            $field = substr($field[1], 0, (int) strrpos($field[1], '-'));
 
-            return new DuplicateProductSearchConfigFieldException($payload['field'] ?? '', $e);
+            return new DuplicateProductSearchConfigFieldException($field, $e);
         }
 
         return null;

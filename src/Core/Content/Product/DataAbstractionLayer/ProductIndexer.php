@@ -8,6 +8,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater;
@@ -155,57 +156,55 @@ class ProductIndexer extends EntityIndexer
 
         $context = $message->getContext();
 
-        $this->connection->beginTransaction();
+        RetryableTransaction::retryable($this->connection, function () use ($message, $ids, $parentIds, $childrenIds, $context): void {
+            $all = array_filter(array_unique(array_merge($ids, $parentIds, $childrenIds)));
 
-        $all = array_filter(array_unique(array_merge($ids, $parentIds, $childrenIds)));
+            if ($message->allow(self::INHERITANCE_UPDATER)) {
+                $this->inheritanceUpdater->update(ProductDefinition::ENTITY_NAME, $all, $context);
+            }
 
-        if ($message->allow(self::INHERITANCE_UPDATER)) {
-            $this->inheritanceUpdater->update(ProductDefinition::ENTITY_NAME, $all, $context);
-        }
+            if ($message->allow(self::STOCK_UPDATER)) {
+                $this->stockUpdater->update($ids, $context);
+            }
 
-        if ($message->allow(self::STOCK_UPDATER)) {
-            $this->stockUpdater->update($ids, $context);
-        }
+            if ($message->allow(self::VARIANT_LISTING_UPDATER)) {
+                $this->variantListingUpdater->update($parentIds, $context);
+            }
 
-        if ($message->allow(self::VARIANT_LISTING_UPDATER)) {
-            $this->variantListingUpdater->update($parentIds, $context);
-        }
+            if ($message->allow(self::CHILD_COUNT_UPDATER)) {
+                $this->childCountUpdater->update(ProductDefinition::ENTITY_NAME, $parentIds, $context);
+            }
 
-        if ($message->allow(self::CHILD_COUNT_UPDATER)) {
-            $this->childCountUpdater->update(ProductDefinition::ENTITY_NAME, $parentIds, $context);
-        }
+            if ($message->allow(self::MANY_TO_MANY_ID_FIELD_UPDATER)) {
+                $this->manyToManyIdFieldUpdater->update(ProductDefinition::ENTITY_NAME, $all, $context);
+            }
 
-        if ($message->allow(self::MANY_TO_MANY_ID_FIELD_UPDATER)) {
-            $this->manyToManyIdFieldUpdater->update(ProductDefinition::ENTITY_NAME, $all, $context);
-        }
+            if ($message->allow(self::CATEGORY_DENORMALIZER_UPDATER)) {
+                $this->categoryDenormalizer->update($ids, $context);
+            }
 
-        if ($message->allow(self::CATEGORY_DENORMALIZER_UPDATER)) {
-            $this->categoryDenormalizer->update($ids, $context);
-        }
+            if ($message->allow(self::CHEAPEST_PRICE_UPDATER)) {
+                $this->cheapestPriceUpdater->update($parentIds, $context);
+            }
 
-        if ($message->allow(self::CHEAPEST_PRICE_UPDATER)) {
-            $this->cheapestPriceUpdater->update($parentIds, $context);
-        }
+            if ($message->allow(self::RATING_AVERAGE_UPDATER)) {
+                $this->ratingAverageUpdater->update($parentIds, $context);
+            }
 
-        if ($message->allow(self::RATING_AVERAGE_UPDATER)) {
-            $this->ratingAverageUpdater->update($parentIds, $context);
-        }
+            if ($message->allow(self::STREAM_UPDATER)) {
+                $this->streamUpdater->updateProducts($all, $context);
+            }
 
-        if ($message->allow(self::STREAM_UPDATER)) {
-            $this->streamUpdater->updateProducts($all, $context);
-        }
+            if ($message->allow(self::SEARCH_KEYWORD_UPDATER)) {
+                $this->searchKeywordUpdater->update(array_merge($ids, $childrenIds), $context);
+            }
 
-        if ($message->allow(self::SEARCH_KEYWORD_UPDATER)) {
-            $this->searchKeywordUpdater->update(array_merge($ids, $childrenIds), $context);
-        }
-
-        $this->connection->executeStatement(
-            'UPDATE product SET updated_at = :now WHERE id IN (:ids)',
-            ['ids' => Uuid::fromHexToBytesList($all), 'now' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)],
-            ['ids' => Connection::PARAM_STR_ARRAY]
-        );
-
-        $this->connection->commit();
+            $this->connection->executeStatement(
+                'UPDATE product SET updated_at = :now WHERE id IN (:ids)',
+                ['ids' => Uuid::fromHexToBytesList($all), 'now' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT)],
+                ['ids' => Connection::PARAM_STR_ARRAY]
+            );
+        });
 
         $this->eventDispatcher->dispatch(new ProductIndexerEvent($ids, $childrenIds, $parentIds, $context, $message->getSkip()));
     }

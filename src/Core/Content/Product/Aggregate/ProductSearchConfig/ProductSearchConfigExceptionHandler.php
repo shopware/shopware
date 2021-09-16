@@ -13,16 +13,16 @@ class ProductSearchConfigExceptionHandler implements ExceptionHandlerInterface
         return ExceptionHandlerInterface::PRIORITY_DEFAULT;
     }
 
-    public function matchException(\Exception $e, WriteCommand $command): ?\Exception
+    /**
+     * @internal (flag:FEATURE_NEXT_16640) - second parameter WriteCommand $command will be removed
+     */
+    public function matchException(\Exception $e, ?WriteCommand $command = null): ?\Exception
     {
-        if ($e->getCode() !== 0 || $command->getDefinition()->getEntityName() !== ProductSearchConfigDefinition::ENTITY_NAME) {
+        if ($e->getCode() !== 0) {
             return null;
         }
-
         if (preg_match('/SQLSTATE\[23000\]:.*1062 Duplicate.*uniq.product_search_config.language_id\'/', $e->getMessage())) {
-            $payload = $command->getPayload();
-
-            return new DuplicateProductSearchConfigLanguageException($payload['language_id'] ?? '', $e);
+            return new DuplicateProductSearchConfigLanguageException('', $e);
         }
 
         return null;

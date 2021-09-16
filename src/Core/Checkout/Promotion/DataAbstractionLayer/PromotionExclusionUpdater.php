@@ -124,7 +124,7 @@ class PromotionExclusionUpdater
             $tags[] = Uuid::fromBytesToHex($row['id']);
         }
 
-        RetryableQuery::retryable(function () use ($affectedIds, $deleteId): void {
+        RetryableQuery::retryable($this->connection, function () use ($affectedIds, $deleteId): void {
             $sqlStatement = "
                 UPDATE promotion
                 SET promotion.exclusion_ids = JSON_REMOVE(promotion.exclusion_ids, JSON_UNQUOTE(JSON_SEARCH(promotion.exclusion_ids,'one', :value)))
@@ -148,7 +148,7 @@ class PromotionExclusionUpdater
             return;
         }
 
-        RetryableQuery::retryable(function () use ($addId, $ids): void {
+        RetryableQuery::retryable($this->connection, function () use ($addId, $ids): void {
             $this->connection->executeUpdate(
                 'UPDATE promotion
                  SET promotion.exclusion_ids = (JSON_ARRAY_APPEND(IFNULL(promotion.exclusion_ids,JSON_ARRAY()), \'$\', :value))
@@ -179,6 +179,7 @@ class PromotionExclusionUpdater
         }
 
         $query = new RetryableQuery(
+            $this->connection,
             $this->connection->prepare('UPDATE promotion SET promotion.exclusion_ids=:value WHERE id=:id')
         );
 

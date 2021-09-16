@@ -90,6 +90,7 @@ class MediaFolderConfigurationIndexer extends EntityIndexer
         $configs = $this->repository->search($criteria, $context);
 
         $update = new RetryableQuery(
+            $this->connection,
             $this->connection->prepare('UPDATE media_folder_configuration SET media_thumbnail_sizes_ro = :media_thumbnail_sizes_ro WHERE id = :id')
         );
 

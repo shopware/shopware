@@ -226,7 +226,7 @@ class WishlistControllerTest extends TestCase
         $browser->request('GET', $_SERVER['APP_URL'] . '/wishlist/add-after-login/' . $productId);
 
         static::assertNotEmpty($warningFlash = $flashBag->get('warning'));
-        static::assertEquals('Product with id ' . $productId . ' already added in wishlist', $warningFlash[0]);
+        static::assertEquals('Product already added in wishlist', $warningFlash[0]);
     }
 
     private function createCustomer(): CustomerEntity

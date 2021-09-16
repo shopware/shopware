@@ -8,6 +8,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -108,29 +109,16 @@ class SeoUrlPersister
             $insertQuery->addInsert($this->seoUrlRepository->getDefinition()->getEntityName(), $insert);
         }
 
-        $this->connection->beginTransaction();
-
-        try {
+        RetryableTransaction::retryable($this->connection, function () use ($obsoleted, $dateTime, $insertQuery, $foreignKeys, $updatedFks, $salesChannelId): void {
             $this->obsoleteIds($obsoleted, $dateTime, $salesChannelId);
-
-            RetryableQuery::retryable(function () use ($insertQuery): void {
-                $insertQuery->execute();
-            });
+            $insertQuery->execute();
 
             $deletedIds = array_diff($foreignKeys, $updatedFks);
             $notDeletedIds = array_unique(array_intersect($foreignKeys, $updatedFks));
 
             $this->markAsDeleted(true, $deletedIds, $dateTime, $salesChannelId);
             $this->markAsDeleted(false, $notDeletedIds, $dateTime, $salesChannelId);
-
-            if (!$this->connection->isRollbackOnly()) {
-                $this->connection->commit();
-            } else {
-                $this->connection->rollBack();
-            }
-        } catch (\Throwable $e) {
-            $this->connection->rollBack();
-        }
+        });
 
         $this->eventDispatcher->dispatch(new SeoUrlUpdateEvent($updates));
     }
@@ -209,7 +197,7 @@ class SeoUrlPersister
             $query->setParameter('salesChannelId', Uuid::fromHexToBytes($salesChannelId));
         }
 
-        RetryableQuery::retryable(function () use ($query): void {
+        RetryableQuery::retryable($this->connection, function () use ($query): void {
             $query->execute();
         });
     }
@@ -237,8 +225,6 @@ class SeoUrlPersister
             $query->setParameter('salesChannelId', Uuid::fromHexToBytes($salesChannelId));
         }
 
-        RetryableQuery::retryable(function () use ($query): void {
-            $query->execute();
-        });
+        $query->execute();
     }
 }

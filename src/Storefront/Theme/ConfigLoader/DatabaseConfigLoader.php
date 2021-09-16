@@ -6,7 +6,9 @@ use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Theme\Exception\InvalidThemeException;
@@ -24,14 +26,18 @@ class DatabaseConfigLoader extends AbstractConfigLoader
 
     private EntityRepositoryInterface $mediaRepository;
 
+    private string $baseTheme;
+
     public function __construct(
         EntityRepositoryInterface $themeRepository,
         StorefrontPluginRegistryInterface $extensionRegistry,
-        EntityRepositoryInterface $mediaRepository
+        EntityRepositoryInterface $mediaRepository,
+        string $baseTheme = StorefrontPluginRegistry::BASE_THEME_NAME
     ) {
         $this->themeRepository = $themeRepository;
         $this->extensionRegistry = $extensionRegistry;
         $this->mediaRepository = $mediaRepository;
+        $this->baseTheme = $baseTheme;
     }
 
     public function getDecorated(): AbstractConfigLoader
@@ -74,41 +80,130 @@ class DatabaseConfigLoader extends AbstractConfigLoader
         return json_decode((string) json_encode($config), true);
     }
 
-    private function loadRecursiveConfig(string $themeId, Context $context): array
+    private function loadRecursiveConfig(string $themeId, Context $context, bool $withBase = true): array
     {
+        /* @feature-deprecated (flag:FEATURE_NEXT_17637) keep if branch delete everything after on feature release */
+        if (Feature::isActive('FEATURE_NEXT_17637')) {
+            $criteria = new Criteria();
+            $criteria->setTitle('theme-service::load-config');
+
+            $themes = $this->themeRepository->search($criteria, $context);
+
+            $theme = $themes->get($themeId);
+
+            /** @var ThemeEntity|null $theme */
+            if (!$theme) {
+                throw new InvalidThemeException($themeId);
+            }
+            $baseThemeConfig = [];
+
+            if ($withBase) {
+                /** @var ThemeEntity $baseTheme */
+                $baseTheme = $themes->filter(function (ThemeEntity $themeEntry) {
+                    return $themeEntry->getTechnicalName() === $this->baseTheme;
+                })->first();
+
+                $baseThemeConfig = $this->mergeStaticConfig($baseTheme);
+            }
+
+            if ($theme->getParentThemeId()) {
+                $parentThemes = $this->getParentThemeIds($themes, $theme);
+
+                foreach ($parentThemes as $parentTheme) {
+                    $configuredParentTheme = $this->mergeStaticConfig($parentTheme);
+                    $baseThemeConfig = array_replace_recursive($baseThemeConfig, $configuredParentTheme);
+                }
+            }
+
+            $configuredTheme = $this->mergeStaticConfig($theme);
+
+            return array_replace_recursive($baseThemeConfig, $configuredTheme);
+        }
         $criteria = new Criteria([$themeId]);
 
         $theme = $this->themeRepository
-            ->search($criteria, $context)
-            ->first();
+                ->search($criteria, $context)
+                ->first();
 
         if (!$theme instanceof ThemeEntity) {
             throw new InvalidThemeException($themeId);
         }
 
         $config = $this->mergeStaticConfig($theme);
-
         $parentId = $theme->getParentThemeId();
         if ($parentId) {
-            $parent = $this->loadRecursiveConfig($parentId, $context);
+            $parent = $this->loadRecursiveConfig($parentId, $context, false);
 
-            return array_replace_recursive($parent, $config);
+            $config = array_replace_recursive($parent, $config);
+        }
+
+        if (!$withBase) {
+            return $config;
         }
 
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('technicalName', StorefrontPluginRegistry::BASE_THEME_NAME));
+        $criteria->addFilter(new EqualsFilter('technicalName', $this->baseTheme));
 
         $theme = $this->themeRepository
-            ->search($criteria, $context)
-            ->first();
+                ->search($criteria, $context)
+                ->first();
 
         if (!$theme instanceof ThemeEntity) {
-            throw new InvalidThemeException(StorefrontPluginRegistry::BASE_THEME_NAME);
+            throw new InvalidThemeException($this->baseTheme);
         }
 
         $base = $this->mergeStaticConfig($theme);
 
         return array_replace_recursive($base, $config);
+    }
+
+    private function getParentThemeIds(EntitySearchResult $themes, ThemeEntity $mainTheme, array $parentThemes = []): array
+    {
+        // add configured parent themes
+        foreach ($this->getConfigInheritance($mainTheme) as $parentThemeName) {
+            $parentTheme = $themes->filter(function (ThemeEntity $themeEntry) use ($parentThemeName) {
+                return $themeEntry->getTechnicalName() === str_replace('@', '', $parentThemeName);
+            })->first();
+
+            if (!($parentTheme instanceof ThemeEntity)) {
+                continue;
+            }
+
+            if (\array_key_exists($parentTheme->getId(), $parentThemes)) {
+                continue;
+            }
+
+            $parentThemes[$parentTheme->getId()] = $parentTheme;
+            if ($parentTheme->getParentThemeId()) {
+                $parentThemes = $this->getParentThemeIds($themes, $mainTheme, $parentThemes);
+            }
+        }
+
+        if ($mainTheme->getParentThemeId() === null) {
+            return $parentThemes;
+        }
+
+        // add database defined parent theme
+        $parentTheme = $themes->filter(function (ThemeEntity $themeEntry) use ($mainTheme) {
+            return $themeEntry->getId() === $mainTheme->getParentThemeId();
+        })->first();
+
+        if (!($parentTheme instanceof ThemeEntity)) {
+            return $parentThemes;
+        }
+
+        if (\array_key_exists($parentTheme->getId(), $parentThemes)) {
+            return $parentThemes;
+        }
+
+        if ($parentTheme instanceof ThemeEntity && !\array_key_exists($parentTheme->getId(), $parentThemes)) {
+            $parentThemes[$parentTheme->getId()] = $parentTheme;
+            if ($parentTheme->getParentThemeId()) {
+                $parentThemes = $this->getParentThemeIds($themes, $mainTheme, $parentThemes);
+            }
+        }
+
+        return $parentThemes;
     }
 
     private function loadConfigByName(string $themeId, Context $context): ?StorefrontPluginConfiguration
@@ -121,7 +216,7 @@ class DatabaseConfigLoader extends AbstractConfigLoader
         if ($theme === null) {
             return $this->extensionRegistry
                 ->getConfigurations()
-                ->getByTechnicalName(StorefrontPluginRegistry::BASE_THEME_NAME);
+                ->getByTechnicalName($this->baseTheme);
         }
 
         $pluginConfig = null;
@@ -153,7 +248,7 @@ class DatabaseConfigLoader extends AbstractConfigLoader
 
         return $this->extensionRegistry
             ->getConfigurations()
-            ->getByTechnicalName(StorefrontPluginRegistry::BASE_THEME_NAME);
+            ->getByTechnicalName($this->baseTheme);
     }
 
     private function mergeStaticConfig(ThemeEntity $theme): array
@@ -174,11 +269,13 @@ class DatabaseConfigLoader extends AbstractConfigLoader
         }
 
         if ($theme !== null && $theme->getConfigValues() !== null) {
-            $configuredThemeFields = [];
-            if (\array_key_exists('fields', $configuredTheme)) {
-                $configuredThemeFields = $configuredTheme['fields'];
+            if ($theme->getConfigValues() !== null) {
+                foreach ($theme->getConfigValues() as $fieldName => $configValue) {
+                    if (isset($configValue['value'])) {
+                        $configuredTheme['fields'][$fieldName]['value'] = $configValue['value'];
+                    }
+                }
             }
-            $configuredTheme['fields'] = array_replace_recursive($configuredThemeFields, $theme->getConfigValues());
         }
 
         return $configuredTheme;
@@ -196,7 +293,7 @@ class DatabaseConfigLoader extends AbstractConfigLoader
 
         // Collect all ids
         foreach ($config['fields'] as $_ => $data) {
-            if (!isset($data['value'])) {
+            if (!isset($data['value']) || !\is_string($data['value'])) {
                 continue;
             }
 
@@ -224,7 +321,7 @@ class DatabaseConfigLoader extends AbstractConfigLoader
 
         // Replace all ids with the actual url
         foreach ($config['fields'] as $key => $data) {
-            if (!isset($data['value'])) {
+            if (!isset($data['value']) || !\is_string($data['value'])) {
                 continue;
             }
 
@@ -247,5 +344,26 @@ class DatabaseConfigLoader extends AbstractConfigLoader
         }
 
         $pluginConfig->setThemeConfig($config);
+    }
+
+    private function getConfigInheritance(ThemeEntity $mainTheme): array
+    {
+        if (!\is_array($mainTheme->getBaseConfig())) {
+            return [];
+        }
+
+        if (!\array_key_exists('configInheritance', $mainTheme->getBaseConfig())) {
+            return [];
+        }
+
+        if (!\is_array($mainTheme->getBaseConfig()['configInheritance'])) {
+            return [];
+        }
+
+        if (empty($mainTheme->getBaseConfig()['configInheritance'])) {
+            return [];
+        }
+
+        return $mainTheme->getBaseConfig()['configInheritance'];
     }
 }

@@ -75,6 +75,7 @@ class DatabaseConfigLoaderTest extends TestCase
             $this->getContainer()->get('theme.repository'),
             $registry,
             $this->getContainer()->get('media.repository'),
+            'base'
         );
 
         $config = $service->load($ids->get($key), Context::createDefaultContext());

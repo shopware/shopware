@@ -38,6 +38,11 @@ class StorefrontPluginConfiguration extends Struct
      */
     protected array $iconSets = [];
 
+    /**
+     * @var string[]
+     */
+    private array $configInheritance = [];
+
     public function __construct(string $technicalName)
     {
         $this->technicalName = $technicalName;
@@ -185,5 +190,15 @@ class StorefrontPluginConfiguration extends Struct
     public function hasFilesToCompile(): bool
     {
         return \count($this->getStyleFiles()) !== 0 || \count($this->getScriptFiles()) !== 0;
+    }
+
+    public function setConfigInheritance(array $configInheritance): void
+    {
+        $this->configInheritance = $configInheritance;
+    }
+
+    public function getConfigInheritance(): array
+    {
+        return $this->configInheritance;
     }
 }

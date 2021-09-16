@@ -100,8 +100,8 @@ Mixin.register('theme', {
             themeDuplicate.labels = parentTheme.labels;
             themeDuplicate.helpTexts = parentTheme.helpTexts;
             themeDuplicate.customFields = parentTheme.customFields;
-            themeDuplicate.baseConfig = parentTheme.baseConfig;
-            themeDuplicate.configValues = parentTheme.configValues;
+            themeDuplicate.baseConfig = null;
+            themeDuplicate.configValues = null;
             themeDuplicate.previewMediaId = parentTheme.previewMediaId;
             themeDuplicate.active = true;
 

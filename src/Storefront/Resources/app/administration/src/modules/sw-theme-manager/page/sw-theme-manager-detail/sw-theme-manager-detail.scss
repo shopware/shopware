@@ -123,6 +123,27 @@
             margin-bottom: 16px;
         }
     }
+
+    .sw-inherit-wrapper {
+        .sw-media-upload-v2__header {
+            flex-direction: row-reverse;
+            position: relative;
+            top: -18px;
+            margin-bottom: -12px;
+            z-index: 99;
+        }
+
+        .sw-inherit-wrapper__toggle-wrapper {
+            z-index: 100;
+            position: relative;
+            width: fit-content;
+        }
+
+        .sw-media-upload-v2__switch-mode {
+            position: absolute;
+        }
+    }
+
 }
 
 .sw-theme-manager-detail-modal {

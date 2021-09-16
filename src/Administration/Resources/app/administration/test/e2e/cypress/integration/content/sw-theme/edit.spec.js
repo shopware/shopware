@@ -25,8 +25,8 @@ describe('Theme: Test common editing of theme', () => {
             .click();
 
         cy.contains('.sw-card__title', 'Media').scrollIntoView();
-        cy.get('.sw-media-upload-v2')
-            .first()
+        cy.get('.sw-inherit-wrapper__inheritance-label')
+            .eq(15)
             .contains('Desktop');
 
         cy.get('.sw-media-upload-v2 .sw-media-upload-v2__remove-icon')
@@ -97,7 +97,7 @@ describe('Theme: Test common editing of theme', () => {
             .click();
 
         cy.contains('.sw-card__title', 'Media').scrollIntoView();
-        cy.get('.sw-media-upload-v2__label')
+        cy.get('.sw-inherit-wrapper__inheritance-label')
             .contains('Desktop')
             .parent()
             .parent()

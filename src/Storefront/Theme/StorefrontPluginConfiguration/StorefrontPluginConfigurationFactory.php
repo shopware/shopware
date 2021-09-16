@@ -80,6 +80,7 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
                 );
             }
 
+            /** @var array $data */
             $data = json_decode($fileContent, true);
             if (json_last_error() !== \JSON_ERROR_NONE) {
                 throw new ThemeCompileException(
@@ -100,30 +101,7 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
             $config->setAuthor($data['author']);
 
             if (\array_key_exists('style', $data) && \is_array($data['style'])) {
-                $fileCollection = new FileCollection();
-                foreach ($data['style'] as $style) {
-                    if (!\is_array($style)) {
-                        $fileCollection->add(new File($this->stripProjectDir($style)));
-
-                        continue;
-                    }
-
-                    foreach ($style as $filename => $additional) {
-                        if (!\array_key_exists('resolve', $additional)) {
-                            $fileCollection->add(new File($this->stripProjectDir($filename)));
-
-                            continue;
-                        }
-
-                        foreach ($additional['resolve'] as &$resolvePath) {
-                            $resolvePath = $this->addBasePath($resolvePath, $basePath);
-                        }
-                        unset($resolvePath);
-
-                        $fileCollection->add(new File($this->stripProjectDir($filename), $additional['resolve'] ?? []));
-                    }
-                }
-                $config->setStyleFiles($this->addBasePathToCollection($fileCollection, $basePath));
+                $this->resolveStyleFiles($data['style'], $basePath, $config);
             }
 
             if (\array_key_exists('script', $data) && \is_array($data['script'])) {
@@ -145,6 +123,13 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
 
             if (\array_key_exists('views', $data)) {
                 $config->setViewInheritance($data['views']);
+            }
+
+            if (\array_key_exists('configInheritance', $data)) {
+                $config->setConfigInheritance($data['configInheritance']);
+                $baseConfig = $config->getThemeConfig();
+                $baseConfig['configInheritance'] = $data['configInheritance'];
+                $config->setThemeConfig($baseConfig);
             }
 
             if (\array_key_exists('iconSets', $data)) {
@@ -248,5 +233,33 @@ class StorefrontPluginConfigurationFactory extends AbstractStorefrontPluginConfi
         }
 
         return $path;
+    }
+
+    private function resolveStyleFiles(array $styles, string $basePath, StorefrontPluginConfiguration $config): void
+    {
+        $fileCollection = new FileCollection();
+        foreach ($styles as $style) {
+            if (!\is_array($style)) {
+                $fileCollection->add(new File($this->stripProjectDir($style)));
+
+                continue;
+            }
+
+            foreach ($style as $filename => $additional) {
+                if (!\array_key_exists('resolve', $additional)) {
+                    $fileCollection->add(new File($this->stripProjectDir($filename)));
+
+                    continue;
+                }
+
+                foreach ($additional['resolve'] as &$resolvePath) {
+                    $resolvePath = $this->addBasePath($resolvePath, $basePath);
+                }
+                unset($resolvePath);
+
+                $fileCollection->add(new File($this->stripProjectDir($filename), $additional['resolve'] ?? []));
+            }
+        }
+        $config->setStyleFiles($this->addBasePathToCollection($fileCollection, $basePath));
     }
 }

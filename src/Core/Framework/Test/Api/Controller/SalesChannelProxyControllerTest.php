@@ -7,6 +7,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
+use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Checkout\Test\Cart\Common\TrueRule;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
@@ -466,6 +467,93 @@ class SalesChannelProxyControllerTest extends TestCase
 
         static::assertArrayHasKey('totalPrice', $cart['deliveries'][0]['shippingCosts']);
         static::assertEquals(20, $cart['deliveries'][0]['shippingCosts']['totalPrice']);
+    }
+
+    public function testModifyShippingWith0Costs(): void
+    {
+        $shippingMethodId = Uuid::randomHex();
+
+        $this->getContainer()->get('shipping_method.repository')->create([
+            [
+                'id' => $shippingMethodId,
+                'name' => 'Example shipping',
+                'availabilityRule' => ['name' => 'test', 'priority' => 1],
+                'deliveryTime' => ['name' => 'test', 'min' => 1, 'max' => 1, 'unit' => 'day'],
+                'taxType' => ShippingMethodEntity::TAX_TYPE_AUTO,
+                'prices' => [
+                    [
+                        'currencyPrice' => [
+                            [
+                                'currencyId' => Defaults::CURRENCY,
+                                'gross' => 5,
+                                'linked' => false,
+                                'net' => 5,
+                            ],
+                        ],
+                        'quantityStart' => 1,
+                        'shippingMethodId' => $shippingMethodId,
+                    ],
+                ],
+                'active' => true,
+            ],
+        ], $this->context);
+
+        $this->salesChannelRepository->update([
+            [
+                'id' => TestDefaults::SALES_CHANNEL,
+                'shippingMethodId' => $shippingMethodId,
+            ],
+        ], $this->context);
+
+        $salesChannelContext = $this->createDefaultSalesChannelContext();
+
+        $productId = Uuid::randomHex();
+        $this->createTestFixtureProduct($productId, 119, 19, $this->getContainer(), $salesChannelContext);
+
+        $browser = $this->createCart(TestDefaults::SALES_CHANNEL, $salesChannelContext->getToken());
+        $this->addProduct($browser, TestDefaults::SALES_CHANNEL, $productId);
+
+        $cart = $this->getCart($browser, TestDefaults::SALES_CHANNEL);
+
+        //assert shipping method in cart is changed but shipping costs in cart is not changed
+        static::assertArrayHasKey('name', $cart['deliveries'][0]['shippingMethod']);
+        static::assertEquals('Example shipping', $cart['deliveries'][0]['shippingMethod']['name']);
+
+        static::assertArrayHasKey('unitPrice', $cart['deliveries'][0]['shippingCosts']);
+        static::assertEquals(5, $cart['deliveries'][0]['shippingCosts']['unitPrice']);
+
+        static::assertArrayHasKey('totalPrice', $cart['deliveries'][0]['shippingCosts']);
+        static::assertEquals(5, $cart['deliveries'][0]['shippingCosts']['totalPrice']);
+
+        $browser->request(
+            'PATCH',
+            $this->getRootProxyUrl('/modify-shipping-costs'),
+            [],
+            [],
+            [],
+            json_encode([
+                'shippingCosts' => [
+                    'unitPrice' => 0,
+                    'totalPrice' => 0,
+                ],
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
+            ])
+        );
+
+        $response = $this->getBrowser()->getResponse();
+
+        //assert response format
+        static::assertTrue($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertNotEmpty($response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+
+        $cart = $this->getCart($browser, TestDefaults::SALES_CHANNEL);
+
+        //assert shipping costs in cart
+        static::assertArrayHasKey('unitPrice', $cart['deliveries'][0]['shippingCosts']);
+        static::assertEquals(0, $cart['deliveries'][0]['shippingCosts']['unitPrice']);
+
+        static::assertArrayHasKey('totalPrice', $cart['deliveries'][0]['shippingCosts']);
+        static::assertEquals(0, $cart['deliveries'][0]['shippingCosts']['totalPrice']);
     }
 
     public function testModifyShippingCostsManuallyInCaseCartIsEmpty(): void

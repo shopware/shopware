@@ -87,7 +87,7 @@ $sw-category-tree-field-transition-results: all ease-in-out 0.2s;
             display: flex;
             align-items: center;
             padding: 0 12px 4px 12px;
-            height: 40px;
+            min-height: 40px;
             border-radius: $border-radius-default;
         }
 

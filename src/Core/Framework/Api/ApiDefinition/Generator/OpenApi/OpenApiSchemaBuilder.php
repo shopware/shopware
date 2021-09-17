@@ -74,6 +74,12 @@ class OpenApiSchemaBuilder
         return new Info([
             'title' => 'Shopware ' . self::API[$api]['name'],
             'version' => $version,
+            'description' => <<<'EOF'
+This endpoint reference contains an overview of all endpoints comprising the Shopware Admin API.
+
+For a better overview, all CRUD-endpoints are hidden by default. If you want to show also CRUD-endpoints
+add the query parameter `type=jsonapi`.
+EOF
         ]);
     }
 

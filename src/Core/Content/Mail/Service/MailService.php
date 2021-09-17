@@ -115,11 +115,12 @@ class MailService extends AbstractMailService
 
     public function send(array $data, Context $context, array $templateData = []): ?Email
     {
-        $mailBeforeValidateEvent = new MailBeforeValidateEvent($data, $context, $templateData);
-        $this->eventDispatcher->dispatch($mailBeforeValidateEvent);
-        $data = $mailBeforeValidateEvent->getData();
+        $event = new MailBeforeValidateEvent($data, $context, $templateData);
+        $this->eventDispatcher->dispatch($event);
+        $data = $event->getData();
+        $templateData = $event->getTemplateData();
 
-        if ($mailBeforeValidateEvent->isPropagationStopped()) {
+        if ($event->isPropagationStopped()) {
             return null;
         }
 
@@ -207,17 +208,17 @@ class MailService extends AbstractMailService
             return null;
         }
 
-        $mailBeforeSentEvent = new MailBeforeSentEvent($data, $mail, $context);
-        $this->eventDispatcher->dispatch($mailBeforeSentEvent);
+        $event = new MailBeforeSentEvent($data, $mail, $context);
+        $this->eventDispatcher->dispatch($event);
 
-        if ($mailBeforeSentEvent->isPropagationStopped()) {
+        if ($event->isPropagationStopped()) {
             return null;
         }
 
         $this->mailSender->send($mail);
 
-        $mailSentEvent = new MailSentEvent($data['subject'], $recipients, $contents, $context);
-        $this->eventDispatcher->dispatch($mailSentEvent);
+        $event = new MailSentEvent($data['subject'], $recipients, $contents, $context);
+        $this->eventDispatcher->dispatch($event);
 
         return $mail;
     }

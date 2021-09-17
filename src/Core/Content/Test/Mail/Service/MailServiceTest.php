@@ -16,7 +16,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Validation\DataValidator;
+use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Mime\Email;
 
@@ -24,6 +26,52 @@ class MailServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
+
+    public function testPluginsCanExtendMailData(): void
+    {
+        $renderer = new TestRenderer(
+            $this->getContainer()->get('twig')
+        );
+
+        $mailService = new MailService(
+            $this->createMock(DataValidator::class),
+            $renderer,
+            $this->getContainer()->get(MailFactory::class),
+            $this->createMock(AbstractMailSender::class),
+            $this->createMock(EntityRepositoryInterface::class),
+            $this->getContainer()->get(SalesChannelDefinition::class),
+            $this->getContainer()->get('sales_channel.repository'),
+            $this->getContainer()->get(SystemConfigService::class),
+            $this->getContainer()->get('event_dispatcher'),
+            $this->createMock(LoggerInterface::class),
+            $this->createMock(UrlGeneratorInterface::class)
+        );
+        $data = [
+            'senderName' => 'Foo & Bar',
+            'recipients' => ['baz@example.com' => 'Baz'],
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+            'contentHtml' => '<h1>Test</h1>',
+            'contentPlain' => 'Test',
+            'subject' => 'Test subject & content',
+        ];
+
+        $this->addEventListener(
+            $this->getContainer()->get('event_dispatcher'),
+            MailBeforeValidateEvent::class,
+            function (MailBeforeValidateEvent $event): void {
+                $event->setTemplateData(
+                    array_merge($event->getTemplateData(), ['plugin-value' => true])
+                );
+            }
+        );
+
+        $mailService->send($data, Context::createDefaultContext());
+
+        static::assertArrayHasKey(0, $renderer->getCalls());
+        $first = $renderer->getCalls()[0];
+        static::assertArrayHasKey('data', $first);
+        static::assertArrayHasKey('plugin-value', $first['data']);
+    }
 
     public function senderEmailDataProvider(): array
     {
@@ -198,5 +246,22 @@ class MailServiceTest extends TestCase
                 return true;
             }));
         $mailService->send($data, Context::createDefaultContext(), $templateData);
+    }
+}
+
+class TestRenderer extends StringTemplateRenderer
+{
+    private array $calls = [];
+
+    public function render(string $templateSource, array $data, Context $context): string
+    {
+        $this->calls[] = ['source' => $templateSource, 'data' => $data, 'context' => $context];
+
+        return parent::render($templateSource, $data, $context);
+    }
+
+    public function getCalls(): array
+    {
+        return $this->calls;
     }
 }

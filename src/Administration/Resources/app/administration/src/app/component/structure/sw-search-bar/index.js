@@ -406,25 +406,43 @@ Component.register('sw-search-bar', {
                 });
             }
 
-            this.searchService.search({ term: searchTerm, payload }).then((response) => {
+            this.searchService.search({ term: searchTerm }).then((response) => {
+                if (this.feature.isActive('FEATURE_NEXT_6040')) {
+                    const data = response.data;
+
+                    if (!data) {
+                        return;
+                    }
+
+                    Object.keys(data).forEach(entity => {
+                        if (this.searchTypes.hasOwnProperty(entity) && data[entity].total > 0) {
+                            const item = data[entity];
+
+                            item.entities = Object.values(item.data);
+                            item.entity = entity;
+
+                            this.results = [
+                                ...this.results,
+                                item,
+                            ];
+                        }
+                    });
+
+                    this.activeResultColumn = 0;
+                    this.activeResultIndex = 0;
+                    this.isLoading = false;
+
+                    return;
+                }
+
                 response.data.forEach((item) => {
                     item.entities = Object.values(item.entities);
                 });
 
-                if (!this.feature.isActive('FEATURE_NEXT_6040')) {
-                    this.results = response.data.filter(
-                        item => this.searchTypes.hasOwnProperty(item.entity) && item.total > 0,
-                    );
-                }
+                this.results = response.data.filter(
+                    item => this.searchTypes.hasOwnProperty(item.entity) && item.total > 0,
+                );
 
-                if (this.feature.isActive('FEATURE_NEXT_6040')) {
-                    this.results = [
-                        ...this.results,
-                        ...response.data.filter(
-                            item => this.searchTypes.hasOwnProperty(item.entity) && item.total > 0,
-                        ),
-                    ];
-                }
                 this.activeResultColumn = 0;
                 this.activeResultIndex = 0;
                 this.isLoading = false;

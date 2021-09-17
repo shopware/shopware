@@ -66,10 +66,17 @@ function createWrapper(props, searchTypes = searchTypeServiceTypes, privileges =
         },
         provide: {
             searchService: {
-                search: ({ payload = {} }) => {
-                    if (Object.keys(payload).length > 0) {
+                search: () => {
+                    if (global.activeFeatureFlags.includes('FEATURE_NEXT_6040')) {
                         const result = {
-                            data: [{ entity: 'foo', total: 1, entities: [{ name: 'Baz', id: '12345' }] }]
+                            data: {
+                                foo: {
+                                    total: 1,
+                                    data: [
+                                        { name: 'Baz', id: '12345' }
+                                    ]
+                                }
+                            }
                         };
 
                         return Promise.resolve(result);

@@ -2303,7 +2303,7 @@ class ProductRepositoryTest extends TestCase
 
     public function testDuplicateProductNumber(): void
     {
-        $productNumber = 'sw-1-' . Uuid::randomHex();
+        $productNumber = 'sw1' . Uuid::randomHex();
 
         $data = [
             'id' => Uuid::randomHex(),

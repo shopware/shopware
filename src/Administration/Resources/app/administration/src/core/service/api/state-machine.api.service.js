@@ -15,10 +15,17 @@ class StateMachineApiService extends ApiService {
      * @param {string} stateFieldName (optional) Specify a different property of the base entity
      *   that holds the state id (e.g. `stateId`)
      */
-    getState(entity, entityId, stateFieldName, additionalParams = {}, additionalHeaders = {}, additionalQueryParams = {}) {
+    getState(
+        entity,
+        entityId,
+        additionalParams = {},
+        additionalHeaders = {},
+        stateFieldName = null,
+        additionalQueryParams = {},
+    ) {
         const query = ApiService.makeQueryParams({
             stateFieldName,
-            ...additionalQueryParams
+            ...additionalQueryParams,
         });
         const route = `_action/state-machine/${entity}/${entityId}/state${query}`;
 
@@ -35,10 +42,18 @@ class StateMachineApiService extends ApiService {
      * @param {string} stateFieldName (optional) Specify a different property of the base entity
      *   that holds the state id (e.g. `stateId`)
      */
-    transitionState(entity, entityId, actionName, stateFieldName, additionalParams = {}, additionalHeaders = {}, additionalQueryParams = {}) {
+    transitionState(
+        entity,
+        entityId,
+        actionName,
+        additionalParams = {},
+        additionalHeaders = {},
+        stateFieldName = null,
+        additionalQueryParams = {},
+    ) {
         const query = ApiService.makeQueryParams({
             stateFieldName,
-            ...additionalQueryParams
+            ...additionalQueryParams,
         });
         const route = `_action/state-machine/${entity}/${entityId}/state/${actionName}${query}`;
 

@@ -1,4 +1,4 @@
-import ApiService from 'src/app/service/api.service';
+import ApiService from 'src/core/service/api.service';
 
 describe('src/app/service/api.service.js', () => {
     describe('makeQueryParams', () => {

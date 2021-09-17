@@ -94,7 +94,7 @@ class ApiService {
 
     /**
      * @param {object} paramDictionary key-value pairs
-     * @returns {string} a string like `?key=value&key2=value2`
+     * @returns {string} a GET-query string like `?key=value&key2=value2`
      */
     static makeQueryParams(paramDictionary = {}) {
         const params = Object

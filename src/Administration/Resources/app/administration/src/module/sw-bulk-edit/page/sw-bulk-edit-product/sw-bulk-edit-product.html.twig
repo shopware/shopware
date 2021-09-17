@@ -28,7 +28,7 @@
             variant="primary"
             :is-loading="isLoading"
             :process-success="isSaveSuccessful"
-            :disabled="isLoading"
+            :disabled="isLoading || !hasSelectedChanges"
             @click="openModal"
         >
             {{ $tc('sw-settings-basic-information.general.buttonSave') }}
@@ -251,8 +251,6 @@
             >
                 <sw-bulk-edit-custom-fields
                     class="sw-bulk-edit__custom-fields"
-                    :is-change="bulkEditProduct.customFields.isChanged"
-                    :selected-custom-fields="bulkEditProduct.customFields.value"
                     :sets="customFieldSets"
                     @change="onCustomFieldsChange"
                 />

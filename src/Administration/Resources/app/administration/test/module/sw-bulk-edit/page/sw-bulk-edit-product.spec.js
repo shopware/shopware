@@ -637,11 +637,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         await flushPromises();
 
-        wrapper.vm.bulkEditProduct.customFields.isChanged = true;
-        wrapper.vm.bulkEditProduct.customFields.value = {
-            field1: 'abc'
-        };
-
         const categoriesFieldForm = wrapper.find('.sw-bulk-edit-change-field-media');
         await categoriesFieldForm.find('.sw-bulk-edit-change-field__change input').trigger('click');
         await wrapper.vm.$nextTick();
@@ -653,10 +648,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         expect(changeMediaField.type).toBe('overwrite');
         expect(changeMediaField.value[0].id).toBe('a435755c6c4f4fb4b81ec32b4c07e06e');
         expect(changeMediaField.value[0].mediaId).toBe('b7d2554b0ce847cd82f3ac9bd1c0dfca');
-
-        const changeCustomField = wrapper.vm.bulkEditSelected[1];
-        expect(changeCustomField.field).toBe('customFields');
-        expect(changeCustomField.value).toBe(wrapper.vm.bulkEditProduct.customFields.value);
     });
 
     it('should be convert key to customSearchKeywords when the user changed searchKeywords', async () => {

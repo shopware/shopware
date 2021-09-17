@@ -142,6 +142,7 @@
             "csvDescriptionBlock": "Separatoren werden verwendet, um einzelne Felder zu trennen. Einfassungszeichen werden verwendet, um gezielt darin enthaltene Steuerzeichen zu ignorieren. Zum Beispiel, wenn im Fließtext das Separator-Zeichen auftaucht.",
             "cancelLabel": "Abbrechen",
             "addMappingLabel": "Neues Mapping hinzufügen",
+            "downloadTemplateLabel": "Template herunterladen",
             "deleteLabel": "Löschen",
             "systemDefaultInfoText": "Dies ist ein Systemstandardprofil, das nicht geändert werden kann. Du kannst entweder ein neues Profil erstellen oder ein Systemstandardprofil duplizieren.",
             "mapping": {

@@ -199,6 +199,27 @@ class ImportExportActionController extends AbstractController
     }
 
     /**
+     * @internal (flag:FEATURE_NEXT_15998)
+     * @Route("/api/_action/import-export/prepare-template-file-download", name="api.action.import_export.template_file.prepare_download", methods={"POST"})
+     */
+    public function prepareTemplateFileDownload(Request $request, Context $context): Response
+    {
+        $profileId = $request->query->get('profileId');
+        if (!\is_string($profileId)) {
+            throw new InvalidRequestParameterException('profileId');
+        }
+        $profileId = strtolower($profileId);
+
+        $fileId = $this->importExportService->createTemplate($context, $profileId);
+        $token = $this->downloadService->regenerateToken($context, $fileId);
+
+        return new JsonResponse([
+            'fileId' => $fileId,
+            'accessToken' => $token,
+        ]);
+    }
+
+    /**
      * @throws ProfileNotFoundException
      */
     private function findProfile(Context $context, string $profileId): ImportExportProfileEntity

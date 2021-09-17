@@ -11,6 +11,9 @@ use Shopware\Core\Content\ImportExport\Exception\ProfileNotFoundException;
 use Shopware\Core\Content\ImportExport\Exception\ProfileWrongTypeException;
 use Shopware\Core\Content\ImportExport\Exception\UnexpectedFileTypeException;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
+use Shopware\Core\Content\ImportExport\Processing\Writer\AbstractWriter;
+use Shopware\Core\Content\ImportExport\Processing\Writer\CsvFileWriter;
+use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
@@ -51,6 +54,8 @@ class ImportExportService
      */
     private $profileRepository;
 
+    private AbstractWriter $writer;
+
     public function __construct(
         FilesystemInterface $filesystem,
         EntityRepositoryInterface $fileRepository,
@@ -63,6 +68,7 @@ class ImportExportService
         $this->logRepository = $logRepository;
         $this->userRepository = $userRepository;
         $this->profileRepository = $profileRepository;
+        $this->writer = new CsvFileWriter($filesystem);
     }
 
     public function prepareExport(
@@ -172,6 +178,48 @@ class ImportExportService
     {
         $data['id'] = $fileId;
         $this->fileRepository->update([$data], $context);
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_15998)
+     */
+    public function createTemplate(Context $context, string $profileId): string
+    {
+        /** @var ImportExportProfileEntity|null $profile */
+        $profile = $this->profileRepository->search(new Criteria([$profileId]), $context)->first();
+        if ($profile === null) {
+            throw new \RuntimeException('ImportExportProfile "' . $profileId . '" not found');
+        }
+        $mappings = $profile->getMapping();
+        if (empty($mappings)) {
+            throw new \RuntimeException('ImportExportProfile "' . $profileId . '" has no mappings');
+        }
+
+        $config = new Config($mappings, []);
+        $headers = [];
+
+        foreach ($mappings as $mapping) {
+            $headers[$mapping['mappedKey']] = '';
+        }
+
+        // create the file
+        $expireDate = new \DateTimeImmutable();
+        $expireDate = $expireDate->modify('+1 hour');
+        $fileEntity = $this->storeFile(
+            $context,
+            $expireDate,
+            null,
+            $profile->getSourceEntity() . ':' . $profile->getName() . '.csv',
+            ImportExportLogEntity::ACTIVITY_TEMPLATE
+        );
+
+        // write to the file
+        $targetFile = $fileEntity->getPath();
+        $this->writer->append($config, $headers, 0);
+        $this->writer->flush($config, $targetFile);
+        $this->writer->finish($config, $targetFile);
+
+        return $fileEntity->getId();
     }
 
     private function detectType(UploadedFile $file): string

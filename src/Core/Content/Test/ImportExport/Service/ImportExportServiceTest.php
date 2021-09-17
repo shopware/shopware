@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Content\Test\ImportExport\Service;
 
+use League\Flysystem\FilesystemInterface;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\Exception\ProfileWrongTypeException;
 use Shopware\Core\Content\ImportExport\Exception\UnexpectedFileTypeException;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
@@ -262,6 +264,58 @@ class ImportExportServiceTest extends TestCase
         }
     }
 
+    /**
+     * @dataProvider templateProfileProvider
+     */
+    public function testCreateTemplateFromProfileMapping($profile): void
+    {
+        if (!Feature::isActive('FEATURE_NEXT_15998')) {
+            static::markTestSkipped('NEXT-15998');
+        }
+
+        /** @var EntityRepositoryInterface $profileRepository */
+        $profileRepository = $this->getContainer()->get('import_export_profile.repository');
+        /** @var EntityRepositoryInterface $fileRepository */
+        $fileRepository = $this->getContainer()->get('import_export_file.repository');
+        /** @var FilesystemInterface $filesystem */
+        $filesystem = $this->getContainer()->get('shopware.filesystem.private');
+
+        $importExportService = new ImportExportService(
+            $this->getContainer()->get('shopware.filesystem.private'),
+            $this->getContainer()->get('import_export_file.repository'),
+            $this->getContainer()->get('import_export_log.repository'),
+            $this->getContainer()->get('user.repository'),
+            $profileRepository
+        );
+
+        $profileRepository->create([$profile], Context::createDefaultContext());
+
+        if (empty($profile['mapping'])) {
+            static::expectException(\RuntimeException::class);
+        }
+
+        $fileId = $importExportService->createTemplate(Context::createDefaultContext(), $profile['id']);
+
+        if (empty($profile['mapping'])) {
+            return;
+        }
+
+        static::assertNotEmpty($fileId);
+        /** @var ImportExportFileEntity $file */
+        $file = $fileRepository->search(new Criteria([$fileId]), Context::createDefaultContext())->first();
+        static::assertNotEmpty($file);
+
+        $csv = $filesystem->read($file->getPath());
+
+        foreach ($profile['mapping'] as $mapping) {
+            static::assertStringContainsString(
+                $mapping['mappedKey'],
+                $csv,
+                'Mapping mapped key should exists in CSV'
+            );
+        }
+    }
+
     public function profileProvider(): array
     {
         return [
@@ -372,6 +426,101 @@ class ImportExportServiceTest extends TestCase
                 ],
                 'export',
                 true,
+            ],
+        ];
+    }
+
+    public function templateProfileProvider(): array
+    {
+        return [
+            [
+                [
+                    'id' => Uuid::randomHex(),
+                    'name' => 'Test Profile',
+                    'label' => 'Test Profile',
+                    'sourceEntity' => 'product',
+                    'type' => ImportExportProfileEntity::TYPE_IMPORT_EXPORT,
+                    'fileType' => 'text/csv',
+                    'delimiter' => ';',
+                    'enclosure' => '"',
+                    'config' => [],
+                    'mapping' => [
+                        ['key' => 'mappedKeyOne', 'mappedKey' => 'mapped_key_one'],
+                    ],
+                ],
+                'import',
+                false,
+            ],
+            [
+                [
+                    'id' => Uuid::randomHex(),
+                    'name' => 'Test Profile',
+                    'label' => 'Test Profile',
+                    'sourceEntity' => 'product',
+                    'type' => ImportExportProfileEntity::TYPE_EXPORT,
+                    'fileType' => 'text/csv',
+                    'delimiter' => ';',
+                    'enclosure' => '"',
+                    'config' => [],
+                    'mapping' => [
+                        ['key' => 'mappedKeyOne', 'mappedKey' => 'mapped_key_one'],
+                        ['key' => 'mappedKeyTwo', 'mappedKey' => 'mapped_key_two'],
+                    ],
+                ],
+                'import',
+                true,
+            ],
+            [
+                [
+                    'id' => Uuid::randomHex(),
+                    'name' => 'Test Profile',
+                    'label' => 'Test Profile',
+                    'sourceEntity' => 'product',
+                    'type' => ImportExportProfileEntity::TYPE_EXPORT,
+                    'fileType' => 'text/csv',
+                    'delimiter' => ';',
+                    'enclosure' => '"',
+                    'config' => [],
+                    'mapping' => [
+                        ['key' => 'mappedKeyOne', 'mappedKey' => 'mapped_key_one'],
+                        ['key' => 'mappedKeyTwo', 'mappedKey' => 'mapped_key_two'],
+                        ['key' => 'mappedKeyThree', 'mappedKey' => 'mapped_key_three'],
+                    ],
+                ],
+                'export',
+                false,
+            ],
+            [
+                [
+                    'id' => Uuid::randomHex(),
+                    'name' => 'Test Profile',
+                    'label' => 'Test Profile',
+                    'sourceEntity' => 'product',
+                    'type' => ImportExportProfileEntity::TYPE_EXPORT,
+                    'fileType' => 'text/csv',
+                    'delimiter' => ';',
+                    'enclosure' => '"',
+                    'config' => [],
+                    'mapping' => [],
+                ],
+                'export',
+                false,
+            ],
+            [
+                [
+                    'id' => Uuid::randomHex(),
+                    'name' => 'Test Profile',
+                    'label' => 'Test Profile',
+                    'sourceEntity' => 'product',
+                    'type' => ImportExportProfileEntity::TYPE_EXPORT,
+                    'fileType' => 'text/csv',
+                    'delimiter' => ';',
+                    'enclosure' => '"',
+                    'config' => [],
+                    'mapping' => null,
+                ],
+                'export',
+                false,
             ],
         ];
     }

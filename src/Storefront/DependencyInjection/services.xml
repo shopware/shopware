@@ -522,13 +522,12 @@
         </service>
 
         <service id="Shopware\Storefront\Framework\Command\SalesChannelCreateStorefrontCommand">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="sales_channel.repository"/>
             <argument type="service" id="payment_method.repository"/>
             <argument type="service" id="shipping_method.repository"/>
             <argument type="service" id="country.repository"/>
             <argument type="service" id="snippet_set.repository"/>
             <argument type="service" id="category.repository"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Service\SalesChannelCreator"/>
 
             <tag name="console.command"/>
         </service>

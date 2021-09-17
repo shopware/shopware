@@ -36,20 +36,25 @@ ini_set('display_errors', '1');
 date_default_timezone_set('UTC');
 set_time_limit(0);
 
+use Shopware\Core\HttpKernel;
 use Shopware\Recovery\Install\Console\Application;
 use Symfony\Component\Console\Input\ArgvInput;
 
 require_once dirname(__DIR__) . '/autoload.php';
 
+$classLoader = require __DIR__ . '/../vendor/autoload.php';
+$kernel = new HttpKernel('prod', false, $classLoader);
+$kernel->setPluginLoader(new \Shopware\Core\Framework\Plugin\KernelPluginLoader\ComposerPluginLoader($classLoader));
+
 if (\PHP_SAPI === 'cli') {
     $input = new ArgvInput();
     $env = $input->getParameterOption(['--env', '-e'], 'production');
 
-    return (new Application($env))->run($input);
+    return (new Application($env, $kernel->getKernel()))->run($input);
 }
 
 //the execution time will be increased, because the import can take a while
 ini_set('max_execution_time', '120');
 
 $app = require __DIR__ . '/src/app.php';
-$app->run();
+$app->getApp($kernel->getKernel())->run();

@@ -6,17 +6,22 @@ use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use Psr\Log\NullLogger;
 use Shopware\Core\DevOps\System\Service\JwtCertificateGenerator;
+use Shopware\Core\DevOps\System\Service\ShopConfigurator;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader as CoreMigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationRuntime as CoreMigrationRuntime;
 use Shopware\Core\Framework\Migration\MigrationSource as CoreMigrationSource;
+use Shopware\Core\System\SalesChannel\Service\SalesChannelCreator;
+use Shopware\Core\System\User\Service\UserProvisioner;
 use Shopware\Recovery\Common\HttpClient\CurlClient;
 use Shopware\Recovery\Common\Service\JwtCertificateService;
 use Shopware\Recovery\Common\Service\Notification;
 use Shopware\Recovery\Common\Service\UniqueIdGenerator;
 use Shopware\Recovery\Common\SystemLocker;
+use Shopware\Recovery\Install\Service\AdminService;
 use Shopware\Recovery\Install\Service\BlueGreenDeploymentService;
 use Shopware\Recovery\Install\Service\EnvConfigWriter;
+use Shopware\Recovery\Install\Service\ShopService;
 use Shopware\Recovery\Install\Service\TranslationService;
 use Shopware\Recovery\Install\Service\WebserverCheck;
 use Slim\App;
@@ -218,6 +223,18 @@ class ContainerProvider implements ServiceProviderInterface
 
         $container['blue.green.deployment.service'] = static function ($c) {
             return new BlueGreenDeploymentService($c['dbal']);
+        };
+
+        $container['shop.configurator'] = static function ($c) {
+            return new ShopConfigurator($c['dbal']);
+        };
+
+        $container['shop.service'] = static function ($c) {
+            return new ShopService($c['dbal'], $c['shop.configurator'], $c['shopware.container']->get(SalesChannelCreator::class));
+        };
+
+        $container['admin.service'] = static function ($c) {
+            return new AdminService($c['dbal'], $c['shopware.container']->get(UserProvisioner::class));
         };
     }
 

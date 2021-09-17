@@ -34,7 +34,7 @@ class UserProvisioner
             'email' => $additionalData['email'] ?? 'info@shopware.com',
             'username' => $username,
             'password' => password_hash($password, \PASSWORD_BCRYPT),
-            'locale_id' => $this->getLocaleOfSystemLanguage(),
+            'locale_id' => $additionalData['localeId'] ?? $this->getLocaleOfSystemLanguage(),
             'active' => true,
             'admin' => $additionalData['admin'] ?? true,
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),

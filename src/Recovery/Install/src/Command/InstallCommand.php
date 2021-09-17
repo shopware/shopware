@@ -9,9 +9,7 @@ use Shopware\Core\DevOps\System\Service\DatabaseInitializer;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Recovery\Common\IOHelper;
 use Shopware\Recovery\Common\Service\JwtCertificateService;
-use Shopware\Recovery\Common\Service\SystemConfigService;
 use Shopware\Recovery\Install\DatabaseInteractor;
-use Shopware\Recovery\Install\Service\AdminService;
 use Shopware\Recovery\Install\Service\BlueGreenDeploymentService;
 use Shopware\Recovery\Install\Service\EnvConfigWriter;
 use Shopware\Recovery\Install\Service\ShopService;
@@ -123,12 +121,12 @@ class InstallCommand extends Command
             $adminUser = $this->getAdminInfoFromInteractiveShell($adminUser);
         }
 
-        $systemConfigService = new SystemConfigService($conn);
-        $shopService = new ShopService($conn, $systemConfigService);
+        /** @var ShopService $shopService */
+        $shopService = $container->offsetGet('shop.service');
         $shopService->updateShop($shop);
 
         if (!$input->getOption('skip-admin-creation')) {
-            $adminService = new AdminService($conn);
+            $adminService = $container->offsetGet('admin.service');
             $adminService->createAdmin($adminUser);
         }
 

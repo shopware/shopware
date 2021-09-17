@@ -8,18 +8,13 @@ use Shopware\Recovery\Install\ContainerProvider;
 use Symfony\Component\Console\Application as BaseApplication;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 class Application extends BaseApplication
 {
-    /**
-     * @var Container
-     */
-    private $container;
+    private Container $container;
 
-    /**
-     * @param string $env
-     */
-    public function __construct($env)
+    public function __construct(string $env, KernelInterface $kernel)
     {
         $this->registerErrorHandler();
 
@@ -27,6 +22,7 @@ class Application extends BaseApplication
 
         $config = require __DIR__ . '/../../config/' . $env . '.php';
         $this->container = new Container();
+        $this->container->offsetSet('shopware.container', $kernel->getContainer());
         $this->container->register(new ContainerProvider($config));
 
         $this->getDefinition()->addOption(new InputOption('--env', '-e', InputOption::VALUE_REQUIRED, 'The Environment name.', $env));

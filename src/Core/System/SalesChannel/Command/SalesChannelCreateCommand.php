@@ -5,9 +5,7 @@ namespace Shopware\Core\System\SalesChannel\Command;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
-use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -15,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Shopware\Core\System\SalesChannel\Service\SalesChannelCreator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
@@ -25,8 +24,6 @@ class SalesChannelCreateCommand extends Command
 {
     protected static $defaultName = 'sales-channel:create';
 
-    private EntityRepositoryInterface $salesChannelRepository;
-
     private EntityRepositoryInterface $paymentMethodRepository;
 
     private EntityRepositoryInterface $shippingMethodRepository;
@@ -35,37 +32,38 @@ class SalesChannelCreateCommand extends Command
 
     private EntityRepositoryInterface $snippetSetRepository;
 
-    private DefinitionInstanceRegistry $definitionRegistry;
-
     private EntityRepositoryInterface $categoryRepository;
 
+    private SalesChannelCreator $salesChannelCreator;
+
     public function __construct(
-        DefinitionInstanceRegistry $definitionRegistry,
-        EntityRepositoryInterface $salesChannelRepository,
         EntityRepositoryInterface $paymentMethodRepository,
         EntityRepositoryInterface $shippingMethodRepository,
         EntityRepositoryInterface $countryRepository,
         EntityRepositoryInterface $snippetSetRepository,
-        EntityRepositoryInterface $categoryRepository
+        EntityRepositoryInterface $categoryRepository,
+        SalesChannelCreator $salesChannelCreator
     ) {
-        $this->definitionRegistry = $definitionRegistry;
-        $this->salesChannelRepository = $salesChannelRepository;
         $this->paymentMethodRepository = $paymentMethodRepository;
         $this->shippingMethodRepository = $shippingMethodRepository;
         $this->countryRepository = $countryRepository;
         $this->snippetSetRepository = $snippetSetRepository;
         $this->categoryRepository = $categoryRepository;
+        $this->salesChannelCreator = $salesChannelCreator;
 
         parent::__construct();
     }
 
+    /**
+     * @deprecated tag: v6.5.0 - Option `snippetSetId` will be removed as it had no effect, use `sales-channel:create:storefront` instead
+     */
     protected function configure(): void
     {
         $this
             ->addOption('id', null, InputOption::VALUE_REQUIRED, 'Id for the sales channel', Uuid::randomHex())
             ->addOption('name', null, InputOption::VALUE_REQUIRED, 'Name for the application')
             ->addOption('languageId', null, InputOption::VALUE_REQUIRED, 'Default language', Defaults::LANGUAGE_SYSTEM)
-            ->addOption('snippetSetId', null, InputOption::VALUE_REQUIRED, 'Default snippet set')
+            ->addOption('snippetSetId', null, InputOption::VALUE_REQUIRED, 'Deprecated: will be removed in 6.5.0 as it had no effect')
             ->addOption('currencyId', null, InputOption::VALUE_REQUIRED, 'Default currency', Defaults::CURRENCY)
             ->addOption('paymentMethodId', null, InputOption::VALUE_REQUIRED, 'Default payment method')
             ->addOption('shippingMethodId', null, InputOption::VALUE_REQUIRED, 'Default shipping method')
@@ -83,45 +81,25 @@ class SalesChannelCreateCommand extends Command
 
         $io = new ShopwareStyle($input, $output);
 
-        $paymentMethod = $input->getOption('paymentMethodId') ?? $this->getFirstActivePaymentMethodId();
-        $shippingMethod = $input->getOption('shippingMethodId') ?? $this->getFirstActiveShippingMethodId();
-        $countryId = $input->getOption('countryId') ?? $this->getFirstActiveCountryId();
-        $snippetSet = $input->getOption('snippetSetId') ?? $this->getSnippetSetId();
-        $customerGroupId = $input->getOption('customerGroupId') ?? $this->getCustomerGroupId();
-        $context = Context::createDefaultContext();
-
-        $data = [
-            'id' => $id,
-            'name' => $input->getOption('name') ?? 'Headless',
-            'typeId' => $typeId ?? $this->getTypeId(),
-            'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),
-
-            // default selection
-            'languageId' => $input->getOption('languageId'),
-            'snippetSetId' => $snippetSet,
-            'currencyId' => $input->getOption('currencyId'),
-            'currencyVersionId' => Defaults::LIVE_VERSION,
-            'paymentMethodId' => $paymentMethod,
-            'paymentMethodVersionId' => Defaults::LIVE_VERSION,
-            'shippingMethodId' => $shippingMethod,
-            'shippingMethodVersionId' => Defaults::LIVE_VERSION,
-            'countryId' => $countryId,
-            'countryVersionId' => Defaults::LIVE_VERSION,
-            'customerGroupId' => $customerGroupId,
-            'navigationCategoryId' => $input->getOption('navigationCategoryId'),
-
-            // available mappings
-            'currencies' => $this->getAllIdsOf('currency', $context),
-            'languages' => $this->getAllIdsOf('language', $context),
-            'shippingMethods' => $this->getAllIdsOf('shipping_method', $context),
-            'paymentMethods' => $this->getAllIdsOf('payment_method', $context),
-            'countries' => $this->getAllIdsOf('country', $context),
-        ];
-
-        $data = array_replace_recursive($data, $this->getSalesChannelConfiguration($input, $output));
-
         try {
-            $this->salesChannelRepository->create([$data], $context);
+            $accessKey = $this->salesChannelCreator->createSalesChannel(
+                $id,
+                $input->getOption('name') ?? 'Headless',
+                $typeId ?? $this->getTypeId(),
+                $input->getOption('languageId'),
+                $input->getOption('currencyId'),
+                $input->getOption('snippetSetId'),
+                $input->getOption('paymentMethodId'),
+                $input->getOption('shippingMethodId'),
+                $input->getOption('customerGroupId'),
+                $input->getOption('navigationCategoryId'),
+                null,
+                null,
+                null,
+                null,
+                null,
+                $this->getSalesChannelConfiguration($input, $output)
+            );
 
             $io->success('Sales channel has been created successfully.');
         } catch (WriteException $exception) {
@@ -147,7 +125,7 @@ class SalesChannelCreateCommand extends Command
         $table->setHeaders(['Key', 'Value']);
 
         $table->addRows([
-            ['Access key', $data['accessKey']],
+            ['Access key', $accessKey],
         ]);
 
         $table->render();
@@ -157,9 +135,7 @@ class SalesChannelCreateCommand extends Command
 
     protected function getSalesChannelConfiguration(InputInterface $input, OutputInterface $output): array
     {
-        return [
-            'navigationCategoryId' => $this->getRootCategoryId(),
-        ];
+        return [];
     }
 
     protected function getTypeId(): string
@@ -167,6 +143,9 @@ class SalesChannelCreateCommand extends Command
         return Defaults::SALES_CHANNEL_TYPE_API;
     }
 
+    /**
+     * @deprecated tag: v6.5.0 - Will be removed, use SalesChannelCreator instead
+     */
     protected function getFirstActiveShippingMethodId(): string
     {
         $criteria = (new Criteria())
@@ -179,6 +158,9 @@ class SalesChannelCreateCommand extends Command
         return $ids[0];
     }
 
+    /**
+     * @deprecated tag: v6.5.0 - Will be removed, use SalesChannelCreator instead
+     */
     protected function getFirstActivePaymentMethodId(): string
     {
         $criteria = (new Criteria())
@@ -192,6 +174,9 @@ class SalesChannelCreateCommand extends Command
         return $ids[0];
     }
 
+    /**
+     * @deprecated tag: v6.5.0 - Will be removed, use SalesChannelCreator instead
+     */
     protected function getFirstActiveCountryId(): string
     {
         $criteria = (new Criteria())
@@ -205,6 +190,9 @@ class SalesChannelCreateCommand extends Command
         return $ids[0];
     }
 
+    /**
+     * @deprecated tag: v6.5.0 - Will be removed, use SalesChannelCreator instead
+     */
     protected function getSnippetSetId(): string
     {
         $criteria = (new Criteria())
@@ -221,6 +209,9 @@ class SalesChannelCreateCommand extends Command
         return $id;
     }
 
+    /**
+     * @deprecated tag: v6.5.0 - Will be removed, use SalesChannelCreator instead
+     */
     protected function getRootCategoryId(): string
     {
         $criteria = new Criteria();
@@ -232,35 +223,5 @@ class SalesChannelCreateCommand extends Command
         $categories = $this->categoryRepository->searchIds($criteria, Context::createDefaultContext())->getIds();
 
         return $categories[0];
-    }
-
-    private function getAllIdsOf(string $entity, Context $context): array
-    {
-        $repository = $this->definitionRegistry->getRepository($entity);
-
-        $ids = $repository->searchIds(new Criteria(), $context);
-
-        return array_map(
-            function (string $id) {
-                return ['id' => $id];
-            },
-            $ids->getIds()
-        );
-    }
-
-    private function getCustomerGroupId(): string
-    {
-        $criteria = (new Criteria())
-            ->setLimit(1);
-
-        $repository = $this->definitionRegistry->getRepository(CustomerGroupDefinition::ENTITY_NAME);
-
-        $id = $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
-
-        if ($id === null) {
-            throw new \RuntimeException('Cannot find a customer group to assign it to the sales channel');
-        }
-
-        return $id;
     }
 }

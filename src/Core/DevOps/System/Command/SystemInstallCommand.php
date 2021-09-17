@@ -34,7 +34,11 @@ class SystemInstallCommand extends Command
             ->addOption('drop-database', null, InputOption::VALUE_NONE, 'Drop existing database')
             ->addOption('basic-setup', null, InputOption::VALUE_NONE, 'Create storefront sales channel and admin user')
             ->addOption('force', 'f', InputOption::VALUE_NONE, 'Force install even if install.lock exists')
-            ->addOption('no-assign-theme', null, InputOption::VALUE_NONE, 'Do nmot assign the default theme')
+            ->addOption('no-assign-theme', null, InputOption::VALUE_NONE, 'Do not assign the default theme')
+            ->addOption('shop-name', null, InputOption::VALUE_REQUIRED, 'The name of your shop')
+            ->addOption('shop-email', null, InputOption::VALUE_REQUIRED, 'Shop email address')
+            ->addOption('shop-locale', null, InputOption::VALUE_REQUIRED, 'Default language locale of the shop')
+            ->addOption('shop-currency', null, InputOption::VALUE_REQUIRED, 'Iso code for the default currency of the shop')
         ;
     }
 
@@ -72,6 +76,14 @@ class SystemInstallCommand extends Command
                 '--version-selection-mode' => 'all',
             ],
             [
+                'command' => 'system:configure-shop',
+                '--shop-name' => $input->getOption('shop-name'),
+                '--shop-email' => $input->getOption('shop-email'),
+                '--shop-locale' => $input->getOption('shop-locale'),
+                '--shop-currency' => $input->getOption('shop-currency'),
+                '--no-interaction' => true,
+            ],
+            [
                 'command' => 'dal:refresh:index',
             ],
         ];
@@ -102,7 +114,7 @@ class SystemInstallCommand extends Command
             if ($application->has('sales-channel:create:storefront')) {
                 $commands[] = [
                     'command' => 'sales-channel:create:storefront',
-                    '--name' => 'Storefront',
+                    '--name' => $input->getOption('shop-name') ?? 'Storefront',
                     '--url' => (string) EnvironmentHelper::getVariable('APP_URL', 'http://localhost'),
                 ];
             }
@@ -137,7 +149,7 @@ class SystemInstallCommand extends Command
     }
 
     /**
-     * @param array<int, array<string, string|bool>> $commands
+     * @param array<int, array<string, string|bool|null>> $commands
      */
     private function runCommands(array $commands, OutputInterface $output): int
     {
@@ -147,6 +159,9 @@ class SystemInstallCommand extends Command
         }
 
         foreach ($commands as $parameters) {
+            // remove params with null value
+            $parameters = array_filter($parameters);
+
             $output->writeln('');
 
             $command = $application->find((string) $parameters['command']);

@@ -289,7 +289,7 @@ Shopware.Component.register('sw-import-export-activity', {
         },
 
         /**
-         * @deprecated tag:v6.5.0 - Remove unused method, use openDownload instead
+         * @deprecated tag:v6.5.0 - Remove unused method, use openProcessFileDownload instead
          */
         getDownloadUrl() {
             Shopware.Utils.debug.error('The method getDownloadUrl has been replaced with openDownload.');
@@ -297,8 +297,19 @@ Shopware.Component.register('sw-import-export-activity', {
             return '';
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - Remove unused method, use openProcessFileDownload instead
+         */
         async openDownload(id) {
             return window.open(await this.importExport.getDownloadUrl(id), '_blank');
+        },
+
+        async openProcessFileDownload(item) {
+            if (this.type === 'export' && item.state !== 'succeeded') {
+                return null;
+            }
+
+            return window.open(await this.importExport.getDownloadUrl(item.fileId), '_blank');
         },
 
         saveSelectedProfile() {

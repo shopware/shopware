@@ -268,7 +268,7 @@ trait StorefrontPageTestBehaviour
                 ],
                 'defaultBillingAddressId' => $addressId,
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => 'foo@bar.de',
                 'password' => 'password',
                 'firstName' => 'Max',
@@ -292,7 +292,7 @@ trait StorefrontPageTestBehaviour
 
         $salesChannelId = Uuid::randomHex();
         $salesChannel['id'] = $salesChannelId;
-        $salesChannel['customerGroupId'] = Defaults::FALLBACK_CUSTOMER_GROUP;
+        $salesChannel['customerGroupId'] = TestDefaults::FALLBACK_CUSTOMER_GROUP;
 
         $salesChannelRepository->create([$salesChannel], Context::createDefaultContext());
 

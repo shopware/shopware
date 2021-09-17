@@ -399,7 +399,7 @@ class CartServiceTest extends TestCase
                 ],
                 'defaultBillingAddressId' => $addressId,
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => $mail,
                 'password' => $password,
                 'lastName' => 'not',

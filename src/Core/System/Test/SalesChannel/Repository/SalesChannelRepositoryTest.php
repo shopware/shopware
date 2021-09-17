@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\Test\TestDefaults;
 
 class SalesChannelRepositoryTest extends TestCase
 {
@@ -111,7 +112,7 @@ class SalesChannelRepositoryTest extends TestCase
             'paymentMethods' => [['id' => $this->getValidPaymentMethodId()]],
             'shippingMethods' => [['id' => $this->getValidShippingMethodId()]],
             'countries' => [['id' => $this->getValidCountryId()]],
-            'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+            'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
         ]], $context);
 
         $criteria1 = new Criteria([$salesChannelId]);
@@ -163,7 +164,7 @@ class SalesChannelRepositoryTest extends TestCase
             'id' => $id,
             'name' => 'test',
             'typeId' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
-            'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+            'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'currencyId' => Defaults::CURRENCY,
             'paymentMethodId' => $this->getValidPaymentMethodId(),
             'shippingMethodId' => $this->getValidShippingMethodId(),

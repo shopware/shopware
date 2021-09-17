@@ -4,7 +4,6 @@ namespace Shopware\Core\Migration\Test;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -220,7 +219,7 @@ class Migration1602745374AddVatIdsColumnAndTransferVatIdFromCustomerAddressIntoC
             ],
             'defaultBillingAddressId' => $this->ids->get('address_id'),
             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-            'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'email' => $email,
             'password' => $password,
             'firstName' => 'Huy',

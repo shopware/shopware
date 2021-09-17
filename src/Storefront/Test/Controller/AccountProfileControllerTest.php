@@ -4,7 +4,6 @@ namespace Shopware\Storefront\Test\Controller;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -79,7 +78,7 @@ class AccountProfileControllerTest extends TestCase
                 ],
                 'defaultBillingAddressId' => $addressId,
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => 'test@example.com',
                 'password' => 'test',
                 'firstName' => 'Max',

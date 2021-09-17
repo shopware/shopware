@@ -290,7 +290,7 @@ class CleanPersonalDataCommandTest extends TestCase
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultShippingAddress' => $address,
             'defaultPaymentMethodId' => $this->fetchFirstIdFromTable('payment_method'),
-            'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'email' => Uuid::randomHex() . '@example.com',
             'lastName' => 'not',
             'firstName' => Random::getAlphanumericString(20),

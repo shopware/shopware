@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_4\Migration1628749113Migration1628749113AddDefaultSalesChannelLanguageIdsInLanguagesLists;
+use Shopware\Core\Test\TestDefaults;
 
 class Migration1628749113Migration1628749113AddDefaultSalesChannelLanguageIdsInLanguagesListsTest extends TestCase
 {
@@ -144,7 +145,7 @@ class Migration1628749113Migration1628749113AddDefaultSalesChannelLanguageIdsInL
             'paymentMethods' => [['id' => $this->getValidPaymentMethodId()]],
             'countries' => [['id' => $this->getValidCountryId()]],
             'name' => 'first sales-channel',
-            'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+            'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
         ];
     }
 

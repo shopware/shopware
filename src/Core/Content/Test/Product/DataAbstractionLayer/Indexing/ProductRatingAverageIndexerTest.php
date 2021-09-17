@@ -393,7 +393,7 @@ SQL;
                     'description' => 'Default payment method',
                     'handlerIdentifier' => SyncTestPaymentHandler::class,
                 ],
-                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => $email,
                 'password' => $password,
                 'firstName' => 'Max',

@@ -5,7 +5,6 @@ namespace Shopware\Core\Checkout\Test\Customer\Repository;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -91,7 +90,7 @@ class CustomerRepositoryTest extends TestCase
                 'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultShippingAddress' => $address,
                 'defaultPaymentMethodId' => $paymentMethod,
-                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => Uuid::randomHex() . '@example.com',
                 'password' => 'not',
                 'lastName' => 'not',
@@ -104,7 +103,7 @@ class CustomerRepositoryTest extends TestCase
                 'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultShippingAddress' => $address,
                 'defaultPaymentMethodId' => $paymentMethod,
-                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => Uuid::randomHex() . '@example.com',
                 'password' => 'not',
                 'lastName' => $matchTerm,
@@ -117,7 +116,7 @@ class CustomerRepositoryTest extends TestCase
                 'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultShippingAddress' => $address,
                 'defaultPaymentMethodId' => $paymentMethod,
-                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => Uuid::randomHex() . '@example.com',
                 'password' => 'not',
                 'lastName' => 'not',
@@ -130,7 +129,7 @@ class CustomerRepositoryTest extends TestCase
                 'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultShippingAddress' => $address,
                 'defaultPaymentMethodId' => $paymentMethod,
-                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => $matchTerm . '@example.com',
                 'password' => 'not',
                 'lastName' => 'not',
@@ -189,7 +188,7 @@ class CustomerRepositoryTest extends TestCase
                     'country' => ['name' => 'not'],
                 ],
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => 'test@example.com',
                 'password' => 'not',
                 'lastName' => 'not',
@@ -224,7 +223,7 @@ class CustomerRepositoryTest extends TestCase
                 ],
                 'defaultBillingAddressId' => $addressId,
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => 'foo@bar.de',
                 'password' => 'password',
                 'firstName' => 'Max',

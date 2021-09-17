@@ -101,7 +101,7 @@ class NewsletterRecipientServiceTest extends TestCase
             'id' => $id,
             'name' => 'test',
             'typeId' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
-            'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+            'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'currencyId' => Defaults::CURRENCY,
             'paymentMethodId' => $this->getRandomId('payment_method'),
             'shippingMethodId' => $this->getRandomId('shipping_method'),

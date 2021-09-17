@@ -130,7 +130,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
                         ],
                     ],
                 ],
-                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => Uuid::randomHex() . '@' . Uuid::randomHex() . '.de',
                 'password' => Uuid::randomHex(),
                 'firstName' => 'Max',

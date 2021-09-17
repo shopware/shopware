@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Demodata\Generator;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
@@ -14,6 +13,7 @@ use Shopware\Core\Framework\Demodata\DemodataContext;
 use Shopware\Core\Framework\Demodata\DemodataGeneratorInterface;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
+use Shopware\Core\Test\TestDefaults;
 
 class CustomerGenerator implements DemodataGeneratorInterface
 {
@@ -119,7 +119,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
             'email' => 'test@example.com',
             'password' => 'shopware',
             'defaultPaymentMethodId' => $this->getDefaultPaymentMethod(),
-            'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'salesChannelId' => $salesChannelIds[array_rand($salesChannelIds)],
             'defaultBillingAddressId' => $billingAddressId,
             'defaultShippingAddressId' => $shippingAddressId,
@@ -161,7 +161,7 @@ class CustomerGenerator implements DemodataGeneratorInterface
         $context->getConsole()->progressStart($numberOfItems);
 
         $netCustomerGroupId = $this->createNetCustomerGroup($context->getContext());
-        $customerGroups = [Defaults::FALLBACK_CUSTOMER_GROUP, $netCustomerGroupId];
+        $customerGroups = [TestDefaults::FALLBACK_CUSTOMER_GROUP, $netCustomerGroupId];
 
         $salesChannelIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM sales_channel');
 

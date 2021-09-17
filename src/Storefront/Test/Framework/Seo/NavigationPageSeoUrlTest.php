@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
 
 /**
@@ -377,7 +378,7 @@ class NavigationPageSeoUrlTest extends TestCase
             'paymentMethods' => [['id' => $this->getValidPaymentMethodId()]],
             'shippingMethods' => [['id' => $this->getValidShippingMethodId()]],
             'countries' => [['id' => $this->getValidCountryId()]],
-            'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+            'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'domains' => [
                 [
                     'languageId' => Defaults::LANGUAGE_SYSTEM,

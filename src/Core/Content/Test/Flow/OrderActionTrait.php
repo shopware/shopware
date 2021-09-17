@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 trait OrderActionTrait
@@ -57,7 +58,7 @@ trait OrderActionTrait
                 ],
                 'defaultBillingAddressId' => $this->ids->get('address'),
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => $email,
                 'password' => $password,
                 'firstName' => 'Max',

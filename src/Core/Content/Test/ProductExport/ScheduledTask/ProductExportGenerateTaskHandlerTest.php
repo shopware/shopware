@@ -21,6 +21,7 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelD
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 
 /**
@@ -193,7 +194,7 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
             'accessKey' => $id,
             'name' => 'A totally fake Storefront SalesChannel',
             'typeId' => Defaults::SALES_CHANNEL_TYPE_STOREFRONT,
-            'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+            'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'currencyId' => Defaults::CURRENCY,
             'languages' => $languages,
             'languageId' => $originalSalesChannel->getLanguageId(),

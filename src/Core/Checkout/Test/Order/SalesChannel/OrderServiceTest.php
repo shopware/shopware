@@ -655,7 +655,7 @@ class OrderServiceTest extends TestCase
             ],
             'defaultBillingAddressId' => $customerId,
             'defaultPaymentMethodId' => $paymentMethodId,
-            'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'email' => Uuid::randomHex() . '@example.com',
             'password' => 'not',
             'firstName' => $firstName,

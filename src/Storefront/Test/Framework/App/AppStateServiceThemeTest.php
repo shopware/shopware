@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\App\StorefrontPluginRegistryTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Theme\Exception\ThemeAssignmentException;
 use Shopware\Storefront\Theme\ThemeService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -201,7 +202,7 @@ class AppStateServiceThemeTest extends TestCase
             'paymentMethods' => [['id' => $this->getValidPaymentMethodId()]],
             'countries' => [['id' => $this->getValidCountryId()]],
             'name' => 'first sales-channel',
-            'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+            'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
         ]];
 
         $salesChannelRepository->create($payload, Context::createDefaultContext());

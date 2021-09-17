@@ -2197,7 +2197,7 @@ EOF;
             'paymentMethods' => [['id' => $this->getValidPaymentMethodId()]],
             'countries' => [['id' => $this->getValidCountryId()]],
             'name' => 'first sales-channel',
-            'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+            'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
         ];
     }
 
@@ -2238,7 +2238,7 @@ EOF;
             'email' => $ids->get('email') . '@example.com',
             'password' => 'shopware',
             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-            'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultBillingAddressId' => $ids->get('address'),
             'defaultShippingAddressId' => $ids->get('address'),

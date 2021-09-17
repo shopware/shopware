@@ -232,7 +232,7 @@ class DocumentControllerTest extends TestCase
             'email' => 'customer@example.com',
             'password' => 'shopware',
             'defaultPaymentMethodId' => $paymentMethodId,
-            'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultBillingAddressId' => $addressId,
             'defaultShippingAddressId' => $addressId,

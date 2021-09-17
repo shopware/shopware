@@ -292,7 +292,7 @@ class SalesChannelValidatorTest extends TestCase
             'paymentMethods' => [['id' => $this->getValidPaymentMethodId()]],
             'countries' => [['id' => $this->getValidCountryId()]],
             'name' => 'first sales-channel',
-            'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+            'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
         ];
 
         if (!$languages) {

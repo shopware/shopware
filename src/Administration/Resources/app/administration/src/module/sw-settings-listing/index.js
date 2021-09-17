@@ -1,5 +1,7 @@
 import './page/sw-settings-listing';
 import './page/sw-settings-listing-option-create';
+
+import './component/sw-settings-listing-default-sales-channel';
 import './component/sw-settings-listing-delete-modal';
 import './component/sw-settings-listing-option-general-info';
 import './component/sw-settings-listing-option-criteria-grid';

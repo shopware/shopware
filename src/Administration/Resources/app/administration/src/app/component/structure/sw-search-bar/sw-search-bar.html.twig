@@ -132,8 +132,8 @@
                 {% endblock %}
 
                 <template
-                    v-else-if="!isResultEmpty()"
                     v-for="(entity, column) in results"
+                    v-else-if="!isResultEmpty()"
                 >
                     {% block sw_search_bar_results_list %}
                     <div

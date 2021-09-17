@@ -1,0 +1,79 @@
+{% block sw_settings_listing_default_sales_channel %}
+<div class="sw-settings-listing-default-sales-channel">
+    {% block sw_settings_listing_default_sales_channel_loader %}
+    <sw-loader v-if="isLoading || isDefaultSalesChannelLoading" />
+    {% endblock %}
+
+    <template v-else>
+        {% block sw_settings_listing_default_sales_channel_description %}
+        <p class="sw-settings-listing-default-sales-channel__description">
+            {{ $tc('sw-settings-listing.index.defaultSalesChannel.description') }}
+        </p>
+        {% endblock %}
+
+        {% block sw_settings_listing_default_sales_channel_select %}
+        <sw-entity-multi-id-select
+            v-model="configData[null]['core.defaultSalesChannel.salesChannel']"
+            :repository="salesChannelRepository"
+            :label="$tc('sw-settings.system-config.labelSalesChannelSelect')"
+            :placeholder="$tc('sw-product.visibility.placeholderVisibility')"
+            @change="updateSalesChannel"
+        />
+        {% endblock %}
+
+        {% block sw_settings_listing_default_sales_channeld_setting %}
+        <div class="sw-settings-listing-default-sales-channel__options-container">
+            {% block sw_settings_listing_default_sales_channel_setting_active %}
+            <sw-switch-field
+                v-model="configData[null]['core.defaultSalesChannel.active']"
+                class="sw-settings-listing-default-sales-channel__active-switch"
+                :label="$tc('sw-product.settingsForm.labelActive')"
+            />
+            {% endblock %}
+
+            {% block sw_settings_listing_default_sales_channel_setting_visibility %}
+            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+            <a
+                v-if="salesChannel.length > 0"
+                class="sw-settings-listing-default-sales-channel__quick-link"
+                @click="displayAdvancedVisibility"
+            >
+                {{ $tc('sw-settings-listing.index.defaultSalesChannel.linkAdvancedVisibility') }}
+                <sw-icon
+                    class="sw-settings-listing-default-sales-channel__link-icon"
+                    name="default-arrow-simple-right"
+                    small
+                />
+            </a>
+            {% endblock %}
+        </div>
+        {% endblock %}
+
+        {% block sw_settings_listing_default_sales_channel_select_visibiliy_modal %}
+        <sw-modal
+            v-if="displayVisibilityDetail"
+            class="sw-settings-listing-default-sales-channel__visibility-modal"
+            :title="$tc('sw-product.visibility.textHeadline')"
+            @modal-close="closeAdvancedVisibility"
+        >
+            <p>{{ $tc('sw-product.visibility.visibilityModalDescription') }}</p>
+
+            <sw-settings-listing-visibility-detail
+                ref="visibilityConfig"
+                :config="visibilityConfig"
+            />
+
+            <template #modal-footer>
+                <sw-button
+                    variant="primary"
+                    size="small"
+                    @click="closeAdvancedVisibility"
+                >
+                    {{ $tc('sw-product.visibility.closeModal') }}
+                </sw-button>
+            </template>
+        </sw-modal>
+        {% endblock %}
+    </template>
+</div>
+{% endblock %}

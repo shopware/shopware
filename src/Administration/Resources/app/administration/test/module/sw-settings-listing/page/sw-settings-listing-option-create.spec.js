@@ -48,7 +48,6 @@ describe('src/module/sw-setttigs-listing/page/sw-settings-listing-option-create'
                 $router: {}
             },
             provide: {
-                next5983: true,
                 repositoryFactory: {
                     create: () => ({
                         search: () => Promise.resolve(),

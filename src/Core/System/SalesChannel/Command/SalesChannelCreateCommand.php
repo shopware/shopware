@@ -119,7 +119,7 @@ class SalesChannelCreateCommand extends Command
         $data = array_replace_recursive($data, $this->getSalesChannelConfiguration($input, $output));
 
         try {
-            $this->salesChannelRepository->create([$data], Context::createDefaultContext());
+            $this->salesChannelRepository->create([$data], $context);
 
             $io->success('Sales channel has been created successfully.');
         } catch (WriteException $exception) {

@@ -76,7 +76,7 @@ describe(`Checkout as Guest`, () => {
         cy.get('.col-5.checkout-aside-summary-value').contains('10.00');
     });
 
-    it.only('@base @checkout: Run checkout with account type', () => {
+    it('@base @checkout: Run checkout with account type', () => {
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {

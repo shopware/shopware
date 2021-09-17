@@ -186,7 +186,7 @@ describe('Search bar: Check search functionality with tags', () => {
             .contains('Order 10000');
     });
 
-    it.only('@searchBar @search: search for a media using tag in dashboard', () => {
+    it('@searchBar @search: search for a media using tag in dashboard', () => {
         cy.createDefaultFixture('media-folder')
             .then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/media/index`);

@@ -28,12 +28,12 @@ describe('Product: Test variants', () => {
 
         // Add option to property group
         cy.wait('@searchUserConfig').its('response.statusCode').should('equal', 200);
+
         cy.clickContextMenuItem(
             '.sw-property-list__edit-action',
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
-
 
         cy.get(page.elements.cardTitle).contains('Basic information');
 
@@ -62,21 +62,17 @@ describe('Product: Test variants', () => {
 
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
 
-        // Request we want to wait for later
-        cy.intercept({
-            method: 'patch',
-            url: `${Cypress.env('apiPath')}/product/*`
-        }).as('saveData');
+        const productPage = new ProductPageObject();
 
         // Navigate to variant generator listing and start
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',
-            page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            productPage.elements.contextMenuButton,
+            `${productPage.elements.dataGridRow}--0`
         );
         cy.get('.sw-product-detail__tab-variants').click();
 
-        cy.get(page.elements.loader).should('not.exist');
+        cy.get(productPage.elements.loader).should('not.exist');
         cy.get('.sw-product-variants-overview').should('be.visible');
 
         cy.get('.sw-data-grid__body').contains('Rot');
@@ -88,34 +84,18 @@ describe('Product: Test variants', () => {
         cy.get('.sw-select-result-list__item-list .sw-select-option--1').contains('English');
         cy.get('.sw-select-result-list__item-list .sw-select-option--1').click();
 
-        cy.get(page.elements.loader).should('not.exist');
+        cy.get(productPage.elements.loader).should('not.exist');
         cy.get('.sw-data-grid-skeleton').should('not.exist');
 
         cy.get('.sw-data-grid__body').contains('Red');
         cy.get('.sw-data-grid__body').contains('Green');
 
-        // Edit one variant and verify it can be saved save
-        cy.get('.sw-data-grid__body').contains('Red').click();
-        cy.get('.product-basic-form .sw-inheritance-switch').eq(0).click();
-        cy.get('input[name=sw-field--product-name]').clearTypeAndCheck('New Product name');
-        cy.get(page.elements.productSaveAction).click();
-        // Verify updated product
-        cy.wait('@productCall').its('response.statusCode').should('equal', 204);
+        cy.reload();
 
-        // Verify in storefront
-        cy.visit('/');
-        cy.get('input[name=search]').type('Product name');
-        cy.get('.search-suggest-container').should('be.visible');
-        cy.get('.search-suggest-product-name')
-            .contains('Product name')
-            .click();
-        cy.get('.product-detail-name').contains('Product name');
-        cy.get('.product-detail-configurator-option-label[title="Red"]')
-            .should('be.visible');
-        cy.get('.product-detail-configurator-option-label[title="Yellow"]')
-            .should('be.visible');
-        cy.get('.product-detail-configurator-option-label[title="Green"]')
-            .should('be.visible');
+        cy.get('.sw-product-variants-overview').should('be.visible');
+
+        cy.get('.sw-data-grid__body').contains('Red');
+        cy.get('.sw-data-grid__body').contains('Green');
     });
 
     it('@base @catalogue: add multidimensional variant to product', () => {
@@ -209,7 +189,7 @@ describe('Product: Test variants', () => {
             .should('be.visible');
     });
 
-    it.only('@base @catalogue: test multidimensional variant with diversification', () => {
+    it('@base @catalogue: test multidimensional variant with diversification', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later

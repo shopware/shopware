@@ -157,7 +157,7 @@ describe('Product: Test variants', () => {
         cy.get('.icon-placeholder').should('be.visible');
     });
 
-    it.only('@catalogue: set cover for variant image', () => {
+    it('@catalogue: set cover for variant image', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
@@ -341,7 +341,7 @@ describe('Product: Test variants', () => {
 
         // Validate product
         cy.wait('@saveProduct')
-            .its('response.statusCode').should('equal', 200);
+            .its('response.statusCode').should('equal', 204);
         cy.awaitAndCheckNotification('Product "Green" has been saved.');
         cy.get('.sw-data-grid-skeleton').should('not.exist');
 

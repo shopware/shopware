@@ -64,7 +64,7 @@ describe('Snippets: Test crud operations', () => {
         cy.get(`${page.elements.dataGridRow}--0`).should('not.exist');
     });
 
-    it.only('@settings: update and read snippets', () => {
+    it('@settings: update and read snippets', () => {
         const page = new SnippetPageObject();
 
         // Open snippet set

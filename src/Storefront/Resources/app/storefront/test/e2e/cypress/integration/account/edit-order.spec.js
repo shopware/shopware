@@ -71,7 +71,7 @@ describe('Account: Edit order', () => {
         cy.get('.order-table-header-order-status').contains('Cancelled');
     });
 
-    it.only('@base @customer: change payment', () => {
+    it('@base @customer: change payment', () => {
         // Login
         cy.visit('/account/order');
         cy.get('.login-card').should('be.visible');

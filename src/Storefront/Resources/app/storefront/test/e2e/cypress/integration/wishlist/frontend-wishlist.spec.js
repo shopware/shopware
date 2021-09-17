@@ -108,7 +108,7 @@ describe('Wishlist: for wishlist page', () => {
         });
     });
 
-    it.only('@wishlist add to cart button work on guest page', () => {
+    it('@wishlist add to cart button work on guest page', () => {
         cy.intercept({
             method: 'POST',
             url: '/wishlist/guest-pagelet',

@@ -205,6 +205,11 @@ parameters:
             count: 1
             path: src/Administration/Test/Service/AdminSearcherTest.php
 
+        # Can be removed with Symfony 6.0 upgrade
+        -
+            message: '#Method Shopware\\Storefront\\Framework\\Twig\\TwigAppVariable::getFlashes\(\) has parameter \$types with no typehint specified.#'
+            path: src/Storefront/Framework/Twig/TwigAppVariable.php
+
 services:
     -
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Decoratable\DecoratableImplementsInterfaceRule

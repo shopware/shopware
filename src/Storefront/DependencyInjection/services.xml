@@ -10,6 +10,25 @@
 
         <parameter key="shopware_http_cache_default_ttl_default">7200</parameter>
         <parameter key="shopware.http.cache.default_ttl">%env(default:shopware_http_cache_default_ttl_default:SHOPWARE_HTTP_DEFAULT_TTL)%</parameter>
+
+        <parameter key="shopware.twig.app_variable.allowed_server_params" type="collection">
+            <parameter>server_name</parameter>
+            <parameter>request_uri</parameter>
+            <parameter>app_url</parameter>
+            <parameter>http_user_agent</parameter>
+            <parameter>http_host</parameter>
+            <parameter>server_name</parameter>
+            <parameter>server_port</parameter>
+            <parameter>redirect_url</parameter>
+            <parameter>https</parameter>
+            <parameter>forwarded</parameter>
+            <parameter>host</parameter>
+            <parameter>x_forwarded_for</parameter>
+            <parameter>x_forwarded_host</parameter>
+            <parameter>x_forwarded_proto</parameter>
+            <parameter>x_forwarded_port</parameter>
+            <parameter>x_forwarded_prefix</parameter>
+        </parameter>
     </parameters>
 
     <services>
@@ -592,6 +611,11 @@
             <argument type="service" id="Shopware\Storefront\Framework\App\Template\IconTemplateLoader.inner"/>
             <argument type="service" id="Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory"/>
             <argument>%kernel.project_dir%</argument>
+        </service>
+
+        <service id="Shopware\Storefront\Framework\Twig\TwigAppVariable" decorates="twig.app_variable">
+            <argument type="service" id="Shopware\Storefront\Framework\Twig\TwigAppVariable.inner"/>
+            <argument>%shopware.twig.app_variable.allowed_server_params%</argument>
         </service>
     </services>
 </container>

@@ -39,7 +39,7 @@
     <template slot="content">
 
         <sw-card-view
-            v-if="selectedIds.length > 0"
+            v-if="selectedIds.length > 0 && !isLoading"
         >
             {% block sw_bulk_edit_order_content_order_status_card %}
             <sw-card
@@ -54,6 +54,38 @@
                     :entity="order"
                 />
                 {% endblock %}
+            </sw-card>
+            {% endblock %}
+
+            {% block sw_bulk_edit_order_tags_card %}
+            <sw-card
+                class="sw-bulk-edit-order-base__tags"
+                :title="$tc('sw-bulk-edit.order.tags.cardTitle')"
+                :is-loading="isLoading"
+            >
+                {% block sw_bulk_edit_order_tags %}
+                <sw-bulk-edit-change-type-field-renderer
+                    :form-fields="tagsFormFields"
+                    :bulk-edit-data="bulkEditData"
+                    :entity="order"
+                />
+                {% endblock %}
+            </sw-card>
+            {% endblock %}
+
+            {% block sw_bulk_edit_order_custom_field_card %}
+            <sw-card
+                class="sw-bulk-edit-order-base__custom_fields"
+                :title="$tc('sw-bulk-edit.order.customFields.cardTitle')"
+                :is-loading="isLoading"
+            >
+                <sw-bulk-edit-custom-fields
+                    class="sw-bulk-edit__custom-fields"
+                    :is-change="bulkEditData.customFields.isChanged"
+                    :selected-custom-fields="bulkEditData.customFields.value"
+                    :sets="customFieldSets"
+                    @change="onCustomFieldsChange"
+                />
             </sw-card>
             {% endblock %}
         </sw-card-view>

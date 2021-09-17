@@ -248,6 +248,15 @@
           },
           "skipSentDocuments": "Skip already sent documents"
         }
+      },
+      "customFields": {
+        "cardTitle": "Custom fields",
+        "changeLabel": "Change: {name}"
+      },
+      "tags": {
+        "cardTitle": "Tags",
+        "changeLabel": "Change: Tags",
+        "placeholder": "Enter a tag..."
       }
     }
   }

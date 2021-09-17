@@ -1,6 +1,7 @@
 import BulkEditBaseHandler from './bulk-edit-base.handler';
 
 const { Criteria } = Shopware.Data;
+const { types } = Shopware.Utils;
 
 /**
  * @class
@@ -13,9 +14,10 @@ class BulkEditOrderHandler extends BulkEditBaseHandler {
         this.entityIds = [];
         this.orderStateMachineService = Shopware.Service('orderStateMachineService');
         this.orderRepository = Shopware.Service('repositoryFactory').create('order');
+        this.entityName = 'order';
     }
 
-    async bulkEdit(entityIds, payload) {
+    async bulkEditStatus(entityIds, payload) {
         this.entityIds = entityIds;
 
         let promises = [];
@@ -63,6 +65,21 @@ class BulkEditOrderHandler extends BulkEditBaseHandler {
         }
 
         return Promise.all(promises);
+    }
+
+    async bulkEdit(entityIds, payload) {
+        this.entityIds = entityIds;
+
+        const syncPayload = await this.buildBulkSyncPayload(payload);
+
+        if (types.isEmpty(syncPayload)) {
+            return Promise.resolve({ success: true });
+        }
+
+        return this.syncService.sync(syncPayload, {}, {
+            'single-operation': 1,
+            'sw-language-id': Shopware.Context.api.languageId,
+        });
     }
 
     getCriteria() {

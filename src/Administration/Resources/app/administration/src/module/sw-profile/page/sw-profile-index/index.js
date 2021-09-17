@@ -435,9 +435,12 @@ Component.register('sw-profile-index', {
         },
 
         saveUserSearchPreferences() {
-            const value = this.searchPreferences.map(({ entityName, fields }) => {
+            const value = this.searchPreferences.map(({ entityName, _searchable, fields }) => {
                 return {
-                    [entityName]: this.getEntitySearchPreferences(fields),
+                    [entityName]: {
+                        _searchable,
+                        ...this.getEntitySearchPreferences(fields),
+                    },
                 };
             });
 

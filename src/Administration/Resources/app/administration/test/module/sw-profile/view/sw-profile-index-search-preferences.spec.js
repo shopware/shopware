@@ -81,99 +81,9 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
         wrapper.vm.getUserSearchPreferences.mockRestore();
     });
 
-    it('should update search preferences correctly', async () => {
-        const wrapper = createWrapper();
-        const updateSearchPreferencesSpy = jest.spyOn(wrapper.vm, 'updateSearchPreferences');
-
-        await Shopware.State.commit('swProfile/setSearchPreferences', []);
-        expect(updateSearchPreferencesSpy).toHaveBeenCalledTimes(0);
-
-        await Shopware.State.commit('swProfile/setSearchPreferences', [{
-            entityName: 'product',
-            _ghostValue: true,
-            _searchable: true,
-            fields: [
-                {
-                    fieldName: 'name',
-                    _searchable: true,
-                    _score: 250,
-                    group: []
-                }
-            ]
-        }]);
-        expect(updateSearchPreferencesSpy).toHaveBeenCalledWith(
-            expect.arrayContaining([
-                expect.objectContaining({
-                    entityName: 'product',
-                    _ghostValue: true,
-                    _searchable: true,
-                    fields: expect.arrayContaining([
-                        expect.objectContaining({
-                            fieldName: 'name',
-                            _searchable: true,
-                            _score: 250,
-                            group: []
-                        })
-                    ])
-                })
-            ])
-        );
-    });
-
-    it('should be able to change entity', async () => {
-        await Shopware.State.commit('swProfile/setSearchPreferences', [{
-            entityName: 'product',
-            _ghostValue: true,
-            _searchable: true,
-            fields: [
-                {
-                    fieldName: 'name',
-                    _searchable: true,
-                    _score: 250,
-                    group: []
-                }
-            ]
-        }]);
-
-        const wrapper = createWrapper();
-
-        wrapper.vm.onChangeEntity(true, {
-            entityName: 'product',
-            _ghostValue: false,
-            _searchable: false,
-            fields: [
-                {
-                    fieldName: 'name',
-                    _searchable: false,
-                    _score: 250,
-                    group: []
-                }
-            ]
-        });
-
-        expect(wrapper.vm.searchPreferences).toEqual(
-            expect.arrayContaining([
-                expect.objectContaining({
-                    entityName: 'product',
-                    _ghostValue: true,
-                    _searchable: true,
-                    fields: expect.arrayContaining([
-                        expect.objectContaining({
-                            fieldName: 'name',
-                            _searchable: true,
-                            _score: 250,
-                            group: []
-                        })
-                    ])
-                })
-            ])
-        );
-    });
-
     it('should be able to select all', async () => {
         await Shopware.State.commit('swProfile/setSearchPreferences', [{
             entityName: 'product',
-            _ghostValue: false,
             _searchable: false,
             fields: [
                 {
@@ -213,7 +123,6 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
     it('should not be able to select all', async () => {
         await Shopware.State.commit('swProfile/setSearchPreferences', [{
             entityName: 'product',
-            _ghostValue: false,
             _searchable: false,
             fields: [
                 {
@@ -253,7 +162,6 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
     it('should be able to deselect all', async () => {
         await Shopware.State.commit('swProfile/setSearchPreferences', [{
             entityName: 'product',
-            _ghostValue: true,
             _searchable: true,
             fields: [
                 {
@@ -293,7 +201,6 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
     it('should not be able to deselect all', async () => {
         await Shopware.State.commit('swProfile/setSearchPreferences', [{
             entityName: 'product',
-            _ghostValue: true,
             _searchable: true,
             fields: [
                 {

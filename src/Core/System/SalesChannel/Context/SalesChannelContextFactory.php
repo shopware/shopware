@@ -203,6 +203,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         }
 
         $groupId = $salesChannel->getCustomerGroupId();
+        /** @deprecated tag:v6.5.0 - Fallback customer group is deprecated and will be removed */
         $groupIds = [$salesChannel->getCustomerGroupId(), Defaults::FALLBACK_CUSTOMER_GROUP];
 
         if ($customer) {

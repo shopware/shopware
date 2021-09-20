@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\System\Test;
 
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Tax\TaxEntity;
+use Shopware\Core\Test\TestDefaults;
 
 trait TaxFixtures
 {
@@ -36,7 +36,7 @@ trait TaxFixtures
                         'taxRate' => 99,
                         'active' => true,
                         'name' => 'required',
-                        'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                        'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                     ],
                 ],
             ],

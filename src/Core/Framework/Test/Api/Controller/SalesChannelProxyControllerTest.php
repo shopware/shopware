@@ -1183,7 +1183,7 @@ class SalesChannelProxyControllerTest extends TestCase
             'paymentMethods' => [['id' => $this->getValidPaymentMethodId()]],
             'shippingMethods' => [['id' => $this->getValidShippingMethodId()]],
             'countries' => [['id' => $this->getValidCountryId()]],
-            'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+            'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
         ];
 
         $salesChannel = array_merge_recursive($defaults, $salesChannel);
@@ -1369,7 +1369,7 @@ class SalesChannelProxyControllerTest extends TestCase
                     'name' => 'Invoice',
                     'description' => 'Default payment method',
                 ],
-                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => $email,
                 'password' => $password,
                 'firstName' => 'Max',

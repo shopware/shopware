@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\Test\TestDefaults;
 
 class CustomerEmailUniqueValidatorTest extends TestCase
 {
@@ -139,7 +140,7 @@ class CustomerEmailUniqueValidatorTest extends TestCase
             'password' => 'shopware',
             'boundSalesChannelId' => $boundToSalesChannel ? $salesChannelId : null,
             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-            'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'salesChannelId' => $salesChannelId,
             'defaultBillingAddressId' => $addressId,
             'defaultShippingAddressId' => $addressId,

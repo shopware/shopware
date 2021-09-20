@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Routing\DomainLoader;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\Router;
@@ -241,7 +242,7 @@ class StorefrontRoutingTest extends TestCase
                 'paymentMethods' => [['id' => $this->getValidPaymentMethodId()]],
                 'shippingMethods' => [['id' => $this->getValidShippingMethodId()]],
                 'countries' => [['id' => $this->getValidCountryId()]],
-                'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             ];
 
             return array_merge_recursive($defaults, $salesChannelData);

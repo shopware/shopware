@@ -23,6 +23,7 @@ use Shopware\Core\Framework\Rule\DateRangeRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\Rule\CurrencyRule;
+use Shopware\Core\Test\TestDefaults;
 
 class RuleGenerator implements DemodataGeneratorInterface
 {
@@ -105,7 +106,7 @@ class RuleGenerator implements DemodataGeneratorInterface
                 'name' => 'Cart >= 5000',
             ],
             [
-                'rule' => (new CustomerGroupRule())->assign(['customerGroupIds' => [Defaults::FALLBACK_CUSTOMER_GROUP]]),
+                'rule' => (new CustomerGroupRule())->assign(['customerGroupIds' => [TestDefaults::FALLBACK_CUSTOMER_GROUP]]),
                 'name' => 'Default group',
             ],
             [

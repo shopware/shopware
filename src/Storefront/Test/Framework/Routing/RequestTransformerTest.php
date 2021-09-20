@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Routing\DomainLoader;
 use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
@@ -407,7 +408,7 @@ class RequestTransformerTest extends TestCase
                 'paymentMethods' => [['id' => $this->getValidPaymentMethodId()]],
                 'shippingMethods' => [['id' => $this->getValidShippingMethodId()]],
                 'countries' => [['id' => $this->getValidCountryId()]],
-                'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             ];
 
             return array_merge_recursive($defaults, $salesChannelData);

@@ -314,7 +314,7 @@ class LoginRouteTest extends TestCase
                     ],
                 ],
             ],
-            'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'email' => $email,
             'password' => $password,
             'firstName' => 'Max',

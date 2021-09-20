@@ -271,7 +271,7 @@ class ShopService
             $id,
             $typeId, $this->getSalesChannelAccessKey(), $this->getRootCategoryId(), Defaults::LIVE_VERSION,
             $languageId, $currencyId, $paymentMethod,
-            $shippingMethod, $countryId, Defaults::FALLBACK_CUSTOMER_GROUP, (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            $shippingMethod, $countryId, TestDefaults::FALLBACK_CUSTOMER_GROUP, (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $statement = $this->connection->prepare(

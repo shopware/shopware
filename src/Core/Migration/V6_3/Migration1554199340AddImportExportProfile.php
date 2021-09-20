@@ -105,7 +105,7 @@ class Migration1554199340AddImportExportProfile extends MigrationStep
 
     private function getCustomerGroupMap(): array
     {
-        return ['default' => Defaults::FALLBACK_CUSTOMER_GROUP];
+        return ['default' => 'cfbd5018d38d41d8adca10d94fc8bdd6'];
     }
 
     private function getCountryMap(Connection $connection): array

@@ -152,7 +152,7 @@ class Migration1610523548FixCustomerColumnsTest extends TestCase
             'email' => 'test@example.com',
             'password' => 'shopware',
             'defaultPaymentMethodId' => $this->getDefaultPaymentMethodId(),
-            'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultBillingAddressId' => $billingAddressId,
             'defaultShippingAddressId' => $shippingAddressId,

@@ -3,7 +3,6 @@
 namespace Shopware\Core\System\Test\SalesChannel\Context;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -699,7 +698,7 @@ class SalesChannelContextTest extends TestCase
             'defaultShippingAddress' => $shippingAddress,
             'defaultBillingAddress' => $billingAddress,
             'defaultPaymentMethodId' => $this->getAvailablePaymentMethod()->getId(),
-            'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'email' => Uuid::randomHex() . '@example.com',
             'password' => '$password',
             'firstName' => 'Max',

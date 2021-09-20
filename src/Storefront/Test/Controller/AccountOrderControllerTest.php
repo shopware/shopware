@@ -266,7 +266,7 @@ class AccountOrderControllerTest extends TestCase
                 'defaultBillingAddressId' => $addressId,
                 'guest' => $guest,
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => 'test@example.com',
                 'password' => 'test',
                 'firstName' => 'Max',

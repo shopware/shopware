@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel\Command;
 
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
@@ -70,7 +71,7 @@ class SalesChannelCreateCommand extends Command
             ->addOption('shippingMethodId', null, InputOption::VALUE_REQUIRED, 'Default shipping method')
             ->addOption('countryId', null, InputOption::VALUE_REQUIRED, 'Default country')
             ->addOption('typeId', null, InputOption::VALUE_OPTIONAL, 'Sales channel type id')
-            ->addOption('customerGroupId', null, InputOption::VALUE_REQUIRED, 'Default customer group', Defaults::FALLBACK_CUSTOMER_GROUP)
+            ->addOption('customerGroupId', null, InputOption::VALUE_REQUIRED, 'Default customer group')
             ->addOption('navigationCategoryId', null, InputOption::VALUE_REQUIRED, 'Default Navigation Category')
         ;
     }
@@ -86,6 +87,7 @@ class SalesChannelCreateCommand extends Command
         $shippingMethod = $input->getOption('shippingMethodId') ?? $this->getFirstActiveShippingMethodId();
         $countryId = $input->getOption('countryId') ?? $this->getFirstActiveCountryId();
         $snippetSet = $input->getOption('snippetSetId') ?? $this->getSnippetSetId();
+        $customerGroupId = $input->getOption('customerGroupId') ?? $this->getCustomerGroupId();
         $context = Context::createDefaultContext();
 
         $data = [
@@ -105,7 +107,7 @@ class SalesChannelCreateCommand extends Command
             'shippingMethodVersionId' => Defaults::LIVE_VERSION,
             'countryId' => $countryId,
             'countryVersionId' => Defaults::LIVE_VERSION,
-            'customerGroupId' => $input->getOption('customerGroupId'),
+            'customerGroupId' => $customerGroupId,
             'navigationCategoryId' => $input->getOption('navigationCategoryId'),
 
             // available mappings
@@ -244,5 +246,21 @@ class SalesChannelCreateCommand extends Command
             },
             $ids->getIds()
         );
+    }
+
+    private function getCustomerGroupId(): string
+    {
+        $criteria = (new Criteria())
+            ->setLimit(1);
+
+        $repository = $this->definitionRegistry->getRepository(CustomerGroupDefinition::ENTITY_NAME);
+
+        $id = $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
+
+        if ($id === null) {
+            throw new \RuntimeException('Cannot find a customer group to assign it to the sales channel');
+        }
+
+        return $id;
     }
 }

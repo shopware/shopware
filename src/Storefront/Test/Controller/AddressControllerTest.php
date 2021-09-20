@@ -5,7 +5,6 @@ namespace Shopware\Storefront\Test\Controller;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -171,7 +170,7 @@ class AddressControllerTest extends TestCase
                 'company' => 'nfq',
                 'defaultShippingAddressId' => $addressId,
                 'defaultPaymentMethodId' => $paymentMethodId,
-                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => Uuid::randomHex() . '@example.com',
                 'password' => 'not',
                 'lastName' => 'not',
@@ -234,7 +233,7 @@ class AddressControllerTest extends TestCase
                 ],
                 'defaultBillingAddressId' => $id1,
                 'defaultPaymentMethodId' => $paymentMethodId,
-                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => Uuid::randomHex() . '@example.com',
                 'password' => 'not',
                 'lastName' => 'not',
@@ -257,7 +256,7 @@ class AddressControllerTest extends TestCase
                 ],
                 'defaultBillingAddressId' => $id2,
                 'defaultPaymentMethodId' => $paymentMethodId,
-                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => Uuid::randomHex() . '@example.com',
                 'password' => 'not',
                 'lastName' => 'not',

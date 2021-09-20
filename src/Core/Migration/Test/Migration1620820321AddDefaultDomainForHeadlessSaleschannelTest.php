@@ -100,7 +100,7 @@ class Migration1620820321AddDefaultDomainForHeadlessSaleschannelTest extends Tes
                 'countryId' => $this->getValidCountryId(null),
                 'currencies' => [['id' => Defaults::CURRENCY]],
                 'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
-                'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'countries' => [['id' => $this->getValidCountryId(null)]],
             ],
         ], Context::createDefaultContext());

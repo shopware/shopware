@@ -35,6 +35,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxEntity;
+use Shopware\Core\Test\TestDefaults;
 
 class Generator extends TestCase
 {
@@ -72,13 +73,13 @@ class Generator extends TestCase
 
         if (!$currentCustomerGroup) {
             $currentCustomerGroup = new CustomerGroupEntity();
-            $currentCustomerGroup->setId(Defaults::FALLBACK_CUSTOMER_GROUP);
+            $currentCustomerGroup->setId(TestDefaults::FALLBACK_CUSTOMER_GROUP);
             $currentCustomerGroup->setDisplayGross(true);
         }
 
         if (!$fallbackCustomerGroup) {
             $fallbackCustomerGroup = new CustomerGroupEntity();
-            $fallbackCustomerGroup->setId(Defaults::FALLBACK_CUSTOMER_GROUP);
+            $fallbackCustomerGroup->setId(TestDefaults::FALLBACK_CUSTOMER_GROUP);
             $currentCustomerGroup->setDisplayGross(true);
         }
 

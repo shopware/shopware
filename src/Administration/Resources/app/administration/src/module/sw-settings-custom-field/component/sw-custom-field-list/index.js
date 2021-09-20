@@ -1,7 +1,7 @@
 import template from './sw-custom-field-list.html.twig';
 import './sw-custom-field-list.scss';
 
-const { Criteria } = Shopware.Data;
+const { Criteria, RepositoryIterator } = Shopware.Data;
 const { Component, Mixin, Feature } = Shopware;
 const types = Shopware.Utils.types;
 
@@ -174,8 +174,9 @@ Component.register('sw-custom-field-list', {
             // Search the server for the customField name
             const criteria = new Criteria();
             criteria.addFilter(Criteria.equals('name', customField.name));
-            return this.globalCustomFieldRepository.search(criteria).then((res) => {
-                return res.length === 0;
+            const iterator = new RepositoryIterator(this.globalCustomFieldRepository, criteria);
+            return iterator.getTotal().then(total => {
+                return total === 0;
             });
         },
 

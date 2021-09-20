@@ -1,7 +1,7 @@
 import template from './sw-settings-custom-field-set-create.html.twig';
 
 const { Component } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Criteria, RepositoryIterator } = Shopware.Data;
 const utils = Shopware.Utils;
 
 Component.extend('sw-settings-custom-field-set-create', 'sw-settings-custom-field-set-detail', {
@@ -31,8 +31,9 @@ Component.extend('sw-settings-custom-field-set-create', 'sw-settings-custom-fiel
             const criteria = new Criteria();
             criteria.addFilter(Criteria.equals('name', this.set.name));
 
-            return this.customFieldSetRepository.search(criteria).then((res) => {
-                if (res.length === 0) {
+            const iterator = new RepositoryIterator(this.customFieldSetRepository, criteria);
+            return iterator.getTotal().then(total => {
+                if (total === 0) {
                     this.$super('onSave');
 
                     return;

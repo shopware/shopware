@@ -2,7 +2,7 @@ import template from './sw-sales-channel-modal.html.twig';
 import './sw-sales-channel-modal.scss';
 
 const { Component, Defaults } = Shopware;
-const { Criteria } = Shopware.Data;
+const { RepositoryIterator } = Shopware.Data;
 
 Component.register('sw-sales-channel-modal', {
     template,
@@ -52,11 +52,9 @@ Component.register('sw-sales-channel-modal', {
     methods: {
         createdComponent() {
             this.productStreamsLoading = true;
-            this.productStreamRepository.search(new Criteria(1, 1)).then((result) => {
-                if (result.total > 0) {
-                    this.productStreamsExist = true;
-                }
-                this.productStreamsLoading = false;
+            const iterator = new RepositoryIterator(this.productStreamRepository);
+            iterator.getTotal().then(total => {
+                this.productStreamsExist = total > 0;
             });
         },
 

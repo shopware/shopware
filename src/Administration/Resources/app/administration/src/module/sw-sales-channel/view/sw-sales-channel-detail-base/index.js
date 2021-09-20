@@ -2,7 +2,7 @@ import template from './sw-sales-channel-detail-base.html.twig';
 import './sw-sales-channel-detail-base.scss';
 
 const { Component, Mixin, Context, Defaults } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Criteria, RepositoryIterator } = Shopware.Data;
 const domUtils = Shopware.Utils.dom;
 const ShopwareError = Shopware.Classes.ShopwareError;
 const utils = Shopware.Utils;
@@ -501,7 +501,8 @@ Component.register('sw-sales-channel-detail-base', {
                 ),
             );
 
-            this.productExportRepository.search(criteria).then(({ total }) => {
+            const iterator = new RepositoryIterator(this.productExportRepository, criteria);
+            iterator.getTotal().then(total => {
                 this.invalidFileName = total > 0;
                 this.isFileNameChecking = false;
             }).catch(() => {

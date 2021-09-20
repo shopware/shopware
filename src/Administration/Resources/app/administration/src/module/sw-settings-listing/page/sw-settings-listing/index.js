@@ -359,31 +359,31 @@ Component.register('sw-settings-listing', {
         },
 
         /**
-         * @deprecated tag:6.5.0 -
+         * @deprecated tag:v6.5.0 -
          *  Use `fetchSalesChannelsSystemConfig()` in `sw-settings-listing-default-sales-channel-card` instead
          */
         fetchSalesChannelsSystemConfig() {},
 
         /**
-         * @deprecated tag:6.5.0 -
+         * @deprecated tag:v6.5.0 -
          *  Use `displayAdvancedVisibility()` in `sw-settings-listing-default-sales-channel-card` instead
          */
         displayAdvancedVisibility() {},
 
         /**
-         * @deprecated tag:6.5.0 -
+         * @deprecated tag:v6.5.0 -
          *  Use `closeAdvancedVisibility()` in `sw-settings-listing-default-sales-channel-card` instead
          */
         closeAdvancedVisibility() {},
 
         /**
-         * @deprecated tag:6.5.0 -
+         * @deprecated tag:v6.5.0 -
          *  Use `updateSalesChannel()` in `sw-settings-listing-default-sales-channel-card` instead
          */
         updateSalesChannel() {},
 
         /**
-         * @deprecated tag:6.5.0 -
+         * @deprecated tag:v6.5.0 -
          *  Use `saveSalesChannelVisibilityConfig()` in `sw-settings-listing-default-sales-channel-card` instead
          */
         saveSalesChannelVisibilityConfig() {

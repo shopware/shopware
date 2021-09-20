@@ -21,7 +21,7 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/shipping-method/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveShippingMethod');
 
         // Open rule

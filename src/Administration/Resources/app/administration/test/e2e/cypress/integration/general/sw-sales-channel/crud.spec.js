@@ -19,7 +19,7 @@ describe('Sales Channel: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/**/${Cypress.env('apiPath')}/sales-channel`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Open sales channel creation
@@ -60,7 +60,7 @@ describe('Sales Channel: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/sales-channel/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         // Edit and verify change in sales channel

@@ -21,16 +21,16 @@ describe('Product: Test variants', () => {
 
         // Request we want to wait for later
         cy.intercept({
-            method: 'patch',
+            method: 'PATCH',
             url: `${Cypress.env('apiPath')}/product/*`
         }).as('saveData');
         cy.intercept({
-            method: 'get',
+            method: 'GET',
             url: `${Cypress.config('baseUrl')}/detail/**/switch?options=*`
         }).as('changeVariant');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/property-group`,
-            method: 'post'
+            method: 'POST'
         }).as('searchVariantGroup');
 
         // Navigate to variant generator listing and start

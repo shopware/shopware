@@ -31,7 +31,7 @@ describe('Checkout: Use rounding', () => {
     it('@base @checkout: Run checkout with 0.50', () => {
         cy.intercept({
             url: '/api/currency/**',
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         cy.loginViaApi();

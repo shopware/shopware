@@ -32,13 +32,15 @@ describe('Product: Search Keyword product', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         cy.intercept({
-            method: 'post',
+            method: 'POST',
             url: `${Cypress.env('apiPath')}/search/product`
         }).as('searchData');
+
+        cy.get(`${page.elements.dataGridRow}--0`).contains('Product name');
 
         cy.clickContextMenuItem(
             '.sw-entity-listing__context-menu-edit-action',

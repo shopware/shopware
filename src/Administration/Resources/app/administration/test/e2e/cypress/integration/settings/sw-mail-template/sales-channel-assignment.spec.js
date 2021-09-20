@@ -12,12 +12,12 @@ describe('Mail header & footer template: Sales Channel assignment', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/mail-template`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/mail-header-footer`,
-            method: 'post'
+            method: 'POST'
         }).as('saveTemplate');
     });
 

@@ -22,7 +22,7 @@ describe('Shipping: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/shipping-method`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Create shipping method
@@ -44,7 +44,7 @@ describe('Shipping: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/shipping-method/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         // Edit base data
@@ -95,7 +95,7 @@ describe('Shipping: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/shipping-method`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Create shipping method

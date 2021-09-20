@@ -106,7 +106,7 @@ describe('Category: Test ACL privileges', () => {
         cy.get(`${page.elements.categoryTreeItem}__icon`).should('be.visible');
 
         cy.intercept({
-            method: 'patch',
+            method: 'PATCH',
             url: `${Cypress.env('apiPath')}/category/*`
         }).as('saveData');
 
@@ -153,7 +153,7 @@ describe('Category: Test ACL privileges', () => {
 
         // Request we want to wait for later
         cy.intercept({
-            method: 'post',
+            method: 'POST',
             url: `${Cypress.env('apiPath')}/category`
         }).as('saveData');
 

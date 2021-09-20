@@ -34,7 +34,7 @@ describe('Product: Test variants', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Navigate to variant generator listing and start
@@ -91,11 +91,9 @@ describe('Product: Test variants', () => {
     it('@base @catalogue: variants display corresponding name based on specific language', () => {
         const page = new PropertyPageObject();
 
-        cy.visit(`${Cypress.env('admin')}#/sw/property/index`);
-
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/user-config`,
-            method: 'post'
+            method: 'POST'
         }).as('searchUserConfig');
 
         cy.visit(`${Cypress.env('admin')}#/sw/property/index`);

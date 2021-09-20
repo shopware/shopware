@@ -23,16 +23,16 @@ describe('Media: Visual tests', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw-login-background`,
-            method: 'post'
+            method: 'POST'
         }).as('saveDataFileUpload');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/media`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw_logo_white`,
-            method: 'post'
+            method: 'POST'
         }).as('saveDataUrlUpload');
 
         cy.clickMainMenuItem({
@@ -81,7 +81,7 @@ describe('Media: Visual tests', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveProduct');
 
         // Open product

@@ -19,7 +19,7 @@ describe('Customer group: Visual testing', () => {
     it('@visual: check appearance of customer group module', () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/customer-group`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');

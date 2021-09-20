@@ -5,8 +5,8 @@ const uuid = require('uuid/v4');
 describe('Product: Test pagination and the corosponding URL parameters', () => {
     // eslint-disable-next-line no-undef
     before(() => {
-        let taxId; let
-            currencyId;
+        let taxId;
+        let currencyId;
 
         cy.setToInitialState()
             .then(() => {
@@ -64,7 +64,7 @@ describe('Product: Test pagination and the corosponding URL parameters', () => {
                         Authorization: `Bearer ${auth.access}`,
                         'Content-Type': 'application/json'
                     },
-                    method: 'post',
+                    method: 'POST',
                     url: `/${Cypress.env('apiPath')}/_action/sync`,
                     qs: {
                         response: true

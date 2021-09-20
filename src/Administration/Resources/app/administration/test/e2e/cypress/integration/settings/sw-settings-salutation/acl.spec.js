@@ -48,7 +48,7 @@ describe('Salutation: Test acl privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/salutation`,
-            method: 'post'
+            method: 'POST'
         }).as('createSalutation');
 
         // go to create salutation page
@@ -101,7 +101,7 @@ describe('Salutation: Test acl privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/salutation/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('editSalutation');
 
         // click on the first element in grid

@@ -22,7 +22,7 @@ describe('Payment: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/payment-method`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Create customer-group
@@ -48,7 +48,7 @@ describe('Payment: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/payment-method/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         // Edit base data

@@ -19,7 +19,7 @@ describe('Language: Visual testing', () => {
     it('@base @visual: check appearance of language module', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/language`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');

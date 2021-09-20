@@ -18,7 +18,7 @@ describe('CMS: Test crud operations of layouts', () => {
     it('@base @content: create and read layout', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Fill in basic data
@@ -57,12 +57,12 @@ describe('CMS: Test crud operations of layouts', () => {
     it('@base @content: update and read layout', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/category/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveCategory');
 
         cy.get('.sw-cms-list-item--0').click();

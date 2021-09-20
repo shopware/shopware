@@ -101,7 +101,7 @@ describe('Unit: Test acl privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/unit/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         // Go to unit module

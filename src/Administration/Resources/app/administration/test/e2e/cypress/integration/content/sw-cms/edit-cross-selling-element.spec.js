@@ -45,17 +45,17 @@ describe('CMS: Check usage and editing of cross selling element', () => {
     it('@content: use cross selling element in another block', () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/category/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveCategory');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveProductData');
 
         // Open product and add cross selling
@@ -156,17 +156,17 @@ describe('CMS: Check usage and editing of cross selling element', () => {
     it('@content: use cross selling block in landing page', () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/category/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveCategory');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveProductData');
 
         // Open product and add cross selling

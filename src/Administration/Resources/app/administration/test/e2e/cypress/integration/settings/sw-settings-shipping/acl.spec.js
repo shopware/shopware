@@ -53,7 +53,7 @@ describe('Shipping: Test acl privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/shipping-method/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         // open shipping
@@ -96,7 +96,7 @@ describe('Shipping: Test acl privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/shipping-method`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Create shipping method

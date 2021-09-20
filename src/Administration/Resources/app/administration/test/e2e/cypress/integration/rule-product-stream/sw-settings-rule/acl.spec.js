@@ -55,7 +55,7 @@ describe('Rule builder: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/rule/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
@@ -105,7 +105,7 @@ describe('Rule builder: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/rule`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         cy.get('a[href="#/sw/settings/rule/create"]').click();

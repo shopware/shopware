@@ -61,7 +61,7 @@ describe('Delivery time: Test acl privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/delivery-time/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('updateDeliveryTime');
 
         // click on third element in grid
@@ -114,7 +114,7 @@ describe('Delivery time: Test acl privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/delivery-time`,
-            method: 'post'
+            method: 'POST'
         }).as('createDeliveryTime');
 
         // Create delivery time

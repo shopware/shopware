@@ -68,12 +68,12 @@ describe('Category: Test ACL privileges', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/category/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveCategory');
 
         cy.get('.sw-cms-list-item--0').click();
@@ -120,7 +120,7 @@ describe('Category: Test ACL privileges', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Fill in basic data

@@ -19,7 +19,7 @@ describe('Custom fields: Visual testing', () => {
     it('@base @visual: check appearance of custom field module', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/custom-field-set`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');

@@ -73,7 +73,7 @@ describe('Newsletter-Recipient: Test crud operations with ACL', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/newsletter-recipient/**`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         // Edit base data

@@ -21,7 +21,7 @@ describe('Delivery times group: Test crud operations', () => {
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/delivery-time`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         cy.get('.sw-settings-delivery-time-list').should('be.visible');
@@ -73,7 +73,7 @@ describe('Delivery times group: Test crud operations', () => {
     it('@settings: Try to create delivery time with empty required fields', () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/delivery-time`,
-            method: 'post'
+            method: 'POST'
         }).as('saveEmptyData');
 
         cy.get('.sw-settings-delivery-time-list').should('be.visible');
@@ -100,7 +100,7 @@ describe('Delivery times group: Test crud operations', () => {
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/delivery-time/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('updateData');
 
         cy.get('.sw-settings-delivery-time-list').should('be.visible');

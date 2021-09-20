@@ -20,15 +20,15 @@ describe('Category: Create several categories', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/category`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/category`,
-            method: 'post'
+            method: 'POST'
         }).as('loadCategory');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/category/**`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('editCategory');
 
         // Add category before root one
@@ -107,7 +107,7 @@ describe('Category: Create several categories', () => {
         cy.get('.sw-category-seo-form').should('not.exist');
         cy.get('.sw-seo-url__card').should('not.exist');
 
-        cy.get('.sw-category-detail__tab-cms').should('not.be.visible');
+        cy.get('.sw-category-detail__tab-cms').scrollIntoView().should('not.be.visible');
         cy.get('.sw-category-link-settings').should('not.exist');
 
         cy.get('.sw-category-detail-base__menu').should('exist');
@@ -140,11 +140,11 @@ describe('Category: Create several categories', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/category`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/category`,
-            method: 'post'
+            method: 'POST'
         }).as('loadCategory');
 
         // Add category before root one

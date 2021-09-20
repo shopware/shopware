@@ -19,7 +19,7 @@ describe('Currency: Visual testing', () => {
     it('@visual: check appearance of  currency module', () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/currency`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');

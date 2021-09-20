@@ -15,7 +15,7 @@ describe('Feature sets: Visual testing', () => {
     it('@visual: check appearance of delivery time module', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product-feature-set`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');

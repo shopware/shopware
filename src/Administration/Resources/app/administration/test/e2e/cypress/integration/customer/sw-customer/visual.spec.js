@@ -39,12 +39,12 @@ describe('Customer:  Visual test', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/customer`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/customer`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
 
         cy.get('.sw-customer-list').should('be.visible');
@@ -109,7 +109,7 @@ describe('Customer:  Visual test', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/country`,
-            method: 'post'
+            method: 'POST'
         }).as('getCountries');
 
         // Open customer

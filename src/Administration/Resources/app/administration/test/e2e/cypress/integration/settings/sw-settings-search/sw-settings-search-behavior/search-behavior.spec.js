@@ -16,7 +16,7 @@ describe('Product Search: Test crud operations', () => {
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-search-config/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         // Change value of Minimal search term length
@@ -39,12 +39,12 @@ describe('Product Search: Test crud operations', () => {
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-search-config/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product-search-config/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         // Switch language to Deutsch

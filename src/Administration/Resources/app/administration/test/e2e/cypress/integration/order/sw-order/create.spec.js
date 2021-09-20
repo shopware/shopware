@@ -24,12 +24,12 @@ describe('Order: Create order', () => {
         // network requests
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_proxy/store-api/**/checkout/cart/line-item`,
-            method: 'post'
+            method: 'POST'
         }).as('addLineItem');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_proxy-order/**`,
-            method: 'post'
+            method: 'POST'
         }).as('saveOrder');
 
         // navigate to order create page
@@ -113,27 +113,27 @@ describe('Order: Create order', () => {
         // network requests
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/customer`,
-            method: 'post'
+            method: 'POST'
         }).as('createCustomerCall');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_proxy/store-api/**/checkout/cart/line-item`,
-            method: 'post'
+            method: 'POST'
         }).as('addLineItem');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_proxy/store-api/**/checkout/cart/line-item`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('updateLineItem');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_proxy/modify-shipping-costs`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('modifyShippingCostsCall');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_proxy-order/**`,
-            method: 'post'
+            method: 'POST'
         }).as('saveOrder');
 
         // navigate to order create page
@@ -403,27 +403,27 @@ describe('Order: Create order', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/promotion`,
-            method: 'post'
+            method: 'POST'
         }).as('savePromotion');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/promotion/**/discounts`,
-            method: 'post'
+            method: 'POST'
         }).as('saveDiscount');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/promotion/**`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('patchPromotion');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_proxy/store-api/**/checkout/cart/line-item`,
-            method: 'post'
+            method: 'POST'
         }).as('addLineItem');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_proxy-order/**`,
-            method: 'post'
+            method: 'POST'
         }).as('saveOrder');
 
         // Create promotion
@@ -558,12 +558,12 @@ describe('Order: Create order', () => {
         // network requests
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_proxy/store-api/**/checkout/cart/line-item`,
-            method: 'post'
+            method: 'POST'
         }).as('addLineItem');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_proxy-order/**`,
-            method: 'post'
+            method: 'POST'
         }).as('saveOrder');
 
         // navigate to order create page

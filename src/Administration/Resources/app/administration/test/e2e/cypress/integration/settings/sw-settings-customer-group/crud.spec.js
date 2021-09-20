@@ -21,7 +21,7 @@ describe('Customer group: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/customer-group`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Create customer-group
@@ -65,7 +65,7 @@ describe('Customer group: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/customer-group/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         // Edit base data

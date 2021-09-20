@@ -14,12 +14,12 @@ describe('Custom Fields: Test crud operations', () => {
     it('@settings: test entity type custom field', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/custom-field-set`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/custom-field-set/**/custom-fields`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/custom/field/create`);
@@ -56,12 +56,12 @@ describe('Custom Fields: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/custom-field-set`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/custom-field-set/**/custom-fields`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/custom/field/create`);
@@ -117,7 +117,7 @@ describe('Custom Fields: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/custom-field-set/**/custom-fields/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/custom/field/index`);
@@ -168,7 +168,7 @@ describe('Custom Fields: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/custom/field/index`);

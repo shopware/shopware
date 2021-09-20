@@ -37,17 +37,17 @@ describe('Order: Test order state', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/order/**/document/invoice`,
-            method: 'post'
+            method: 'POST'
         }).as('createDocumentCall');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/document`,
-            method: 'post'
+            method: 'POST'
         }).as('findDocumentCall');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/order`,
-            method: 'post'
+            method: 'POST'
         }).as('findOrder');
 
         cy.get(`${page.elements.dataGridRow}--0`).contains('Mustermann, Max');
@@ -125,19 +125,19 @@ describe('Order: Test order state', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/order/**/document/invoice`,
-            method: 'post'
+            method: 'POST'
         }).as('createDocumentCall');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/document`,
-            method: 'post'
+            method: 'POST'
         }).as('findDocumentCall');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/order`,
-            method: 'post'
+            method: 'POST'
         }).as('findOrder');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/number-range/reserve/document_invoice/*`,
-            method: 'get'
+            method: 'GET'
         }).as('reserveDocumentNumberRange');
 
         cy.get(`${page.elements.dataGridRow}--0`).contains('Mustermann, Max');

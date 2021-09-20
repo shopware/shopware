@@ -18,7 +18,7 @@ describe('Promotion v2: Test crud operations', () => {
     it('@base @marketing: create, update and read promotion', () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/promotion`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         cy.waitFor('.sw-promotion-v2-list__smart-bar-button-add');

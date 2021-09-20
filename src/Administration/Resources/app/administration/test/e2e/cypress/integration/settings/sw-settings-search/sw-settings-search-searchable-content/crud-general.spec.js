@@ -27,7 +27,7 @@ describe('Product Search: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product-search-config-field/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('updateSearchConfig');
 
         cy.get('.sw-settings-search__view-general .sw-card:nth-child(2)').scrollIntoView();
@@ -65,7 +65,7 @@ describe('Product Search: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}//product-search-config-field/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('updateSearchConfig');
 
         cy.get('.sw-settings-search__searchable-content-general ' +
@@ -96,12 +96,12 @@ describe('Product Search: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product-search-config-field/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('updateSearchConfig');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product-search-config-field`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
 
         // update the value ranking which is not same default value

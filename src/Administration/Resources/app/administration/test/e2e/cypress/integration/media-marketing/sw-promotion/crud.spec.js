@@ -37,12 +37,12 @@ describe('Promotion: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/promotion`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/promotion/**/discounts`,
-            method: 'post'
+            method: 'POST'
         }).as('saveDiscount');
 
         cy.get('a[href="#/sw/promotion/create"]').click();

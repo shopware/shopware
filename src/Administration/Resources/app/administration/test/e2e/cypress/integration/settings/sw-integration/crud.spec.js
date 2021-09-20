@@ -17,7 +17,7 @@ describe('Integration: crud integrations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/integration`,
-            method: 'post'
+            method: 'POST'
         }).as('createIntegration');
 
         // go to integration module
@@ -45,7 +45,7 @@ describe('Integration: crud integrations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/integration`,
-            method: 'post'
+            method: 'POST'
         }).as('createIntegration');
 
         // go to integration module
@@ -74,12 +74,12 @@ describe('Integration: crud integrations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/integration`,
-            method: 'post'
+            method: 'POST'
         }).as('createIntegration');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/integration/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('editIntegration');
 
         // go to integration module
@@ -120,7 +120,7 @@ describe('Integration: crud integrations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/integration`,
-            method: 'post'
+            method: 'POST'
         }).as('createIntegration');
 
         cy.intercept({

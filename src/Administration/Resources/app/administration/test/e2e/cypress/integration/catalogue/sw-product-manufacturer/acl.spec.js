@@ -71,7 +71,7 @@ describe('Manufacturer: Test crud operations with ACL', () => {
 
         // Request we want to wait for later
         cy.intercept({
-            method: 'post',
+            method: 'POST',
             url: `**/${Cypress.env('apiPath')}/product-manufacturer`
         }).as('saveData');
 
@@ -110,10 +110,9 @@ describe('Manufacturer: Test crud operations with ACL', () => {
 
         // Request we want to wait for later
         cy.intercept({
-            method: 'patch',
+            method: 'PATCH',
             url: `**/${Cypress.env('apiPath')}/product-manufacturer/**`
         }).as('saveData');
-
 
         // Edit base data
         cy.get(`${page.elements.dataGridRow}--0 a`).click();

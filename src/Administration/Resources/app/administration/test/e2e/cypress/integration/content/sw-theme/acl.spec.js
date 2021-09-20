@@ -92,7 +92,7 @@ describe('Theme: Test ACL privileges', () => {
     it('@content: can edit theme', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/theme/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveTheme');
 
         cy.loginAsUserWithPermissions([
@@ -129,7 +129,7 @@ describe('Theme: Test ACL privileges', () => {
     it('@content: can create theme via duplicate functionality', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/theme`,
-            method: 'post'
+            method: 'POST'
         }).as('duplicateTheme');
 
         cy.loginAsUserWithPermissions([

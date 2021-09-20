@@ -104,7 +104,7 @@ describe('Customer: Test filter and reset filter', () => {
                             Authorization: `Bearer ${auth.access}`,
                             'Content-Type': 'application/json'
                         },
-                        method: 'post',
+                        method: 'POST',
                         url: `/${Cypress.env('apiPath')}/_action/sync`,
                         qs: {
                             response: true
@@ -124,7 +124,7 @@ describe('Customer: Test filter and reset filter', () => {
                             Authorization: `Bearer ${auth.access}`,
                             'Content-Type': 'application/json'
                         },
-                        method: 'post',
+                        method: 'POST',
                         url: `/${Cypress.env('apiPath')}/_action/sync`,
                         qs: {
                             response: true
@@ -174,17 +174,17 @@ describe('Customer: Test filter and reset filter', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/customer`,
-            method: 'post'
+            method: 'POST'
         }).as('filterCustomer');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/payment-method`,
-            method: 'post'
+            method: 'POST'
         }).as('getPaymentMethod');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/user-config`,
-            method: 'post'
+            method: 'POST'
         }).as('getUserConfig');
 
         cy.get('.sw-sidebar-navigation-item[title="Filters"]').click();
@@ -259,17 +259,17 @@ describe('Customer: Test filter and reset filter', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/customer`,
-            method: 'post'
+            method: 'POST'
         }).as('filterCustomer');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/user-config`,
-            method: 'post'
+            method: 'POST'
         }).as('getUserConfig');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/user-config/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('patchUserConfig');
 
         cy.get('.sw-sidebar-navigation-item[title="Filters"]').click();

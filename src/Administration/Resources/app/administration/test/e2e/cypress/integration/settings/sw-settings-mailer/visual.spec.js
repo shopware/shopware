@@ -15,7 +15,7 @@ describe('Mailer: Visual testing', () => {
     it('@base @visual: check appearance of mailer module', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/system-config?domain=core.mailerSettings`,
-            method: 'get'
+            method: 'GET'
         }).as('getData');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');

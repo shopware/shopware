@@ -22,7 +22,7 @@ describe('Tax: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/tax`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Create tax
@@ -48,7 +48,7 @@ describe('Tax: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/tax/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         // Edit tax' base data

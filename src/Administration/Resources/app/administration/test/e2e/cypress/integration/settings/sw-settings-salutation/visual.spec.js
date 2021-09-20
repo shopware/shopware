@@ -15,7 +15,7 @@ describe('Salutation: Visual tesing', () => {
     it('@visual: check appearance of salutation module', () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/salutation`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');

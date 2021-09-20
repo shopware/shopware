@@ -13,7 +13,7 @@ describe('Login / Registration: Test show operations on templates', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/system-config/batch`,
-            method: 'post'
+            method: 'POST'
         }).as('saveSettings');
 
         cy.get('input[name="core.systemWideLoginRegistration.isCustomerBoundToSalesChannel"]')

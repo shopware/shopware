@@ -69,7 +69,7 @@ describe('Product: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveProduct');
 
         const page = new ProductPageObject();
@@ -112,10 +112,10 @@ describe('Product: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveProduct');
         cy.intercept({
-            method: 'post',
+            method: 'POST',
             url: `${Cypress.env('apiPath')}/_action/calculate-price`
         }).as('calculatePrice');
 

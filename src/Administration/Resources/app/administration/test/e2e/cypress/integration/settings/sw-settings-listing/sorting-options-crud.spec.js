@@ -70,7 +70,7 @@ describe('Listing: Test crud operations', () => {
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-sorting`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // save entity
@@ -95,12 +95,12 @@ describe('Listing: Test crud operations', () => {
     it('@settings: create product sorting with custom field criteria', () => {
         cy.intercept({
             url: '/api/search/custom-field-set',
-            method: 'post'
+            method: 'POST'
         }).as('saveCustomFieldSet');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/custom-field-set/**/custom-fields`,
-            method: 'post'
+            method: 'POST'
         }).as('saveCustomField');
 
         cy.visit(`${Cypress.env('admin')}#/sw/settings/custom/field/index`);
@@ -169,11 +169,11 @@ describe('Listing: Test crud operations', () => {
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-sorting`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-sorting/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('updateData');
 
         cy.get(customFieldSelection).typeSingleSelect('my_custom_field_first', customFieldSelection);

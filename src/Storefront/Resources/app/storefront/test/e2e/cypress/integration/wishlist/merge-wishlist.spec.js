@@ -33,7 +33,7 @@ describe('Wishlist: for wishlist', () => {
                 headers: {
                     Authorization: `Bearer ${result.access}`
                 },
-                method: 'post',
+                method: 'POST',
                 url: `api/_action/system-config/batch`,
                 body: {
                     null: {
@@ -54,8 +54,6 @@ describe('Wishlist: for wishlist', () => {
 
     it('@wishlist: Wishlist can be merge from anonymous user to registered users', () => {
         cy.visit('/');
-
-        cy.onlyOnFeature('FEATURE_NEXT_10549');
 
         cy.intercept({
             method: 'POST',
@@ -100,8 +98,6 @@ describe('Wishlist: for wishlist', () => {
 
     it('@wishlist: Wishlist can be merge from anonymous user to registered users with same product', () => {
         cy.visit('/');
-
-        cy.onlyOnFeature('FEATURE_NEXT_10549');
 
         cy.intercept({
             method: 'POST',
@@ -179,8 +175,6 @@ describe('Wishlist: for wishlist', () => {
 
         cy.visit('/');
 
-        cy.onlyOnFeature('FEATURE_NEXT_10549');
-
         cy.intercept({
             method: 'POST',
             url: '/wishlist/add/**',
@@ -231,7 +225,7 @@ describe('Wishlist: for wishlist', () => {
         });
     });
 
-    it('@wishlist: The order in which the products are displayed is based on the time they were added to the wishlist', () => {
+    it.only('@wishlist: The order in which the products are displayed is based on the time they were added to the wishlist', () => {
         cy.createProductFixture({
             "id": "6dfd9dc216ab4ac99598b837ac600369",
             "name": "Test product 2",
@@ -254,8 +248,6 @@ describe('Wishlist: for wishlist', () => {
         });
 
         cy.visit('/');
-
-        cy.onlyOnFeature('FEATURE_NEXT_10549');
 
         cy.intercept({
             method: 'POST',
@@ -305,12 +297,11 @@ describe('Wishlist: for wishlist', () => {
 
         cy.visit('/wishlist');
 
-        cy.wait('@wishlistMerge').then(() => {
-            cy.get('#wishlist-basket').contains('2');
+        cy.wait('@wishlistMerge');
+        cy.get('#wishlist-basket').contains('2');
 
-            cy.visit('/wishlist');
-            cy.get('.cms-listing-col').eq(0).contains('Test product 2');
-            cy.get('.cms-listing-col').eq(1).contains('Test product 1');
-        });
+        cy.visit('/wishlist');
+        cy.get('.cms-listing-col').eq(0).contains('Test product 1');
+        cy.get('.cms-listing-col').eq(1).contains('Test product 2');
     });
 });

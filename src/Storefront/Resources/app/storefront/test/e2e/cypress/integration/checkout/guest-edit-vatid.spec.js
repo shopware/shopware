@@ -25,7 +25,7 @@ describe(`Checkout as Guest`, () => {
                 headers: {
                     Authorization: `Bearer ${result.access}`
                 },
-                method: 'post',
+                method: 'POST',
                 url: `api/_action/system-config/batch`,
                 body: {
                     null: {

@@ -67,7 +67,7 @@ describe('Property: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/property-group/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveProperty');
 
         const page = new PropertyPageObject();
@@ -108,7 +108,7 @@ describe('Property: Test ACL privileges', () => {
     it('@catalogue: can create property', () => {
         // Request we want to wait for later
         cy.intercept({
-            method: 'post',
+            method: 'POST',
             url: `${Cypress.env('apiPath')}/property-group`
         }).as('saveData');
 

@@ -40,15 +40,15 @@ describe('CMS: Check usage and editing of buy box elements', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/category/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveCategory');
 
-        cy.intercept('get', '/widgets/cms/buybox/**').as('loadData');
+        cy.intercept('GET', '/widgets/cms/buybox/**').as('loadData');
 
         cy.get('.sw-cms-list-item--0').click();
         cy.get('.sw-cms-section__empty-stage').should('be.visible');
@@ -120,17 +120,17 @@ describe('CMS: Check usage and editing of buy box elements', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/category/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveCategory');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw-login-background`,
-            method: 'post'
+            method: 'POST'
         }).as('saveDataFileUpload');
 
         cy.get('.sw-cms-list-item--0').click();

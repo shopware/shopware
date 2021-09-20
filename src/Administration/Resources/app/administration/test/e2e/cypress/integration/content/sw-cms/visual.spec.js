@@ -19,12 +19,12 @@ describe('CMS: Visual tests', () => {
     it('@visual: check appearance of cms layout workflow', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/category/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveCategory');
 
         cy.clickMainMenuItem({

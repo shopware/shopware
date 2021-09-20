@@ -140,7 +140,7 @@ describe('Dynamic product group: Test various filters', () => {
     it('@base @rule: search and add products with operator "Is equal to any of"', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
 
         const page = new ProductStreamObject();

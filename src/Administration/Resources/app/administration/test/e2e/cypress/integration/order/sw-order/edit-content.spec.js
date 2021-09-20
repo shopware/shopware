@@ -5,22 +5,22 @@ import OrderPageObject from '../../../support/pages/module/sw-order.page-object'
 function navigateToOrder(page) {
     cy.intercept({
         url: `**/${Cypress.env('apiPath')}/_action/version/order/**`,
-        method: 'post'
+        method: 'POST'
     }).as('orderEditCall');
 
     cy.intercept({
         url: `**/${Cypress.env('apiPath')}/_action/version/merge/order/**`,
-        method: 'post'
+        method: 'POST'
     }).as('orderSaveCall');
 
     cy.intercept({
         url: `**/${Cypress.env('apiPath')}/_action/order/**/product/**`,
-        method: 'post'
+        method: 'POST'
     }).as('orderAddProductCall');
 
     cy.intercept({
         url: `**/${Cypress.env('apiPath')}/_action/order/**/recalculate`,
-        method: 'post'
+        method: 'POST'
     }).as('orderRecalculateCall');
 
     cy.intercept({

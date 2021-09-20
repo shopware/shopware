@@ -15,11 +15,11 @@ describe('Theme: Visual tests', () => {
     it('@visual: check appearance of basic theme workflow', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/theme/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/theme`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
 
         cy.clickMainMenuItem({

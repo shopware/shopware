@@ -33,7 +33,7 @@ describe('Theme: Test loading and saving of theme', () => {
         const page = new ProductPageObject();
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/theme/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         cy.get('.sw-theme-list-item')

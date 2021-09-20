@@ -21,15 +21,15 @@ describe('Dashboard:  Visual tests', () => {
     it.skip('@visual: check appearance of my extension overview', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/extension/installed`,
-            method: 'get'
+            method: 'GET'
         }).as('getInstalled');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/**`,
-            method: 'post'
+            method: 'POST'
         }).as('searchResultCall');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/extension-store/list`,
-            method: 'post'
+            method: 'POST'
         }).as('extensionList');
 
         cy.clickMainMenuItem({

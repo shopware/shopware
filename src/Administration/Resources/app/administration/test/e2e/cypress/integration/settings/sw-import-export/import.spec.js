@@ -22,12 +22,12 @@ describe('Import/Export - Check import functionality', () => {
     it('@base @settings: Perform import with product profile', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/import-export/prepare`,
-            method: 'post'
+            method: 'POST'
         }).as('prepare');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/import-export/process`,
-            method: 'post'
+            method: 'POST'
         }).as('process');
 
         cy.intercept({

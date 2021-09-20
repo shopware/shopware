@@ -19,12 +19,12 @@ describe('Media: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw-login-background`,
-            method: 'post'
+            method: 'POST'
         }).as('saveDataFileUpload');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw_logo_white`,
-            method: 'post'
+            method: 'POST'
         }).as('saveDataUrlUpload');
 
         page.uploadImageUsingFileUpload('img/sw-login-background.png');
@@ -42,12 +42,12 @@ describe('Media: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw-login-background`,
-            method: 'post'
+            method: 'POST'
         }).as('saveDataFileUpload');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw_logo_white`,
-            method: 'post'
+            method: 'POST'
         }).as('saveDataUrlUpload');
 
         // Upload medium
@@ -74,7 +74,7 @@ describe('Media: Test crud operations', () => {
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/media/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         // Upload medium
@@ -115,12 +115,12 @@ describe('Media: Test crud operations', () => {
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw-login-background`,
-            method: 'post'
+            method: 'POST'
         }).as('saveDataFileUpload');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw_logo_white`,
-            method: 'post'
+            method: 'POST'
         }).as('saveDataUrlUpload');
 
         // Upload medium

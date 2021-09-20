@@ -53,7 +53,7 @@ describe('Payment: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/payment-method/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('savePayment');
 
         const page = new ProductPageObject();
@@ -89,7 +89,7 @@ describe('Payment: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/payment-method`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         const page = new ProductPageObject();

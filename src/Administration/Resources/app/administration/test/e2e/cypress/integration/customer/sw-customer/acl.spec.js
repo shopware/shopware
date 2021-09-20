@@ -80,7 +80,7 @@ describe('Customer: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/customer/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveCustomer');
 
         const page = new CustomerPageObject();
@@ -122,7 +122,7 @@ describe('Customer: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/customer`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         const page = new CustomerPageObject();
@@ -215,7 +215,7 @@ describe('Customer: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_admin/check-customer-email-valid`,
-            method: 'post'
+            method: 'POST'
         }).as('checkEmailValid');
 
         const page = new CustomerPageObject();
@@ -312,7 +312,7 @@ describe('Customer: Test ACL privileges', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_admin/check-customer-email-valid`,
-            method: 'post'
+            method: 'POST'
         }).as('checkEmailValid');
 
         // open customer

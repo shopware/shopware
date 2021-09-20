@@ -19,11 +19,11 @@ describe('Country: Visual testing', () => {
     it('@visual: check appearance of country module', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/country`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/country/**/states`,
-            method: 'post'
+            method: 'POST'
         }).as('getStates');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');

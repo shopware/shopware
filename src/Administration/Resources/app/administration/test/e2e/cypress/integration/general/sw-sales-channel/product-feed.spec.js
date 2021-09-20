@@ -27,16 +27,16 @@ describe('Sales Channel: Test product comparison', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/sales-channel`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveProductsData');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/product-export/validate`,
-            method: 'post'
+            method: 'POST'
         }).as('validate');
 
         // Edit base data of product

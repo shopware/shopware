@@ -41,7 +41,7 @@ describe('Customer: Test crud operations', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/customer`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Fill in basic data
@@ -106,7 +106,7 @@ describe('Customer: Test crud operations', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/customer/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         // Open customer

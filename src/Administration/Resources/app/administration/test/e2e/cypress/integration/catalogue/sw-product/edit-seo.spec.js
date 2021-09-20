@@ -37,7 +37,7 @@ describe('Product: Edit in various ways', () => {
     it('@catalogue: set list price', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product`,
-            method: 'post'
+            method: 'POST'
         }).as('saveProduct');
 
         const page = new ProductPageObject();
@@ -92,7 +92,7 @@ describe('Product: Edit in various ways', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('updateProduct');
 
         // Navigate to variant generator listing and start
@@ -175,7 +175,7 @@ describe('Product: Edit in various ways', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('updateProduct');
 
         // Navigate to variant generator listing and start
@@ -275,7 +275,7 @@ describe('Product: Edit in various ways', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('updateProduct');
 
         // Navigate to variant generator listing and start

@@ -19,7 +19,7 @@ describe('Payment: Visual testing', () => {
     it('@base @navigation: navigate to payment module', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/payment-method`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');

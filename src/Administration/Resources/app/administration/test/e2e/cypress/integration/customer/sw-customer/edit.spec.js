@@ -22,7 +22,7 @@ describe('Customer:  Edit in various ways', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/customer/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         // Inline edit customer

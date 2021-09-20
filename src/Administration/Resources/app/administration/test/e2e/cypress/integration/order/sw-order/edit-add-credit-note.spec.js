@@ -36,22 +36,22 @@ describe('Order: Create credit note', () => {
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/order/**/recalculate`,
-            method: 'post'
+            method: 'POST'
         }).as('orderRecalculateCall');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/order/*/document/invoice`,
-            method: 'post'
+            method: 'POST'
         }).as('createInvoice');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/order/*/document/credit_note`,
-            method: 'post'
+            method: 'POST'
         }).as('createCreditNote');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/order/**/document/invoice/preview*`,
-            method: 'get'
+            method: 'GET'
         }).as('onPreview');
 
         cy.get(`${page.elements.dataGridRow}--0`).contains('Mustermann, Max');

@@ -30,7 +30,7 @@ describe('Product: Visual tests', () => {
     it('@visual: check appearance of basic product workflow', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
 
         cy.get('.sw-product-list-grid').should('be.visible');
@@ -106,11 +106,11 @@ describe('Product: Visual tests', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/property-group`,
-            method: 'post'
+            method: 'POST'
         }).as('getPropertyGroups');
 
         cy.get('.sw-product-list-grid').should('be.visible');
@@ -164,11 +164,11 @@ describe('Product: Visual tests', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/product-stream`,
-            method: 'post'
+            method: 'POST'
         }).as('saveStream');
 
         cy.createProductFixture({

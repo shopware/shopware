@@ -67,7 +67,7 @@ describe('Category: Edit categories', () => {
     it('@catalogue: assign dynamic product group', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/category/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         // Select a category
@@ -150,7 +150,7 @@ describe('Category: Edit categories', () => {
     it('@catalogue: saving the data when changing content language', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/category/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         const page = new CategoryPageObject();

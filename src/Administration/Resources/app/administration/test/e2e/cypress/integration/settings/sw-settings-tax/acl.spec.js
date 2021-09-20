@@ -40,7 +40,7 @@ describe('Tax: Test acl privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/tax`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
 
@@ -82,7 +82,7 @@ describe('Tax: Test acl privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/tax/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         // Edit tax

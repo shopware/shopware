@@ -39,7 +39,7 @@ describe('Language: Test acl privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/language`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         cy.get('.sw-settings-language-list').should('be.visible');
@@ -83,7 +83,7 @@ describe('Language: Test acl privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/language/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         cy.get('.sw-settings-language-list').should('be.visible');

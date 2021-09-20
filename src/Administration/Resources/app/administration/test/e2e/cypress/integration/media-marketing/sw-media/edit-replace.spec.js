@@ -22,7 +22,7 @@ describe('Media: Replace media', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw-login-background`,
-            method: 'post'
+            method: 'POST'
         }).as('uploadMedia');
 
 
@@ -70,7 +70,7 @@ describe('Media: Replace media', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw-login-background`,
-            method: 'post'
+            method: 'POST'
         }).as('uploadMedia');
 
         cy.get(page.elements.loader).should('not.exist');

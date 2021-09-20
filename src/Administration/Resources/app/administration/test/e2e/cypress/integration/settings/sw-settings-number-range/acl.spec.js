@@ -67,22 +67,22 @@ describe('Number Range: Test acl privileges', () => {
 
         cy.intercept({
             url: '/api/search/number-range',
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/number-range`,
-            method: 'post'
+            method: 'POST'
         }).as('searchData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/number-range-type`,
-            method: 'post'
+            method: 'POST'
         }).as('searchNumberRangeType');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/sales-channel`,
-            method: 'post'
+            method: 'POST'
         }).as('searchSalesChannel');
 
         cy.get('a[href="#/sw/settings/number/range/create"]').click();
@@ -134,11 +134,11 @@ describe('Number Range: Test acl privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: '/api/search/number-range/*',
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/number-range`,
-            method: 'post'
+            method: 'POST'
         }).as('searchData');
 
         cy.get(`${page.elements.dataGridRow}--1 a`).click();

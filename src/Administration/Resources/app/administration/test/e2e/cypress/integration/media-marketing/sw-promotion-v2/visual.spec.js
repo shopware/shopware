@@ -31,19 +31,19 @@ describe('Promotion v2: Visual tests', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/promotion`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/promotion/**`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('patchPromotion');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/promotion`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
         cy.intercept({
             url: '/widgets/checkout/info',
-            method: 'get'
+            method: 'GET'
         }).as('cartInfo');
 
         cy.clickMainMenuItem({

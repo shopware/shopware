@@ -23,7 +23,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
     it('@settings @base: Create and read profile', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/import-export-profile`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Perform create new profile action
@@ -124,7 +124,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
     it('@settings @base: Duplicate profile', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/import-export-profile`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         cy.get('.sw-import-export-view-profiles__listing').should('be.visible');
@@ -157,7 +157,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
     it('@settings: Update and read profile', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/import-export-profile/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         cy.get('.sw-import-export-view-profiles__listing').should('be.visible');
@@ -205,11 +205,11 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.onlyOnFeature('FEATURE_NEXT_16271');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/import-export-profile/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/import-export-profile`,
-            method: 'post'
+            method: 'POST'
         }).as('loadData');
 
         // change content language to german
@@ -240,8 +240,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get('.sw-import-export-edit-profile-modal__save-action').click();
 
         // Save request should be successful
-        cy.wait('@saveData')
-    .its('response.statusCode').should('equal', 204);
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get('.sw-import-export-edit-profile-modal').should('not.be.visible');
 
@@ -272,7 +271,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
     it('@settings @base: Create profile disabled in different content language', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/import-export-profile`,
-            method: 'post'
+            method: 'POST'
         }).as('loadData');
 
         // check that the add new profile button is enabled in the system language
@@ -295,7 +294,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/import-export-profile`,
-            method: 'post'
+            method: 'POST'
         }).as('search');
 
         cy.get('.sw-import-export-view-profiles__listing').should('be.visible');
@@ -347,7 +346,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/import-export-profile`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Perform create new profile action

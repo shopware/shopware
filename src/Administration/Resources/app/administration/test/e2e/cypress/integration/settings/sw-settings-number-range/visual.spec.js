@@ -19,11 +19,11 @@ describe('Number range: Visual testing', () => {
     it('@visual: check appearance of number ranges module', () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/number-range`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/number-range-type`,
-            method: 'post'
+            method: 'POST'
         }).as('getRangeType');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');

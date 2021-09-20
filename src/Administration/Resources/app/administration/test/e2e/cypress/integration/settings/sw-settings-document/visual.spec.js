@@ -15,7 +15,7 @@ describe('Documents: Visual testing', () => {
     it('@visual: check appearance of document module', () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/document-base-config`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');

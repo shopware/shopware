@@ -20,7 +20,7 @@ describe('Rule builder: Visual tests', () => {
         const page = new RulePageObject();
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/rule`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
 
         cy.clickMainMenuItem({

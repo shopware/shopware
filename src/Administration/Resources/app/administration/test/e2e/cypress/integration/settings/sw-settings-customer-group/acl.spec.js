@@ -60,7 +60,7 @@ describe('Customer groups: Test acl privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/customer-group/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('updateCustomerGroup');
 
         // click on first element in grid
@@ -123,7 +123,7 @@ describe('Customer groups: Test acl privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/customer-group`,
-            method: 'post'
+            method: 'POST'
         }).as('createCustomerGroup');
 
         // Create customer group

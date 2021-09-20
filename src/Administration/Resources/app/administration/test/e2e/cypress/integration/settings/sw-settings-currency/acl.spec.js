@@ -59,7 +59,7 @@ describe('Currency: Test acl privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/currency/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveCurrency');
 
         // click on first element in grid
@@ -106,7 +106,7 @@ describe('Currency: Test acl privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/currency`,
-            method: 'post'
+            method: 'POST'
         }).as('saveCurrency');
 
         // Create currency

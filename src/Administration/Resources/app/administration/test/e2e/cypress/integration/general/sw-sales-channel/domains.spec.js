@@ -14,7 +14,7 @@ describe('Sales Channel: Adding domains to a sales-channel', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/sales-channel-domain`,
-            method: 'post'
+            method: 'POST'
         }).as('verifyDomain');
     });
 

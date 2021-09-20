@@ -51,7 +51,7 @@ describe('Country: Test acl privileges', () => {
         // prepare api to update a country
         cy.intercept({
             url: `${Cypress.env('apiPath')}/country/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveCountry');
 
         // click on first element in grid
@@ -112,7 +112,7 @@ describe('Country: Test acl privileges', () => {
         // prepare api to create a new country
         cy.intercept({
             url: `${Cypress.env('apiPath')}/country`,
-            method: 'post'
+            method: 'POST'
         }).as('saveCountry');
 
         // click on "Add country" button
@@ -239,7 +239,7 @@ describe('Country: Test acl privileges', () => {
         // prepare api to update a state
         cy.intercept({
             url: `${Cypress.env('apiPath')}/country/*/states/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveCountryState');
 
         // find a country with the name is "Germany"
@@ -324,7 +324,7 @@ describe('Country: Test acl privileges', () => {
         // prepare api to create a state
         cy.intercept({
             url: `${Cypress.env('apiPath')}/country/*/states`,
-            method: 'post'
+            method: 'POST'
         }).as('saveCountryState');
 
         // find a country with the name is "Germany"
@@ -388,17 +388,17 @@ describe('Country: Test acl privileges', () => {
         // prepare api to create a state
         cy.intercept({
             url: `${Cypress.env('apiPath')}/country/*/states`,
-            method: 'post'
+            method: 'POST'
         }).as('saveCountryState');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/language`,
-            method: 'post'
+            method: 'POST'
         }).as('searchLanguage');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/country`,
-            method: 'post'
+            method: 'POST'
         }).as('searchCountry');
 
         cy.get('.sw-language-switch__select .sw-entity-single-select__selection-text').contains('English');
@@ -462,7 +462,7 @@ describe('Country: Test acl privileges', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('deleteCountry');
 
         // click on first checkbox in grid

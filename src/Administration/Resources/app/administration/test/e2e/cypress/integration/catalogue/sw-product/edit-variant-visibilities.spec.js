@@ -58,7 +58,7 @@ describe('Product: Test variants visibilities', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Navigate to variant generator listing and start

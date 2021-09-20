@@ -26,17 +26,17 @@ describe('Import/Export - Check import dry run functionality', () => {
     it('@base @settings: Perform import dry run with product profile', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/import-export/prepare`,
-            method: 'post'
+            method: 'POST'
         }).as('prepare');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/import-export/process`,
-            method: 'post'
+            method: 'POST'
         }).as('process');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/import-export-log`,
-            method: 'post'
+            method: 'POST'
         }).as('importExportLog');
 
         cy.get('.sw-import-export-view-import').should('be.visible');

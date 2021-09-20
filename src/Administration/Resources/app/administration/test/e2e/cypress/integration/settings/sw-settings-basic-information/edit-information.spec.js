@@ -19,7 +19,7 @@ describe('Basic Informaion: Edit assignments', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/system-config/batch`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Assign 404 layout to all sales channels
@@ -55,12 +55,12 @@ describe('Basic Informaion: Edit assignments', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/system-config/batch`,
-            method: 'post'
+            method: 'POST'
         }).as('saveSettings');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/sales-channel/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveSalesChannel');
 
         // Assign Maintenance layout to all sales channels
@@ -102,7 +102,7 @@ describe('Basic Informaion: Edit assignments', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/sales-channel/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveSalesChannel');
 
         salesChannelPage.openSalesChannel('Storefront', 1);
@@ -122,7 +122,7 @@ describe('Basic Informaion: Edit assignments', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/system-config/batch`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         cy.get('.sw-card.sw-system-config__card--3').should('be.visible');

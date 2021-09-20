@@ -24,7 +24,7 @@ describe('Property: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/property-group`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Add property group
@@ -45,7 +45,7 @@ describe('Property: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/property-group`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Add option to property group

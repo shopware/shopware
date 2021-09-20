@@ -20,11 +20,11 @@ describe('Search: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: '/api/search/product-search-config',
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Make sure that everything need to load first.
-        cy.wait(3000);
+        cy.get('.sw-loader').should('not.exist');
 
         // Change value of Minimal search term length
         cy.get('.sw-settings-search__search-behaviour-term-length input').clear().type('10');
@@ -46,11 +46,11 @@ describe('Search: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: '/api/search/product-search-config',
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Make sure that everything need to load first.
-        cy.wait(3000);
+        cy.get('.sw-loader').should('not.exist');
 
         // Choose German language
         page.changeTranslation('Deutsch', 0);

@@ -19,7 +19,7 @@ describe('Event actions: Visual testing', () => {
     it('@visual: @check appearance of event action workflow', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/event-action`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');

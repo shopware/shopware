@@ -45,7 +45,7 @@ describe('Product: Test filter variants', () => {
     it('@catalogue: should filter options by properties', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product`,
-            method: 'post'
+            method: 'POST'
         }).as('searchVariants');
 
         cy.get('.sw-product-variants-overview__filter-list-button > .sw-button')

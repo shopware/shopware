@@ -54,7 +54,7 @@ describe('Custom fields: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/custom-field-set`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         cy.loginAsUserWithPermissions([
@@ -84,7 +84,7 @@ describe('Custom fields: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/custom-field-set`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         cy.loginAsUserWithPermissions([

@@ -67,15 +67,15 @@ describe('Order: Test promotions in existing orders', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/order`,
-            method: 'post'
+            method: 'POST'
         }).as('orderCall');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/order/**/promotion-item`,
-            method: 'post'
+            method: 'POST'
         }).as('orderAddPromotionCall');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/order/**/`,
-            method: 'post'
+            method: 'POST'
         }).as('orderRemovePromotionCall');
 
         cy.get(`${page.elements.dataGridRow}--0`).contains('Mustermann, Max');
@@ -136,11 +136,11 @@ describe('Order: Test promotions in existing orders', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/order`,
-            method: 'post'
+            method: 'POST'
         }).as('orderCall');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/order/**/toggleAutomaticPromotions`,
-            method: 'post'
+            method: 'POST'
         }).as('toggleAutomaticPromotionsCall');
 
         cy.get(`${page.elements.dataGridRow}--0`).contains('Mustermann, Max');
@@ -156,8 +156,7 @@ describe('Order: Test promotions in existing orders', () => {
         cy.contains('Edit')
             .click();
 
-        cy.wait('@orderCall')
-    .its('response.statusCode').should('equal', 200);
+        cy.wait('@orderCall').its('response.statusCode').should('equal', 200);
 
         cy.get('input[name="sw-field--disabledAutoPromotionVisibility"]').should('be.checked');
 

@@ -15,7 +15,7 @@ describe('Basic information: Visual testing', () => {
     it('@visual: check appearance of basic information module', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/system-config/schema?domain=core.basicInformation`,
-            method: 'get'
+            method: 'GET'
         }).as('getData');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');

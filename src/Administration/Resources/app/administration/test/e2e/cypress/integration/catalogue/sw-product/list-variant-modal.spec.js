@@ -53,7 +53,7 @@ describe('Product: Test variants', () => {
 
     it('@catalogue: should edit variants in modal', () => {
         cy.intercept({
-            method: 'patch',
+            method: 'PATCH',
             url: `${Cypress.env('apiPath')}/product/*`
         }).as('saveChanges');
 
@@ -83,7 +83,7 @@ describe('Product: Test variants', () => {
 
     it('@catalogue @base: delete variants in modal', () => {
         cy.intercept({
-            method: 'post',
+            method: 'POST',
             url: 'api/_action/sync'
         }).as('deleteData');
 

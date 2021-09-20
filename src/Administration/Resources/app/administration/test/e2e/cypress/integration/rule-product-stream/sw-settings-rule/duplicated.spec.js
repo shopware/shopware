@@ -20,18 +20,18 @@ describe('Rule builder: Test duplication of rule', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/rule`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/rule`,
-            method: 'post'
+            method: 'POST'
         }).as('searchData');
 
         // Request for duplicate Rule
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/clone/rule/*`,
-            method: 'post'
+            method: 'POST'
         }).as('duplicateData');
 
         cy.get('a[href="#/sw/settings/rule/create"]').click();

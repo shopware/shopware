@@ -23,11 +23,11 @@ describe('Product: Test crud operations', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/calculate-price`,
-            method: 'post'
+            method: 'POST'
         }).as('calculatePrice');
 
         // Add basic data to product
@@ -95,7 +95,7 @@ describe('Product: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Edit base data of product
@@ -158,7 +158,7 @@ describe('Product: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Edit base data of product
@@ -205,7 +205,7 @@ describe('Product: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/calculate-price`,
-            method: 'post'
+            method: 'POST'
         }).as('calculatePrice');
 
         // Add basic data to product

@@ -235,7 +235,7 @@ describe('Order: Testing filter and reset filter', () => {
                         Authorization: `Bearer ${auth.access}`,
                         'Content-Type': 'application/json'
                     },
-                    method: 'post',
+                    method: 'POST',
                     url: `/${Cypress.env('apiPath')}/_action/sync`,
                     qs: {
                         response: true
@@ -256,7 +256,7 @@ describe('Order: Testing filter and reset filter', () => {
                         Authorization: `Bearer ${auth.access}`,
                         'Content-Type': 'application/json'
                     },
-                    method: 'post',
+                    method: 'POST',
                     url: `/${Cypress.env('apiPath')}/_action/sync`,
                     qs: {
                         response: true
@@ -303,17 +303,17 @@ describe('Order: Testing filter and reset filter', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/order`,
-            method: 'post'
+            method: 'POST'
         }).as('filterOrder');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/state-machine-state`,
-            method: 'post'
+            method: 'POST'
         }).as('getStateMachineState');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/user-config`,
-            method: 'post'
+            method: 'POST'
         }).as('getUserConfig');
 
         cy.wait('@filterOrder')
@@ -367,7 +367,7 @@ describe('Order: Testing filter and reset filter', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/state-machine-state`,
-            method: 'post'
+            method: 'POST'
         }).as('getStateMachineState');
 
         // Assert the grid has finished loading and the preset filters are active
@@ -376,7 +376,7 @@ describe('Order: Testing filter and reset filter', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/user-config`,
-            method: 'post'
+            method: 'POST'
         }).as('getUserConfig');
 
         // Open the filter panel
@@ -387,7 +387,7 @@ describe('Order: Testing filter and reset filter', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/order`,
-            method: 'post'
+            method: 'POST'
         }).as('filterOrder');
 
         // Reset all filters
@@ -421,7 +421,7 @@ describe('Order: Testing filter and reset filter', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/order`,
-            method: 'post'
+            method: 'POST'
         }).as('filterOrder');
 
         // Click Reset All button

@@ -36,7 +36,7 @@ describe('Product Search: Test crud operations', () => {
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-search-config/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         cy.get('.sw-settings-search-excluded-search-terms > .sw-card__title').scrollIntoView();
@@ -126,7 +126,7 @@ describe('Product Search: Test crud operations', () => {
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-search-config/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
 

@@ -83,7 +83,7 @@ describe('Mail templates: Test acl privileges', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/mail-template/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveMailTemplate');
 
         cy.intercept({
@@ -98,7 +98,7 @@ describe('Mail templates: Test acl privileges', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/mail-header-footer/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveMailHeaderFooter');
 
         // go to mail template module
@@ -190,12 +190,12 @@ describe('Mail templates: Test acl privileges', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/mail-template`,
-            method: 'post'
+            method: 'POST'
         }).as('createMailTemplate');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/mail-header-footer`,
-            method: 'post'
+            method: 'POST'
         }).as('createMailHeaderFooter');
 
         // Create mail template
@@ -340,12 +340,12 @@ describe('Mail templates: Test acl privileges', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/mail-template/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveMailTemplate');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/mail-header-footer/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveMailHeaderFooter');
 
         cy.intercept({

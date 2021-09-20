@@ -25,12 +25,12 @@ describe('CMS: Check GDPR compliant video elements', () => {
         it(`use ${name} element with GDPR compliant options`, () => {
             cy.intercept({
                 url: `**/${Cypress.env('apiPath')}/cms-page/*`,
-                method: 'patch'
+                method: 'PATCH'
             }).as('saveData');
 
             cy.intercept({
                 url: `**/${Cypress.env('apiPath')}/category/*`,
-                method: 'patch'
+                method: 'PATCH'
             }).as('saveCategory');
 
             cy.get('.sw-cms-list-item--0').click();

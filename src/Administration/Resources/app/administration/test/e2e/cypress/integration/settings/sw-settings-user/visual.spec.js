@@ -20,7 +20,7 @@ describe('User: Visual testing', () => {
     it('@visual: check appearance of user module', () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/user`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
 
         // Set other role

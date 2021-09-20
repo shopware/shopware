@@ -15,12 +15,12 @@ describe('User: Test crud operations', () => {
         // Requests we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/user`,
-            method: 'post'
+            method: 'POST'
         }).as('searchCall');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/user`,
-            method: 'post'
+            method: 'POST'
         }).as('createCall');
 
         cy.intercept({
@@ -30,7 +30,7 @@ describe('User: Test crud operations', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/oauth/token`,
-            method: 'post'
+            method: 'POST'
         }).as('oauthCall');
 
         // create a new user
@@ -121,7 +121,7 @@ describe('User: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/oauth/token`,
-            method: 'post'
+            method: 'POST'
         }).as('oauthCall');
 
         cy.clickContextMenuItem(
@@ -171,12 +171,12 @@ describe('User: Test crud operations', () => {
         // Requests we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/user`,
-            method: 'post'
+            method: 'POST'
         }).as('createCall');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/oauth/token`,
-            method: 'post'
+            method: 'POST'
         }).as('oauthCall');
 
         // create a new user

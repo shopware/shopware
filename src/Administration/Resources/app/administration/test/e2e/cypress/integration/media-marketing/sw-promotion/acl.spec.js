@@ -65,7 +65,7 @@ describe('Promotion: Test ACL privileges', () => {
     it('@acl: can edit promotion', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/promotion/**/discounts`,
-            method: 'post'
+            method: 'POST'
         }).as('saveDiscount');
 
         const page = new ProductPageObject();

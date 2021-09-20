@@ -24,7 +24,7 @@ describe('Product: Edit list prices of context prices', () => {
             // Request we want to wait for later
             cy.intercept({
                 url: `${Cypress.env('apiPath')}/_action/sync`,
-                method: 'post'
+                method: 'POST'
             }).as('saveData');
 
             // Edit base data of product

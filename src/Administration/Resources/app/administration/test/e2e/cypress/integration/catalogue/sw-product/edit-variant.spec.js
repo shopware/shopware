@@ -21,7 +21,7 @@ describe('Product: Test variants', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/user-config`,
-            method: 'post'
+            method: 'POST'
         }).as('searchUserConfig');
 
         cy.visit(`${Cypress.env('admin')}#/sw/property/index`);
@@ -104,7 +104,7 @@ describe('Product: Test variants', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Navigate to variant generator listing and start
@@ -152,7 +152,7 @@ describe('Product: Test variants', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Navigate to variant generator listing and start
@@ -195,11 +195,11 @@ describe('Product: Test variants', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/category`,
-            method: 'post'
+            method: 'POST'
         }).as('loadCategory');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Navigate to variant generator listing and start
@@ -236,7 +236,7 @@ describe('Product: Test variants', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/property-group`,
-            method: 'post'
+            method: 'POST'
         }).as('loadPropertyGroup');
 
         page.generateVariants('Size', [0, 1, 2], 6);
@@ -245,6 +245,11 @@ describe('Product: Test variants', () => {
         cy.get('.sw-product-detail__tab-variants').click();
 
         cy.get(page.elements.loader).should('not.exist');
+
+        // Wait for every needed xhr request to load the current product
+        // `@searchCall` was defined in `page.generateVariants`
+        cy.wait('@searchCall').its('response.statusCode').should('equal', 200);
+        cy.wait('@loadPropertyGroup').its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-product-variants-overview').should('be.visible');
 
@@ -283,7 +288,7 @@ describe('Product: Test variants', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Navigate to variant generator listing and start

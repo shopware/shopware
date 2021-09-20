@@ -25,17 +25,17 @@ describe('CMS: Check usage and editing of product description reviews element', 
     it('@content: use product description reviews element in another block', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/category/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveCategory');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveProductData');
 
         cy.get('.sw-cms-list-item--0').click();
@@ -96,12 +96,12 @@ describe('CMS: Check usage and editing of product description reviews element', 
     it('@content: use product description reviews block in landing page', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/category/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveCategory');
 
         cy.visit(`${Cypress.env('admin')}#/sw/cms/index`);

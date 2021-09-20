@@ -38,7 +38,7 @@ describe('Order: Visual tests', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/order`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
 
         cy.get('.sw-data-grid__cell--orderNumber').should('be.visible');
@@ -118,7 +118,7 @@ describe('Order: Visual tests', () => {
     it('@visual: check appearance of order creation workflow', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/order`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
 
         cy.clickMainMenuItem({

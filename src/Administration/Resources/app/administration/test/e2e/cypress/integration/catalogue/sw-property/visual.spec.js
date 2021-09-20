@@ -34,15 +34,15 @@ describe('Property: Visual tests', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/property-group`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/property-group`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/media-default-folder`,
-            method: 'post'
+            method: 'POST'
         }).as('getMediaFolder');
 
         cy.clickMainMenuItem({

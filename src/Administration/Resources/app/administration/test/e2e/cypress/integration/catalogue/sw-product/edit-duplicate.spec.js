@@ -22,12 +22,12 @@ describe('Product: Duplicate product', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/clone/product/*`,
-            method: 'post'
+            method: 'POST'
         }).as('duplicateProduct');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/**/search/product`,
-            method: 'post'
+            method: 'POST'
         }).as('getProduct');
 
         // Duplicate product by using context menu option
@@ -53,17 +53,17 @@ describe('Product: Duplicate product', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/clone/product/*`,
-            method: 'post'
+            method: 'POST'
         }).as('duplicateProduct');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveProduct');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product`,
-            method: 'post'
+            method: 'POST'
         }).as('getProduct');
 
         // Open product to duplicate
@@ -154,12 +154,12 @@ describe('Product: Duplicate product', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/clone/product/*`,
-            method: 'post'
+            method: 'POST'
         }).as('duplicateProduct');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product`,
-            method: 'post'
+            method: 'POST'
         }).as('getProduct');
 
         // Open product to duplicate

@@ -70,7 +70,7 @@ describe('Product: Sort grid', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product`,
-            method: 'post'
+            method: 'POST'
         }).as('search');
 
         // open context menu and display pound

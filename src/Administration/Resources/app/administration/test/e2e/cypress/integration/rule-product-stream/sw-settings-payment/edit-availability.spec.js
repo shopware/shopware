@@ -24,7 +24,7 @@ describe('Payment: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/payment-method/**`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('CredStick');

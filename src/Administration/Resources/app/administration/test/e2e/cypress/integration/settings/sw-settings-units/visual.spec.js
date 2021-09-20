@@ -18,7 +18,7 @@ describe('Scale units: Visual testing', () => {
     it('@visual: check appearance of scale unit module', () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/unit`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');

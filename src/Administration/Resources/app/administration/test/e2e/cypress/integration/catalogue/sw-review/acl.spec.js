@@ -62,7 +62,7 @@ describe('Review: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-review/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveProperty');
 
         const page = new ProductPageObject();

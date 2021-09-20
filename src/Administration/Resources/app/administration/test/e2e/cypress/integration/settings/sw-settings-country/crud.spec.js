@@ -22,7 +22,7 @@ describe('Country: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/country/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         cy.get('.sw-settings-country-list-grid').should('be.visible');
@@ -77,12 +77,12 @@ describe('Country: Test crud operations', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/country/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/currency`,
-            method: 'post'
+            method: 'POST'
         }).as('searchCurrency');
 
         cy.clickContextMenuItem(
@@ -154,12 +154,12 @@ describe('Country: Test crud operations', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/country`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/currency`,
-            method: 'post'
+            method: 'POST'
         }).as('searchCurrency');
 
         cy.get('a[href="#/sw/settings/country/create"]').click();

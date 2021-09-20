@@ -49,7 +49,7 @@ describe('Import/Export - Check activities in progress are updating', () => {
     it('@base @settings: Wait for in progress export to be updated', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/import-export-log`,
-            method: 'post'
+            method: 'POST'
         }).as('importExportLog');
 
         // There should be one log in progress

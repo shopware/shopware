@@ -66,7 +66,7 @@ describe('Rule builder: Test display variant information at condition', () => {
         cy.window().then(() => {
             cy.intercept({
                 url: `${Cypress.env('apiPath')}/_action/sync`,
-                method: 'post'
+                method: 'POST'
             }).as('saveData');
 
             const page = new RulePageObject();

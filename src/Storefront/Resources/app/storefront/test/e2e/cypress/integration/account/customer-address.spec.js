@@ -60,7 +60,7 @@ describe('Account: Handle addresses as customer', () => {
                 headers: {
                     Authorization: `Bearer ${result.access}`
                 },
-                method: 'post',
+                method: 'POST',
                 url: `api/_action/system-config/batch`,
                 body: {
                     null: {

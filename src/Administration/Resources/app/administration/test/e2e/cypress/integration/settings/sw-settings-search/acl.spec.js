@@ -78,7 +78,7 @@ describe('Search: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/*`,
-            method: 'post'
+            method: 'POST'
         }).as('editSearchConfigs');
 
         // search behaviour should not be allowed to edit
@@ -118,7 +118,7 @@ describe('Search: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product-search-config-field/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('updateSearchConfig');
 
         cy.get('.sw-settings-search__searchable-content-general ' +
@@ -162,7 +162,7 @@ describe('Search: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product-search-config-field/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('updateSearchConfig');
 
         cy.get('.sw-settings-search__view-general .sw-card:nth-child(2)').scrollIntoView();
@@ -220,12 +220,12 @@ describe('Search: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product-search-config-field`,
-            method: 'post'
+            method: 'POST'
         }).as('createSearchConfig');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/custom-field`,
-            method: 'post'
+            method: 'POST'
         }).as('getCustomField');
 
         // change to custom field tab
@@ -286,16 +286,16 @@ describe('Search: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product-search-config-field`,
-            method: 'post'
+            method: 'POST'
         }).as('createSearchConfig');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product-search-config-field/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('updateSearchConfig');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/custom-field`,
-            method: 'post'
+            method: 'POST'
         }).as('getCustomField');
 
         // change to customfield tab
@@ -364,7 +364,7 @@ describe('Search: Test ACL privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product-search-config-field`,
-            method: 'post'
+            method: 'POST'
         }).as('createSearchConfig');
 
         cy.intercept({
@@ -374,7 +374,7 @@ describe('Search: Test ACL privileges', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/custom-field`,
-            method: 'post'
+            method: 'POST'
         }).as('getCustomField');
 
         // change to customfield tab
@@ -433,7 +433,7 @@ describe('Search: Test ACL privileges', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product-search-config/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         cy.get('.sw-settings-search-excluded-search-terms ' +
@@ -472,7 +472,7 @@ describe('Search: Test ACL privileges', () => {
         const page = new SettingsPageObject();
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product-search-config/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         cy.get('.sw-settings-search-excluded-search-terms ' +
@@ -507,7 +507,7 @@ describe('Search: Test ACL privileges', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product-search-config/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         // Single delete excluded term
@@ -554,7 +554,7 @@ describe('Search: Test ACL privileges', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/indexing/product.indexer`,
-            method: 'post'
+            method: 'POST'
         }).as('buildSearchIndex');
 
         cy.get('.sw-settings-search__general-tab').scrollIntoView();

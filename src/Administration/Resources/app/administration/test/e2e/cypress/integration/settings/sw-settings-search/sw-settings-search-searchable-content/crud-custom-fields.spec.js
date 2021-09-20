@@ -22,17 +22,17 @@ describe('Product Search: Test crud operations of custom field', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product-search-config-field`,
-            method: 'post'
+            method: 'POST'
         }).as('createSearchConfig');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/custom-field`,
-            method: 'post'
+            method: 'POST'
         }).as('getCustomField');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product-search-config-field`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
 
         cy.wait('@getData')
@@ -78,21 +78,21 @@ describe('Product Search: Test crud operations of custom field', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product-search-config-field`,
-            method: 'post'
+            method: 'POST'
         }).as('createSearchConfig');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product-search-config-field/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('updateSearchConfig');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/custom-field`,
-            method: 'post'
+            method: 'POST'
         }).as('getCustomField');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product-search-config-field`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
 
         cy.wait('@getData')
@@ -147,7 +147,7 @@ describe('Product Search: Test crud operations of custom field', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product-search-config-field`,
-            method: 'post'
+            method: 'POST'
         }).as('createSearchConfig');
 
         cy.intercept({
@@ -157,12 +157,12 @@ describe('Product Search: Test crud operations of custom field', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/custom-field`,
-            method: 'post'
+            method: 'POST'
         }).as('getCustomField');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product-search-config-field`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
 
         cy.wait('@getData')

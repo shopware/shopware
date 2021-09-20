@@ -23,7 +23,7 @@ describe('Dynamic product groups: Visual tests', () => {
     it('@visual: check appearance of basic product stream workflow', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product`,
-            method: 'post'
+            method: 'POST'
         }).as('searchProducts');
 
         const page = new ProductStreamObject();

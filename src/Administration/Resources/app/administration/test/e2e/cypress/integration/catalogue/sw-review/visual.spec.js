@@ -18,7 +18,7 @@ describe('Administration: Check module navigation', () => {
     it('@base @navigation: navigate to review module', () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/product-review`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
 
         // Open reviews

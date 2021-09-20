@@ -13,7 +13,7 @@ function createTestRoleViaApi({ roleID, roleName }) {
 
         cy.request({
             url: `/${Cypress.env('apiPath')}/oauth/token`,
-            method: 'post',
+            method: 'POST',
             headers: headers,
             body: {
                 grant_type: 'password',
@@ -32,7 +32,7 @@ function createTestRoleViaApi({ roleID, roleName }) {
 
             return cy.request({
                 url: `/${Cypress.env('apiPath')}/acl-role`,
-                method: 'post',
+                method: 'POST',
                 headers: headers,
                 body: {
                     id: roleID,
@@ -95,7 +95,7 @@ describe('Integration: Test acl privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/integration`,
-            method: 'post'
+            method: 'POST'
         }).as('createIntegration');
 
         // go to create page
@@ -132,7 +132,7 @@ describe('Integration: Test acl privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/integration/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('editIntegration');
 
         // click on the first element in grid
@@ -179,11 +179,11 @@ describe('Integration: Test acl privileges', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/acl-role`,
-            method: 'post'
+            method: 'POST'
         }).as('loadAclRoles');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/integration/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('editIntegration');
 
         // click on the first element in grid

@@ -37,7 +37,7 @@ describe('Order: Test order state', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/order`,
-            method: 'post'
+            method: 'POST'
         }).as('orderCall');
 
         cy.clickContextMenuItem(
@@ -151,7 +151,7 @@ describe('Order: Test order state', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/order`,
-            method: 'post'
+            method: 'POST'
         }).as('orderCall');
 
         cy.get(`${page.elements.dataGridRow}--0`).contains('Mustermann, Max');

@@ -94,7 +94,7 @@ describe('Product: Test bulk edit product', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         cy.loginViaApi();
@@ -129,8 +129,7 @@ describe('Product: Test bulk edit product', () => {
         cy.get('.footer-right .sw-button--primary').click();
 
         cy.get('.sw-bulk-edit-save-modal__process').should('exist');
-        cy.wait('@saveData')
-    .its('response.statusCode').should('equal', 200);
+        cy.wait('@saveData').its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-bulk-edit-save-modal__success').should('exist');
         cy.get('.footer-right .sw-button--primary').contains('Close');

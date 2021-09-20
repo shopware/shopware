@@ -34,7 +34,7 @@ describe('Sales Channel: Test saving and loading the analytics tab', () => {
 
         // Request we want to wait for later
         cy.intercept({
-            method: 'patch',
+            method: 'PATCH',
             url: `${Cypress.env('apiPath')}/sales-channel/*`
         }).as('saveData');
 

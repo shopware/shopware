@@ -22,7 +22,7 @@ describe('Product: Test variants', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Navigate to variant generator listing and start
@@ -70,11 +70,11 @@ describe('Product: Test variants', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/category`,
-            method: 'post'
+            method: 'POST'
         }).as('loadCategory');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Navigate to variant generator listing and start
@@ -113,7 +113,7 @@ describe('Product: Test variants', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/property-group`,
-            method: 'post'
+            method: 'POST'
         }).as('loadPropertyGroup');
 
         page.generateVariants('Size', [0, 1, 2], 6);
@@ -177,15 +177,15 @@ describe('Product: Test variants', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/product/**/combinations`,
-            method: 'get'
+            method: 'GET'
         }).as('combinationCall');
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/product`,
-            method: 'post'
+            method: 'POST'
         }).as('searchCall');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Navigate to variant generator listing and start

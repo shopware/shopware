@@ -19,7 +19,7 @@ describe('Category: Visual tests', () => {
     it('@visual: check appearance of basic category workflow', () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/category`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
 
         cy.clickMainMenuItem({

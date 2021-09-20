@@ -35,7 +35,7 @@ describe('Rule builder: Test use greater/lower than on zipcode condition', () =>
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/rule/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
@@ -87,7 +87,7 @@ describe('Rule builder: Test use greater/lower than on zipcode condition', () =>
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/rule/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)

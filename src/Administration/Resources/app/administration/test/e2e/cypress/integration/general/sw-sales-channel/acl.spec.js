@@ -75,7 +75,7 @@ describe('Sales Channel: Test acl', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/sales-channel`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Open sales channel creation

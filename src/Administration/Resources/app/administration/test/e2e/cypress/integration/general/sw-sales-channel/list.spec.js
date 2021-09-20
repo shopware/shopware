@@ -38,7 +38,7 @@ describe('Sales Channel: Test list', () => {
             .click();
 
         // check if sales channel was opened correctly
-        cy.get('.sw-loader').should('not.be.visible');
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.smart-bar__header').contains('Headless');
     });
 });

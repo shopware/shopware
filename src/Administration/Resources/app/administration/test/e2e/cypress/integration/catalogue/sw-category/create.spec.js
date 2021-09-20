@@ -20,7 +20,7 @@ describe('Category: Create several categories', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/category`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Add category after root one
@@ -50,7 +50,7 @@ describe('Category: Create several categories', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/category`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Add category before root one
@@ -80,15 +80,15 @@ describe('Category: Create several categories', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/category`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/category`,
-            method: 'post'
+            method: 'POST'
         }).as('loadCategory');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/category/**`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('editCategory');
 
         // Add category before root one
@@ -137,7 +137,7 @@ describe('Category: Create several categories', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/category`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Add category after root one

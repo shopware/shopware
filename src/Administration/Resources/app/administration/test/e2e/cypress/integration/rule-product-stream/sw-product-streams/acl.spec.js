@@ -95,7 +95,7 @@ describe('Dynamic product group: Test ACL privileges', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product-stream/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('updateData');
 
         cy.createProductFixture().then(() => {

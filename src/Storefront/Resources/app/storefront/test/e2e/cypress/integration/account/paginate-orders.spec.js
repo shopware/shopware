@@ -25,7 +25,7 @@ describe('Account: Paginated orders', () => {
     it('@customer: orders pagination', () => {
         cy.intercept({
             url: '/account/order',
-            method: 'post'
+            method: 'POST'
         }).as('loadNextPage');
 
         // Login

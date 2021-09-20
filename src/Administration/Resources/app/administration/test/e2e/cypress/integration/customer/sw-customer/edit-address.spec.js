@@ -198,12 +198,12 @@ describe('Customer: Edit customer\'s addresses', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/customer/**/addresses`,
-            method: 'post'
+            method: 'POST'
         }).as('searchAddresses');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/clone/customer-address/**`,
-            method: 'post'
+            method: 'POST'
         }).as('cloneAddress');
 
         // Open customer
@@ -245,7 +245,7 @@ describe('Customer: Edit customer\'s addresses', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/customer/**/addresses`,
-            method: 'post'
+            method: 'POST'
         }).as('searchAddresses');
 
         // Open customer

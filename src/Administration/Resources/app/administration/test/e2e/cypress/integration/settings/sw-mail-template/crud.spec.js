@@ -77,7 +77,7 @@ describe('Mail templates: Test crud privileges', () => {
         // prepare api to update a mail template
         cy.intercept({
             url: `${Cypress.env('apiPath')}/mail-template/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveMailTemplate');
 
         cy.intercept({
@@ -193,7 +193,7 @@ describe('Mail templates: Test crud privileges', () => {
         // prepare api to update a mail template
         cy.intercept({
             url: `${Cypress.env('apiPath')}/mail-template/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveMailTemplate');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/mail-template`,
@@ -298,7 +298,7 @@ describe('Mail templates: Test crud privileges', () => {
         // prepare api to update a mail template
         cy.intercept({
             url: `${Cypress.env('apiPath')}/mail-header-footer/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveMailHeaderFooter');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/mail-template`,
@@ -395,7 +395,7 @@ describe('Mail templates: Test crud privileges', () => {
         // prepare api to update a mail template
         cy.intercept({
             url: `${Cypress.env('apiPath')}/mail-header-footer/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveMailHeaderFooter');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/mail-template`,

@@ -66,7 +66,7 @@ describe('Settings Documents: Test crud operations with ACL', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/document-base-config`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
         cy.get(`${page.elements.smartBarHeader} > h2`).contains('Document');
 
@@ -108,7 +108,7 @@ describe('Settings Documents: Test crud operations with ACL', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/document-base-config/**`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         cy.get(`${page.elements.smartBarHeader} > h2`).contains('Document');
@@ -149,7 +149,7 @@ describe('Settings Documents: Test crud operations with ACL', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/document-base-config`,
-            method: 'post'
+            method: 'POST'
         }).as('createData');
         cy.get(`${page.elements.smartBarHeader} > h2`).contains('Document');
 
@@ -170,7 +170,7 @@ describe('Settings Documents: Test crud operations with ACL', () => {
         // save minimal document
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/document-base-config-sales-channel`,
-            method: 'post'
+            method: 'POST'
         }).as('loadData');
         cy.get('.sw-settings-document-detail__save-action').click();
 
@@ -185,7 +185,7 @@ describe('Settings Documents: Test crud operations with ACL', () => {
         // save the changed name
         cy.intercept({
             url: `${Cypress.env('apiPath')}/document-base-config/**`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('updateData');
 
         cy.get('.sw-settings-document-detail__save-action').click();

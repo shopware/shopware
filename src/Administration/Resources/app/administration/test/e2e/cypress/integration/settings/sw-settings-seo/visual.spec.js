@@ -15,7 +15,7 @@ describe('SEO: Visual testing', () => {
     it('@visual: check appearance of seo module', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/seo-url-template`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');

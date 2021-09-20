@@ -32,15 +32,15 @@ describe('Import/Export:  Visual tests', () => {
     it('@visual: check appearance of basic im/ex profile workflow', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/import-export-profile`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}//search/import-export-log`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/language`,
-            method: 'post'
+            method: 'POST'
         }).as('getLanguages');
 
         cy.get('.sw-import-export-view-import').should('be.visible');
@@ -66,17 +66,17 @@ describe('Import/Export:  Visual tests', () => {
     it('@visual: check appearance of basic export workflow', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/import-export/prepare`,
-            method: 'post'
+            method: 'POST'
         }).as('prepare');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/import-export/process`,
-            method: 'post'
+            method: 'POST'
         }).as('process');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/import-export-log`,
-            method: 'post'
+            method: 'POST'
         }).as('importExportLog');
 
         cy.get('.sw-import-export-view-import').should('be.visible');
@@ -132,17 +132,17 @@ describe('Import/Export:  Visual tests', () => {
     it('@visual: check appearance of basic import workflow', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/import-export/prepare`,
-            method: 'post'
+            method: 'POST'
         }).as('prepare');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/import-export/process`,
-            method: 'post'
+            method: 'POST'
         }).as('process');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/import-export-log`,
-            method: 'post'
+            method: 'POST'
         }).as('importExportLog');
 
         // Take snapshot for visual testing

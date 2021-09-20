@@ -75,7 +75,7 @@ describe('Category: Landing pages', () => {
         });
         cy.wait('@loadLandingPageForEdit');
         cy.get('input[name="landingPageActive"]').uncheck();
-        cy.intercept('patch', `${Cypress.env('apiPath')}/landing-page/*`).as('patchLandingPage');
+        cy.intercept('PATCH', `${Cypress.env('apiPath')}/landing-page/*`).as('patchLandingPage');
         cy.get('.sw-category-detail__save-landing-page-action').click();
         cy.wait('@patchLandingPage');
 

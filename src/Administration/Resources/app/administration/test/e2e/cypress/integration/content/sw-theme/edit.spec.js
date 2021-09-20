@@ -15,7 +15,7 @@ describe('Theme: Test common editing of theme', () => {
     it('@base @media @content: change theme logo image', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/theme/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         cy.get('.sw-theme-list-item')
@@ -60,7 +60,7 @@ describe('Theme: Test common editing of theme', () => {
     it('@base @content: saves theme primary color', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/theme/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         cy.get('.sw-theme-list-item')
@@ -87,7 +87,7 @@ describe('Theme: Test common editing of theme', () => {
     it('@base @media @content: change theme logo image by sidebar', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/theme/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         cy.get('.sw-theme-list-item')

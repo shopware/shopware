@@ -21,7 +21,7 @@ describe('FirstRunWizard Test language Auto-Install', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/extension/install/plugin/SwagLanguagePack`,
-            method: 'post'
+            method: 'POST'
         }).as('installPlugin');
 
         cy.intercept({
@@ -31,12 +31,12 @@ describe('FirstRunWizard Test language Auto-Install', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/locale`,
-            method: 'post'
+            method: 'POST'
         }).as('searchLocale');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_admin/snippets?locale=nl-NL`,
-            method: 'get'
+            method: 'GET'
         }).as('getAdminSnippets');
 
         // First run wizard modal should be visible

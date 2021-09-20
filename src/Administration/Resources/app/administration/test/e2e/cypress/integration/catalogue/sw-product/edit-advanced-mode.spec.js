@@ -30,10 +30,10 @@ describe('Product: Mode advanced settings at product detail', () => {
     it('@catalogue: should not show the cards, fields when unchecking or toggling in advanced mode menu in General tab', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/user-config/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveUserConfig');
 
-        cy.get('.sw-data-grid__row--0 > .sw-data-grid__cell--name > .sw-data-grid__cell-content > :nth-child(2) > a').click();
+        cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--name a').click();
 
         cy.get('.sw-product-basic-form__promotion-switch').should('be.visible');
 
@@ -150,18 +150,18 @@ describe('Product: Mode advanced settings at product detail', () => {
         const page = new ProductPageObject();
 
         cy.intercept({
-            method: 'patch',
+            method: 'PATCH',
             url: `${Cypress.env('apiPath')}/custom-field-set/*`
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/user-config/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveUserConfig');
 
         cy.visit(`${Cypress.env('admin')}#/sw/settings/custom/field/index`);
 
-        cy.get('.sw-custom-field-set-list__column-name:nth(0)').click();
+        cy.get('.sw-custom-field-set-list__column-name').first().click();
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-settings-custom-field-set-detail-base__label-entities').typeMultiSelectAndCheck('Products');
         cy.get('.sw-button-process').click();

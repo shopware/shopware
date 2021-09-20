@@ -23,7 +23,7 @@ describe('Dynamic product group: Test crud operations', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product-stream`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         cy.get('.sw-product-stream-list__create-action').click();
@@ -49,7 +49,7 @@ describe('Dynamic product group: Test crud operations', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product-stream/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         // Edit product stream

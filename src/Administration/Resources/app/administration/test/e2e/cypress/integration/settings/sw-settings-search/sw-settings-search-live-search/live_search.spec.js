@@ -33,7 +33,7 @@ describe('Search settings: Live Search', () => {
         // Request we want to wait for later
         cy.intercept({
             url: '/api/_proxy/store-api/*/search',
-            method: 'post'
+            method: 'POST'
         }).as('searchKeywords');
 
         // the input should be disabled
@@ -56,7 +56,7 @@ describe('Search settings: Live Search', () => {
     it('@settings: Search for a keyword with result', () => {
         cy.intercept({
             url: '/api/_proxy/store-api/*/search',
-            method: 'post'
+            method: 'POST'
         }).as('searchKeywords');
 
         cy.get('.sw-single-select').should('be.visible');
@@ -81,7 +81,7 @@ describe('Search settings: Live Search', () => {
     it('@settings: Clicking on the search icon to trigger search', () => {
         cy.intercept({
             url: '/api/_proxy/store-api/*/search',
-            method: 'post'
+            method: 'POST'
         }).as('searchKeywords');
 
         // typeSingleSelect seems to be buggy and require this delay, @see NEXT-17177
@@ -108,7 +108,7 @@ describe('Search settings: Live Search', () => {
     it('@settings: Search for a keyword with multiple results', () => {
         cy.intercept({
             url: '/api/_proxy/store-api/*/search',
-            method: 'post'
+            method: 'POST'
         }).as('searchKeywords');
 
         // typeSingleSelect seems to be buggy and require this delay, @see NEXT-17177

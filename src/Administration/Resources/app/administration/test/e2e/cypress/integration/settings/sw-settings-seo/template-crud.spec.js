@@ -69,7 +69,7 @@ describe('Seo: Test crud operations on templates', () => {
     it('@settings: update template', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('templateSaveCall');
 
         cy.get('.sw-seo-url-template-card__seo-url').should('have.length', 3);
@@ -101,7 +101,7 @@ describe('Seo: Test crud operations on templates', () => {
     it('@base @settings: update template for a sales channel', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('templateCreateCall');
 
         // check inherited saleschannel templates
@@ -146,7 +146,7 @@ describe('Seo: Test crud operations on templates', () => {
     it('@base @settings: can save when the first template is empty', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('templateSaveCall');
 
         cy.get('.sw-block-field__block #sw-field--seo-url-template-undefined')
@@ -169,7 +169,7 @@ describe('Seo: Test crud operations on templates', () => {
     it('@base @settings: can save when the second template is empty', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('templateSaveCall');
 
         cy.get('.sw-block-field__block #sw-field--seo-url-template-undefined')
@@ -192,7 +192,7 @@ describe('Seo: Test crud operations on templates', () => {
     it('@base @settings: can save when the third template is empty', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('templateSaveCall');
 
         cy.get('.sw-block-field__block #sw-field--seo-url-template-undefined')

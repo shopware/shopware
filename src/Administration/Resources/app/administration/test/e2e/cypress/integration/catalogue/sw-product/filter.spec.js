@@ -125,7 +125,7 @@ describe('Product: Testing filter and reset filter', () => {
                         Authorization: `Bearer ${auth.access}`,
                         'Content-Type': 'application/json'
                     },
-                    method: 'post',
+                    method: 'POST',
                     url: `/${Cypress.env('apiPath')}/_action/sync`,
                     qs: {
                         response: true
@@ -146,7 +146,7 @@ describe('Product: Testing filter and reset filter', () => {
                         Authorization: `Bearer ${auth.access}`,
                         'Content-Type': 'application/json'
                     },
-                    method: 'post',
+                    method: 'POST',
                     url: `${Cypress.env('apiPath')}/_action/sync`,
                     qs: {
                         response: true
@@ -193,12 +193,12 @@ describe('Product: Testing filter and reset filter', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product`,
-            method: 'post'
+            method: 'POST'
         }).as('filterProduct');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/user-config`,
-            method: 'post'
+            method: 'POST'
         }).as('getUserConfig');
 
         cy.wait('@filterProduct')
@@ -260,12 +260,12 @@ describe('Product: Testing filter and reset filter', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product`,
-            method: 'post'
+            method: 'POST'
         }).as('filterProduct');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/user-config`,
-            method: 'post'
+            method: 'POST'
         }).as('getUserConfig');
 
         cy.get('.sw-sidebar-navigation-item[title="Filters"]').click();

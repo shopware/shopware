@@ -16,17 +16,17 @@ describe('Number Range: Test crud number range', () => {
     it('@settings: create and read number range', () => {
         cy.intercept({
             url: '/api/search/number-range',
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/number-range-type`,
-            method: 'post'
+            method: 'POST'
         }).as('searchNumberRangeType');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/sales-channel`,
-            method: 'post'
+            method: 'POST'
         }).as('searchSalesChannel');
 
         cy.get('a[href="#/sw/settings/number/range/create"]').click();
@@ -64,7 +64,7 @@ describe('Number Range: Test crud number range', () => {
         // Request we want to wait for later
         cy.intercept({
             url: '/api/number-range/*',
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         cy.clickContextMenuItem(

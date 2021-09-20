@@ -73,12 +73,12 @@ describe('Order: Test ACL privileges', () => {
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/order/**/product/**`,
-            method: 'post'
+            method: 'POST'
         }).as('orderAddProductCall');
 
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/version/merge/order/**`,
-            method: 'post'
+            method: 'POST'
         }).as('orderSaveCall');
 
         const page = new OrderPageObject();

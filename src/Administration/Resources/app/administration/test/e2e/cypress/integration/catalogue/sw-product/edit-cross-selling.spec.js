@@ -43,11 +43,11 @@ describe('Product: Check cross selling integration', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product-stream`,
-            method: 'post'
+            method: 'POST'
         }).as('saveStream');
 
         // Open and adjust product stream
@@ -122,15 +122,15 @@ describe('Product: Check cross selling integration', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product-stream`,
-            method: 'post'
+            method: 'POST'
         }).as('saveStream');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product-cross-selling/**/assigned-products`,
-            method: 'post'
+            method: 'POST'
         }).as('assignProduct');
 
         // Open product and add cross selling
@@ -211,17 +211,17 @@ describe('Product: Check cross selling integration', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product-stream`,
-            method: 'post'
+            method: 'POST'
         }).as('saveStream');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product-cross-selling/**/assigned-products`,
-            method: 'post'
+            method: 'POST'
         }).as('assignProduct');
 
         // Open product and add cross selling

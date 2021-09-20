@@ -14,7 +14,7 @@ describe('User: Test acl privileges', () => {
     it('@settings: view user', () => {
         // Request we want to wait for later
         cy.intercept({
-            method: 'post',
+            method: 'POST',
             url: `**/${Cypress.env('apiPath')}/search/user`
         }).as('loadUser');
 
@@ -52,12 +52,12 @@ describe('User: Test acl privileges', () => {
     it('@settings: edit user', () => {
         // Request we want to wait for later
         cy.intercept({
-            method: 'post',
+            method: 'POST',
             url: `**/${Cypress.env('apiPath')}/search/user`
         }).as('loadUser');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/oauth/token`,
-            method: 'post'
+            method: 'POST'
         }).as('oauthCall');
 
         cy.loginAsUserWithPermissions([
@@ -127,16 +127,16 @@ describe('User: Test acl privileges', () => {
     it('@settings: edit user role', () => {
         // Request we want to wait for later
         cy.intercept({
-            method: 'post',
+            method: 'POST',
             url: `**/${Cypress.env('apiPath')}/search/user`
         }).as('loadUser');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/oauth/token`,
-            method: 'post'
+            method: 'POST'
         }).as('oauthCall');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/acl-role/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveRole');
 
         cy.loginAsUserWithPermissions([
@@ -311,7 +311,7 @@ describe('User: Test acl privileges', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/user`,
-            method: 'post'
+            method: 'POST'
         }).as('createCall');
 
         cy.intercept({
@@ -321,7 +321,7 @@ describe('User: Test acl privileges', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/oauth/token`,
-            method: 'post'
+            method: 'POST'
         }).as('oauthCall');
 
         // create a new user

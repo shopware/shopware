@@ -24,11 +24,11 @@ describe('Dynamic product group: Add custom fields to condition', () => {
         const page = new ProductPageObject();
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/custom-field-set`,
-            method: 'post'
+            method: 'POST'
         }).as('saveCustomFieldSet');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveProduct');
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/custom/field/index`);
@@ -76,7 +76,7 @@ describe('Dynamic product group: Add custom fields to condition', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveProduct');
 
         cy.get('.sw-product-detail__save-button-group').click();

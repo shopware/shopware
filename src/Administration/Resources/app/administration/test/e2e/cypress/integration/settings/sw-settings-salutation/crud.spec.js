@@ -18,7 +18,7 @@ describe('Salutation: crud salutations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/salutation`,
-            method: 'post'
+            method: 'POST'
         }).as('createSalutation');
 
         // go to salutaion module
@@ -62,7 +62,7 @@ describe('Salutation: crud salutations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/salutation/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('editSalutation');
 
         // go to salutation module

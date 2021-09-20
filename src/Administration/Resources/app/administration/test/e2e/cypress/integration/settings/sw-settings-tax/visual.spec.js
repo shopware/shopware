@@ -19,7 +19,7 @@ describe('Tax: Visual testing', () => {
     it('@base @visual: check appearance of tax module', () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/tax`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');

@@ -38,17 +38,17 @@ describe('Sales Channel: Test product assignment operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveProduct');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/calculate-price`,
-            method: 'post'
+            method: 'POST'
         }).as('calculatePrice');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product-visibility`,
-            method: 'post'
+            method: 'POST'
         }).as('saveProductVisibility');
 
 
@@ -117,17 +117,17 @@ describe('Sales Channel: Test product assignment operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveProduct');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/calculate-price`,
-            method: 'post'
+            method: 'POST'
         }).as('calculatePrice');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product-visibility`,
-            method: 'post'
+            method: 'POST'
         }).as('saveProductVisibility');
 
 

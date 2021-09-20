@@ -23,11 +23,11 @@ describe('Manufacturer: Visual tests', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product-manufacturer/**`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product-manufacturer`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
 
         cy.clickMainMenuItem({

@@ -21,7 +21,7 @@ describe('Snippets: Visual testing', () => {
     it('@visual: check appearance of snippet module', () => {
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/search/snippet-set`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');

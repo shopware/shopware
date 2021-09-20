@@ -16,7 +16,7 @@ describe('Sitemap: Visual testing', () => {
     it('@visual: check appearance of sitemap module', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/system-config/schema?domain=core.sitemap`,
-            method: 'get'
+            method: 'GET'
         }).as('getData');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');

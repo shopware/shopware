@@ -29,11 +29,11 @@ describe('Essential characteristics: Test create operation', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-feature-set`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-feature-set/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('addField');
 
         // Create country

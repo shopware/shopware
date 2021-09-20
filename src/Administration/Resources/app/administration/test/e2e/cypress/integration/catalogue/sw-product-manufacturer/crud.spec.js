@@ -22,7 +22,7 @@ describe('Manufacturer: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-manufacturer`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         cy.get(`${page.elements.smartBarHeader} > h2`).contains('Manufacturer');
@@ -44,7 +44,7 @@ describe('Manufacturer: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/product-manufacturer/**`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         // Edit base data
@@ -68,11 +68,11 @@ describe('Manufacturer: Test crud operations', () => {
         // Request we want to wait for later
         cy.intercept({
             url: `${Cypress.env('apiPath')}/product-manufacturer/**`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
         cy.intercept({
             url: `${Cypress.env('apiPath')}/_admin/sanitize-html`,
-            method: 'post'
+            method: 'POST'
         }).as('sanitizePreview');
 
         // Edit base data
@@ -97,7 +97,6 @@ describe('Manufacturer: Test crud operations', () => {
 
         // Verify updated manufacturer
         cy.wait('@saveData').its('response.statusCode').should('equals', 204);
-
 
         cy.get('.sw-text-editor__content').contains('Manufacturer description');
         cy.get(page.elements.successIcon).should('be.visible');

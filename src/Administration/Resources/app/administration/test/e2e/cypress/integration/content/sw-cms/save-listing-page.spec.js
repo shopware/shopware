@@ -18,7 +18,7 @@ describe('CMS: check validation of product list page', () => {
     it('@content: create product list page and try to save with deleted listing block', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Fill in basic data

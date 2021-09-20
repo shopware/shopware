@@ -23,22 +23,22 @@ describe('CMS: Test crud operations of layouts', () => {
     it('@base @content: create, translate and read layout', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('updateData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/cms-page`,
-            method: 'post'
+            method: 'POST'
         }).as('reloadPage');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/language`,
-            method: 'post'
+            method: 'POST'
         }).as('changeLang');
 
         cy.contains('Create new layout').click();
@@ -123,17 +123,17 @@ describe('CMS: Test crud operations of layouts', () => {
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/language`,
-            method: 'post'
+            method: 'POST'
         }).as('changeLang');
 
         cy.intercept({
             url: `${Cypress.env('apiPath')}/category/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveCategory');
 
         cy.get('.sw-cms-list-item--0').click();

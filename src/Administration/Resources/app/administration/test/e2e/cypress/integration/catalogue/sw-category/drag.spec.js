@@ -44,7 +44,7 @@ describe('Category: Test drag categories', () => {
     it('@base @catalogue: can drag category and expand', () => {
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/category`,
-            method: 'post'
+            method: 'POST'
         }).as('loadCategory');
 
         // expand home category

@@ -338,6 +338,11 @@ shopware:
               major: true
               description: "Refactor `sw-simple-search-field` component to a transparent wrapper component"
               # issue: NEXT-16271
+            - name: FEATURE_NEXT_17275
+              default: false
+              major: true
+              description: "StorefrontRenderEvent only gets original view"
+              # issue: NEXT-17275
             - name: FEATURE_NEXT_17016
               default: false
               major: true

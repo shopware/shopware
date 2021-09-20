@@ -11,7 +11,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\Feature;
 
+/**
+ * @deprecated (flag:FEATURE_NEXT_17380) tag:v6.5.0
+ */
 class MessageQueueStatsDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'message_queue_stats';
@@ -43,6 +47,8 @@ class MessageQueueStatsDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
+        Feature::throwException('FEATURE_NEXT_17380', 'Message queue stats entity is deprecated');
+
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
             (new StringField('name', 'name'))->addFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),

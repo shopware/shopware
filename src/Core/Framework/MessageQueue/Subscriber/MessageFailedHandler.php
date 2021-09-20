@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\MessageQueue\Subscriber;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\MessageQueue\Monitoring\AbstractMonitoringGateway;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
@@ -10,14 +11,14 @@ use Symfony\Component\Messenger\Stamp\ReceivedStamp;
 
 class MessageFailedHandler implements EventSubscriberInterface
 {
-    private Connection $connection;
-
     private string $defaultTransportName;
 
-    public function __construct(Connection $connection, string $defaultTransportName)
+    private AbstractMonitoringGateway $gateway;
+
+    public function __construct(AbstractMonitoringGateway $gateway, string $defaultTransportName)
     {
-        $this->connection = $connection;
         $this->defaultTransportName = $defaultTransportName;
+        $this->gateway = $gateway;
     }
 
     public static function getSubscribedEvents(): array
@@ -41,11 +42,8 @@ class MessageFailedHandler implements EventSubscriberInterface
         }
 
         $name = \get_class($message->getMessage());
-        $this->connection->executeUpdate('
-            UPDATE `message_queue_stats`
-            SET `size` = `size` - 1
-            WHERE `name` = :name AND `size` > 0;
-        ', ['name' => $name]);
+
+        $this->gateway->decrement($name);
     }
 
     private function wasReceivedByDefaultTransport(Envelope $message): bool

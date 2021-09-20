@@ -45,8 +45,16 @@ class MySQLMonitoringGateway extends AbstractMonitoringGateway
         );
     }
 
+    public function reset(string $name): void
+    {
+        $this->connection->executeStatement(
+            'UPDATE `message_queue_stats` SET `size` = :count WHERE `name` = :name;',
+            ['name' => $name, 'count' => 0]
+        );
+    }
+
     public function get(): array
     {
-        return $this->connection->fetchAll('SELECT `name`, `size` FROM message_queue_stats');
+        return $this->connection->fetchAllAssociativeIndexed('SELECT `name` as array_key, `name`, `size` FROM message_queue_stats');
     }
 }

@@ -4,6 +4,7 @@ namespace Shopware\Elasticsearch\Framework\Command;
 
 use Doctrine\DBAL\Connection;
 use Elasticsearch\Client;
+use Shopware\Core\Framework\MessageQueue\Monitoring\AbstractMonitoringGateway;
 use Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -19,13 +20,15 @@ class ElasticsearchResetCommand extends Command
     private Client $client;
 
     private Connection $connection;
+    private AbstractMonitoringGateway $monitoringGateway;
 
-    public function __construct(Client $client, ElasticsearchOutdatedIndexDetector $detector, Connection $connection)
+    public function __construct(Client $client, ElasticsearchOutdatedIndexDetector $detector, Connection $connection, AbstractMonitoringGateway $monitoringGateway)
     {
         parent::__construct();
         $this->detector = $detector;
         $this->client = $client;
         $this->connection = $connection;
+        $this->monitoringGateway = $monitoringGateway;
     }
 
     /**
@@ -55,7 +58,7 @@ class ElasticsearchResetCommand extends Command
         }
 
         $this->connection->executeStatement('TRUNCATE elasticsearch_index_task');
-        $this->connection->executeStatement('UPDATE message_queue_stats SET size = 0 WHERE name = "Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexingMessage"');
+        $this->monitoringGateway->reset('Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexingMessage');
         $this->connection->executeStatement('DELETE FROM enqueue WHERE body LIKE "%ElasticsearchIndexingMessage%"');
 
         $io->success('Elasticsearch indices deleted and queue cleared');

@@ -62,24 +62,20 @@ class ConsumeMessagesControllerTest extends TestCase
         $message = new ProductIndexingMessage([Uuid::randomHex()]);
         $messageBus->dispatch($message);
 
-        /** @var EntityRepositoryInterface $queueRepo */
-        $queueRepo = $this->getContainer()->get('message_queue_stats.repository');
-        $context = Context::createDefaultContext();
-        $criteria = new Criteria();
-        $criteria->setLimit(1)->addFilter(new EqualsFilter('name', ProductIndexingMessage::class));
+        $gateway = $this->getContainer()->get('shopware.queue.monitoring.gateway');
+        $entries = $gateway->get();
 
-        /** @var MessageQueueStatsEntity $queueStatus */
-        $queueStatus = $queueRepo->search($criteria, $context)->first();
-
-        static::assertGreaterThan(0, $queueStatus->getSize());
+        static::assertArrayHasKey(ProductIndexingMessage::class, $entries);
+        static::assertGreaterThan(0, $entries[ProductIndexingMessage::class]['size']);
 
         $url = '/api/_action/message-queue/consume';
         $client = $this->getBrowser();
         $client->request('POST', $url, ['receiver' => 'default']);
 
-        /** @var MessageQueueStatsEntity $queueStatus */
-        $queueStatus = $queueRepo->search($criteria, $context)->first();
+        $gateway = $this->getContainer()->get('shopware.queue.monitoring.gateway');
+        $entries = $gateway->get();
 
-        static::assertEquals(0, $queueStatus->getSize());
+        static::assertArrayHasKey(ProductIndexingMessage::class, $entries);
+        static::assertEquals(0, $entries[ProductIndexingMessage::class]['size']);
     }
 }

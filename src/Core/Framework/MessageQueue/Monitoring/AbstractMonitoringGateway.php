@@ -10,5 +10,7 @@ abstract class AbstractMonitoringGateway
 
     abstract public function decrement(string $name): void;
 
+    abstract public function reset(string $name): void;
+
     abstract public function get(): array;
 }

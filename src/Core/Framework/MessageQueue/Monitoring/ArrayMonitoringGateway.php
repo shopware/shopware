@@ -30,11 +30,16 @@ class ArrayMonitoringGateway extends AbstractMonitoringGateway
         $this->logs[$name]--;
     }
 
+    public function reset(string $name): void
+    {
+        $this->logs[$name] = 0;
+    }
+
     public function get(): array
     {
         $mapped = [];
         foreach ($this->logs as $key => $size) {
-            $mapped[] = ['name' => $key, 'size' => $size];
+            $mapped[$key] = ['name' => $key, 'size' => $size];
         }
 
         return $mapped;

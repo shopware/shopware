@@ -4,7 +4,11 @@ namespace Shopware\Core\Framework\MessageQueue;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Feature;
 
+/**
+ * @deprecated (flag:FEATURE_NEXT_17380) tag:v6.5.0
+ */
 class MessageQueueStatsEntity extends Entity
 {
     use EntityIdTrait;
@@ -18,6 +22,11 @@ class MessageQueueStatsEntity extends Entity
      * @var int
      */
     protected $size;
+
+    public function __construct()
+    {
+        Feature::throwException('FEATURE_NEXT_17380', 'Message queue stats entity is deprecated');
+    }
 
     public function getName(): string
     {

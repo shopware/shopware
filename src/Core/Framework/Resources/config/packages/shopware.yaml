@@ -242,6 +242,10 @@ shopware:
               default: false
               major: false
               # issue: NEXT-15998
+            - name: FEATURE_NEXT_17380
+              default: false
+              major: true
+              description: "Message queue stats refactoring"
             - name: FEATURE_NEXT_15707
               default: false
               major: false

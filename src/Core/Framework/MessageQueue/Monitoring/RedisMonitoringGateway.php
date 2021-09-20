@@ -27,7 +27,12 @@ class RedisMonitoringGateway extends AbstractMonitoringGateway
 
     public function decrement(string $name): void
     {
-        $this->redis->decr(self::PREFIX . $name,);
+        $this->redis->decr(self::PREFIX . $name);
+    }
+
+    public function reset(string $name): void
+    {
+        $this->redis->del(self::PREFIX . $name);
     }
 
     public function get(): array
@@ -38,7 +43,7 @@ class RedisMonitoringGateway extends AbstractMonitoringGateway
 
         $result = [];
         foreach ($keys as $index => $key) {
-            $result[] = ['name' => str_replace(self::PREFIX, '', $key), 'size' => max(0, (int) $rows[$index])];
+            $result[$key] = ['name' => str_replace(self::PREFIX, '', $key), 'size' => max(0, (int) $rows[$index])];
         }
 
         return $result;

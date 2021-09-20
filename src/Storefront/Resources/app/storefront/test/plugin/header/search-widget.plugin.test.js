@@ -60,6 +60,13 @@ describe('ListingPlugin tests', () => {
         expect(eventMock.stopPropagation).toHaveBeenCalled();
     });
 
+    test('_registerInputFocus should warn if searchWidgetCollapseButton dosn\'t exist', () => {
+        console.warn = jest.fn();        
+
+        searchPlugin._registerInputFocus()
+        expect(console.warn).toHaveBeenCalledWith(`Called selector '${searchPlugin.options.searchWidgetCollapseButtonSelector}' for the search toggle button not found. Autofocus has been disabled on mobile.`)
+    });
+
     test('_handleSearchEvent should not preventDefault and stopPropagation', () => {
         searchPlugin._inputField = {
             value: 'abcd'

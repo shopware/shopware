@@ -4,6 +4,7 @@ namespace Shopware\Recovery\Install\Service;
 
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 use Shopware\Recovery\Common\Service\SystemConfigService;
 use Shopware\Recovery\Exception\LanguageNotFoundException;
 use Shopware\Recovery\Install\Struct\Shop;

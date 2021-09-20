@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\MessageQueue\Monitoring\AbstractMonitoringGateway;
+use Shopware\Core\Framework\Routing\Annotation\Acl;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Kernel;
@@ -128,6 +129,7 @@ class InfoController extends AbstractController
      *     description="Get information about message count inside queue",
      * )
      * @Route("/api/_info/queue.json", name="api.info.queue", methods={"GET"})
+     * @Acl({"message_queue_stats:read"})
      *
      * @throws \Exception
      */

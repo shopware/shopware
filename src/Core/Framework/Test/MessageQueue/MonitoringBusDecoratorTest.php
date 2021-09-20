@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Framework\Test\MessageQueue;
 
-use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\MessageQueue\Monitoring\AbstractMonitoringGateway;
+use Shopware\Core\Framework\MessageQueue\Monitoring\ArrayMonitoringGateway;
 use Shopware\Core\Framework\MessageQueue\Monitoring\MonitoringBusDecorator;
 use Shopware\Core\Framework\Test\MessageQueue\fixtures\TestMessage;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -37,9 +36,7 @@ class MonitoringBusDecoratorTest extends TestCase
             }))
             ->willReturn(new Envelope($testMsg));
 
-        $connectionMock = $this->createMock(Connection::class);
-
-        $decoratedBus = new MonitoringBusDecorator($innerBus, $connectionMock, 'default');
+        $decoratedBus = new MonitoringBusDecorator($innerBus, 'default', new ArrayMonitoringGateway());
         $decoratedBus->dispatch($testMsg);
     }
 
@@ -60,9 +57,7 @@ class MonitoringBusDecoratorTest extends TestCase
             }), static::equalTo($stamps))
             ->willReturn(new Envelope($testMsg));
 
-        $connectionMock = $this->createMock(Connection::class);
-
-        $decoratedBus = new MonitoringBusDecorator($innerBus, $connectionMock, 'default');
+        $decoratedBus = new MonitoringBusDecorator($innerBus, 'default', new ArrayMonitoringGateway());
         $decoratedBus->dispatch($testMsg, $stamps);
     }
 
@@ -75,42 +70,25 @@ class MonitoringBusDecoratorTest extends TestCase
             ->method('dispatch')
             ->willReturn(new Envelope($testMsg, [new SentStamp('', 'default')]));
 
-        $connection = $this->getContainer()->get(Connection::class);
-        $decoratedBus = new MonitoringBusDecorator($innerBus, $connection, 'default');
+        $gateway = $this->getContainer()->get('shopware.queue.monitoring.gateway');
+        $decoratedBus = new MonitoringBusDecorator($innerBus, 'default', $gateway);
 
         $decoratedBus->dispatch($testMsg);
 
-        /** @var EntityRepositoryInterface $queueRepo */
-        $queueRepo = $this->getContainer()->get('message_queue_stats.repository');
-        $context = Context::createDefaultContext();
-        $criteria = new Criteria();
-        $criteria->setLimit(1)->addFilter(new EqualsFilter('name', TestMessage::class));
-        $queueStatus = $queueRepo->search($criteria, $context)->first();
-
-        static::assertNotNull($queueStatus);
-        static::assertEquals(1, $queueStatus->getSize());
+        static::assertEquals(1, $this->getQueueSize(TestMessage::class));
     }
 
     public function testItCountsIncomingMessages(): void
     {
-        $context = Context::createDefaultContext();
-
         $testMsg = new TestMessage();
 
         $innerBus = $this->createMock(MessageBusInterface::class);
 
-        $connection = $this->getContainer()->get(Connection::class);
-        $decoratedBus = new MonitoringBusDecorator($innerBus, $connection, 'default');
+        $gateway = $this->getContainer()->get('shopware.queue.monitoring.gateway');
+        $decoratedBus = new MonitoringBusDecorator($innerBus, 'default', $gateway);
 
-        /** @var EntityRepositoryInterface $queueRepo */
-        $queueRepo = $this->getContainer()->get('message_queue_stats.repository');
-        $queueRepo->create(
-            [[
-                'name' => \get_class($testMsg),
-                'size' => 1,
-            ]],
-            $context
-        );
+        $gateway->reset(TestMessage::class);
+        $gateway->increment(TestMessage::class);
 
         $envelope = new Envelope($testMsg);
         $innerBus
@@ -121,12 +99,7 @@ class MonitoringBusDecoratorTest extends TestCase
 
         $decoratedBus->dispatch($envelope);
 
-        $criteria = new Criteria();
-        $criteria->setLimit(1)->addFilter(new EqualsFilter('name', \get_class($testMsg)));
-        $queueStatus = $queueRepo->search($criteria, $context)->first();
-
-        static::assertNotNull($queueStatus);
-        static::assertEquals(0, $queueStatus->getSize());
+        static::assertEquals(0, $this->getQueueSize(TestMessage::class));
     }
 
     public function testOutgoingEnvelopes(): void
@@ -138,21 +111,13 @@ class MonitoringBusDecoratorTest extends TestCase
             ->method('dispatch')
             ->willReturn(new Envelope($testMsg, [new SentStamp('', 'default')]));
 
-        $connection = $this->getContainer()->get(Connection::class);
-        $decoratedBus = new MonitoringBusDecorator($innerBus, $connection, 'default');
+        $gateway = $this->getContainer()->get('shopware.queue.monitoring.gateway');
+        $decoratedBus = new MonitoringBusDecorator($innerBus, 'default', $gateway);
 
         $envelope = new Envelope($testMsg);
         $decoratedBus->dispatch($envelope);
 
-        /** @var EntityRepositoryInterface $queueRepo */
-        $queueRepo = $this->getContainer()->get('message_queue_stats.repository');
-        $context = Context::createDefaultContext();
-        $criteria = new Criteria();
-        $criteria->setLimit(1)->addFilter(new EqualsFilter('name', TestMessage::class));
-        $queueStatus = $queueRepo->search($criteria, $context)->first();
-
-        static::assertNotNull($queueStatus);
-        static::assertEquals(1, $queueStatus->getSize());
+        static::assertEquals(1, $this->getQueueSize(\get_class($testMsg)));
     }
 
     public function testDoesNotIncrementWithNonDefaultName(): void
@@ -165,20 +130,13 @@ class MonitoringBusDecoratorTest extends TestCase
             ->method('dispatch')
             ->willReturn(new Envelope($testMsg, [new SentStamp('', 'not ' . $defaultTransportName)]));
 
-        $connection = $this->getContainer()->get(Connection::class);
-        $decoratedBus = new MonitoringBusDecorator($innerBus, $connection, $defaultTransportName);
+        $gateway = $this->getContainer()->get('shopware.queue.monitoring.gateway');
+        $decoratedBus = new MonitoringBusDecorator($innerBus, $defaultTransportName, $gateway);
 
         $envelope = new Envelope($testMsg);
         $decoratedBus->dispatch($envelope);
 
-        /** @var EntityRepositoryInterface $queueRepo */
-        $queueRepo = $this->getContainer()->get('message_queue_stats.repository');
-        $context = Context::createDefaultContext();
-        $criteria = new Criteria();
-        $criteria->setLimit(1)->addFilter(new EqualsFilter('name', TestMessage::class));
-        $queueStatus = $queueRepo->search($criteria, $context)->first();
-
-        static::assertNull($queueStatus);
+        static::assertNull($this->getQueueSize(\get_class($testMsg)));
     }
 
     public function testDoesNotIncrementWithoutSentStamp(): void
@@ -191,20 +149,13 @@ class MonitoringBusDecoratorTest extends TestCase
             ->willReturn(new Envelope($testMsg));
 
         $defaultTransportName = 'default';
-        $connection = $this->getContainer()->get(Connection::class);
-        $decoratedBus = new MonitoringBusDecorator($innerBus, $connection, $defaultTransportName);
+        $gateway = $this->getContainer()->get('shopware.queue.monitoring.gateway');
+        $decoratedBus = new MonitoringBusDecorator($innerBus, $defaultTransportName, $gateway);
 
         $envelope = new Envelope($testMsg);
         $decoratedBus->dispatch($envelope);
 
-        /** @var EntityRepositoryInterface $queueRepo */
-        $queueRepo = $this->getContainer()->get('message_queue_stats.repository');
-        $context = Context::createDefaultContext();
-        $criteria = new Criteria();
-        $criteria->setLimit(1)->addFilter(new EqualsFilter('name', TestMessage::class));
-        $queueStatus = $queueRepo->search($criteria, $context)->first();
-
-        static::assertNull($queueStatus);
+        static::assertNull($this->getQueueSize(TestMessage::class));
     }
 
     public function testDoesNotDecrementWithNonDefaultName(): void
@@ -216,18 +167,11 @@ class MonitoringBusDecoratorTest extends TestCase
         $innerBus = $this->createMock(MessageBusInterface::class);
 
         $defaultTransportName = 'default';
-        $connection = $this->getContainer()->get(Connection::class);
-        $decoratedBus = new MonitoringBusDecorator($innerBus, $connection, $defaultTransportName);
+        $gateway = $this->getContainer()->get('shopware.queue.monitoring.gateway');
+        $decoratedBus = new MonitoringBusDecorator($innerBus, $defaultTransportName, $gateway);
 
-        /** @var EntityRepositoryInterface $queueRepo */
-        $queueRepo = $this->getContainer()->get('message_queue_stats.repository');
-        $queueRepo->create(
-            [[
-                'name' => \get_class($testMsg),
-                'size' => 1,
-            ]],
-            $context
-        );
+        $gateway->reset(TestMessage::class);
+        $gateway->increment(TestMessage::class);
 
         $envelope = new Envelope($testMsg);
         $innerBus
@@ -238,12 +182,7 @@ class MonitoringBusDecoratorTest extends TestCase
 
         $decoratedBus->dispatch($envelope);
 
-        $criteria = new Criteria();
-        $criteria->setLimit(1)->addFilter(new EqualsFilter('name', \get_class($testMsg)));
-        $queueStatus = $queueRepo->search($criteria, $context)->first();
-
-        static::assertNotNull($queueStatus);
-        static::assertEquals(1, $queueStatus->getSize());
+        static::assertEquals(1, $this->getQueueSize(\get_class($testMsg)));
     }
 
     public function testDoesNotDecrementWithoutReceivedStamp(): void
@@ -255,18 +194,12 @@ class MonitoringBusDecoratorTest extends TestCase
         $innerBus = $this->createMock(MessageBusInterface::class);
 
         $defaultTransportName = 'default';
-        $connection = $this->getContainer()->get(Connection::class);
-        $decoratedBus = new MonitoringBusDecorator($innerBus, $connection, $defaultTransportName);
+        /** @var AbstractMonitoringGateway $gateway */
+        $gateway = $this->getContainer()->get('shopware.queue.monitoring.gateway');
+        $decoratedBus = new MonitoringBusDecorator($innerBus, $defaultTransportName, $gateway);
 
-        /** @var EntityRepositoryInterface $queueRepo */
-        $queueRepo = $this->getContainer()->get('message_queue_stats.repository');
-        $queueRepo->create(
-            [[
-                'name' => \get_class($testMsg),
-                'size' => 1,
-            ]],
-            $context
-        );
+        $gateway->reset(TestMessage::class);
+        $gateway->increment(TestMessage::class);
 
         $envelope = new Envelope($testMsg);
         $innerBus
@@ -277,11 +210,18 @@ class MonitoringBusDecoratorTest extends TestCase
 
         $decoratedBus->dispatch($envelope);
 
-        $criteria = new Criteria();
-        $criteria->setLimit(1)->addFilter(new EqualsFilter('name', \get_class($testMsg)));
-        $queueStatus = $queueRepo->search($criteria, $context)->first();
+        static::assertEquals(1, $this->getQueueSize(\get_class($testMsg)));
+    }
 
-        static::assertNotNull($queueStatus);
-        static::assertEquals(1, $queueStatus->getSize());
+    private function getQueueSize(string $name): ?int
+    {
+        $records = $this->getContainer()->get('shopware.queue.monitoring.gateway')->get();
+
+        foreach ($records as $record) {
+            if ($record['name'] === $name) {
+                return (int) $record['size'];
+            }
+        }
+        return null;
     }
 }

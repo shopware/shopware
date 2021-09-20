@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
+use Shopware\Core\Framework\MessageQueue\Monitoring\AbstractMonitoringGateway;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Kernel;
@@ -64,12 +65,15 @@ class InfoController extends AbstractController
 
     private ?FlowActionCollector $flowActionCollector;
 
+    private AbstractMonitoringGateway $monitoringGateway;
+
     public function __construct(
         DefinitionService $definitionService,
         ParameterBagInterface $params,
         Kernel $kernel,
         Packages $packages,
         BusinessEventCollector $eventCollector,
+        AbstractMonitoringGateway $monitoringGateway,
         ?FlowActionCollector $flowActionCollector = null,
         bool $enableUrlFeature = true,
         array $cspTemplates = []
@@ -82,6 +86,7 @@ class InfoController extends AbstractController
         $this->flowActionCollector = $flowActionCollector;
         $this->cspTemplates = $cspTemplates;
         $this->eventCollector = $eventCollector;
+        $this->monitoringGateway = $monitoringGateway;
     }
 
     /**
@@ -113,6 +118,24 @@ class InfoController extends AbstractController
         $data = $this->definitionService->generate(OpenApi3Generator::FORMAT, DefinitionService::API, $apiType);
 
         return new JsonResponse($data);
+    }
+
+    /**
+     * @Since("6.4.6.0")
+     * @OA\Get(
+     *     path="/_info/queue.json",
+     *     summary="Get stats about message queue status",
+     *     description="Get information about message count inside queue",
+     * )
+     * @Route("/api/_info/queue.json", name="api.info.queue", methods={"GET"})
+     *
+     * @throws \Exception
+     */
+    public function queue(): JsonResponse
+    {
+        $entries = $this->monitoringGateway->get();
+
+        return new JsonResponse(array_values($entries));
     }
 
     /**

@@ -5,6 +5,9 @@ import './page/sw-order-detail';
 import './page/sw-order-create';
 
 import './view/sw-order-detail-base';
+import './view/sw-order-detail-general';
+import './view/sw-order-detail-details';
+import './view/sw-order-detail-documents';
 import './view/sw-order-create-base';
 
 import './component/sw-order-nested-line-items-modal';
@@ -91,7 +94,9 @@ Module.register('sw-order', {
             component: 'sw-order-detail',
             path: 'detail/:id',
             redirect: {
-                name: 'sw.order.detail.base',
+                name: Shopware.Feature.isActive('FEATURE_NEXT_7530')
+                    ? 'sw.order.detail.general'
+                    : 'sw.order.detail.base',
             },
             meta: {
                 privilege: 'order.viewer',
@@ -99,16 +104,7 @@ Module.register('sw-order', {
                     view: 'detail',
                 },
             },
-            children: {
-                base: {
-                    component: 'sw-order-detail-base',
-                    path: 'base',
-                    meta: {
-                        parentPath: 'sw.order.index',
-                        privilege: 'order.viewer',
-                    },
-                },
-            },
+            children: orderDetailChildren(),
             props: {
                 default: ($route) => {
                     return { orderId: $route.params.id };
@@ -133,3 +129,46 @@ Module.register('sw-order', {
 
     defaultSearchConfiguration,
 });
+
+
+function orderDetailChildren() {
+    if (Shopware.Feature.isActive('FEATURE_NEXT_7530')) {
+        return {
+            general: {
+                component: 'sw-order-detail-general',
+                path: 'general',
+                meta: {
+                    parentPath: 'sw.order.index',
+                    privilege: 'order.viewer',
+                },
+            },
+            details: {
+                component: 'sw-order-detail-details',
+                path: 'details',
+                meta: {
+                    parentPath: 'sw.order.index',
+                    privilege: 'order.viewer',
+                },
+            },
+            documents: {
+                component: 'sw-order-detail-documents',
+                path: 'documents',
+                meta: {
+                    parentPath: 'sw.order.index',
+                    privilege: 'order.viewer',
+                },
+            },
+        };
+    }
+
+    return {
+        base: {
+            component: 'sw-order-detail-base',
+            path: 'base',
+            meta: {
+                parentPath: 'sw.order.index',
+                privilege: 'order.viewer',
+            },
+        },
+    };
+}

@@ -1,6 +1,4 @@
-/// <reference types="Cypress" />
-
-import CustomerPageObject from '../../../support/pages/module/sw-customer.page-object';
+// / <reference types="Cypress" />
 
 let product;
 let storefrontCustomer;
@@ -27,13 +25,13 @@ describe('Dashboard: Test first sight of the Administration', () => {
                 return cy.createGuestOrder(result.id);
             })
             .then(() => {
-                return cy.fixture('product')
+                return cy.fixture('product');
             })
             .then((result) => {
                 product = result;
             })
             .then(() => {
-                return cy.fixture('storefront-customer')
+                return cy.fixture('storefront-customer');
             })
             .then((result) => {
                 storefrontCustomer = result;
@@ -64,7 +62,10 @@ describe('Dashboard: Test first sight of the Administration', () => {
         cy.get('.sw-data-grid__row--0 .sw-data-grid__actions-menu').click();
         cy.get('.sw-context-menu-item.sw-order-list__order-view-action').should('be.visible');
         cy.get('.sw-context-menu-item.sw-order-list__order-view-action').click();
-        cy.get('.sw-order-user-card__metadata-user-name').should('be.visible');
-        cy.get('.sw-order-user-card__metadata-user-name').contains(`${storefrontCustomer.firstName} ${storefrontCustomer.lastName}`);
+
+        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get('.sw-order-user-card__metadata-user-name').should('be.visible');
+            cy.get('.sw-order-user-card__metadata-user-name').contains(`${storefrontCustomer.firstName} ${storefrontCustomer.lastName}`);
+        });
     });
 });

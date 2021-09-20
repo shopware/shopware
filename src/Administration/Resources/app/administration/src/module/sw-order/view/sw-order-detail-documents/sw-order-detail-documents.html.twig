@@ -1,0 +1,12 @@
+{% block sw_order_detail_documents %}
+<div>
+    {% block sw_order_detail_documents_card %}
+    <sw-order-document-card
+        class="sw-order-detail-base__document-grid"
+        :order="order"
+        :is-loading="isLoading"
+        @document-save="saveAndReload"
+    />
+    {% endblock %}
+</div>
+{% endblock %}

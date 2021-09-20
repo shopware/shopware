@@ -41,6 +41,8 @@
       "textHeadline": "Bestellung",
       "textHeadlineNew": "Neue Bestellung",
       "tabGeneral": "Allgemein",
+      "tabDetails": "Details",
+      "tabDocuments": "Dokumente",
       "messageRecalculationError": "Bei der Preisberechnung ist ein Fehler aufgetreten: <br>",
       "messageSaveError": "Beim Speichern ist ein Fehler aufgetreten",
       "messageShippingNotAvailable": "Lieferung in das Zielland nicht möglich.",

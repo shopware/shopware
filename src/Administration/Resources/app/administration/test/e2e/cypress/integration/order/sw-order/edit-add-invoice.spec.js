@@ -29,6 +29,9 @@ describe('Order: Test order state', () => {
     });
 
     it('@base @order: add document to order', () => {
+        // skip for feature FEATURE_NEXT_7530, this test is reactivated again with NEXT-16682
+        cy.skipOnFeature('FEATURE_NEXT_7530');
+
         const page = new OrderPageObject();
 
         // Request we want to wait for later
@@ -147,6 +150,9 @@ describe('Order: Test order state', () => {
     });
 
     it('@base @order: add document to order with existing invoice number', () => {
+        // skip for feature FEATURE_NEXT_7530, this test is reactivated again with NEXT-16682
+        cy.skipOnFeature('FEATURE_NEXT_7530');
+
         const page = new OrderPageObject();
 
         // Request we want to wait for later

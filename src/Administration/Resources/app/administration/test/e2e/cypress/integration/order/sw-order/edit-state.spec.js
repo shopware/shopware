@@ -29,6 +29,9 @@ describe('Order: Test order state', () => {
     });
 
     it('@base @order: edit order state', () => {
+        // skip for feature FEATURE_NEXT_7530, this test is reactivated again with NEXT-16675
+        cy.skipOnFeature('FEATURE_NEXT_7530');
+
         const page = new OrderPageObject();
 
         // Request we want to wait for later
@@ -153,6 +156,9 @@ describe('Order: Test order state', () => {
     });
 
     it('@order: check order history', () => {
+        // skip for feature FEATURE_NEXT_7530, this test is reactivated again with NEXT-16675
+        cy.skipOnFeature('FEATURE_NEXT_7530');
+
         const page = new OrderPageObject();
 
         // Request we want to wait for later

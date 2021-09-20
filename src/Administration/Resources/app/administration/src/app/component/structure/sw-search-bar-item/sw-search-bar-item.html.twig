@@ -122,7 +122,7 @@
         v-else-if="type === 'order'"
         ref="routerLink"
         class="sw-search-bar-item__link"
-        :to="{ name: 'sw.order.detail.base', params: { id: item.id } }"
+        :to="{ name: 'sw.order.detail', params: { id: item.id } }"
     >
 
         {% block sw_search_bar_item_order_label %}

@@ -276,5 +276,9 @@ Component.register('sw-promotion-v2-detail', {
         onGenerateIndividualCodesFinish() {
             this.savePromotion();
         },
+
+        onDeleteIndividualCodesFinish() {
+            this.savePromotion();
+        },
     },
 });

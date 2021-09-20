@@ -61,7 +61,7 @@
                     "individual": {
                         "description": "Individual promotion codes",
                         "emptyStateTitle": "No promotion codes generated yet.",
-                        "generateButton": "Generate codes",
+                        "generateButton": "Generate new codes",
                         "searchPlaceholder": "Search promotion codes...",
                         "addButton": "Add codes",
                         "columnCode": "Code",
@@ -78,7 +78,7 @@
                         },
                         "generateModal": {
                             "title": "Generate new promotion codes",
-                            "buttonGenerate": "Generate codes",
+                            "buttonGenerate": "Generate new codes",
                             "warning": "Generating new codes will delete all existing codes for this promotion. Deleted codes are invalid and can't be used anymore.",
                             "description": "Promotion codes are generated randomly from capital letters and numbers. You may add fixed individual terms as a prefix and/or suffix or use a completely custom pattern and watch how your code pattern turns out in the promotion code preview.",
                             "labelPrefix": "Prefix",

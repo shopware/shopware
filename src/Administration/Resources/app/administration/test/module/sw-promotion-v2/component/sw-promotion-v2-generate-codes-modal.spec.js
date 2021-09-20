@@ -138,4 +138,25 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-v2-generate-codes-mo
         expect(inputPreview.isVisible()).toBe(true);
         expect(inputPreview.attributes().value).toBe(mockCode);
     });
+
+    it('should show or hide alert depends on existing individualCodes', async () => {
+        const alertWarningClass = '.sw-promotion-v2-generate-codes-modal__warning';
+        wrapper = await createWrapper();
+        expect(wrapper.find(alertWarningClass).exists()).toBeFalsy();
+
+        await wrapper.setProps(
+            { promotion: {
+                individualCodes: [
+                    {
+                        promotionId: '47ad67b4113641b0a7c8bdfa5690d384',
+                        code: 'xyzT',
+                        id: '9ddf9c0562524e2388456e13fdab1949'
+                    }
+                ]
+            } }
+        );
+
+        await wrapper.vm.$nextTick();
+        expect(wrapper.find(alertWarningClass).exists()).toBeTruthy();
+    });
 });

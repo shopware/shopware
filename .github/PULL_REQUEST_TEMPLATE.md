@@ -8,22 +8,22 @@ Add notes on your change right now in the documentation files in /src/Docs/Resou
 -->
 
 ### 1. Why is this change necessary?
-Avoid composer warnings regarding version field when executing CLI command plugin:refresh
+
 
 ### 2. What does this change do, exactly?
-It disables the version check in the config validator, which only produces this warning.
+
 
 ### 3. Describe each step to reproduce the issue or behaviour.
-bin/console plugin:refresh
+
 
 ### 4. Please link to the relevant issues (if any).
-https://issues.shopware.com/issues/NEXT-17345
+
 
 ### 5. Checklist
 
 - [ ] I have written tests and verified that they fail without my change
 - [ ] I have squashed any insignificant commits
-- [X] I have created a [changelog file](https://github.com/shopware/platform/blob/trunk/adr/2020-08-03-Implement-New-Changelog.md) with all necessary information about my changes
+- [ ] I have created a [changelog file](https://github.com/shopware/platform/blob/trunk/adr/2020-08-03-Implement-New-Changelog.md) with all necessary information about my changes
 - [ ] I have written or adjusted the documentation according to my changes
 - [ ] This change has comments for package types, values, functions, and non-obvious lines of code
-- [X] I have read the contribution requirements and fulfil them.
+- [ ] I have read the contribution requirements and fulfil them.

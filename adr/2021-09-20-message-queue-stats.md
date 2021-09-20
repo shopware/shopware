@@ -11,7 +11,7 @@ generates a lot of traffic on the `message_queue_stats` table, resulting in bott
 We create a possibility to control the access to the `message_queue_stats` table via Redis or another storage, which is optimized for such scenarios. 
 To do this, however, we need to prevent / extend access via the DAL.
 
-So we implement a new gateway with the following functions:
+So we implement a new gateway with the following methods:
 * `increment(string name, int $count = 1): void`
 * `decrement(string name, int $count = 1): void`
 * `get(): array`

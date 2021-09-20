@@ -24,6 +24,10 @@ class QueueMonitoringAdapterCompilerPass implements CompilerPassInterface
             $container->removeDefinition('shopware.queue.monitoring.gateway.mysql');
         }
 
+        if ($type !== 'array') {
+            $container->removeDefinition('shopware.queue.monitoring.gateway.array');
+        }
+
         if ($type === 'redis' && empty($url)) {
             throw new \RuntimeException('Missing redis url for queue monitoring gateway redis');
         }

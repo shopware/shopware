@@ -31,7 +31,9 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
-<!--        <service id="shopware.queue.monitoring.gateway" alias="shopware.queue.monitoring.gateway.mysql"/>-->
+        <service id="shopware.queue.monitoring.gateway.array" class="Shopware\Core\Framework\MessageQueue\Monitoring\ArrayMonitoringGateway"/>
+
+        <!--        <service id="shopware.queue.monitoring.gateway" alias="shopware.queue.monitoring.gateway.mysql"/>-->
 
         <!--Message Bus-->
         <service id="Shopware\Core\Framework\MessageQueue\Monitoring\MonitoringBusDecorator" decorates="messenger.bus.shopware">

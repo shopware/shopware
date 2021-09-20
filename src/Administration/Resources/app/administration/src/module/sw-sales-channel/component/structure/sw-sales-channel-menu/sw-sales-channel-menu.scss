@@ -13,4 +13,19 @@
             color: darken($color-gray-300, 20%);
         }
     }
+
+    .sw-admin-menu__headline {
+        .sw-admin-menu__headline-context-menu:not(.is--active) {
+            transition: 0.2s all ease;
+            pointer-events: none;
+            opacity: 0;
+        }
+
+        &:hover {
+            .sw-admin-menu__headline-context-menu {
+                pointer-events: all;
+                opacity: 1;
+            }
+        }
+    }
 }

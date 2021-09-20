@@ -14,6 +14,7 @@
 // ***********************************************************
 //
 import 'cypress-file-upload';
+import 'cypress-real-events/support';
 
 require('@shopware-ag/e2e-testsuite-platform/cypress/support');
 

@@ -13,10 +13,16 @@ describe('Sales Channel: Test list', () => {
             });
     });
 
-    it('@base @general: open listing page', () => {
+    it('@base @general: open listing page', { browser: 'chrome' }, () => {
         const page = new SalesChannelPageObject();
 
-        // Open sales channel listing
+        // wait until dashboard has loaded
+        cy.get('.sw-dashboard-index__card-headline > h1').contains('Statistics');
+
+        // hover on sales channel headline
+        cy.get('.sw-admin-menu__headline').realHover();
+
+        // open sales channel listing
         cy.get('.sw-admin-menu__headline-context-menu').click();
         cy.get('.sw-admin-menu__headline-context-menu-manage-sales-channels').click();
 

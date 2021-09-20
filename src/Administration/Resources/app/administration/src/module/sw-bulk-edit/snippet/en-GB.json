@@ -204,7 +204,7 @@
       },
       "error": {
         "title": "Bulk edit - Error",
-        "description": "Bulk edit for the selected entities finished, but one or more errors occurred. Please see the log file for details.",
+        "description": "Bulk edit for the selected entities finished, but one or more errors occurred.",
         "buttons": {
           "openLog": "Open log file"
         }

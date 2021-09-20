@@ -430,7 +430,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         const customFieldsCard = wrapper.find('.sw-card sw-bulk-edit-order-base__custom_fields');
         expect(customFieldsCard).toBeTruthy();
 
-        wrapper.vm.bulkEditData.customFields.isChanged = true;
         wrapper.vm.bulkEditData.customFields.value = {
             field1: 'abc'
         };

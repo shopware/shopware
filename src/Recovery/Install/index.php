@@ -11,6 +11,10 @@ if (basename(dirname($rootDir)) === 'vendor') {
     // root/vendor/shopware/platform/src/Recovery
     $rootDir = dirname($rootDir, 2);
 }
+if (!is_dir($rootDir . '/vendor') && is_dir(dirname($parent) . '/vendor')) {
+    // platform/src/Recovery -> platform only
+    $rootDir = dirname($parent);
+}
 
 $lockFile = $rootDir . '/install.lock';
 
@@ -39,12 +43,22 @@ set_time_limit(0);
 use Shopware\Core\HttpKernel;
 use Shopware\Recovery\Install\Console\Application;
 use Symfony\Component\Console\Input\ArgvInput;
+use Symfony\Component\Dotenv\Dotenv;
 
 require_once dirname(__DIR__) . '/autoload.php';
 
-$classLoader = require __DIR__ . '/../vendor/autoload.php';
+$classLoader = require $rootDir . '/vendor/autoload.php';
 $kernel = new HttpKernel('prod', false, $classLoader);
 $kernel->setPluginLoader(new \Shopware\Core\Framework\Plugin\KernelPluginLoader\ComposerPluginLoader($classLoader));
+
+if (file_exists($rootDir . '/.env')) {
+    (new Dotenv())->usePutenv()->bootEnv($rootDir . '/.env');
+}
+
+if (!\Shopware\Core\DevOps\Environment\EnvironmentHelper::hasVariable('DATABASE_URL')) {
+    // Dummy setting to be able to boot the kernel
+    $_SERVER['DATABASE_URL'] = 'mysql://mysql';
+}
 
 if (\PHP_SAPI === 'cli') {
     $input = new ArgvInput();
@@ -56,5 +70,5 @@ if (\PHP_SAPI === 'cli') {
 //the execution time will be increased, because the import can take a while
 ini_set('max_execution_time', '120');
 
-$app = require __DIR__ . '/src/app.php';
-$app->getApp($kernel->getKernel())->run();
+require_once __DIR__ . '/src/app.php';
+getApplication($kernel->getKernel())->run();

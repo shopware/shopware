@@ -28,7 +28,7 @@ class DatabaseConnectionInformation extends CoreDatabaseConnectionInformation
             'username' => $postData['c_database_user'],
             'hostname' => $postData['c_database_host'],
             'port' => $postData['c_database_port'],
-            '$databaseName' => $postData['c_database_schema'] ?? '',
+            'databaseName' => $postData['c_database_schema'] ?? '',
             'password' => $postData['c_database_password'],
             'sslCaPath' => $postData['c_database_ssl_ca_path'],
             'sslCertPath' => $postData['c_database_ssl_cert_path'],

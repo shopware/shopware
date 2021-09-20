@@ -83,7 +83,7 @@ base-uri 'self';
             <argument>%shopware.slug.config%</argument>
         </service>
 
-        <service id="Shopware\Core\System\User\Service\UserProvisioner">
+        <service id="Shopware\Core\System\User\Service\UserProvisioner" public="true">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 

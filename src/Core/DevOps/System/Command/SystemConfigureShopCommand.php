@@ -47,8 +47,8 @@ class SystemConfigureShopCommand extends Command
         $output->writeln('');
 
         if ($input->getOption('shop-locale')) {
-            if ($input->getOption('no-interaction')) {
-                if (!$output->confirm('Changing the shops default locale after the fact can be destructive. Are you sure you want to continue')) {
+            if (!$input->getOption('no-interaction')) {
+                if (!$output->confirm('Changing the shops default locale after the fact can be destructive. Are you sure you want to continue', false)) {
                     $output->writeln('Aborting due to user input');
 
                     return 0;
@@ -61,8 +61,8 @@ class SystemConfigureShopCommand extends Command
         }
 
         if ($input->getOption('shop-currency')) {
-            if ($input->getOption('no-interaction')) {
-                if (!$output->confirm('Changing the shops default currency after the fact can be destructive. Are you sure you want to continue')) {
+            if (!$input->getOption('no-interaction')) {
+                if (!$output->confirm('Changing the shops default currency after the fact can be destructive. Are you sure you want to continue', false)) {
                     $output->writeln('Aborting due to user input');
 
                     return 0;

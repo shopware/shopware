@@ -9,10 +9,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class UserProvisioner
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     public function __construct(Connection $connection)
     {

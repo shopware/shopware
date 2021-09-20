@@ -42,9 +42,11 @@ function getApplication(KernelInterface $kernel): App
         }
     }
 
+    $kernel->boot();
+
     $config = require __DIR__ . '/../config/production.php';
     $container = new Container();
-    $container->offsetSet('shopware.container', $kernel->getContainer());
+    $container->offsetSet('shopware.kernel', $kernel);
     $container->register(new ContainerProvider($config));
 
     /** @var App $app */
@@ -292,9 +294,9 @@ function getApplication(KernelInterface $kernel): App
             try {
                 // check connection
                 $connection = DatabaseConnectionFactory::createConnection($connectionInfo);
-            } catch (\Doctrine\DBAL\Exception $e) {
+            } catch (\Doctrine\DBAL\Exception\DriverException $e) {
                 // Unknown database https://dev.mysql.com/doc/refman/8.0/en/server-error-reference.html#error_er_bad_db_error
-                if ($e->getCode() !== 1049) {
+                if ($e->getErrorCode() !== 1049) {
                     throw $e;
                 }
 
@@ -304,6 +306,7 @@ function getApplication(KernelInterface $kernel): App
                 $service->createDatabase($connectionInfo->getDatabaseName());
 
                 $connection->executeStatement('USE `' . $connectionInfo->getDatabaseName() . '`');
+                $connection = DatabaseConnectionFactory::createConnection($connectionInfo);
             }
         } catch (\Exception $e) {
             return $this->renderer->render($response, 'database-configuration.php', ['error' => $e->getMessage()]);
@@ -357,7 +360,7 @@ function getApplication(KernelInterface $kernel): App
         }
 
         try {
-            $container->offsetGet('db');
+            $container->offsetGet('dbal');
         } catch (\Exception $e) {
             $menuHelper->setCurrent('database-configuration');
 
@@ -425,10 +428,6 @@ function getApplication(KernelInterface $kernel): App
                 'basePath' => str_replace('/recovery/install/index.php', '', $_SERVER['SCRIPT_NAME']),
             ]);
 
-            /** @var ShopService $shopService */
-            $shopService = $container->offsetGet('shop.service');
-            $adminService = $container->offsetGet('admin.service');
-
             if (!isset($_SESSION[BlueGreenDeploymentService::ENV_NAME])) {
                 $menuHelper->setCurrent('database-configuration');
 
@@ -444,6 +443,10 @@ function getApplication(KernelInterface $kernel): App
             $configWriter->writeConfig($_SESSION['databaseConnectionInfo'], $shop);
 
             $hasErrors = false;
+
+            /** @var ShopService $shopService */
+            $shopService = $container->offsetGet('shop.service');
+            $adminService = $container->offsetGet('admin.service');
 
             try {
                 $shopService->updateShop($shop);

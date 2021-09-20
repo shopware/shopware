@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\System\SalesChannel\Command;
 
-use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
@@ -55,7 +54,7 @@ class SalesChannelCreateCommand extends Command
     }
 
     /**
-     * @deprecated tag: v6.5.0 - Option `snippetSetId` will be removed as it had no effect, use `sales-channel:create:storefront` instead
+     * @deprecated tag:v6.5.0 - Option `snippetSetId` will be removed as it had no effect, use `sales-channel:create:storefront` instead
      */
     protected function configure(): void
     {
@@ -144,7 +143,7 @@ class SalesChannelCreateCommand extends Command
     }
 
     /**
-     * @deprecated tag: v6.5.0 - Will be removed, use SalesChannelCreator instead
+     * @deprecated tag:v6.5.0 - Will be removed, use SalesChannelCreator instead
      */
     protected function getFirstActiveShippingMethodId(): string
     {
@@ -159,7 +158,7 @@ class SalesChannelCreateCommand extends Command
     }
 
     /**
-     * @deprecated tag: v6.5.0 - Will be removed, use SalesChannelCreator instead
+     * @deprecated tag:v6.5.0 - Will be removed, use SalesChannelCreator instead
      */
     protected function getFirstActivePaymentMethodId(): string
     {
@@ -175,7 +174,7 @@ class SalesChannelCreateCommand extends Command
     }
 
     /**
-     * @deprecated tag: v6.5.0 - Will be removed, use SalesChannelCreator instead
+     * @deprecated tag:v6.5.0 - Will be removed, use SalesChannelCreator instead
      */
     protected function getFirstActiveCountryId(): string
     {
@@ -191,7 +190,7 @@ class SalesChannelCreateCommand extends Command
     }
 
     /**
-     * @deprecated tag: v6.5.0 - Will be removed, use SalesChannelCreator instead
+     * @deprecated tag:v6.5.0 - Will be removed, use SalesChannelCreator instead
      */
     protected function getSnippetSetId(): string
     {
@@ -210,7 +209,7 @@ class SalesChannelCreateCommand extends Command
     }
 
     /**
-     * @deprecated tag: v6.5.0 - Will be removed, use SalesChannelCreator instead
+     * @deprecated tag:v6.5.0 - Will be removed, use SalesChannelCreator instead
      */
     protected function getRootCategoryId(): string
     {

@@ -18,12 +18,15 @@ if (!file_exists(__DIR__ . '/Common/vendor/autoload.php')) {
 date_default_timezone_set(@date_default_timezone_get());
 
 $parent = dirname(__DIR__);
-
-// root/platform/src/Recovery or root/vendor/shopware/recovery
+// root/platform/src/Recovery and root/vendor/shopware/recovery
 $rootDir = dirname($parent, 2);
 if (basename(dirname($rootDir)) === 'vendor') {
     // root/vendor/shopware/platform/src/Recovery
     $rootDir = dirname($rootDir, 2);
+}
+if (!is_dir($rootDir . '/vendor') && is_dir(dirname($parent) . '/vendor')) {
+    // platform/src/Recovery -> platform only
+    $rootDir = dirname($parent);
 }
 
 define('SW_PATH', $rootDir);
@@ -63,6 +66,19 @@ if (file_exists(SW_PATH . '/vendor/shopware/platform/composer.json')) {
             SW_PATH . '/vendor/shopware/elasticsearch/'
         );
     }
+} elseif (file_exists(SW_PATH . '/src/Core/composer.json')) {
+    $autoloader->addPsr4(
+        'Shopware\\Core\\',
+        SW_PATH . '/src/Core/'
+    );
+    $autoloader->addPsr4(
+        'Shopware\\Storefront\\',
+        SW_PATH . '/src/Storefront/'
+    );
+    $autoloader->addPsr4(
+        'Shopware\\Elasticsearch\\',
+        SW_PATH . '/src/Elasticsearch/'
+    );
 }
 
 return $autoloader;

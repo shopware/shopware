@@ -117,7 +117,7 @@ class ShopService
             throw new \RuntimeException('Country with iso-code ' . $iso . ' not found');
         }
 
-        return (string) $fetchCountryId;
+        return Uuid::fromBytesToHex($fetchCountryId);
     }
 
     /**

@@ -73,7 +73,7 @@ class SalesChannelCreateStorefrontCommand extends SalesChannelCreateCommand
     }
 
     /**
-     * @deprecated tag: 6.5.0 - Will be made private when parent implementation is removed
+     * @deprecated tag:v6.5.0 - Will be made private when parent implementation is removed
      */
     protected function getSnippetSetId(): string
     {

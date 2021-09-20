@@ -5,26 +5,25 @@ namespace Shopware\Recovery\Install\Service;
 use Defuse\Crypto\Key;
 use Shopware\Recovery\Install\Struct\DatabaseConnectionInformation;
 use Shopware\Recovery\Install\Struct\Shop;
+use Symfony\Component\Dotenv\Dotenv;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 class EnvConfigWriter
 {
-    /**
-     * @var string
-     */
-    private $configPath;
+    private string $configPath;
 
-    /**
-     * @var string
-     */
-    private $instanceId;
+    private string $instanceId;
 
     private array $defaultEnvVars;
 
-    public function __construct(string $configPath, string $instanceId, array $defaultEnvVars = [])
+    private KernelInterface $kernel;
+
+    public function __construct(string $configPath, string $instanceId, array $defaultEnvVars = [], KernelInterface $kernel)
     {
         $this->configPath = $configPath;
         $this->instanceId = $instanceId;
         $this->defaultEnvVars = $defaultEnvVars;
+        $this->kernel = $kernel;
     }
 
     public function writeConfig(DatabaseConnectionInformation $info, Shop $shop): void
@@ -106,6 +105,12 @@ MAILER_URL=null://localhost
                 chmod($htaccessPath, $perms | 0644);
             }
         }
+
+        // reboot shopware kernel, to get new DB connection
+        // Don't use `reboot()` directly as that does not reinitialize the connection
+        $this->kernel->shutdown();
+        (new Dotenv())->usePutenv()->overload($this->configPath);
+        $this->kernel->boot();
     }
 
     private function toEnv(array $keyValuePairs): string

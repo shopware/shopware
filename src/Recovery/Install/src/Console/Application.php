@@ -20,9 +20,11 @@ class Application extends BaseApplication
 
         parent::__construct('Shopware Installer', '1.0.0');
 
+        $kernel->boot();
+
         $config = require __DIR__ . '/../../config/' . $env . '.php';
         $this->container = new Container();
-        $this->container->offsetSet('shopware.container', $kernel->getContainer());
+        $this->container->offsetSet('shopware.kernel', $kernel);
         $this->container->register(new ContainerProvider($config));
 
         $this->getDefinition()->addOption(new InputOption('--env', '-e', InputOption::VALUE_REQUIRED, 'The Environment name.', $env));

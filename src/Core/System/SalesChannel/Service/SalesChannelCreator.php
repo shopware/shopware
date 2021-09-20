@@ -68,11 +68,11 @@ class SalesChannelCreator
         $shippingMethodId = $shippingMethodId ?? $this->getFirstActiveShippingMethodId();
         $countryId = $countryId ?? $this->getFirstActiveCountryId();
 
-        $currencies = \is_array($currencies) ? array_unique(array_merge($currencies, [$currencyId])) : $this->getAllIdsOf('currency', $context);
-        $languages = \is_array($languages) ? array_unique(array_merge($languages, [$languageId])) : $this->getAllIdsOf('language', $context);
-        $shippingMethods = \is_array($shippingMethods) ? array_unique(array_merge($shippingMethods, [$shippingMethodId])) : $this->getAllIdsOf('shipping_method', $context);
-        $paymentMethods = \is_array($paymentMethods) ? array_unique(array_merge($paymentMethods, [$paymentMethodId])) : $this->getAllIdsOf('payment_method', $context);
-        $countries = \is_array($countries) ? array_unique(array_merge($countries, [$countryId])) : $this->getAllIdsOf('country', $context);
+        $currencies = $this->formatToMany($currencies, $currencyId, 'currency', $context);
+        $languages = $this->formatToMany($languages, $languageId, 'language', $context);
+        $shippingMethods = $this->formatToMany($shippingMethods, $shippingMethodId, 'shipping_method', $context);
+        $paymentMethods = $this->formatToMany($paymentMethods, $paymentMethodId, 'payment_method', $context);
+        $countries = $this->formatToMany($countries, $countryId, 'country', $context);
 
         $data = [
             'id' => $id,
@@ -183,5 +183,21 @@ class SalesChannelCreator
         }
 
         return $id;
+    }
+
+    private function formatToMany(?array $values, string $default, string $entity, Context $context): array
+    {
+        if (!\is_array($values)) {
+            return $this->getAllIdsOf($entity, $context);
+        }
+
+        $values = array_unique(array_merge($values, [$default]));
+
+        return array_map(
+            function (string $id) {
+                return ['id' => $id];
+            },
+            $values
+        );
     }
 }

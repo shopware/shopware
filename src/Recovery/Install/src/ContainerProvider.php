@@ -161,7 +161,8 @@ class ContainerProvider implements ServiceProviderInterface
             return new EnvConfigWriter(
                 SW_PATH . '/.env',
                 $c['uniqueid.generator']->getUniqueId(),
-                $c['default.env']
+                $c['default.env'],
+                $c['shopware.kernel']
             );
         };
 
@@ -230,11 +231,11 @@ class ContainerProvider implements ServiceProviderInterface
         };
 
         $container['shop.service'] = static function ($c) {
-            return new ShopService($c['dbal'], $c['shop.configurator'], $c['shopware.container']->get(SalesChannelCreator::class));
+            return new ShopService($c['dbal'], $c['shop.configurator'], $c['shopware.kernel']->getContainer()->get(SalesChannelCreator::class));
         };
 
         $container['admin.service'] = static function ($c) {
-            return new AdminService($c['dbal'], $c['shopware.container']->get(UserProvisioner::class));
+            return new AdminService($c['dbal'], $c['shopware.kernel']->getContainer()->get(UserProvisioner::class));
         };
     }
 
@@ -243,6 +244,9 @@ class ContainerProvider implements ServiceProviderInterface
         if (file_exists(SW_PATH . '/platform/src/Core/schema.sql')) {
             $coreBasePath = SW_PATH . '/platform/src/Core';
             $storefrontBasePath = SW_PATH . '/platform/src/Storefront';
+        } elseif (file_exists(SW_PATH . '/src/Core/schema.sql')) {
+            $coreBasePath = SW_PATH . '/src/Core';
+            $storefrontBasePath = SW_PATH . '/src/Storefront';
         } else {
             $coreBasePath = SW_PATH . '/vendor/shopware/core';
             $storefrontBasePath = SW_PATH . '/vendor/shopware/storefront';

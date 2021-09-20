@@ -124,7 +124,7 @@
             <tag name="console.command"/>
         </service>
 
-        <service id="Shopware\Core\System\SalesChannel\Service\SalesChannelCreator">
+        <service id="Shopware\Core\System\SalesChannel\Service\SalesChannelCreator" public="true">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="sales_channel.repository"/>
             <argument type="service" id="payment_method.repository"/>

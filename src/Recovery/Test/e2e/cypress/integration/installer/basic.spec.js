@@ -152,6 +152,14 @@ describe('Minimal install', () => {
         // @frw: skip mail configuration
         cy.get('.sw-modal.sw-first-run-wizard-modal').should('be.visible');
 
+        // @frw: define no default sales channel for product creation
+        cy.get('.sw-step-display').should('be.visible');
+        cy.get('.sw-step-display .sw-step-item.sw-step-item--active span').contains('Default values');
+
+        // Take snapshot for visual testing
+        cy.prepareAdminForScreenshot();
+        cy.takeSnapshot('FRW - Default values', '.sw-modal.sw-first-run-wizard-modal');
+        cy.get('.sw-button span').contains('Next').click();
 
         cy.get('.sw-step-display').should('be.visible');
         cy.get('.sw-step-display .sw-step-item.sw-step-item--active span').contains('Mailer configuration');

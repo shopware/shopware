@@ -19,6 +19,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createCdnSection())
                 ->append($this->createApiSection())
                 ->append($this->createStoreSection())
+                ->append($this->createQueueSection())
                 ->append($this->createCartSection())
                 ->append($this->createSalesChannelContextSection())
                 ->append($this->createAdminWorkerSection())
@@ -490,6 +491,22 @@ class Configuration implements ConfigurationInterface
                                 ->scalarPrototype()->end()
                             ->end()
                         ->end()
+                    ->end()
+                ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createQueueSection()
+    {
+        $rootNode = (new TreeBuilder('queue'))->getRootNode();
+        $rootNode
+            ->children()
+                ->arrayNode('monitoring')
+                    ->children()
+                        ->scalarNode('type')->end()
+                        ->scalarNode('url')->end()
                     ->end()
                 ->end()
             ->end();

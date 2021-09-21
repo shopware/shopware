@@ -14,20 +14,22 @@
 {% endif %}
 
 {% block component_filter_multi_select %}
-    <div class="filter-multi-select filter-multi-select-{{ name }} filter-panel-item{% if not sidebar %} dropdown{% endif %}"
+    {# @deprecated tag:v6.5.0 - Bootstrap v5 removes `btn-block` class, use `d-grid` wrapper instead #}
+    <div class="filter-multi-select filter-multi-select-{{ name }} filter-panel-item{% if not sidebar %} dropdown{% endif %}{% if feature('v6.5.0.0') %} d-grid{% endif %}"
          data-{{ pluginSelector }}="true"
          data-{{ pluginSelector }}-options='{{ dataPluginSelectorOptions|json_encode }}'>
 
         {% block component_filter_multi_select_toggle %}
-            <button class="filter-panel-item-toggle btn{% if sidebar %} btn-block{% endif %}"
+            {# @deprecated tag:v6.5.0 - Bootstrap v5 removes `btn-block` class, use `d-grid` wrapper instead #}
+            <button class="filter-panel-item-toggle btn{% if sidebar and not feature('v6.5.0.0') %} btn-block{% endif %}"
                     aria-expanded="false"
                     {% if sidebar %}
-                    data-toggle="collapse"
-                    data-target="#{{ filterItemId }}"
+                    {{ dataBsToggleAttr }}="collapse"
+                    {{ dataBsTargetAttr }}="#{{ filterItemId }}"
                     {% else %}
-                    data-toggle="dropdown"
+                    {{ dataBsToggleAttr }}="dropdown"
                     data-boundary="viewport"
-                    data-offset="0,8"
+                    {{ dataBsOffsetAttr }}="0,8"
                     aria-haspopup="true"
                     {% endif %}>
 

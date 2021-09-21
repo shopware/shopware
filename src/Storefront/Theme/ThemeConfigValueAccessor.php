@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Theme;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class ThemeConfigValueAccessor
@@ -82,6 +83,15 @@ class ThemeConfigValueAccessor
                 'xl' => 1200,
             ],
         ];
+
+        /** @deprecated tag:v6.5.0 - Bootstrap v5 adds xxl breakpoint */
+        if (Feature::isActive('v6.5.0.0')) {
+            $themeConfig = array_merge_recursive($themeConfig, [
+                'breakpoint' => [
+                    'xxl' => 1400,
+                ],
+            ]);
+        }
 
         if (!$themeId) {
             return $this->themeConfig[$key] = $this->flatten($themeConfig, null);

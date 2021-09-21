@@ -138,7 +138,7 @@ describe('Account: indicate non shippable country on register page', () => {
             .contains('Set as default shipping address')
             .should('be.disabled');
 
-        cy.get('.js-pseudo-modal .modal-close').click();
+        cy.get('.js-pseudo-modal .close').click();
 
         cy.get('.address-editor-modal').should('not.exist');
 

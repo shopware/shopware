@@ -6,7 +6,7 @@
             {% endblock %}
         </label>
         {% block page_product_detail_configurator_select %}
-            <select name="{{ group.id }}" id="{{ group.id }}" class="custom-select product-detail-configurator-select-input">
+            <select name="{{ group.id }}" id="{{ group.id }}" class="{{ formSelectClass }} product-detail-configurator-select-input">
                 {% for option in group.options %}
 
                     {% set selected = false %}

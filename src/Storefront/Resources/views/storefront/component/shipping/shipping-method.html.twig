@@ -2,18 +2,18 @@
     {% block component_shipping_method_field %}
         <div class="shipping-form-group form-group">
             {% block component_shipping_method_control %}
-                <div class="custom-control custom-radio shipping-method-radio">
+                <div class="{{ formRadioWrapperClass }} shipping-method-radio">
                     {% block component_shipping_method_input %}
                         <input type="radio"
                                id="shippingMethod{{ shipping.id }}"
                                name="shippingMethodId"
                                value="{{ shipping.id }}"
                                {% if shipping.id is same as(context.shippingMethod.id) %}checked="checked"{% endif %}
-                               class="custom-control-input shipping-method-input">
+                               class="{{ formCheckInputClass }} shipping-method-input">
                     {% endblock %}
 
                     {% block component_shipping_method_label %}
-                        <label class="custom-control-label shipping-method-label"
+                        <label class="{{ formCheckLabelClass }} shipping-method-label"
                                for="shippingMethod{{ shipping.id }}">
                             {% block component_shipping_method_image %}
                                 {% if shipping.media %}

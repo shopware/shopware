@@ -554,7 +554,7 @@ describe('Account: Register via account menu', () => {
         cy.get(`${page.elements.registerForm} #billingAddressAddressCountry`).select('Germany');
         cy.get(`${page.elements.registerForm} #billingAddressAddressCountryState`).select('Berlin');
         cy.get(`${page.elements.registerForm} #billingAddressAddressPhoneNumber`).typeAndCheckStorefront('0123456789');
-        cy.get(`${page.elements.registerForm} .data-protection-information`).click();
+        cy.get(`${page.elements.registerForm} .data-protection-information input[type="checkbox"]`).click({ force: true });
         cy.get(`${page.elements.registerSubmit} [type="submit"]`).click();
 
         // Verify registration
@@ -571,6 +571,7 @@ describe('Account: Register via account menu', () => {
         cy.url().should('not.include', '/account');
         cy.get('.alert-content').contains('account was deleted').should('be.visible');
     });
+
     it('@registration @package: Trigger validation error with short password', () => {
         cy.authenticate().then((result) => {
             const requestConfig = {

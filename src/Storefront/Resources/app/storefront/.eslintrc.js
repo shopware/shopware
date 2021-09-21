@@ -11,7 +11,8 @@ module.exports = {
         'es6': true,
     },
     'globals': {
-        'gtag': true
+        'gtag': true,
+        'bootstrap': true,
     },
     'parserOptions': {
         'ecmaVersion': 6,

@@ -232,7 +232,21 @@ class ThemeCompiler implements ThemeCompilerInterface
             foreach ($resolveMappings as $resolve => $resolvePath) {
                 $resolve = '~' . $resolve;
                 if (mb_strpos($originalPath, $resolve) === 0) {
+                    /**
+                     * @deprecated tag:v6.5.0 - Alias `vendorBootstrap` will be removed.
+                     *
+                     * Alias is used to import Bootstrap v5 instead of Bootstrap v4 if feature flag V6_5_0_0 is active.
+                     * Package `bootstrap5` will be renamed to `bootstrap` and replace Bootstrap v4.
+                     * Remove this if completely.
+                     */
+                    if (mb_strpos($originalPath, '~vendorBootstrap/') === 0) {
+                        $originalPath = Feature::isActive('v6.5.0.0')
+                            ? str_replace('~vendorBootstrap/', '~vendor/bootstrap5/', $originalPath)
+                            : str_replace('~vendorBootstrap/', '~vendor/bootstrap/', $originalPath);
+                    }
+
                     $dirname = $resolvePath . \dirname(mb_substr($originalPath, mb_strlen($resolve)));
+
                     $filename = basename($originalPath);
                     $extension = pathinfo($filename, \PATHINFO_EXTENSION) === '' ? '.scss' : '';
                     $path = $dirname . \DIRECTORY_SEPARATOR . $filename . $extension;

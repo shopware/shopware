@@ -2,6 +2,7 @@ import Plugin from 'src/plugin-system/plugin.class';
 import DomAccess from 'src/helper/dom-access.helper';
 import ViewportDetection from 'src/helper/viewport-detection.helper';
 import Iterator from 'src/helper/iterator.helper';
+import Feature from 'src/helper/feature.helper';
 
 export default class CollapseFooterColumnsPlugin extends Plugin {
 
@@ -60,23 +61,43 @@ export default class CollapseFooterColumnsPlugin extends Plugin {
      */
     _onClickCollapseTrigger(event) {
         const trigger = event.target;
-        const collapse = trigger.parentNode.querySelector(this.options.collapseColumnContentSelector);
-        const $collapse = $(collapse);
+        const collapseEl = trigger.parentNode.querySelector(this.options.collapseColumnContentSelector);
         const collapseShowClass = this.options.collapseShowClass;
 
-        $collapse.collapse('toggle');
+        /** @deprecated tag:v6.5.0 - Bootstrap v5 uses native HTML elements to init Collapse plugin */
+        if (Feature.isActive('V6_5_0_0')) {
+            new bootstrap.Collapse(collapseEl, {
+                toggle: true,
+            });
 
-        $collapse.on('shown.bs.collapse', () => {
-            trigger.classList.add(collapseShowClass);
+            collapseEl.addEventListener('shown.bs.collapse', () => {
+                trigger.classList.add(collapseShowClass);
 
-            this.$emitter.publish('onCollapseShown');
-        });
+                this.$emitter.publish('onCollapseShown');
+            });
 
-        $collapse.on('hidden.bs.collapse', () => {
-            trigger.classList.remove(collapseShowClass);
+            collapseEl.addEventListener('hidden.bs.collapse', () => {
+                trigger.classList.remove(collapseShowClass);
 
-            this.$emitter.publish('onCollapseHidden');
-        });
+                this.$emitter.publish('onCollapseHidden');
+            });
+        } else {
+            const $collapse = $(collapseEl);
+
+            $collapse.collapse('toggle');
+
+            $collapse.on('shown.bs.collapse', () => {
+                trigger.classList.add(collapseShowClass);
+
+                this.$emitter.publish('onCollapseShown');
+            });
+
+            $collapse.on('hidden.bs.collapse', () => {
+                trigger.classList.remove(collapseShowClass);
+
+                this.$emitter.publish('onCollapseHidden');
+            });
+        }
 
         this.$emitter.publish('onClickCollapseTrigger');
     }

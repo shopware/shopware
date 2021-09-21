@@ -35,8 +35,8 @@ describe('Account: Edit order', () => {
         // Re-order past order
         cy.get('.order-table-header-context-menu').click();
         cy.get('.order-table-header-context-menu-content-form button').click();
-        cy.get('.btn.btn-block.btn-primary').click();
-        cy.get('.custom-control.custom-checkbox input').click({force: true});
+        cy.get('.begin-checkout-btn').click();
+        cy.get('.checkout-confirm-tos-checkbox').click({ force: true });
         cy.get('#confirmFormSubmit').click();
 
         // Verify order

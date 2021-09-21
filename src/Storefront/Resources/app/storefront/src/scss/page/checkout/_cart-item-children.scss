@@ -44,6 +44,13 @@
         padding: 0;
     }
 
+    // @deprecated tag:v6.5.0 - Bootstrap v5 removes relative position on `col-` elements.
+    @if (feature('V6_5_0_0')) {
+        .cart-item-child-label {
+            position: relative;
+        }
+    }
+
     .cart-item-collapse-icon-container {
         padding: 0;
         text-align: right;

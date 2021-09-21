@@ -80,7 +80,7 @@
                             {% block page_checkout_cart_add_product_input_group %}
                                 <div class="input-group">
                                     {% block page_checkout_cart_add_product_label %}
-                                        <label class="sr-only" for="addProductInput">
+                                        <label class="{{ visuallyHiddenClass }}" for="addProductInput">
                                             {{ "checkout.addProductLabel"|trans|sw_sanitize }}
                                         </label>
                                     {% endblock %}
@@ -97,13 +97,22 @@
                                     {% endblock %}
 
                                     {% block page_checkout_cart_add_product_submit %}
-                                        <div class="input-group-append">
+                                        {# @deprecated tag:v6.5.0 - Bootstrap v5 removes `input-group-append` wrapper and uses elements as direct childs of `input-group` #}
+                                        {% if feature('v6.5.0.0') %}
                                             <button class="btn btn-secondary"
                                                     type="submit"
                                                     id="addProductButton">
                                                 {% sw_icon 'checkmark' %}
                                             </button>
-                                        </div>
+                                        {% else %}
+                                            <div class="input-group-append">
+                                                <button class="btn btn-secondary"
+                                                        type="submit"
+                                                        id="addProductButton">
+                                                    {% sw_icon 'checkmark' %}
+                                                </button>
+                                            </div>
+                                        {% endif %}
                                     {% endblock %}
                                 </div>
                             {% endblock %}
@@ -124,7 +133,7 @@
 
                             {% block page_checkout_cart_shipping_costs_trigger %}
                                 <a class="btn btn-link cart-shipping-costs-btn"
-                                   data-toggle="collapse"
+                                   {{ dataBsToggleAttr }}="collapse"
                                    href="#collapseShippingCost"
                                    role="button"
                                    aria-expanded="false"
@@ -142,7 +151,7 @@
                                         {% if not context.customer %}
                                             <div class="form-group">
                                                 <label for="countryId">{{ "checkout.shippingCountry"|trans|sw_sanitize }}</label>
-                                                <select class="custom-select" type="text" id="countryId" name="countryId">
+                                                <select class="{{ formSelectClass }}" type="text" id="countryId" name="countryId">
                                                     {% for country in page.countries %}
                                                         <option value="{{ country.id }}"
                                                             {{ country.id == context.shippingLocation.country.id ? 'selected="selected"' : '' }}>
@@ -157,7 +166,7 @@
                                     {% block page_checkout_cart_shipping_costs_form_group_payment_method %}
                                         <div class="form-group">
                                             <label for="paymentMethodId">{{ "checkout.paymentMethod"|trans|sw_sanitize }}</label>
-                                            <select class="custom-select" type="text" id="paymentMethodId" name="paymentMethodId">
+                                            <select class="{{ formSelectClass }}" type="text" id="paymentMethodId" name="paymentMethodId">
                                                 {% if context.paymentMethod.id not in page.paymentMethods.ids %}
                                                     <option value="{{ context.paymentMethod.id }}"
                                                             selected="selected"
@@ -178,7 +187,7 @@
                                     {% block page_checkout_cart_shipping_costs_form_group_shipping_method %}
                                         <div class="form-group">
                                             <label for="shippingMethodId">{{ "checkout.shippingMethod"|trans|sw_sanitize }}</label>
-                                            <select class="custom-select" type="text" id="shippingMethodId" name="shippingMethodId">
+                                            <select class="{{ formSelectClass }}" type="text" id="shippingMethodId" name="shippingMethodId">
                                                 {% if context.shippingMethod.id not in page.shippingMethods.ids %}
                                                     <option value="{{ context.shippingMethod.id }}"
                                                             selected="selected"
@@ -227,7 +236,7 @@
                 {% block page_checkout_cart_add_promotion_input_group %}
                     <div class="input-group checkout-aside-add-code">
                         {% block page_checkout_cart_add_promotion_label %}
-                            <label class="sr-only" for="addPromotionInput">
+                            <label class="{{ visuallyHiddenClass }}" for="addPromotionInput">
                                 {{ "checkout.addPromotionLabel"|trans|sw_sanitize }}
                             </label>
                         {% endblock %}
@@ -244,13 +253,22 @@
                         {% endblock %}
 
                         {% block page_checkout_cart_add_promotion_submit %}
-                            <div class="input-group-append">
+                            {# @deprecated tag:v6.5.0 - Bootstrap v5 removes `input-group-append` wrapper and uses elements as direct childs of `input-group` #}
+                            {% if feature('v6.5.0.0') %}
                                 <button class="btn btn-secondary"
                                         type="submit"
                                         id="addPromotion">
                                     {% sw_icon 'checkmark' %}
                                 </button>
-                            </div>
+                            {% else %}
+                                <div class="input-group-append">
+                                    <button class="btn btn-secondary"
+                                            type="submit"
+                                            id="addPromotion">
+                                        {% sw_icon 'checkmark' %}
+                                    </button>
+                                </div>
+                            {% endif %}
                         {% endblock %}
                     </div>
                 {% endblock %}
@@ -259,12 +277,23 @@
     </div>
 
     {% block page_checkout_cart_action_proceed %}
-        <div class="checkout-aside-action">
-            <a href="{{ path('frontend.checkout.confirm.page') }}"
-               class="btn btn-primary btn-block btn-lg begin-checkout-btn"
-               title="{{ "checkout.proceedLink"|trans|striptags }}">
-                {{ "checkout.proceedLink"|trans|sw_sanitize }}
-            </a>
-        </div>
+        {# @deprecated tag:v6.5.0 - Bootstrap v5 removes `btn-block` class, use `d-grid` wrapper instead #}
+        {% if feature('v6.5.0.0') %}
+            <div class="checkout-aside-action d-grid">
+                <a href="{{ path('frontend.checkout.confirm.page') }}"
+                   class="btn btn-primary btn-lg begin-checkout-btn"
+                   title="{{ "checkout.proceedLink"|trans|striptags }}">
+                    {{ "checkout.proceedLink"|trans|sw_sanitize }}
+                </a>
+            </div>
+        {% else %}
+            <div class="checkout-aside-action">
+                <a href="{{ path('frontend.checkout.confirm.page') }}"
+                   class="btn btn-primary btn-block btn-lg begin-checkout-btn"
+                   title="{{ "checkout.proceedLink"|trans|striptags }}">
+                    {{ "checkout.proceedLink"|trans|sw_sanitize }}
+                </a>
+            </div>
+        {% endif %}
     {% endblock %}
 {% endblock %}

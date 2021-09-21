@@ -60,7 +60,7 @@
                                                            class="cart-item-img-link"
                                                            title="{{ label }}"
                                                            {% if controllerAction is same as('confirmPage') %}
-                                                               data-toggle="modal"
+                                                               {{ dataBsToggleAttr }}="modal"
                                                                data-modal-class="quickview-modal"
                                                                data-url="{{ path('widgets.quickview.minimal', { 'productId': lineItem.referencedId }) }}"
                                                            {% endif %}
@@ -107,7 +107,7 @@
                                                            class="cart-item-label"
                                                            title="{{ label }}"
                                                            {% if controllerAction is same as('confirmPage') %}
-                                                               data-toggle="modal"
+                                                               {{ dataBsToggleAttr }}="modal"
                                                                data-modal-class="quickview-modal"
                                                                data-url="{{ path('widgets.quickview.minimal',{ 'productId': lineItem.referencedId }) }}"
                                                            {% endif %}
@@ -226,7 +226,7 @@
 
                                                 {% block page_product_detail_buy_quantity %}
                                                     <select name="quantity"
-                                                            class="custom-select quantity-select">
+                                                            class="{{ formSelectClass }} quantity-select">
 
                                                         {% for quantity in range(lineItem.quantityInformation.minPurchase, maxQuantity, lineItem.quantityInformation.purchaseSteps) %}
                                                             <option value="{{ quantity }}"

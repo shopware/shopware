@@ -44,6 +44,11 @@ https://getbootstrap.com/docs/4.3/components/alerts/
 
 @each $color, $value in $theme-colors {
     .alert-#{$color} {
-        @include sw-skin-alert($value, theme-color-level($color, $alert-bg-level));
+        // @deprecated tag:v6.5.0 - Bootstrap v5 removes variable $alert-bg-level
+        @if feature('V6_5_0_0') {
+            @include sw-skin-alert($value, tint-color($value, 80%));
+        } @else {
+            @include sw-skin-alert($value, theme-color-level($color, $alert-bg-level));
+        }
     }
 }

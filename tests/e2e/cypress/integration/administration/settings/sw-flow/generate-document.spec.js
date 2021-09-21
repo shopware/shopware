@@ -68,7 +68,7 @@ describe('Flow builder: generate document testing', () => {
 
         // Checkout
         cy.get('.offcanvas-cart-actions .btn-primary').click();
-        cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
+        cy.get('.checkout-confirm-tos-label').click(1, 1);
 
         // Finish checkout
         cy.get('#confirmFormSubmit').scrollIntoView();

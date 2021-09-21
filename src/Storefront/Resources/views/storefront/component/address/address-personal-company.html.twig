@@ -4,7 +4,7 @@
     {% if accountTypeRequired or prefix == "address" or prefix == "shippingAddress" or hasSelectedBusiness %}
         <div class="{% if hasSelectedBusiness %}address-contact-type-company{% elseif prefix == "address" %}js-field-toggle-contact-type-company d-block{% else %}js-field-toggle-contact-type-company{% if customToggleTarget %}-{{ prefix }}{% endif %} d-none{% endif %}">
             {% block component_address_form_company_fields %}
-                <div class="form-row">
+                <div class="{{ formRowClass }}">
                     {% block component_address_form_company_name %}
                         <div class="form-group col-12">
                             {% if formViolations.getViolations("/company") is not empty %}
@@ -38,7 +38,7 @@
                         </div>
                     {% endblock %}
                 </div>
-                <div class="form-row">
+                <div class="{{ formRowClass }}">
                     {% block component_address_form_company_department %}
                         <div class="form-group col-md-6">
                             {% if formViolations.getViolations("/department") is not empty %}

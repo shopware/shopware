@@ -27,6 +27,11 @@ describe('Checkout: Login as customer and run checkout in various viewports', ()
             product = result;
             return cy.createCustomerFixtureStorefront()
         }).then(() => {
+            // Avoid cookie consent banner because it can block UI on small resolutions.
+            // It can be operated by the cookie consent UI but we skip it here due to better test performance.
+            // Cookie consent UI is covered by `cookie-bar.spec.js`.
+            cy.setCookie('cookie-preference', '1');
+
             cy.visit('/');
         })
     });
@@ -71,8 +76,8 @@ describe('Checkout: Login as customer and run checkout in various viewports', ()
                 // Confirm
                 cy.get('.confirm-tos .card-title').contains('Terms and conditions and cancellation policy');
 
-                cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
-                cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
+                cy.get('.checkout-confirm-tos-label').scrollIntoView();
+                cy.get('.checkout-confirm-tos-label').click(1, 1);
                 cy.get('.confirm-address').contains('Pep Eroni');
                 cy.get(`${page.elements.cartItem}-details-container ${page.elements.cartItem}-label`).contains(product.name);
                 cy.get(`${page.elements.cartItem}-total-price`).contains(product.price[0].gross);

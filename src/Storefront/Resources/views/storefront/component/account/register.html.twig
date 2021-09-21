@@ -229,7 +229,7 @@
                                 {% endset %}
 
                                 {% block component_account_register_personal_account_fields %}
-                                    <div class="form-row">
+                                    <div class="{{ formRowClass }}">
                                         <div class="form-group col-sm-6">
                                             {{ formGroupMail }}
                                         </div>
@@ -280,10 +280,10 @@
                                 {% block component_account_register_address_different_shipping %}
                                     <div>
                                         {% block component_account_register_address_different_shipping_control %}
-                                            <div class="custom-control custom-checkbox register-different-shipping">
+                                            <div class="{{ formCheckboxWrapperClass }} register-different-shipping">
                                                 {% block component_account_register_address_different_shipping_input %}
                                                     <input type="checkbox"
-                                                           class="custom-control-input js-different-shipping-checkbox"
+                                                           class="{{ formCheckInputClass }} js-different-shipping-checkbox"
                                                            name="differentShippingAddress"
                                                            value="1"
                                                            id="differentShippingAddress"

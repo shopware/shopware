@@ -11,7 +11,7 @@
                             <li class="nav-item">
                                 <a class="nav-link product-detail-tab-navigation-link{% if loop.first %} active{% endif %}"
                                    id="cs-{{ id }}-tab"
-                                   data-toggle="tab"
+                                   {{ dataBsToggleAttr }}="tab"
                                    href="#cs-{{ id }}-tab-pane"
                                    role="tab"
                                    aria-controls="cs-{{ id }}-tab-pane"

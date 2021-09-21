@@ -1,6 +1,13 @@
 @import 'abstract/variables/bootstrap';
 @import 'skin/shopware/abstract/variables';
-@import '~vendor/bootstrap/scss/functions';
-@import '~vendor/bootstrap/scss/variables';
-@import '~vendor/bootstrap/scss/mixins';
+/*
+@deprecated tag:v6.5.0 - Alias `vendorBootstrap` will be removed.
+
+Alias is used to import Bootstrap v5 if feature flag V6_5_0_0 is active.
+Package `bootstrap5` will be renamed to `bootstrap` and replace Bootstrap v4.
+Replace `~vendorBootstrap` with `~vendor/bootstrap`
+*/
+@import '~vendorBootstrap/scss/functions';
+@import '~vendorBootstrap/scss/variables';
+@import '~vendorBootstrap/scss/mixins';
 @import 'abstract/variables/custom';

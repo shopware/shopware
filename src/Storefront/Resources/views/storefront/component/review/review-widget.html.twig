@@ -78,11 +78,11 @@
 
                                         {% block component_review_filter_checkbox %}
                                             <div class="col-md-8 col-lg-5 product-detail-review-checkbox">
-                                                <div class="custom-control custom-checkbox">
+                                                <div class="{{ formCheckboxWrapperClass }}">
 
                                                     {% block component_review_filter_checkbox_input %}
                                                         <input type="checkbox"
-                                                               class="custom-control-input"
+                                                               class="{{ formCheckInputClass }}"
                                                                id="reviewRating{{ matrix.points }}"
                                                                name="points[]"
                                                             {% if app.request.get('points') %}
@@ -164,8 +164,8 @@
                 {% block component_review_form_teaser_button %}
                     <button class="btn btn-primary product-detail-review-teaser-btn"
                             type="button"
-                            data-toggle="collapse"
-                            data-target=".multi-collapse"
+                            {{ dataBsToggleAttr }}="collapse"
+                            {{ dataBsTargetAttr }}=".multi-collapse"
                             aria-expanded="false"
                             aria-controls="review-form review-list">
                         <span class="product-detail-review-teaser-show">

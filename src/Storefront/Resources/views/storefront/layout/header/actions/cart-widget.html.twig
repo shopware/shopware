@@ -3,7 +3,7 @@
         {% sw_icon 'bag' %}
     </span>
     {% if page.cart.lineItems|length > 0 %}
-        <span class="badge badge-primary header-cart-badge">{{ page.cart.lineItems|length }}</span>
+        <span class="badge {{ bgClass }}-primary header-cart-badge">{{ page.cart.lineItems|length }}</span>
     {% endif %}
     <span class="header-cart-total">
         {{ page.cart.price.positionPrice|currency }}{{ "general.star"|trans|sw_sanitize }}

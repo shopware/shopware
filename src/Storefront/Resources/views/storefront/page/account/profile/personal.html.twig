@@ -4,7 +4,7 @@
 
 {% block component_address_personal_fields_birthday_selects %}
     {% block page_account_profile_personal_fields_birthday_selects %}
-        <div class="form-row">
+        <div class="{{ formRowClass }}">
             {% set birthday = false %}
             {% set birthmonth = false %}
             {% set birthyear = false %}
@@ -18,7 +18,7 @@
                 <div class="form-group col-4 col-md-2">
                     <select id="personalBirthday"
                             name="birthdayDay"
-                            class="custom-select{% if formViolations.getViolations('/birthdayDay') is not empty %} is-invalid{% endif %}"
+                            class="{{ formSelectClass }}{% if formViolations.getViolations('/birthdayDay') is not empty %} is-invalid{% endif %}"
                             required="required">
                         {% if not birthday %}
                             <option selected="selected"
@@ -47,7 +47,7 @@
             {% block page_account_profile_personal_fields_birthday_select_month %}
                 <div class="form-group col-4 col-md-2">
                     <select name="birthdayMonth"
-                            class="custom-select{% if formViolations.getViolations('/birthdayMonth') is not empty %} is-invalid{% endif %}"
+                            class="{{ formSelectClass }}{% if formViolations.getViolations('/birthdayMonth') is not empty %} is-invalid{% endif %}"
                             required="required">
                         {% if not birthmonth %}
                             <option selected="selected"
@@ -79,7 +79,7 @@
                     {% set startYear = currentYear - 120 %}
 
                     <select name="birthdayYear"
-                            class="custom-select{% if formViolations.getViolations('/birthdayYear') is not empty %} is-invalid{% endif %}"
+                            class="{{ formSelectClass }}{% if formViolations.getViolations('/birthdayYear') is not empty %} is-invalid{% endif %}"
                             required="required">
                         {% if not birthyear %}
                             <option selected="selected"

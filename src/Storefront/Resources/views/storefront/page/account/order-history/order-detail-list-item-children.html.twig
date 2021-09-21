@@ -24,8 +24,8 @@
 
                             {% block page_account_order_item_children_header_collapse_button %}
                                 <button class="collapsed account-item-collapse-button"
-                                        data-toggle="collapse"
-                                        data-target="#collapse-line-item-contains-{{ lineItem.id }}"
+                                        {{ dataBsToggleAttr }}="collapse"
+                                        {{ dataBsTargetAttr }}="#collapse-line-item-contains-{{ lineItem.id }}"
                                         aria-controls="collapse-line-item-contains-{{ lineItem.id }}"
                                         aria-expanded="false">
 

@@ -1,17 +1,17 @@
 {% block component_filter_multi_select_list_item %}
-    <div class="custom-control custom-checkbox">
+    <div class="{{ formCheckboxWrapperClass }}">
         {% set id = element.id %}
         {% set name = element.translated.name %}
         {% block component_filter_multi_select_list_item_checkbox_input %}
             <input type="checkbox"
-                   class="custom-control-input filter-multi-select-checkbox"
+                   class="{{ formCheckInputClass }} filter-multi-select-checkbox"
                    data-label="{{ name }}"
                    value="{{ id }}"
                    id="{{ id }}">
         {% endblock %}
 
         {% block component_filter_multi_select_list_item_label_element %}
-            <label class="filter-multi-select-item-label custom-control-label" for="{{ id }}">
+            <label class="filter-multi-select-item-label {{ formCheckLabelClass }}" for="{{ id }}">
                 {% block component_multi_select_list_item_label %}
                     {{ name }}
                 {% endblock %}

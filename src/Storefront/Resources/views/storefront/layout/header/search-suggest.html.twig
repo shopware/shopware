@@ -12,7 +12,7 @@
                                     <a href="{{ seoUrl('frontend.detail.page', {'productId': product.id}) }}"
                                        title="{{ product.translated.name }}"
                                        class="search-suggest-product-link">
-                                        <div class="row align-items-center no-gutters">
+                                        <div class="row align-items-center {{ gridNoGuttersClass }}">
                                             {% block layout_search_suggest_result_image %}
                                                 <div class="col-auto search-suggest-product-image-container">
                                                     {% if product.cover.media.url %}
@@ -79,7 +79,7 @@
 
                         {% block layout_search_suggest_result_total_result %}
                             <li class="js-result search-suggest-total">
-                                <div class="row align-items-center no-gutters">
+                                <div class="row align-items-center {{ gridNoGuttersClass }}">
                                     {% block layout_search_suggest_result_total_link %}
                                         <div class="col">
                                             <a href="{{ path('frontend.search.page') }}?search={{ page.searchTerm }}"

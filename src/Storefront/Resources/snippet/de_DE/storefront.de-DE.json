@@ -25,7 +25,7 @@
     "required": "*",
     "requiredFields": "Die mit einem Stern (*) markierten Felder sind Pflichtfelder.",
     "privacyTitle": "Datenschutz",
-    "privacyNotice": "Ich habe die <a data-toggle=\"modal\" data-url=\"%privacyUrl%\" href=\"%privacyUrl%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> zur Kenntnis genommen und die <a data-toggle=\"modal\" data-url=\"%tosUrl%\" href=\"%tosUrl%\" title=\"AGB\">AGB</a> gelesen und bin mit ihnen einverstanden.",
+    "privacyNotice": "Ich habe die <a data-toggle=\"modal\" data-bs-toggle=\"modal\" data-url=\"%privacyUrl%\" href=\"%privacyUrl%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> zur Kenntnis genommen und die <a data-toggle=\"modal\" data-bs-toggle=\"modal\" data-url=\"%tosUrl%\" href=\"%tosUrl%\" title=\"AGB\">AGB</a> gelesen und bin mit ihnen einverstanden.",
     "privacyLink": "Datenschutz",
     "imprintLink": "Impressum",
     "404ErrorPageHeader": "Seite nicht gefunden",
@@ -184,7 +184,7 @@
     "profileRecoverPasswordInfo": "Wir senden Ihnen eine Bestätigungs-E-Mail. Klicken Sie auf den darin enthaltenen Link, um Ihr Passwort zu ändern.",
     "profileRecoverPasswordSubmit": "E-Mail senden",
     "profileSaveChanges": "Änderungen speichern",
-    "profileDelete": "<a href=\"%target%\" data-toggle=\"modal\" data-target=\"%target%\">Klicken Sie hier</a> um alle Ihre persönlichen Daten zu löschen",
+    "profileDelete": "<a href=\"%target%\" data-toggle=\"modal\" data-bs-toggle=\"modal\" data-target=\"%target%\" data-bs-target=\"%target%\">Klicken Sie hier</a> um alle Ihre persönlichen Daten zu löschen",
     "profileDeleteAlert": "Nach dem Löschen der persönlichen Daten Ihres Kundenkontos sind Newsletter-Einträge und Bewertungen für Sie nicht mehr zugänglich. Beachten Sie jedoch, dass weiterhin Aufzeichnungen über alle Bestellungen gespeichert bleiben, um die gesetzlichen Bestimmungen zu erfüllen.",
     "profileDeleteConfirm": "Möchten Sie Ihr Kundenkonto wirklich löschen?",
     "profileDeleteModalTitle": "Kundenkonto",
@@ -370,8 +370,8 @@
     "confirmSubmit": "Zahlungspflichtig bestellen",
     "confirmTermsHeader": "AGB und Widerrufsbelehrung",
     "confirmRevocationNotice": "Bitte beachten Sie die Widerrufsbelehrung.",
-    "confirmTerms": "Ich habe die <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"AGB\">AGB</a> gelesen und bin mit ihnen einverstanden.",
-    "confirmTermsReminder": "Sie haben bereits die <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"AGB\">AGB</a> akzeptiert.",
+    "confirmTerms": "Ich habe die <a data-toggle=\"modal\" data-bs-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"AGB\">AGB</a> gelesen und bin mit ihnen einverstanden.",
+    "confirmTermsReminder": "Sie haben bereits die <a data-toggle=\"modal\" data-bs-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"AGB\">AGB</a> akzeptiert.",
     "finishInfoPayment": "Zahlungsart:",
     "finishInfoShipping": "Versandart:",
     "finishHeader": "Vielen Dank für Ihre Bestellung bei %shop%!",
@@ -570,11 +570,11 @@
     "informationHeadline": "Informationen",
     "newsletterHeadline": "Newsletter",
     "serviceHotline": "Unterstützung und Beratung unter: <a href=\"tel:+49180000000\">0180 - 000000</a> Mo-Fr, 09:00 - 17:00 Uhr",
-    "serviceContactLink": "Oder über unser <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Kontaktformular\">Kontaktformular</a>.",
+    "serviceContactLink": "Oder über unser <a data-toggle=\"modal\" data-bs-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Kontaktformular\">Kontaktformular</a>.",
     "newsletterInput": "Ihre E-Mail-Adresse",
     "newsletter": "Abonnieren Sie jetzt einfach unseren regelmäßig erscheinenden Newsletter, um rechtzeitig über neue Produkte und Angebote informiert zu werden.",
-    "includeVat": "* Alle Preise inkl. gesetzl. Mehrwertsteuer zzgl. <a data-toggle=\"modal\" href=\"%url%\" data-url=\"%url%\">Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders angegeben.",
-    "excludeVat": "* Alle Preise exkl. gesetzl. Mehrwertsteuer zzgl. <a data-toggle=\"modal\" href=\"%url%\" data-url=\"%url%\">Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders angegeben.",
+    "includeVat": "* Alle Preise inkl. gesetzl. Mehrwertsteuer zzgl. <a data-toggle=\"modal\" data-bs-toggle=\"modal\" href=\"%url%\" data-url=\"%url%\">Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders angegeben.",
+    "excludeVat": "* Alle Preise exkl. gesetzl. Mehrwertsteuer zzgl. <a data-toggle=\"modal\" data-bs-toggle=\"modal\" href=\"%url%\" data-url=\"%url%\">Versandkosten</a> und ggf. Nachnahmegebühren, wenn nicht anders angegeben.",
     "copyrightInfo": "Realisiert mit Shopware"
   },
   "captcha": {
@@ -584,7 +584,7 @@
     "basicCaptchaLabel" : "Bitte geben Sie die abgebildeten Zeichen ein*"
   },
   "cookie": {
-    "message": "Diese Website verwendet Cookies, um eine bestmögliche Erfahrung bieten zu können. <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Mehr Informationen\">Mehr Informationen ...</a>",
+    "message": "Diese Website verwendet Cookies, um eine bestmögliche Erfahrung bieten zu können. <a data-toggle=\"modal\" data-bs-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Mehr Informationen\">Mehr Informationen ...</a>",
     "deny": "Ablehnen",
     "configure": "Konfigurieren",
     "configuration": "Einstellungen",
@@ -629,7 +629,7 @@
     },
     "cms": {
       "vimeo": {
-        "privacyNotice": "Mit dem Aufruf des Videos erklären Sie sich einverstanden, dass Ihre Daten an %platform% übermittelt werden und das Sie die <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> gelesen haben.",
+        "privacyNotice": "Mit dem Aufruf des Videos erklären Sie sich einverstanden, dass Ihre Daten an %platform% übermittelt werden und das Sie die <a data-toggle=\"modal\" data-bs-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Datenschutzbestimmungen\">Datenschutzbestimmungen</a> gelesen haben.",
         "acceptButtonLabel": "Akzeptieren"
       }
     }

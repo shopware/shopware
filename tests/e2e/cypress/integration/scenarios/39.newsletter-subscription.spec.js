@@ -40,7 +40,7 @@ describe('Storefront profile settings', () => {
         cy.get('.account-welcome h1').should((element) => {
             expect(element).to.contain('Overview');
         });
-        cy.get('.custom-control-label.form-check-label').click();
+        cy.get('label[for="newsletterRegister"]').click();
         cy.wait('@checkNewsletter').its('response.statusCode').should('equal', 200);
         cy.contains('You have subscribed to the newsletter.').should('exist');
 

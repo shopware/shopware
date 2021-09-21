@@ -33,8 +33,8 @@
 
                             {% block component_offcanvas_item_children_header_collapse_button %}
                                 <button class="collapsed cart-item-collapse-button"
-                                        data-toggle="collapse"
-                                        data-target="#collapse-offcanvas-line-item-contains-{{ lineItem.id }}"
+                                        {{ dataBsToggleAttr }}="collapse"
+                                        {{ dataBsTargetAttr }}="#collapse-offcanvas-line-item-contains-{{ lineItem.id }}"
                                         aria-controls="collapse-offcanvas-line-item-contains-{{ lineItem.id }}"
                                         aria-expanded="false">
 

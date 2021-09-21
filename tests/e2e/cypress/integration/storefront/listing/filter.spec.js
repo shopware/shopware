@@ -49,7 +49,7 @@ describe('Filter on startpage', () => {
 
         cy.get('@productCard').should('have.length', filteredItems);
 
-        cy.get('@productCard').first().click();
+        cy.get('@productCard').first().get('.product-name').click();
 
         cy.get(elements.productDetailManufacturerLink).should(
             'contain',

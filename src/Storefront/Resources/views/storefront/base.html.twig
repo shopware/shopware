@@ -148,6 +148,13 @@
                         'xl': theme_config('breakpoint.xl')
                     } %}
 
+                    {# @deprecated tag:v6.5.0 - Bootstrap v5 adds xxl breakpoint #}
+                    {% if feature('v6.5.0.0') %}
+                        {% set breakpoint = breakpoint|merge({
+                            'xxl': theme_config('breakpoint.xxl')
+                        }) %}
+                    {% endif %}
+
                     window.breakpoints = {{ breakpoint|json_encode()|raw }};
                 </script>
             {% endblock %}
@@ -172,6 +179,10 @@
                     </script>
                 {% endblock %}
             {% endif %}
+
+            {# @deprecated tag:v6.5.0 - Will be moved to `layout/meta.html.twig` - Use block `layout_head_javascript_jquery` instead #}
+            {% block base_script_jquery %}
+            {% endblock %}
 
             {# @deprecated tag:v6.5.0 - Will be moved to `layout/meta.html.twig` - Use block `layout_head_javascript_hmr_mode` instead #}
             {% block base_script_hmr_mode %}

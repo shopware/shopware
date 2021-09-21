@@ -13,11 +13,11 @@
              data-filter-boolean-options='{{ filterBooleanOptions|json_encode }}'>
 
             {% block component_filter_boolean_container %}
-                <div class="custom-control custom-checkbox">
+                <div class="{{ formCheckboxWrapperClass }}">
 
                     {% block component_filter_boolean_checkbox %}
                         <input type="checkbox"
-                               class="filter-boolean-input custom-control-input"
+                               class="filter-boolean-input {{ formCheckInputClass }}"
                                id="{{ name }}"
                                name="{{ name }}">
                     {% endblock %}

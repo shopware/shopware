@@ -97,8 +97,8 @@ describe('Checkout: Visual tests', () => {
         // Take snapshot for visual testing on desktop
         cy.takeSnapshot('Checkout - Confirm', '.confirm-tos', { widths: [375, 1920] });
 
-        cy.get('.confirm-tos .custom-checkbox label').scrollIntoView();
-        cy.get('.confirm-tos .custom-checkbox label').click(1, 1);
+        cy.get('.checkout-confirm-tos-label').scrollIntoView();
+        cy.get('.checkout-confirm-tos-label').click(1, 1);
         cy.get('.confirm-address').contains('Pep Eroni');
         cy.get(`${page.elements.cartItem}-details-container ${page.elements.cartItem}-label`).contains(product.name);
         cy.get(`${page.elements.cartItem}-total-price`).contains(product.price[0].gross);

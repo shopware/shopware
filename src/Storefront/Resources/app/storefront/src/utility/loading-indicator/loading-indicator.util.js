@@ -1,6 +1,13 @@
 import Iterator from 'src/helper/iterator.helper';
+import Feature from 'src/helper/feature.helper';
 
 const SELECTOR_CLASS = 'loader';
+
+/**
+ * @deprecated tag:v6.5.0 - Bootstrap v5 renames `sr-only` class to `visually-hidden`
+ * @type {string}
+ */
+const VISUALLY_HIDDEN_CLASS = Feature.isActive('V6_5_0_0') ? 'visually-hidden' : 'sr-only';
 
 export default class LoadingIndicatorUtil {
 
@@ -55,7 +62,7 @@ export default class LoadingIndicatorUtil {
      */
     static getTemplate() {
         return `<div class="${SELECTOR_CLASS}" role="status">
-                    <span class="sr-only">Loading...</span>
+                    <span class="${VISUALLY_HIDDEN_CLASS}">Loading...</span>
                 </div>`;
     }
 

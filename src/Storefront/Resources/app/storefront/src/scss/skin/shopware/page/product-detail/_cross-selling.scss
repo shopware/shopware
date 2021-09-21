@@ -1,6 +1,7 @@
 .product-detail-cross-selling {
 
-    @include media-breakpoint-down(xs) {
+    // @deprecated tag:v6.5.0 - Bootstrap v5 uses the breakpoint itself instead of the next breakpoint in `media-breakpoint-down()`, use `sm` instead of `xs`.
+    @include media-breakpoint-down(if(feature('V6_5_0_0'), sm, xs)) {
         .product-detail-tabs-content {
             display: block;
         }

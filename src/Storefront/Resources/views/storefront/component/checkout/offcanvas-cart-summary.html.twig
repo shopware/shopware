@@ -54,7 +54,7 @@
 
                             {% block component_offcanvas_summary_content_shipping_select %}
 
-                                <select class="custom-select mt-2 col-12" name="shippingMethodId">
+                                <select class="{{ formSelectClass }} mt-2 col-12" name="shippingMethodId">
                                     <option disabled>{{ "checkout.confirmChangeShipping"|trans|sw_sanitize }}</option>
 
                                     {% for shippingMethod in page.shippingMethods %}

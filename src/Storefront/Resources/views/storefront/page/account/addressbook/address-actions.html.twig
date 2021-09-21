@@ -43,7 +43,7 @@
     {% endblock %}
 
     {% block page_account_address_actions_buttons %}
-        <div class="row no-gutters address-actions-buttons">
+        <div class="row {{ gridNoGuttersClass }} address-actions-buttons">
             {% block page_account_address_actions_update %}
                 <div class="col-auto">
                     <a href="{{ path('frontend.account.address.edit.page', {'addressId': address.id}) }}"

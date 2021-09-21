@@ -10,7 +10,7 @@ const selector = {
     formContactComment: '#form-comment',
     formContactDataProtectionCheckbox: '.privacy-notice input[type="checkbox"]',
     formContactButtonSubmit: 'button[type="submit"]',
-    modalButtonDismiss: 'button[data-dismiss="modal"]'
+    modalButtonDismiss: '.modal-content .close',
 }
 
 describe('Contact form', () => {
@@ -25,6 +25,7 @@ describe('Contact form', () => {
         cy.get(selector.footerLinkContact).click();
 
         cy.wait('@contactFormRequest').then(() => {
+            cy.get('.modal').should('be.visible');
             cy.get(selector.modalButtonDismiss).should('be.visible');
 
             if (typeof callback === 'function') {

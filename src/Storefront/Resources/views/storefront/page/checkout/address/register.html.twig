@@ -2,11 +2,11 @@
 
 {% block component_account_register_personal_account_fields %}
     {% block page_checkout_register_personal_guest %}
-        <div class="custom-control custom-checkbox register-guest-control">
+        <div class="{{ formCheckboxWrapperClass }} register-guest-control">
             {% block page_checkout_register_personal_guest_input %}
             {% if feature('FEATURE_NEXT_16236') %}
                 <input type="checkbox"
-                       class="custom-control-input"
+                       class="{{ formCheckInputClass }}"
                        name="createCustomerAccount"
                        value="true"
                        id="personalGuest"

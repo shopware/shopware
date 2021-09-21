@@ -25,7 +25,7 @@
     "required": "*",
     "requiredFields": "Fields marked with asterisks (*) are required.",
     "privacyTitle": "Privacy",
-    "privacyNotice": "By selecting continue you confirm that you have read our <a data-toggle=\"modal\" data-url=\"%privacyUrl%\" href=\"%privacyUrl%\" title=\"Data protection information\">data protection information</a> and accepted our <a data-toggle=\"modal\" data-url=\"%tosUrl%\" href=\"%tosUrl%\" title=\"general terms and conditions\">general terms and conditions</a>.",
+    "privacyNotice": "By selecting continue you confirm that you have read our <a data-toggle=\"modal\" data-bs-toggle=\"modal\" data-url=\"%privacyUrl%\" href=\"%privacyUrl%\" title=\"Data protection information\">data protection information</a> and accepted our <a data-toggle=\"modal\" data-bs-toggle=\"modal\" data-url=\"%tosUrl%\" href=\"%tosUrl%\" title=\"general terms and conditions\">general terms and conditions</a>.",
     "privacyLink": "Privacy policy",
     "imprintLink": "Imprint",
     "404ErrorPageHeader": "Page not found",
@@ -184,7 +184,7 @@
     "profileRecoverPasswordInfo": "We will send you a confirmation email. Click the link in that email in order to change your password.",
     "profileRecoverPasswordSubmit": "Send email",
     "profileSaveChanges": "Save changes",
-    "profileDelete": "<a href=\"%target%\" data-toggle=\"modal\" data-target=\"%target%\">Click here</a> to delete all your personal data",
+    "profileDelete": "<a href=\"%target%\" data-toggle=\"modal\" data-bs-toggle=\"modal\" data-target=\"%target%\" data-bs-target=\"%target%\">Click here</a> to delete all your personal data",
     "profileDeleteAlert": "After deleting your customer account personal data, newsletter entries and reviews won't be accessible to you anymore. Note that records of all orders will be kept nonetheless in order to fulfill legal regulations.",
     "profileDeleteConfirm": "Do you really want to delete your customer account?",
     "profileDeleteModalTitle": "Customer account",
@@ -370,8 +370,8 @@
     "confirmSubmit": "Submit order",
     "confirmTermsHeader": "Terms and conditions and cancellation policy",
     "confirmRevocationNotice": "Please note our cancellation policy.",
-    "confirmTerms": "I have read and accepted the <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"general terms and conditions\">general terms and conditions</a>.",
-    "confirmTermsReminder": "You have already accepted the <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"general terms and conditions\">general terms and conditions</a>.",
+    "confirmTerms": "I have read and accepted the <a data-toggle=\"modal\" data-bs-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"general terms and conditions\">general terms and conditions</a>.",
+    "confirmTermsReminder": "You have already accepted the <a data-toggle=\"modal\" data-bs-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"general terms and conditions\">general terms and conditions</a>.",
     "finishInfoPayment": "Payment method:",
     "finishInfoShipping": "Shipping method:",
     "finishHeader": "Thank you for your order with %shop%!",
@@ -570,11 +570,11 @@
     "informationHeadline": "Information",
     "newsletterHeadline": "Newsletter",
     "serviceHotline": "Support and counselling via: <a href=\"tel:+49180000000\">0180 - 000000</a> Mon-Fri, 9 am - 5 pm",
-    "serviceContactLink": "Or via our <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"contact form\">contact form</a>.",
+    "serviceContactLink": "Or via our <a data-bs-toggle=\"modal\" data-toggle=\"modal\" data-bs-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"contact form\">contact form</a>.",
     "newsletterInput": "Your email address",
     "newsletter": "Subscribe to our regular newsletter now to stay tuned on the latest products and special offers.",
-    "includeVat": "* All prices incl. VAT plus <a data-toggle=\"modal\" href=\"%url%\" data-url=\"%url%\">shipping costs</a> and possible delivery charges, if not stated otherwise.",
-    "excludeVat": "* All prices excl. VAT plus <a data-toggle=\"modal\" href=\"%url%\" data-url=\"%url%\">shipping costs</a> and possible delivery charges, if not stated otherwise.",
+    "includeVat": "* All prices incl. VAT plus <a data-toggle=\"modal\" data-bs-toggle=\"modal\" href=\"%url%\" data-url=\"%url%\">shipping costs</a> and possible delivery charges, if not stated otherwise.",
+    "excludeVat": "* All prices excl. VAT plus <a data-toggle=\"modal\" data-bs-toggle=\"modal\" href=\"%url%\" data-url=\"%url%\">shipping costs</a> and possible delivery charges, if not stated otherwise.",
     "copyrightInfo": "Realised with Shopware"
   },
   "captcha": {
@@ -584,7 +584,7 @@
     "basicCaptchaLabel" : "Please enter the characters shown above*"
   },
   "cookie": {
-    "message": "This website uses cookies to ensure the best experience possible. <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"More information\">More information...</a>",
+    "message": "This website uses cookies to ensure the best experience possible. <a data-toggle=\"modal\" data-bs-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"More information\">More information...</a>",
     "deny": "Deny",
     "configure": "Configure",
     "configuration": "Settings",
@@ -629,7 +629,7 @@
     },
     "cms": {
       "vimeo": {
-        "privacyNotice": "By viewing the video you agree that your data will be transferred to %platform% and that you have read the <a data-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Privacy policy\">Privacy policy</a>.",
+        "privacyNotice": "By viewing the video you agree that your data will be transferred to %platform% and that you have read the <a data-toggle=\"modal\" data-bs-toggle=\"modal\" data-url=\"%url%\" href=\"%url%\" title=\"Privacy policy\">Privacy policy</a>.",
         "acceptButtonLabel": "Accept"
       }
     }

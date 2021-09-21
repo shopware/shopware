@@ -154,6 +154,7 @@
     "detailBase": {
       "cardTitleDetails": "Details",
       "cardTitleLineItems": "Positionen",
+      "cardTitleGeneralInfo": "Info",
       "columnProductName": "Name",
       "columnQuantity": "Menge",
       "columnPriceGross": "Bruttopreis",
@@ -312,6 +313,20 @@
       },
       "info": {
         "DOCUMENT__NUMBER_WAS_CHANGED": "Doppelte Dokumentnummer. Eine Folgenummer aus dem entsprechenden Nummernkreis wurde automatisch zugewiesen."
+      }
+    },
+    "generalTab": {
+      "info": {
+        "summary": {
+          "and": "und",
+          "at": "am",
+          "by": "durch",
+          "lastChanged": "Zuletzt geändert",
+          "with": "mit"
+        }
+      },
+      "tagSelect": {
+        "placeholder": "Tags hinzufügen ..."
       }
     },
     "documentModal": {

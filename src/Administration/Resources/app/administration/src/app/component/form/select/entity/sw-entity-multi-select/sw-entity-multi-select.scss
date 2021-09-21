@@ -1,0 +1,22 @@
+.sw-entity-multi-select.sw-field--small {
+    .sw-select-selection-list {
+        &__item-holder {
+            margin: 0 2px;
+
+            .sw-label {
+                margin: 0;
+                height: 24px;
+                line-height: 22px;
+                min-width: 0;
+            }
+        }
+    }
+}
+
+.sw-entity-multi-select.sw-field--medium {
+    .sw-select-selection-list {
+        &__item-holder {
+            margin: 0;
+        }
+    }
+}

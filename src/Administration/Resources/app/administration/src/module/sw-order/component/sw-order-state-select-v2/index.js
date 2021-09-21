@@ -13,6 +13,10 @@ Component.register('sw-order-state-select-v2', {
                 return [];
             },
         },
+        stateType: {
+            type: String,
+            required: true,
+        },
         roundedStyle: {
             type: Boolean,
             required: false,
@@ -70,7 +74,7 @@ Component.register('sw-order-state-select-v2', {
 
     methods: {
         onStateChangeClicked() {
-            this.$emit('state-select', this.selectedActionName);
+            this.$emit('state-select', this.stateType, this.selectedActionName);
 
             this.$nextTick(() => {
                 this.selectedActionName = null;

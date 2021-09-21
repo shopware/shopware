@@ -154,6 +154,7 @@
     "detailBase": {
       "cardTitleDetails": "Details",
       "cardTitleLineItems": "Items",
+      "cardTitleGeneralInfo": "Info",
       "columnProductName": "Name",
       "columnQuantity": "Quantity",
       "columnPriceNet": "Price (net)",
@@ -312,6 +313,20 @@
       },
       "info": {
         "DOCUMENT__NUMBER_WAS_CHANGED": "Duplicate document number. A consecutive number has automatically been drawn from the respective number range."
+      }
+    },
+    "generalTab": {
+      "info": {
+        "summary": {
+          "and": "and",
+          "at": "at",
+          "by": "by",
+          "lastChanged": "Last changed",
+          "with": "with"
+        }
+      },
+      "tagSelect": {
+        "placeholder": "Add tags ..."
       }
     },
     "documentModal": {

@@ -29,6 +29,9 @@ describe('Order: Create credit note', () => {
     });
 
     it('@base @order: create credit note', () => {
+        // skip for feature FEATURE_NEXT_7530, this test is reactivated again with NEXT-16682
+        cy.skipOnFeature('FEATURE_NEXT_7530');
+
         const page = new OrderPageObject();
 
         cy.route({
@@ -58,9 +61,12 @@ describe('Order: Create credit note', () => {
             `${page.elements.dataGridRow}--0`
         );
 
-        cy.get(`${page.elements.userMetadata}-user-name`)
-            .contains('Max Mustermann');
-        cy.get('.sw-order-detail__smart-bar-edit-button').click();
+        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get(`${page.elements.userMetadata}-user-name`)
+                .contains('Max Mustermann');
+            cy.get('.sw-order-detail__smart-bar-edit-button').click();
+        });
+
         cy.get('.sw-context-button .sw-button--ghost').click();
         cy.get('.sw-order-line-items-grid__can-create-discounts-button').click();
 
@@ -154,7 +160,7 @@ describe('Order: Create credit note', () => {
             expect(xhr).to.have.property('status', 200);
         });
 
-        // check exsits credit note
+        // check exists credit note
         cy.get('.sw-simple-search-field--form input[placeholder="Search all documents..."]').type('Credit note');
         cy.get('.sw-data-grid__row.sw-data-grid__row--0').contains('Credit note');
     });

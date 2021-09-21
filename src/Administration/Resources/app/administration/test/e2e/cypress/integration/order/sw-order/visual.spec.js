@@ -74,44 +74,45 @@ describe('Order: Visual tests', () => {
 
         cy.get('.sw-order-list__order-view-action').click();
 
-        // Change color of the element to ensure consistent snapshots
-        cy.changeElementStyling('.sw-order-user-card__metadata-item', 'color: #fff');
-        cy.get('.sw-order-user-card__metadata-item')
-            .should('have.css', 'color', 'rgb(255, 255, 255)');
+        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+            // Change color of the element to ensure consistent snapshots
+            cy.changeElementStyling('.sw-order-user-card__metadata-item', 'color: #fff');
+            cy.get('.sw-order-user-card__metadata-item')
+                .should('have.css', 'color', 'rgb(255, 255, 255)');
 
-        // Change color of the element to ensure consistent snapshots
-        cy.changeElementStyling(
-            '.sw-order-state-history-card__payment-state .sw-order-state-card__date',
-            'color: #fff'
-        );
-        cy.get('.sw-order-state-history-card__payment-state .sw-order-state-card__date')
-            .should('have.css', 'color', 'rgb(255, 255, 255)');
+            // Change color of the element to ensure consistent snapshots
+            cy.changeElementStyling(
+                '.sw-order-state-history-card__payment-state .sw-order-state-card__date',
+                'color: #fff'
+            );
+            cy.get('.sw-order-state-history-card__payment-state .sw-order-state-card__date')
+                .should('have.css', 'color', 'rgb(255, 255, 255)');
 
-        // Change color of the element to ensure consistent snapshots
-        cy.changeElementStyling(
-            '.sw-order-state-history-card__delivery-state .sw-order-state-card__date',
-            'color: #fff'
-        );
-        cy.get('.sw-order-state-history-card__delivery-state .sw-order-state-card__date')
-            .should('have.css', 'color', 'rgb(255, 255, 255)');
+            // Change color of the element to ensure consistent snapshots
+            cy.changeElementStyling(
+                '.sw-order-state-history-card__delivery-state .sw-order-state-card__date',
+                'color: #fff'
+            );
+            cy.get('.sw-order-state-history-card__delivery-state .sw-order-state-card__date')
+                .should('have.css', 'color', 'rgb(255, 255, 255)');
 
-        // Change color of the element to ensure consistent snapshots
-        cy.changeElementStyling(
-            '.sw-order-state-history-card__order-state .sw-order-state-card__date',
-            'color: #fff'
-        );
-        cy.get('.sw-order-state-history-card__order-state .sw-order-state-card__date')
-            .should('have.css', 'color', 'rgb(255, 255, 255)');
+            // Change color of the element to ensure consistent snapshots
+            cy.changeElementStyling(
+                '.sw-order-state-history-card__order-state .sw-order-state-card__date',
+                'color: #fff'
+            );
+            cy.get('.sw-order-state-history-card__order-state .sw-order-state-card__date')
+                .should('have.css', 'color', 'rgb(255, 255, 255)');
 
-        // Change color of the element to ensure consistent snapshots
-        cy.changeElementStyling(
-            '.sw-card-section--secondary > .sw-container > :nth-child(2) > :nth-child(4)',
-            'color: rgb(240, 242, 245);'
-        );
+            // Change color of the element to ensure consistent snapshots
+            cy.changeElementStyling(
+                '.sw-card-section--secondary > .sw-container > :nth-child(2) > :nth-child(4)',
+                'color: rgb(240, 242, 245);'
+            );
 
-        cy.get('.sw-card-section--secondary > .sw-container > :nth-child(2) > :nth-child(4)')
-            .should('have.css', 'color', 'rgb(240, 242, 245)');
-
+            cy.get('.sw-card-section--secondary > .sw-container > :nth-child(2) > :nth-child(4)')
+                .should('have.css', 'color', 'rgb(240, 242, 245)');
+        });
         // Take snapshot for visual testing
         cy.takeSnapshot('[Order] Detail', '.sw-order-detail');
     });

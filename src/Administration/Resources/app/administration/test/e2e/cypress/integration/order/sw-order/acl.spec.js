@@ -47,21 +47,30 @@ describe('Order: Test ACL privileges', () => {
             `${page.elements.dataGridRow}--0`
         );
 
-        cy.get(`${page.elements.userMetadata}-user-name`)
-            .contains('Max Mustermann');
-        cy.get('.sw-order-user-card__metadata-price').contains('64');
-        cy.get('.sw-order-base__label-sales-channel').contains('Storefront');
+        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get(`${page.elements.userMetadata}-user-name`)
+                .contains('Max Mustermann');
+            cy.get('.sw-order-user-card__metadata-price').contains('64');
+            cy.get('.sw-order-base__label-sales-channel').contains('Storefront');
+        });
+
         cy.get('.sw-order-detail__summary').scrollIntoView();
         cy.get(`${page.elements.dataGridRow}--0`).contains('Product name');
         cy.get(`${page.elements.dataGridRow}--0`).contains('64');
         cy.get(`${page.elements.dataGridRow}--0`).contains('19 %');
-        cy.get('.sw-order-detail__summary').scrollIntoView();
-        cy.get('.sw-address__headline').contains('Shipping address');
-        cy.get('.sw-order-delivery-metadata .sw-address__location').contains('Bielefeld');
-        cy.get('.sw-order-state-card__history-entry .sw-order-state-card__text').contains('Open');
+
+        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get('.sw-order-detail__summary').scrollIntoView();
+            cy.get('.sw-address__headline').contains('Shipping address');
+            cy.get('.sw-order-delivery-metadata .sw-address__location').contains('Bielefeld');
+            cy.get('.sw-order-state-card__history-entry .sw-order-state-card__text').contains('Open');
+        });
     });
 
     it('@acl: can edit order', () => {
+        // skip for feature FEATURE_NEXT_7530, this test is reactivated again with NEXT-16682
+        cy.skipOnFeature('FEATURE_NEXT_7530');
+
         cy.route({
             url: `${Cypress.env('apiPath')}/_action/order/**/product/**`,
             method: 'post'
@@ -94,11 +103,13 @@ describe('Order: Test ACL privileges', () => {
             `${page.elements.dataGridRow}--0`
         );
 
-        cy.get(`${page.elements.userMetadata}-user-name`)
-            .contains('Max Mustermann');
+        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get(`${page.elements.userMetadata}-user-name`)
+                .contains('Max Mustermann');
 
-        // click edit button
-        cy.get('.sw-order-detail__smart-bar-edit-button').click();
+            // click edit button
+            cy.get('.sw-order-detail__smart-bar-edit-button').click();
+        });
 
         // click "add product"
         cy.get('.sw-order-detail-base__line-item-grid-card').scrollIntoView();

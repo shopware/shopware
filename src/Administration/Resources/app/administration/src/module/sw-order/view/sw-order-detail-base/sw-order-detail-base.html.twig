@@ -263,7 +263,7 @@
                                 <dt :key="`sorted-calculated-taxes-dt-${index}`">
                                     {{ $tc('sw-order.detailBase.summaryLabelTaxes', 1, { taxRate: calculatedTax.taxRate }) }}
                                 </dt>
-                                <dd :key="`sorted-calculated-taxes-dt-${index}`">
+                                <dd :key="`sorted-calculated-taxes-dd-${index}`">
                                     {{ calculatedTax.tax | currency(order.currency.translated.shortName) }}
                                 </dd>
                             </template>

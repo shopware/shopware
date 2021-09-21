@@ -34,8 +34,10 @@ function navigateToOrder(page) {
         `${page.elements.dataGridRow}--0`
     );
 
-    // edit order
-    cy.get('.sw-order-detail__smart-bar-edit-button').click();
+    cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+        // edit order
+        cy.get('.sw-order-detail__smart-bar-edit-button').click();
+    });
 
     cy.wait('@orderEditCall').then((xhr) => {
         expect(xhr).to.have.property('status', 200);
@@ -103,6 +105,8 @@ describe('Order: Read order', () => {
     });
 
     it('@base @order: can add existing product', () => {
+        // skip for feature FEATURE_NEXT_7530, this test is reactivated again with NEXT-16674
+        cy.skipOnFeature('FEATURE_NEXT_7530');
         const page = new OrderPageObject();
 
         navigateToOrder(page);
@@ -133,6 +137,8 @@ describe('Order: Read order', () => {
     });
 
     it('@base @order: can add new products', () => {
+        // skip for feature FEATURE_NEXT_7530, this test is reactivated again with NEXT-16674
+        cy.skipOnFeature('FEATURE_NEXT_7530');
         const page = new OrderPageObject();
 
         navigateToOrder(page);
@@ -174,6 +180,9 @@ describe('Order: Read order', () => {
     });
 
     it('@base @order: can add custom products', () => {
+        // skip for feature FEATURE_NEXT_7530, this test is reactivated again with NEXT-16674
+        cy.skipOnFeature('FEATURE_NEXT_7530');
+
         const page = new OrderPageObject();
 
         navigateToOrder(page);
@@ -220,6 +229,9 @@ describe('Order: Read order', () => {
     });
 
     it('@base @order: can add custom credit items', () => {
+        // skip for feature FEATURE_NEXT_7530, this test is reactivated again with NEXT-16674
+        cy.skipOnFeature('FEATURE_NEXT_7530');
+
         const page = new OrderPageObject();
 
         navigateToOrder(page);
@@ -294,6 +306,9 @@ describe('Order: Read order', () => {
     });
 
     it('@base @order: can edit existing line items', () => {
+        // skip for feature FEATURE_NEXT_7530, this test is reactivated again with NEXT-16674
+        cy.skipOnFeature('FEATURE_NEXT_7530');
+
         const page = new OrderPageObject();
 
         navigateToOrder(page);

@@ -41,6 +41,8 @@
       "textHeadline": "Order",
       "textHeadlineNew": "New order",
       "tabGeneral": "General",
+      "tabDetails": "Details",
+      "tabDocuments": "Documents",
       "messageRecalculationError": "An error occurred while calculating the price: <br>",
       "messageSaveError": "An error occurred during saving",
       "messageShippingNotAvailable": "Delivery to the selected country not possible.",

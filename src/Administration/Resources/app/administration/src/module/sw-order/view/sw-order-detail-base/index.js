@@ -4,6 +4,9 @@ const { Component, Utils, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { get, format, array } = Utils;
 
+/**
+ * @feature-deprecated (flag:FEATURE_NEXT_7530) will be dropped
+ */
 Component.register('sw-order-detail-base', {
     template,
 

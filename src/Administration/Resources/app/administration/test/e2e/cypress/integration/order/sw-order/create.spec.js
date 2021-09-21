@@ -102,8 +102,12 @@ describe('Order: Create order', () => {
         // assert saving successful
         cy.get('.sw-order-detail')
             .should('be.visible');
-        cy.get(`.sw-order-detail-base ${page.elements.userMetadata}`)
-            .contains('Pep Eroni');
+
+        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get(`.sw-order-detail-base ${page.elements.userMetadata}`)
+                .contains('Pep Eroni');
+        });
+
         cy.get(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--label`)
             .contains('Product name');
         cy.get(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--quantity`)
@@ -397,8 +401,12 @@ describe('Order: Create order', () => {
         // assert saving successful
         cy.get('.sw-order-detail')
             .should('be.visible');
-        cy.get(`.sw-order-detail-base ${page.elements.userMetadata}`)
-            .contains('Golden Stars');
+
+        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get(`.sw-order-detail-base ${page.elements.userMetadata}`)
+                .contains('Golden Stars');
+        });
+
         cy.get(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--label`)
             .contains('Product name');
         cy.get(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--quantity`)
@@ -564,8 +572,11 @@ describe('Order: Create order', () => {
         // assert saving successful
         cy.get('.sw-order-detail')
             .should('be.visible');
-        cy.get(`.sw-order-detail-base ${page.elements.userMetadata}`)
-            .contains('Pep Eroni');
+
+        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get(`.sw-order-detail-base ${page.elements.userMetadata}`)
+                .contains('Pep Eroni');
+        });
 
         cy.get('tbody .sw-data-grid__row').should('have.length', 2);
     });
@@ -679,8 +690,12 @@ describe('Order: Create order', () => {
         // assert saving successful
         cy.get('.sw-order-detail')
             .should('be.visible');
-        cy.get('.sw-order-detail-base .sw-order-user-card__metadata')
-            .contains('Pep Eroni');
+
+        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get('.sw-order-detail-base .sw-order-user-card__metadata')
+                .contains('Pep Eroni');
+        });
+
         cy.get('.sw-data-grid__row--0 > .sw-data-grid__cell--label > .sw-data-grid__cell-content')
             .contains('Product name');
         cy.get('.sw-data-grid__row--0 > .sw-data-grid__cell--quantity > .sw-data-grid__cell-content')

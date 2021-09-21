@@ -1,5 +1,6 @@
 import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-order/page/sw-order-detail';
+import swOrderDetailState from '../../../../src/module/sw-order/state/order-detail.store';
 
 function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-order-detail'), {
@@ -43,9 +44,11 @@ function createWrapper(privileges = []) {
             },
             repositoryFactory: {
                 create: () => ({
-                    search: () => Promise.resolve([])
+                    search: () => Promise.resolve([]),
+                    hasChanges: () => Promise.resolve([])
                 })
-            }
+            },
+            orderService: {}
         }
     });
 }
@@ -55,6 +58,9 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
 
     beforeEach(() => {
         wrapper = createWrapper();
+
+        Shopware.State.unregisterModule('swOrderDetail');
+        Shopware.State.registerModule('swOrderDetail', swOrderDetailState);
     });
 
     afterEach(() => {
@@ -74,7 +80,12 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
     });
 
     it('should have an enabled edit button', async () => {
+        wrapper.destroy();
         wrapper = createWrapper(['order.editor']);
+
+        Shopware.State.unregisterModule('swOrderDetail');
+        Shopware.State.registerModule('swOrderDetail', swOrderDetailState);
+
         await wrapper.setData({ isLoading: false });
 
         const editButton = wrapper.find('.sw-order-detail__smart-bar-edit-button');

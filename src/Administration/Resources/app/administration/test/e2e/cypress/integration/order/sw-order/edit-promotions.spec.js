@@ -41,7 +41,10 @@ describe('Order: Test promotions in existing orders', () => {
             });
     });
 
-    it.only('@base @order: add promotion to existing order', () => {
+    it('@base @order: add promotion to existing order', () => {
+        // skip for feature FEATURE_NEXT_7530, this test is reactivated again with NEXT-16682
+        cy.skipOnFeature('FEATURE_NEXT_7530');
+
         const page = new OrderPageObject();
 
         cy.createDefaultFixture('promotion', {
@@ -113,6 +116,8 @@ describe('Order: Test promotions in existing orders', () => {
     });
 
     it('@base @order: add automatic promotion to existing order', () => {
+        // skip for feature FEATURE_NEXT_7530, this test is reactivated again with NEXT-16682
+        cy.skipOnFeature('FEATURE_NEXT_7530');
         const page = new OrderPageObject();
 
         cy.createDefaultFixture('promotion', {
@@ -187,4 +192,3 @@ describe('Order: Test promotions in existing orders', () => {
         cy.get('input[name="sw-field--disabledAutoPromotionVisibility"]').should('be.checked');
     });
 });
-

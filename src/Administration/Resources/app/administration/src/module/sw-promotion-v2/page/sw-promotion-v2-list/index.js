@@ -60,10 +60,10 @@ Component.register('sw-promotion-v2-list', {
     },
 
     methods: {
-        getList() {
+        async getList() {
             this.isLoading = true;
 
-            const criteria = this.addQueryScores(this.term, this.promotionCriteria);
+            const criteria = await this.addQueryScores(this.term, this.promotionCriteria);
 
             return this.promotionRepository.search(criteria).then((searchResult) => {
                 this.isLoading = false;

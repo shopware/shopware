@@ -143,10 +143,10 @@ Component.register('sw-cms-list', {
             });
         },
 
-        getList() {
+        async getList() {
             this.isLoading = true;
 
-            const criteria = this.addQueryScores(this.term, this.listCriteria);
+            const criteria = await this.addQueryScores(this.term, this.listCriteria);
 
             return this.pageRepository.search(criteria).then((searchResult) => {
                 this.total = searchResult.total;

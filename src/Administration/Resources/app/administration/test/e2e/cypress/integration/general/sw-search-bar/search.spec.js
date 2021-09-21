@@ -2,6 +2,16 @@
 
 import MediaPageObject from '../../../support/pages/module/sw-media.page-object';
 
+function setMediaEntitySearchable() {
+    cy.window().then(($w) => {
+        const search = $w.Shopware.Module.getModuleByEntityName('media')
+            .manifest.defaultSearchConfiguration;
+        search._searchable = true;
+        search.fileName._searchable = true;
+        search.title._searchable = true;
+    });
+}
+
 describe('Search bar: Check main functionality', () => {
     beforeEach(() => {
         cy.setToInitialState()
@@ -183,6 +193,10 @@ describe('Search bar: Check main functionality', () => {
         cy.get('.sw-loader__element')
             .should('not.exist');
 
+        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
+            setMediaEntitySearchable();
+        });
+
         cy.get('input.sw-search-bar__input').type('sw-login-background');
         cy.get('.sw-search-bar__results').should('be.visible');
         cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
@@ -242,7 +256,14 @@ describe('Search bar: Check main functionality', () => {
         cy.get('.sw-loader__element')
             .should('not.exist');
 
-        cy.get('input.sw-search-bar__input').type('e');
+        cy.skipOnFeature('FEATURE_NEXT_6040', () => {
+            cy.get('input.sw-search-bar__input').type('e');
+        });
+
+        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
+            cy.get('input.sw-search-bar__input').type('name');
+        });
+
         cy.get('.sw-search-bar__results').should('be.visible');
 
         // 'Cursor' is at the first element and should therefore not move

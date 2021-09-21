@@ -19,6 +19,7 @@ Component.register('sw-sales-channel-list', {
             productsForSalesChannel: {},
             isLoading: true,
             sortBy: 'name',
+            searchConfigEntity: 'sales_channel',
         };
     },
 
@@ -82,10 +83,12 @@ Component.register('sw-sales-channel-list', {
             this.$root.$emit('on-add-sales-channel');
         },
 
-        getList() {
+        async getList() {
             this.isLoading = true;
 
-            return this.salesChannelRepository.search(this.salesChannelCriteria)
+            const criteria = await this.addQueryScores(this.term, this.salesChannelCriteria);
+
+            return this.salesChannelRepository.search(criteria)
                 .then(searchResult => {
                     this.salesChannels = searchResult;
                     this.setProductAggregations(searchResult.aggregations?.sales_channel?.buckets);

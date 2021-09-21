@@ -1,3 +1,5 @@
+import { KEY_USER_SEARCH_PREFERENCE } from 'src/app/service/search-ranking.service';
+
 /**
 * @description Exposes an user search preferences
 * @constructor
@@ -35,7 +37,9 @@ export default function SearchPreferencesService({ userConfigRepository: _userCo
     * @returns {Promise}
     */
     function getUserSearchPreferences() {
-        return _userConfigRepository.search(_getUserConfigCriteria());
+        return Shopware.Service('userConfigService').search([KEY_USER_SEARCH_PREFERENCE]).then((response) => {
+            return response.data[KEY_USER_SEARCH_PREFERENCE];
+        });
     }
 
     /**
@@ -177,7 +181,7 @@ export default function SearchPreferencesService({ userConfigRepository: _userCo
     function _getUserConfigCriteria() {
         const criteria = new Shopware.Data.Criteria();
 
-        criteria.addFilter(Shopware.Data.Criteria.equals('key', 'search.preferences'));
+        criteria.addFilter(Shopware.Data.Criteria.equals('key', KEY_USER_SEARCH_PREFERENCE));
         criteria.addFilter(Shopware.Data.Criteria.equals('userId', _getCurrentUser()?.id));
 
         return criteria;

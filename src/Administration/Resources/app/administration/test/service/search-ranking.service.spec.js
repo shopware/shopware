@@ -1,7 +1,12 @@
-import SearchRankingService, { searchRankingPoint } from 'src/app/service/search-ranking.service';
-
+import SearchRankingService, { searchRankingPoint, KEY_USER_SEARCH_PREFERENCE } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
 import searchRankingModules from './_mocks/searchRankingModules.json';
+
+Shopware.Service().register('userConfigService', () => {
+    return {
+        search: () => Promise.resolve({ data: {} })
+    };
+});
 
 describe('app/service/search-ranking.service.js', () => {
     const entity = 'product';
@@ -72,6 +77,23 @@ describe('app/service/search-ranking.service.js', () => {
         [
             'empty search ranking fields',
             {},
+            {}
+        ],
+        [
+            'entity is unsearchable',
+            {
+                _searchable: false,
+                name: {
+                    _searchable: false,
+                    _score: searchRankingPoint.HIGH_SEARCH_RANKING
+                },
+                options: {
+                    name: {
+                        _searchable: false,
+                        _score: searchRankingPoint.LOW_SEARCH_RANKING
+                    }
+                }
+            },
             {}
         ]
     ];
@@ -164,6 +186,72 @@ describe('app/service/search-ranking.service.js', () => {
         ]
     ];
 
+    const userConfigSearchPreferenceCase = [
+        [
+            'Overwrite the default fields from searchable to unsearchable',
+            {
+                name: {
+                    _searchable: true,
+                    _score: searchRankingPoint.HIGH_SEARCH_RANKING
+                }
+            },
+            {
+                name: {
+                    _searchable: false,
+                    _score: searchRankingPoint.HIGH_SEARCH_RANKING
+                }
+            },
+            {}
+        ],
+        [
+            'Overwrite the default fields from unsearchable to searchable',
+            {
+                name: {
+                    _searchable: false,
+                    _score: searchRankingPoint.HIGH_SEARCH_RANKING
+                }
+            },
+            {
+                name: {
+                    _searchable: true,
+                    _score: searchRankingPoint.HIGH_SEARCH_RANKING
+                }
+            },
+            {
+                'product.name': searchRankingPoint.HIGH_SEARCH_RANKING
+            }
+        ],
+        [
+            'Overwrite the default score',
+            {
+                name: {
+                    _searchable: true,
+                    _score: searchRankingPoint.HIGH_SEARCH_RANKING
+                }
+            },
+            {
+                name: {
+                    _searchable: true,
+                    _score: searchRankingPoint.LOW_SEARCH_RANKING
+                }
+            },
+            {
+                'product.name': searchRankingPoint.LOW_SEARCH_RANKING
+            }
+        ],
+        [
+            'Return empty when the module has default search configuration is empty',
+            {},
+            {
+                name: {
+                    _searchable: false,
+                    _score: searchRankingPoint.HIGH_SEARCH_RANKING
+                }
+            },
+            {}
+        ]
+    ];
+
     function clearModules() {
         Shopware.Module.getModuleRegistry().clear();
     }
@@ -174,16 +262,24 @@ describe('app/service/search-ranking.service.js', () => {
         });
     }
 
+    function addDataToRegisterUserConfigService(userConfigSearchs) {
+        const data = {
+            [KEY_USER_SEARCH_PREFERENCE]: userConfigSearchs
+        };
+
+        Shopware.Service('userConfigService').search = () => Promise.resolve({ data });
+    }
+
     beforeEach(() => {
         global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
         clearModules();
     });
 
-    it('Should get default user search preferences', () => {
+    it('Should get default user search preferences', async () => {
         createModules(searchRankingModules);
         const service = new SearchRankingService();
 
-        const actual = service.getUserSearchPreference();
+        const actual = await service.getUserSearchPreference();
         const expected = {
             product: {
                 'product.name': searchRankingPoint.HIGH_SEARCH_RANKING
@@ -197,31 +293,31 @@ describe('app/service/search-ranking.service.js', () => {
         expect(actual).toEqual(expected);
     });
 
-    it.each(searchFieldsByEntityCases)('Should get search ranking fields of the entity with %s', (testName, searchFields, expected) => {
-        const module = { ...defaultModule, defaultSearchConfiguration: searchFields };
+    it.each(searchFieldsByEntityCases)('Should get search ranking fields of the entity with %s', async (testName, searchFields, expected) => {
+        const module = { ...defaultModule, defaultSearchConfiguration: { _searchable: true, ...searchFields } };
         createModules([module]);
         const service = new SearchRankingService();
 
-        const actual = service.getSearchFieldsByEntity('product');
+        const actual = await service.getSearchFieldsByEntity('product');
         expect(actual).toEqual(expected);
     });
 
-    it('Should return empty query when building global search query score with term less than 2 characters', () => {
+    it('Should return empty query when building global search query score with term less than 2 characters', async () => {
         createModules(searchRankingModules);
         const service = new SearchRankingService();
 
-        const userSearchPreference = service.getUserSearchPreference();
+        const userSearchPreference = await service.getUserSearchPreference();
         const actual = service.buildGlobalSearchQueries(userSearchPreference, 'd');
         const expected = {};
 
         expect(actual).toEqual(expected);
     });
 
-    it('Should building global search query score with term more than 2 characters', () => {
+    it('Should building global search query score with term more than 2 characters', async () => {
         createModules(searchRankingModules);
         const service = new SearchRankingService();
 
-        const userSearchPreference = service.getUserSearchPreference();
+        const userSearchPreference = await service.getUserSearchPreference();
         const actual = service.buildGlobalSearchQueries(userSearchPreference, 'order');
         const expected = {
             product: {
@@ -282,12 +378,244 @@ describe('app/service/search-ranking.service.js', () => {
         expect(criteria.parse()).toEqual(newCriteria.parse());
     });
 
-    it('Should cache the result when get search fields', () => {
-        createModules(searchRankingModules);
+    it('Should cache the result when get search fields by entity', async () => {
         const service = new SearchRankingService();
 
-        const firstResult = service.getSearchFieldsByEntity('product');
-        const secondResult = service.getSearchFieldsByEntity('product');
+        // Create module with name._searchable = true
+        let module = {
+            ...defaultModule,
+            defaultSearchConfiguration: {
+                _searchable: true,
+                name: {
+                    _searchable: true,
+                    _score: searchRankingPoint.LOW_SEARCH_RANKING
+                }
+            }
+        };
+
+        createModules([module]);
+        const firstResult = await service.getSearchFieldsByEntity('product');
+
+        // Create again module with name._searchable = false
+        clearModules();
+        module = {
+            ...defaultModule,
+            defaultSearchConfiguration: {
+                _searchable: true,
+                name: {
+                    _searchable: false,
+                    _score: searchRankingPoint.LOW_SEARCH_RANKING
+                }
+            }
+        };
+
+        createModules([module]);
+
+        const secondResult = await service.getSearchFieldsByEntity('product');
+
         expect(firstResult).toEqual(secondResult);
+    });
+
+    it('Should cache the result when get global search fields', async () => {
+        const service = new SearchRankingService();
+
+        // Create module with name._searchable = true
+        let module = {
+            ...defaultModule,
+            defaultSearchConfiguration: {
+                _searchable: true,
+                name: {
+                    _searchable: true,
+                    _score: searchRankingPoint.LOW_SEARCH_RANKING
+                }
+            }
+        };
+
+        createModules([module]);
+        const firstResult = await service.getUserSearchPreference();
+
+        // Create again module with name._searchable = false
+        clearModules();
+        module = {
+            ...defaultModule,
+            defaultSearchConfiguration: {
+                _searchable: true,
+                name: {
+                    _searchable: false,
+                    _score: searchRankingPoint.LOW_SEARCH_RANKING
+                }
+            }
+        };
+
+        createModules([module]);
+
+        const secondResult = await service.getUserSearchPreference();
+
+        expect(firstResult).toEqual(secondResult);
+    });
+
+    it.each(userConfigSearchPreferenceCase)('Should %s when search ranking fields of the entity along with getting user config',
+        async (testName, defaultSearchFields, userConfigSearchFields, expected) => {
+            const module = { ...defaultModule, defaultSearchConfiguration: { _searchable: true, ...defaultSearchFields } };
+
+            createModules([module]);
+            addDataToRegisterUserConfigService([{
+                product: {
+                    _searchable: true,
+                    ...userConfigSearchFields
+                }
+            }]);
+            const newService = new SearchRankingService();
+            const actual = await newService.getSearchFieldsByEntity('product');
+
+            expect(actual).toEqual(expected);
+        });
+
+    it('Should add default search configuration of a new module to current user search preferences', async () => {
+        const commonSearchConfigurations = {
+            _searchable: true,
+            name: {
+                _searchable: true,
+                _score: searchRankingPoint.HIGH_SEARCH_RANKING
+            }
+        };
+
+        createModules(searchRankingModules);
+        addDataToRegisterUserConfigService([
+            {
+                order: { ...commonSearchConfigurations }
+            },
+            {
+                property: { ...commonSearchConfigurations }
+            }
+        ]);
+
+        const service = new SearchRankingService();
+        const actual = await service.getUserSearchPreference();
+
+        expect(actual).toEqual({
+            product: { 'product.name': searchRankingPoint.HIGH_SEARCH_RANKING },
+            order: { 'order.name': searchRankingPoint.HIGH_SEARCH_RANKING },
+            property: { 'property_group.name': searchRankingPoint.HIGH_SEARCH_RANKING }
+        });
+    });
+
+    it('Should remove an entity\'s search configurations from current user search preferences when entity\'s module does not have default search configurations', async () => {
+        const commonSearchConfigurations = {
+            _searchable: true,
+            name: {
+                _searchable: true,
+                _score: searchRankingPoint.HIGH_SEARCH_RANKING
+            }
+        };
+
+        const module = { ...defaultModule, defaultSearchConfiguration: { ...commonSearchConfigurations } };
+        createModules([module]);
+        addDataToRegisterUserConfigService([
+            {
+                order: { ...commonSearchConfigurations }
+            },
+            {
+                property: { ...commonSearchConfigurations }
+            },
+            {
+                product: { ...commonSearchConfigurations }
+            }
+        ]);
+
+        const service = new SearchRankingService();
+        const actual = await service.getUserSearchPreference();
+
+        expect(actual).toEqual({
+            product: { 'product.name': searchRankingPoint.HIGH_SEARCH_RANKING }
+        });
+    });
+
+    it('Should cache the result when getting user search configuration through the API', async () => {
+        const module = {
+            ...defaultModule,
+            defaultSearchConfiguration: {
+                _searchable: true,
+                name: {
+                    _searchable: false,
+                    _score: searchRankingPoint.LOW_SEARCH_RANKING
+                }
+            }
+        };
+
+        createModules([module]);
+        addDataToRegisterUserConfigService([{
+            product: {
+                _searchable: true,
+                name: {
+                    _searchable: true,
+                    _score: searchRankingPoint.LOW_SEARCH_RANKING
+                }
+            }
+        }]);
+        const newService = new SearchRankingService();
+        let actual = await newService.getSearchFieldsByEntity('product');
+        const expected = { 'product.name': searchRankingPoint.LOW_SEARCH_RANKING };
+
+        expect(actual).toEqual(expected);
+
+        // Set the response to return different response
+        addDataToRegisterUserConfigService([{
+            product: {
+                _searchable: false,
+                name: {
+                    _searchable: false,
+                    _score: searchRankingPoint.LOW_SEARCH_RANKING
+                }
+            }
+        }]);
+
+        actual = await newService.getSearchFieldsByEntity('product');
+        // expect to still be equal the old one
+        expect(actual).toEqual(expected);
+    });
+
+    it('Should recall the API get user config after clear the cache', async () => {
+        const module = {
+            ...defaultModule,
+            defaultSearchConfiguration: {
+                _searchable: true,
+                name: {
+                    _searchable: false,
+                    _score: searchRankingPoint.LOW_SEARCH_RANKING
+                }
+            }
+        };
+
+        createModules([module]);
+        addDataToRegisterUserConfigService([{
+            product: {
+                _searchable: true,
+                name: {
+                    _searchable: true,
+                    _score: searchRankingPoint.LOW_SEARCH_RANKING
+                }
+            }
+        }]);
+        const newService = new SearchRankingService();
+        let actual = await newService.getSearchFieldsByEntity('product');
+
+        expect(actual).toEqual({ 'product.name': searchRankingPoint.LOW_SEARCH_RANKING });
+
+        // Set the response to return different response
+        addDataToRegisterUserConfigService([{
+            product: {
+                _searchable: false,
+                name: {
+                    _searchable: false,
+                    _score: searchRankingPoint.LOW_SEARCH_RANKING
+                }
+            }
+        }]);
+        newService.clearCacheUserSearchConfiguration();
+
+        actual = await newService.getSearchFieldsByEntity('product');
+        // expect to get different result
+        expect(actual).toEqual({});
     });
 });

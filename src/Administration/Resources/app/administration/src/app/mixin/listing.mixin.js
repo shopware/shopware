@@ -261,13 +261,14 @@ Mixin.register('listing', {
             );
         },
 
-        addQueryScores(term, originalCriteria) {
+        async addQueryScores(term, originalCriteria) {
             if (!this.feature.isActive('FEATURE_NEXT_6040') || !this.searchConfigEntity) {
                 return originalCriteria;
             }
+            const searchRankingFields = await this.searchRankingService.getSearchFieldsByEntity(this.searchConfigEntity);
 
             return this.searchRankingService.buildSearchQueriesForEntity(
-                this.searchRankingFields,
+                searchRankingFields,
                 term,
                 originalCriteria,
             );

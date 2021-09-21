@@ -215,7 +215,7 @@ Component.register('sw-product-list', {
             let criteria = await Shopware.Service('filterService')
                 .mergeWithStoredFilters(this.storeKey, this.productCriteria);
 
-            criteria = this.addQueryScores(this.term, criteria);
+            criteria = await this.addQueryScores(this.term, criteria);
 
             this.activeFilterNumber = criteria.filters.length - 1;
 

@@ -251,8 +251,9 @@ Component.register('sw-media-library', {
                     .setTerm(this.term);
 
                 if (this.feature.isActive('FEATURE_NEXT_6040')) {
+                    const searchRankingFields = await this.searchRankingService.getSearchFieldsByEntity('media');
                     criteria = this.searchRankingService.buildSearchQueriesForEntity(
-                        this.searchRankingFields,
+                        searchRankingFields,
                         this.term,
                         criteria,
                     );

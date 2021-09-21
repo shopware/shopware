@@ -211,7 +211,7 @@ Component.register('sw-customer-list', {
             const criteria = await Shopware.Service('filterService')
                 .mergeWithStoredFilters(this.storeKey, this.defaultCriteria);
 
-            const newCriteria = this.addQueryScores(this.term, this.defaultCriteria);
+            const newCriteria = await this.addQueryScores(this.term, this.defaultCriteria);
 
             this.activeFilterNumber = criteria.filters.length;
 

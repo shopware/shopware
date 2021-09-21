@@ -1,6 +1,6 @@
 const { merge, cloneDeep } = Shopware.Utils.object;
 const { Criteria } = Shopware.Data;
-const { Module } = Shopware;
+const { Service, Module } = Shopware;
 
 /**
  * @module app/service/search-ranking
@@ -18,6 +18,7 @@ export const searchRankingPoint = Object.freeze({
     MIDDLE_SEARCH_RANKING: 250,
 });
 
+export const KEY_USER_SEARCH_PREFERENCE = 'search.preferences';
 /**
  * @memberOf module:app/service/search-ranking
  * @constructor
@@ -26,12 +27,16 @@ export const searchRankingPoint = Object.freeze({
  */
 export default function createSearchRankingService() {
     const cacheDefaultSearchScore = {};
+    const cacheModules = {};
+    let cacheUserSearchConfiguration;
+    let cacheDefaultUserSearchPreference;
 
     return {
         getSearchFieldsByEntity,
         buildSearchQueriesForEntity,
         getUserSearchPreference,
         buildGlobalSearchQueries,
+        clearCacheUserSearchConfiguration,
     };
 
     /**
@@ -41,7 +46,7 @@ export default function createSearchRankingService() {
      * @returns {Object}
      */
     function buildGlobalSearchQueries(userSearchPreference, searchTerm) {
-        if (!_isValidTerm(searchTerm)) {
+        if (!_isValidTerm(searchTerm) || _isEmptyObject(userSearchPreference)) {
             return {};
         }
 
@@ -49,7 +54,7 @@ export default function createSearchRankingService() {
 
         Object.keys(userSearchPreference).forEach(entity => {
             const fields = userSearchPreference[entity];
-            if (Object.keys(fields).length === 0) {
+            if (_isEmptyObject(fields)) {
                 return;
             }
 
@@ -68,6 +73,10 @@ export default function createSearchRankingService() {
      * @returns {Object}
      */
     function buildSearchQueriesForEntity(searchRankingFields, searchTerm, criteria) {
+        if (!_isValidTerm(searchTerm) || _isEmptyObject(searchRankingFields)) {
+            return criteria;
+        }
+
         const queryScores = _buildQueryScores(searchRankingFields, searchTerm);
 
         return _addSearchQueries(queryScores, criteria);
@@ -76,25 +85,53 @@ export default function createSearchRankingService() {
     /**
      * @returns {Object}
      */
-    function getUserSearchPreference() {
-        // TODO: Implement getting User Search Preference from user_config later (would be implemented in
-        //  ticket NEXT-15903 and ticket NEXT-15926)
-        return _getDefaultUserSearchPreference();
+    async function getUserSearchPreference() {
+        const userConfigSearchFields = await _fetchUserConfig();
+        const defaultUserSearchPreference = _getDefaultUserSearchPreference();
+        if (!userConfigSearchFields) {
+            return defaultUserSearchPreference;
+        }
+        const result = {};
+        Object.keys(defaultUserSearchPreference).forEach((entityName) => {
+            if (!userConfigSearchFields[entityName]) {
+                result[entityName] = defaultUserSearchPreference[entityName];
+                return;
+            }
+
+            if (!_isEntitySearchable(userConfigSearchFields[entityName])) {
+                return;
+            }
+            const currentModule = _getModule(entityName);
+            result[entityName] = _scoring(userConfigSearchFields[entityName], currentModule.searchEntity ?? entityName);
+        });
+
+        return result;
     }
 
     /**
      * @param {String} entityName
      * @returns {Object}
      */
-    function getSearchFieldsByEntity(entityName) {
-        // TODO: Implement getting User Search Preference from user_config later (would be implemented in
-        //  ticket NEXT-15903 and ticket NEXT-15926)
-        const module = Module.getModuleByEntityName(entityName);
-        if (module === undefined) {
-            throw new Error('search-ranking.service - Can not get module by the entity name');
+    async function getSearchFieldsByEntity(entityName) {
+        const currentModule = _getModule(entityName);
+        const userConfigSearchFieldsByEntity = await _fetchUserConfig(entityName);
+        if (!userConfigSearchFieldsByEntity) {
+            return _getDefaultSearchFieldsByEntity(currentModule);
         }
 
-        return _getDefaultSearchFieldsByEntity(module.manifest);
+        if (_isEmptyObject(currentModule.defaultSearchConfiguration) ||
+            !_isEntitySearchable(userConfigSearchFieldsByEntity)) {
+            return {};
+        }
+
+        return _scoring(
+            userConfigSearchFieldsByEntity,
+            currentModule.searchEntity ?? entityName,
+        );
+    }
+
+    function clearCacheUserSearchConfiguration() {
+        cacheUserSearchConfiguration = undefined;
     }
 
     /**
@@ -103,7 +140,7 @@ export default function createSearchRankingService() {
      * @returns {Object}
      */
     function _getDefaultSearchFieldsByEntity({ defaultSearchConfiguration, entity, searchEntity = undefined }) {
-        if (!defaultSearchConfiguration) {
+        if (!_isEntitySearchable(defaultSearchConfiguration)) {
             return {};
         }
 
@@ -124,16 +161,19 @@ export default function createSearchRankingService() {
      * @returns {Object}
      */
     function _getDefaultUserSearchPreference() {
-        const entityScoringFields = {};
+        if (cacheDefaultUserSearchPreference) {
+            return cacheDefaultUserSearchPreference;
+        }
+        cacheDefaultUserSearchPreference = {};
         Module.getModuleRegistry().forEach(({ manifest }) => {
-            if (!manifest.hasOwnProperty('defaultSearchConfiguration')) {
+            if (!_isEntitySearchable(manifest.defaultSearchConfiguration)) {
                 return;
             }
 
-            entityScoringFields[manifest.entity] = _getDefaultSearchFieldsByEntity(manifest);
+            cacheDefaultUserSearchPreference[manifest.entity] = _getDefaultSearchFieldsByEntity(manifest);
         });
 
-        return entityScoringFields;
+        return cacheDefaultUserSearchPreference;
     }
 
     /**
@@ -143,6 +183,24 @@ export default function createSearchRankingService() {
      */
     function _isValidTerm(searchTerm) {
         return searchTerm && searchTerm.trim().length > 1;
+    }
+
+    /**
+     * @private
+     * @param {undefined|Object} searchFields
+     * @returns {Boolean}
+     */
+    function _isEmptyObject(searchFields) {
+        return !(typeof searchFields === 'object' && Object.keys(searchFields).length > 0);
+    }
+
+    /**
+     * @private
+     * @param {Object} searchFields
+     * @returns {Boolean}
+     */
+    function _isEntitySearchable(searchFields) {
+        return searchFields && searchFields._searchable;
     }
 
     /**
@@ -171,10 +229,6 @@ export default function createSearchRankingService() {
      * @returns {Array}
      */
     function _buildQueryScores(fieldScores, searchTerm) {
-        if (!_isValidTerm(searchTerm)) {
-            return [];
-        }
-
         let terms = searchTerm.split(' ').filter(term => {
             return term.length > 1;
         });
@@ -206,11 +260,15 @@ export default function createSearchRankingService() {
 
     /**
      * @private
-     * @param {Object} searchRankingFields
+     * @param {undefined|Object} searchRankingFields
      * @param {String} root
      * @returns {Array}
      */
     function _scoring(searchRankingFields, root = '') {
+        if (_isEmptyObject(searchRankingFields)) {
+            return {};
+        }
+
         let scores = {};
 
         Object.keys(searchRankingFields).forEach(field => {
@@ -229,5 +287,52 @@ export default function createSearchRankingService() {
         });
 
         return scores;
+    }
+
+    /**
+     * @private
+     * @param {undefined|Object} entityName
+     * @returns {undefined|Object}
+     */
+    function _fetchUserConfig(entityName = undefined) {
+        if (cacheUserSearchConfiguration) {
+            return entityName ? cacheUserSearchConfiguration[entityName] : cacheUserSearchConfiguration;
+        }
+
+        const userConfigService = Service('userConfigService');
+
+        return userConfigService.search([KEY_USER_SEARCH_PREFERENCE]).then((response) => {
+            const value = response.data[KEY_USER_SEARCH_PREFERENCE];
+            if (!value) {
+                return undefined;
+            }
+
+            cacheUserSearchConfiguration = Object.assign({}, ...value);
+            if (entityName) {
+                return cacheUserSearchConfiguration[entityName];
+            }
+
+            return cacheUserSearchConfiguration;
+        });
+    }
+
+
+    /**
+     * @param {String} entityName
+     * @returns {Object}
+     */
+    function _getModule(entityName) {
+        if (cacheModules[entityName]) {
+            return cacheModules[entityName];
+        }
+
+        const module = Module.getModuleByEntityName(entityName);
+        if (module === undefined) {
+            throw new Error(`search-ranking.service - Can not get module by the entity name is ${entityName}`);
+        }
+
+        cacheModules[entityName] = module.manifest;
+
+        return cacheModules[entityName];
     }
 }

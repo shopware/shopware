@@ -9,6 +9,7 @@
       }
     },
     "defaultSearchConfiguration": {
+      "_searchable": true,
       "name": {
         "_searchable": true,
         "_score": 500
@@ -26,6 +27,7 @@
       }
     },
     "defaultSearchConfiguration": {
+      "_searchable": true,
       "name": {
         "_searchable": true,
         "_score": 500
@@ -42,8 +44,26 @@
       }
     },
     "defaultSearchConfiguration": {
+      "_searchable": true,
       "name": {
         "_searchable": false,
+        "_score": 500
+      }
+    }
+  },
+  {
+    "name": "cms-module",
+    "entity": "cms_page",
+    "routes": {
+      "index": {
+        "path": "index",
+        "component": "sw-index"
+      }
+    },
+    "defaultSearchConfiguration": {
+      "_searchable": false,
+      "name": {
+        "_searchable": true,
         "_score": 500
       }
     }

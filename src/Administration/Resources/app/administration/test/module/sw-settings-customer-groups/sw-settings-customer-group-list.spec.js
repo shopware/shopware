@@ -2,6 +2,7 @@ import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/module/sw-settings-customer-group/page/sw-settings-customer-group-list';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
+import flushPromises from 'flush-promises';
 
 function createWrapper(privileges = []) {
     const localVue = createLocalVue();
@@ -77,9 +78,9 @@ function createWrapper(privileges = []) {
             },
             searchRankingService: {
                 getSearchFieldsByEntity: () => {
-                    return {
+                    return Promise.resolve({
                         name: searchRankingPoint.HIGH_SEARCH_RANKING
-                    };
+                    });
                 },
                 buildSearchQueriesForEntity: (searchFields, term, criteria) => {
                     return criteria;
@@ -147,7 +148,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
 
     it('should not be able to edit without edit permission', async () => {
         const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const editMenuItem = wrapper.find('.sw-entity-listing__context-menu-edit-action');
         expect(editMenuItem.attributes().disabled).toBeTruthy();
@@ -155,7 +156,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
 
     it('should be able to edit with edit permission', async () => {
         const wrapper = createWrapper(['customer_groups.editor']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const editMenuItem = wrapper.find('.sw-entity-listing__context-menu-edit-action');
         expect(editMenuItem.attributes().disabled).toBeFalsy();
@@ -183,7 +184,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
 
     it('should not be able to delete without delete permission', async () => {
         const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const deleteMenuItem = wrapper.find('.sw-settings-customer-group-list-grid__delete-action');
         expect(deleteMenuItem.attributes().disabled).toBeTruthy();
@@ -191,7 +192,7 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
 
     it('should be able to delete with delete permission', async () => {
         const wrapper = createWrapper(['customer_groups.deleter']);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const deleteMenuItem = wrapper.find('.sw-settings-customer-group-list-grid__delete-action');
         expect(deleteMenuItem.attributes().disabled).toBeFalsy();
@@ -217,16 +218,6 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
         expect(entityList.attributes()['show-selection']).toBeTruthy();
     });
 
-    it('should get search ranking fields as a computed field', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
-
-        const wrapper = createWrapper();
-
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm.searchRankingFields).toEqual({ name: searchRankingPoint.HIGH_SEARCH_RANKING });
-    });
-
     it('should add query score to the criteria ', async () => {
         global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
 
@@ -237,9 +228,16 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
             return new Criteria();
         });
 
+        wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
+            return {};
+        });
+
         await wrapper.vm.getList();
 
         expect(wrapper.vm.searchRankingService.buildSearchQueriesForEntity).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(1);
+
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity.mockRestore();
+        wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
     });
 });

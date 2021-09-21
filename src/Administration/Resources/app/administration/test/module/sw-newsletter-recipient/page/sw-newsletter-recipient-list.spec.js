@@ -7,6 +7,7 @@ import 'src/app/component/context-menu/sw-context-menu-item';
 
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
+import flushPromises from 'flush-promises';
 
 function mockApiCall(type) {
     switch (type) {
@@ -148,9 +149,9 @@ function createWrapper(privileges = []) {
             },
             searchRankingService: {
                 getSearchFieldsByEntity: () => {
-                    return {
+                    return Promise.resolve({
                         name: searchRankingPoint.HIGH_SEARCH_RANKING
-                    };
+                    });
                 },
                 buildSearchQueriesForEntity: (searchFields, term, criteria) => {
                     return criteria;
@@ -170,7 +171,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
 
     it('should have no rights', async () => {
         const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-entity-listing__context-menu-edit-action').classes().includes('is--disabled')).toBe(true);
         expect(wrapper.find('.sw-entity-listing__context-menu-edit-delete').classes().includes('is--disabled')).toBe(true);
@@ -180,7 +181,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
         const wrapper = createWrapper([
             'newsletter_recipient.editor'
         ]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-entity-listing__context-menu-edit-action').classes().includes('is--disabled')).toBe(false);
         expect(wrapper.find('.sw-entity-listing__context-menu-edit-delete').classes().includes('is--disabled')).toBe(true);
@@ -190,7 +191,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
         const wrapper = createWrapper([
             'newsletter_recipient.deleter'
         ]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-entity-listing__context-menu-edit-action').classes().includes('is--disabled')).toBe(true);
         expect(wrapper.find('.sw-entity-listing__context-menu-edit-delete').classes().includes('is--disabled')).toBe(false);
@@ -201,20 +202,10 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
             'newsletter_recipient.editor',
             'newsletter_recipient.deleter'
         ]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         expect(wrapper.find('.sw-entity-listing__context-menu-edit-action').classes().includes('is--disabled')).toBe(false);
         expect(wrapper.find('.sw-entity-listing__context-menu-edit-delete').classes().includes('is--disabled')).toBe(false);
-    });
-
-    it('should get search ranking fields as a computed field', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
-
-        const wrapper = createWrapper();
-
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm.searchRankingFields).toEqual({ name: searchRankingPoint.HIGH_SEARCH_RANKING });
     });
 
     it('should add query score to the criteria ', async () => {
@@ -226,10 +217,16 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria();
         });
+        wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
+            return {};
+        });
 
         await wrapper.vm.getList();
 
         expect(wrapper.vm.searchRankingService.buildSearchQueriesForEntity).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(1);
+
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity.mockRestore();
+        wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
     });
 });

@@ -1,4 +1,5 @@
 import { email } from 'src/core/service/validation.service';
+import { KEY_USER_SEARCH_PREFERENCE } from 'src/app/service/search-ranking.service';
 import template from './sw-profile-index.html.twig';
 import swProfileState from '../../state/sw-profile.state';
 
@@ -17,6 +18,8 @@ Component.register('sw-profile-index', {
         'acl',
         'feature',
         'searchPreferencesService',
+        'searchRankingService',
+        'userConfigService',
     ],
 
     mixins: [
@@ -469,10 +472,11 @@ Component.register('sw-profile-index', {
             });
 
             this.userSearchPreferences.value = value;
+            this.searchRankingService.clearCacheUserSearchConfiguration();
 
             this.isLoading = true;
             this.isSaveSuccessful = false;
-            return this.userConfigRepository.save(this.userSearchPreferences)
+            return this.userConfigService.upsert({ [KEY_USER_SEARCH_PREFERENCE]: value })
                 .then(() => {
                     this.isLoading = false;
                     this.isSaveSuccessful = true;

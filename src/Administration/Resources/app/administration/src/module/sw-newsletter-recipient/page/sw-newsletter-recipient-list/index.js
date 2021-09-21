@@ -70,7 +70,7 @@ Component.register('sw-newsletter-recipient-list', {
             this.getList();
         },
 
-        getList() {
+        async getList() {
             this.isLoading = true;
             let criteria = new Criteria(this.page, this.limit);
             criteria.setTerm(this.term);
@@ -81,7 +81,7 @@ Component.register('sw-newsletter-recipient-list', {
                 criteria.addFilter(item);
             });
 
-            criteria = this.addQueryScores(this.term, criteria);
+            criteria = await this.addQueryScores(this.term, criteria);
 
             this.repository = this.repositoryFactory.create('newsletter_recipient');
             this.repository.search(criteria).then((searchResult) => {

@@ -59,10 +59,10 @@ Component.register('sw-settings-customer-group-list', {
             this.getList();
         },
 
-        getList() {
+        async getList() {
             this.isLoading = true;
 
-            const criteria = this.addQueryScores(this.term, this.allCustomerGroupsCriteria);
+            const criteria = await this.addQueryScores(this.term, this.allCustomerGroupsCriteria);
 
             this.customerGroupRepository.search(criteria)
                 .then((searchResult) => {

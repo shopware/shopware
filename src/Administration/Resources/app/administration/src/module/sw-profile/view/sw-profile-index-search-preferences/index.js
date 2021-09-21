@@ -40,7 +40,7 @@ Component.register('sw-profile-index-search-preferences', {
             try {
                 const userSearchPreferences = await this.searchPreferencesService.getUserSearchPreferences();
 
-                if (userSearchPreferences.length <= 0) {
+                if (!userSearchPreferences) {
                     this.createUserSearchPreferences();
 
                     const searchPreferences = this.searchPreferencesService.processSearchPreferences(
@@ -51,11 +51,10 @@ Component.register('sw-profile-index-search-preferences', {
                     return;
                 }
 
-                const data = userSearchPreferences.first();
-                State.commit('swProfile/setUserSearchPreferences', data);
+                State.commit('swProfile/setUserSearchPreferences', userSearchPreferences);
 
                 const tempSearchPreferences = this.defaultSearchPreferences.reduce((accumulator, currentValue) => {
-                    const value = data.value.find((item) => {
+                    const value = userSearchPreferences.find((item) => {
                         return Object.keys(item)[0] === Object.keys(currentValue)[0];
                     });
 

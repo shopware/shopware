@@ -47,6 +47,14 @@ function createWrapper(privileges = []) {
                     }
                 })
             },
+            userConfigService: {
+                upsert: () => {
+                    return Promise.resolve();
+                },
+                search: () => {
+                    return Promise.resolve();
+                }
+            },
             acl: {
                 can: (identifier) => {
                     if (!identifier) {

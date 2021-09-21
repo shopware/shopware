@@ -146,14 +146,6 @@ Component.register('sw-search-bar', {
 
             return modules;
         },
-
-        userSearchPreference() {
-            if (!this.feature.isActive('FEATURE_NEXT_6040')) {
-                return {};
-            }
-
-            return this.searchRankingService.getUserSearchPreference();
-        },
     },
 
     watch: {
@@ -391,13 +383,10 @@ Component.register('sw-search-bar', {
             }
         }, 400),
 
-        loadResults(searchTerm) {
+        async loadResults(searchTerm) {
             this.isLoading = true;
             this.results = [];
-            const payload = {};
             if (this.feature.isActive('FEATURE_NEXT_6040')) {
-                payload.query = this.searchRankingService.buildGlobalSearchQueries(this.userSearchPreference, searchTerm);
-
                 const entities = this.getModuleEntities(searchTerm);
 
                 // eslint-disable-next-line no-unused-expressions
@@ -406,55 +395,60 @@ Component.register('sw-search-bar', {
                     total: entities.length,
                     entities,
                 });
-            }
 
-            this.searchService.search({ term: searchTerm }).then((response) => {
-                if (this.feature.isActive('FEATURE_NEXT_6040')) {
-                    const data = response.data;
+                const userSearchPreference = await this.searchRankingService.getUserSearchPreference();
+                const queries = this.searchRankingService.buildGlobalSearchQueries(userSearchPreference, searchTerm);
+                const response = await this.searchService.searchQuery(queries);
+                const data = response.data;
 
-                    if (!data) {
-                        return;
-                    }
-
-                    Object.keys(data).forEach(entity => {
-                        if (this.searchTypes.hasOwnProperty(entity) && data[entity].total > 0) {
-                            const item = data[entity];
-
-                            item.entities = Object.values(item.data);
-                            item.entity = entity;
-
-                            this.results = [
-                                ...this.results,
-                                item,
-                            ];
-                        }
-                    });
-
-                    this.activeResultColumn = 0;
-                    this.activeResultIndex = 0;
-                    this.isLoading = false;
-
+                if (!data) {
                     return;
                 }
 
-                response.data.forEach((item) => {
-                    item.entities = Object.values(item.entities);
-                });
+                Object.keys(data).forEach(entity => {
+                    if (this.searchTypes.hasOwnProperty(entity) && data[entity].total > 0) {
+                        const item = data[entity];
 
-                this.results = response.data.filter(
-                    item => this.searchTypes.hasOwnProperty(item.entity) && item.total > 0,
-                );
+                        item.entities = Object.values(item.data);
+                        item.entity = entity;
+
+                        this.results = [
+                            ...this.results,
+                            item,
+                        ];
+                    }
+                });
 
                 this.activeResultColumn = 0;
                 this.activeResultIndex = 0;
                 this.isLoading = false;
+
+                if (!this.showTypeSelectContainer) {
+                    this.showResultsContainer = true;
+                }
+
+                return;
+            }
+
+            const response = await this.searchService.search({ term: searchTerm });
+            response.data.forEach((item) => {
+                item.entities = Object.values(item.entities);
             });
+
+            this.results = response.data.filter(
+                item => this.searchTypes.hasOwnProperty(item.entity) && item.total > 0,
+            );
+
+            this.activeResultColumn = 0;
+            this.activeResultIndex = 0;
+            this.isLoading = false;
+
             if (!this.showTypeSelectContainer) {
                 this.showResultsContainer = true;
             }
         },
 
-        loadTypeSearchResults(searchTerm) {
+        async loadTypeSearchResults(searchTerm) {
             // If searchType has an "entityService" load by service, otherwise load by entity
             if (this.searchTypes[this.currentSearchType].entityService) {
                 this.loadTypeSearchResultsByService(searchTerm);
@@ -472,14 +466,12 @@ Component.register('sw-search-bar', {
             criteria.setTerm(searchTerm);
             if (this.feature.isActive('FEATURE_NEXT_6040')) {
                 criteria.setLimit(10);
-
-                if (this.userSearchPreference.hasOwnProperty(entityName)) {
-                    criteria = this.searchRankingService.buildSearchQueriesForEntity(
-                        this.userSearchPreference[entityName],
-                        searchTerm,
-                        criteria,
-                    );
-                }
+                const searchRankingFields = await this.searchRankingService.getSearchFieldsByEntity(entityName);
+                criteria = this.searchRankingService.buildSearchQueriesForEntity(
+                    searchRankingFields,
+                    searchTerm,
+                    criteria,
+                );
             }
 
             repository.search(criteria, Shopware.Context.api).then((response) => {

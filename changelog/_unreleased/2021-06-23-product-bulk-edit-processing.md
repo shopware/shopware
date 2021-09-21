@@ -1,7 +1,6 @@
 ---
 title: Product bulk edit processing
 issue: NEXT-15507
-flag: FEATURE_NEXT_6061
 ---
 # Administration
 *  Added `sw-bulk-edit-save-modal`, `sw-bulk-edit-save-modal-confirm`, `sw-bulk-edit-save-modal-process`, `sw-bulk-edit-save-modal-success`, `sw-bulk-edit-save-modal-error` components.

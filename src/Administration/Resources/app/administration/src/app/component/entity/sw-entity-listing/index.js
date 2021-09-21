@@ -6,8 +6,6 @@ const { Criteria } = Shopware.Data;
 Component.extend('sw-entity-listing', 'sw-data-grid', {
     template,
 
-    inject: ['feature'],
-
     props: {
         detailRoute: {
             type: String,
@@ -121,9 +119,6 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
             },
         },
 
-        /**
-         * @internal (flag: FEATURE_NEXT_6061)
-         */
         maximumSelectItems: {
             type: Number,
             required: false,
@@ -195,11 +190,7 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
 
             let selectedIds = null;
 
-            if (this.feature.isActive('FEATURE_NEXT_6061')) {
-                selectedIds = Object.keys(this.selection);
-            } else {
-                selectedIds = Object.values(this.selection).map(selectedProxy => selectedProxy.id);
-            }
+            selectedIds = Object.keys(this.selection);
 
             return this.repository.syncDeleted(selectedIds, this.items.context).then(() => {
                 return this.deleteItemsFinish();

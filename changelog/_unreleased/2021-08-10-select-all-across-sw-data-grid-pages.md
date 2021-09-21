@@ -1,7 +1,6 @@
 ---
 title: Select all across sw-data-grid pages
 issue: NEXT-11545
-flag: FEATURE_NEXT_6061
 ---
 # Administration
 * Changed default `isRecordSelectable` props in `sw-data-grid` component

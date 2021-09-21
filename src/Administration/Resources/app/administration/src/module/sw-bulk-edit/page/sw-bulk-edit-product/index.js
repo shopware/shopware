@@ -722,7 +722,7 @@ Component.register('sw-bulk-edit-product', {
 
             return Promise.all(requests)
                 .then(response => {
-                    const isSuccessful = response.every(item => item.success === true);
+                    const isSuccessful = response.every(item => item.data);
                     this.processStatus = isSuccessful ? 'success' : 'fail';
                 }).catch(() => {
                     this.processStatus = 'fail';

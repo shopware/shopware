@@ -1,7 +1,6 @@
 ---
 title: Bulk edit for basic information of the product
 issue: NEXT-14946
-flag: FEATURE_NEXT_6061
 ---
 # Administration
 *  Added bulk edit components

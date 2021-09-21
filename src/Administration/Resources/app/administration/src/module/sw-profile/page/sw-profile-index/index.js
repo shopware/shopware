@@ -2,7 +2,7 @@ import { email } from 'src/core/service/validation.service';
 import template from './sw-profile-index.html.twig';
 import swProfileState from '../../state/sw-profile.state';
 
-const { Component, Mixin, State, Utils } = Shopware;
+const { Component, Mixin, State } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapState, mapPropertyErrors } = Component.getComponentHelper();
 
@@ -16,6 +16,7 @@ Component.register('sw-profile-index', {
         'repositoryFactory',
         'acl',
         'feature',
+        'searchPreferencesService',
     ],
 
     mixins: [
@@ -439,7 +440,7 @@ Component.register('sw-profile-index', {
                 return {
                     [entityName]: {
                         _searchable,
-                        ...this.getEntitySearchPreferences(fields),
+                        ...this.searchPreferencesService.processSearchPreferencesFields(fields),
                     },
                 };
             });
@@ -447,61 +448,6 @@ Component.register('sw-profile-index', {
             this.userSearchPreferences.value = value;
 
             return this.userConfigRepository.save(this.userSearchPreferences);
-        },
-
-        /**
-        * @description Get search preferences from a particular entity
-        * @param {array} fields
-        * [
-        *   ...
-        *   {
-        *      fieldName: 'company',
-        *      _searchable: true,
-        *      _score: 500,
-        *      group: [
-        *          { fieldName: 'company', _score: 500, _searchable: true },
-        *          { fieldName: 'defaultBillingAddress.company', _score: 500, _searchable: true },
-        *          { fieldName: 'defaultShippingAddress.company', _score: 500, _searchable: true }
-        *       ]
-        *   }
-        *   ...
-        * ]
-        * @returns {object} A transformation from fields
-        * {
-        *    ...
-        *    company: {
-        *        _score: 500,
-        *        _searchable: true
-        *    }
-        *    defaultBillingAddress: {
-        *        company: {
-        *            _score: 500,
-        *            _searchable: true
-        *        }
-        *    }
-        *    defaultShippingAddress: {
-        *        company: {
-        *            _score: 500,
-        *            _searchable: true
-        *        }
-        *    }
-        *    ...
-        * }
-        */
-        getEntitySearchPreferences(fields) {
-            let searchPreferences = {};
-
-            fields.forEach((field) => {
-                field.group.forEach((group) => {
-                    const newSearchPreference = Utils.object.set({}, group.fieldName, {
-                        _searchable: field._searchable,
-                        _score: field._score,
-                    });
-                    searchPreferences = Utils.object.deepMergeObject(searchPreferences, newSearchPreference);
-                });
-            });
-
-            return searchPreferences;
         },
     },
 });

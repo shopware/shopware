@@ -55,7 +55,8 @@ function createWrapper(privileges = []) {
 
                     return privileges.includes(identifier);
                 }
-            }
+            },
+            searchPreferencesService: {}
         }
     });
 }
@@ -73,15 +74,18 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
 
     it('should get user search preferences once component created', async () => {
         const wrapper = createWrapper();
-        wrapper.vm.getUserSearchPreferences = jest.fn(() => Promise.resolve([]));
+        wrapper.vm.searchPreferencesService.getUserSearchPreferences = jest.fn(() => Promise.resolve([]));
 
         await wrapper.vm.createdComponent();
 
-        expect(wrapper.vm.getUserSearchPreferences).toHaveBeenCalledTimes(1);
-        wrapper.vm.getUserSearchPreferences.mockRestore();
+        expect(wrapper.vm.searchPreferencesService.getUserSearchPreferences).toHaveBeenCalledTimes(1);
+        wrapper.vm.searchPreferencesService.getUserSearchPreferences.mockRestore();
     });
 
     it('should be able to select all', async () => {
+        const wrapper = createWrapper();
+        wrapper.vm.acl.can = jest.fn(() => true);
+
         await Shopware.State.commit('swProfile/setSearchPreferences', [{
             entityName: 'product',
             _searchable: false,
@@ -94,9 +98,6 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
                 }
             ]
         }]);
-
-        const wrapper = createWrapper();
-        wrapper.vm.acl.can = jest.fn(() => true);
 
         wrapper.find(
             '.sw-profile-index-search-preferences-searchable-elements__button-select-all'
@@ -121,6 +122,9 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
     });
 
     it('should not be able to select all', async () => {
+        const wrapper = createWrapper();
+        wrapper.vm.acl.can = jest.fn(() => false);
+
         await Shopware.State.commit('swProfile/setSearchPreferences', [{
             entityName: 'product',
             _searchable: false,
@@ -133,9 +137,6 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
                 }
             ]
         }]);
-
-        const wrapper = createWrapper();
-        wrapper.vm.acl.can = jest.fn(() => false);
 
         wrapper.find(
             '.sw-profile-index-search-preferences-searchable-elements__button-select-all'
@@ -160,6 +161,9 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
     });
 
     it('should be able to deselect all', async () => {
+        const wrapper = createWrapper();
+        wrapper.vm.acl.can = jest.fn(() => true);
+
         await Shopware.State.commit('swProfile/setSearchPreferences', [{
             entityName: 'product',
             _searchable: true,
@@ -172,9 +176,6 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
                 }
             ]
         }]);
-
-        const wrapper = createWrapper();
-        wrapper.vm.acl.can = jest.fn(() => true);
 
         wrapper.find(
             '.sw-profile-index-search-preferences-searchable-elements__button-deselect-all'
@@ -199,6 +200,9 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
     });
 
     it('should not be able to deselect all', async () => {
+        const wrapper = createWrapper();
+        wrapper.vm.acl.can = jest.fn(() => false);
+
         await Shopware.State.commit('swProfile/setSearchPreferences', [{
             entityName: 'product',
             _searchable: true,
@@ -211,9 +215,6 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
                 }
             ]
         }]);
-
-        const wrapper = createWrapper();
-        wrapper.vm.acl.can = jest.fn(() => false);
 
         wrapper.find(
             '.sw-profile-index-search-preferences-searchable-elements__button-deselect-all'

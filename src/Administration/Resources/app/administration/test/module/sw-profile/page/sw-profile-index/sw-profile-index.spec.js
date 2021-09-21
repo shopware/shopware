@@ -38,7 +38,8 @@ function createWrapper(privileges = []) {
             userService: {
                 getUser: () => Promise.resolve()
             },
-            mediaDefaultFolderService: {}
+            mediaDefaultFolderService: {},
+            searchPreferencesService: {}
         }
     });
 }

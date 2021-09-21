@@ -12,7 +12,7 @@ const { Criteria } = Shopware.Data;
  * @status ready
  * @example-type code-only
  * @component-example
- * <sw-language-switch></sw-language-info>
+ * <sw-language-switch></sw-language-switch>
  */
 Component.register('sw-language-switch', {
     template,
@@ -28,17 +28,15 @@ Component.register('sw-language-switch', {
             required: false,
             default: true,
         },
-        // FIXME: add default value
-        // eslint-disable-next-line vue/require-default-prop
         abortChangeFunction: {
             type: Function,
             required: false,
+            default: () => {},
         },
-        // FIXME: add default value for example `default: () => { console.debug('implement me'); }
-        // eslint-disable-next-line vue/require-default-prop
         saveChangesFunction: {
             type: Function,
             required: false,
+            default: () => {},
         },
         savePermission: {
             type: Boolean,

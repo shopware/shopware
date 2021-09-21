@@ -29,7 +29,7 @@ describe('Order: Test order state', () => {
     });
 
     it('@base @order: edit order state', () => {
-        // skip for feature FEATURE_NEXT_7530, this test is reactivated again with NEXT-16675
+        // skip for feature FEATURE_NEXT_7530, this test is reactivated again with NEXT-16682
         cy.skipOnFeature('FEATURE_NEXT_7530');
 
         const page = new OrderPageObject();
@@ -53,7 +53,7 @@ describe('Order: Test order state', () => {
         page.setOrderState({
             stateTitle: 'Reminded',
             type: 'payment',
-            signal: 'progress',
+            signal: 'neutral',
             call: 'remind'
         });
 
@@ -143,7 +143,7 @@ describe('Order: Test order state', () => {
     });
 
     it('@order: check order history', () => {
-        // skip for feature FEATURE_NEXT_7530, this test is reactivated again with NEXT-16675
+        // skip for feature FEATURE_NEXT_7530, this test is reactivated again with NEXT-16682
         cy.skipOnFeature('FEATURE_NEXT_7530');
 
         const page = new OrderPageObject();
@@ -207,7 +207,7 @@ describe('Order: Test order state', () => {
         page.checkOrderHistoryEntry({
             stateTitle: 'Reminded',
             type: 'payment',
-            signal: 'progress',
+            signal: 'warning',
             position: 1
         });
 

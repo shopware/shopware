@@ -39,7 +39,7 @@ describe('src/app/service/state-style.service.js', () => {
         expect(placeholder.hasOwnProperty('variant')).toBe(true);
         expect(placeholder.variant).toEqual('neutral');
         expect(placeholder.hasOwnProperty('colorCode')).toBe(true);
-        expect(placeholder.colorCode).toEqual('#d1d9e0');
+        expect(placeholder.colorCode).toEqual('#94a6b8');
     });
 
     it('should return placeholder for non existing state', () => {
@@ -82,31 +82,35 @@ describe('src/app/service/state-style.service.js', () => {
         const stateStyleService = StateStyleService();
         const stateMachineForTesting = 'test-state-machine';
         const colorCodeMapping = {
-            neutral: '#d1d9e0',
-            progress: '#ffb75d',
-            danger: '#de294c',
-            done: '#37d046'
+            neutral: '#94a6b8',
+            progress: '#189eff',
+            done: '#37d046',
+            warning: '#ffab22',
+            danger: '#de294c'
         };
 
         const colorMapping = {
             neutral: 'neutral',
             progress: 'progress',
-            danger: 'danger',
-            done: 'success'
+            done: 'success',
+            warning: 'warning',
+            danger: 'danger'
         };
 
         const iconMapping = {
             neutral: 'small-arrow-small-down',
             progress: 'small-default-circle-small',
-            danger: 'small-default-x-line-small',
-            done: 'small-default-checkmark-line-small'
+            done: 'small-default-checkmark-line-small',
+            warning: 'small-arrow-small-down',
+            danger: 'small-default-x-line-small'
         };
 
         const variantMapping = {
             neutral: 'neutral',
             progress: 'info',
-            danger: 'danger',
-            done: 'success'
+            done: 'success',
+            warning: 'warning',
+            danger: 'danger'
         };
 
         Object.keys(variantMapping).forEach((key) => {

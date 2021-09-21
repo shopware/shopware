@@ -25,6 +25,7 @@ import './component/sw-order-state-change-modal/sw-order-state-change-modal-atta
 import './component/sw-order-state-history-card';
 import './component/sw-order-state-history-card-entry';
 import './component/sw-order-state-select';
+import './component/sw-order-state-select-v2';
 import './component/sw-order-inline-field';
 import './component/sw-order-user-card';
 import './component/sw-order-document-card';

@@ -15,36 +15,39 @@ export default function createStateStyleService() {
             iconBackgroundStyle: 'sw-order-state__bg-neutral-icon-bg',
             selectBackgroundStyle: 'sw-order-state__bg-neutral-select',
             variant: 'neutral',
-            colorCode: '#d1d9e0',
+            colorCode: '#94a6b8',
         },
     };
 
     const $icons = {
         neutral: 'small-arrow-small-down',
         progress: 'small-default-circle-small',
-        danger: 'small-default-x-line-small',
         done: 'small-default-checkmark-line-small',
+        danger: 'small-default-x-line-small',
     };
 
     const $colors = {
         neutral: 'sw-order-state__neutral',
         progress: 'sw-order-state__progress',
-        danger: 'sw-order-state__danger',
         done: 'sw-order-state__success',
+        warning: 'sw-order-state__warning',
+        danger: 'sw-order-state__danger',
     };
 
     const $colorCodes = {
-        neutral: '#d1d9e0',
-        progress: '#ffb75d',
-        danger: '#de294c',
+        neutral: '#94a6b8',
+        progress: '#189eff',
         done: '#37d046',
+        warning: '#ffab22',
+        danger: '#de294c',
     };
 
     const $variants = {
         neutral: 'neutral',
         progress: 'info',
-        danger: 'danger',
         done: 'success',
+        warning: 'warning',
+        danger: 'danger',
     };
 
     return {

@@ -7,9 +7,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Symfony\Contracts\EventDispatcher\Event;
 
-/**
- * @internal (flag:FEATURE_NEXT_8225)
- */
 class FlowEvent extends Event
 {
     private FlowState $state;

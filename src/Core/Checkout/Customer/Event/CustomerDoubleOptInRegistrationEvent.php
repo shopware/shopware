@@ -93,9 +93,6 @@ class CustomerDoubleOptInRegistrationEvent extends Event implements MailActionIn
         return $this->salesChannelContext->getContext();
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_8225)
-     */
     public function getCustomerId(): string
     {
         return $this->getCustomer()->getId();

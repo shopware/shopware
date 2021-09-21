@@ -1,7 +1,6 @@
 ---
 title: Improvement performance for trigger flow
 issue: NEXT-15742
-flag: FEATURE_NEXT_8225
 ---
 # Core
 * Added `FlowIndexer`, `FlowIndexingMessage` and `FlowPayloadUpdater` class at `Shopware\Core\Content\Flow\DataAbstractionLayer`.
@@ -12,4 +11,3 @@ flag: FEATURE_NEXT_8225
 * Added `FlowEvent` class at `Shopware\Core\Framework\Event`.
 * Added `SequenceTree` and `SequenceTreeCollection` classes at `Shopware\Core\Content\Flow\SequenceTree`.
 * Added `StopFlowAction` class at `Shopware\Core\Content\Flow\Action`.
-* Deprecated `BusinessEvent` class at `Shopware\Core\Framework\Event`.

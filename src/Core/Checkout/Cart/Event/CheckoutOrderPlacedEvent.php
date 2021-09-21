@@ -44,9 +44,6 @@ class CheckoutOrderPlacedEvent extends Event implements MailActionInterface, Sal
         return $this->order;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_8225)
-     */
     public function getOrderId(): string
     {
         return $this->order->getId();

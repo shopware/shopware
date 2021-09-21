@@ -15,13 +15,9 @@ use Shopware\Core\Content\Flow\Dispatching\Struct\IfSequence;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 
-/**
- * @internal (flag:FEATURE_NEXT_8225)
- */
 class FlowPayloadUpdaterTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -34,8 +30,6 @@ class FlowPayloadUpdaterTest extends TestCase
 
     protected function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_8225', $this);
-
         $this->flowRepository = $this->getContainer()->get('flow.repository');
 
         $this->connection = $this->getContainer()->get(Connection::class);

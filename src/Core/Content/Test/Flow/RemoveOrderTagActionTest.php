@@ -14,22 +14,16 @@ use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Content\Flow\Dispatching\Action\RemoveOrderTagAction;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 
-/**
- * @internal (flag:FEATURE_NEXT_8225)
- */
 class RemoveOrderTagActionTest extends TestCase
 {
     use OrderActionTrait;
 
     protected function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_8225', $this);
-
         $this->flowRepository = $this->getContainer()->get('flow.repository');
 
         $this->connection = $this->getContainer()->get(Connection::class);

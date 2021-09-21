@@ -4,10 +4,6 @@ import SettingsPageObject from '../../../support/pages/module/sw-settings.page-o
 
 describe('Flow builder: Test acl privilege', () => {
     // eslint-disable-next-line no-undef
-    before(() => {
-        cy.onlyOnFeature('FEATURE_NEXT_8225');
-    });
-
     beforeEach(() => {
         cy.setToInitialState().then(() => {
             cy.loginViaApi();

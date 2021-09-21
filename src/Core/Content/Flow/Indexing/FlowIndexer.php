@@ -19,9 +19,6 @@ use Shopware\Core\Framework\Plugin\Event\PluginPostUpdateEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @internal (flag:FEATURE_NEXT_8225)
- */
 class FlowIndexer extends EntityIndexer implements EventSubscriberInterface
 {
     private IteratorFactory $iteratorFactory;

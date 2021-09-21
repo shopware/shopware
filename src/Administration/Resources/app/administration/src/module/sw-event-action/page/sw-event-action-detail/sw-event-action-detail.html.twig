@@ -206,9 +206,7 @@
         </sw-card-view>
 
         {% block sw_event_action_list_deprecated_alert %}
-        <sw-event-action-deprecated-alert
-            v-if="feature.isActive('FEATURE_NEXT_8225')"
-        />
+        <sw-event-action-deprecated-alert />
         {% endblock %}
 
     </template>

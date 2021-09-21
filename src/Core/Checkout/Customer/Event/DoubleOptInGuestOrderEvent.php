@@ -93,9 +93,6 @@ class DoubleOptInGuestOrderEvent extends Event implements MailActionInterface, S
         return $this->salesChannelContext->getContext();
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_8225)
-     */
     public function getCustomerId(): string
     {
         return $this->getCustomer()->getId();

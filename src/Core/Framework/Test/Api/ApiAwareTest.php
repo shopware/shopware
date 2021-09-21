@@ -6,7 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -51,13 +50,6 @@ class ApiAwareTest extends TestCase
         $expected = file_get_contents(__DIR__ . '/fixtures/api-aware-fields.json');
 
         $expected = json_decode($expected, true);
-
-        if (Feature::isActive('FEATURE_NEXT_8225')) {
-            $expected[] = 'flow.createdAt';
-            $expected[] = 'flow.updatedAt';
-            $expected[] = 'flow_sequence.createdAt';
-            $expected[] = 'flow_sequence.updatedAt';
-        }
 
         if ($this->getContainer()->has(ThemeDefinition::class)) {
             $expected = array_merge(

@@ -17,8 +17,6 @@ describe('Flow builder: Visual testing', () => {
     });
 
     it('@visual: @check appearance of flow builder workflow', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_8225');
-
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/flow`,
             method: 'POST'

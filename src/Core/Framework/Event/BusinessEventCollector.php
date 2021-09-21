@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Event;
 
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\LogAwareBusinessEventInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -75,26 +74,14 @@ class BusinessEventCollector
             return null;
         }
 
-        if (Feature::isActive('FEATURE_NEXT_8225')) {
-            /** @var array $interfaces */
-            $interfaces = class_implements($instance);
+        /** @var array $interfaces */
+        $interfaces = class_implements($instance);
 
-            $aware = [];
-            foreach ($interfaces as $interface) {
-                if (is_subclass_of($interface, FlowEventAware::class) && $interface !== FlowEventAware::class) {
-                    $aware[] = $interface;
-                }
+        $aware = [];
+        foreach ($interfaces as $interface) {
+            if (is_subclass_of($interface, FlowEventAware::class) && $interface !== FlowEventAware::class) {
+                $aware[] = $interface;
             }
-
-            return new BusinessEventDefinition(
-                $name,
-                $class,
-                $instance instanceof MailActionInterface,
-                $instance instanceof LogAwareBusinessEventInterface,
-                $instance instanceof SalesChannelAware,
-                $instance::getAvailableData()->toArray(),
-                $aware
-            );
         }
 
         return new BusinessEventDefinition(
@@ -103,7 +90,8 @@ class BusinessEventCollector
             $instance instanceof MailActionInterface,
             $instance instanceof LogAwareBusinessEventInterface,
             $instance instanceof SalesChannelAware,
-            $instance::getAvailableData()->toArray()
+            $instance::getAvailableData()->toArray(),
+            $aware
         );
     }
 }

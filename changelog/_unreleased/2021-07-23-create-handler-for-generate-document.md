@@ -1,7 +1,6 @@
 ---
 title: Create handler for generate document
 issue: NEXT_15156
-flag: FEATURE_NEXT_8225
 ---
 # Core
 * Added a new constant `GENERATE_DOCUMENT` in `Shopware\Core\Content\Flow\Action\FlowAction`.

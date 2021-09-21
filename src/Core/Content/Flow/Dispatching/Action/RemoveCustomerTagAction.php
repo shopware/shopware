@@ -6,9 +6,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\FlowEvent;
 
-/**
- * @internal (flag:FEATURE_NEXT_8225)
- */
 class RemoveCustomerTagAction extends FlowAction
 {
     private EntityRepositoryInterface $customerTagRepository;

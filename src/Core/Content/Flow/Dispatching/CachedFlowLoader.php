@@ -10,7 +10,7 @@ use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @internal (flag:FEATURE_NEXT_8225) - Internal used for FlowBuilder feature
+ * @internal not intended for decoration or replacement
  */
 class CachedFlowLoader extends AbstractFlowLoader implements EventSubscriberInterface
 {

@@ -1,7 +1,6 @@
 ---
 title: Create flow and flow sequence DAL for flow builder
 issue: NEXT-15110
-flag: FEATURE_NEXT_8225
 ---
 # Core
 * Added two new tables `flow` and `flow_sequence` to stored flow and flow sequence data for Flow Builder.

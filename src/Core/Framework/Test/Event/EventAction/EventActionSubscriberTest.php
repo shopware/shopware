@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @feature-deprecated (flag:FEATURE_NEXT_8225) tag:v6.5.0 - Will be removed in v6.5.0.
+ * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
  */
 class EventActionSubscriberTest extends TestCase
 {
@@ -18,7 +18,9 @@ class EventActionSubscriberTest extends TestCase
 
     public function testDeleteCascade(): void
     {
-        static::markTestSkipped('The data has been moved from Business events to Flow builder');
+        if (Feature::isActive('FEATURE_NEXT_17858')) {
+            static::markTestSkipped('Business Event is deprecated since v4.5.6.0, flag FEATURE_NEXT_17858');
+        }
 
         $sql = '
             SELECT LOWER(HEX(id)) as id, JSON_UNQUOTE(JSON_EXTRACT(event_action.config, "$.mail_template_id")) as mail_id

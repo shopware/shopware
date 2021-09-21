@@ -93,9 +93,6 @@ class CustomerGroupRegistrationAccepted extends Event implements MailActionInter
         return $this->customerGroup;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_8225)
-     */
     public function getCustomerId(): string
     {
         return $this->getCustomer()->getId();

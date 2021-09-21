@@ -12,8 +12,6 @@ use Shopware\Core\Framework\Struct\Collection;
  * @method FlowActionDefinition|null get(string $key)
  * @method FlowActionDefinition|null first()
  * @method FlowActionDefinition|null last()
- *
- * @internal (flag:FEATURE_NEXT_8225)
  */
 class FlowActionCollectorResponse extends Collection
 {

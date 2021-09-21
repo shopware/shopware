@@ -16,8 +16,6 @@ describe('Flow builder: set order status testing', () => {
     });
 
     it('@settings: set order state flow', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_8225');
-
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/flow/index`);
 
         cy.intercept({

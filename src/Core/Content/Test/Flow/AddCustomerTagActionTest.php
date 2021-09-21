@@ -12,7 +12,6 @@ use Shopware\Core\Content\Flow\Dispatching\FlowLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -21,9 +20,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
-/**
- * @internal (flag:FEATURE_NEXT_8225)
- */
 class AddCustomerTagActionTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -44,8 +40,6 @@ class AddCustomerTagActionTest extends TestCase
 
     protected function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_8225', $this);
-
         $this->flowRepository = $this->getContainer()->get('flow.repository');
 
         $this->connection = $this->getContainer()->get(Connection::class);

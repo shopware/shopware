@@ -6,10 +6,11 @@ use Shopware\Core\Content\MailTemplate\MailTemplateEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEvent;
 use Shopware\Core\Framework\Event\ShopwareEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 
 /**
- * @feature-deprecated (flag:FEATURE_NEXT_8225) tag:v6.5.0.0 - Will be removed in v6.5.0.0 Use FlowSendMailActionEvent instead
+ * @deprecated tag:v6.5.0 - Will be removed in v6.5.0 Use FlowSendMailActionEvent instead
  */
 class MailSendSubscriberBridgeEvent implements ShopwareEvent
 {
@@ -21,6 +22,8 @@ class MailSendSubscriberBridgeEvent implements ShopwareEvent
 
     public function __construct(DataBag $dataBag, MailTemplateEntity $mailTemplate, BusinessEvent $businessEvent)
     {
+        Feature::triggerDeprecated('FEATURE_NEXT_17858', 'v6.4.6', 'v6.5.0', 'Will be removed in v6.5.0, use SendMailAction instead.');
+
         $this->dataBag = $dataBag;
         $this->mailTemplate = $mailTemplate;
         $this->businessEvent = $businessEvent;

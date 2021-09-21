@@ -2,7 +2,7 @@ import template from './sw-event-action-list-expand-labels.html.twig';
 import './sw-event-action-list-expand-labels.scss';
 
 /**
- * @major-deprecated (flag:FEATURE_NEXT_8225) - will be removed. Please use `sw-flow` - Flow builder instead.
+ * @deprecated tag:v6.5.0 - Will be removed in v6.5.0. Please use `sw-flow` - Flow builder instead.
  */
 Shopware.Component.register('sw-event-action-list-expand-labels', {
     template,

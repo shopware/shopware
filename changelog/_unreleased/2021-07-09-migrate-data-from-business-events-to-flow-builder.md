@@ -1,7 +1,6 @@
 ---
 title: Migrate data from Business events to Flow builder
 issue: NEXT-15106
-flag: FEATURE_NEXT_8225
 ---
 # Core
 * Added new table `sales_channel_rule`.

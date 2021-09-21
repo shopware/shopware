@@ -8,9 +8,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
-/**
- * @internal (flag:FEATURE_NEXT_8225)
- */
 class FlowEntity extends Entity
 {
     use EntityIdTrait;

@@ -16,8 +16,6 @@ describe('Flow builder: generate document testing', () => {
     });
 
     it('@settings: generate document flow', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_8225');
-
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/flow/index`);
 
         cy.intercept({

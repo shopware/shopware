@@ -4,9 +4,6 @@ namespace Shopware\Core\Content\Flow\Dispatching;
 
 use Shopware\Core\Framework\Event\FlowEventAware;
 
-/**
- * @internal (flag:FEATURE_NEXT_8225)
- */
 class FlowState
 {
     public string $flowId;

@@ -1,7 +1,6 @@
 ---
 title: Implement base code for trigger flow builder
 issue: NEXT-15107
-flag: FEATURE_NEXT_8225
 ---
 # Core
 * Added `FlowExecutor` and `FlowState` classes at `Shopware\Core\Content\Flow`.

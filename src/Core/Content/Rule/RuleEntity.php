@@ -64,7 +64,7 @@ class RuleEntity extends Entity
     protected $paymentMethods;
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_8225) tag:v6.5.0 - Will be removed in v6.5.0.
+     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
      *
      * @var EventActionCollection|null
      */
@@ -107,8 +107,6 @@ class RuleEntity extends Entity
 
     /**
      * @var FlowSequenceCollection|null
-     *
-     * @internal (flag:FEATURE_NEXT_8225)
      */
     protected $flowSequences;
 
@@ -280,17 +278,11 @@ class RuleEntity extends Entity
         $this->personaPromotions = $personaPromotions;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_8225)
-     */
     public function getFlowSequences(): ?FlowSequenceCollection
     {
         return $this->flowSequences;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_8225)
-     */
     public function setFlowSequences(FlowSequenceCollection $flowSequences): void
     {
         $this->flowSequences = $flowSequences;
@@ -333,21 +325,21 @@ class RuleEntity extends Entity
     }
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_8225) tag:v6.5.0 - Will be removed in v6.5.0.
+     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
      */
     public function getEventActions(): ?EventActionCollection
     {
-        Feature::triggerDeprecated('FEATURE_NEXT_8225', '6.4.0', '6.5.0', 'Will be removed in version 6.5.0.');
+        Feature::triggerDeprecated('FEATURE_NEXT_17858', 'v6.4.6', 'v6.5.0', 'Will be removed in version 6.5.0.');
 
         return $this->eventActions;
     }
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_8225) tag:v6.5.0 - Will be removed in v6.5.0.
+     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
      */
     public function setEventActions(EventActionCollection $eventActions): void
     {
-        Feature::triggerDeprecated('FEATURE_NEXT_8225', '6.4.0', '6.5.0', 'Will be removed in version 6.5.0.');
+        Feature::triggerDeprecated('FEATURE_NEXT_17858', 'v6.4.6', 'v6.5.0', 'Will be removed in version 6.5.0.');
 
         $this->eventActions = $eventActions;
     }

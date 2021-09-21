@@ -19,9 +19,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
-/**
- * @internal (flag:FEATURE_NEXT_8225)
- */
 class FlowDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'flow';
@@ -51,7 +48,7 @@ class FlowDefinition extends EntityDefinition
 
     public function since(): ?string
     {
-        return '6.4.5.0';
+        return '6.4.6.0';
     }
 
     protected function defineFields(): FieldCollection

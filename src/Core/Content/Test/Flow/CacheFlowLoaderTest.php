@@ -7,7 +7,6 @@ use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Content\Flow\Dispatching\CachedFlowLoader;
 use Shopware\Core\Content\Flow\FlowEvents;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -18,8 +17,6 @@ class CacheFlowLoaderTest extends TestCase
 
     public function testGetSubscribedEvents(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_8225', $this);
-
         static::assertEquals([
             FlowEvents::FLOW_WRITTEN_EVENT => 'invalidate',
         ], CachedFlowLoader::getSubscribedEvents());
@@ -27,8 +24,6 @@ class CacheFlowLoaderTest extends TestCase
 
     public function testClearFlowCache(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_8225', $this);
-
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 

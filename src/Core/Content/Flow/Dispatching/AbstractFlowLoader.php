@@ -3,7 +3,7 @@
 namespace Shopware\Core\Content\Flow\Dispatching;
 
 /**
- * @internal (flag:FEATURE_NEXT_8225) - Internal used for FlowBuilder feature
+ * @internal not intended for decoration or replacement
  */
 abstract class AbstractFlowLoader
 {

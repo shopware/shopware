@@ -85,9 +85,6 @@ class OrderStateMachineStateChangeEvent extends Event implements MailActionInter
         return $this->name;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_8225)
-     */
     public function getOrderId(): string
     {
         return $this->getOrder()->getId();

@@ -15,7 +15,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @internal (flag:FEATURE_NEXT_8225) - Internal used for FlowBuilder feature
+ * @internal not intended for decoration or replacement
  */
 class FlowDispatcher implements EventDispatcherInterface
 {

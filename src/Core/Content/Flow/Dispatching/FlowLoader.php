@@ -8,7 +8,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
 /**
- * @internal (flag:FEATURE_NEXT_8225) - Internal used for FlowBuilder feature
+ * @internal not intended for decoration or replacement
  */
 class FlowLoader extends AbstractFlowLoader
 {

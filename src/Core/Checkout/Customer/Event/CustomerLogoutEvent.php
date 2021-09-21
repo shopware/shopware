@@ -65,9 +65,6 @@ class CustomerLogoutEvent extends Event implements BusinessEventInterface, Sales
             ->add('customer', new EntityType(CustomerDefinition::class));
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_8225)
-     */
     public function getCustomerId(): string
     {
         return $this->getCustomer()->getId();

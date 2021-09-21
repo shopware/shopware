@@ -25,7 +25,6 @@ const { Module, State } = Shopware;
 State.registerModule('swFlowState', flowState);
 
 Module.register('sw-flow', {
-    flag: 'FEATURE_NEXT_8225',
     type: 'core',
     name: 'flow',
     title: 'sw-flow.general.mainMenuItemGeneral',

@@ -11,13 +11,9 @@ use Shopware\Core\Content\Flow\Dispatching\Action\AddOrderTagAction;
 use Shopware\Core\Content\Flow\Dispatching\Action\RemoveOrderTagAction;
 use Shopware\Core\Content\Flow\Dispatching\FlowLoader;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-/**
- * @internal (flag:FEATURE_NEXT_8225)
- */
 class AddOrderTagActionTest extends TestCase
 {
     use OrderActionTrait;
@@ -26,8 +22,6 @@ class AddOrderTagActionTest extends TestCase
 
     protected function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_8225', $this);
-
         $this->flowRepository = $this->getContainer()->get('flow.repository');
 
         $this->connection = $this->getContainer()->get(Connection::class);

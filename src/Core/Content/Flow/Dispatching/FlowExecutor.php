@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Event\FlowEventAware;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @internal (flag:FEATURE_NEXT_8225) - Internal used for FlowBuilder feature
+ * @internal not intended for decoration or replacement
  */
 class FlowExecutor
 {

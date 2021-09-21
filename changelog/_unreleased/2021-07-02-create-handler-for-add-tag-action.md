@@ -1,7 +1,6 @@
 ---
 title: create-handler-for-add-tag-action
 issue: NEXT-15155
-flag: FEATURE_NEXT_8225
 ---
 # Core
 * Added `AddCustomerTagAction` class at `Shopware\Core\Content\Flow\Action` which used to add a list of tags for customers.

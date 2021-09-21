@@ -113,17 +113,11 @@ class CustomerAccountRecoverRequestEvent extends Event implements MailActionInte
         return $this->shopName;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_8225)
-     */
     public function getCustomer(): ?CustomerEntity
     {
         return $this->customerRecovery->getCustomer();
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_8225)
-     */
     public function getCustomerId(): string
     {
         return $this->getCustomerRecovery()->getCustomerId();

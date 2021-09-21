@@ -4,9 +4,6 @@ namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
 use Shopware\Core\Framework\Event\FlowEvent;
 
-/**
- * @internal (flag:FEATURE_NEXT_8225)
- */
 class StopFlowAction extends FlowAction
 {
     public static function getName(): string

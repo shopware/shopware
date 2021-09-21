@@ -11,11 +11,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\Event\EventAction\EventActionCollection;
 use Shopware\Core\Framework\Event\EventAction\EventActionDefinition;
+use Shopware\Core\Framework\Feature;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @feature-deprecated (flag:FEATURE_NEXT_8225) tag:v6.5.0 - Will be removed in v6.5.0, use FlowDispatcher instead.
+ * @deprecated tag:v6.5.0 - Will be removed in v6.5.0, use FlowDispatcher instead.
  */
 class BusinessEventDispatcher implements EventDispatcherInterface
 {
@@ -46,7 +47,13 @@ class BusinessEventDispatcher implements EventDispatcherInterface
 
     public function dispatch($event, ?string $eventName = null): object
     {
+        Feature::triggerDeprecated('FEATURE_NEXT_17858', 'v6.4.6', '6.5.0', 'Will be removed in v6.5.0, use FlowDispatcher instead.');
+
         $event = $this->dispatcher->dispatch($event, $eventName);
+
+        if (Feature::isActive('FEATURE_NEXT_17858')) {
+            return $event;
+        }
 
         if (!$event instanceof BusinessEventInterface || $event instanceof FlowEvent) {
             return $event;

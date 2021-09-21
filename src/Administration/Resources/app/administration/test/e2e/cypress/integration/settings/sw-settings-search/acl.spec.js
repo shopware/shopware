@@ -76,10 +76,9 @@ describe('Search: Test ACL privileges', () => {
         });
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/*`,
-            method: 'post'
+            method: 'POST'
         }).as('editSearchConfigs');
 
         // search behaviour should not be allowed to edit
@@ -93,9 +92,8 @@ describe('Search: Test ACL privileges', () => {
         cy.get('.sw-settings-search__button-save').click();
 
         // Verify update
-        cy.wait('@editSearchConfigs').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@editSearchConfigs')
+            .its('response.statusCode').should('equal', 200);
         cy.awaitAndCheckNotification('Configuration saved.');
     });
 
@@ -118,10 +116,9 @@ describe('Search: Test ACL privileges', () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: '/api/product-search-config-field/*',
-            method: 'patch'
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/product-search-config-field/*`,
+            method: 'PATCH'
         }).as('updateSearchConfig');
 
         cy.get('.sw-settings-search__searchable-content-general ' +
@@ -136,9 +133,8 @@ describe('Search: Test ACL privileges', () => {
         cy.get('.sw-settings-search__searchable-content-general ' +
             `${page.elements.dataGridRowInlineEdit}`).click();
 
-        cy.wait('@updateSearchConfig').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@updateSearchConfig')
+            .its('response.statusCode').should('equal', 204);
 
         // Check ranking points already updated
         cy.get('.sw-settings-search__searchable-content-general ' +
@@ -164,10 +160,9 @@ describe('Search: Test ACL privileges', () => {
 
         const page = new SettingsPageObject();
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: '/api/product-search-config-field/*',
-            method: 'patch'
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/product-search-config-field/*`,
+            method: 'PATCH'
         }).as('updateSearchConfig');
 
         cy.get('.sw-settings-search__view-general .sw-card:nth-child(2)').scrollIntoView();
@@ -183,15 +178,14 @@ describe('Search: Test ACL privileges', () => {
         cy.get('.sw-settings-search__searchable-content-general ' +
             `${page.elements.dataGridRowInlineEdit}`).click();
 
-        cy.wait('@updateSearchConfig').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@updateSearchConfig')
+            .its('response.statusCode').should('equal', 204);
         cy.awaitAndCheckNotification('Configuration saved.');
 
         cy.get('.sw-settings-search__searchable-content-reset-button').click();
-        cy.wait('@updateSearchConfig').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+
+        cy.wait('@updateSearchConfig')
+            .its('response.statusCode').should('equal', 204);
         cy.awaitAndCheckNotification('Configuration saved.');
 
         // Check ranking points already reset
@@ -224,24 +218,22 @@ describe('Search: Test ACL privileges', () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: '/api/product-search-config-field',
-            method: 'post'
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/product-search-config-field`,
+            method: 'POST'
         }).as('createSearchConfig');
 
-        cy.route({
-            url: '/api/search/custom-field',
-            method: 'post'
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/search/custom-field`,
+            method: 'POST'
         }).as('getCustomField');
 
         // change to custom field tab
         cy.get('.sw-settings-search__searchable-content-tab-title').last().click();
         cy.get('.sw-settings-search__view-general .sw-card:nth-child(1)').scrollIntoView();
 
-        cy.wait('@getCustomField').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getCustomField')
+            .its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-settings-search__searchable-content-customfields .sw-empty-state__title')
             .contains('No searchable content added yet.');
@@ -260,10 +252,8 @@ describe('Search: Test ACL privileges', () => {
         cy.get('.sw-settings-search__searchable-content-customfields ' +
             `${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--tokenize input`).click();
         cy.get(`${page.elements.dataGridRowInlineEdit}`).click();
-
-        cy.wait('@createSearchConfig').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@createSearchConfigg')
+            .its('response.statusCode').should('equal', 204);
 
         // Check field already created
         cy.get('.sw-settings-search__searchable-content-customfields ' +
@@ -294,28 +284,25 @@ describe('Search: Test ACL privileges', () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: '/api/product-search-config-field',
-            method: 'post'
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/product-search-config-field`,
+            method: 'POST'
         }).as('createSearchConfig');
-        cy.route({
-            url: '/api/product-search-config-field/*',
-            method: 'patch'
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/product-search-config-field/*`,
+            method: 'PATCH'
         }).as('updateSearchConfig');
 
-        cy.route({
-            url: '/api/search/custom-field',
-            method: 'post'
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/search/custom-field`,
+            method: 'POST'
         }).as('getCustomField');
 
         // change to customfield tab
         cy.get('.sw-settings-search__searchable-content-tab-title').last().click();
         cy.get('.sw-settings-search__view-general .sw-card:nth-child(2)').scrollIntoView();
-
-        cy.wait('@getCustomField').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getCustomField')
+            .its('response.statusCode').should('equal', 200);
 
         // Create a new item first and then update it.
         cy.get('.sw-settings-search__searchable-content-add-button').click();
@@ -333,9 +320,9 @@ describe('Search: Test ACL privileges', () => {
         cy.get('.sw-settings-search__searchable-content-customfields ' +
             `${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--tokenize input`).click();
         cy.get(`${page.elements.dataGridRowInlineEdit}`).click();
-        cy.wait('@createSearchConfig').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+
+        cy.wait('@createSearchConfig')
+            .its('response.statusCode').should('equal', 204);
 
         cy.get('.sw-settings-search__searchable-content-customfields ' +
             `${page.elements.dataGridRow}--0`).dblclick();
@@ -343,10 +330,8 @@ describe('Search: Test ACL privileges', () => {
             `${page.elements.dataGridRow}--0 #sw-field--item-ranking`).clear().type('1000');
 
         cy.get(`${page.elements.dataGridRowInlineEdit}`).click();
-
-        cy.wait('@updateSearchConfig').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@updateSearchConfig')
+            .its('response.statusCode').should('equal', 204);
 
         // Check ranking points already updated
         cy.get('.sw-settings-search__searchable-content-customfields ' +
@@ -377,29 +362,27 @@ describe('Search: Test ACL privileges', () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: '/api/product-search-config-field',
-            method: 'post'
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/product-search-config-field`,
+            method: 'POST'
         }).as('createSearchConfig');
 
-        cy.route({
-            url: '/api/product-search-config-field/*',
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/product-search-config-field/*`,
             method: 'delete'
         }).as('deleteSearchConfig');
 
-        cy.route({
-            url: '/api/search/custom-field',
-            method: 'post'
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/search/custom-field`,
+            method: 'POST'
         }).as('getCustomField');
 
         // change to customfield tab
         cy.get('.sw-settings-search__searchable-content-tab-title').last().click();
         cy.get('.sw-settings-search__view-general .sw-card:nth-child(2)').scrollIntoView();
 
-        cy.wait('@getCustomField').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getCustomField')
+            .its('response.statusCode').should('equal', 200);
 
         // Create a new item first and then delete it.
         cy.get('.sw-settings-search__searchable-content-add-button').click();
@@ -418,9 +401,8 @@ describe('Search: Test ACL privileges', () => {
             `${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--tokenize input`).click();
         cy.get(`${page.elements.dataGridRowInlineEdit}`).click();
 
-        cy.wait('@createSearchConfig').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@createSearchConfig')
+            .its('response.statusCode').should('equal', 204);
 
         cy.get('.sw-settings-search__view-general .sw-card:nth-child(2)').scrollIntoView();
         cy.clickContextMenuItem(
@@ -429,9 +411,8 @@ describe('Search: Test ACL privileges', () => {
             `.sw-settings-search__searchable-content-customfields ${page.elements.dataGridRow}--0`
         );
 
-        cy.wait('@deleteSearchConfig').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteSearchConfig')
+            .its('response.statusCode').should('equal', 204);
 
         cy.get('.sw-empty-state').should('exist');
     });
@@ -449,10 +430,10 @@ describe('Search: Test ACL privileges', () => {
         });
 
         const page = new SettingsPageObject();
-        cy.server();
-        cy.route({
-            url: '/api/product-search-config/*',
-            method: 'patch'
+
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/product-search-config/*`,
+            method: 'PATCH'
         }).as('saveData');
 
         cy.get('.sw-settings-search-excluded-search-terms ' +
@@ -466,9 +447,8 @@ describe('Search: Test ACL privileges', () => {
         cy.get('.sw-settings-search-excluded-search-terms ' +
             `${page.elements.dataGridRow}--0 .sw-button.sw-data-grid__inline-edit-save`).click();
 
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
         cy.awaitAndCheckNotification('Excluded search term created.');
         cy.get('.sw-settings-search-excluded-search-terms ' +
             `${page.elements.dataGridRow}--0 .sw-data-grid__cell-value`).contains('example');
@@ -490,10 +470,9 @@ describe('Search: Test ACL privileges', () => {
         });
 
         const page = new SettingsPageObject();
-        cy.server();
-        cy.route({
-            url: '/api/product-search-config/*',
-            method: 'patch'
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/product-search-config/*`,
+            method: 'PATCH'
         }).as('saveData');
 
         cy.get('.sw-settings-search-excluded-search-terms ' +
@@ -505,9 +484,8 @@ describe('Search: Test ACL privileges', () => {
         cy.get('.sw-settings-search-excluded-search-terms ' +
             `${page.elements.dataGridRow}--0 .sw-button.sw-data-grid__inline-edit-save`).click();
 
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
         cy.awaitAndCheckNotification('Excluded search term updated.');
         cy.get('.sw-settings-search-excluded-search-terms ' +
             `${page.elements.dataGridRow}--0 .sw-data-grid__cell-value`).contains('update');
@@ -525,11 +503,11 @@ describe('Search: Test ACL privileges', () => {
         });
 
         const page = new SettingsPageObject();
-        cy.server();
 
-        cy.route({
-            url: '/api/product-search-config/*',
-            method: 'patch'
+
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/product-search-config/*`,
+            method: 'PATCH'
         }).as('saveData');
 
         // Single delete excluded term
@@ -537,9 +515,8 @@ describe('Search: Test ACL privileges', () => {
             `${page.elements.dataGridRow}--0 .sw-context-button__button`).click();
         cy.get('.sw-context-menu-item.sw-context-menu-item--danger').click();
 
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
         cy.awaitAndCheckNotification('Excluded search term deleted.');
 
         // Bulk delete excluded term
@@ -552,9 +529,8 @@ describe('Search: Test ACL privileges', () => {
             '.sw-data-grid__bulk .sw-data-grid__bulk-selected.bulk-link button').should('be.visible');
         cy.get('.sw-settings-search-excluded-search-terms ' +
             '.sw-data-grid__bulk .sw-data-grid__bulk-selected.bulk-link button').click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
         cy.awaitAndCheckNotification('Excluded search term deleted.');
     });
 
@@ -575,10 +551,10 @@ describe('Search: Test ACL privileges', () => {
         });
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/indexing/product.indexer`,
-            method: 'post'
+            method: 'POST'
         }).as('buildSearchIndex');
 
         cy.get('.sw-settings-search__general-tab').scrollIntoView();
@@ -589,9 +565,8 @@ describe('Search: Test ACL privileges', () => {
         cy.awaitAndCheckNotification('Building product indexes.');
 
         // Verify build search index calling
-        cy.wait('@buildSearchIndex').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@buildSearchIndex')
+            .its('response.statusCode').should('equal', 200);
         cy.awaitAndCheckNotification('Product indexes built.');
     });
 });

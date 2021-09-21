@@ -47,11 +47,9 @@ describe('Import/Export - Check activities in progress are updating', () => {
     });
 
     it('@base @settings: Wait for in progress export to be updated', () => {
-        cy.server();
-
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/import-export-log`,
-            method: 'post'
+            method: 'POST'
         }).as('importExportLog');
 
         // There should be one log in progress
@@ -80,9 +78,8 @@ describe('Import/Export - Check activities in progress are updating', () => {
         });
 
         // Import export log request should occur after a few seconds and be successful
-        cy.wait('@importExportLog').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@importExportLog')
+            .its('response.statusCode').should('equal', 200);
 
         // Log should have been updated to show succeded state
         cy.get(`.sw-import-export-activity ${page.elements.dataGridRow}--0`).should('be.visible');

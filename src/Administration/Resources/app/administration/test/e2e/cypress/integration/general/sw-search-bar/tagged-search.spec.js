@@ -2,7 +2,7 @@
 
 import MediaPageObject from '../../../support/pages/module/sw-media.page-object';
 
-describe('Search bar: Check search functionality withtags', () => {
+describe('Search bar: Check search functionality with tags', () => {
     beforeEach(() => {
         cy.setToInitialState()
             .then(() => {
@@ -205,7 +205,7 @@ describe('Search bar: Check search functionality withtags', () => {
 
         // Upload image in folder
         cy.get(page.elements.smartBarHeader).contains('A thing to fold about');
-        page.uploadImageUsingFileUpload('img/sw-login-background.png', 'sw-login-background.png');
+        page.uploadImageUsingFileUpload('img/sw-login-background.png');
 
         cy.get('.sw-media-base-item__name[title="sw-login-background.png"]').should('be.visible');
 

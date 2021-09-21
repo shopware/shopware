@@ -20,13 +20,13 @@ describe('Product: Duplicate product', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/clone/product/*`,
             method: 'POST'
         }).as('duplicateProduct');
-        cy.route({
-            url: '/api/**/search/product',
+
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/**/search/product`,
             method: 'POST'
         }).as('getProduct');
 
@@ -38,32 +38,30 @@ describe('Product: Duplicate product', () => {
         );
 
         // Verify product
-        cy.wait('@duplicateProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
-
-        cy.wait('@getProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-            cy.get('.smart-bar__header .sw-product-variant-info__product-name').contains('Product name Copy');
-            cy.contains('.sw-button', 'Cancel').click();
-            cy.get('.sw-page__smart-bar-amount').contains('2');
-        });
+        cy.url().should('contain', '/product/detail/');
+        cy.wait('@duplicateProduct').its('response.statusCode').should('equal', 200);
+        cy.wait('@getProduct').its('response.statusCode').should('equal', 200);
+        cy.get('.smart-bar__content').should('be.visible');
+        cy.get('.smart-bar__header').contains('Product name Copy');
+        cy.contains('.sw-button', 'Cancel').click();
+        cy.get('.sw-page__smart-bar-amount').contains('2');
     });
 
     it('@base @catalogue: duplicate product in product-detail', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/clone/product/*`,
             method: 'POST'
         }).as('duplicateProduct');
-        cy.route({
+
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveProduct');
-        cy.route({
+
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product`,
             method: 'POST'
         }).as('getProduct');
@@ -75,9 +73,7 @@ describe('Product: Duplicate product', () => {
             `${page.elements.dataGridRow}--0`
         );
 
-        cy.wait('@getProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getProduct').its('response.statusCode').should('equal', 200);
         cy.get('input[name=sw-field--product-name]').clearTypeAndCheck('What remains of Edith Finch');
 
         // edit description
@@ -95,9 +91,7 @@ describe('Product: Duplicate product', () => {
         );
 
         // Verify product
-        cy.wait('@duplicateProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@duplicateProduct').its('response.statusCode').should('equal', 200);
         cy.get('input[name=sw-field--product-name]').should(
             'have.value',
             'What remains of Edith Finch Copy'
@@ -125,10 +119,7 @@ describe('Product: Duplicate product', () => {
         cy.contains('Save').click();
 
         // verify save request got fired
-        cy.wait('@saveProduct').then(xhr => {
-            expect(xhr).to.have.property('status', 200);
-        });
-
+        cy.wait('@saveProduct').its('response.statusCode').should('equal', 200);
         cy.contains('Cancel').click();
 
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('What remains of Edith Finch');
@@ -161,12 +152,12 @@ describe('Product: Duplicate product', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/clone/product/*`,
             method: 'POST'
         }).as('duplicateProduct');
-        cy.route({
+
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product`,
             method: 'POST'
         }).as('getProduct');
@@ -178,9 +169,7 @@ describe('Product: Duplicate product', () => {
             `${page.elements.dataGridRow}--0`
         );
 
-        cy.wait('@getProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getProduct').its('response.statusCode').should('equal', 200);
         cy.get('input[name=sw-field--product-name]').clearTypeAndCheck('What remains of Edith Finch');
 
         // Save and duplicate
@@ -190,9 +179,7 @@ describe('Product: Duplicate product', () => {
         );
 
         // Verify product
-        cy.wait('@duplicateProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@duplicateProduct').its('response.statusCode').should('equal', 200);
         cy.get('input[name=sw-field--product-name]').should(
             'have.value',
             'What remains of Edith Finch Copy'
@@ -205,9 +192,7 @@ describe('Product: Duplicate product', () => {
         );
 
         // Verify product
-        cy.wait('@duplicateProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@duplicateProduct').its('response.statusCode').should('equal', 200);
         cy.get('input[name=sw-field--product-name]').should(
             'have.value',
             'What remains of Edith Finch Copy Copy'

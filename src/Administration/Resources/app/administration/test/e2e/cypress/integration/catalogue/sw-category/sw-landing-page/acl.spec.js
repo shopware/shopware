@@ -57,16 +57,16 @@ describe('Landing pages: Test ACL privileges', () => {
             }
         ]);
 
-        cy.visit(`${Cypress.env('admin')}#/sw/category/index`)
+        cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
 
         // Request for duplicate landing page
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/clone/landing-page/*`,
-            method: 'post'
+            method: 'POST'
         }).as('duplicateData');
 
         // Request for loading landing pages
-        cy.route('POST', `${Cypress.env('apiPath')}/search/landing-page`).as('loadLandingPage');
+        cy.intercept('POST', `${Cypress.env('apiPath')}/search/landing-page`).as('loadLandingPage');
 
         // Collapse category and expand landing page tree
         cy.get('.sw-category-detail__category-collapse .sw-sidebar-collapse__indicator').click();
@@ -84,10 +84,9 @@ describe('Landing pages: Test ACL privileges', () => {
         );
 
         // Verify duplicate
-        cy.wait('@duplicateData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-            cy.get(`${page.elements.categoryTreeItem}:nth-child(2)`).contains('Testingpage Copy');
-        });
+        cy.wait('@duplicateData')
+            .its('response.statusCode').should('equal', 200);
+        cy.get(`${page.elements.categoryTreeItem}:nth-child(2)`).contains('Testingpage Copy');
     });
 
     it('@catalogue: can create landing pages', () => {
@@ -110,17 +109,16 @@ describe('Landing pages: Test ACL privileges', () => {
             }
         ]);
 
-        cy.visit(`${Cypress.env('admin')}#/sw/category/index`)
+        cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
 
         // Request for save landing page
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/landing-page`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Request for loading the landing pages
-        cy.route('POST', `${Cypress.env('apiPath')}/search/landing-page`).as('loadLandingPage');
+        cy.intercept('POST', `${Cypress.env('apiPath')}/search/landing-page`).as('loadLandingPage');
 
         // Collapse category tree and expand landing page tree
         cy.get('.sw-category-detail__category-collapse .sw-sidebar-collapse__indicator').click();
@@ -140,12 +138,10 @@ describe('Landing pages: Test ACL privileges', () => {
 
         // Save landing page
         cy.get('.sw-category-detail__save-landing-page-action').click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-
-            const page = new CategoryPageObject();
-            cy.get(`${page.elements.categoryTreeItem}:nth-child(2)`).first().contains('MyLandingPage');
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
+        const page = new CategoryPageObject();
+        cy.get(`${page.elements.categoryTreeItem}:nth-child(2)`).first().contains('MyLandingPage');
     });
 
     it('@catalogue: can view landing pages', () => {
@@ -161,10 +157,10 @@ describe('Landing pages: Test ACL privileges', () => {
             }
         ]);
 
-        cy.visit(`${Cypress.env('admin')}#/sw/category/index`)
+        cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
 
         // Request for loading landing pages
-        cy.route('POST', `${Cypress.env('apiPath')}/search/landing-page`).as('loadLandingPages');
+        cy.intercept('POST', `${Cypress.env('apiPath')}/search/landing-page`).as('loadLandingPages');
 
         // Collapse category and expand landing page tree
         cy.get('.sw-category-detail__category-collapse .sw-sidebar-collapse__indicator').click();
@@ -200,18 +196,16 @@ describe('Landing pages: Test ACL privileges', () => {
             }
         ]);
 
-        cy.visit(`${Cypress.env('admin')}#/sw/category/index`)
-
-        cy.server();
+        cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
 
         // Request for update landing page
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/landing-page/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         // Request for loading landing pages
-        cy.route('POST', `${Cypress.env('apiPath')}/search/landing-page`).as('loadLandingPages');
+        cy.intercept('POST', `${Cypress.env('apiPath')}/search/landing-page`).as('loadLandingPages');
 
         // Collapse category and expand landing page tree
         cy.get('.sw-category-detail__category-collapse .sw-sidebar-collapse__indicator').click();
@@ -236,10 +230,8 @@ describe('Landing pages: Test ACL privileges', () => {
         cy.get('.sw-category-detail__save-landing-page-action').click();
 
         // Wait for landing page request with correct data to be successful
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-            expect(xhr.requestBody).to.have.property('name', 'Page');
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
     });
 
     it('@catalogue: can delete landing pages', () => {
@@ -266,16 +258,16 @@ describe('Landing pages: Test ACL privileges', () => {
             }
         ]);
 
-        cy.visit(`${Cypress.env('admin')}#/sw/category/index`)
+        cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
 
         // Request for delete landing page
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/landing-page/*`,
             method: 'delete'
         }).as('deleteData');
 
         // Request for loading landing pages
-        cy.route('POST', `${Cypress.env('apiPath')}/search/landing-page`).as('loadLandingPage');
+        cy.intercept('POST', `${Cypress.env('apiPath')}/search/landing-page`).as('loadLandingPage');
 
         // Collapse category and expand landing page tree
         cy.get('.sw-category-detail__category-collapse .sw-sidebar-collapse__indicator').click();
@@ -303,8 +295,7 @@ describe('Landing pages: Test ACL privileges', () => {
             .click();
 
         // Verify deletion
-        cy.wait('@deleteData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteData')
+            .its('response.statusCode').should('equal', 204);
     });
 });

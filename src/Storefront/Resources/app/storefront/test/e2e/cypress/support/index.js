@@ -28,10 +28,10 @@ beforeEach(() => {
     return cy.log('Cleaning, please wait a little bit.').then(() => {
         return cy.cleanUpPreviousState();
     }).then(() => {
-        return cy.clearCacheAdminApi('DELETE', `api/_action/cache`);
+        return cy.clearCacheAdminApi('DELETE', 'api/_action/cache');
     })
 });
 
 Cypress.Cookies.defaults({
-    preserve: ['_test-api-dbName', '_apiAuth']
+    preserve: ['_test-api-dbName', '_apiAuth'],
 })

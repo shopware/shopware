@@ -17,10 +17,9 @@ describe('Event actions: Visual testing', () => {
     });
 
     it('@visual: @check appearance of event action workflow', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/event-action`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
@@ -29,9 +28,8 @@ describe('Event actions: Visual testing', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('#sw-event-action').click();
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getData')
+            .its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.takeSnapshot('[Event action] Listing', '.sw-event-action-list__grid');

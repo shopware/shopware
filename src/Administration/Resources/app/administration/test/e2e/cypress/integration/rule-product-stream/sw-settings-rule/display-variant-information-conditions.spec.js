@@ -64,9 +64,9 @@ describe('Rule builder: Test display variant information at condition', () => {
 
     it('@rule: Display variant information at rule condition list', () => {
         cy.window().then(() => {
-            cy.route({
+            cy.intercept({
                 url: `${Cypress.env('apiPath')}/_action/sync`,
-                method: 'post'
+                method: 'POST'
             }).as('saveData');
 
             const page = new RulePageObject();
@@ -103,11 +103,9 @@ describe('Rule builder: Test display variant information at condition', () => {
             });
 
             cy.get('button.sw-button').contains('Save').click();
-            cy.wait('@saveData').then((xhr) => {
-                expect(xhr).to.have.property('status', 200);
-
-                cy.get('.sw-product-variant-info__specification').should('have.length', 1).contains('red');
-            });
+            cy.wait('@saveData')
+                .its('response.statusCode').should('equal', 200);
+            cy.get('.sw-product-variant-info__specification').should('have.length', 1).contains('red');
         });
     });
 });

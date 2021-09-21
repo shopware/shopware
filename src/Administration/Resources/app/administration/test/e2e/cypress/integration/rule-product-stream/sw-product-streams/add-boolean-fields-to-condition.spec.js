@@ -108,15 +108,14 @@ describe('Dynamic product group: Add Boolean fields to condition', () => {
 
     it('@base @rule: can preview products with custom field is boolean', () => {
         const page = new ProductPageObject();
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/custom-field-set`,
-            method: 'post'
+            method: 'POST'
         }).as('saveCustomFieldSet');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/settings/custom/field/index`);
@@ -135,9 +134,8 @@ describe('Dynamic product group: Add Boolean fields to condition', () => {
 
         // save the custom field
         cy.get('.sw-settings-set-detail__save-action').click();
-        cy.wait('@saveCustomFieldSet').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@saveCustomFieldSet').its('response.statusCode').should('equals', 200);
+
         cy.get('.sw-settings-set-detail__save-action').should('not.be.disabled');
 
         cy.get(`${page.elements.gridRow}--0 .sw-grid-column:nth-of-type(3)`).contains('my_custom_boolean_field');
@@ -166,10 +164,13 @@ describe('Dynamic product group: Add Boolean fields to condition', () => {
         cy.get('.sw-product-detail-specification__custom-fields').scrollIntoView();
         cy.get('.sw-form-field-renderer-input-field__my_custom_boolean_field input').scrollIntoView().click();
 
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/_action/sync`,
+            method: 'POST'
+        }).as('saveProduct');
+
         cy.get('.sw-product-detail__save-button-group').click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@saveProduct').its('response.statusCode').should('equals', 200);
 
         const productStreamPage = new ProductStreamObject();
         cy.visit(`${Cypress.env('admin')}#/sw/product/stream/index`);

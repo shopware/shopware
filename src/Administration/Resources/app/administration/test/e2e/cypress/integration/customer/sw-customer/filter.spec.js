@@ -71,6 +71,8 @@ describe('Customer: Test filter and reset filter', () => {
                 })
                 .then(auth => {
                     let customers = [];
+
+                    // eslint-disable-next-line no-plusplus
                     for (let i = 1; i <= 26; i++) {
                         const standInId = uuid().replace(/-/g, '');
                         customers.push({
@@ -103,7 +105,7 @@ describe('Customer: Test filter and reset filter', () => {
                             'Content-Type': 'application/json'
                         },
                         method: 'POST',
-                        url: '/api/_action/sync',
+                        url: `/${Cypress.env('apiPath')}/_action/sync`,
                         qs: {
                             response: true
                         },
@@ -123,7 +125,7 @@ describe('Customer: Test filter and reset filter', () => {
                             'Content-Type': 'application/json'
                         },
                         method: 'POST',
-                        url: '/api/_action/sync',
+                        url: `/${Cypress.env('apiPath')}/_action/sync`,
                         qs: {
                             response: true
                         },
@@ -170,20 +172,19 @@ describe('Customer: Test filter and reset filter', () => {
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/customer/index`);
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/customer`,
-            method: 'post'
+            method: 'POST'
         }).as('filterCustomer');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/payment-method`,
-            method: 'post'
+            method: 'POST'
         }).as('getPaymentMethod');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/user-config`,
-            method: 'post'
+            method: 'POST'
         }).as('getUserConfig');
 
         cy.get('.sw-sidebar-navigation-item[title="Filters"]').click();
@@ -204,9 +205,8 @@ describe('Customer: Test filter and reset filter', () => {
         cy.get('#salutation-filter .sw-entity-multi-select').scrollIntoView();
         cy.get('#salutation-filter .sw-entity-multi-select').typeMultiSelectAndCheck('Mr.', { searchTerm: 'Mr.' });
 
-        cy.wait('@filterCustomer').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@filterCustomer')
+            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-page__smart-bar-amount').contains('27');
 
         // Check notification badge after filtering
@@ -241,9 +241,8 @@ describe('Customer: Test filter and reset filter', () => {
 
         // Combine multiple filters criteria
         cy.get('#account-status-filter').find('select').select('true');
-        cy.wait('@filterCustomer').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@filterCustomer')
+            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-page__smart-bar-amount').contains('26');
 
         // Check notification badge after filtering with multiple filters criteria
@@ -258,20 +257,19 @@ describe('Customer: Test filter and reset filter', () => {
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/customer/index`);
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/customer`,
-            method: 'post'
+            method: 'POST'
         }).as('filterCustomer');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/user-config`,
-            method: 'post'
+            method: 'POST'
         }).as('getUserConfig');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/user-config/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('patchUserConfig');
 
         cy.get('.sw-sidebar-navigation-item[title="Filters"]').click();
@@ -286,29 +284,29 @@ describe('Customer: Test filter and reset filter', () => {
 
         cy.get('.sw-sidebar-item__headline a').click();
 
-        cy.wait('@filterCustomer').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
+        cy.wait('@filterCustomer')
+            .its('response.statusCode').should('equal', 200);
 
-            // Check Reset button when filter is active
-            cy.get('#salutation-filter .sw-entity-multi-select').scrollIntoView();
-            cy.get('#salutation-filter .sw-entity-multi-select').typeMultiSelectAndCheck('Mr.', { searchTerm: 'Mr.' });
+        // Check Reset button when filter is active
+        cy.get('#salutation-filter .sw-entity-multi-select').scrollIntoView();
+        cy.get('#salutation-filter .sw-entity-multi-select').typeMultiSelectAndCheck('Mr.', { searchTerm: 'Mr.' });
 
-            cy.get('#salutation-filter').find('.sw-base-filter__reset').should('exist');
+        cy.get('#salutation-filter').find('.sw-base-filter__reset').should('exist');
 
-            // Click Reset button to reset filter
-            cy.get('#salutation-filter').find('.sw-base-filter__reset').click();
+        // Click Reset button to reset filter
+        cy.get('#salutation-filter').find('.sw-base-filter__reset').click();
 
-            return cy.wait('@filterCustomer');
-        }).then(() => {
-            cy.get('#salutation-filter').find('li.sw-select-selection-list__item-holder').should('not.exist');
+        cy.wait('@filterCustomer')
+            .its('response.statusCode').should('equal', 200);
 
-            // Reset All button should show up when there is active filter
-            cy.get('#account-status-filter').find('select').select('true');
-            cy.get('.sw-sidebar-item__headline a').should('exist');
+        cy.get('#salutation-filter').find('li.sw-select-selection-list__item-holder').should('not.exist');
 
-            // Click Reset All button
-            cy.get('.sw-sidebar-item__headline a').click();
-            cy.get('.sw-sidebar-item__headline a').should('not.exist');
-        });
+        // Reset All button should show up when there is active filter
+        cy.get('#account-status-filter').find('select').select('true');
+        cy.get('.sw-sidebar-item__headline a').should('exist');
+
+        // Click Reset All button
+        cy.get('.sw-sidebar-item__headline a').click();
+        cy.get('.sw-sidebar-item__headline a').should('not.exist');
     });
 });

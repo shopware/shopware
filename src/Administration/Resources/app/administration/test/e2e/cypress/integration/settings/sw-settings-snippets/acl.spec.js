@@ -65,10 +65,9 @@ describe('Snippets: Test acl privileges', () => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/snippet/index`);
         });
 
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/snippet/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         cy.get('.sw-grid__row--0 > .sw-settings-snippet-set__column-name > .sw-grid__cell-content > a').click();
@@ -88,9 +87,7 @@ describe('Snippets: Test acl privileges', () => {
         cy.get('.sw-tooltip--wrapper > .sw-button').click();
 
         // check request
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
     });
 
     // TODO: Unskip with NEXT-15489
@@ -105,10 +102,9 @@ describe('Snippets: Test acl privileges', () => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/snippet/index`);
         });
 
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/snippet`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         cy.get('.sw-grid__row--0 > .sw-settings-snippet-set__column-name > .sw-grid__cell-content > a').click();
@@ -135,9 +131,7 @@ describe('Snippets: Test acl privileges', () => {
             .should('be.visible')
             .click();
 
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
     });
 
     it('@settings: Create snippet set', () => {
@@ -151,10 +145,9 @@ describe('Snippets: Test acl privileges', () => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/snippet/index`);
         });
 
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/snippet-set`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         cy.get('.sw-settings-snippet-set-list__action-add')
@@ -168,8 +161,6 @@ describe('Snippets: Test acl privileges', () => {
             .should('be.visible')
             .click();
 
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
     });
 });

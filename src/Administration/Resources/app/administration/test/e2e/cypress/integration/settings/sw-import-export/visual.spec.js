@@ -18,7 +18,7 @@ describe('Import/Export:  Visual tests', () => {
         cy.loginViaApi().then(() => {
             // freezes the system time to Jan 1, 2018
             const now = new Date(2018, 1, 1);
-            cy.clock(now);
+            cy.clock(now, ['Date']);
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/import-export/index`);
         });
@@ -30,18 +30,17 @@ describe('Import/Export:  Visual tests', () => {
     });
 
     it('@visual: check appearance of basic im/ex profile workflow', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/import-export-profile`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}//search/import-export-log`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/language`,
-            method: 'post'
+            method: 'POST'
         }).as('getLanguages');
 
         cy.get('.sw-import-export-view-import').should('be.visible');
@@ -50,9 +49,8 @@ describe('Import/Export:  Visual tests', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('#sw-import-export').click();
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getData')
+            .its('response.statusCode').should('equal', 200);
 
         cy.get('[href="#/sw/import-export/index/profiles"]').should('be.visible');
         cy.get('[href="#/sw/import-export/index/profiles"]').click();
@@ -66,20 +64,19 @@ describe('Import/Export:  Visual tests', () => {
     });
 
     it('@visual: check appearance of basic export workflow', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/import-export/prepare`,
-            method: 'post'
+            method: 'POST'
         }).as('prepare');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/import-export/process`,
-            method: 'post'
+            method: 'POST'
         }).as('process');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/import-export-log`,
-            method: 'post'
+            method: 'POST'
         }).as('importExportLog');
 
         cy.get('.sw-import-export-view-import').should('be.visible');
@@ -90,24 +87,25 @@ describe('Import/Export:  Visual tests', () => {
         cy.takeSnapshot('[Import export] Detail, Export overview', '.sw-import-export-view-export');
 
         // Select fixture profile for product entity
-        cy.get('.sw-import-export-exporter__profile-select').click();
-        cy.contains('Default product').click();
+        cy.get('.sw-import-export-exporter__profile-select')
+            .typeSingleSelectAndCheck(
+                'Default product',
+                '.sw-import-export-exporter__profile-select'
+            )
+
         cy.get('.sw-import-export-progress__start-process-action').click();
 
         // Prepare request should be successful
-        cy.wait('@prepare').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@prepare')
+            .its('response.statusCode').should('equal', 200);
 
         // Process request should be successful
-        cy.wait('@process').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@process')
+            .its('response.statusCode').should('equal', 204);
 
         // Import export log request should be successful
-        cy.wait('@importExportLog').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@importExportLog')
+            .its('response.statusCode').should('equal', 200);
 
         // Change color of the element to ensure consistent snapshots
         cy.changeElementStyling('.sw-data-grid__cell--createdAt a', 'color : #fff');
@@ -132,20 +130,19 @@ describe('Import/Export:  Visual tests', () => {
     });
 
     it('@visual: check appearance of basic import workflow', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/import-export/prepare`,
-            method: 'post'
+            method: 'POST'
         }).as('prepare');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/import-export/process`,
-            method: 'post'
+            method: 'POST'
         }).as('process');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/import-export-log`,
-            method: 'post'
+            method: 'POST'
         }).as('importExportLog');
 
         // Take snapshot for visual testing
@@ -155,11 +152,7 @@ describe('Import/Export:  Visual tests', () => {
 
         // Upload a fixture CSV file with a single product
         cy.get('.sw-file-input__file-input')
-            .attachFile({
-                filePath: 'csv/single-product.csv',
-                fileName: 'single-product.csv',
-                mimeType: 'text/csv'
-            });
+            .attachFile('csv/single-product.csv');
 
         // Select fixture profile for product entity
         cy.get('.sw-import-export-importer > .sw-field').click();
@@ -170,19 +163,16 @@ describe('Import/Export:  Visual tests', () => {
         cy.get('.sw-import-export-progress__start-process-action').should('be.disabled');
 
         // Prepare request should be successful
-        cy.wait('@prepare').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@prepare')
+            .its('response.statusCode').should('equal', 200);
 
         // Process request should be successful
-        cy.wait('@process').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@process')
+            .its('response.statusCode').should('equal', 204);
 
         // Import export log request should be successful
-        cy.wait('@importExportLog').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@importExportLog')
+            .its('response.statusCode').should('equal', 200);
 
         // The activity logs should contain an entry for the succeeded import
         cy.get(`.sw-import-export-activity ${page.elements.dataGridRow}--0`).should('be.visible');

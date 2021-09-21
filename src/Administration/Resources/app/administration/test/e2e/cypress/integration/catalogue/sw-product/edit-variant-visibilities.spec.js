@@ -56,10 +56,9 @@ describe('Product: Test variants visibilities', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Navigate to variant generator listing and start
@@ -75,14 +74,12 @@ describe('Product: Test variants visibilities', () => {
             .typeMultiSelectAndCheckMultiple(['Storefront']);
 
         cy.get(page.elements.productSaveAction).click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
+        cy.wait('@saveData').its('response.statusCode').should('equal', 200);
 
-            cy.get('.sw-product-detail__select-visibility')
-                .scrollIntoView();
-            cy.get('.sw-product-detail__select-visibility')
-                .should('contain', 'Storefront');
-        });
+        cy.get('.sw-product-detail__select-visibility')
+            .scrollIntoView();
+        cy.get('.sw-product-detail__select-visibility')
+            .should('contain', 'Storefront');
 
         // switch variants tab
         cy.get('.sw-product-detail__tab-variants').click();
@@ -101,14 +98,13 @@ describe('Product: Test variants visibilities', () => {
 
         // Save product
         cy.get(page.elements.productSaveAction).click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 200);
 
-            cy.get('.sw-product-detail__select-visibility')
-                .scrollIntoView();
-            cy.get('.sw-product-detail__select-visibility')
-                .should('contain', 'Headless');
-        });
+        cy.get('.sw-product-detail__select-visibility')
+            .scrollIntoView();
+        cy.get('.sw-product-detail__select-visibility')
+            .should('contain', 'Headless');
 
         cy.get('.sw-card__back-link').scrollIntoView();
         cy.get('.sw-card__back-link').should('be.visible');

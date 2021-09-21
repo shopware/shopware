@@ -25,18 +25,18 @@ describe('Sales Channel: Test product comparison', () => {
         const productPage = new ProductPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/sales-channel`,
-            method: 'post'
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/sales-channel`,
+            method: 'POST'
         }).as('saveData');
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveProductsData');
-        cy.route({
-            url: `${Cypress.env('apiPath')}/_action/product-export/validate`,
-            method: 'post'
+
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/_action/product-export/validate`,
+            method: 'POST'
         }).as('validate');
 
         // Edit base data of product
@@ -48,26 +48,18 @@ describe('Sales Channel: Test product comparison', () => {
 
         // Upload product image
         cy.get('input[name=sw-field--product-name]').should('be.visible');
-        if (Cypress.isBrowser({ family: 'chromium' })) {
-            // Add image to product
-            cy.get('#files')
-                .attachFile({
-                    filePath: 'img/sw-login-background.png',
-                    fileName: 'sw-login-background.png',
-                    mimeType: 'image/png'
-                });
-            cy.get('.sw-product-image__image img')
-                .should('have.attr', 'src')
-                .and('match', /sw-login-background/);
-            cy.awaitAndCheckNotification('File has been saved.');
-        }
+        cy.get('#files')
+            .attachFile('img/sw-login-background.png');
+        cy.get('.sw-product-image__image img')
+            .should('have.attr', 'src')
+            .and('match', /sw-login-background/);
+        cy.awaitAndCheckNotification('File has been saved.');
+
         cy.get('input[name=sw-field--product-name]').should('be.visible');
         cy.get(productPage.elements.productSaveAction).click();
 
         // Verify updated product
-        cy.wait('@saveProductsData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@saveProductsData').its('response.statusCode').should('equal', 200);
 
         // Open sales channel creation
         cy.get('.sw-admin-menu__headline').contains('Sales Channel');
@@ -104,9 +96,7 @@ describe('Sales Channel: Test product comparison', () => {
             .typeSingleSelectAndCheck('2nd Product stream', '.sw-sales-channel-detail__product-comparison-product-stream');
 
         cy.get(page.elements.salesChannelSaveAction).click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         // Verify creation
         cy.get(page.elements.salesChannelNameInput).should('have.value', 'A great Product comparison');
@@ -118,10 +108,8 @@ describe('Sales Channel: Test product comparison', () => {
         cy.get('.sw-sales-channel-detail-product-comparison__test-action').should('be.visible');
         cy.get('.sw-sales-channel-detail-product-comparison__test-action').click();
 
-        cy.wait('@validate').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-            cy.awaitAndCheckNotification('No errors occurred.');
-        });
+        cy.wait('@validate').its('response.statusCode').should('equal', 204);
+        cy.awaitAndCheckNotification('No errors occurred.');
     });
 });
 

@@ -13,7 +13,7 @@ describe('Documents: Test crud operations', () => {
     });
 
     it('@settings: Create invoice document', () => {
-        cy.window().then((win) => {
+        cy.window().then(() => {
             cy.get('.sw-settings-document-list__add-document').click();
 
             // fill data into general field.
@@ -30,18 +30,16 @@ describe('Documents: Test crud operations', () => {
                 .contains('Invoice')
                 .click();
 
-            // check exists additional note delivery field.
-            cy.get('.sw-settings-document-detail__field_additional_note_delivery input[type="checkbox"]')
-                .scrollIntoView()
-                .should('be.visible');
+            // scroll the checkbox for the option "Display header" into view
+            cy.get('.sw-field--checkbox__content:nth(8)').scrollIntoView()
+            
+                            
+            // check that the correct element is selected and check the checkbox
+            cy.get('.sw-field--checkbox__content:nth(8)').contains('Display "intra-Community delivery" label')
+            cy.get('.sw-field--checkbox__content:nth(8) input[type=checkbox]').check()
 
-            // select additional note delivery checkbox.
-            cy.get('.sw-settings-document-detail__field_additional_note_delivery input[type="checkbox"]')
-                .scrollIntoView()
-                .click();
-
-            // check exists select multi countries field.
-            cy.get('.sw-settings-document-detail__field_delivery_countries').should('be.visible');
+            // scroll the country select into view
+            cy.get('.sw-settings-document-detail__field_delivery_countries').scrollIntoView();
 
             // select country
             cy.get('.sw-settings-document-detail__field_delivery_countries').typeMultiSelectAndCheck('Germany', {

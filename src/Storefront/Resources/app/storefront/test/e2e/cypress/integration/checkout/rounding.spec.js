@@ -5,34 +5,30 @@ let product = {};
 describe('Checkout: Use rounding', () => {
 
     beforeEach(() => {
-        cy.setToInitialState()
-            .then(() => {
-                return cy.createProductFixture().then(() => {
-                    return cy.createDefaultFixture('category')
-                }).then(() => {
-                    cy.createProductFixture({
-                        name: 'Test product',
-                        productNumber: 'TEST-1234',
-                        price: [
-                            {
-                                currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
-                                linked: true,
-                                gross: 10.51
-                            }
-                        ]
-                    });
-                }).then((result) => {
-                    product = result;
-                    return cy.createCustomerFixtureStorefront()
-                });
+        return cy.createProductFixture().then(() => {
+            return cy.createDefaultFixture('category')
+        }).then(() => {
+            cy.createProductFixture({
+                name: 'Test product',
+                productNumber: 'TEST-1234',
+                price: [
+                    {
+                        currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+                        linked: true,
+                        gross: 10.51
+                    }
+                ]
             });
+        }).then((result) => {
+            product = result;
+            return cy.createCustomerFixtureStorefront()
+        });
     });
 
     it('@base @checkout: Run checkout with 0.50', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: '/api/currency/**',
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         cy.loginViaApi();
@@ -47,10 +43,8 @@ describe('Checkout: Use rounding', () => {
             .typeSingleSelectAndCheck('0.50', '.sw-settings-price-rounding__grand-interval-select');
 
         cy.get('.sw-settings-currency-detail__save-action').click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-            cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
+        cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
         cy.get('.sw-loader').should('not.exist');
 
         cy.visit('/');

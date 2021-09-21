@@ -67,10 +67,9 @@ describe('Product: Test ACL privileges', () => {
 
     it('@base @catalogue: can edit product', () => {
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveProduct');
 
         const page = new ProductPageObject();
@@ -102,9 +101,8 @@ describe('Product: Test ACL privileges', () => {
         cy.get('.sw-product-detail__save-button-group').click();
 
         // Verify updated product
-        cy.wait('@saveProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@saveProduct')
+            .its('response.statusCode').should('equal', 200);
 
         cy.get(page.elements.smartBarBack).click();
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).contains('T-Shirt');
@@ -112,14 +110,13 @@ describe('Product: Test ACL privileges', () => {
 
     it('@base @catalogue: can create product', () => {
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveProduct');
-        cy.route({
-            url: `${Cypress.env('apiPath')}/_action/calculate-price`,
-            method: 'post'
+        cy.intercept({
+            method: 'POST',
+            url: `${Cypress.env('apiPath')}/_action/calculate-price`
         }).as('calculatePrice');
 
         const page = new ProductPageObject();
@@ -166,9 +163,8 @@ describe('Product: Test ACL privileges', () => {
 
         // Save product
         cy.get(page.elements.productSaveAction).click();
-        cy.wait('@saveProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@saveProduct')
+            .its('response.statusCode').should('equal', 200);
         cy.get(page.elements.smartBarBack).click();
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
             .contains('Product with file upload image');
@@ -186,8 +182,7 @@ describe('Product: Test ACL privileges', () => {
 
     it('@base @catalogue: can delete product', () => {
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/product/*`,
             method: 'delete'
         }).as('deleteData');
@@ -219,9 +214,7 @@ describe('Product: Test ACL privileges', () => {
         cy.get(`${page.elements.modal}__footer .sw-button--danger`).click();
 
         // Verify updated product
-        cy.wait('@deleteData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteData').its('response.statusCode').should('equal', 204);
         cy.get(page.elements.emptyState).should('be.visible');
     });
 });

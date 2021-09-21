@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 describe('Profile module', () => {
     beforeEach(() => {
@@ -40,7 +40,7 @@ describe('Profile module', () => {
             .click()
             .then(() => {
                 cy.get('.sw-modal')
-                    .should('not.be.visible');
+                    .should('not.exist');
 
                 cy.get('#sw-field--email')
                     .should('be.visible')
@@ -119,7 +119,7 @@ describe('Profile module', () => {
             .click()
             .then(() => {
                 cy.get('.sw-modal')
-                    .should('not.be.visible');
+                    .should('not.exist');
 
                 cy.get('.sw-media-preview-v2__item')
                     .should('have.attr', 'src')

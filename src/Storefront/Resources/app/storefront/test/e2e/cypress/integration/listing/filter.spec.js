@@ -4,37 +4,30 @@ import generalPageObject from '../../support/pages/general.page-object';
 
 describe('Filter on startpage', () => {
     beforeEach(() => {
-        cy.setToInitialState()
-            .then(() => {
-                // Takes care on API authorization
-                cy.loginViaApi();
-            })
-            .then(() => {
-                // Creates a product with manufacturer
-                return cy.createProductFixture({
-                    name: 'First product',
-                    productNumber: 'RS-123'
-                });
-            })
-            .then(() => {
-                // Creates a product with manufacturer
-                return cy.createProductFixture({
-                    name: 'Second product',
-                    manufacturerId: null,
-                    productNumber: 'RS-345'
-                });
-            })
-            .then(() => {
-                // Creates a product with manufacturer
-                return cy.createProductFixture({
-                    name: 'Third product',
-                    manufacturerId: null,
-                    productNumber: 'RS-234'
-                });
-            })
-            .then(() => {
-                cy.visit('/');
+        // Takes care on API authorization
+        cy.loginViaApi().then(() => {
+            // Creates a product with manufacturer
+            return cy.createProductFixture({
+                name: 'First product',
+                productNumber: 'RS-123',
             });
+        }).then(() => {
+            // Creates a product with manufacturer
+            return cy.createProductFixture({
+                name: 'Second product',
+                manufacturerId: null,
+                productNumber: 'RS-345',
+            });
+        }).then(() => {
+            // Creates a product with manufacturer
+            return cy.createProductFixture({
+                name: 'Third product',
+                manufacturerId: null,
+                productNumber: 'RS-234',
+            });
+        }).then(() => {
+            cy.visit('/');
+        });
     });
 
     it("Filter for manufacturer", () => {

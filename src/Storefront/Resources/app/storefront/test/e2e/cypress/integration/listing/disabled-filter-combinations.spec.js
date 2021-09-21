@@ -5,57 +5,54 @@ describe('Test product filters get disabled if a combination is not possible', (
     beforeEach(() => {
         let salesChannelId = null;
         let languageId = null;
-        cy.setToInitialState()
-            .then(() => {
-                cy.loginViaApi().then(() => {
-                    cy.visit('/admin#/sw/settings/listing/index');
-                    cy.contains('Disable filter options without results').click();
-                    cy.get('.sw-settings-listing__save-action').click();
-                    cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
-                });
-            })
-            .then(() => {
-                return cy.searchViaAdminApi({
-                    endpoint: 'sales-channel',
-                    data: {
-                        field: 'name',
-                        value: 'Storefront'
-                    }
-                });
-            })
-            .then((salesChannel) => {
-                salesChannelId = salesChannel.id;
-                return cy.searchViaAdminApi({
-                    endpoint: 'language',
-                    data: {
-                        field: 'name',
-                        value: 'English'
-                    }
-                });
-            })
-            .then((language) => {
-                languageId = language.id
-
-                variant1.productReviews = [
-                    {
-                        id: 'f1d2554b0ce847cd82f3ac9bd1c0dfab',
-                        product_id: 'f1d2554b0ce847cd82f3ac9bd1c0dfca',
-                        salesChannelId: salesChannelId,
-                        languageId: languageId,
-                        points: 3,
-                        status: true,
-                        content: 'This is the best product I have ever seen!',
-                        title: 'Impressed'
-                    }
-                ];
-                return cy.createProductFixture(variant1);
-            })
-            .then(() => {
-                return cy.createProductFixture(variant2);
-            })
-            .then(() => {
-                cy.visit('/');
+        cy.loginViaApi().then(() => {
+            cy.visit('/admin#/sw/settings/listing/index');
+            cy.contains('Disable filter options without results').click();
+            cy.get('.sw-settings-listing__save-action').click();
+            cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
+        })
+       .then(() => {
+            return cy.searchViaAdminApi({
+                endpoint: 'sales-channel',
+                data: {
+                    field: 'name',
+                    value: 'Storefront'
+                }
             });
+        })
+       .then((salesChannel) => {
+            salesChannelId = salesChannel.id;
+            return cy.searchViaAdminApi({
+                endpoint: 'language',
+                data: {
+                    field: 'name',
+                    value: 'English'
+                }
+            });
+        })
+        .then((language) => {
+            languageId = language.id
+
+            variant1.productReviews = [
+                {
+                    id: 'f1d2554b0ce847cd82f3ac9bd1c0dfab',
+                    product_id: 'f1d2554b0ce847cd82f3ac9bd1c0dfca',
+                    salesChannelId: salesChannelId,
+                    languageId: languageId,
+                    points: 3,
+                    status: true,
+                    content: 'This is the best product I have ever seen!',
+                    title: 'Impressed'
+                }
+            ];
+            return cy.createProductFixture(variant1);
+        })
+        .then(() => {
+            return cy.createProductFixture(variant2);
+        })
+        .then(() => {
+            cy.visit('/');
+        });
     });
 
     it('Should disable some filters if filtered by manufacturer', () => {

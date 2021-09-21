@@ -40,7 +40,6 @@ describe('Listing: Test crud operations', () => {
         cy.get('.sw-data-grid__row--0 > .sw-data-grid__cell--criteria').contains('Cheapest product price');
         cy.get('.sw-data-grid__row--0 > .sw-data-grid__cell--priority').contains('5');
 
-        cy.server();
 
         cy.get('.sw-settings-listing-index__sorting-options-card').should('be.visible');
 
@@ -69,9 +68,9 @@ describe('Listing: Test crud operations', () => {
         cy.get('.sw-data-grid__cell--order .sw-data-grid__cell-content').contains('Ascending');
         cy.get('.sw-data-grid__cell--priority #sw-field--currentValue').should('have.value', '1');
 
-        cy.route({
-            url: `${Cypress.env('apiPath')}/product-sorting`,
-            method: 'post'
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/product-sorting`,
+            method: 'POST'
         }).as('saveData');
 
         // save entity
@@ -80,9 +79,7 @@ describe('Listing: Test crud operations', () => {
             .click();
 
         // check api request
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.visit(`${Cypress.env('admin')}#/sw/settings/listing/index`);
 
@@ -96,14 +93,14 @@ describe('Listing: Test crud operations', () => {
     });
 
     it('@settings: create product sorting with custom field criteria', () => {
-        cy.route({
-            url: `${Cypress.env('apiPath')}/custom-field-set/**`,
-            method: 'patch'
+        cy.intercept({
+            url: '/api/search/custom-field-set',
+            method: 'POST'
         }).as('saveCustomFieldSet');
 
-        cy.route({
-            url: `${Cypress.env('apiPath')}/custom-field-set/**/custom-fields`,
-            method: 'post'
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/custom-field-set/**/custom-fields`,
+            method: 'POST'
         }).as('saveCustomField');
 
         cy.visit(`${Cypress.env('admin')}#/sw/settings/custom/field/index`);
@@ -118,9 +115,8 @@ describe('Listing: Test crud operations', () => {
         cy.get('.sw-settings-set-detail__save-action').click();
 
         // Verify creation
-        cy.wait('@saveCustomFieldSet').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveCustomFieldSet')
+            .its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-custom-field-list__add-button').click();
 
@@ -133,9 +129,8 @@ describe('Listing: Test crud operations', () => {
         cy.get('.sw-modal__footer > .sw-button--primary').click();
 
         // Verify creation
-        cy.wait('@saveCustomField').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveCustomField')
+            .its('response.statusCode').should('equal', 204);
 
         cy.visit(`${Cypress.env('admin')}#/sw/settings/listing/index`);
 
@@ -172,21 +167,20 @@ describe('Listing: Test crud operations', () => {
 
         const customFieldSelection = '.sw-data-grid__cell--field .sw-data-grid__cell-content .sw-entity-single-select';
 
-        cy.route({
-            url: `${Cypress.env('apiPath')}/product-sorting`,
-            method: 'post'
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/product-sorting`,
+            method: 'POST'
         }).as('saveData');
-        cy.route({
-            url: `${Cypress.env('apiPath')}/product-sorting/*`,
-            method: 'patch'
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/product-sorting/*`,
+            method: 'PATCH'
         }).as('updateData');
 
         cy.get(customFieldSelection).typeSingleSelect('my_custom_field_first', customFieldSelection);
 
         // check api request
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
 
         // edit name
         cy.get('#sw-field--sortingOption-label').clear().typeAndCheck('My own product sorting with Custom Field');
@@ -197,12 +191,11 @@ describe('Listing: Test crud operations', () => {
             .click();
 
         // check api request
-        cy.wait('@updateData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@updateData')
+            .its('response.statusCode').should('equal', 204);
 
         // custom field selection should be visible on inlineEdit
-        cy.get(customFieldSelection).should('not.be.visible');
+        cy.get(customFieldSelection).should('not.exist');
         cy.get('.sw-data-grid__table .sw-data-grid__body .sw-data-grid__cell-content').first().dblclick({ force: true });
         cy.get(customFieldSelection).should('be.visible');
 
@@ -254,7 +247,6 @@ describe('Listing: Test crud operations', () => {
     });
 
     it('@settings: delete an existing product sorting', () => {
-        cy.server();
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-data-grid').scrollIntoView();
 
@@ -267,8 +259,8 @@ describe('Listing: Test crud operations', () => {
             .should('be.visible')
             .click();
 
-        cy.route({
-            url: `${Cypress.env('apiPath')}/product-sorting/*`,
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/product-sorting/*`,
             method: 'delete'
         }).as('deleteRequest');
 
@@ -277,8 +269,6 @@ describe('Listing: Test crud operations', () => {
             .click();
 
         // check delete request
-        cy.wait('@deleteRequest').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteRequest').its('response.statusCode').should('equal', 204);
     });
 });

@@ -2,7 +2,9 @@ import AccountPageObject from '../../support/pages/account.page-object';
 
 describe('Account: Login as customer', () => {
     beforeEach(() => {
-        return cy.createCustomerFixtureStorefront()
+        return cy.createCustomerFixtureStorefront().then(() => {
+            return cy.clearCacheAdminApi('DELETE', `api/_action/cache`);
+        });
     });
 
     it('@base @customer: Change email and log in', () => {

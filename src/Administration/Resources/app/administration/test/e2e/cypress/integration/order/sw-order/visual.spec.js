@@ -27,7 +27,7 @@ describe('Order: Visual tests', () => {
         cy.loginViaApi().then(() => {
             // freezes the system time to Jan 1, 2018
             const now = new Date(2018, 1, 1);
-            cy.clock(now);
+            cy.clock(now, ['Date']);
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/order/index`);
         });
@@ -36,10 +36,9 @@ describe('Order: Visual tests', () => {
     it('@visual: check appearance of basic order workflow', () => {
         const page = new OrderPageObject();
 
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/order`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
 
         cy.get('.sw-data-grid__cell--orderNumber').should('be.visible');
@@ -48,9 +47,8 @@ describe('Order: Visual tests', () => {
             mainMenuId: 'sw-order',
             subMenuId: 'sw-order-index'
         });
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getData')
+            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-order-list').should('be.visible');
 
         // Take snapshot for visual testing
@@ -118,10 +116,9 @@ describe('Order: Visual tests', () => {
     });
 
     it('@visual: check appearance of order creation workflow', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/order`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
 
         cy.clickMainMenuItem({
@@ -129,9 +126,8 @@ describe('Order: Visual tests', () => {
             mainMenuId: 'sw-order',
             subMenuId: 'sw-order-index'
         });
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getData')
+            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-order-list').should('be.visible');
 
         // Take snapshot for visual testing

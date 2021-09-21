@@ -17,10 +17,9 @@ describe('Customer group: Visual testing', () => {
     });
 
     it('@visual: check appearance of customer group module', () => {
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/search/customer-group`,
-            method: 'post'
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/search/customer-group`,
+            method: 'POST'
         }).as('getData');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
@@ -29,9 +28,8 @@ describe('Customer group: Visual testing', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('#sw-settings-customer-group').click();
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getData')
+            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-settings-customer-group-list-grid').should('be.visible');
         cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.takeSnapshot('[Customer group] Listing', '.sw-settings-customer-group-list');

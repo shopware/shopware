@@ -19,23 +19,22 @@ describe('FirstRunWizard Test language Auto-Install', () => {
     it.skip('@frw: Tests the auto-install of the first run wizard with dutch', () => {
         cy.visit(`${Cypress.env('admin')}#/sw/first/run/wizard/index`);
 
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/extension/install/plugin/SwagLanguagePack`,
             method: 'POST'
         }).as('installPlugin');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/extension/activate/plugin/SwagLanguagePack`,
-            method: 'PUT'
+            method: 'put'
         }).as('activatePlugin');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/locale`,
             method: 'POST'
         }).as('searchLocale');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_admin/snippets?locale=nl-NL`,
             method: 'GET'
         }).as('getAdminSnippets');
@@ -53,7 +52,7 @@ describe('FirstRunWizard Test language Auto-Install', () => {
         cy.wait(['@installPlugin', '@activatePlugin']).spread((installPlugin, activatePlugin) => {
             expect(installPlugin).to.have.property('status', 204);
             expect(activatePlugin).to.have.property('status', 204);
-        })
+        });
 
         // Check if loader is not visible and content switch modal is shown
         cy.get('.sw-first-run-wizard-modal-content__page .sw-loader').should('not.exist');
@@ -68,7 +67,7 @@ describe('FirstRunWizard Test language Auto-Install', () => {
         cy.wait(['@searchLocale', '@getAdminSnippets']).spread((searchLocale, getAdminSnippets) => {
             expect(searchLocale).to.have.property('status', 200);
             expect(getAdminSnippets).to.have.property('status', 200);
-        })
+        });
 
         // The language switch reloads the page and the first run wizard should be visible again
         cy.get('.sw-first-run-wizard-modal').should('be.visible');

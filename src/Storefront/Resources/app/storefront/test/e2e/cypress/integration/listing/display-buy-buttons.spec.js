@@ -3,8 +3,8 @@
 describe('Test allowBuyInListing config setting', () => {
 
     beforeEach(() => {
-        let ruleId;         
-        
+        let ruleId;
+
         return cy.loginViaApi().then(() => {
             return cy.searchViaAdminApi({
                 data: {
@@ -12,7 +12,7 @@ describe('Test allowBuyInListing config setting', () => {
                     value: 'Always valid (Default)',
                 },
                 endpoint: 'rule',
-            }); 
+            });
         }).then(rule => {
             ruleId = rule.id;
 
@@ -22,12 +22,14 @@ describe('Test allowBuyInListing config setting', () => {
 
             products.forEach(product => {
                 cy.createProductFixture(product);
-            });            
+            });
         });
     });
-    
+
     function setAllowBuyInListing(isAllowed) {
-        cy.visit('/admin#/sw/settings/listing/index');
+        cy.visit('/admin#/sw/settings/index/shop');
+        cy.get('.sw-settings__content-header').contains('Settings');
+        cy.get('#sw-settings-listing').click();
         cy.get('.smart-bar__content h2').contains('Settings Products');
         cy.get('#salesChannelSelect .sw-entity-single-select__selection-text').contains('All Sales Channels');
 
@@ -39,8 +41,9 @@ describe('Test allowBuyInListing config setting', () => {
                 .should('not.be.checked');
 
             cy.get('.sw-button-process__content').click()
+            cy.get('.sw-loader').should('not.exist')
         }
-    }  
+    }
 
     it('Should display buy button', () => {
         setAllowBuyInListing(true);
@@ -58,7 +61,7 @@ describe('Test allowBuyInListing config setting', () => {
             .should('be.visible')
             .contains('Details')
             .should('have.class', 'btn-light');
-        
+
         cy.get('.product-action:nth(2) .btn')
             .should('be.visible')
             .contains('Add to shopping cart')
@@ -67,7 +70,7 @@ describe('Test allowBuyInListing config setting', () => {
 
     it('Shouldn\'t display buy button, but should display detail button', () => {
         setAllowBuyInListing(false);
-        
+
         cy.visit('/')
 
         cy.get('.card-body:nth(2)').scrollIntoView()
@@ -81,7 +84,7 @@ describe('Test allowBuyInListing config setting', () => {
             .should('be.visible')
             .contains('Details')
             .should('have.class', 'btn-light');
-        
+
         cy.get('.product-action:nth(2) .btn')
             .should('be.visible')
             .contains('Details')

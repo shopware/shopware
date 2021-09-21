@@ -36,21 +36,19 @@ describe('Sales Channel: Test product assignment operations', () => {
         const productPage = new ProductPageObject();
 
         // Request we want to wait for later
-        cy.server();
-
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveProduct');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/calculate-price`,
-            method: 'post'
+            method: 'POST'
         }).as('calculatePrice');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/product-visibility`,
-            method: 'post'
+            method: 'POST'
         }).as('saveProductVisibility');
 
 
@@ -77,9 +75,8 @@ describe('Sales Channel: Test product assignment operations', () => {
         cy.get('.sw-category-tree__input-field').focus().type('{enter}');
 
         cy.get(productPage.elements.productSaveAction).click();
-        cy.wait('@saveProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@saveProduct')
+            .its('response.statusCode').should('equal', 200);
 
         // Go to sales channel Storefront
         salesChannelPage.openSalesChannel('Storefront', 1);
@@ -92,10 +89,9 @@ describe('Sales Channel: Test product assignment operations', () => {
         cy.get('.sw-modal__body .sw-data-grid__row--0 .sw-field--checkbox').click();
         cy.get('.sw-modal__footer .sw-button--primary').click();
 
-        cy.wait('@saveProductVisibility').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-            cy.get('.sw-modal__body').should('not.exist');
-        });
+        cy.wait('@saveProductVisibility')
+            .its('response.statusCode').should('equal', 204);
+        cy.get('.sw-modal__body').should('not.exist');
 
         cy.get('.sw-empty-state').should('not.exist');
         cy.get('.sw-data-grid').should('be.visible');
@@ -119,21 +115,19 @@ describe('Sales Channel: Test product assignment operations', () => {
         const productPage = new ProductPageObject();
 
         // Request we want to wait for later
-        cy.server();
-
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveProduct');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/calculate-price`,
-            method: 'post'
+            method: 'POST'
         }).as('calculatePrice');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/product-visibility`,
-            method: 'post'
+            method: 'POST'
         }).as('saveProductVisibility');
 
 
@@ -155,9 +149,8 @@ describe('Sales Channel: Test product assignment operations', () => {
         cy.get('.sw-category-tree__input-field').focus().type('Test category').type('{enter}');
 
         cy.get(productPage.elements.productSaveAction).click();
-        cy.wait('@saveProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@saveProduct')
+            .its('response.statusCode').should('equal', 200);
 
         // Go to sales channel Storefront
         salesChannelPage.openSalesChannel('Storefront', 1);
@@ -173,10 +166,9 @@ describe('Sales Channel: Test product assignment operations', () => {
         cy.get('.sw-sales-channel-product-assignment-categories__search-results .sw-field__checkbox').click();
         cy.get('.sw-modal__footer .sw-button--primary').click();
 
-        cy.wait('@saveProductVisibility').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-            cy.get('.sw-modal__body').should('not.exist');
-        });
+        cy.wait('@saveProductVisibility')
+            .its('response.statusCode').should('equal', 204);
+        cy.get('.sw-modal__body').should('not.exist');
 
         cy.get('.sw-empty-state').should('not.exist');
         cy.get('.sw-data-grid').should('be.visible');

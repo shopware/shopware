@@ -27,14 +27,14 @@ describe('Category: Test drag categories', () => {
                         }
                     ]
                 })
-                .then(({ id: childId }) => {
-                    cy.createCategoryFixture({
-                        name: 'Child 2',
-                        type: 'page',
-                        parentId: categoryId,
-                        afterCategoryId: childId
+                    .then(({ id: childId }) => {
+                        cy.createCategoryFixture({
+                            name: 'Child 2',
+                            type: 'page',
+                            parentId: categoryId,
+                            afterCategoryId: childId
+                        });
                     });
-                });
             })
             .then(() => {
                 cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
@@ -42,21 +42,17 @@ describe('Category: Test drag categories', () => {
     });
 
     it('@base @catalogue: can drag category and expand', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/category`,
-            method: 'post'
+            method: 'POST'
         }).as('loadCategory');
 
-        //expand home category
+        // expand home category
         cy.get('.tree-items > .sw-tree-item')
             .eq(0)
             .find('.sw-tree-item__toggle')
             .click();
-
-        cy.wait('@loadCategory').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@loadCategory').its('response.statusCode').should('equals', 200);
 
         // drag Child 1 to second position
         cy.get('.tree-items > .sw-tree-item > .sw-tree-item__children > .sw-tree-item')
@@ -73,10 +69,7 @@ describe('Category: Test drag categories', () => {
             .eq(1)
             .find('.sw-tree-item__toggle')
             .click();
-
-        cy.wait('@loadCategory').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@loadCategory').its('response.statusCode').should('equals', 200);
 
         // test that grandchildren of Child 1 are visible
         cy.get('.tree-items > .sw-tree-item > .sw-tree-item__children > .sw-tree-item > .sw-tree-item__children')

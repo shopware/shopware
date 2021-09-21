@@ -19,10 +19,9 @@ describe('Snippets: Visual testing', () => {
     });
 
     it('@visual: check appearance of snippet module', () => {
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/search/snippet-set`,
-            method: 'post'
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/search/snippet-set`,
+            method: 'POST'
         }).as('getData');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
@@ -31,9 +30,9 @@ describe('Snippets: Visual testing', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('#sw-settings-snippet').click();
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+
+        cy.wait('@getData')
+            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-grid').should('be.visible');
 
         // Change color of the element to ensure consistent snapshots

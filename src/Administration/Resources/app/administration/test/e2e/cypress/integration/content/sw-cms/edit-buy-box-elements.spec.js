@@ -36,18 +36,19 @@ describe('CMS: Check usage and editing of buy box elements', () => {
     });
 
     it('@base @content: use simple buy box element', () => {
-        cy.server();
-        cy.route({
+        cy.onlyOnFeature('FEATURE_NEXT_10078');
+
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/category/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveCategory');
 
-        cy.server().route('GET', '/widgets/cms/buybox/**').as('loadData');
+        cy.intercept('GET', '/widgets/cms/buybox/**').as('loadData');
 
         cy.get('.sw-cms-list-item--0').click();
         cy.get('.sw-cms-section__empty-stage').should('be.visible');
@@ -78,10 +79,8 @@ describe('CMS: Check usage and editing of buy box elements', () => {
 
         // Save new page layout
         cy.get('.sw-cms-detail__save-action').click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-            cy.get('.sw-cms-detail__back-btn').click();
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
+        cy.get('.sw-cms-detail__back-btn').click();
 
         // Assign layout to root category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
@@ -95,9 +94,7 @@ describe('CMS: Check usage and editing of buy box elements', () => {
         cy.get('.sw-card.sw-category-layout-card .sw-category-layout-card__desc-headline').contains('Vierte Wand');
         cy.get('.sw-category-detail__save-action').click();
 
-        cy.wait('@saveCategory').then((response) => {
-            expect(response).to.have.property('status', 204);
-        });
+        cy.wait('@saveCategory').its('response.statusCode').should('equal', 204);
 
         // Verify layout in Storefront
         cy.visit('/');
@@ -106,10 +103,8 @@ describe('CMS: Check usage and editing of buy box elements', () => {
         cy.get('.product-detail-configurator-option-label[title="red"]').click();
 
         // Wait for reloading product variant
-        cy.wait('@loadData').then((response) => {
-            expect(response).to.have.property('status', 200);
-            cy.get('.product-detail-ordernumber').contains('TEST.1');
-        });
+        cy.wait('@loadData').its('response.statusCode').should('equal', 200);
+        cy.get('.product-detail-ordernumber').contains('TEST.1');
 
         // Off canvas
         cy.get('.btn-buy').click();
@@ -121,20 +116,21 @@ describe('CMS: Check usage and editing of buy box elements', () => {
     });
 
     it('@base @content: use simple gallery buy box block', () => {
-        cy.server();
-        cy.route({
+        cy.onlyOnFeature('FEATURE_NEXT_10078');
+
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/category/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveCategory');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw-login-background`,
-            method: 'post'
+            method: 'POST'
         }).as('saveDataFileUpload');
 
         cy.get('.sw-cms-list-item--0').click();
@@ -158,10 +154,8 @@ describe('CMS: Check usage and editing of buy box elements', () => {
         // Upload image
         uploadImageUsingFileUpload('img/sw-login-background.png', 'sw-login-background.png');
 
-        cy.wait('@saveDataFileUpload').then((xhr) => {
-            cy.awaitAndCheckNotification('File has been saved.');
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveDataFileUpload').its('response.statusCode').should('equal', 204);
+        cy.awaitAndCheckNotification('File has been saved.');
 
         cy.get('.sw-cms-slot__config-modal .sw-modal__footer .sw-button--primary').click();
 
@@ -175,10 +169,8 @@ describe('CMS: Check usage and editing of buy box elements', () => {
 
         // Save new page layout
         cy.get('.sw-cms-detail__save-action').click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-            cy.get('.sw-cms-detail__back-btn').click();
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
+        cy.get('.sw-cms-detail__back-btn').click();
 
         // Assign layout to root category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
@@ -192,9 +184,7 @@ describe('CMS: Check usage and editing of buy box elements', () => {
         cy.get('.sw-card.sw-category-layout-card .sw-category-layout-card__desc-headline').contains('Vierte Wand');
         cy.get('.sw-category-detail__save-action').click();
 
-        cy.wait('@saveCategory').then((response) => {
-            expect(response).to.have.property('status', 204);
-        });
+        cy.wait('@saveCategory').its('response.statusCode').should('equal', 204);
 
         // Verify layout in Storefront
         cy.visit('/');

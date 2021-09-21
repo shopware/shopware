@@ -2,7 +2,9 @@ import AccountPageObject from '../../support/pages/account.page-object';
 
 describe('Account: Handle addresses as customer', () => {
     beforeEach(() => {
-        return cy.createCustomerFixtureStorefront()
+        return cy.createCustomerFixtureStorefront().then(() => {
+            return cy.clearCacheAdminApi('DELETE', `api/_action/cache`);
+        });
     });
 
     it('@base @customer: Add new address and swap roles of these two addresses', () => {
@@ -54,7 +56,7 @@ describe('Account: Handle addresses as customer', () => {
                 headers: {
                     Authorization: `Bearer ${result.access}`
                 },
-                method: 'post',
+                method: 'POST',
                 url: `api/_action/system-config/batch`,
                 body: {
                     null: {

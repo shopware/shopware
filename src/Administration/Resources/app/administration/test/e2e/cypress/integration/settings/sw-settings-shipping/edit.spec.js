@@ -20,10 +20,9 @@ describe('Shipping: Edit in various ways', () => {
         const page = new ShippingPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/shipping-method/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         // Edit base data
@@ -121,9 +120,7 @@ describe('Shipping: Edit in various ways', () => {
         cy.get(page.elements.shippingSaveAction).click();
 
         // Verify shipping method
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
         cy.get(`${page.elements.dataGridRow}--2 .sw-data-grid__cell--name`).should('be.visible')

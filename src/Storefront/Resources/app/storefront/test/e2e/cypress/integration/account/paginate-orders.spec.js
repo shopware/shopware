@@ -23,10 +23,9 @@ describe('Account: Paginated orders', () => {
     });
 
     it('@customer: orders pagination', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: '/account/order',
-            method: 'post'
+            method: 'POST'
         }).as('loadNextPage');
 
         // Login
@@ -47,7 +46,7 @@ describe('Account: Paginated orders', () => {
 
         // Navigate to next page
         cy.get('.pagination-nav .page-next').eq(0).click();
-        cy.wait('@loadNextPage').should('have.property', 'status', 200);
+        cy.wait('@loadNextPage').its('response.statusCode').should('equals', 200);
 
         // Orders amount to 1 on second page
         cy.get('.order-wrapper').should('have.length', 1);

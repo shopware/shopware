@@ -138,10 +138,9 @@ describe('Dynamic product group: Test various filters', () => {
     });
 
     it('@base @rule: search and add products with operator "Is equal to any of"', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
 
         const page = new ProductStreamObject();
@@ -172,15 +171,11 @@ describe('Dynamic product group: Test various filters', () => {
         cy.get('@currentProductStreamFilter').within(() => {
             cy.get('.sw-select input').last().type('Manu');
 
-            cy.wait('@getData').then(xhr => {
-                expect(xhr).to.have.property('status', 200);
-            });
+            cy.wait('@getData').its('response.statusCode').should('equal', 200);
 
             cy.get('.sw-select input').last().type('facturer');
 
-            cy.wait('@getData').then(xhr => {
-                expect(xhr).to.have.property('status', 200);
-            });
+            cy.wait('@getData').its('response.statusCode').should('equal', 200);
 
             const selectResultList = cy.window().then(() => {
                 return cy.wrap(Cypress.$('.sw-select-result-list-popover-wrapper'));
@@ -188,9 +183,7 @@ describe('Dynamic product group: Test various filters', () => {
 
             selectResultList.find('.sw-select-result').contains('Product Manufacturer').click({ force: true });
 
-            cy.wait('@getData').then(xhr => {
-                expect(xhr).to.have.property('status', 200);
-            });
+            cy.wait('@getData').its('response.statusCode').should('equal', 200);
 
             cy.get('.sw-select-selection-list').find('[data-id]', { timeout: 1000 }).should('have.length', 2);
         });

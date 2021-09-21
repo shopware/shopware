@@ -1,4 +1,5 @@
 import '@percy/cypress';
+import 'cypress-file-upload';
 
 /**
  * Types in the global search field and verify search terms in url
@@ -11,19 +12,15 @@ Cypress.Commands.add('typeAndCheckSearchField', {
     prevSubject: 'element',
 }, (subject, value) => {
     // Request we want to wait for later
-    cy.server();
-    cy.route({
+    cy.intercept({
         url: `${Cypress.env('apiPath')}/search/**`,
         method: 'post',
     }).as('searchResultCall');
 
     cy.wrap(subject).type(value).should('have.value', value);
 
-    cy.wait('@searchResultCall').then((xhr) => {
-        expect(xhr).to.have.property('status', 200);
-
-        cy.url().should('include', encodeURI(value));
-    });
+    cy.wait('@searchResultCall').its('response.statusCode').should('equal', 200);
+    cy.url().should('include', encodeURI(value));
 });
 
 /**
@@ -46,8 +43,8 @@ Cypress.Commands.add('loginAsUserWithPermissions', {
         };
 
         cy.request({
-            url: '/api/oauth/token',
-            method: 'POST',
+            url: `/${Cypress.env('apiPath')}/oauth/token`,
+            method: 'post',
             headers: headers,
             body: {
                 grant_type: 'password',
@@ -65,8 +62,8 @@ Cypress.Commands.add('loginAsUserWithPermissions', {
             };
 
             return cy.request({
-                url: '/api/acl-role',
-                method: 'POST',
+                url: `/${Cypress.env('apiPath')}/acl-role`,
+                method: 'post',
                 headers: headers,
                 body: {
                     id: roleID,
@@ -82,8 +79,8 @@ Cypress.Commands.add('loginAsUserWithPermissions', {
         }).then(() => {
             // save user
             cy.request({
-                url: '/api/user',
-                method: 'POST',
+                url: `/${Cypress.env('apiPath')}/user`,
+                method: 'post',
                 headers: headers,
                 body: {
                     aclRoles: [{ id: roleID }],
@@ -124,14 +121,11 @@ Cypress.Commands.add('loginAsUserWithPermissions', {
  */
 Cypress.Commands.add('openInitialPage', (url) => {
     // Request we want to wait for later
-    cy.server();
-    cy.route(`${Cypress.env('apiPath')}/_info/me`).as('meCall');
+    cy.intercept(`/${Cypress.env('apiPath')}/_info/me`).as('meCall');
 
     cy.log('All preparation done!');
     cy.visit(url);
-    cy.wait('@meCall').then((xhr) => {
-        expect(xhr).to.have.property('status', 200);
-    });
+    cy.wait('@meCall').its('response.statusCode').should('equal', 200);
     cy.get('.sw-desktop').should('be.visible');
 });
 
@@ -196,8 +190,8 @@ Cypress.Commands.add('createReviewFixture', () => {
             })
             .then((data) => {
                 cy.request({
-                    url: '/api/product-review',
-                    method: 'POST',
+                    url: `${Cypress.env('apiPath')}/product-review`,
+                    method: 'post',
                     headers: headers,
                     body: Cypress._.merge(reviewJson, {
                         customerId: customerId,
@@ -284,7 +278,7 @@ Cypress.Commands.add('setShippingMethodInSalesChannel', (name, salesChannel = 'S
  * @param {Object} data - Necessary data for the API request
  */
 Cypress.Commands.add('updateViaAdminApi', (endpoint, id, data) => {
-    return cy.requestAdminApi('PATCH', `api/${endpoint}/${id}`, data).then((responseData) => {
+    return cy.requestAdminApi('patch', `${Cypress.env('apiPath')}/${endpoint}/${id}`, data).then((responseData) => {
         return responseData;
     });
 });
@@ -416,8 +410,7 @@ Cypress.Commands.add(
     },
     (subject, values) => {
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/*`,
             method: 'post',
         }).as('filteredResultCall');
@@ -436,13 +429,14 @@ Cypress.Commands.add(
                     values[i],
                 );
 
-            // wait for the first request (which happens on opening / clicking in the input
-            cy.wait('@filteredResultCall').then(() => {
-                // wait for the second request (which happens on stop typing with the actual search)
-                cy.wait('@filteredResultCall').then(() => {
-                    cy.get('.sw-loader__element').should('not.exist');
-                });
-            });
+
+            cy.wait('@filteredResultCall')
+                .its('response.statusCode').should('equal', 200);
+            // wait for the second request (which happens on stop typing with the actual search)
+
+            cy.wait('@filteredResultCall')
+                .its('response.statusCode').should('equal', 200);
+            cy.get('.sw-loader__element').should('not.exist');
 
             // select the value
             cy.contains('.sw-select-result-list__content .sw-select-result', values[i])

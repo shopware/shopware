@@ -30,20 +30,19 @@ describe('CMS: Check usage and editing of product description reviews element', 
     it('@content: can login to write review when assign category for layout', () => {
         const page = new AccountPageObject();
 
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/category/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveCategory');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveProductData');
 
         cy.get('.sw-cms-list-item--0').click();
@@ -74,9 +73,9 @@ describe('CMS: Check usage and editing of product description reviews element', 
 
         // Save new page layout
         cy.get('.sw-cms-detail__save-action').click();
-        cy.wait('@saveData').then(() => {
-            cy.get('.sw-cms-detail__back-btn').click();
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
+        cy.get('.sw-cms-detail__back-btn').click();
 
         // Assign layout to root category
         cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
@@ -90,9 +89,8 @@ describe('CMS: Check usage and editing of product description reviews element', 
         cy.get('.sw-card.sw-category-layout-card .sw-category-layout-card__desc-headline').contains('Vierte Wand');
         cy.get('.sw-category-detail__save-action').click();
 
-        cy.wait('@saveCategory').then((response) => {
-            expect(response).to.have.property('status', 204);
-        });
+        cy.wait('@saveCategory')
+            .its('response.statusCode').should('equal', 204);
 
         // Verify layout in Storefront
         cy.visit('/');
@@ -116,11 +114,10 @@ describe('CMS: Check usage and editing of product description reviews element', 
     it('@content: can login to write review when assign product for PDP layout', () => {
         const page = new AccountPageObject();
 
-        cy.server();
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveProductData');
 
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);

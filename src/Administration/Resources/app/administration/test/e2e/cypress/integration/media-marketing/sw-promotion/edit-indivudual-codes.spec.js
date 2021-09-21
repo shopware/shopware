@@ -35,19 +35,19 @@ describe('Promotion: Test promotion with individual codes', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/promotion`,
-            method: 'post'
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/promotion`,
+            method: 'POST'
         }).as('saveData');
-        cy.route({
-            url: `${Cypress.env('apiPath')}/promotion/**`,
-            method: 'patch'
-        }).as('patchPromotion');
+
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/search/promotion/**/discounts`,
+            method: 'POST'
+        }).as('saveDiscount');
 
         // Active code in promotion
         cy.contains(`${page.elements.dataGridRow}--0 a`, 'Thunder Tuesday').click();
-        cy.get('input[name="sw-field--promotion-active"]').should('be.visible');
+        cy.get('#sw-field--promotion-name').should('be.visible');
         cy.get('input[name="sw-field--promotion-active"]').click();
         cy.get('.sw-promotion-sales-channel-select').typeMultiSelectAndCheck('Storefront');
         cy.get('.sw-promotion-sales-channel-select .sw-select-selection-list__input')
@@ -64,11 +64,9 @@ describe('Promotion: Test promotion with individual codes', () => {
         cy.get('.sw-promotion-individualcodes__top-bar > .sw-button')
             .click();
 
-        cy.wait('@filteredResultCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-            cy.get('.sw-promotion-individualcodes__progress-bar .sw-label__caption').contains('10 / 10');
-            cy.awaitAndCheckNotification('Generated 10 new codes.');
-        });
+        cy.wait('@filteredResultCall').its('response.statusCode').should('equal', 200);
+        cy.get('.sw-promotion-individualcodes__progress-bar .sw-label__caption').contains('10 / 10');
+        cy.awaitAndCheckNotification('Generated 10 new codes.');
 
         cy.get('.sw-modal__close').click();
         cy.get('.sw-modal').should('not.exist');
@@ -79,9 +77,7 @@ describe('Promotion: Test promotion with individual codes', () => {
         cy.get('.sw-button--ghost').should('be.visible');
         cy.contains('.sw-button--ghost', 'Add discount').click();
         cy.get(page.elements.loader).should('not.exist');
-        cy.wait('@filteredResultCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@filteredResultCall').its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-promotion-discount-component').should('be.visible');
         cy.get('.sw-promotion-discount-component__discount-value').should('be.visible');
@@ -91,9 +87,7 @@ describe('Promotion: Test promotion with individual codes', () => {
 
         // Save final promotion
         cy.get('.sw-promotion-detail__save-action').click();
-        cy.wait('@patchPromotion').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@saveDiscount').its('response.statusCode').should('equal', 200);
 
         // Verify Promotion in Storefront
         cy.visit('/');
@@ -111,7 +105,7 @@ describe('Promotion: Test promotion with individual codes', () => {
 
         // Active code in promotion
         cy.contains(`${page.elements.dataGridRow}--0 a`, 'Thunder Tuesday').click();
-        cy.get('input[name="sw-field--promotion-active"]').should('be.visible');
+        cy.get('#sw-field--promotion-name').should('be.visible');
         cy.get('input[name="sw-field--promotion-active"]').click();
         cy.get('.sw-promotion-sales-channel-select').typeMultiSelectAndCheck('Storefront');
         cy.get('.sw-promotion-sales-channel-select .sw-select-selection-list__input')

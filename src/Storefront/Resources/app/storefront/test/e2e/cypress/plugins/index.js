@@ -12,6 +12,7 @@
 // the project's config changing)
 
 require('@babel/register');
+
 const selectTestsWithGrep = require('cypress-select-tests/grep');
 
 module.exports = (on, config) => {

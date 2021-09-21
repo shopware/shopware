@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import CustomerPageObject from '../../../support/pages/module/sw-customer.page-object';
 
@@ -35,7 +35,7 @@ describe('Customer: Edit customer\'s addresses', () => {
             .then(() => {
                 return cy.fixture('customer');
             })
-            .then((result) => {
+            .then(result => {
                 customer = result;
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/customer/index`);
             });
@@ -70,9 +70,8 @@ describe('Customer: Edit customer\'s addresses', () => {
         const page = new CustomerPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `/api/customer-address/*`,
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/customer-address/*`,
             method: 'delete'
         }).as('deleteAddress');
 
@@ -88,13 +87,11 @@ describe('Customer: Edit customer\'s addresses', () => {
         // Remove address
         cy.get('.sw-customer-detail__tab-addresses').click();
         cy.get('.sw-customer-detail__open-edit-mode-action').click();
-        cy.get(`${page.elements.dataGridRow}--1`).then(($btn) => {
-            if ($btn.text().includes(customer.lastName)) {
-                cy.get('.sw-data-grid__cell--2').click();
-                cy.get(`${page.elements.dataGridRow}--0 #defaultShippingAddress-0:checked`)
-                    .should('be.visible');
-            }
-        });
+
+        cy.get('.sw-data-grid__cell--2').click();
+
+        cy.get(`${page.elements.dataGridRow}--0 #defaultShippingAddress-0:checked`);
+
 
         cy.clickContextMenuItem(
             '.sw-context-menu-item--danger',
@@ -106,19 +103,17 @@ describe('Customer: Edit customer\'s addresses', () => {
         );
         cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();
 
-        cy.wait('@deleteAddress').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-            cy.get(`${page.elements.dataGridRow}--1`).should('not.exist');
-        })
+        cy.wait('@deleteAddress')
+            .its('response.statusCode').should('equal', 204);
+        cy.get(`${page.elements.dataGridRow}--1`).should('not.exist');
     });
 
     it('@base @customer: go to edit mode, save and edit again and then remove address', () => {
         const page = new CustomerPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `/api/customer-address/*`,
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/customer-address/*`,
             method: 'delete'
         }).as('deleteAddress');
 
@@ -144,13 +139,12 @@ describe('Customer: Edit customer\'s addresses', () => {
 
         // Remove address
         cy.get('.sw-customer-detail__open-edit-mode-action').click();
-        cy.get(`${page.elements.dataGridRow}--1`).then(($btn) => {
-            if ($btn.text().includes(customer.lastName)) {
-                cy.get('.sw-data-grid__cell--2').click();
-                cy.get(`${page.elements.dataGridRow}--0 #defaultShippingAddress-0:checked`)
-                    .should('be.visible');
-            }
-        });
+
+        // click on the radio box
+        cy.get('.sw-data-grid__cell--2').click();
+
+        // check that the checked pseudo element was added
+        cy.get(`${page.elements.dataGridRow}--0 #defaultShippingAddress-0:checked`)
 
         cy.clickContextMenuItem(
             '.sw-context-menu-item--danger',
@@ -162,10 +156,9 @@ describe('Customer: Edit customer\'s addresses', () => {
         );
         cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();
 
-        cy.wait('@deleteAddress').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-            cy.get(`${page.elements.dataGridRow}--1`).should('not.exist');
-        })
+        cy.wait('@deleteAddress')
+            .its('response.statusCode').should('equal', 204);
+        cy.get(`${page.elements.dataGridRow}--1`).should('not.exist');
     });
 
     it('@customer: swap default billing and shipping address', () => {
@@ -183,39 +176,34 @@ describe('Customer: Edit customer\'s addresses', () => {
         // Open and swap default in addresses
         cy.get('.sw-customer-detail__tab-addresses').click();
         cy.get('.sw-customer-detail__open-edit-mode-action').click();
-        cy.get(`${page.elements.dataGridRow}--1`).then(($btn) => {
-            if ($btn.text().includes(customer.lastName)) {
-                cy.get('.sw-data-grid__cell--2').click();
-                cy.get('.icon--small-arrow-small-up').should('be.visible');
-                cy.get(`${page.elements.dataGridRow}--0 #defaultShippingAddress-0:checked`)
-                    .should('be.visible');
-            }
-        });
+
+        cy.get('.sw-data-grid__cell--2').click();
+        cy.get('.icon--small-arrow-small-up').should('be.visible');
+        cy.get(`${page.elements.dataGridRow}--0 #defaultShippingAddress-0:checked`);
+
         cy.get(`${page.elements.dataGridRow}--0`).contains(customer.lastName);
         cy.get('.icon--default-shopping-cart').should('be.visible');
         cy.get(`${page.elements.dataGridRow}--1 #defaultShippingAddress-0`)
-            .should('be.visible')
             .click();
-        cy.get(`${page.elements.dataGridRow}--1 #defaultShippingAddress-0:checked`).should('be.visible');
+        cy.get(`${page.elements.dataGridRow}--1 #defaultShippingAddress-0:checked`);
 
         cy.get(`${page.elements.dataGridRow}--1 #defaultBillingAddress-0`)
-            .should('be.visible')
             .click();
-        cy.get(`${page.elements.dataGridRow}--1 #defaultBillingAddress-0:checked`).should('be.visible');
+        cy.get(`${page.elements.dataGridRow}--1 #defaultBillingAddress-0:checked`);
     });
 
     it('@base @customer: duplicate address', () => {
         const page = new CustomerPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: '/api/search/customer/**/addresses',
-            method: 'post'
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/search/customer/**/addresses`,
+            method: 'POST'
         }).as('searchAddresses');
-        cy.route({
-            url: '/api/_action/clone/customer-address/**',
-            method: 'post'
+
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/_action/clone/customer-address/**`,
+            method: 'POST'
         }).as('cloneAddress');
 
         // Open customer
@@ -230,13 +218,12 @@ describe('Customer: Edit customer\'s addresses', () => {
         // Remove address
         cy.get('.sw-customer-detail__tab-addresses').click();
         cy.get('.sw-customer-detail__open-edit-mode-action').click();
-        cy.get(`${page.elements.dataGridRow}--1`).then(($btn) => {
-            if ($btn.text().includes(customer.lastName)) {
-                cy.get('.sw-data-grid__cell--2').click();
-                cy.get(`${page.elements.dataGridRow}--0 #defaultShippingAddress-0:checked`)
-                    .should('be.visible');
-            }
-        });
+
+        // click on the radio box
+        cy.get('.sw-data-grid__cell--2').click();
+
+        // check that the checked pseudo element was added
+        cy.get(`${page.elements.dataGridRow}--0 #defaultShippingAddress-0:checked`)
 
         cy.clickContextMenuItem(
             '.sw-context-menu-item',
@@ -245,20 +232,20 @@ describe('Customer: Edit customer\'s addresses', () => {
             'Duplicate'
         );
 
-        cy.wait(['@cloneAddress', '@searchAddresses']).then((xhrRequests) => {
-            xhrRequests.forEach(xhr => expect(xhr).to.have.property('status', 200));
-            cy.get(`${page.elements.dataGridRow}--2`).should('be.visible');
-        });
+        cy.wait('@cloneAddress')
+            .its('response.statusCode').should('equal', 200);
+        cy.wait('@searchAddresses')
+            .its('response.statusCode').should('equal', 200);
+        cy.get(`${page.elements.dataGridRow}--2`).should('be.visible');
     });
 
     it('@base @customer: search addresses', () => {
         const page = new CustomerPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `/api/search/customer/**/addresses`,
-            method: 'post'
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/search/customer/**/addresses`,
+            method: 'POST'
         }).as('searchAddresses');
 
         // Open customer
@@ -276,9 +263,8 @@ describe('Customer: Edit customer\'s addresses', () => {
         cy.get('.sw-simple-search-field input').type('Lemon');
 
         // Verify search addresses
-        cy.wait('@searchAddresses').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-            cy.get(`${page.elements.dataGridRow}--0`).should('be.visible').contains('Lemon');
-        });
+        cy.wait('@searchAddresses')
+            .its('response.statusCode').should('equal', 200);
+        cy.get(`${page.elements.dataGridRow}--0`).should('be.visible').contains('Lemon');
     });
 });

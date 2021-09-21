@@ -20,10 +20,9 @@ describe('Shipping: Test crud operations', () => {
         const page = new ShippingPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/shipping-method`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Create shipping method
@@ -32,9 +31,7 @@ describe('Shipping: Test crud operations', () => {
         cy.get(page.elements.shippingSaveAction).click();
 
         // Verify shipping method
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click({ force: true });
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).should('be.visible')
@@ -45,10 +42,9 @@ describe('Shipping: Test crud operations', () => {
         const page = new ShippingPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/shipping-method/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         // Edit base data
@@ -60,9 +56,7 @@ describe('Shipping: Test crud operations', () => {
         cy.get(page.elements.shippingSaveAction).click();
 
         // Verify shipping method
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
         cy.get(`${page.elements.dataGridRow}--2 .sw-data-grid__cell--name`).should('be.visible')
@@ -73,8 +67,7 @@ describe('Shipping: Test crud operations', () => {
         const page = new ShippingPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/shipping-method/*`,
             method: 'delete'
         }).as('deleteData');
@@ -93,19 +86,16 @@ describe('Shipping: Test crud operations', () => {
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
         cy.get(page.elements.modal).should('not.exist');
 
-        cy.wait('@deleteData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteData').its('response.statusCode').should('equal', 204);
 
         cy.awaitAndCheckNotification('Shipping method "Luftpost" has been deleted.');
     });
 
     it('@base @settings: new shipping method should show default price matrix', () => {
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/shipping-method`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Create shipping method

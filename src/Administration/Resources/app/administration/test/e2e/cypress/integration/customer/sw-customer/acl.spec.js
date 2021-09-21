@@ -78,10 +78,9 @@ describe('Customer: Test ACL privileges', () => {
 
     it('@customer: can edit customer', () => {
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/customer/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveCustomer');
 
         const page = new CustomerPageObject();
@@ -112,9 +111,7 @@ describe('Customer: Test ACL privileges', () => {
         cy.get('#sw-field--customer-email').clear();
         cy.get('#sw-field--customer-email').type('test@example.com');
         cy.get('.sw-customer-detail__save-action').click();
-        cy.wait('@saveCustomer').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveCustomer').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--firstName`)
@@ -123,10 +120,9 @@ describe('Customer: Test ACL privileges', () => {
 
     it('@customer: can create customer', () => {
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/customer`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         const page = new CustomerPageObject();
@@ -174,15 +170,12 @@ describe('Customer: Test ACL privileges', () => {
         cy.get(page.elements.customerSaveAction).click();
 
         // Verify customer in listing
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
     });
 
     it('@customer: can delete customer', () => {
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/customer/*`,
             method: 'delete'
         }).as('deleteData');
@@ -213,19 +206,16 @@ describe('Customer: Test ACL privileges', () => {
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
 
         // Verify new options in listing
-        cy.wait('@deleteData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteData').its('response.statusCode').should('equal', 204);
         cy.get(page.elements.modal).should('not.exist');
         cy.get(page.elements.emptyState).should('be.visible');
     });
 
     it('@customer: cannot create customer with duplicate email', () => {
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_admin/check-customer-email-valid`,
-            method: 'post'
+            method: 'POST'
         }).as('checkEmailValid');
 
         const page = new CustomerPageObject();
@@ -269,16 +259,14 @@ describe('Customer: Test ACL privileges', () => {
         page.createBasicAddress(customer);
         cy.get(page.elements.customerSaveAction).click();
 
-        cy.wait('@checkEmailValid').then((xhr) => {
-            expect(xhr).to.have.property('status', 400);
-        });
+        cy.wait('@checkEmailValid')
+            .its('response.statusCode').should('equal', 400);
 
         cy.get('.sw-field--email .sw-field__error').contains('The email address test@example.com is already in use');
     });
 
     it('@customer: cannot edit customer with duplicate email', () => {
         // Request we want to wait for later
-        cy.server();
         const page = new CustomerPageObject();
 
         cy.loginAsUserWithPermissions([
@@ -322,9 +310,9 @@ describe('Customer: Test ACL privileges', () => {
 
         cy.visit(`${Cypress.env('admin')}#/sw/customer/index`);
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_admin/check-customer-email-valid`,
-            method: 'post'
+            method: 'POST'
         }).as('checkEmailValid');
 
         // open customer
@@ -339,9 +327,9 @@ describe('Customer: Test ACL privileges', () => {
         cy.get('#sw-field--customer-email').clear();
         cy.get('#sw-field--customer-email').type('test1@example.com');
         cy.get('.sw-customer-detail__save-action').click();
-        cy.wait('@checkEmailValid').then((xhr) => {
-            expect(xhr).to.have.property('status', 400);
-        });
+
+        cy.wait('@checkEmailValid')
+            .its('response.statusCode').should('equal', 400);
 
         cy.get('.sw-field--email .sw-field__error').contains('The email address test1@example.com is already in use');
     });

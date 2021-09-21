@@ -46,10 +46,9 @@ describe('Salutation: Test acl privileges', () => {
         });
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/salutation`,
-            method: 'post'
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/salutation`,
+            method: 'POST'
         }).as('createSalutation');
 
         // go to create salutation page
@@ -73,9 +72,7 @@ describe('Salutation: Test acl privileges', () => {
         cy.get('.sw-settings-salutation-detail__save').click();
 
         // Verify creation
-        cy.wait('@createSalutation').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@createSalutation').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Ms');
@@ -102,10 +99,9 @@ describe('Salutation: Test acl privileges', () => {
         });
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/salutation/*`,
-            method: 'patch'
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/salutation/*`,
+            method: 'PATCH'
         }).as('editSalutation');
 
         // click on the first element in grid
@@ -120,9 +116,7 @@ describe('Salutation: Test acl privileges', () => {
         cy.get('.sw-settings-salutation-detail__save').click();
 
         // Verify creation
-        cy.wait('@editSalutation').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@editSalutation').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Dear Boss');
@@ -148,10 +142,9 @@ describe('Salutation: Test acl privileges', () => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/salutation/index`);
         });
 
-        // Prepare api to delete salutation
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/salutation/*`,
+        // prepare api to delete salutation
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/salutation/*`,
             method: 'delete'
         }).as('deleteSalutation');
 
@@ -172,8 +165,6 @@ describe('Salutation: Test acl privileges', () => {
 
 
         // call api to delete the salutaion
-        cy.wait('@deleteSalutation').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteSalutation').its('response.statusCode').should('equal', 204);
     });
 });

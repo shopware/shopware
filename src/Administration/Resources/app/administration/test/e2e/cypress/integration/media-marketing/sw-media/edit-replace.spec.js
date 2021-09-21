@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import MediaPageObject from '../../../support/pages/module/sw-media.page-object';
 
@@ -20,10 +20,9 @@ describe('Media: Replace media', () => {
         const page = new MediaPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw-login-background`,
-            method: 'post'
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw-login-background`,
+            method: 'POST'
         }).as('uploadMedia');
 
 
@@ -31,12 +30,10 @@ describe('Media: Replace media', () => {
         cy.get(page.elements.smartBarHeader).contains('Media');
 
         // Upload image
-        page.uploadImageUsingFileUpload('img/sw-login-background.png', 'sw-login-background.png');
+        page.uploadImageUsingFileUpload('img/sw-login-background.png');
 
         // wait until upload finished
-        cy.wait('@uploadMedia').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@uploadMedia').its('response.statusCode').should('equal', 204);
 
         // Select uploaded image in media grid
         cy.get('.sw-media-base-item__name[title="sw-login-background.png"]').click();
@@ -47,11 +44,7 @@ describe('Media: Replace media', () => {
 
         // Upload new file
         cy.get(`.sw-media-modal-replace ${page.elements.uploadInput}`)
-            .attachFile({
-                filePath: 'img/sw-test-image.png',
-                fileName: 'sw-test-image.png',
-                mimeType: 'image/png'
-            });
+            .attachFile('img/sw-test-image.png');
 
         // Verify image is about to be replaced
         cy.get('.sw-media-modal-replace .sw-media-upload__fallback-icon').should('not.exist');
@@ -75,21 +68,18 @@ describe('Media: Replace media', () => {
         const page = new MediaPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw-login-background`,
-            method: 'post'
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw-login-background`,
+            method: 'POST'
         }).as('uploadMedia');
 
         cy.get(page.elements.loader).should('not.exist');
         cy.get(page.elements.smartBarHeader).contains('Media');
 
         // Upload image
-        page.uploadImageUsingFileUpload('img/sw-login-background.png', 'sw-login-background.png');
+        page.uploadImageUsingFileUpload('img/sw-login-background.png');
 
-        cy.wait('@uploadMedia').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@uploadMedia').its('response.statusCode').should('equal', 204);
 
         // Select uploaded image in media grid
         cy.get('.sw-media-base-item__name[title="sw-login-background.png"]').click();
@@ -100,11 +90,7 @@ describe('Media: Replace media', () => {
 
         // Upload new file with different file type
         cy.get(`.sw-media-modal-replace ${page.elements.uploadInput}`)
-            .attachFile({
-                filePath: 'img/sw-storefront-en.jpg',
-                fileName: 'sw-storefront-en.jpg',
-                mimeType: 'image/jpg'
-            });
+            .attachFile('img/sw-storefront-en.jpg');
 
         // Verify image is about to be replaced
         cy.get('.sw-media-modal-replace .sw-media-upload__fallback-icon').should('not.exist');

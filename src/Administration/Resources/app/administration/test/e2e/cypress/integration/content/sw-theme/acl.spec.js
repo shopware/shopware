@@ -90,10 +90,9 @@ describe('Theme: Test ACL privileges', () => {
     });
 
     it('@content: can edit theme', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/theme/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveTheme');
 
         cy.loginAsUserWithPermissions([
@@ -123,17 +122,14 @@ describe('Theme: Test ACL privileges', () => {
         cy.get('.smart-bar__actions .sw-button-process.sw-button--primary').click();
         cy.get('.sw-modal .sw-button--primary').click();
 
-        cy.wait('@saveTheme').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-            cy.get('.sw-colorpicker .sw-colorpicker__input').first().should('have.value', '#000');
-        });
+        cy.wait('@saveTheme').its('response.statusCode').should('equal', 200);
+        cy.get('.sw-colorpicker .sw-colorpicker__input').first().should('have.value', '#000');
     });
 
     it('@content: can create theme via duplicate functionality', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/theme`,
-            method: 'post'
+            method: 'POST'
         }).as('duplicateTheme');
 
         cy.loginAsUserWithPermissions([
@@ -170,20 +166,16 @@ describe('Theme: Test ACL privileges', () => {
         cy.get('.sw_theme_manager__duplicate-modal').should('be.visible');
         cy.get('#sw-field--newThemeName').typeAndCheck('New Theme');
         cy.get('.sw_theme_manager__duplicate-modal .sw-button--primary').click();
-        cy.get('.sw_theme_manager__duplicate-modal').should('not.be.visible');
+        cy.get('.sw_theme_manager__duplicate-modal').should('not.exist');
 
         // Verify new theme data
-        cy.wait('@duplicateTheme').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-
-            cy.get('.sw-theme-manager-detail__info-name').contains('New Theme');
-            cy.get('.sw-theme-manager-detail__inheritance').should('be.visible');
-        });
+        cy.wait('@duplicateTheme').its('response.statusCode').should('equal', 204);
+        cy.get('.sw-theme-manager-detail__info-name').contains('New Theme');
+        cy.get('.sw-theme-manager-detail__inheritance').should('be.visible');
     });
 
     it('@content: can delete theme', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/theme/*`,
             method: 'delete'
         }).as('deleteTheme');
@@ -222,15 +214,13 @@ describe('Theme: Test ACL privileges', () => {
         cy.get(`${elements.contextMenu} .sw-theme-list-item__option-delete`).click();
         cy.get('.sw-modal').should('be.visible');
         cy.get('.sw-modal .sw-button--danger').click();
-        cy.get('.sw-modal').should('not.be.visible');
+        cy.get('.sw-modal').should('not.exist');
 
-        cy.wait('@deleteTheme').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
+        cy.wait('@deleteTheme').its('response.statusCode').should('equal', 204);
 
-            // Ensure deleted theme is not present
-            cy.get('.sw-theme-list__list-grid-content')
-                .contains('E2E Theme')
-                .should('not.exist');
-        });
+        // Ensure deleted theme is not present
+        cy.get('.sw-theme-list__list-grid-content')
+            .contains('E2E Theme')
+            .should('not.exist');
     });
 });

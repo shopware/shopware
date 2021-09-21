@@ -1,6 +1,4 @@
-/// <reference types="Cypress" />
-
-import MediaPageObject from '../../../support/pages/module/sw-media.page-object';
+// / <reference types="Cypress" />
 
 describe('CMS: check validation of product list page', () => {
     beforeEach(() => {
@@ -18,10 +16,9 @@ describe('CMS: check validation of product list page', () => {
     });
 
     it('@content: create product list page and try to save with deleted listing block', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Fill in basic data
@@ -36,7 +33,7 @@ describe('CMS: check validation of product list page', () => {
         cy.contains('.sw-button--primary', 'Create layout').should('be.enabled');
         cy.contains('.sw-button--primary', 'Create layout').click();
         cy.get('.sw-loader').should('not.exist');
-        cy.get('.sw-cms-section__empty-stage').should('not.be.visible');
+        cy.get('.sw-cms-section__empty-stage').should('not.exist');
         cy.get('.sw-cms-block-product-listing').should('be.visible');
 
         // Add simple text block

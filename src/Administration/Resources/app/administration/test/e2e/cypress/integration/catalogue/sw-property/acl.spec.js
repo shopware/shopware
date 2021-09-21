@@ -65,10 +65,9 @@ describe('Property: Test ACL privileges', () => {
 
     it('@catalogue: can edit property', () => {
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/property-group/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveProperty');
 
         const page = new PropertyPageObject();
@@ -99,9 +98,7 @@ describe('Property: Test ACL privileges', () => {
         cy.get('.sw-property-option-list__delete-button').should('be.disabled');
         cy.get('.sw-property-detail__save-action').should('not.be.disabled');
         cy.get('.sw-property-detail__save-action').click();
-        cy.wait('@saveProperty').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveProperty').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--description`)
@@ -110,10 +107,9 @@ describe('Property: Test ACL privileges', () => {
 
     it('@catalogue: can create property', () => {
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/property-group`,
-            method: 'post'
+        cy.intercept({
+            method: 'POST',
+            url: `${Cypress.env('apiPath')}/property-group`
         }).as('saveData');
 
         const page = new PropertyPageObject();
@@ -139,19 +135,16 @@ describe('Property: Test ACL privileges', () => {
         cy.get(page.elements.propertySaveAction).click();
 
         // Verify property in listing
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
         cy.get(page.elements.smartBarBack).click();
         cy.contains('.sw-data-grid__row', '1 Coleur');
     });
 
     it('@catalogue: can delete property', () => {
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/property-group/*`,
-            method: 'delete'
+        cy.intercept({
+            method: 'delete',
+            url: `${Cypress.env('apiPath')}/property-group/*`
         }).as('deleteData');
 
         const page = new PropertyPageObject();
@@ -180,9 +173,7 @@ describe('Property: Test ACL privileges', () => {
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
 
         // Verify new options in listing
-        cy.wait('@deleteData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteData').its('response.statusCode').should('equal', 204);
         cy.get(page.elements.modal).should('not.exist');
         cy.get(page.elements.emptyState).should('be.visible');
     });

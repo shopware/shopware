@@ -13,10 +13,9 @@ describe('Feature sets: Visual testing', () => {
     });
 
     it('@visual: check appearance of delivery time module', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product-feature-set`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
@@ -25,9 +24,8 @@ describe('Feature sets: Visual testing', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('#sw-settings-product-feature-sets').click();
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getData')
+            .its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-data-grid-skeleton').should('not.exist');
 

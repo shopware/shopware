@@ -13,14 +13,13 @@ describe('Theme: Visual tests', () => {
     });
 
     it('@visual: check appearance of basic theme workflow', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/theme/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/theme`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
 
         cy.clickMainMenuItem({
@@ -28,9 +27,9 @@ describe('Theme: Visual tests', () => {
             mainMenuId: 'sw-content',
             subMenuId: 'sw-theme-manager'
         });
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+
+        cy.wait('@getData')
+            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-theme-list__list').should('be.visible');
 
         cy.get('.sw-theme-list-item')

@@ -13,10 +13,9 @@ describe('Salutation: Visual tesing', () => {
     });
 
     it('@visual: check appearance of salutation module', () => {
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/search/salutation`,
-            method: 'post'
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/search/salutation`,
+            method: 'POST'
         }).as('getData');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
@@ -25,9 +24,8 @@ describe('Salutation: Visual tesing', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('#sw-settings-salutation').click();
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getData')
+            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.takeSnapshot('[Salutation] Listing', '.sw-settings-salutation-list-grid');
 

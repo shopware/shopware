@@ -25,12 +25,12 @@ describe('Mail templates: Test acl privileges', () => {
             cy.visit(`${Cypress.env('admin')}#/sw/mail/template/index`);
         });
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/mail-template`,
             method: 'POST'
         }).as('loadMailTemplates');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/mail-header-footer`,
             method: 'POST'
         }).as('loadMailHeaderFooter');
@@ -46,11 +46,8 @@ describe('Mail templates: Test acl privileges', () => {
 
         cy.get(page.elements.smartBarBack).click();
 
-        cy.wait(['@loadMailTemplates', '@loadMailHeaderFooter']).then(xhrs => {
-            xhrs.forEach(xhr => {
-                expect(xhr).to.have.property('status', 200);
-            });
-        });
+        cy.wait('@loadMailTemplates').its('response.statusCode').should('equal', 200);
+        cy.wait('@loadMailHeaderFooter').its('response.statusCode').should('equal', 200);
 
         // wait up to 3 seconds for template listing, because it will push put the mailheader/footer out of viewport
         cy.get('#mailTemplateGrid.sw-mail-templates-list-grid .sw-data-grid__row', { timeout: 3000 }).should('be.visible');
@@ -83,25 +80,25 @@ describe('Mail templates: Test acl privileges', () => {
         });
 
         // prepare api to update a mail template
-        cy.server();
-        cy.route({
+
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/mail-template/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveMailTemplate');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/mail-template`,
             method: 'POST'
         }).as('loadMailTemplates');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/mail-header-footer`,
             method: 'POST'
         }).as('loadMailHeaderFooter');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/mail-header-footer/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveMailHeaderFooter');
 
         // go to mail template module
@@ -116,9 +113,7 @@ describe('Mail templates: Test acl privileges', () => {
         );
 
         // wait for data loading
-        cy.wait('@loadMailTemplates').then(xhr => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@loadMailTemplates').its('response.statusCode').should('equal', 200);
 
         // wait up to 3 seconds for template listing, because it will push put the mailheader/footer out of viewport
         cy.get('#mailTemplateTypes', { timeout: 3000 }).should('be.visible');
@@ -132,9 +127,7 @@ describe('Mail templates: Test acl privileges', () => {
         cy.get(page.elements.mailTemplateSaveAction).click();
 
         // call api to update the mail template
-        cy.wait('@saveMailTemplate').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveMailTemplate').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
 
@@ -142,11 +135,8 @@ describe('Mail templates: Test acl privileges', () => {
         cy.get(`${page.elements.mailTemplateGridList} ${page.elements.dataGridRow}--0 ${page.elements.mailTemplateColumnDescription}`)
             .contains('Default description');
 
-        cy.wait(['@loadMailTemplates', '@loadMailHeaderFooter']).then(xhrs => {
-            xhrs.forEach(xhr => {
-                expect(xhr).to.have.property('status', 200);
-            });
-        });
+        cy.wait('@loadMailTemplates').its('response.statusCode').should('equal', 200);
+        cy.wait('@loadMailHeaderFooter').its('response.statusCode').should('equal', 200);
 
         // wait up to 3 seconds for template listing, because it will push put the mailheader/footer out of viewport
         cy.get('#mailTemplateGrid.sw-mail-templates-list-grid .sw-data-grid__row', { timeout: 3000 }).should('be.visible');
@@ -167,9 +157,7 @@ describe('Mail templates: Test acl privileges', () => {
         cy.get(page.elements.mailHeaderFooterSaveAction).click();
 
         // call api to update the mail template
-        cy.wait('@saveMailHeaderFooter').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveMailHeaderFooter').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
 
@@ -199,15 +187,15 @@ describe('Mail templates: Test acl privileges', () => {
         });
 
         // prepare api to update a mail template
-        cy.server();
-        cy.route({
+
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/mail-template`,
-            method: 'post'
+            method: 'POST'
         }).as('createMailTemplate');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/mail-header-footer`,
-            method: 'post'
+            method: 'POST'
         }).as('createMailHeaderFooter');
 
         // Create mail template
@@ -225,9 +213,7 @@ describe('Mail templates: Test acl privileges', () => {
         cy.get(page.elements.mailTemplateSaveAction).click();
 
         // call api to update the country
-        cy.wait('@createMailTemplate').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@createMailTemplate').its('response.statusCode').should('equal', 204);
 
         // assert that country is updated successfully
         cy.get(page.elements.smartBarBack).click();
@@ -246,9 +232,7 @@ describe('Mail templates: Test acl privileges', () => {
         cy.get(page.elements.mailHeaderFooterSaveAction).click();
 
         // call api to create the mail header footer
-        cy.wait('@createMailHeaderFooter').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@createMailHeaderFooter').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
 
@@ -272,18 +256,18 @@ describe('Mail templates: Test acl privileges', () => {
         });
 
         // prepare api to delete a mail template
-        cy.server();
-        cy.route({
+
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/mail-template/*`,
             method: 'delete'
         }).as('deleteMailTemplate');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/mail-header-footer/*`,
             method: 'delete'
         }).as('deleteMailHeaderFooter');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/mail-template`,
             method: 'POST'
         }).as('loadMailTemplates');
@@ -302,14 +286,10 @@ describe('Mail templates: Test acl privileges', () => {
         cy.get(page.elements.modal).should('not.exist');
 
         // call api to delete mail template
-        cy.wait('@deleteMailTemplate').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteMailTemplate').its('response.statusCode').should('equal', 204);
 
         // wait for data loading
-        cy.wait('@loadMailTemplates').then(xhr => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@loadMailTemplates').its('response.statusCode').should('equal', 200);
 
         // wait up to 3 seconds for template listing, because it will push put the mailheader/footer out of viewport
         cy.get('#mailTemplateGrid.sw-mail-templates-list-grid .sw-data-grid__row', { timeout: 3000 }).should('be.visible');
@@ -331,9 +311,7 @@ describe('Mail templates: Test acl privileges', () => {
         cy.get(page.elements.modal).should('not.exist');
 
         // call api to delete the mail header footer
-        cy.wait('@deleteMailHeaderFooter').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteMailHeaderFooter').its('response.statusCode').should('equal', 204);
 
         cy.get(`${page.elements.mailHeaderFooterGridList} ${page.elements.dataGridRow}--0 ${page.elements.mailHeaderFooterColumnName}`).should('not.exist');
     });
@@ -359,23 +337,23 @@ describe('Mail templates: Test acl privileges', () => {
         });
 
         // prepare api to update a mail template
-        cy.server();
-        cy.route({
+
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/mail-template/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveMailTemplate');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/mail-header-footer/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveMailHeaderFooter');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/mail-template`,
             method: 'POST'
         }).as('loadMailTemplates');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/mail-header-footer`,
             method: 'POST'
         }).as('loadMailHeaderFooter');
@@ -397,20 +375,15 @@ describe('Mail templates: Test acl privileges', () => {
         cy.get(page.elements.mailTemplateSaveAction).click();
 
         // call api to update the mail template
-        cy.wait('@saveMailTemplate').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveMailTemplate').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
 
         // TODO: verify fields will do when NEXT-7072 search function is fixed
 
         // wait for data loading
-        cy.wait(['@loadMailTemplates', '@loadMailHeaderFooter']).then(xhrs => {
-            xhrs.forEach(xhr => {
-                expect(xhr).to.have.property('status', 200);
-            });
-        });
+        cy.wait('@loadMailTemplates').its('response.statusCode').should('equal', 200);
+        cy.wait('@loadMailHeaderFooter').its('response.statusCode').should('equal', 200);
 
         // wait up to 3 seconds for template listing, because it will push put the mailheader/footer out of viewport
         cy.get('#mailTemplateGrid.sw-mail-templates-list-grid .sw-data-grid__row', { timeout: 3000 }).should('be.visible');
@@ -433,9 +406,7 @@ describe('Mail templates: Test acl privileges', () => {
         cy.get(page.elements.mailHeaderFooterSaveAction).click();
 
         // call api to save mail header footer
-        cy.wait('@saveMailHeaderFooter').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveMailHeaderFooter').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
 

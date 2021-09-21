@@ -17,10 +17,9 @@ describe('Payment: Visual testing', () => {
     });
 
     it('@base @navigation: navigate to payment module', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/payment-method`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
@@ -31,9 +30,8 @@ describe('Payment: Visual testing', () => {
         cy.get('#sw-settings-payment').click();
 
         // Ensure snapshot consistency
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getData')
+            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-data-grid-skeleton').should('not.exist');
 
         // Take Snapshot

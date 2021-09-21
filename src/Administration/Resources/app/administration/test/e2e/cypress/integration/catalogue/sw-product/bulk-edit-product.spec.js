@@ -82,29 +82,27 @@ describe('Product: Test bulk edit product', () => {
     it('@product: bulk edit product', () => {
         cy.onlyOnFeature('FEATURE_NEXT_6061');
 
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product`,
             method: 'POST'
         }).as('getProduct');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/user-config`,
             method: 'POST'
         }).as('getUserConfig');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         cy.loginViaApi();
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/index`);
 
-        cy.wait('@getProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getProduct')
+            .its('response.statusCode').should('equal', 200);
 
         cy.wait('@getUserConfig');
 
@@ -131,9 +129,7 @@ describe('Product: Test bulk edit product', () => {
         cy.get('.footer-right .sw-button--primary').click();
 
         cy.get('.sw-bulk-edit-save-modal__process').should('exist');
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-bulk-edit-save-modal__success').should('exist');
         cy.get('.footer-right .sw-button--primary').contains('Close');

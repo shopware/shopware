@@ -16,10 +16,9 @@ describe('Salutation: crud salutations', () => {
     it('@settings: can create a new salutation', () => {
         const page = new SettingsPageObject();
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/salutation`,
-            method: 'post'
+            method: 'POST'
         }).as('createSalutation');
 
         // go to salutaion module
@@ -47,9 +46,7 @@ describe('Salutation: crud salutations', () => {
         cy.get('.sw-settings-salutation-detail__save').click();
 
         // Verify creation
-        cy.wait('@createSalutation').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@createSalutation').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Ms');
@@ -63,10 +60,9 @@ describe('Salutation: crud salutations', () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/salutation/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('editSalutation');
 
         // go to salutation module
@@ -85,9 +81,7 @@ describe('Salutation: crud salutations', () => {
         cy.get('.sw-settings-salutation-detail__save').click();
 
         // Verify creation
-        cy.wait('@editSalutation').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@editSalutation').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Dear Boss');
@@ -99,9 +93,8 @@ describe('Salutation: crud salutations', () => {
 
     it('@settings: can delete a salutation', () => {
         const page = new SettingsPageObject();
-        // repare api to delete salutation
-        cy.server();
-        cy.route({
+        // Prepare api to delete salutation
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/salutation/*`,
             method: 'delete'
         }).as('deleteSalutation');
@@ -128,8 +121,6 @@ describe('Salutation: crud salutations', () => {
 
 
         // call api to delete the salutaion
-        cy.wait('@deleteSalutation').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteSalutation').its('response.statusCode').should('equal', 204);
     });
 });

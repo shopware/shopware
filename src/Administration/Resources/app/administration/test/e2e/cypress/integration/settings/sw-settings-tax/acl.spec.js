@@ -38,10 +38,9 @@ describe('Tax: Test acl privileges', () => {
         });
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/tax`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
 
@@ -55,9 +54,7 @@ describe('Tax: Test acl privileges', () => {
         cy.get(page.elements.taxSaveAction).click();
 
         // Verify creation
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
         cy.get(`${page.elements.dataGridRow}--1 ${page.elements.taxColumnName}`)
@@ -83,10 +80,9 @@ describe('Tax: Test acl privileges', () => {
         });
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/tax/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         // Edit tax
@@ -100,9 +96,7 @@ describe('Tax: Test acl privileges', () => {
         cy.get(page.elements.taxSaveAction).click();
 
         // Verify creation
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
         cy.get(`${page.elements.dataGridRow}--0 ${page.elements.taxColumnName}`)
@@ -128,8 +122,7 @@ describe('Tax: Test acl privileges', () => {
         });
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/tax/*`,
             method: 'delete'
         }).as('deleteData');
@@ -147,9 +140,7 @@ describe('Tax: Test acl privileges', () => {
             .contains('Are you sure you want to delete the tax "High tax"?');
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
 
-        cy.wait('@deleteData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteData').its('response.statusCode').should('equal', 204);
 
         // Verify deletion
         cy.get(page.elements.modal).should('not.exist');

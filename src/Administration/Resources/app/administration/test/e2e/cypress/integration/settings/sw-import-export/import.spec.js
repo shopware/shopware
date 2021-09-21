@@ -20,31 +20,26 @@ describe('Import/Export - Check import functionality', () => {
     });
 
     it('@base @settings: Perform import with product profile', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/import-export/prepare`,
-            method: 'post'
+            method: 'POST'
         }).as('prepare');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/import-export/process`,
-            method: 'post'
+            method: 'POST'
         }).as('process');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/import-export-log`,
-            method: 'post'
+            method: 'POST'
         }).as('importExportLog');
 
         cy.get('.sw-import-export-view-import').should('be.visible');
 
         // Upload a fixture CSV file with a single product
         cy.get('.sw-file-input__file-input')
-            .attachFile({
-                filePath: 'csv/single-product.csv',
-                fileName: 'single-product.csv',
-                mimeType: 'text/csv'
-            });
+            .attachFile('csv/single-product.csv');
 
         // File upload component should display file name
         cy.get('.sw-file-input__file-headline').should('contain', 'single-product.csv');
@@ -62,19 +57,13 @@ describe('Import/Export - Check import functionality', () => {
         cy.get('.sw-import-export-progress__start-process-action').should('be.disabled');
 
         // Prepare request should be successful
-        cy.wait('@prepare').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@prepare').its('response.statusCode').should('equal', 200);
 
         // Process request should be successful
-        cy.wait('@process').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@process').its('response.statusCode').should('equal', 204);
 
         // Import export log request should be successful
-        cy.wait('@importExportLog').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@importExportLog').its('response.statusCode').should('equal', 200);
 
         // The activity logs should contain an entry for the succeeded import
         cy.get(`.sw-import-export-activity ${page.elements.dataGridRow}--0`).should('be.visible');

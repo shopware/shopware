@@ -41,14 +41,13 @@ describe('Product: Check cross selling integration', () => {
         const page = new ProductStreamObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product-stream`,
-            method: 'post'
+            method: 'POST'
         }).as('saveStream');
 
         // Open and adjust product stream
@@ -70,9 +69,7 @@ describe('Product: Check cross selling integration', () => {
         );
 
         cy.get('.sw-button-process').click();
-        cy.wait('@saveStream').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@saveStream').its('response.statusCode').should('equal', 200);
 
         // Open product and add cross selling
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
@@ -98,9 +95,7 @@ describe('Product: Check cross selling integration', () => {
 
         // Save and verify cross selling stream
         cy.get('.sw-button-process').click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 200);
 
         // check if add cross selling button is still visible
         cy.get('.sw-product-detail-cross-selling__add-btn').should('be.visible');
@@ -125,18 +120,17 @@ describe('Product: Check cross selling integration', () => {
         const page = new ProductStreamObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product-stream`,
-            method: 'post'
+            method: 'POST'
         }).as('saveStream');
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product-cross-selling/**/assigned-products`,
-            method: 'post'
+            method: 'POST'
         }).as('assignProduct');
 
         // Open product and add cross selling
@@ -159,9 +153,7 @@ describe('Product: Check cross selling integration', () => {
 
         // Save and verify cross selling stream
         cy.get('.sw-button-process').click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 200);
 
         // check if add cross selling button is still visible
         cy.get('.sw-product-detail-cross-selling__add-btn').should('be.visible');
@@ -194,9 +186,7 @@ describe('Product: Check cross selling integration', () => {
 
         // Save and verify cross selling stream
         cy.get('.sw-button-process').click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 200);
 
         // check if add cross selling button is still visible
         cy.get('.sw-product-detail-cross-selling__add-btn').should('be.visible');
@@ -219,18 +209,19 @@ describe('Product: Check cross selling integration', () => {
         const page = new ProductStreamObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
-        cy.route({
+
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product-stream`,
-            method: 'post'
+            method: 'POST'
         }).as('saveStream');
-        cy.route({
+
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product-cross-selling/**/assigned-products`,
-            method: 'post'
+            method: 'POST'
         }).as('assignProduct');
 
         // Open product and add cross selling
@@ -248,9 +239,7 @@ describe('Product: Check cross selling integration', () => {
 
         // Save and verify cross selling stream
         cy.get('.sw-button-process').click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 400);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 400);
 
         // check if add cross selling button is still visible
         cy.get('.sw-product-detail-cross-selling__add-btn').should('be.visible');

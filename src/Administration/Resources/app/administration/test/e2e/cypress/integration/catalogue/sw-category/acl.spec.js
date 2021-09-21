@@ -58,31 +58,23 @@ describe('Category: Test ACL privileges', () => {
         cy.get('.sw-category-entry-point-card__button-configure-home').click();
         // sales channel switch should still work (to view different configurations)
         cy.get('.sw-category-entry-point-modal__sales-channel-selection')
-            .should('be.visible')
             .should('not.be.disabled');
-        cy.get('.sw-category-entry-point-modal__show-in-main-navigation input')
-            .scrollIntoView()
-            .should('be.visible')
+        cy.get('input[name=sw-field--selectedSalesChannel-homeEnabled]')
             .should('be.disabled');
         cy.get('#sw-field--selectedSalesChannel-homeName')
             .scrollIntoView()
-            .should('be.visible')
             .should('be.disabled');
         cy.get('.sw-category-detail-layout__change-layout-action')
             .scrollIntoView()
-            .should('be.visible')
             .should('be.disabled');
         cy.get('#sw-field--selectedSalesChannel-homeMetaTitle')
             .scrollIntoView()
-            .should('be.visible')
             .should('be.disabled');
         cy.get('#sw-field--selectedSalesChannel-homeMetaDescription')
             .scrollIntoView()
-            .should('be.visible')
             .should('be.disabled');
         cy.get('#sw-field--selectedSalesChannel-homeKeywords')
             .scrollIntoView()
-            .should('be.visible')
             .should('be.disabled');
 
         // close modal
@@ -113,10 +105,9 @@ describe('Category: Test ACL privileges', () => {
         cy.get('.sw-empty-state__title').contains('No category selected');
         cy.get(`${page.elements.categoryTreeItem}__icon`).should('be.visible');
 
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/category/*`,
-            method: 'patch'
+        cy.intercept({
+            method: 'PATCH',
+            url: `${Cypress.env('apiPath')}/category/*`
         }).as('saveData');
 
         // Select a category
@@ -136,10 +127,8 @@ describe('Category: Test ACL privileges', () => {
         cy.get('.sw-category-detail__save-action').click();
 
         // Wait for category request with correct data to be successful
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-            expect(xhr.requestBody).to.have.property('name', 'Shop');
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
     });
 
     it('@catalogue: can create category', () => {
@@ -163,10 +152,9 @@ describe('Category: Test ACL privileges', () => {
         const page = new CategoryPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/category`,
-            method: 'post'
+        cy.intercept({
+            method: 'POST',
+            url: `${Cypress.env('apiPath')}/category`
         }).as('saveData');
 
         // Add category before root one
@@ -179,9 +167,8 @@ describe('Category: Test ACL privileges', () => {
         cy.get(`${page.elements.categoryTreeItemInner}__content input`).type('{enter}');
 
         // Verify category
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
         cy.get('.sw-category-tree__inner .sw-confirm-field__button-list').then((btn) => {
             if (btn.attr('style').includes('display: none;')) {
                 cy.get('.sw-category-tree__inner .sw-tree-actions__headline').click();
@@ -214,9 +201,9 @@ describe('Category: Test ACL privileges', () => {
             cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
         });
 
-        cy.route({
-            url: `${Cypress.env('apiPath')}/category/*`,
-            method: 'delete'
+        cy.intercept({
+            method: 'delete',
+            url: `${Cypress.env('apiPath')}/category/*`
         }).as('deleteData');
 
         const page = new CategoryPageObject();
@@ -238,8 +225,7 @@ describe('Category: Test ACL privileges', () => {
             .click();
 
         // Verify deletion
-        cy.wait('@deleteData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteData')
+            .its('response.statusCode').should('equal', 204);
     });
 });

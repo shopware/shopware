@@ -2,12 +2,10 @@ import variantProduct from '../../fixtures/variantProductListingPrice';
 
 describe('Test if listingPrice is shown even on Variantes with differing prices', () => {
     beforeEach(() => {
-        cy.setToInitialState().then(() => {
-            cy.createProductFixture(variantProduct).then(() => {
-                return cy.createDefaultFixture('category');
-            }).then(() => {
-                cy.visit('/');
-            });
+        cy.createProductFixture(variantProduct).then(() => {
+            return cy.createDefaultFixture('category');
+        }).then(() => {
+            cy.visit('/');
         });
     });
 

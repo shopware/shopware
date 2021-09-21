@@ -210,6 +210,9 @@ parameters:
             message: '#Method Shopware\\Storefront\\Framework\\Twig\\TwigAppVariable::getFlashes\(\) has parameter \$types with no typehint specified.#'
             path: src/Storefront/Framework/Twig/TwigAppVariable.php
 
+        -
+            message: '#Parameter \#1 \$min \(int\<0, max\>\) of function random_int expects lower number than parameter \#2 \$max \(int\<0, max\>\)\.#'
+            path: src/Core/Framework/Demodata/Generator/ProductGenerator.php
 services:
     -
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Decoratable\DecoratableImplementsInterfaceRule

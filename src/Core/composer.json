@@ -53,7 +53,7 @@
         "composer/composer": "~2.0.9",
         "composer/semver": "~3.2.4",
         "doctrine/annotations": "1.13.1",
-        "doctrine/dbal": "2.12.1",
+        "doctrine/dbal": "2.13.3",
         "doctrine/inflector": "~1.4.4",
         "dompdf/dompdf": "1.0.2",
         "enqueue/dbal": "0.10.11",
@@ -100,6 +100,7 @@
         "symfony/monolog-bundle": "3.6.0",
         "symfony/options-resolver": "~5.3.0",
         "symfony/polyfill-php80": "~1.23.0",
+        "symfony/polyfill-php81": "~v1.23.0",
         "symfony/process": "~5.3.0",
         "symfony/property-access": "~5.3.0",
         "symfony/property-info": "~5.3.0",
@@ -120,7 +121,7 @@
         "true/punycode": "2.1.1",
         "twig/intl-extra": "3.3.0",
         "twig/string-extra": "3.3.0",
-        "twig/twig": "3.3.0",
+        "twig/twig": "3.3.3",
         "zircote/swagger-php": "3.1.0"
     },
     "require-dev": {

@@ -24,8 +24,10 @@ class WriteScope implements ScopeEntityInterface
      * @return mixed data which can be serialized by <b>json_encode</b>,               which is a value of any type other than a resource
      *
      * @since 5.4.0
+     * @deprecated tag:v6.5.0 - return type will be changed to string
      */
-    public function jsonSerialize()
+    #[\ReturnTypeWillChange]
+    public function jsonSerialize()/* :mixed */
     {
         return self::IDENTIFIER;
     }

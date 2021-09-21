@@ -19,7 +19,6 @@ class SlugifyExtensionTwigFilterTest extends TestCase
     public function sampleAnchorIdProvider(): array
     {
         return [
-            [null, null],
             ['', ''],
             ['Hello', 'Hello'],
             ['Hello World', 'Hello-World'],

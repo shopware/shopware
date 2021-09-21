@@ -147,7 +147,11 @@ abstract class Collection extends Struct implements \IteratorAggregate, \Countab
         unset($this->elements[$key]);
     }
 
-    public function getIterator(): \Generator
+    /**
+     * @deprecated tag:v6.5.0 - Return type will be changed to \Traversable
+     */
+    #[\ReturnTypeWillChange]
+    public function getIterator(): \Generator/* :\Traversable */
     {
         yield from $this->elements;
     }

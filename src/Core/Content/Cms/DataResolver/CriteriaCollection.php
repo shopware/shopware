@@ -32,7 +32,11 @@ class CriteriaCollection implements \IteratorAggregate
         return $this->elements;
     }
 
-    public function getIterator()
+    /**
+     * @deprecated tag:v6.5.0 - Return type will be changed to \Traversable
+     */
+    #[\ReturnTypeWillChange]
+    public function getIterator()/* :\Traversable */
     {
         yield from $this->elements;
     }

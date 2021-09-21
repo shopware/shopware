@@ -229,6 +229,7 @@ Component.register('sw-import-export-entity-path-select', {
             }
 
             let actualDefinition = Shopware.EntityDefinition.get(this.entityType);
+            let entityFound = false;
 
             pathParts.forEach((propertyName) => {
                 const property = actualDefinition.properties[propertyName];
@@ -264,10 +265,16 @@ Component.register('sw-import-export-entity-path-select', {
                 }
 
                 const entity = actualDefinition.properties[propertyName].entity;
-                if (Shopware.EntityDefinition.has(entity)) {
+                entityFound = Shopware.EntityDefinition.has(entity);
+
+                if (entityFound) {
                     actualDefinition = Shopware.EntityDefinition.get(entity);
                 }
             });
+
+            if (!entityFound) {
+                return null;
+            }
 
             return actualDefinition.entity;
         },
@@ -285,6 +292,10 @@ Component.register('sw-import-export-entity-path-select', {
         },
 
         options() {
+            if (this.currentEntity === null) {
+                return [];
+            }
+
             const definition = Shopware.EntityDefinition.get(this.currentEntity);
             const unprocessedValues = {
                 definition: definition,

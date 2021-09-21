@@ -9,10 +9,7 @@ const maximumCase = Math.max(...testCases);
 
 describe('Listing: Test product pagination', () => {
     beforeEach(() => {
-        cy.setToInitialState()
-            .then(() => {
-                Array.from(products).forEach(product => cy.createProductFixture(product));
-            });
+        Array.from(products).forEach(product => cy.createProductFixture(product));
     });
 
     testCases.forEach(testCase => {

@@ -1,10 +1,6 @@
 describe('Account: Edit order', () => {
     beforeEach(() => {
-        return cy.log('Cleaning, please wait a little bit.').then(() => {
-            return cy.cleanUpPreviousState();
-        }).then(() => {
-            return cy.createProductFixture()
-        }).then(() => {
+        return cy.createProductFixture().then(() => {
             return cy.createCustomerFixtureStorefront()
         }).then(() => {
             return cy.searchViaAdminApi({

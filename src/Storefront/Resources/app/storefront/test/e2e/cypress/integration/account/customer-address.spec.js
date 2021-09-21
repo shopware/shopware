@@ -2,11 +2,7 @@ import AccountPageObject from '../../support/pages/account.page-object';
 
 describe('Account: Handle addresses as customer', () => {
     beforeEach(() => {
-        return cy.log('Cleaning, please wait a little bit.').then(() => {
-            return cy.cleanUpPreviousState();
-        }).then(() => {
-            return cy.createCustomerFixtureStorefront()
-        }).then(() => {
+        return cy.createCustomerFixtureStorefront().then(() => {
             return cy.clearCacheAdminApi('DELETE', `api/_action/cache`);
         });
     });

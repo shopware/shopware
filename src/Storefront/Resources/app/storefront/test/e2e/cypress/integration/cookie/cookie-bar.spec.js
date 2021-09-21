@@ -1,7 +1,4 @@
 describe('Test if the cookie bar works correctly', () => {
-    beforeEach(() => {
-        cy.setToInitialState();
-    });
 
     it('Should not show the acceptAll cookies in the cookie bar when config value is not set', () => {
         // go to storefront homepage

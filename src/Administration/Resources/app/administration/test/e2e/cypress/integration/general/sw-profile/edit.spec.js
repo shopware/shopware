@@ -119,7 +119,7 @@ describe('Profile module', () => {
             .click()
             .then(() => {
                 cy.get('.sw-modal')
-                    .should('not.be.visible');
+                    .should('not.exist');
 
                 cy.get('.sw-media-preview-v2__item')
                     .should('have.attr', 'src')

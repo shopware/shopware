@@ -4,24 +4,21 @@ let product = {};
 
 describe('Test payment and shipping methods selection', () => {
     beforeEach(() => {
-        cy.setToInitialState()
+        cy.createProductFixture()
+            .then((result) => {
+                product = result;
+                return cy.createCustomerFixtureStorefront();
+            })
             .then(() => {
-                return cy.createProductFixture()
-                    .then((result) => {
-                        product = result;
-                        return cy.createCustomerFixtureStorefront();
-                    })
-                    .then(() => {
-                        cy.visit('/account/login');
+                cy.visit('/account/login');
 
-                        // Login
-                        cy.get('.login-card').should('be.visible');
-                        cy.get('#loginMail').typeAndCheckStorefront('test@example.com');
-                        cy.get('#loginPassword').typeAndCheckStorefront('shopware');
-                        cy.get('.login-submit [type="submit"]').click();
+                // Login
+                cy.get('.login-card').should('be.visible');
+                cy.get('#loginMail').typeAndCheckStorefront('test@example.com');
+                cy.get('#loginPassword').typeAndCheckStorefront('shopware');
+                cy.get('.login-submit [type="submit"]').click();
 
-                        cy.visit('/');
-                    });
+                cy.visit('/');
             });
     });
 

@@ -5,27 +5,24 @@ let product = {};
 describe('Checkout: Use rounding', () => {
 
     beforeEach(() => {
-        cy.setToInitialState()
-            .then(() => {
-                return cy.createProductFixture().then(() => {
-                    return cy.createDefaultFixture('category')
-                }).then(() => {
-                    cy.createProductFixture({
-                        name: 'Test product',
-                        productNumber: 'TEST-1234',
-                        price: [
-                            {
-                                currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
-                                linked: true,
-                                gross: 10.51
-                            }
-                        ]
-                    });
-                }).then((result) => {
-                    product = result;
-                    return cy.createCustomerFixtureStorefront()
-                });
+        return cy.createProductFixture().then(() => {
+            return cy.createDefaultFixture('category')
+        }).then(() => {
+            cy.createProductFixture({
+                name: 'Test product',
+                productNumber: 'TEST-1234',
+                price: [
+                    {
+                        currencyId: 'b7d2554b0ce847cd82f3ac9bd1c0dfca',
+                        linked: true,
+                        gross: 10.51
+                    }
+                ]
             });
+        }).then((result) => {
+            product = result;
+            return cy.createCustomerFixtureStorefront()
+        });
     });
 
     it('@base @checkout: Run checkout with 0.50', () => {

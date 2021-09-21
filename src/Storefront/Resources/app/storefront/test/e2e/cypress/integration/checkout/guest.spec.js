@@ -4,16 +4,15 @@ let product = {};
 
 describe(`Checkout as Guest`, () => {
     beforeEach(() => {
-        return cy.setToInitialState().then(() => {
-            return cy.createDefaultFixture('category')
-        }).then(() => {
-            return cy.createProductFixture()
-        }, { timeout: 30000 }).then(() => {
-            return cy.fixture('product');
-        }).then((result) => {
-            product = result;
-            cy.visit('/account/login');
-        });
+        cy.createDefaultFixture('category')
+            .then(() => {
+                return cy.createProductFixture()
+            }, { timeout: 30000 }).then(() => {
+                return cy.fixture('product');
+            }).then((result) => {
+                product = result;
+                cy.visit('/account/login');
+            });
     });
 
     it('@base @checkout: Run checkout', () => {

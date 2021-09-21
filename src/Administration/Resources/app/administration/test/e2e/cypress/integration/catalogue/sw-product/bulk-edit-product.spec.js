@@ -38,7 +38,7 @@ describe('Product: Test bulk edit product', () => {
             })
             .then(auth => {
                 const products = [];
-                for (let i = 1; i <= 10; i++) {
+                for (let i = 1; i <= 2; i++) {
                     products.push(
                         {
                             name: `product-${i}`,
@@ -80,8 +80,6 @@ describe('Product: Test bulk edit product', () => {
     });
 
     it('@product: bulk edit product', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_6061');
-
         cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product`,
             method: 'POST'
@@ -116,7 +114,7 @@ describe('Product: Test bulk edit product', () => {
         cy.get('.sw-product-bulk-edit-modal').should('exist');
         cy.get('.sw-modal__footer .sw-button--primary').click();
 
-        cy.get('.smart-bar__header').contains('Bulk edit: 10 products');
+        cy.get('.smart-bar__header').contains('Bulk edit: 2 products');
 
         cy.get('.sw-bulk-edit-change-field__container:first .sw-field__checkbox').click();
         cy.get('.sw-text-editor__content-editor').clear().type('Some random description');
@@ -128,10 +126,11 @@ describe('Product: Test bulk edit product', () => {
 
         cy.get('.footer-right .sw-button--primary').click();
 
-        cy.get('.sw-bulk-edit-save-modal__process').should('exist');
+        cy.get('.sw-bulk-edit-save-modal').should('exist');
         cy.wait('@saveData').its('response.statusCode').should('equal', 200);
 
-        cy.get('.sw-bulk-edit-save-modal__success').should('exist');
+        cy.get('.sw-bulk-edit-save-modal').should('exist');
+        cy.get('.sw-bulk-edit-save-modal').contains('Bulk edit - Finished');
         cy.get('.footer-right .sw-button--primary').contains('Close');
         cy.get('.footer-right .sw-button--primary').click();
 

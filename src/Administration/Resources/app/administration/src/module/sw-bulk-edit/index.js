@@ -27,7 +27,6 @@ Module.register('sw-bulk-edit', {
     color: '#57D9A3',
     icon: 'default-symbol-products',
     favicon: 'icon-module-products.png',
-    flag: 'FEATURE_NEXT_6061',
 
     routes: {
         product: {

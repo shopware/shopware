@@ -293,7 +293,7 @@
                 <template #bulk>
                     <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                     <a
-                        v-if="feature.isActive('FEATURE_NEXT_6061') && acl.can('order.editor')"
+                        v-if="acl.can('order.editor')"
                         class="link link-primary"
                         @click="showBulkEditModal = true"
                     >

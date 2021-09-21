@@ -1,7 +1,6 @@
 ---
 title: Order bulk edit processing
 issue: NEXT-15661
-flag: FEATURE_NEXT_6061
 ---
 # Administration
 * Added `processStatus` data property in `src/Administration/Resources/app/administration/src/module/sw-bulk-edit/page/sw-bulk-edit-order/index.js` to save process status in modal.

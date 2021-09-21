@@ -106,7 +106,7 @@ const router = new VueRouter({
 });
 
 let bulkEditResponse = {
-    success: true
+    data: {}
 };
 
 
@@ -378,7 +378,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
     it('should open fail modal', async () => {
         bulkEditResponse = {
-            success: false
+            data: null
         };
 
         await wrapper.destroy();

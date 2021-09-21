@@ -78,7 +78,6 @@ function createWrapper(props, userConfig, overrideProps) {
         props = { ...defaultProps, ...props };
     }
 
-
     return shallowMount(Shopware.Component.build('sw-data-grid'), {
         localVue,
         stubs,
@@ -92,12 +91,12 @@ function createWrapper(props, userConfig, overrideProps) {
                         return Promise.resolve();
                     }
                 })
-            }
+            },
+            acl: { can: () => true }
         },
         propsData: props ?? defaultProps
     });
 }
-
 
 describe('components/data-grid/sw-data-grid', () => {
     it('should be a Vue.js component', async () => {
@@ -154,7 +153,6 @@ describe('components/data-grid/sw-data-grid', () => {
         const wrapper = createWrapper({
             plainAppearance: true
         });
-
 
         expect(wrapper.classes()).toContain('sw-data-grid--plain-appearance');
     });
@@ -423,7 +421,6 @@ describe('components/data-grid/sw-data-grid', () => {
         expect(popover.exists()).toBe(true);
         expect(popover.findAll('.sw-data-grid__settings-column-item').length).toBe(1);
 
-
         // check default columns
         expect(wrapper.vm.currentColumns[0].visible).toBe(false);
         expect(wrapper.vm.currentColumns[0].mockProperty).toBe(undefined);
@@ -556,8 +553,6 @@ describe('components/data-grid/sw-data-grid', () => {
     });
 
     it('should pre select grid using preSelection prop', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_6061'];
-
         const preSelection = {
             uuid1: { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' }
         };
@@ -577,8 +572,6 @@ describe('components/data-grid/sw-data-grid', () => {
     });
 
     it('should checked a item in grid if the grid state include that item', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_6061'];
-
         const wrapper = createWrapper({
             identifier: 'sw-customer-list',
             preSelection: {
@@ -594,8 +587,6 @@ describe('components/data-grid/sw-data-grid', () => {
     });
 
     it('should add a selection to grid state when selected an item', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_6061'];
-
         const wrapper = createWrapper();
 
         const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
@@ -611,8 +602,6 @@ describe('components/data-grid/sw-data-grid', () => {
     });
 
     it('should remove a selection from selection when deselected an item', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_6061'];
-
         const wrapper = await createWrapper({
             identifier: 'sw-customer-list',
             preSelection: {
@@ -632,8 +621,6 @@ describe('components/data-grid/sw-data-grid', () => {
     });
 
     it('should add all records to grid selection when clicking select all', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_6061'];
-
         const wrapper = createWrapper();
         await wrapper.setProps({
             identifier: 'sw-customer-list'
@@ -655,8 +642,6 @@ describe('components/data-grid/sw-data-grid', () => {
     });
 
     it('should remove all records to grid state when deselected all items', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_6061'];
-
         const wrapper = createWrapper();
         await wrapper.setProps({
             identifier: 'sw-customer-list'
@@ -682,8 +667,6 @@ describe('components/data-grid/sw-data-grid', () => {
     });
 
     it('should selectionCount equals to grid state count', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_6061'];
-
         const wrapper = createWrapper();
         await wrapper.setProps({
             identifier: 'sw-customer-list'
@@ -707,8 +690,6 @@ describe('components/data-grid/sw-data-grid', () => {
     });
 
     it('should persist selected items when dataSource change', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_6061'];
-
         const wrapper = await createWrapper();
 
         const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
@@ -752,8 +733,6 @@ describe('components/data-grid/sw-data-grid', () => {
     });
 
     it('should not show deselect all action', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_6061'];
-
         const wrapper = createWrapper({
             identifier: 'sw-customer-list',
             preSelection: {
@@ -767,8 +746,6 @@ describe('components/data-grid/sw-data-grid', () => {
     });
 
     it('should show deselect all action', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_6061'];
-
         const wrapper = createWrapper({
             identifier: 'sw-customer-list',
             preSelection: {
@@ -783,8 +760,6 @@ describe('components/data-grid/sw-data-grid', () => {
     });
 
     it('should show maximum selection exceed', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_6061'];
-
         const wrapper = createWrapper({
             maximumSelectItems: 3,
             identifier: 'sw-customer-list',
@@ -817,8 +792,6 @@ describe('components/data-grid/sw-data-grid', () => {
     });
 
     it('should disable checkboxes when maximum selection exceed', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_6061'];
-
         const wrapper = createWrapper({
             maximumSelectItems: 3,
             preSelection: {

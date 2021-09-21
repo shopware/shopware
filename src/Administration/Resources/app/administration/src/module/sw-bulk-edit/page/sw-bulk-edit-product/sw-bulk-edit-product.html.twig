@@ -247,6 +247,7 @@
 
             {% block sw_bulk_edit_product_content_meansures_custom_field_card %}
             <sw-card
+                v-if="customFieldSets.length > 0"
                 class="sw-bulk-edit-product-base__custom_fields"
                 :title="$tc('sw-bulk-edit.product.customFields.cardTitle')"
                 :is-loading="isLoading"

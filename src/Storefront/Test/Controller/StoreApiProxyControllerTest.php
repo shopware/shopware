@@ -23,25 +23,13 @@ class StoreApiProxyControllerTest extends TestCase
     use IntegrationTestBehaviour;
     use CustomerTestTrait;
 
-    /**
-     * @var Request
-     */
-    private $request;
+    private Request $request;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $customerRepository;
+    private EntityRepositoryInterface $customerRepository;
 
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
+    private TestDataCollection $ids;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
+    private SalesChannelContext $salesChannelContext;
 
     public function setUp(): void
     {
@@ -95,6 +83,20 @@ class StoreApiProxyControllerTest extends TestCase
 
         static::assertNotEmpty($json);
         static::assertCount(1, $json['elements']);
+    }
+
+    public function testErrorOccurs(): void
+    {
+        $response = $this->request('POST', '/store-api/salutation', [
+            'limit' => 'ABC',
+        ]);
+
+        static::assertSame(400, $response->getStatusCode());
+        $json = json_decode($response->getContent(), true);
+
+        static::assertNotEmpty($json);
+        static::assertCount(1, $json['errors']);
+        static::assertSame('FRAMEWORK__INVALID_LIMIT_QUERY', $json['errors'][0]['code']);
     }
 
     public function test404WillBeForwarded(): void

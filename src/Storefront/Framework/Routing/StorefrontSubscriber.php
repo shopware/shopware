@@ -208,7 +208,7 @@ class StorefrontSubscriber implements EventSubscriberInterface
 
     public function showHtmlExceptionResponse(ExceptionEvent $event): void
     {
-        if ($this->kernelDebug) {
+        if ($this->kernelDebug || $event->getRequest()->attributes->has(SalesChannelRequest::ATTRIBUTE_STORE_API_PROXY)) {
             return;
         }
 

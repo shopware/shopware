@@ -31,13 +31,19 @@ Component.register('sw-product-image', {
             required: false,
             default: false,
         },
+
+        showCoverLabel: {
+            type: Boolean,
+            required: false,
+            default: true,
+        },
     },
 
     computed: {
         productImageClasses() {
             return {
                 'is--placeholder': this.isPlaceholder,
-                'is--cover': this.isCover,
+                'is--cover': this.isCover && this.showCoverLabel,
             };
         },
     },

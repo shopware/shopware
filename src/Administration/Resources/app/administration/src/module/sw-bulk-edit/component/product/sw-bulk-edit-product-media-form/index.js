@@ -8,6 +8,7 @@ Component.extend('sw-bulk-edit-product-media-form', 'sw-product-media-form', {
     data() {
         return {
             columnCount: 4,
+            showCoverLabel: false,
         };
     },
 });

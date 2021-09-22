@@ -165,6 +165,7 @@
             <sw-promotion-v2-individual-codes-behavior
                 :promotion="promotion"
                 @generate-finish="$emit('generate-individual-codes-finish')"
+                @delete-finish="$emit('delete-individual-codes-finish')"
             />
             {% endblock %}
 

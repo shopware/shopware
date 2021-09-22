@@ -38,7 +38,7 @@ describe('Product: Test filter variants', () => {
 
                 cy.get('.sw-product-modal-variant-generation__notification-modal .sw-button--primary').click();
 
-                cy.get('.sw-modal').should('not.be.visible');
+                cy.get('.sw-modal').should('not.exist');
             });
     });
 

@@ -130,10 +130,10 @@ class ProductIndexer extends EntityIndexer
 
         $message = new ProductIndexingMessage(array_values($updates), null, $event->getContext());
 
-        $message->setSkip(\array_merge($message->getSkip(), [
+        $message->addSkip([
             self::INHERITANCE_UPDATER,
             self::STOCK_UPDATER,
-        ]));
+        ]);
 
         return $message;
     }

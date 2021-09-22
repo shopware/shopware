@@ -56,6 +56,9 @@ List of all rule classes across Shopware 6.
 [Shopware\Core\Checkout\Cart\Rule\LineItemInCategoryRule](https://github.com/shopware/platform/tree/master/src/Core/Shopware\Core\Checkout\Cart\Rule\LineItemInCategoryRule)
  : Matches if a line item is in a specific category.
 
+[Shopware\Core\Checkout\Cart\Rule\LineItemInProductStreamRule](https://github.com/shopware/platform/tree/master/src/Core/Shopware\Core\Checkout\Cart\Rule\LineItemInProductStreamRule)
+ : Matches if a line item is in a specific dynamic product group.
+
 [Shopware\Core\Checkout\Cart\Rule\LineItemIsNewRule](https://github.com/shopware/platform/tree/master/src/Core/Shopware\Core\Checkout\Cart\Rule\LineItemIsNewRule)
  : Matches if a line item is marked as new.
 

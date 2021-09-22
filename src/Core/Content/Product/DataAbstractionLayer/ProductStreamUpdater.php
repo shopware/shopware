@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
@@ -32,16 +33,20 @@ class ProductStreamUpdater extends EntityIndexer
 
     private MessageBusInterface $messageBus;
 
+    private ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater;
+
     public function __construct(
         Connection $connection,
         ProductDefinition $productDefinition,
         EntityRepositoryInterface $repository,
-        MessageBusInterface $messageBus
+        MessageBusInterface $messageBus,
+        ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater
     ) {
         $this->connection = $connection;
         $this->productDefinition = $productDefinition;
         $this->repository = $repository;
         $this->messageBus = $messageBus;
+        $this->manyToManyIdFieldUpdater = $manyToManyIdFieldUpdater;
     }
 
     public function getName(): string
@@ -96,11 +101,13 @@ class ProductStreamUpdater extends EntityIndexer
 
         $binary = Uuid::fromHexToBytes($id);
 
+        $ids = [];
         while ($matches = $iterator->fetchIds()) {
             foreach ($matches as $id) {
                 if (!\is_string($id)) {
                     continue;
                 }
+                $ids[] = $id;
                 $insert->addInsert('product_stream_mapping', [
                     'product_id' => Uuid::fromHexToBytes($id),
                     'product_version_id' => $version,
@@ -116,6 +123,15 @@ class ProductStreamUpdater extends EntityIndexer
             );
             $insert->execute();
         });
+
+        foreach (array_chunk($ids, 250) as $chunkedIds) {
+            $this->manyToManyIdFieldUpdater->update(
+                ProductDefinition::ENTITY_NAME,
+                $chunkedIds,
+                $message->getContext(),
+                'streamIds'
+            );
+        }
     }
 
     public function update(EntityWrittenContainerEvent $event): ?EntityIndexingMessage

@@ -1,0 +1,21 @@
+{% block sw_condition_value_content %}
+<div class="sw-condition-line-item-in-product-stream sw-condition__condition-value">
+    {% block sw_condition_line_item_in_product_stream_field_operator %}
+    <sw-condition-operator-select
+        v-bind="{ operators, condition }"
+        :disabled="disabled"
+    />
+    {% endblock %}
+
+    {% block sw_condition_line_item_in_product_stream_field_identifiers %}
+    <sw-entity-multi-select
+        v-if="!isEmpty"
+        size="medium"
+        :disabled="disabled"
+        entity="product_stream"
+        :entity-collection="streams"
+        @change="setStreamIds"
+    />
+    {% endblock %}
+</div>
+{% endblock %}

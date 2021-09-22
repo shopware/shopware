@@ -172,6 +172,10 @@
             <tag name="shopware.rule.definition"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Cart\Rule\LineItemInProductStreamRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Cart\Rule\LineItemTaxationRule">
             <tag name="shopware.rule.definition"/>
         </service>

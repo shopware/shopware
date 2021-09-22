@@ -16,15 +16,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class ManyToManyIdFieldUpdater
 {
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $registry;
+    private DefinitionInstanceRegistry $registry;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     public function __construct(DefinitionInstanceRegistry $registry, Connection $connection)
     {
@@ -32,7 +26,7 @@ class ManyToManyIdFieldUpdater
         $this->connection = $connection;
     }
 
-    public function update(string $entity, array $ids, Context $context): void
+    public function update(string $entity, array $ids, Context $context, ?string $propertyName = null): void
     {
         $definition = $this->registry->getByEntityName($entity);
 
@@ -55,6 +49,12 @@ class ManyToManyIdFieldUpdater
         }
 
         $fields = $definition->getFields()->filterInstance(ManyToManyIdField::class);
+
+        if ($propertyName) {
+            $fields = $fields->filter(function (ManyToManyIdField $field) use ($propertyName) {
+                return $field->getPropertyName() === $propertyName;
+            });
+        }
 
         if ($fields->count() <= 0) {
             return;

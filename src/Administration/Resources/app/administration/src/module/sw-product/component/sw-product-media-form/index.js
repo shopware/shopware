@@ -29,6 +29,7 @@ Component.register('sw-product-media-form', {
 
     data() {
         return {
+            showCoverLabel: true,
             isMediaLoading: false,
             columnCount: 5,
             columnWidth: 90,

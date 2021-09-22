@@ -63,6 +63,7 @@
                 :is-cover="isCover(mediaItem)"
                 :is-placeholder="mediaItem.isPlaceholder"
                 :media-id="mediaItem.mediaId"
+                :show-cover-label="showCoverLabel"
                 @sw-product-image-delete="removeFile(mediaItem)"
                 @sw-product-image-cover="markMediaAsCover(mediaItem)"
             />

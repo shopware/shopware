@@ -7,7 +7,6 @@ use Doctrine\DBAL\Configuration;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\PDOMySql\Driver;
-use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Query\QueryBuilder;
 
 class FakeConnection extends Connection
@@ -34,7 +33,7 @@ class FakeConnection extends Connection
      * @param string $sql
      * @param array  $types
      *
-     * @return ResultStatement
+     * @return \Doctrine\DBAL\ForwardCompatibility\DriverStatement|\Doctrine\DBAL\ForwardCompatibility\DriverResultStatement
      */
     public function executeQuery($sql, array $params = [], $types = [], ?QueryCacheProfile $qcp = null)
     {

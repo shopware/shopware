@@ -7,15 +7,9 @@ use Symfony\Bundle\TwigBundle\TemplateIterator as TwigBundleIterator;
 
 class TemplateIterator implements \IteratorAggregate
 {
-    /**
-     * @var TwigBundleIterator
-     */
-    private $templateIterator;
+    private TwigBundleIterator $templateIterator;
 
-    /**
-     * @var array
-     */
-    private $kernelBundles;
+    private array $kernelBundles;
 
     public function __construct(TwigBundleIterator $templateIterator, array $kernelBundles)
     {
@@ -23,7 +17,11 @@ class TemplateIterator implements \IteratorAggregate
         $this->kernelBundles = $kernelBundles;
     }
 
-    public function getIterator(): iterable
+    /**
+     * @deprecated tag:v6.5.0 - Return type will be changed to \Traversable
+     */
+    #[\ReturnTypeWillChange]
+    public function getIterator(): iterable/* :\Traversable */
     {
         $data = iterator_to_array($this->templateIterator, false);
         $search = [];

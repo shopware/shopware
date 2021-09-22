@@ -40,11 +40,19 @@ class ArrayEntity extends Entity implements \ArrayAccess
         return $this->data['id'];
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - return type will be changed to bool
+     */
+    #[\ReturnTypeWillChange]
     public function offsetExists($offset)
     {
         return \array_key_exists($offset, $this->data);
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - return type will be changed to mixed
+     */
+    #[\ReturnTypeWillChange]
     public function offsetGet($offset)
     {
         return $this->data[$offset] ?? null;
@@ -86,7 +94,11 @@ class ArrayEntity extends Entity implements \ArrayAccess
         return $this->data;
     }
 
-    public function jsonSerialize(): array
+    /**
+     * @deprecated tag:v6.5.0 - return type will be changed to mixed
+     */
+    #[\ReturnTypeWillChange]
+    public function jsonSerialize(): array/* :mixed */
     {
         $jsonArray = parent::jsonSerialize();
 

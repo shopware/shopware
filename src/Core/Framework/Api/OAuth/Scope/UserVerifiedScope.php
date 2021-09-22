@@ -13,7 +13,11 @@ class UserVerifiedScope implements ScopeEntityInterface
         return self::IDENTIFIER;
     }
 
-    public function jsonSerialize()
+    /**
+     * @deprecated tag:v6.5.0 - return type will be changed to string
+     */
+    #[\ReturnTypeWillChange]
+    public function jsonSerialize()/* :mixed */
     {
         return self::IDENTIFIER;
     }

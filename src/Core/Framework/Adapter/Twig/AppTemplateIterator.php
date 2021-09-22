@@ -31,9 +31,7 @@ class AppTemplateIterator implements \IteratorAggregate
     {
         yield from $this->templateIterator;
 
-        foreach ($this->getDatabaseTemplatePaths() as $path) {
-            yield $path;
-        }
+        yield from $this->getDatabaseTemplatePaths();
     }
 
     /**

@@ -112,6 +112,9 @@ class HttpKernel
         $parameters = [
             'url' => $url,
             'charset' => 'utf8mb4',
+            'driverOptions' => [
+                \PDO::ATTR_STRINGIFY_FETCHES => true,
+            ],
         ];
 
         if ($sslCa = EnvironmentHelper::getVariable('DATABASE_SSL_CA')) {

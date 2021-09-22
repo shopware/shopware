@@ -58,6 +58,8 @@ Component.register('sw-order-document-card', {
             isLoadingDocument: false,
             isLoadingPreview: false,
             showSelectDocumentTypeModal: false,
+            showSendDocumentModal: false,
+            sendDocument: null,
         };
     },
 
@@ -185,8 +187,9 @@ Component.register('sw-order-document-card', {
             } else if (action === DocumentEvents.DOCUMENT_FINISHED) {
                 this.showModal = false;
                 this.$nextTick().then(() => {
-                    this.getList();
-                    this.$emit('document-save');
+                    this.getList().then(() => {
+                        this.$emit('document-save');
+                    });
                 });
             }
         },
@@ -256,6 +259,23 @@ Component.register('sw-order-document-card', {
             this.showModal = true;
         },
 
+        openDocument(documentId, documentDeepLink) {
+            this.documentService.getDocument(
+                documentId,
+                documentDeepLink,
+                Shopware.Context.api,
+                true,
+            ).then((response) => {
+                if (response.data) {
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(response.data);
+                    link.target = '_blank';
+                    link.dispatchEvent(new MouseEvent('click'));
+                    link.remove();
+                }
+            });
+        },
+
         downloadDocument(documentId, documentDeepLink) {
             this.documentService.getDocument(
                 documentId,
@@ -271,6 +291,24 @@ Component.register('sw-order-document-card', {
                     link.dispatchEvent(new MouseEvent('click'));
                     link.remove();
                 }
+            });
+        },
+
+        markDocumentAsSent(documentId) {
+            const document = this.documents.get(documentId);
+            document.sent = true;
+
+            this.documentRepository.save(document).then(() => {
+                this.getList();
+            });
+        },
+
+        markDocumentAsUnsent(documentId) {
+            const document = this.documents.get(documentId);
+            document.sent = false;
+
+            this.documentRepository.save(document).then(() => {
+                this.getList();
             });
         },
 
@@ -313,8 +351,35 @@ Component.register('sw-order-document-card', {
             });
         },
 
+        onOpenDocument(id, deepLink) {
+            this.openDocument(id, deepLink);
+        },
+
         onDownload(id, deepLink) {
             this.downloadDocument(id, deepLink);
+        },
+
+        onSendDocument(id) {
+            this.sendDocument = this.documents.get(id);
+            this.showSendDocumentModal = true;
+        },
+
+        onMarkDocumentAsSent(id) {
+            this.markDocumentAsSent(id);
+        },
+
+        onMarkDocumentAsUnsent(id) {
+            this.markDocumentAsUnsent(id);
+        },
+
+        onCloseSendDocumentModal() {
+            this.sendDocument = null;
+            this.showSendDocumentModal = false;
+        },
+
+        onDocumentSent() {
+            this.markDocumentAsSent(this.sendDocument.id);
+            this.onCloseSendDocumentModal();
         },
 
         onLoadingDocument() {

@@ -297,8 +297,13 @@
       "labelSent": "Gesendet",
       "labelAttach": "Anhängen",
       "labelAmount": "Bestellwert",
-      "labelDownloadPdf": "PDF herunterladen",
-      "labelCreateNew": "Neu erstellen",
+      "labelOpenDocument": "Dokument öffnen",
+      "labelDownloadPdf": "Dokument herunterladen",
+      "labelPrintDocument": "Dokument drucken",
+      "labelSendDocument": "Dokument senden",
+      "labelMarkAsSent": "Als gesendet markieren",
+      "labelMarkAsUnsent": "Als ungesendet markieren",
+      "labelCreateNew": "Neues Dokument erstellen",
       "messageEmptyTitle": "Noch keine Dokumente",
       "messageEmptySubline": "Verwaltung von Dokumenten.",
       "error": {
@@ -327,6 +332,16 @@
       "labelHighlightedItemsEntry": "Gesamt",
       "labelNoItems": "Keine Gutschriften hinzugefügt",
       "fileInputLabel": "Eigenes Dokument hochladen"
+    },
+    "documentSendModal": {
+      "labelNumber": "Nummer",
+      "labelType": "Typ",
+      "labelDate": "Datum",
+      "labelMailTemplate": "E-Mail-Template",
+      "labelRecipient": "E-Mail-Adresse",
+      "labelContent": "Inhalt",
+      "labelSubject": "Betreff",
+      "labelClose": "Schließen"
     },
     "stateModal": {
       "modalTitle": "Dokumente anhängen"

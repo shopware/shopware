@@ -301,7 +301,7 @@ describe('Wishlist: for wishlist', () => {
         cy.get('#wishlist-basket').contains('2');
 
         cy.visit('/wishlist');
-        cy.get('.cms-listing-col').eq(0).contains('Test product 1');
-        cy.get('.cms-listing-col').eq(1).contains('Test product 2');
+        cy.get('.cms-listing-col').contains('Test product 2');
+        cy.get('.cms-listing-col').contains('Test product 1');
     });
 });

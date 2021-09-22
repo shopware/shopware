@@ -69,6 +69,10 @@ EOD
 Matches if a line item is in a specific category.
 EOD
     ,
+    Shopware\Core\Checkout\Cart\Rule\LineItemInProductStreamRule::class => <<<'EOD'
+Matches if a line item is in a specific dynamic product group.
+EOD
+    ,
     Shopware\Core\Checkout\Cart\Rule\LineItemIsNewRule::class => <<<'EOD'
 Matches if a line item is marked as new.
 EOD

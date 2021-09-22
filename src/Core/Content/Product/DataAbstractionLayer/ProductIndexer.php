@@ -175,6 +175,10 @@ class ProductIndexer extends EntityIndexer
                 $this->childCountUpdater->update(ProductDefinition::ENTITY_NAME, $parentIds, $context);
             }
 
+            if ($message->allow(self::STREAM_UPDATER)) {
+                $this->streamUpdater->updateProducts($all, $context);
+            }
+
             if ($message->allow(self::MANY_TO_MANY_ID_FIELD_UPDATER)) {
                 $this->manyToManyIdFieldUpdater->update(ProductDefinition::ENTITY_NAME, $all, $context);
             }
@@ -189,10 +193,6 @@ class ProductIndexer extends EntityIndexer
 
             if ($message->allow(self::RATING_AVERAGE_UPDATER)) {
                 $this->ratingAverageUpdater->update($parentIds, $context);
-            }
-
-            if ($message->allow(self::STREAM_UPDATER)) {
-                $this->streamUpdater->updateProducts($all, $context);
             }
 
             if ($message->allow(self::SEARCH_KEYWORD_UPDATER)) {

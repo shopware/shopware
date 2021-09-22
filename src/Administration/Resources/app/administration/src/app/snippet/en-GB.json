@@ -651,6 +651,7 @@
         "lineItemClearanceSale": "Line item with clearance sale",
         "lineItemPromotedRule": "Line item is promoted",
         "lineItemInCategoryRule": "Line item in category",
+        "lineItemInProductStreamRule": "Line item in dynamic product group",
         "lineItemTaxationRule": "Line item with tax rate",
         "lineItemDimensionWidthRule": "Line item width",
         "lineItemDimensionHeightRule": "Line item height",

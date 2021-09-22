@@ -577,6 +577,7 @@
     "product.categoryTree",
     "product.propertyIds",
     "product.optionIds",
+    "product.streamIds",
     "product.childCount",
     "product.sales",
     "product.metaDescription",

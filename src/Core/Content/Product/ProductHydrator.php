@@ -141,6 +141,9 @@ class ProductHydrator extends EntityHydrator
         if (\array_key_exists($root . '.optionIds', $row)) {
             $entity->optionIds = $definition->decode('optionIds', self::value($row, $root, 'optionIds'));
         }
+        if (\array_key_exists($root . '.streamIds', $row)) {
+            $entity->streamIds = $definition->decode('streamIds', self::value($row, $root, 'streamIds'));
+        }
         if (\array_key_exists($root . '.tagIds', $row)) {
             $entity->tagIds = $definition->decode('tagIds', self::value($row, $root, 'tagIds'));
         }

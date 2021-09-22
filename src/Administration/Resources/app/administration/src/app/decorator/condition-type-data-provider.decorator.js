@@ -236,6 +236,11 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         label: 'global.sw-condition.condition.lineItemInCategoryRule',
         scopes: ['lineItem'],
     });
+    ruleConditionService.addCondition('cartLineItemInProductStream', {
+        component: 'sw-condition-line-item-in-product-stream',
+        label: 'global.sw-condition.condition.lineItemInProductStreamRule',
+        scopes: ['lineItem'],
+    });
     ruleConditionService.addCondition('cartLineItemTaxation', {
         component: 'sw-condition-line-item-taxation',
         label: 'global.sw-condition.condition.lineItemTaxationRule',

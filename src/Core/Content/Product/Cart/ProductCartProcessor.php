@@ -312,6 +312,7 @@ class ProductCartProcessor implements CartProcessorInterface, CartDataCollectorI
             'propertyIds' => $product->getPropertyIds(),
             'optionIds' => $product->getOptionIds(),
             'options' => $product->getVariation(),
+            'streamIds' => $product->getStreamIds(),
         ];
 
         $lineItem->replacePayload($payload);

@@ -128,7 +128,14 @@ class ProductIndexer extends EntityIndexer
 
         $this->stockUpdater->update($updates, $event->getContext());
 
-        return new ProductIndexingMessage(array_values($updates), null, $event->getContext());
+        $message = new ProductIndexingMessage(array_values($updates), null, $event->getContext());
+
+        $message->setSkip(\array_merge($message->getSkip(), [
+            self::INHERITANCE_UPDATER,
+            self::STOCK_UPDATER,
+        ]));
+
+        return $message;
     }
 
     public function getTotal(): int

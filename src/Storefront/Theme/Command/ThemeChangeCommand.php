@@ -23,47 +23,23 @@ class ThemeChangeCommand extends Command
 {
     protected static $defaultName = 'theme:change';
 
-    /**
-     * @var ThemeService
-     */
-    private $themeService;
+    private ThemeService $themeService;
 
-    /**
-     * @var StorefrontPluginRegistryInterface
-     */
-    private $pluginRegistry;
+    private StorefrontPluginRegistryInterface $pluginRegistry;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $salesChannelRepository;
+    private EntityRepositoryInterface $salesChannelRepository;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
-    /**
-     * @var SymfonyStyle
-     */
-    private $io;
+    private SymfonyStyle $io;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $themeRepository;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $themeSalesChannelRepository;
+    private EntityRepositoryInterface $themeRepository;
 
     public function __construct(
         ThemeService $themeService,
         StorefrontPluginRegistryInterface $pluginRegistry,
         EntityRepositoryInterface $salesChannelRepository,
-        EntityRepositoryInterface $themeRepository,
-        EntityRepositoryInterface $themeSalesChannelRepository
+        EntityRepositoryInterface $themeRepository
     ) {
         parent::__construct();
 
@@ -71,65 +47,76 @@ class ThemeChangeCommand extends Command
         $this->pluginRegistry = $pluginRegistry;
         $this->salesChannelRepository = $salesChannelRepository;
         $this->themeRepository = $themeRepository;
-        $this->themeSalesChannelRepository = $themeSalesChannelRepository;
         $this->context = Context::createDefaultContext();
     }
 
     protected function configure(): void
     {
-        $this->addArgument('theme-name', InputArgument::OPTIONAL, 'Theme name');
-        $this->addOption('all', null, InputOption::VALUE_NONE, 'Set theme for all sales channel');
+        $this->addArgument('theme', InputArgument::OPTIONAL, 'Technical theme name');
+        $this->addOption('sales-channel', 's', InputOption::VALUE_REQUIRED, 'Sales Channel ID. Can not be used together with --all.');
+        $this->addOption('all', null, InputOption::VALUE_NONE, 'Set theme for all sales channel Can not be used together with -s');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $themeName = $input->getArgument('theme');
+        $salesChannelOption = $input->getOption('sales-channel');
+
         $this->io = new SymfonyStyle($input, $output);
         $helper = $this->getHelper('question');
+
+        if ($input->getOption('sales-channel') && $input->getOption('all')) {
+            $this->io->error('You can use either --sales-channel or --all, not both at the same time.');
+
+            return self::INVALID;
+        }
+
+        if (!$themeName) {
+            $question = new ChoiceQuestion('Please select a theme:', $this->getThemeChoices());
+            $themeName = $helper->ask($input, $output, $question);
+        }
 
         /** @var SalesChannelCollection $salesChannels */
         $salesChannels = $this->salesChannelRepository->search(new Criteria(), $this->context)->getEntities();
 
-        if (!$input->getOption('all')) {
-            $question = new ChoiceQuestion('Please select a sales channel:', $this->getSalesChannelChoices($salesChannels));
-            $answer = $helper->ask($input, $output, $question);
-            $parsedSalesChannel = $this->parseSalesChannelAnswer($answer, $salesChannels);
-            if ($parsedSalesChannel === null) {
-                return self::FAILURE;
-            }
-            $salesChannels = new SalesChannelCollection([$parsedSalesChannel]);
-        }
-
-        if (!$input->getArgument('theme-name')) {
-            $question = new ChoiceQuestion('Please select a theme:', $this->getThemeChoices());
-            $themeName = $helper->ask($input, $output, $question);
+        if ($input->getOption('all')) {
+            $selectedSalesChannel = $salesChannels;
         } else {
-            $themeName = $input->getArgument('theme-name');
+            if (!$salesChannelOption) {
+                $question = new ChoiceQuestion('Please select a sales channel:', $this->getSalesChannelChoices($salesChannels));
+                $answer = $helper->ask($input, $output, $question);
+                $salesChannelOption = $this->parseSalesChannelAnswer($answer);
+
+                if ($salesChannelOption === null) {
+                    return self::INVALID;
+                }
+            }
+
+            if (!$salesChannels->has($salesChannelOption)) {
+                $this->io->error('Could not find sales channel with ID ' . $salesChannelOption);
+
+                return self::INVALID;
+            }
+            $selectedSalesChannel = [$salesChannels->get($salesChannelOption)];
         }
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', $themeName));
 
-        $themes = $this->themeRepository->search($criteria, $this->context);
+        /** @var ThemeEntity|null $theme */
+        $theme = $this->themeRepository->search($criteria, $this->context)->first();
 
-        foreach ($salesChannels as $salesChannel) {
-            $this->io->writeln(sprintf('Set "%s" as new theme for sales channel "%s"', $themeName, $salesChannel->getName()));
+        if ($theme === null) {
+            $this->io->error('Invalid theme name');
 
-            if ($themes->count() === 0) {
-                $this->io->error('Invalid theme name');
+            return self::INVALID;
+        }
 
-                return self::FAILURE;
-            }
+        /** @var SalesChannelEntity $salesChannel */
+        foreach ($selectedSalesChannel as $salesChannel) {
+            $this->io->writeln(sprintf('Set and compiling theme "%s" (%s) as new theme for sales channel "%s"', $themeName, $theme->getId(), $salesChannel->getName()));
 
-            /** @var ThemeEntity $theme */
-            $theme = $themes->first();
-
-            $this->themeSalesChannelRepository->upsert([[
-                'themeId' => $theme->getId(),
-                'salesChannelId' => $salesChannel->getId(),
-            ]], $this->context);
-
-            $this->io->writeln(sprintf('Compiling theme %s for sales channel %s', $theme->getId(), $theme->getName()));
-            $this->themeService->compileTheme($salesChannel->getId(), $theme->getId(), $this->context);
+            $this->themeService->assignTheme($theme->getId(), $salesChannel->getId(), $this->context);
         }
 
         return self::SUCCESS;
@@ -157,11 +144,10 @@ class ThemeChangeCommand extends Command
         return $choices;
     }
 
-    private function parseSalesChannelAnswer(string $answer, SalesChannelCollection $salesChannels): ?SalesChannelEntity
+    private function parseSalesChannelAnswer(string $answer): ?string
     {
         $parts = explode('|', $answer);
         $salesChannelId = trim(array_pop($parts));
-        $salesChannel = $salesChannels->get($salesChannelId);
 
         if (!$salesChannelId) {
             $this->io->error('Invalid answer');
@@ -169,6 +155,6 @@ class ThemeChangeCommand extends Command
             return null;
         }
 
-        return $salesChannel;
+        return $salesChannelId;
     }
 }

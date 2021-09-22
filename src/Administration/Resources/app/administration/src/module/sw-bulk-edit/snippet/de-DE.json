@@ -258,6 +258,7 @@
         "changeLabel": "Ändern: Tags",
         "placeholder": "Gib einen Tag ein ..."
       }
-    }
+    },
+    "applyChanges": "Änderungen übernehmen"
   }
 }

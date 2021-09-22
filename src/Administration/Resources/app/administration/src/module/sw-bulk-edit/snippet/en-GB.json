@@ -258,6 +258,7 @@
         "changeLabel": "Change: Tags",
         "placeholder": "Enter a tag..."
       }
-    }
+    },
+    "applyChanges": "Apply changes"
   }
 }

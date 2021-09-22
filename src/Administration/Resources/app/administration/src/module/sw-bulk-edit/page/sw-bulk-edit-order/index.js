@@ -11,6 +11,7 @@ Component.register('sw-bulk-edit-order', {
     inject: [
         'bulkEditApiFactory',
         'repositoryFactory',
+        'feature',
     ],
 
     mixins: [

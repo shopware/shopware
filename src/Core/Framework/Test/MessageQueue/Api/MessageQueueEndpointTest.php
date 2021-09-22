@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Framework\Test\MessageQueue\Api;
 
@@ -11,7 +11,7 @@ class MessageQueueEndpointTest extends TestCase
     use IntegrationTestBehaviour;
     use AdminFunctionalTestBehaviour;
 
-    public function testEndpoint()
+    public function testEndpoint(): void
     {
         $gateway = $this->getContainer()->get('shopware.queue.monitoring.gateway');
         $gateway->reset('foo');
@@ -29,7 +29,7 @@ class MessageQueueEndpointTest extends TestCase
         $entries = json_decode($client->getResponse()->getContent(), true);
 
         $mapped = [];
-        foreacH ($entries as $entry) {
+        foreach ($entries as $entry) {
             $mapped[$entry['name']] = $entry['size'];
         }
 

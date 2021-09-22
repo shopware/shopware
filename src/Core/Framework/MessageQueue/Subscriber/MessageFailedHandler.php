@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\MessageQueue\Subscriber;
 
-use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\MessageQueue\Monitoring\AbstractMonitoringGateway;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\Envelope;

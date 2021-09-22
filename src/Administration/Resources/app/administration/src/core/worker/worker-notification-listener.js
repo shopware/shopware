@@ -48,7 +48,7 @@ class WorkerNotificationListener {
         const headers = {
             headers: {
                 Authorization: `Bearer ${Shopware.Service('loginService').getToken()}`,
-            }
+            },
         };
 
         client.get('/_info/queue.json', headers).then((res) => {

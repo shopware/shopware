@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Framework\MessageQueue\Monitoring;
 
@@ -27,7 +27,11 @@ class RedisMonitoringGateway extends AbstractMonitoringGateway
 
     public function decrement(string $name): void
     {
-        $this->redis->decr(self::PREFIX . $name);
+        $value = $this->redis->decr(self::PREFIX . $name);
+
+        if ($value < 0) {
+            $this->redis->set(self::PREFIX . $name, 0);
+        }
     }
 
     public function reset(string $name): void

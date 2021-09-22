@@ -123,11 +123,6 @@ class InfoController extends AbstractController
 
     /**
      * @Since("6.4.6.0")
-     * @OA\Get(
-     *     path="/_info/queue.json",
-     *     summary="Get stats about message queue status",
-     *     description="Get information about message count inside queue",
-     * )
      * @Route("/api/_info/queue.json", name="api.info.queue", methods={"GET"})
      * @Acl({"message_queue_stats:read"})
      *

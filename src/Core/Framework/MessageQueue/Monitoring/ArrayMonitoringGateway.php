@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Framework\MessageQueue\Monitoring;
 
@@ -15,19 +15,23 @@ class ArrayMonitoringGateway extends AbstractMonitoringGateway
 
     public function increment(string $name): void
     {
-        if (!array_key_exists($name, $this->logs)) {
+        if (!\array_key_exists($name, $this->logs)) {
             $this->logs[$name] = 0;
         }
-        $this->logs[$name]++;
+        ++$this->logs[$name];
     }
 
     public function decrement(string $name): void
     {
-        if (!array_key_exists($name, $this->logs)) {
+        if (!\array_key_exists($name, $this->logs)) {
             $this->logs[$name] = 0;
         }
 
-        $this->logs[$name]--;
+        if ($this->logs[$name] <= 0) {
+            return;
+        }
+
+        --$this->logs[$name];
     }
 
     public function reset(string $name): void

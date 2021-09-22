@@ -3,8 +3,6 @@
 namespace Shopware\Core\Framework\Test\MessageQueue;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\MessageQueue\Monitoring\AbstractMonitoringGateway;
 use Shopware\Core\Framework\MessageQueue\Monitoring\ArrayMonitoringGateway;
 use Shopware\Core\Framework\MessageQueue\Monitoring\MonitoringBusDecorator;
@@ -160,8 +158,6 @@ class MonitoringBusDecoratorTest extends TestCase
 
     public function testDoesNotDecrementWithNonDefaultName(): void
     {
-        $context = Context::createDefaultContext();
-
         $testMsg = new TestMessage();
 
         $innerBus = $this->createMock(MessageBusInterface::class);
@@ -187,8 +183,6 @@ class MonitoringBusDecoratorTest extends TestCase
 
     public function testDoesNotDecrementWithoutReceivedStamp(): void
     {
-        $context = Context::createDefaultContext();
-
         $testMsg = new TestMessage();
 
         $innerBus = $this->createMock(MessageBusInterface::class);
@@ -222,6 +216,7 @@ class MonitoringBusDecoratorTest extends TestCase
                 return (int) $record['size'];
             }
         }
+
         return null;
     }
 }

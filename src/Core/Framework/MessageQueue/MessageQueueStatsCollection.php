@@ -3,8 +3,10 @@
 namespace Shopware\Core\Framework\MessageQueue;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+
 /**
- * @deprecated (flag:FEATURE_NEXT_17380) tag:v6.5.0
+ * @deprecated tag:v6.5.0 - (flag:FEATURE_NEXT_17380) use `shopware.queue.monitoring.gateway` service instead
+ *
  * @method void                         add(MessageQueueStatsEntity $entity)
  * @method void                         set(string $key, MessageQueueStatsEntity $entity)
  * @method MessageQueueStatsEntity[]    getIterator()

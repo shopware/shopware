@@ -498,7 +498,7 @@ class Configuration implements ConfigurationInterface
         return $rootNode;
     }
 
-    private function createQueueSection()
+    private function createQueueSection(): ArrayNodeDefinition
     {
         $rootNode = (new TreeBuilder('queue'))->getRootNode();
         $rootNode
@@ -506,7 +506,7 @@ class Configuration implements ConfigurationInterface
                 ->arrayNode('monitoring')
                     ->children()
                         ->scalarNode('type')->end()
-                        ->scalarNode('url')->end()
+                        ->variableNode('config')->end()
                     ->end()
                 ->end()
             ->end();

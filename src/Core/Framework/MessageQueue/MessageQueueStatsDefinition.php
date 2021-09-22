@@ -14,7 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Feature;
 
 /**
- * @deprecated (flag:FEATURE_NEXT_17380) tag:v6.5.0
+ * @deprecated tag:v6.5.0 - (flag:FEATURE_NEXT_17380) use `shopware.queue.monitoring.gateway` service instead
  */
 class MessageQueueStatsDefinition extends EntityDefinition
 {
@@ -47,8 +47,6 @@ class MessageQueueStatsDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        Feature::throwException('FEATURE_NEXT_17380', 'Message queue stats entity is deprecated');
-
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),
             (new StringField('name', 'name'))->addFlags(new Required(), new WriteProtected(Context::SYSTEM_SCOPE)),

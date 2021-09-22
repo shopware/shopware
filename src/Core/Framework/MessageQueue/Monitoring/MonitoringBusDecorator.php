@@ -46,12 +46,12 @@ class MonitoringBusDecorator implements MessageBusInterface
 
     private function incrementMessageQueueSize(Envelope $message): void
     {
-        $this->gateway->increment(get_class($message->getMessage()));
+        $this->gateway->increment(\get_class($message->getMessage()));
     }
 
     private function decrementMessageQueueSize(Envelope $message): void
     {
-        $this->gateway->decrement(get_class($message->getMessage()));
+        $this->gateway->decrement(\get_class($message->getMessage()));
     }
 
     private function wasSentToDefaultTransport(Envelope $message): bool

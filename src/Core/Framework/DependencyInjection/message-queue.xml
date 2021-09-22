@@ -20,7 +20,7 @@
 
         <service id="shopware.queue.monitoring.redis_adapter" class="Redis">
             <factory class="Symfony\Component\Cache\Adapter\RedisAdapter" method="createConnection"/>
-            <argument>%shopware.queue.monitoring.url%</argument>
+            <argument>%shopware.queue.monitoring.config.url%</argument>
         </service>
 
         <service id="shopware.queue.monitoring.gateway.redis" class="Shopware\Core\Framework\MessageQueue\Monitoring\RedisMonitoringGateway">
@@ -32,8 +32,6 @@
         </service>
 
         <service id="shopware.queue.monitoring.gateway.array" class="Shopware\Core\Framework\MessageQueue\Monitoring\ArrayMonitoringGateway"/>
-
-        <!--        <service id="shopware.queue.monitoring.gateway" alias="shopware.queue.monitoring.gateway.mysql"/>-->
 
         <!--Message Bus-->
         <service id="Shopware\Core\Framework\MessageQueue\Monitoring\MonitoringBusDecorator" decorates="messenger.bus.shopware">
@@ -92,7 +90,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\MessageQueue\Subscriber\MessageFailedHandler">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="shopware.queue.monitoring.gateway"/>
             <argument type="string">%messenger.default_transport_name%</argument>
 
             <tag name="kernel.event_subscriber"/>

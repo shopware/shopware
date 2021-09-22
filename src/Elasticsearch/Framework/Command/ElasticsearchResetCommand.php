@@ -20,6 +20,7 @@ class ElasticsearchResetCommand extends Command
     private Client $client;
 
     private Connection $connection;
+
     private AbstractMonitoringGateway $monitoringGateway;
 
     public function __construct(Client $client, ElasticsearchOutdatedIndexDetector $detector, Connection $connection, AbstractMonitoringGateway $monitoringGateway)

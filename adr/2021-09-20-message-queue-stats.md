@@ -12,9 +12,10 @@ We create a possibility to control the access to the `message_queue_stats` table
 To do this, however, we need to prevent / extend access via the DAL.
 
 So we implement a new gateway with the following methods:
-* `increment(string name, int $count = 1): void`
-* `decrement(string name, int $count = 1): void`
+* `increment(string name): void`
+* `decrement(string name): void`
 * `get(): array`
+* `reset(string $name): array`
 * `getDecorated(): self`
 
 This then enables the following functional flow:

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Framework\MessageQueue\Monitoring;
 
@@ -26,22 +26,21 @@ class MySQLMonitoringGateway extends AbstractMonitoringGateway
         $payload = [
             'id' => Uuid::randomBytes(),
             'name' => $name,
-            'count' => 1,
             'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
 
         $this->connection->executeStatement('
             INSERT INTO `message_queue_stats` (`id`, `name`, `size`, `created_at`)
-            VALUES (:id, :name, :count, :createdAt)
-            ON DUPLICATE KEY UPDATE `size` = `size` + :count, `updated_at` = :createdAt
+            VALUES (:id, :name, 1, :createdAt)
+            ON DUPLICATE KEY UPDATE `size` = `size` + 1, `updated_at` = :createdAt
         ', $payload);
     }
 
     public function decrement(string $name): void
     {
         $this->connection->executeStatement(
-            'UPDATE `message_queue_stats` SET `size` = `size` - :count WHERE `name` = :name AND `size` > 0;',
-            ['name' => $name, 'count' => 1]
+            'UPDATE `message_queue_stats` SET `size` = `size` - 1 WHERE `name` = :name AND `size` > 0;',
+            ['name' => $name]
         );
     }
 

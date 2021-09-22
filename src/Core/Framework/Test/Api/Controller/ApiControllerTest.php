@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Exception\LiveVersionDeleteException;
@@ -2172,6 +2173,80 @@ EOF;
         $error = $content->errors[0];
 
         static::assertSame(sprintf(SalesChannelValidatorTest::DELETE_VALIDATION_MESSAGE, $salesChannelId), $error->detail);
+    }
+
+    public function testDirectlyAddMappingEntry(): void
+    {
+        $productId = Uuid::randomHex();
+        $data = [
+            'id' => $productId,
+            'productNumber' => Uuid::randomHex(),
+            'name' => 'Wool Shirt',
+            'tax' => ['name' => 'test', 'taxRate' => 10],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 8300, 'net' => 8300, 'linked' => false]],
+            'stock' => 50,
+        ];
+        $this->getBrowser()->request('POST', '/api/product', [], [], [], json_encode($data));
+
+        $categoryId = Uuid::randomHex();
+        $data = ['id' => $categoryId, 'name' => 'test category'];
+        $this->getBrowser()->request('POST', '/api/category', [], [], [], json_encode($data));
+
+        $mapping = [
+            'productId' => $productId,
+            'categoryId' => $categoryId,
+        ];
+        $this->getBrowser()->request('POST', '/api/product-category', [], [], [], json_encode($mapping));
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+
+        $repo = $this->getContainer()->get(ProductDefinition::ENTITY_NAME . '.repository');
+        $criteria = new Criteria([$productId]);
+
+        /** @var ProductEntity $product */
+        $product = $repo->search($criteria, Context::createDefaultContext())->getEntities()->first();
+
+        static::assertEquals([
+            $categoryId,
+        ], $product->getCategoryIds());
+    }
+
+    public function testDirectlyAddMappingEntryWithResponse(): void
+    {
+        $productId = Uuid::randomHex();
+        $data = [
+            'id' => $productId,
+            'productNumber' => Uuid::randomHex(),
+            'name' => 'Wool Shirt',
+            'tax' => ['name' => 'test', 'taxRate' => 10],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 8300, 'net' => 8300, 'linked' => false]],
+            'stock' => 50,
+        ];
+        $this->getBrowser()->request('POST', '/api/product', [], [], [], json_encode($data));
+
+        $categoryId = Uuid::randomHex();
+        $data = ['id' => $categoryId, 'name' => 'test category'];
+        $this->getBrowser()->request('POST', '/api/category', [], [], [], json_encode($data));
+
+        $mapping = [
+            'productId' => $productId,
+            'categoryId' => $categoryId,
+        ];
+        $this->getBrowser()->request('POST', '/api/product-category?_response=1', [], [], [], json_encode($mapping));
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+
+        $repo = $this->getContainer()->get(ProductDefinition::ENTITY_NAME . '.repository');
+        $criteria = new Criteria([$productId]);
+
+        /** @var ProductEntity $product */
+        $product = $repo->search($criteria, Context::createDefaultContext())->getEntities()->first();
+
+        static::assertEquals([
+            $categoryId,
+        ], $product->getCategoryIds());
     }
 
     private function getSalesChannelData(string $salesChannelId, $languageId = Defaults::LANGUAGE_SYSTEM): array

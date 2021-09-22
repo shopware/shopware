@@ -116,7 +116,7 @@ describe('Mail header & footer template: Sales Channel assignment', () => {
 
         cy.wait('@saveTemplate').its('response.statusCode').should('equal', 200);
 
-        cy.get('.sw-button__loader').should('not.be.visible');
+        cy.get('.sw-button__loader').should('not.exist');
         cy.get('.smart-bar__back-btn').click();
         cy.contains('.sw-data-grid__row', 'Example').should('exist').contains('.sw-data-grid__cell-content', 'Storefront');
     });

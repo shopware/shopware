@@ -2,7 +2,6 @@
 
 namespace Shopware\Storefront\Framework\Routing;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
@@ -28,11 +27,9 @@ class ResponseHeaderListener
             $event->getResponse()->headers->remove($headerKey);
         }
 
-        if (Feature::isActive('FEATURE_NEXT_16223')) {
-            $event->getResponse()->headers->remove('Access-Control-Allow-Origin');
-            $event->getResponse()->headers->remove('Access-Control-Allow-Methods');
-            $event->getResponse()->headers->remove('Access-Control-Allow-Headers');
-            $event->getResponse()->headers->remove('Access-Control-Expose-Headers');
-        }
+        $event->getResponse()->headers->remove('Access-Control-Allow-Origin');
+        $event->getResponse()->headers->remove('Access-Control-Allow-Methods');
+        $event->getResponse()->headers->remove('Access-Control-Allow-Headers');
+        $event->getResponse()->headers->remove('Access-Control-Expose-Headers');
     }
 }

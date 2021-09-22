@@ -298,11 +298,6 @@ shopware:
               major: true
               description: "VAT id field for guest"
               # issue: NEXT-15957
-            - name: FEATURE_NEXT_16223
-              default: false
-              major: false
-              description: "Remove CORS header in storefront"
-              # issue: NEXT-16223
             - name: FEATURE_NEXT_13795
               default: false
               major: false

@@ -13,6 +13,7 @@ Component.register('sw-order-state-history-card', {
         'orderStateMachineService',
         'repositoryFactory',
         'acl',
+        'feature',
     ],
 
     mixins: [
@@ -257,13 +258,19 @@ Component.register('sw-order-state-history-card', {
                 return entry.stateMachine.technicalName === stateMachineName;
             });
 
-            const options = entries.map((state) => {
-                return {
+            const options = entries.map((state, index) => {
+                const option = {
                     stateName: state.technicalName,
                     id: null,
                     name: state.translated.name,
                     disabled: true,
                 };
+
+                if (this.feature.isActive('FEATURE_NEXT_7530')) {
+                    option.id = index;
+                }
+
+                return option;
             });
 
             options.forEach((option) => {

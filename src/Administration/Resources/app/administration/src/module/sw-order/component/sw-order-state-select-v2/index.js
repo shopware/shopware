@@ -1,12 +1,9 @@
-import './sw-order-state-select.scss';
-import template from './sw-order-state-select.html.twig';
+import './sw-order-state-select-v2.scss';
+import template from './sw-order-state-select-v2.html.twig';
 
 const { Component } = Shopware;
 
-/**
- * @feature-deprecated (flag:FEATURE_NEXT_7530) will be dropped
- */
-Component.register('sw-order-state-select', {
+Component.register('sw-order-state-select-v2', {
     template,
     props: {
         transitionOptions: {
@@ -22,6 +19,11 @@ Component.register('sw-order-state-select', {
             default: false,
         },
         placeholder: {
+            type: String,
+            required: false,
+            default: null,
+        },
+        label: {
             type: String,
             required: false,
             default: null,
@@ -44,7 +46,7 @@ Component.register('sw-order-state-select', {
     },
     computed: {
         selectStyle() {
-            return `sw-order-state-select__field${this.roundedStyle ? '--rounded' : ''}`;
+            return `sw-order-state-select-v2__field${this.roundedStyle ? '--rounded' : ''}`;
         },
 
         selectPlaceholder() {
@@ -52,6 +54,10 @@ Component.register('sw-order-state-select', {
                 return this.placeholder;
             }
             return this.$tc('sw-order.stateCard.labelSelectStatePlaceholder');
+        },
+
+        selectable() {
+            return !this.disabled && this.transitionOptions.length > 0;
         },
     },
     watch: {
@@ -65,6 +71,10 @@ Component.register('sw-order-state-select', {
     methods: {
         onStateChangeClicked() {
             this.$emit('state-select', this.selectedActionName);
+
+            this.$nextTick(() => {
+                this.selectedActionName = null;
+            });
         },
     },
 });

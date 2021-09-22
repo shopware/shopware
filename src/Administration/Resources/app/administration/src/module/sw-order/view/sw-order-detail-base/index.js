@@ -113,10 +113,12 @@ Component.register('sw-order-detail-base', {
         },
 
         transactionOptionPlaceholder() {
-            if (this.isLoading) return null;
+            const headline = this.$tc('sw-order.stateCard.headlineTransactionState');
+            if (this.isLoading) {
+                return null;
+            }
 
-            return `${this.$tc('sw-order.stateCard.headlineTransactionState')}: \
-            ${this.transaction.stateMachineState.translated.name}`;
+            return `${headline}: ${this.transaction.stateMachineState.translated.name}`;
         },
 
         transactionOptionsBackground() {
@@ -129,12 +131,12 @@ Component.register('sw-order-detail-base', {
         },
 
         orderOptionPlaceholder() {
+            const headline = this.$tc('sw-order.stateCard.headlineOrderState');
             if (this.isLoading) {
                 return null;
             }
 
-            return `${this.$tc('sw-order.stateCard.headlineOrderState')}: \
-            ${this.order.stateMachineState.translated.name}`;
+            return `${headline}: ${this.order.stateMachineState.translated.name}`;
         },
 
         orderOptionsBackground() {
@@ -147,12 +149,12 @@ Component.register('sw-order-detail-base', {
         },
 
         deliveryOptionPlaceholder() {
+            const headline = this.$tc('sw-order.stateCard.headlineDeliveryState');
             if (this.isLoading) {
                 return null;
             }
 
-            return `${this.$tc('sw-order.stateCard.headlineDeliveryState')}: \
-            ${this.delivery.stateMachineState.translated.name}`;
+            return `${headline}: ${this.delivery.stateMachineState.translated.name}`;
         },
 
         deliveryOptionsBackground() {
@@ -327,6 +329,9 @@ Component.register('sw-order-detail-base', {
 
         reloadEntityData() {
             this.$emit('loading-change', true);
+            this.orderOptions = [];
+            this.transactionOptions = [];
+            this.deliveryOptions = [];
 
             return this.orderRepository.get(this.orderId, this.versionContext, this.orderCriteria).then((response) => {
                 this.order = response;

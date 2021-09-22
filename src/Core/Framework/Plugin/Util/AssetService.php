@@ -12,33 +12,28 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 class AssetService
 {
-    /**
-     * @var FilesystemInterface
-     */
-    private $filesystem;
+    private FilesystemInterface $filesystem;
 
-    /**
-     * @var KernelInterface
-     */
-    private $kernel;
+    private KernelInterface $kernel;
 
-    /**
-     * @var KernelPluginCollection
-     */
-    private $pluginCollection;
+    private KernelPluginCollection $pluginCollection;
 
-    private CacheInvalidator $logger;
+    private CacheInvalidator $cacheInvalidator;
+
+    private string $coreDir;
 
     public function __construct(
         FilesystemInterface $filesystem,
         KernelInterface $kernel,
         KernelPluginCollection $pluginCollection,
-        CacheInvalidator $logger
+        CacheInvalidator $logger,
+        string $coreDir
     ) {
         $this->filesystem = $filesystem;
         $this->kernel = $kernel;
         $this->pluginCollection = $pluginCollection;
-        $this->logger = $logger;
+        $this->cacheInvalidator = $logger;
+        $this->coreDir = $coreDir;
     }
 
     /**
@@ -58,7 +53,7 @@ class AssetService
 
         $this->copy($originDir, $targetDirectory);
 
-        $this->logger->invalidate(['asset-metaData'], true);
+        $this->cacheInvalidator->invalidate(['asset-metaData'], true);
     }
 
     /**
@@ -71,6 +66,31 @@ class AssetService
         $targetDirectory = $this->getTargetDirectory($bundle);
 
         $this->filesystem->deleteDir($targetDirectory);
+    }
+
+    public function copyRecoveryAssets(): void
+    {
+        $targetDirectory = 'recovery';
+        $this->filesystem->deleteDir($targetDirectory);
+
+        $originDir = $this->coreDir . '/../Recovery/Resources/public';
+        if (!is_dir($originDir)) {
+            return;
+        }
+
+        if (is_dir($this->coreDir . '/../Recovery/Resources/public')) {
+            // platform installation
+            $originDir = $this->coreDir . '/../Recovery/Resources/public';
+        } elseif (is_dir($this->coreDir . '/../recovery/Resources/public')) {
+            // composer installation over many repos
+            $originDir = $this->coreDir . '/../recovery/Resources/public';
+        } else {
+            return;
+        }
+
+        $this->copy($originDir, $targetDirectory);
+
+        $this->cacheInvalidator->invalidate(['asset-metaData'], true);
     }
 
     private function getTargetDirectory(BundleInterface $bundle): string

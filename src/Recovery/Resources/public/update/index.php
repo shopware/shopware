@@ -2,7 +2,11 @@
 
 $rootDir = dirname(__DIR__, 3);
 
-if (file_exists($rootDir . '/src/Recovery/Update/index.php')) {
+if (file_exists($rootDir . '/vendor/shopware/recovery/Update/index.php')) {
+    require_once $rootDir . '/vendor/shopware/recovery/Update/index.php';
+} elseif (file_exists($rootDir . '/vendor/shopware/platform/src/Recovery/Update/index.php')) {
+    require_once $rootDir . '/vendor/shopware/platform/src/Recovery/Update/index.php';
+} elseif (file_exists($rootDir . '/src/Recovery/Update/index.php')) {
     require_once $rootDir . '/src/Recovery/Update/index.php';
 } else {
     // if the recovery is not yet there use the old recovery logic
@@ -23,7 +27,7 @@ if (file_exists($rootDir . '/src/Recovery/Update/index.php')) {
         define('UPDATE_META_FILE', SW_PATH . '/files/update/update.json');
     }
 
-    if (PHP_SAPI === 'cli') {
+    if (\PHP_SAPI === 'cli') {
         error_reporting(-1);
         ini_set('display_errors', '1');
 

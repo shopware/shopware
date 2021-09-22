@@ -39,7 +39,6 @@ Thumbs.db
 /public/media/*
 !/public/media/
 !/public/media/.gitkeep
-!/public/recovery/
 src/Administration/Resources/public/static/
 
 /files/documents/*

@@ -49,14 +49,8 @@ class ContainerProvider implements ServiceProviderInterface
         $container['config'] = $this->config;
         $container['install.language'] = '';
 
-        $container['shopware.version'] = static function () {
-            $version = null;
-            $versionFile = SW_PATH . '/public/recovery/install/data/version';
-            if (is_readable($versionFile)) {
-                $version = file_get_contents($versionFile) ?: null;
-            }
-
-            return trim($version ?? '6.4.9999999.9999999-dev');
+        $container['shopware.version'] = static function ($c) {
+            return $c['shopware.kernel']->getContainer()->getParameter('kernel.shopware_version');
         };
 
         $container['default.env.path'] = static function () {
@@ -146,7 +140,6 @@ class ContainerProvider implements ServiceProviderInterface
 
         $container['install.requirementsPath'] = static function () use ($recoveryRoot) {
             $check = new RequirementsPath(SW_PATH, $recoveryRoot . '/Common/requirements.php');
-            $check->addFile('public/recovery/install/data');
 
             return $check;
         };

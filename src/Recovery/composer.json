@@ -10,6 +10,9 @@
     "scripts": {
         "pre-install-cmd": [
             "composer install -d Common --no-interaction --optimize-autoloader --no-suggest"
+        ],
+        "post-install-cmd": [
+            "@php copy-assets.php"
         ]
     },
     "autoload-dev": {

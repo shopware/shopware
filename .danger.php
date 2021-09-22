@@ -20,6 +20,53 @@ return (new Config())
             $context->warning('The Pull Request doesn\'t contain any changelog file');
         }
     })
+    ->useRule(new Condition(
+        function(Context $context) {
+            return $context->platform instanceof Gitlab;
+        },
+        [
+            function(Context $context) {
+                $files = $context->platform->pullRequest->getFiles();
+
+                $relevant = (
+                    $files->matches('src/Core/*.php')->count() > 0
+                    ||
+                    $files->matches('src/Elasticsearch/*.php')->count() > 0
+                    ||
+                    $files->matches('src/Storefront/Migration/')->count() > 0
+                );
+
+                if (!$relevant) {
+                    return;
+                }
+
+                $labels = ['core__component'];
+                if ($files->matches('src/**/Cart/')->count() > 0) {
+                    $labels[] = 'core__cart';
+                }
+                if ($files->matches('src/**/*Definition.php')->count() > 0) {
+                    $labels[] = 'core__definition';
+                }
+                if ($files->matches('src/**/*Route.php')->count() > 0) {
+                    $labels[] = 'core__store-api';
+                }
+                if ($files->matches('src/Storefront/Migration/')->count() > 0) {
+                    $labels[] = 'core__migration';
+                }
+                if ($files->matches('src/Core/Migration/')->count() > 0) {
+                    $labels[] = 'core__migration';
+                }
+                if ($files->matches('src/Elasticsearch/')->count() > 0) {
+                    $labels[] = 'core__elasticsearch';
+                }
+                if ($files->matches('src/**/DataAbstractionLayer/')->count() > 0) {
+                    $labels[] = 'core__dal';
+                }
+
+                $context->platform->addLabels(...$labels);
+            }
+        ]
+    ))
     ->useRule(function (Context $context) {
         // The title is not important here as we import the pull requests and prefix them
         if ($context->platform->pullRequest->projectIdentifier === 'shopware/platform') {

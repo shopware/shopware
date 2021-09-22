@@ -175,6 +175,7 @@ Component.register('sw-property-option-list', {
             }, {
                 property: 'position',
                 label: this.$tc('sw-property.detail.labelOptionPosition'),
+                inlineEdit: 'number',
             }];
         },
     },

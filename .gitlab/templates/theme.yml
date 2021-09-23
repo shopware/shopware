@@ -1,0 +1,292 @@
+# This is a CI/CD template for shopware themes
+# - SwagThemeTemplate: https://gitlab.shopware.com/shopware/6/templates/swagthemetemplate/-/blob/trunk/.gitlab-ci.yml
+# - gitlab docs: https://docs.gitlab.com/ee/ci/yaml/#include
+
+stages:
+    - build
+    - test
+    - E2E
+    - visual
+    - deploy
+
+variables:
+    PROJECT_ROOT: ${CI_PROJECT_DIR}
+    WEB_DOCUMENT_ROOT: $CI_PROJECT_DIR/public
+    LOG_STDOUT: $CI_PROJECT_DIR/var/log/stdout.log
+    MYSQL_ROOT_PASSWORD: root
+    GIT_STRATEGY: clone
+    # cypress
+    CYPRESS_baseUrl: 'http://localhost:8000'
+    CYPRESS_localUsage: 1
+    CYPRESS_shopwareRoot: $CI_PROJECT_DIR
+    SHOPWARE_HTTP_CACHE_ENABLED: 0
+    CYPRESS_screenshotsFolder: $CI_PROJECT_DIR/var/log/screenshots
+    # percy
+    PERCY_TARGET_BRANCH: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
+    PERCY_TARGET_COMMIT: $CI_MERGE_REQUEST_DIFF_BASE_SHA
+    PERCY_BRANCH: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+    PERCY_COMMIT: $CI_COMMIT_SHA
+    # things themes might want to override
+    THEME_NAME:
+        value: ${CI_PROJECT_TITLE}
+        description: 'Theme name. Default is ${CI_PROJECT_TITLE}'
+    PLATFORM_BRANCH:
+        value: trunk
+        description: 'The shopware/platform branch that is used'
+    DEV_IMAGE:
+        value: shopware/development:7.4-composer-2
+        description: 'base docker image used. Can be changed to test other php versions. Example: shopware/development:8.0-composer-2'
+    THEME_SOURCE_DIR:
+        value: ''
+        description: 'Defines the src dir. Use "" (empty string) if it starts in the root dir.'
+    MYSQL_IMAGE:
+        value: mysql:5.7
+        description: 'database image to use. Possible values: "mysql:8.0.19" (also change $MYSQL_CMD!), "mariadb:10.3", "mariadb:10.4"'
+    MYSQL_CMD:
+        value: mysqld
+        description: 'Copy from $MYSQL8_CMD for mysql >= 8'
+    MYSQL8_CMD:
+        value: 'mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON'
+        description: 'mysql 8 needs a special auth option to work with shopware/platform'
+    BROWSER:
+        value: chrome
+        description: 'Browser to use for cypress and percy tests. Possible values: "chrome", "firefox", "electron"'
+
+
+workflow:
+    rules:
+        # do not run on push
+        -   if: '$CI_PIPELINE_SOURCE == "push"'
+            when: never
+        -   when: always
+
+.base_env_vars: &base_env_vars
+    - export THEME_NAME="${THEME_NAME:-${CI_PROJECT_TITLE}}"
+
+.base_install: &base_install
+    - composer install --quiet
+    - mkdir -p config/jwt || true
+    - bin/console system:generate-jwt || true
+    - bin/console system:install --drop-database --basic-setup --force >/dev/null
+    - bin/console bundle:dump
+    - chown -R application:application .
+    - '(cd src/Administration/Resources/app/administration/ && npm ci && npm run build)'
+    - '(cd src/Storefront/Resources/app/storefront/ && npm ci && npm run production && node copy-to-vendor.js)'
+
+.theme_install: &theme_install
+    - bin/console app:install --activate $THEME_NAME
+    - bin/console cache:clear
+    - bin/console theme:change --all $THEME_NAME
+    - bin/console assets:install
+
+.theme_build_install: &theme_build_install
+    - bin/console app:install --activate $THEME_NAME
+    - bin/console cache:clear
+    - bin/console bundle:dump
+    - cat var/plugins.json
+    - '(cd src/Administration/Resources/app/administration/ && npm ci && npm run build)'
+    - '(cd src/Storefront/Resources/app/storefront/ && npm ci && npm run production && node copy-to-vendor.js)'
+    - bin/console theme:change --all $THEME_NAME
+    - bin/console assets:install
+
+default:
+    image: $DEV_IMAGE
+    services:
+        - name: mysql:5.7
+          alias: database
+          entrypoint: [ "sh", "-c", "docker-entrypoint.sh $MYSQL_CMD" ]
+    before_script:
+        - *base_env_vars
+        - zip -rq theme.zip .
+        - mv theme.zip /tmp/theme.zip
+        - rm -Rf .* * || true
+        - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.shopware.com/shopware/6/product/platform.git . --branch $PLATFORM_BRANCH
+        - mkdir -p custom/apps || true
+        - unzip -q /tmp/theme.zip -d custom/apps/$THEME_NAME
+        - *base_install
+        - *theme_build_install
+        - /entrypoint supervisord > /dev/null 2>&1 &
+        - cd custom/apps/$THEME_NAME
+
+build zip:
+    stage: build
+    image:
+        name: ghcr.io/friendsofshopware/platform-plugin-dev:v6.4.4
+        entrypoint: [""]
+    rules:
+        - exists:
+              - manifest.xml
+    variables:
+        DATABASE_URL: "mysql://root:root@database:3306/root?sslmode=disable&charset=utf8mb4"
+        PROJECT_ROOT: /opt/shopware
+        ADMIN_PATH: $CI_PROJECT_DIR/src/Administration/Resources/app/administration
+        STOREFRONT_PATH: $CI_PROJECT_DIR/src/Storefront/Resources/app/storefront
+    before_script:
+        - *base_env_vars
+        - mkdir -p /opt/shopware/custom/apps || true
+        - ln -s "$PWD" "/opt/shopware/custom/apps/$THEME_NAME"
+        - /opt/shopware/bin/console system:install --drop-database --basic-setup --force
+        - /opt/shopware/bin/console app:install --activate "$THEME_NAME"
+    script:
+        - /opt/shopware/bin/build-js.sh
+        - rm -rf /opt/shopware/custom/apps/${THEME_NAME}/${THEME_SOURCE_DIR}Resources/app/storefront/node_modules || true
+        - plugin-uploader ext:zip --strategy=plain -- "/opt/shopware/custom/apps/$THEME_NAME"
+        - mkdir -p /fix_zip
+        - mv *.zip /fix_zip
+        - cd /fix_zip
+        - unzip -q *.zip
+        - rm *.zip
+        - mv * $THEME_NAME # fix folder name
+        - zip -q -r ${CI_PROJECT_DIR}/$THEME_NAME.zip $THEME_NAME/ # create new zip
+        - cd ${CI_PROJECT_DIR}
+        - '[[ -r "${THEME_NAME}.zip" ]] || (echo "failed to create zip. Please run ./bin/init $THEME_NAME" && exit 1)'
+        - mv "${THEME_NAME}.zip" "${CI_PROJECT_DIR}/$THEME_NAME.zip"
+    artifacts:
+        name: '${CI_PROJECT_TITLE}.zip'
+        paths:
+            - '*.zip'
+
+validate zip:
+    stage: test
+    image:
+        name: ghcr.io/friendsofshopware/platform-plugin-dev:v6.4.1
+        entrypoint: [""]
+    variables:
+        GIT_STRATEGY: none
+    needs:
+        - build zip
+    rules:
+        - exists:
+              - manifest.xml
+          if: '$CI_PROJECT_TITLE != "SwagPluginTemplate"'
+    before_script: []
+    script:
+        - *base_env_vars
+        - plugin-uploader ext:validate $PWD/$THEME_NAME.zip
+
+validate snippets:
+    stage: test
+    needs: []
+    rules:
+        - changes:
+              - '**/*.json'
+    script:
+        - ${PROJECT_ROOT}/bin/console snippets:validate
+
+jest:
+    stage: test
+    needs: []
+    rules:
+        # exists does not support variables, so we cannot use ${THEME_SOURCE_DIR} here
+        - exists:
+              - Resources/app/storefront/jest.config.js
+              - src/Resources/app/storefront/jest.config.js
+    variables:
+        ADMIN_PATH: $CI_PROJECT_DIR/src/Administration/Resources/app/administration
+        STOREFRONT_PATH: $CI_PROJECT_DIR/src/Storefront/Resources/app/storefront
+    script:
+        - cd ${THEME_SOURCE_DIR}Resources/app/storefront/
+        - npm ci
+        - '$(npm bin)/jest --config jest.config.js --ci'
+    coverage: '/^\s?All files[^|]*\|[^|]*\s+([\d\.]+)/'
+
+template filled:
+    stage: test
+    image: bash
+    needs: []
+    rules:
+        - exists:
+              - TEMPLATE
+          if: $CI_PROJECT_TITLE != "SwagThemeTemplate"
+    before_script: []
+    script:
+        - echo "run './bin/init $CI_PROJECT_TITLE'"
+        - exit 1
+
+cypress:
+    stage: E2E
+    needs:
+        - build zip
+    rules:
+        - exists:
+            - Resources/app/storefront/test/e2e/cypress.json
+            - src/Resources/app/storefront/test/e2e/cypress.json
+    variables:
+        GIT_STRATEGY: none
+        E2E_PROJECT_PATH: Resources/app/storefront/test/e2e/
+        APP_ENV: e2e
+    before_script:
+        - *base_env_vars
+        - mv "$THEME_NAME.zip" /tmp/theme.zip
+        - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.shopware.com/shopware/6/product/platform.git . --branch $PLATFORM_BRANCH
+        - mkdir -p custom/apps || true
+        - unzip -q /tmp/theme.zip -d custom/apps
+        - *base_install
+        - *theme_install
+        - /entrypoint supervisord > /dev/null 2>&1 &
+        - bin/console e2e:dump-db
+        - cd custom/apps/$THEME_NAME/${THEME_SOURCE_DIR}${E2E_PROJECT_PATH}
+        - npm ci
+    script:
+        - ./node_modules/.bin/cypress run
+            --browser $BROWSER
+            --headless
+            --env grep=visual,invert=1
+    after_script:
+        - *base_env_vars
+        - cd custom/apps/$THEME_NAME/${THEME_SOURCE_DIR}${E2E_PROJECT_PATH}
+        - mkdir $CI_PROJECT_DIR/var/log/e2e || true
+        - mkdir -p cypress/mochareports || true
+        - npx mochawesome-merge cypress/results/mocha/*.json > cypress/mochareports/report.json
+        - npx marge cypress/mochareports/*.json -f report -o mochareports
+        - mv cypress/results/single-reports/*.xml $CI_PROJECT_DIR/var/log/e2e/ || true
+        - mv mochareports/ $CI_PROJECT_DIR/var/log/e2e/ || true
+    artifacts:
+        when: always
+        paths:
+            - var/log/*
+        reports:
+            junit: var/log/e2e/*.xml
+
+percy:
+    extends: cypress
+    stage: visual
+    rules:
+        -   if: '$CI_MERGE_REQUEST_EVENT_TYPE == "merge_train"'
+            when: never
+        -   exists:
+                - Resources/app/storefront/test/e2e/.percy*
+                - src/Resources/app/storefront/test/e2e/.percy*
+            if: '$CI_PIPELINE_SOURCE == "schedule" || $CI_MERGE_REQUEST_LABELS =~ /.*visual::all.*/'
+        -   exists:
+                - Resources/app/storefront/test/e2e/.percy*
+                - src/Resources/app/storefront/test/e2e/.percy*
+            when: manual
+            allow_failure: true
+    script:
+        - ./node_modules/.bin/percy exec -- ./node_modules/.bin/cypress run
+            --browser $BROWSER
+            --headless
+            --env grep=visual
+
+upload zip to store:
+    stage: deploy
+    environment:
+        name: account.shopware.com
+        url: 'https://account.shopware.com'
+    image:
+        name: ghcr.io/friendsofshopware/platform-plugin-dev:v6.4.4
+        entrypoint: [""]
+    variables:
+        GIT_STRATEGY: none
+    needs:
+        - build zip
+    rules:
+        - exists:
+              - composer.json
+          if: '$ACCOUNT_USER && $ACCOUNT_PASSWORD && $CI_PROJECT_TITLE != "SwagPluginTemplate"'
+          when: manual
+    before_script: []
+    script:
+        - *base_env_vars
+        - plugin-uploader ext:upload "$(realpath "$THEME_NAME.zip")"

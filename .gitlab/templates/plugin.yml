@@ -1,4 +1,6 @@
-# this is a ci template for shopware plugins. See https://docs.gitlab.com/ee/ci/yaml/#include
+# this is a CI/CD template for shopware plugins
+# - SwagPluginTemplate: https://gitlab.shopware.com/shopware/6/templates/swagplugintemplate/-/blob/trunk/.gitlab-ci.yml
+# - gitlab docs: https://docs.gitlab.com/ee/ci/yaml/#include
 
 stages:
     - build
@@ -77,7 +79,7 @@ default:
         - mkdir -p config/jwt || true
         - bin/console system:generate-jwt || true
         - bin/console system:install --drop-database --basic-setup --force >/dev/null
-        - chown -R application:application .
+        - chown -R 1000:1000 .
         - bin/console plugin:refresh
         - bin/console plugin:install --activate $PLUGIN_NAME
         - >
@@ -89,9 +91,17 @@ default:
         - bin/console assets:install
         - /entrypoint supervisord > /dev/null 2>&1 &
         - cd custom/plugins/$PLUGIN_NAME
-        - >
-            composer config repo.platform-packages --json '{"type": "path", "url": "../../../src/*", "canonical": true}';
-        - composer require 'shopware/core:6.4.*@dev' 'shopware/storefront:6.4.*@dev' 'shopware/administration:6.4.*@dev' 'shopware/elasticsearch:6.4.*@dev'
+
+.build-js: &build-js
+    -  $CI_PROJECT_DIR/bin/console bundle:dump
+    - '(cd $CI_PROJECT_DIR/src/Administration/Resources/app/administration/ && npm ci && npm run build)'
+    - '(cd $CI_PROJECT_DIR/src/Storefront/Resources/app/storefront/ && npm ci && npm run production && node copy-to-vendor.js)'
+    -  $CI_PROJECT_DIR/bin/console assets:install
+
+.install-dev-tools: &install-dev-tools
+    - >
+        composer config repo.platform-packages --json '{"type": "path", "url": "../../../src/*", "canonical": true}';
+    - composer require 'shopware/core:6.4.*@dev' 'shopware/storefront:6.4.*@dev' 'shopware/administration:6.4.*@dev' 'shopware/elasticsearch:6.4.*@dev'
 
 build zip:
     stage: build
@@ -102,16 +112,17 @@ build zip:
         - exists:
               - composer.json
     variables:
-        DATABASE_URL: "mysql://root:root@database:3306/root?sslmode=disable&charset=utf8mb4"
-        PROJECT_ROOT: /opt/shopware
-        ADMIN_PATH: $CI_PROJECT_DIR/${PLUGIN_SOURCE_DIR}Administration/Resources/app/administration
-        STOREFRONT_PATH: $CI_PROJECT_DIR/${PLUGIN_SOURCE_DIR}Storefront/Resources/app/storefront
-    before_script:
-        - /opt/shopware/bin/console system:install --drop-database --basic-setup --force
-        - export PLUGIN_NAME="${PLUGIN_NAME:-${CI_PROJECT_TITLE}}"
-        - ln -s "$PWD" "/plugins/$PLUGIN_NAME"
+        ADMIN_PATH: $CI_PROJECT_DIR/src/Administration/Resources/app/administration
+        STOREFRONT_PATH: $CI_PROJECT_DIR/src/Storefront/Resources/app/storefront
     script:
-        - pack-plugin $PLUGIN_NAME
+        - (cd ${PLUGIN_SOURCE_DIR}Resources/app/administration && npm ci) || true
+        - (cd ${PLUGIN_SOURCE_DIR}Resources/app/storefront && npm ci) || true
+        - *build-js
+        - rm -rf "Resources/app/administration/node_modules" || true
+        - rm -rf "Resources/app/storefront/node_modules" || true
+        - rm -rf vendor composer.lock || true
+        - cd $CI_PROJECT_DIR/custom/plugins/$PLUGIN_NAME
+        - plugin-uploader ext:zip --strategy=plain -- "$PWD"
         - '[[ -r $PLUGIN_NAME.zip ]] || (echo "failed to create $PLUGIN_NAME.zip. Please run ./bin/init $PLUGIN_NAME" && exit 1)'
         - mv $PLUGIN_NAME.zip ${CI_PROJECT_DIR}/$PLUGIN_NAME.zip
     artifacts:
@@ -144,6 +155,7 @@ phpunit:
         - exists:
               - phpunit.xml*
     script:
+        - *install-dev-tools
         - php
             -d pcov.enabled=1 -d pcov.directory=$PWD/src -d pcov.exclude='~(vendor|tests|node_modules)~'
             vendor/bin/phpunit
@@ -166,6 +178,7 @@ phpstan:
         - exists:
               - phpstan.neon*
     script:
+        - *install-dev-tools
         - php vendor/shopware/core/DevOps/StaticAnalyze/PHPStan/phpstan-bootstrap.php
         - vendor/bin/phpstan analyze --error-format=gitlab --no-progress | tee ${CI_PROJECT_DIR}/phpstan-report.json
     artifacts:
@@ -180,6 +193,7 @@ psalm:
         - exists:
               - psalm.xml*
     script:
+        - *install-dev-tools
         - vendor/bin/psalm --threads=$(nproc) --diff --show-info=false --report=${CI_PROJECT_DIR}/junit.xml
     artifacts:
         when: always
@@ -193,6 +207,7 @@ ecs:
         - exists:
               - ecs.php
     script:
+        - *install-dev-tools
         - vendor/bin/ecs
 
 validate snippets:
@@ -213,10 +228,10 @@ jest (administration):
               - src/Resources/app/administration/jest.config.js
               - Resources/app/administration/jest.config.js
     variables:
-        ADMIN_PATH: $CI_PROJECT_DIR/${PLUGIN_SOURCE_DIR}Administration/Resources/app/administration
-        STOREFRONT_PATH: $CI_PROJECT_DIR/${PLUGIN_SOURCE_DIR}Storefront/Resources/app/storefront
+        ADMIN_PATH: $CI_PROJECT_DIR/src/Administration/Resources/app/administration
+        STOREFRONT_PATH: $CI_PROJECT_DIR/src/Storefront/Resources/app/storefront
     script:
-        - '(cd vendor/shopware/administration/Resources/app/administration/ && npm ci)'
+        - '(cd $ADMIN_PATH && npm ci)'
         - cd ${PLUGIN_SOURCE_DIR}Resources/app/administration/
         - npm ci
         - '$(npm bin)/jest --config jest.config.js --ci'
@@ -231,9 +246,10 @@ jest (storefront):
               - Resources/app/storefront/jest.config.js
               - src/Resources/app/storefront/jest.config.js
     variables:
-        ADMIN_PATH: $CI_PROJECT_DIR/${PLUGIN_SOURCE_DIR}Administration/Resources/app/administration
-        STOREFRONT_PATH: $CI_PROJECT_DIR/${PLUGIN_SOURCE_DIR}Storefront/Resources/app/storefront
+        ADMIN_PATH: $CI_PROJECT_DIR/src/Administration/Resources/app/administration
+        STOREFRONT_PATH: $CI_PROJECT_DIR/src/Storefront/Resources/app/storefront
     script:
+        - *build-js
         - cd ${PLUGIN_SOURCE_DIR}Resources/app/storefront/
         - npm ci
         - '$(npm bin)/jest --config jest.config.js --ci'
@@ -254,43 +270,12 @@ template filled:
 
 .base e2e:
     stage: E2E
-    needs:
-        - build zip
-    before_script:
-        - export PLUGIN_NAME="${PLUGIN_NAME:-${CI_PROJECT_TITLE}}"
-        - echo "$PLUGIN_NAME"
-        - mv "$PLUGIN_NAME.zip" /tmp/plugin.zip
-        - git clone https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.shopware.com/shopware/6/product/platform.git . --branch $PLATFORM_BRANCH
-        - mkdir -p custom/plugins || true
-        - unzip -q /tmp/plugin.zip -d custom/plugins
-        - composer install --quiet
-        - mkdir -p config/jwt || true
-        - bin/console system:generate-jwt || true
-        - bin/console system:install --drop-database --basic-setup --force >/dev/null
-        - bin/console bundle:dump
-        - chown -R application:application .
-        # build before activating the plugin. The zip should already contain the compiled files and we should test those
-        - '(cd src/Administration/Resources/app/administration/ && npm ci && npm run build)'
-        - '(cd src/Storefront/Resources/app/storefront/ && npm ci && npm run production && node copy-to-vendor.js)'
-        - bin/console theme:compile
-        - bin/console theme:change --all Storefront
-        - bin/console plugin:refresh
-        - bin/console plugin:install --activate $PLUGIN_NAME
-        - >
-          if bin/console debug:container --parameter kernel.plugin_infos --format json | grep -q "$PLUGIN_NAME";
-            then echo "$PLUGIN_NAME is active";
-            else echo "$PLUGIN_NAME is not active"; exit 1;
-          fi
-        - bin/console assets:install
-        - /entrypoint supervisord > /dev/null 2>&1 &
-        - bin/console e2e:dump-db
-        - cd custom/plugins/$PLUGIN_NAME/${PLUGIN_SOURCE_DIR}${E2E_PROJECT_PATH}
-        - npm ci
+    needs: []
     script:
-        - ./node_modules/.bin/cypress run
-            --browser $BROWSER
-            --headless
-            --env grep=visual,invert=1
+        - $CI_PROJECT_DIR/bin/console e2e:dump-db
+        - cd ${PLUGIN_SOURCE_DIR}${E2E_PROJECT_PATH}
+        - npm ci
+        - ./node_modules/.bin/cypress run --browser $BROWSER --headless --env grep=visual,invert=1
     after_script:
         - export PLUGIN_NAME="${PLUGIN_NAME:-${CI_PROJECT_TITLE}}"
         - cd custom/plugins/$PLUGIN_NAME/${PLUGIN_SOURCE_DIR}${E2E_PROJECT_PATH}
@@ -310,7 +295,6 @@ template filled:
 cypress admin:
     extends: .base e2e
     variables:
-        GIT_STRATEGY: none
         E2E_PROJECT_PATH: Resources/app/administration/test/e2e/
         APP_ENV: e2e
     rules:
@@ -321,7 +305,6 @@ cypress admin:
 cypress storefront:
     extends: .base e2e
     variables:
-        GIT_STRATEGY: none
         E2E_PROJECT_PATH: Resources/app/storefront/test/e2e/
         APP_ENV: e2e
     rules:
@@ -339,6 +322,11 @@ percy admin:
                 - Resources/app/administration/test/e2e/.percy*
                 - src/Resources/app/administration/test/e2e/.percy*
             if: '$CI_PIPELINE_SOURCE == "schedule" || $CI_MERGE_REQUEST_LABELS =~ /.*visual::all.*/'
+        -   exists:
+                - Resources/app/storefront/test/e2e/.percy*
+                - src/Resources/app/storefront/test/e2e/.percy*
+            when: manual
+            allow_failure: true
     script:
         - ./node_modules/.bin/percy exec -- ./node_modules/.bin/cypress run
                 --browser $BROWSER
@@ -355,6 +343,11 @@ percy storefront:
                 - Resources/app/storefront/test/e2e/.percy*
                 - src/Resources/app/storefront/test/e2e/.percy*
             if: '$CI_PIPELINE_SOURCE == "schedule" || $CI_MERGE_REQUEST_LABELS =~ /.*visual::all.*/'
+        -   exists:
+                - Resources/app/storefront/test/e2e/.percy*
+                - src/Resources/app/storefront/test/e2e/.percy*
+            when: manual
+            allow_failure: true
     script:
         - ./node_modules/.bin/percy exec -- ./node_modules/.bin/cypress run
             --browser $BROWSER

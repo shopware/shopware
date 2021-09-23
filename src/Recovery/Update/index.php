@@ -24,16 +24,15 @@ if ($isManual) {
 use Shopware\Recovery\Update\Console\Application;
 use Symfony\Component\Console\Input\ArgvInput;
 
+error_reporting(\E_ALL & ~\E_DEPRECATED);
+
 if (\PHP_SAPI === 'cli') {
-    error_reporting(-1);
     ini_set('display_errors', '1');
 
     $input = new ArgvInput();
     $env = $input->getParameterOption(['--env', '-e'], 'production');
 
-    $application = new Application($env);
-
-    return $application->run($input);
+    return (new Application($env))->run($input);
 }
 
 $app = require __DIR__ . '/src/app.php';

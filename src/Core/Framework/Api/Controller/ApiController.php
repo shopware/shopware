@@ -35,6 +35,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CompositeEntitySearcher;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -778,6 +779,10 @@ class ApiController extends AbstractController
             $event = $events->getEventByEntityName($definition->getEntityName());
             $eventIds = $event->getIds();
             $entityId = array_pop($eventIds);
+
+            if ($definition instanceof MappingEntityDefinition) {
+                return new Response(null, Response::HTTP_NO_CONTENT);
+            }
 
             if ($noContent) {
                 return $responseFactory->createRedirectResponse($definition, $entityId, $request, $context);

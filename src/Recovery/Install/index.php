@@ -31,7 +31,7 @@ if (\PHP_VERSION_ID < 70403) {
     exit;
 }
 
-error_reporting(-1);
+error_reporting(\E_ALL & ~\E_DEPRECATED);
 ini_set('display_errors', '1');
 date_default_timezone_set('UTC');
 set_time_limit(0);

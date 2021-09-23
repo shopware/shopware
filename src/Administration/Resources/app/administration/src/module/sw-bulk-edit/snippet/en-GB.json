@@ -22,7 +22,7 @@
         },
         "manufacturer": {
           "changeLabel": "Change: Manufacturer",
-          "placeholderManufacturer": "Choose manufacturer"
+          "placeholderManufacturer": "Select manufacturer..."
         },
         "active": {
           "changeLabel": "Change: Active",
@@ -40,13 +40,16 @@
           "placeholderTax": "Select tax rate..."
         },
         "price": {
-          "changeLabel": "Change: Price"
+          "changeLabel": "Change: Price",
+          "placeholderPrice": "Enter price..."
         },
         "purchasePrices": {
-          "changeLabel": "Change: Purchase price"
+          "changeLabel": "Change: Purchase price",
+          "placeholderPurchasePrices": "Enter purchase price..."
         },
         "listPrice": {
-          "changeLabel": "Change: List price"
+          "changeLabel": "Change: List price",
+          "placeholderListPrice": "Enter list price..."
         }
       },
       "advancedPrices": {
@@ -55,13 +58,14 @@
         "openModalButton": "Open advancing pricing"
       },
       "property": {
-        "cardTitle": "Property assignment",
-        "changeLabel": "Change: Property assignment"
+        "cardTitle": "Properties",
+        "changeLabel": "Change: Properties"
       },
       "deliverability": {
         "cardTitle": "Deliverability",
         "stock": {
-          "changeLabel": "Change: Stock"
+          "changeLabel": "Change: Stock",
+          "placeholderStock": "Enter quantity in stock... "
         },
         "isCloseout": {
           "changeLabel": "Change: Clearance sale",
@@ -69,34 +73,38 @@
         },
         "deliveryTime": {
           "changeLabel": "Change: Delivery time",
-          "placeholderDeliveryTime": "Choose delivery time"
+          "placeholderDeliveryTime": "Select delivery time..."
         },
         "restockTime": {
-          "changeLabel": "Change: Restock time"
+          "changeLabel": "Change: Restock time",
+          "placeholderRestockTime": "Enter restock time in days..."
         },
         "freeShipping": {
           "changeLabel": "Change: Free shipping",
           "switchLabel": "Free shipping"
         },
         "minOrderQuantity": {
-          "changeLabel": "Change: Min order quantity"
+          "changeLabel": "Change: Min order quantity",
+          "placeholderMinOrderQuantity": "Enter min order quantity..."
         },
         "purchaseSteps": {
-          "changeLabel": "Change: Purchase steps"
+          "changeLabel": "Change: Purchase steps",
+          "placeholderPurchaseSteps": "Enter purchase step size..."
         },
         "maxOrderQuantity": {
-          "changeLabel": "Change: Max order quantity"
+          "changeLabel": "Change: Max order quantity",
+          "placeholderMaxOrderQuantity": "Enter max order quantity..."
         }
       },
       "assignment": {
-        "cardTitle": "Assignment",
+        "cardTitle": "Visibility & structure",
         "categories": {
           "changeLabel": "Change: Category",
-          "placeholder": "Select category..."
+          "placeholder": "Select categories..."
         },
         "tags": {
           "changeLabel": "Change: Tags",
-          "placeholder": "Enter a tag..."
+          "placeholder": "Enter tags..."
         },
         "visibilities": {
           "changeLabel": "Change: Sales Channel",
@@ -104,7 +112,7 @@
         },
         "searchKeywords": {
           "changeLabel": "Change: Search keywords",
-          "placeholder": "Enter keywords that find your products..."
+          "placeholder": "Enter keywords..."
         }
       },
       "media": {
@@ -115,7 +123,7 @@
         "cardTitle": "Labelling",
         "releaseDate": {
           "changeLabel": "Change: Release date",
-          "placeholderReleaseDate": "Choose release date..."
+          "placeholderReleaseDate": "Enter release date..."
         }
       },
       "seo": {
@@ -130,7 +138,7 @@
         },
         "seoKeywords": {
           "changeLabel": "Change: SEO keywords",
-          "placeholderSeoKeywords": "Enter one or more keywords..."
+          "placeholderSeoKeywords": "Enter keywords..."
         }
       },
       "measuresAndPackaging": {
@@ -184,37 +192,37 @@
     },
     "modal": {
       "confirm": {
-        "title": "Bulk edit - Apply changes?",
-        "description": "Are you sure you want to apply these changes to the selected {itemCount} entity? This action cannot be undone. | Are you sure you want to apply these changes to the selected {itemCount} entities? This action cannot be undone.",
+        "title": "Bulk edit - Apply?",
+        "description": "Apply changes to {itemCount} selected item? This action cannot be undone. | Apply changes to {itemCount} selected items? This action cannot be undone.",
         "buttons": {
           "applyChanges": "Apply changes"
         }
       },
       "process": {
         "title": "Bulk edit - In process",
-        "description": "Depending on the number of items and the selected changes this may take a while.",
-        "helpText": "Please be aware that manual changes to one of the selected entities during the bulk edit process may yield unwanted results.",
+        "description": "Depending on the amount of changes, this may take a while.",
+        "helpText": "Please be aware that manual changes to one of the selected items during the bulk edit process may yield unwanted results.",
         "buttons": {
           "cancel": "Cancel"
         }
       },
       "success": {
-        "title": "Bulk edit - Finished",
-        "description": "Bulk edit for the selected entities finished successfully!"
+        "title": "Bulk edit - Success",
+        "description": "Bulk edit finished."
       },
       "error": {
         "title": "Bulk edit - Error",
-        "description": "Bulk edit for the selected entities finished, but one or more errors occurred.",
+        "description": "Bulk edit finished with errors.",
         "buttons": {
           "openLog": "Open log file"
         }
       },
-      "warningText": "Canceling the bulk edit or closing the browser tab during the process will result in partly processed changes that cannot be undone."
+      "warningText": "Cancelling the bulk edit or closing the browser tab during the process may result in irreversably damaged data sets."
     },
     "order": {
       "textTitle": "Bulk edit: {orderTotal} orders",
       "messageEmptyTitle": "No orders selected",
-      "messageEmptySubline": "Please go back and select orders",
+      "messageEmptySubline": "Go back and select orders.",
       "status": {
         "cardTitle": "Status",
         "payment": {
@@ -256,7 +264,7 @@
       "tags": {
         "cardTitle": "Tags",
         "changeLabel": "Change: Tags",
-        "placeholder": "Enter a tag..."
+        "placeholder": "Enter tags..."
       }
     }
   }

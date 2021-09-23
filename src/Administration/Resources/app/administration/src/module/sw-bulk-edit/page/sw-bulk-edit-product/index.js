@@ -144,6 +144,7 @@ Component.register('sw-bulk-edit-product', {
                     taxRate: this.taxRate,
                     currency: this.currency,
                     changeLabel: this.$tc('sw-bulk-edit.product.prices.price.changeLabel'),
+                    placeholder: this.$tc('sw-bulk-edit.product.prices.price.placeholderPrice'),
                 },
             }, {
                 name: 'listPrice',
@@ -154,6 +155,7 @@ Component.register('sw-bulk-edit-product', {
                     taxRate: this.taxRate,
                     currency: this.currency,
                     changeLabel: this.$tc('sw-bulk-edit.product.prices.listPrice.changeLabel'),
+                    placeholder: this.$tc('sw-bulk-edit.product.prices.listPrice.placeholderListPrice'),
                 },
             }, {
                 name: 'purchasePrices',
@@ -165,6 +167,7 @@ Component.register('sw-bulk-edit-product', {
                     allowOverwrite: true,
                     allowClear: true,
                     changeLabel: this.$tc('sw-bulk-edit.product.prices.purchasePrices.changeLabel'),
+                    placeholder: this.$tc('sw-bulk-edit.product.prices.purchasePrices.placeholderPurchasePrices'),
                 },
             }];
         },
@@ -203,6 +206,7 @@ Component.register('sw-bulk-edit-product', {
                 config: {
                     componentName: 'sw-number-field',
                     changeLabel: this.$tc('sw-bulk-edit.product.deliverability.stock.changeLabel'),
+                    placeholder: this.$tc('sw-bulk-edit.product.deliverability.stock.placeholderStock'),
                     numberType: 'int',
                     allowEmpty: true,
                     allowOverwrite: true,
@@ -231,6 +235,7 @@ Component.register('sw-bulk-edit-product', {
                 config: {
                     componentName: 'sw-number-field',
                     changeLabel: this.$tc('sw-bulk-edit.product.deliverability.restockTime.changeLabel'),
+                    placeholder: this.$tc('sw-bulk-edit.product.deliverability.restockTime.placeholderRestockTime'),
                     numberType: 'int',
                     allowEmpty: true,
                     allowOverwrite: true,
@@ -251,6 +256,7 @@ Component.register('sw-bulk-edit-product', {
                 config: {
                     componentName: 'sw-number-field',
                     changeLabel: this.$tc('sw-bulk-edit.product.deliverability.minOrderQuantity.changeLabel'),
+                    placeholder: this.$tc('sw-bulk-edit.product.deliverability.minOrderQuantity.placeholderMinOrderQuantity'),
                     numberType: 'int',
                     allowOverwrite: true,
                     allowClear: true,
@@ -263,6 +269,7 @@ Component.register('sw-bulk-edit-product', {
                 config: {
                     componentName: 'sw-number-field',
                     changeLabel: this.$tc('sw-bulk-edit.product.deliverability.purchaseSteps.changeLabel'),
+                    placeholder: this.$tc('sw-bulk-edit.product.deliverability.purchaseSteps.placeholderPurchaseSteps'),
                     numberType: 'int',
                     allowOverwrite: true,
                     allowClear: true,
@@ -275,6 +282,7 @@ Component.register('sw-bulk-edit-product', {
                 config: {
                     componentName: 'sw-number-field',
                     changeLabel: this.$tc('sw-bulk-edit.product.deliverability.maxOrderQuantity.changeLabel'),
+                    placeholder: this.$tc('sw-bulk-edit.product.deliverability.maxOrderQuantity.placeholderMaxOrderQuantity'),
                     numberType: 'int',
                     allowOverwrite: true,
                     allowClear: true,
@@ -369,6 +377,7 @@ Component.register('sw-bulk-edit-product', {
                     componentName: 'sw-field',
                     type: 'text',
                     changeLabel: this.$tc('sw-bulk-edit.product.seo.metaTitle.changeLabel'),
+                    placeholder: this.$tc('sw-bulk-edit.product.seo.metaTitle.placeholderMetaTitle'),
                 },
             }, {
                 name: 'metaDescription',
@@ -377,6 +386,7 @@ Component.register('sw-bulk-edit-product', {
                     componentName: 'sw-field',
                     type: 'textarea',
                     changeLabel: this.$tc('sw-bulk-edit.product.seo.metaDescription.changeLabel'),
+                    placeholder: this.$tc('sw-bulk-edit.product.seo.metaDescription.placeholderMetaDescription'),
                 },
             }, {
                 name: 'keywords',
@@ -385,6 +395,7 @@ Component.register('sw-bulk-edit-product', {
                     componentName: 'sw-field',
                     type: 'text',
                     changeLabel: this.$tc('sw-bulk-edit.product.seo.seoKeywords.changeLabel'),
+                    placeholder: this.$tc('sw-bulk-edit.product.seo.seoKeywords.placeholderSeoKeywords'),
                 },
             }];
         },

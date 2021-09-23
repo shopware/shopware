@@ -30,6 +30,8 @@ final class SalesChannelRequest
 
     public const ATTRIBUTE_CSRF_PROTECTED = 'csrf_protected';
 
+    public const ATTRIBUTE_STORE_API_PROXY = 'sw-store-api-proxy';
+
     private function __construct()
     {
     }

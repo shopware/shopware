@@ -268,13 +268,20 @@ template filled:
         - echo "run './bin/init $CI_PROJECT_TITLE'"
         - exit 1
 
+.e2e-prepare: &e2e-prepare
+    - *build-js
+    - $CI_PROJECT_DIR/bin/console theme:compile
+    - $CI_PROJECT_DIR/bin/console theme:change --all Storefront
+    - $CI_PROJECT_DIR/bin/console assets:install
+    - $CI_PROJECT_DIR/bin/console e2e:dump-db
+    - cd ${PLUGIN_SOURCE_DIR}${E2E_PROJECT_PATH}
+    - npm ci
+
 .base e2e:
     stage: E2E
     needs: []
     script:
-        - $CI_PROJECT_DIR/bin/console e2e:dump-db
-        - cd ${PLUGIN_SOURCE_DIR}${E2E_PROJECT_PATH}
-        - npm ci
+        - *e2e-prepare
         - ./node_modules/.bin/cypress run --browser $BROWSER --headless --env grep=visual,invert=1
     after_script:
         - export PLUGIN_NAME="${PLUGIN_NAME:-${CI_PROJECT_TITLE}}"
@@ -328,6 +335,7 @@ percy admin:
             when: manual
             allow_failure: true
     script:
+        - *e2e-prepare
         - ./node_modules/.bin/percy exec -- ./node_modules/.bin/cypress run
                 --browser $BROWSER
                 --headless
@@ -349,6 +357,7 @@ percy storefront:
             when: manual
             allow_failure: true
     script:
+        - *e2e-prepare
         - ./node_modules/.bin/percy exec -- ./node_modules/.bin/cypress run
             --browser $BROWSER
             --headless

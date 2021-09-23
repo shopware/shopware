@@ -527,7 +527,7 @@
             <argument type="service" id="country.repository"/>
             <argument type="service" id="snippet_set.repository"/>
             <argument type="service" id="category.repository"/>
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Service\SalesChannelCreator"/>
+            <argument type="service" id="Shopware\Core\Maintenance\SalesChannel\Service\SalesChannelCreator"/>
 
             <tag name="console.command"/>
         </service>

@@ -2,7 +2,7 @@
 
 namespace Shopware\Recovery\Install;
 
-use Shopware\Core\DevOps\System\Service\DatabaseInitializer;
+use Shopware\Core\Maintenance\System\Service\DatabaseInitializer;
 use Shopware\Recovery\Common\IOHelper;
 use Shopware\Recovery\Install\Struct\DatabaseConnectionInformation;
 use Symfony\Component\Console\Question\ConfirmationQuestion;

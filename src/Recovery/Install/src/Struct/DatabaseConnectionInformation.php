@@ -2,7 +2,7 @@
 
 namespace Shopware\Recovery\Install\Struct;
 
-use Shopware\Core\DevOps\System\Struct\DatabaseConnectionInformation as CoreDatabaseConnectionInformation;
+use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation as CoreDatabaseConnectionInformation;
 use Symfony\Component\Console\Input\InputInterface;
 
 class DatabaseConnectionInformation extends CoreDatabaseConnectionInformation

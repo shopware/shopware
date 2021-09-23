@@ -97,7 +97,7 @@ PHP coverage:
             cobertura: cobertura.xml
     parallel:
         matrix:
-            - TESTSUITE: ["framework", "checkout", "content", "storefront,administration,system,elasticsearch,profiling", "migration"]
+            - TESTSUITE: ["framework", "checkout", "content", "storefront,administration,system,elasticsearch,profiling,maintenance", "migration"]
 
 PHP Full:
     extends: .long-running

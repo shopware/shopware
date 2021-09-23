@@ -1,24 +1,10 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\DevOps\System\Command;
 
-use Defuse\Crypto\Key;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-
-class SystemGenerateAppSecretCommand extends Command
+/**
+ * @deprecated tag:v6.5.0 - Will be removed, use the Command from the maintenance bundle instead
+ */
+class SystemGenerateAppSecretCommand extends \Shopware\Core\Maintenance\System\Command\SystemGenerateAppSecretCommand
 {
-    public static $defaultName = 'system:generate-app-secret';
-
-    public function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $key = Key::createNewRandomKey();
-
-        $output->writeln($key->saveToAsciiSafeString());
-
-        return self::SUCCESS;
-    }
 }

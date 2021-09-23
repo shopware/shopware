@@ -4,9 +4,9 @@ namespace Shopware\Recovery\Install\Command;
 
 use Doctrine\DBAL\Connection;
 use Pimple\Container;
-use Shopware\Core\DevOps\System\Service\DatabaseConnectionFactory;
-use Shopware\Core\DevOps\System\Service\DatabaseInitializer;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
+use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
+use Shopware\Core\Maintenance\System\Service\DatabaseInitializer;
 use Shopware\Recovery\Common\IOHelper;
 use Shopware\Recovery\Common\Service\JwtCertificateService;
 use Shopware\Recovery\Install\DatabaseInteractor;

@@ -5,7 +5,7 @@ namespace Shopware\Recovery\Install\Service;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\User\Service\UserProvisioner;
+use Shopware\Core\Maintenance\User\Service\UserProvisioner;
 use Shopware\Recovery\Install\Struct\AdminUser;
 
 class AdminService

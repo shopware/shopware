@@ -4,9 +4,9 @@ namespace Shopware\Recovery\Install\Service;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
-use Shopware\Core\DevOps\System\Service\ShopConfigurator;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Service\SalesChannelCreator;
+use Shopware\Core\Maintenance\SalesChannel\Service\SalesChannelCreator;
+use Shopware\Core\Maintenance\System\Service\ShopConfigurator;
 use Shopware\Recovery\Install\Struct\Shop;
 
 class ShopService

@@ -1,0 +1,105 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <defaults autowire="true"/>
+
+        <service id="Shopware\Core\Maintenance\System\Command\SystemInstallCommand">
+            <argument>%kernel.project_dir%</argument>
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Maintenance\System\Command\SystemGenerateJwtSecretCommand">
+            <argument>%kernel.project_dir%</argument>
+            <argument type="service" id="Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator"/>
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Maintenance\System\Command\SystemGenerateAppSecretCommand">
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Maintenance\System\Command\SystemSetupCommand">
+            <argument>%kernel.project_dir%</argument>
+            <argument type="service" id="Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator"/>
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Maintenance\System\Command\SystemUpdatePrepareCommand">
+            <argument type="service" id="service_container"/>
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Maintenance\System\Command\SystemUpdateFinishCommand">
+            <argument type="service" id="service_container"/>
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Maintenance\System\Command\SystemConfigureShopCommand">
+            <argument type="service" id="Shopware\Core\Maintenance\System\Service\ShopConfigurator"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>
+
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator"/>
+
+        <service id="Shopware\Core\Maintenance\System\Service\ShopConfigurator">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelCreateCommand">
+            <argument type="service" id="payment_method.repository"/>
+            <argument type="service" id="shipping_method.repository"/>
+            <argument type="service" id="country.repository"/>
+            <argument type="service" id="snippet_set.repository"/>
+            <argument type="service" id="category.repository"/>
+            <argument type="service" id="Shopware\Core\Maintenance\SalesChannel\Service\SalesChannelCreator"/>
+
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Maintenance\SalesChannel\Service\SalesChannelCreator" public="true">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="payment_method.repository"/>
+            <argument type="service" id="shipping_method.repository"/>
+            <argument type="service" id="country.repository"/>
+            <argument type="service" id="category.repository"/>
+        </service>
+
+        <service id="Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelListCommand">
+            <argument type="service" id="sales_channel.repository"/>
+
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelMaintenanceEnableCommand">
+            <argument type="service" id="sales_channel.repository"/>
+
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelMaintenanceDisableCommand">
+            <argument type="service" id="sales_channel.repository"/>
+
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Maintenance\User\Command\UserCreateCommand">
+            <argument type="service" id="Shopware\Core\Maintenance\User\Service\UserProvisioner"/>
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Maintenance\User\Command\UserChangePasswordCommand">
+            <argument type="service" id="user.repository"/>
+            <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Maintenance\User\Service\UserProvisioner" public="true">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+    </services>
+</container>

@@ -2,7 +2,7 @@
 
 namespace Shopware\Recovery\Common\Service;
 
-use Shopware\Core\DevOps\System\Service\JwtCertificateGenerator;
+use Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator;
 
 class JwtCertificateService
 {

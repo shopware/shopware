@@ -137,19 +137,19 @@
         "cardTitle": "Maße & Verpackung",
         "widthTitle": {
           "changeLabel": "Ändern: Breite",
-          "placeholder": "-"
+          "placeholder": "z.B. 500 ..."
         },
         "heightTitle": {
           "changeLabel": "Ändern: Höhe",
-          "placeholder": "-"
+          "placeholder": "z.B. 200 ..."
         },
         "lengthTitle": {
           "changeLabel": "Ändern: Länge",
-          "placeholder": "-"
+          "placeholder": "z.B.100 ..."
         },
         "weightTitle": {
           "changeLabel": "Ändern: Gewicht",
-          "placeholder": "-"
+          "placeholder": "z.B. 0,4 ..."
         },
         "sellingUnitTitle": {
           "changeLabel": "Ändern: Verkaufseinheit",

@@ -137,19 +137,19 @@
         "cardTitle": "Measures & packaging",
         "widthTitle": {
           "changeLabel": "Change: Width",
-          "placeholder": "-"
+          "placeholder": "e.g. 500..."
         },
         "heightTitle": {
           "changeLabel": "Change: Height",
-          "placeholder": "-"
+          "placeholder": "e.g. 200..."
         },
         "lengthTitle": {
           "changeLabel": "Change: Length",
-          "placeholder": "-"
+          "placeholder": "e.g. 100..."
         },
         "weightTitle": {
           "changeLabel": "Change: Weight",
-          "placeholder": "-"
+          "placeholder": "e.g. 0.4..."
         },
         "sellingUnitTitle": {
           "changeLabel": "Change: Selling unit",

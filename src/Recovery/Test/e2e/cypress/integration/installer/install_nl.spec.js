@@ -78,7 +78,7 @@ describe('Minimal install', () => {
         // @install: installation
         cy.get('section.content--main').should('be.visible');
         cy.get('.navigation--list .navigation--entry span').contains('Installatie');
-        cy.get('.database-import-finish', { timeout: 600000 }).should('be.visible');
+        cy.get('.database-import-finish', { timeout: 300000 }).should('be.visible');
 
         cy.get('.btn.btn-primary').contains('Verder').click();
 

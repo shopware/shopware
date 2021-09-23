@@ -26,13 +26,13 @@ class AssetService
         FilesystemInterface $filesystem,
         KernelInterface $kernel,
         KernelPluginCollection $pluginCollection,
-        CacheInvalidator $logger,
+        CacheInvalidator $cacheInvalidator,
         string $coreDir
     ) {
         $this->filesystem = $filesystem;
         $this->kernel = $kernel;
         $this->pluginCollection = $pluginCollection;
-        $this->cacheInvalidator = $logger;
+        $this->cacheInvalidator = $cacheInvalidator;
         $this->coreDir = $coreDir;
     }
 
@@ -71,12 +71,6 @@ class AssetService
     public function copyRecoveryAssets(): void
     {
         $targetDirectory = 'recovery';
-        $this->filesystem->deleteDir($targetDirectory);
-
-        $originDir = $this->coreDir . '/../Recovery/Resources/public';
-        if (!is_dir($originDir)) {
-            return;
-        }
 
         if (is_dir($this->coreDir . '/../Recovery/Resources/public')) {
             // platform installation
@@ -88,9 +82,9 @@ class AssetService
             return;
         }
 
-        $this->copy($originDir, $targetDirectory);
+        $this->filesystem->deleteDir($targetDirectory);
 
-        $this->cacheInvalidator->invalidate(['asset-metaData'], true);
+        $this->copy($originDir, $targetDirectory);
     }
 
     private function getTargetDirectory(BundleInterface $bundle): string

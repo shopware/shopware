@@ -4,6 +4,7 @@ namespace Shopware\Core\Maintenance\System\Service;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Maintenance\System\Exception\ShopConfigurationException;
 use Symfony\Component\Intl\Currencies;
@@ -79,7 +80,7 @@ class ShopConfigurator
             $newDefaultCurrencyId = $this->createNewCurrency($currencyCode);
         }
 
-        $this->connection->transactional(function (Connection $conn) use ($newDefaultCurrencyId, $currencyCode): void {
+        RetryableTransaction::retryable($this->connection, function (Connection $conn) use ($newDefaultCurrencyId, $currencyCode): void {
             $stmt = $conn->prepare('UPDATE currency SET id = :newId WHERE id = :oldId');
 
             // assign new uuid to old DEFAULT
@@ -148,7 +149,7 @@ class ShopConfigurator
             );
         }
 
-        $this->connection->transactional(function (Connection $connection) use ($locale, $currentLocaleId, $newDefaultLocaleId, $currentLocaleData, $newDefaultLanguageId, $name): void {
+        RetryableTransaction::retryable($this->connection, function (Connection $connection) use ($locale, $currentLocaleId, $newDefaultLocaleId, $currentLocaleData, $newDefaultLanguageId, $name): void {
             // swap locale.code
             $stmt = $connection->prepare(
                 'UPDATE locale SET code = :code WHERE id = :locale_id'
@@ -280,7 +281,7 @@ class ShopConfigurator
 
     private function swapDefaultLanguageId(string $newLanguageId): void
     {
-        $this->connection->transactional(static function (Connection $connection) use ($newLanguageId): void {
+        RetryableTransaction::retryable($this->connection, function (Connection $connection) use ($newLanguageId): void {
             $stmt = $connection->prepare(
                 'UPDATE language
              SET id = :newId

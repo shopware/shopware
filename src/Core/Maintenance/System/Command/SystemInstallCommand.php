@@ -130,11 +130,12 @@ class SystemInstallCommand extends Command
             }
         }
 
-        array_push($commands, [
+        $commands[] = [
             'command' => 'assets:install',
-        ], [
+        ];
+        $commands[] = [
             'command' => 'cache:clear',
-        ]);
+        ];
 
         $this->runCommands($commands, $output);
 

@@ -592,11 +592,30 @@ function getApplication(KernelInterface $kernel): App
             $total = count($coreMigrations->getExecutableMigrations()) * 2;
         }
 
-        try {
-            $result = $coreMigrations->migrateInSteps(null, 1);
+        // use 10 s as max execution time, so the UI stays responsive
+        $maxExecutionTime = min(ini_get('max_execution_time'), 10);
+        $startTime = microtime(true);
+        $executedMigrations = $offset;
 
-            if (iterator_count($result) === 1) {
-                return $response->write(json_encode($resultMapper->toExtJs(new ValidResult($offset + 1, $total))));
+        try {
+            while (iterator_count($coreMigrations->migrateInSteps(null, 1)) === 1) {
+                $runningSince = microtime(true) - $startTime;
+                ++$executedMigrations;
+
+                // if there are more than 5 seconds execution time left, we execute more migrations in this request, otherwise we return the result
+                if ($runningSince + 5 > $maxExecutionTime) {
+                    break;
+                }
+            }
+
+            while (iterator_count($coreMigrations->migrateDestructiveInSteps(null, 1)) === 1) {
+                $runningSince = microtime(true) - $startTime;
+                ++$executedMigrations;
+
+                // if there are more than 5 seconds execution time left, we execute more migrations in this request, otherwise we return the result
+                if ($runningSince + 5 > $maxExecutionTime) {
+                    break;
+                }
             }
         } catch (\Throwable $e) {
             return $response
@@ -604,16 +623,8 @@ function getApplication(KernelInterface $kernel): App
                 ->write(json_encode($resultMapper->toExtJs(new ErrorResult($e->getMessage(), $e))));
         }
 
-        try {
-            $result = $coreMigrations->migrateDestructiveInSteps(null, 1);
-
-            if (iterator_count($result) === 1) {
-                return $response->write(json_encode($resultMapper->toExtJs(new ValidResult($offset + 1, $total))));
-            }
-        } catch (\Throwable $e) {
-            return $response
-                ->withStatus(500)
-                ->write(json_encode($resultMapper->toExtJs(new ErrorResult($e->getMessage(), $e))));
+        if ($executedMigrations > $offset) {
+            return $response->write(json_encode($resultMapper->toExtJs(new ValidResult($executedMigrations, $total))));
         }
 
         return $response->write(json_encode($resultMapper->toExtJs(new FinishResult($offset, $total))));

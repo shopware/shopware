@@ -242,6 +242,10 @@ Component.register('sw-order-create-base', {
         },
     },
 
+    beforeDestroy() {
+        this.showCreateModal = false;
+    },
+
     methods: {
         async createCart(salesChannelId) {
             await State.dispatch('swOrder/createCart', { salesChannelId });

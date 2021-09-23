@@ -17,6 +17,7 @@ Component.register('sw-order-customer-grid', {
         return {
             customers: null,
             isLoading: false,
+            isSwitchingCustomer: false,
             showNewCustomerModal: false,
             customer: {},
             disableRouteParams: true,
@@ -81,7 +82,7 @@ Component.register('sw-order-customer-grid', {
         },
 
         showEmptyState() {
-            return !this.customers || !this.customers.length;
+            return !this.total && !this.isLoading;
         },
 
         emptyTitle() {
@@ -100,6 +101,7 @@ Component.register('sw-order-customer-grid', {
             this.isLoading = true;
             this.customerRepository.search(this.customerCriteria).then(customers => {
                 this.customers = customers;
+                this.total = customers.total;
             }).finally(() => {
                 this.isLoading = false;
             });
@@ -113,7 +115,7 @@ Component.register('sw-order-customer-grid', {
             return item.id === this.customer.id;
         },
 
-        onCheckbox(item) {
+        onCheckCustomer(item) {
             this.customer = item;
             this.handleSelectCustomer(item.id);
         },
@@ -133,18 +135,23 @@ Component.register('sw-order-customer-grid', {
         },
 
         handleSelectCustomer() {
-            this.customerRepository.get(this.customer.id, Context.api, this.customerCriterion).then(customer => {
-                if (!this.cart.token) {
-                    this.createCart(customer.salesChannelId);
-                }
+            this.isSwitchingCustomer = true;
 
-                this.setCustomer(customer);
-                this.setCurrency(customer);
-            }).catch(() => {
-                this.createNotificationError({
-                    message: this.$tc('sw-order.create.messageSwitchCustomerError'),
+            return this.customerRepository.get(this.customer.id, Context.api, this.customerCriterion)
+                .then(customer => {
+                    if (!this.cart.token) {
+                        this.createCart(customer.salesChannelId);
+                    }
+
+                    this.setCustomer(customer);
+                    this.setCurrency(customer);
+                }).catch(() => {
+                    this.createNotificationError({
+                        message: this.$tc('sw-order.create.messageSwitchCustomerError'),
+                    });
+                }).finally(() => {
+                    this.isSwitchingCustomer = false;
                 });
-            });
         },
     },
 });

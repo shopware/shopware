@@ -420,7 +420,14 @@
       "tabCustomItem": "Custom item",
       "tabOptions": "Options",
       "tabCredit": "Credit",
-      "buttonPreviewOrder": "Preview order"
+      "buttonPreviewOrder": "Preview order",
+      "products": {
+        "columnAmount": "Amount",
+        "columnProductName": "Name",
+        "columnProductNumber": "Produktnummer",
+        "columnPriceGross": "Gesamt",
+        "columnPriceNet": "Nettopreis"
+      }
     },
     "filters": {
       "documentFilter": {

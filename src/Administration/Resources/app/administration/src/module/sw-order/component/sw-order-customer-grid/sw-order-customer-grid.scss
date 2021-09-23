@@ -2,6 +2,11 @@
 $sw-field--radio-color-border: $color-gray-300;
 
 .sw-order-customer-grid {
+    &.sw-card {
+        margin: 0;
+        overflow: hidden;
+    }
+
     &__empty-state {
         .sw-empty-state__element {
             padding: 60px 0;
@@ -22,6 +27,10 @@ $sw-field--radio-color-border: $color-gray-300;
 
     &__add-customer.sw-button {
         margin-left: 22px;
+    }
+
+    &__container {
+        height: 500px;
     }
 
     &__content {

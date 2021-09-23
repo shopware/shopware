@@ -224,6 +224,39 @@ class CartStoreService extends ApiService {
 
         return this.httpClient.patch(route, data, { additionalParams, headers });
     }
+
+    addMultipleLineItems(
+        salesChannelId,
+        contextToken,
+        items,
+        additionalParams = {},
+        additionalHeaders = {},
+    ) {
+        const route = `_proxy/store-api/${salesChannelId}/checkout/cart/line-item`;
+        const headers = {
+            ...this.getBasicHeaders(additionalHeaders),
+            'sw-context-token': contextToken,
+        };
+
+        const payload = items.map(item => {
+            const id = item.identifier || item.id || utils.createId();
+
+            return {
+                id,
+                referencedId: id,
+                label: item.label,
+                quantity: item.quantity,
+                type: item.type,
+                description: item.description,
+                priceDefinition: item.type === this.getLineItemTypes().PRODUCT ? null : item.priceDefinition,
+                stackable: true,
+                removable: true,
+                salesChannelId,
+            };
+        });
+
+        return this.httpClient.post(route, { items: payload }, { additionalParams, headers });
+    }
 }
 
 export default CartStoreService;

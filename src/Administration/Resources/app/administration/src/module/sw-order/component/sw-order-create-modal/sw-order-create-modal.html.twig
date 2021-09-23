@@ -25,6 +25,7 @@
                 <sw-tabs-item
                     name="products"
                     :active-tab="active"
+                    :disabled="!customer"
                 >
                     {{ $tc('sw-order.createModal.tabProducts') }}
                 </sw-tabs-item>
@@ -34,6 +35,7 @@
                 <sw-tabs-item
                     name="custom-item"
                     :active-tab="active"
+                    :disabled="!customer"
                 >
                     {{ $tc('sw-order.createModal.tabCustomItem') }}
                 </sw-tabs-item>
@@ -43,6 +45,7 @@
                 <sw-tabs-item
                     name="options"
                     :active-tab="active"
+                    :disabled="!customer"
                 >
                     {{ $tc('sw-order.createModal.tabOptions') }}
                 </sw-tabs-item>
@@ -52,6 +55,7 @@
                 <sw-tabs-item
                     name="credit"
                     :active-tab="active"
+                    :disabled="!customer"
                 >
                     {{ $tc('sw-order.createModal.tabCredit') }}
                 </sw-tabs-item>
@@ -64,10 +68,17 @@
                 {% block sw_order_create_modal_tabs_content %}
                 <div class="sw-order-create-modal__content">
                     {% block sw_order_create_modal_tabs_content_customer %}
-                    <sw-order-customer-grid />
+                    <sw-order-customer-grid
+                        v-show="active === 'customer'"
+                    />
                     {% endblock %}
 
-                    {% block sw_order_create_modal_tabs_content_products %}{% endblock %}
+                    {% block sw_order_create_modal_tabs_content_products %}
+                    <sw-order-product-grid
+                        v-show="active === 'products'"
+                        @selection-change="onProductChange"
+                    />
+                    {% endblock %}
 
                     {% block sw_order_create_modal_tabs_content_custom_item %}{% endblock %}
 
@@ -95,6 +106,7 @@
         <sw-button
             size="small"
             variant="primary"
+            :is-loading="isLoading"
             @click="onPreviewOrder"
         >
             {{ $tc('sw-order.createModal.buttonPreviewOrder') }}

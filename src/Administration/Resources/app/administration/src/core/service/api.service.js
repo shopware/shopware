@@ -93,6 +93,23 @@ class ApiService {
     }
 
     /**
+     * @param {object} paramDictionary key-value pairs
+     * @returns {string} a GET-query string like `?key=value&key2=value2`
+     */
+    static makeQueryParams(paramDictionary = {}) {
+        const params = Object
+            .keys(paramDictionary)
+            .filter(key => typeof paramDictionary[key] === 'string')
+            .map(key => `${key}=${paramDictionary[key]}`);
+
+        if (!params.length) {
+            return '';
+        }
+
+        return `?${params.join('&')}`;
+    }
+
+    /**
      * Getter & setter for the API end point
      * @type {String}
      */

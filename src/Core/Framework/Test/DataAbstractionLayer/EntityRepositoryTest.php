@@ -55,6 +55,15 @@ class EntityRepositoryTest extends TestCase
      */
     private $connection;
 
+    public function testSetEntityLoadedEventFactory(): void
+    {
+        $repository = $this->createRepository(LocaleDefinition::class, false);
+
+        $repository->setEntityLoadedEventFactory(
+            $this->getContainer()->get(EntityLoadedEventFactory::class)
+        );
+    }
+
     public function testWrite(): void
     {
         $repository = $this->createRepository(LocaleDefinition::class);
@@ -1210,16 +1219,23 @@ class EntityRepositoryTest extends TestCase
         static::assertCount(2, $multiFilter->getQueries());
     }
 
-    protected function createRepository(string $definition): EntityRepository
-    {
-        return new EntityRepository(
+    protected function createRepository(
+        string $definition,
+        bool $loadWithEventFactory = true
+    ): EntityRepository {
+        $arguments = [
             $this->getContainer()->get($definition),
             $this->getContainer()->get(EntityReaderInterface::class),
             $this->getContainer()->get(VersionManager::class),
             $this->getContainer()->get(EntitySearcherInterface::class),
             $this->getContainer()->get(EntityAggregatorInterface::class),
             $this->getContainer()->get('event_dispatcher'),
-            $this->getContainer()->get(EntityLoadedEventFactory::class)
-        );
+        ];
+
+        if ($loadWithEventFactory) {
+            $arguments[] = $this->getContainer()->get(EntityLoadedEventFactory::class);
+        }
+
+        return new EntityRepository(...$arguments);
     }
 }

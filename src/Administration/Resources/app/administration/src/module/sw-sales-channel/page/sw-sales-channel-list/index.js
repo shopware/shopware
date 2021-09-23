@@ -97,7 +97,7 @@ Component.register('sw-sales-channel-list', {
         setProductAggregations(buckets) {
             this.productsForSalesChannel = buckets.reduce((productsForSalesChannel, bucket) => ({
                 ...productsForSalesChannel,
-                [bucket.key]: bucket.count,
+                [bucket.key]: bucket.visible_products?.count,
             }), {});
         },
 

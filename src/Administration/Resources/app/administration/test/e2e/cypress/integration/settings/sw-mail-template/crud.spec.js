@@ -368,6 +368,7 @@ describe('Mail templates: Test crud privileges', () => {
 
         // wait for data loading
         cy.wait('@searchMailTemplate').its('response.statusCode').should('equal', 200);// scroll to email header footer
+        cy.get('.sw-empty-state__title').should('not.exist');
         cy.get(page.elements.mailHeaderFooterGridList).scrollIntoView();
 
         cy.clickContextMenuItem(
@@ -412,6 +413,7 @@ describe('Mail templates: Test crud privileges', () => {
 
         // wait for data loading
         cy.wait('@searchMailTemplate').its('response.statusCode').should('equal', 200);// scroll to email header footer
+        cy.get('.sw-empty-state__title').should('not.exist');
         cy.get(page.elements.mailHeaderFooterGridList).scrollIntoView();
 
         cy.clickContextMenuItem(

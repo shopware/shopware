@@ -101,8 +101,6 @@
     "descriptionTextModule": "Verwalte Deine Erweiterungen",
     "general": {
       "labelPrice": "Kostenlos | {price}/Monat | {price}",
-      "labelFree": "Free",
-      "labelRentSuffix": "/month",
       "labelDiscountedPrice": "Kostenlos | <s>{price}</s> <strong>{discountedPrice}</strong>/Monat | <s>{price}</s> <strong>{discountedPrice}</strong>"
     },
     "listing": {

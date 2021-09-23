@@ -405,6 +405,15 @@
       "messageNoItems": "No automatic promotions active.",
       "buttonDisable": "Disable"
     },
+    "createModal": {
+      "titleNewOrder": "New Order",
+      "tabCustomer": "Customer",
+      "tabProducts": "Products",
+      "tabCustomItem": "Custom item",
+      "tabOptions": "Options",
+      "tabCredit": "Credit",
+      "buttonPreviewOrder": "Preview order"
+    },
     "filters": {
       "documentFilter": {
         "label": "Documents",

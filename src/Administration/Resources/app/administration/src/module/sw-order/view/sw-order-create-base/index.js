@@ -8,6 +8,8 @@ const { mapGetters } = Component.getComponentHelper();
 Component.register('sw-order-create-base', {
     template,
 
+    inject: ['feature'],
+
     mixins: [
         Mixin.getByName('notification'),
     ],
@@ -25,6 +27,7 @@ Component.register('sw-order-create-base', {
             promotionError: null,
             showPromotionModal: false,
             disabledAutoPromotionChecked: false,
+            showCreateModal: true,
         };
     },
 
@@ -512,6 +515,18 @@ Component.register('sw-order-create-base', {
             this.disabledAutoPromotionChecked = true;
 
             this.loadCart();
+        },
+
+        onCloseCreateModal() {
+            this.showCreateModal = false;
+
+            this.$nextTick(() => {
+                this.$router.push({ name: 'sw.order.index' });
+            });
+        },
+
+        onPreviewOrder() {
+            this.showCreateModal = false;
         },
     },
 });

@@ -1,0 +1,104 @@
+{% block sw_order_create_modal %}
+<sw-modal
+    class="sw-order-create-modal"
+    :outside-closable="false"
+    :title="$tc('sw-order.createModal.titleNewOrder')"
+    @modal-close="onCloseModal"
+>
+    <template #default>
+        {% block sw_order_create_modal_tabs %}
+        <sw-tabs
+            class="sw-order-create-modal__tabs"
+            default-item="customer"
+        >
+            <template #default="{ active }">
+                {% block sw_order_create_modal_tabs_customer %}
+                <sw-tabs-item
+                    name="customer"
+                    :active-tab="active"
+                >
+                    {{ $tc('sw-order.createModal.tabCustomer') }}
+                </sw-tabs-item>
+                {% endblock %}
+
+                {% block sw_order_create_modal_tabs_products %}
+                <sw-tabs-item
+                    name="products"
+                    :active-tab="active"
+                >
+                    {{ $tc('sw-order.createModal.tabProducts') }}
+                </sw-tabs-item>
+                {% endblock %}
+
+                {% block sw_order_create_modal_tabs_custom_item %}
+                <sw-tabs-item
+                    name="custom-item"
+                    :active-tab="active"
+                >
+                    {{ $tc('sw-order.createModal.tabCustomItem') }}
+                </sw-tabs-item>
+                {% endblock %}
+
+                {% block sw_order_create_modal_tabs_options %}
+                <sw-tabs-item
+                    name="options"
+                    :active-tab="active"
+                >
+                    {{ $tc('sw-order.createModal.tabOptions') }}
+                </sw-tabs-item>
+                {% endblock %}
+
+                {% block sw_order_create_modal_tabs_credit %}
+                <sw-tabs-item
+                    name="credit"
+                    :active-tab="active"
+                >
+                    {{ $tc('sw-order.createModal.tabCredit') }}
+                </sw-tabs-item>
+                {% endblock %}
+
+                {% block sw_order_create_modal_tabs_extension %}{% endblock %}
+            </template>
+
+            <template #content="{ active }">
+                {% block sw_order_create_modal_tabs_content %}
+                <div class="sw-order-create-modal__content">
+                    {% block sw_order_create_modal_tabs_content_customer %}{% endblock %}
+
+                    {% block sw_order_create_modal_tabs_content_products %}{% endblock %}
+
+                    {% block sw_order_create_modal_tabs_content_custom_item %}{% endblock %}
+
+                    {% block sw_order_create_modal_tabs_content_options %}{% endblock %}
+
+                    {% block sw_order_create_modal_tabs_content_credit %}{% endblock %}
+                </div>
+                {% endblock %}
+            </template>
+        </sw-tabs>
+        {% endblock %}
+    </template>
+
+    <template #modal-footer>
+        {% block sw_order_create_modal_footer_modal_footer_cancel %}
+        <sw-button
+            size="small"
+            @click="onCloseModal"
+        >
+            {{ $tc('global.default.cancel') }}
+        </sw-button>
+        {% endblock %}
+
+        {% block sw_order_create_modal_footer_modal_footer_preview_order %}
+        <sw-button
+            size="small"
+            variant="primary"
+            @click="onPreviewOrder"
+        >
+            {{ $tc('sw-order.createModal.buttonPreviewOrder') }}
+        </sw-button>
+        {% endblock %}
+    </template>
+
+</sw-modal>
+{% endblock %}

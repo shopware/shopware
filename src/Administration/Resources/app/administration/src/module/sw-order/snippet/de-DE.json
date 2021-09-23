@@ -405,6 +405,15 @@
       "messageNoItems": "Keine automatischen Werbeaktionen aktiv.",
       "buttonDisable": "Deaktivieren"
     },
+    "createModal": {
+      "titleNewOrder": "Neue Bestellung",
+      "tabCustomer": "Customer",
+      "tabProducts": "Products",
+      "tabCustomItem": "Custom item",
+      "tabOptions": "Options",
+      "tabCredit": "Credit",
+      "buttonPreviewOrder": "Preview order"
+    },
     "filters": {
       "documentFilter": {
         "label": "Dokumente",

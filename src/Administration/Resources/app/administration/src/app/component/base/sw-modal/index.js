@@ -68,6 +68,12 @@ Component.register('sw-modal', {
             required: false,
             default: true,
         },
+
+        outsideClosable: {
+            type: Boolean,
+            required: false,
+            default: true,
+        },
     },
 
     data() {
@@ -136,6 +142,10 @@ Component.register('sw-modal', {
         },
 
         closeModalOnClickOutside(domEvent) {
+            if (!this.outsideClosable) {
+                return;
+            }
+
             if (!this.$refs.dialog || !this.$refs.dialog.contains(domEvent.target)) {
                 this.closeModal();
             }

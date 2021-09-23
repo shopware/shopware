@@ -85,6 +85,7 @@ class StoreApiProxyController
         $subRequest = $request->duplicate($query, null, [], null, null, $server);
 
         $subRequest->attributes->set(SalesChannelRequest::ATTRIBUTE_STORE_API_PROXY, '1');
+        $subRequest->headers->set(PlatformRequest::HEADER_LANGUAGE_ID, $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID, $context->getLanguageIdChain()[0]));
         $subRequest->headers->set(PlatformRequest::HEADER_ACCESS_KEY, $context->getSalesChannel()->getAccessKey());
         $subRequest->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $context->getToken());
 

@@ -1,0 +1,95 @@
+{% block sw_order_send_document_modal %}
+<sw-modal
+    class="sw-order-send-document-modal"
+    :title="$tc('sw-order.documentCard.labelSendDocument')"
+    :is-loading="isLoading"
+    @modal-close="$emit('modal-close')"
+>
+    {% block sw_order_send_document_modal_info %}
+    <sw-container
+        class="sw-order-send-document-modal__info-container"
+        columns="1fr 1fr 1fr"
+    >
+        {% block sw_order_send_document_modal_info_number %}
+        <sw-description-list>
+            <dt>{{ $tc('sw-order.documentSendModal.labelNumber') }}</dt>
+            <dd>{{ document.config.documentNumber }}</dd>
+        </sw-description-list>
+        {% endblock %}
+
+        {% block sw_order_send_document_modal_info_type %}
+        <sw-description-list>
+            <dt>{{ $tc('sw-order.documentSendModal.labelType') }}</dt>
+            <dd>{{ document.documentType.name }}</dd>
+        </sw-description-list>
+        {% endblock %}
+
+        {% block sw_order_send_document_modal_info_date %}
+        <sw-description-list>
+            <dt>{{ $tc('sw-order.documentSendModal.labelDate') }}</dt>
+            <dd>{{ document.createdAt | date({hour: '2-digit', minute: '2-digit'}) }}</dd>
+        </sw-description-list>
+        {% endblock %}
+    </sw-container>
+    {% endblock %}
+
+    {% block sw_order_send_document_modal_mail_template_select %}
+    <sw-entity-single-select
+        v-model="mailTemplate"
+        entity="mail_template"
+        :criteria="mailTemplateCriteria"
+        label-property="mailTemplateType.name"
+        :label="$tc('sw-order.documentSendModal.labelMailTemplate')"
+        required
+        @change="onMailTemplateChange"
+    />
+    {% endblock %}
+
+    {% block sw_order_send_document_modal_customer_mail_select %}
+    <sw-field
+        v-model="recipient"
+        type="text"
+        :label="$tc('sw-order.documentSendModal.labelRecipient')"
+        required
+    />
+    {% endblock %}
+
+    {% block sw_order_send_document_modal_subject %}
+    <sw-field
+        v-model="subject"
+        type="text"
+        :label="$tc('sw-order.documentSendModal.labelSubject')"
+        required
+    />
+    {% endblock %}
+
+    {% block sw_order_send_document_modal_mail_content %}
+    <sw-field
+        v-model="content"
+        type="textarea"
+        :label="$tc('sw-order.documentSendModal.labelContent')"
+        disabled
+    />
+    {% endblock %}
+
+    <template #modal-footer>
+        {% block sw_order_send_document_modal_secondary_action %}
+        <sw-button
+            @click="$emit('modal-close')"
+        >
+            {{ $tc('sw-order.documentSendModal.labelClose') }}
+        </sw-button>
+        {% endblock %}
+
+        {% block sw_order_send_document_modal_primary_action %}
+        <sw-button
+            :disabled="primaryActionDisabled"
+            variant="primary"
+            @click="onSendDocument"
+        >
+            {{ $tc('sw-order.documentCard.labelSendDocument') }}
+        </sw-button>
+        {% endblock %}
+    </template>
+</sw-modal>
+{% endblock %}

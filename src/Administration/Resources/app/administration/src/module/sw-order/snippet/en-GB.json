@@ -297,8 +297,13 @@
       "labelSent": "Sent",
       "labelAttach": "Attach",
       "labelAmount": "Order value",
-      "labelDownloadPdf": "Download PDF",
-      "labelCreateNew": "Create new",
+      "labelOpenDocument": "Open document",
+      "labelDownloadPdf": "Download document",
+      "labelPrintDocument": "Print document",
+      "labelSendDocument": "Send document",
+      "labelMarkAsSent": "Mark as sent",
+      "labelMarkAsUnsent": "Mark as unsent",
+      "labelCreateNew": "Create new document",
       "messageEmptyTitle": "No documents yet",
       "messageEmptySubline": "Manage documents here.",
       "error": {
@@ -327,6 +332,16 @@
       "labelHighlightedItemsEntry": "Total",
       "labelNoItems": "No credit shown",
       "fileInputLabel": "Upload custom document"
+    },
+    "documentSendModal": {
+      "labelNumber": "Number",
+      "labelType": "Type",
+      "labelDate": "Date",
+      "labelMailTemplate": "Email template",
+      "labelRecipient": "Email address",
+      "labelContent": "Email content",
+      "labelSubject": "Subject",
+      "labelClose": "Close"
     },
     "stateModal": {
       "modalTitle": "Add documents"

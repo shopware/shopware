@@ -1,0 +1,12 @@
+.sw-order-send-document-modal {
+    &__info-container {
+        margin-bottom: 25px;
+
+        .sw-description-list {
+            dt,
+            dd {
+                padding: 0;
+            }
+        }
+    }
+}

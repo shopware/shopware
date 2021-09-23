@@ -54,6 +54,11 @@ describe('Order: Create credit note', () => {
             method: 'GET'
         }).as('onPreview');
 
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/search/document-type`,
+            method: 'POST'
+        }).as('getDocumentTypes');
+
         cy.get(`${page.elements.dataGridRow}--0`).contains('Mustermann, Max');
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
@@ -151,9 +156,15 @@ describe('Order: Create credit note', () => {
         cy.get('.sw-modal__footer .sw-button--primary').should('be.visible');
         cy.get('.sw-modal__footer .sw-button--primary').click();
 
+        // Wait for the credit note to be created
         cy.wait('@createCreditNote').its('response.statusCode').should('equal', 200);
 
+        // Reloading the page is necessary to get rid off the view reloading after several $nextTicks
+        cy.reload();
+        cy.wait('@getDocumentTypes').its('response.statusCode').should('equal', 200);
+
         // check exists credit note
+        cy.get('.sw-simple-search-field--form input[placeholder="Search all documents..."]').scrollIntoView();
         cy.get('.sw-simple-search-field--form input[placeholder="Search all documents..."]').type('Credit note');
         cy.get('.sw-data-grid__row.sw-data-grid__row--0').contains('Credit note');
     });

@@ -75,6 +75,7 @@
                             showOnDisabledElements: true
                         }"
                         size="small"
+                        variant="ghost"
                         :disabled="!acl.can('order.editor')"
                         class="sw-order-document-grid-button"
                         @click="onShowSelectDocumentTypeModal"
@@ -147,10 +148,56 @@
                 v-if="!attachView"
                 #actions="{ item }"
             >
+                {% block sw_order_document_card_grid_action_open %}
+                <sw-context-menu-item
+                    v-if="feature.isActive('FEATURE_NEXT_7530')"
+                    @click="onOpenDocument(item.id, item.deepLinkCode)"
+                >
+                    {% block sw_order_document_card_grid_action_open_label %}
+                    {{ $tc('sw-order.documentCard.labelOpenDocument') }}
+                    {% endblock %}
+                </sw-context-menu-item>
+                {% endblock %}
+
                 {% block sw_order_document_card_grid_action_download %}
                 <sw-context-menu-item @click="onDownload(item.id, item.deepLinkCode)">
                     {% block sw_order_document_card_grid_action_download_label %}
                     {{ $tc('sw-order.documentCard.labelDownloadPdf') }}
+                    {% endblock %}
+                </sw-context-menu-item>
+                {% endblock %}
+
+                {% block sw_order_document_card_grid_action_send %}
+                <sw-context-menu-item
+                    v-if="feature.isActive('FEATURE_NEXT_7530')"
+                    @click="onSendDocument(item.id)"
+                >
+                    {% block sw_order_document_card_grid_action_send_label %}
+                    {{ $tc('sw-order.documentCard.labelSendDocument') }}
+                    {% endblock %}
+                </sw-context-menu-item>
+                {% endblock %}
+
+                {% block sw_order_document_card_grid_action_mark_sent %}
+                <sw-context-menu-item
+                    v-if="feature.isActive('FEATURE_NEXT_7530')"
+                    :disabled="item.sent"
+                    @click="onMarkDocumentAsSent(item.id)"
+                >
+                    {% block sw_order_document_card_grid_action_mark_sent_label %}
+                    {{ $tc('sw-order.documentCard.labelMarkAsSent') }}
+                    {% endblock %}
+                </sw-context-menu-item>
+                {% endblock %}
+
+                {% block sw_order_document_card_grid_action_mark_unsent %}
+                <sw-context-menu-item
+                    v-if="feature.isActive('FEATURE_NEXT_7530')"
+                    :disabled="!item.sent"
+                    @click="onMarkDocumentAsUnsent(item.id)"
+                >
+                    {% block sw_order_document_card_grid_action_mark_unsent_label %}
+                    {{ $tc('sw-order.documentCard.labelMarkAsUnsent') }}
                     {% endblock %}
                 </sw-context-menu-item>
                 {% endblock %}
@@ -184,6 +231,16 @@
         v-model="currentDocumentType"
         :order="order"
         @modal-close="onCloseSelectDocumentTypeModal"
+    />
+    {% endblock %}
+
+    {% block sw_order_document_card_grid_column_document_send_modal %}
+    <sw-order-send-document-modal
+        v-if="showSendDocumentModal"
+        :document="sendDocument"
+        :order="order"
+        @modal-close="onCloseSendDocumentModal"
+        @document-sent="onDocumentSent"
     />
     {% endblock %}
 

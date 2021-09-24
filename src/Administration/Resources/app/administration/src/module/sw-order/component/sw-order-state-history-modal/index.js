@@ -114,13 +114,13 @@ Component.register('sw-order-state-history-modal', {
             const states = {
                 order: allEntries.filter((entry) => {
                     return entry.entityName === 'order';
-                }).first()?.fromStateMachineState,
+                }).first()?.fromStateMachineState ?? this.order.stateMachineState,
                 order_transaction: allEntries.filter((entry) => {
                     return entry.entityName === 'order_transaction';
-                }).first()?.fromStateMachineState,
+                }).first()?.fromStateMachineState ?? this.order.transactions.last()?.stateMachineState,
                 order_delivery: allEntries.filter((entry) => {
                     return entry.entityName === 'order_delivery';
-                }).first()?.fromStateMachineState,
+                }).first()?.fromStateMachineState ?? this.order.deliveries.first()?.stateMachineState,
             };
 
             const entries = [];

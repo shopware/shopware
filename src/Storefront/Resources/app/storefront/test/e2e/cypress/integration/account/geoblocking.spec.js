@@ -117,7 +117,7 @@ describe('Account: indicate non shippable country on register page', () => {
 
         cy.get('#address-create-new button[type="submit"]').click();
 
-        cy.get('.address-editor-modal').should('not.be.visible');
+        cy.get('.address-editor-modal').should('not.exist');
 
         cy.get('.overview-shipping-address > .card > .card-body > .card-actions > .btn').click();
 
@@ -130,7 +130,7 @@ describe('Account: indicate non shippable country on register page', () => {
             .contains('A delivery to this country is not possible.')
             .should('be.visible');
 
-        cy.get('#address-list .alert')
+        cy.get('.address-editor-modal .alert')
             .contains('A delivery to this country is not possible.')
             .should('be.visible');
 
@@ -140,7 +140,7 @@ describe('Account: indicate non shippable country on register page', () => {
 
         cy.get('.js-pseudo-modal .modal-close').click();
 
-        cy.get('.address-editor-modal').should('not.be.visible');
+        cy.get('.address-editor-modal').should('not.exist');
 
         // check behaviour on address overview page
         cy.visit('/account/address');

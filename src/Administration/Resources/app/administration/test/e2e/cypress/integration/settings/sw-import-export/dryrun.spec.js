@@ -95,7 +95,7 @@ describe('Import/Export - Check import dry run functionality', () => {
 
         // Check that results table is visible and has expected content
         cy.get('.sw-import-export-activity-result-modal .sw-grid').should('be.visible');
-        cy.get('.sw-import-export-activity-result-modal__column-product-insert').should('contain', '1');
-        cy.get('.sw-import-export-activity-result-modal__column-tax-insert').should('contain', '1');
+        cy.get('.sw-import-export-activity-result-modal__column-product_translation-changes').should('contain', '1');
+        cy.get('.sw-import-export-activity-result-modal__column-tax-changes').should('contain', '1');
     });
 });

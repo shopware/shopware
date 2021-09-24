@@ -84,8 +84,6 @@ describe('Promotion: Visual tests', () => {
 
         cy.wait('@filteredResultCall')
             .its('response.statusCode').should('equal', 200);
-        cy.wait('@patchPromotion')
-            .its('response.statusCode').should('equal', 200);
         cy.get(page.elements.loader).should('not.exist');
 
         cy.get('.sw-promotion-discount-component').should('be.visible');
@@ -102,7 +100,7 @@ describe('Promotion: Visual tests', () => {
         // Save final promotion
         cy.get('.sw-promotion-detail__save-action').click();
         cy.wait('@patchPromotion')
-            .its('response.statusCode').should('equal', 200);
+            .its('response.statusCode').should('equal', 204);
 
         // Verify Promotion in Storefront
         cy.visit('/');

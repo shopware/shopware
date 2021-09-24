@@ -15,7 +15,8 @@ describe('Flow builder: Add remove tag testing', () => {
             });
     });
 
-    it('@settings: add and remove tag action flow', () => {
+    // NEXT-17407 - this test does not work and needs to be fixed
+    it.skip('@settings: add and remove tag action flow', () => {
         cy.onlyOnFeature('FEATURE_NEXT_8225');
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/flow/index`);

@@ -38,6 +38,7 @@ function createClient() {
 
     refreshTokenInterceptor(client);
     globalErrorHandlingInterceptor(client);
+    client.CancelToken = CancelToken;
 
     /**
      * Don´t use cache in unit tests because it is possible

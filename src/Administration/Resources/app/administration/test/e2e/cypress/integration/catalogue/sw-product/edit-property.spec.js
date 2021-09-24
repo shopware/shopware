@@ -126,7 +126,7 @@ describe('Product: Edit property assignment', () => {
 
         cy.get('.sw-modal').should('be.visible');
         cy.get('.sw-button--danger').click();
-        cy.get('.sw-modal').should('not.be.visible');
+        cy.get('.sw-modal').should('not.exist');
 
         cy.get(page.elements.productSaveAction).click();
         cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
@@ -151,7 +151,7 @@ describe('Product: Edit property assignment', () => {
 
         cy.get('.sw-modal').should('be.visible');
         cy.get('.sw-button--danger').click();
-        cy.get('.sw-modal').should('not.be.visible');
+        cy.get('.sw-modal').should('not.exist');
 
         cy.get(page.elements.productSaveAction).click();
         cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
@@ -183,7 +183,7 @@ describe('Product: Edit property assignment', () => {
 
         cy.get('.sw-modal').should('be.visible');
         cy.get('.sw-button--danger').click();
-        cy.get('.sw-modal').should('not.be.visible');
+        cy.get('.sw-modal').should('not.exist');
 
         cy.get(page.elements.productSaveAction).click();
         cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');
@@ -208,7 +208,7 @@ describe('Product: Edit property assignment', () => {
         cy.get('.sw-product-properties .sw-data-grid__bulk-selected.bulk-link a').click();
         cy.get('.sw-modal').should('be.visible');
         cy.get('.sw-button--danger').click();
-        cy.get('.sw-modal').should('not.be.visible');
+        cy.get('.sw-modal').should('not.exist');
         cy.get('.sw-product-properties .sw-empty-state').should('be.visible');
 
         // start adding new ones
@@ -220,7 +220,7 @@ describe('Product: Edit property assignment', () => {
         cy.get('.sw-product-add-properties-modal__button-save').click();
 
         // assert new properties have added successful
-        cy.get('.sw-product-add-properties-modal').should('not.be.visible');
+        cy.get('.sw-product-add-properties-modal').should('not.exist');
         cy.contains('.sw-data-grid__cell--values', 'red').should('be.visible');
         cy.get(page.elements.productSaveAction).click();
         cy.get('.icon--small-default-checkmark-line-medium').should('be.visible');

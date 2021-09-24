@@ -88,8 +88,8 @@ describe('CMS: Test assignment of layouts to categories and shop pages', () => {
         cy.get('.sw-cms-layout-assignment-modal__action-changes-confirm').click();
 
         // Assignment modal should disappear
-        cy.get('.sw-cms-layout-assignment-modal__confirm-changes-modal').should('not.be.visible');
-        cy.get('.sw-cms-layout-assignment-modal').should('not.be.visible');
+        cy.get('.sw-cms-layout-assignment-modal__confirm-changes-modal').should('not.exist');
+        cy.get('.sw-cms-layout-assignment-modal').should('not.exist');
 
         // Save the layout
         cy.get('.sw-cms-detail__save-action').click();

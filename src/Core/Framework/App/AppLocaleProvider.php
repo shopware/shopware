@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\App;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -16,9 +16,9 @@ class AppLocaleProvider
 {
     private Connection $connection;
 
-    private EntityRepository $userRepository;
+    private EntityRepositoryInterface $userRepository;
 
-    public function __construct(Connection $connection, EntityRepository $userRepository)
+    public function __construct(Connection $connection, EntityRepositoryInterface $userRepository)
     {
         $this->connection = $connection;
         $this->userRepository = $userRepository;

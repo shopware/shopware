@@ -378,6 +378,17 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         expect(actual).toEqual(expect.arrayContaining(expected));
     });
 
+
+    it('should return nothing for searching a invalid path', async () => {
+        await wrapper.setProps({
+            value: 'id.id'
+        });
+
+        const actual = wrapper.vm.visibleResults;
+
+        expect(actual).toEqual([]);
+    });
+
     it('should return filtered product properties when searching', async () => {
         await wrapper.setProps({
             value: 'parent.parent.',

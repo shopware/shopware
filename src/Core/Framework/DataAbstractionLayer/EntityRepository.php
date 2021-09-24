@@ -86,7 +86,7 @@ class EntityRepository implements EntityRepositoryInterface
      */
     public function setEntityLoadedEventFactory(EntityLoadedEventFactory $eventFactory): void
     {
-        if ($this->eventFactory !== null) {
+        if (isset($this->eventFactory)) {
             return;
         }
 

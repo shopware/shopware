@@ -112,7 +112,7 @@ Component.register('sw-product-category-form', {
 
         fetchSalesChannelSystemConfig() {
             if (typeof this.product.isNew !== 'function' || !this.product.isNew()) {
-                return Promise.reject();
+                return Promise.resolve();
             }
 
             return this.systemConfigApiService.getValues('core.defaultSalesChannel').then(async (configData) => {

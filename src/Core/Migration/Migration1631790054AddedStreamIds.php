@@ -5,6 +5,6 @@ namespace Shopware\Core\Migration;
 /**
  * @deprecated tag:v6.5.0 - Will be deleted. Migrations are now namespaced by major version
  */
-class Migration1631790054 extends \Shopware\Core\Migration\V6_4\Migration1631790054AddedStreamIds
+class Migration1631790054AddedStreamIds extends \Shopware\Core\Migration\V6_4\Migration1631790054AddedStreamIds
 {
 }

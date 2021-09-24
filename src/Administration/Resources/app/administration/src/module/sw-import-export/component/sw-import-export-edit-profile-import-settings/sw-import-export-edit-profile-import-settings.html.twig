@@ -1,0 +1,31 @@
+{% block sw_import_export_edit_profile_import_settings %}
+<div
+    class="sw-import-export-edit-profile-import-settings"
+>
+    {% block sw_import_export_edit_profile_import_settings_headline %}
+    <h3 class="sw-import-export-edit-profile-import-settings__headline">
+        {{ $tc('sw-import-export.profile.importSettingsHeadline') }}
+    </h3>
+    {% endblock %}
+
+    {% block sw_import_export_edit_profile_import_settings_create_switch %}
+    <sw-switch-field
+        v-model="profile.config.createEntities"
+        class="sw-import-export-edit-profile-import-settings__create-switch"
+        :label="$tc('sw-import-export.profile.createEntitiesLabel')"
+        :disabled="profile.systemDefault"
+        @change="onChange($event, 'updateEntities')"
+    />
+    {% endblock %}
+
+    {% block sw_import_export_edit_profile_import_settings_update_switch %}
+    <sw-switch-field
+        v-model="profile.config.updateEntities"
+        class="sw-import-export-edit-profile-import-settings__update-switch"
+        :label="$tc('sw-import-export.profile.updateEntitiesLabel')"
+        :disabled="profile.systemDefault"
+        @change="onChange($event, 'createEntities')"
+    />
+    {% endblock %}
+</div>
+{% endblock %}

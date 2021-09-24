@@ -1,7 +1,7 @@
 import template from './sw-order-detail-base.html.twig';
 
 const { Component, Utils, Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+const { EntityCollection, Criteria } = Shopware.Data;
 const { get, format, array } = Utils;
 
 /**
@@ -58,6 +58,7 @@ Component.register('sw-order-detail-base', {
             promotionError: null,
             missingProductLineItems: [],
             convertedProductLineItems: [],
+            originLineItems: [],
         };
     },
 
@@ -335,12 +336,31 @@ Component.register('sw-order-detail-base', {
 
             return this.orderRepository.get(this.orderId, this.versionContext, this.orderCriteria).then((response) => {
                 this.order = response;
+                this.cloneLineItems();
                 this.$emit('loading-change', false);
                 return Promise.resolve();
             }).catch(() => {
                 this.$emit('loading-change', false);
                 return Promise.reject();
             });
+        },
+
+        cloneLineItems() {
+            const originLineItems = new EntityCollection(
+                this.orderLineItemRepository.route,
+                this.orderLineItemRepository.entityName,
+                this.versionContext,
+            );
+
+            this.order.lineItems.forEach(lineItem => {
+                const lineItemClone = this.orderLineItemRepository.create();
+                Object.entries(lineItem).forEach(([key]) => {
+                    lineItemClone[key] = lineItem[key];
+                });
+                originLineItems.add(lineItemClone);
+            });
+
+            this.originLineItems = originLineItems;
         },
 
         emitIdentifier() {
@@ -412,7 +432,7 @@ Component.register('sw-order-detail-base', {
         onSaveEdits() {
             this.$emit('loading-change', true);
             this.$emit('editing-change', false);
-
+            this.order.lineItems = this.originLineItems;
             this.orderRepository.save(this.order, this.versionContext)
                 .then(() => {
                     return this.orderRepository.mergeVersion(this.versionContext.versionId, this.versionContext);

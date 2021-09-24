@@ -346,6 +346,18 @@
     "stateModal": {
       "modalTitle": "Dokumente anhängen"
     },
+    "stateHistoryModal": {
+      "modalTitle": "Statusverlauf",
+      "labelSystemUser": "System",
+      "column": {
+        "createdAt": "Datum",
+        "entity": "Geändert",
+        "user": "Geändert von",
+        "transaction": "Zahlung",
+        "delivery": "Versand",
+        "order": "Bestellung"
+      }
+    },
     "newCustomerModal": {
       "labelDetails": "Details",
       "labelGuest": "Gastbesteller"

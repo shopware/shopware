@@ -24,6 +24,7 @@ import './component/sw-order-leave-page-modal';
 import './component/sw-order-state-change-modal/sw-order-state-change-modal-attach-documents';
 import './component/sw-order-state-history-card';
 import './component/sw-order-state-history-card-entry';
+import './component/sw-order-state-history-modal';
 import './component/sw-order-state-select';
 import './component/sw-order-state-select-v2';
 import './component/sw-order-inline-field';

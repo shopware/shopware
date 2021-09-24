@@ -42,6 +42,7 @@ Component.register('sw-order-detail-details', {
             customFieldSets: [],
             promotions: [],
             promotionError: null,
+            showStateHistoryModal: false,
         };
     },
 

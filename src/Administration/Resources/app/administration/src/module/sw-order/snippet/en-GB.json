@@ -346,6 +346,18 @@
     "stateModal": {
       "modalTitle": "Add documents"
     },
+    "stateHistoryModal": {
+      "modalTitle": "Status history",
+      "labelSystemUser": "System",
+      "column": {
+        "createdAt": "Date",
+        "entity": "Changed",
+        "user": "Changed By",
+        "transaction": "Payment",
+        "delivery": "Shipping",
+        "order": "Order"
+      }
+    },
     "newCustomerModal": {
       "labelDetails": "Details",
       "labelGuest": "Guest account"

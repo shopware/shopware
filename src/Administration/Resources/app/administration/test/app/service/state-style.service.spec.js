@@ -101,7 +101,7 @@ describe('src/app/service/state-style.service.js', () => {
             neutral: 'small-arrow-small-down',
             progress: 'small-default-circle-small',
             done: 'small-default-checkmark-line-small',
-            warning: 'small-arrow-small-down',
+            warning: 'small-exclamationmark',
             danger: 'small-default-x-line-small'
         };
 

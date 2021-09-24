@@ -1,0 +1,85 @@
+{% block sw_order_state_history_modal %}
+<sw-modal
+    :title="$tc('sw-order.stateHistoryModal.modalTitle')"
+    :is-loading="isLoading"
+    variant="large"
+    @modal-close="onClose"
+>
+    {% block sw_order_state_history_modal_content %}
+    <sw-data-grid
+        :columns="columns"
+        :data-source="dataSource"
+        :is-loading="isLoading || statesLoading"
+        :plain-appearance="true"
+        :show-selection="false"
+        :show-actions="false"
+    >
+
+        {% block sw_order_state_history_modal_content_columns_created_at %}
+        <template #column-createdAt="{ item }">
+            <sw-time-ago :date="item.createdAt" />
+        </template>
+        {% endblock %}
+
+        {% block sw_order_state_history_modal_content_columns_entity %}
+        <template #column-entity="{ item }">
+            {{ $tc('global.entities.' + item.entity) }}
+        </template>
+        {% endblock %}
+
+        {% block sw_order_state_history_modal_content_columns_user %}
+        <template #column-user="{ item }">
+            {{ item.user?.username ?? $tc('sw-order.stateHistoryModal.labelSystemUser') }}
+        </template>
+        {% endblock %}
+
+        {% block sw_order_state_history_modal_content_columns_order_state %}
+        <template #column-order="{ item }">
+            <sw-label
+                :variant="getVariantState('order', item.order)"
+                appearance="badged"
+            >
+                {{ item.order.translated.name }}
+            </sw-label>
+        </template>
+        {% endblock %}
+
+        {% block sw_order_state_history_modal_content_columns_delivery_state %}
+        <template #column-delivery="{ item }">
+            <sw-label
+                :variant="getVariantState('order_delivery', item.delivery)"
+                appearance="badged"
+            >
+                {{ item.delivery.translated.name }}
+            </sw-label>
+        </template>
+        {% endblock %}
+
+        {% block sw_order_state_history_modal_content_columns_transaction_state %}
+        <template #column-transaction="{ item }">
+            <sw-label
+                :variant="getVariantState('order_transaction', item.transaction)"
+                appearance="badged"
+            >
+                {{ item.transaction.translated.name }}
+            </sw-label>
+        </template>
+        {% endblock %}
+    </sw-data-grid>
+    {% endblock %}
+
+    {% block sw_order_state_history_modal_actions %}
+    <template #modal-footer>
+        {% block sw_order_state_history_modal_action_close %}
+        <sw-button
+            size="small"
+            @click="onClose"
+        >
+            {{ $tc('global.default.close') }}
+        </sw-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
+</sw-modal>
+{% endblock %}
+

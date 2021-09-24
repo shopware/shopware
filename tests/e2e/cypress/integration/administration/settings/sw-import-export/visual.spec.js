@@ -259,7 +259,7 @@ describe('Import/Export:  Visual tests', () => {
         cy.get(`${page.elements.importExportMappingGrid} ${page.elements.dataGridRow}--0 ${page.elements.importExportEntityPathSelect}`)
             .typeSingleSelectAndCheck('productNumber', `${page.elements.dataGridRow}--0 ${page.elements.importExportEntityPathSelect}`);
 
-       cy.get(page.elements.importExportAddMappingButton)
+        cy.get(page.elements.importExportAddMappingButton)
             .click();
 
         cy.get(`${page.elements.importExportMappingGrid} ${page.elements.dataGridRow}--0 #mappedKey-0`).typeAndCheck('stock');

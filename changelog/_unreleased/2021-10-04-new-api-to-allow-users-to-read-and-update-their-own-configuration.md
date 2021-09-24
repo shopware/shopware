@@ -1,7 +1,6 @@
 ---
 title: New API to allow users to read and update their own configuration
 issue: NEXT-17591
-flag: FEATURE_NEXT_6040
 ---
 # Administration
 *  Added new controller `\Shopware\Administration\Controller\UserConfigController`

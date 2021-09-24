@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -22,8 +21,6 @@ class UserConfigControllerTest extends TestCase
 
     protected function setup(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_6040', $this);
-
         $this->authorizeBrowser($this->getBrowser(), [UserVerifiedScope::IDENTIFIER], []);
     }
 

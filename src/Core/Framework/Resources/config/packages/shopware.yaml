@@ -118,6 +118,17 @@ shopware:
                       interval: '60 seconds'
                     - limit: 10
                       interval: '90 seconds'
+            notification:
+                enabled: true
+                policy: 'time_backoff'
+                reset: '24 hours'
+                limits:
+                    - limit: 10
+                      interval: '10 seconds'
+                    - limit: 15
+                      interval: '30 seconds'
+                    - limit: 20
+                      interval: '60 seconds'
 
     admin_worker:
         enable_admin_worker: true

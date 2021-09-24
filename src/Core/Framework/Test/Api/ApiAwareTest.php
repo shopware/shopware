@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\Api;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Administration\Notification\NotificationDefinition;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
@@ -80,6 +81,16 @@ class ApiAwareTest extends TestCase
                     'theme_translation.updatedAt',
                     'theme_translation.themeId',
                     'theme_translation.languageId',
+                ]
+            );
+        }
+
+        if ($this->getContainer()->has(NotificationDefinition::class)) {
+            $expected = array_merge(
+                $expected,
+                [
+                    'notification.createdAt',
+                    'notification.updatedAt',
                 ]
             );
         }

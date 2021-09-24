@@ -65,6 +65,7 @@ PHP coverage:
     variables:
         APP_ENV: "test"
         FEATURE_ALL: "major"
+        GIT_DEPTH: 0 # we need all commits for composer to detect the version which is then checked in a unit test
     rules:
         - !reference [.rules, skip]
         - !reference [.rules, run]
@@ -116,6 +117,7 @@ PHP Full:
     variables:
         TEST_SUITES: "docs administration storefront checkout content framework profiling migration system elasticsearch"
         APP_ENV: test
+        GIT_DEPTH: 0 # we need all commits for composer to detect the version which is then checked in a unit test
     rules:
         - !reference [.rules, skip]
         - !reference [.rules, run]

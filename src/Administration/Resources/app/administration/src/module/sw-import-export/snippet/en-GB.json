@@ -150,6 +150,7 @@
                 "entityLabel": "Database entry",
                 "isRequired": "Required",
                 "defaultValue": "Default value",
+                "position": "Position",
                 "notMapped": "Not mapped"
             },
             "typeColumn": "Type",

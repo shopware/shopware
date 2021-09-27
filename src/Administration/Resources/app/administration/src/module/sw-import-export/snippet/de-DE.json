@@ -150,6 +150,7 @@
                 "entityLabel": "Datenbank-Eintrag",
                 "isRequired": "Erforderlich",
                 "defaultValue": "Standard-Wert",
+                "position": "Position",
                 "notMapped": "Nicht zugeordnet"
             },
             "typeColumn": "Typ",

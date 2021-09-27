@@ -19,8 +19,13 @@ class JWTConfigurationFactory
         ?Encoder $encoder = null,
         ?Decoder $decoder = null
     ): Configuration {
-        $privateKey = InMemory::file($privateKey->getKeyPath(), $privateKey->getPassPhrase() ?? '');
-        $publicKey = InMemory::file($publicKey->getKeyPath(), $publicKey->getPassPhrase() ?? '');
+        if ($privateKey->getKeyPath() === '') {
+            $privateKey = InMemory::plainText($privateKey->getKeyContents(), $privateKey->getPassPhrase() ?? '');
+            $publicKey = InMemory::plainText($publicKey->getKeyContents(), $publicKey->getPassPhrase() ?? '');
+        } else {
+            $privateKey = InMemory::file($privateKey->getKeyPath(), $privateKey->getPassPhrase() ?? '');
+            $publicKey = InMemory::file($publicKey->getKeyPath(), $publicKey->getPassPhrase() ?? '');
+        }
 
         $configuration = Configuration::forAsymmetricSigner(
             $signer,

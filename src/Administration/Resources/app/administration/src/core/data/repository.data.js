@@ -600,6 +600,19 @@ export default class Repository {
     sendDeletions(queue, context = Shopware.Context.api) {
         const headers = this.buildHeaders(context);
         const requests = queue.map((deletion) => {
+            if (Object.keys(deletion.primary).length > 0) {
+                const operation = this.buildDeleteOperations([deletion]);
+
+                return this.httpClient.post(
+                    '_action/sync',
+                    operation,
+                    { headers, version: this.options.version },
+                ).catch((errorResponse) => {
+                    this.errorResolver.handleDeleteError(errorResponse);
+                    throw errorResponse;
+                });
+            }
+
             return this.httpClient.delete(`${deletion.route}/${deletion.key}`, { headers, version: this.options.version })
                 .catch((errorResponse) => {
                     this.errorResolver.handleDeleteError(errorResponse);

@@ -72,6 +72,22 @@ class ProductControllerTest extends TestCase
         static::assertStringContainsString($productId, $content['url']);
     }
 
+    public function testSwitchDoesNotCrashOnMalformedOptions(): void
+    {
+        $productId = $this->createProduct();
+
+        $response = $this->request(
+            'GET',
+            '/detail/' . $productId . '/switch',
+            $this->tokenize('frontend.detail.switch', [
+                'productId' => $productId,
+                'options' => 'notJson',
+            ])
+        );
+
+        static::assertSame(200, $response->getStatusCode());
+    }
+
     private function createProduct(array $config = []): string
     {
         $id = Uuid::randomHex();

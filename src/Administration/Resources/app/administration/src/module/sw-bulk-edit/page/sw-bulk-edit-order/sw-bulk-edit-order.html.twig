@@ -43,7 +43,7 @@
     <template slot="content">
 
         <sw-card-view
-            v-if="selectedIds.length > 0 && !isLoading"
+            v-if="selectedIds.length > 0 && isLoadedData"
         >
             {% block sw_bulk_edit_order_content_order_status_card %}
             <sw-card
@@ -94,7 +94,7 @@
 
         {% block sw_bulk_edit_order_empty_state %}
         <sw-empty-state
-            v-else
+            v-if="selectedIds.length <= 0 && !isLoading"
             :title="$tc('sw-bulk-edit.order.messageEmptyTitle')"
             :subline="$tc('sw-bulk-edit.order.messageEmptySubline')"
         />

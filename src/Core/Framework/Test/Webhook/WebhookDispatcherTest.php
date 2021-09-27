@@ -26,6 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Event\BusinessEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Test\App\GuzzleHistoryCollector;
 use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
@@ -52,12 +53,15 @@ class WebhookDispatcherTest extends TestCase
 
     private MessageBusInterface $bus;
 
+    private GuzzleHistoryCollector $guzzleHistory;
+
     public function setUp(): void
     {
         $this->webhookRepository = $this->getContainer()->get('webhook.repository');
         $this->shopUrl = $_SERVER['APP_URL'];
         $this->shopIdProvider = $this->getContainer()->get(ShopIdProvider::class);
         $this->bus = $this->createMock(MessageBusInterface::class);
+        $this->guzzleHistory = $this->getContainer()->get(GuzzleHistoryCollector::class);
     }
 
     public function testDispatchesBusinessEventToWebhookWithoutApp(): void
@@ -88,9 +92,10 @@ class WebhookDispatcherTest extends TestCase
             $this->bus,
             true
         );
-        $webhookDispatcher->dispatch($event);
 
-        static::assertInstanceOf(CustomerBeforeLoginEvent::class, $event);
+        // check that event wasn't replaced
+        $returnedEvent = $webhookDispatcher->dispatch($event);
+        static::assertSame($event, $returnedEvent);
 
         /** @var Request $request */
         $request = $this->getLastRequest();
@@ -111,6 +116,69 @@ class WebhookDispatcherTest extends TestCase
         ], json_decode($body, true));
 
         static::assertFalse($request->hasHeader('shopware-shop-signature'));
+    }
+
+    public function testDispatchedWebhooksDontWrapEventMultipleTimes(): void
+    {
+        $this->webhookRepository->upsert([
+            [
+                'name' => 'hook1',
+                'eventName' => CustomerBeforeLoginEvent::EVENT_NAME,
+                'url' => 'https://test.com',
+                'active' => true,
+            ], [
+                'name' => 'hook2',
+                'eventName' => CustomerBeforeLoginEvent::EVENT_NAME,
+                'url' => 'https://test.com',
+                'active' => true,
+            ],
+        ], Context::createDefaultContext());
+
+        $this->appendNewResponse(new Response(200));
+        $this->appendNewResponse(new Response(200));
+
+        $event = new CustomerBeforeLoginEvent(
+            $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
+            'test@example.com'
+        );
+
+        $webhookDispatcher = new WebhookDispatcher(
+            $this->getContainer()->get('event_dispatcher'),
+            $this->getContainer()->get(Connection::class),
+            $this->getContainer()->get('shopware.app_system.guzzle'),
+            $this->shopUrl,
+            $this->getContainer(),
+            $this->getContainer()->get(HookableEventFactory::class),
+            Kernel::SHOPWARE_FALLBACK_VERSION,
+            $this->bus,
+            true
+        );
+
+        $webhookDispatcher->dispatch($event);
+
+        $history = $this->guzzleHistory->getHistory();
+
+        static::assertCount(2, $history);
+
+        foreach ($history as $historyEntry) {
+            /** @var Request $request */
+            $request = $historyEntry['request'];
+
+            static::assertEquals(
+                [
+                    'data' => [
+                        'payload' => [
+                            'email' => 'test@example.com',
+                        ],
+                        'event' => CustomerBeforeLoginEvent::EVENT_NAME,
+                    ],
+                    'source' => [
+                        'url' => $this->shopUrl,
+                    ],
+                ],
+                \json_decode($request->getBody()->getContents(), true)
+            );
+        }
     }
 
     public function testDispatchesWrappedEntityWrittenEventToWebhookWithoutApp(): void

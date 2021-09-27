@@ -7,6 +7,7 @@ use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\Element\CmsElementResolverInterface;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
+use Shopware\Core\Content\Cms\Events\CmsSlotDataResolverEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -16,42 +17,52 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class CmsSlotsDataResolver
 {
     /**
      * @var CmsElementResolverInterface[]
      */
-    private $resolvers;
+    private array                      $resolvers;
 
-    /**
-     * @var array
-     */
-    private $repositories;
+    private array                      $repositories;
 
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $definitionRegistry;
+    private DefinitionInstanceRegistry $definitionRegistry;
+
+    private EventDispatcherInterface   $eventDispatcher;
 
     /**
      * @param CmsElementResolverInterface[] $resolvers
      */
-    public function __construct(iterable $resolvers, array $repositories, DefinitionInstanceRegistry $definitionRegistry)
-    {
+    public function __construct(
+        iterable                   $resolvers,
+        array                      $repositories,
+        DefinitionInstanceRegistry $definitionRegistry,
+        EventDispatcherInterface   $eventDispatcher
+    ) {
         $this->definitionRegistry = $definitionRegistry;
+        $this->eventDispatcher    = $eventDispatcher;
 
         foreach ($repositories as $entityName => $repository) {
             $this->repositories[$entityName] = $repository;
         }
 
         foreach ($resolvers as $resolver) {
-            $this->resolvers[$resolver->getType()] = $resolver;
+            $this->addResolver($resolver);
         }
+    }
+
+    public function addResolver(CmsElementResolverInterface $resolver): void
+    {
+        $this->resolvers[$resolver->getType()] = $resolver;
     }
 
     public function resolve(CmsSlotCollection $slots, ResolverContext $resolverContext): CmsSlotCollection
     {
+        $event = new CmsSlotDataResolverEvent($this, $resolverContext->getSalesChannelContext());
+        $this->eventDispatcher->dispatch($event);
+
         $slotCriteriaList = [];
 
         /*
@@ -277,7 +288,7 @@ class CmsSlotsDataResolver
 
                 /** @var ArrayEntity $hashArrayEntity */
                 $hashArrayEntity = $criteria->getExtension('criteriaHash');
-                $hash = $hashArrayEntity->get('hash');
+                $hash            = $hashArrayEntity->get('hash');
                 if (!isset($searchResults[$hash])) {
                     continue;
                 }
@@ -307,7 +318,7 @@ class CmsSlotsDataResolver
                     continue;
                 }
 
-                $ids = $criteria->getIds();
+                $ids      = $criteria->getIds();
                 $filtered = $entities[$definition]->filter(function (Entity $entity) use ($ids) {
                     return \in_array($entity->getUniqueIdentifier(), $ids, true);
                 });

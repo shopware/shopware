@@ -39,6 +39,7 @@
                 <argument type="service" key="product" id="sales_channel.product.repository" />
             </argument>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
 
         <service id="Shopware\Core\Content\Cms\DataResolver\Element\TextCmsElementResolver">

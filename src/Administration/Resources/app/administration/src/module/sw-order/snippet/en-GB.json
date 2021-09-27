@@ -165,6 +165,7 @@
       "columnTotalPriceGross": "Subtotal",
       "columnTax": "VAT",
       "contextMenuShowProduct": "Show product",
+      "contextMenuDelete": "Remove from order",
       "summaryLabelAmount": "Total",
       "summaryLabelAmountGrandTotal": "Grand total",
       "summaryLabelAmountWithoutTaxes": "Total excluding VAT",

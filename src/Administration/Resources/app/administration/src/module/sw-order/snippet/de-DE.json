@@ -165,6 +165,7 @@
       "columnPriceNet": "Nettopreis",
       "columnTotalPriceNet": "Gesamt",
       "contextMenuShowProduct": "Produkt anzeigen",
+      "contextMenuDelete": "Aus Bestellung entfernen",
       "summaryLabelAmount": "Summe",
       "summaryLabelAmountGrandTotal": "Gesamtsumme",
       "summaryLabelAmountWithoutTaxes": "Gesamtsumme ohne MwSt.",

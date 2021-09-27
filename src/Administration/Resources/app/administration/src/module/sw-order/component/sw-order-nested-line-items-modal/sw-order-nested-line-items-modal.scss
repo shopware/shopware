@@ -1,15 +1,18 @@
 @import "~scss/variables";
 
 .sw-order-nested-line-items-modal {
+    &__container {
+        margin: -20px 0;
+    }
+
     &__header-container {
         display: flex;
     }
 
     &__header-item {
         flex-grow: 1;
-        padding: 9px;
+        padding: 10px;
         border-bottom: 1px solid $color-gray-400;
-        font-size: 14px;
         font-weight: $font-weight-semi-bold;
 
         &:first-child {

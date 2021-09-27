@@ -437,7 +437,7 @@ Component.register('sw-data-grid', {
                         allowResize: column.allowResize,
                         sortable: column.sortable,
                         visible: column.visible,
-                        align: column.visible,
+                        align: column.align,
                         naturalSorting: column.naturalSorting,
                         position: index,
                     },

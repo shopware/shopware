@@ -5,14 +5,29 @@
         display: flex;
     }
 
+    &__nesting-level {
+        border-left: 1px solid $color-gray-300;
+        display: inline-block;
+        height: 100%;
+        margin: 0 8px 0 12px;
+    }
+
+    &__label > div {
+        float: left;
+    }
+
+    &__label-content {
+        padding: 10px;
+    }
+
     &__item {
         flex-grow: 1;
-        padding: 9px;
-        border-bottom: 1px solid $color-gray-400;
-        font-size: 14px;
+        padding: 10px;
+        height: 42px;
+        font-size: $font-size-default;
 
         &:first-child {
-            padding-left: 30px;
+            padding: 0 0 0 20px;
         }
 
         &:last-child {
@@ -32,14 +47,5 @@
         width: 120px;
         flex-grow: 0;
         text-align: right;
-    }
-}
-
-// Dynamic indentation of nested line items
-@for $i from 1 through 10 {
-    $margin: ($i - 1) * 18px;
-
-    .nesting-level-#{$i} {
-        margin-left: $margin;
     }
 }

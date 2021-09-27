@@ -150,7 +150,9 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-7921 - Prevent wrong profile mapping for import / export](/changelog/release-6-4-5-0/2021-09-21-prevent-wrong-profile-mapping-for-import-export.md)
 *  [NEXT-15661 - Fix Create API for Mapping Definitions](/changelog/release-6-4-5-0/2021-09-22-fix-create-api-for-mappings.md)
 *  [NEXT-15842 - Fix store api proxy error handling](/changelog/release-6-4-5-0/2021-09-22-fix-store-api-proxy-error-handling.md)
+*  [NEXT-17257 - Remove button Use as cover when doing bulk edit](/changelog/release-6-4-5-0/2021-09-22-remove-button-use-as-cover-when-doing-bulk-edit.md)
 *  [NEXT-17308 - Adjusted extension store snippets](/changelog/release-6-4-5-0/2021-09-23-adjusted-extension-store-snippets.md)
+*  [NEXT-17497 - Use isset for null check of typed property](/changelog/release-6-4-5-0/2021-09-23-fix-use-isset-for-null-check-of-typed-property.md) ([Max](https://github.com/aragon999))
 *  [NEXT-16381 - Allow use CancelToken from HttpClient](/changelog/release-6-4-5-0/2021-09-24-next-16381-allow-use-canceltoken-from-httpclient.md)
 
 ## 6.4.4.1

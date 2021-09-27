@@ -24,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
@@ -36,6 +37,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
@@ -50,10 +52,23 @@ class EntityRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
+
+    public function testSetEntityLoadedEventFactory(): void
+    {
+        Feature::skipTestIfActive('FEATURE_NEXT_16155', $this);
+
+        $repository = $this->createRepository(LocaleDefinition::class, false);
+
+        $factory = $this->createMock(EntityLoadedEventFactory::class);
+        $factory->expects(static::once())->method('create')->willReturn($this->createMock(EntityLoadedContainerEvent::class));
+
+        $repository->setEntityLoadedEventFactory(
+            $factory
+        );
+
+        $repository->search(new Criteria(), Context::createDefaultContext());
+    }
 
     public function testWrite(): void
     {
@@ -1210,16 +1225,23 @@ class EntityRepositoryTest extends TestCase
         static::assertCount(2, $multiFilter->getQueries());
     }
 
-    protected function createRepository(string $definition): EntityRepository
-    {
-        return new EntityRepository(
+    protected function createRepository(
+        string $definition,
+        bool $loadWithEventFactory = true
+    ): EntityRepository {
+        $arguments = [
             $this->getContainer()->get($definition),
             $this->getContainer()->get(EntityReaderInterface::class),
             $this->getContainer()->get(VersionManager::class),
             $this->getContainer()->get(EntitySearcherInterface::class),
             $this->getContainer()->get(EntityAggregatorInterface::class),
             $this->getContainer()->get('event_dispatcher'),
-            $this->getContainer()->get(EntityLoadedEventFactory::class)
-        );
+        ];
+
+        if ($loadWithEventFactory) {
+            $arguments[] = $this->getContainer()->get(EntityLoadedEventFactory::class);
+        }
+
+        return new EntityRepository(...$arguments);
     }
 }

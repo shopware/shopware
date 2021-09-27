@@ -1,10 +1,11 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
+import 'src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media-form';
 import 'src/module/sw-product/component/sw-product-media-form';
 import 'src/app/component/base/sw-product-image';
 import 'src/app/component/context-menu/sw-context-menu-item';
-import 'src/app/component/context-menu/sw-context-menu';
 import 'src/app/component/context-menu/sw-context-button';
+import 'src/app/component/context-menu/sw-context-menu';
 import 'src/app/component/utils/sw-popover';
 
 function createWrapper(privileges = []) {
@@ -13,7 +14,7 @@ function createWrapper(privileges = []) {
     localVue.directive('draggable', {});
     localVue.directive('droppable', {});
 
-    return shallowMount(Shopware.Component.build('sw-product-media-form'), {
+    return shallowMount(Shopware.Component.build('sw-bulk-edit-product-media-form'), {
         localVue,
         mocks: {
             $store: new Vuex.Store({
@@ -43,9 +44,9 @@ function createWrapper(privileges = []) {
             'sw-product-image': Shopware.Component.build('sw-product-image'),
             'sw-media-upload-v2': true,
             'sw-media-preview-v2': true,
-            'sw-popover': Shopware.Component.build('sw-popover'),
+            'sw-product-media-form': true,
             'sw-icon': true,
-            'sw-label': true,
+            'sw-popover': Shopware.Component.build('sw-popover'),
             'sw-context-menu': Shopware.Component.build('sw-context-menu'),
             'sw-context-menu-item': Shopware.Component.build('sw-context-menu-item'),
             'sw-context-button': Shopware.Component.build('sw-context-button')
@@ -53,7 +54,7 @@ function createWrapper(privileges = []) {
     });
 }
 
-describe('module/sw-product/component/sw-product-media-form', () => {
+describe('src/module/sw-bulk-edit/component/product/sw-bulk-edit-product-media-form', () => {
     beforeAll(() => {
         const product = {
             cover: {
@@ -114,45 +115,11 @@ describe('module/sw-product/component/sw-product-media-form', () => {
         expect(wrapper.find('sw-media-upload-v2-stub').exists()).toBeFalsy();
     });
 
-    it('should only show 1 cover', async () => {
-        const wrapper = createWrapper([
-            'product.editor'
-        ]);
-
-        let coverCount = 0;
-        wrapper.vm.mediaItems.forEach(mediaItem => {
-            if (wrapper.vm.isCover(mediaItem)) {
-                coverCount += 1;
-            }
-        });
-
-        expect(coverCount).toBe(1);
-    });
-
-    it('should emit an event when onOpenMedia() function is called', () => {
-        const wrapper = createWrapper();
-
-        wrapper.vm.onOpenMedia();
-
-        const pageChangeEvents = wrapper.emitted()['media-open'];
-        expect(pageChangeEvents.length).toBe(1);
-    });
-
-    it('should can show cover when `showCoverLabel` is true', async () => {
+    it('should dont have button Use as cover', async () => {
         const wrapper = createWrapper();
 
         await wrapper.vm.$nextTick();
-        expect(wrapper.find('.is--cover').exists()).toBeTruthy();
-    });
 
-    it('should not show cover when `showCoverLabel` is false', async () => {
-        const wrapper = createWrapper();
-
-        await wrapper.setData({
-            showCoverLabel: false
-        });
-
-        await wrapper.vm.$nextTick();
         expect(wrapper.find('.is--cover').exists()).toBeFalsy();
 
         await wrapper.find('.sw-product-media-form__previews').find('.sw-product-image__context-button').trigger('click');

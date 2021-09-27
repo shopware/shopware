@@ -74,6 +74,40 @@ describe('Category: Create several categories', () => {
         cy.get(`${page.elements.categoryTreeItemInner}:nth-child(1)`).contains('Categorian');
     });
 
+    it('@catalogue: delete additional element after create category', () => {
+        const page = new CategoryPageObject();
+
+        // Request we want to wait for later
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/category`,
+            method: 'POST'
+        }).as('saveData');
+
+        // Add category after root one
+        cy.clickContextMenuItem(
+            `${page.elements.categoryTreeItem}__after-action`,
+            page.elements.contextMenuButton,
+            `${page.elements.categoryTreeItemInner}:nth-of-type(1)`
+        );
+        cy.get(`${page.elements.categoryTreeItemInner}__content input`).type('Categorian');
+        cy.get(`${page.elements.categoryTreeItemInner}__content input`).then(($btn) => {
+            if ($btn) {
+                cy.get('.sw-category-tree__inner .sw-confirm-field__button--submit').click();
+            }
+        });
+
+        // Verify category
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
+        cy.get('.sw-confirm-field__button-list').then((btn) => {
+            if (btn.attr('style').includes('display: none;')) {
+                cy.get('.sw-category-tree__inner .sw-tree-actions__headline').click();
+            } else {
+                cy.get('.sw-category-tree__inner .sw-confirm-field__button--cancel').click();
+            }
+            cy.get(`${page.elements.categoryTreeItemInner}`).should('have.length', 2);
+        });
+    });
+
     it('@base @catalogue: create a subcategory', () => {
         const page = new CategoryPageObject();
 

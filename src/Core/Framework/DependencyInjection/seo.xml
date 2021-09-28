@@ -39,9 +39,9 @@
 
         <service id="Shopware\Core\Content\Seo\SeoUrlGenerator">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="slugify"/>
             <argument type="service" id="router.default"/>
             <argument type="service" id="request_stack"/>
+            <argument type="service" id="shopware.seo_url.twig"/>
         </service>
 
         <service id="Shopware\Core\Content\Seo\SeoUrlPersister">
@@ -151,6 +151,14 @@
             <argument type="service" id="Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder"/>
             <argument type="service" id="category.repository"/>
             <tag name="twig.extension"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Seo\SeoUrlTwigFactory"/>
+
+        <service id="shopware.seo_url.twig" class="Twig\Environment">
+            <factory service="Shopware\Core\Content\Seo\SeoUrlTwigFactory" method="createTwigEnvironment"/>
+            <argument type="service" id="slugify"/>
+            <argument type="tagged" tag="shopware.seo_url.twig.extension"/>
         </service>
     </services>
 </container>

@@ -58,9 +58,9 @@ class SeoUrlGeneratorTest extends TestCase
 
         $this->seoUrlGenerator = new SeoUrlGenerator(
             $this->getContainer()->get(DefinitionInstanceRegistry::class),
-            $this->getContainer()->get('slugify'),
             $this->getContainer()->get('router.default'),
-            $this->getContainer()->get('request_stack')
+            $this->getContainer()->get('request_stack'),
+            $this->getContainer()->get('shopware.seo_url.twig')
         );
 
         $this->seoUrlRouteRegistry = $this->getContainer()->get(SeoUrlRouteRegistry::class);

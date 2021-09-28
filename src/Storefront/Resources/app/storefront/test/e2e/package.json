@@ -20,13 +20,13 @@
     "@shopware-ag/e2e-testsuite-platform": "^3.0.1",
     "cypress": "8.4.1",
     "cypress-multi-reporters": "^1.5.0",
-    "cypress-select-tests": "^1.7.1",
     "mocha": "^7.2.0",
     "mocha-junit-reporter": "^1.23.1",
     "mochawesome": "^6.2.2",
     "uuid": "3.3.3"
   },
   "devDependencies": {
+    "cypress-grep": "^2.5.3",
     "eslint-plugin-chai-friendly": "^0.7.2",
     "mochawesome-merge": "^4.0.0",
     "mochawesome-report-generator": "^4.1.0"

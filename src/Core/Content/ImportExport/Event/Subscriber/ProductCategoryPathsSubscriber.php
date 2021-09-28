@@ -8,7 +8,7 @@ use Shopware\Core\Content\ImportExport\Exception\ProcessingException;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Api\Sync\SyncBehavior;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
-use Shopware\Core\Framework\Api\Sync\SyncService;
+use Shopware\Core\Framework\Api\Sync\SyncServiceInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -21,11 +21,11 @@ class ProductCategoryPathsSubscriber implements EventSubscriberInterface
 {
     private EntityRepositoryInterface $categoryRepository;
 
-    private SyncService $syncService;
+    private SyncServiceInterface $syncService;
 
     private array $categoryIdCache = [];
 
-    public function __construct(EntityRepositoryInterface $categoryRepository, SyncService $syncService)
+    public function __construct(EntityRepositoryInterface $categoryRepository, SyncServiceInterface $syncService)
     {
         $this->categoryRepository = $categoryRepository;
         $this->syncService = $syncService;

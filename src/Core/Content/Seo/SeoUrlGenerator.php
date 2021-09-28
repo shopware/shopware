@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Content\Seo;
 
-use Cocur\Slugify\Bridge\Twig\SlugifyExtension;
-use Cocur\Slugify\SlugifyInterface;
 use Shopware\Core\Content\Seo\Exception\InvalidTemplateException;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlMapping;
@@ -20,7 +18,6 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
 use Twig\Environment;
 use Twig\Error\SyntaxError;
-use Twig\Extension\EscaperExtension;
 use Twig\Loader\ArrayLoader;
 
 class SeoUrlGenerator
@@ -37,16 +34,17 @@ class SeoUrlGenerator
 
     public function __construct(
         DefinitionInstanceRegistry $definitionRegistry,
-        SlugifyInterface $slugify,
         RouterInterface $router,
-        RequestStack $requestStack
+        RequestStack $requestStack,
+        Environment $environment
     ) {
         $this->definitionRegistry = $definitionRegistry;
 
         $this->router = $router;
 
-        $this->initTwig($slugify);
         $this->requestStack = $requestStack;
+
+        $this->twig = $environment;
     }
 
     public function generate(array $ids, string $template, SeoUrlRouteInterface $route, Context $context, ?SalesChannelEntity $salesChannel): iterable
@@ -72,24 +70,9 @@ class SeoUrlGenerator
         }
     }
 
-    private function initTwig(SlugifyInterface $slugify): void
-    {
-        $this->twig = new Environment(new ArrayLoader());
-        $this->twig->setCache(false);
-        $this->twig->enableStrictVariables();
-        $this->twig->addExtension(new SlugifyExtension($slugify));
-
-        /** @var EscaperExtension $coreExtension */
-        $coreExtension = $this->twig->getExtension(EscaperExtension::class);
-        $coreExtension->setEscaper(
-            self::ESCAPE_SLUGIFY,
-            // Do not remove $_twig, although it is marked as unused. It somehow important
-            static function ($_twig, $string) use ($slugify) {
-                return rawurlencode($slugify->slugify($string));
-            }
-        );
-    }
-
+    /**
+     * @internal (flag:FEATURE_NEXT_13410) Parameter $salesChannel will be required
+     */
     private function generateUrls(SeoUrlRouteInterface $seoUrlRoute, SeoUrlRouteConfig $config, ?SalesChannelEntity $salesChannel, EntityCollection $entities): iterable
     {
         $request = $this->requestStack->getMainRequest();

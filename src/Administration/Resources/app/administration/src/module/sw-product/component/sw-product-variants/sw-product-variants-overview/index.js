@@ -171,8 +171,7 @@ Component.register('sw-product-variants-overview', {
                 // check for other sort values
                 if (this.sortBy === 'name') {
                     searchCriteria
-                        .addSorting(Criteria.sort('product.options.groupId', this.sortDirection))
-                        .addSorting(Criteria.sort('product.options.id', this.sortDirection));
+                        .addSorting(Criteria.sort('product.options.name', this.sortDirection));
                 } else {
                     searchCriteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
                 }

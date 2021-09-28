@@ -6,15 +6,18 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPrice;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Product\Subscriber\ProductSubscriber;
+use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
@@ -969,6 +972,134 @@ class ProductLoadedSubscriberTest extends TestCase
                 [Defaults::LANGUAGE_SYSTEM],
                 (new Criteria())->addAssociation('options.group'),
                 false,
+                $language,
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider optionCases
+     */
+    public function testOptionSorting(array $product, $expected, Criteria $criteria, array $language): void
+    {
+        $this->getContainer()
+            ->get('language.repository')
+            ->create([$language], Context::createDefaultContext());
+
+        $productId = $product['id'];
+        $context = Context::createDefaultContext();
+
+        $this->getContainer()->get('product.repository')
+            ->create([$product], $context);
+
+        $context = new Context(
+            new SystemSource(),
+            [],
+            Defaults::CURRENCY,
+            [Defaults::LANGUAGE_SYSTEM]
+        );
+
+        $criteria->setIds([$productId]);
+
+        /** @var ProductEntity $productEntity */
+        $productEntity = $this->getContainer()
+            ->get('product.repository')
+            ->search($criteria, $context)
+            ->first();
+
+        $options = $productEntity->getOptions();
+        $names = $options->map(function (PropertyGroupOptionEntity $option) {
+            return [
+                'name' => $option->getName(),
+            ];
+        });
+
+        static::assertEquals($expected, array_values($names));
+    }
+
+    public function optionCases(): array
+    {
+        $ids = new TestDataCollection();
+
+        $defaults = [
+            'id' => $ids->get('product'),
+            'name' => 'test-product',
+            'productNumber' => $ids->get('product'),
+            'stock' => 10,
+            'price' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
+            ],
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+        ];
+
+        $language = [
+            'id' => $ids->create('language'),
+            'name' => 'sub_en',
+            'parentId' => Defaults::LANGUAGE_SYSTEM,
+            'localeId' => $this->getLocaleIdOfSystemLanguage(),
+        ];
+
+        $optionsAscCriteria = (new Criteria())->addAssociation('options.group');
+        $optionsAscCriteria->getAssociation('options')->addSorting(new FieldSorting('name', 'ASC'));
+
+        $optionsDescCriteria = (new Criteria())->addAssociation('options.group');
+        $optionsDescCriteria->getAssociation('options')->addSorting(new FieldSorting('name', 'DESC'));
+
+        return [
+            1 => [
+                array_merge($defaults, [
+                    'options' => [
+                        [
+                            'id' => $ids->get('red'),
+                            'name' => 'red',
+                            'group' => ['id' => $ids->get('color'), 'name' => 'color'],
+                        ],
+                        [
+                            'id' => $ids->get('xl'),
+                            'name' => 'xl',
+                            'group' => ['id' => $ids->get('size'), 'name' => 'size'],
+                        ],
+                        [
+                            'id' => $ids->get('slim-fit'),
+                            'name' => 'slim fit',
+                            'group' => ['id' => $ids->get('fit'), 'name' => 'fit'],
+                        ],
+                    ],
+                ]),
+                [
+                    ['name' => 'red'],
+                    ['name' => 'slim fit'],
+                    ['name' => 'xl'],
+                ],
+                $optionsAscCriteria,
+                $language,
+            ],
+            2 => [
+                array_merge($defaults, [
+                    'options' => [
+                        [
+                            'id' => $ids->get('red'),
+                            'name' => 'red',
+                            'group' => ['id' => $ids->get('color'), 'name' => 'color'],
+                        ],
+                        [
+                            'id' => $ids->get('xl'),
+                            'name' => 'xl',
+                            'group' => ['id' => $ids->get('size'), 'name' => 'size'],
+                        ],
+                        [
+                            'id' => $ids->get('slim-fit'),
+                            'name' => 'slim fit',
+                            'group' => ['id' => $ids->get('fit'), 'name' => 'fit'],
+                        ],
+                    ],
+                ]),
+                [
+                    ['name' => 'xl'],
+                    ['name' => 'slim fit'],
+                    ['name' => 'red'],
+                ],
+                $optionsDescCriteria,
                 $language,
             ],
         ];

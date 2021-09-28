@@ -304,7 +304,11 @@
         ]
     },
     "conflict": {
-        "symfony/symfony": "*"
+        "symfony/symfony": "*",
+        "symfony/translation": "v5.3.8",
+        "symfony/mailer": "v5.3.8",
+        "symfony/notifier": "v5.3.8",
+        "symfony/messenger": "v5.3.8"
     },
     "autoload": {
         "psr-4": {

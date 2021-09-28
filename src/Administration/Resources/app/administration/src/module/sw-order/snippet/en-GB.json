@@ -85,7 +85,7 @@
         "labelShippingMethod": "Shipping method",
         "labelOrderLanguage": "Order language",
         "labelCurrency": "Currency",
-        "placeholderSalesChannel": "Select Sales Channel...",
+        "placeholderSalesChannel": "Select Sales Channels...",
         "placeholderPaymentMethod": "Select payment method...",
         "placeholderShippingMethod": "Select shipping method...",
         "placeholderOrderLanguage": "Select order language...",

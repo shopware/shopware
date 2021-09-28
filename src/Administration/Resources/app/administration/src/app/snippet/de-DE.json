@@ -487,11 +487,11 @@
       "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden."
     },
     "sw-multi-tag-select": {
-      "enterValidData": "Bitte gib einen gültigen Wert ein",
+      "enterValidData": "Gültigen Wert eingeben ...",
       "addData": "Eintrag hinzufügen"
     },
     "sw-multi-tag-ip-select": {
-      "enterValidIp": "Bitte gib eine gültige IPv4- oder IPv6-Adresse ein",
+      "enterValidIp": "Gültige IPv4- oder IPv6-Adresse eingeben ...",
       "addIpAddress": "IP-Adresse hinzufügen",
       "knownIps": {
         "you": "Du"
@@ -848,8 +848,8 @@
     },
     "sw-bulk-edit-modal": {
       "bulkEdit": "Mehrfachänderung",
-      "startBulkEdit": "Beginne die Mehrfachänderung",
-      "bulkEditModalTitle": "Mehrfachänderung - {count} Element ausgewählt | Mehrfachänderung - {count} Elemente ausgewählt"
+      "startBulkEdit": "Mehrfachänderung starten",
+      "bulkEditModalTitle": "Mehrfachänderung - {count} Elemente ausgewählt | Mehrfachänderung - {count} Elemente ausgewählt"
     }
   },
   "sw-text-editor-toolbar": {

@@ -487,7 +487,7 @@
       "messageNoResults": "No results found for \"{term}\"."
     },
     "sw-multi-tag-select": {
-      "enterValidData": "Please enter a valid value",
+      "enterValidData": "Enter a valid value...",
       "addData": "Add new entry"
     },
     "sw-multi-tag-ip-select": {
@@ -849,7 +849,7 @@
     "sw-bulk-edit-modal": {
       "bulkEdit": "Bulk edit",
       "startBulkEdit": "Start bulk edit",
-      "bulkEditModalTitle": "Bulk edit - {count} item selected | Bulk edit - {count} items selected"
+      "bulkEditModalTitle": "Bulk edit - {count} items selected | Bulk edit - {count} items selected"
     }
   },
   "sw-text-editor-toolbar": {

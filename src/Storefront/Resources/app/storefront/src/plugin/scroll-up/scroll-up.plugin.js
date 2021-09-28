@@ -39,12 +39,10 @@ export default class ScrollUpPlugin extends Plugin {
      * @private
      */
     _registerEvents() {
-        const submitEvent = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
-
         if (this._button) {
             this._toggleVisibility();
 
-            this._button.addEventListener(submitEvent, () => {
+            this._button.addEventListener('click', () => {
                 this._scrollToTop();
 
                 this.$emitter.publish('onClickButton');

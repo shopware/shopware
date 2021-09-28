@@ -9,7 +9,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductCo
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Api\Sync\SyncBehavior;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
-use Shopware\Core\Framework\Api\Sync\SyncService;
+use Shopware\Core\Framework\Api\Sync\SyncServiceInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
@@ -21,7 +21,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class ProductVariantsSubscriber implements EventSubscriberInterface
 {
-    private SyncService $syncService;
+    private SyncServiceInterface $syncService;
 
     private Connection $connection;
 
@@ -34,7 +34,7 @@ class ProductVariantsSubscriber implements EventSubscriberInterface
     private array $optionIdCache = [];
 
     public function __construct(
-        SyncService $syncService,
+        SyncServiceInterface $syncService,
         Connection $connection,
         EntityRepositoryInterface $groupRepository,
         EntityRepositoryInterface $optionRepository

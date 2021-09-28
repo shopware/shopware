@@ -77,6 +77,7 @@ Module.register('sw-sales-channel', {
                         privilege: 'sales_channel.viewer',
                     },
                 },
+                // fixed for enduser, will be removed with NEXT-17563
                 theme: {
                     component: 'sw-sales-channel-detail-theme',
                     path: 'theme',

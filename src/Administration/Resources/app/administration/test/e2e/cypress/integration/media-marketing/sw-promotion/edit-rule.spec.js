@@ -39,10 +39,6 @@ describe('Promotion: Test promotion with preconditional rules', () => {
             url: `**/${Cypress.env('apiPath')}/promotion`,
             method: 'POST'
         }).as('saveData');
-        cy.intercept({
-            url: `**/${Cypress.env('apiPath')}/search/promotion/**/discounts`,
-            method: 'POST'
-        }).as('saveDiscount');
 
         // Active code in promotion
         cy.contains(`${page.elements.dataGridRow}--0 a`, 'Thunder Tuesday').click();
@@ -79,6 +75,11 @@ describe('Promotion: Test promotion with preconditional rules', () => {
         cy.get('.sw-promotion-discount-component__discount-value input')
             .clear()
             .type('54');
+
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/_action/sync`,
+            method: 'POST'
+        }).as('saveDiscount');
 
         // Save final promotion
         cy.get('.sw-promotion-detail__save-action').click();

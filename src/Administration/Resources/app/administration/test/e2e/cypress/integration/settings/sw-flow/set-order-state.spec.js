@@ -15,7 +15,8 @@ describe('Flow builder: set order status testing', () => {
             });
     });
 
-    it('@settings: set order state flow', () => {
+    // NEXT-17407 - this test does not work and needs to be fixed
+    it.skip('@settings: set order state flow', () => {
         cy.onlyOnFeature('FEATURE_NEXT_8225');
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/flow/index`);

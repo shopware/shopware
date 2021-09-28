@@ -41,7 +41,7 @@ describe('Promotion: Test promotion with individual codes', () => {
         }).as('saveData');
 
         cy.intercept({
-            url: `**/${Cypress.env('apiPath')}/search/promotion/**/discounts`,
+            url: `**/${Cypress.env('apiPath')}/_action/sync`,
             method: 'POST'
         }).as('saveDiscount');
 
@@ -65,7 +65,6 @@ describe('Promotion: Test promotion with individual codes', () => {
             .click();
 
         cy.wait('@filteredResultCall').its('response.statusCode').should('equal', 200);
-        cy.get('.sw-promotion-individualcodes__progress-bar .sw-label__caption').contains('10 / 10');
         cy.awaitAndCheckNotification('Generated 10 new codes.');
 
         cy.get('.sw-modal__close').click();

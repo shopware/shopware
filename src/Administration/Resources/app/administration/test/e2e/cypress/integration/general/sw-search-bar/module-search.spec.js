@@ -33,7 +33,7 @@ describe('Search bar: Check search module with short keyword', () => {
             .should('be.visible')
             .contains('Products');
 
-        cy.get('.sw-search-bar-item')
+        cy.get('.sw-search-bar-item__link[href="#/sw/product/create"]')
             .should('be.visible')
             .contains('Add new product')
             .click();
@@ -91,7 +91,7 @@ describe('Search bar: Check search module with short keyword', () => {
             .should('be.visible')
             .contains('Customers');
 
-        cy.get('.sw-search-bar-item')
+        cy.get('.sw-search-bar-item__link[href="#/sw/customer/create"]')
             .should('be.visible')
             .contains('Add new customer')
             .click();
@@ -173,9 +173,9 @@ describe('Search bar: Check search module with short keyword', () => {
 
         // Upload image in folder
         cy.get(page.elements.smartBarHeader).contains('A thing to fold about');
-        page.uploadImageUsingFileUpload('img/sw-login-background.png', 'sw-media-background.png');
+        page.uploadImageUsingFileUpload('img/sw-login-background.png');
 
-        cy.get('.sw-media-base-item__name[title="sw-media-background.png"]').should('be.visible');
+        cy.get('.sw-media-base-item__name[title="sw-login-background.png"]').should('be.visible');
 
         cy.visit(`${Cypress.env('admin')}#/sw/dashboard/index`);
 

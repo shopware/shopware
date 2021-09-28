@@ -208,6 +208,6 @@ describe('Flow builder: Test acl privilege', () => {
         });
 
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
-            .contains('Order placed').should('not.visible');
+            .contains('Order placed').should('not.exist');
     });
 });

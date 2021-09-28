@@ -22,15 +22,14 @@ describe('Flow builder: Create mail template for send mail action testing', () =
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/flow/index`);
 
         const page = new SettingsPageObject();
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/flow`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/mail-template`,
-            method: 'post'
+            method: 'POST'
         }).as('getMailTemplate');
 
         cy.get('.sw-flow-list').should('be.visible');
@@ -57,10 +56,9 @@ describe('Flow builder: Create mail template for send mail action testing', () =
 
         cy.get('.sw-flow-mail-send-modal__mail-template-select').click();
 
-        cy.wait('@getMailTemplate').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-            cy.get('.sw-select-result__create-new-template').click();
-        });
+        cy.wait('@getMailTemplate').its('response.statusCode').should('equal', 200);
+
+        cy.get('.sw-select-result__create-new-template').click();
 
         cy.get('.sw-flow-create-mail-template-modal').should('be.visible');
         cy.get('.sw-flow-create-mail-template-modal__type')
@@ -86,15 +84,23 @@ describe('Flow builder: Create mail template for send mail action testing', () =
 
         // Save
         cy.get('.sw-flow-detail__save').click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.visit(`${Cypress.env('admin')}#/sw/mail/template/index`);
+        cy.get('.sw-empty-state').should('not.exist');
+        cy.get('.sw-data-grid-skeleton').should('not.exist');
+
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/search/mail-template`,
+            method: 'POST'
+        }).as('getMailTemplateAfterSearch');
+
         cy.get('input.sw-search-bar__input').type('Contact form successful feedback description');
         cy.get('.sw-data-grid-skeleton').should('not.exist');
 
-        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).should('be.visible')
+        cy.wait('@getMailTemplateAfterSearch').its('response.statusCode').should('equal', 200);
+
+        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--mailTemplateType-name`).should('be.visible')
             .contains('Contact form');
 
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--description`).should('be.visible')

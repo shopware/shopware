@@ -41,7 +41,7 @@ describe('Promotion: Test promotion with codes', () => {
         }).as('saveData');
 
         cy.intercept({
-            url: `${Cypress.env('apiPath')}/search/promotion/**/discounts`,
+            url: `${Cypress.env('apiPath')}/_action/sync`,
             method: 'POST'
         }).as('saveDiscount');
 
@@ -96,7 +96,7 @@ describe('Promotion: Test promotion with codes', () => {
         }).as('saveData');
 
         cy.intercept({
-            url: `${Cypress.env('apiPath')}/search/promotion/**/discounts`,
+            url: `${Cypress.env('apiPath')}/_action/sync`,
             method: 'POST'
         }).as('saveDiscount');
 

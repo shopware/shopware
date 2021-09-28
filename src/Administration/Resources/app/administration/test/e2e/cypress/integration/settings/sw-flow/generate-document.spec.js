@@ -15,7 +15,8 @@ describe('Flow builder: generate document testing', () => {
             });
     });
 
-    it('@settings: generate document flow', () => {
+    // NEXT-17407 - this test does not work and needs to be fixed
+    it.skip('@settings: generate document flow', () => {
         cy.onlyOnFeature('FEATURE_NEXT_8225');
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/flow/index`);

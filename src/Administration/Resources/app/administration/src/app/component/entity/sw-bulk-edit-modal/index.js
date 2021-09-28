@@ -6,6 +6,8 @@ const { Component } = Shopware;
 Component.register('sw-bulk-edit-modal', {
     template,
 
+    inject: ['feature'],
+
     props: {
         selection: {
             type: Object,
@@ -19,7 +21,7 @@ Component.register('sw-bulk-edit-modal', {
             type: Array,
             required: false,
             default() {
-                return [10, 25, 50, 75, 100];
+                return this.feature.isActive('FEATURE_NEXT_17261') ? [200, 300, 400, 500] : [10, 25, 50, 75, 100];
             },
         },
 
@@ -33,7 +35,7 @@ Component.register('sw-bulk-edit-modal', {
         return {
             records: [],
             bulkEditSelection: this.selection,
-            limit: 10,
+            limit: this.feature.isActive('FEATURE_NEXT_17261') ? 200 : 10,
             page: 1,
             identifier: 'sw-bulk-edit-grid',
         };

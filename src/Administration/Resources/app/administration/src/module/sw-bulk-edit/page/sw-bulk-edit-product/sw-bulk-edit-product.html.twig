@@ -31,7 +31,11 @@
             :disabled="isLoading || !hasSelectedChanges"
             @click="openModal"
         >
-            {{ $tc('sw-settings-basic-information.general.buttonSave') }}
+            {{
+                feature.isActive('FEATURE_NEXT_17261')
+                    ? $tc('sw-bulk-edit.applyChanges')
+                    : $tc('sw-settings-basic-information.general.buttonSave')
+            }}
         </sw-button-process>
         {% endblock %}
     </template>

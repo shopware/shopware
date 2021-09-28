@@ -266,6 +266,7 @@
         "changeLabel": "Ändern: Tags",
         "placeholder": "Tags eingeben ..."
       }
-    }
+    },
+    "applyChanges": "Änderungen übernehmen"
   }
 }

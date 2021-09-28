@@ -1,13 +1,9 @@
 ---
 title: Bugfix: show all orders in storefront history
+issue: NEXT-17607
 author: Marcel Tams
 author_email: marcel.tams@networkteam.com 
 author_github: amtee
 ---
 # Core
-* In method `load` in file `src/Core/Checkout/Order/SalesChannel/OrderRoute.php`  there
-was a misleading condition. Any `$deepLinkFilter` but false led to removing `orders` with last updated 
-  or created older than 30 days the latest order.
-  
-  
-
+* Changed method `Shopware\Core\Checkout\Order\SalesChannel\OrderRoute::load()` due to a misleading condition that resulted in the removal of orders updated or created more than 30 days ago from the latest order.

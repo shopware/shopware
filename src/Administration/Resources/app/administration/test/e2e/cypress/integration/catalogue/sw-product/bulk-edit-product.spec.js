@@ -130,7 +130,7 @@ describe('Product: Test bulk edit product', () => {
         cy.wait('@saveData').its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-bulk-edit-save-modal').should('exist');
-        cy.get('.sw-bulk-edit-save-modal').contains('Bulk edit - Finished');
+        cy.get('.sw-bulk-edit-save-modal').contains('Bulk edit - Success');
         cy.get('.footer-right .sw-button--primary').contains('Close');
         cy.get('.footer-right .sw-button--primary').click();
 

@@ -53,7 +53,7 @@
           "city": "City",
           "street": "Street",
           "company": "Company",
-          "zipcode": "Zip code",
+          "zipcode": "Postal code",
           "lastName": "Last name",
           "firstName": "First name",
           "phoneNumber": "Phone number",
@@ -75,7 +75,7 @@
           "customerNumber": "Customer number",
           "city": "City",
           "street": "Street",
-          "zipcode": "Zip code",
+          "zipcode": "Postal code",
           "phoneNumber": "Phone number",
           "additionalAddressLine1": "Additional address line 1",
           "additionalAddressLine2": "Additional address line 2"

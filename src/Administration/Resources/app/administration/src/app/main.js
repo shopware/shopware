@@ -36,6 +36,7 @@ import MediaDefaultFolderService from 'src/app/service/media-default-folder.serv
 import AppAclService from 'src/app/service/app-acl.service';
 import ShopwareDiscountCampaignService from 'src/app/service/discount-campaign.service';
 import SearchRankingService from 'src/app/service/search-ranking.service';
+import SearchPreferencesService from 'src/app/service/search-preferences.service';
 
 /** Import Feature */
 import Feature from 'src/core/feature';
@@ -167,4 +168,9 @@ Application
     })
     .addServiceProvider('searchRankingService', () => {
         return new SearchRankingService();
+    })
+    .addServiceProvider('searchPreferencesService', () => {
+        return new SearchPreferencesService({
+            userConfigRepository: Shopware.Service('repositoryFactory').create('user_config'),
+        });
     });

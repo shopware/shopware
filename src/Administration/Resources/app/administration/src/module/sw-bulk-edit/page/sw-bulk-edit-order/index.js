@@ -21,6 +21,7 @@ Component.register('sw-bulk-edit-order', {
     data() {
         return {
             isLoading: false,
+            isLoadedData: false,
             bulkEditData: {},
             isStatusSelected: false,
             isStatusMailsSelected: false,
@@ -192,6 +193,7 @@ Component.register('sw-bulk-edit-order', {
             ]);
 
             this.isLoading = false;
+            this.isLoadedData = true;
 
             this.loadBulkEditData();
         },

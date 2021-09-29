@@ -321,8 +321,12 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
     });
 
     it('should be show empty state', async () => {
-        Shopware.State.commit('shopwareApps/setSelectedIds', []);
         wrapper = createWrapper();
+
+        Shopware.State.commit('shopwareApps/setSelectedIds', []);
+        await wrapper.setData({
+            isLoading: false
+        });
 
         const emptyState = wrapper.find('.sw-empty-state');
         expect(emptyState.find('.sw-empty-state__title').text()).toBe('sw-bulk-edit.order.messageEmptyTitle');

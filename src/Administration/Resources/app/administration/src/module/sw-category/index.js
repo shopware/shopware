@@ -60,7 +60,7 @@ Module.register('sw-category', {
                 name: manifest.name,
                 icon: manifest.icon,
                 color: manifest.color,
-                route: { name: 'sw.category.landingPageDetail', params: { id: 'create' } },
+                route: { ...manifest.routes.landingPageDetail, params: { id: 'create' } },
                 entity: 'landing_page',
                 privilege: manifest.routes.landingPageDetail?.meta.privilege,
                 action: true,

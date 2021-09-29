@@ -142,6 +142,8 @@ Component.register('sw-search-bar', {
                 modules.push(module);
             });
 
+            modules.sort((a, b) => a.manifest.name?.localeCompare(b.manifest.name));
+
             return modules;
         },
 
@@ -738,7 +740,7 @@ Component.register('sw-search-bar', {
             });
         },
 
-        getModuleEntities(searchTerm) {
+        getModuleEntities(searchTerm, limit = 5) {
             const minSearch = 3;
             const regex = new RegExp(`^${searchTerm.toLowerCase()}(.*)`);
 
@@ -746,7 +748,7 @@ Component.register('sw-search-bar', {
                 return [];
             }
 
-            const moduleEntities = [...this.getSalesChannelsBySearchTerm(regex)];
+            const moduleEntities = [];
 
             this.searchableModules.forEach((module) => {
                 const matcher = typeof module.manifest.searchMatcher === 'function'
@@ -771,7 +773,9 @@ Component.register('sw-search-bar', {
                 );
             });
 
-            return moduleEntities;
+            moduleEntities.push(...this.getSalesChannelsBySearchTerm(regex));
+
+            return moduleEntities.slice(0, limit);
         },
 
         getDefaultMatchSearchableModules(regex, label, manifest) {

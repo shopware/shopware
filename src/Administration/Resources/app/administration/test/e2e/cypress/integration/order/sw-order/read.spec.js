@@ -56,9 +56,9 @@ describe('Order: Read order', () => {
             cy.get('.sw-order-delivery-metadata .sw-address__location').contains('Bielefeld');
         });
 
-        cy.get('.sw-order-detail-base__line-item-grid-card').scrollIntoView();
-
         cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get('.sw-order-detail-base__line-item-grid-card').scrollIntoView();
+
             cy.clickContextMenuItem(
                 '.sw-context-menu__content',
                 page.elements.contextMenuButton,
@@ -67,10 +67,13 @@ describe('Order: Read order', () => {
         });
 
         cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get('.sw-order-detail-general__line-item-grid-card').scrollIntoView();
+
             cy.clickContextMenuItem(
                 '.sw-context-menu__content',
                 page.elements.contextMenuButton,
-                '.sw-order-detail-base__line-item-grid-card'
+                '.sw-order-detail-general__line-item-grid-card',
+                'Show product'
             );
         });
         cy.get(page.elements.smartBarHeader).contains('Product name');

@@ -6,26 +6,24 @@
     }
 
     .sw-order-detail__summary {
-        grid-template-areas: 'empty summary';
-    }
-
-    .sw-order-detail__summary-data {
-        grid-area: summary;
-        font-size: 15px;
+        float: right;
+        padding-right: 38px;
         display: grid;
 
         dt,
         dd {
-            line-height: 49px;
+            line-height: 40px;
             border-bottom: 1px solid $color-gray-300;
             color: $color-darkgray-200;
+            font-size: $font-size-small;
             font-weight: normal;
             text-align: right;
             padding: 0;
         }
 
         dd {
-            padding-right: 60px;
+            width: 160px;
+            padding-right: 40px;
 
             .sw-order-saveable-field {
                 transform: translateY(-50%);

@@ -252,24 +252,40 @@ describe('Order: Read order', () => {
         assertPriceBreakdownContains(/^\s*Total including VAT\s*$/, /^\s*-€[0-9,]+.[0-9]{2}\s*$/);
     });
 
-    it('@base @order: can delete items', () => {
+    it('@base @order: can delete multiple items', () => {
         const page = new OrderPageObject();
 
         navigateToOrder(page);
 
-        cy.get('.sw-order-detail-base__line-item-grid-card').scrollIntoView();
-        cy.get('.sw-order-detail-base__line-item-grid-card').within(() => {
-            // assert that one row exists
-            cy.get('.sw-data-grid__body').children().should('have.length', 1);
+        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get('.sw-order-detail-general__line-item-grid-card').scrollIntoView().within(() => {
+                // assert that one row exists
+                cy.get('.sw-data-grid__body').children().should('have.length', 1);
 
-            // delete the only item
-            cy.get('.sw-data-grid__select-all').click();
-            cy.get('.sw-data-grid__bulk').within(() => {
-                cy.get('.link').click();
+                // delete the only item
+                cy.get('.sw-data-grid__select-all').click();
+                cy.get('.sw-data-grid__bulk').within(() => {
+                    cy.get('.link').click();
+                });
+
+                cy.wait('@deleteLineItemCall').its('response.statusCode').should('equal', 204);
             });
-
-            cy.wait('@deleteLineItemCall').its('response.statusCode').should('equal', 204);
         });
+
+        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get('.sw-order-detail-base__line-item-grid-card').scrollIntoView().within(() => {
+                // assert that one row exists
+                cy.get('.sw-data-grid__body').children().should('have.length', 1);
+
+                // delete the only item
+                cy.get('.sw-data-grid__select-all').click();
+                cy.get('.sw-data-grid__bulk').within(() => {
+                    cy.get('.link').click();
+                });
+
+                cy.wait('@deleteLineItemCall').its('response.statusCode').should('equal', 204);
+            });
+        })
 
         // click save
         cy.get('.sw-order-detail__smart-bar-save-button').click();
@@ -277,9 +293,41 @@ describe('Order: Read order', () => {
         cy.wait('@orderSaveCall').its('response.statusCode').should('equal', 204);
 
         // assert that the item is still gone after saving
-        cy.get('.sw-order-detail-base__line-item-grid-card').within(() => {
-            cy.get('.sw-data-grid__body').children().should('have.length', 0);
+        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get('.sw-order-detail-general__line-item-grid-card .sw-data-grid__body').children().should('have.length', 0);
         });
+        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get('.sw-order-detail-base__line-item-grid-card .sw-data-grid__body').children().should('have.length', 0);
+        });
+    });
+
+    it('@base @order: can delete single item', () => {
+        cy.onlyOnFeature('FEATURE_NEXT_7530');
+
+        const page = new OrderPageObject();
+
+        navigateToOrder(page);
+
+        cy.get('.sw-order-detail-general__line-item-grid-card').scrollIntoView();
+        cy.get('.sw-order-detail-general__line-item-grid-card .sw-data-grid__body').children().should('have.length', 1);
+
+        // delete the only item
+        cy.clickContextMenuItem(
+            '.sw-context-menu__content',
+            page.elements.contextMenuButton,
+            '.sw-order-detail-general__line-item-grid-card',
+            'Remove from order'
+        );
+
+        cy.wait('@deleteLineItemCall').its('response.statusCode').should('equal', 204);
+
+        // click save
+        cy.get('.sw-order-detail__smart-bar-save-button').click();
+
+        cy.wait('@orderSaveCall').its('response.statusCode').should('equal', 204);
+
+        // assert that the item is still gone after saving
+        cy.get('.sw-order-detail-general__line-item-grid-card .sw-data-grid__body').children().should('have.length', 0);
     });
 
     it('@base @order: can edit existing line items', () => {

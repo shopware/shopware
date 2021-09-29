@@ -219,14 +219,15 @@ describe('src/module/sw-order/component/sw-order-nested-line-items-modal', () =>
         dataProvider.forEach((data, index) => {
             const currentRow = content.at(index);
 
-            const currentLabel = currentRow.find('.sw-order-nested-line-items-row__nesting-container');
+            const currentNestingLevels = currentRow.findAll('.sw-order-nested-line-items-row__nesting-level');
+            const currentLabel = currentRow.find('.sw-order-nested-line-items-row__label-content');
             const currentUnitPrice = currentRow.find('.sw-order-nested-line-items-row__unit-price');
             const currentQuantity = currentRow.find('.sw-order-nested-line-items-row__quantity');
             const currentTotalPrice = currentRow.find('.sw-order-nested-line-items-row__total-price');
             const currentTax = currentRow.find('.sw-order-nested-line-items-row__tax');
 
+            expect(currentNestingLevels).toHaveLength(data.nestingLevel - 1);
             expect(currentLabel.text()).toContain(data.label);
-            expect(currentLabel.classes()).toContain(`nesting-level-${data.nestingLevel}`);
             expect(currentUnitPrice.text()).toContain(data.unitPrice);
             expect(currentQuantity.text()).toContain(data.quantity);
             expect(currentTotalPrice.text()).toContain(data.totalPrice);

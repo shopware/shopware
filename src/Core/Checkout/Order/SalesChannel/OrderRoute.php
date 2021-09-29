@@ -113,7 +113,8 @@ class OrderRoute extends AbstractOrderRoute
 
         $orders = $this->orderRepository->search($criteria, $context->getContext());
 
-        if ($deepLinkFilter !== false) {
+        // remove old orders only if there is a deeplink filter
+        if ($deepLinkFilter !== null) {
             $orders = $this->filterOldOrders($orders);
         }
 

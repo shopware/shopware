@@ -5,6 +5,19 @@
         padding-top: 0;
     }
 
+    &__indexers-entry {
+        padding: 4px 8px;
+        border-radius: $border-radius-default;
+
+        &:hover {
+            background-color: lighten($color-shopware-brand-500, 40%);
+        }
+
+        &.sw-field--checkbox {
+            margin-bottom: 8px;
+        }
+    }
+
     .sw-card-section {
         padding: 30px 0;
 
@@ -30,6 +43,7 @@
     list-style: none;
     font-size: 14px;
     padding-top: 8px;
+    margin: 0 12px;
 
     & > li {
         & > ul {

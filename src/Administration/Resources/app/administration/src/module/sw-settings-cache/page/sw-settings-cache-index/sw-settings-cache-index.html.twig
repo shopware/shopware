@@ -219,6 +219,7 @@
                                             :key="indexer"
                                         >
                                             <sw-checkbox-field
+                                                class="sw-settings-cache__indexers-entry"
                                                 :value="skip.includes(indexer)"
                                                 :label="indexer"
                                                 size="small"
@@ -230,6 +231,7 @@
                                                     :key="index"
                                                 >
                                                     <sw-checkbox-field
+                                                        class="sw-settings-cache__indexers-entry"
                                                         :value="skip.includes(updater) || skip.includes(indexer)"
                                                         :label="updater"
                                                         size="small"

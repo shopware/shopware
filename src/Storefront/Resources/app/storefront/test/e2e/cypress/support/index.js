@@ -24,6 +24,10 @@ require('./service/fixture/product-wishlist.fixture');
 // Custom storefront commands
 require('./commands/commands');
 
+// load and register the grep feature
+// https://github.com/bahmutov/cypress-grep
+require('cypress-grep')()
+
 beforeEach(() => {
     return cy.log('Cleaning, please wait a little bit.').then(() => {
         return cy.cleanUpPreviousState();

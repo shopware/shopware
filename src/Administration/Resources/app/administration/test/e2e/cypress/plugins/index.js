@@ -15,8 +15,6 @@
 
 require('@babel/register');
 
-const selectTestsWithGrep = require('cypress-select-tests/grep');
-
 // TODO Check incompatibility and reintegrate as soon as possible
 // const logToOutput = require('cypress-log-to-output');
 
@@ -24,6 +22,9 @@ module.exports = (on, config) => {
     // logToOutput.install(on);
 
     // `on` is used to hook into various events Cypress emits
+
+    // register cypress-grep plugin code
+    require('cypress-grep/src/plugin')(config)
 
     // TODO: Workaround to cypress issue #6540, remove as soon as it's fixed
     on('before:browser:launch', (browser, launchOptions) => {
@@ -33,9 +34,6 @@ module.exports = (on, config) => {
             return launchOptions;
         }
     });
-
-    // `config` is the resolved Cypress config
-    on('file:preprocessor', selectTestsWithGrep(config));
 
     on('before:browser:launch', () => {
         config.env.projectRoot = config.env.projectRoot || config.env.shopwareRoot;

@@ -255,6 +255,10 @@ Component.register('sw-flow-sequence-condition', {
         },
 
         toggleAddButton() {
+            if (this.sequence.ruleId) {
+                this.showRuleSelection = false;
+            }
+
             this.showAddButton = !this.showAddButton;
         },
     },

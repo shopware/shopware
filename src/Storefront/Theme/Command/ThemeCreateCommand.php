@@ -14,14 +14,12 @@ class ThemeCreateCommand extends Command
 {
     protected static $defaultName = 'theme:create';
 
-    /**
-     * @var string
-     */
-    private $projectDir;
+    private string $projectDir;
 
     public function __construct(string $projectDir)
     {
         parent::__construct();
+
         $this->projectDir = $projectDir;
     }
 
@@ -136,10 +134,6 @@ use Shopware\Storefront\Framework\ThemeInterface;
 
 class #class# extends Plugin implements ThemeInterface
 {
-    public function getThemeConfigPath(): string
-    {
-        return 'theme.json';
-    }
 }
 EOL;
     }

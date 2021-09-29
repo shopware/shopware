@@ -521,10 +521,6 @@ Component.register('sw-bulk-edit-product', {
 
     methods: {
         createdComponent() {
-            if (!Shopware.State.getters['context/isSystemDefaultLanguage']) {
-                Shopware.State.commit('context/resetLanguageToDefault');
-            }
-
             this.isLoading = true;
 
             const promises = [

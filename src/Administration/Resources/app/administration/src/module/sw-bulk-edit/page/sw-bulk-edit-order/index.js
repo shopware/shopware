@@ -181,10 +181,6 @@ Component.register('sw-bulk-edit-order', {
 
             this.bulkEditService = Shopware.Service('bulkEditService');
 
-            if (!Shopware.State.getters['context/isSystemDefaultLanguage']) {
-                Shopware.State.commit('context/resetLanguageToDefault');
-            }
-
             await Promise.all([
                 this.fetchStatusOptions('orders.id'),
                 this.fetchStatusOptions('orderTransactions.order.id'),

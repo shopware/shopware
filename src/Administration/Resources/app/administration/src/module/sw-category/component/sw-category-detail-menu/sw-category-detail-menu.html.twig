@@ -19,6 +19,7 @@
         :upload-tag="category.id"
         auto-upload
         @media-upload-finish="onSetMediaItem"
+        :key="category.id + 'uploadListener'"
     />
     <sw-media-upload-v2
         :label="$tc('sw-category.base.menu.imageLabel')"
@@ -31,6 +32,7 @@
         @media-drop="onMediaDropped"
         @media-upload-sidebar-open="openMediaSidebar"
         @media-upload-remove-image="onRemoveMediaItem"
+        :key="category.id + 'upload'"
     />
     {% endblock %}
 
@@ -44,6 +46,7 @@
         sanitize-field-name="category_translation.description"
         :label="$tc('sw-category.base.menu.descriptionLabel')"
         :placeholder="$tc('sw-category.base.menu.descriptionPlaceholder')"
+        :key="category.id + 'description'"
     />
     {% endblock %}
 </sw-card>

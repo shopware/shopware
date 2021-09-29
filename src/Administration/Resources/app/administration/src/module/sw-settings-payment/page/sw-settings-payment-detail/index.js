@@ -196,6 +196,9 @@ Component.register('sw-settings-payment-detail', {
         },
 
         setMediaItem({ targetId }) {
+            if (!targetId) {
+                return;
+            }
             this.mediaRepository.get(targetId)
                 .then((updatedMedia) => {
                     this.mediaItem = updatedMedia;

@@ -61,7 +61,7 @@
         "google/cloud-storage": "1.17.0",
         "guzzlehttp/guzzle": "~7.2",
         "jdorn/sql-formatter": "1.2.17",
-        "lcobucci/jwt": "4.1.4",
+        "lcobucci/jwt": "~4.1.5",
         "league/flysystem": "~1.1.4",
         "league/flysystem-aws-s3-v3": "~1.0.29",
         "league/oauth2-server": "~8.3.2",

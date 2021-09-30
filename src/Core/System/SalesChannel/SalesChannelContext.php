@@ -98,7 +98,7 @@ class SalesChannelContext extends Struct
     /**
      * @var Context
      */
-    private $context;
+    protected $context;
 
     /**
      * @var CashRoundingConfig
@@ -330,6 +330,11 @@ class SalesChannelContext extends Struct
     public function getLanguageIdChain(): array
     {
         return $this->context->getLanguageIdChain();
+    }
+
+    public function getLanguageId(): string
+    {
+        return $this->context->getLanguageId();
     }
 
     public function getVersionId(): string

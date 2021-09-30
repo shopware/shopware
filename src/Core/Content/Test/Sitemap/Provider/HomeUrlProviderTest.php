@@ -62,7 +62,7 @@ class HomeUrlProviderTest extends TestCase
         $criteria->addAssociation('locale');
         $languages = $this->getContainer()->get('language.repository')->search($criteria, $this->salesChannelContext->getContext())->getEntities();
 
-        $languageId = $this->salesChannelContext->getSalesChannel()->getLanguageId();
+        $languageId = $this->salesChannelContext->getLanguageId();
         $language = $languages->get($languageId);
 
         $domain = new SalesChannelDomainEntity();

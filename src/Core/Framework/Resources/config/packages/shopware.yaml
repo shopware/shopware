@@ -184,6 +184,11 @@ shopware:
               major: true
               description: "Reduce database queries if all required data for the line items is already assign"
               # issue: NEXT-13250
+            - name: FEATURE_NEXT_17276
+              default: false
+              major: true
+              description: "Don't override languageId of SalesChannel in SalesChannelContext"
+              # issue: NEXT-17276
             - name: FEATURE_NEXT_16151
               default: false
               major: true

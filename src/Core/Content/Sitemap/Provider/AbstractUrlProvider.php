@@ -33,7 +33,7 @@ abstract class AbstractUrlProvider implements UrlProviderInterface
             $sql,
             [
                 'routeName' => $routeName,
-                'languageId' => Uuid::fromHexToBytes($context->getSalesChannel()->getLanguageId()),
+                'languageId' => Uuid::fromHexToBytes($context->getLanguageId()),
                 'salesChannelId' => Uuid::fromHexToBytes($context->getSalesChannelId()),
                 'ids' => Uuid::fromHexToBytesList(array_values($ids)),
             ],

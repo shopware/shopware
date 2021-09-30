@@ -4,7 +4,7 @@ export default {
     state() {
         return {
             searchPreferences: [],
-            userSearchPreferences: {},
+            userSearchPreferences: null,
         };
     },
 

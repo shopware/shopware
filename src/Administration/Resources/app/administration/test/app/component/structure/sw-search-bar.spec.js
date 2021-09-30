@@ -55,7 +55,8 @@ function createWrapper(props, searchTypes = searchTypeServiceTypes, privileges =
             'sw-version': true,
             'sw-loader': true,
             'sw-search-more-results': true,
-            'sw-search-bar-item': true
+            'sw-search-bar-item': true,
+            'sw-search-preferences-modal': true
         },
         mocks: {
             $route: {
@@ -1076,5 +1077,25 @@ describe('src/app/component/structure/sw-search-bar', () => {
                 })
             ])
         );
+    });
+
+    it('should be able to turn on search preferences modal', async () => {
+        wrapper = await createWrapper();
+
+        await wrapper.setData({
+            showSearchPreferencesModal: true
+        });
+
+        expect(wrapper.find('sw-search-preferences-modal-stub').exists()).toBe(true);
+    });
+
+    it('should be able to turn off search preferences modal', async () => {
+        wrapper = await createWrapper();
+
+        await wrapper.setData({
+            showSearchPreferencesModal: false
+        });
+
+        expect(wrapper.find('sw-search-preferences-modal-stub').exists()).toBe(false);
     });
 });

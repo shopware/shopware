@@ -49,7 +49,7 @@
         "buttonSelect": "Alle auswählen",
         "buttonDeselect": "Alle abwählen",
         "buttonReset": "Standard wiederherstellen",
-        "tooltipMessage": "Dein Benutzerkonto hat keinen Zugang zu diesem Modul."
+        "tooltipMessage": "Dein Benutzerkonto hat keine Berechtigung für dieses Modul. Bitte kontaktiere den Administrator."
       },
       "modules": {
         "order": {

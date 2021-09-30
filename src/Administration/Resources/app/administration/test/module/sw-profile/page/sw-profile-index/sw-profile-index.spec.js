@@ -39,7 +39,16 @@ function createWrapper(privileges = []) {
                 getUser: () => Promise.resolve()
             },
             mediaDefaultFolderService: {},
-            searchPreferencesService: {},
+            searchPreferencesService: {
+                getDefaultSearchPreferences: () => {},
+                getUserSearchPreferences: () => {},
+                createUserSearchPreferences: () => {
+                    return {
+                        key: 'search.preferences',
+                        userId: 'userId'
+                    };
+                }
+            },
             searchRankingService: {
                 clearCacheUserSearchConfiguration: () => {}
             },

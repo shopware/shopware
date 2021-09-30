@@ -154,6 +154,10 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
         font-weight: $font-weight-semi-bold;
     }
 
+    &__footer-action-setting {
+        cursor: pointer;
+    }
+
     .sw-search-bar__input {
         font-family: $font-family-default;
         color: $color-darkgray-200;

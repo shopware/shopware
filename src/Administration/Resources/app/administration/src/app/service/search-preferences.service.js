@@ -37,8 +37,10 @@ export default function SearchPreferencesService({ userConfigRepository: _userCo
     * @returns {Promise}
     */
     function getUserSearchPreferences() {
-        return Shopware.Service('userConfigService').search([KEY_USER_SEARCH_PREFERENCE]).then((response) => {
-            return response.data[KEY_USER_SEARCH_PREFERENCE];
+        return new Promise(async (resolve) => {
+            const response = await Shopware.Service('userConfigService').search([KEY_USER_SEARCH_PREFERENCE]);
+
+            resolve(response.data[KEY_USER_SEARCH_PREFERENCE] || null);
         });
     }
 

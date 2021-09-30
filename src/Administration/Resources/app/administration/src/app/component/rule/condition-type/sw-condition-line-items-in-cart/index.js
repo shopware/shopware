@@ -5,6 +5,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 const { EntityCollection, Criteria } = Shopware.Data;
 
 /**
+ * @major-deprecated (flag:FEATURE_NEXT_17016) This rule component will be removed. Use sw-condition-line-item instead.
  * @public
  * @description Condition for the LineItemsInCartRule. This component must a be child of sw-condition-tree.
  * @status prototype
@@ -14,7 +15,7 @@ const { EntityCollection, Criteria } = Shopware.Data;
  */
 Component.extend('sw-condition-line-items-in-cart', 'sw-condition-base', {
     template,
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'feature'],
 
     data() {
         return {
@@ -66,6 +67,10 @@ Component.extend('sw-condition-line-items-in-cart', 'sw-condition-base', {
 
     methods: {
         createdComponent() {
+            if (this.feature.isActive('FEATURE_NEXT_17016')) {
+                console.error('sw-condition-line-items-in-cart is deprecated. Please use sw-condition-line-item instead.');
+            }
+
             this.products = new EntityCollection(
                 this.productRepository.route,
                 this.productRepository.entityName,

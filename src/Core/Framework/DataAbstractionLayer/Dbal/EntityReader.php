@@ -785,8 +785,15 @@ class EntityReader implements EntityReaderInterface
             ]
         );
 
-        foreach ($sortings as $i => $sorting) {
-            $query->addSelect(\sprintf('%s as sort_%s', $sorting->getField(), $i));
+        foreach ($query->getQueryPart('orderBy') as $i => $sorting) {
+            // The first order is the primary key
+            if ($i === 0) {
+                continue;
+            }
+            --$i;
+
+            // Strip the ASC/DESC at the end of the sort
+            $query->addSelect(\sprintf('%s as sort_%s', substr($sorting, 0, -4), $i));
         }
 
         $root = EntityDefinitionQueryHelper::escape($definition->getEntityName());

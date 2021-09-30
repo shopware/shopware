@@ -16,7 +16,7 @@ use Shopware\Core\Framework\DependencyInjection\CompilerPass\RateLimiterCompiler
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RouteScopeCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigLoaderConfigCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\FrameworkExtension;
-use Shopware\Core\Framework\MessageQueue\Monitoring\QueueMonitoringAdapterCompilerPass;
+use Shopware\Core\Framework\Increment\IncrementerGatewayCompilerPass;
 use Shopware\Core\Framework\Migration\MigrationCompilerPass;
 use Shopware\Core\Framework\Migration\MigrationSource;
 use Shopware\Core\Framework\Test\DependencyInjection\CompilerPass\ContainerVisibilityCompilerPass;
@@ -76,6 +76,7 @@ class Framework extends Bundle
         $loader->load('seo.xml');
         $loader->load('webhook.xml');
         $loader->load('rate-limiter.xml');
+        $loader->load('increment.xml');
 
         if ($container->getParameter('kernel.environment') === 'test') {
             $loader->load('services_test.xml');
@@ -96,7 +97,7 @@ class Framework extends Bundle
         $container->addCompilerPass(new FilesystemConfigMigrationCompilerPass());
         $container->addCompilerPass(new AnnotationReaderCompilerPass());
         $container->addCompilerPass(new RateLimiterCompilerPass());
-        $container->addCompilerPass(new QueueMonitoringAdapterCompilerPass());
+        $container->addCompilerPass(new IncrementerGatewayCompilerPass());
 
         if ($container->getParameter('kernel.environment') === 'test') {
             $container->addCompilerPass(new DisableRateLimiterCompilerPass());

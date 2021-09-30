@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\MessageQueue\Monitoring;
 
+use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundException;
+use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\ReceivedStamp;
@@ -13,16 +15,16 @@ class MonitoringBusDecorator implements MessageBusInterface
 
     private string $defaultTransportName;
 
-    private AbstractMonitoringGateway $gateway;
+    private IncrementGatewayRegistry $gatewayRegistry;
 
     public function __construct(
         MessageBusInterface $inner,
         string $defaultTransportName,
-        AbstractMonitoringGateway $gateway
+        IncrementGatewayRegistry $gatewayRegistry
     ) {
         $this->innerBus = $inner;
         $this->defaultTransportName = $defaultTransportName;
-        $this->gateway = $gateway;
+        $this->gatewayRegistry = $gatewayRegistry;
     }
 
     /**
@@ -33,6 +35,7 @@ class MonitoringBusDecorator implements MessageBusInterface
     public function dispatch($message, array $stamps = []): Envelope
     {
         $message = $this->innerBus->dispatch(Envelope::wrap($message, $stamps), $stamps);
+
         if ($this->wasSentToDefaultTransport($message)) {
             $this->incrementMessageQueueSize($message);
         }
@@ -46,12 +49,26 @@ class MonitoringBusDecorator implements MessageBusInterface
 
     private function incrementMessageQueueSize(Envelope $message): void
     {
-        $this->gateway->increment(\get_class($message->getMessage()));
+        try {
+            $gateway = $this->gatewayRegistry->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
+        } catch (IncrementGatewayNotFoundException $exception) {
+            // In case message_queue pool is disabled
+            return;
+        }
+
+        $gateway->increment('message_queue_stats', \get_class($message->getMessage()));
     }
 
     private function decrementMessageQueueSize(Envelope $message): void
     {
-        $this->gateway->decrement(\get_class($message->getMessage()));
+        try {
+            $gateway = $this->gatewayRegistry->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
+        } catch (IncrementGatewayNotFoundException $exception) {
+            // In case message_queue pool is disabled
+            return;
+        }
+
+        $gateway->decrement('message_queue_stats', \get_class($message->getMessage()));
     }
 
     private function wasSentToDefaultTransport(Envelope $message): bool

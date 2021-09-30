@@ -110,9 +110,19 @@ describe('Snippets: Test crud operations', () => {
 
         // Search for snippet
         cy.log('Search for snippet');
-        cy.get('.sw-search-bar__input').typeAndCheckSearchField('account.addressCreateBtn');
-        cy.get('.sw-data-grid-skeleton').should('not.exist');
 
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/_action/snippet-set`,
+            method: 'post',
+        }).as('searchResultCall');
+
+        cy.get('.sw-search-bar__input').type('account.addressCreateBtn').should('have.value', 'account.addressCreateBtn');
+
+        cy.wait('@searchResultCall')
+            .its('response.statusCode').should('equal', 200);
+        cy.url().should('include', encodeURI('account.addressCreateBtn'));
+
+        cy.get('.sw-data-grid-skeleton').should('not.exist');
 
         // Edit snippet
         cy.log('Edit snippet');

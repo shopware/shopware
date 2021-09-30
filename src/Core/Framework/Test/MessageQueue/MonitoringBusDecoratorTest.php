@@ -3,8 +3,8 @@
 namespace Shopware\Core\Framework\Test\MessageQueue;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\MessageQueue\Monitoring\AbstractMonitoringGateway;
-use Shopware\Core\Framework\MessageQueue\Monitoring\ArrayMonitoringGateway;
+use Shopware\Core\Framework\Increment\AbstractIncrementer;
+use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\MessageQueue\Monitoring\MonitoringBusDecorator;
 use Shopware\Core\Framework\Test\MessageQueue\fixtures\TestMessage;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -17,6 +17,14 @@ use Symfony\Component\Messenger\Stamp\StampInterface;
 class MonitoringBusDecoratorTest extends TestCase
 {
     use IntegrationTestBehaviour;
+
+    protected function setUp(): void
+    {
+        $registry = $this->getContainer()->get('shopware.increment.gateway.registry');
+        $gateway = $registry->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
+
+        $gateway->reset('message_queue_stats');
+    }
 
     public function testItDispatchesToTheInnerBus(): void
     {
@@ -34,7 +42,7 @@ class MonitoringBusDecoratorTest extends TestCase
             }))
             ->willReturn(new Envelope($testMsg));
 
-        $decoratedBus = new MonitoringBusDecorator($innerBus, 'default', new ArrayMonitoringGateway());
+        $decoratedBus = new MonitoringBusDecorator($innerBus, 'default', $this->getContainer()->get('shopware.increment.gateway.registry'));
         $decoratedBus->dispatch($testMsg);
     }
 
@@ -55,7 +63,7 @@ class MonitoringBusDecoratorTest extends TestCase
             }), static::equalTo($stamps))
             ->willReturn(new Envelope($testMsg));
 
-        $decoratedBus = new MonitoringBusDecorator($innerBus, 'default', new ArrayMonitoringGateway());
+        $decoratedBus = new MonitoringBusDecorator($innerBus, 'default', $this->getContainer()->get('shopware.increment.gateway.registry'));
         $decoratedBus->dispatch($testMsg, $stamps);
     }
 
@@ -68,12 +76,12 @@ class MonitoringBusDecoratorTest extends TestCase
             ->method('dispatch')
             ->willReturn(new Envelope($testMsg, [new SentStamp('', 'default')]));
 
-        $gateway = $this->getContainer()->get('shopware.queue.monitoring.gateway');
-        $decoratedBus = new MonitoringBusDecorator($innerBus, 'default', $gateway);
+        $gatewayRegistry = $this->getContainer()->get('shopware.increment.gateway.registry');
+        $decoratedBus = new MonitoringBusDecorator($innerBus, 'default', $gatewayRegistry);
 
         $decoratedBus->dispatch($testMsg);
 
-        static::assertEquals(1, $this->getQueueSize(TestMessage::class));
+        static::assertEquals(1, $this->getQueueSize($gatewayRegistry->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL), TestMessage::class));
     }
 
     public function testItCountsIncomingMessages(): void
@@ -82,11 +90,12 @@ class MonitoringBusDecoratorTest extends TestCase
 
         $innerBus = $this->createMock(MessageBusInterface::class);
 
-        $gateway = $this->getContainer()->get('shopware.queue.monitoring.gateway');
-        $decoratedBus = new MonitoringBusDecorator($innerBus, 'default', $gateway);
+        $gatewayRegistry = $this->getContainer()->get('shopware.increment.gateway.registry');
+        $decoratedBus = new MonitoringBusDecorator($innerBus, 'default', $gatewayRegistry);
 
-        $gateway->reset(TestMessage::class);
-        $gateway->increment(TestMessage::class);
+        $gateway = $gatewayRegistry->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
+        $gateway->reset('message_queue_stats', TestMessage::class);
+        $gateway->increment('message_queue_stats', TestMessage::class);
 
         $envelope = new Envelope($testMsg);
         $innerBus
@@ -97,7 +106,7 @@ class MonitoringBusDecoratorTest extends TestCase
 
         $decoratedBus->dispatch($envelope);
 
-        static::assertEquals(0, $this->getQueueSize(TestMessage::class));
+        static::assertEquals(0, $this->getQueueSize($gatewayRegistry->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL), TestMessage::class));
     }
 
     public function testOutgoingEnvelopes(): void
@@ -109,13 +118,13 @@ class MonitoringBusDecoratorTest extends TestCase
             ->method('dispatch')
             ->willReturn(new Envelope($testMsg, [new SentStamp('', 'default')]));
 
-        $gateway = $this->getContainer()->get('shopware.queue.monitoring.gateway');
-        $decoratedBus = new MonitoringBusDecorator($innerBus, 'default', $gateway);
+        $gatewayRegistry = $this->getContainer()->get('shopware.increment.gateway.registry');
+        $decoratedBus = new MonitoringBusDecorator($innerBus, 'default', $gatewayRegistry);
 
         $envelope = new Envelope($testMsg);
         $decoratedBus->dispatch($envelope);
 
-        static::assertEquals(1, $this->getQueueSize(\get_class($testMsg)));
+        static::assertEquals(1, $this->getQueueSize($gatewayRegistry->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL), \get_class($testMsg)));
     }
 
     public function testDoesNotIncrementWithNonDefaultName(): void
@@ -128,13 +137,13 @@ class MonitoringBusDecoratorTest extends TestCase
             ->method('dispatch')
             ->willReturn(new Envelope($testMsg, [new SentStamp('', 'not ' . $defaultTransportName)]));
 
-        $gateway = $this->getContainer()->get('shopware.queue.monitoring.gateway');
-        $decoratedBus = new MonitoringBusDecorator($innerBus, $defaultTransportName, $gateway);
+        $gatewayRegistry = $this->getContainer()->get('shopware.increment.gateway.registry');
+        $decoratedBus = new MonitoringBusDecorator($innerBus, $defaultTransportName, $gatewayRegistry);
 
         $envelope = new Envelope($testMsg);
         $decoratedBus->dispatch($envelope);
 
-        static::assertNull($this->getQueueSize(\get_class($testMsg)));
+        static::assertEquals(0, $this->getQueueSize($gatewayRegistry->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL), \get_class($testMsg)));
     }
 
     public function testDoesNotIncrementWithoutSentStamp(): void
@@ -147,13 +156,13 @@ class MonitoringBusDecoratorTest extends TestCase
             ->willReturn(new Envelope($testMsg));
 
         $defaultTransportName = 'default';
-        $gateway = $this->getContainer()->get('shopware.queue.monitoring.gateway');
-        $decoratedBus = new MonitoringBusDecorator($innerBus, $defaultTransportName, $gateway);
+        $gatewayRegistry = $this->getContainer()->get('shopware.increment.gateway.registry');
+        $decoratedBus = new MonitoringBusDecorator($innerBus, $defaultTransportName, $gatewayRegistry);
 
         $envelope = new Envelope($testMsg);
         $decoratedBus->dispatch($envelope);
 
-        static::assertNull($this->getQueueSize(TestMessage::class));
+        static::assertEquals(0, $this->getQueueSize($gatewayRegistry->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL), TestMessage::class));
     }
 
     public function testDoesNotDecrementWithNonDefaultName(): void
@@ -163,11 +172,12 @@ class MonitoringBusDecoratorTest extends TestCase
         $innerBus = $this->createMock(MessageBusInterface::class);
 
         $defaultTransportName = 'default';
-        $gateway = $this->getContainer()->get('shopware.queue.monitoring.gateway');
-        $decoratedBus = new MonitoringBusDecorator($innerBus, $defaultTransportName, $gateway);
+        $gatewayRegistry = $this->getContainer()->get('shopware.increment.gateway.registry');
+        $decoratedBus = new MonitoringBusDecorator($innerBus, $defaultTransportName, $gatewayRegistry);
 
-        $gateway->reset(TestMessage::class);
-        $gateway->increment(TestMessage::class);
+        $gateway = $gatewayRegistry->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
+        $gateway->reset('message_queue_stats', TestMessage::class);
+        $gateway->increment('message_queue_stats', TestMessage::class);
 
         $envelope = new Envelope($testMsg);
         $innerBus
@@ -178,7 +188,7 @@ class MonitoringBusDecoratorTest extends TestCase
 
         $decoratedBus->dispatch($envelope);
 
-        static::assertEquals(1, $this->getQueueSize(\get_class($testMsg)));
+        static::assertEquals(1, $this->getQueueSize($gatewayRegistry->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL), \get_class($testMsg)));
     }
 
     public function testDoesNotDecrementWithoutReceivedStamp(): void
@@ -188,12 +198,13 @@ class MonitoringBusDecoratorTest extends TestCase
         $innerBus = $this->createMock(MessageBusInterface::class);
 
         $defaultTransportName = 'default';
-        /** @var AbstractMonitoringGateway $gateway */
-        $gateway = $this->getContainer()->get('shopware.queue.monitoring.gateway');
-        $decoratedBus = new MonitoringBusDecorator($innerBus, $defaultTransportName, $gateway);
+        /** @var IncrementGatewayRegistry $gatewayRegistry */
+        $gatewayRegistry = $this->getContainer()->get('shopware.increment.gateway.registry');
+        $decoratedBus = new MonitoringBusDecorator($innerBus, $defaultTransportName, $gatewayRegistry);
 
-        $gateway->reset(TestMessage::class);
-        $gateway->increment(TestMessage::class);
+        $gateway = $gatewayRegistry->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
+        $gateway->reset('message_queue_stats', TestMessage::class);
+        $gateway->increment('message_queue_stats', TestMessage::class);
 
         $envelope = new Envelope($testMsg);
         $innerBus
@@ -204,16 +215,16 @@ class MonitoringBusDecoratorTest extends TestCase
 
         $decoratedBus->dispatch($envelope);
 
-        static::assertEquals(1, $this->getQueueSize(\get_class($testMsg)));
+        static::assertEquals(1, $this->getQueueSize($gatewayRegistry->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL), \get_class($testMsg)));
     }
 
-    private function getQueueSize(string $name): ?int
+    private function getQueueSize(AbstractIncrementer $gateway, string $name): ?int
     {
-        $records = $this->getContainer()->get('shopware.queue.monitoring.gateway')->get();
+        $records = $gateway->list('message_queue_stats');
 
         foreach ($records as $record) {
-            if ($record['name'] === $name) {
-                return (int) $record['size'];
+            if ($record['key'] === $name) {
+                return (int) $record['count'];
             }
         }
 

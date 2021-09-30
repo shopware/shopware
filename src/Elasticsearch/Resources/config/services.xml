@@ -123,7 +123,7 @@
             <argument type="service" id="Elasticsearch\Client"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
-            <argument type="service" id="shopware.queue.monitoring.gateway"/>
+            <argument type="service" id="shopware.increment.gateway.registry"/>
             <tag name="console.command"/>
         </service>
 

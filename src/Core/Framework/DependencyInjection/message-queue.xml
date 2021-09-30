@@ -10,7 +10,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\MessageQueue\MessageQueueStatsDefinition">
-            <tag name="shopware.entity.definition" flag="FEATURE_NEXT_17380"/>
+            <tag name="shopware.entity.definition"/>
         </service>
 
         <!--  ConnectionFactory -->
@@ -18,26 +18,11 @@
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
 
-        <service id="shopware.queue.monitoring.redis_adapter" class="Redis">
-            <factory class="Symfony\Component\Cache\Adapter\RedisAdapter" method="createConnection"/>
-            <argument>%shopware.queue.monitoring.config.url%</argument>
-        </service>
-
-        <service id="shopware.queue.monitoring.gateway.redis" class="Shopware\Core\Framework\MessageQueue\Monitoring\RedisMonitoringGateway">
-            <argument type="service" id="shopware.queue.monitoring.redis_adapter"/>
-        </service>
-
-        <service id="shopware.queue.monitoring.gateway.mysql" class="Shopware\Core\Framework\MessageQueue\Monitoring\MySQLMonitoringGateway">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
-        </service>
-
-        <service id="shopware.queue.monitoring.gateway.array" class="Shopware\Core\Framework\MessageQueue\Monitoring\ArrayMonitoringGateway"/>
-
         <!--Message Bus-->
         <service id="Shopware\Core\Framework\MessageQueue\Monitoring\MonitoringBusDecorator" decorates="messenger.bus.shopware">
             <argument type="service" id="Shopware\Core\Framework\MessageQueue\Monitoring\MonitoringBusDecorator.inner"/>
             <argument type="string">%messenger.default_transport_name%</argument>
-            <argument type="service" id="shopware.queue.monitoring.gateway"/>
+            <argument type="service" id="shopware.increment.gateway.registry"/>
         </service>
 
         <service id="encrypted.messenger.bus.shopware" class="Shopware\Core\Framework\MessageQueue\EncryptedBus">
@@ -90,7 +75,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\MessageQueue\Subscriber\MessageFailedHandler">
-            <argument type="service" id="shopware.queue.monitoring.gateway"/>
+            <argument type="service" id="shopware.increment.gateway.registry"/>
             <argument type="string">%messenger.default_transport_name%</argument>
 
             <tag name="kernel.event_subscriber"/>

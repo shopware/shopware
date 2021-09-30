@@ -19,7 +19,6 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createCdnSection())
                 ->append($this->createApiSection())
                 ->append($this->createStoreSection())
-                ->append($this->createQueueSection())
                 ->append($this->createCartSection())
                 ->append($this->createSalesChannelContextSection())
                 ->append($this->createAdminWorkerSection())
@@ -32,6 +31,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createLoggerSection())
                 ->append($this->createCacheSection())
                 ->append($this->createHtmlSanitizerSection())
+                ->append($this->createIncrementSection())
             ->end();
 
         return $treeBuilder;
@@ -498,16 +498,15 @@ class Configuration implements ConfigurationInterface
         return $rootNode;
     }
 
-    private function createQueueSection(): ArrayNodeDefinition
+    private function createIncrementSection(): ArrayNodeDefinition
     {
-        $rootNode = (new TreeBuilder('queue'))->getRootNode();
+        $rootNode = (new TreeBuilder('increment'))->getRootNode();
         $rootNode
-            ->children()
-                ->arrayNode('monitoring')
-                    ->children()
-                        ->scalarNode('type')->end()
-                        ->variableNode('config')->end()
-                    ->end()
+            ->useAttributeAsKey('name')
+            ->arrayPrototype()
+                ->children()
+                    ->scalarNode('type')->end()
+                    ->variableNode('config')->end()
                 ->end()
             ->end();
 

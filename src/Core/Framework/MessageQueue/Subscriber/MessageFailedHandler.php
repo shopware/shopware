@@ -2,7 +2,8 @@
 
 namespace Shopware\Core\Framework\MessageQueue\Subscriber;
 
-use Shopware\Core\Framework\MessageQueue\Monitoring\AbstractMonitoringGateway;
+use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundException;
+use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
@@ -12,12 +13,12 @@ class MessageFailedHandler implements EventSubscriberInterface
 {
     private string $defaultTransportName;
 
-    private AbstractMonitoringGateway $gateway;
+    private IncrementGatewayRegistry $gatewayRegistry;
 
-    public function __construct(AbstractMonitoringGateway $gateway, string $defaultTransportName)
+    public function __construct(IncrementGatewayRegistry $gatewayRegistry, string $defaultTransportName)
     {
         $this->defaultTransportName = $defaultTransportName;
-        $this->gateway = $gateway;
+        $this->gatewayRegistry = $gatewayRegistry;
     }
 
     public static function getSubscribedEvents(): array
@@ -42,7 +43,13 @@ class MessageFailedHandler implements EventSubscriberInterface
 
         $name = \get_class($message->getMessage());
 
-        $this->gateway->decrement($name);
+        try {
+            $gateway = $this->gatewayRegistry->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
+        } catch (IncrementGatewayNotFoundException $exception) {
+            return;
+        }
+
+        $gateway->decrement('message_queue_stats', $name);
     }
 
     private function wasReceivedByDefaultTransport(Envelope $message): bool

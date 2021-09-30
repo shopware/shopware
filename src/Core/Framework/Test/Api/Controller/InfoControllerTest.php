@@ -187,7 +187,7 @@ class InfoControllerTest extends TestCase
             $kernelMock,
             $packagesMock,
             $this->createMock(BusinessEventCollector::class),
-            $this->getContainer()->get('shopware.queue.monitoring.gateway'),
+            $this->getContainer()->get('shopware.increment.gateway.registry'),
             $eventCollector,
             true,
             []

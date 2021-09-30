@@ -4,8 +4,10 @@ namespace Shopware\Elasticsearch\Framework\Command;
 
 use Doctrine\DBAL\Connection;
 use Elasticsearch\Client;
-use Shopware\Core\Framework\MessageQueue\Monitoring\AbstractMonitoringGateway;
+use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundException;
+use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Elasticsearch\Framework\ElasticsearchOutdatedIndexDetector;
+use Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexingMessage;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -21,15 +23,15 @@ class ElasticsearchResetCommand extends Command
 
     private Connection $connection;
 
-    private AbstractMonitoringGateway $monitoringGateway;
+    private IncrementGatewayRegistry $gatewayRegistry;
 
-    public function __construct(Client $client, ElasticsearchOutdatedIndexDetector $detector, Connection $connection, AbstractMonitoringGateway $monitoringGateway)
+    public function __construct(Client $client, ElasticsearchOutdatedIndexDetector $detector, Connection $connection, IncrementGatewayRegistry $gatewayRegistry)
     {
         parent::__construct();
         $this->detector = $detector;
         $this->client = $client;
         $this->connection = $connection;
-        $this->monitoringGateway = $monitoringGateway;
+        $this->gatewayRegistry = $gatewayRegistry;
     }
 
     /**
@@ -59,7 +61,14 @@ class ElasticsearchResetCommand extends Command
         }
 
         $this->connection->executeStatement('TRUNCATE elasticsearch_index_task');
-        $this->monitoringGateway->reset('Shopware\Elasticsearch\Framework\Indexing\ElasticsearchIndexingMessage');
+
+        try {
+            $gateway = $this->gatewayRegistry->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
+            $gateway->reset('message_queue_stats', ElasticsearchIndexingMessage::class);
+        } catch (IncrementGatewayNotFoundException $exception) {
+            // In case message_queue pool is disabled
+        }
+
         $this->connection->executeStatement('DELETE FROM enqueue WHERE body LIKE "%ElasticsearchIndexingMessage%"');
 
         $io->success('Elasticsearch indices deleted and queue cleared');

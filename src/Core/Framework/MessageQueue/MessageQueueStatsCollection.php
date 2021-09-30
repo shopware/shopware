@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\MessageQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 
 /**
- * @deprecated tag:v6.5.0 - (flag:FEATURE_NEXT_17380) use `shopware.queue.monitoring.gateway` service instead
+ * @deprecated tag:v6.5.0 - use `shopware.increment.message_queue.gateway` service instead
  *
  * @method void                         add(MessageQueueStatsEntity $entity)
  * @method void                         set(string $key, MessageQueueStatsEntity $entity)

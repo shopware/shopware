@@ -12,6 +12,8 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Controller\SyncController;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Increment\AbstractIncrementer;
+use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -29,9 +31,23 @@ class SyncControllerTest extends TestCase
      */
     private $connection;
 
+    /**
+     * @var AbstractIncrementer
+     */
+    private $gateway;
+
     protected function setUp(): void
     {
         $this->connection = $this->getContainer()->get(Connection::class);
+        $this->gateway = $this->getContainer()->get('shopware.increment.gateway.registry')->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
+        $this->gateway->reset('message_queue_stats');
+        $reflection = new \ReflectionClass($this->gateway);
+
+        if ($reflection->hasProperty('logs')) {
+            $property = $reflection->getProperty('logs');
+            $property->setAccessible(true);
+            $property->setValue($this->gateway, []);
+        }
     }
 
     public function testMultipleProductInsert(): void
@@ -429,6 +445,7 @@ class SyncControllerTest extends TestCase
 
         $this->connection->executeUpdate('DELETE FROM enqueue;');
         $this->connection->executeUpdate('DELETE FROM message_queue_stats;');
+        $this->connection->executeUpdate('DELETE FROM `increment`;');
 
         $this->getBrowser()->request('POST', '/api/_action/sync', [], [], ['HTTP_Fail-On-Error' => 'false', 'HTTP_indexing-behavior' => EntityIndexerRegistry::USE_INDEXING_QUEUE], json_encode($data));
 
@@ -440,16 +457,14 @@ class SyncControllerTest extends TestCase
 
         static::assertNotEmpty($exists);
 
-        $messages = $this->connection->fetchAssoc(
-            'SELECT * FROM message_queue_stats WHERE name = :name',
-            ['name' => ProductIndexingMessage::class]
-        );
+        $messages = $this->gateway->list('message_queue_stats');
 
         static::assertNotEmpty($messages);
-        static::assertEquals(1, $messages['size']);
+        static::assertNotEmpty($messages[ProductIndexingMessage::class]);
+        static::assertEquals(1, $messages[ProductIndexingMessage::class]['count']);
     }
 
-    public function testDirectInexing(): void
+    public function testDirectIndexing(): void
     {
         $product = Uuid::randomHex();
 
@@ -471,6 +486,7 @@ class SyncControllerTest extends TestCase
         ];
 
         $this->connection->executeUpdate('DELETE FROM enqueue;');
+        $this->connection->executeUpdate('DELETE FROM `increment`;');
         $this->connection->executeUpdate('DELETE FROM message_queue_stats;');
 
         $this->getBrowser()->request('POST', '/api/_action/sync', [], [], ['HTTP_Fail-On-Error' => 'false'], json_encode($data));
@@ -483,11 +499,8 @@ class SyncControllerTest extends TestCase
 
         static::assertNotEmpty($exists);
 
-        $messages = $this->connection->fetchAssoc(
-            'SELECT * FROM message_queue_stats WHERE name = :name',
-            ['name' => ProductIndexingMessage::class]
-        );
-        static::assertEmpty($messages);
+        $keys = $this->gateway->list('message_queue_stats');
+        static::assertEmpty($keys);
     }
 
     public function testSkipIndexer(): void

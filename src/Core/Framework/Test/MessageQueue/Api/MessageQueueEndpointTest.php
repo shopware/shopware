@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\MessageQueue\Api;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
@@ -13,12 +14,15 @@ class MessageQueueEndpointTest extends TestCase
 
     public function testEndpoint(): void
     {
-        $gateway = $this->getContainer()->get('shopware.queue.monitoring.gateway');
-        $gateway->reset('foo');
-        $gateway->reset('bar');
-        $gateway->increment('foo');
-        $gateway->increment('bar');
-        $gateway->increment('bar');
+        $gatewayRegistry = $this->getContainer()->get('shopware.increment.gateway.registry');
+
+        $gateway = $gatewayRegistry->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
+
+        $gateway->reset('message_queue_stats', 'foo');
+        $gateway->reset('message_queue_stats', 'bar');
+        $gateway->increment('message_queue_stats', 'foo');
+        $gateway->increment('message_queue_stats', 'bar');
+        $gateway->increment('message_queue_stats', 'bar');
 
         $url = '/api/_info/queue.json';
         $client = $this->getBrowser();

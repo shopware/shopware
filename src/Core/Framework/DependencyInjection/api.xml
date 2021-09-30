@@ -173,7 +173,7 @@
             <argument type="service" id="kernel" />
             <argument type="service" id="assets.packages" />
             <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventCollector" />
-            <argument type="service" id="shopware.queue.monitoring.gateway"/>
+            <argument type="service" id="shopware.increment.gateway.registry"/>
             <argument type="service" id="Shopware\Core\Content\Flow\Api\FlowActionCollector" on-invalid="null"/>
             <argument>%shopware.media.enable_url_upload_feature%</argument>
             <argument>%shopware.security.csp_templates%</argument>

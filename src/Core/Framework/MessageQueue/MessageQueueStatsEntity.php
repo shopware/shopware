@@ -4,10 +4,9 @@ namespace Shopware\Core\Framework\MessageQueue;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Shopware\Core\Framework\Feature;
 
 /**
- * @deprecated tag:v6.5.0 - (flag:FEATURE_NEXT_17380) use `shopware.queue.monitoring.gateway` service instead
+ * @deprecated tag:v6.5.0 - use `shopware.increment.message_queue.gateway` service instead
  */
 class MessageQueueStatsEntity extends Entity
 {

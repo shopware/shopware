@@ -52,7 +52,7 @@ class SystemDumpDatabaseCommand extends Command
 
     protected function configure(): void
     {
-        $this->addOption('ignore-table', 'i', InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'Tables to ignore on export', ['enqueue', 'message_queue_stats', 'dead_message']);
+        $this->addOption('ignore-table', 'i', InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'Tables to ignore on export', ['enqueue', 'message_queue_stats', 'dead_message', 'increment']);
     }
 
     protected function getIgnoreTableStmt(InputInterface $input, string $dbName): string

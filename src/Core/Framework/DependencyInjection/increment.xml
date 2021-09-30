@@ -1,0 +1,21 @@
+<?xml version="1.0" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <services>
+        <service id="shopware.increment.gateway.registry" class="Shopware\Core\Framework\Increment\IncrementGatewayRegistry" public="true">
+            <argument type="tagged" tag="shopware.increment.gateway"/>
+        </service>
+
+        <service id="shopware.increment.gateway.mysql" class="Shopware\Core\Framework\Increment\MySQLIncrementer">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="shopware.increment.gateway.array" class="Shopware\Core\Framework\Increment\ArrayIncrementer" />
+
+        <service id="Shopware\Core\Framework\Increment\Controller\IncrementApiController" public="true">
+            <argument type="service" id="shopware.increment.gateway.registry"/>
+        </service>
+
+    </services>
+</container>

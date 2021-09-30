@@ -9,6 +9,13 @@ shopware:
             config:
                 root: ~
 
+    increment:
+        user_activity:
+            type: 'array'
+
+        message_queue:
+            type: 'array'
+
     admin_worker:
         poll_interval: 1
 

@@ -2083,7 +2083,7 @@ class EntityReaderTest extends TestCase
                 $criteria->getAssociation('seoUrls')->addSorting(
                     new FieldSorting('isCanonical', FieldSorting::DESCENDING),
                     new FieldSorting('isDeleted', FieldSorting::ASCENDING),
-                );
+                )->setLimit(20);
             },
             [
                 'active',
@@ -2113,7 +2113,7 @@ class EntityReaderTest extends TestCase
                 $criteria->getAssociation('seoUrls')->addSorting(
                     new FieldSorting('salesChannel.id', FieldSorting::DESCENDING),
                     new FieldSorting('isCanonical', FieldSorting::DESCENDING)
-                );
+                )->setLimit(20);
             },
             [
                 'active',
@@ -2151,6 +2151,7 @@ class EntityReaderTest extends TestCase
                 ]);
                 $filter->addQuery(new EqualsFilter('seoPathInfo', 'active-query'));
 
+                $criteria->getAssociation('seoUrls')->setLimit(20);
                 $criteria->getAssociation('seoUrls')->addFilter($filter);
                 $criteria->getAssociation('seoUrls')->addSorting(new FieldSorting('isCanonical', FieldSorting::ASCENDING));
             },

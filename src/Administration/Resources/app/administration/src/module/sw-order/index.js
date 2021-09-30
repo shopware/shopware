@@ -44,6 +44,7 @@ import './component/sw-order-create-promotion-modal';
 import './component/sw-order-select-document-type-modal';
 import './component/sw-order-general-info';
 import './component/sw-order-send-document-modal';
+import './component/sw-order-customer-grid';
 import '../sw-customer/component/sw-customer-address-form';
 import '../sw-customer/component/sw-customer-address-form-options';
 import './component/sw-order-create-modal';

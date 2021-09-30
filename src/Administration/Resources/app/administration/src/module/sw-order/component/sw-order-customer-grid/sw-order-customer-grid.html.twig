@@ -1,0 +1,105 @@
+{% block sw_order_customer_grid %}
+<sw-card
+    :is-loading="isLoading"
+    class="sw-order-customer-grid"
+>
+    <template #toolbar>
+        {% block  sw_order_customer_grid_toolbar %}
+        <div class="sw-order-customer-grid__toolbar">
+            {% block  sw_order_customer_grid_toolbar_filter %}
+            <sw-card-filter
+                :placeholder="$tc('sw-order.createBase.customerGrid.placeholderSearchBarCustomer')"
+                @sw-card-filter-term-change="onSearch"
+            />
+            {% endblock %}
+
+            {% block  sw_order_customer_grid_toolbar_action %}
+            <sw-button
+                class="sw-order-customer-grid__add-customer"
+                variant="ghost"
+                size="small"
+                @click="onShowNewCustomerModal"
+            >
+                {{ $tc('sw-order.createBase.detailsHeader.buttonAddNewCustomer') }}
+            </sw-button>
+            {% endblock %}
+        </div>
+        {% endblock %}
+    </template>
+
+    <template #grid>
+        {% block sw_order_customer_grid_empty_state %}
+        <sw-empty-state
+            v-if="showEmptyState"
+            class="sw-order-customer-grid__empty-state"
+            :show-description="false"
+            :title="emptyTitle"
+            :absolute="false"
+        >
+            {% block sw_order_customer_grid_empty_state_icon %}
+            <template #icon>
+                <img
+                    :src="'/administration/static/img/empty-states/customer-empty-state.svg' | asset"
+                    :alt="$tc('sw-customer.list.messageEmpty')"
+                >
+            </template>
+            {% endblock %}
+        </sw-empty-state>
+        {% endblock %}
+
+        {% block sw_order_customer_grid_content %}
+        <sw-entity-listing
+            v-else
+            class="sw-order-customer-grid__content"
+            :full-page="false"
+            :show-selection="false"
+            :show-settings="false"
+            :items="customers"
+            :columns="customerColumns"
+            :repository="customerRepository"
+        >
+            {% block sw_order_customer_grid_content_column_select %}
+            <template #column-select="{ item }">
+                <div class="sw-field__radio-input">
+                    <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
+                    <input
+                        type="radio"
+                        name="sw-order-customer"
+                        :checked="isChecked(item)"
+                        @change="onCheckbox(item)"
+                    >
+                    <div class="sw-field__radio-state"></div>
+                </div>
+            </template>
+            {% endblock %}
+
+            {% block sw_order_customer_grid_content_grid_column_name %}
+            <template #column-firstName="{ item }">
+                <router-link :to="{ name: 'sw.customer.detail', params: { id: item.id } }">
+                    {{ item.firstName }} {{ item.lastName }}
+                </router-link>
+            </template>
+            {% endblock %}
+
+            {% block sw_settings_product_feature_set_list_grid_columns_actions %}
+            <template #actions="{ item }">
+                <sw-context-menu-item
+                    target="_blank"
+                    :router-link="{ name: 'sw.customer.detail', params: { id: item.id } }"
+                >
+                    {{ $tc('sw-order.createBase.customerGrid.contextOpenButton') }}
+                </sw-context-menu-item>
+            </template>
+            {% endblock %}
+        </sw-entity-listing>
+        {% endblock %}
+
+        {% block sw_order_customer_grid_new_customer_modal %}
+        <sw-order-new-customer-modal
+            v-if="showNewCustomerModal"
+            @close="showNewCustomerModal = false"
+        />
+        {% endblock %}
+    </template>
+</sw-card>
+{% endblock %}

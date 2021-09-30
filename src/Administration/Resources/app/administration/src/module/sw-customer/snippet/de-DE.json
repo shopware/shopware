@@ -210,7 +210,9 @@
       "placeholderAdditionalAddressLine1": "Gib eine erste zusätzliche Adresszeile ein ...",
       "placeholderAdditionalAddressLine2": "Gib eine zweite zusätzliche Adresszeile ein ...",
       "placeholderPhoneNumber": "Gib eine Telefonnummer an ...",
-      "placeholderVatId": "Gib die USt-IdNr. ein ..."
+      "placeholderVatId": "Gib die USt-IdNr. ein ...",
+      "labelVatNumber": "VAT identification number",
+      "placeholderVatNumber": "Enter VAT identification number..."
     },
     "detail": {
       "buttonSave": "Speichern",

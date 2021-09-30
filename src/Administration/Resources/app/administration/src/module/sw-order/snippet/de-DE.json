@@ -150,6 +150,14 @@
           "fixed_unit": "Fester Stückpreis von {value} auf jeden Artikel in der Set-Gruppe {groupId}",
           "fixed": "Festpreis von {value} auf die Set-Gruppe {groupId}"
         }
+      },
+      "customerGrid": {
+        "placeholderSearchBarCustomer": "Enter the customer name ...",
+        "textEmptySearch": "No data for {name}",
+        "contextOpenButton": "Open",
+        "columnCustomerName": "Name",
+        "columnCustomerNumber": "Customer number",
+        "columnEmailAddress": "Email address"
       }
     },
     "detailBase": {

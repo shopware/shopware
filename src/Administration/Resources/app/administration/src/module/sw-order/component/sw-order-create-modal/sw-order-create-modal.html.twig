@@ -63,7 +63,9 @@
             <template #content="{ active }">
                 {% block sw_order_create_modal_tabs_content %}
                 <div class="sw-order-create-modal__content">
-                    {% block sw_order_create_modal_tabs_content_customer %}{% endblock %}
+                    {% block sw_order_create_modal_tabs_content_customer %}
+                    <sw-order-customer-grid />
+                    {% endblock %}
 
                     {% block sw_order_create_modal_tabs_content_products %}{% endblock %}
 

@@ -210,7 +210,9 @@
       "placeholderAdditionalAddressLine1": "Enter a first additional address line...",
       "placeholderAdditionalAddressLine2": "Enter a second additional address line...",
       "placeholderPhoneNumber": "Enter phone number...",
-      "placeholderVatId": "Enter VAT Reg.No..."
+      "placeholderVatId": "Enter VAT Reg.No...",
+      "labelVatNumber": "VAT identification number",
+      "placeholderVatNumber": "Enter VAT identification number..."
     },
     "detail": {
       "buttonSave": "Save",

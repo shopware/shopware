@@ -79,8 +79,8 @@
             v-model="customer.vatIds[0]"
             name="vatId"
             :error="customerVatIdsError"
-            :label="$tc('sw-customer.addressForm.labelVatId')"
-            :placeholder="$tc('sw-customer.addressForm.placeholderVatId')"
+            :label="feature.isActive('FEATURE_NEXT_7530') ? $tc('sw-customer.addressForm.labelVatNumber') : $tc('sw-customer.addressForm.labelVatId')"
+            :placeholder="feature.isActive('FEATURE_NEXT_7530') ? $tc('sw-customer.addressForm.placeholderVatNumber') : $tc('sw-customer.addressForm.placeholderVatId')"
         />
         {% endblock %}
 

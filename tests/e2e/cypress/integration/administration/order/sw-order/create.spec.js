@@ -15,7 +15,7 @@ describe('Order: Create order', () => {
             });
     });
 
-    it('@base @order: create order with an existing customer', () => {
+    it.skip('@base @order: create order with an existing customer', () => {
         const page = new OrderPageObject();
 
         // network requests
@@ -104,7 +104,7 @@ describe('Order: Create order', () => {
             .contains('10');
     });
 
-    it('@base @order: create order with a new customer, update line item and shipping cost manually', () => {
+    it.skip('@base @order: create order with a new customer, update line item and shipping cost manually', () => {
         const page = new OrderPageObject();
 
         // network requests
@@ -390,7 +390,7 @@ describe('Order: Create order', () => {
             .contains('5');
     });
 
-    it('@base @order: add promotion code', () => {
+    it.skip('@base @order: add promotion code', () => {
         const page = new OrderPageObject();
 
         cy.visit(`${Cypress.env('admin')}#/sw/promotion/v2/index`);
@@ -549,7 +549,7 @@ describe('Order: Create order', () => {
         cy.get('tbody .sw-data-grid__row').should('have.length', 2);
     });
 
-    it('@order: add invalid promotion code', () => {
+    it.skip('@order: add invalid promotion code', () => {
         const page = new OrderPageObject();
 
         // network requests

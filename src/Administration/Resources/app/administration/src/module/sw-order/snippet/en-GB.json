@@ -150,6 +150,14 @@
           "fixed_unit": "Fixed {value} for each specific product of set group {groupId}",
           "fixed": "Fixed {value} for each set group {groupId}"
         }
+      },
+      "customerGrid": {
+        "placeholderSearchBarCustomer": "Enter the customer name ...",
+        "textEmptySearch": "No data for {name}",
+        "contextOpenButton": "Open",
+        "columnCustomerName": "Name",
+        "columnCustomerNumber": "Customer number",
+        "columnEmailAddress": "Email address"
       }
     },
     "detailBase": {

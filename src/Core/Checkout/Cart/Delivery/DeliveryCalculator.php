@@ -61,7 +61,7 @@ class DeliveryCalculator
     private function calculateDelivery(CartDataCollection $data, Cart $cart, Delivery $delivery, SalesChannelContext $context): void
     {
         $costs = null;
-        if ($delivery->getShippingCosts()->getUnitPrice() > 0) {
+        if ($delivery->getShippingCosts()->getUnitPrice() > 0 || $cart->hasExtension(DeliveryProcessor::MANUAL_SHIPPING_COSTS)) {
             $costs = $this->calculateShippingCosts(
                 $delivery->getShippingMethod(),
                 new PriceCollection([

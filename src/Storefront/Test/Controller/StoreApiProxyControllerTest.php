@@ -8,6 +8,7 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -198,9 +199,12 @@ class StoreApiProxyControllerTest extends TestCase
 
         static::assertSame(200, $response->getStatusCode());
 
-        $json = json_decode($response->getContent(), true)['salesChannel']['languageId'];
+        $json = json_decode($response->getContent(), true);
+        static::assertSame($secondLanguage, $json['context']['languageIdChain'][0]);
 
-        static::assertSame($secondLanguage, $json);
+        if (!Feature::isActive('FEATURE_NEXT_17276')) {
+            static::assertSame($secondLanguage, $json['salesChannel']['languageId']);
+        }
     }
 
     public function testCustomerLoginChangesTokenInSession(): void

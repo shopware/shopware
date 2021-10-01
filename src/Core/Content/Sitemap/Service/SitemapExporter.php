@@ -85,7 +85,7 @@ class SitemapExporter implements SitemapExporterInterface
             $lastProvider,
             null,
             $context->getSalesChannel()->getId(),
-            $context->getSalesChannel()->getLanguageId()
+            $context->getLanguageId()
         );
     }
 
@@ -108,12 +108,12 @@ class SitemapExporter implements SitemapExporterInterface
 
     private function generateCacheKeyForSalesChannel(SalesChannelContext $salesChannelContext): string
     {
-        return sprintf('sitemap-exporter-running-%s-%s', $salesChannelContext->getSalesChannel()->getId(), $salesChannelContext->getSalesChannel()->getLanguageId());
+        return sprintf('sitemap-exporter-running-%s-%s', $salesChannelContext->getSalesChannel()->getId(), $salesChannelContext->getLanguageId());
     }
 
     private function initSitemapHandles(SalesChannelContext $context): void
     {
-        $languageId = $context->getSalesChannel()->getLanguageId();
+        $languageId = $context->getLanguageId();
         $domainsEntity = $context->getSalesChannel()->getDomains();
 
         $sitemapDomains = [];

@@ -11,7 +11,7 @@ class AlreadyLockedException extends ShopwareHttpException
     {
         parent::__construct('Cannot acquire lock for sales channel {{salesChannelId}} and language {{languageId}}', [
             'salesChannelId' => $salesChannelContext->getSalesChannel()->getId(),
-            'languageId' => $salesChannelContext->getSalesChannel()->getLanguageId(),
+            'languageId' => $salesChannelContext->getLanguageId(),
         ]);
     }
 

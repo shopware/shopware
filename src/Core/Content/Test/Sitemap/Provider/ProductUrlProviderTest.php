@@ -246,7 +246,7 @@ class ProductUrlProviderTest extends TestCase
     private function getHost(SalesChannelContext $context): string
     {
         $domains = $context->getSalesChannel()->getDomains();
-        $languageId = $context->getSalesChannel()->getLanguageId();
+        $languageId = $context->getLanguageId();
 
         if ($domains instanceof SalesChannelDomainCollection) {
             foreach ($domains as $domain) {

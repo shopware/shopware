@@ -10,6 +10,7 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Api\Controller\FallbackController;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
+use Shopware\Core\Maintenance\Maintenance;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Config\Loader\LoaderInterface;
@@ -116,6 +117,11 @@ class Kernel extends HttpKernel
 
                 yield $bundle;
             }
+        }
+
+        /* @deprecated tag:v6.5.0 Maintenance bundle need to be added to config/bundles.php file */
+        if (!\in_array('Maintenance', $instanciatedBundleNames, true)) {
+            yield new Maintenance();
         }
 
         yield from $this->pluginLoader->getBundles($this->getKernelParameters(), $instanciatedBundleNames);

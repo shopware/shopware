@@ -30,8 +30,18 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get('.sw-import-export-view-profiles__listing').should('be.visible');
         cy.get('.sw-import-export-view-profiles__create-action').click();
 
-        // Expect modal to be open with content
-        cy.get('.sw-import-export-edit-profile-modal__text').should('be.visible');
+        cy.get('.sw-modal__dialog').should('be.visible');
+
+        cy.get('#sw-field--profile-label').typeAndCheck('Basic');
+
+        cy.onlyOnFeature('FEATURE_NEXT_15998', () => {
+            cy.get('.sw-import-export-edit-profile-general__text').should('be.visible');
+        });
+
+        cy.skipOnFeature('FEATURE_NEXT_15998', () => {
+            // Expect modal to be open with content
+            cy.get('.sw-import-export-edit-profile-modal__text').should('be.visible');
+        });
 
         cy.onlyOnFeature('FEATURE_NEXT_8097', () => {
             // switch to mapping tab
@@ -45,25 +55,65 @@ describe('Import/Export - Profiles: Test crud operations', () => {
             // switch back to general tab
             cy.contains('.sw-import-export-edit-profile-modal .sw-tabs-item', 'General').click();
             // expect to see the general tab content
-            cy.get('.sw-import-export-edit-profile-modal__text').should('be.visible');
+
+            cy.onlyOnFeature('FEATURE_NEXT_15998', () => {
+                cy.get('.sw-import-export-edit-profile-general__text').should('be.visible');
+            });
+
+            cy.skipOnFeature('FEATURE_NEXT_15998', () => {
+                cy.get('.sw-import-export-edit-profile-modal__text').should('be.visible');
+            });
         });
 
-        // Fill in name and object type
-        cy.get('#sw-field--profile-label').type('Basic');
-        cy.get('.sw-import-export-edit-profile-modal__object-type-select')
-            .typeSingleSelectAndCheck(
-                'Media',
-                '.sw-import-export-edit-profile-modal__object-type-select'
-            );
+        cy.onlyOnFeature('FEATURE_NEXT_8097', () => {
+            cy.onlyOnFeature('FEATURE_NEXT_15998', () => {
+                cy.get('.sw-import-export-edit-profile-general__object-type-select')
+                    .typeSingleSelectAndCheck(
+                        'Media',
+                        '.sw-import-export-edit-profile-general__object-type-select'
+                    );
+            });
+
+            cy.skipOnFeature('FEATURE_NEXT_15998', () => {
+                cy.get('.sw-import-export-edit-profile-modal__object-type-select')
+                    .typeSingleSelectAndCheck(
+                        'Media',
+                        '.sw-import-export-edit-profile-modal__object-type-select'
+                    );
+            });
+        });
+
+
+        cy.skipOnFeature('FEATURE_NEXT_15998', () => {
+            cy.get('.sw-import-export-edit-profile-modal__object-type-select')
+                .typeSingleSelectAndCheck(
+                    'Media',
+                    '.sw-import-export-edit-profile-modal__object-type-select'
+                );
+        });
 
         cy.onlyOnFeature('FEATURE_NEXT_8097', () => {
-            cy.get('.sw-import-export-edit-profile-modal__type-select')
-                .typeSingleSelectAndCheck(
-                    'Import and export',
-                    '.sw-import-export-edit-profile-modal__type-select'
-                );
-            // switch to mapping tab
-            cy.contains('.sw-import-export-edit-profile-modal .sw-tabs-item', 'Mappings').click();
+            cy.onlyOnFeature('FEATURE_NEXT_15998', () => {
+                cy.get('.sw-import-export-edit-profile-general__type-select')
+                    .typeSingleSelectAndCheck(
+                        'Import and export',
+                        '.sw-import-export-edit-profile-general__type-select'
+                    );
+                // switch to mapping tab
+                cy.contains('.sw-import-export-edit-profile-modal .sw-tabs-item', 'Mappings').click();
+            });
+        });
+
+        cy.skipOnFeature('FEATURE_NEXT_15998', () => {
+            cy.onlyOnFeature('FEATURE_NEXT_8097', () => {
+                cy.get('.sw-import-export-edit-profile-modal__type-select')
+                    .typeSingleSelectAndCheck(
+                        'Import and export',
+                        '.sw-import-export-edit-profile-modal__type-select'
+                    );
+                // switch to mapping tab
+                cy.contains('.sw-import-export-edit-profile-modal .sw-tabs-item', 'Mappings').click();
+            });
         });
 
         // Fill in all required mappings (add mapping button should be enabled now)
@@ -255,7 +305,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         // switch back to english
         cy.get('.sw-language-switch__select').typeSingleSelectAndCheck('English', '.sw-language-switch__select');
         cy.wait('@loadData')
-    .its('response.statusCode').should('equal', 200);
+            .its('response.statusCode').should('equal', 200);
 
         // Update the search
         cy.get('.sw-import-export-view-profiles__search input[type="text"]').click();
@@ -280,7 +330,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         // change content language to german
         cy.get('.sw-language-switch__select').typeSingleSelectAndCheck('Deutsch', '.sw-language-switch__select');
         cy.wait('@loadData')
-    .its('response.statusCode').should('equal', 200);
+            .its('response.statusCode').should('equal', 200);
 
         // check that the add new profile button is disabled in other languages
         cy.get('.sw-import-export-view-profiles__create-action').should('be.disabled');
@@ -353,21 +403,45 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get('.sw-import-export-view-profiles__listing').should('be.visible');
         cy.get('.sw-import-export-view-profiles__create-action').click();
 
-        // Expect modal to be open with content
-        cy.get('.sw-import-export-edit-profile-modal__text').should('be.visible');
+        cy.get('.sw-modal__dialog').should('be.visible');
+
+        cy.onlyOnFeature('FEATURE_NEXT_15998', () => {
+            cy.get('.sw-import-export-edit-profile-general__text').should('be.visible');
+        });
+
+        cy.skipOnFeature('FEATURE_NEXT_15998', () => {
+            // Expect modal to be open with content
+            cy.get('.sw-import-export-edit-profile-modal__text').should('be.visible');
+        });
 
         // Fill in name and object type
-        cy.get('#sw-field--profile-label').type('Basic');
-        cy.get('.sw-import-export-edit-profile-modal__type-select')
-            .typeSingleSelectAndCheck(
-                'Export',
-                '.sw-import-export-edit-profile-modal__type-select'
-            );
-        cy.get('.sw-import-export-edit-profile-modal__object-type-select')
-            .typeSingleSelectAndCheck(
-                'Media',
-                '.sw-import-export-edit-profile-modal__object-type-select'
-            );
+        cy.get('#sw-field--profile-label').typeAndCheck('Basic');
+
+        cy.onlyOnFeature('FEATURE_NEXT_15998', () => {
+            cy.get('.sw-import-export-edit-profile-general__type-select')
+                .typeSingleSelectAndCheck(
+                    'Export',
+                    '.sw-import-export-edit-profile-general__type-select'
+                );
+            cy.get('.sw-import-export-edit-profile-general__object-type-select')
+                .typeSingleSelectAndCheck(
+                    'Media',
+                    '.sw-import-export-edit-profile-general__object-type-select'
+                );
+        });
+
+        cy.skipOnFeature('FEATURE_NEXT_15998', () => {
+            cy.get('.sw-import-export-edit-profile-modal__type-select')
+                .typeSingleSelectAndCheck(
+                    'Export',
+                    '.sw-import-export-edit-profile-modal__type-select'
+                );
+            cy.get('.sw-import-export-edit-profile-modal__object-type-select')
+                .typeSingleSelectAndCheck(
+                    'Media',
+                    '.sw-import-export-edit-profile-modal__object-type-select'
+                );
+        });
 
         // switch to mapping tab
         cy.contains('.sw-import-export-edit-profile-modal .sw-tabs-item', 'Mappings').click();
@@ -389,7 +463,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
 
         // Save request should be successful
         cy.wait('@saveData')
-    .its('response.statusCode').should('equal', 204);
+            .its('response.statusCode').should('equal', 204);
 
         cy.get('.sw-import-export-edit-profile-modal').should('not.be.visible');
         cy.get(`${page.elements.dataGridRow}`).should('contain', 'Basic');

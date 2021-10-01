@@ -8,7 +8,7 @@
 
     &__text {
         font-size: $font-size-small;
-        margin: 12px 0 32px;
+        margin: 12px 0 24px;
     }
 
     .sw-tabs .sw-tabs__custom-content {
@@ -19,15 +19,11 @@
         border-top: 1px solid $color-gray-300;
     }
 
-    .sw-import-export-edit-profile-modal__general-import-settings-headline {
+    h3 {
         margin-top: 48px;
-        font-size: $font-size-large;
-        font-weight: $font-weight-semi-bold;
     }
 
-    .sw-import-export-edit-profile-modal__general-import-settings-create-switch,
-    .sw-import-export-edit-profile-modal__general-import-settings-update-switch {
-        margin-top: 0;
+    .sw-import-export-edit-profile-indicators__select {
         margin-bottom: 0;
     }
 }

@@ -11,7 +11,6 @@ const profileTypes = {
     IMPORT_EXPORT: 'import-export',
 };
 
-
 /**
  * @private
  */
@@ -44,6 +43,7 @@ Shopware.Component.register('sw-import-export-edit-profile-modal', {
              * object.label The label of the entity
              * object.type Specifies the usage of the entity, possible values are 'import', 'export' or 'import-export'.
              */
+            // @feature-deprecated (flag:FEATURE_NEXT_15998) tag:v6.5.0 - will be moved into `sw-import-export-edit-profile-general`
             supportedEntities: [
                 {
                     value: 'product',
@@ -96,6 +96,7 @@ Shopware.Component.register('sw-import-export-edit-profile-modal', {
                     type: profileTypes.IMPORT_EXPORT,
                 },
             ],
+            // @feature-deprecated (flag:FEATURE_NEXT_15998) tag:v6.5.0 - will be moved into `sw-import-export-edit-profile-field-indicators`
             supportedDelimiter: [
                 {
                     value: '^',
@@ -110,12 +111,14 @@ Shopware.Component.register('sw-import-export-edit-profile-modal', {
                     label: this.$tc('sw-import-export.profile.semicolonLabel'),
                 },
             ],
+            // @feature-deprecated (flag:FEATURE_NEXT_15998) tag:v6.5.0 - will be moved into `sw-import-export-edit-profile-field-indicators`
             supportedEnclosures: [
                 {
                     value: '"',
                     label: this.$tc('sw-import-export.profile.doubleQuoteLabel'),
                 },
             ],
+            // @feature-deprecated (flag:FEATURE_NEXT_15998) tag:v6.5.0 - will be moved into `sw-import-export-edit-profile-general`
             supportedProfileTypes: [
                 {
                     value: profileTypes.IMPORT_EXPORT,
@@ -153,7 +156,7 @@ Shopware.Component.register('sw-import-export-edit-profile-modal', {
             return this.profile.isNew();
         },
 
-
+        // @feature-deprecated (flag:FEATURE_NEXT_15998) tag:v6.5.0 - will be moved into `sw-import-export-edit-profile-general`
         mappingLength() {
             if (!this.profile.mapping) {
                 return 0;
@@ -246,18 +249,21 @@ Shopware.Component.register('sw-import-export-edit-profile-modal', {
             this.systemRequiredFields = this.importExportProfileMapping.getSystemRequiredFields(entityName);
         },
 
+        // @feature-deprecated (flag:FEATURE_NEXT_15998) tag:v6.5.0 - will be moved into `sw-import-export-edit-profile-import-settings` component
         onCreateEntitiesChanged(newValue) {
             if (newValue === false) {
                 this.profile.config.updateEntities = true;
             }
         },
 
+        // @feature-deprecated (flag:FEATURE_NEXT_15998) tag:v6.5.0 - will be moved into `sw-import-export-edit-profile-import-settings` component
         onUpdateEntitiesChanged(newValue) {
             if (newValue === false) {
                 this.profile.config.createEntities = true;
             }
         },
 
+        // @feature-deprecated (flag:FEATURE_NEXT_15998) tag:v6.5.0 - will be moved into `sw-import-export-edit-profile-general` component
         shouldDisableProfileType(item) {
             if (!this.feature.isActive('FEATURE_NEXT_8097')) {
                 return false;
@@ -282,6 +288,7 @@ Shopware.Component.register('sw-import-export-edit-profile-modal', {
             return true;
         },
 
+        // @feature-deprecated (flag:FEATURE_NEXT_15998) tag:v6.5.0 - will be moved into `sw-import-export-edit-profile-general` component
         shouldDisableObjectType(item) {
             if (!this.feature.isActive('FEATURE_NEXT_8097')) {
                 return false;

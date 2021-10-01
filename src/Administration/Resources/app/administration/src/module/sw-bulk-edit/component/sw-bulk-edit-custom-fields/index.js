@@ -7,15 +7,6 @@ Component.extend('sw-bulk-edit-custom-fields', 'sw-custom-field-set-renderer', {
     template,
 
     props: {
-        selectedCustomFields: {
-            type: Object,
-            required: true,
-        },
-        isChanged: {
-            type: Boolean,
-            required: false,
-            default: false,
-        },
         entity: {
             type: Object,
             required: false,
@@ -23,40 +14,36 @@ Component.extend('sw-bulk-edit-custom-fields', 'sw-custom-field-set-renderer', {
         },
     },
 
-    computed: {
-        currentIsChanged: {
-            get() {
-                return this.isChanged;
+    data() {
+        return {
+            selectedCustomFields: {},
+        };
+    },
+
+    watch: {
+        selectedCustomFields: {
+            handler(value) {
+                this.$emit('change', value);
             },
-            set(newValue) {
-                this.$emit('change', newValue);
-            },
+            deep: true,
         },
     },
 
     methods: {
         toggleItemCheck($event, item) {
             if ($event) {
-                this.$set(this.selectedCustomFields, item.name, this.getInheritedCustomField(item.name));
+                this.$set(this.selectedCustomFields, item.name, this.entity.customFields[item.name]);
             } else {
                 this.$delete(this.selectedCustomFields, item.name);
             }
-
-            this.onCheckCustomFieldExits(item);
         },
 
         updateCustomField(item) {
-            if (Object.keys(this.entity.customFields).some(key => { return key === item.name; })) {
-                this.$set(this.selectedCustomFields, item.name, this.entity.customFields[item.name]);
+            if (!this.entity.customFields.hasOwnProperty(item.name) || !this.selectedCustomFields.hasOwnProperty(item.name)) {
+                return;
             }
 
-            this.onCheckCustomFieldExits(item);
-        },
-
-        onCheckCustomFieldExits(item) {
-            this.currentIsChanged = Object.keys(this.selectedCustomFields).some(key => {
-                return key === item.name;
-            });
+            this.$set(this.selectedCustomFields, item.name, this.entity.customFields[item.name]);
         },
     },
 });

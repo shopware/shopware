@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Term;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -23,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchPattern;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTerm;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Test\TestDefaults;
 
 class EntityScoreBuilderTest extends TestCase
 {
@@ -234,7 +234,7 @@ class EntityScoreBuilderTest extends TestCase
             new SearchTerm('test', 0.1)
         );
 
-        $context = new Context(new SalesChannelApiSource(Defaults::SALES_CHANNEL));
+        $context = new Context(new SalesChannelApiSource(TestDefaults::SALES_CHANNEL));
         $queries = $builder->buildScoreQueries($pattern, $this->testDefinition, 'test', $context);
 
         static::assertEquals(

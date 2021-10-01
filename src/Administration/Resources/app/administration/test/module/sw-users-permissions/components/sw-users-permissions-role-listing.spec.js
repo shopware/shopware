@@ -15,7 +15,8 @@ function createWrapper(privileges = []) {
 
                     return privileges.includes(identifier);
                 }
-            }
+            },
+            searchRankingService: {}
         },
         mocks: {
             $route: { query: '' }

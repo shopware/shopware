@@ -1,6 +1,11 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import Vuex from 'vuex';
 import 'src/module/sw-product/component/sw-product-media-form';
+import 'src/app/component/base/sw-product-image';
+import 'src/app/component/context-menu/sw-context-menu-item';
+import 'src/app/component/context-menu/sw-context-menu';
+import 'src/app/component/context-menu/sw-context-button';
+import 'src/app/component/utils/sw-popover';
 
 function createWrapper(privileges = []) {
     const localVue = createLocalVue();
@@ -35,9 +40,15 @@ function createWrapper(privileges = []) {
         },
         stubs: {
             'sw-upload-listener': true,
-            'sw-product-image': true,
+            'sw-product-image': Shopware.Component.build('sw-product-image'),
             'sw-media-upload-v2': true,
-            'sw-media-preview-v2': true
+            'sw-media-preview-v2': true,
+            'sw-popover': Shopware.Component.build('sw-popover'),
+            'sw-icon': true,
+            'sw-label': true,
+            'sw-context-menu': Shopware.Component.build('sw-context-menu'),
+            'sw-context-menu-item': Shopware.Component.build('sw-context-menu-item'),
+            'sw-context-button': Shopware.Component.build('sw-context-button')
         }
     });
 }
@@ -125,5 +136,30 @@ describe('module/sw-product/component/sw-product-media-form', () => {
 
         const pageChangeEvents = wrapper.emitted()['media-open'];
         expect(pageChangeEvents.length).toBe(1);
+    });
+
+    it('should can show cover when `showCoverLabel` is true', async () => {
+        const wrapper = createWrapper();
+
+        await wrapper.vm.$nextTick();
+        expect(wrapper.find('.is--cover').exists()).toBeTruthy();
+    });
+
+    it('should not show cover when `showCoverLabel` is false', async () => {
+        const wrapper = createWrapper();
+
+        await wrapper.setData({
+            showCoverLabel: false
+        });
+
+        await wrapper.vm.$nextTick();
+        expect(wrapper.find('.is--cover').exists()).toBeFalsy();
+
+        await wrapper.find('.sw-product-media-form__previews').find('.sw-product-image__context-button').trigger('click');
+        await wrapper.vm.$nextTick();
+
+        const buttons = wrapper.find('.sw-context-menu').findAll('.sw-context-menu-item__text');
+        expect(buttons.length).toBe(1);
+        expect(buttons.at(0).text()).toContain('Remove');
     });
 });

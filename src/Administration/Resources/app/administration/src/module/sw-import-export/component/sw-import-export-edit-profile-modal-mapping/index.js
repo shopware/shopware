@@ -56,6 +56,7 @@ Shopware.Component.register('sw-import-export-edit-profile-modal-mapping', {
         languageCriteria() {
             const criteria = new Criteria(1, 500);
             criteria.addAssociation('locale');
+
             return criteria;
         },
 
@@ -94,11 +95,36 @@ Shopware.Component.register('sw-import-export-edit-profile-modal-mapping', {
                 }];
             }
 
+            if (this.feature.isActive('FEATURE_NEXT_15998') && !this.profile.systemDefault) {
+                columns = [...columns, {
+                    property: 'position',
+                    label: 'sw-import-export.profile.mapping.position',
+                    allowResize: false,
+                    align: 'center',
+                }];
+            }
+
             return columns;
         },
 
         mappingsExist() {
             return this.profile.mapping.length > 0;
+        },
+
+        sortedMappings() {
+            const mappings = this.mappings;
+
+            return mappings.sort((firstMapping, secondMapping) => {
+                if (firstMapping.position > secondMapping.position) {
+                    return 1;
+                }
+
+                if (firstMapping.position < secondMapping.position) {
+                    return -1;
+                }
+
+                return 0;
+            });
         },
     },
 
@@ -171,7 +197,10 @@ Shopware.Component.register('sw-import-export-edit-profile-modal-mapping', {
                 return;
             }
 
-            this.profile.mapping.unshift({ id: createId(), key: '', mappedKey: '' });
+            // update position of all mappings
+            this.profile.mapping.forEach(currentMapping => { currentMapping.position += 1; });
+
+            this.profile.mapping.unshift({ id: createId(), key: '', mappedKey: '', position: 0 });
 
             this.loadMappings();
         },
@@ -198,6 +227,49 @@ Shopware.Component.register('sw-import-export-edit-profile-modal-mapping', {
             }
 
             return this.systemRequiredFields[item.key] !== undefined;
+        },
+
+        updateSorting(mapping, index, direction) {
+            if (direction === 'up') {
+                // return if mapping is the most upper one
+                if (index === 0) return;
+
+                const previousMapping = this.profile.mapping[index - 1];
+                this.swapItems(previousMapping, mapping);
+
+                return;
+            }
+
+            const totalLengthOfMappings = this.profile.mapping.length;
+            if (direction === 'down') {
+                // return if mapping is the lowest
+                if (index === totalLengthOfMappings - 1) return;
+
+                const nextMapping = this.profile.mapping[index + 1];
+                this.swapItems(mapping, nextMapping);
+            }
+        },
+
+        /**
+         * first item goes one down and second item goes one up
+         * @param firstItem
+         * @param secondItems
+         */
+        swapItems(firstItem, secondItems) {
+            const positionOfFirstItem = firstItem.position;
+
+            firstItem.position = secondItems.position;
+            secondItems.position = positionOfFirstItem;
+        },
+
+        isFirstMapping(item) {
+            return item.position === 0;
+        },
+
+        isLastMapping(item) {
+            const lastPosition = this.profile.mapping.length - 1;
+
+            return item.position === lastPosition;
         },
     },
 });

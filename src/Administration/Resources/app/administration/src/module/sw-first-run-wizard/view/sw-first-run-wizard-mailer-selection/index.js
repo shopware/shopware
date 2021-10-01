@@ -25,7 +25,7 @@ Shopware.Component.register('sw-first-run-wizard-mailer-selection', {
                     label: this.$tc('sw-first-run-wizard.general.buttonBack'),
                     position: 'left',
                     variant: null,
-                    action: 'sw.first.run.wizard.index.data-import',
+                    action: 'sw.first.run.wizard.index.defaults',
                     disabled: false,
                 },
                 {

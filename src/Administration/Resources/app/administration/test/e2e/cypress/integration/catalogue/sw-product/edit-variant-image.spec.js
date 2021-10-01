@@ -3,11 +3,7 @@ import ProductPageObject from '../../../support/pages/module/sw-product.page-obj
 
 function uploadImageUsingFileUpload(path, name, index = 1) {
     cy.get('.sw-product-variants-media-upload .sw-media-upload-v2__file-input')
-        .attachFile({
-            filePath: path,
-            fileName: name,
-            mimeType: 'image/png'
-        });
+        .attachFile(path);
 
     const altValue = name.substr(0, name.lastIndexOf('.'));
     const regex = new RegExp(name);
@@ -72,25 +68,19 @@ describe('Product: Test variants', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
-        }).as('saveData');
-
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveProduct');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/property-group`,
-            method: 'post'
+            method: 'POST'
         }).as('searchVariantGroup');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.config('baseUrl')}/detail/**/switch?options=*`,
-            method: 'get'
+            method: 'GET'
         }).as('changeVariant');
 
         createVariant(page);
@@ -98,10 +88,9 @@ describe('Product: Test variants', () => {
         // Get green variant
         cy.get('.sw-simple-search-field--form input').should('be.visible');
 
-        cy.wait('@searchVariantGroup').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-            cy.get('.sw-simple-search-field--form input').type('Green');
-        });
+        cy.wait('@searchVariantGroup')
+            .its('response.statusCode').should('equal', 200);
+        cy.get('.sw-simple-search-field--form input').type('Green');
 
         cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.get('.sw-data-grid__row--1').should('not.exist');
@@ -121,10 +110,9 @@ describe('Product: Test variants', () => {
         cy.get('.sw-data-grid__inline-edit-save').click();
 
         // Validate product
-        cy.wait('@saveProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-            cy.awaitAndCheckNotification('Product "Green" has been saved.');
-        });
+        cy.wait('@saveProduct')
+            .its('response.statusCode').should('equal', 204);
+        cy.awaitAndCheckNotification('Product "Green" has been saved.');
 
         cy.get('.sw-data-grid__row--0 .sw-product-variants-overview__variation-link').click();
         cy.get('.sw-product-media-form__previews').scrollIntoView().then(() => {
@@ -147,12 +135,11 @@ describe('Product: Test variants', () => {
                 if (!$input.attr('checked')) {
                     cy.contains('Green').click();
 
-                    cy.wait('@changeVariant').then((xhr) => {
-                        expect(xhr).to.have.property('status', 200);
-                        cy.get('.gallery-slider-single-image img')
-                            .should('have.attr', 'src')
-                            .and('match', /sw-login-background/);
-                    });
+                    cy.wait('@changeVariant')
+                        .its('response.statusCode').should('equal', 200);
+                    cy.get('.gallery-slider-single-image img')
+                        .should('have.attr', 'src')
+                        .and('match', /sw-login-background/);
                 } else {
                     cy.log('Variant "Green" is already open.');
                     cy.get('.gallery-slider-single-image img')
@@ -164,37 +151,29 @@ describe('Product: Test variants', () => {
 
         cy.contains('Red').click();
 
-        cy.wait('@changeVariant').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-
-            cy.get('.gallery-slider-single-image img').should('not.exist');
-            cy.get('.icon-placeholder').should('be.visible');
-        });
+        cy.wait('@changeVariant')
+            .its('response.statusCode').should('equal', 200);
+        cy.get('.gallery-slider-single-image img').should('not.exist');
+        cy.get('.icon-placeholder').should('be.visible');
     });
 
     it('@catalogue: set cover for variant image', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
-        }).as('saveData');
-
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveProduct');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/property-group`,
-            method: 'post'
+            method: 'POST'
         }).as('searchVariantGroup');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.config('baseUrl')}/detail/**/switch?options=*`,
-            method: 'get'
+            method: 'GET'
         }).as('changeVariant');
 
         createVariant(page);
@@ -215,10 +194,9 @@ describe('Product: Test variants', () => {
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-simple-search-field--form input').should('be.visible');
 
-        cy.wait('@searchVariantGroup').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-            cy.get('.sw-simple-search-field--form input').type('Green');
-        });
+        cy.wait('@searchVariantGroup')
+            .its('response.statusCode').should('equal', 200);
+        cy.get('.sw-simple-search-field--form input').type('Green');
 
         cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.get('.sw-data-grid__row--1').should('not.exist');
@@ -259,10 +237,9 @@ describe('Product: Test variants', () => {
         cy.get('.sw-data-grid__inline-edit-save').click();
 
         // Validate product
-        cy.wait('@saveProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-            cy.awaitAndCheckNotification('Product "Green" has been saved.');
-        });
+        cy.wait('@saveProduct')
+            .its('response.statusCode').should('equal', 204);
+        cy.awaitAndCheckNotification('Product "Green" has been saved.');
 
         cy.get('.sw-data-grid__row--0 .sw-product-variants-overview__variation-link').click();
         cy.get('.sw-product-media-form__previews').scrollIntoView().then(() => {
@@ -296,30 +273,23 @@ describe('Product: Test variants', () => {
 
         cy.contains('Red').click();
 
-        cy.wait('@changeVariant').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-            cy.get('.icon-placeholder').should('be.visible');
-        });
+        cy.wait('@changeVariant')
+            .its('response.statusCode').should('equal', 200);
+        cy.get('.icon-placeholder').should('be.visible');
     });
 
     it('@catalogue: view preview image modal', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
-        }).as('saveData');
-
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveProduct');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/property-group`,
-            method: 'post'
+            method: 'POST'
         }).as('searchVariantGroup');
 
         createVariant(page);
@@ -328,10 +298,9 @@ describe('Product: Test variants', () => {
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-simple-search-field--form input').should('be.visible');
 
-        cy.wait('@searchVariantGroup').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-            cy.get('.sw-simple-search-field--form input').type('Green');
-        });
+        cy.wait('@searchVariantGroup')
+            .its('response.statusCode').should('equal', 200);
+        cy.get('.sw-simple-search-field--form input').type('Green');
 
         cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.get('.sw-data-grid__row--1').should('not.exist');
@@ -371,11 +340,10 @@ describe('Product: Test variants', () => {
         cy.get('.sw-data-grid__row--0 .sw-data-grid__inline-edit-save').click();
 
         // Validate product
-        cy.wait('@saveProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-            cy.awaitAndCheckNotification('Product "Green" has been saved.');
-            cy.get('.sw-data-grid-skeleton').should('not.exist');
-        });
+        cy.wait('@saveProduct')
+            .its('response.statusCode').should('equal', 204);
+        cy.awaitAndCheckNotification('Product "Green" has been saved.');
+        cy.get('.sw-data-grid-skeleton').should('not.exist');
 
         // Open preview modal
         cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--name').dblclick({ force: true });

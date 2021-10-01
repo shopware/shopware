@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 
 class PromotionAbsoluteCalculationTest extends TestCase
 {
@@ -48,7 +49,7 @@ class PromotionAbsoluteCalculationTest extends TestCase
     {
         parent::setUp();
 
-        $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->promotionRepository = $this->getContainer()->get('promotion.repository');
@@ -74,7 +75,7 @@ class PromotionAbsoluteCalculationTest extends TestCase
         $promotionId = Uuid::randomHex();
         $code = 'BF' . Random::getAlphanumericString(5);
 
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         // add a new sample product
         $this->createTestFixtureProduct($productId, 60, 17, $this->getContainer(), $context);
@@ -109,7 +110,7 @@ class PromotionAbsoluteCalculationTest extends TestCase
         $productId = Uuid::randomHex();
         $promotionId = Uuid::randomHex();
         $code = 'BF' . Random::getAlphanumericString(5);
-        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         // add a new sample product
         $this->createTestFixtureProduct($productId, 100, 19, $this->getContainer(), $context);
@@ -139,7 +140,7 @@ class PromotionAbsoluteCalculationTest extends TestCase
             ->get(SalesChannelContextFactory::class)
             ->create(
                 Uuid::randomHex(),
-                Defaults::SALES_CHANNEL,
+                TestDefaults::SALES_CHANNEL,
                 [SalesChannelContextService::CUSTOMER_ID => $this->createNetCustomer()]
             );
 
@@ -176,7 +177,7 @@ class PromotionAbsoluteCalculationTest extends TestCase
                     'code' => $code,
                     'useCodes' => true,
                     'salesChannels' => [
-                        ['salesChannelId' => Defaults::SALES_CHANNEL, 'priority' => 1],
+                        ['salesChannelId' => TestDefaults::SALES_CHANNEL, 'priority' => 1],
                     ],
                     'discounts' => [
                         [
@@ -216,7 +217,7 @@ class PromotionAbsoluteCalculationTest extends TestCase
             'password' => 'shopware',
             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'groupId' => $this->createNetCustomerGroup(),
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultBillingAddressId' => $addressId,
             'defaultShippingAddressId' => $addressId,
             'addresses' => [

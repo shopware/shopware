@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IterateEntityIndexerMessage;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
+use Shopware\Storefront\Framework\Cache\CacheWarmer\CacheWarmer;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,10 +18,7 @@ class CacheControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
 
-    /**
-     * @var TagAwareAdapterInterface
-     */
-    private $cache;
+    private TagAwareAdapterInterface $cache;
 
     protected function setUp(): void
     {
@@ -62,6 +60,10 @@ class CacheControllerTest extends TestCase
 
     public function testWarmupCacheEndpoint(): void
     {
+        if (!$this->getContainer()->has(CacheWarmer::class)) {
+            static::markTestSkipped('CacheWarmer test needs storefront bundle to be installed');
+        }
+
         $this->cache = $this->getContainer()->get('cache.object');
 
         $item = $this->cache->getItem('foo');

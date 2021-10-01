@@ -129,6 +129,10 @@ class Kernel extends HttpKernel
     public function getProjectDir()/*: string*/
     {
         if ($this->projectDir === null) {
+            if ($dir = $_ENV['PROJECT_ROOT'] ?? $_SERVER['PROJECT_ROOT'] ?? false) {
+                return $this->projectDir = $dir;
+            }
+
             $r = new \ReflectionObject($this);
 
             $dir = (string) $r->getFileName();
@@ -200,6 +204,9 @@ class Kernel extends HttpKernel
             $parameters = [
                 'url' => $url,
                 'charset' => 'utf8mb4',
+                'driverOptions' => [
+                    \PDO::ATTR_STRINGIFY_FETCHES => true,
+                ],
             ];
 
             if ($sslCa = EnvironmentHelper::getVariable('DATABASE_SSL_CA')) {
@@ -375,6 +382,11 @@ class Kernel extends HttpKernel
 
             $setSessionVariables = (bool) EnvironmentHelper::getVariable('SQL_SET_DEFAULT_SESSION_VARIABLES', true);
             $connectionVariables = [];
+
+            $timeZoneSupportEnabled = (bool) EnvironmentHelper::getVariable('SHOPWARE_DBAL_TIMEZONE_SUPPORT_ENABLED', false);
+            if ($timeZoneSupportEnabled) {
+                $connectionVariables[] = 'SET @@session.time_zone = "UTC"';
+            }
 
             if ($setSessionVariables) {
                 $connectionVariables[] = 'SET @@group_concat_max_len = CAST(IF(@@group_concat_max_len > 320000, @@group_concat_max_len, 320000) AS UNSIGNED)';

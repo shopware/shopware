@@ -3,6 +3,9 @@ import template from './sw-order-state-select.html.twig';
 
 const { Component } = Shopware;
 
+/**
+ * @feature-deprecated (flag:FEATURE_NEXT_7530) will be dropped
+ */
 Component.register('sw-order-state-select', {
     template,
     props: {

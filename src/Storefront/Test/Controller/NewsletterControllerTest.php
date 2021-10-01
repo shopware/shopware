@@ -5,7 +5,6 @@ namespace Shopware\Storefront\Test\Controller;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -13,6 +12,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,6 +21,8 @@ class NewsletterControllerTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
     use StorefrontControllerTestBehaviour;
+
+    private array $customerData = [];
 
     public function testRegisterNewsletterForCustomerDirect(): void
     {
@@ -51,6 +53,7 @@ class NewsletterControllerTest extends TestCase
         $recipientEntry = $repo->search($criteria, Context::createDefaultContext())->first();
 
         static::assertEquals('direct', $recipientEntry->getStatus(), $recipientEntry->getStatus());
+        $this->validateRecipientData($recipientEntry);
     }
 
     public function testRegisterNewsletterForCustomerDoi(): void
@@ -99,6 +102,7 @@ class NewsletterControllerTest extends TestCase
         $recipientEntry = $repo->search($criteria, Context::createDefaultContext())->first();
 
         static::assertEquals('optIn', $recipientEntry->getStatus(), $recipientEntry->getStatus());
+        $this->validateRecipientData($recipientEntry);
     }
 
     private function login(): KernelBrowser
@@ -130,36 +134,47 @@ class NewsletterControllerTest extends TestCase
         $customerId = Uuid::randomHex();
         $addressId = Uuid::randomHex();
 
-        $data = [
-            [
-                'id' => $customerId,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
-                'defaultShippingAddress' => [
-                    'id' => $addressId,
-                    'firstName' => 'Max',
-                    'lastName' => 'Mustermann',
-                    'street' => 'Musterstraße 1',
-                    'city' => 'Schöppingen',
-                    'zipcode' => '12345',
-                    'salutationId' => $this->getValidSalutationId(),
-                    'countryId' => $this->getValidCountryId(),
-                ],
-                'defaultBillingAddressId' => $addressId,
-                'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-                'email' => 'nltest@example.com',
-                'password' => 'test',
+        $this->customerData = [
+            'id' => $customerId,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+            'defaultShippingAddress' => [
+                'id' => $addressId,
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
+                'street' => 'Musterstraße 1',
+                'city' => 'Schöppingen',
+                'zipcode' => '12345',
                 'salutationId' => $this->getValidSalutationId(),
-                'customerNumber' => '12345',
+                'countryId' => $this->getValidCountryId(),
             ],
+            'defaultBillingAddressId' => $addressId,
+            'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
+            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'email' => 'nltest@example.com',
+            'password' => 'test',
+            'title' => 'Dr.',
+            'firstName' => 'Max',
+            'lastName' => 'Mustermann',
+            'salutationId' => $this->getValidSalutationId(),
+            'customerNumber' => '12345',
         ];
 
         $repo = $this->getContainer()->get('customer.repository');
 
-        $repo->create($data, Context::createDefaultContext());
+        $repo->create([$this->customerData], Context::createDefaultContext());
 
         return $repo->search(new Criteria([$customerId]), Context::createDefaultContext())->first();
+    }
+
+    private function validateRecipientData(NewsletterRecipientEntity $recipientEntry): void
+    {
+        static::assertSame($this->customerData['email'], $recipientEntry->getEmail());
+        static::assertSame($this->customerData['salutationId'], $recipientEntry->getSalutationId());
+        static::assertSame($this->customerData['title'], $recipientEntry->getTitle());
+        static::assertSame($this->customerData['firstName'], $recipientEntry->getFirstName());
+        static::assertSame($this->customerData['lastName'], $recipientEntry->getLastName());
+        static::assertSame($this->customerData['defaultShippingAddress']['zipcode'], $recipientEntry->getZipCode());
+        static::assertSame($this->customerData['defaultShippingAddress']['city'], $recipientEntry->getCity());
+        static::assertSame($this->customerData['defaultShippingAddress']['street'], $recipientEntry->getStreet());
     }
 }

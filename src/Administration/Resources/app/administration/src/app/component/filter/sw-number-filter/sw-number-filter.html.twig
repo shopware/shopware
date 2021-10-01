@@ -16,7 +16,7 @@
             v-model="numberValue.from"
             v-bind="$attrs"
             class="sw-number-filter__from"
-            :label="$tc('global.default.from')"
+            :label="fromToFieldLabel('from')"
             :placeholder="filter.fromPlaceholder"
         />
     </template>
@@ -28,7 +28,7 @@
             v-model="numberValue.to"
             v-bind="$attrs"
             class="sw-number-filter__to"
-            :label="$tc('global.default.to')"
+            :label="fromToFieldLabel('to')"
             :placeholder="filter.toPlaceholder"
         />
     </template>

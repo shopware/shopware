@@ -12,6 +12,9 @@ const createWrapper = () => {
 
     return shallowMount(Shopware.Component.build('sw-mail-template-index'), {
         localVue,
+        provide: {
+            searchRankingService: {}
+        },
         mocks: {
             $route: {
                 query: {

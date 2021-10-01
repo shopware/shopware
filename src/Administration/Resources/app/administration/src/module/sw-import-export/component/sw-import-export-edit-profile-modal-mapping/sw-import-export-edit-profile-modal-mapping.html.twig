@@ -35,7 +35,7 @@
     {% block sw_import_export_edit_profile_modal_mapping_grid %}
     <sw-data-grid
         v-if="mappingsExist"
-        :data-source="mappings"
+        :data-source="sortedMappings"
         :compact-mode="false"
         :show-selection="false"
         :show-actions="!profile.systemDefault"
@@ -105,6 +105,47 @@
                 :name="`defaultValue-${itemIndex}`"
                 :disabled="isDefaultValueTextFieldDisabled(item)"
             />
+        </template>
+        {% endblock %}
+
+        {% block sw_import_export_edit_profile_modal_mapping_grid_position_column %}
+        <template #column-position="{ item, itemIndex }">
+
+            {% block sw_import_export_edit_profile_modal_mapping_grid_position_column_button_group %}
+            <sw-button-group>
+                {% block sw_import_export_edit_profile_modal_mapping_grid_position_column_button_group_up %}
+                <sw-button
+                    size="x-small"
+                    square
+                    :disabled="isFirstMapping(item) || !!searchTerm"
+                    @click="updateSorting(item, itemIndex, 'up')"
+                >
+                    {% block sw_import_export_edit_profile_modal_mapping_grid_position_column_button_group_up_icon %}
+                    <sw-icon
+                        name="small-arrow-small-up"
+                        size="14px"
+                    />
+                    {% endblock %}
+                </sw-button>
+                {% endblock %}
+
+                {% block sw_import_export_edit_profile_modal_mapping_grid_position_column_button_group_down %}
+                <sw-button
+                    size="x-small"
+                    square
+                    :disabled="isLastMapping(item) || !!searchTerm"
+                    @click="updateSorting(item, itemIndex, 'down')"
+                >
+                    {% block sw_import_export_edit_profile_modal_mapping_grid_position_column_button_group_down_icon %}
+                    <sw-icon
+                        name="small-arrow-small-down"
+                        size="14px"
+                    />
+                    {% endblock %}
+                </sw-button>
+                {% endblock %}
+            </sw-button-group>
+            {% endblock %}
         </template>
         {% endblock %}
 

@@ -20,10 +20,9 @@ describe('Product: Edit product media', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveProduct');
 
         // Open product
@@ -37,12 +36,7 @@ describe('Product: Edit product media', () => {
         // Add first image to product
         cy.get('.sw-product-media-form__previews').scrollIntoView();
         cy.get('#files')
-            .attachFile({
-                filePath: 'img/sw-login-background.png',
-                fileName: 'sw-login-background.png',
-                mimeType: 'image/png'
-            });
-
+            .attachFile('img/sw-login-background.png');
         cy.get('.sw-product-image__image img')
             .should('have.attr', 'src')
             .and('match', /sw-login-background/);
@@ -50,11 +44,7 @@ describe('Product: Edit product media', () => {
 
         // Add second image to product
         cy.get('#files')
-            .attachFile({
-                filePath: 'img/sw-test-image.png',
-                fileName: 'sw-test-image.png',
-                mimeType: 'image/png'
-            });
+            .attachFile('img/sw-test-image.png');
         cy.get('.sw-product-image:nth-of-type(2) img')
             .first()
             .should('have.attr', 'src')
@@ -69,13 +59,10 @@ describe('Product: Edit product media', () => {
 
         // Save product
         cy.get(page.elements.productSaveAction).click();
-        cy.wait('@saveProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@saveProduct').its('response.statusCode').should('equal', 200);
 
         // Verify in storefront
-        cy.visit('/');
-        cy.get('.product-name').click();
+        cy.visit('/Product-name/RS-333');
         cy.get('.gallery-slider-item').should('be.visible');
         cy.get('#tns2-item0 img')
             .should('have.attr', 'src')
@@ -86,10 +73,9 @@ describe('Product: Edit product media', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveProduct');
 
         // Open product
@@ -103,11 +89,7 @@ describe('Product: Edit product media', () => {
         // Add first image to product
         cy.get('.sw-product-media-form__previews').scrollIntoView();
         cy.get('#files')
-            .attachFile({
-                filePath: 'img/sw-login-background.png',
-                fileName: 'sw-login-background.png',
-                mimeType: 'image/png'
-            });
+            .attachFile('img/sw-login-background.png');
         cy.get('.sw-product-image__image img')
             .should('have.attr', 'src')
             .and('match', /sw-login-background/);
@@ -115,11 +97,7 @@ describe('Product: Edit product media', () => {
 
         // Add second image to product
         cy.get('#files')
-            .attachFile({
-                filePath: 'img/sw-test-image.png',
-                fileName: 'sw-test-image.png',
-                mimeType: 'image/png'
-            });
+            .attachFile('img/sw-test-image.png');
         cy.get('.sw-product-image:nth-of-type(2) img')
             .first()
             .should('have.attr', 'src')
@@ -138,9 +116,7 @@ describe('Product: Edit product media', () => {
 
         // Save product
         cy.get(page.elements.productSaveAction).click();
-        cy.wait('@saveProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@saveProduct').its('response.statusCode').should('equal', 200);
 
         // Verify in storefront
         cy.visit('/');
@@ -159,10 +135,9 @@ describe('Product: Edit product media', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveProduct');
 
         // Open product
@@ -175,32 +150,12 @@ describe('Product: Edit product media', () => {
         // Add first image to product
         cy.get('.sw-product-media-form__previews').scrollIntoView();
 
-        if (Cypress.isBrowser({ family: 'chromium' })) {
-            cy.get('#files')
-                .attachFile({
-                    filePath: 'img/sw-login-background.png',
-                    fileName: 'sw-login-background.png',
-                    mimeType: 'image/png'
-                });
+        cy.get('#files')
+            .attachFile('img/sw-login-background.png');
 
-            cy.get('.sw-product-image__image img')
-                .should('have.attr', 'src')
-                .and('match', /sw-login-background/);
-        }
-
-        if (Cypress.isBrowser('firefox')) {
-            // Upload medium
-            cy.get('.sw-media-upload-v2__content .sw-context-button__button').click();
-            cy.contains('Upload file from URL').click();
-            cy.get('input[name=sw-field--url]').should('be.visible')
-                .type('http://assets.shopware.com/sw_logo_white.png');
-            cy.get('.sw-media-url-form__submit-button').click();
-
-            cy.awaitAndCheckNotification('File has been saved.');
-            cy.get('.sw-media-preview__placeholder').should('not.exist');
-
-            cy.get('.sw-media-preview-v2').should('be.visible');
-        }
+        cy.get('.sw-product-image__image img')
+            .should('have.attr', 'src')
+            .and('match', /sw-login-background/);
 
         cy.get('.sw-product-image__image img')
             .should('have.attr', 'src')
@@ -208,9 +163,7 @@ describe('Product: Edit product media', () => {
 
         // Save product
         cy.get(page.elements.productSaveAction).click();
-        cy.wait('@saveProduct').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@saveProduct').its('response.statusCode').should('equal', 200);
 
         // Remove image
         cy.get(`.sw-product-image:nth-of-type(1) ${page.elements.contextMenuButton}`)
@@ -222,6 +175,7 @@ describe('Product: Edit product media', () => {
         cy.get(page.elements.productSaveAction).click();
 
         // Verify removal
+        cy.wait('@saveProduct').its('response.statusCode').should('equal', 200);
         cy.get(page.elements.smartBarBack).click();
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
             .contains('Product name').click();

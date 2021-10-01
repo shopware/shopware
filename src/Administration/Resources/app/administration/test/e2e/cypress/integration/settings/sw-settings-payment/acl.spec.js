@@ -51,10 +51,9 @@ describe('Payment: Test ACL privileges', () => {
 
     it('@settings: can edit payment', () => {
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/payment-method/*`,
-            method: 'patch'
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/payment-method/*`,
+            method: 'PATCH'
         }).as('savePayment');
 
         const page = new ProductPageObject();
@@ -79,9 +78,7 @@ describe('Payment: Test ACL privileges', () => {
         // Verify updated payment method
         cy.get('.sw-payment-detail__save-action').should('not.be.disabled');
         cy.get('.sw-payment-detail__save-action').click();
-        cy.wait('@savePayment').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@savePayment').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--description`)
@@ -90,10 +87,9 @@ describe('Payment: Test ACL privileges', () => {
 
     it('@settings: can create payment', () => {
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/payment-method`,
-            method: 'post'
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/payment-method`,
+            method: 'POST'
         }).as('saveData');
 
         const page = new ProductPageObject();
@@ -119,18 +115,15 @@ describe('Payment: Test ACL privileges', () => {
         cy.get('.sw-payment-detail__save-action').click();
 
         // Verify payment method in listing
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
         cy.get(page.elements.smartBarBack).click();
         cy.contains('.sw-data-grid__row', '1 Coleur');
     });
 
     it('@settings: can delete settings-payment', () => {
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/payment-method/*`,
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/payment-method/*`,
             method: 'delete'
         }).as('deleteData');
 

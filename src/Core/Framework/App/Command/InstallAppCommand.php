@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\App\Command;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\UserAbortedCommandException;
-use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
+use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Symfony\Component\Console\Command\Command;
@@ -21,27 +21,15 @@ class InstallAppCommand extends Command
 {
     protected static $defaultName = 'app:install';
 
-    /**
-     * @var string
-     */
-    private $appDir;
+    private string $appDir;
 
-    /**
-     * @var AppLifecycle
-     */
-    private $appLifecycle;
+    private AbstractAppLifecycle $appLifecycle;
 
-    /**
-     * @var AppPrinter
-     */
-    private $appPrinter;
+    private AppPrinter $appPrinter;
 
-    /**
-     * @var ValidateAppCommand
-     */
-    private $validateAppCommand;
+    private ValidateAppCommand $validateAppCommand;
 
-    public function __construct(string $appDir, AppLifecycle $appLifecycle, AppPrinter $appPrinter, ValidateAppCommand $validateAppCommand)
+    public function __construct(string $appDir, AbstractAppLifecycle $appLifecycle, AppPrinter $appPrinter, ValidateAppCommand $validateAppCommand)
     {
         parent::__construct();
         $this->appDir = $appDir;

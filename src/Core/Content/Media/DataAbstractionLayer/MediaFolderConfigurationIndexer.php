@@ -18,25 +18,13 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class MediaFolderConfigurationIndexer extends EntityIndexer
 {
-    /**
-     * @var IteratorFactory
-     */
-    private $iteratorFactory;
+    private IteratorFactory $iteratorFactory;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $repository;
+    private EntityRepositoryInterface $repository;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
     public function __construct(
         IteratorFactory $iteratorFactory,
@@ -102,6 +90,7 @@ class MediaFolderConfigurationIndexer extends EntityIndexer
         $configs = $this->repository->search($criteria, $context);
 
         $update = new RetryableQuery(
+            $this->connection,
             $this->connection->prepare('UPDATE media_folder_configuration SET media_thumbnail_sizes_ro = :media_thumbnail_sizes_ro WHERE id = :id')
         );
 

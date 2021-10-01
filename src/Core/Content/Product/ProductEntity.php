@@ -214,6 +214,11 @@ class ProductEntity extends Entity
     /**
      * @var array|null
      */
+    protected $streamIds;
+
+    /**
+     * @var array|null
+     */
     protected $optionIds;
 
     /**
@@ -912,6 +917,16 @@ class ProductEntity extends Entity
         }
 
         return $this->releaseDate < new \DateTime();
+    }
+
+    public function getStreamIds(): ?array
+    {
+        return $this->streamIds;
+    }
+
+    public function setStreamIds(?array $streamIds): void
+    {
+        $this->streamIds = $streamIds;
     }
 
     public function getOptionIds(): ?array

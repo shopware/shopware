@@ -142,15 +142,15 @@ Component.register('sw-filter-panel', {
             if (item.breadcrumb) {
                 return item.breadcrumb.join(' / ');
             }
-            return item.translated.name || item.name;
+            return item.translated?.name || item.name;
         },
 
         getLabelName(item) {
             if (item.breadcrumb && item.breadcrumb.length > 1) {
-                return `.. / ${item.translated.name || item.name} `;
+                return `.. / ${item.translated?.name || item.name} `;
             }
 
-            return item.translated.name || item.name;
+            return item.translated?.name || item.name;
         },
     },
 });

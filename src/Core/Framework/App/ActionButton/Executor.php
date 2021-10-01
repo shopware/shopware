@@ -47,6 +47,7 @@ class Executor
             $response = $this->guzzleClient->post(
                 $action->getTargetUrl(),
                 [
+                    AuthMiddleware::APP_REQUEST_CONTEXT => $context,
                     AuthMiddleware::APP_REQUEST_TYPE => [
                         AuthMiddleware::APP_SECRET => $action->getAppSecret(),
                         AuthMiddleware::VALIDATED_RESPONSE => true,

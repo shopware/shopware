@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel\Command;
 
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
@@ -24,40 +25,19 @@ class SalesChannelCreateCommand extends Command
 {
     protected static $defaultName = 'sales-channel:create';
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $salesChannelRepository;
+    private EntityRepositoryInterface $salesChannelRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $paymentMethodRepository;
+    private EntityRepositoryInterface $paymentMethodRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $shippingMethodRepository;
+    private EntityRepositoryInterface $shippingMethodRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $countryRepository;
+    private EntityRepositoryInterface $countryRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $snippetSetRepository;
+    private EntityRepositoryInterface $snippetSetRepository;
 
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $definitionRegistry;
+    private DefinitionInstanceRegistry $definitionRegistry;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $categoryRepository;
+    private EntityRepositoryInterface $categoryRepository;
 
     public function __construct(
         DefinitionInstanceRegistry $definitionRegistry,
@@ -91,7 +71,7 @@ class SalesChannelCreateCommand extends Command
             ->addOption('shippingMethodId', null, InputOption::VALUE_REQUIRED, 'Default shipping method')
             ->addOption('countryId', null, InputOption::VALUE_REQUIRED, 'Default country')
             ->addOption('typeId', null, InputOption::VALUE_OPTIONAL, 'Sales channel type id')
-            ->addOption('customerGroupId', null, InputOption::VALUE_REQUIRED, 'Default customer group', Defaults::FALLBACK_CUSTOMER_GROUP)
+            ->addOption('customerGroupId', null, InputOption::VALUE_REQUIRED, 'Default customer group')
             ->addOption('navigationCategoryId', null, InputOption::VALUE_REQUIRED, 'Default Navigation Category')
         ;
     }
@@ -107,6 +87,7 @@ class SalesChannelCreateCommand extends Command
         $shippingMethod = $input->getOption('shippingMethodId') ?? $this->getFirstActiveShippingMethodId();
         $countryId = $input->getOption('countryId') ?? $this->getFirstActiveCountryId();
         $snippetSet = $input->getOption('snippetSetId') ?? $this->getSnippetSetId();
+        $customerGroupId = $input->getOption('customerGroupId') ?? $this->getCustomerGroupId();
         $context = Context::createDefaultContext();
 
         $data = [
@@ -126,7 +107,7 @@ class SalesChannelCreateCommand extends Command
             'shippingMethodVersionId' => Defaults::LIVE_VERSION,
             'countryId' => $countryId,
             'countryVersionId' => Defaults::LIVE_VERSION,
-            'customerGroupId' => $input->getOption('customerGroupId'),
+            'customerGroupId' => $customerGroupId,
             'navigationCategoryId' => $input->getOption('navigationCategoryId'),
 
             // available mappings
@@ -140,7 +121,7 @@ class SalesChannelCreateCommand extends Command
         $data = array_replace_recursive($data, $this->getSalesChannelConfiguration($input, $output));
 
         try {
-            $this->salesChannelRepository->create([$data], Context::createDefaultContext());
+            $this->salesChannelRepository->create([$data], $context);
 
             $io->success('Sales channel has been created successfully.');
         } catch (WriteException $exception) {
@@ -265,5 +246,21 @@ class SalesChannelCreateCommand extends Command
             },
             $ids->getIds()
         );
+    }
+
+    private function getCustomerGroupId(): string
+    {
+        $criteria = (new Criteria())
+            ->setLimit(1);
+
+        $repository = $this->definitionRegistry->getRepository(CustomerGroupDefinition::ENTITY_NAME);
+
+        $id = $repository->searchIds($criteria, Context::createDefaultContext())->firstId();
+
+        if ($id === null) {
+            throw new \RuntimeException('Cannot find a customer group to assign it to the sales channel');
+        }
+
+        return $id;
     }
 }

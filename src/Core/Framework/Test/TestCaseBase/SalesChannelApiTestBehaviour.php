@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpKernel\KernelInterface;
 
@@ -158,7 +159,7 @@ trait SalesChannelApiTestBehaviour
         $this->getContainer()->get('customer.repository')->create([
             [
                 'id' => $customerId,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultShippingAddress' => [
                     'id' => $addressId,
                     'firstName' => 'Max',
@@ -191,11 +192,11 @@ trait SalesChannelApiTestBehaviour
                     ],
                     'salesChannels' => [
                         [
-                            'id' => Defaults::SALES_CHANNEL,
+                            'id' => TestDefaults::SALES_CHANNEL,
                         ],
                     ],
                 ],
-                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => $email,
                 'password' => $password,
                 'firstName' => 'Max',
@@ -261,8 +262,8 @@ trait SalesChannelApiTestBehaviour
             'navigationCategoryId' => $this->getValidCategoryId(),
             'countryId' => $this->getValidCountryId(null),
             'currencies' => [['id' => Defaults::CURRENCY]],
-            'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
-            'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+            'languages' => $salesChannelOverride['languages'] ?? [['id' => Defaults::LANGUAGE_SYSTEM]],
+            'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'domains' => [
                 [
                     'languageId' => Defaults::LANGUAGE_SYSTEM,

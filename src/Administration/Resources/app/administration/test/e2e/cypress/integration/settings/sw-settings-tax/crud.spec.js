@@ -20,10 +20,9 @@ describe('Tax: Test crud operations', () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/tax`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Create tax
@@ -36,9 +35,7 @@ describe('Tax: Test crud operations', () => {
         cy.get(page.elements.taxSaveAction).click();
 
         // Verify tax
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
         cy.get(`${page.elements.dataGridRow}--1 ${page.elements.taxColumnName}`).should('be.visible')
@@ -49,10 +46,9 @@ describe('Tax: Test crud operations', () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/tax/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         // Edit tax' base data
@@ -66,9 +62,7 @@ describe('Tax: Test crud operations', () => {
         cy.get(page.elements.taxSaveAction).click();
 
         // Verify tax
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
         cy.get(`${page.elements.dataGridRow}--0 ${page.elements.taxColumnName}`).should('be.visible')
@@ -79,8 +73,7 @@ describe('Tax: Test crud operations', () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/tax/*`,
             method: 'delete'
         }).as('deleteData');
@@ -97,9 +90,7 @@ describe('Tax: Test crud operations', () => {
             .contains('Are you sure you want to delete the tax "High tax"?');
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
 
-        cy.wait('@deleteData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.modal).should('not.exist');
         cy.get(`${page.elements.dataGridRow}--3`).should('not.exist');

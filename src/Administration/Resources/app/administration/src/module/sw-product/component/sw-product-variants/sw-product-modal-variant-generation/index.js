@@ -66,6 +66,13 @@ Component.register('sw-product-modal-variant-generation', {
             }
             return '';
         },
+
+        buttonVariant() {
+            if (this.variantsNumber <= 0) {
+                return 'danger';
+            }
+            return 'primary';
+        },
     },
 
     created() {

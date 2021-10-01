@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Test\Framework\Seo\MainCategory;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -112,6 +113,12 @@ class MainCategoryExtensionTest extends TestCase
                 [
                     'salesChannelId' => $salesChannelId,
                     'categoryId' => $categoryId,
+                ],
+            ],
+            'visibilities' => [
+                [
+                    'salesChannelId' => $salesChannelId,
+                    'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
                 ],
             ],
         ]);

@@ -30,8 +30,8 @@ Component.register('sw-data-grid', {
     template,
 
     inject: [
+        'acl',
         'repositoryFactory',
-        'feature',
     ],
 
     props: {
@@ -152,8 +152,9 @@ Component.register('sw-data-grid', {
         isRecordSelectable: {
             type: Function,
             required: false,
-            default() {
-                return true;
+            default(item) {
+                return !this.reachMaximumSelectionExceed
+                    || Object.keys(this.selection).includes(item[this.itemIdentifierProperty]);
             },
         },
 
@@ -161,6 +162,18 @@ Component.register('sw-data-grid', {
             type: String,
             required: false,
             default: 'id',
+        },
+
+        maximumSelectItems: {
+            type: Number,
+            required: false,
+            default: null,
+        },
+
+        preSelection: {
+            type: Object,
+            required: false,
+            default: null,
         },
     },
 
@@ -175,7 +188,7 @@ Component.register('sw-data-grid', {
             currentSetting: {},
             currentColumns: [],
             columnIndex: null,
-            selection: {},
+            selection: Object.assign({}, this.preSelection || {}),
             originalTarget: null,
             compact: this.compactMode,
             previews: this.showPreviews,
@@ -200,6 +213,9 @@ Component.register('sw-data-grid', {
             };
         },
 
+        /**
+         * @major-deprecated tag:v6.5.0 - localStorageItemKey will be removed
+         */
         localStorageItemKey() {
             return `${this.identifier}-grid`;
         },
@@ -208,7 +224,38 @@ Component.register('sw-data-grid', {
             return Object.values(this.selection).length;
         },
 
+        reachMaximumSelectionExceed() {
+            if (!this.maximumSelectItems) {
+                return false;
+            }
+
+            return this.selectionCount >= this.maximumSelectItems;
+        },
+
+        isSelectAllDisabled() {
+            if (!this.maximumSelectItems) {
+                return false;
+            }
+
+            if (!this.records) {
+                return false;
+            }
+
+            const currentVisibleIds = this.records.map(record => record.id);
+
+            return this.reachMaximumSelectionExceed
+                && Object.keys(this.selection).every(id => !currentVisibleIds.includes(id));
+        },
+
         allSelectedChecked() {
+            if (this.isSelectAllDisabled) {
+                return false;
+            }
+
+            if (this.reachMaximumSelectionExceed) {
+                return true;
+            }
+
             if (!this.records || this.records.length === 0) {
                 return false;
             }
@@ -218,13 +265,12 @@ Component.register('sw-data-grid', {
             }
 
             const selectedItems = Object.values(this.selection);
-            return this.records.reduce((acc, item) => {
-                if (!selectedItems.some((selection) => selection === item)) {
-                    acc = false;
-                }
 
-                return acc;
-            }, true);
+            return this.records.every(item => {
+                return selectedItems.some((selection) => {
+                    return selection[this.itemIdentifierProperty] === item[this.itemIdentifierProperty];
+                });
+            });
         },
 
         userConfigRepository() {
@@ -242,6 +288,15 @@ Component.register('sw-data-grid', {
             criteria.addFilter(Criteria.equals('userId', this.currentUser && this.currentUser.id));
 
             return criteria;
+        },
+
+        hasInvisibleSelection() {
+            if (!this.records) {
+                return false;
+            }
+
+            const currentVisibleIds = this.records.map(record => record.id);
+            return this.selectionCount > 0 && Object.keys(this.selection).some(id => !currentVisibleIds.includes(id));
         },
     },
 
@@ -274,8 +329,10 @@ Component.register('sw-data-grid', {
             this.selection = this.showSelection ? this.selection : {};
         },
 
+        /**
+         * @major-deprecated tag:v6.5.0 - will be removed
+         */
         records() {
-            this.selection = {};
         },
 
         compactMode() {
@@ -317,11 +374,19 @@ Component.register('sw-data-grid', {
             if (!this.identifier) {
                 return;
             }
+
             this.findUserSetting();
         },
 
         findUserSetting() {
-            return this.userConfigRepository.search(this.userGridSettingCriteria, Shopware.Context.api).then((response) => {
+            if (!this.acl.can('user_config:read')) {
+                return Promise.resolve();
+            }
+
+            return this.userConfigRepository.search(
+                this.userGridSettingCriteria,
+                Shopware.Context.api,
+            ).then((response) => {
                 if (!response.length) {
                     return;
                 }
@@ -364,19 +429,20 @@ Component.register('sw-data-grid', {
                 return;
             }
 
-            const userColumnSettings = userSettings.columns.reduce((obj, column) => {
-                return {
-                    ...obj,
-                    [column.dataIndex]: {
+
+            const userColumnSettings = Object.fromEntries(userSettings.columns.map((column, index) => {
+                return [
+                    column.dataIndex, {
                         width: column.width,
                         allowResize: column.allowResize,
                         sortable: column.sortable,
                         visible: column.visible,
-                        align: column.visible,
+                        align: column.align,
                         naturalSorting: column.naturalSorting,
+                        position: index,
                     },
-                };
-            }, {});
+                ];
+            }));
 
             this.currentColumns = this.currentColumns.map(column => {
                 if (userColumnSettings[column.dataIndex] === undefined) {
@@ -391,7 +457,7 @@ Component.register('sw-data-grid', {
 
                         return localValue;
                     });
-            });
+            }).sort((column1, column2) => column1.position - column2.position);
         },
 
         findResizeColumns() {
@@ -438,6 +504,10 @@ Component.register('sw-data-grid', {
         },
 
         saveUserSettings() {
+            if (!this.acl.can('user_config:create') || !this.acl.can('user_config:update')) {
+                return;
+            }
+
             if (!this.identifier) {
                 return;
             }
@@ -594,6 +664,10 @@ Component.register('sw-data-grid', {
         },
 
         selectItem(selected, item) {
+            if (selected && this.reachMaximumSelectionExceed) {
+                return;
+            }
+
             if (!this.isRecordSelectable(item)) {
                 return;
             }

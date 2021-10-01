@@ -265,4 +265,25 @@ class KeyMappingPipeTest extends TestCase
 
         static::assertSame($expetedOutput, $actualOutput);
     }
+
+    public function testEntityExtensions(): void
+    {
+        $input = [
+            'extensions' => [
+                'testExtension' => [
+                    'customString' => 'hello world',
+                ],
+            ],
+        ];
+        $mapping = [
+            ['key' => 'testExtension.customString', 'mappedKey' => 'TestCustomString'],
+        ];
+
+        $keyMappingPipe = new KeyMappingPipe();
+        $config = new Config($mapping, []);
+        $actualOutput = iterator_to_array($keyMappingPipe->in($config, $input));
+        static::assertSame([
+            'TestCustomString' => 'hello world',
+        ], $actualOutput);
+    }
 }

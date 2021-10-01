@@ -1,0 +1,136 @@
+{% block sw_import_export_edit_profile_general %}
+<div class="sw-import-export-edit-profile-general">
+    {% block sw_import_export_edit_profile_general_text %}
+    <p class="sw-import-export-edit-profile-general__text">
+        {{ $tc('sw-import-export.profile.descriptionBlock') }}
+    </p>
+    {% endblock %}
+
+    {% block sw_import_export_edit_profile_general_container %}
+    <sw-container
+        columns="1fr 1fr"
+        gap="0 32px"
+    >
+        {% block sw_import_export_edit_profile_general_container_name %}
+        <sw-field
+            v-model="profile.label"
+            type="text"
+            :label="$tc('sw-import-export.profile.profileNameFieldLabel')"
+            required
+            :disabled="profile.systemDefault"
+            :error="profileNameError"
+            :placeholder="profile.translated.label"
+        />
+        {% endblock %}
+
+        {% block sw_import_export_edit_profile_general_container_object_type %}
+        <span
+            v-tooltip="{
+                message: $tc('sw-import-export.profile.objectTypeFieldTooltipText'),
+                disabled: mappingLength <= 0,
+                showOnDisabledElements: false
+            }"
+            class="sw-import-export-edit-profile-general__object-type-field"
+        >
+            {% block sw_import_export_edit_profile_general_container_object_type_select %}
+            <sw-single-select
+                ref="objectTypeSelect"
+                v-model="profile.sourceEntity"
+                class="sw-import-export-edit-profile-general__object-type-select"
+                :label="$tc('sw-import-export.profile.objectTypeFieldLabel')"
+                required
+                :options="supportedEntities"
+                :disabled="profile.systemDefault || mappingLength > 0"
+                :error="profileSourceEntityError"
+                :show-clearable-button="!(profile.systemDefault || mappingLength > 0)"
+            >
+                <template
+                    #result-item="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }"
+                >
+                    {% block sw_import_export_edit_profile_general_container_object_type_select_result %}
+                    <li
+                        is="sw-select-result"
+                        v-tooltip="{
+                            showDelay: 300,
+                            message: $tc('sw-import-export.profile.objectTypeDisabledText'),
+                            disabled: !shouldDisableObjectType(item)
+                        }"
+                        :disabled="item.disabled || shouldDisableObjectType(item)"
+                        :class="'sw-select-option--' + item.value"
+                        :selected="isSelected(item)"
+                        v-bind="{ item, index }"
+                        @item-select="setValue"
+                    >
+                        {% block sw_import_export_edit_profile_general_container_object_type_select_result_highlight %}
+                        <sw-highlight-text
+                            v-if="highlightSearchTerm && !isSelected(item)"
+                            :text="getKey(item, labelProperty)"
+                            :search-term="searchTerm"
+                        />
+                        {% endblock %}
+
+                        {% block sw_import_export_edit_profile_general_container_object_type_select_result_text %}
+                        <template v-else>
+                            {{ getKey(item, labelProperty) }}
+                        </template>
+                        {% endblock %}
+                    </li>
+                    {% endblock %}
+                </template>
+            </sw-single-select>
+            {% endblock %}
+        </span>
+        {% endblock %}
+
+        {% block sw_import_export_edit_profile_general_container_type %}
+        <sw-single-select
+            v-if="feature.isActive('FEATURE_NEXT_8097')"
+            v-model="profile.type"
+            class="sw-import-export-edit-profile-general__type-select"
+            :label="$tc('sw-import-export.profile.typeFieldLabel')"
+            required
+            :options="supportedProfileTypes"
+            :disabled="profile.systemDefault"
+            :error="profileTypeError"
+            :show-clearable-button="!profile.systemDefault"
+        >
+            <template
+                #result-item="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }"
+            >
+                {% block sw_import_export_edit_profile_general_container_type_result %}
+                <li
+                    is="sw-select-result"
+                    v-tooltip="{
+                        showDelay: 300,
+                        message: $tc('sw-import-export.profile.profileTypeDisabledText'),
+                        disabled: !shouldDisableProfileType(item)
+                    }"
+                    :disabled="item.disabled || shouldDisableProfileType(item)"
+                    :class="'sw-select-option--' + item.value"
+                    :selected="isSelected(item)"
+                    v-bind="{ item, index }"
+                    @item-select="setValue"
+                >
+                    {% block sw_import_export_edit_profile_general_container_type_result_highlight %}
+                    <sw-highlight-text
+                        v-if="highlightSearchTerm && !isSelected(item)"
+                        :text="getKey(item, labelProperty)"
+                        :search-term="searchTerm"
+                    />
+                    {% endblock %}
+
+                    {% block sw_import_export_edit_profile_general_container_type_result_text %}
+                    <template v-else>
+                        {{ getKey(item, labelProperty) }}
+                    </template>
+                    {% endblock %}
+                </li>
+                {% endblock %}
+            </template>
+        </sw-single-select>
+        {% endblock %}
+    </sw-container>
+    {% endblock %}
+</div>
+{% endblock %}
+

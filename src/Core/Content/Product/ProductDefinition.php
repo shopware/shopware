@@ -170,6 +170,7 @@ class ProductDefinition extends EntityDefinition
             (new ListField('category_tree', 'categoryTree', IdField::class))->setStrict(true)->addFlags(new ApiAware(), new Inherited(), new WriteProtected()),
             (new ManyToManyIdField('property_ids', 'propertyIds', 'properties'))->addFlags(new ApiAware(), new Inherited()),
             (new ManyToManyIdField('option_ids', 'optionIds', 'options'))->addFlags(new ApiAware(), new Inherited()),
+            (new ManyToManyIdField('stream_ids', 'streamIds', 'streams'))->addFlags(new ApiAware(), new Inherited()),
             (new ManyToManyIdField('tag_ids', 'tagIds', 'tags'))->addFlags(new Inherited()),
             (new ManyToManyIdField('category_ids', 'categoryIds', 'categories'))->addFlags(new Inherited(), new ApiAware()),
             (new ChildCountField())->addFlags(new ApiAware()),

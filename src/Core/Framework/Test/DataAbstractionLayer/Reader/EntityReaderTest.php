@@ -16,17 +16,18 @@ use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationEntity;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\ParentAssociationCanNotBeFetched;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\NonIdPrimaryKeyTestDefinition;
@@ -35,6 +36,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Tax\TaxEntity;
+use Shopware\Core\Test\TestDefaults;
 
 class EntityReaderTest extends TestCase
 {
@@ -47,7 +49,7 @@ class EntityReaderTest extends TestCase
 
     private EntityRepositoryInterface $categoryRepository;
 
-    private EntityRepository $languageRepository;
+    private EntityRepositoryInterface $languageRepository;
 
     private EntityRepositoryInterface $taxRepository;
 
@@ -793,7 +795,7 @@ class EntityReaderTest extends TestCase
                 'email' => 'test@test.com' . $id,
                 'defaultShippingAddressId' => $defaultAddressId,
                 'defaultBillingAddressId' => $defaultAddressId,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'group' => ['name' => 'test'],
                 'addresses' => [
@@ -842,7 +844,7 @@ class EntityReaderTest extends TestCase
                 'email' => 'test@test.com' . $id,
                 'defaultShippingAddressId' => $defaultAddressId,
                 'defaultBillingAddressId' => $defaultAddressId,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'group' => ['name' => 'test'],
                 'addresses' => [
@@ -893,7 +895,7 @@ class EntityReaderTest extends TestCase
             'salutationId' => $this->getValidSalutationId(),
             'password' => 'A',
             'email' => 'test@example.com',
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'group' => ['name' => 'test'],
         ];
@@ -989,7 +991,7 @@ class EntityReaderTest extends TestCase
             'lastName' => 'Test',
             'customerNumber' => 'A',
             'password' => 'A',
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
             'group' => ['name' => 'test'],
         ];
@@ -1111,7 +1113,7 @@ class EntityReaderTest extends TestCase
                 'email' => 'test@test.com' . Uuid::randomHex(),
                 'defaultShippingAddressId' => $defaultAddressId,
                 'defaultBillingAddressId' => $defaultAddressId,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'group' => ['name' => 'test'],
                 'addresses' => [
@@ -1183,7 +1185,7 @@ class EntityReaderTest extends TestCase
                 'email' => 'test@test.com' . Uuid::randomHex(),
                 'defaultShippingAddressId' => $defaultAddressId,
                 'defaultBillingAddressId' => $defaultAddressId,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
                 'group' => ['name' => 'test'],
                 'addresses' => [
@@ -1928,6 +1930,7 @@ class EntityReaderTest extends TestCase
         $result = $repository->search(new Criteria(), Context::createDefaultContext());
 
         static::assertEquals(2, $result->getTotal());
+        static::assertEquals(2, $result->count());
     }
 
     public function testReadWithNonIdPKOverPropertyName(): void
@@ -1954,6 +1957,7 @@ class EntityReaderTest extends TestCase
         $result = $repository->search(new Criteria([['testField' => $id1]]), Context::createDefaultContext());
 
         static::assertEquals(1, $result->getTotal());
+        static::assertEquals(1, $result->count());
     }
 
     /**
@@ -1983,5 +1987,178 @@ class EntityReaderTest extends TestCase
         $result = $repository->search(new Criteria([['test_field' => $id1]]), Context::createDefaultContext());
 
         static::assertEquals(1, $result->getTotal());
+        static::assertEquals(1, $result->count());
+    }
+
+    public function testDirectlyReadFromTranslationEntity(): void
+    {
+        $repo = $this->getContainer()->get('category.repository');
+
+        $id = Uuid::randomHex();
+
+        $cats = [
+            [
+                'id' => $id,
+                'name' => 'system',
+                'translations' => [
+                    'de-DE' => [
+                        'name' => 'deutsch',
+                    ],
+                ],
+            ],
+        ];
+
+        $repo->create($cats, Context::createDefaultContext());
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('name', 'system'));
+
+        $result = $this->getContainer()->get('category_translation.repository')->search($criteria, Context::createDefaultContext());
+
+        static::assertEquals(1, $result->getTotal());
+        static::assertEquals(1, $result->count());
+
+        /** @var CategoryTranslationEntity $translation */
+        $translation = $result->first();
+        static::assertEquals('system', $translation->getName());
+        static::assertEquals(Defaults::LANGUAGE_SYSTEM, $translation->getLanguageId());
+        static::assertEquals($id, $translation->getCategoryId());
+    }
+
+    /**
+     * @dataProvider casesToManyPaginated
+     */
+    public function testLoadToManyPaginated(array $data, callable $modifier, array $expected): void
+    {
+        $id = Uuid::randomHex();
+        $this->categoryRepository->upsert([
+            [
+                'id' => $id,
+                'name' => 'test',
+                'seoUrls' => $data,
+            ],
+        ], Context::createDefaultContext());
+
+        $criteria = new Criteria([$id]);
+        $modifier($criteria);
+
+        /** @var CategoryEntity $result */
+        $result = $this->categoryRepository->search($criteria, Context::createDefaultContext())->first();
+
+        $urls = $result->getSeoUrls()->map(function (SeoUrlEntity $e) {
+            return $e->getSeoPathInfo();
+        });
+
+        static::assertSame($expected, array_values($urls));
+    }
+
+    public function casesToManyPaginated(): iterable
+    {
+        yield 'Multi sort' => [
+            [
+                [
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'routeName' => 'test2',
+                    'pathInfo' => 'test2',
+                    'seoPathInfo' => 'active',
+                    'isCanonical' => true,
+                ],
+                [
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'routeName' => 'test',
+                    'pathInfo' => 'test',
+                    'seoPathInfo' => 'not-active',
+                    'isCanonical' => false,
+                ],
+                [
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'routeName' => 'test',
+                    'pathInfo' => 'test',
+                    'seoPathInfo' => 'not-active2',
+                    'isCanonical' => false,
+                    'isDeleted' => true,
+                ],
+            ],
+            function (Criteria $criteria): void {
+                $criteria->getAssociation('seoUrls')->addSorting(
+                    new FieldSorting('isCanonical', FieldSorting::DESCENDING),
+                    new FieldSorting('isDeleted', FieldSorting::ASCENDING),
+                )->setLimit(20);
+            },
+            [
+                'active',
+                'not-active',
+                'not-active2',
+            ],
+        ];
+
+        yield 'Sorting join new table' => [
+            [
+                [
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'routeName' => 'test2',
+                    'pathInfo' => 'test2',
+                    'seoPathInfo' => 'active',
+                    'isCanonical' => true,
+                ],
+                [
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'routeName' => 'test',
+                    'pathInfo' => 'test',
+                    'seoPathInfo' => 'not-active',
+                    'isCanonical' => false,
+                ],
+            ],
+            function (Criteria $criteria): void {
+                $criteria->getAssociation('seoUrls')->addSorting(
+                    new FieldSorting('salesChannel.id', FieldSorting::DESCENDING),
+                    new FieldSorting('isCanonical', FieldSorting::DESCENDING)
+                )->setLimit(20);
+            },
+            [
+                'active',
+                'not-active',
+            ],
+        ];
+
+        yield 'Sort and boost using query' => [
+            [
+                [
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'routeName' => 'test2',
+                    'pathInfo' => 'test2',
+                    'seoPathInfo' => 'active',
+                    'isCanonical' => true,
+                ],
+                [
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'routeName' => 'test-query',
+                    'pathInfo' => 'test-query',
+                    'seoPathInfo' => 'active-query',
+                    'isCanonical' => false,
+                ],
+                [
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'routeName' => 'test',
+                    'pathInfo' => 'test',
+                    'seoPathInfo' => 'not-active',
+                    'isCanonical' => false,
+                ],
+            ],
+            function (Criteria $criteria): void {
+                $filter = new OrFilter([
+                    new EqualsFilter('isCanonical', true),
+                ]);
+                $filter->addQuery(new EqualsFilter('seoPathInfo', 'active-query'));
+
+                $criteria->getAssociation('seoUrls')->setLimit(20);
+                $criteria->getAssociation('seoUrls')->addFilter($filter);
+                $criteria->getAssociation('seoUrls')->addSorting(new FieldSorting('isCanonical', FieldSorting::ASCENDING));
+            },
+            [
+                'active-query',
+                'active',
+            ],
+        ];
     }
 }

@@ -18,10 +18,13 @@
             },
             "contextMenu": {
                 "showLog": "Öffne Logeintrag",
+                "showLogInfo": "Öffne Log-Informationen",
                 "downloadFile": "Datei herunterladen",
+                "downloadImportFile": "Import-Datei herunterladen",
+                "downloadExportFile": "Export-Datei herunterladen",
                 "showProfile": "Profil anzeigen",
                 "downloadInvalidFile": "Fehlerhafte Einträge herunterladen",
-                "showResults": "Ergebnistabelle anzeigen"
+                "showResults": "Zusammenfassung anzeigen"
             },
             "detail": {
                 "modalTitle": "Log-Informationen",
@@ -33,23 +36,61 @@
                 "labelFailedRecords": "Fehlgeschlagene Einträge",
                 "labelSize": "Dateigröße",
                 "labelUser": "Benutzer",
-                "labelDate": "Datum /  Zeit",
+                "labelDate": "Datum / Zeit",
                 "labelState": "Status",
                 "exportLabel": "Export",
                 "importLabel": "Import",
+                "dryrunLabel": "Testlauf",
                 "labelDownloadFile": "Datei herunterladen",
                 "labelDownloadInvalidFile": "Fehlerhafte Einträge herunterladen",
                 "helpTextFailedRecords": "Fehlgeschlagene Einträge können runtergeladen, bearbeitet und neu importiert werden."
             },
+            "logInfo": {
+              "modalTitle": "Log-Informationen",
+              "labelClose": "Schließen",
+              "labelFilename": "Dateiname",
+              "labelType": "Typ",
+              "labelExportRecords": "Exportierte Einträge",
+              "labelSize": "Dateigröße",
+              "labelUser": "Benutzer",
+              "labelDate": "Datum / Zeit",
+              "labelState": "Status",
+              "labelProfile": "Profil",
+              "exportLabel": "Export",
+              "importLabel": "Import",
+              "dryrunLabel": "Testlauf",
+              "labelDownloadFile": "Export-Datei herunterladen"
+            },
             "result": {
-              "modalTitle": "Ergebnistabelle",
-              "entityName": "Objekt-Typ Name",
-              "insert": "Erstellt",
-              "update": "Aktualisiert",
-              "insertError": "Erstellungsfehler",
-              "updateError": "Aktualisierungsfehler",
-              "insertSkip": "Erstellung übersprungen",
-              "updateSkip": "Aktualisierung übersprungen"
+              "modalTitle": "Zusammenfassung des Imports",
+              "activityHeadline": "Importaktivitäten: damit verbundene Änderungen",
+              "activityDescription": "Die folgenden Entitäten waren von dem {entity} import betroffen.",
+              "entityName": "Datensätze",
+              "changes": "Änderungen",
+              "errors": "Fehler",
+              "skipped": "Übersprungen",
+              "labelDownloadFile": "Import-Datei herunterladen",
+              "labelDownloadInvalidFile": "Fehlerhafte Einträge herunterladen",
+              "mainEntity": {
+                "title": "Importaktivität: {entity}",
+                "insert": "Erstellt",
+                "update": "Aktualisiert",
+                "insertError": "Erstellungsfehler",
+                "updateError": "Aktualisierungsfehler",
+                "insertSkip": "Erstellung übersprungen",
+                "updateSkip": "Aktualisierung übersprungen"
+              },
+              "logInfo": {
+                "title": "Log-Informationen",
+                "labelFilename": "Dateiname",
+                "labelType": "Typ",
+                "labelImported": "Importierte Einträge",
+                "labelSize": "Dateigröße",
+                "labelState": "Status",
+                "labelUser": "Benutzer",
+                "labelProfile": "Profil",
+                "labelDate": "Datum / Zeit"
+              }
             },
             "status": {
                 "progress": "Importiere ...",
@@ -83,6 +124,7 @@
             "addNewProfileLabel": "Neues Profil hinzufügen",
             "addNewProfileTooltipLanguage": "Profile können nur in der System-Standardsprache erstellt werden.",
             "openLabel": "Öffnen",
+            "indicatorHeadline" : "Feld-Indikatoren",
             "duplicateLabel": "Duplizieren",
             "copyOfLabel": "Kopie von:",
             "saveProfileLabel": "Profil speichern",
@@ -92,29 +134,32 @@
             "mappingsTab": "Zuweisungen",
             "profileNameFieldLabel": "Profilname",
             "objectTypeFieldLabel": "Objekt-Typ",
-            "separatorFieldLabel": "Seperator-Zeichen",
+            "separatorFieldLabel": "Separator-Zeichen",
             "enclosureFieldLabel": "Einfassungszeichen",
             "addMappingTooltipText": "Bitte lege zunächst einen Objekt-Typ fest.",
             "objectTypeFieldTooltipText": "Der Objekt-Typ kann nicht mehr verändert werden, wenn bereits Mapping-Optionen gepflegt wurden.",
-            "descriptionBlock": "Objekt-Typen definieren den Import- und Export-Modus und haben Auswirkungen auf die verfügbaren Optionen in der Zuweisungen-Tabelle. Sobald Du ihn konfiguriert hast, kannst Du kannst den Objekt-Typ nicht mehr verändern.",
+            "descriptionBlock": "Objekttypen definieren einen bestimmten Modus für das Importieren und Exportieren von Daten. Durch die Auswahl eines Objekttyps werden die Mapping-Optionen eingeschränkt. Beachte, dass du den Objekttyp nicht mehr ändern kannst, nachdem Mapping-Optionen hinzugefügt wurden.",
             "mappingDescriptionBlock": "Verwende die Tabelle unter dem \"Zuweisungen\"-Tab, um den CSV-Feldern bestimmte Datenbankeinträge zuzuweisen.",
-            "csvDescriptionBlock": "Separatoren werden verwendet, um einzelne Felder zu trennen. Einfassungszeichen werden verwendet, um gezielt darin enthaltene Steuerzeichen zu ignorieren. Zum Beispiel, wenn im Fließtext das Separator-Zeichen auftaucht.",
+            "csvDescriptionBlock": "Trennzeichen und Einschließungszeichen werden verwendet, um einzelne Felder in der CSV-Datei zu kennzeichnen. Trennzeichen werden verwendet, um einzelne Felder aufzuteilen, Anführungszeichen werden verwendet, um mehrere Felder zu gruppieren.",
             "cancelLabel": "Abbrechen",
             "addMappingLabel": "Neues Mapping hinzufügen",
+            "downloadTemplateLabel": "Template herunterladen",
             "deleteLabel": "Löschen",
             "systemDefaultInfoText": "Dies ist ein Systemstandardprofil, das nicht geändert werden kann. Du kannst entweder ein neues Profil erstellen oder ein Systemstandardprofil duplizieren.",
             "mapping": {
                 "fileValueLabel": "CSV-Name",
                 "entityLabel": "Datenbank-Eintrag",
                 "isRequired": "Erforderlich",
-                "defaultValue": "Standard-Wert"
+                "defaultValue": "Standard-Wert",
+                "position": "Position",
+                "notMapped": "Nicht zugeordnet"
             },
             "typeColumn": "Typ",
             "nameColumn": "Name",
             "customTypeLabel": "Benutzerdefiniert",
             "defaultTypeLabel": "Standard",
             "propertyLabel": "Eigenschaften",
-            "mappingDescription": "Verwende die folgende Tabelle, um den CSV-Namen auf die Shopware-Datenbank abzubilden. Zusätzlich kannst Du einstellen, ob die Zuordnung erforderlich sein soll (falls es nicht bereits durch die Datenbank selbst erforderlich ist). Leere Pflichtfelder führen beim Import zu einem Fehler, es sei denn, der Standard-Wert wurde eingestellt. Der Standard-Wert wird verwendet, um leere Datenbankeinträge beim Import oder CSV-Namen beim Export auszufüllen.",
+            "mappingDescription": "Verwenden Sie die folgende Tabelle, um die CSV-Spaltennamen den Datenbankeinträgen zuzuordnen. Leere Pflichtfelder führen beim Import zu einem Fehler, es sei denn, es wurde ein Standardwert festgelegt.",
             "mappingEmptyState": "Es wurde noch kein benutzerdefiniertes Mapping angelegt.",
             "configuratorSettingLabel": "Varianten-Konfiguration",
             "productCrossSellingLabel": "Cross-Selling",
@@ -122,17 +167,20 @@
             "closeViolation": "Schließen",
             "violationMessage": "Dein Profil ist noch nicht gültig. Du musst Zuordnungen zu den unten angezeigten Pflichtfeldern hinzufügen, um das Profil zu speichern:",
             "importSettingsHeadline": "Import-Einstellungen",
-            "createEntitiesLabel": "Neue Entitäten erstellen",
+            "createEntitiesLabel": "Neue Datensätze erstellen",
             "updateEntitiesLabel": "Vorhandene Daten aktualisieren",
             "typeFieldLabel": "Nutzung",
             "types": {
                 "importExportLabel": "Import und Export",
                 "importLabel": "Import",
                 "exportLabel": "Export"
-            }
+            },
+          "profileTypeDisabledText": "Leere das Feld 'Objekt-Typ', um wieder zwischen allen möglichen 'Nutzungen' auswählen zu können.",
+          "objectTypeDisabledText": "Leere das Feld 'Nutzung', um wieder zwischen allen möglichen 'Objekt-Typen' auswählen zu können."
         },
         "exporter": {
-            "messageExportSuccess": "Der Export wurde erfolgreich abgeschlossen.",
+            "messageExportStarted": "Der Export wurde erfolgreich gestartet.",
+            "messageExportSuccess": "Der Export \"{profile}\" wurde erfolgreich abgeschlossen.",
             "startExportLabel": "Export starten",
             "showLogLabel": "Log anzeigen",
             "exportActivityLabel": "Export-Aktivität",
@@ -145,8 +193,10 @@
             "exportVariants": "Produktvarianten exportieren"
         },
         "importer": {
-            "messageExportSuccess": "Der Import wurde erfolgreich abgeschlossen.",
-            "messageExportError": "Es sind Fehler während des Importierens aufgetreten.",
+            "messageImportStarted": "Der Import wurde erfolgreich gestartet.",
+            "messageImportSuccess": "Der Import \"{profile}\" wurde erfolgreich abgeschlossen.",
+            "messageImportError": "Während des Imports \"{profile}\" traten Fehler auf.",
+            "messageImportWarning": "Keine Einträge importiert. Stelle bitte sicher, dass das Separator-Zeichen den Einstellungen im verwendeten Profil entspricht.",
             "uploadCsvLabel": "CSV-Datei hochladen",
             "startImportLabel": "Import starten",
             "selectProfileLabel": "Profil auswählen",
@@ -159,9 +209,7 @@
             "close": "Schließen",
             "labelUploadCaption": "Wähle eine Datei zum Hochladen",
             "variantsWarning": "<strong>Achtung beim Import von Varianten:</strong> Sollen die Varianten direkt vollständig importiert werden, solltest du diese ebenfalls importieren. Nutze dafür ein Profil, was Varianten-Einstellungen importiert.<br>Tust du das nicht, müssen die Varianten über den Admin gesondert manuell erstellt werden.",
-            "importVariants": "Produktvarianten importieren",
-            "messageImportSuccess": "Der Import wurde erfolgreich abgeschlossen.",
-            "messageImportError": "Während des Imports traten Fehler auf."
+            "importVariants": "Produktvarianten importieren"
         },
         "page": {
             "profileTab": "Profile",
@@ -171,21 +219,7 @@
         "progress": {
             "startImportLabel": "Import starten",
             "startImportDryrunLabel": "Testlauf starten",
-            "startExportLabel": "Export starten",
-            "entriesLabel": "Einträge",
-            "fileSizeLabel": "kB",
-            "successTitle": "erfolgreich",
-            "downloadFileLabel": "Datei herunterladen",
-            "succeededImportText": "Importieren erfolgreich",
-            "succeededExportText": "Exportieren erfolgreich",
-            "failedImportText": "Import fehlgeschlagen",
-            "progressImportText": "Importiere ...",
-            "progressExportText": "Exportiere ...",
-            "downloadFailedLabel": "Fehlgeschlagene Einträge herunterladen",
-            "successfulImportsText": "{records} Einträge erfolgreich importiert",
-            "failedImportsText": "{failedRecords} Einträge konnten nicht importiert werden. Die fehlgeschlagenen Einträge können heruntergeladen, bearbeitet und erneut importiert werden.",
-            "failedExportText": "Export fehlgeschlagen",
-            "showLogFileLabel": "Öffne Log-Eintrag"
+            "startExportLabel": "Export starten"
         }
     },
   "sw-privileges": {

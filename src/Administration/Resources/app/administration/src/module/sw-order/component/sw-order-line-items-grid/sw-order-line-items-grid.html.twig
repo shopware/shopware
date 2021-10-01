@@ -90,14 +90,10 @@
         identifier="sw-order-line-item-grid"
         :data-source="orderLineItems"
         :columns="getLineItemColumns"
-        :full-page="false"
-        :show-settings="false"
+        show-settings
         :show-selection="editable"
-        :show-actions="true"
         :is-loading="isLoading"
-        :allow-column-edit="false"
         :allow-inline-edit="editable"
-        :compact-mode="false"
         :is-record-editable="(item) => !isPromotionItem(item)"
         @inline-edit-cancel="onInlineEditCancel"
         @inline-edit-save="onInlineEditSave"
@@ -164,9 +160,9 @@
                     v-else
                     class="sw-order-line-items-grid__item-payload-options"
                 >
-                    <div class="sw-order-line-items-grid__item-label">
+                    <span class="sw-order-line-items-grid__item-label">
                         {{ item.label }}
-                    </div>
+                    </span>
                 </template>
                 {% endblock %}
                 {% endblock %}
@@ -176,9 +172,9 @@
 
             {% block sw_order_line_items_grid_grid_columns_label_content %}
             <template v-else>
-                <div class="sw-order-line-items-grid__item-label">
+                <span class="sw-order-line-items-grid__item-label">
                     {{ item.label }}
-                </div>
+                </span>
             </template>
             {% endblock %}
 
@@ -200,9 +196,7 @@
             {% endblock %}
 
             {% block sw_order_line_items_grid_grid_columns_unit_price_content %}
-            <template v-else>
-                {{ item.unitPrice | currency(order.currency.shortName) }}
-            </template>
+            <span v-else>{{ item.unitPrice | currency(order.currency.shortName) }}</span>
             {% endblock %}
 
         </template>
@@ -212,7 +206,9 @@
         <template #column-totalPrice="{ item }">
 
             {% block sw_order_line_items_grid_grid_columns_total_price_content %}
-            {{ item.totalPrice | currency(order.currency.shortName) }}
+            <span>
+                {{ item.totalPrice | currency(order.currency.shortName) }}
+            </span>
             {% endblock %}
 
         </template>
@@ -234,9 +230,9 @@
             {% endblock %}
 
             {% block sw_order_line_items_grid_grid_columns_quantity_content %}
-            <template v-else>
-                {{ item.quantity }}
-            </template>
+            <span v-else>
+                {{ item.quantity }} x
+            </span>
             {% endblock %}
 
         </template>
@@ -267,9 +263,9 @@
             {% endblock %}
 
             {% block sw_order_line_items_grid_grid_columns_tax_content %}
-            <template v-else-if="item.price && item.price.taxRules.length">
+            <span v-else-if="item.price && item.price.taxRules.length">
                 {{ showTaxValue(item) }}
-            </template>
+            </span>
             {% endblock %}
 
         </template>
@@ -281,12 +277,25 @@
             {% block sw_order_line_items_grid_grid_actions_show %}
             <sw-context-menu-item
                 :disabled="!isProductItem(item)"
-                icon="default-eye-open"
                 :router-link="{ name: 'sw.product.detail', params: { id: item.productId } }"
             >
 
                 {% block sw_order_line_items_grid_grid_actions_show_label %}
                 {{ $tc('sw-order.detailBase.contextMenuShowProduct') }}
+                {% endblock %}
+
+            </sw-context-menu-item>
+            {% endblock %}
+
+            {% block sw_order_line_items_grid_grid_actions_delete %}
+            <sw-context-menu-item
+                v-if="feature.isActive('FEATURE_NEXT_7530')"
+                variant="danger"
+                @click="onDeleteItem(item)"
+            >
+
+                {% block sw_order_line_items_grid_grid_actions_delete_label %}
+                {{ $tc('sw-order.detailBase.contextMenuDelete') }}
                 {% endblock %}
 
             </sw-context-menu-item>

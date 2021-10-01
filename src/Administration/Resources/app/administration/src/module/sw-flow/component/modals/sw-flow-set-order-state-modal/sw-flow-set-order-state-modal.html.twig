@@ -1,0 +1,64 @@
+{% block sw_flow_set_order_state_modal %}
+<sw-modal
+    class="sw-flow-set-order-state-modal"
+    :title="$tc('sw-flow.modals.status.titleSetStatus')"
+    @modal-close="onClose"
+>
+    {% block sw_flow_set_order_state_modal_content %}
+    {% block sw_flow_set_order_state_modal_payment_status %}
+    <sw-select-field
+        v-model="config.order_transaction"
+        class="sw-flow-set-order-state-modal__payment-status"
+        :options="paymentOptions"
+        :label="$tc('sw-flow.modals.status.labelPaymentStatus')"
+        :placeholder="$tc('sw-flow.modals.status.placeholderPaymentStatus')"
+    />
+    {% endblock %}
+
+    {% block sw_flow_set_order_state_modal_delivery_status %}
+    <sw-select-field
+        v-model="config.order_delivery"
+        class="sw-flow-set-order-state-modal__delivery-status"
+        :options="deliveryOptions"
+        :label="$tc('sw-flow.modals.status.labelDeliveryStatus')"
+        :placeholder="$tc('sw-flow.modals.status.placeholderDeliveryStatus')"
+    />
+    {% endblock %}
+
+    {% block sw_flow_set_order_state_modal_order_status %}
+    <sw-select-field
+        v-model="config.order"
+        class="sw-flow-set-order-state-modal__order-status"
+        :options="orderOptions"
+        :label="$tc('sw-flow.modals.status.labelOrderStatus')"
+        :placeholder="$tc('sw-flow.modals.status.placeholderOrderStatus')"
+    />
+    {% endblock %}
+    {% endblock %}
+
+    {% block sw_flow_set_order_state_modal_footer %}
+    <template #modal-footer>
+        {% block sw_flow_set_order_state_modal_footer_cancel_button %}
+        <sw-button
+            class="sw-flow-set-order-state-modal__cancel-button"
+            @click="onClose"
+        >
+            {{ $tc('global.default.cancel') }}
+        </sw-button>
+        {% endblock %}
+
+        {% block sw_flow_set_order_state_modal_footer_save_button %}
+        <sw-button
+            class="sw-flow-set-order-state-modal__save-button"
+            variant="primary"
+            @click="onAddAction"
+        >
+            {{ sequence.id
+                ? $tc('sw-flow.modals.buttonSaveAction')
+                : $tc('sw-flow.modals.buttonAddAction') }}
+        </sw-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
+</sw-modal>
+{% endblock %}

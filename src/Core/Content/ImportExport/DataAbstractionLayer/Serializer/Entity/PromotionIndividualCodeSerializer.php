@@ -58,6 +58,14 @@ class PromotionIndividualCodeSerializer extends EntitySerializer
             $deserialized['promotion']['useIndividualCodes'] = true;
         }
 
+        // if useIndividualCodes is set -> also set useCodes because the admin needs it.
+        if (
+            !isset($deserialized['promotion']['useCodes'])
+            && $deserialized['promotion']['useIndividualCodes'] === true
+        ) {
+            $deserialized['promotion']['useCodes'] = true;
+        }
+
         // set promotionIndividualCode id from code if possible (for existing codes)
         if (empty($deserialized['id']) && isset($deserialized['promotion']['id']) && isset($entity['code'])) {
             $id = $this->getPromoCodeId($entity['code']);

@@ -5,7 +5,6 @@ namespace Shopware\Administration\Test\Controller;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Test\Payment\Handler\V630\SyncTestPaymentHandler;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Feature;
@@ -14,6 +13,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 
 class AdministrationControllerTest extends TestCase
 {
@@ -38,8 +38,6 @@ class AdministrationControllerTest extends TestCase
 
     protected function setup(): void
     {
-        $this->connection = $this->getContainer()->get(Connection::class);
-
         $this->connection = $this->getContainer()->get(Connection::class);
         $newLanguageId = $this->insertOtherLanguage();
         $this->createSearchConfigFieldForNewLanguage($newLanguageId);
@@ -215,7 +213,7 @@ class AdministrationControllerTest extends TestCase
         $this->customerRepository->create([
             [
                 'id' => $customerId,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultShippingAddress' => [
                     'id' => $addressId,
                     'firstName' => 'Max',
@@ -248,11 +246,11 @@ class AdministrationControllerTest extends TestCase
                     ],
                     'salesChannels' => [
                         [
-                            'id' => Defaults::SALES_CHANNEL,
+                            'id' => TestDefaults::SALES_CHANNEL,
                         ],
                     ],
                 ],
-                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => $email,
                 'password' => 'shopware',
                 'firstName' => 'Max',

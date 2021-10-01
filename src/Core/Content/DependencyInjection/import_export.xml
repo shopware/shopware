@@ -58,6 +58,7 @@
             <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter" />
             <argument type="service" id="Shopware\Core\Content\ImportExport\ImportExportFactory"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="messenger.bus.shopware"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
@@ -152,6 +153,8 @@
         <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\ProductSerializer">
             <argument type="service" id="product_visibility.repository"/>
             <argument type="service" id="sales_channel.repository"/>
+            <argument type="service" id="product_media.repository"/>
+            <argument type="service" id="product_configurator_setting.repository"/>
 
             <tag name="shopware.import_export.entity_serializer" priority="-400"/>
         </service>
@@ -197,6 +200,12 @@
             <argument type="tagged" tag="shopware.import_export.writer_factory"/>
             <argument type="tagged" tag="shopware.import_export.pipe_factory"/>
 
+        </service>
+
+        <service id="Shopware\Core\Content\ImportExport\Message\ImportExportHandler" public="true">
+            <argument type="service" id="messenger.bus.shopware"/>
+            <argument type="service" id="Shopware\Core\Content\ImportExport\ImportExportFactory"/>
+            <tag name="messenger.message_handler" />
         </service>
 
         <service id="Shopware\Core\Content\ImportExport\Service\DeleteExpiredFilesService">
@@ -255,6 +264,16 @@
             <argument type="service" id="shopware.filesystem.private"/>
 
             <tag name="console.command"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ImportExport\ScheduledTask\CleanupImportExportFileTask">
+            <tag name="shopware.scheduled.task"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ImportExport\ScheduledTask\CleanupImportExportFileTaskHandler">
+            <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="Shopware\Core\Content\ImportExport\Service\DeleteExpiredFilesService"/>
+            <tag name="messenger.message_handler"/>
         </service>
     </services>
 </container>

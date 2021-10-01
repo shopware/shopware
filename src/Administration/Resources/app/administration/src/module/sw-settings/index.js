@@ -27,21 +27,21 @@ Module.register('sw-settings', {
                     path: 'shop',
                     meta: {
                         component: 'sw-settings-index',
-                        parentPath: 'sw.product.index',
+                        parentPath: 'sw.settings.index',
                     },
                 },
                 system: {
                     path: 'system',
                     meta: {
                         component: 'sw-settings-index',
-                        parentPath: 'sw.product.index',
+                        parentPath: 'sw.settings.index',
                     },
                 },
                 plugins: {
                     path: 'plugins',
                     meta: {
                         component: 'sw-settings-index',
-                        parentPath: 'sw.product.index',
+                        parentPath: 'sw.settings.index',
                     },
                 },
             },

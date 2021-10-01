@@ -10,7 +10,7 @@
 {% block sw_data_grid_bulk_edit_content %}
 <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
 <a
-    v-if="feature.isActive('FEATURE_NEXT_6061') && allowBulkEdit"
+    v-if="allowBulkEdit"
     class="link link-primary"
     @click="onClickBulkEdit"
 >

@@ -294,6 +294,13 @@ Component.register('sw-customer-detail-addresses', {
 
         onChangeDefaultAddress(data) {
             if (!data.value) {
+                if (this.hasOwnProperty('defaultShippingAddressId')) {
+                    this.activeCustomer.defaultShippingAddressId = this.defaultShippingAddressId;
+                }
+
+                if (this.hasOwnProperty('defaultBillingAddressId')) {
+                    this.activeCustomer.defaultBillingAddressId = this.defaultBillingAddressId;
+                }
                 return;
             }
 

@@ -64,6 +64,26 @@ Shopware.Module.register('sw-extension', {
     version: '1.0.0',
     targetVersion: '1.0.0',
     flag: 'FEATURE_NEXT_12608',
+    entity: 'extension',
+
+    searchMatcher: (regex, labelType, manifest) => {
+        const match = labelType.toLowerCase().match(regex);
+
+        if (!match) {
+            return false;
+        }
+
+        return [
+            {
+                icon: manifest.icon,
+                color: manifest.color,
+                label: labelType,
+                entity: manifest.entity,
+                route: manifest.routes.store,
+                privilege: manifest.routes.index?.meta.privilege,
+            },
+        ];
+    },
 
     routes: {
         'my-extensions': {

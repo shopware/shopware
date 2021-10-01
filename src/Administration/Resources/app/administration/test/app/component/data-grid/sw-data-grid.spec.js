@@ -78,7 +78,6 @@ function createWrapper(props, userConfig, overrideProps) {
         props = { ...defaultProps, ...props };
     }
 
-
     return shallowMount(Shopware.Component.build('sw-data-grid'), {
         localVue,
         stubs,
@@ -92,12 +91,12 @@ function createWrapper(props, userConfig, overrideProps) {
                         return Promise.resolve();
                     }
                 })
-            }
+            },
+            acl: { can: () => true }
         },
         propsData: props ?? defaultProps
     });
 }
-
 
 describe('components/data-grid/sw-data-grid', () => {
     it('should be a Vue.js component', async () => {
@@ -155,7 +154,6 @@ describe('components/data-grid/sw-data-grid', () => {
             plainAppearance: true
         });
 
-
         expect(wrapper.classes()).toContain('sw-data-grid--plain-appearance');
     });
 
@@ -180,14 +178,12 @@ describe('components/data-grid/sw-data-grid', () => {
         expect(popover.exists()).toBe(true);
         expect(popover.findAll('.sw-data-grid__settings-column-item').length).toBe(2);
 
-
         // check default columns
         expect(wrapper.vm.currentColumns[0].visible).toBe(defaultUserConfig.value.columns[0].visible);
         expect(wrapper.vm.currentColumns[1].visible).toBe(defaultUserConfig.value.columns[1].visible);
 
         expect(wrapper.vm.compact).toBe(defaultUserConfig.value.compact);
         expect(wrapper.vm.previews).toBe(defaultUserConfig.value.previews);
-
 
         const valueChecked = !defaultUserConfig.value.columns[0].visible;
 
@@ -425,7 +421,6 @@ describe('components/data-grid/sw-data-grid', () => {
         expect(popover.exists()).toBe(true);
         expect(popover.findAll('.sw-data-grid__settings-column-item').length).toBe(1);
 
-
         // check default columns
         expect(wrapper.vm.currentColumns[0].visible).toBe(false);
         expect(wrapper.vm.currentColumns[0].mockProperty).toBe(undefined);
@@ -556,5 +551,290 @@ describe('components/data-grid/sw-data-grid', () => {
             expect(result).toBe(testCase.expected);
         });
     });
-});
 
+    it('should pre select grid using preSelection prop', async () => {
+        const preSelection = {
+            uuid1: { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' }
+        };
+
+        const wrapper = await createWrapper({
+            identifier: 'sw-customer-list-identifier',
+            preSelection
+        });
+
+        expect(wrapper.vm.selection).toEqual(preSelection);
+
+        const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
+
+        const checkbox = rows.at(0).find('.sw-field__checkbox input');
+
+        expect(checkbox.element.checked).toBe(true);
+    });
+
+    it('should checked a item in grid if the grid state include that item', async () => {
+        const wrapper = createWrapper({
+            identifier: 'sw-customer-list',
+            preSelection: {
+                uuid1: { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' }
+            }
+        });
+
+        const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
+
+        const checkbox = rows.at(0).find('.sw-field__checkbox input');
+
+        expect(checkbox.element.checked).toBe(true);
+    });
+
+    it('should add a selection to grid state when selected an item', async () => {
+        const wrapper = createWrapper();
+
+        const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
+
+        const checkbox = rows.at(0).find('.sw-field__checkbox input');
+
+        await checkbox.setChecked(true);
+        await wrapper.vm.$nextTick();
+
+        const firstRow = defaultProps.dataSource[0];
+
+        expect(wrapper.vm.selection).toEqual({ [firstRow.id]: firstRow });
+    });
+
+    it('should remove a selection from selection when deselected an item', async () => {
+        const wrapper = await createWrapper({
+            identifier: 'sw-customer-list',
+            preSelection: {
+                uuid1: { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' }
+            }
+        });
+
+        const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
+
+        const checkbox = rows.at(0).find('.sw-field__checkbox input');
+
+        expect(checkbox.element.checked).toBe(true);
+
+        await checkbox.setChecked(false);
+
+        expect(wrapper.vm.selection).toEqual({});
+    });
+
+    it('should add all records to grid selection when clicking select all', async () => {
+        const wrapper = createWrapper();
+        await wrapper.setProps({
+            identifier: 'sw-customer-list'
+        });
+
+        const header = wrapper.find('.sw-data-grid__header');
+        const selectionAll = header.find('.sw-data-grid__header .sw-field--checkbox.sw-data-grid__select-all input');
+
+        expect(selectionAll.element.checked).toBe(false);
+        await selectionAll.setChecked(true);
+
+        const expectedState = {};
+
+        defaultProps.dataSource.forEach(item => {
+            expectedState[item.id] = item;
+        });
+
+        expect(wrapper.vm.selection).toEqual(expectedState);
+    });
+
+    it('should remove all records to grid state when deselected all items', async () => {
+        const wrapper = createWrapper();
+        await wrapper.setProps({
+            identifier: 'sw-customer-list'
+        });
+
+        const curentGridState = {};
+
+        defaultProps.dataSource.forEach(item => {
+            curentGridState[item.id] = item;
+        });
+
+        await wrapper.setData({
+            selection: curentGridState
+        });
+
+        const header = wrapper.find('.sw-data-grid__header');
+        const selectionAll = header.find('.sw-data-grid__header .sw-field--checkbox.sw-data-grid__select-all input');
+
+        await selectionAll.setChecked(false);
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.selection).toEqual({});
+    });
+
+    it('should selectionCount equals to grid state count', async () => {
+        const wrapper = createWrapper();
+        await wrapper.setProps({
+            identifier: 'sw-customer-list'
+        });
+
+        expect(wrapper.vm.selectionCount).toEqual(0);
+
+        const curentGridState = {};
+
+        defaultProps.dataSource.forEach(item => {
+            curentGridState[item.id] = item;
+        });
+
+        await wrapper.setData({
+            selection: curentGridState
+        });
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.selectionCount).toEqual(5);
+    });
+
+    it('should persist selected items when dataSource change', async () => {
+        const wrapper = await createWrapper();
+
+        const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
+        expect(rows.length).toBe(5);
+
+        const checkbox = rows.at(0).find('.sw-field__checkbox input');
+
+        await checkbox.setChecked(true);
+
+        await wrapper.setProps({
+            dataSource: [
+                { id: 'uuid6', company: 'Woops', name: 'Portia Jobson' },
+                { id: 'uuid7', company: 'Laprta', name: 'Baxy Eardley' },
+                { id: 'uuid8', company: 'Manen', name: 'Arturo Staker' },
+                { id: 'uuid9', company: 'Ginpo', name: 'Dalston Top' }
+            ]
+        });
+
+        await wrapper.vm.$nextTick();
+
+        const newRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
+        expect(newRows.length).toBe(4);
+
+        const newCheckbox = newRows.at(0).find('.sw-field__checkbox input');
+
+        await newCheckbox.setChecked(true);
+
+        await wrapper.vm.$nextTick();
+
+        await wrapper.setProps({
+            dataSource: [
+                { id: 'uuid1', company: 'Wordify', name: 'Portia Jobson' }
+            ]
+        });
+
+        const previousRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
+        expect(previousRows.length).toBe(1);
+
+        const previousCheckbox = newRows.at(0).find('.sw-field__checkbox input');
+        expect(previousCheckbox.element.checked).toEqual(true);
+    });
+
+    it('should not show deselect all action', async () => {
+        const wrapper = createWrapper({
+            identifier: 'sw-customer-list',
+            preSelection: {
+                uuid1: { id: 'uuid1', company: 'Quartz1', name: 'Tinto' }
+            }
+        });
+        const bulkActions = wrapper.find('.sw-data-grid__bulk');
+        const deselectAll = bulkActions.findAll('.bulk-deselect-all');
+
+        expect(deselectAll.exists()).toBe(false);
+    });
+
+    it('should show deselect all action', async () => {
+        const wrapper = createWrapper({
+            identifier: 'sw-customer-list',
+            preSelection: {
+                uuid10: { id: 'uuid10', company: 'Quartz', name: 'Tinto' }
+            }
+        });
+
+        const bulkActions = wrapper.find('.sw-data-grid__bulk');
+        const deselectAll = bulkActions.findAll('.bulk-deselect-all');
+
+        expect(deselectAll.exists()).toBe(true);
+    });
+
+    it('should show maximum selection exceed', async () => {
+        const wrapper = createWrapper({
+            maximumSelectItems: 3,
+            identifier: 'sw-customer-list',
+            preSelection: {
+                uuid1: { id: 'uuid1', company: 'Quartz1', name: 'Tinto' }
+            }
+        });
+
+        await wrapper.vm.$nextTick();
+
+        const bulkActions = wrapper.find('.sw-data-grid__bulk');
+        let maximumHint = bulkActions.findAll('.sw-data-grid__bulk-max-selection');
+
+        expect(maximumHint.exists()).toBe(false);
+
+        await wrapper.setData({
+            selection: {
+                uuid1: { id: 'uuid1', company: 'Quartz1', name: 'Tinto' },
+                uuid2: { id: 'uuid2', company: 'Quartz2', name: 'Tinto' },
+                uuid3: { id: 'uuid3', company: 'Quartz3', name: 'Tinto' }
+            }
+        });
+
+        await wrapper.vm.$nextTick();
+
+        const newBulkActions = wrapper.find('.sw-data-grid__bulk');
+        maximumHint = newBulkActions.findAll('.sw-data-grid__bulk-max-selection');
+
+        expect(maximumHint.exists()).toBe(true);
+    });
+
+    it('should disable checkboxes when maximum selection exceed', async () => {
+        const wrapper = createWrapper({
+            maximumSelectItems: 3,
+            preSelection: {
+                uuid1: { id: 'uuid1', company: 'Quartz1', name: 'Tinto' },
+                uuid2: { id: 'uuid2', company: 'Quartz2', name: 'Tinto' },
+                uuid3: { id: 'uuid3', company: 'Quartz3', name: 'Tinto' }
+            }
+        });
+
+        await wrapper.vm.$nextTick();
+
+        const rows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
+
+        // selected items are de-selectable
+        const checkedBox = rows.at(0).find('.sw-field__checkbox input');
+        expect(checkedBox.attributes().disabled).toBe(undefined);
+
+        // unselected items are selectable
+        const uncheckedBox = rows.at(4).find('.sw-field__checkbox input');
+
+        expect(uncheckedBox.attributes().disabled).toBe('disabled');
+
+        // Change data source, select all checkbox and all items checkboxes will be disabled
+        await wrapper.setProps({
+            dataSource: [
+                { id: 'uuid4', company: 'Quartz4', name: 'Tinto' },
+                { id: 'uuid5', company: 'Quartz5', name: 'Tinto' },
+                { id: 'uuid6', company: 'Quartz6', name: 'Tinto' }
+            ]
+        });
+
+        await wrapper.vm.$nextTick();
+
+        const newRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
+
+        newRows.wrappers.forEach(row => {
+            const checkbox = row.find('.sw-field__checkbox input');
+            expect(checkbox.attributes().disabled).toBe('disabled');
+        });
+
+        const header = wrapper.find('.sw-data-grid__header');
+        const selectionAll = header.find('.sw-data-grid__header .sw-field--checkbox.sw-data-grid__select-all input');
+
+        expect(selectionAll.attributes().disabled).toBe('disabled');
+    });
+});

@@ -3,13 +3,12 @@
     v-if="orderId"
     class="sw-order-detail"
 >
-
     {% block sw_order_detail_header %}
     <template #smart-bar-header>
 
         {% block sw_order_detail_header_title %}
-        <h2 v-if="identifier">
-            {{ $tc('sw-order.detail.textHeadline') }} {{ identifier }}
+        <h2 v-if="orderIdentifier">
+            {{ $tc('sw-order.detail.textHeadline') }} {{ orderIdentifier }}
 
             {% block sw_order_detail_header_label_manual_order %}
             <sw-label
@@ -47,7 +46,7 @@
         {% block sw_order_detail_actions_slot_smart_bar_actions %}
         {% block sw_order_detail_actions_abort %}
         <sw-button
-            v-if="isEditing"
+            v-if="isEditing || feature.isActive('FEATURE_NEXT_7530')"
             class="sw-order-detail__smart-bar-cancel-button"
             :disabled="isLoading"
             @click="onCancelEditing"
@@ -58,7 +57,7 @@
 
         {% block sw_order_detail_actions_edit %}
         <sw-button
-            v-if="!isEditing"
+            v-if="!feature.isActive('FEATURE_NEXT_7530') && !isEditing"
             v-tooltip="{
                 message: $tc('sw-privileges.tooltip.warning'),
                 disabled: acl.can('order.editor'),
@@ -75,7 +74,7 @@
 
         {% block sw_order_detail_actions_save %}
         <sw-button-process
-            v-if="isEditing"
+            v-if="isEditing || feature.isActive('FEATURE_NEXT_7530')"
             class="sw-order-detail__smart-bar-save-button"
             variant="primary"
             :disabled="isLoading"
@@ -94,6 +93,14 @@
 
     {% block sw_order_detail_content %}
     <template #content>
+        {% block sw_order_detail_content_leave_page_modal %}
+        <sw-order-leave-page-modal
+            v-if="feature.isActive('FEATURE_NEXT_7530') && isDisplayingLeavePageWarning"
+            @page-leave-cancel="onLeaveModalClose"
+            @page-leave-confirm="onLeaveModalConfirm"
+        />
+        {% endblock %}
+
         <sw-card-view>
 
             {% block sw_order_detail_content_tabs %}
@@ -104,10 +111,39 @@
 
                 {% block sw_order_detail_content_tabs_general %}
                 <sw-tabs-item
+                    v-if="!feature.isActive('FEATURE_NEXT_7530')"
                     :route="{ name: 'sw.order.detail.base', params: { id: $route.params.id } }"
                     :title="$tc('sw-order.detail.tabGeneral')"
                 >
                     {{ $tc('sw-order.detail.tabGeneral') }}
+                </sw-tabs-item>
+
+                <sw-tabs-item
+                    v-if="feature.isActive('FEATURE_NEXT_7530')"
+                    :route="{ name: 'sw.order.detail.general', params: { id: $route.params.id } }"
+                    :title="$tc('sw-order.detail.tabGeneral')"
+                >
+                    {{ $tc('sw-order.detail.tabGeneral') }}
+                </sw-tabs-item>
+                {% endblock %}
+
+                {% block sw_order_detail_content_tabs_details %}
+                <sw-tabs-item
+                    v-if="feature.isActive('FEATURE_NEXT_7530')"
+                    :route="{ name: 'sw.order.detail.details', params: { id: $route.params.id } }"
+                    :title="$tc('sw-order.detail.tabDetails')"
+                >
+                    {{ $tc('sw-order.detail.tabDetails') }}
+                </sw-tabs-item>
+                {% endblock %}
+
+                {% block sw_order_detail_content_tabs_documents %}
+                <sw-tabs-item
+                    v-if="feature.isActive('FEATURE_NEXT_7530')"
+                    :route="{ name: 'sw.order.detail.documents', params: { id: $route.params.id } }"
+                    :title="$tc('sw-order.detail.tabDocuments')"
+                >
+                    {{ $tc('sw-order.detail.tabDocuments') }}
                 </sw-tabs-item>
                 {% endblock %}
 
@@ -116,6 +152,7 @@
 
             {% block sw_order_detail_content_view %}
             <router-view
+                v-if="!feature.isActive('FEATURE_NEXT_7530') || order"
                 ref="baseComponent"
                 :order-id="orderId"
                 :is-editing="isEditing"
@@ -125,6 +162,9 @@
                 @created-by-id-change="updateCreatedById"
                 @loading-change="onUpdateLoading"
                 @editing-change="onUpdateEditing"
+                @save-and-recalculate="onSaveAndRecalculate"
+                @recalculate-and-reload="onRecalculateAndReload"
+                @save-and-reload="onSaveAndReload"
                 @error="onError"
             />
             {% endblock %}

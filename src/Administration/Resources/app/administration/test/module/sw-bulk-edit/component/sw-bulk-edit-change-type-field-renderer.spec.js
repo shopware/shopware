@@ -32,7 +32,7 @@ function createWrapper() {
                     value: false
                 }
             },
-
+            entity: [],
             formFields: []
         }
     });

@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
 
 class DateTimeFieldSerializer extends AbstractFieldSerializer
@@ -34,6 +35,9 @@ class DateTimeFieldSerializer extends AbstractFieldSerializer
             $value = new \DateTimeImmutable($value['date']);
         }
 
+        $data->setValue($value);
+        $this->validateIfNeeded($field, $existence, $data, $parameters);
+
         if ($value === null) {
             yield $field->getStorageName() => null;
 
@@ -41,9 +45,6 @@ class DateTimeFieldSerializer extends AbstractFieldSerializer
         }
 
         $value = $value->setTimezone(new \DateTimeZone('UTC'));
-
-        $data->setValue($value);
-        $this->validateIfNeeded($field, $existence, $data, $parameters);
 
         yield $field->getStorageName() => $value->format(Defaults::STORAGE_DATE_TIME_FORMAT);
     }
@@ -58,6 +59,9 @@ class DateTimeFieldSerializer extends AbstractFieldSerializer
 
     protected function getConstraints(Field $field): array
     {
-        return [new Type(\DateTimeInterface::class)];
+        return [
+            new Type(\DateTimeInterface::class),
+            new NotNull(),
+        ];
     }
 }

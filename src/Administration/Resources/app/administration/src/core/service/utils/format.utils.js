@@ -1,5 +1,4 @@
 import MD5 from 'md5-es';
-import types from 'src/core/service/utils/types.utils';
 
 /**
  * @module core/service/utils/format
@@ -43,37 +42,38 @@ export function currency(val, sign, decimalPlaces, additionalOptions = {}) {
 /**
  * Formats a Date object to a localized string
  *
- * @param {Date} val
+ * @param {string} val
  * @param {Object} options
  * @returns {string}
  */
-let dateTimeFormatter;
-let dateTimeOptions;
 export function date(val, options = {}) {
-    if (val === null) {
+    // should return an empty string when no date is given
+    if (!val) {
         return '';
     }
-    const dateObj = new Date(val);
+
+    const givenDate = new Date(val);
+
+    // check if given date value is valid
     // eslint-disable-next-line
-    if (isNaN(dateObj)) {
+    if (isNaN(givenDate)) {
         return '';
     }
 
     const lastKnownLang = Shopware.Application.getContainer('factory').locale.getLastKnownLocale();
-    const defaultOptions = {
-        day: '2-digit',
-        month: '2-digit',
-        year: '2-digit',
-    };
-    options = { ...defaultOptions, ...options };
+    const userTimeZone = Shopware?.State?.get('session')?.currentUser?.timeZone ?? 'UTC';
 
-    if (!types.isEqual(dateTimeOptions, options)) {
-        dateTimeOptions = options;
-    }
+    const dateTimeFormatter = new Intl.DateTimeFormat(lastKnownLang, {
+        timeZone: userTimeZone,
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        ...options,
+    });
 
-    dateTimeFormatter = new Intl.DateTimeFormat(lastKnownLang, dateTimeOptions);
-
-    return dateTimeFormatter.format(dateObj);
+    return dateTimeFormatter.format(givenDate);
 }
 
 /**

@@ -9,6 +9,7 @@
       "CONTENT__INVALID_CATEGORY_TYPE_AS_ENTRY_POINT": "The type can not be assigned while category is an entry point.",
       "SHOPWARE_INVALID_IP": "Please enter a valid IP address.",
       "INVALID_URL": "Please enter a valid url.",
+      "INVALID_MAIL": "Please enter a valid email address.",
       "FRAMEWORK__RATE_LIMIT_EXCEEDED": "Too many requests. Please wait {seconds} seconds before trying again.",
       "DUPLICATED_URL": "This URL is already in use. Please choose another URL."
     },
@@ -206,7 +207,9 @@
       "labelSettingsCompactMode": "Use compact view",
       "labelSettingsPreviewImages": "Show preview images",
       "labelColumnHide": "Hide column",
-      "labelSelectionCount": "Selected:"
+      "labelSelectionCount": "Selected:",
+      "labelDeSelectAll": "Deselect all",
+      "maximumSelectionExceed": "Maximum amount of items selected"
     },
     "sw-pagination": {
       "labelItemsPerPage": "Items per page:"
@@ -216,6 +219,10 @@
     },
     "sw-text-preview": {
       "showMoreButton": "Show more"
+    },
+    "sw-time-ago": {
+      "justNow": "Just now",
+      "minutesAgo": "One minute ago | {minutesAgo} minutes ago"
     },
     "sw-media-field": {
       "labelToggleSearchExisting": "Search media...",
@@ -480,7 +487,7 @@
       "messageNoResults": "No results found for \"{term}\"."
     },
     "sw-multi-tag-select": {
-      "enterValidData": "Please enter a valid value",
+      "enterValidData": "Enter a valid value...",
       "addData": "Add new entry"
     },
     "sw-multi-tag-ip-select": {
@@ -502,11 +509,13 @@
       "placeholderSearchField": "Find products, customers, orders...",
       "placeholderTypeSearchField": "Search \"{entity}\"...",
       "placeholderShortcutInfo": "Hint: Press the \"f\" key to get to the search bar faster.",
-      "placeholderSearchShortcutInfo": "Hint: Press the <span>f</span> key to get to the search bar faster.",
+      "placeholderSearchShortcutInfo": "Press <span>f</span> to search.",
       "moduleFiltersHeadline": "Module filters",
       "placeholderFilterShortcutInfo": "Type <span>#</span> in the search to quickly set a module filter.",
       "searchTypeAll": "All",
-      "moduleFilter": "Module filter"
+      "moduleFilter": "Module filter",
+      "messageNoResultsV2": "We didn't find any exact matches for \"{term}\".",
+      "messageNoResultsDetailV2": "You might want to try using different keywords or check your inputs for typos."
     },
     "sw-search-bar-item": {
       "typeLabelCustomer": "Customer",
@@ -514,7 +523,30 @@
       "typeLabelOrder": "Order",
       "typeLabelMedia": "Media",
       "typeLabelCategory": "Category",
-      "typeLabelCms": "CMS"
+      "typeLabelCms": "CMS",
+      "typeLabelModule": "Module",
+      "typeLabelAction": "Action",
+      "addNewEntity": "Add new {entity}",
+      "shortcuts": {
+        "product": "G P | A P",
+        "category": "G C | ",
+        "customers": "G U | A U",
+        "property": "G P R | A P R",
+        "manufacturer": "G M | A M",
+        "settings-rule": "G S R | A R",
+        "sales-channel": " | A S",
+        "cms": "G E | A E",
+        "dashboard": "G H | ",
+        "product-stream": "G D | ",
+        "order": "G O | ",
+        "media": "G M E | ",
+        "promotion-v2": "G P O | ",
+        "settings": "G S | ",
+        "newsletter-recipient": "G N | ",
+        "settings-snippet": "G S | ",
+        "settings-payment": "G S P | ",
+        "settings-shipping": "G S S | "
+      }
     },
     "sw-search-more-results": {
       "labelShowResultsInModule": "Show results in module({count})",
@@ -548,6 +580,7 @@
         "orderCountRule": "Count of orders",
         "salesChannelRule": "Sales Channel",
         "currencyRule": "Currency",
+        "languageRule": "Language",
         "billingCountryRule": "Billing country",
         "billingStreetRule": "Billing street",
         "billingZipCodeRule": "Billing postal code",
@@ -555,6 +588,10 @@
         "customerTagRule": "Customer tag",
         "customerNumberRule": "Customer number",
         "differentAddressesRule": "Different addresses",
+        "emailRule": {
+          "label": "Customer email address",
+          "placeholder": "Enter a distinct email address or use \"*\" as a wildcard character ..."
+        },
         "isNewCustomerRule": "New customer",
         "lastNameRule": "Last name",
         "isCompanyRule": "Business customer",
@@ -599,6 +636,7 @@
         "hasDeliveryFreeItemRule": "Free shipping",
         "timeRangeRule": "Time range",
         "weightOfCartRule": "Weight of cart",
+        "volumeOfCartRule": "Volume of cart",
         "dayOfWeekRule": "Day of the week",
         "lineItemTagRule": "Line item tag",
         "alwaysValidRule": "Always valid",
@@ -613,12 +651,15 @@
         "lineItemClearanceSale": "Line item with clearance sale",
         "lineItemPromotedRule": "Line item is promoted",
         "lineItemInCategoryRule": "Line item in category",
+        "lineItemInProductStreamRule": "Line item in dynamic product group",
         "lineItemTaxationRule": "Line item with tax rate",
         "lineItemDimensionWidthRule": "Line item width",
         "lineItemDimensionHeightRule": "Line item height",
         "lineItemDimensionLengthRule": "Line item length",
         "lineItemDimensionWeightRule": "Line item weight",
+        "lineItemDimensionVolumeRule": "Line item volume",
         "lineItemListPriceRule": "Line item list price",
+        "lineItemStockRule": "Line item available stock",
         "paymentMethodRule": "Payment method",
         "shippingMethodRule": "Shipping method",
         "lineItemGoodsTotalRule": "Total number of products in cart",
@@ -632,7 +673,8 @@
               "placeholder": "Select custom field..."
             }
           }
-        }
+        },
+        "customerCustomFieldRule": "Customer with custom field"
       }
     },
     "sw-product-image": {
@@ -661,6 +703,7 @@
       "customer": "Customer | Customers",
       "customer_address": "Address | Addresses",
       "customer_group": "Customer group | Customer groups",
+      "extension": "Extension | Extensions",
       "integration": "Integration | Integrations",
       "language": "Language | Languages",
       "mail_header_footer": "Header and footer | Headers and footers",
@@ -712,7 +755,12 @@
       "feature_set": "Template | Templates",
       "event_action": "Business events",
       "property_group": "Property group | Property groups",
-      "document_base_config": "Document base config | Document base configs"
+      "document_base_config": "Document base config | Document base configs",
+      "product_feature_set": "New Template | New Templates",
+      "custom-field-set": "Custom field set",
+      "store_settings": "Product sorting",
+      "flow": "Flow builder",
+      "module": "Module"
     },
     "day-of-week": {
       "monday": "Monday",
@@ -801,7 +849,7 @@
     "sw-bulk-edit-modal": {
       "bulkEdit": "Bulk edit",
       "startBulkEdit": "Start bulk edit",
-      "bulkEditModalTitle": "Bulk edit - {count} item selected | Bulk edit - {count} items selected"
+      "bulkEditModalTitle": "Bulk edit - {count} items selected | Bulk edit - {count} items selected"
     }
   },
   "sw-text-editor-toolbar": {

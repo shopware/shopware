@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Exception\LiveVersionDeleteException;
@@ -27,6 +28,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
+use Shopware\Core\System\Test\SalesChannel\Validation\SalesChannelValidatorTest;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -1078,7 +1081,7 @@ EOF;
             ],
             'visibilities' => [
                 [
-                    'salesChannelId' => Defaults::SALES_CHANNEL,
+                    'salesChannelId' => TestDefaults::SALES_CHANNEL,
                     'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
                 ],
             ],
@@ -2138,10 +2141,118 @@ EOF;
         static::assertEquals('Access token is expired', $jsonResponse['errors'][0]['detail']);
     }
 
-    private function createSalesChannel(string $id): void
+    public function testPreventCreationOfSalesChannelWithoutDefaultSalesChannelLanguage(): void
     {
+        $salesChannelId = Uuid::randomHex();
+        $data = $this->getSalesChannelData($salesChannelId, $this->getNonSystemLanguageId());
+
+        $browser = $this->getBrowser();
+        $browser->request('POST', '/api/sales-channel/', $data, [], [], json_encode($data));
+
+        $response = $browser->getResponse();
+        static::assertSame(400, $response->getStatusCode());
+
+        $content = json_decode($response->getContent());
+        $error = $content->errors[0];
+
+        static::assertSame(sprintf(SalesChannelValidatorTest::INSERT_VALIDATION_MESSAGE, $salesChannelId), $error->detail);
+    }
+
+    public function testPreventDeletionOfDefaultSalesChannelLanguageFromLanguageList(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $this->createSalesChannel($salesChannelId);
+
+        $browser = $this->getBrowser();
+        $browser->request('DELETE', '/api/sales-channel/' . $salesChannelId . '/languages/' . Defaults::LANGUAGE_SYSTEM);
+
+        $response = $browser->getResponse();
+        static::assertSame(400, $response->getStatusCode());
+
+        $content = json_decode($response->getContent());
+        $error = $content->errors[0];
+
+        static::assertSame(sprintf(SalesChannelValidatorTest::DELETE_VALIDATION_MESSAGE, $salesChannelId), $error->detail);
+    }
+
+    public function testDirectlyAddMappingEntry(): void
+    {
+        $productId = Uuid::randomHex();
         $data = [
-            'id' => $id,
+            'id' => $productId,
+            'productNumber' => Uuid::randomHex(),
+            'name' => 'Wool Shirt',
+            'tax' => ['name' => 'test', 'taxRate' => 10],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 8300, 'net' => 8300, 'linked' => false]],
+            'stock' => 50,
+        ];
+        $this->getBrowser()->request('POST', '/api/product', [], [], [], json_encode($data));
+
+        $categoryId = Uuid::randomHex();
+        $data = ['id' => $categoryId, 'name' => 'test category'];
+        $this->getBrowser()->request('POST', '/api/category', [], [], [], json_encode($data));
+
+        $mapping = [
+            'productId' => $productId,
+            'categoryId' => $categoryId,
+        ];
+        $this->getBrowser()->request('POST', '/api/product-category', [], [], [], json_encode($mapping));
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+
+        $repo = $this->getContainer()->get(ProductDefinition::ENTITY_NAME . '.repository');
+        $criteria = new Criteria([$productId]);
+
+        /** @var ProductEntity $product */
+        $product = $repo->search($criteria, Context::createDefaultContext())->getEntities()->first();
+
+        static::assertEquals([
+            $categoryId,
+        ], $product->getCategoryIds());
+    }
+
+    public function testDirectlyAddMappingEntryWithResponse(): void
+    {
+        $productId = Uuid::randomHex();
+        $data = [
+            'id' => $productId,
+            'productNumber' => Uuid::randomHex(),
+            'name' => 'Wool Shirt',
+            'tax' => ['name' => 'test', 'taxRate' => 10],
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 8300, 'net' => 8300, 'linked' => false]],
+            'stock' => 50,
+        ];
+        $this->getBrowser()->request('POST', '/api/product', [], [], [], json_encode($data));
+
+        $categoryId = Uuid::randomHex();
+        $data = ['id' => $categoryId, 'name' => 'test category'];
+        $this->getBrowser()->request('POST', '/api/category', [], [], [], json_encode($data));
+
+        $mapping = [
+            'productId' => $productId,
+            'categoryId' => $categoryId,
+        ];
+        $this->getBrowser()->request('POST', '/api/product-category?_response=1', [], [], [], json_encode($mapping));
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+
+        $repo = $this->getContainer()->get(ProductDefinition::ENTITY_NAME . '.repository');
+        $criteria = new Criteria([$productId]);
+
+        /** @var ProductEntity $product */
+        $product = $repo->search($criteria, Context::createDefaultContext())->getEntities()->first();
+
+        static::assertEquals([
+            $categoryId,
+        ], $product->getCategoryIds());
+    }
+
+    private function getSalesChannelData(string $salesChannelId, $languageId = Defaults::LANGUAGE_SYSTEM): array
+    {
+        return [
+            'id' => $salesChannelId,
             'accessKey' => AccessKeyHelper::generateAccessKey('sales-channel'),
             'typeId' => Defaults::SALES_CHANNEL_TYPE_API,
             'languageId' => Defaults::LANGUAGE_SYSTEM,
@@ -2156,13 +2267,18 @@ EOF;
             'countryId' => $this->getValidCountryId(),
             'countryVersionId' => Defaults::LIVE_VERSION,
             'currencies' => [['id' => Defaults::CURRENCY]],
-            'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
+            'languages' => [['id' => $languageId]],
             'shippingMethods' => [['id' => $this->getValidShippingMethodId()]],
             'paymentMethods' => [['id' => $this->getValidPaymentMethodId()]],
             'countries' => [['id' => $this->getValidCountryId()]],
             'name' => 'first sales-channel',
-            'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+            'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
         ];
+    }
+
+    private function createSalesChannel(string $id): void
+    {
+        $data = $this->getSalesChannelData($id);
 
         $this->getContainer()->get('sales_channel.repository')->create([$data], Context::createDefaultContext());
     }
@@ -2197,8 +2313,8 @@ EOF;
             'email' => $ids->get('email') . '@example.com',
             'password' => 'shopware',
             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-            'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultBillingAddressId' => $ids->get('address'),
             'defaultShippingAddressId' => $ids->get('address'),
             'addresses' => [

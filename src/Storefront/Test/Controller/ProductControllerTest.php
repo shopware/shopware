@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder;
 use Shopware\Storefront\Page\Product\Review\ReviewLoaderResult;
@@ -71,6 +72,22 @@ class ProductControllerTest extends TestCase
         static::assertStringContainsString($productId, $content['url']);
     }
 
+    public function testSwitchDoesNotCrashOnMalformedOptions(): void
+    {
+        $productId = $this->createProduct();
+
+        $response = $this->request(
+            'GET',
+            '/detail/' . $productId . '/switch',
+            $this->tokenize('frontend.detail.switch', [
+                'productId' => $productId,
+                'options' => 'notJson',
+            ])
+        );
+
+        static::assertSame(200, $response->getStatusCode());
+    }
+
     private function createProduct(array $config = []): string
     {
         $id = Uuid::randomHex();
@@ -86,7 +103,7 @@ class ProductControllerTest extends TestCase
             'manufacturer' => ['name' => 'test'],
             'visibilities' => [
                 [
-                    'salesChannelId' => Defaults::SALES_CHANNEL,
+                    'salesChannelId' => TestDefaults::SALES_CHANNEL,
                     'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
                 ],
             ],
@@ -109,7 +126,7 @@ class ProductControllerTest extends TestCase
         $data = [
             [
                 'id' => $customerId,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultShippingAddress' => [
                     'id' => $addressId,
                     'firstName' => 'Max',
@@ -122,7 +139,7 @@ class ProductControllerTest extends TestCase
                 ],
                 'defaultBillingAddressId' => $addressId,
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => 'testuser@example.com',
                 'password' => 'test',
                 'firstName' => 'Max',

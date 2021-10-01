@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\Api\Controller;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexingMessage;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -486,5 +488,39 @@ class SyncControllerTest extends TestCase
             ['name' => ProductIndexingMessage::class]
         );
         static::assertEmpty($messages);
+    }
+
+    public function testSkipIndexer(): void
+    {
+        $id1 = Uuid::randomHex();
+        $data = [
+            [
+                'action' => SyncController::ACTION_UPSERT,
+                'entity' => ProductDefinition::ENTITY_NAME,
+                'payload' => [
+                    [
+                        'id' => $id1,
+                        'productNumber' => Uuid::randomHex(),
+                        'stock' => 1,
+                        'manufacturer' => ['name' => 'test'],
+                        'tax' => ['name' => 'test', 'taxRate' => 15],
+                        'name' => 'CREATE-1',
+                        'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 25, 'linked' => false]],
+                    ],
+                ],
+            ],
+        ];
+
+        $headers = [
+            'HTTP_' . PlatformRequest::HEADER_INDEXING_SKIP => ProductIndexer::SEARCH_KEYWORD_UPDATER,
+        ];
+        $this->getBrowser()->request('POST', '/api/_action/sync', [], [], $headers, json_encode($data));
+
+        static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
+
+        $connection = $this->getContainer()->get(Connection::class);
+
+        $count = (int) $connection->fetchOne('SELECT COUNT(*) FROM product_search_keyword WHERE product_id = ?', [Uuid::fromHexToBytes($id1)]);
+        static::assertSame(0, $count, 'Search keywords should be empty as we skipped it');
     }
 }

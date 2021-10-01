@@ -4,6 +4,13 @@ import ProductPageObject from '../../../support/pages/module/sw-product.page-obj
 
 const page = new ProductPageObject();
 
+function setCustomSearchKeywordIsSearchable() {
+    cy.window().then(($w) => {
+        $w.Shopware.Module.getModuleByEntityName('product')
+            .manifest.defaultSearchConfiguration.customSearchKeywords._searchable = true;
+    });
+}
+
 describe('Product: Search Keyword product', () => {
     beforeEach(() => {
         cy.setToInitialState()
@@ -18,21 +25,21 @@ describe('Product: Search Keyword product', () => {
             });
     });
 
-    it('@catalogue: edit a products search keyword', () => {
-        cy.server();
-        cy.route({
+    it('@catalogue: edit a product\'s search keyword', () => {
+        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
+            setCustomSearchKeywordIsSearchable();
+        });
+
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
-        cy.route({
-            url: `${Cypress.env('apiPath')}/search/product`,
-            method: 'post'
+
+        cy.intercept({
+            method: 'POST',
+            url: `${Cypress.env('apiPath')}/search/product`
         }).as('searchData');
 
-        // Data grid should be visible
-        cy.get('.sw-product-list-grid').should('be.visible');
-
-        // Ensure product from `createProductFixture` is at correct position
         cy.get(`${page.elements.dataGridRow}--0`).contains('Product name');
 
         cy.clickContextMenuItem(
@@ -51,18 +58,15 @@ describe('Product: Search Keyword product', () => {
         cy.get(page.elements.productSaveAction).click();
 
         // Verify updated product
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 200);
+
         cy.get(page.elements.successIcon).should('be.visible');
 
         cy.get(page.elements.smartBarBack).click();
 
-        cy.get('input.sw-search-bar__input').typeAndCheckSearchField('YTN');
-
-        cy.wait('@searchData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@searchData').its('response.statusCode').should('equal', 200);
+        cy.get('input.sw-search-bar__input').type('YTN');
 
         cy.get('.sw-product-list-grid').should('be.visible');
         cy.get(`${page.elements.dataGridRow}--0`).should('be.visible');

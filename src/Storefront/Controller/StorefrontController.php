@@ -38,11 +38,20 @@ abstract class StorefrontController extends AbstractController
     {
         $request = $this->get('request_stack')->getCurrentRequest();
 
+        if ($request === null) {
+            $request = new Request();
+        }
+
         $salesChannelContext = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
 
-        $view = $this->get(TemplateFinder::class)->find($view, false, null);
+        /* @feature-deprecated $view will be original template in StorefrontRenderEvent from 6.5.0.0 */
+        if (Feature::isActive('FEATURE_NEXT_17275')) {
+            $event = new StorefrontRenderEvent($view, $parameters, $request, $salesChannelContext);
+        } else {
+            $inheritedView = $this->getTemplateFinder()->find($view);
 
-        $event = new StorefrontRenderEvent($view, $parameters, $request, $salesChannelContext);
+            $event = new StorefrontRenderEvent($inheritedView, $parameters, $request, $salesChannelContext);
+        }
         $this->get('event_dispatcher')->dispatch($event);
 
         $response = $this->render($view, $event->getParameters(), new StorefrontResponse());
@@ -78,10 +87,16 @@ abstract class StorefrontController extends AbstractController
 
     protected function createActionResponse(Request $request): Response
     {
-        if ($request->get('redirectTo')) {
+        if ($request->get('redirectTo') || $request->get('redirectTo') === '') {
             $params = $this->decodeParam($request, 'redirectParameters');
 
-            return $this->redirectToRoute($request->get('redirectTo'), $params);
+            $redirectTo = $request->get('redirectTo');
+
+            if ($redirectTo) {
+                return $this->redirectToRoute($redirectTo, $params);
+            }
+
+            return $this->redirectToRoute('frontend.home.page', $params);
         }
 
         if ($request->get('forwardTo')) {
@@ -109,6 +124,10 @@ abstract class StorefrontController extends AbstractController
         $router->getContext()->setMethod($method);
 
         $request = $this->get('request_stack')->getCurrentRequest();
+
+        if ($request === null) {
+            $request = new Request();
+        }
 
         $attributes = array_merge(
             $this->get(RequestTransformerInterface::class)->extractInheritableAttributes($request),
@@ -190,6 +209,8 @@ abstract class StorefrontController extends AbstractController
     protected function renderView(string $view, array $parameters = []): string
     {
         if (isset($this->twig)) {
+            $view = $this->getTemplateFinder()->find($view);
+
             return $this->twig->render($view, $parameters);
         }
 
@@ -201,5 +222,10 @@ abstract class StorefrontController extends AbstractController
         Feature::triggerDeprecated('FEATURE_NEXT_15687', '6.4.3.0', '6.5.0.0', $message);
 
         return parent::renderView($view, $parameters);
+    }
+
+    protected function getTemplateFinder(): TemplateFinder
+    {
+        return $this->get(TemplateFinder::class);
     }
 }

@@ -5,7 +5,6 @@ namespace Shopware\Core\Content\Test\Category\SalesChannel;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\Event\NavigationRouteCacheTagsEvent;
 use Shopware\Core\Content\Category\SalesChannel\NavigationRoute;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\IdsCollection;
@@ -14,6 +13,7 @@ use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -34,7 +34,7 @@ class CachedNavigationRouteTest extends TestCase
 
         $this->context = $this->getContainer()
             ->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 
     /**
@@ -171,13 +171,13 @@ class CachedNavigationRouteTest extends TestCase
     {
         $context = $this->getContainer()
             ->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $ids->set('navigation', $context->getSalesChannel()->getNavigationCategoryId());
 
         $this->context = $this->getContainer()
             ->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $categories = [
             ['id' => $ids->get('cat-1.0.0'), 'parentId' => $ids->get('navigation'), 'name' => 'cat 1.0.0', 'active' => true, 'children' => [

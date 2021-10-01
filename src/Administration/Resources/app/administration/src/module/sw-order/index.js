@@ -5,6 +5,9 @@ import './page/sw-order-detail';
 import './page/sw-order-create';
 
 import './view/sw-order-detail-base';
+import './view/sw-order-detail-general';
+import './view/sw-order-detail-details';
+import './view/sw-order-detail-documents';
 import './view/sw-order-create-base';
 
 import './component/sw-order-nested-line-items-modal';
@@ -21,7 +24,9 @@ import './component/sw-order-leave-page-modal';
 import './component/sw-order-state-change-modal/sw-order-state-change-modal-attach-documents';
 import './component/sw-order-state-history-card';
 import './component/sw-order-state-history-card-entry';
+import './component/sw-order-state-history-modal';
 import './component/sw-order-state-select';
+import './component/sw-order-state-select-v2';
 import './component/sw-order-inline-field';
 import './component/sw-order-user-card';
 import './component/sw-order-document-card';
@@ -33,8 +38,11 @@ import './component/sw-order-new-customer-modal';
 import './component/sw-order-promotion-tag-field';
 import './component/sw-order-create-invalid-promotion-modal';
 import './component/sw-order-create-promotion-modal';
+import './component/sw-order-select-document-type-modal';
+import './component/sw-order-send-document-modal';
 import '../sw-customer/component/sw-customer-address-form';
 import '../sw-customer/component/sw-customer-address-form-options';
+import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module } = Shopware;
 
@@ -89,7 +97,9 @@ Module.register('sw-order', {
             component: 'sw-order-detail',
             path: 'detail/:id',
             redirect: {
-                name: 'sw.order.detail.base',
+                name: Shopware.Feature.isActive('FEATURE_NEXT_7530')
+                    ? 'sw.order.detail.general'
+                    : 'sw.order.detail.base',
             },
             meta: {
                 privilege: 'order.viewer',
@@ -97,16 +107,7 @@ Module.register('sw-order', {
                     view: 'detail',
                 },
             },
-            children: {
-                base: {
-                    component: 'sw-order-detail-base',
-                    path: 'base',
-                    meta: {
-                        parentPath: 'sw.order.index',
-                        privilege: 'order.viewer',
-                    },
-                },
-            },
+            children: orderDetailChildren(),
             props: {
                 default: ($route) => {
                     return { orderId: $route.params.id };
@@ -128,4 +129,49 @@ Module.register('sw-order', {
         parent: 'sw-order',
         privilege: 'order.viewer',
     }],
+
+    defaultSearchConfiguration,
 });
+
+
+function orderDetailChildren() {
+    if (Shopware.Feature.isActive('FEATURE_NEXT_7530')) {
+        return {
+            general: {
+                component: 'sw-order-detail-general',
+                path: 'general',
+                meta: {
+                    parentPath: 'sw.order.index',
+                    privilege: 'order.viewer',
+                },
+            },
+            details: {
+                component: 'sw-order-detail-details',
+                path: 'details',
+                meta: {
+                    parentPath: 'sw.order.index',
+                    privilege: 'order.viewer',
+                },
+            },
+            documents: {
+                component: 'sw-order-detail-documents',
+                path: 'documents',
+                meta: {
+                    parentPath: 'sw.order.index',
+                    privilege: 'order.viewer',
+                },
+            },
+        };
+    }
+
+    return {
+        base: {
+            component: 'sw-order-detail-base',
+            path: 'base',
+            meta: {
+                parentPath: 'sw.order.index',
+                privilege: 'order.viewer',
+            },
+        },
+    };
+}

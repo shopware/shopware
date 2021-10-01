@@ -25,15 +25,13 @@ const additionalData = {
 
 describe('Test if essential characteristics are displayed in checkout', () => {
     beforeEach(() => {
-        cy.setToInitialState().then(() => {
-            cy.createProductFixture(additionalData).then(() => {
-                return cy.createDefaultFixture('category')
-            }).then(() => {
-                return cy.fixture('product');
-            }).then((result) => {
-                product = result;
-                cy.visit('/');
-            });
+        cy.createProductFixture(additionalData).then(() => {
+            return cy.createDefaultFixture('category')
+        }).then(() => {
+            return cy.fixture('product');
+        }).then((result) => {
+            product = result;
+            cy.visit('/');
         });
     });
 

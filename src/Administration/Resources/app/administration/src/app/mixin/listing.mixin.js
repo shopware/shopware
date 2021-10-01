@@ -3,6 +3,8 @@ const types = Shopware.Utils.types;
 const { debug } = Shopware.Utils;
 
 Mixin.register('listing', {
+    inject: ['searchRankingService', 'feature'],
+
     data() {
         return {
             page: 1,
@@ -14,6 +16,7 @@ Mixin.register('listing', {
             selection: [],
             term: undefined,
             disableRouteParams: false,
+            searchConfigEntity: null,
         };
     },
 
@@ -37,6 +40,14 @@ Mixin.register('listing', {
         filters() {
             // You can create your custom filters by defining the computed property "filters"
             return [];
+        },
+
+        searchRankingFields() {
+            if (!this.feature.isActive('FEATURE_NEXT_6040') || !this.searchConfigEntity) {
+                return {};
+            }
+
+            return this.searchRankingService.getSearchFieldsByEntity(this.searchConfigEntity);
         },
     },
 
@@ -247,6 +258,18 @@ Mixin.register('listing', {
             debug.warn(
                 'Listing Mixin',
                 'When using the listing mixin you have to implement your custom "getList()" method.',
+            );
+        },
+
+        addQueryScores(term, originalCriteria) {
+            if (!this.feature.isActive('FEATURE_NEXT_6040') || !this.searchConfigEntity) {
+                return originalCriteria;
+            }
+
+            return this.searchRankingService.buildSearchQueriesForEntity(
+                this.searchRankingFields,
+                term,
+                originalCriteria,
             );
         },
     },

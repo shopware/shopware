@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigLoaderConfigCom
 use Shopware\Core\Framework\DependencyInjection\FrameworkExtension;
 use Shopware\Core\Framework\Migration\MigrationCompilerPass;
 use Shopware\Core\Framework\Migration\MigrationSource;
+use Shopware\Core\Framework\Test\DependencyInjection\CompilerPass\ContainerVisibilityCompilerPass;
 use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
@@ -96,6 +97,7 @@ class Framework extends Bundle
 
         if ($container->getParameter('kernel.environment') === 'test') {
             $container->addCompilerPass(new DisableRateLimiterCompilerPass());
+            $container->addCompilerPass(new ContainerVisibilityCompilerPass());
         }
 
         // configure migration directories
@@ -129,7 +131,7 @@ class Framework extends Bundle
             throw new \RuntimeException('Container parameter "kernel.cache_dir" needs to be a string');
         }
 
-        Feature::registerFeatures($featureFlags, $cacheDir . '/shopware_features.php');
+        Feature::registerFeatures($featureFlags);
 
         $this->registerEntityExtensions(
             $this->container->get(DefinitionInstanceRegistry::class),
@@ -172,10 +174,6 @@ class Framework extends Bundle
         $configLoader->load($confDir . '/{packages}/' . $environment . '/*' . Kernel::CONFIG_EXTS, 'glob');
         if ($environment === 'e2e') {
             $configLoader->load($confDir . '/{packages}/prod/*' . Kernel::CONFIG_EXTS, 'glob');
-        }
-        $shopwareFeaturesPath = $cacheDir . '/shopware_features.php';
-        if (is_readable($shopwareFeaturesPath)) {
-            $configLoader->load($shopwareFeaturesPath, 'php');
         }
     }
 

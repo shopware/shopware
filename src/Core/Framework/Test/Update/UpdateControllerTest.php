@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\Update;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Administration\Controller\AdministrationController;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Test\TestCaseBase\SystemConfigTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Update\Api\UpdateController;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
@@ -33,16 +35,15 @@ use Symfony\Component\HttpFoundation\Response;
 class UpdateControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
+    use SystemConfigTestBehaviour;
 
     public function testEventDispatcherNotCalledOnInvalidToken(): void
     {
         $context = Context::createDefaultContext();
         $systemConfigService = $this->createMock(SystemConfigService::class);
         $systemConfigService
-            ->method('get')
-            ->willReturnMap([
-                [UpdateController::UPDATE_TOKEN_KEY, null, 'valid_token'],
-            ]);
+            ->method('getString')
+            ->willReturn('valid_token');
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $updateController = new UpdateController(
@@ -64,13 +65,10 @@ class UpdateControllerTest extends TestCase
         $request->query->set('offset', 0);
 
         $response = $updateController->finish('', $request, $context);
-
-        static::assertInstanceOf(RedirectResponse::class, $response);
-        static::assertSame('/admin', $response->headers->get('location'));
+        $this->assertFinishResponse($response);
 
         $response = $updateController->finish('invalid token', $request, $context);
-        static::assertInstanceOf(RedirectResponse::class, $response);
-        static::assertSame('/admin', $response->headers->get('location'));
+        $this->assertFinishResponse($response);
     }
 
     public function testFinishDispatchesEvents(): void
@@ -85,11 +83,18 @@ class UpdateControllerTest extends TestCase
 
         $systemConfigService = $this->createMock(SystemConfigService::class);
         $systemConfigService
-            ->method('get')
-            ->willReturnMap([
-                [UpdateController::UPDATE_TOKEN_KEY, null, $token],
-                [UpdateController::UPDATE_PREVIOUS_VERSION_KEY, null, $previousVersion],
-            ]);
+            ->method('getString')
+            ->willReturnCallback(static function (string $systemConfigKey) use ($previousVersion, $token): string {
+                if ($systemConfigKey === UpdateController::UPDATE_PREVIOUS_VERSION_KEY) {
+                    return $previousVersion;
+                }
+
+                if ($systemConfigKey === UpdateController::UPDATE_TOKEN_KEY) {
+                    return $token;
+                }
+
+                throw new \RuntimeException('unexpected SystemConfigKey');
+            });
 
         $containerWithoutPlugins = $this->createMock(Container::class);
         $containerWithPlugins = $this->createMock(Container::class);
@@ -181,9 +186,7 @@ class UpdateControllerTest extends TestCase
         $request->query->set('offset', 0);
 
         $response = $updateController->finish($token, $request, $context);
-
-        static::assertInstanceOf(RedirectResponse::class, $response);
-        static::assertSame('/admin', $response->headers->get('location'));
+        $this->assertFinishResponse($response);
     }
 
     public function testAutoUpdateReplacesItSelf(): void
@@ -258,6 +261,17 @@ class UpdateControllerTest extends TestCase
             static::assertEquals(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, json_decode($response->getContent(), true)['errors'][0]['code'], $response->getContent());
         } finally {
             $this->resetBrowser();
+        }
+    }
+
+    private function assertFinishResponse(Response $response): void
+    {
+        if (!$this->getContainer()->has(AdministrationController::class)) {
+            static::assertInstanceOf(Response::class, $response);
+            static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+        } else {
+            static::assertInstanceOf(RedirectResponse::class, $response);
+            static::assertSame('/admin', $response->headers->get('location'));
         }
     }
 }

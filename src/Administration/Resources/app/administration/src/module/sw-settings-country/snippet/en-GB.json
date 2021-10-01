@@ -69,7 +69,9 @@
     "labelPosition": "Position",
     "labelShortCode": "ISO",
     "tooltipPosition": "Changes the positioning of states/regions in listings.",
-    "createNewStateError": "Can not create a new state/region with the currently selected language. Please create a new state/region in the default system language first!"
+    "createNewStateError": "Cannot create a region with the currently selected language. Please create a region using the default system language first.",
+    "emptyTitle": "No region available",
+    "emptySubline": "Add a region"
   },
   "sw-privileges": {
     "permissions": {

@@ -7,12 +7,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class DuplicateWishlistProductException extends ShopwareHttpException
 {
-    public function __construct(string $productId)
+    /**
+     * @deprecated tag:v6.5.0 - Product id will be removed
+     */
+    public function __construct(string $productId = '')
     {
-        parent::__construct(
-            'Product with id {{ productId }} already added in wishlist',
-            ['productId' => $productId]
-        );
+        parent::__construct('Product already added in wishlist');
     }
 
     public function getErrorCode(): string

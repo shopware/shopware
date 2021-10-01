@@ -26,6 +26,7 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\System\Currency\Rule\CurrencyRule;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 
 /**
  * @group rules
@@ -60,8 +61,8 @@ class LineItemListPriceRuleTest extends TestCase
      */
     public function testIfMatchesCorrectWithLineItem(
         string $operator,
-        float $amount,
-        float $lineItemAmount,
+        ?float $amount,
+        ?float $lineItemAmount,
         bool $expected
     ): void {
         $this->rule->assign([
@@ -102,6 +103,9 @@ class LineItemListPriceRuleTest extends TestCase
             'match / operator lower than equals / lower price' => [Rule::OPERATOR_LTE, 100, 50, true],
             'match / operator lower than equals / same price' => [Rule::OPERATOR_LTE, 100, 100, true],
             'no match / operator lower than equals / higher price' => [Rule::OPERATOR_LTE, 100, 200, false],
+            // OPERATOR_EMPTY
+            'match / operator empty / is empty' => [Rule::OPERATOR_EMPTY, null, null, true],
+            'no match / operator empty / is not empty' => [Rule::OPERATOR_EMPTY, 100, 200, false],
         ];
     }
 
@@ -110,9 +114,9 @@ class LineItemListPriceRuleTest extends TestCase
      */
     public function testIfMatchesCorrectWithCartRuleScope(
         string $operator,
-        float $amount,
-        float $lineItemAmount1,
-        float $lineItemAmount2,
+        ?float $amount,
+        ?float $lineItemAmount1,
+        ?float $lineItemAmount2,
         bool $expected
     ): void {
         $this->rule->assign([
@@ -140,9 +144,9 @@ class LineItemListPriceRuleTest extends TestCase
      */
     public function testIfMatchesCorrectWithCartRuleScopeNested(
         string $operator,
-        float $amount,
-        float $lineItemAmount1,
-        float $lineItemAmount2,
+        ?float $amount,
+        ?float $lineItemAmount1,
+        ?float $lineItemAmount2,
         bool $expected
     ): void {
         $this->rule->assign([
@@ -191,6 +195,9 @@ class LineItemListPriceRuleTest extends TestCase
             'match / operator lower than equals / lower price' => [Rule::OPERATOR_LTE, 100, 50, 120, true],
             'match / operator lower than equals / same price' => [Rule::OPERATOR_LTE, 100, 100, 120, true],
             'no match / operator lower than equals / higher price' => [Rule::OPERATOR_LTE, 100, 200, 120, false],
+            // OPERATOR_EMPTY
+            'match / operator empty / is empty' => [Rule::OPERATOR_EMPTY, null, null, 100, true],
+            'no match / operator empty / is not empty' => [Rule::OPERATOR_EMPTY, 100, 100, 100, false],
         ];
     }
 
@@ -275,7 +282,7 @@ class LineItemListPriceRuleTest extends TestCase
             'active' => true,
             'visibilities' => [
                 [
-                    'salesChannelId' => Defaults::SALES_CHANNEL,
+                    'salesChannelId' => TestDefaults::SALES_CHANNEL,
                     'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
                 ],
             ],
@@ -286,7 +293,7 @@ class LineItemListPriceRuleTest extends TestCase
             ->create([$data], Context::createDefaultContext());
 
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create('test', Defaults::SALES_CHANNEL);
+            ->create('test', TestDefaults::SALES_CHANNEL);
 
         $service = $this->getContainer()->get(CartService::class);
 
@@ -324,7 +331,7 @@ class LineItemListPriceRuleTest extends TestCase
 
         // create new context for other currency
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create('test', Defaults::SALES_CHANNEL, ['currencyId' => $ids->get('currency')]);
+            ->create('test', TestDefaults::SALES_CHANNEL, ['currencyId' => $ids->get('currency')]);
 
         // fetch cart for recalculation
         $cart = $service->getCart('test', $context, CartService::SALES_CHANNEL, false);
@@ -351,9 +358,10 @@ class LineItemListPriceRuleTest extends TestCase
         }
     }
 
-    private function createLineItemWithListPrice(float $listPriceAmount): LineItem
+    private function createLineItemWithListPrice(?float $listPriceAmount): LineItem
     {
-        $listPrice = ListPrice::createFromUnitPrice(400, $listPriceAmount);
+        $listPrice = $listPriceAmount === null ? null : ListPrice::createFromUnitPrice(400, $listPriceAmount);
+        $listPriceAmount = $listPriceAmount ?? 99.99;
 
         return $this->createLineItemWithPrice(LineItem::PRODUCT_LINE_ITEM_TYPE, $listPriceAmount, $listPrice);
     }

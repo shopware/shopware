@@ -61,7 +61,7 @@ class ProductLineItemCommandValidator implements EventSubscriberInterface
             $lineItemPayload = isset($payload['payload']) ? json_decode($payload['payload'], true) : [];
             $orderNumberChanged = \array_key_exists('productNumber', $lineItemPayload);
 
-            if (!$this->isProduct($products, $lineItemPayload, $lineItemId)) {
+            if (!$this->isProduct($products, $payload, $lineItemId)) {
                 continue;
             }
 
@@ -121,8 +121,8 @@ class ProductLineItemCommandValidator implements EventSubscriberInterface
 
     private function isProduct(array $products, array $payload, string $lineItemId): bool
     {
-        if (isset($payload['type']) && $payload['type'] === LineItem::PRODUCT_LINE_ITEM_TYPE) {
-            return true;
+        if (isset($payload['type'])) {
+            return $payload['type'] === LineItem::PRODUCT_LINE_ITEM_TYPE;
         }
 
         return isset($products[$lineItemId]);

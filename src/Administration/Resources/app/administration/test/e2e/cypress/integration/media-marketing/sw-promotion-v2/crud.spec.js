@@ -16,10 +16,9 @@ describe('Promotion v2: Test crud operations', () => {
     });
 
     it('@base @marketing: create, update and read promotion', () => {
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/promotion`,
-            method: 'post'
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/promotion`,
+            method: 'POST'
         }).as('saveData');
 
         cy.waitFor('.sw-promotion-v2-list__smart-bar-button-add');
@@ -30,15 +29,13 @@ describe('Promotion v2: Test crud operations', () => {
         cy.get('#sw-field--promotion-name').typeAndCheck('Funicular prices');
         cy.get('input[name="sw-field--promotion-active"]').click();
         cy.get('.sw-promotion-v2-detail__save-action').click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.location('hash').should((hash) => {
             expect(hash).to.contain('#/sw/promotion/v2/detail/');
         });
 
-        cy.get('.sw-loader').should('not.be.visible');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('#sw-field--promotion-validFrom + input')
             .click()
@@ -51,7 +48,7 @@ describe('Promotion v2: Test crud operations', () => {
         cy.get('#sw-field--promotion-maxRedemptionsGlobal').type('1');
 
         cy.get('.sw-promotion-v2-detail__save-action').click();
-        cy.get('.sw-loader').should('not.be.visible');
+        cy.get('.sw-loader').should('not.exist');
 
         // Verify promotion on detail page
         cy.get('#sw-field--promotion-name').should('have.value', 'Funicular prices');
@@ -103,7 +100,7 @@ describe('Promotion v2: Test crud operations', () => {
             .typeMultiSelectAndCheck('Always valid (Default)');
 
         cy.get('.sw-promotion-v2-detail__save-action').click();
-        cy.get('.sw-loader').should('not.be.visible');
+        cy.get('.sw-loader').should('not.exist');
 
         // Verify conditions
         cy.get(`.sw-promotion-v2-conditions__sales-channel-selection ${multiSelectFirstSelector}`)
@@ -150,7 +147,7 @@ describe('Promotion v2: Test crud operations', () => {
             .type('{selectall}10.5');
 
         cy.get('.sw-promotion-v2-detail__save-action').click();
-        cy.get('.sw-loader').should('not.be.visible');
+        cy.get('.sw-loader').should('not.exist');
 
         // Verify discounts
         cy.get('.sw-promotion-discount-component')
@@ -167,16 +164,14 @@ describe('Promotion v2: Test crud operations', () => {
 
         cy.get('.sw-data-grid__cell--name > .sw-data-grid__cell-content').contains('Funicular prices');
         cy.get('.sw-data-grid__cell--active > .sw-data-grid__cell-content > span').should('have.class', 'is--active');
-        cy.get('.sw-data-grid__cell--validFrom > .sw-data-grid__cell-content').contains('01/01/22');
-        cy.get('.sw-data-grid__cell--validUntil > .sw-data-grid__cell-content').contains('02/02/22');
+        cy.get('.sw-data-grid__cell--validFrom > .sw-data-grid__cell-content').contains('1 January 2222, 00:00');
+        cy.get('.sw-data-grid__cell--validUntil > .sw-data-grid__cell-content').contains('2 February 2222, 00:00');
     });
 
     it('@base @marketing: delete promotion', () => {
         const page = new ProductPageObject();
-
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/promotion/*`,
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/promotion/*`,
             method: 'delete'
         }).as('deleteData');
 
@@ -192,9 +187,7 @@ describe('Promotion v2: Test crud operations', () => {
         cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();
 
         // Verify updated product
-        cy.wait('@deleteData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteData').its('response.statusCode').should('equal', 204);
         cy.get('.sw-sidebar-navigation-item[title="Refresh"]').click();
         cy.get('.sw-data-grid__skeleton').should('not.exist');
         cy.get('.sw-promotion-v2-empty-state-hero').should('be.visible');

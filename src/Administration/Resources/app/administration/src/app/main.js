@@ -15,6 +15,7 @@ import LoginService from 'src/core/service/login.service';
 import EntityMappingService from 'src/core/service/entity-mapping.service';
 import JsonApiParser from 'src/core/service/jsonapi-parser.service';
 import ValidationService from 'src/core/service/validation.service';
+import TimezoneService from 'src/core/service/timezone.service';
 import RuleConditionService from 'src/app/service/rule-condition.service';
 import ProductStreamConditionService from 'src/app/service/product-stream-condition.service';
 import StateStyleService from 'src/app/service/state-style.service';
@@ -34,6 +35,8 @@ import AppCmsService from 'src/app/service/app-cms.service';
 import MediaDefaultFolderService from 'src/app/service/media-default-folder.service';
 import AppAclService from 'src/app/service/app-acl.service';
 import ShopwareDiscountCampaignService from 'src/app/service/discount-campaign.service';
+import SearchRankingService from 'src/app/service/search-ranking.service';
+import SearchPreferencesService from 'src/app/service/search-preferences.service';
 
 /** Import Feature */
 import Feature from 'src/core/feature';
@@ -94,6 +97,9 @@ Application
     })
     .addServiceProvider('validationService', () => {
         return ValidationService;
+    })
+    .addServiceProvider('timezoneService', () => {
+        return new TimezoneService();
     })
     .addServiceProvider('ruleConditionDataProviderService', () => {
         return RuleConditionService();
@@ -159,4 +165,12 @@ Application
     })
     .addServiceProvider('shopwareDiscountCampaignService', () => {
         return new ShopwareDiscountCampaignService();
+    })
+    .addServiceProvider('searchRankingService', () => {
+        return new SearchRankingService();
+    })
+    .addServiceProvider('searchPreferencesService', () => {
+        return new SearchPreferencesService({
+            userConfigRepository: Shopware.Service('repositoryFactory').create('user_config'),
+        });
     });

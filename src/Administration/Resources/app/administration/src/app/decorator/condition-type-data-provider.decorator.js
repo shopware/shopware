@@ -1,4 +1,4 @@
-const { Application } = Shopware;
+const { Application, Feature } = Shopware;
 
 Application.addServiceProviderDecorator('ruleConditionDataProviderService', (ruleConditionService) => {
     ruleConditionService.addCondition('dateRange', {
@@ -29,6 +29,11 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
     ruleConditionService.addCondition('currency', {
         component: 'sw-condition-currency',
         label: 'global.sw-condition.condition.currencyRule',
+        scopes: ['global'],
+    });
+    ruleConditionService.addCondition('language', {
+        component: 'sw-condition-language',
+        label: 'global.sw-condition.condition.languageRule',
         scopes: ['global'],
     });
     ruleConditionService.addCondition('customerBillingCountry', {
@@ -64,6 +69,11 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
     ruleConditionService.addCondition('customerDifferentAddresses', {
         component: 'sw-condition-different-addresses',
         label: 'global.sw-condition.condition.differentAddressesRule',
+        scopes: ['checkout'],
+    });
+    ruleConditionService.addCondition('customerEmail', {
+        component: 'sw-condition-email',
+        label: 'global.sw-condition.condition.emailRule.label',
         scopes: ['checkout'],
     });
     ruleConditionService.addCondition('customerIsNewCustomer', {
@@ -126,11 +136,14 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         label: 'global.sw-condition.condition.lineItemRule',
         scopes: ['lineItem'],
     });
-    ruleConditionService.addCondition('cartLineItemsInCart', {
-        component: 'sw-condition-line-items-in-cart',
-        label: 'global.sw-condition.condition.lineItemsInCartRule',
-        scopes: ['cart'],
-    });
+    /** @major-deprecated (flag:FEATURE_NEXT_17016) This rule will be removed. Use cartLineItem instead. */
+    if (!Feature.isActive('FEATURE_NEXT_17016')) {
+        ruleConditionService.addCondition('cartLineItemsInCart', {
+            component: 'sw-condition-line-items-in-cart',
+            label: 'global.sw-condition.condition.lineItemsInCartRule',
+            scopes: ['cart'],
+        });
+    }
     ruleConditionService.addCondition('cartLineItemsInCartCount', {
         component: 'sw-condition-line-items-in-cart-count',
         label: 'global.sw-condition.condition.lineItemsInCartCountRule',
@@ -164,6 +177,11 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
     ruleConditionService.addCondition('cartWeight', {
         component: 'sw-condition-weight-of-cart',
         label: 'global.sw-condition.condition.weightOfCartRule',
+        scopes: ['cart'],
+    });
+    ruleConditionService.addCondition('cartVolume', {
+        component: 'sw-condition-volume-of-cart',
+        label: 'global.sw-condition.condition.volumeOfCartRule',
         scopes: ['cart'],
     });
     ruleConditionService.addCondition('cartLineItemTag', {
@@ -221,6 +239,11 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         label: 'global.sw-condition.condition.lineItemInCategoryRule',
         scopes: ['lineItem'],
     });
+    ruleConditionService.addCondition('cartLineItemInProductStream', {
+        component: 'sw-condition-line-item-in-product-stream',
+        label: 'global.sw-condition.condition.lineItemInProductStreamRule',
+        scopes: ['lineItem'],
+    });
     ruleConditionService.addCondition('cartLineItemTaxation', {
         component: 'sw-condition-line-item-taxation',
         label: 'global.sw-condition.condition.lineItemTaxationRule',
@@ -244,6 +267,11 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
     ruleConditionService.addCondition('cartLineItemDimensionWeight', {
         component: 'sw-condition-line-item-dimension-weight',
         label: 'global.sw-condition.condition.lineItemDimensionWeightRule',
+        scopes: ['lineItem'],
+    });
+    ruleConditionService.addCondition('cartLineItemDimensionVolume', {
+        component: 'sw-condition-line-item-dimension-volume',
+        label: 'global.sw-condition.condition.lineItemDimensionVolumeRule',
         scopes: ['lineItem'],
     });
     ruleConditionService.addCondition('cartLineItemOfManufacturer', {
@@ -271,7 +299,16 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         label: 'global.sw-condition.condition.lineItemCustomFieldRule',
         scopes: ['lineItem'],
     });
-
+    ruleConditionService.addCondition('cartLineItemStock', {
+        component: 'sw-condition-line-item-stock',
+        label: 'global.sw-condition.condition.lineItemStockRule',
+        scopes: ['lineItem'],
+    });
+    ruleConditionService.addCondition('customerCustomField', {
+        component: 'sw-condition-customer-custom-field',
+        label: 'global.sw-condition.condition.customerCustomFieldRule',
+        scopes: ['checkout'],
+    });
     ruleConditionService.addCondition('paymentMethod', {
         component: 'sw-condition-payment-method',
         label: 'global.sw-condition.condition.paymentMethodRule',

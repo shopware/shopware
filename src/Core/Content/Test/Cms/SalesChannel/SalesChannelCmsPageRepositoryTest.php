@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 
 class SalesChannelCmsPageRepositoryTest extends TestCase
 {
@@ -42,7 +43,7 @@ class SalesChannelCmsPageRepositoryTest extends TestCase
 
         $this->pageRepository = $this->getContainer()->get(SalesChannelCmsPageRepository::class);
         $this->cmsPageRepository = $this->getContainer()->get('cms_page.repository');
-        $this->salesChannelContext = $contextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $this->salesChannelContext = $contextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 
     public function testLoadPageWithAssociations(): void

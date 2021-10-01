@@ -57,10 +57,9 @@ describe('Media: Test ACL privileges', () => {
 
     it('@media: can edit media', () => {
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/media-method/*`,
-            method: 'patch'
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/media-method/*`,
+            method: 'PATCH'
         }).as('savePayment');
 
         const page = new MediaPageObject();
@@ -91,15 +90,14 @@ describe('Media: Test ACL privileges', () => {
     });
 
     it('@media: can create media', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw-login-background`,
-            method: 'post'
+            method: 'POST'
         }).as('saveDataFileUpload');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw_logo_white`,
-            method: 'post'
+            method: 'POST'
         }).as('saveDataUrlUpload');
 
         const page = new MediaPageObject();
@@ -122,12 +120,11 @@ describe('Media: Test ACL privileges', () => {
         cy.get('.sw-media-upload-v2__button-compact-upload').should('be.enabled');
         cy.get('.sw-media-upload-v2__button-context-menu').should('be.enabled');
 
-        page.uploadImageUsingFileUpload('img/sw-login-background.png', 'sw-login-background.png');
+        page.uploadImageUsingFileUpload('img/sw-login-background.png');
 
-        cy.wait('@saveDataFileUpload').then((xhr) => {
-            cy.awaitAndCheckNotification('File has been saved.');
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveDataFileUpload')
+            .its('response.statusCode').should('equal', 204);
+        cy.awaitAndCheckNotification('File has been saved.');
         cy.get('.sw-media-base-item__name[title="sw-login-background.png"]')
             .should('be.visible');
     });

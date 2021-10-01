@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 
 class CustomerGroupRegistrationActionControllerTest extends TestCase
 {
@@ -106,7 +107,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         $this->customerRepository->create([
             array_merge([
                 'id' => $customerId,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultShippingAddress' => [
                     'id' => $addressId,
                     'firstName' => 'Max',
@@ -125,11 +126,11 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
                     'handlerIdentifier' => SyncTestPaymentHandler::class,
                     'salesChannels' => [
                         [
-                            'id' => Defaults::SALES_CHANNEL,
+                            'id' => TestDefaults::SALES_CHANNEL,
                         ],
                     ],
                 ],
-                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => Uuid::randomHex() . '@' . Uuid::randomHex() . '.de',
                 'password' => Uuid::randomHex(),
                 'firstName' => 'Max',

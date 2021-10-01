@@ -4,7 +4,6 @@ namespace Shopware\Core\System\Test\SystemConfig;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -16,6 +15,7 @@ use Shopware\Core\System\SystemConfig\Exception\InvalidSettingValueException;
 use Shopware\Core\System\SystemConfig\SystemConfigLoader;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
+use Shopware\Core\Test\TestDefaults;
 
 class SystemConfigServiceTest extends TestCase
 {
@@ -195,26 +195,26 @@ class SystemConfigServiceTest extends TestCase
     public function testSetGetSalesChannel(): void
     {
         $this->systemConfigService->set('foo.bar', 'test');
-        $actual = $this->systemConfigService->get('foo.bar', Defaults::SALES_CHANNEL);
+        $actual = $this->systemConfigService->get('foo.bar', TestDefaults::SALES_CHANNEL);
         static::assertEquals('test', $actual);
 
-        $this->systemConfigService->set('foo.bar', 'override', Defaults::SALES_CHANNEL);
-        $actual = $this->systemConfigService->get('foo.bar', Defaults::SALES_CHANNEL);
+        $this->systemConfigService->set('foo.bar', 'override', TestDefaults::SALES_CHANNEL);
+        $actual = $this->systemConfigService->get('foo.bar', TestDefaults::SALES_CHANNEL);
         static::assertEquals('override', $actual);
 
-        $this->systemConfigService->set('foo.bar', '', Defaults::SALES_CHANNEL);
-        $actual = $this->systemConfigService->get('foo.bar', Defaults::SALES_CHANNEL);
+        $this->systemConfigService->set('foo.bar', '', TestDefaults::SALES_CHANNEL);
+        $actual = $this->systemConfigService->get('foo.bar', TestDefaults::SALES_CHANNEL);
         static::assertEquals('', $actual);
     }
 
     public function testSetGetSalesChannelBool(): void
     {
         $this->systemConfigService->set('foo.bar', false);
-        $actual = $this->systemConfigService->get('foo.bar', Defaults::SALES_CHANNEL);
+        $actual = $this->systemConfigService->get('foo.bar', TestDefaults::SALES_CHANNEL);
         static::assertFalse($actual);
 
-        $this->systemConfigService->set('foo.bar', true, Defaults::SALES_CHANNEL);
-        $actual = $this->systemConfigService->get('foo.bar', Defaults::SALES_CHANNEL);
+        $this->systemConfigService->set('foo.bar', true, TestDefaults::SALES_CHANNEL);
+        $actual = $this->systemConfigService->get('foo.bar', TestDefaults::SALES_CHANNEL);
         static::assertTrue($actual);
     }
 
@@ -226,10 +226,10 @@ class SystemConfigServiceTest extends TestCase
         $actual = $this->systemConfigService->getDomain('foo', null, true);
         static::assertEquals([], $actual);
 
-        $actual = $this->systemConfigService->getDomain('foo', Defaults::SALES_CHANNEL);
+        $actual = $this->systemConfigService->getDomain('foo', TestDefaults::SALES_CHANNEL);
         static::assertEquals([], $actual);
 
-        $actual = $this->systemConfigService->getDomain('foo', Defaults::SALES_CHANNEL, true);
+        $actual = $this->systemConfigService->getDomain('foo', TestDefaults::SALES_CHANNEL, true);
         static::assertEquals([], $actual);
     }
 
@@ -238,7 +238,7 @@ class SystemConfigServiceTest extends TestCase
         $this->systemConfigService->set('foo.a', 'a');
         $this->systemConfigService->set('foo.b', 'b');
         $this->systemConfigService->set('foo.c', 'c');
-        $this->systemConfigService->set('foo.c', 'c override', Defaults::SALES_CHANNEL);
+        $this->systemConfigService->set('foo.c', 'c override', TestDefaults::SALES_CHANNEL);
 
         $expected = [
             'foo.a' => 'a',
@@ -253,24 +253,24 @@ class SystemConfigServiceTest extends TestCase
             'foo.b' => 'b',
             'foo.c' => 'c override',
         ];
-        $actual = $this->systemConfigService->getDomain('foo', Defaults::SALES_CHANNEL, true);
+        $actual = $this->systemConfigService->getDomain('foo', TestDefaults::SALES_CHANNEL, true);
         static::assertEquals($expected, $actual);
 
         $expected = [
             'foo.c' => 'c override',
         ];
-        $actual = $this->systemConfigService->getDomain('foo', Defaults::SALES_CHANNEL);
+        $actual = $this->systemConfigService->getDomain('foo', TestDefaults::SALES_CHANNEL);
         static::assertEquals($expected, $actual);
     }
 
     public function testGetDomainInherit(): void
     {
         $this->systemConfigService->set('foo.bar', 'test');
-        $this->systemConfigService->set('foo.bar', 'override', Defaults::SALES_CHANNEL);
-        $this->systemConfigService->set('foo.bar', '', Defaults::SALES_CHANNEL);
+        $this->systemConfigService->set('foo.bar', 'override', TestDefaults::SALES_CHANNEL);
+        $this->systemConfigService->set('foo.bar', '', TestDefaults::SALES_CHANNEL);
 
         $expected = ['foo.bar' => 'test'];
-        $actual = $this->systemConfigService->getDomain('foo', Defaults::SALES_CHANNEL, true);
+        $actual = $this->systemConfigService->getDomain('foo', TestDefaults::SALES_CHANNEL, true);
 
         static::assertEquals($expected, $actual);
     }
@@ -278,13 +278,13 @@ class SystemConfigServiceTest extends TestCase
     public function testGetDomainInheritWithBooleanValue(): void
     {
         $this->systemConfigService->set('foo.bar', true);
-        $actual = $this->systemConfigService->getDomain('foo', Defaults::SALES_CHANNEL, true);
+        $actual = $this->systemConfigService->getDomain('foo', TestDefaults::SALES_CHANNEL, true);
 
         // assert that the service reads the default value, when no sales-channel-specific value is configured
         static::assertSame(['foo.bar' => true], $actual);
 
-        $this->systemConfigService->set('foo.bar', false, Defaults::SALES_CHANNEL);
-        $actual = $this->systemConfigService->getDomain('foo', Defaults::SALES_CHANNEL, true);
+        $this->systemConfigService->set('foo.bar', false, TestDefaults::SALES_CHANNEL);
+        $actual = $this->systemConfigService->getDomain('foo', TestDefaults::SALES_CHANNEL, true);
 
         // assert that the service reads the sales-channel-specific value when one is configured
         static::assertSame(['foo.bar' => false], $actual);
@@ -300,7 +300,7 @@ class SystemConfigServiceTest extends TestCase
     public function testDeleteNonExisting(): void
     {
         $this->systemConfigService->delete('not.found');
-        $this->systemConfigService->delete('not.found', Defaults::SALES_CHANNEL);
+        $this->systemConfigService->delete('not.found', TestDefaults::SALES_CHANNEL);
 
         // does not throw
         static::assertTrue(true);
@@ -309,16 +309,16 @@ class SystemConfigServiceTest extends TestCase
     public function testDelete(): void
     {
         $this->systemConfigService->set('foo', 'bar');
-        $this->systemConfigService->set('foo', 'bar override', Defaults::SALES_CHANNEL);
+        $this->systemConfigService->set('foo', 'bar override', TestDefaults::SALES_CHANNEL);
 
         $this->systemConfigService->delete('foo');
         $actual = $this->systemConfigService->get('foo');
         static::assertNull($actual);
-        $actual = $this->systemConfigService->get('foo', Defaults::SALES_CHANNEL);
+        $actual = $this->systemConfigService->get('foo', TestDefaults::SALES_CHANNEL);
         static::assertEquals('bar override', $actual);
 
-        $this->systemConfigService->delete('foo', Defaults::SALES_CHANNEL);
-        $actual = $this->systemConfigService->get('foo', Defaults::SALES_CHANNEL);
+        $this->systemConfigService->delete('foo', TestDefaults::SALES_CHANNEL);
+        $actual = $this->systemConfigService->get('foo', TestDefaults::SALES_CHANNEL);
         static::assertNull($actual);
     }
 

@@ -47,6 +47,7 @@ use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -79,7 +80,7 @@ class RecalculationServiceTest extends TestCase
         $this->addCountriesToSalesChannel([$this->getValidCountryIdWithTaxes()]);
         $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
             Uuid::randomHex(),
-            Defaults::SALES_CHANNEL,
+            TestDefaults::SALES_CHANNEL,
             [
                 SalesChannelContextService::CUSTOMER_ID => $this->customerId,
                 SalesChannelContextService::SHIPPING_METHOD_ID => $shippingMethodId,
@@ -1039,7 +1040,7 @@ class RecalculationServiceTest extends TestCase
             'tax' => ['name' => 'create', 'taxRate' => $taxRate],
             'active' => true,
             'visibilities' => [
-                ['salesChannelId' => Defaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ['salesChannelId' => TestDefaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
             ],
         ];
         $this->getContainer()->get('product.repository')->create([$data], $this->context);
@@ -1058,7 +1059,7 @@ class RecalculationServiceTest extends TestCase
             'useCodes' => false,
             'useSetGroups' => false,
             'salesChannels' => [
-                ['salesChannelId' => Defaults::SALES_CHANNEL, 'priority' => 1],
+                ['salesChannelId' => TestDefaults::SALES_CHANNEL, 'priority' => 1],
             ],
             'discounts' => [
                 [
@@ -1096,8 +1097,8 @@ class RecalculationServiceTest extends TestCase
             'email' => Uuid::randomHex() . '@example.com',
             'password' => 'shopware',
             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-            'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultBillingAddressId' => $addressId,
             'defaultShippingAddressId' => $addressId,
             'addresses' => [
@@ -1147,7 +1148,7 @@ class RecalculationServiceTest extends TestCase
             'stock' => 10,
             'active' => true,
             'visibilities' => [
-                ['salesChannelId' => Defaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ['salesChannelId' => TestDefaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
             ],
         ];
 
@@ -1172,7 +1173,10 @@ class RecalculationServiceTest extends TestCase
     private function persistCart(Cart $cart, ?string $languageId = null): array
     {
         if ($languageId !== null) {
-            $this->salesChannelContext->getSalesChannel()->setLanguageId($languageId);
+            $context = $this->salesChannelContext->getContext();
+            $context->assign([
+                'languageIdChain' => array_merge([$languageId], $context->getLanguageIdChain()),
+            ]);
         }
         $orderId = $this->getContainer()->get(OrderPersister::class)->persist($cart, $this->salesChannelContext);
 
@@ -1851,7 +1855,7 @@ class RecalculationServiceTest extends TestCase
             ],
             'salesChannels' => [
                 [
-                    'id' => Defaults::SALES_CHANNEL,
+                    'id' => TestDefaults::SALES_CHANNEL,
                 ],
             ],
         ];

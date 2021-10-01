@@ -65,6 +65,7 @@ PHP coverage:
     variables:
         APP_ENV: "test"
         FEATURE_ALL: "major"
+        GIT_DEPTH: 0 # we need all commits for composer to detect the version which is then checked in a unit test
     rules:
         - !reference [.rules, skip]
         - !reference [.rules, run]
@@ -116,6 +117,7 @@ PHP Full:
     variables:
         TEST_SUITES: "docs administration storefront checkout content framework profiling migration system elasticsearch"
         APP_ENV: test
+        GIT_DEPTH: 0 # we need all commits for composer to detect the version which is then checked in a unit test
     rules:
         - !reference [.rules, skip]
         - !reference [.rules, run]
@@ -124,7 +126,7 @@ PHP Full:
           changes:
             - phpunit.xml.dist
             - '**/Resources/views/*.html.twig'
-            - '**/*.{php,xml,yaml,json}'
+            - '**/*.{php,xml,yaml,json,js,twig}'
             - 'adr/*'
             - .gitlab/stages/02-unit.yml
     parallel:
@@ -138,7 +140,7 @@ PHP Full:
                 DEV_IMAGE: shopware/development:8.0-composer-2
                 FEATURE_ALL: [ "false", "minor", "major" ]
             -   MYSQL_IMAGE:
-                    - mysql:8.0.19
+                    - mysql:8.0
                 DEV_IMAGE: [ "shopware/development:7.4-composer-2", "shopware/development:8.0-composer-2" ]
                 FEATURE_ALL: [ "false", "minor", "major" ]
                 MYSQL_CMD: 'mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --sql-require-primary-key=ON'
@@ -146,10 +148,28 @@ PHP Full:
                 DEV_IMAGE: shopware/development:7.4-composer-2
                 FEATURE_ALL: 'false'
                 PREFER_LOWEST: 'true'
+            -   MYSQL_IMAGE: mariadb:10.4
+                DEV_IMAGE: shopware/development:7.4-composer-2
+                FEATURE_ALL: 'false'
+                ONLY_CORE: 'true'
+                TEST_SUITES: "checkout content framework profiling migration system"
     script:
         - >
             if [ "$PREFER_LOWEST" == "true" ]; then
                 composer update --prefer-lowest
+            fi
+        - >
+            if [ "$ONLY_CORE" == "true" ]; then
+                sed -i '/Shopware\\Administration/d' ./config/bundles.php
+                sed -i '/ Shopware\\Docs/d' ./config/bundles.php
+                sed -i '/Shopware\\Storefront/d' ./config/bundles.php
+                sed -i '/Shopware\\Elasticsearch/d' ./config/bundles.php
+                sed -i '/Shopware\\\\Administration/d' ./composer.json
+                sed -i '/Shopware\\\\Docs/d' ./composer.json
+                sed -i '/Shopware\\\\Storefront/d' ./composer.json
+                sed -i '/Shopware\\\\Elasticsearch/d' ./composer.json
+                sed -i 's/"src\/Core\/"\,/"src\/Core\/"/' ./composer.json
+                composer dump-autoload
             fi
         - FAILED=0
         - >

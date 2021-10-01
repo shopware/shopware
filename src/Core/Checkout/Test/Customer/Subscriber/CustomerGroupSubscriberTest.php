@@ -13,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 
 class CustomerGroupSubscriberTest extends TestCase
 {
@@ -106,12 +107,19 @@ class CustomerGroupSubscriberTest extends TestCase
 
         $languageIds = array_values($this->getContainer()->get('language.repository')->search(new Criteria(), Context::createDefaultContext())->getIds());
 
+        $upsertLanguages = [];
+        foreach ($languageIds as $id) {
+            if ($id === Defaults::LANGUAGE_SYSTEM) {
+                continue;
+            }
+
+            $upsertLanguages[] = ['id' => $id];
+        }
+
         $this->getContainer()->get('sales_channel.repository')->upsert([
             [
                 'id' => $s1,
-                'languages' => array_map(function (string $id) {
-                    return ['id' => $id];
-                }, $languageIds),
+                'languages' => $upsertLanguages,
             ],
         ], Context::createDefaultContext());
 
@@ -231,7 +239,7 @@ class CustomerGroupSubscriberTest extends TestCase
             'countryId' => $this->getValidCountryId(),
             'currencies' => [['id' => Defaults::CURRENCY]],
             'languages' => [['id' => Defaults::LANGUAGE_SYSTEM]],
-            'customerGroupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+            'customerGroupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'domains' => [
                 [
                     'languageId' => Defaults::LANGUAGE_SYSTEM,

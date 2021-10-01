@@ -208,7 +208,10 @@ class SalesChannelCmsPageLoaderTest extends TestCase
     {
         $salesChannelContextDe = $this->createSalesChannelContext(
             [
-                'languages' => [['id' => $this->getDeDeLanguageId()]],
+                'languages' => [
+                    ['id' => Defaults::LANGUAGE_SYSTEM],
+                    ['id' => $this->getDeDeLanguageId()],
+                ],
                 'domains' => [
                     [
                         'languageId' => $this->getDeDeLanguageId(),
@@ -239,7 +242,10 @@ class SalesChannelCmsPageLoaderTest extends TestCase
     {
         $salesChannelContextDe = $this->createSalesChannelContext(
             [
-                'languages' => [['id' => $this->getDeDeLanguageId()]],
+                'languages' => [
+                    ['id' => Defaults::LANGUAGE_SYSTEM],
+                    ['id' => $this->getDeDeLanguageId()],
+                ],
                 'domains' => [
                     [
                         'languageId' => $this->getDeDeLanguageId(),

@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder;
 
 class ProductCombinationFinderTest extends TestCase
@@ -53,7 +54,7 @@ class ProductCombinationFinderTest extends TestCase
         $this->repository = $this->getContainer()->get('product.repository');
 
         $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create('test', Defaults::SALES_CHANNEL);
+            ->create('test', TestDefaults::SALES_CHANNEL);
 
         $this->combinationFinder = $this->getContainer()->get(ProductCombinationFinder::class);
 
@@ -177,7 +178,7 @@ class ProductCombinationFinderTest extends TestCase
                 ],
                 'visibilities' => [
                     [
-                        'salesChannelId' => Defaults::SALES_CHANNEL,
+                        'salesChannelId' => TestDefaults::SALES_CHANNEL,
                         'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
                     ],
                 ],

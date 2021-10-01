@@ -57,8 +57,9 @@ Component.extend('sw-product-variants-media-upload', 'sw-media-upload-v2', {
             if (!this.product) {
                 return [];
             }
+            const media = [...this.product.media];
 
-            return this.product.media;
+            return media.sort((a, b) => a.position - b.position);
         },
 
         cover() {

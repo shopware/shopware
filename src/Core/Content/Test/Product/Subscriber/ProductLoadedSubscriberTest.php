@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\Test\TestDefaults;
 
 class ProductLoadedSubscriberTest extends TestCase
 {
@@ -49,7 +50,7 @@ class ProductLoadedSubscriberTest extends TestCase
             ], Context::createDefaultContext());
 
         $salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
         /** @var SalesChannelProductEntity $productEntity */
         $productEntity = $this->getContainer()
             ->get('sales_channel.product.repository')
@@ -68,7 +69,7 @@ class ProductLoadedSubscriberTest extends TestCase
             ->create([$product], Context::createDefaultContext());
 
         $salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $criteria->setIds([$product['id']])
             ->addAssociation('properties.group');
@@ -122,7 +123,7 @@ class ProductLoadedSubscriberTest extends TestCase
             'tax' => ['name' => 'test', 'taxRate' => 15],
             'visibilities' => [
                 [
-                    'salesChannelId' => Defaults::SALES_CHANNEL,
+                    'salesChannelId' => TestDefaults::SALES_CHANNEL,
                     'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
                 ],
             ],

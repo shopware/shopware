@@ -126,6 +126,10 @@ export default function createConditionService() {
             id: 'price',
             name: 'sw-settings-rule.detail.types.price',
         },
+        flow: {
+            id: 'flow',
+            name: 'sw-settings-rule.detail.types.flowBuilder',
+        },
     };
 
     return {

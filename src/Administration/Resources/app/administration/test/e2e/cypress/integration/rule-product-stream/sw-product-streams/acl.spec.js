@@ -93,10 +93,9 @@ describe('Dynamic product group: Test ACL privileges', () => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/index`);
         });
 
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/product-stream/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('updateData');
 
         cy.createProductFixture().then(() => {
@@ -122,9 +121,7 @@ describe('Dynamic product group: Test ACL privileges', () => {
                 .should('be.visible')
                 .click();
 
-            cy.wait('@updateData').then(xhr => {
-                expect(xhr).to.have.property('status', 204);
-            });
+            cy.wait('@updateData').its('response.statusCode').should('equal', 204);
 
             // reload page to check if changes have been applied
             cy.reload();
@@ -145,10 +142,9 @@ describe('Dynamic product group: Test ACL privileges', () => {
     });
 
     it('@catalogue: can create product streams', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/product-stream`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         cy.createProductFixture().then(() => {
@@ -175,9 +171,7 @@ describe('Dynamic product group: Test ACL privileges', () => {
             cy.get('.sw-button-process').click();
 
             // check if save request got send
-            cy.wait('@saveData').then(xhr => {
-                expect(xhr).to.have.property('status', 204);
-            });
+            cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
             // reload page and check if data got saved
             cy.reload();
@@ -207,15 +201,14 @@ describe('Dynamic product group: Test ACL privileges', () => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/index`);
             });
 
-            cy.server();
-            cy.route({
+            cy.intercept({
                 url: `${Cypress.env('apiPath')}/product-stream/*`,
                 method: 'delete'
             }).as('deleteData');
 
-            cy.route({
-                url: '/api/_action/sync',
-                method: 'post'
+            cy.intercept({
+                url: `${Cypress.env('apiPath')}/_action/sync`,
+                method: 'POST'
             }).as('deleteMultipleData');
 
             // open context menu
@@ -229,9 +222,7 @@ describe('Dynamic product group: Test ACL privileges', () => {
             // confirm delete
             cy.get('.sw-modal .sw-button--danger').click();
 
-            cy.wait('@deleteData').then((xhr) => {
-                expect(xhr).to.have.property('status', 204);
-            });
+            cy.wait('@deleteData').its('response.statusCode').should('equal', 204);
 
             // select all entities
             cy.get('.sw-data-grid-skeleton').should('not.exist');
@@ -249,9 +240,7 @@ describe('Dynamic product group: Test ACL privileges', () => {
                 .should('be.visible')
                 .click();
 
-            cy.wait('@deleteMultipleData').then((xhr) => {
-                expect(xhr).to.have.property('status', 200);
-            });
+            cy.wait('@deleteMultipleData').its('response.statusCode').should('equal', 200);
         });
     });
 });

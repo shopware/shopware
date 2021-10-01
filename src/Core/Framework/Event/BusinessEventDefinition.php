@@ -17,11 +17,15 @@ class BusinessEventDefinition extends Struct
     protected $class;
 
     /**
+     * @feature-deprecated (flag:FEATURE_NEXT_8225) - tag:v6.5.0 - Will be removed in v6.5.0, use $aware instead.
+     *
      * @var bool
      */
     protected $mailAware;
 
     /**
+     * @feature-deprecated (flag:FEATURE_NEXT_8225) - tag:v6.5.0 - Will be removed in v6.5.0, use $aware instead.
+     *
      * @var bool
      */
     protected $logAware;
@@ -32,9 +36,16 @@ class BusinessEventDefinition extends Struct
     protected $data;
 
     /**
+     * @feature-deprecated (flag:FEATURE_NEXT_8225) - tag:v6.5.0 - Will be removed in v6.5.0, use $aware instead.
+     *
      * @var bool
      */
     protected $salesChannelAware;
+
+    /**
+     * @internal (flag:FEATURE_NEXT_8225)
+     */
+    protected array $aware = [];
 
     public function __construct(
         string $name,
@@ -42,7 +53,8 @@ class BusinessEventDefinition extends Struct
         bool $mailAware,
         bool $logAware,
         bool $salesChannelAware,
-        array $data
+        array $data,
+        array $aware = []
     ) {
         $this->name = $name;
         $this->class = $class;
@@ -50,6 +62,7 @@ class BusinessEventDefinition extends Struct
         $this->logAware = $logAware;
         $this->data = $data;
         $this->salesChannelAware = $salesChannelAware;
+        $this->aware = $aware;
     }
 
     public function getName(): string
@@ -72,21 +85,33 @@ class BusinessEventDefinition extends Struct
         $this->class = $class;
     }
 
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_8225) - tag:v6.5.0 - Will be removed in v6.5.0, use BusinessEventDefinition::getAware() instead.
+     */
     public function isMailAware(): bool
     {
         return $this->mailAware;
     }
 
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_8225) - tag:v6.5.0 - Will be removed in v6.5.0, use BusinessEventDefinition::addAware() instead.
+     */
     public function setMailAware(bool $mailAware): void
     {
         $this->mailAware = $mailAware;
     }
 
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_8225) - tag:v6.5.0 - Will be removed in v6.5.0, use BusinessEventDefinition::getAware() instead.
+     */
     public function isLogAware(): bool
     {
         return $this->logAware;
     }
 
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_8225) - tag:v6.5.0 - Will be removed in v6.5.0, use BusinessEventDefinition::addAware() instead.
+     */
     public function setLogAware(bool $logAware): void
     {
         $this->logAware = $logAware;
@@ -107,13 +132,29 @@ class BusinessEventDefinition extends Struct
         $this->data = $data;
     }
 
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_8225) - tag:v6.5.0 - Will be removed in v6.5.0, use BusinessEventDefinition::getAware() instead.
+     */
     public function isSalesChannelAware(): bool
     {
         return $this->salesChannelAware;
     }
 
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_8225) - tag:v6.5.0 - Will be removed in v6.5.0, use BusinessEventDefinition::addAware() instead.
+     */
     public function setSalesChannelAware(bool $salesChannelAware): void
     {
         $this->salesChannelAware = $salesChannelAware;
+    }
+
+    public function addAware(string $key): void
+    {
+        $this->aware[] = $key;
+    }
+
+    public function getAware(string $key): bool
+    {
+        return \in_array($key, $this->aware, true);
     }
 }

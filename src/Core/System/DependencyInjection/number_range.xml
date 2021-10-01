@@ -38,7 +38,8 @@
         </service>
 
         <service class="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGenerator"
-                 id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface">
+                 id="Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface"
+                 public="true">
             <argument type="service" id="Shopware\Core\System\NumberRange\ValueGenerator\Pattern\ValueGeneratorPatternRegistry" />
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface" />
             <argument type="service" id="event_dispatcher"/>

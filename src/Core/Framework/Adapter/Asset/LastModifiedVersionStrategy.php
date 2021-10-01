@@ -6,6 +6,8 @@ use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
 
 /**
  * Enables cache busting depending on last modified timestamp.
+ *
+ * @deprecated tag:v6.5.0 - Use FlysystemLastModifiedVersionStrategy instead
  */
 class LastModifiedVersionStrategy implements VersionStrategyInterface
 {

@@ -122,7 +122,10 @@
                                         </div>
 
                                         {% block sw_theme_manager_detail_content_info_context_button %}
-                                            <sw-context-button class="sw-theme-manager-detail__context-button">
+                                            <sw-context-button
+                                                class="sw-theme-manager-detail__context-button"
+                                                :zIndex="1100"
+                                            >
 
                                                 {% block sw_theme_manager_detail_context_button_option_rename %}
                                                     <sw-context-menu-item
@@ -155,7 +158,7 @@
                                                     <sw-context-menu-item
                                                         v-if="theme.parentThemeId"
                                                         :disabled="!acl.can('theme.deleter') || theme.salesChannels.length > 0"
-                                                        v-tooltip="deleteDisabledToolTip"
+                                                        v-tooltip.right="deleteDisabledToolTip"
                                                         class="sw-theme-manager-detail__option-delete"
                                                         variant="danger"
                                                         @click="onDeleteTheme(theme)">

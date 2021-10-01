@@ -54,6 +54,9 @@ class StoreApiService extends ApiService {
             });
     }
 
+    /**
+     * @deprecated tag:v6.5.0 Unused method will be removed
+     */
     getLicenseList() {
         const headers = this.getBasicHeaders();
         const params = this.getBasicParams();

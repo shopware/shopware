@@ -31,7 +31,8 @@ function createWrapper(privileges = []) {
                 create: () => ({
                     search: () => Promise.resolve([])
                 })
-            }
+            },
+            searchRankingService: {}
         },
         mocks: {
             $route: {
@@ -175,6 +176,11 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.showModal).toBeFalsy();
+
+        // Wait 2 ticks for parent component to update
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+
         expect(wrapper.emitted('document-save')).toBeTruthy();
     });
 });

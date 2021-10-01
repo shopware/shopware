@@ -27,7 +27,7 @@ Component.extend('sw-condition-line-item-of-type', 'sw-condition-base', {
                 },
                 {
                     value: 'promotion',
-                    label: this.$tc('global.sw-condition.condition.lineItemOfTypeRule.`discount_surcharge`'),
+                    label: this.$tc('global.sw-condition.condition.lineItemOfTypeRule.discount_surcharge'),
                 },
             ];
         },

@@ -150,6 +150,19 @@
                     </sw-select-field>
                     {% endblock %}
 
+                    {% block sw_settings_user_detail_grid_content_timezone %}
+                    <sw-single-select
+                        v-model="user.timeZone"
+                        class="sw-settings-user-detail__grid-timezone"
+                        :options="timezoneOptions"
+                        required
+                        name="sw-field--timezone"
+                        :label="$tc('sw-users-permissions.users.user-detail.labelTimezone')"
+                        :is-loading="timezoneOptions.length <= 0"
+                        :disabled="!acl.can('user.update_profile')"
+                    />
+                    {% endblock %}
+
                     {% block sw_settings_user_detail_grid_content_acl_is_admin %}
                     <sw-switch-field
                         v-model="user.admin"
@@ -250,6 +263,13 @@
                         </template>
                         {% endblock %}
                     </sw-data-grid>
+                    <sw-empty-state
+                        v-if="integrations.length === 0"
+                        :absolute="false"
+                        :title="$tc('sw-users-permissions.users.user-detail.noAccessKeysTitle')"
+                        :subline="$tc('sw-users-permissions.users.user-detail.noAccessKeysSubline')"
+                        auto-height
+                    />
                     {% endblock %}
                 </template>
                 {% endblock %}

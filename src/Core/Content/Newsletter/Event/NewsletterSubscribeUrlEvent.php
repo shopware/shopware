@@ -4,12 +4,11 @@ namespace Shopware\Core\Content\Newsletter\Event;
 
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class NewsletterSubscribeUrlEvent extends Event implements SalesChannelAware, ShopwareSalesChannelEvent
+class NewsletterSubscribeUrlEvent extends Event implements ShopwareSalesChannelEvent
 {
     private string $subscribeUrl;
 

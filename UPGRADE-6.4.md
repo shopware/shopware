@@ -1077,3 +1077,55 @@ Example:
 ```js
 Shopware.Service('productStreamConditionService').addToEntityAllowList('product', 'yourProperty');
 ```
+
+## Added rawTotal as required param to CartPriceField
+This value is now required when creating an order through the API. The value contains the unrounded total value.
+The "price" part of your json to create an order should include this.
+Example:
+
+Before:
+```json
+"price": {
+  "totalPrice": 119.95,
+  "calculatedTaxes": [
+    {
+      "taxRate": 21,
+      "price": 119.95,
+      "tax": 20.82
+    }
+  ],
+  "positionPrice": 119.95,
+  "taxRules": [
+    {
+      "taxRate": 21,
+      "percentage": 100
+    }
+  ],
+  "netPrice": 99.13,
+  "taxStatus": "gross"
+},
+```
+
+After:
+```json
+"price": {
+  "totalPrice": 119.95,
+  "calculatedTaxes": [
+    {
+      "taxRate": 21,
+      "price": 119.95,
+      "tax": 20.82
+    }
+  ],
+  "positionPrice": 119.95,
+  "taxRules": [
+    {
+      "taxRate": 21,
+      "percentage": 100
+    }
+  ],
+  "netPrice": 99.13,
+  "taxStatus": "gross",
+  "rawTotal": 119,95
+},
+```

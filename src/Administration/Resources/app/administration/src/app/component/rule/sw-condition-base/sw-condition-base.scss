@@ -23,8 +23,12 @@ $sw-condition-color-border-default: $color-gray-300;
         }
     }
 
-    .sw-block-field.sw-field--medium {
-        margin: 0;
+    .sw-block-field {
+        margin: 12px 0 0;
+
+        &.sw-field--medium {
+            margin: 0;
+        }
 
         .sw-block-field__block {
             border: none;

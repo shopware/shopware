@@ -2,7 +2,7 @@ import template from './sw-custom-field-list.html.twig';
 import './sw-custom-field-list.scss';
 
 const { Criteria } = Shopware.Data;
-const { Component, Mixin } = Shopware;
+const { Component, Mixin, Feature } = Shopware;
 const types = Shopware.Utils.types;
 
 Component.register('sw-custom-field-list', {
@@ -60,8 +60,11 @@ Component.register('sw-custom-field-list', {
     },
 
     watch: {
+        /* @deprecated tag:v6.5.0 watcher not debounced anymore, use `@search-term-change` event */
         term() {
-            this.loadCustomFields();
+            if (!Feature.isActive('FEATURE_NEXT_16271')) {
+                this.loadCustomFields();
+            }
         },
     },
 
@@ -70,6 +73,12 @@ Component.register('sw-custom-field-list', {
     },
 
     methods: {
+        onSearchTermChange() {
+            if (Feature.isActive('FEATURE_NEXT_16271')) {
+                this.loadCustomFields();
+            }
+        },
+
         createdComponent() {
             this.loadCustomFields();
         },

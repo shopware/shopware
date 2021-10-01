@@ -1,4 +1,4 @@
-const { string } = Shopware.Utils;
+const { object } = Shopware.Utils;
 const { Criteria } = Shopware.Data;
 const bulkSyncTypes = Object.freeze({
     OVERWRITE: 'overwrite',
@@ -16,20 +16,31 @@ class BulkEditBaseHandler {
         this.repositoryFactory = Shopware.Service('repositoryFactory');
         this.entityName = null;
         this.entityIds = [];
+
+        // Grouped sync payload by operator and entities
+        this.groupedPayload = {
+            upsert: {},
+            delete: {},
+        };
     }
 
     /**
-     * normalize the grid-template-rows/columns values
      * @param  {Array.<Object>} changes
      * @return {Object} syncPayload
      * @example
      * const changes = [
         { type: 'overwrite', field: 'description', value: 'test' },
         { type: 'clear', field: 'stock' },
-        { type: 'overwrite', mappingEntity: 'product_category', field: 'categoryId', value: ['category_1', 'category_2']}
+        {
+            type: 'overwrite',
+            field: 'visibilities',
+            mappingReferenceField: 'salesChannelId',
+            value: ProductVisibilitiesCollection
+        },
+        { type: 'overwrite', field: 'categories', value: [{id: 'category_1'}, {id: 'category_2'}]}
      ];
      * const syncPayload = buildBulkSyncPayload(changes);
-     * syncPayload // <= {
+     * syncPayload // {
         'upsert-product': {
             action: 'upsert',
             entity: 'product',
@@ -55,74 +66,50 @@ class BulkEditBaseHandler {
             throw Error(`No schema found for entity ${this.entityName}`);
         }
 
-        // Grouped sync payload by operator and entities
-        const groupedPayload = {
-            upsert: {
-                [this.entityName]: {},
-            },
-            delete: {},
-        };
+        // Initialize the grouped payload of referenceEntity
+        this.groupedPayload.delete[this.entityName] = {};
+        this.groupedPayload.upsert[this.entityName] = {};
 
-        await Promise.all(changes.map(async (change) => {
+        await Promise.all(changes.map(async change => {
             if (!Object.values(bulkSyncTypes).includes(change.type)) {
                 return;
             }
 
-            // mappingEntity indicates the change is a toMany association change,
-            // the value of it is the mapping relation, e.g product_category
-            const mappingEntity = change.mappingEntity;
+            // If the change type is not a toMany association change,
+            // grouped the change by entity's id so each entity can have a same sync payload
+            const field = definition.getField(change.field);
 
-            if (mappingEntity) {
-                let associationChanges = null;
+            if (!field) {
+                Shopware.Utils.debug.warn(
+                    'Entity factory',
+                    `Property ${this.entityName}.${change.field} not found`,
+                );
 
+                return;
+            }
+
+            if (definition.isToManyAssociation(field)) {
                 try {
-                    const refDefinition = Shopware.EntityDefinition.get(mappingEntity);
-
-                    associationChanges = await this._handleAssociationChange(refDefinition, change);
-
-                    // push the association change's payload into existing grouped change payload
-                    groupedPayload.delete[mappingEntity] = {
-                        ...groupedPayload.delete[mappingEntity],
-                        ...associationChanges.delete,
-                    };
-                    groupedPayload.upsert[mappingEntity] = {
-                        ...groupedPayload.upsert[mappingEntity],
-                        ...associationChanges.upsert,
-                    };
+                    await this._handleAssociationChange(field, change);
 
                     return;
                 } catch (e) {
-                    console.warn(e.message);
+                    Shopware.Utils.debug.warn(e);
 
                     // Ignore the failed change
                     return;
                 }
             }
 
-            // If the change type is not a toMany association change, grouped the
-            // change by entity's id so each entity can have a same sync payload
-            const field = definition.getField(change.field);
-
-            if (!field) {
-                console.warn('Entity factory', `Property ${this.entityName}.${change.field} not found`);
-
-                return;
-            }
-
-            change.value = this._castDefaultValueIfNecessary(change.value);
-
-            // Cast the value to 0 if the we 'CLEAR' an int or float field
-            if (change.type === bulkSyncTypes.CLEAR && ['int', 'float'].includes(field.type)) {
-                change.value = 0;
-            }
+            const value = this._castDefaultValueIfNecessary(change, field.type);
 
             this.entityIds.forEach(id => {
-                groupedPayload.upsert[this.entityName][id] = groupedPayload.upsert[this.entityName][id] || { id };
-                groupedPayload.upsert[this.entityName][id][change.field] = change.value;
+                this.groupedPayload.upsert[this.entityName][id] ??= { id };
+                this.groupedPayload.upsert[this.entityName][id][change.field] = value;
             });
         }));
 
-        return this._transformSyncPayload(groupedPayload);
+        return this._transformSyncPayload(this.groupedPayload);
     }
 
     /**
@@ -150,11 +137,12 @@ class BulkEditBaseHandler {
                 }
 
                 const payloadKey = `${operator}-${payloadEntity}`;
-                syncPayload[payloadKey] = syncPayload[payloadKey] || {
+                syncPayload[payloadKey] ??= {
                     action: operator,
                     entity: payloadEntity,
                     payload: [],
                 };
+
                 syncPayload[payloadKey].payload.push(...items);
             });
         });
@@ -165,74 +153,210 @@ class BulkEditBaseHandler {
     /**
      * @private
      *
-     * A handler to build upsert or delete payload of an association
-     * change depending on change's type and existing associations
+     * Build upsert or delete payload of an association change depending on change's type and existing associations
      *
-     * @param {Object} refDefinition
+     * @param {Object} fieldDefinition
      * @param {Object} change
      * @example
-     * change =[{
-     *   type: 'overwrite',
-     *   mappingEntity: 'product_category',
-     *   field: 'categoryId',
-     *   value: ['category_1', 'category_2'],
-     * }];
+     * change =[{ type: 'overwrite', field: 'categories', value: [{id: 'category_1'}, {id: 'category_2'}]];
      */
-    async _handleAssociationChange(refDefinition, change) {
-        const localMappingKey = `${this.entityName}Id`;
+    async _handleAssociationChange(fieldDefinition, change) {
+        const {
+            mapping,
+            entity,
+            local,
+            reference,
+            localField,
+            referenceField,
+        } = fieldDefinition;
 
-        // Selected association ids, eg: ['category_id_1', 'category_id_2',...]
-        const selectedFieldValues = Array.isArray(change.value) ? change.value : [change.value];
+        const isMappingField = !!mapping;
+        let existAssociations;
 
-        const existAssociations = await this._fetchAssociated(
-            refDefinition,
-            change.field,
-            change.type === bulkSyncTypes.REMOVE ? selectedFieldValues : null,
-        );
+        change.referenceEntity = mapping ?? entity;
 
-        // Delete existing associations if change type is CLEAR or REMOVE
-        if ([bulkSyncTypes.CLEAR, bulkSyncTypes.REMOVE].includes(change.type)) {
-            return {
-                upsert: {},
-                delete: existAssociations,
+        // Initialize the grouped payload of referenceEntity
+        this.groupedPayload.delete[change.referenceEntity] = {};
+        this.groupedPayload.upsert[change.referenceEntity] = {};
+
+        // normalize selected association entities, eg: [{id: 'category_id_1'}, {id: 'category_id_2'},...]
+        const changeValue = Array.isArray(change.value) ? change.value : [change.value];
+        change.value = changeValue.filter(Boolean);
+
+        if (isMappingField) {
+            change.localKey = local;
+            change.referenceKey = reference;
+            existAssociations = await this._fetchManyToManyAssociated(fieldDefinition, change);
+        } else {
+            change.localKey = localField;
+            change.referenceKey = referenceField;
+
+            existAssociations = await this._fetchOneToManyAssociated(fieldDefinition, change);
+        }
+
+        const { referenceEntity, localKey, referenceKey, type } = change;
+
+        // if change type is CLEAR or REMOVE Delete existing associations
+        if ([bulkSyncTypes.CLEAR, bulkSyncTypes.REMOVE].includes(type)) {
+            this.groupedPayload.delete[referenceEntity] = {
+                ...this._transformDeletePayload(existAssociations, localKey, referenceKey),
+            };
+
+            return;
+        }
+
+        // if change type is OVERWRITE, all existing associations should be removed by default
+        // then we can filter the ones we want to keep by remove it from delete payload
+        if (type === bulkSyncTypes.OVERWRITE) {
+            this.groupedPayload.delete[referenceEntity] = {
+                ...this._transformDeletePayload(existAssociations, localKey, referenceKey),
             };
         }
 
-        const upsertPayload = {};
-        selectedFieldValues.forEach(fieldValue => {
-            this.entityIds.forEach(localId => {
-                if (existAssociations[`${fieldValue}.${localId}`]) {
-                    delete existAssociations[`${fieldValue}.${localId}`];
+        if (isMappingField) {
+            this._detectManyToManyChange(change, existAssociations);
+        } else {
+            this._detectOneToManyChange(change, existAssociations);
+        }
+    }
+
+    /**
+     * Handler for bulk edit a OneToMany association
+     * @param change
+     * @param existAssociations
+     * @private
+     */
+    _detectOneToManyChange(change, existAssociations) {
+        const {
+            referenceEntity,
+            referenceKey,
+            localKey,
+            mappingReferenceField,
+            value: changeItems,
+        } = change;
+        const editableProperties = this._getEditableProperties(referenceEntity);
+
+        if (mappingReferenceField) {
+            editableProperties.push(mappingReferenceField);
+        }
+
+        changeItems.forEach(changeItem => {
+            const original = changeItem;
+            // Clean non-editable fields
+            changeItem = object.pick(changeItem, editableProperties);
+
+            this.entityIds.forEach(entityId => {
+                const record = Object.assign({}, changeItem);
+                record[referenceKey] = entityId;
+
+                const identifyKey = mappingReferenceField ?? localKey;
+                const key = `${original[identifyKey]}.${entityId}`;
+
+                // Remove existing OneToMany association record from delete payload
+                delete this.groupedPayload.delete[referenceEntity][key];
+
+                const association = existAssociations[key];
+                const actualChange = this._getOneToManyChange(record, localKey, mappingReferenceField, association);
+
+                if (actualChange === null || Object.keys(actualChange).length === 0) {
+                    return;
+                }
+
+                this.groupedPayload.upsert[referenceEntity][key] = actualChange;
+            });
+        });
+    }
+
+    /**
+     * get actual changes of a OneToMany association, if existedRecord means a new record will be inserted
+     * @private
+     */
+    _getOneToManyChange(updatePayload, localKey, mappingReferenceField, existedRecord = null) {
+        const actualChange = {};
+
+        if (mappingReferenceField) {
+            actualChange[mappingReferenceField] = updatePayload[mappingReferenceField];
+        }
+
+        if (existedRecord) {
+            actualChange[localKey] = existedRecord[localKey];
+
+            // These fields are fixed if the oneToMany association exists
+            delete updatePayload[localKey];
+            delete updatePayload[mappingReferenceField];
+        }
+
+        // Detect if there is any change in oneToMany association so we should update it, otherwise we can skip it
+        Object.keys(updatePayload).forEach(field => {
+            if (
+                !existedRecord
+                || (updatePayload[field] !== undefined && updatePayload[field] !== existedRecord[field])
+            ) {
+                actualChange[field] = updatePayload[field];
+            }
+        });
+
+        // Reduce request payload
+        if (existedRecord) {
+            delete actualChange[mappingReferenceField];
+        }
+
+        // If the change payload has any properties other than localKey (id) we should update it
+        const hasChanged = Object.keys(actualChange).some(key => key !== localKey);
+
+        // the fields are not updated, skip it
+        if (existedRecord && !hasChanged) {
+            return null;
+        }
+
+        return actualChange;
+    }
+
+    /**
+     * Handler for bulk edit a ManyToMany association
+     *
+     * @param change
+     * @param existAssociations
+     * @private
+     */
+    _detectManyToManyChange(change, existAssociations) {
+        const {
+            referenceEntity,
+            referenceKey,
+            localKey,
+            value: items,
+        } = change;
+
+        items.forEach(fieldValue => {
+            this.entityIds.forEach(entityId => {
+                const referenceValue = fieldValue.id;
+                const key = `${referenceValue}.${entityId}`;
+
+                if (existAssociations[key]) {
+                    delete this.groupedPayload.delete[referenceEntity][key];
 
                     return;
                 }
 
-                upsertPayload[`${fieldValue}.${localId}`] = {
-                    [change.field]: fieldValue,
-                    [localMappingKey]: localId,
+                this.groupedPayload.upsert[referenceEntity][key] = {
+                    [referenceKey]: referenceValue,
+                    [localKey]: entityId,
                 };
             });
         });
-
-        // Upsert associations if change type is ADD
-        if (change.type === bulkSyncTypes.ADD) {
-            return {
-                upsert: upsertPayload,
-                delete: {},
-            };
-        }
-
-        // Associations can be upsert or delete if change type is OVERWRITE
-        return {
-            upsert: upsertPayload,
-            delete: existAssociations,
-        };
     }
 
     /**
      * @private
      */
-    _castDefaultValueIfNecessary(value) {
+    _castDefaultValueIfNecessary(change, fieldType) {
+        const { value, type } = change;
+
+        // Cast the value to 0 if the we 'CLEAR' an int or float field
+        if (type === bulkSyncTypes.CLEAR) {
+            return ['int', 'float'].includes(fieldType) ? 0 : null;
+        }
+
         if (value === '' || typeof value === 'undefined') {
             return null;
         }
@@ -243,84 +367,135 @@ class BulkEditBaseHandler {
     /**
      * @private
      *
-     * Find the module's bulk edit handler
+     * Fetch OneToMany association ids and mapped each id using `${foreignId}.${localId}` as a key
      */
-    _findBulkEditHandler(module) {
-        if (!this.handlers[module]) {
-            throw Error(`Bulk Edit Handler not found for ${module} module`);
+    async _fetchOneToManyAssociated(fieldDefinition, change, page = 1, mappedExistAssociations = {}) {
+        const {
+            entity,
+            localField: localKey,
+            referenceField: referenceKey,
+        } = fieldDefinition;
+
+        const criteria = new Criteria(page, 500);
+        criteria.addFilter(Criteria.equalsAny(referenceKey, this.entityIds));
+
+        /**
+         * change.mappingReferenceField to handle special cases like product.visibilities, it will be salesChannelId
+         * It's OneToMany association but behave similar to a ManyToMany association
+         * We need to prefetch the OneToMany associations to avoid unique constraint.
+         * e.g `product_visibility`.`product_id_sales_channel_id`
+         */
+        if (change.mappingReferenceField && change.type === bulkSyncTypes.REMOVE) {
+            const referenceIds = change.value.map(value => value[change.mappingReferenceField]);
+
+            if (referenceIds && referenceIds.filter(Boolean)) {
+                criteria.addFilter(Criteria.equalsAny(change.mappingReferenceField, referenceIds));
+            }
         }
 
-        return this.handlers[module];
-    }
+        const referenceRepository = this.repositoryFactory.create(entity);
+        const existAssociations = await referenceRepository.search(criteria);
 
-    /**
-     * @private
-     */
-    async _bulkEditProductHandler(changes) {
-        const payload = await this.buildBulkSyncPayload(changes);
+        existAssociations.forEach(association => {
+            let key = association[localKey];
 
-        return this.syncService.sync(payload, {}, { 'single-operation': 1 });
+            if (change.mappingReferenceField) {
+                const { [referenceKey]: referenceId, [change.mappingReferenceField]: foreignId } = association;
+                key = `${foreignId}.${referenceId}`;
+            }
+
+            mappedExistAssociations[key] = association;
+        });
+
+        if (existAssociations.total > existAssociations.length) {
+            return this._fetchOneToManyAssociated(fieldDefinition, change, page + 1, mappedExistAssociations);
+        }
+
+        return mappedExistAssociations;
     }
 
     /**
      * @private
      *
-     * Fetch toMany association ids and mapped each id using `${foreignId}.${localId}` as a key
+     * Fetch ManyToMany association ids and mapped each id using `${foreignId}.${localId}` as a key
      */
-    async _fetchAssociated(refDefinition, referenceKey, referenceIds = null) {
-        const localMappingKey = `${this.entityName}Id`;
+    async _fetchManyToManyAssociated(fieldDefinition, change, page = 1, mappedExistAssociations = {}) {
+        const {
+            referenceField,
+            mapping: entity,
+            local,
+            reference,
+        } = fieldDefinition;
 
-        const refField = refDefinition.getField(referenceKey);
+        const referenceIds = change.type === bulkSyncTypes.REMOVE
+            ? change.value.map(value => value[referenceField])
+            : null;
 
-        if (!refField) {
-            throw Error(`Property ${refDefinition.entity}.${referenceKey} not found`);
+        const criteria = new Criteria(page, 500);
+        criteria.addFilter(Criteria.equalsAny(local, this.entityIds));
+
+        if (referenceIds && referenceIds.filter(Boolean)) {
+            criteria.addFilter(Criteria.equalsAny(reference, referenceIds));
         }
 
-        const localField = refDefinition.getField(localMappingKey);
+        const mappingRepository = this.repositoryFactory.create(entity);
 
-        if (!localField) {
-            throw Error(`Property ${refDefinition.entity}.${localMappingKey} not found`);
-        }
-
-        const isMappingDefinition = !refDefinition.getField('id');
-
-        const criteria = new Criteria(1, 500);
-        criteria.addFilter(Criteria.equalsAny(localMappingKey, this.entityIds));
-
-        if (referenceIds) {
-            criteria.addFilter(Criteria.equalsAny(referenceKey, referenceIds));
-        }
-
-        const mappingRepository = this.repositoryFactory.create(refDefinition.entity);
-
-        let existAssociations;
-
-        if (isMappingDefinition) {
-            const mappingIds = await mappingRepository.searchIds(criteria);
-            existAssociations = mappingIds.data;
-        } else {
-            existAssociations = await mappingRepository.search(criteria);
-        }
-
-        const mappedExistAssociations = {};
+        const mappingIds = await mappingRepository.searchIds(criteria);
+        const existAssociations = mappingIds.data;
 
         existAssociations.forEach(association => {
-            // Normalize keys to snakeCase because repository.searchIds return keys in snakeCase format
-            const localKey = isMappingDefinition ? string.snakeCase(localMappingKey) : localMappingKey;
-            const foreignKey = isMappingDefinition ? string.snakeCase(referenceKey) : referenceKey;
+            // e.g: { productId: 'product_id_1', categoryId: 'product_cat_2' }
+            const {
+                [local]: localId,
+                [reference]: referenceId,
+            } = association;
 
-            const { id, [localKey]: localId, [foreignKey]: foreignId } = association;
-            const key = `${foreignId}.${localId}`;
+            const key = `${referenceId}.${localId}`;
 
-            // ManyToMany have 2 primary keys, e.g product_category.
-            // Meanwhile OneToMany have one id as primary key, e.g product_media
-            mappedExistAssociations[key] = isMappingDefinition ? {
-                [localMappingKey]: localId,
-                [referenceKey]: foreignId,
-            } : { id };
+            // ManyToMany have 2 primary keys, e.g product_category
+            mappedExistAssociations[key] = association;
         });
 
+        if (mappingIds.total > existAssociations.length) {
+            return this._fetchOneToManyAssociated(fieldDefinition, change, page + 1, mappedExistAssociations);
+        }
+
         return mappedExistAssociations;
+    }
+
+    _getEditableProperties(entity) {
+        const definition = Shopware.EntityDefinition.get(entity);
+        const fields = definition.filterProperties(property => {
+            return (definition.isScalarField(property) || definition.isJsonField(property))
+                || (!property.flags || property.flags.write_protected);
+        });
+
+        return Object.keys(fields).filter(field => !['updatedAt', 'createdAt'].includes(field));
+    }
+
+    _transformDeletePayload(deletePayload, localKey, referenceKey) {
+        const transformedPayload = {};
+
+        Object.keys(deletePayload).forEach(key => {
+            const deleteItem = deletePayload[key];
+
+            const {
+                id,
+                [localKey]: localId,
+                [referenceKey]: referenceId,
+            } = deleteItem;
+
+            if (id) {
+                transformedPayload[key] = { id };
+            } else {
+                transformedPayload[key] = {
+                    [localKey]: localId,
+                    [referenceKey]: referenceId,
+                };
+            }
+        });
+
+        return transformedPayload;
     }
 }
 

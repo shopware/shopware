@@ -42,6 +42,23 @@ Shopware.Component.register('sw-import-export-activity', {
             selectedProfile: null,
             selectedLog: null,
             selectedResult: null,
+            activitiesReloadIntervall: 10000,
+            activitiesReloadTimer: null,
+            showDetailModal: false,
+            showResultModal: false,
+            stateText: {
+                import: {
+                    succeeded: 'sw-import-export.importer.messageImportSuccess',
+                    failed: 'sw-import-export.importer.messageImportError',
+                },
+                dryrun: {
+                    succeeded: 'sw-import-export.importer.messageImportSuccess',
+                    failed: 'sw-import-export.importer.messageImportError',
+                },
+                export: {
+                    succeeded: 'sw-import-export.exporter.messageExportSuccess',
+                },
+            },
         };
     },
 
@@ -75,6 +92,7 @@ Shopware.Component.register('sw-import-export-activity', {
             criteria.setPage(1);
             criteria.addAssociation('user');
             criteria.addAssociation('file');
+            criteria.addAssociation('profile');
 
             return criteria;
         },
@@ -130,10 +148,44 @@ Shopware.Component.register('sw-import-export-activity', {
                     primary: false,
                 }];
         },
+
+        hasActivitiesInProgress() {
+            if (!this.logs) {
+                return false;
+            }
+
+            return this.logs.filter(log => log.state === 'progress').length > 0;
+        },
+
+        downloadFileText() {
+            return this.type === 'export' ?
+                this.$tc('sw-import-export.activity.contextMenu.downloadExportFile') :
+                this.$tc('sw-import-export.activity.contextMenu.downloadImportFile');
+        },
+    },
+
+    watch: {
+        hasActivitiesInProgress(hasActivitiesInProgress) {
+            if (hasActivitiesInProgress && !this.activitiesReloadTimer) {
+                this.activitiesReloadTimer = window.setInterval(
+                    this.updateActivitiesInProgress.bind(this),
+                    this.activitiesReloadIntervall,
+                );
+            } else if (this.activitiesReloadTimer) {
+                window.clearInterval(this.activitiesReloadTimer);
+                this.activitiesReloadTimer = null;
+            }
+        },
     },
 
     created() {
         this.createdComponent();
+    },
+
+    destroyed() {
+        if (this.activitiesReloadTimer) {
+            window.clearInterval(this.activitiesReloadTimer);
+        }
     },
 
     methods: {
@@ -141,12 +193,71 @@ Shopware.Component.register('sw-import-export-activity', {
             return this.fetchActivities();
         },
 
+        addActivity(log) {
+            this.logs.addAt(log, 0);
+        },
+
         async fetchActivities() {
             this.isLoading = true;
 
-            this.logs = await this.logRepository.search(this.activityCriteria);
+            const logs = await this.logRepository.search(this.activityCriteria);
+
+            if (this.logs) {
+                this.updateActivitiesFromLogs(logs);
+            }
+
+            this.logs = logs;
 
             this.isLoading = false;
+        },
+
+        async updateActivitiesInProgress() {
+            const criteria = Criteria.fromCriteria(this.activityCriteria);
+            criteria.setIds(this.logs.filter(log => log.state === 'progress').getIds());
+            const currentInProgress = await this.logRepository.search(criteria);
+
+            this.updateActivitiesFromLogs(currentInProgress);
+        },
+
+        updateActivitiesFromLogs(logs) {
+            Object.values(logs).forEach((log) => {
+                const activity = this.logs.get(log.id);
+
+                if (!activity) {
+                    return;
+                }
+
+                const originalState = activity.state;
+                Object.keys(log).forEach(key => {
+                    activity[key] = log[key];
+                });
+
+                if (originalState === log.state) {
+                    return;
+                }
+
+                const config = {
+                    message: this.$t(this.stateText[log.activity][log.state], {
+                        profile: log.profileName,
+                    }),
+                    autoClose: false,
+                };
+
+                if (log.state === 'succeeded') {
+                    this.createNotificationSuccess(config);
+
+                    if (log.activity === 'import' && log.records === 0) {
+                        this.createNotificationWarning({
+                            message: this.$tc('sw-import-export.importer.messageImportWarning', 0),
+                            autoClose: false,
+                        });
+                    }
+
+                    return;
+                }
+
+                this.createNotificationError(config);
+            });
         },
 
         async onOpenProfile(id) {
@@ -159,28 +270,26 @@ Shopware.Component.register('sw-import-export-activity', {
 
         onShowLog(item) {
             this.selectedLog = item;
+            this.showDetailModal = true;
         },
 
-        onShowResult(result) {
-            const items = [];
-
-            Object.keys(result).forEach((entityName) => {
-                items.push({ ...{ entityName }, ...result[entityName] });
-            });
-
-            this.selectedResult = items;
+        onShowResult(item) {
+            this.selectedLog = item;
+            this.showResultModal = true;
         },
 
         closeSelectedLog() {
             this.selectedLog = null;
+            this.showDetailModal = false;
         },
 
         closeSelectedResult() {
             this.selectedResult = null;
+            this.showResultModal = false;
         },
 
         /**
-         * @deprecated tag:v6.5.0 - Remove unused method, use openDownload instead
+         * @deprecated tag:v6.5.0 - Remove unused method, use openProcessFileDownload instead
          */
         getDownloadUrl() {
             Shopware.Utils.debug.error('The method getDownloadUrl has been replaced with openDownload.');
@@ -188,8 +297,19 @@ Shopware.Component.register('sw-import-export-activity', {
             return '';
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - Remove unused method, use openProcessFileDownload instead
+         */
         async openDownload(id) {
             return window.open(await this.importExport.getDownloadUrl(id), '_blank');
+        },
+
+        async openProcessFileDownload(item) {
+            if (this.type === 'export' && item.state !== 'succeeded') {
+                return null;
+            }
+
+            return window.open(await this.importExport.getDownloadUrl(item.fileId), '_blank');
         },
 
         saveSelectedProfile() {

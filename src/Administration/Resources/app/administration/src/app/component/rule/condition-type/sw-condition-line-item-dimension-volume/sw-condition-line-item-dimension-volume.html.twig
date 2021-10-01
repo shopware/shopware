@@ -1,0 +1,26 @@
+{% block sw_condition_value_content %}
+<div class="sw-condition-line-item-dimension-volume sw-condition__condition-value">
+    {% block sw_condition_line_item_dimension_volume_field_operator %}
+    <sw-condition-operator-select
+        v-bind="{ operators, condition }"
+        :disabled="disabled"
+    />
+    {% endblock %}
+
+    {% block sw_condition_line_item_dimension_volume_field_amount %}
+    <sw-number-field
+        v-model="amount"
+        number-type="float"
+        size="medium"
+        :step="0.01"
+        :digits="3"
+        :min="0"
+        :disabled="disabled"
+    >
+        <template #suffix>
+            <span>mm&sup3;</span>
+        </template>
+    </sw-number-field>
+    {% endblock %}
+</div>
+{% endblock %}

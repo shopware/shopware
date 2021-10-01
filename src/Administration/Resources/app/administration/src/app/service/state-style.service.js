@@ -15,28 +15,40 @@ export default function createStateStyleService() {
             iconBackgroundStyle: 'sw-order-state__bg-neutral-icon-bg',
             selectBackgroundStyle: 'sw-order-state__bg-neutral-select',
             variant: 'neutral',
+            colorCode: '#94a6b8',
         },
     };
 
     const $icons = {
         neutral: 'small-arrow-small-down',
         progress: 'small-default-circle-small',
-        danger: 'small-default-x-line-small',
+        warning: 'small-exclamationmark',
         done: 'small-default-checkmark-line-small',
+        danger: 'small-default-x-line-small',
     };
 
     const $colors = {
         neutral: 'sw-order-state__neutral',
         progress: 'sw-order-state__progress',
-        danger: 'sw-order-state__danger',
         done: 'sw-order-state__success',
+        warning: 'sw-order-state__warning',
+        danger: 'sw-order-state__danger',
+    };
+
+    const $colorCodes = {
+        neutral: '#94a6b8',
+        progress: '#189eff',
+        done: '#37d046',
+        warning: '#ffab22',
+        danger: '#de294c',
     };
 
     const $variants = {
         neutral: 'neutral',
         progress: 'info',
-        danger: 'danger',
         done: 'success',
+        warning: 'warning',
+        danger: 'danger',
     };
 
     return {
@@ -64,6 +76,10 @@ export default function createStateStyleService() {
             entry.iconStyle = `${$colors[style.color]}-icon`;
             entry.iconBackgroundStyle = `${$colors[style.color]}-icon-bg`;
             entry.selectBackgroundStyle = `${$colors[style.color]}-select`;
+        }
+
+        if (style.color in $colorCodes) {
+            entry.colorCode = $colorCodes[style.color];
         }
 
         if (style.variant in $variants) {

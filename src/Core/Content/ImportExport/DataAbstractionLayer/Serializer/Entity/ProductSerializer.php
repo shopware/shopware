@@ -27,12 +27,20 @@ class ProductSerializer extends EntitySerializer
 
     private EntityRepositoryInterface $salesChannelRepository;
 
+    private EntityRepositoryInterface $productMediaRepository;
+
+    private EntityRepositoryInterface $productConfiguratorSettingRepository;
+
     public function __construct(
         EntityRepositoryInterface $visibilityRepository,
-        EntityRepositoryInterface $salesChannelRepository
+        EntityRepositoryInterface $salesChannelRepository,
+        EntityRepositoryInterface $productMediaRepository,
+        EntityRepositoryInterface $productConfiguratorSettingRepository
     ) {
         $this->visibilityRepository = $visibilityRepository;
         $this->salesChannelRepository = $salesChannelRepository;
+        $this->productMediaRepository = $productMediaRepository;
+        $this->productConfiguratorSettingRepository = $productConfiguratorSettingRepository;
     }
 
     /**
@@ -88,7 +96,9 @@ class ProductSerializer extends EntitySerializer
     {
         $entity = \is_array($entity) ? $entity : iterator_to_array($entity);
 
-        yield from parent::deserialize($config, $definition, $entity);
+        $deserialized = parent::deserialize($config, $definition, $entity);
+        $deserialized = \is_array($deserialized) ? $deserialized : iterator_to_array($deserialized);
+        yield from $deserialized;
 
         $productId = $entity['id'] ?? null;
 
@@ -120,6 +130,14 @@ class ProductSerializer extends EntitySerializer
 
         if ($visibilities !== []) {
             yield 'visibilities' => $this->findVisibilityIds($visibilities);
+        }
+
+        if (isset($deserialized['id'], $deserialized['cover']['media']['id'])) {
+            yield 'cover' => $this->findCoverProductMediaId($deserialized['id'], $deserialized['cover']);
+        }
+
+        if (!empty($deserialized['parentId']) && !empty($deserialized['options'])) {
+            yield 'configuratorSettings' => $this->findConfiguratorSettings($deserialized['parentId'], $deserialized['options']);
         }
     }
 
@@ -182,5 +200,52 @@ class ProductSerializer extends EntitySerializer
         )->getIds();
 
         return array_unique(array_merge($ids, $additionalIds));
+    }
+
+    private function findCoverProductMediaId(string $productId, array $cover): array
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('productId', $productId));
+        $criteria->addFilter(new EqualsFilter('mediaId', $cover['media']['id']));
+
+        $id = $this->productMediaRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
+
+        if ($id) {
+            $cover['id'] = $id;
+        }
+
+        return $cover;
+    }
+
+    private function findConfiguratorSettings(string $parentId, array $options): array
+    {
+        $configuratorSettings = [];
+
+        foreach ($options as $option) {
+            if (empty($option['id'])) {
+                continue;
+            }
+
+            $configuratorSetting = [
+                'optionId' => $option['id'],
+                'product' => [
+                    'id' => $parentId,
+                ],
+            ];
+
+            $criteria = new Criteria();
+            $criteria->addFilter(new EqualsFilter('productId', $parentId));
+            $criteria->addFilter(new EqualsFilter('optionId', $option['id']));
+
+            $id = $this->productConfiguratorSettingRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
+
+            if ($id) {
+                $configuratorSetting['id'] = $id;
+            }
+
+            $configuratorSettings[] = $configuratorSetting;
+        }
+
+        return $configuratorSettings;
     }
 }

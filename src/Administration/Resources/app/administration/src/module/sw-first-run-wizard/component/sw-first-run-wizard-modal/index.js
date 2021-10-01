@@ -29,55 +29,60 @@ Component.register('sw-first-run-wizard-modal', {
                     variant: 'large',
                     navigationIndex: 1,
                 },
+                defaults: {
+                    name: 'sw.first.run.wizard.index.defaults',
+                    variant: 'large',
+                    navigationIndex: 2,
+                },
                 'mailer.selection': {
                     name: 'sw.first.run.wizard.index.mailer.selection',
                     variant: 'large',
-                    navigationIndex: 2,
+                    navigationIndex: 3,
                 },
                 'mailer.smtp': {
                     name: 'sw.first.run.wizard.index.mailer.setup',
                     variant: 'large',
-                    navigationIndex: 2,
+                    navigationIndex: 3,
                 },
                 'paypal.info': {
                     name: 'sw.first.run.wizard.index.paypal.info',
                     variant: 'large',
-                    navigationIndex: 3,
+                    navigationIndex: 4,
                 },
                 'paypal.credentials': {
                     name: 'sw.first.run.wizard.index.paypal.credentials',
                     variant: 'large',
-                    navigationIndex: 3,
+                    navigationIndex: 4,
                 },
                 markets: {
                     name: 'sw.first.run.wizard.index.markets',
                     variant: 'large',
-                    navigationIndex: 4,
+                    navigationIndex: 5,
                 },
                 plugins: {
                     name: 'sw.first.run.wizard.index.plugins',
                     variant: 'large',
-                    navigationIndex: 5,
+                    navigationIndex: 6,
                 },
                 'shopware.account': {
                     name: 'sw.first.run.wizard.index.shopware.account',
                     variant: 'large',
-                    navigationIndex: 6,
+                    navigationIndex: 7,
                 },
                 'shopware.domain': {
                     name: 'sw.first.run.wizard.index.shopware.domain',
                     variant: 'large',
-                    navigationIndex: 6,
+                    navigationIndex: 7,
                 },
                 store: {
                     name: 'sw.first.run.wizard.index.store',
                     variant: 'large',
-                    navigationIndex: 7,
+                    navigationIndex: 8,
                 },
                 finish: {
                     name: 'sw.first.run.wizard.index.finish',
                     variant: 'large',
-                    navigationIndex: 8,
+                    navigationIndex: 9,
                 },
             },
         };
@@ -128,20 +133,29 @@ Component.register('sw-first-run-wizard-modal', {
         },
 
         stepInitialItemVariants() {
-            const navigationSteps = [
-                ['disabled', 'disabled', 'disabled', 'disabled', 'disabled', 'disabled', 'disabled'],
-                ['info', 'disabled', 'disabled', 'disabled', 'disabled', 'disabled', 'disabled'],
-                ['success', 'info', 'disabled', 'disabled', 'disabled', 'disabled', 'disabled'],
-                ['success', 'success', 'info', 'disabled', 'disabled', 'disabled', 'disabled'],
-                ['success', 'success', 'success', 'info', 'disabled', 'disabled', 'disabled'],
-                ['success', 'success', 'success', 'success', 'info', 'disabled', 'disabled'],
-                ['success', 'success', 'success', 'success', 'success', 'info', 'disabled'],
-                ['success', 'success', 'success', 'success', 'success', 'success', 'info'],
-                ['success', 'success', 'success', 'success', 'success', 'success', 'success'],
-            ];
             const { navigationIndex } = this.currentStep;
+            const maxIndex = Object.values(this.stepper).reduce(
+                (accumulator, step) => Math.max(accumulator, step.navigationIndex),
+                0,
+            );
 
-            return navigationSteps[navigationIndex];
+            const currentSteps = Array(maxIndex + 1).fill('disabled');
+            currentSteps.every((step, index) => {
+                if (index > navigationIndex) {
+                    return false;
+                }
+
+                currentSteps[index] = 'info';
+
+                if (index > 0) {
+                    currentSteps[index - 1] = 'success';
+                }
+
+                return true;
+            });
+            currentSteps.splice(0, 1);
+
+            return currentSteps;
         },
     },
 

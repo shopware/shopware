@@ -148,10 +148,6 @@ use Shopware\Core\System\Unit\UnitDefinition;
 use Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyDefinition;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryDefinition;
 use Shopware\Core\System\User\UserDefinition;
-use Shopware\Storefront\Theme\Aggregate\ThemeMediaDefinition;
-use Shopware\Storefront\Theme\Aggregate\ThemeSalesChannelDefinition;
-use Shopware\Storefront\Theme\Aggregate\ThemeTranslationDefinition;
-use Shopware\Storefront\Theme\ThemeDefinition;
 
 /**
  * @internal
@@ -181,6 +177,22 @@ class PermissionCategorization
     private const CATEGORY_SOCIAL_SHOPPING = 'social_shopping';
     private const CATEGORY_TAG = 'tag';
     private const CATEGORY_THEME = 'theme';
+    /**
+     * @see \Shopware\Storefront\Theme\ThemeDefinition::ENTITY_NAME
+     */
+    private const THEME_ENTITY_NAME = 'theme';
+    /**
+     * @see \Shopware\Storefront\Theme\Aggregate\ThemeTranslationDefinition::ENTITY_NAME
+     */
+    private const THEME_TRANSLATION_ENTITY_NAME = 'theme_translation';
+    /**
+     * @see \Shopware\Storefront\Theme\Aggregate\ThemeMediaDefinition::ENTITY_NAME
+     */
+    private const THEME_MEDIA_ENTITY_NAME = 'theme_media';
+    /**
+     * @see \Shopware\Storefront\Theme\Aggregate\ThemeSalesChannelDefinition::ENTITY_NAME
+     */
+    private const THEME_SALES_CHANNEL_ENTITY_NAME = 'theme_sales_channel';
 
     private const PERMISSION_CATEGORIES = [
         self::CATEGORY_ADMIN_USER => [
@@ -379,10 +391,10 @@ class PermissionCategorization
             TagDefinition::ENTITY_NAME,
         ],
         self::CATEGORY_THEME => [
-            ThemeDefinition::ENTITY_NAME,
-            ThemeTranslationDefinition::ENTITY_NAME,
-            ThemeMediaDefinition::ENTITY_NAME,
-            ThemeSalesChannelDefinition::ENTITY_NAME,
+            self::THEME_ENTITY_NAME,
+            self::THEME_TRANSLATION_ENTITY_NAME,
+            self::THEME_MEDIA_ENTITY_NAME,
+            self::THEME_SALES_CHANNEL_ENTITY_NAME,
         ],
     ];
 

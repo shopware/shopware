@@ -38,15 +38,14 @@ describe('Product: Test filter variants', () => {
 
                 cy.get('.sw-product-modal-variant-generation__notification-modal .sw-button--primary').click();
 
-                cy.get('.sw-modal').should('not.be.visible');
+                cy.get('.sw-modal').should('not.exist');
             });
     });
 
     it('@catalogue: should filter options by properties', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product`,
-            method: 'post'
+            method: 'POST'
         }).as('searchVariants');
 
         cy.get('.sw-product-variants-overview__filter-list-button > .sw-button')
@@ -84,9 +83,7 @@ describe('Product: Test filter variants', () => {
             .find('.sw-button--primary')
             .click();
 
-        cy.wait('@searchVariants').then(xhr => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@searchVariants').its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-data-grid__row--0').should('be.visible');
         cy.get('.sw-data-grid__row--1').should('not.exist');
@@ -96,9 +93,7 @@ describe('Product: Test filter variants', () => {
             .contains('Reset')
             .click();
 
-        cy.wait('@searchVariants').then(xhr => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@searchVariants').its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-data-grid__row--0').should('be.visible');
         cy.get('.sw-data-grid__row--1').should('be.visible');

@@ -2106,11 +2106,6 @@ parameters:
 			path: src/Core/Framework/DataAbstractionLayer/FieldSerializer/TranslationsAssociationFieldSerializer.php
 
 		-
-			message: "#^Property Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Indexing\\\\EntityIndexerRegistry\\:\\:\\$indexer \\(array\\<Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Indexing\\\\EntityIndexer\\>\\) does not accept iterable\\.$#"
-			count: 1
-			path: src/Core/Framework/DataAbstractionLayer/Indexing/EntityIndexerRegistry.php
-
-		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Indexing\\\\EntityIndexerRegistry\\:\\:handle\\(\\) has parameter \\$message with no typehint specified\\.$#"
 			count: 1
 			path: src/Core/Framework/DataAbstractionLayer/Indexing/EntityIndexerRegistry.php
@@ -2946,6 +2941,11 @@ parameters:
 			path: src/Core/Framework/Struct/Collection.php
 
 		-
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\:\\:getAt\\(\\) has no return typehint specified\\.$#"
+			count: 1
+			path: src/Core/Framework/Struct/Collection.php
+
+		-
 			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Struct\\\\Collection\\:\\:last\\(\\) has no return typehint specified\\.$#"
 			count: 1
 			path: src/Core/Framework/Struct/Collection.php
@@ -3729,21 +3729,6 @@ parameters:
 			message: "#^Cannot call method getCity\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerAddress\\\\CustomerAddressEntity\\|null\\.$#"
 			count: 1
 			path: src/Storefront/Controller/NewsletterController.php
-
-		-
-			message: "#^Cannot access property \\$attributes on Symfony\\\\Component\\\\HttpFoundation\\\\Request\\|null\\.$#"
-			count: 2
-			path: src/Storefront/Controller/StorefrontController.php
-
-		-
-			message: "#^Parameter \\#3 \\$request of class Shopware\\\\Storefront\\\\Event\\\\StorefrontRenderEvent constructor expects Symfony\\\\Component\\\\HttpFoundation\\\\Request, Symfony\\\\Component\\\\HttpFoundation\\\\Request\\|null given\\.$#"
-			count: 1
-			path: src/Storefront/Controller/StorefrontController.php
-
-		-
-			message: "#^Parameter \\#1 \\$sourceRequest of method Shopware\\\\Storefront\\\\Framework\\\\Routing\\\\RequestTransformer\\:\\:extractInheritableAttributes\\(\\) expects Symfony\\\\Component\\\\HttpFoundation\\\\Request, Symfony\\\\Component\\\\HttpFoundation\\\\Request\\|null given\\.$#"
-			count: 1
-			path: src/Storefront/Controller/StorefrontController.php
 
 		-
 			message: "#^Method Shopware\\\\Storefront\\\\Event\\\\StorefrontRenderEvent\\:\\:setParameter\\(\\) has parameter \\$value with no typehint specified\\.$#"

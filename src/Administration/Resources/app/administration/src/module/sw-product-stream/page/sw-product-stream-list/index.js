@@ -24,6 +24,7 @@ Component.register('sw-product-stream-list', {
             sortDirection: 'DESC',
             isLoading: false,
             showDeleteModal: false,
+            searchConfigEntity: 'product_stream',
         };
     },
 
@@ -60,11 +61,13 @@ Component.register('sw-product-stream-list', {
         getList() {
             this.isLoading = true;
 
-            const criteria = new Criteria(this.page, this.limit);
+            let criteria = new Criteria(this.page, this.limit);
 
             criteria.setTerm(this.term);
             this.naturalSorting = this.sortBy === 'createdAt';
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
+
+            criteria = this.addQueryScores(this.term, criteria);
 
             return this.productStreamRepository.search(criteria).then((items) => {
                 this.total = items.total;

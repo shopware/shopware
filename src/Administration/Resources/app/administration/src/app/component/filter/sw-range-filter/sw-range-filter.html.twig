@@ -6,9 +6,10 @@
 >
     {% block sw_range_filter_content %}
     <sw-container
-        :columns="columns"
-        :gap="gap"
+        :class="{ 'sw-container--has-divider': isShowDivider }"
     >
+        <slot v-if="feature.isActive('FEATURE_NEXT_7530')"></slot>
+
         <slot name="from-field">
             {% block sw_range_filter_from_field %}{% endblock %}
         </slot>

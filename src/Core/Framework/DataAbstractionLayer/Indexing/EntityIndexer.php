@@ -53,4 +53,14 @@ abstract class EntityIndexer
     {
         throw new DecorationPatternException(static::class);
     }
+
+    /**
+     * Returns a list of known indexers
+     *
+     * @return string[]
+     */
+    public function getOptions(): array
+    {
+        return [];
+    }
 }

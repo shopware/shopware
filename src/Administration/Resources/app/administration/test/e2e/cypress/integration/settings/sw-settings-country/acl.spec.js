@@ -49,10 +49,9 @@ describe('Country: Test acl privileges', () => {
         });
 
         // prepare api to update a country
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/country/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveCountry');
 
         // click on first element in grid
@@ -79,9 +78,7 @@ describe('Country: Test acl privileges', () => {
         cy.get(page.elements.countrySaveAction).click();
 
         // call api to update the country
-        cy.wait('@saveCountry').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveCountry').its('response.statusCode').should('equal', 204);
 
         // assert that country is updated successfully
         cy.get(page.elements.smartBarBack).click();
@@ -113,10 +110,9 @@ describe('Country: Test acl privileges', () => {
         });
 
         // prepare api to create a new country
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/country`,
-            method: 'post'
+            method: 'POST'
         }).as('saveCountry');
 
         // click on "Add country" button
@@ -140,9 +136,7 @@ describe('Country: Test acl privileges', () => {
         cy.get(page.elements.countrySaveAction).click();
 
         // call api to create a new country
-        cy.wait('@saveCountry').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveCountry').its('response.statusCode').should('equal', 204);
 
         // assert that country is created successfully
         cy.get(page.elements.smartBarBack).click();
@@ -170,8 +164,7 @@ describe('Country: Test acl privileges', () => {
         });
 
         // prepare api to delete a country
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/country/*`,
             method: 'delete'
         }).as('deleteCountry');
@@ -194,9 +187,7 @@ describe('Country: Test acl privileges', () => {
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
 
         // call api to delete the country
-        cy.wait('@deleteCountry').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteCountry').its('response.statusCode').should('equal', 204);
 
         // assert that modal is off, country is deleted
         cy.get(page.elements.modal).should('not.exist');
@@ -246,10 +237,9 @@ describe('Country: Test acl privileges', () => {
         });
 
         // prepare api to update a state
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/country/*/states/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveCountryState');
 
         // find a country with the name is "Germany"
@@ -292,9 +282,7 @@ describe('Country: Test acl privileges', () => {
         cy.get(page.elements.countryStateSaveAction).click();
 
         // call api to update state
-        cy.wait('@saveCountryState').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveCountryState').its('response.statusCode').should('equal', 204);
 
         // assert that state is updated successfully
         cy.get(`${page.elements.countryStateListContent}`).should('be.visible');
@@ -334,10 +322,9 @@ describe('Country: Test acl privileges', () => {
         });
 
         // prepare api to create a state
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/country/*/states`,
-            method: 'post'
+            method: 'POST'
         }).as('saveCountryState');
 
         // find a country with the name is "Germany"
@@ -364,9 +351,7 @@ describe('Country: Test acl privileges', () => {
         cy.get(page.elements.countryStateSaveAction).click();
 
         // call api to create state
-        cy.wait('@saveCountryState').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveCountryState').its('response.statusCode').should('equal', 204);
 
         // assert that state is created successfully
         cy.get(`${page.elements.countryStateListContent}`).should('be.visible');
@@ -401,20 +386,19 @@ describe('Country: Test acl privileges', () => {
         });
 
         // prepare api to create a state
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/country/*/states`,
-            method: 'post'
+            method: 'POST'
         }).as('saveCountryState');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/language`,
-            method: 'post'
+            method: 'POST'
         }).as('searchLanguage');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/country`,
-            method: 'post'
+            method: 'POST'
         }).as('searchCountry');
 
         cy.get('.sw-language-switch__select .sw-entity-single-select__selection-text').contains('English');
@@ -425,17 +409,14 @@ describe('Country: Test acl privileges', () => {
             .should('have.length.greaterThan', 1);
         cy.get('.sw-select-result-list__item-list .sw-select-result').contains('Deutsch').click();
 
-        cy.wait('@searchLanguage').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-            // find a country with the name is "Germany"
-            cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Vietnam');
-        });
+        cy.wait('@searchLanguage').its('response.statusCode').should('equals', 200);
 
-        cy.wait('@searchCountry').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-            // choose "Germany"
-            cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName}`).click();
-        });
+        // find a country with the name is "Germany"
+        cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Vietnam');
+        cy.wait('@searchCountry').its('response.statusCode').should('equals', 200);
+
+        // choose "Germany"
+        cy.get(`${page.elements.dataGridRow}--0 ${page.elements.countryColumnName}`).click();
 
         // choose "state tab"
         cy.get('.sw-settings-country__state-tab').click();
@@ -455,13 +436,11 @@ describe('Country: Test acl privileges', () => {
         cy.get(page.elements.countryStateSaveAction).click();
 
         // call api to create state
-        cy.wait('@saveCountryState').then((xhr) => {
-            expect(xhr).to.have.property('status', 400);
-            cy.get('.sw-alert__body').should('be.visible');
-            cy.get('.sw-alert__body .sw-alert__message')
-                .should('be.visible')
-                .contains('Can not create a new state/region with the currently selected language. Please create a new state/region in the default system language first!');
-        });
+        cy.wait('@saveCountryState').its('response.statusCode').should('equals', 400);
+        cy.get('.sw-alert__body').should('be.visible');
+        cy.get('.sw-alert__body .sw-alert__message')
+            .should('be.visible')
+            .contains('Cannot create a region with the currently selected language. Please create a region using the default system language first.');
     });
 
     it('@settings: can delete multiple countries', () => {
@@ -480,10 +459,10 @@ describe('Country: Test acl privileges', () => {
             cy.visit(`${Cypress.env('admin')}#/sw/settings/country/index`);
         });
 
-        cy.server();
-        cy.route({
+
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('deleteCountry');
 
         // click on first checkbox in grid
@@ -495,8 +474,7 @@ describe('Country: Test acl privileges', () => {
         // assert that there is an available list of countries
         cy.get(`${page.elements.countryListContent}`).should('be.visible');
 
-        cy.wait('@deleteCountry').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@deleteCountry')
+            .its('response.statusCode').should('equal', 200);
     });
 });

@@ -24,20 +24,19 @@ describe('Import/Export - Check import dry run functionality', () => {
     });
 
     it('@base @settings: Perform import dry run with product profile', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/import-export/prepare`,
-            method: 'post'
+            method: 'POST'
         }).as('prepare');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/import-export/process`,
-            method: 'post'
+            method: 'POST'
         }).as('process');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/import-export-log`,
-            method: 'post'
+            method: 'POST'
         }).as('importExportLog');
 
         cy.get('.sw-import-export-view-import').should('be.visible');
@@ -66,30 +65,21 @@ describe('Import/Export - Check import dry run functionality', () => {
         cy.get('.sw-import-export-progress__start-process-dryrun-action').should('be.disabled');
 
         // Prepare request should be successful
-        cy.wait('@prepare').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@prepare')
+            .its('response.statusCode').should('equal', 200);
 
         // Process request should be successful
-        cy.wait('@process').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@process')
+            .its('response.statusCode').should('equal', 204);
 
         // Import export log request should be successful
-        cy.wait('@importExportLog').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
-
-        // Progress bar and log should be visible
-        cy.get('.sw-import-export-progress__progress-bar-bar').should('be.visible');
-        cy.get('.sw-import-export-progress__stats').should('be.visible');
+        cy.wait('@importExportLog')
+            .its('response.statusCode').should('equal', 200);
 
         // The activity logs should contain an entry for the succeeded import
         cy.get(`.sw-import-export-activity ${page.elements.dataGridRow}--0`).should('be.visible');
         cy.get(`.sw-import-export-activity ${page.elements.dataGridRow}--0 .sw-data-grid__cell--profileName`)
             .should('contain', 'E2E');
-        cy.get(`.sw-import-export-activity ${page.elements.dataGridRow}--0 .sw-data-grid__cell--profileName .sw-label`)
-            .should('be.visible');
         cy.get(`.sw-import-export-activity ${page.elements.dataGridRow}--0 .sw-data-grid__cell--state`)
             .should('contain', 'Succeeded');
 
@@ -105,7 +95,7 @@ describe('Import/Export - Check import dry run functionality', () => {
 
         // Check that results table is visible and has expected content
         cy.get('.sw-import-export-activity-result-modal .sw-grid').should('be.visible');
-        cy.get('.sw-import-export-activity-result-modal__column-product-insert').should('contain', '1');
-        cy.get('.sw-import-export-activity-result-modal__column-tax-insert').should('contain', '1');
+        cy.get('.sw-import-export-activity-result-modal__column-product_translation-changes').should('contain', '1');
+        cy.get('.sw-import-export-activity-result-modal__column-tax-changes').should('contain', '1');
     });
 });

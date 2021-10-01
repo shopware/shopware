@@ -18,6 +18,10 @@ $sw-order-line-item-border: $color-gray-300;
     }
 
     .sw-order-line-items-grid__item {
+        &-label {
+            display: inline-block;
+        }
+
         &-nested-indicator {
             display: inline-block;
             margin-right: 12px;
@@ -53,7 +57,7 @@ $sw-order-line-item-border: $color-gray-300;
         max-width: 65px;
     }
 
-    .sw-data-grid .sw-data-grid__body .sw-data-grid__cell--multi-line .sw-data-grid__cell-content {
-        height: 64px;
+    .sw-data-grid__row.is--inline-edit .sw-data-grid__cell-content > span:not(.sw-order-product-select) {
+        padding: 0 10px;
     }
 }

@@ -5,17 +5,19 @@ namespace Shopware\Core\Checkout\Customer\Event;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\MailActionInterface;
+use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class CustomerAccountRecoverRequestEvent extends Event implements MailActionInterface, SalesChannelAware, ShopwareSalesChannelEvent
+class CustomerAccountRecoverRequestEvent extends Event implements MailActionInterface, SalesChannelAware, ShopwareSalesChannelEvent, CustomerAware, MailAware
 {
     public const EVENT_NAME = 'customer.recovery.request';
 
@@ -106,5 +108,13 @@ class CustomerAccountRecoverRequestEvent extends Event implements MailActionInte
     public function getShopName(): string
     {
         return $this->shopName;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_8225)
+     */
+    public function getCustomerId(): string
+    {
+        return $this->getCustomerRecovery()->getCustomerId();
     }
 }

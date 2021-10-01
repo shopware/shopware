@@ -50,6 +50,7 @@ Component.register('sw-category-tree', {
             linkContext: 'sw.category.detail',
             isLoadingInitialData: true,
             loadedParentIds: [],
+            sortable: this.allowEdit,
         };
     },
 
@@ -142,6 +143,10 @@ Component.register('sw-category-tree', {
             Shopware.State.commit('swCategoryDetail/setCategoriesToDelete', {
                 categoriesToDelete: undefined,
             });
+        },
+
+        allowEdit(value) {
+            this.sortable = value;
         },
 
         category(newVal, oldVal) {
@@ -243,6 +248,8 @@ Component.register('sw-category-tree', {
                         this.syncProducts(draggedItem.id);
                     });
                 }
+
+                this.sortable = this.allowEdit;
             });
         },
 
@@ -396,6 +403,8 @@ Component.register('sw-category-tree', {
         },
 
         createNewElement(contextItem, parentId, name = '') {
+            this.sortable = false;
+
             if (!parentId && contextItem) {
                 parentId = contextItem.parentId;
             }
@@ -420,6 +429,8 @@ Component.register('sw-category-tree', {
                         .setIds([newCategory.id, parentId].filter((id) => id !== null));
                     this.categoryRepository.search(criteria).then((categories) => {
                         this.addCategories(categories);
+
+                        this.sortable = this.allowEdit;
                     });
                 });
             };

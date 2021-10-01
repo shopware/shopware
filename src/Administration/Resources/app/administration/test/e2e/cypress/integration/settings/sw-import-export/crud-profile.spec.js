@@ -21,18 +21,27 @@ describe('Import/Export - Profiles: Test crud operations', () => {
 
 
     it('@settings @base: Create and read profile', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/import-export-profile`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Perform create new profile action
         cy.get('.sw-import-export-view-profiles__listing').should('be.visible');
         cy.get('.sw-import-export-view-profiles__create-action').click();
 
-        // Expect modal to be open with content
-        cy.get('.sw-import-export-edit-profile-modal__text').should('be.visible');
+        cy.get('.sw-modal__dialog').should('be.visible');
+
+        cy.get('#sw-field--profile-label').typeAndCheck('Basic');
+
+        cy.onlyOnFeature('FEATURE_NEXT_15998', () => {
+            cy.get('.sw-import-export-edit-profile-general__text').should('be.visible');
+        });
+
+        cy.skipOnFeature('FEATURE_NEXT_15998', () => {
+            // Expect modal to be open with content
+            cy.get('.sw-import-export-edit-profile-modal__text').should('be.visible');
+        });
 
         cy.onlyOnFeature('FEATURE_NEXT_8097', () => {
             // switch to mapping tab
@@ -46,20 +55,65 @@ describe('Import/Export - Profiles: Test crud operations', () => {
             // switch back to general tab
             cy.contains('.sw-import-export-edit-profile-modal .sw-tabs-item', 'General').click();
             // expect to see the general tab content
-            cy.get('.sw-import-export-edit-profile-modal__text').should('be.visible');
+
+            cy.onlyOnFeature('FEATURE_NEXT_15998', () => {
+                cy.get('.sw-import-export-edit-profile-general__text').should('be.visible');
+            });
+
+            cy.skipOnFeature('FEATURE_NEXT_15998', () => {
+                cy.get('.sw-import-export-edit-profile-modal__text').should('be.visible');
+            });
         });
 
-        // Fill in name and object type
-        cy.get('#sw-field--profile-label').type('Basic');
-        cy.get('.sw-import-export-edit-profile-modal__object-type-select')
-            .typeSingleSelectAndCheck(
-                'Media',
-                '.sw-import-export-edit-profile-modal__object-type-select'
-            );
+        cy.onlyOnFeature('FEATURE_NEXT_8097', () => {
+            cy.onlyOnFeature('FEATURE_NEXT_15998', () => {
+                cy.get('.sw-import-export-edit-profile-general__object-type-select')
+                    .typeSingleSelectAndCheck(
+                        'Media',
+                        '.sw-import-export-edit-profile-general__object-type-select'
+                    );
+            });
+
+            cy.skipOnFeature('FEATURE_NEXT_15998', () => {
+                cy.get('.sw-import-export-edit-profile-modal__object-type-select')
+                    .typeSingleSelectAndCheck(
+                        'Media',
+                        '.sw-import-export-edit-profile-modal__object-type-select'
+                    );
+            });
+        });
+
+
+        cy.skipOnFeature('FEATURE_NEXT_15998', () => {
+            cy.get('.sw-import-export-edit-profile-modal__object-type-select')
+                .typeSingleSelectAndCheck(
+                    'Media',
+                    '.sw-import-export-edit-profile-modal__object-type-select'
+                );
+        });
 
         cy.onlyOnFeature('FEATURE_NEXT_8097', () => {
-            // switch to mapping tab
-            cy.contains('.sw-import-export-edit-profile-modal .sw-tabs-item', 'Mappings').click();
+            cy.onlyOnFeature('FEATURE_NEXT_15998', () => {
+                cy.get('.sw-import-export-edit-profile-general__type-select')
+                    .typeSingleSelectAndCheck(
+                        'Import and export',
+                        '.sw-import-export-edit-profile-general__type-select'
+                    );
+                // switch to mapping tab
+                cy.contains('.sw-import-export-edit-profile-modal .sw-tabs-item', 'Mappings').click();
+            });
+        });
+
+        cy.skipOnFeature('FEATURE_NEXT_15998', () => {
+            cy.onlyOnFeature('FEATURE_NEXT_8097', () => {
+                cy.get('.sw-import-export-edit-profile-modal__type-select')
+                    .typeSingleSelectAndCheck(
+                        'Import and export',
+                        '.sw-import-export-edit-profile-modal__type-select'
+                    );
+                // switch to mapping tab
+                cy.contains('.sw-import-export-edit-profile-modal .sw-tabs-item', 'Mappings').click();
+            });
         });
 
         // Fill in all required mappings (add mapping button should be enabled now)
@@ -111,19 +165,16 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get('.sw-import-export-edit-profile-modal__save-action').click();
 
         // Save request should be successful
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get('.sw-import-export-edit-profile-modal').should('not.be.visible');
         cy.get(`${page.elements.dataGridRow}`).should('contain', 'Basic');
     });
 
     it('@settings @base: Duplicate profile', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/import-export-profile`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         cy.get('.sw-import-export-view-profiles__listing').should('be.visible');
@@ -154,10 +205,9 @@ describe('Import/Export - Profiles: Test crud operations', () => {
     });
 
     it('@settings: Update and read profile', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/import-export-profile/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         cy.get('.sw-import-export-view-profiles__listing').should('be.visible');
@@ -191,11 +241,9 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get('.sw-import-export-edit-profile-modal__save-action').click();
 
         // Save request should be successful
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
-        cy.get('.sw-import-export-edit-profile-modal').should('not.be.visible');
+        cy.get('.sw-modal.sw-import-export-edit-profile-modal').should('not.exist');
 
         // Verify updated profile is in listing
         cy.get('.sw-import-export-view-profiles__listing').should('be.visible');
@@ -203,21 +251,21 @@ describe('Import/Export - Profiles: Test crud operations', () => {
     });
 
     it('@settings @base: Update and read profile in different content language', () => {
-        cy.server();
-        cy.route({
+        // sw-simple-search component got refactored on NEXT-16271 to address loosing input issue
+        cy.onlyOnFeature('FEATURE_NEXT_16271');
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/import-export-profile/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/import-export-profile`,
-            method: 'post'
+            method: 'POST'
         }).as('loadData');
 
         // change content language to german
         cy.get('.sw-language-switch__select').typeSingleSelectAndCheck('Deutsch', '.sw-language-switch__select');
-        cy.wait('@loadData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@loadData')
+            .its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-import-export-view-profiles__listing').should('be.visible');
 
@@ -242,9 +290,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get('.sw-import-export-edit-profile-modal__save-action').click();
 
         // Save request should be successful
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get('.sw-import-export-edit-profile-modal').should('not.be.visible');
 
@@ -258,9 +304,8 @@ describe('Import/Export - Profiles: Test crud operations', () => {
 
         // switch back to english
         cy.get('.sw-language-switch__select').typeSingleSelectAndCheck('English', '.sw-language-switch__select');
-        cy.wait('@loadData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@loadData')
+            .its('response.statusCode').should('equal', 200);
 
         // Update the search
         cy.get('.sw-import-export-view-profiles__search input[type="text"]').click();
@@ -274,10 +319,9 @@ describe('Import/Export - Profiles: Test crud operations', () => {
     });
 
     it('@settings @base: Create profile disabled in different content language', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/import-export-profile`,
-            method: 'post'
+            method: 'POST'
         }).as('loadData');
 
         // check that the add new profile button is enabled in the system language
@@ -285,24 +329,22 @@ describe('Import/Export - Profiles: Test crud operations', () => {
 
         // change content language to german
         cy.get('.sw-language-switch__select').typeSingleSelectAndCheck('Deutsch', '.sw-language-switch__select');
-        cy.wait('@loadData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@loadData')
+            .its('response.statusCode').should('equal', 200);
 
         // check that the add new profile button is disabled in other languages
         cy.get('.sw-import-export-view-profiles__create-action').should('be.disabled');
     });
 
     it('@settings: Delete profile', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/import-export-profile/*`,
             method: 'delete'
         }).as('deleteData');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/import-export-profile`,
-            method: 'post'
+            method: 'POST'
         }).as('search');
 
         cy.get('.sw-import-export-view-profiles__listing').should('be.visible');
@@ -310,10 +352,9 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         // Search for given profile
         cy.get('.sw-import-export-view-profiles__search input[type="text"]').click();
         cy.get('.sw-import-export-view-profiles__search input[type="text"]').clearTypeAndCheck('E2E');
+
         // wait for the search request before checking the search result
-        cy.wait('@search').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@search').its('response.statusCode').should('equals', 200);
 
         cy.get(`${page.elements.dataGridRow}--0`).should('contain', 'E2E');
         cy.get(`${page.elements.dataGridRow}--1`).should('not.exist');
@@ -334,9 +375,7 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get('.sw-modal__dialog .sw-button--danger').click();
 
         // Delete request should be successful
-        cy.wait('@deleteData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteData').its('response.statusCode').should('equal', 204);
 
         // Verify deleted item is not present
         cy.get('.sw-import-export-view-profiles__listing').should('be.visible');
@@ -346,41 +385,63 @@ describe('Import/Export - Profiles: Test crud operations', () => {
 
         cy.get('.sw-import-export-view-profiles__search input[type="text"]').click();
         cy.get('.sw-import-export-view-profiles__search input[type="text"]').clearTypeAndCheck('E2E');
+
         // wait for the search request before checking the search result
-        cy.wait('@search').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@search').its('response.statusCode').should('equals', 200);
         cy.get('.sw-import-export-view-profiles__listing .sw-data-grid__body').should('not.contain', 'E2E');
     });
 
     it('@settings @base: Create an export profile', () => {
         cy.onlyOnFeature('FEATURE_NEXT_8097');
 
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/import-export-profile`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Perform create new profile action
         cy.get('.sw-import-export-view-profiles__listing').should('be.visible');
         cy.get('.sw-import-export-view-profiles__create-action').click();
 
-        // Expect modal to be open with content
-        cy.get('.sw-import-export-edit-profile-modal__text').should('be.visible');
+        cy.get('.sw-modal__dialog').should('be.visible');
+
+        cy.onlyOnFeature('FEATURE_NEXT_15998', () => {
+            cy.get('.sw-import-export-edit-profile-general__text').should('be.visible');
+        });
+
+        cy.skipOnFeature('FEATURE_NEXT_15998', () => {
+            // Expect modal to be open with content
+            cy.get('.sw-import-export-edit-profile-modal__text').should('be.visible');
+        });
 
         // Fill in name and object type
-        cy.get('#sw-field--profile-label').type('Basic');
-        cy.get('.sw-import-export-edit-profile-modal__type-select')
-            .typeSingleSelectAndCheck(
-                'Export',
-                '.sw-import-export-edit-profile-modal__type-select'
-            );
-        cy.get('.sw-import-export-edit-profile-modal__object-type-select')
-            .typeSingleSelectAndCheck(
-                'Media',
-                '.sw-import-export-edit-profile-modal__object-type-select'
-            );
+        cy.get('#sw-field--profile-label').typeAndCheck('Basic');
+
+        cy.onlyOnFeature('FEATURE_NEXT_15998', () => {
+            cy.get('.sw-import-export-edit-profile-general__type-select')
+                .typeSingleSelectAndCheck(
+                    'Export',
+                    '.sw-import-export-edit-profile-general__type-select'
+                );
+            cy.get('.sw-import-export-edit-profile-general__object-type-select')
+                .typeSingleSelectAndCheck(
+                    'Media',
+                    '.sw-import-export-edit-profile-general__object-type-select'
+                );
+        });
+
+        cy.skipOnFeature('FEATURE_NEXT_15998', () => {
+            cy.get('.sw-import-export-edit-profile-modal__type-select')
+                .typeSingleSelectAndCheck(
+                    'Export',
+                    '.sw-import-export-edit-profile-modal__type-select'
+                );
+            cy.get('.sw-import-export-edit-profile-modal__object-type-select')
+                .typeSingleSelectAndCheck(
+                    'Media',
+                    '.sw-import-export-edit-profile-modal__object-type-select'
+                );
+        });
 
         // switch to mapping tab
         cy.contains('.sw-import-export-edit-profile-modal .sw-tabs-item', 'Mappings').click();
@@ -401,9 +462,8 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.get('.sw-import-export-edit-profile-modal__save-action').click();
 
         // Save request should be successful
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
 
         cy.get('.sw-import-export-edit-profile-modal').should('not.be.visible');
         cy.get(`${page.elements.dataGridRow}`).should('contain', 'Basic');

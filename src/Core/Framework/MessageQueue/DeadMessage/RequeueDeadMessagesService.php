@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\MessageQueue\DeadMessage;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -12,29 +13,26 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 class RequeueDeadMessagesService
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $deadMessageRepository;
+    private const MAX_RETRIES = 3;
 
-    /**
-     * @var MessageBusInterface
-     */
-    private $bus;
+    private EntityRepositoryInterface $deadMessageRepository;
 
-    /**
-     * @var MessageBusInterface
-     */
-    private $encryptedBus;
+    private MessageBusInterface $bus;
+
+    private MessageBusInterface $encryptedBus;
+
+    private LoggerInterface $logger;
 
     public function __construct(
         EntityRepositoryInterface $deadMessageRepository,
         MessageBusInterface $bus,
-        MessageBusInterface $encryptedBus
+        MessageBusInterface $encryptedBus,
+        LoggerInterface $logger
     ) {
         $this->deadMessageRepository = $deadMessageRepository;
         $this->bus = $bus;
         $this->encryptedBus = $encryptedBus;
+        $this->logger = $logger;
     }
 
     public function requeue(?string $messageClass = null): void
@@ -52,6 +50,19 @@ class RequeueDeadMessagesService
 
                 continue;
             }
+
+            if ($message->getErrorCount() > self::MAX_RETRIES) {
+                $this->logger->warning(sprintf('Dropped the message %s after %d retries', $message->getOriginalMessageClass(), self::MAX_RETRIES), [
+                    'exception' => $message->getException(),
+                    'exceptionFile' => $message->getExceptionFile(),
+                    'exceptionLine' => $message->getExceptionLine(),
+                    'exceptionMessage' => $message->getExceptionMessage(),
+                ]);
+                $notFoundDeadMessages[] = ['id' => $message->getId()];
+
+                continue;
+            }
+
             $this->dispatchRetryMessage($message);
         }
 

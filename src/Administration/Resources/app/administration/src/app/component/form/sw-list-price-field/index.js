@@ -100,6 +100,12 @@ Component.register('sw-list-price-field', {
             default: false,
         },
 
+        hidePurchasePrices: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
         showSettingPrice: {
             type: Boolean,
             required: false,

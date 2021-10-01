@@ -29,6 +29,10 @@ function getLineItem(id, children = [], position = 0) {
         stackable: true,
         quantity: mockNumber * 10,
         label: `LineItem ${id}`,
+        productId: ids['1'],
+        payload: {
+            productNumber: 'NEST-1',
+        },
         children,
         price: {
             quantity: 2,
@@ -125,15 +129,11 @@ describe('Order: Read order with nested line items', () => {
 
         // Check correct amount in each nesting level
         cy.get('.sw-modal__title').contains('Item: LineItem 1 - €0.01');
-        cy.get('.nesting-level-1').should('have.length', '1');
-        cy.get('.nesting-level-2').should('have.length', '3');
-        cy.get('.nesting-level-3').should('have.length', '1');
-        cy.get('.nesting-level-4').should('have.length', '1');
-        cy.get('.nesting-level-5').should('not.exist');
+        cy.get('.sw-order-nested-line-items-row__nesting-level').should('have.length', '8');
 
         // Check the contents of the first row completely
         cy.get('.sw-order-nested-line-items-row__content').eq('0')
-            .get('.sw-order-nested-line-items-row__nesting-container')
+            .get('.sw-order-nested-line-items-row__label-content')
             .contains('LineItem 1.1');
         cy.get('.sw-order-nested-line-items-row__content').eq('0')
             .get('.sw-order-nested-line-items-row__unit-price')
@@ -150,7 +150,7 @@ describe('Order: Read order with nested line items', () => {
 
         // Check the contents of the third row with some values
         cy.get('.sw-order-nested-line-items-row__content').eq('2')
-            .get('.sw-order-nested-line-items-row__nesting-container')
+            .get('.sw-order-nested-line-items-row__label-content')
             .contains('LineItem 1.1.1.1');
         cy.get('.sw-order-nested-line-items-row__content').eq('2')
             .get('.sw-order-nested-line-items-row__quantity')
@@ -165,13 +165,11 @@ describe('Order: Read order with nested line items', () => {
 
         // Check correct amount in each nesting level
         cy.get('.sw-modal__title').contains('Item: LineItem 2 - €0.02');
-        cy.get('.nesting-level-1').should('have.length', '2');
-        cy.get('.nesting-level-2').should('have.length', '1');
-        cy.get('.nesting-level-3').should('not.exist');
+        cy.get('.sw-order-nested-line-items-row__nesting-level').should('have.length', '1');
 
         // Check the contents of the third row with some values
         cy.get('.sw-order-nested-line-items-row__content').eq('2')
-            .get('.sw-order-nested-line-items-row__nesting-container')
+            .get('.sw-order-nested-line-items-row__label-content')
             .contains('LineItem 2.2.1');
         cy.get('.sw-order-nested-line-items-row__content').eq('2')
             .get('.sw-order-nested-line-items-row__quantity')

@@ -1,5 +1,6 @@
 import Flatpickr from 'flatpickr';
 import 'flatpickr/dist/l10n';
+import { zonedTimeToUtc, utcToZonedTime } from 'date-fns-tz';
 import template from './sw-datepicker.html.twig';
 import 'flatpickr/dist/flatpickr.css';
 import './sw-datepicker.scss';
@@ -13,7 +14,6 @@ const { Component, Mixin } = Shopware;
  * Be careful when changing the config object. To add a parameter to the config at runtime use:
  * <a href="https://vuejs.org/v2/api/#Vue-set">https://vuejs.org/v2/api/#Vue-set</a>.
  *
- * <u>this.$set(this.myDatepickerConfig, 'dateFormat', 'd.m.y');</u>
  * @status ready
  * @example-type static
  * @component-example
@@ -66,6 +66,7 @@ Component.register('sw-datepicker', {
         dateType: {
             type: String,
             default: 'date',
+            /* @deprecated tag:v6.5.0 'datetime-local' can be removed */
             validValues: ['time', 'date', 'datetime', 'datetime-local'],
             validator(value) {
                 return ['time', 'date', 'datetime', 'datetime-local'].includes(value);
@@ -79,6 +80,12 @@ Component.register('sw-datepicker', {
         },
 
         required: {
+            type: Boolean,
+            default: false,
+            required: false,
+        },
+
+        disabled: {
             type: Boolean,
             default: false,
             required: false,
@@ -135,6 +142,7 @@ Component.register('sw-datepicker', {
         },
 
         enableTime() {
+            /* @deprecated tag:v6.5.0 'datetime-local' can be removed */
             return this.noCalendar || ['datetime', 'datetime-local'].includes(this.dateType);
         },
 
@@ -153,6 +161,52 @@ Component.register('sw-datepicker', {
             });
 
             return listeners;
+        },
+
+        userTimeZone() {
+            return Shopware?.State?.get('session')?.currentUser?.timeZone ?? 'UTC';
+        },
+
+        timezoneFormattedValue: {
+            get() {
+                if (!this.value) {
+                    return null;
+                }
+
+                if (this.dateType === 'time') {
+                    return this.value;
+                }
+
+                // convert from UTC timezone to user timezone (represented as UTC)
+                const userTimezoneDate = utcToZonedTime(this.value, this.userTimeZone);
+
+                // get the time converted to the user timezone
+                return userTimezoneDate.toISOString();
+            },
+            set(newValue) {
+                if (newValue === null) {
+                    this.$emit('input', null);
+                    return;
+                }
+
+                if (this.dateType === 'time') {
+                    this.$emit('input', newValue);
+                    return;
+                }
+
+                // convert from user timezone (represented as UTC) to UTC timezone
+                const utcDate = zonedTimeToUtc(new Date(newValue), this.userTimeZone);
+
+                // emit the UTC time so that the v-model value always work in UTC time (which is needed for the server)
+                this.$emit('input', utcDate.toISOString());
+            },
+        },
+
+        showTimeZoneHint() {
+            return [
+                'datetime',
+                'datetime-local',
+            ].includes(this.dateType);
         },
     },
 
@@ -182,8 +236,12 @@ Component.register('sw-datepicker', {
          *
          * @param newValue
          */
-        value(newValue) {
+        timezoneFormattedValue(newValue) {
             this.setDatepickerValue(newValue);
+        },
+
+        disabled(isDisabled) {
+            this.flatpickrInstance._input.disabled = isDisabled;
         },
     },
 
@@ -336,7 +394,7 @@ Component.register('sw-datepicker', {
             });
 
             // Set the right datepicker value from the property.
-            this.setDatepickerValue(this.value);
+            this.setDatepickerValue(this.timezoneFormattedValue);
         },
 
         /**
@@ -393,22 +451,19 @@ Component.register('sw-datepicker', {
             }
 
             // Prevent emit if value is already up to date
-            if (value === this.value) {
+            if (value === this.timezoneFormattedValue) {
                 return;
             }
 
-            this.$emit('input', value);
+            this.timezoneFormattedValue = value;
         },
 
         createConfig() {
-            /**
-             * Use user browser time or UTC based on dateType
-             */
-            let dateFormat = this.dateType === 'datetime-local' ? 'Z' : 'Y-m-dTH:i:S+00:00';
+            let dateFormat = 'Y-m-dTH:i:S';
             let altFormat = 'Y-m-d H:i';
 
             if (this.dateType === 'time') {
-                dateFormat = 'H:i:S+00:00';
+                dateFormat = 'H:i:S';
                 altFormat = 'H:i';
             }
 

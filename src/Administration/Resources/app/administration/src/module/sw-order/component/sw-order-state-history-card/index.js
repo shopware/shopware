@@ -13,6 +13,7 @@ Component.register('sw-order-state-history-card', {
         'orderStateMachineService',
         'repositoryFactory',
         'acl',
+        'feature',
     ],
 
     mixins: [
@@ -77,7 +78,7 @@ Component.register('sw-order-state-history-card', {
         },
 
         stateMachineHistoryCriteria() {
-            const criteria = new Criteria(1, 50);
+            const criteria = new Criteria(1, null);
 
             const entityIds = [this.order.id];
 
@@ -239,7 +240,7 @@ Component.register('sw-order-state-history-card', {
         },
 
         stateMachineStateCriteria() {
-            const criteria = new Criteria();
+            const criteria = new Criteria(1, null);
             criteria.addSorting({ field: 'name', order: 'ASC' });
             criteria.addAssociation('stateMachine');
             criteria.addFilter(
@@ -257,13 +258,19 @@ Component.register('sw-order-state-history-card', {
                 return entry.stateMachine.technicalName === stateMachineName;
             });
 
-            const options = entries.map((state) => {
-                return {
+            const options = entries.map((state, index) => {
+                const option = {
                     stateName: state.technicalName,
                     id: null,
                     name: state.translated.name,
                     disabled: true,
                 };
+
+                if (this.feature.isActive('FEATURE_NEXT_7530')) {
+                    option.id = index;
+                }
+
+                return option;
             });
 
             options.forEach((option) => {

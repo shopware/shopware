@@ -2,11 +2,11 @@
 
 namespace Shopware\Core\Checkout\Test\Cart\Promotion\Helpers;
 
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 
 class PromotionFixtureBuilder
 {
@@ -61,7 +61,7 @@ class PromotionFixtureBuilder
         $this->dataSetGroups = [];
         $this->dataDiscounts = [];
 
-        $this->context = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $this->context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
         $this->promotionRepository = $promotionRepository;
         $this->promotionSetgroupRepository = $promotionSetgroupRepository;
         $this->promotionDiscountRepository = $promotionDiscountRepository;
@@ -125,7 +125,7 @@ class PromotionFixtureBuilder
             'useCodes' => false,
             'useSetGroups' => false,
             'salesChannels' => [
-                ['salesChannelId' => Defaults::SALES_CHANNEL, 'priority' => 1],
+                ['salesChannelId' => TestDefaults::SALES_CHANNEL, 'priority' => 1],
             ],
         ];
 

@@ -13,7 +13,6 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Customer\SalesChannel\ChangePaymentMethodRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -24,6 +23,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
 
 class AccountServiceEventTest extends TestCase
@@ -70,7 +70,7 @@ class AccountServiceEventTest extends TestCase
 
         /** @var AbstractSalesChannelContextFactory $salesChannelContextFactory */
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
-        $this->salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $this->salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $this->createCustomer('shopware', 'info@example.com');
     }
@@ -83,7 +83,7 @@ class AccountServiceEventTest extends TestCase
         $eventDidRun = false;
 
         $listenerClosure = $this->getEmailListenerClosure($eventDidRun, $this);
-        $dispatcher->addListener(CustomerBeforeLoginEvent::class, $listenerClosure);
+        $this->addEventListener($dispatcher, CustomerBeforeLoginEvent::class, $listenerClosure);
 
         $dataBag = new DataBag();
         $dataBag->add([
@@ -133,7 +133,7 @@ class AccountServiceEventTest extends TestCase
                     $listenerClosure = $this->getCustomerListenerClosure($eventDidRun, $this);
             }
 
-            $dispatcher->addListener($eventClass, $listenerClosure);
+            $this->addEventListener($dispatcher, $eventClass, $listenerClosure);
 
             $dataBag = new DataBag();
             $dataBag->add([
@@ -162,7 +162,7 @@ class AccountServiceEventTest extends TestCase
         $eventDidRun = false;
 
         $listenerClosure = $this->getCustomerListenerClosure($eventDidRun, $this);
-        $dispatcher->addListener(CustomerLogoutEvent::class, $listenerClosure);
+        $this->addEventListener($dispatcher, CustomerLogoutEvent::class, $listenerClosure);
 
         $customer = $this->customerRepository->search(
             (new Criteria())->addFilter(new EqualsFilter('email', $email)),
@@ -189,7 +189,7 @@ class AccountServiceEventTest extends TestCase
         $eventDidRun = false;
 
         $listenerClosure = $this->getCustomerListenerClosure($eventDidRun, $this);
-        $dispatcher->addListener(CustomerChangedPaymentMethodEvent::class, $listenerClosure);
+        $this->addEventListener($dispatcher, CustomerChangedPaymentMethodEvent::class, $listenerClosure);
 
         /** @var CustomerEntity $customer */
         $customer = $this->customerRepository->search(

@@ -116,6 +116,11 @@ Component.register('sw-dashboard-index', {
                 return { x: this.parseDate(data.key), y: data.count };
             });
 
+            // add empty value for today if there isn't any order, otherwise today would be missing
+            if (!this.todayBucket) {
+                seriesData.push({ x: this.today.getTime(), y: 0 });
+            }
+
             return [{ name: this.$tc('sw-dashboard.monthStats.numberOfOrders'), data: seriesData }];
         },
 
@@ -135,6 +140,11 @@ Component.register('sw-dashboard-index', {
             const seriesData = this.historyOrderData.buckets.map((data) => {
                 return { x: this.parseDate(data.key), y: data.totalAmount.sum };
             });
+
+            // add empty value for today if there isn't any order, otherwise today would be missing
+            if (!this.todayBucket) {
+                seriesData.push({ x: this.today.getTime(), y: 0 });
+            }
 
             return [{ name: this.$tc('sw-dashboard.monthStats.totalTurnover'), data: seriesData }];
         },

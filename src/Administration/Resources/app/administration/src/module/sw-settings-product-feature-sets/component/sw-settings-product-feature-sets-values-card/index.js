@@ -109,6 +109,10 @@ Component.register('sw-settings-product-feature-sets-values-card', {
         },
 
         onSearch() {
+            this.doSearch();
+        },
+
+        doSearch() {
             if (!this.term) {
                 this.getList();
             }
@@ -126,7 +130,7 @@ Component.register('sw-settings-product-feature-sets-values-card', {
                 this.values = this.productFeatureSet.features;
 
                 if (this.term) {
-                    this.onSearch();
+                    this.doSearch();
                 }
             }
 

@@ -86,11 +86,12 @@
 
         <service id="Shopware\Elasticsearch\Framework\Indexing\EntityMapper"/>
 
-        <service id="Elasticsearch\Client" public="true">
+        <service id="Elasticsearch\Client" public="true" lazy="true">
             <factory class="Shopware\Elasticsearch\Framework\ClientFactory" method="createClient" />
             <argument>%elasticsearch.hosts%</argument>
             <argument type="service" id="shopware.elasticsearch.logger" />
             <argument>%kernel.debug%</argument>
+            <argument>%elasticsearch.ssl%</argument>
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\Indexing\IndexCreator">
@@ -245,6 +246,7 @@
             <argument type="service" id="logger"/>
             <argument type="service" id="currency.repository"/>
             <argument type="service" id="language.repository"/>
+            <argument type="service" id="event_dispatcher"/>
             <argument>%elasticsearch.indexing_batch_size%</argument>
             <tag name="messenger.message_handler"/>
         </service>

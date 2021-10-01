@@ -25,12 +25,20 @@ class ArrayStruct extends Struct implements \ArrayAccess
         return \array_key_exists($property, $this->data);
     }
 
-    public function offsetExists($offset)
+    /**
+     * @deprecated tag:v6.5.0 - return type will be changed to bool
+     */
+    #[\ReturnTypeWillChange]
+    public function offsetExists($offset)/* :bool */
     {
         return \array_key_exists($offset, $this->data);
     }
 
-    public function offsetGet($offset)
+    /**
+     * @deprecated tag:v6.5.0 - return type will be changed to mixed
+     */
+    #[\ReturnTypeWillChange]
+    public function offsetGet($offset)/* :mixed */
     {
         return $this->data[$offset] ?? null;
     }

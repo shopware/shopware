@@ -1,0 +1,51 @@
+[
+  {
+    "name": "product-module",
+    "entity": "product",
+    "routes": {
+      "index": {
+        "path": "index",
+        "component": "sw-index"
+      }
+    },
+    "defaultSearchConfiguration": {
+      "name": {
+        "_searchable": true,
+        "_score": 500
+      }
+    }
+  },
+  {
+    "name": "property-module",
+    "entity": "property",
+    "searchEntity": "property_group",
+    "routes": {
+      "index": {
+        "path": "index",
+        "component": "sw-index"
+      }
+    },
+    "defaultSearchConfiguration": {
+      "name": {
+        "_searchable": true,
+        "_score": 500
+      }
+    }
+  },
+  {
+    "name": "order-module",
+    "entity": "order",
+    "routes": {
+      "index": {
+        "path": "index",
+        "component": "sw-index"
+      }
+    },
+    "defaultSearchConfiguration": {
+      "name": {
+        "_searchable": false,
+        "_score": 500
+      }
+    }
+  }
+]

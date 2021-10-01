@@ -23,6 +23,12 @@ function createWrapper(customOptions = {}) {
 describe('src/app/component/form/sw-datepicker', () => {
     let wrapper;
 
+    beforeEach(() => {
+        Shopware.State.get('session').currentUser = {
+            timeZone: 'UTC'
+        };
+    });
+
     afterEach(() => {
         if (wrapper) {
             wrapper.destroy();
@@ -94,5 +100,49 @@ describe('src/app/component/form/sw-datepicker', () => {
         });
 
         expect(wrapper.find('label').text()).toEqual('Label from slot');
+    });
+
+    it('should not show the actual user timezone as a hint when it is not a datetime', () => {
+        Shopware.State.get('session').currentUser = {
+            timeZone: 'Europe/Berlin'
+        };
+
+        wrapper = createWrapper();
+
+        const hint = wrapper.find('.sw-field__hint');
+
+        expect(hint.exists()).toBe(false);
+    });
+
+    it('should show the UTC timezone as a hint when no timezone was selected and when datetime is datetime', () => {
+        wrapper = createWrapper({
+            propsData: {
+                dateType: 'datetime'
+            }
+        });
+
+        const hint = wrapper.find('.sw-field__hint');
+        const clockIcon = hint.find('sw-icon-stub[name="solid-clock"]');
+
+        expect(hint.text()).toContain('UTC');
+        expect(clockIcon.isVisible()).toBe(true);
+    });
+
+    it('should show the actual user timezone as a hint when datetime is datetime', () => {
+        Shopware.State.get('session').currentUser = {
+            timeZone: 'Europe/Berlin'
+        };
+
+        wrapper = createWrapper({
+            propsData: {
+                dateType: 'datetime'
+            }
+        });
+
+        const hint = wrapper.find('.sw-field__hint');
+        const clockIcon = hint.find('sw-icon-stub[name="solid-clock"]');
+
+        expect(hint.text()).toContain('Europe/Berlin');
+        expect(clockIcon.isVisible()).toBe(true);
     });
 });

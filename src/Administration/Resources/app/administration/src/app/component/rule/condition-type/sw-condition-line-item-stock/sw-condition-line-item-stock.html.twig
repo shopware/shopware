@@ -1,0 +1,20 @@
+{% block sw_condition_value_content %}
+<div class="sw-condition-line-item-stock sw-condition__condition-value">
+    {% block sw_condition_line_item_stock_field_operator %}
+    <sw-condition-operator-select
+        v-bind="{ operators, condition }"
+        :disabled="disabled"
+    />
+    {% endblock %}
+
+    {% block sw_condition_line_item_stock_field_stock %}
+    <sw-number-field
+        v-model="stock"
+        number-type="int"
+        size="medium"
+        :step="1"
+        :disabled="disabled"
+    />
+    {% endblock %}
+</div>
+{% endblock %}

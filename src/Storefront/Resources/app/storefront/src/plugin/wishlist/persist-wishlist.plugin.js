@@ -31,7 +31,7 @@ export default class WishlistPersistStoragePlugin extends BaseWishlistStoragePlu
                 return;
             }
 
-            throw new Error('Unable to add product to wishlist');
+            console.warn('unable to add product to wishlist');
         });
     }
 
@@ -40,14 +40,16 @@ export default class WishlistPersistStoragePlugin extends BaseWishlistStoragePlu
             _csrf_token: router.token,
         }), response => {
             const res = JSON.parse(response);
-
-            if (res.success) {
+            // even if the call returns false, the item should be removed from storage because it may be already deleted
+            if (Object.prototype.hasOwnProperty.call(res, 'success')) {
+                if (res.success === false) {
+                    console.warn('unable to remove product to wishlist');
+                }
                 super.remove(productId);
 
                 return;
             }
 
-            throw new Error('Unable to remove product from wishlist');
         });
     }
 

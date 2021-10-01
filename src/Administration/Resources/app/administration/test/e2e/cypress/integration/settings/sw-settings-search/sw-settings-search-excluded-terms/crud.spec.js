@@ -33,11 +33,10 @@ describe('Product Search: Test crud operations', () => {
     // TODO: NEXT-15722 - Fails randomly on CI, but cannot reproduce
     it.skip('@settings: create and update config for product search config excluded terms', () => {
         const page = new SettingsPageObject();
-        cy.server();
 
-        cy.route({
-            url: '/api/product-search-config/*',
-            method: 'patch'
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/product-search-config/*`,
+            method: 'PATCH'
         }).as('saveData');
 
         cy.get('.sw-settings-search-excluded-search-terms > .sw-card__title').scrollIntoView();
@@ -90,9 +89,8 @@ describe('Product Search: Test crud operations', () => {
         cy.get('.sw-settings-search-excluded-search-terms ' +
             `${page.elements.dataGridRow}--0 .sw-button.sw-data-grid__inline-edit-save`).click();
 
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
         cy.awaitAndCheckNotification('Excluded search term created.');
         cy.get('.sw-settings-search-excluded-search-terms ' +
             `${page.elements.dataGridRow}--0 .sw-data-grid__cell-value`).contains('example');
@@ -125,11 +123,10 @@ describe('Product Search: Test crud operations', () => {
     // TODO: NEXT-15722 - Fails randomly on CI, but cannot reproduce
     it.skip('@settings: delete config for product search config excluded terms', () => {
         const page = new SettingsPageObject();
-        cy.server();
 
-        cy.route({
-            url: '/api/product-search-config/*',
-            method: 'patch'
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/product-search-config/*`,
+            method: 'PATCH'
         }).as('saveData');
 
 
@@ -146,9 +143,8 @@ describe('Product Search: Test crud operations', () => {
         cy.get('.sw-context-menu-item.sw-context-menu-item--danger').should('be.visible');
         cy.get('.sw-context-menu-item.sw-context-menu-item--danger').click();
 
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
         cy.awaitAndCheckNotification('Excluded search term deleted.');
 
         // Bulk delete excluded term
@@ -161,8 +157,7 @@ describe('Product Search: Test crud operations', () => {
             '.sw-data-grid__bulk .sw-data-grid__bulk-selected.bulk-link button').should('be.visible');
         cy.get('.sw-settings-search-excluded-search-terms ' +
             '.sw-data-grid__bulk .sw-data-grid__bulk-selected.bulk-link button').click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
     });
 });

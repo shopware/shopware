@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 describe('User: Test crud operations', () => {
     beforeEach(() => {
@@ -13,22 +13,24 @@ describe('User: Test crud operations', () => {
 
     it('@settings: create and delete user', () => {
         // Requests we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/user`,
-            method: 'post'
+            method: 'POST'
         }).as('searchCall');
-        cy.route({
+
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/user`,
-            method: 'post'
+            method: 'POST'
         }).as('createCall');
-        cy.route({
+
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/user/**`,
             method: 'delete'
         }).as('deleteCall');
-        cy.route({
-            url: '/api/oauth/token',
-            method: 'post'
+
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/oauth/token`,
+            method: 'POST'
         }).as('oauthCall');
 
         // create a new user
@@ -74,16 +76,12 @@ describe('User: Test crud operations', () => {
             .should('not.be.disabled')
             .click();
 
-        cy.wait('@oauthCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@oauthCall').its('response.statusCode').should('equal', 200);
 
-        cy.wait('@createCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@createCall').its('response.statusCode').should('equal', 204);
 
         cy.get('.sw-modal')
-            .should('not.be.visible');
+            .should('not.exist');
 
         // should be able to delete the user
         cy.get('a.smart-bar__back-btn').click();
@@ -111,22 +109,19 @@ describe('User: Test crud operations', () => {
             .should('not.be.disabled')
             .click();
 
-        cy.wait('@deleteCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteCall').its('response.statusCode').should('equal', 204);
 
         cy.get('.sw-modal')
-            .should('not.be.visible');
+            .should('not.exist');
 
         cy.awaitAndCheckNotification('User "Abraham Allison " deleted.');
     });
 
     it('@settings: update existing user', () => {
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: '/api/oauth/token',
-            method: 'post'
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/oauth/token`,
+            method: 'POST'
         }).as('oauthCall');
 
         cy.clickContextMenuItem(
@@ -162,12 +157,10 @@ describe('User: Test crud operations', () => {
             .should('not.be.disabled')
             .click();
 
-        cy.wait('@oauthCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@oauthCall').its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-modal')
-            .should('not.be.visible');
+            .should('not.exist');
 
         cy.get('#sw-field--user-email')
             .should('be.visible')
@@ -176,14 +169,14 @@ describe('User: Test crud operations', () => {
 
     it('@settings: can not create a user with an invalid field', () => {
         // Requests we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/user`,
-            method: 'post'
+            method: 'POST'
         }).as('createCall');
-        cy.route({
-            url: '/api/oauth/token',
-            method: 'post'
+
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/oauth/token`,
+            method: 'POST'
         }).as('oauthCall');
 
         // create a new user
@@ -227,16 +220,15 @@ describe('User: Test crud operations', () => {
             .should('not.be.disabled')
             .click();
 
-        cy.wait('@oauthCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@oauthCall').its('response.statusCode').should('equal', 200);
 
-        cy.wait('@createCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 400);
-        });
+        cy.wait('@createCall').its('response.statusCode').should('equal', 400);
 
         cy.get('.sw-modal')
-            .should('not.be.visible');
+            .should('not.exist');
+
+        cy.get('.sw-settings-user-detail__grid-firstName')
+            .scrollIntoView();
 
         cy.get('.sw-settings-user-detail__grid-firstName .sw-field__error')
             .should('be.visible')

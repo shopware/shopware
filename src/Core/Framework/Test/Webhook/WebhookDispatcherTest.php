@@ -15,6 +15,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\Event\AppDeletedEvent;
+use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
 use Shopware\Core\Framework\App\Manifest\Xml\Permissions;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
@@ -25,6 +26,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Event\BusinessEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Test\App\GuzzleHistoryCollector;
 use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
@@ -33,6 +35,7 @@ use Shopware\Core\Framework\Webhook\WebhookDispatcher;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\Envelope;
@@ -50,12 +53,15 @@ class WebhookDispatcherTest extends TestCase
 
     private MessageBusInterface $bus;
 
+    private GuzzleHistoryCollector $guzzleHistory;
+
     public function setUp(): void
     {
         $this->webhookRepository = $this->getContainer()->get('webhook.repository');
         $this->shopUrl = $_SERVER['APP_URL'];
         $this->shopIdProvider = $this->getContainer()->get(ShopIdProvider::class);
         $this->bus = $this->createMock(MessageBusInterface::class);
+        $this->guzzleHistory = $this->getContainer()->get(GuzzleHistoryCollector::class);
     }
 
     public function testDispatchesBusinessEventToWebhookWithoutApp(): void
@@ -71,7 +77,7 @@ class WebhookDispatcherTest extends TestCase
         $this->appendNewResponse(new Response(200));
 
         $event = new CustomerBeforeLoginEvent(
-            $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL),
+            $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
             'test@example.com'
         );
 
@@ -86,9 +92,10 @@ class WebhookDispatcherTest extends TestCase
             $this->bus,
             true
         );
-        $webhookDispatcher->dispatch($event);
 
-        static::assertInstanceOf(CustomerBeforeLoginEvent::class, $event);
+        // check that event wasn't replaced
+        $returnedEvent = $webhookDispatcher->dispatch($event);
+        static::assertSame($event, $returnedEvent);
 
         /** @var Request $request */
         $request = $this->getLastRequest();
@@ -109,6 +116,69 @@ class WebhookDispatcherTest extends TestCase
         ], json_decode($body, true));
 
         static::assertFalse($request->hasHeader('shopware-shop-signature'));
+    }
+
+    public function testDispatchedWebhooksDontWrapEventMultipleTimes(): void
+    {
+        $this->webhookRepository->upsert([
+            [
+                'name' => 'hook1',
+                'eventName' => CustomerBeforeLoginEvent::EVENT_NAME,
+                'url' => 'https://test.com',
+                'active' => true,
+            ], [
+                'name' => 'hook2',
+                'eventName' => CustomerBeforeLoginEvent::EVENT_NAME,
+                'url' => 'https://test.com',
+                'active' => true,
+            ],
+        ], Context::createDefaultContext());
+
+        $this->appendNewResponse(new Response(200));
+        $this->appendNewResponse(new Response(200));
+
+        $event = new CustomerBeforeLoginEvent(
+            $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
+            'test@example.com'
+        );
+
+        $webhookDispatcher = new WebhookDispatcher(
+            $this->getContainer()->get('event_dispatcher'),
+            $this->getContainer()->get(Connection::class),
+            $this->getContainer()->get('shopware.app_system.guzzle'),
+            $this->shopUrl,
+            $this->getContainer(),
+            $this->getContainer()->get(HookableEventFactory::class),
+            Kernel::SHOPWARE_FALLBACK_VERSION,
+            $this->bus,
+            true
+        );
+
+        $webhookDispatcher->dispatch($event);
+
+        $history = $this->guzzleHistory->getHistory();
+
+        static::assertCount(2, $history);
+
+        foreach ($history as $historyEntry) {
+            /** @var Request $request */
+            $request = $historyEntry['request'];
+
+            static::assertEquals(
+                [
+                    'data' => [
+                        'payload' => [
+                            'email' => 'test@example.com',
+                        ],
+                        'event' => CustomerBeforeLoginEvent::EVENT_NAME,
+                    ],
+                    'source' => [
+                        'url' => $this->shopUrl,
+                    ],
+                ],
+                \json_decode($request->getBody()->getContents(), true)
+            );
+        }
     }
 
     public function testDispatchesWrappedEntityWrittenEventToWebhookWithoutApp(): void
@@ -225,7 +295,7 @@ class WebhookDispatcherTest extends TestCase
     public function testNoRegisteredWebhook(): void
     {
         $event = new CustomerBeforeLoginEvent(
-            $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL),
+            $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
             'test@example.com'
         );
 
@@ -261,7 +331,7 @@ class WebhookDispatcherTest extends TestCase
         $event = new BusinessEvent(
             MailSendSubscriber::ACTION_NAME,
             new CustomerBeforeLoginEvent(
-                $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL),
+                $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
                 'test@example.com'
             )
         );
@@ -361,7 +431,7 @@ class WebhookDispatcherTest extends TestCase
         $this->appendNewResponse(new Response(200));
 
         $event = new CustomerBeforeLoginEvent(
-            $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL),
+            $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
             'test@example.com'
         );
 
@@ -406,6 +476,8 @@ class WebhookDispatcherTest extends TestCase
         );
 
         static::assertNotEmpty($request->getHeaderLine('sw-version'));
+        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
+        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
     }
 
     public function testDoesNotDispatchBusinessEventIfAppIsInactive(): void
@@ -451,7 +523,7 @@ class WebhookDispatcherTest extends TestCase
         $this->appendNewResponse(new Response(200));
 
         $event = new CustomerLoginEvent(
-            $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL),
+            $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
             (new CustomerEntity())->assign(['firstName' => 'first', 'lastName' => 'last']),
             'testToken'
         );
@@ -503,7 +575,7 @@ class WebhookDispatcherTest extends TestCase
         $this->appendNewResponse(new Response(200));
 
         $event = new CustomerLoginEvent(
-            $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL),
+            $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
             (new CustomerEntity())->assign(['firstName' => 'first', 'lastName' => 'last']),
             'testToken'
         );
@@ -570,7 +642,7 @@ class WebhookDispatcherTest extends TestCase
         $this->appendNewResponse(new Response(200));
 
         $event = new CustomerLoginEvent(
-            $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL),
+            $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
             (new CustomerEntity())->assign(['firstName' => 'first', 'lastName' => 'last']),
             'testToken'
         );
@@ -620,6 +692,8 @@ class WebhookDispatcherTest extends TestCase
         );
 
         static::assertNotEmpty($request->getHeaderLine('sw-version'));
+        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
+        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
     }
 
     public function testDoesNotDispatchBusinessEventIfAppUrlChangeWasDetected(): void
@@ -668,7 +742,7 @@ class WebhookDispatcherTest extends TestCase
         ]);
 
         $event = new CustomerLoginEvent(
-            $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL),
+            $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
             (new CustomerEntity())->assign(['firstName' => 'first', 'lastName' => 'last']),
             'testToken'
         );
@@ -973,6 +1047,8 @@ class WebhookDispatcherTest extends TestCase
         );
 
         static::assertNotEmpty($request->getHeaderLine('sw-version'));
+        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
+        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
     }
 
     public function testItDoesDispatchAppLifecycleEventForInactiveApp(): void
@@ -1134,10 +1210,12 @@ class WebhookDispatcherTest extends TestCase
                 static::assertEquals($webhookId, $message->getWebhookId());
                 static::assertEquals($shopwareVersion, $message->getShopwareVersion());
                 static::assertEquals('s3cr3t', $message->getSecret());
+                static::assertEquals(Defaults::LANGUAGE_SYSTEM, $message->getLanguageId());
+                static::assertEquals('en-GB', $message->getUserLocale());
 
                 return true;
             }))
-            ->willReturn(new Envelope(new WebhookEventMessage($webhookEventId, $payload, $appId, $webhookId, $shopwareVersion, 'https://test.com', 's3cr3t')));
+            ->willReturn(new Envelope(new WebhookEventMessage($webhookEventId, $payload, $appId, $webhookId, '6.4', 'http://test.com', 's3cr3t', Defaults::LANGUAGE_SYSTEM, 'en-GB')));
 
         $webhookDispatcher = new WebhookDispatcher(
             $this->getContainer()->get('event_dispatcher'),
@@ -1262,10 +1340,12 @@ class WebhookDispatcherTest extends TestCase
                 static::assertEquals($shopwareVersion, $message->getShopwareVersion());
                 static::assertNull($message->getAppId());
                 static::assertNull($message->getSecret());
+                static::assertEquals(Defaults::LANGUAGE_SYSTEM, $message->getLanguageId());
+                static::assertEquals('en-GB', $message->getUserLocale());
 
                 return true;
             }))
-            ->willReturn(new Envelope(new WebhookEventMessage($webhookEventId, $payload, null, $webhookId, $shopwareVersion, 'https://test.com', null)));
+            ->willReturn(new Envelope(new WebhookEventMessage($webhookEventId, $payload, null, $webhookId, '6.4', 'http://test.com', 's3cr3t', Defaults::LANGUAGE_SYSTEM, 'en-GB')));
 
         $webhookDispatcher = new WebhookDispatcher(
             $this->getContainer()->get('event_dispatcher'),

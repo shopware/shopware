@@ -2,10 +2,13 @@ import template from './sw-order-create.html.twig';
 import './sw-order-create.scss';
 import swOrderState from '../../state/order.store';
 
-const { Component, State, Mixin } = Shopware;
+const { Context, Component, State, Mixin } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-order-create', {
     template,
+
+    inject: ['repositoryFactory'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -15,8 +18,12 @@ Component.register('sw-order-create', {
         return {
             isLoading: false,
             isSaveSuccessful: false,
-            orderId: null,
             showInvalidCodeModal: false,
+            showRemindPaymentModal: false,
+            remindPaymentModalLoading: false,
+            orderId: null,
+            orderTransaction: null,
+            paymentMethodName: '',
         };
     },
 
@@ -38,6 +45,10 @@ Component.register('sw-order-create', {
                 this.cart.token &&
                 this.cart.lineItems.length &&
                 !this.invalidPromotionCodes.length;
+        },
+
+        paymentMethodRepository() {
+            return this.repositoryFactory.create('payment_method');
         },
     },
 
@@ -68,24 +79,38 @@ Component.register('sw-order-create', {
                 this.isLoading = true;
                 this.isSaveSuccessful = false;
 
-                State
+                return State
                     .dispatch('swOrder/saveOrder', {
                         salesChannelId: this.customer.salesChannelId,
                         contextToken: this.cart.token,
                     })
                     .then((response) => {
-                        this.isSaveSuccessful = true;
                         this.orderId = response?.data?.id;
+                        this.orderTransaction = response?.data?.transactions?.[0];
+
+                        this.paymentMethodRepository.get(
+                            this.orderTransaction.paymentMethodId,
+                            Context.api,
+                            new Criteria(1, 1),
+                        ).then((paymentMethod) => {
+                            this.paymentMethodName = paymentMethod.name;
+                        });
+
+                        this.showRemindPaymentModal = true;
                     })
                     .catch((error) => this.showError(error))
                     .finally(() => {
                         this.isLoading = false;
                     });
-            } else if (this.invalidPromotionCodes.length > 0) {
+            }
+
+            if (this.invalidPromotionCodes.length > 0) {
                 this.openInvalidCodeModal();
             } else {
                 this.showError();
             }
+
+            return Promise.resolve();
         },
 
         onCancelOrder() {
@@ -121,6 +146,24 @@ Component.register('sw-order-create', {
         removeInvalidCode() {
             State.commit('swOrder/removeInvalidPromotionCodes');
             this.closeInvalidCodeModal();
+        },
+
+        onRemindPaymentModalClose() {
+            this.isSaveSuccessful = true;
+
+            this.showRemindPaymentModal = false;
+        },
+
+        onRemindCustomer() {
+            this.remindPaymentModalLoading = true;
+
+            State.dispatch('swOrder/remindPayment', {
+                orderTransactionId: this.orderTransaction?.id,
+            }).then(() => {
+                this.remindPaymentModalLoading = false;
+
+                this.onRemindPaymentModalClose();
+            });
         },
     },
 });

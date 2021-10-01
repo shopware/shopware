@@ -25,6 +25,7 @@ Component.register('sw-settings-payment-list', {
             sortDirection: 'ASC',
             naturalSorting: true,
             showDeleteModal: false,
+            searchConfigEntity: 'payment_method',
         };
     },
 
@@ -46,7 +47,7 @@ Component.register('sw-settings-payment-list', {
 
     methods: {
         getList() {
-            const criteria = new Criteria(this.page, this.limit);
+            let criteria = new Criteria(this.page, this.limit);
             this.isLoading = true;
             this.naturalSorting = this.sortBy === 'name';
 
@@ -54,6 +55,8 @@ Component.register('sw-settings-payment-list', {
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
             criteria.addAssociation('plugin');
             criteria.addAssociation('appPaymentMethod.app');
+
+            criteria = this.addQueryScores(this.term, criteria);
 
             this.paymentRepository.search(criteria).then((items) => {
                 this.total = items.total;

@@ -5,15 +5,16 @@ namespace Shopware\Core\Checkout\Test\Customer\Repository;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
+use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 
 class CustomerRepositoryTest extends TestCase
 {
@@ -33,6 +34,33 @@ class CustomerRepositoryTest extends TestCase
     {
         $this->repository = $this->getContainer()->get('customer.repository');
         $this->connection = $this->getContainer()->get(Connection::class);
+    }
+
+    public function testGetNoDuplicateMappingTableException(): void
+    {
+        $id = $this->createCustomer();
+
+        $ids = new IdsCollection();
+
+        $update = [
+            'id' => $id,
+            'tags' => [
+                ['id' => $ids->get('tag-1'), 'name' => 'tag-1'],
+                ['id' => $ids->get('tag-2'), 'name' => 'tag-2'],
+                ['id' => $ids->get('tag-3'), 'name' => 'tag-3'],
+            ],
+        ];
+
+        $this->getContainer()->get('customer.repository')
+            ->update([$update], Context::createDefaultContext());
+
+        $this->getContainer()->get('customer.repository')
+            ->update([$update], Context::createDefaultContext());
+
+        $count = $this->getContainer()->get(Connection::class)
+            ->fetchOne('SELECT COUNT(*) FROM customer_tag WHERE customer_id = :id', ['id' => Uuid::fromHexToBytes($id)]);
+
+        static::assertEquals(3, $count);
     }
 
     public function testSearchRanking(): void
@@ -59,10 +87,10 @@ class CustomerRepositoryTest extends TestCase
         $records = [
             [
                 'id' => $recordA,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultShippingAddress' => $address,
                 'defaultPaymentMethodId' => $paymentMethod,
-                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => Uuid::randomHex() . '@example.com',
                 'password' => 'not',
                 'lastName' => 'not',
@@ -72,10 +100,10 @@ class CustomerRepositoryTest extends TestCase
             ],
             [
                 'id' => $recordB,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultShippingAddress' => $address,
                 'defaultPaymentMethodId' => $paymentMethod,
-                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => Uuid::randomHex() . '@example.com',
                 'password' => 'not',
                 'lastName' => $matchTerm,
@@ -85,10 +113,10 @@ class CustomerRepositoryTest extends TestCase
             ],
             [
                 'id' => $recordC,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultShippingAddress' => $address,
                 'defaultPaymentMethodId' => $paymentMethod,
-                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => Uuid::randomHex() . '@example.com',
                 'password' => 'not',
                 'lastName' => 'not',
@@ -98,10 +126,10 @@ class CustomerRepositoryTest extends TestCase
             ],
             [
                 'id' => $recordD,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultShippingAddress' => $address,
                 'defaultPaymentMethodId' => $paymentMethod,
-                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => $matchTerm . '@example.com',
                 'password' => 'not',
                 'lastName' => 'not',
@@ -149,7 +177,7 @@ class CustomerRepositoryTest extends TestCase
         $this->repository->create([
             [
                 'id' => $customerId,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultShippingAddress' => [
                     'firstName' => 'not',
                     'lastName' => 'not',
@@ -160,7 +188,7 @@ class CustomerRepositoryTest extends TestCase
                     'country' => ['name' => 'not'],
                 ],
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => 'test@example.com',
                 'password' => 'not',
                 'lastName' => 'not',
@@ -172,5 +200,43 @@ class CustomerRepositoryTest extends TestCase
         ], Context::createDefaultContext());
 
         $this->repository->delete([['id' => $customerId]], Context::createDefaultContext());
+    }
+
+    private function createCustomer(): string
+    {
+        $customerId = Uuid::randomHex();
+        $addressId = Uuid::randomHex();
+
+        $data = [
+            [
+                'id' => $customerId,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                'defaultShippingAddress' => [
+                    'id' => $addressId,
+                    'firstName' => 'Max',
+                    'lastName' => 'Mustermann',
+                    'street' => 'Musterstraße 1',
+                    'city' => 'Schöppingen',
+                    'zipcode' => '12345',
+                    'salutationId' => $this->getValidSalutationId(),
+                    'countryId' => $this->getValidCountryId(),
+                ],
+                'defaultBillingAddressId' => $addressId,
+                'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
+                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                'email' => 'foo@bar.de',
+                'password' => 'password',
+                'firstName' => 'Max',
+                'lastName' => 'Mustermann',
+                'salutationId' => $this->getValidSalutationId(),
+                'customerNumber' => '12345',
+            ],
+        ];
+
+        $repo = $this->getContainer()->get('customer.repository');
+
+        $repo->create($data, Context::createDefaultContext());
+
+        return $customerId;
     }
 }

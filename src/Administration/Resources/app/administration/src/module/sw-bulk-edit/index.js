@@ -5,6 +5,9 @@ import './component/sw-bulk-edit-custom-fields';
 import './component/sw-bulk-edit-change-type';
 import './component/sw-bulk-edit-change-type-field-renderer';
 import './component/sw-bulk-edit-form-field-renderer';
+import './component/product/sw-bulk-edit-product-visibility';
+import './component/product/sw-bulk-edit-product-media';
+import './component/product/sw-bulk-edit-product-media-form';
 import './component/sw-bulk-edit-save-modal';
 import './component/sw-bulk-edit-save-modal-confirm';
 import './component/sw-bulk-edit-save-modal-process';
@@ -24,7 +27,6 @@ Module.register('sw-bulk-edit', {
     color: '#57D9A3',
     icon: 'default-symbol-products',
     favicon: 'icon-module-products.png',
-    flag: 'FEATURE_NEXT_6061',
 
     routes: {
         product: {
@@ -66,6 +68,33 @@ Module.register('sw-bulk-edit', {
             path: 'order',
             meta: {
                 parentPath: 'sw.order.index',
+            },
+            children: {
+                save: {
+                    component: 'sw-bulk-edit-save-modal',
+                    path: 'save',
+                    redirect: {
+                        name: 'sw.bulk.edit.order.save.confirm',
+                    },
+                    children: {
+                        confirm: {
+                            component: 'sw-bulk-edit-save-modal-confirm',
+                            path: 'confirm',
+                        },
+                        process: {
+                            component: 'sw-bulk-edit-save-modal-process',
+                            path: 'process',
+                        },
+                        success: {
+                            component: 'sw-bulk-edit-save-modal-success',
+                            path: 'success',
+                        },
+                        error: {
+                            component: 'sw-bulk-edit-save-modal-error',
+                            path: 'error',
+                        },
+                    },
+                },
             },
         },
     },

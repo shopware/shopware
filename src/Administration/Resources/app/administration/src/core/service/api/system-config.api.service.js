@@ -37,6 +37,10 @@ class SystemConfigApiService extends ApiService {
             })
             .then((response) => {
                 return ApiService.handleResponse(response);
+            }).then((data) => {
+                // If config is empty we will receive an empty array.
+                // We have to return an empty object instead because of reactivity
+                return Array.isArray(data) ? {} : data;
             });
     }
 

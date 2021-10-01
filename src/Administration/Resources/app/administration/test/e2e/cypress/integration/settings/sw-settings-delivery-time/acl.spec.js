@@ -59,10 +59,9 @@ describe('Delivery time: Test acl privileges', () => {
         });
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/delivery-time/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('updateDeliveryTime');
 
         // click on third element in grid
@@ -81,9 +80,7 @@ describe('Delivery time: Test acl privileges', () => {
         cy.get(page.elements.deliveryTimeSaveAction).click();
 
         // Verify creation
-        cy.wait('@updateDeliveryTime').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@updateDeliveryTime').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Standard');
@@ -115,10 +112,9 @@ describe('Delivery time: Test acl privileges', () => {
         });
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/delivery-time`,
-            method: 'post'
+            method: 'POST'
         }).as('createDeliveryTime');
 
         // Create delivery time
@@ -133,9 +129,7 @@ describe('Delivery time: Test acl privileges', () => {
         cy.get(page.elements.deliveryTimeSaveAction).click();
 
         // Verify creation
-        cy.wait('@createDeliveryTime').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@createDeliveryTime').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Normal');
@@ -160,8 +154,7 @@ describe('Delivery time: Test acl privileges', () => {
         });
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/delivery-time/*`,
             method: 'delete'
         }).as('deleteDeliveryTime');
@@ -181,9 +174,7 @@ describe('Delivery time: Test acl privileges', () => {
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
 
         // Verify deletion
-        cy.wait('@deleteDeliveryTime').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteDeliveryTime').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.modal).should('not.exist');
         cy.get(`${page.elements.dataGridRow}--0 ${page.elements.deliveryTimeColumnName}`).should('not.exist');

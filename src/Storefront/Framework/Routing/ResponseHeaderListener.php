@@ -26,5 +26,10 @@ class ResponseHeaderListener
         foreach (self::HEADERS as $headerKey) {
             $event->getResponse()->headers->remove($headerKey);
         }
+
+        $event->getResponse()->headers->remove('Access-Control-Allow-Origin');
+        $event->getResponse()->headers->remove('Access-Control-Allow-Methods');
+        $event->getResponse()->headers->remove('Access-Control-Allow-Headers');
+        $event->getResponse()->headers->remove('Access-Control-Expose-Headers');
     }
 }

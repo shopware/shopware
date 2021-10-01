@@ -6,6 +6,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 
 /**
  * How to use:
@@ -61,6 +62,8 @@ class ProductBuilder
     protected array $translations = [];
 
     protected array $productReviews = [];
+
+    protected bool $closeout = false;
 
     public function __construct(IdsCollection $ids, string $number, int $stock = 1, string $taxKey = 't1')
     {
@@ -128,7 +131,7 @@ class ProductBuilder
         return $this;
     }
 
-    public function visibility(string $salesChannelId = Defaults::SALES_CHANNEL, int $visibility = ProductVisibilityDefinition::VISIBILITY_ALL): self
+    public function visibility(string $salesChannelId = TestDefaults::SALES_CHANNEL, int $visibility = ProductVisibilityDefinition::VISIBILITY_ALL): self
     {
         $this->visibilities[$salesChannelId] = ['salesChannelId' => $salesChannelId, 'visibility' => $visibility];
 
@@ -249,7 +252,13 @@ class ProductBuilder
 
         $data = array_merge($data, $this->_dynamic);
 
-        return array_filter($data);
+        return array_filter($data, function ($value) {
+            if (\is_array($value) && empty($value)) {
+                return false;
+            }
+
+            return $value !== null;
+        });
     }
 
     public function property(string $key, string $group): self
@@ -294,7 +303,7 @@ class ProductBuilder
         string $title,
         string $content,
         float $points = 3,
-        string $salesChannelId = Defaults::SALES_CHANNEL,
+        string $salesChannelId = TestDefaults::SALES_CHANNEL,
         string $languageId = Defaults::LANGUAGE_SYSTEM,
         bool $status = true,
         ?string $customerId = null
@@ -308,6 +317,13 @@ class ProductBuilder
             'status' => $status,
             'customerId' => $customerId,
         ];
+
+        return $this;
+    }
+
+    public function closeout(): ProductBuilder
+    {
+        $this->closeout = true;
 
         return $this;
     }

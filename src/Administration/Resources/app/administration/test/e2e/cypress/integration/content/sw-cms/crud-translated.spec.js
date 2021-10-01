@@ -21,25 +21,24 @@ describe('CMS: Test crud operations of layouts', () => {
     });
 
     it('@base @content: create, translate and read layout', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('updateData');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/cms-page`,
-            method: 'post'
+            method: 'POST'
         }).as('reloadPage');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/language`,
-            method: 'post'
+            method: 'POST'
         }).as('changeLang');
 
         cy.contains('Create new layout').click();
@@ -68,13 +67,21 @@ describe('CMS: Test crud operations of layouts', () => {
         // Save new page layout
         cy.get('.sw-cms-detail__save-action').click();
 
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
+
+        cy.get('body').then(($body) => {
+            if ($body.find('.sw-cms-layout-assignment-modal').length) {
+                // Shows layout assignment modal the first time saving after the wizard
+                cy.get('.sw-cms-layout-assignment-modal').should('be.visible');
+
+                // Confirm without layout
+                cy.get('.sw-cms-layout-assignment-modal__action-confirm').click();
+                cy.get('.sw-cms-layout-assignment-modal').should('not.exist');
+            }
         });
 
-        cy.wait('@reloadPage').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@reloadPage').its('response.statusCode').should('equal', 200);
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-cms-toolbar__language-selection .sw-language-switch__select.is--disabled').should('not.exist');
 
@@ -83,8 +90,17 @@ describe('CMS: Test crud operations of layouts', () => {
         cy.get('.sw-select-result-list__item-list .sw-select-option--0').contains('Deutsch');
         cy.get('.sw-select-result-list__item-list .sw-select-option--0').click();
 
-        cy.wait('@changeLang').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
+        cy.wait('@changeLang').its('response.statusCode').should('equal', 200);
+
+        cy.get('body').then(($body) => {
+            if ($body.find('.sw-modal').length) {
+                // Shows layout assignment modal the first time saving after the wizard
+                cy.get('.sw-modal').should('be.visible');
+
+                // Confirm without layout
+                cy.get('#sw-language-switch-save-changes-button').click();
+                cy.get('.sw-modal').should('be.visible');
+            }
         });
 
         cy.get('.sw-cms-block').should('be.visible');
@@ -96,9 +112,7 @@ describe('CMS: Test crud operations of layouts', () => {
         cy.get('#sw-field--page-name').clear().typeAndCheck('Deutscher Titel');
 
         cy.get('.sw-cms-detail__save-action').click();
-        cy.wait('@updateData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@updateData').its('response.statusCode').should('equal', 204);
 
         cy.get('.sw-cms-detail__back-btn').click();
         cy.get('.sw-cms-list-item--0 .sw-cms-list-item__title').contains('Deutscher Titel');
@@ -107,20 +121,19 @@ describe('CMS: Test crud operations of layouts', () => {
     it('@base @content: update translation and read layout', () => {
         const page = new MediaPageObject();
 
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/language`,
-            method: 'post'
+            method: 'POST'
         }).as('changeLang');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/category/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveCategory');
 
         cy.get('.sw-cms-list-item--0').click();
@@ -136,10 +149,9 @@ describe('CMS: Test crud operations of layouts', () => {
 
         // Save new page layout
         cy.get('.sw-cms-detail__save-action').click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-            cy.get(page.elements.successIcon).should('be.visible');
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
+        cy.get(page.elements.successIcon).should('be.visible');
         cy.get('.sw-loader').should('not.exist');
 
         cy.get('.sw-cms-toolbar__language-selection .sw-language-switch__select').click();
@@ -147,21 +159,18 @@ describe('CMS: Test crud operations of layouts', () => {
         cy.get('.sw-select-result-list__item-list .sw-select-option--0').contains('Deutsch');
         cy.get('.sw-select-result-list__item-list .sw-select-option--0').click();
 
-        cy.wait('@changeLang').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-
-            cy.get('.sw-text-editor__content-editor')
-                .then(() => {
-                    cy.get('.sw-text-editor__content-editor').clear();
-                    cy.get('.sw-text-editor__content-editor').type('Deutsch');
-                });
-        });
+        cy.wait('@changeLang')
+            .its('response.statusCode').should('equal', 200);
+        cy.get('.sw-text-editor__content-editor')
+            .then(() => {
+                cy.get('.sw-text-editor__content-editor').clear();
+                cy.get('.sw-text-editor__content-editor').type('Deutsch');
+            });
 
         cy.get('.sw-cms-detail__save-action').click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-            cy.get('.sw-text-editor__content-editor').contains('Deutsch');
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
+        cy.get('.sw-text-editor__content-editor').contains('Deutsch');
 
         cy.get('.sw-cms-toolbar__language-selection .sw-language-switch__select').click();
         cy.get('.sw-select-result-list__item-list').should('be.visible');
@@ -185,9 +194,8 @@ describe('CMS: Test crud operations of layouts', () => {
         cy.get('.sw-card.sw-category-layout-card .sw-category-layout-card__desc-headline').contains('Vierte Wand');
         cy.get('.sw-category-detail__save-action').click();
 
-        cy.wait('@saveCategory').then((response) => {
-            expect(response).to.have.property('status', 204);
-        });
+        cy.wait('@saveCategory')
+            .its('response.statusCode').should('equal', 204);
 
         // Verify layout in Storefront
         cy.visit('/');

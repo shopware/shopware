@@ -1,0 +1,7 @@
+.sw-flow-create-rule-modal {
+    &__rule {
+        & > .sw-condition-or-container {
+            padding: 0;
+        }
+    }
+}

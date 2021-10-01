@@ -14,10 +14,9 @@ describe('Category: site builder feature', () => {
     });
 
     it('@base @catalogue: create a subcategory as entry point with main navigation', () => {
-        cy.server();
-        cy.route('POST', `${Cypress.env('apiPath')}/category`).as('saveCategory');
-        cy.route('POST', `${Cypress.env('apiPath')}/search/category`).as('loadCategory');
-        cy.route('PATCH', `${Cypress.env('apiPath')}/category/**`).as('updateCategory');
+        cy.intercept('POST', `${Cypress.env('apiPath')}/category`).as('saveCategory');
+        cy.intercept('POST', `${Cypress.env('apiPath')}/search/category`).as('loadCategory');
+        cy.intercept('PATCH', `${Cypress.env('apiPath')}/category/**`).as('updateCategory');
 
         // create category
         cy.get('.sw-category-tree__inner .sw-tree-item:nth-of-type(1) .sw-context-button__button').click();
@@ -118,10 +117,9 @@ describe('Category: site builder feature', () => {
     });
 
     it('@base @catalogue: create a subcategory as entry point with footer navigation', () => {
-        cy.server();
-        cy.route('POST', `${Cypress.env('apiPath')}/category`).as('saveCategory');
-        cy.route('POST', `${Cypress.env('apiPath')}/search/category`).as('loadCategory');
-        cy.route('PATCH', `${Cypress.env('apiPath')}/category/**`).as('updateCategory');
+        cy.intercept('POST', `${Cypress.env('apiPath')}/category`).as('saveCategory');
+        cy.intercept('POST', `${Cypress.env('apiPath')}/search/category`).as('loadCategory');
+        cy.intercept('PATCH', `${Cypress.env('apiPath')}/category/**`).as('updateCategory');
 
         // create category
         cy.get('.sw-category-tree__inner .sw-tree-item:nth-of-type(1) .sw-context-button__button').click();
@@ -162,10 +160,9 @@ describe('Category: site builder feature', () => {
     });
 
     it('@base @catalogue: create a subcategory as entry point with service navigation', () => {
-        cy.server();
-        cy.route('POST', `${Cypress.env('apiPath')}/category`).as('saveCategory');
-        cy.route('POST', `${Cypress.env('apiPath')}/search/category`).as('loadCategory');
-        cy.route('PATCH', `${Cypress.env('apiPath')}/category/**`).as('updateCategory');
+        cy.intercept('POST', `${Cypress.env('apiPath')}/category`).as('saveCategory');
+        cy.intercept('POST', `${Cypress.env('apiPath')}/search/category`).as('loadCategory');
+        cy.intercept('PATCH', `${Cypress.env('apiPath')}/category/**`).as('updateCategory');
 
         // create category
         cy.get('.sw-category-tree__inner .sw-tree-item:nth-of-type(1) .sw-context-button__button').click();
@@ -206,10 +203,9 @@ describe('Category: site builder feature', () => {
     });
 
     it('@base @catalogue: create a subcategory as internal link to the main category', () => {
-        cy.server();
-        cy.route('POST', `${Cypress.env('apiPath')}/category`).as('saveCategory');
-        cy.route('POST', `${Cypress.env('apiPath')}/search/category`).as('loadCategory');
-        cy.route('PATCH', `${Cypress.env('apiPath')}/category/**`).as('updateCategory');
+        cy.intercept('POST', `${Cypress.env('apiPath')}/category`).as('saveCategory');
+        cy.intercept('POST', `${Cypress.env('apiPath')}/search/category`).as('loadCategory');
+        cy.intercept('PATCH', `${Cypress.env('apiPath')}/category/**`).as('updateCategory');
 
         // create category
         cy.get('.sw-category-tree__inner .sw-tree-item:nth-of-type(1) .sw-context-button__button').click();
@@ -253,10 +249,9 @@ describe('Category: site builder feature', () => {
     });
 
     it('@base @catalogue: create a subcategory as external link in new tab', () => {
-        cy.server();
-        cy.route('POST', `${Cypress.env('apiPath')}/category`).as('saveCategory');
-        cy.route('POST', `${Cypress.env('apiPath')}/search/category`).as('loadCategory');
-        cy.route('PATCH', `${Cypress.env('apiPath')}/category/**`).as('updateCategory');
+        cy.intercept('POST', `${Cypress.env('apiPath')}/category`).as('saveCategory');
+        cy.intercept('POST', `${Cypress.env('apiPath')}/search/category`).as('loadCategory');
+        cy.intercept('PATCH', `${Cypress.env('apiPath')}/category/**`).as('updateCategory');
 
         // create category
         cy.get('.sw-category-tree__inner .sw-tree-item:nth-of-type(1) .sw-context-button__button').click();

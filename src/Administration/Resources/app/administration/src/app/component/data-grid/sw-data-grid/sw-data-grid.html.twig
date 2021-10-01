@@ -17,10 +17,24 @@
             {% block sw_data_grid_bulk_selected_count %}
             <span class="sw-data-grid__bulk-selected sw-data-grid__bulk-selected-label">{{ $tc('global.sw-data-grid.labelSelectionCount') }}</span>
             <span class="sw-data-grid__bulk-selected sw-data-grid__bulk-selected-count">{{ selectionCount }}</span>
+            <span
+                v-if="reachMaximumSelectionExceed"
+                class="sw-data-grid__bulk-selected sw-data-grid__bulk-max-selection"
+            >
+                {{ $tc('global.sw-data-grid.maximumSelectionExceed') }}
+            </span>
             {% endblock %}
 
             {% block sw_data_grid_bulk_selected_actions %}
             <span class="sw-data-grid__bulk-selected bulk-link">
+                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+                <a
+                    v-if="hasInvisibleSelection"
+                    class="link link-warning bulk-deselect-all"
+                    @click="resetSelection"
+                >
+                    {{ $tc('global.sw-data-grid.labelDeSelectAll') }}
+                </a>
                 <slot name="bulk">{% block sw_data_grid_bulk_selected_actions_content %}{% endblock %}</slot>
             </span>
             {% endblock %}
@@ -28,7 +42,10 @@
         {% endblock %}
 
         {% block sw_data_grid_bulk_modals %}
-        <slot name="bulk-modals">
+        <slot
+            name="bulk-modals"
+            v-bind="{ selection }"
+        >
             {% block sw_data_grid_slot_bulk_modals %}{% endblock %}
         </slot>
         {% endblock %}
@@ -58,6 +75,7 @@
                             {% block sw_data_grid_select_all_checkbox %}
                             <sw-checkbox-field
                                 v-if="records && records.length > 0"
+                                :disabled="isSelectAllDisabled"
                                 class="sw-data-grid__select-all"
                                 :value="allSelectedChecked"
                                 @change="selectAll"

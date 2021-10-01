@@ -9,16 +9,11 @@ let filterBy = {
 
 describe('Listing: Filter on mobile', () => {
     beforeEach(() => {
-        cy.setToInitialState()
-            .then(() => {
-                return cy.createProductFixture(product1);
-            })
-            .then(() => {
-                return cy.createProductFixture(product2);
-            })
-            .then(() => {
-                cy.visit('/');
-            });
+        return cy.createProductFixture(product1).then(() => {
+            return cy.createProductFixture(product2);
+        }).then(() => {
+            cy.visit('/');
+        });
     });
 
     function verifySelectedFilter() {

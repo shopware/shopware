@@ -37,7 +37,7 @@ describe('Product: Test variants', () => {
 
                 cy.get('.sw-product-modal-variant-generation__notification-modal .sw-button--primary').click();
 
-                cy.get('.sw-modal').should('not.be.visible');
+                cy.get('.sw-modal').should('not.exist');
 
                 cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
 
@@ -52,10 +52,9 @@ describe('Product: Test variants', () => {
     });
 
     it('@catalogue: should edit variants in modal', () => {
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/product/*`,
-            method: 'patch'
+        cy.intercept({
+            method: 'PATCH',
+            url: `${Cypress.env('apiPath')}/product/*`
         }).as('saveChanges');
 
         cy.get('.sw-modal .sw-data-grid__row--0')
@@ -75,9 +74,7 @@ describe('Product: Test variants', () => {
 
         cy.awaitAndCheckNotification('Succesfully saved "Parent Product (Size: L)".');
 
-        cy.wait('@saveChanges').then(xhr => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveChanges').its('response.statusCode').should('equal', 204);
 
         cy.get('.sw-modal__footer > .sw-button')
             .should('be.visible')
@@ -85,10 +82,9 @@ describe('Product: Test variants', () => {
     });
 
     it('@catalogue @base: delete variants in modal', () => {
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+        cy.intercept({
+            method: 'POST',
+            url: 'api/_action/sync'
         }).as('deleteData');
 
         cy.get('.sw-modal .sw-context-button__button')
@@ -109,9 +105,7 @@ describe('Product: Test variants', () => {
             .should('be.visible')
             .click();
 
-        cy.wait('@deleteData').then(xhr => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@deleteData').its('response.statusCode').should('equal', 200);
 
         // check delete modal has been closed
         cy.get('.sw-product-variant-modal__delete-modal')

@@ -2,10 +2,13 @@
 
 namespace Shopware\Core\Framework\Test\MessageQueue\DeadMessage;
 
+use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\ScheduledTask\LogCleanupTask;
 use Shopware\Core\Framework\MessageQueue\DeadMessage\RequeueDeadMessagesService;
 use Shopware\Core\Framework\MessageQueue\Handler\EncryptedMessageHandler;
 use Shopware\Core\Framework\MessageQueue\Message\EncryptedMessage;
@@ -20,36 +23,28 @@ class RequeueDeadMessagesServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $deadMessageRepository;
+    private EntityRepositoryInterface $deadMessageRepository;
 
-    /**
-     * @var MessageBusInterface
-     */
-    private $bus;
+    private MessageBusInterface $bus;
 
-    /**
-     * @var MessageBusInterface
-     */
-    private $encryptedBus;
+    private MessageBusInterface $encryptedBus;
 
-    /**
-     * @var RequeueDeadMessagesService
-     */
-    private $requeueDeadMessageService;
+    private RequeueDeadMessagesService $requeueDeadMessageService;
+
+    private LoggerInterface $logger;
 
     public function setUp(): void
     {
         $this->deadMessageRepository = $this->getContainer()->get('dead_message.repository');
         $this->bus = $this->createMock(MessageBusInterface::class);
         $this->encryptedBus = $this->createMock(MessageBusInterface::class);
+        $this->logger = $this->createMock(Logger::class);
 
         $this->requeueDeadMessageService = new RequeueDeadMessagesService(
             $this->deadMessageRepository,
             $this->bus,
-            $this->encryptedBus
+            $this->encryptedBus,
+            $this->logger
         );
     }
 
@@ -74,6 +69,7 @@ class RequeueDeadMessagesServiceTest extends TestCase
                 'exceptionMessage' => $e->getMessage(),
                 'exceptionFile' => $e->getFile(),
                 'exceptionLine' => $e->getLine(),
+                'errorCount' => 3,
             ],
             [
                 'id' => $plainId,
@@ -211,5 +207,38 @@ class RequeueDeadMessagesServiceTest extends TestCase
             ->willReturn(new Envelope(new RetryMessage($testMessageId)));
 
         $this->requeueDeadMessageService->requeue(TestMessage::class);
+    }
+
+    public function testDeadMessageWillBeDeletedAfterMaxRetries(): void
+    {
+        $msg = new EncryptedMessage('test');
+        $e = new \Exception('exception');
+
+        $encryptedId = Uuid::randomHex();
+
+        $this->deadMessageRepository->create([
+            [
+                'id' => $encryptedId,
+                'originalMessageClass' => LogCleanupTask::class,
+                'serializedOriginalMessage' => serialize($msg),
+                'handlerClass' => EncryptedMessageHandler::class,
+                'encrypted' => true,
+                'nextExecutionTime' => new \DateTime('2000-01-01'),
+                'exception' => \get_class($e),
+                'exceptionMessage' => $e->getMessage(),
+                'exceptionFile' => $e->getFile(),
+                'exceptionLine' => $e->getLine(),
+                'errorCount' => 4,
+            ],
+        ], Context::createDefaultContext());
+
+        $this->logger->expects(static::once())->method('warning');
+        $this->bus->expects(static::never())->method('dispatch');
+        $this->encryptedBus->expects(static::never())->method('dispatch');
+        $this->requeueDeadMessageService->requeue();
+
+        $deadMessage = $this->deadMessageRepository->search(new Criteria([$encryptedId]), Context::createDefaultContext());
+
+        static::assertCount(0, $deadMessage);
     }
 }

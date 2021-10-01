@@ -49,6 +49,7 @@ class EntityCacheKeyGenerator
             $criteria->getTotalCountMode(),
             $criteria->getGroupFields(),
             $criteria->getAggregations(),
+            $criteria->getAssociations(),
         ]));
     }
 }

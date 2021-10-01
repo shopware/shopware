@@ -41,6 +41,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -55,6 +56,9 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
+use Shopware\Core\Test\TestDefaults;
+use Shopware\Storefront\Controller\AccountOrderController;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -70,76 +74,33 @@ class OrderRouteTest extends TestCase
     use PromotionTestFixtureBehaviour;
     use PromotionIntegrationTestBehaviour;
 
-    /**
-     * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
-     */
-    private $browser;
+    private KernelBrowser $browser;
 
-    /**
-     * @var EntityRepositoryInterface|null
-     */
-    private $orderRepository;
+    private ?EntityRepositoryInterface $orderRepository;
 
-    /**
-     * @var object|null
-     */
-    private $orderPersister;
+    private ?OrderPersister $orderPersister;
 
-    /**
-     * @var object|null
-     */
-    private $processor;
+    private ?StateMachineRegistry $stateMachineRegistry;
 
-    /**
-     * @var object|null
-     */
-    private $stateMachineRegistry;
+    private string $orderId;
 
-    /**
-     * @var string
-     */
-    private $orderId;
+    private SalesChannelContextPersister $contextPersister;
 
-    /**
-     * @var SalesChannelContextPersister
-     */
-    private $contextPersister;
+    private RequestCriteriaBuilder $requestCriteriaBuilder;
 
-    /**
-     * @var RequestCriteriaBuilder
-     */
-    private $requestCriteriaBuilder;
+    private string $customerId;
 
-    /**
-     * @var string
-     */
-    private $customerId;
+    private string $email;
 
-    /**
-     * @var string
-     */
-    private $email;
+    private string $password;
 
-    /**
-     * @var string
-     */
-    private $password;
-
-    /**
-     * @var Context
-     */
-    private $context;
-
-    /**
-     * @var string
-     */
-    private $defaultPaymentMethodId;
+    private string $defaultPaymentMethodId;
 
     private string $defaultCountryId;
 
     private string $deepLinkCode;
 
-    private EntityRepositoryInterface $customerRepository;
+    private ?EntityRepositoryInterface $customerRepository;
 
     protected function setUp(): void
     {
@@ -147,12 +108,14 @@ class OrderRouteTest extends TestCase
 
         $this->defaultCountryId = $this->getValidCountryId(null);
         $this->browser = $this->createCustomSalesChannelBrowser([
-            'id' => Defaults::SALES_CHANNEL,
+            'id' => TestDefaults::SALES_CHANNEL,
+            'languages' => [],
             'countryId' => $this->defaultCountryId,
             'countries' => \array_map(static function (CountryEntity $country) {
                 return ['id' => $country->getId()];
             }, $this->getValidCountries()->getEntities()->getElements()),
         ]);
+
         $this->assignSalesChannelContext($this->browser);
 
         $this->contextPersister = $this->getContainer()->get(SalesChannelContextPersister::class);
@@ -184,7 +147,7 @@ class OrderRouteTest extends TestCase
 
         /** @var AbstractSalesChannelContextFactory $salesChannelContextFactory */
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
-        $salesChannelContext = $salesChannelContextFactory->create($response['contextToken'], Defaults::SALES_CHANNEL);
+        $salesChannelContext = $salesChannelContextFactory->create($response['contextToken'], TestDefaults::SALES_CHANNEL);
 
         $newToken = $this->contextPersister->replace($response['contextToken'], $salesChannelContext);
         $this->contextPersister->save(
@@ -194,7 +157,7 @@ class OrderRouteTest extends TestCase
                 'billingAddressId' => null,
                 'shippingAddressId' => null,
             ],
-            Defaults::SALES_CHANNEL,
+            TestDefaults::SALES_CHANNEL,
             $this->customerId
         );
 
@@ -433,6 +396,13 @@ class OrderRouteTest extends TestCase
 
     public function testSetAnotherPaymentMethodToOrder(): void
     {
+        Feature::skipTestIfActive('FEATURE_NEXT_8225', $this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_8225', $this);
+        if (!$this->getContainer()->has(AccountOrderController::class)) {
+            // ToDo: NEXT-16882 - Reactivate tests again
+            static::markTestSkipped('Order mail tests should be fixed without storefront in NEXT-16882');
+        }
+
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
         $phpunit = $this;
@@ -443,7 +413,7 @@ class OrderRouteTest extends TestCase
             $phpunit->assertStringContainsString('Message: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
         };
 
-        $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
+        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $defaultPaymentMethodId = $this->defaultPaymentMethodId;
         $newPaymentMethodId = $this->getValidPaymentMethods()->filter(function (PaymentMethodEntity $paymentMethod) use ($defaultPaymentMethodId) {
@@ -475,6 +445,12 @@ class OrderRouteTest extends TestCase
 
     public function testUpdatedRulesOnPaymentMethodChange(): void
     {
+        Feature::skipTestIfActive('FEATURE_NEXT_8225', $this);
+        if (!$this->getContainer()->has(AccountOrderController::class)) {
+            // ToDo: NEXT-16882 - Reactivate tests again
+            static::markTestSkipped('Order mail tests should be fixed without storefront in NEXT-16882');
+        }
+
         $defaultPaymentMethodId = $this->defaultPaymentMethodId;
         $this->getContainer()->get('customer.repository')->update([
             [
@@ -617,7 +593,7 @@ class OrderRouteTest extends TestCase
             $recipients = $event->getRecipients();
         };
 
-        $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
+        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $this->getContainer()->get(OrderTransactionStateHandler::class)->process($transaction->getId(), $context);
 
@@ -660,7 +636,7 @@ class OrderRouteTest extends TestCase
             $phpunit->assertStringContainsString('Message: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
         };
 
-        $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
+        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $this->browser
             ->request(
@@ -761,7 +737,7 @@ class OrderRouteTest extends TestCase
         static::assertCount(1, $response['orders']['elements']);
         static::assertArrayHasKey('id', $response['orders']['elements'][0]);
         static::assertEquals($this->orderId, $response['orders']['elements'][0]['id']);
-        static::assertEquals(Defaults::SALES_CHANNEL, $response['orders']['elements'][0]['salesChannelId']);
+        static::assertEquals(TestDefaults::SALES_CHANNEL, $response['orders']['elements'][0]['salesChannelId']);
     }
 
     public function testPaymentOrderNotManipulable(): void
@@ -919,7 +895,7 @@ class OrderRouteTest extends TestCase
                 'paymentMethodId' => $this->defaultPaymentMethodId,
                 'currencyId' => Defaults::CURRENCY,
                 'currencyFactor' => 1,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'transactions' => [
                     [
                         'id' => Uuid::randomHex(),
@@ -986,7 +962,7 @@ class OrderRouteTest extends TestCase
                     'customerNumber' => 'Test',
                     'customer' => [
                         'id' => $customerId,
-                        'salesChannelId' => Defaults::SALES_CHANNEL,
+                        'salesChannelId' => TestDefaults::SALES_CHANNEL,
                         'defaultShippingAddress' => [
                             'id' => $addressId,
                             'firstName' => 'Max',
@@ -1019,11 +995,11 @@ class OrderRouteTest extends TestCase
                             ],
                             'salesChannels' => [
                                 [
-                                    'id' => Defaults::SALES_CHANNEL,
+                                    'id' => TestDefaults::SALES_CHANNEL,
                                 ],
                             ],
                         ],
-                        'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                        'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                         'email' => $email,
                         'password' => $password,
                         'firstName' => 'Max',
@@ -1092,7 +1068,7 @@ class OrderRouteTest extends TestCase
                 'availabilityRuleId' => $ruleId,
                 'salesChannels' => [
                     [
-                        'id' => Defaults::SALES_CHANNEL,
+                        'id' => TestDefaults::SALES_CHANNEL,
                     ],
                 ],
             ],
@@ -1121,7 +1097,7 @@ class OrderRouteTest extends TestCase
             'visibilities' => [
                 [
                     'id' => $productId,
-                    'salesChannelId' => Defaults::SALES_CHANNEL,
+                    'salesChannelId' => TestDefaults::SALES_CHANNEL,
                     'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
                 ],
             ],
@@ -1136,6 +1112,6 @@ class OrderRouteTest extends TestCase
     {
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
 
-        return $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL, [SalesChannelContextService::CUSTOMER_ID => $this->customerId]);
+        return $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, [SalesChannelContextService::CUSTOMER_ID => $this->customerId]);
     }
 }

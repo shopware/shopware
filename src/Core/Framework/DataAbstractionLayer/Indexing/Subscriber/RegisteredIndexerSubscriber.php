@@ -10,15 +10,9 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class RegisteredIndexerSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var IndexerQueuer
-     */
-    private $indexerQueuer;
+    private IndexerQueuer $indexerQueuer;
 
-    /**
-     * @var EntityIndexerRegistry
-     */
-    private $indexerRegistry;
+    private EntityIndexerRegistry $indexerRegistry;
 
     public function __construct(IndexerQueuer $indexerQueuer, EntityIndexerRegistry $indexerRegistry)
     {
@@ -26,6 +20,9 @@ class RegisteredIndexerSubscriber implements EventSubscriberInterface
         $this->indexerRegistry = $indexerRegistry;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public static function getSubscribedEvents()
     {
         return [
@@ -45,14 +42,25 @@ class RegisteredIndexerSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $this->indexerQueuer->finishIndexer($queuedIndexers);
+        $this->indexerQueuer->finishIndexer(array_keys($queuedIndexers));
 
-        $indexer = array_filter($queuedIndexers, function ($indexer) {
-            return $this->indexerRegistry->has($indexer);
-        });
+        foreach ($queuedIndexers as $indexerName => $options) {
+            $indexer = $this->indexerRegistry->getIndexer($indexerName);
 
-        if (!empty($indexer)) {
-            $this->indexerRegistry->sendIndexingMessage($indexer);
+            if ($indexer === null) {
+                continue;
+            }
+
+            // If we don't have any required indexer, schedule all
+            if ($options === []) {
+                $this->indexerRegistry->sendIndexingMessage([$indexerName]);
+
+                continue;
+            }
+
+            $skipList = array_values(array_diff($indexer->getOptions(), $options));
+
+            $this->indexerRegistry->sendIndexingMessage([$indexerName], $skipList);
         }
     }
 }

@@ -13,6 +13,10 @@ EOD
 Matches if the cart has a free delivery item.
 EOD
     ,
+    Shopware\Core\Checkout\Cart\Rule\CartVolumeRule::class => <<<'EOD'
+Matches a specific number to the current cart's total volume.
+EOD
+    ,
     Shopware\Core\Checkout\Cart\Rule\CartWeightRule::class => <<<'EOD'
 Matches a specific number to the current cart's total weight.
 EOD
@@ -45,6 +49,10 @@ EOD
 Matches a specific line item's length.
 EOD
     ,
+    Shopware\Core\Checkout\Cart\Rule\LineItemDimensionVolumeRule::class => <<<'EOD'
+Matches a specific line item's volume.
+EOD
+    ,
     Shopware\Core\Checkout\Cart\Rule\LineItemDimensionWeightRule::class => <<<'EOD'
 Matches a specific line item's weight.
 EOD
@@ -59,6 +67,10 @@ EOD
     ,
     Shopware\Core\Checkout\Cart\Rule\LineItemInCategoryRule::class => <<<'EOD'
 Matches if a line item is in a specific category.
+EOD
+    ,
+    Shopware\Core\Checkout\Cart\Rule\LineItemInProductStreamRule::class => <<<'EOD'
+Matches if a line item is in a specific dynamic product group.
 EOD
     ,
     Shopware\Core\Checkout\Cart\Rule\LineItemIsNewRule::class => <<<'EOD'
@@ -95,6 +107,10 @@ EOD
     ,
     Shopware\Core\Checkout\Cart\Rule\LineItemRule::class => <<<'EOD'
 Matches multiple identifiers to a line item's keys. True if one identifier matches.
+EOD
+    ,
+    Shopware\Core\Checkout\Cart\Rule\LineItemStockRule::class => <<<'EOD'
+Matches a specific line item's available stock.
 EOD
     ,
     Shopware\Core\Checkout\Cart\Rule\LineItemTagRule::class => <<<'EOD'
@@ -197,6 +213,10 @@ EOD
 Matches multiple zip codes to the customer's active shipping address zip code. True if one zip code matches.
 EOD
     ,
+    Shopware\Core\Checkout\Customer\Rule\CustomerCustomFieldRule::class => <<<'EOD'
+Matches if a customer has a specific custom field.
+EOD
+    ,
     Shopware\Core\Framework\Rule\Container\AndRule::class => <<<'EOD'
 Composition of rules. Matches if all match.
 EOD
@@ -231,6 +251,10 @@ EOD
     ,
     Shopware\Core\System\Currency\Rule\CurrencyRule::class => <<<'EOD'
 Match a specific currency to the current context.
+EOD
+    ,
+    Shopware\Core\System\Language\Rule\LanguageRule::class => <<<'EOD'
+Match a specific language to the current context.
 EOD
     ,
     Shopware\Core\Checkout\Cart\Rule\LineItemGoodsTotalRule::class => <<<'EOD'

@@ -146,6 +146,23 @@ class DeliveryInformation extends Struct
         $this->length = $length;
     }
 
+    public function getVolume(): float
+    {
+        if ($this->getLength() === null || $this->getLength() <= 0.0) {
+            return 0;
+        }
+
+        if ($this->getWidth() === null || $this->getWidth() <= 0.0) {
+            return 0;
+        }
+
+        if ($this->getHeight() === null || $this->getHeight() <= 0.0) {
+            return 0;
+        }
+
+        return $this->getLength() * $this->getWidth() * $this->getHeight();
+    }
+
     public function getApiAlias(): string
     {
         return 'cart_delivery_information';

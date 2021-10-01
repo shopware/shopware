@@ -1,7 +1,6 @@
 ---
 title: Selected product items confirmation
 issue: NEXT-14944
-flag: FEATURE_NEXT_6061
 ---
 # Administration
 * Added `sw_product_list_bulk_edit_modal` block and changed `sw_product_list_grid` block in `src/module/sw-product/page/sw-product-list/sw-product-list.html.twig`

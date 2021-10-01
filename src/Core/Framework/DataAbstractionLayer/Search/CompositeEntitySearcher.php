@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 
+/**
+ * @major-deprecated (flag:FEATURE_NEXT_6040) - will be removed, please also remove `shopware.composite_search.definition` service tag
+ */
 class CompositeEntitySearcher
 {
     /**

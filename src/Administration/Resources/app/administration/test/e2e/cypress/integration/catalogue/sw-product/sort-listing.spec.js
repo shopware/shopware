@@ -68,10 +68,9 @@ describe('Product: Sort grid', () => {
 
     it('@catalogue: sort product listing', () => {
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product`,
-            method: 'post'
+            method: 'POST'
         }).as('search');
 
         // open context menu and display pound
@@ -88,9 +87,7 @@ describe('Product: Sort grid', () => {
         cy.get('.sw-data-grid__cell--9').click({ force: true });
 
         // Verify search result
-        cy.wait('@search').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@search').its('response.statusCode').should('equal', 200);
 
         // check product order
         cy.get('.sw-data-grid-skeleton').should('not.exist');
@@ -107,9 +104,7 @@ describe('Product: Sort grid', () => {
         cy.get('.sw-data-grid__cell--9').click({ force: true });
 
         // Verify search result
-        cy.wait('@search').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@search').its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.get('.sw-data-grid__cell--9').contains('Pound');

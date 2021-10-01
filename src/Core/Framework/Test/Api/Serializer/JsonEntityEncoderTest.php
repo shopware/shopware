@@ -10,6 +10,7 @@ use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\Api\Exception\UnsupportedEncoderInputException;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\SerializationFixture;
@@ -23,6 +24,7 @@ use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestInternalFieldsAreFi
 use Shopware\Core\Framework\Test\Api\Serializer\fixtures\TestMainResourceShouldNotBeInIncluded;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\AssociationExtension;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\CustomFieldTestDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendableDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendedDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ScalarRuntimeExtension;
@@ -123,5 +125,93 @@ class JsonEntityEncoderTest extends TestCase
 
         unset($actual['apiAlias']);
         static::assertEquals($fixture->getAdminJsonFixtures(), $actual);
+    }
+
+    /**
+     * @dataProvider customFieldsProvider
+     */
+    public function testCustomFields(array $input, array $output): void
+    {
+        $encoder = $this->getContainer()->get(JsonEntityEncoder::class);
+
+        $definition = new CustomFieldTestDefinition();
+        $definition->compile($this->getContainer()->get(DefinitionInstanceRegistry::class));
+        $struct = new Entity();
+        $struct->assign($input);
+
+        $actual = $encoder->encode(new Criteria(), $definition, $struct, SerializationFixture::API_BASE_URL);
+
+        static::assertEquals($output, array_intersect_key($output, $actual));
+    }
+
+    public function customFieldsProvider(): iterable
+    {
+        yield 'Custom field null' => [
+            [
+                'customFields' => null,
+            ],
+            [
+                'customFields' => null,
+            ],
+        ];
+
+        yield 'Custom field with empty array' => [
+            [
+                'customFields' => [],
+            ],
+            [
+                'customFields' => new \stdClass(),
+            ],
+        ];
+
+        yield 'Custom field with values' => [
+            [
+                'customFields' => ['bla'],
+            ],
+            [
+                'customFields' => ['bla'],
+            ],
+        ];
+
+        // translated
+
+        yield 'Custom field translated null' => [
+            [
+                'translated' => [
+                    'customFields' => null,
+                ],
+            ],
+            [
+                'translated' => [
+                    'customFields' => null,
+                ],
+            ],
+        ];
+
+        yield 'Custom field translated with empty array' => [
+            [
+                'translated' => [
+                    'customFields' => [],
+                ],
+            ],
+            [
+                'translated' => [
+                    'customFields' => new \stdClass(),
+                ],
+            ],
+        ];
+
+        yield 'Custom field translated with values' => [
+            [
+                'translated' => [
+                    'customFields' => ['bla'],
+                ],
+            ],
+            [
+                'translated' => [
+                    'customFields' => ['bla'],
+                ],
+            ],
+        ];
     }
 }

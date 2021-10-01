@@ -3,10 +3,10 @@
 namespace Shopware\Storefront\Test\Framework\Routing;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\Test\TestDefaults;
 
 class ResponseHeaderListenerTest extends TestCase
 {
@@ -25,7 +25,10 @@ class ResponseHeaderListenerTest extends TestCase
 
     public function testStoreApiPresent(): void
     {
-        $browser = $this->createCustomSalesChannelBrowser(['id' => Defaults::SALES_CHANNEL]);
+        $browser = $this->createCustomSalesChannelBrowser([
+            'id' => TestDefaults::SALES_CHANNEL,
+            'languages' => [],
+        ]);
         $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_CONTEXT_TOKEN, '1234');
         $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_VERSION_ID, '1234');
         $browser->setServerParameter('HTTP_' . PlatformRequest::HEADER_LANGUAGE_ID, '1234');

@@ -42,7 +42,10 @@ function createWrapper(allowInlineDataMapping = true) {
             'sw-compact-colorpicker': Shopware.Component.build('sw-compact-colorpicker'),
             'sw-colorpicker': Shopware.Component.build('sw-colorpicker'),
             'sw-container': Shopware.Component.build('sw-container'),
-            'sw-button': Shopware.Component.build('sw-button')
+            'sw-button': Shopware.Component.build('sw-button'),
+            'sw-code-editor': {
+                template: '<div id="sw-code-editor"></div>'
+            }
         },
         data() {
             return {
@@ -152,12 +155,12 @@ describe('src/app/component/form/sw-text-editor', () => {
     });
 
     it('should be a Vue.js component', async () => {
-        wrapper = await createWrapper();
+        wrapper = createWrapper();
         expect(wrapper.vm).toBeTruthy();
     });
 
     it('should toggle placeholder', async () => {
-        wrapper = await createWrapper();
+        wrapper = createWrapper();
         const placeholder = 'Enter description...';
         await wrapper.setProps({ placeholder: placeholder });
 
@@ -179,8 +182,42 @@ describe('src/app/component/form/sw-text-editor', () => {
         expect(content.element.innerText).toEqual('');
     });
 
+    it('should update the placeholderVisible prop in the code editor mode', async () => {
+        wrapper = createWrapper();
+
+        const placeholder = 'Enter description...';
+        await wrapper.setProps({ placeholder: placeholder });
+
+        // check the editor placeholder
+        expect(wrapper.find('.sw-text-editor__content-placeholder').element.innerText).toEqual(placeholder);
+        expect(wrapper.vm.isCodeEdit).toBe(false);
+
+        // switch to code editor mode
+        wrapper.find('.sw-icon[name="default-text-editor-code"]').trigger('click');
+
+        await wrapper.vm.$nextTick();
+        expect(wrapper.vm.isCodeEdit).toBe(true);
+
+        // The placeholder should disappear, but the flag is still set
+        expect(wrapper.find('.sw-text-editor__content-placeholder').exists()).toBe(false);
+        expect(wrapper.vm.placeholderVisible).toBe(true);
+
+
+        // input something and expect the placeholderVisible flag to be unset
+        wrapper.find('#sw-code-editor').vm.$emit('blur', 'something');
+        await wrapper.vm.$nextTick();
+        expect(wrapper.vm.placeholderVisible).toBe(false);
+
+        // switch to text editor mode and make sure that the placeholder is not displayed
+        wrapper.find('.sw-icon[name="default-text-editor-code"]').trigger('click');
+
+        await wrapper.vm.$nextTick();
+        expect(wrapper.vm.isCodeEdit).toBe(false);
+        expect(wrapper.find('.sw-text-editor__content-placeholder').exists()).toBe(false);
+    });
+
     it('should insert the link correctly', async () => {
-        wrapper = await createWrapper();
+        wrapper = createWrapper();
         const contentEditor = wrapper.find('.sw-text-editor__content-editor');
         const buttonLink = wrapper.find('.sw-text-editor-toolbar-button__type-link');
 

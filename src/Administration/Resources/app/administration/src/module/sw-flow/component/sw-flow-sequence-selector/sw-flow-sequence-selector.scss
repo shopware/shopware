@@ -1,0 +1,44 @@
+@import "~scss/variables";
+
+.sw-flow-sequence-selector {
+    padding: 32px;
+    border: 2px dashed $color-gray-300;
+    border-radius: 8px;
+    color: $color-darkgray-200;
+    width: 322px;
+    margin-right: 32px;
+
+    &__title {
+        font-size: $font-size-large;
+
+        h3 {
+            font-weight: normal;
+        }
+    }
+
+    &__help-text {
+        font-size: $font-size-small;
+        letter-spacing: 0.1px;
+        line-height: 22px;
+        margin-bottom: 32px;
+    }
+
+    &__actions {
+        display: flex;
+        flex-direction: column;
+    }
+
+    &__actions .sw-button:first-child {
+        margin-bottom: 8px;
+    }
+
+    &__actions .sw-button {
+        font-size: 15px;
+        font-weight: bold;
+        color: $color-darkgray-200;
+    }
+
+    &__actions .sw-button .sw-button__content {
+        justify-content: start;
+    }
+}

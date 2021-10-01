@@ -1,6 +1,7 @@
 import './page/sw-manufacturer-list';
 import './page/sw-manufacturer-detail';
 import './acl';
+import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module } = Shopware;
 
@@ -60,4 +61,6 @@ Module.register('sw-manufacturer', {
         color: '#57D9A3',
         position: 50,
     }],
+
+    defaultSearchConfiguration,
 });

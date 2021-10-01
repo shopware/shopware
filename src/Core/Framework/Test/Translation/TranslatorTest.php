@@ -22,20 +22,11 @@ class TranslatorTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var Translator
-     */
-    private $translator;
+    private Translator $translator;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $snippetRepository;
+    private EntityRepositoryInterface $snippetRepository;
 
     protected function setUp(): void
     {
@@ -148,11 +139,9 @@ class TranslatorTest extends TestCase
         static::assertEquals('en_GB', $catalogue->getFallbackCatalogue()->getLocale());
 
         $this->translator->resetInMemoryCache();
-        $this->translator->resetInMemoryCache();
         $catalogue = $this->translator->getCatalogue('en_GB');
         static::assertEquals('en', $catalogue->getFallbackCatalogue()->getLocale());
 
-        $this->translator->resetInMemoryCache();
         $this->translator->resetInMemoryCache();
         $catalogue = $this->translator->getCatalogue('en-GB');
         $fallback = $catalogue->getFallbackCatalogue();
@@ -160,7 +149,6 @@ class TranslatorTest extends TestCase
         static::assertEquals('en_GB', $fallback->getFallbackCatalogue()->getLocale());
         static::assertEquals('en', $fallback->getFallbackCatalogue()->getFallbackCatalogue()->getLocale());
 
-        $this->translator->resetInMemoryCache();
         $this->translator->resetInMemoryCache();
         $catalogue = $this->translator->getCatalogue('de');
         $fallback = $catalogue->getFallbackCatalogue();
@@ -181,6 +169,62 @@ class TranslatorTest extends TestCase
         static::assertEquals('en_GB', $fallback->getFallbackCatalogue()->getLocale());
         static::assertEquals('en', $fallback->getFallbackCatalogue()->getFallbackCatalogue()->getLocale());
         $this->translator->resetInMemoryCache();
+    }
+
+    public function testTranslatorCustomLocaleAndFallback(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $snippets = [
+            [
+                'translationKey' => 'new.unit.test.key',
+                'value' => 'Realized with Unit test',
+                'setId' => $this->getSnippetSetIdForLocale('en-GB'),
+                'author' => 'Shopware',
+            ],
+            [
+                'translationKey' => 'new.unit.test.key',
+                'value' => 'Realisiert mit Unit test',
+                'setId' => $this->getSnippetSetIdForLocale('de-DE'),
+                'author' => 'Shopware',
+            ],
+        ];
+        $this->snippetRepository->create($snippets, $context);
+
+        // fake request
+        $request = new Request();
+
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID, $this->getSnippetSetIdForLocale('en-GB'));
+        $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE, 'en-GB');
+
+        $this->getContainer()->get(RequestStack::class)->push($request);
+
+        // get overwritten string
+        static::assertEquals(
+            $snippets[0]['value'],
+            $this->translator->trans('new.unit.test.key', [], null, 'en-GB')
+        );
+        static::assertEquals(
+            $snippets[1]['value'],
+            $this->translator->trans('new.unit.test.key', [], null, 'de-DE')
+        );
+        static::assertEquals(
+            $snippets[0]['value'],
+            $this->translator->trans('new.unit.test.key', [], null, 'en')
+        );
+        static::assertEquals(
+            $snippets[1]['value'],
+            $this->translator->trans('new.unit.test.key', [], null, 'de-DE')
+        );
+        static::assertEquals(
+            $snippets[0]['value'],
+            $this->translator->trans('new.unit.test.key')
+        );
+
+        static::assertSame(
+            $request,
+            $this->getContainer()->get(RequestStack::class)->pop()
+        );
     }
 
     public function testDeleteSnippet(): void

@@ -170,11 +170,15 @@ function createWrapper({ privileges = [] }) {
             'sw-button': true,
             'sw-button-group': true,
             'sw-context-button': true,
+            'sw-context-menu-divider': true,
             'sw-context-menu-item': true,
             'sw-card-filter': true,
-            'sw-data-grid': Shopware.Component.build('sw-data-grid'),
             'sw-checkbox-field': true,
+            'sw-data-grid': Shopware.Component.build('sw-data-grid'),
+            'sw-data-grid-settings': true,
+            'sw-icon': true,
             'sw-product-variant-info': true,
+            'sw-switch-field': true,
             'router-link': true
         },
         mocks: {
@@ -391,7 +395,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
 
         const header = wrapper.find('.sw-data-grid__header');
         const columnVat = header.find('.sw-data-grid__cell--4');
-        const columnPrice = header.find('.sw-data-grid__cell--1');
+        const columnPrice = header.find('.sw-data-grid__cell--2');
         expect(columnVat.exists()).toBe(false);
         expect(columnPrice.text()).toEqual('sw-order.detailBase.columnPriceTaxFree');
     });
@@ -449,7 +453,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         });
 
         header = wrapper.find('.sw-data-grid__header');
-        columnTotal = header.find('.sw-data-grid__cell--3');
+        columnTotal = header.find('.sw-data-grid__cell--4');
         expect(columnTotal.text()).toEqual('sw-order.detailBase.columnTotalPriceGross');
 
         await wrapper.setProps({
@@ -461,7 +465,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         });
 
         header = wrapper.find('.sw-data-grid__header');
-        columnTotal = header.find('.sw-data-grid__cell--3');
+        columnTotal = header.find('.sw-data-grid__cell--4');
         expect(columnTotal.text()).toEqual('sw-order.detailBase.columnTotalPriceNet');
     });
 });

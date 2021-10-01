@@ -23,6 +23,7 @@ Component.register('sw-property-list', {
             isLoading: false,
             sortDirection: 'ASC',
             showDeleteModal: false,
+            searchConfigEntity: 'property',
         };
     },
 
@@ -76,7 +77,9 @@ Component.register('sw-property-list', {
         getList() {
             this.isLoading = true;
 
-            return this.propertyRepository.search(this.defaultCriteria).then((items) => {
+            const criteria = this.addQueryScores(this.term, this.defaultCriteria);
+
+            return this.propertyRepository.search(criteria).then((items) => {
                 this.total = items.total;
                 this.propertyGroup = items;
                 this.isLoading = false;

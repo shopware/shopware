@@ -1,7 +1,6 @@
 ---
 title: Implement UI for order status bulk editing
 issue: NEXT-15448
-flag: FEATURE_NEXT_6061
 ---
 # Administration
 *  Added `src/Administration/Resources/app/administration/src/module/sw-bulk-edit/page/sw-bulk-edit-order` component to display order bulk edit page.

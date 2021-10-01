@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscou
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionIntegrationTestBehaviour;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -20,6 +19,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 
 class PromotionDiscountCompositionTest extends TestCase
 {
@@ -60,7 +60,7 @@ class PromotionDiscountCompositionTest extends TestCase
 
         $this->context = $this->getContainer()
             ->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 
     /**
@@ -170,7 +170,7 @@ class PromotionDiscountCompositionTest extends TestCase
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(
                 Uuid::randomHex(),
-                Defaults::SALES_CHANNEL,
+                TestDefaults::SALES_CHANNEL,
                 [SalesChannelContextService::CUSTOMER_ID => $this->createCustomer()]
             );
 
@@ -222,7 +222,7 @@ class PromotionDiscountCompositionTest extends TestCase
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(
                 Uuid::randomHex(),
-                Defaults::SALES_CHANNEL,
+                TestDefaults::SALES_CHANNEL,
                 [SalesChannelContextService::CUSTOMER_ID => $this->createCustomer()]
             );
 
@@ -375,8 +375,8 @@ class PromotionDiscountCompositionTest extends TestCase
             'email' => Uuid::randomHex() . '@example.com',
             'password' => 'shopware',
             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-            'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultBillingAddressId' => $addressId,
             'defaultShippingAddressId' => $addressId,
             'addresses' => [

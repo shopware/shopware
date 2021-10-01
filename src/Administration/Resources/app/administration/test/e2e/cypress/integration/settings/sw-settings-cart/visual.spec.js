@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 describe('Cart settings: Visual testing', () => {
     beforeEach(() => {
@@ -13,10 +13,9 @@ describe('Cart settings: Visual testing', () => {
     });
 
     it('@visual: check appearance of cart settings module', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/system-config/schema?domain=core.cart`,
-            method: 'get'
+            method: 'GET'
         }).as('getData');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
@@ -25,9 +24,8 @@ describe('Cart settings: Visual testing', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('a[href="#/sw/settings/cart/index"]').click();
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getData')
+            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-card__title').contains('Cart');
         cy.get('.sw-loader').should('not.exist');
         cy.takeSnapshot('[Cart settings] Detail', '.sw-settings-cart');

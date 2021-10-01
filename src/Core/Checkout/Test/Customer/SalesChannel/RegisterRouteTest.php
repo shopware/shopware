@@ -22,6 +22,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -361,7 +362,8 @@ class RegisterRouteTest extends TestCase
         /** @var EventDispatcherInterface $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 
-        $dispatcher->addListener(
+        $this->addEventListener(
+            $dispatcher,
             CustomerConfirmRegisterUrlEvent::class,
             static function (CustomerConfirmRegisterUrlEvent $event): void {
                 $event->setConfirmUrl($event->getConfirmUrl());
@@ -369,7 +371,8 @@ class RegisterRouteTest extends TestCase
         );
 
         $caughtEvent = null;
-        $dispatcher->addListener(
+        $this->addEventListener(
+            $dispatcher,
             CustomerDoubleOptInRegistrationEvent::class,
             static function (CustomerDoubleOptInRegistrationEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;
@@ -947,7 +950,7 @@ class RegisterRouteTest extends TestCase
             'email' => $email,
             'password' => 'shopware',
             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-            'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'salesChannelId' => $salesChannelId,
             'boundSalesChannelId' => $boundSalesChannel ? $salesChannelId : null,
             'defaultBillingAddressId' => $addressId,

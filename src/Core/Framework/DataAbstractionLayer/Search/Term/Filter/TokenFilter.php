@@ -88,7 +88,7 @@ class TokenFilter extends AbstractTokenFilter
 
         $config = $this->connection->fetchAssoc('
             SELECT
-                `excluded_terms`,
+                LOWER(`excluded_terms`) as `excluded_terms`,
                 `min_search_length`
             FROM product_search_config
             WHERE language_id = :languageId

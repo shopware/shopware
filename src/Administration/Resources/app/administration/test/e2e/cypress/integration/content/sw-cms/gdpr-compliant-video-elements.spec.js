@@ -23,15 +23,14 @@ describe('CMS: Check GDPR compliant video elements', () => {
 
     platforms.forEach(({ name, videoId }) => {
         it(`use ${name} element with GDPR compliant options`, () => {
-            cy.server();
-            cy.route({
-                url: `${Cypress.env('apiPath')}/cms-page/*`,
-                method: 'patch'
+            cy.intercept({
+                url: `**/${Cypress.env('apiPath')}/cms-page/*`,
+                method: 'PATCH'
             }).as('saveData');
 
-            cy.route({
-                url: `${Cypress.env('apiPath')}/category/*`,
-                method: 'patch'
+            cy.intercept({
+                url: `**/${Cypress.env('apiPath')}/category/*`,
+                method: 'PATCH'
             }).as('saveCategory');
 
             cy.get('.sw-cms-list-item--0').click();
@@ -58,12 +57,8 @@ describe('CMS: Check GDPR compliant video elements', () => {
 
             // Upload preview image
             cy.get('.sw-media-upload-v2__dropzone.is--droppable').should('be.visible');
-            cy.get(`.sw-cms-slot__config-modal #files`)
-                .attachFile({
-                    filePath: 'img/sw-login-background.png',
-                    fileName: 'sw-login-background.png',
-                    mimeType: 'image/png'
-                });
+            cy.get('.sw-cms-slot__config-modal #files')
+                .attachFile('img/sw-login-background.png');
             cy.awaitAndCheckNotification('File has been saved.');
 
             // Close config modal
@@ -71,9 +66,9 @@ describe('CMS: Check GDPR compliant video elements', () => {
 
             // Save new page layout
             cy.get('.sw-cms-detail__save-action').click();
-            cy.wait('@saveData').then(() => {
-                cy.get('.sw-cms-detail__back-btn').click();
-            });
+            cy.wait('@saveData')
+                .its('response.statusCode').should('equal', 204);
+            cy.get('.sw-cms-detail__back-btn').click();
 
             // Assign layout to root category
             cy.visit(`${Cypress.env('admin')}#/sw/category/index`);
@@ -87,9 +82,7 @@ describe('CMS: Check GDPR compliant video elements', () => {
             cy.get('.sw-card.sw-category-layout-card .sw-category-layout-card__desc-headline').contains('Vierte Wand');
             cy.get('.sw-category-detail__save-action').click();
 
-            cy.wait('@saveCategory').then((response) => {
-                expect(response).to.have.property('status', 204);
-            });
+            cy.wait('@saveCategory').its('response.statusCode').should('equal', 204);
 
             // Verify layout in Storefront
             cy.visit('/');

@@ -1,6 +1,13 @@
+@import "~scss/variables";
+
 .sw-bulk-edit-product {
     .sw-card .sw-card__content {
         padding: 0;
+
+        .sw-card__quick-link {
+            padding-top: 24px;
+            cursor: pointer;
+        }
     }
 
     .sw-text-editor {
@@ -13,5 +20,51 @@
         .sw-text-editor-buttons.is--middle {
             display: none;
         }
+    }
+
+    .sw-block-field__block {
+        background: $color-white;
+    }
+
+    .sw-product-detail-context-prices {
+        max-width: 462px;
+
+        .sw-product-detail-context-prices__empty-state {
+            padding: 20px;
+        }
+    }
+
+    .sw-product-detail-properties {
+        .sw-card__title {
+            display: none;
+        }
+
+        .sw-property-assignment {
+            padding: 8px;
+        }
+
+        .sw-product-detail-properties__empty-state {
+            padding: 20px 12px;
+        }
+
+        .sw-property-search__tree-selection,
+        .sw-property-search__search-selection {
+            width: 500px;
+            right: -94px;
+        }
+
+        .sw-property-search__tree-selection {
+            .sw-field--checkbox__content {
+                padding: 0;
+            }
+        }
+    }
+
+    .sw-bulk-edit-product-advancing-prices .sw-button {
+        width: 100%;
+    }
+
+    .sw-product-media-form .sw-product-media-form__previews {
+        grid-template-columns: none;
     }
 }

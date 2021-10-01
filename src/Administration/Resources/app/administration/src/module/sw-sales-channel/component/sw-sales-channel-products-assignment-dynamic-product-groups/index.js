@@ -1,7 +1,7 @@
 import template from './sw-sales-channel-products-assignment-dynamic-product-groups.html.twig';
 import './sw-sales-channel-products-assignment-dynamic-product-groups.scss';
 
-const { Component, Mixin } = Shopware;
+const { Component, Mixin, Feature } = Shopware;
 const { Criteria } = Shopware.Data;
 
 Component.register('sw-sales-channel-products-assignment-dynamic-product-groups', {
@@ -110,7 +110,10 @@ Component.register('sw-sales-channel-products-assignment-dynamic-product-groups'
         },
 
         onSearch(term) {
-            this.term = term;
+            if (!Feature.isActive('FEATURE_NEXT_16271')) {
+                this.term = term;
+            }
+
             if (term) {
                 this.page = 1;
             }

@@ -47,11 +47,6 @@ class DeprecatedTagTest extends TestCase
     {
         $this->rootDir = $this->getPathForClass(Kernel::class);
         $this->manifestRoot = $this->getPathForClass(Manifest::class);
-
-        $version = $this->getShopwareVersion();
-        if (!preg_match('/^\d+\.\d+[.-].*$/', $version)) {
-            static::markTestSkipped('No valid version provided - ' . $version);
-        }
     }
 
     public function testSourceFilesForWrongDeprecatedAnnotations(): void
@@ -155,8 +150,20 @@ class DeprecatedTagTest extends TestCase
         } else {
             $shopwareVersion = InstalledVersions::getVersion('shopware/core');
         }
+        $shopwareVersion = ltrim($shopwareVersion, 'v ');
 
-        return ltrim($shopwareVersion, 'v ');
+        if (!preg_match('/^\d+\.\d+[.-].*$/', $shopwareVersion)) {
+            // this will only check the syntax of the deprecated tags. The real test happens in the prod pipeline
+
+            $matches = [];
+            preg_match('/(\d+\.\d+)\..*/', Kernel::SHOPWARE_FALLBACK_VERSION, $matches);
+            static::assertArrayHasKey(1, $matches);
+
+            // get major version from Kernel::SHOPWARE_FALLBACK_VERSION
+            $shopwareVersion = $matches[1] . '.0';
+        }
+
+        return $shopwareVersion;
     }
 
     private function getManifestVersion(): string

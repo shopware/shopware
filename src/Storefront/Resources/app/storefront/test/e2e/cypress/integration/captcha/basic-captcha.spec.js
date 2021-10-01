@@ -22,8 +22,7 @@ describe('Basic captcha', () => {
     function openContactForm(callback) {
         cy.visit('/');
 
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: '/widgets/cms/*',
             method: 'GET'
         }).as('contactFormRequest');
@@ -45,7 +44,7 @@ describe('Basic captcha', () => {
                 headers: {
                     Authorization: `Bearer ${result.access}`
                 },
-                method: 'post',
+                method: 'POST',
                 url: `api/_action/system-config/batch`,
                 body: {
                     null: {
@@ -77,9 +76,8 @@ describe('Basic captcha', () => {
         });
     }
 
-    function submitContactForm(callback) {
-        cy.server();
-        cy.route({
+    function submitContactForm() {
+        cy.intercept({
             url: '/form/contact',
             method: 'POST'
         }).as('contactFormPostRequest');
@@ -88,7 +86,7 @@ describe('Basic captcha', () => {
             cy.get(selector.formContactButtonSubmit).click();
         });
 
-        cy.wait('@contactFormPostRequest').then(callback);
+        return cy.wait('@contactFormPostRequest').its('response.statusCode').should('equal', 200);
     }
 
     beforeEach(() => {
@@ -102,9 +100,7 @@ describe('Basic captcha', () => {
 
         fillForm();
 
-        submitContactForm((response) => {
-            expect(response).to.have.property('status', 200);
-        });
+        submitContactForm();
 
         cy.get(selector.alertErrors).should('be.visible');
     })

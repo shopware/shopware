@@ -11,10 +11,9 @@ describe('Address settings: Visual testing', () => {
     });
 
     it('@visual: check appearance of address settings module', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/system-config/schema?domain=core.address`,
-            method: 'get'
+            method: 'GET'
         }).as('getData');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
@@ -23,9 +22,8 @@ describe('Address settings: Visual testing', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('a[href="#/sw/settings/address/index"]').click();
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getData')
+            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-card__title').contains('Address');
         cy.get('.sw-loader').should('not.exist');
         cy.takeSnapshot('[Address settings] Details', '.sw-settings-address');

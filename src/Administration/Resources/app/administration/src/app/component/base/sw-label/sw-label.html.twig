@@ -5,6 +5,14 @@
     :class="labelClasses"
     @click.stop="$emit('selected')"
 >
+    {% block sw_label_status_color_badge %}
+    <sw-color-badge
+        v-if="appearance === 'badged'"
+        :variant="variant"
+        :rounded="true"
+    />
+    {% endblock %}
+
     {% block sw_label_text_holder %}
     <span class="sw-label__caption">
         <slot>{% block sw_label_slot_default %}{% endblock %}</slot>

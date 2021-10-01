@@ -61,7 +61,7 @@
                     "individual": {
                         "description": "Individuelle Aktionscodes",
                         "emptyStateTitle": "Noch keine Aktionscodes angelegt.",
-                        "generateButton": "Erstelle Aktionscodes",
+                        "generateButton": "Erstelle neue Aktionscodes",
                         "searchPlaceholder": "Durchsuche Aktionscodes ...",
                         "addButton": "Füge Aktionscodes hinzu",
                         "columnCode": "Code",
@@ -78,7 +78,7 @@
                         },
                         "generateModal": {
                             "title": "Erzeuge neue Aktionscodes",
-                            "buttonGenerate": "Erzeuge Aktionscodes",
+                            "buttonGenerate": "Erzeuge neue Aktionscodes",
                             "warning": "Durch das Generieren neuer Codes werden alle vorhandenen Codes für diese Aktion gelöscht. Gelöschte Codes sind ungültig und können nicht mehr verwendet werden.",
                             "description": "Aktionscodes werden aus einer zufälligen Zusammenstellung von Großbuchstaben und Ziffern erzeugt. Du kannst aber individuelle Pre- bzw. Suffixe oder auch ein komplett eigenes Muster verwenden. In der Code-Vorschau kannst Du sehen, wie sich Dein Muster auswirkt.",
                             "labelPrefix": "Präfix",

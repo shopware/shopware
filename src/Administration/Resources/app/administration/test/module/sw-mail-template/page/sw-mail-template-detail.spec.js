@@ -2,6 +2,9 @@ import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-mail-template/page/sw-mail-template-detail';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/base/sw-icon';
+import 'src/app/component/tree/sw-tree';
+import 'src/app/component/tree/sw-tree-item';
+import 'src/app/component/tree/sw-tree-input-field';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 const mailTemplateMock = {
@@ -64,6 +67,8 @@ const repositoryMockFactory = () => {
 
 const component = Shopware.Component.build('sw-mail-template-detail');
 const spyOnCopyVariable = jest.spyOn(component.methods, 'onCopyVariable');
+const spyIsToManyAssociationVariable = jest.spyOn(component.methods, 'isToManyAssociationVariable');
+const spyMailPreviewContent = jest.spyOn(component.methods, 'mailPreviewContent');
 
 const createWrapper = (privileges = []) => {
     return shallowMount(component, {
@@ -122,18 +127,15 @@ const createWrapper = (privileges = []) => {
             'icons-small-copy': {
                 template: '<div class="sw-mail-template-detail__copy_icon" @click="$emit(\'click\')"></div>'
             },
-            'sw-tree': {
-                props: ['items'],
-                template: `
-                    <div class="sw-tree">
-                      <slot name="items" :treeItems="items" :checkItem="() => {}"></slot>
-                    </div>
-                `
-            },
-            'sw-tree-item': {
-                props: ['item'],
-                template: '<div><slot name="actions" :item="item"></slot></div>'
-            },
+            'sw-tree': Shopware.Component.build('sw-tree'),
+            'sw-tree-item': Shopware.Component.build('sw-tree-item'),
+            'sw-tree-input-field': Shopware.Component.build('sw-tree-input-field'),
+            'sw-confirm-field': true,
+            'icons-small-arrow-small-right': true,
+            'sw-loader': true,
+            'icons-multicolor-folder-tree': true,
+            'sw-vnode-renderer': true,
+            'icons-small-arrow-small-down': true,
             'sw-data-grid': {
                 props: ['dataSource'],
                 template: `
@@ -451,5 +453,68 @@ describe('modules/sw-mail-template/page/sw-mail-template-detail', () => {
 
         expect(spyOnCopyVariable).toHaveBeenCalled();
         expect(clipboardSpy).toHaveBeenCalled();
+    });
+
+    it('should have schema in variables', async () => {
+        wrapper = await createWrapper();
+        wrapper.vm.addVariables([
+            {
+                id: 'order',
+                schema: 'order',
+                name: 'order',
+                childCount: 2,
+                parentId: null,
+                afterId: null
+            }
+        ]);
+
+        wrapper.vm.mailTemplateType = {
+            availableEntities: true,
+            templateData: {
+                order: {
+                    deleveries: {
+                        trackingCodes: {}
+                    }
+                }
+            }
+        };
+
+        await wrapper.vm.$nextTick();
+        const icon = await wrapper.find('.icon--small-arrow-small-right');
+        icon.trigger('click');
+
+        expect(spyIsToManyAssociationVariable).toHaveBeenCalled();
+    });
+
+    it('should replace variables in html content when send mail test', async () => {
+        wrapper = await createWrapper();
+        await wrapper.setData({
+            mailTemplate: {
+                ...mailTemplateTypeMock,
+                subject: 'Your order with {{ salesChannel.name }} is partially paid',
+                contentPlain: 'the status of your order at {{ salesChannel.translated.name }}',
+                // eslint-disable-next-line max-len
+                contentHtml: '{{ order.deliveries.first.stateMachineState.translated.name }} {{ order.deliveries.at(1).trackingCodes.0 }},<br/><br/>',
+                senderName: '{{ salesChannel.name }}'
+            },
+            testerMail: 'foo@bar.com',
+            isLoading: false,
+            testMailSalesChannelId: '1a2b3c'
+        });
+
+        const sendTestMail = wrapper.find('.sw-mail-template-detail__send-test-mail');
+        await sendTestMail.trigger('click');
+
+        const contentHtmlAfterReplace = '{{ order.deliveries.0.stateMachineState.translated.name }} {{ order.deliveries.1.trackingCodes.0 }},<br/><br/>';
+        const mailTemplate = { ...wrapper.vm.mailTemplate };
+        mailTemplate.contentHtml = contentHtmlAfterReplace;
+
+        expect(spyMailPreviewContent).toHaveBeenCalled();
+        expect(wrapper.vm.mailService.testMailTemplate).toHaveBeenCalledWith(
+            'foo@bar.com',
+            mailTemplate,
+            null,
+            '1a2b3c'
+        );
     });
 });

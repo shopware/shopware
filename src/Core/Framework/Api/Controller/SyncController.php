@@ -27,15 +27,9 @@ class SyncController extends AbstractController
     public const ACTION_UPSERT = 'upsert';
     public const ACTION_DELETE = 'delete';
 
-    /**
-     * @var Serializer
-     */
-    private $serializer;
+    private Serializer $serializer;
 
-    /**
-     * @var SyncServiceInterface
-     */
-    private $syncService;
+    private SyncServiceInterface $syncService;
 
     public function __construct(SyncServiceInterface $syncService, Serializer $serializer)
     {
@@ -72,6 +66,11 @@ to an asynchronous process in the background. You can control the behaviour with
 - `disable-indexing`: Data indexing is completely disabled",
      *          in="header",
      *          @OA\Schema(type="string", enum={"use-queue-indexing", "disable-indexing"})
+     *     ),
+     *     @OA\Header(
+     *          header="indexing-skip",
+     *          description="Contains indexer names that should be skipped comma seperated",
+     *          @OA\Schema(type="string")
      *     ),
      *     @OA\RequestBody(
      *         required=true,
@@ -129,15 +128,19 @@ a list of identifiers can be provided.",
      */
     public function sync(Request $request, Context $context): JsonResponse
     {
+        $indexingSkips = array_filter(explode(',', $request->headers->get(PlatformRequest::HEADER_INDEXING_SKIP, '')));
+
         if (Feature::isActive('FEATURE_NEXT_15815')) {
             $behavior = new SyncBehavior(
-                $request->headers->get(PlatformRequest::HEADER_INDEXING_BEHAVIOR)
+                $request->headers->get(PlatformRequest::HEADER_INDEXING_BEHAVIOR),
+                $indexingSkips
             );
         } else {
             $behavior = new SyncBehavior(
                 filter_var($request->headers->get(PlatformRequest::HEADER_FAIL_ON_ERROR, 'true'), \FILTER_VALIDATE_BOOLEAN),
                 filter_var($request->headers->get(PlatformRequest::HEADER_SINGLE_OPERATION, 'false'), \FILTER_VALIDATE_BOOLEAN),
-                $request->headers->get(PlatformRequest::HEADER_INDEXING_BEHAVIOR, null)
+                $request->headers->get(PlatformRequest::HEADER_INDEXING_BEHAVIOR, null),
+                $indexingSkips
             );
         }
 

@@ -41,6 +41,8 @@
       "textHeadline": "Bestellung",
       "textHeadlineNew": "Neue Bestellung",
       "tabGeneral": "Allgemein",
+      "tabDetails": "Details",
+      "tabDocuments": "Dokumente",
       "messageRecalculationError": "Bei der Preisberechnung ist ein Fehler aufgetreten: <br>",
       "messageSaveError": "Beim Speichern ist ein Fehler aufgetreten",
       "messageShippingNotAvailable": "Lieferung in das Zielland nicht möglich.",
@@ -52,7 +54,12 @@
       "buttonCancelOrder": "Abbrechen",
       "messageSaveError": "Bestellung konnte nicht gespeichert werden",
       "messageSwitchCustomerError": "Beim Kundenwechsel ist ein Fehler aufgetreten",
-      "messageFetchCustomerAddressesError": "Beim Abrufen der Kundenadresse ist ein Fehler aufgetreten"
+      "messageFetchCustomerAddressesError": "Beim Abrufen der Kundenadresse ist ein Fehler aufgetreten",
+      "remindPaymentModal": {
+        "title": "Zahlungsaufforderung",
+        "text": "Möchtest du den Kunden auffordern die Bestellung per \"{paymentMethodName}\" zu bezahlen?",
+        "primaryAction": "Auffordern"
+      }
     },
     "createBase": {
       "labelDetailsCard": "Details",
@@ -82,7 +89,8 @@
         "placeholderPaymentMethod": "Wähle Zahlart ...",
         "placeholderShippingMethod": "Wähle Versandart ...",
         "placeholderOrderLanguage": "Wähle Bestellsprache ...",
-        "placeholderCurrency": "Wähle Währung ..."
+        "placeholderCurrency": "Wähle Währung ...",
+        "helpTextPaymentMethod": "Es werden nur Zahlungsarten angezeigt, die nach dem Bestellabschluss gewechselt werden können."
       },
       "cardTitleLineItems": "Positionen",
       "placeholderSearchBarItem": "Durchsuche Positionen ...",
@@ -157,6 +165,7 @@
       "columnPriceNet": "Nettopreis",
       "columnTotalPriceNet": "Gesamt",
       "contextMenuShowProduct": "Produkt anzeigen",
+      "contextMenuDelete": "Aus Bestellung entfernen",
       "summaryLabelAmount": "Summe",
       "summaryLabelAmountGrandTotal": "Gesamtsumme",
       "summaryLabelAmountWithoutTaxes": "Gesamtsumme ohne MwSt.",
@@ -206,7 +215,11 @@
       "enterValidTrackingCode": "Tracking-Code eingeben",
       "textCreditTax": "auto",
       "taxDetail": "{taxRate}%: {tax}",
-      "textPromotionRemoved": "Rabatt {promotion} wurde entfernt"
+      "textPromotionRemoved": "Rabatt {promotion} wurde entfernt",
+      "textMissingProductLineItems": "Die folgenden Positionen sind mit Produkten assoziiert, die gelöscht wurden:",
+      "textMissingProductLineItemsDescription": "Preise dieser Produkte können nicht neu berechnet werden. Daher werden diese Positionen beim Speichern der Bestellung in benutzerdefinierte Positionen umgewandelt.",
+      "textConvertedProductLineItems": "Die folgenden Positionen waren mit Produkten assoziiert, die gelöscht wurden:",
+      "textConvertedProductLineItemsDescription": "Preise dieser Produkte können nicht neu berechnet werden. Bitte sei besonders vorsichtig beim Bearbeiten der Bestellung."
     },
     "nestedLineItemsModal": {
       "titlePrefix": "Position: {lineItemLabel} - {price}",
@@ -285,8 +298,13 @@
       "labelSent": "Gesendet",
       "labelAttach": "Anhängen",
       "labelAmount": "Bestellwert",
-      "labelDownloadPdf": "PDF herunterladen",
-      "labelCreateNew": "Neu erstellen",
+      "labelOpenDocument": "Dokument öffnen",
+      "labelDownloadPdf": "Dokument herunterladen",
+      "labelPrintDocument": "Dokument drucken",
+      "labelSendDocument": "Dokument senden",
+      "labelMarkAsSent": "Als gesendet markieren",
+      "labelMarkAsUnsent": "Als ungesendet markieren",
+      "labelCreateNew": "Neues Dokument erstellen",
       "messageEmptyTitle": "Noch keine Dokumente",
       "messageEmptySubline": "Verwaltung von Dokumenten.",
       "error": {
@@ -316,8 +334,30 @@
       "labelNoItems": "Keine Gutschriften hinzugefügt",
       "fileInputLabel": "Eigenes Dokument hochladen"
     },
+    "documentSendModal": {
+      "labelNumber": "Nummer",
+      "labelType": "Typ",
+      "labelDate": "Datum",
+      "labelMailTemplate": "E-Mail-Template",
+      "labelRecipient": "E-Mail-Adresse",
+      "labelContent": "Inhalt",
+      "labelSubject": "Betreff",
+      "labelClose": "Schließen"
+    },
     "stateModal": {
       "modalTitle": "Dokumente anhängen"
+    },
+    "stateHistoryModal": {
+      "modalTitle": "Statusverlauf",
+      "labelSystemUser": "System",
+      "column": {
+        "createdAt": "Datum",
+        "entity": "Geändert",
+        "user": "Geändert von",
+        "transaction": "Zahlung",
+        "delivery": "Versand",
+        "order": "Bestellung"
+      }
     },
     "newCustomerModal": {
       "labelDetails": "Details",
@@ -342,7 +382,18 @@
         "textNoCriteria": "Keine Dokumente zugewiesen"
       },
       "orderDateFilter": {
-        "label": "Bestelldatum"
+        "label": "Bestelldatum",
+        "options": {
+          "lastYear": "Letztes Jahr",
+          "lastQuarter": "Letzes Quartal",
+          "lastMonth": "Letzter Monat",
+          "lastWeek": "Letzte Woche",
+          "lastDay": "Letzter Tag",
+          "custom": "Benutzerdefiniert"
+        }
+      },
+      "orderValueFilter": {
+        "label": "Bestellwert"
       },
       "statusFilter": {
         "label": "Bestellstatus",
@@ -398,6 +449,16 @@
       },
       "messageEmptyTitle": "Nichts gefunden",
       "messageEmptySubline": "Bearbeite Deine Filter, um Ergebnisse zu finden."
+    },
+    "components": {
+      "selectDocumentTypeModal": {
+        "title": "Dokument erstellen",
+        "primaryAction": "Dokument erstellen",
+        "helpText": {
+          "storno": "Eine Stornorechnung kann nicht ohne Rechnung erstellt werden.",
+          "credit_note": "Um eine Gutschrift zu erstellen, fügen Sie zunächst eine Gutschriftsposition hinzu."
+        }
+      }
     }
   },
   "sw-privileges": {

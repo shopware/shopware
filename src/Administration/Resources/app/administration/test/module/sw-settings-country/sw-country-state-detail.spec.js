@@ -23,7 +23,8 @@ function createWrapper(privileges = []) {
             'sw-modal': true,
             'sw-container': true,
             'sw-field': true,
-            'sw-button': true
+            'sw-button': true,
+            'sw-empty-state': true
         }
     });
 }

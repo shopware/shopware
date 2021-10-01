@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Shopware\Storefront\Page\Wishlist\GuestWishlistPage;
 use Shopware\Storefront\Page\Wishlist\WishlistPage;
@@ -225,7 +226,7 @@ class WishlistControllerTest extends TestCase
         $browser->request('GET', $_SERVER['APP_URL'] . '/wishlist/add-after-login/' . $productId);
 
         static::assertNotEmpty($warningFlash = $flashBag->get('warning'));
-        static::assertEquals('Product with id ' . $productId . ' already added in wishlist', $warningFlash[0]);
+        static::assertEquals('Product already added in wishlist', $warningFlash[0]);
     }
 
     private function createCustomer(): CustomerEntity
@@ -235,7 +236,7 @@ class WishlistControllerTest extends TestCase
         $data = [
             [
                 'id' => $this->customerId,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultShippingAddress' => [
                     'id' => $addressId,
                     'firstName' => 'Max',
@@ -248,7 +249,7 @@ class WishlistControllerTest extends TestCase
                 ],
                 'defaultBillingAddressId' => $addressId,
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => 'testuser@example.com',
                 'password' => 'test',
                 'firstName' => 'Max',
@@ -304,7 +305,7 @@ class WishlistControllerTest extends TestCase
             'manufacturer' => ['name' => 'test'],
             'visibilities' => [
                 [
-                    'salesChannelId' => $salesChannelId ?? Defaults::SALES_CHANNEL,
+                    'salesChannelId' => $salesChannelId ?? TestDefaults::SALES_CHANNEL,
                     'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
                 ],
             ],

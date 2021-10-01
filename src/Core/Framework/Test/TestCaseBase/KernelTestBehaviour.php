@@ -7,6 +7,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 trait KernelTestBehaviour
 {
+    use EventDispatcherBehaviour;
+
     protected function getKernel(): Kernel
     {
         return KernelLifecycleManager::getKernel();

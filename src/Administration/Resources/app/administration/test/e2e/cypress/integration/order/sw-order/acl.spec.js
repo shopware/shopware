@@ -47,29 +47,38 @@ describe('Order: Test ACL privileges', () => {
             `${page.elements.dataGridRow}--0`
         );
 
-        cy.get(`${page.elements.userMetadata}-user-name`)
-            .contains('Max Mustermann');
-        cy.get('.sw-order-user-card__metadata-price').contains('64');
-        cy.get('.sw-order-base__label-sales-channel').contains('Storefront');
+        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get(`${page.elements.userMetadata}-user-name`)
+                .contains('Max Mustermann');
+            cy.get('.sw-order-user-card__metadata-price').contains('64');
+            cy.get('.sw-order-base__label-sales-channel').contains('Storefront');
+        });
+
         cy.get('.sw-order-detail__summary').scrollIntoView();
         cy.get(`${page.elements.dataGridRow}--0`).contains('Product name');
         cy.get(`${page.elements.dataGridRow}--0`).contains('64');
         cy.get(`${page.elements.dataGridRow}--0`).contains('19 %');
-        cy.get('.sw-order-detail__summary').scrollIntoView();
-        cy.get('.sw-address__headline').contains('Shipping address');
-        cy.get('.sw-order-delivery-metadata .sw-address__location').contains('Bielefeld');
-        cy.get('.sw-order-state-card__history-entry .sw-order-state-card__text').contains('Open');
+
+        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get('.sw-order-detail__summary').scrollIntoView();
+            cy.get('.sw-address__headline').contains('Shipping address');
+            cy.get('.sw-order-delivery-metadata .sw-address__location').contains('Bielefeld');
+            cy.get('.sw-order-state-card__history-entry .sw-order-state-card__text').contains('Open');
+        });
     });
 
     it('@acl: can edit order', () => {
-        cy.route({
-            url: `${Cypress.env('apiPath')}/_action/order/**/product/**`,
-            method: 'post'
+        // skip for feature FEATURE_NEXT_7530, this test is reactivated again with NEXT-16682
+        cy.skipOnFeature('FEATURE_NEXT_7530');
+
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/_action/order/**/product/**`,
+            method: 'POST'
         }).as('orderAddProductCall');
 
-        cy.route({
-            url: `${Cypress.env('apiPath')}/_action/version/merge/order/**`,
-            method: 'post'
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/_action/version/merge/order/**`,
+            method: 'POST'
         }).as('orderSaveCall');
 
         const page = new OrderPageObject();
@@ -94,11 +103,13 @@ describe('Order: Test ACL privileges', () => {
             `${page.elements.dataGridRow}--0`
         );
 
-        cy.get(`${page.elements.userMetadata}-user-name`)
-            .contains('Max Mustermann');
+        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get(`${page.elements.userMetadata}-user-name`)
+                .contains('Max Mustermann');
 
-        // click edit button
-        cy.get('.sw-order-detail__smart-bar-edit-button').click();
+            // click edit button
+            cy.get('.sw-order-detail__smart-bar-edit-button').click();
+        });
 
         // click "add product"
         cy.get('.sw-order-detail-base__line-item-grid-card').scrollIntoView();
@@ -111,21 +122,17 @@ describe('Order: Test ACL privileges', () => {
             .typeSingleSelectAndCheck('Product name', '.sw-order-product-select__single-select');
 
         cy.get('.sw-data-grid__inline-edit-save').click();
-        cy.wait('@orderAddProductCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@orderAddProductCall').its('response.statusCode').should('equal', 204);
 
         // click save
         cy.get('.sw-order-detail__smart-bar-save-button').click();
 
-        cy.wait('@orderSaveCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@orderSaveCall').its('response.statusCode').should('equal', 204);
     });
 
     it('@acl: can delete order', () => {
-        cy.route({
-            url: `${Cypress.env('apiPath')}/order/**`,
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/order/**`,
             method: 'delete'
         }).as('orderDeleteCall');
 
@@ -159,8 +166,6 @@ describe('Order: Test ACL privileges', () => {
         );
         cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();
 
-        cy.wait('@orderDeleteCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@orderDeleteCall').its('response.statusCode').should('equal', 204);
     });
 });

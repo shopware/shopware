@@ -63,6 +63,7 @@
             <argument type="service" id="dead_message.repository"/>
             <argument type="service" id="messenger.bus.shopware"/>
             <argument type="service" id="encrypted.messenger.bus.shopware"/>
+            <argument type="service" id="logger"/>
         </service>
 
         <!--EventSubscriber-->

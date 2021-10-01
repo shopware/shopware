@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Controller\ErrorController;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
@@ -83,11 +84,11 @@ class ErrorControllerTest extends TestCase
 
         $this->addDomain($this->domain);
         $salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
         $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, Random::getAlphanumericString(32));
         $request->attributes->add([RequestTransformer::STOREFRONT_URL => $this->domain]);
         $request->attributes->add([PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT => $salesChannelContext]);
-        $request->attributes->add([PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID => Defaults::SALES_CHANNEL]);
+        $request->attributes->add([PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID => TestDefaults::SALES_CHANNEL]);
         $request->attributes->add(['_route' => 'frontend.account.register.page', SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true]);
         $request->attributes->add([RequestTransformer::STOREFRONT_URL, 'shopware.test']);
 
@@ -100,7 +101,7 @@ class ErrorControllerTest extends TestCase
             ->fetchColumn('SELECT LOWER(HEX(id)) FROM snippet_set LIMIT 1');
 
         $domain = [
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'languageId' => Defaults::LANGUAGE_SYSTEM,
             'url' => $url,
             'currencyId' => Defaults::CURRENCY,

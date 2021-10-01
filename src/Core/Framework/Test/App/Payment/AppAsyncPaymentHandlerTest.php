@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStat
 use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentFinalizeException;
 use Shopware\Core\Checkout\Payment\Exception\AsyncPaymentProcessException;
 use Shopware\Core\Checkout\Payment\Exception\CustomerCanceledAsyncPaymentException;
+use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Payment\Response\AsyncFinalizeResponse;
 use Shopware\Core\Framework\App\Payment\Response\AsyncPayResponse;
 use Shopware\Core\Framework\Feature;
@@ -43,6 +44,8 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
         static::assertTrue($request->hasHeader('shopware-shop-signature'));
         static::assertSame(hash_hmac('sha256', $body, $this->app->getAppSecret()), $request->getHeaderLine('shopware-shop-signature'));
         static::assertNotEmpty($request->getHeaderLine('sw-version'));
+        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
+        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
         static::assertSame('POST', $request->getMethod());
         static::assertJson($body);
         $content = json_decode($body, true);
@@ -264,6 +267,8 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTest
         static::assertTrue($request->hasHeader('shopware-shop-signature'));
         static::assertSame(hash_hmac('sha256', $body, $this->app->getAppSecret()), $request->getHeaderLine('shopware-shop-signature'));
         static::assertNotEmpty($request->getHeaderLine('sw-version'));
+        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
+        static::assertNotEmpty($request->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
         static::assertSame('POST', $request->getMethod());
         static::assertJson($body);
         $content = json_decode($body, true);

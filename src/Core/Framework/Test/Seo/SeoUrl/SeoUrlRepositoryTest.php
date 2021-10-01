@@ -6,12 +6,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlDefinition;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteRegistry;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 
 class SeoUrlRepositoryTest extends TestCase
 {
@@ -23,7 +23,7 @@ class SeoUrlRepositoryTest extends TestCase
         $fk = Uuid::randomHex();
         $url = [
             'id' => $id,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'foreignKey' => $fk,
 
             'routeName' => 'testRoute',
@@ -51,7 +51,7 @@ class SeoUrlRepositoryTest extends TestCase
         $fk = Uuid::randomHex();
         $url = [
             'id' => $id,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'foreignKey' => $fk,
 
             'routeName' => 'testRoute',
@@ -88,7 +88,7 @@ class SeoUrlRepositoryTest extends TestCase
         $fk = Uuid::randomHex();
         $url = [
             'id' => $id,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'foreignKey' => $fk,
 
             'routeName' => 'testRoute',

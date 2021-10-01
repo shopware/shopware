@@ -48,6 +48,10 @@
             <tag name="shopware.rule.definition"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Cart\Rule\CartVolumeRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Cart\Rule\CartHasDeliveryFreeItemRule">
             <tag name="shopware.rule.definition"/>
         </service>
@@ -77,6 +81,10 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Rule\DifferentAddressesRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Rule\EmailRule">
             <tag name="shopware.rule.definition"/>
         </service>
 
@@ -164,6 +172,10 @@
             <tag name="shopware.rule.definition"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Cart\Rule\LineItemInProductStreamRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Cart\Rule\LineItemTaxationRule">
             <tag name="shopware.rule.definition"/>
         </service>
@@ -181,6 +193,10 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Rule\LineItemDimensionWeightRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Rule\LineItemDimensionVolumeRule">
             <tag name="shopware.rule.definition"/>
         </service>
 
@@ -204,6 +220,10 @@
             <tag name="shopware.rule.definition"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Cart\Rule\LineItemStockRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
         <service id="Shopware\Core\Checkout\Cart\Rule\PaymentMethodRule">
             <tag name="shopware.rule.definition"/>
         </service>
@@ -217,6 +237,10 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Rule\OrderTotalAmountRule">
+            <tag name="shopware.rule.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Rule\CustomerCustomFieldRule">
             <tag name="shopware.rule.definition"/>
         </service>
 

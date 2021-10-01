@@ -1,7 +1,6 @@
 // / <reference types="Cypress" />
 
 const promotionCodeFixedSelector = '#sw-field--promotion-code';
-const debounceTimeout = 800;
 
 describe('Promotion v2: Test crud operations', () => {
     beforeEach(() => {
@@ -12,7 +11,6 @@ describe('Promotion v2: Test crud operations', () => {
         }).then(() => {
             cy.openInitialPage(`${Cypress.env('admin')}#/sw/promotion/v2/index`);
 
-            cy.server();
             cy.get('.sw-data-grid__cell--name > .sw-data-grid__cell-content > a').click();
         });
     });
@@ -28,7 +26,7 @@ describe('Promotion v2: Test crud operations', () => {
 
         // Save
         cy.get('.sw-promotion-v2-detail__save-action').click();
-        cy.get('.sw-loader').should('not.be.visible');
+        cy.get('.sw-loader').should('not.exist');
 
         // Generate and check code
         cy.get(promotionCodeFixedSelector).should('contain.value', testPromoCode);
@@ -51,7 +49,28 @@ describe('Promotion v2: Test crud operations', () => {
         cy.get('.sw-promotion-v2-generate-codes-modal').should('be.visible');
     });
 
-    it('@base @marketing: generate and save individual promotion codes and replace afterwards with a custom pattern', () => {
+    it.only('@base @marketing: generate and save individual promotion codes and replace afterwards with a custom pattern', () => {
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/_action/promotion/codes/preview?codePattern=pre_%25s%25s%25s%25s%25s_post`,
+            method: 'GET'
+        }).as('previewCode1');
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/_action/promotion/codes/preview?codePattern=pre_%25s%25s_post`,
+            method: 'GET'
+        }).as('previewCode2');
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/_action/promotion/codes/preview?codePattern=new_%25d%25d%25d_new!`,
+            method: 'GET'
+        }).as('previewCode3');
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/_action/promotion/codes/replace-individual`,
+            method: 'PATCH'
+        }).as('generateCodes');
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/search/promotion`,
+            method: 'POST'
+        }).as('loadCodes');
+
         cy.get('#sw-field--selectedCodeType').select('Individual promotion codes');
         cy.get('.sw-promotion-v2-individual-codes-behavior__empty-state').should('be.visible');
         cy.get('.sw-promotion-v2-individual-codes-behavior__empty-state-generate-action')
@@ -72,7 +91,7 @@ describe('Promotion v2: Test crud operations', () => {
             .type('_post{enter}');
 
         // Generate first preview
-        cy.wait(debounceTimeout);
+        cy.wait('@previewCode1').its('response.statusCode').should('equal', 200);
         cy.get('.sw-promotion-v2-generate-codes-modal__button-generate').should('not.be.disabled');
         cy.get('#sw-field--preview').then((content) => {
             expect(content[0].value).to.match(/pre_([A-Z]){5}_post/);
@@ -83,7 +102,7 @@ describe('Promotion v2: Test crud operations', () => {
             .clear()
             .type('2{enter}');
 
-        cy.wait(debounceTimeout);
+        cy.wait('@previewCode2').its('response.statusCode').should('equal', 200);
         cy.get('.sw-promotion-v2-generate-codes-modal__button-generate').should('not.be.disabled');
         cy.get('#sw-field--preview').then((content) => {
             expect(content[0].value).to.match(/pre_([A-Z]){2}_post/);
@@ -92,7 +111,7 @@ describe('Promotion v2: Test crud operations', () => {
         // Save pattern and reopen
         cy.get('.sw-promotion-v2-generate-codes-modal__button-cancel').click();
         cy.get('.sw-promotion-v2-detail__save-action').click();
-        cy.get('.sw-loader').should('not.be.visible');
+        cy.get('.sw-loader').should('not.exist');
 
         cy.get('.sw-promotion-v2-individual-codes-behavior__empty-state-generate-action')
             .should('be.visible')
@@ -100,7 +119,7 @@ describe('Promotion v2: Test crud operations', () => {
         cy.get('.sw-promotion-v2-generate-codes-modal').should('be.visible');
 
         // Check new preview
-        cy.wait(debounceTimeout);
+        cy.wait('@previewCode2').its('response.statusCode').should('equal', 200);
         cy.get('.sw-promotion-v2-generate-codes-modal__button-generate').should('not.be.disabled');
         cy.get('#sw-field--preview').then((content) => {
             expect(content[0].value).to.match(/pre_([A-Z]){2}_post/);
@@ -111,8 +130,11 @@ describe('Promotion v2: Test crud operations', () => {
             .clear()
             .type('15{enter}');
         cy.get('.sw-promotion-v2-generate-codes-modal__button-generate').click();
-        cy.get('.sw-promotion-v2-generate-codes-modal').should('not.be.visible');
-        cy.get('.sw-promotion-v2-individual-codes-behavior__empty-state').should('not.be.visible');
+
+        cy.wait('@generateCodes').its('response.statusCode').should('equal', 204);
+
+        cy.get('.sw-promotion-v2-generate-codes-modal').should('not.exist');
+        cy.get('.sw-promotion-v2-individual-codes-behavior__empty-state').should('not.exist');
 
         cy.get('.sw-data-grid__cell--code > .sw-data-grid__cell-content > span').then((content) => {
             expect(content).to.have.length(15);
@@ -127,7 +149,7 @@ describe('Promotion v2: Test crud operations', () => {
         cy.get('.sw-promotion-v2-generate-codes-modal').should('be.visible');
 
         cy.get('.sw-promotion-v2-generate-codes-modal__content > .sw-field--switch > .sw-field--switch__content > .sw-field > .sw-field__label > label').click();
-        cy.get('#sw-field--pattern-prefix').should('not.be.visible');
+        cy.get('#sw-field--pattern-prefix').should('not.exist');
         cy.get('#sw-field--promotion-individualCodePattern')
             .should('have.value', 'pre_%s%s_post')
             .clear()
@@ -137,14 +159,20 @@ describe('Promotion v2: Test crud operations', () => {
             .type('20{enter}');
 
         // Check new preview
-        cy.wait(debounceTimeout);
+        cy.wait('@previewCode3').its('response.statusCode').should('equal', 200);
         cy.get('.sw-promotion-v2-generate-codes-modal__button-generate').should('not.be.disabled');
         cy.get('#sw-field--preview').then((content) => {
             expect(content[0].value).to.match(/new_([0-9]){3}_new!/);
         });
 
         cy.get('.sw-promotion-v2-generate-codes-modal__button-generate').click();
-        cy.get('.sw-promotion-v2-generate-codes-modal').should('not.be.visible');
+
+        cy.wait('@generateCodes').its('response.statusCode').should('equal', 204);
+
+        cy.get('.sw-promotion-v2-generate-codes-modal').should('not.exist');
+
+        cy.wait('@loadCodes').its('response.statusCode').should('equal', 200);
+        cy.get('.sw-loader').should('not.exist');
 
         // Check generated and overridden codes
         cy.get('.sw-data-grid__cell--code > .sw-data-grid__cell-content > span').then((content) => {

@@ -18,10 +18,13 @@
             },
             "contextMenu": {
                 "showLog": "Open log entry",
+                "showLogInfo": "Open log information",
                 "downloadFile": "Download file",
+                "downloadImportFile": "Download import file",
+                "downloadExportFile": "Download export file",
                 "showProfile": "Show profile",
                 "downloadInvalidFile": "Download invalid records",
-                "showResults": "Show result table"
+                "showResults": "Show summary"
             },
             "detail": {
                 "modalTitle": "Log information",
@@ -33,23 +36,61 @@
                 "labelFailedRecords": "Failed records",
                 "labelSize": "File size",
                 "labelUser": "User",
-                "labelDate": "Date / Time",
+                "labelDate": "Date / time",
                 "labelState": "Status",
                 "exportLabel": "Export",
                 "importLabel": "Import",
+                "dryrunLabel": "Dry run",
                 "labelDownloadFile": "Download file",
                 "helpTextFailedRecords": "Failed records can be downloaded, edited and re-imported.",
                 "labelDownloadInvalidFile": "Download failed records"
             },
+            "logInfo": {
+              "modalTitle": "Log information",
+              "labelClose": "Close",
+              "labelFilename": "Filename",
+              "labelType": "Type",
+              "labelExportRecords": "Exported records",
+              "labelSize": "File size",
+              "labelUser": "User",
+              "labelDate": "Date / time",
+              "labelState": "Status",
+              "labelProfile": "Profile",
+              "exportLabel": "Export",
+              "importLabel": "Import",
+              "dryrunLabel": "Dry run",
+              "labelDownloadFile": "Download export file"
+            },
             "result": {
-              "modalTitle": "Result table",
-              "entityName": "Object type name",
-              "insert": "Created",
-              "update": "Updated",
-              "insertError": "Creation error",
-              "updateError": "Update error",
-              "insertSkip": "Creation skipped",
-              "updateSkip": "Update skipped"
+              "modalTitle": "Import summary",
+              "activityHeadline": "Import activity: related changes",
+              "activityDescription": "The following entities were affected by the {entity} import.",
+              "entityName": "Data sets",
+              "changes": "Changes",
+              "errors": "Errors",
+              "skipped": "Skipped",
+              "labelDownloadFile": "Download import file",
+              "labelDownloadInvalidFile": "Download failed records",
+              "mainEntity": {
+                "title": "Import activity: {entity}",
+                "insert": "Created",
+                "update": "Updated",
+                "insertError": "Creation error",
+                "updateError": "Update error",
+                "insertSkip": "Creation skipped",
+                "updateSkip": "Update skipped"
+              },
+              "logInfo": {
+                "title": "Log information",
+                "labelFilename": "Filename",
+                "labelType": "Type",
+                "labelImported": "Imported records",
+                "labelSize": "File size",
+                "labelState": "Status",
+                "labelUser": "User",
+                "labelProfile": "Profile",
+                "labelDate": "Date / time"
+              }
             },
             "status": {
                 "progress": "Processing",
@@ -83,6 +124,7 @@
             "addNewProfileLabel": "Add new profile",
             "addNewProfileTooltipLanguage": "Profiles can only be created in the default system language",
             "openLabel": "Open",
+            "indicatorHeadline" : "Field Indicators",
             "duplicateLabel": "Duplicate",
             "copyOfLabel": "Copy of:",
             "saveProfileLabel": "Save profile",
@@ -96,25 +138,28 @@
             "enclosureFieldLabel": "Enclosure character",
             "addMappingTooltipText": "Please define an object type first.",
             "objectTypeFieldTooltipText": "The object type cannot be changed when mapping options are present.",
-            "descriptionBlock": "Object types define a certain mode for importing and exporting data. This will additionally lessen he mapping options. Note that you cannot change the object type after mapping options have been introduced.",
+            "descriptionBlock": "Object types define a certain mode for importing and exporting data. Selecting an object type will limit the mapping options. Notice that you cannot change the object type after mapping options have been introduced.",
             "mappingDescriptionBlock": "Use the table on the \"Mappings\" tab to map CSV fields to their respective database counterparts.",
-            "csvDescriptionBlock": "Separators are used to separate individual fields. Enclosure characters are used to ignore specific control characters contained therein. For example, if the separator appears in continuous text.",
+            "csvDescriptionBlock": "Separators and enclosure characters are used to indicate the separate field within the CSV file. Separators are used to split single fields, enclosure characters are used to group multiple fields.",
             "cancelLabel": "Cancel",
             "addMappingLabel": "Add new mapping",
+            "downloadTemplateLabel": "Download template",
             "deleteLabel": "Delete",
             "systemDefaultInfoText": "You are viewing a system default profile which cannot be modified. You can either create a new profile or duplicate a system default profile.",
             "mapping": {
                 "fileValueLabel": "CSV name",
                 "entityLabel": "Database entry",
                 "isRequired": "Required",
-                "defaultValue": "Default value"
+                "defaultValue": "Default value",
+                "position": "Position",
+                "notMapped": "Not mapped"
             },
             "typeColumn": "Type",
             "nameColumn": "Name",
             "customTypeLabel": "Custom",
             "defaultTypeLabel": "Default",
             "propertyLabel": "Properties",
-            "mappingDescription": "Use the table below to map the CSV name to the Shopware database. Additionally, you can set if the mapping entry should be required (if not already required by the database entry itself). Empty required fields will cause an error during the import unless the default empty value has been set. The default empty value will be used to fill out empty database entries when importing or CSV names when exporting.",
+            "mappingDescription": "Use the table below to map the CSV column names to Shopware database entries. Empty required fields will cause an error during the import unless a default value has been set.",
             "mappingEmptyState": "No custom mapping provided yet.",
             "configuratorSettingLabel": "Variant configuration settings",
             "productCrossSellingLabel": "Cross-Selling",
@@ -129,10 +174,13 @@
                 "importExportLabel": "Import and export",
                 "importLabel": "Import",
                 "exportLabel": "Export"
-            }
+            },
+          "profileTypeDisabledText": "Clear 'usage' in order to be able to select any 'object type'.",
+          "objectTypeDisabledText": "Clear 'object type' in order to be able to select any 'usage'."
         },
         "exporter": {
-            "messageExportSuccess": "The export was completed successfully.",
+            "messageExportStarted": "The export was started successfully.",
+            "messageExportSuccess": "The export \"{profile}\" was completed successfully.",
             "startExportLabel": "Start export",
             "showLogLabel": "Show log file",
             "exportActivityLabel": "Export activity",
@@ -145,8 +193,10 @@
             "exportVariants": "Export product variants"
         },
         "importer": {
-            "messageImportSuccess": "The import was completed successfully.",
-            "messageImportError": "There were errors during the import",
+            "messageImportStarted": "The import was started successfully.",
+            "messageImportSuccess": "The import \"{profile}\" was completed successfully.",
+            "messageImportError": "There were errors during the import of \"{profile}\"",
+            "messageImportWarning": "No records imported. Please make sure your delimiters match the current profile.",
             "uploadCsvLabel": "Upload CSV file",
             "startImportLabel": "Start import",
             "selectProfileLabel": "Select profile",
@@ -159,9 +209,7 @@
             "close": "Close",
             "labelUploadCaption": "Select a file to upload",
             "variantsWarning": "<strong>Attention when importing variants: </strong> If the variants are to be imported completely directly, you should also import them. Use a profile that imports variant settings.<br>If you don't do this, the variants must be created manually by the admin.",
-            "importVariants": "Import product variants",
-            "messageExportSuccess": "The export was completed successfully.",
-            "messageExportError": "Errors occurred while importing."
+            "importVariants": "Import product variants"
         },
         "page": {
             "profileTab": "Profiles",
@@ -171,21 +219,7 @@
         "progress": {
             "startImportLabel": "Start import",
             "startImportDryrunLabel": "Start dry run",
-            "startExportLabel": "Start export",
-            "entriesLabel": "Entries",
-            "fileSizeLabel": "kB",
-            "successTitle": "successful",
-            "downloadFileLabel": "Download file",
-            "succeededImportText": "Import succeeded",
-            "succeededExportText": "Export succeeded",
-            "failedImportText": "Import failed",
-            "progressImportText": "Processing",
-            "progressExportText": "Processing",
-            "downloadFailedLabel": "Download failed records",
-            "successfulImportsText": "{records} records imported successful.",
-            "failedImportsText": "{failedRecords} records failed to import. The failed records can be downloaded, edited and re-imported.",
-            "failedExportText": "Export failed",
-            "showLogFileLabel": "Show log entry"
+            "startExportLabel": "Start export"
         }
     },
   "sw-privileges": {

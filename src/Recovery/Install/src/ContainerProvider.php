@@ -221,36 +221,11 @@ class ContainerProvider implements ServiceProviderInterface
         };
 
         $container['migration.sources'] = static function ($c) {
-            if (file_exists(SW_PATH . '/platform/src/Core/schema.sql')) {
-                $coreBasePath = SW_PATH . '/platform/src/Core';
-                $storefrontBasePath = SW_PATH . '/platform/src/Storefront';
-            } else {
-                $coreBasePath = SW_PATH . '/vendor/shopware/core';
-                $storefrontBasePath = SW_PATH . '/vendor/shopware/storefront';
-            }
-
-            $v3 = new CoreMigrationSource('core.V6_3', [
-                $coreBasePath . '/Migration/V6_3' => 'Shopware\\Core\\Migration\\V6_3',
-                $storefrontBasePath . '/Migration/V6_3' => 'Shopware\\Storefront\\Migration\\V6_3',
-            ]);
-            $v3->addReplacementPattern('#^(Shopware\\\\Core\\\\Migration\\\\)V6_3\\\\([^\\\\]*)$#', '$1$2');
-            $v3->addReplacementPattern('#^(Shopware\\\\Storefront\\\\Migration\\\\)V6_3\\\\([^\\\\]*)$#', '$1$2');
-
-            $v4 = new CoreMigrationSource('core.V6_4', [
-                $coreBasePath . '/Migration/V6_4' => 'Shopware\\Core\\Migration\\V6_4',
-                $storefrontBasePath . '/Migration/V6_4' => 'Shopware\\Storefront\\Migration\\V6_4',
-            ]);
-            $v4->addReplacementPattern('#^(Shopware\\\\Core\\\\Migration\\\\)V6_4\\\\([^\\\\]*)$#', '$1$2');
-            $v4->addReplacementPattern('#^(Shopware\\\\Storefront\\\\Migration\\\\)V6_4\\\\([^\\\\]*)$#', '$1$2');
-
             return [
                 new CoreMigrationSource('core', []),
-                $v3,
-                $v4,
-                new CoreMigrationSource('core.V6_5', [
-                    $coreBasePath . '/Migration/V6_5' => 'Shopware\\Core\\Migration\\V6_5',
-                    $storefrontBasePath . '/Migration/V6_5' => 'Shopware\\Storefront\\Migration\\V6_5',
-                ]),
+                self::createMigrationSource('V6_3', true),
+                self::createMigrationSource('V6_4', true),
+                self::createMigrationSource('V6_5'),
             ];
         };
 
@@ -267,5 +242,35 @@ class ContainerProvider implements ServiceProviderInterface
         $container['blue.green.deployment.service'] = static function ($c) {
             return new BlueGreenDeploymentService($c['dbal']);
         };
+    }
+
+    private static function createMigrationSource(string $version, bool $addReplacements = false): CoreMigrationSource
+    {
+        if (file_exists(SW_PATH . '/platform/src/Core/schema.sql')) {
+            $coreBasePath = SW_PATH . '/platform/src/Core';
+            $storefrontBasePath = SW_PATH . '/platform/src/Storefront';
+        } else {
+            $coreBasePath = SW_PATH . '/vendor/shopware/core';
+            $storefrontBasePath = SW_PATH . '/vendor/shopware/storefront';
+        }
+
+        $hasStorefrontMigrations = is_dir($storefrontBasePath);
+
+        $source = new CoreMigrationSource('core.' . $version, [
+            sprintf('%s/Migration/%s', $coreBasePath, $version) => sprintf('Shopware\\Core\\Migration\\%s', $version),
+        ]);
+
+        if ($hasStorefrontMigrations) {
+            $source->addDirectory(sprintf('%s/Migration/%s', $storefrontBasePath, $version), sprintf('Shopware\\Storefront\\Migration\\%s', $version));
+        }
+
+        if ($addReplacements) {
+            $source->addReplacementPattern(sprintf('#^(Shopware\\\\Core\\\\Migration\\\\)%s\\\\([^\\\\]*)$#', $version), '$1$2');
+            if ($hasStorefrontMigrations) {
+                $source->addReplacementPattern(sprintf('#^(Shopware\\\\Storefront\\\\Migration\\\\)%s\\\\([^\\\\]*)$#', $version), '$1$2');
+            }
+        }
+
+        return $source;
     }
 }

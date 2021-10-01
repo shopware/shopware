@@ -31,10 +31,9 @@ describe('Product: Editing context prices', () => {
         const priceGross11USD = 999;
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Open the product
@@ -113,38 +112,36 @@ describe('Product: Editing context prices', () => {
         cy.get(page.elements.productSaveAction).click();
 
         // Check if values matches the inputs
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
+        cy.wait('@saveData').its('response.statusCode').should('equal', 200);
 
-            // second price group should be visible
-            cy.get(`${priceGroup}-1`)
-                .should('be.visible');
+        // second price group should be visible
+        cy.get(`${priceGroup}-1`)
+            .should('be.visible');
 
-            // check if all fields saved successfully
-            cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--0 ${quantityEndCell} input`)
-                .should('be.visible');
-            cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--0 ${quantityEndCell} input`)
-                .should('have.value', `${quantityEnd00}`);
+        // check if all fields saved successfully
+        cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--0 ${quantityEndCell} input`)
+            .should('be.visible');
+        cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--0 ${quantityEndCell} input`)
+            .should('have.value', `${quantityEnd00}`);
 
-            cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--1 ${quantityEndCell} input`)
-                .should('have.value', `${quantityEnd01}`);
+        cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--1 ${quantityEndCell} input`)
+            .should('have.value', `${quantityEnd01}`);
 
-            cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--2 ${priceCell}-EUR .sw-price-field__gross input`)
-                .scrollIntoView()
-                .should('have.value', `${priceGross02EUR}`);
+        cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--2 ${priceCell}-EUR .sw-price-field__gross input`)
+            .scrollIntoView()
+            .should('have.value', `${priceGross02EUR}`);
 
-            cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--2 ${priceCell}-EUR .sw-price-field__lock.is--locked`)
-                .scrollIntoView()
-                .should('be.visible');
+        cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--2 ${priceCell}-EUR .sw-price-field__lock.is--locked`)
+            .scrollIntoView()
+            .should('be.visible');
 
-            cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--1 ${priceCell}-USD .sw-inheritance-switch .icon--custom-uninherited`)
-                .scrollIntoView()
-                .should('be.visible');
+        cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--1 ${priceCell}-USD .sw-inheritance-switch .icon--custom-uninherited`)
+            .scrollIntoView()
+            .should('be.visible');
 
-            cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--1 ${priceCell}-USD .sw-price-field__gross input`)
-                .scrollIntoView()
-                .should('have.value', `${priceGross11USD}`);
-        });
+        cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--1 ${priceCell}-USD .sw-price-field__gross input`)
+            .scrollIntoView()
+            .should('have.value', `${priceGross11USD}`);
 
         // change quantityStart in first price group and third price rule to an unallowed value
         cy.get(`${priceGroup}-0 ${page.elements.dataGridRow}--2 ${quantityStartCell} input`)

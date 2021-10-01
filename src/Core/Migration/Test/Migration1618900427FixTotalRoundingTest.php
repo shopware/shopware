@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1618900427FixTotalRounding;
+use Shopware\Core\Test\TestDefaults;
 
 class Migration1618900427FixTotalRoundingTest extends TestCase
 {
@@ -28,7 +29,7 @@ class Migration1618900427FixTotalRoundingTest extends TestCase
             'id' => $ids->get('order'),
             'billingAddressId' => $ids->get('billing'),
             'currencyId' => Defaults::CURRENCY,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'stateId' => $this->getStateId(),
             'currencyFactor' => 1,
             'orderDateTime' => new \DateTime(),

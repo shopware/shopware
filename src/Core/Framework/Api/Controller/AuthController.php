@@ -58,11 +58,11 @@ class AuthController extends AbstractController
      *         required=true,
      *         @OA\JsonContent(
      *             required={
-     *                  "grand_type"
+     *                  "grant_type"
      *             },
      *             description="For more information take a look at the [Authentication documentation](https://shopware.stoplight.io/docs/admin-api/docs/concepts/authentication-authorisation.md).",
      *             @OA\Property(
-     *                 property="grand_type",
+     *                 property="grant_type",
      *                 description="The grant type that should be used. See [OAuth 2.0 grant](https://oauth2.thephpleague.com/authorization-server/which-grant/) for more information.",
      *                 type="string",
      *                 enum={"password", "refresh_token", "client_credentials"}

@@ -56,10 +56,9 @@ describe('Unit: Test acl privileges', () => {
         });
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/unit`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Go to unit module
@@ -76,9 +75,7 @@ describe('Unit: Test acl privileges', () => {
         cy.get('.sw-data-grid__inline-edit-save').click();
 
         // Verify creation
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(`${page.elements.dataGridRow}--1 .sw-data-grid__cell--name`)
             .should('be.visible')
@@ -102,10 +99,9 @@ describe('Unit: Test acl privileges', () => {
         });
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/unit/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         // Go to unit module
@@ -121,9 +117,7 @@ describe('Unit: Test acl privileges', () => {
         cy.get('.sw-data-grid__inline-edit-save').click();
 
         // Verify creation
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
             .should('be.visible')
@@ -147,8 +141,7 @@ describe('Unit: Test acl privileges', () => {
         });
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/unit/*`,
             method: 'delete'
         }).as('deleteData');
@@ -166,9 +159,7 @@ describe('Unit: Test acl privileges', () => {
         );
 
         // Verify creation
-        cy.wait('@deleteData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteData').its('response.statusCode').should('equal', 204);
 
         cy.get('.sw-empty-state').should('be.visible');
     });

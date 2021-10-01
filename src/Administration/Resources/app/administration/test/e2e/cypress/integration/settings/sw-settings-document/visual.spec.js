@@ -13,10 +13,9 @@ describe('Documents: Visual testing', () => {
     });
 
     it('@visual: check appearance of document module', () => {
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/search/document-base-config`,
-            method: 'post'
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/search/document-base-config`,
+            method: 'POST'
         }).as('getData');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
@@ -25,9 +24,8 @@ describe('Documents: Visual testing', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('a[href="#/sw/settings/document/index').click();
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getData')
+            .its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.takeSnapshot('[Documents] Listing', '.sw-settings-document-list-grid');

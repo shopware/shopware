@@ -49,6 +49,7 @@ Component.register('sw-product-list', {
             storeKey: 'grid.filter.product',
             activeFilterNumber: 0,
             showBulkEditModal: false,
+            searchConfigEntity: 'product',
         };
     },
 
@@ -171,6 +172,9 @@ Component.register('sw-product-list', {
                     property: 'releaseDate',
                     label: this.$tc('sw-product.filters.releaseDateFilter.label'),
                     dateType: 'datetime-local',
+                    fromFieldLabel: null,
+                    toFieldLabel: null,
+                    showTimeframe: true,
                 },
             });
         },
@@ -208,8 +212,10 @@ Component.register('sw-product-list', {
         async getList() {
             this.isLoading = true;
 
-            const criteria = await Shopware.Service('filterService')
+            let criteria = await Shopware.Service('filterService')
                 .mergeWithStoredFilters(this.storeKey, this.productCriteria);
+
+            criteria = this.addQueryScores(this.term, criteria);
 
             this.activeFilterNumber = criteria.filters.length - 1;
 

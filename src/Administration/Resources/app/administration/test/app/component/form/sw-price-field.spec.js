@@ -94,7 +94,7 @@ describe('components/form/sw-price-field', () => {
         expect(wrapper.vm.priceForCurrency.net + 0.0).toEqual(dollarPriceConverted.net);
     });
 
-    it('should remove the inheritation when matching currency price exists', async () => {
+    it('should remove the inheritance when matching currency price exists', async () => {
         const wrapper = setup({ price: [euroPrice] });
         expect(wrapper.vm.isInherited).toBeTruthy();
         await wrapper.setProps({ price: [dollarPrice, euroPrice] });

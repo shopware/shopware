@@ -86,7 +86,7 @@ describe('src/app/component/filter/sw-range-filter', () => {
         const divider = wrapper.find('.sw-range-filter__divider');
 
         expect(divider.exists()).toBeTruthy();
-        expect(container.attributes('columns')).toBe('1fr 12px 1fr');
+        expect(container.classes()).toContain('sw-container--has-divider');
     });
 
     it('should render From field and To field in different line', async () => {
@@ -100,6 +100,6 @@ describe('src/app/component/filter/sw-range-filter', () => {
         const divider = wrapper.find('.sw-range-filter__divider');
 
         expect(divider.exists()).toBeFalsy();
-        expect(container.attributes('columns')).toBe('1fr');
+        expect(container.classes()).not.toContain('sw-container--has-divider');
     });
 });

@@ -3,6 +3,8 @@
 namespace Shopware\Core\Checkout\Test\Cart;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Statement;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartPersister;
@@ -16,16 +18,18 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
-use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class CartPersisterTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use EventDispatcherBehaviour;
 
     public function testLoadWithNotExistingToken(): void
     {
@@ -70,10 +74,8 @@ class CartPersisterTest extends TestCase
         $eventDispatcher = new EventDispatcher();
 
         // Cart should be deleted (in case it exists).
-        $connection->expects(static::once())->method('delete');
-
         // Cart should not be inserted or updated.
-        $connection->expects(static::never())->method('executeUpdate');
+        $this->expectSqlQuery($connection, 'DELETE FROM `cart`');
 
         $persister = new CartPersister($connection, $eventDispatcher);
 
@@ -88,10 +90,8 @@ class CartPersisterTest extends TestCase
         $eventDispatcher = new EventDispatcher();
 
         // Cart should be not be deleted.
-        $connection->expects(static::never())->method('delete');
-
         // Cart should be inserted or updated.
-        $connection->expects(static::once())->method('executeUpdate');
+        $this->expectSqlQuery($connection, 'INSERT INTO `cart`');
 
         $persister = new CartPersister($connection, $eventDispatcher);
 
@@ -106,7 +106,10 @@ class CartPersisterTest extends TestCase
             )
         );
 
-        $persister->save($cart, Generator::createSalesChannelContext());
+        $persister->save(
+            $cart,
+            $this->getSalesChannelContext($cart->getToken())
+        );
     }
 
     public function testEmptyCartWithCustomerCommentIsSaved(): void
@@ -115,17 +118,18 @@ class CartPersisterTest extends TestCase
         $eventDispatcher = new EventDispatcher();
 
         // Cart should be not be deleted.
-        $connection->expects(static::never())->method('delete');
-
         // Cart should be inserted or updated.
-        $connection->expects(static::once())->method('executeUpdate');
+        $this->expectSqlQuery($connection, 'INSERT INTO `cart`');
 
         $persister = new CartPersister($connection, $eventDispatcher);
 
         $cart = new Cart('shopware', 'existing');
         $cart->setCustomerComment('Foo');
 
-        $persister->save($cart, Generator::createSalesChannelContext());
+        $persister->save(
+            $cart,
+            $this->getSalesChannelContext($cart->getToken())
+        );
     }
 
     public function testSaveWithItems(): void
@@ -134,10 +138,8 @@ class CartPersisterTest extends TestCase
         $eventDispatcher = new EventDispatcher();
 
         // Verify that cart deletion is never called.
-        $connection->expects(static::never())->method('delete');
-
         // Check that cart insert or update is called.
-        $connection->expects(static::once())->method('executeUpdate');
+        $this->expectSqlQuery($connection, 'INSERT INTO `cart`');
 
         $persister = new CartPersister($connection, $eventDispatcher);
 
@@ -148,17 +150,20 @@ class CartPersisterTest extends TestCase
                 ->setLabel('test')
         );
 
-        $persister->save($cart, Generator::createSalesChannelContext());
+        $persister->save(
+            $cart,
+            $this->getSalesChannelContext($cart->getToken())
+        );
     }
 
     public function testCartSavedEventIsFired(): void
     {
         $connection = $this->createMock(Connection::class);
         $eventDispatcher = new EventDispatcher();
-        $connection->expects(static::once())->method('executeUpdate');
+        $this->expectSqlQuery($connection, 'INSERT INTO `cart`');
 
         $caughtEvent = null;
-        $eventDispatcher->addListener(CartSavedEvent::class, static function (CartSavedEvent $event) use (&$caughtEvent): void {
+        $this->addEventListener($eventDispatcher, CartSavedEvent::class, static function (CartSavedEvent $event) use (&$caughtEvent): void {
             $caughtEvent = $event;
         });
 
@@ -171,7 +176,10 @@ class CartPersisterTest extends TestCase
                 ->setLabel('test')
         );
 
-        $persister->save($cart, Generator::createSalesChannelContext());
+        $persister->save(
+            $cart,
+            $this->getSalesChannelContext($cart->getToken())
+        );
 
         static::assertInstanceOf(CartSavedEvent::class, $caughtEvent);
         static::assertCount(1, $caughtEvent->getCart()->getLineItems());
@@ -191,11 +199,10 @@ class CartPersisterTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $eventDispatcher = new EventDispatcher();
 
-        $connection->expects(static::never())->method('executeUpdate');
-        $connection->expects(static::once())->method('delete');
+        $this->expectSqlQuery($connection, 'DELETE FROM `cart`');
 
         $caughtEvent = null;
-        $eventDispatcher->addListener(CartVerifyPersistEvent::class, function (CartVerifyPersistEvent $event) use (&$caughtEvent): void {
+        $this->addEventListener($eventDispatcher, CartVerifyPersistEvent::class, function (CartVerifyPersistEvent $event) use (&$caughtEvent): void {
             $caughtEvent = $event;
         });
 
@@ -203,7 +210,10 @@ class CartPersisterTest extends TestCase
 
         $cart = new Cart('shopware', 'existing');
 
-        $persister->save($cart, Generator::createSalesChannelContext());
+        $persister->save(
+            $cart,
+            $this->getSalesChannelContext($cart->getToken())
+        );
         static::assertInstanceOf(CartVerifyPersistEvent::class, $caughtEvent, CartVerifyPersistEvent::class . ' did not run');
         static::assertFalse($caughtEvent->shouldBePersisted());
         static::assertCount(0, $caughtEvent->getCart()->getLineItems());
@@ -214,11 +224,10 @@ class CartPersisterTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $eventDispatcher = new EventDispatcher();
 
-        $connection->expects(static::once())->method('executeUpdate');
-        $connection->expects(static::never())->method('delete');
+        $this->expectSqlQuery($connection, 'INSERT INTO `cart`');
 
         $caughtEvent = null;
-        $eventDispatcher->addListener(CartVerifyPersistEvent::class, static function (CartVerifyPersistEvent $event) use (&$caughtEvent): void {
+        $this->addEventListener($eventDispatcher, CartVerifyPersistEvent::class, static function (CartVerifyPersistEvent $event) use (&$caughtEvent): void {
             $caughtEvent = $event;
         });
 
@@ -229,7 +238,10 @@ class CartPersisterTest extends TestCase
             new LineItem(Uuid::randomHex(), LineItem::PROMOTION_LINE_ITEM_TYPE, Uuid::randomHex(), 1),
         ]));
 
-        $persister->save($cart, Generator::createSalesChannelContext());
+        $persister->save(
+            $cart,
+            $this->getSalesChannelContext($cart->getToken())
+        );
 
         static::assertInstanceOf(CartVerifyPersistEvent::class, $caughtEvent);
         static::assertTrue($caughtEvent->shouldBePersisted());
@@ -241,12 +253,13 @@ class CartPersisterTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $eventDispatcher = new EventDispatcher();
 
+        $this->expectSqlQuery($connection, 'DELETE FROM `cart`');
+
         $caughtEvent = null;
-        $handler = static function (CartVerifyPersistEvent $event) use (&$caughtEvent): void {
+        $this->addEventListener($eventDispatcher, CartVerifyPersistEvent::class, static function (CartVerifyPersistEvent $event) use (&$caughtEvent): void {
             $caughtEvent = $event;
             $event->setShouldPersist(false);
-        };
-        $eventDispatcher->addListener(CartVerifyPersistEvent::class, $handler);
+        });
 
         $persister = new CartPersister($connection, $eventDispatcher);
 
@@ -254,10 +267,6 @@ class CartPersisterTest extends TestCase
         $cart->addLineItems(new LineItemCollection([
             new LineItem(Uuid::randomHex(), LineItem::PROMOTION_LINE_ITEM_TYPE, Uuid::randomHex(), 1),
         ]));
-
-        $connection->expects(static::once())
-            ->method('delete')
-            ->with('`cart`', ['token' => $cart->getToken()]);
 
         $persister->save(
             $cart,
@@ -267,14 +276,26 @@ class CartPersisterTest extends TestCase
         static::assertInstanceOf(CartVerifyPersistEvent::class, $caughtEvent);
         static::assertFalse($caughtEvent->shouldBePersisted());
         static::assertCount(1, $caughtEvent->getCart()->getLineItems());
-
-        $eventDispatcher->removeListener(CartVerifyPersistEvent::class, $handler);
     }
 
     private function getSalesChannelContext(string $token): SalesChannelContext
     {
         return $this->getContainer()
             ->get(SalesChannelContextFactory::class)
-            ->create($token, Defaults::SALES_CHANNEL);
+            ->create($token, TestDefaults::SALES_CHANNEL);
+    }
+
+    private function expectSqlQuery(MockObject $connection, string $beginOfSql): void
+    {
+        $connection->expects(static::once())
+            ->method('prepare')
+            ->with(
+                static::callback(function (string $sql) use ($beginOfSql): bool {
+                    return \str_starts_with(\trim($sql), $beginOfSql);
+                })
+            )
+            ->willReturnCallback(function (string $sql): Statement {
+                return $this->getContainer()->get(Connection::class)->prepare($sql);
+            });
     }
 }

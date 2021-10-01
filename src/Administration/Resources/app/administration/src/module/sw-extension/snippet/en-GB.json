@@ -13,7 +13,7 @@
     "my-extensions": {
       "listing": {
         "initialSearchType": "Extensions",
-        "placeholderSearchBar": "Search extensions...",
+        "placeholderSearchBar": "Find extensions...",
         "controls": {
           "labelActiveStateSwitch": "Hide inactive extensions",
           "filterOptions": {
@@ -100,12 +100,11 @@
     "title": "Store",
     "descriptionTextModule": "Manage your extensions",
     "general": {
-      "labelPrice": "Free | {price} / month | {price}",
-      "labelDiscountedPrice": "Free | <strong>{discountedPrice}</strong> <s>{price}</s> / month | <strong>{discountedPrice}</strong> <s>{price}</s>"
+      "labelPrice": "Free | {price}/month | {price}",
+      "labelDiscountedPrice": "Free | <s>{price}</s> <strong>{discountedPrice}</strong>/month | <s>{price}</s> <strong>{discountedPrice}</strong>"
     },
     "listing": {
       "tabs": {
-        "extensions": "Extensions",
         "themes": "Themes"
       },
       "placeHolderCategories": "All categories",

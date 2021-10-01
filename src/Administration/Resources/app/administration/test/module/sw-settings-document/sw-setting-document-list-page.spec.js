@@ -60,7 +60,8 @@ function createWrapper(privileges = []) {
             },
             repositoryFactory: {
                 create: () => ({ search: () => Promise.resolve([]) })
-            }
+            },
+            searchRankingService: {}
         },
         mocks: {
             $route: { query: '' }

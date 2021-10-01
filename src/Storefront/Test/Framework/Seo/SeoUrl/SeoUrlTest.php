@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Test\Framework\Seo\SeoUrl;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\LandingPage\LandingPageEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 
 /**
@@ -462,7 +464,7 @@ class SeoUrlTest extends TestCase
             'seoUrls' => [
                 [
                     'id' => $seoUrlId1,
-                    'salesChannelId' => Defaults::SALES_CHANNEL,
+                    'salesChannelId' => TestDefaults::SALES_CHANNEL,
                     'routeName' => ProductPageSeoUrlRoute::ROUTE_NAME,
                     'pathInfo' => '/detail/' . $id,
                     'seoPathInfo' => 'awesome v2',
@@ -471,12 +473,18 @@ class SeoUrlTest extends TestCase
                 ],
                 [
                     'id' => $seoUrlId2,
-                    'salesChannelId' => Defaults::SALES_CHANNEL,
+                    'salesChannelId' => TestDefaults::SALES_CHANNEL,
                     'routeName' => ProductPageSeoUrlRoute::ROUTE_NAME,
                     'pathInfo' => '/detail/' . $id,
                     'seoPathInfo' => 'awesome',
                     'isCanonical' => null,
                     'isModified' => true,
+                ],
+            ],
+            'visibilities' => [
+                [
+                    'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                    'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
                 ],
             ],
         ]);
@@ -619,6 +627,12 @@ class SeoUrlTest extends TestCase
                 ],
             ],
             'stock' => 0,
+            'visibilities' => [
+                [
+                    'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                    'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
+                ],
+            ],
         ];
 
         $insert = array_merge($insert, $overrides);

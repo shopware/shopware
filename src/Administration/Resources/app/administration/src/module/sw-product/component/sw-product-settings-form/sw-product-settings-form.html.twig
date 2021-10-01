@@ -13,10 +13,9 @@
         >
             <template #content="props">
 
-                <sw-field
-                    type="date"
+                <sw-datepicker
                     :map-inheritance="props"
-                    date-type="datetime-local"
+                    date-type="datetime"
                     :disabled="props.isInherited || !allowEdit"
                     :error="productReleaseDateError"
                     :label="$tc('sw-product.settingsForm.labelReleaseDate')"

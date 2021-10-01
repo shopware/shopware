@@ -8,6 +8,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Seo\Hreflang\HreflangCollection;
 use Shopware\Core\Content\Seo\HreflangLoaderInterface;
 use Shopware\Core\Content\Seo\HreflangLoaderParameter;
+use Shopware\Core\Content\Test\TestProductSeoUrlRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -17,25 +18,17 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelD
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 
 class HreflangResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $seoUrlRepository;
+    private EntityRepositoryInterface $seoUrlRepository;
 
-    /**
-     * @var SalesChannelContext
-     */
-    private $salesChannelContext;
+    private SalesChannelContext $salesChannelContext;
 
-    /**
-     * @var HreflangLoaderInterface
-     */
-    private $hreflangResolver;
+    private HreflangLoaderInterface $hreflangResolver;
 
     protected function setUp(): void
     {
@@ -45,7 +38,7 @@ class HreflangResolverTest extends TestCase
         $this->seoUrlRepository = $this->getContainer()->get('seo_url.repository');
 
         $contextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
-        $this->salesChannelContext = $contextFactory->create('', Defaults::SALES_CHANNEL);
+        $this->salesChannelContext = $contextFactory->create('', TestDefaults::SALES_CHANNEL);
 
         $this->hreflangResolver = $this->getContainer()->get(HreflangLoaderInterface::class);
 
@@ -82,9 +75,9 @@ class HreflangResolverTest extends TestCase
                 'id' => Uuid::randomHex(),
                 'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
                 'languageId' => $this->salesChannelContext->getSalesChannel()->getDomains()->first()->getLanguageId(),
-                'routeName' => 'frontend.detail.page',
+                'routeName' => TestProductSeoUrlRoute::ROUTE_NAME,
                 'foreignKey' => $productId,
-                'pathInfo' => '/detail/' . $productId,
+                'pathInfo' => '/test/' . $productId,
                 'seoPathInfo' => '/test-path',
             ],
         ], $this->salesChannelContext->getContext());
@@ -125,9 +118,9 @@ class HreflangResolverTest extends TestCase
                 'id' => Uuid::randomHex(),
                 'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
                 'languageId' => $languages->first()->getId(),
-                'routeName' => 'frontend.detail.page',
+                'routeName' => TestProductSeoUrlRoute::ROUTE_NAME,
                 'foreignKey' => $productId,
-                'pathInfo' => '/detail/' . $productId,
+                'pathInfo' => '/test/' . $productId,
                 'seoPathInfo' => 'test-path',
                 'isCanonical' => true,
             ],
@@ -138,9 +131,9 @@ class HreflangResolverTest extends TestCase
                 'id' => Uuid::randomHex(),
                 'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
                 'languageId' => $languages->last()->getId(),
-                'routeName' => 'frontend.detail.page',
+                'routeName' => TestProductSeoUrlRoute::ROUTE_NAME,
                 'foreignKey' => $productId,
-                'pathInfo' => '/detail/' . $productId,
+                'pathInfo' => '/test/' . $productId,
                 'seoPathInfo' => 'test-path',
                 'isCanonical' => true,
             ],
@@ -199,9 +192,9 @@ class HreflangResolverTest extends TestCase
                 'id' => Uuid::randomHex(),
                 'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
                 'languageId' => $languages->first()->getId(),
-                'routeName' => 'frontend.detail.page',
+                'routeName' => TestProductSeoUrlRoute::ROUTE_NAME,
                 'foreignKey' => $productId,
-                'pathInfo' => '/detail/' . $productId,
+                'pathInfo' => '/test/' . $productId,
                 'seoPathInfo' => 'test-path',
                 'isCanonical' => true,
             ],
@@ -212,9 +205,9 @@ class HreflangResolverTest extends TestCase
                 'id' => Uuid::randomHex(),
                 'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
                 'languageId' => $languages->last()->getId(),
-                'routeName' => 'frontend.detail.page',
+                'routeName' => TestProductSeoUrlRoute::ROUTE_NAME,
                 'foreignKey' => $productId,
-                'pathInfo' => '/detail/' . $productId,
+                'pathInfo' => '/test/' . $productId,
                 'seoPathInfo' => 'test-path',
                 'isCanonical' => true,
             ],
@@ -279,9 +272,9 @@ class HreflangResolverTest extends TestCase
                 'id' => Uuid::randomHex(),
                 'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
                 'languageId' => $languages->first()->getId(),
-                'routeName' => 'frontend.detail.page',
+                'routeName' => TestProductSeoUrlRoute::ROUTE_NAME,
                 'foreignKey' => $productId,
-                'pathInfo' => '/detail/' . $productId,
+                'pathInfo' => '/test/' . $productId,
                 'seoPathInfo' => 'test-path',
                 'isCanonical' => true,
             ],
@@ -292,9 +285,9 @@ class HreflangResolverTest extends TestCase
                 'id' => Uuid::randomHex(),
                 'salesChannelId' => $this->salesChannelContext->getSalesChannel()->getId(),
                 'languageId' => $languages->last()->getId(),
-                'routeName' => 'frontend.detail.page',
+                'routeName' => TestProductSeoUrlRoute::ROUTE_NAME,
                 'foreignKey' => $productId,
-                'pathInfo' => '/detail/' . $productId,
+                'pathInfo' => '/test/' . $productId,
                 'seoPathInfo' => 'test-path',
                 'isCanonical' => true,
             ],
@@ -324,7 +317,7 @@ class HreflangResolverTest extends TestCase
 
     private function createParameter(string $productId): HreflangLoaderParameter
     {
-        return new HreflangLoaderParameter('frontend.detail.page', [
+        return new HreflangLoaderParameter(TestProductSeoUrlRoute::ROUTE_NAME, [
             'productId' => $productId,
         ], $this->salesChannelContext);
     }
@@ -334,7 +327,7 @@ class HreflangResolverTest extends TestCase
         $connection = $this->getContainer()->get(Connection::class);
 
         $connection->delete(SalesChannelDomainDefinition::ENTITY_NAME, [
-            'sales_channel_id' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL),
+            'sales_channel_id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL),
         ]);
     }
 

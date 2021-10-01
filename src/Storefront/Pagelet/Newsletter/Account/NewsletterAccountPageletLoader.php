@@ -236,6 +236,10 @@ class NewsletterAccountPageletLoader
             'city',
             ($customer->getDefaultShippingAddress() ? $customer->getDefaultShippingAddress()->getCity() : '')
         );
+        $dataBag->set(
+            'street',
+            ($customer->getDefaultShippingAddress() ? $customer->getDefaultShippingAddress()->getStreet() : '')
+        );
 
         return $dataBag;
     }

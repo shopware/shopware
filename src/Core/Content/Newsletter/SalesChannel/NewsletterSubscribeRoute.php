@@ -319,6 +319,7 @@ The subscription is only successful, if the /newsletter/confirm route is called 
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter($identifier, $value));
+        $criteria->addAssociation('salutation');
         $criteria->setLimit(1);
 
         $newsletterRecipient = $this->newsletterRecipientRepository->search($criteria, $context)->getEntities()->first();

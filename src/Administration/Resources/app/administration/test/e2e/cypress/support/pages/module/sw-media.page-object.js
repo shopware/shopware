@@ -1,4 +1,3 @@
-/* global cy */
 import elements from '../sw-general.page-object';
 
 export default class MediaPageObject {
@@ -22,8 +21,8 @@ export default class MediaPageObject {
                 showMediaAction: '.sw-media-context-item__show-media-action',
                 showSettingsAction: '.sw-media-context-item__open-settings-action',
                 saveSettingsAction: '.sw-media-modal-folder-settings__confirm',
-                mediaQuickInfo: '.sw-media-quickinfo'
-            }
+                mediaQuickInfo: '.sw-media-quickinfo',
+            },
         };
     }
 
@@ -37,14 +36,8 @@ export default class MediaPageObject {
         return this;
     }
 
-    uploadImageUsingFileUpload(path, name) {
-        cy.get(this.elements.uploadInput)
-            .attachFile({
-                filePath: path,
-                fileName: name,
-                mimeType: 'image/png'
-            });
-
+    uploadImageUsingFileUpload(path) {
+        cy.get(this.elements.uploadInput).attachFile(path);
         cy.get('.sw-media-preview-v2__item').should('be.visible');
 
         return this;
@@ -53,7 +46,7 @@ export default class MediaPageObject {
     moveMediaItem(name, {
         itemType,
         position = 0,
-        listingPosition = 0
+        listingPosition = 0,
     }) {
         let mediaItem = this.elements.mediaItem;
         let contextMenuItemSelector = '.sw-media-context-item__move-media-action';
@@ -67,7 +60,7 @@ export default class MediaPageObject {
             this.elements.contextMenuButton,
             mediaItem,
             '',
-            true
+            true,
         );
         cy.get(this.elements.modalTitle).contains(`Move "${name}"`);
         cy.get('.sw-media-modal-move__confirm').should('be.disabled');
@@ -78,7 +71,7 @@ export default class MediaPageObject {
 
         if (itemType === 'folder') {
             cy.awaitAndCheckNotification('Media items have been moved.', {
-                position: 1
+                position: 1,
             });
         } else {
             cy.awaitAndCheckNotification('Media items have been moved.');
@@ -123,9 +116,7 @@ export default class MediaPageObject {
         cy.get('li.quickaction--delete').click();
         cy.get(`${this.elements.modal}__body`).contains(`Are you sure you want to delete "${fileName}"?`);
         cy.get('.sw-media-modal-delete__confirm').click();
-        cy.wait('@deleteData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteData').its('response.statusCode').should('equal', 204);
         cy.get(`input[placeholder="${fileName}"]`).should('not.exist');
     }
 
@@ -144,7 +135,7 @@ export default class MediaPageObject {
             this.elements.contextMenuButton,
             `${this.elements.gridItem}--0`,
             '',
-            true
+            true,
         );
         cy.get(`${this.elements.modal}__body`)
             .contains('Are you sure you want to dissolve "A thing to fold about" ?');
@@ -165,13 +156,13 @@ export default class MediaPageObject {
     }
 
     openChildConfiguration(name) {
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/media-folder-configuration`,
-            method: 'post'
+            method: 'post',
         }).as('getMediaFolderConfiguration');
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/media-folder-configuration/**/media-thumbnail-sizes`,
-            method: 'post'
+            method: 'post',
         }).as('getThumbnailSizes');
 
         cy.get('.sw-media-folder-item')

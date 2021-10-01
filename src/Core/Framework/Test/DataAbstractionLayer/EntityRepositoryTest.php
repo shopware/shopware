@@ -24,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
@@ -36,6 +37,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
@@ -44,15 +46,29 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\Locale\LocaleDefinition;
+use Shopware\Core\Test\TestDefaults;
 
 class EntityRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
+
+    public function testSetEntityLoadedEventFactory(): void
+    {
+        Feature::skipTestIfActive('FEATURE_NEXT_16155', $this);
+
+        $repository = $this->createRepository(LocaleDefinition::class, false);
+
+        $factory = $this->createMock(EntityLoadedEventFactory::class);
+        $factory->expects(static::once())->method('create')->willReturn($this->createMock(EntityLoadedContainerEvent::class));
+
+        $repository->setEntityLoadedEventFactory(
+            $factory
+        );
+
+        $repository->search(new Criteria(), Context::createDefaultContext());
+    }
 
     public function testWrite(): void
     {
@@ -122,11 +138,11 @@ class EntityRepositoryTest extends TestCase
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
-        $dispatcher->addListener('locale.written', $listener);
+        $this->addEventListener($dispatcher, 'locale.written', $listener);
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
-        $dispatcher->addListener('locale_translation.written', $listener);
+        $this->addEventListener($dispatcher, 'locale_translation.written', $listener);
 
         $repository->create(
             [
@@ -191,7 +207,7 @@ class EntityRepositoryTest extends TestCase
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
-        $dispatcher->addListener('locale.loaded', $listener);
+        $this->addEventListener($dispatcher, 'locale.loaded', $listener);
 
         $criteria = new Criteria([$id]);
         $locale = $repository->search($criteria, $context);
@@ -250,15 +266,15 @@ class EntityRepositoryTest extends TestCase
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
-        $dispatcher->addListener('product.loaded', $listener);
+        $this->addEventListener($dispatcher, 'product.loaded', $listener);
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
-        $dispatcher->addListener('product_manufacturer.loaded', $listener);
+        $this->addEventListener($dispatcher, 'product_manufacturer.loaded', $listener);
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
-        $dispatcher->addListener('tax.loaded', $listener);
+        $this->addEventListener($dispatcher, 'tax.loaded', $listener);
 
         $criteria = new Criteria([$id, $id2]);
         $criteria->addAssociation('manufacturer');
@@ -304,23 +320,23 @@ class EntityRepositoryTest extends TestCase
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
-        $dispatcher->addListener('product.written', $listener);
+        $this->addEventListener($dispatcher, 'product.written', $listener);
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
-        $dispatcher->addListener('product_manufacturer.written', $listener);
+        $this->addEventListener($dispatcher, 'product_manufacturer.written', $listener);
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
-        $dispatcher->addListener('tax.written', $listener);
+        $this->addEventListener($dispatcher, 'tax.written', $listener);
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
-        $dispatcher->addListener('product_price.written', $listener);
+        $this->addEventListener($dispatcher, 'product_price.written', $listener);
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
-        $dispatcher->addListener('rule.written', $listener);
+        $this->addEventListener($dispatcher, 'rule.written', $listener);
 
         $repository->create(
             [
@@ -386,19 +402,19 @@ class EntityRepositoryTest extends TestCase
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
-        $dispatcher->addListener('product.loaded', $listener);
+        $this->addEventListener($dispatcher, 'product.loaded', $listener);
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
-        $dispatcher->addListener('product_manufacturer.loaded', $listener);
+        $this->addEventListener($dispatcher, 'product_manufacturer.loaded', $listener);
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
-        $dispatcher->addListener('tax.loaded', $listener);
+        $this->addEventListener($dispatcher, 'tax.loaded', $listener);
 
         $listener = $this->getMockBuilder(CallableClass::class)->getMock();
         $listener->expects(static::once())->method('__invoke');
-        $dispatcher->addListener('product_price.loaded', $listener);
+        $this->addEventListener($dispatcher, 'product_price.loaded', $listener);
 
         $criteria = new Criteria([$id, $id2]);
         $criteria->addAssociation('prices');
@@ -584,10 +600,10 @@ class EntityRepositoryTest extends TestCase
         $paymentMethod = $this->getValidPaymentMethodId();
         $record = [
             'id' => $recordA,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultShippingAddress' => $address,
             'defaultPaymentMethodId' => $paymentMethod,
-            'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'email' => Uuid::randomHex() . '@example.com',
             'password' => 'not',
             'lastName' => 'not',
@@ -1209,16 +1225,23 @@ class EntityRepositoryTest extends TestCase
         static::assertCount(2, $multiFilter->getQueries());
     }
 
-    protected function createRepository(string $definition): EntityRepository
-    {
-        return new EntityRepository(
+    protected function createRepository(
+        string $definition,
+        bool $loadWithEventFactory = true
+    ): EntityRepository {
+        $arguments = [
             $this->getContainer()->get($definition),
             $this->getContainer()->get(EntityReaderInterface::class),
             $this->getContainer()->get(VersionManager::class),
             $this->getContainer()->get(EntitySearcherInterface::class),
             $this->getContainer()->get(EntityAggregatorInterface::class),
             $this->getContainer()->get('event_dispatcher'),
-            $this->getContainer()->get(EntityLoadedEventFactory::class)
-        );
+        ];
+
+        if ($loadWithEventFactory) {
+            $arguments[] = $this->getContainer()->get(EntityLoadedEventFactory::class);
+        }
+
+        return new EntityRepository(...$arguments);
     }
 }

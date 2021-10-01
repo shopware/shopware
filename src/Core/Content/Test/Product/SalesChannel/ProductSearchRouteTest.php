@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -81,7 +82,7 @@ class ProductSearchRouteTest extends TestCase
 
         $this->browser->request(
             'POST',
-            '/store-api/search?search=Product-Test',
+            '/store-api/search?search=Test-Product',
             [
             ]
         );
@@ -341,7 +342,7 @@ class ProductSearchRouteTest extends TestCase
 
         $salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)->create(
             'token',
-            Defaults::SALES_CHANNEL,
+            TestDefaults::SALES_CHANNEL,
             [
                 SalesChannelContextService::LANGUAGE_ID => $languageId ?? Defaults::LANGUAGE_SYSTEM,
             ]
@@ -636,11 +637,7 @@ class ProductSearchRouteTest extends TestCase
             ],
             [
                 'Incredible-Copper-Vitro',
-                [
-                    'Rustic Copper Drastic Plastic',
-                    'Incredible Plastic Duoflex',
-                    'Fantastic Copper Ginger Vitro',
-                ],
+                [],
             ],
             [
                 'Incredible%$^$%^Copper%$^$^$%^Vitro',
@@ -720,7 +717,6 @@ class ProductSearchRouteTest extends TestCase
     private function createData(): void
     {
         $product = [
-            'name' => 'test',
             'stock' => 10,
             'price' => [
                 ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
@@ -854,9 +850,13 @@ class ProductSearchRouteTest extends TestCase
     private function resetSearchKeywordUpdaterConfig(): void
     {
         $class = new \ReflectionClass($this->searchKeywordUpdater);
-        $property = $class->getProperty('decorated');
-        $property->setAccessible(true);
-        $searchKeywordUpdaterInner = $property->getValue($this->searchKeywordUpdater);
+        if ($class->hasProperty('decorated')) {
+            $property = $class->getProperty('decorated');
+            $property->setAccessible(true);
+            $searchKeywordUpdaterInner = $property->getValue($this->searchKeywordUpdater);
+        } else {
+            $searchKeywordUpdaterInner = $this->searchKeywordUpdater;
+        }
 
         $class = new \ReflectionClass($searchKeywordUpdaterInner);
         $property = $class->getProperty('config');
@@ -894,7 +894,7 @@ class ProductSearchRouteTest extends TestCase
                 'id' => $this->getDeDeLanguageId(),
                 'salesChannelDomains' => [
                     [
-                        'salesChannelId' => Defaults::SALES_CHANNEL,
+                        'salesChannelId' => TestDefaults::SALES_CHANNEL,
                         'currencyId' => Defaults::CURRENCY,
                         'snippetSetId' => $this->getSnippetSetIdForLocale('de-DE'),
                         'url' => $_SERVER['APP_URL'] . '/de',

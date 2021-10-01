@@ -67,7 +67,6 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing-option-base', 
                 }
             },
             provide: {
-                next5983: true,
                 repositoryFactory: {
                     create: repository => {
                         if (repository === 'custom_field') {

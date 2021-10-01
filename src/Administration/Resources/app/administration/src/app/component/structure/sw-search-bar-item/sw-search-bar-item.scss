@@ -49,6 +49,9 @@ $sw-search-bar-item-label-hover-color-text: $color-shopware-brand-500;
     &--v2 {
         display: flex;
         justify-items: center;
+        padding: 3px 30px;
+        margin: 0;
+        border-radius: 0;
 
         .sw-search-bar-item__link {
             flex: 1;
@@ -65,6 +68,27 @@ $sw-search-bar-item-label-hover-color-text: $color-shopware-brand-500;
             display: flex;
             flex: 1;
             justify-content: space-between;
+        }
+
+        .sw-shortcut-overview-item {
+            display: none;
+            width: 100%;
+            height: 16px;
+            text-align: right;
+            margin: 0 10px 0;
+
+            span {
+                padding: 0 4px;
+                font-size: $font-size-extra-small;
+            }
+        }
+
+        &.is--active .sw-shortcut-overview-item {
+            display: block;
+        }
+
+        .sw-highlight-text:last-child {
+            color: $color-gray-500;
         }
     }
 }

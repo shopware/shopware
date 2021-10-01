@@ -17,10 +17,9 @@ describe('Currency: Visual testing', () => {
     });
 
     it('@visual: check appearance of  currency module', () => {
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/search/currency`,
-            method: 'post'
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/search/currency`,
+            method: 'POST'
         }).as('getData');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
@@ -29,9 +28,8 @@ describe('Currency: Visual testing', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('#sw-settings-currency').click();
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getData')
+            .its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.sortAndCheckListingAscViaColumn('Short name', 'CHF');

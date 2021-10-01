@@ -1,9 +1,10 @@
 import { email } from 'src/core/service/validation.service';
 import template from './sw-profile-index.html.twig';
+import swProfileState from '../../state/sw-profile.state';
 
-const { Component, Mixin } = Shopware;
+const { Component, Mixin, State } = Shopware;
 const { Criteria } = Shopware.Data;
-const { mapPropertyErrors } = Component.getComponentHelper();
+const { mapState, mapPropertyErrors } = Component.getComponentHelper();
 
 Component.register('sw-profile-index', {
     template,
@@ -15,6 +16,7 @@ Component.register('sw-profile-index', {
         'repositoryFactory',
         'acl',
         'feature',
+        'searchPreferencesService',
     ],
 
     mixins: [
@@ -37,6 +39,7 @@ Component.register('sw-profile-index', {
             confirmPasswordModal: false,
             mediaDefaultFolderId: null,
             showMediaModal: false,
+            timezoneOptions: [],
         };
     },
 
@@ -47,8 +50,14 @@ Component.register('sw-profile-index', {
     },
 
     computed: {
+        ...mapState('swProfile', [
+            'searchPreferences',
+            'userSearchPreferences',
+        ]),
+
         ...mapPropertyErrors('user', [
             'email',
+            'timeZone',
         ]),
 
         isDisabled() {
@@ -69,6 +78,10 @@ Component.register('sw-profile-index', {
 
         mediaRepository() {
             return this.repositoryFactory.create('media');
+        },
+
+        userConfigRepository() {
+            return this.repositoryFactory.create('user_config');
         },
 
         userMediaCriteria() {
@@ -93,6 +106,10 @@ Component.register('sw-profile-index', {
                 return;
             }
 
+            if (!this.acl.can('media.creator')) {
+                return;
+            }
+
             this.setMediaItem({ targetId: this.user.avatarMedia.id });
         },
 
@@ -101,12 +118,20 @@ Component.register('sw-profile-index', {
         },
     },
 
+    beforeCreate() {
+        State.registerModule('swProfile', swProfileState);
+    },
+
     created() {
         this.createdComponent();
     },
 
     beforeMount() {
         this.beforeMountComponent();
+    },
+
+    beforeDestroy() {
+        State.unregisterModule('swProfile');
     },
 
     methods: {
@@ -124,7 +149,7 @@ Component.register('sw-profile-index', {
                 this.userPromise,
             ];
 
-            if (this.feature.isActive('FEATURE_NEXT_6040')) {
+            if (this.feature.isActive('FEATURE_NEXT_6040') && this.acl.can('media.creator')) {
                 this.getMediaDefaultFolderId()
                     .then((id) => {
                         this.mediaDefaultFolderId = id;
@@ -136,6 +161,7 @@ Component.register('sw-profile-index', {
 
             Promise.all(promises).then(() => {
                 this.loadLanguages();
+                this.loadTimezones();
             }).then(() => {
                 this.isUserLoading = false;
             });
@@ -182,6 +208,23 @@ Component.register('sw-profile-index', {
 
                 return this.languages;
             });
+        },
+
+        loadTimezones() {
+            return Shopware.Service('timezoneService').loadTimezones()
+                .then((result) => {
+                    this.timezoneOptions.push({
+                        label: 'UTC',
+                        value: 'UTC',
+                    });
+
+                    const loadedTimezoneOptions = result.map(timezone => ({
+                        label: timezone,
+                        value: timezone,
+                    }));
+
+                    this.timezoneOptions.push(...loadedTimezoneOptions);
+                });
         },
 
         async getUserData() {
@@ -246,7 +289,9 @@ Component.register('sw-profile-index', {
                 const changes = this.userRepository.getSyncChangeset([this.user]);
                 delete changes.changeset[0].changes.id;
 
-                this.userService.updateUser(changes.changeset[0].changes).then(() => {
+                this.userService.updateUser(changes.changeset[0].changes).then(async () => {
+                    await this.updateCurrentUser();
+
                     this.isLoading = false;
                     this.isSaveSuccessful = true;
 
@@ -256,15 +301,20 @@ Component.register('sw-profile-index', {
                 return;
             }
 
+            if (this.feature.isActive('FEATURE_NEXT_6040')) {
+                this.saveUserSearchPreferences();
+            }
+
             const context = { ...Shopware.Context.api };
             context.authToken.access = authToken;
 
-            this.userRepository.save(this.user, context).then(() => {
+            this.userRepository.save(this.user, context).then(async () => {
                 // @feature-deprecated (FEATURE_NEXT_6040) tag:v6.5.0 - can be removed
                 if (this.$refs.mediaSidebarItem) {
                     this.$refs.mediaSidebarItem.getList();
                 }
 
+                await this.updateCurrentUser();
                 Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
 
                 if (this.newPassword) {
@@ -286,6 +336,15 @@ Component.register('sw-profile-index', {
                 this.newPasswordConfirm = '';
             }).catch(() => {
                 this.handleUserSaveError();
+            });
+        },
+
+        updateCurrentUser() {
+            return this.userService.getUser().then((response) => {
+                const data = response.data;
+                delete data.password;
+
+                return Shopware.State.commit('setCurrentUser', data);
             });
         },
 
@@ -374,6 +433,21 @@ Component.register('sw-profile-index', {
 
         getMediaDefaultFolderId() {
             return this.mediaDefaultFolderService.getDefaultFolderId('user');
+        },
+
+        saveUserSearchPreferences() {
+            const value = this.searchPreferences.map(({ entityName, _searchable, fields }) => {
+                return {
+                    [entityName]: {
+                        _searchable,
+                        ...this.searchPreferencesService.processSearchPreferencesFields(fields),
+                    },
+                };
+            });
+
+            this.userSearchPreferences.value = value;
+
+            return this.userConfigRepository.save(this.userSearchPreferences);
         },
     },
 });

@@ -1,7 +1,4 @@
 describe('Test if the cookie bar works correctly', () => {
-    beforeEach(() => {
-        cy.setToInitialState();
-    });
 
     it('Should not show the acceptAll cookies in the cookie bar when config value is not set', () => {
         // go to storefront homepage
@@ -14,7 +11,7 @@ describe('Test if the cookie bar works correctly', () => {
         cy.get('.cookie-permission-container').should('be.visible');
 
         // check if the acceptAll button is not visible
-        cy.get('.js-cookie-accept-all-button').should('not.be.visible');
+        cy.get('.js-cookie-accept-all-button').should('not.exist');
     });
 
     it('Should show the accept all button in cookie bar and accept all cookies when the user clicks the button', () => {
@@ -24,7 +21,7 @@ describe('Test if the cookie bar works correctly', () => {
                 headers: {
                     Authorization: `Bearer ${result.access}`
                 },
-                method: 'post',
+                method: 'POST',
                 url: `api/_action/system-config/batch`,
                 body: {
                     null: {
@@ -40,10 +37,9 @@ describe('Test if the cookie bar works correctly', () => {
         cy.visit('/');
 
         // should wait of cookieOffcanvas
-        cy.server();
-        cy.route({
+        cy.intercept({
+            method: 'GET',
             url: '/cookie/offcanvas',
-            method: 'get'
         }).as('cookieOffcanvas');
 
         // wait for product listing
@@ -57,16 +53,16 @@ describe('Test if the cookie bar works correctly', () => {
             .click();
 
         // wait until the offcanvas is open
-        cy.wait('@cookieOffcanvas').then(() => {
-            // wait until the offcanvas is closed
-            cy.get('.offcanvas-cookie').should('not.be.visible');
+        cy.wait('@cookieOffcanvas');
 
-            // reload
-            cy.reload(true);
+        // wait until the offcanvas is closed
+        cy.get('.offcanvas-cookie').should('not.exist');
 
-            // check if cookie bar is non existent
-            cy.get('.cms-element-product-listing').should('be.visible');
-            cy.get('.cookie-permission-container').should('not.be.visible');
-        });
+        // reload
+        cy.reload(true);
+
+        // check if cookie bar is non existent
+        cy.get('.cms-element-product-listing').should('be.visible');
+        cy.get('.cookie-permission-container').should('not.be.visible');
     });
 });

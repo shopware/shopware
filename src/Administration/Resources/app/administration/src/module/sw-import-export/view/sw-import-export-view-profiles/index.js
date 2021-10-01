@@ -10,7 +10,7 @@ const { Criteria } = Shopware.Data;
 Shopware.Component.register('sw-import-export-view-profiles', {
     template,
 
-    inject: ['repositoryFactory', 'feature'],
+    inject: ['repositoryFactory', 'importExport', 'feature'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -124,7 +124,6 @@ Shopware.Component.register('sw-import-export-view-profiles', {
             this.$set(profile, 'translated', {});
             profile.delimiter = ';';
             profile.enclosure = '"';
-            profile.type = 'import-export';
 
             this.selectedProfile = profile;
         },
@@ -180,6 +179,13 @@ Shopware.Component.register('sw-import-export-view-profiles', {
                     message: this.$tc('global.notification.unspecifiedSaveErrorMessage'),
                 });
             });
+        },
+
+        /**
+         * @internal (flag:FEATURE_NEXT_15998)
+         */
+        async onDownloadTemplate(profile) {
+            return window.open(await this.importExport.getTemplateFileDownloadUrl(profile.id), '_blank');
         },
 
         onDeleteProfile(id) {

@@ -30,6 +30,12 @@ $sw-order-list-color-success: $color-emerald-500;
     .sw-filter-panel {
         padding: 0;
     }
+
+    &__state {
+        .sw-color-badge {
+            margin: 0 8px 0 0;
+        }
+    }
 }
 
 .sw-order-bulk-edit-modal {

@@ -1,6 +1,16 @@
 @import "~scss/variables";
 
 .sw-range-filter {
+    .sw-container {
+        grid-template-columns: 1fr;
+        gap: 12px;
+
+        &--has-divider {
+            grid-template-columns: 1fr 12px 1fr;
+            gap: 4px;
+        }
+    }
+
     &__divider {
         border-bottom: 1px solid $color-gray-400;
         transform: translateY(-40%);

@@ -16,6 +16,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -26,6 +27,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextRestoredEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Contracts\EventDispatcher\Event;
 
@@ -251,10 +253,73 @@ class SalesChannelContextRestorerTest extends TestCase
         $cartMergedEvent = $this->events[CartMergedEvent::class];
         static::assertInstanceOf(CartMergedEvent::class, $cartMergedEvent);
 
+        static::assertEquals(1, $cartMergedEvent->getPreviousCart()->getLineItems()->count());
+        static::assertEquals($cartMergedEvent->getCart()->getName(), $cartMergedEvent->getPreviousCart()->getName());
+        static::assertEquals($cartMergedEvent->getCart()->getToken(), $cartMergedEvent->getPreviousCart()->getToken());
+
         static::assertNotEmpty($p1 = $restoreCart->getLineItems()->get($productId1));
         static::assertEquals(1, $p1->getQuantity());
         static::assertNotEmpty($savedItem = $restoreCart->getLineItems()->get($savedLineItem->getId()));
         static::assertEquals($savedLineItemQuantity + $guestProductQuantity, $savedItem->getQuantity());
+    }
+
+    public function testCartMergedEventIsFiredWithCustomerCart(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_16824', $this);
+
+        $currentContextToken = Random::getAlphanumericString(32);
+
+        $currentContext = $this->createSalesChannelContext($currentContextToken, []);
+
+        // Create Guest cart
+        $cart = new Cart('guest-cart', $currentContextToken);
+
+        $productId1 = $this->createProduct($currentContext->getContext());
+        $productId2 = $this->createProduct($currentContext->getContext());
+
+        $productLineItem1 = new LineItem($productId1, LineItem::PRODUCT_LINE_ITEM_TYPE, $productId1);
+        $productLineItem2 = new LineItem($productId2, LineItem::PRODUCT_LINE_ITEM_TYPE, $productId2);
+        $productLineItem1->setStackable(true);
+        $productLineItem2->setStackable(true);
+        $productLineItem1->setQuantity(1);
+        $guestProductQuantity = 5;
+        $productLineItem2->setQuantity($guestProductQuantity);
+
+        $cart->addLineItems(new LineItemCollection([$productLineItem1, $productLineItem2]));
+        $cart->markUnmodified();
+
+        $this->getContainer()->get(CartPersister::class)->save($cart, $currentContext);
+
+        // Create Saved Customer cart
+        $customerToken = Random::getAlphanumericString(32);
+        $customerContext = $this->createSalesChannelContext($customerToken, []);
+
+        $this->contextPersister->save($customerToken, [], $currentContext->getSalesChannel()->getId(), $this->customerId);
+
+        $cart = new Cart('customer-cart', $customerToken);
+
+        $this->getContainer()->get(CartPersister::class)->save($cart, $customerContext);
+
+        $this->eventDispatcher->addListener(CartMergedEvent::class, $this->callbackFn);
+
+        $restoreContext = $this->contextRestorer->restore($this->customerId, $currentContext);
+
+        $restoreCart = $this->cartService->getCart($restoreContext->getToken(), $restoreContext);
+
+        static::assertFalse($restoreCart->isModified());
+        static::assertArrayHasKey(CartMergedEvent::class, $this->events);
+
+        /** @var CartMergedEvent $event */
+        $event = $this->events[CartMergedEvent::class];
+
+        static::assertEquals(0, $event->getPreviousCart()->getLineItems()->count());
+        static::assertEquals($event->getCart()->getName(), $event->getPreviousCart()->getName());
+        static::assertEquals($event->getCart()->getToken(), $event->getPreviousCart()->getToken());
+
+        static::assertNotEmpty($p1 = $restoreCart->getLineItems()->get($productId1));
+        static::assertEquals(1, $p1->getQuantity());
+        static::assertNotEmpty($p2 = $restoreCart->getLineItems()->get($productId2));
+        static::assertEquals(5, $p2->getQuantity());
     }
 
     private function createProduct(Context $context): string
@@ -272,7 +337,7 @@ class SalesChannelContextRestorerTest extends TestCase
             'taxId' => $this->getValidTaxId(),
             'active' => true,
             'visibilities' => [
-                ['salesChannelId' => Defaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ['salesChannelId' => TestDefaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
             ],
         ];
         $this->getContainer()->get('product.repository')->create([$data], $context);
@@ -288,7 +353,7 @@ class SalesChannelContextRestorerTest extends TestCase
 
         return $this->getContainer()->get(SalesChannelContextFactory::class)->create(
             $contextToken,
-            Defaults::SALES_CHANNEL,
+            TestDefaults::SALES_CHANNEL,
             $salesChannelData
         );
     }
@@ -325,7 +390,7 @@ class SalesChannelContextRestorerTest extends TestCase
         $data = [
             [
                 'id' => $customerId,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultShippingAddress' => [
                     'id' => $addressId,
                     'firstName' => 'Max',
@@ -338,7 +403,7 @@ class SalesChannelContextRestorerTest extends TestCase
                 ],
                 'defaultBillingAddressId' => $addressId,
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => 'foo@bar.de',
                 'password' => 'password',
                 'firstName' => 'Max',

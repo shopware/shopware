@@ -12,7 +12,6 @@ use Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionIntegrationTestBehaviour;
 use Shopware\Core\Checkout\Test\Cart\Promotion\Helpers\Traits\PromotionTestFixtureBehaviour;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -23,6 +22,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\Test\TestDefaults;
 
 class PromotionExtensionCodesTest extends TestCase
 {
@@ -60,7 +60,7 @@ class PromotionExtensionCodesTest extends TestCase
         $this->cartService = $this->getContainer()->get(CartService::class);
         $this->addCountriesToSalesChannel();
 
-        $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         // make sure we always start with a fresh cart
         $this->cartService->createNew($this->context->getToken());
@@ -233,7 +233,7 @@ class PromotionExtensionCodesTest extends TestCase
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(
                 Uuid::randomHex(),
-                Defaults::SALES_CHANNEL,
+                TestDefaults::SALES_CHANNEL,
                 [SalesChannelContextService::CUSTOMER_ID => $this->createCustomer()]
             );
 
@@ -275,7 +275,7 @@ class PromotionExtensionCodesTest extends TestCase
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(
                 Uuid::randomHex(),
-                Defaults::SALES_CHANNEL,
+                TestDefaults::SALES_CHANNEL,
                 [SalesChannelContextService::CUSTOMER_ID => $this->createCustomer()]
             );
 
@@ -539,8 +539,8 @@ class PromotionExtensionCodesTest extends TestCase
             'email' => Uuid::randomHex() . '@example.com',
             'password' => 'shopware',
             'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-            'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultBillingAddressId' => $addressId,
             'defaultShippingAddressId' => $addressId,
             'addresses' => [

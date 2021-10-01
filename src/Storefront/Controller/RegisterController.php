@@ -12,6 +12,7 @@ use Shopware\Core\Content\Newsletter\Exception\SalesChannelDomainNotFoundExcepti
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
@@ -182,8 +183,16 @@ class RegisterController extends StorefrontController
 
             $data = $this->prepareAffiliateTracking($data, $request->getSession());
 
-            if ($data->has('guest')) {
-                $data->set('guest', $data->has('guest'));
+            if (Feature::isActive('FEATURE_NEXT_16236')) {
+                if ($data->getBoolean('createCustomerAccount')) {
+                    $data->set('guest', false);
+                } else {
+                    $data->set('guest', true);
+                }
+            } else {
+                if ($data->has('guest')) {
+                    $data->set('guest', $data->has('guest'));
+                }
             }
 
             $this->registerRoute->register(
@@ -247,15 +256,35 @@ class RegisterController extends StorefrontController
 
     private function isDoubleOptIn(DataBag $data, SalesChannelContext $context): bool
     {
-        $configKey = $data->has('guest')
-            ? 'core.loginRegistration.doubleOptInGuestOrder'
-            : 'core.loginRegistration.doubleOptInRegistration';
+        $creatueCustomerAccount = $data->getBoolean('createCustomerAccount');
+
+        if (Feature::isActive('FEATURE_NEXT_16236')) {
+            $configKey = $creatueCustomerAccount
+                ? 'core.loginRegistration.doubleOptInRegistration'
+                : 'core.loginRegistration.doubleOptInGuestOrder';
+        } else {
+            $configKey = $data->has('guest')
+                ? 'core.loginRegistration.doubleOptInGuestOrder'
+                : 'core.loginRegistration.doubleOptInRegistration';
+        }
 
         $doubleOptInRequired = $this->systemConfigService
             ->get($configKey, $context->getSalesChannel()->getId());
 
         if (!$doubleOptInRequired) {
             return false;
+        }
+
+        if (Feature::isActive('FEATURE_NEXT_16236')) {
+            if ($creatueCustomerAccount) {
+                $this->addFlash(self::SUCCESS, $this->trans('account.optInRegistrationAlert'));
+
+                return true;
+            }
+
+            $this->addFlash(self::SUCCESS, $this->trans('account.optInGuestAlert'));
+
+            return true;
         }
 
         if ($data->has('guest')) {

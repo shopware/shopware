@@ -26,35 +26,30 @@
         {% endblock %}
 
         {% block sw_customer_address_form_salutation_title_container %}
-        <sw-container
-            columns="1fr 1fr"
-            gap="10px"
-        >
-            {% block sw_customer_address_form_salutation_field %}
-            <sw-entity-single-select
-                v-model="address.salutationId"
-                class="sw-customer-address-form__salutation-select"
-                entity="salutation"
-                :label="$tc('sw-customer.addressForm.labelSalutation')"
-                :placeholder="$tc('sw-customer.addressForm.placeholderSalutation')"
-                :error="addressSalutationIdError"
-                :disabled="disabled"
-                :criteria="salutationCriteria"
-                label-property="displayName"
-                show-clearable-button
-            />
-            {% endblock %}
+        {% block sw_customer_address_form_salutation_field %}
+        <sw-entity-single-select
+            v-model="address.salutationId"
+            class="sw-customer-address-form__salutation-select"
+            entity="salutation"
+            :label="$tc('sw-customer.addressForm.labelSalutation')"
+            :placeholder="$tc('sw-customer.addressForm.placeholderSalutation')"
+            :error="addressSalutationIdError"
+            :disabled="disabled"
+            :criteria="salutationCriteria"
+            label-property="displayName"
+            show-clearable-button
+        />
+        {% endblock %}
 
-            {% block sw_customer_address_form_title_field %}
-            <sw-text-field
-                v-model="address.title"
-                :label="$tc('sw-customer.addressForm.labelTitle')"
-                :placeholder="$tc('sw-customer.addressForm.placeholderTitle')"
-                :error="addressTitleError"
-                :disabled="disabled"
-            />
-            {% endblock %}
-        </sw-container>
+        {% block sw_customer_address_form_title_field %}
+        <sw-text-field
+            v-model="address.title"
+            :label="$tc('sw-customer.addressForm.labelTitle')"
+            :placeholder="$tc('sw-customer.addressForm.placeholderTitle')"
+            :error="addressTitleError"
+            :disabled="disabled"
+        />
+        {% endblock %}
         {% endblock %}
 
         {% block sw_customer_address_form_first_name_field %}

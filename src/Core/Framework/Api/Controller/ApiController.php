@@ -35,6 +35,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CompositeEntitySearcher;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
@@ -82,7 +83,7 @@ class ApiController extends AbstractController
     /**
      * @var RequestCriteriaBuilder
      */
-    private $searchCriteriaBuilder;
+    private $criteriaBuilder;
 
     /**
      * @var CompositeEntitySearcher
@@ -107,7 +108,7 @@ class ApiController extends AbstractController
     public function __construct(
         DefinitionInstanceRegistry $definitionRegistry,
         Serializer $serializer,
-        RequestCriteriaBuilder $searchCriteriaBuilder,
+        RequestCriteriaBuilder $criteriaBuilder,
         CompositeEntitySearcher $compositeEntitySearcher,
         ApiVersionConverter $apiVersionConverter,
         EntityProtectionValidator $entityProtectionValidator,
@@ -115,7 +116,7 @@ class ApiController extends AbstractController
     ) {
         $this->definitionRegistry = $definitionRegistry;
         $this->serializer = $serializer;
-        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
+        $this->criteriaBuilder = $criteriaBuilder;
         $this->compositeEntitySearcher = $compositeEntitySearcher;
         $this->apiVersionConverter = $apiVersionConverter;
         $this->entityProtectionValidator = $entityProtectionValidator;
@@ -178,6 +179,7 @@ class ApiController extends AbstractController
      *      )
      * )
      * @Route("/api/_search", name="api.composite.search", methods={"GET","POST"}, requirements={"version"="\d+"})
+     * @major-deprecated (flag:FEATURE_NEXT_6040) - will be removed
      */
     public function compositeSearch(Request $request, Context $context): JsonResponse
     {
@@ -384,7 +386,7 @@ class ApiController extends AbstractController
         }
 
         $criteria = new Criteria();
-        $criteria = $this->searchCriteriaBuilder->handleRequest($request, $criteria, $definition, $context);
+        $criteria = $this->criteriaBuilder->handleRequest($request, $criteria, $definition, $context);
 
         $criteria->setIds([$id]);
 
@@ -571,7 +573,7 @@ class ApiController extends AbstractController
 
         $criteria = new Criteria();
         if (empty($pathSegments)) {
-            $criteria = $this->searchCriteriaBuilder->handleRequest($request, $criteria, $definition, $context);
+            $criteria = $this->criteriaBuilder->handleRequest($request, $criteria, $definition, $context);
 
             // trigger acl validation
             $nested = $this->criteriaValidator->validate($definition->getEntityName(), $criteria, $context);
@@ -600,7 +602,7 @@ class ApiController extends AbstractController
             $definition = $association->getToManyReferenceDefinition();
         }
 
-        $criteria = $this->searchCriteriaBuilder->handleRequest($request, $criteria, $definition, $context);
+        $criteria = $this->criteriaBuilder->handleRequest($request, $criteria, $definition, $context);
 
         if ($association instanceof ManyToManyAssociationField) {
             //fetch inverse association definition for filter
@@ -777,6 +779,10 @@ class ApiController extends AbstractController
             $event = $events->getEventByEntityName($definition->getEntityName());
             $eventIds = $event->getIds();
             $entityId = array_pop($eventIds);
+
+            if ($definition instanceof MappingEntityDefinition) {
+                return new Response(null, Response::HTTP_NO_CONTENT);
+            }
 
             if ($noContent) {
                 return $responseFactory->createRedirectResponse($definition, $entityId, $request, $context);

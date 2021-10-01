@@ -18,6 +18,7 @@ use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\TestDefaults;
 
 class SalesChannelProductSubscriberTest extends TestCase
 {
@@ -47,7 +48,7 @@ class SalesChannelProductSubscriberTest extends TestCase
 
         $subscriber = $this->getContainer()->get(SalesChannelProductSubscriber::class);
 
-        $calculated = $method->invoke($subscriber, $product, Defaults::SALES_CHANNEL);
+        $calculated = $method->invoke($subscriber, $product, TestDefaults::SALES_CHANNEL);
 
         static::assertSame($expected, $calculated);
     }
@@ -95,7 +96,7 @@ class SalesChannelProductSubscriberTest extends TestCase
             'stock' => 10,
             'taxId' => $taxId,
             'visibilities' => [
-                ['salesChannelId' => Defaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ['salesChannelId' => TestDefaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
             ],
         ];
 
@@ -114,7 +115,7 @@ class SalesChannelProductSubscriberTest extends TestCase
         ];
 
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         foreach ($cases as $i => $case) {
             // prepare currency factor calculation

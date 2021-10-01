@@ -2,13 +2,18 @@
 
 namespace Shopware\Core\Framework\Test;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Kernel;
 
 class KernelTest extends TestCase
 {
+    use KernelTestBehaviour;
+
     /**
      * @dataProvider provideVersions
      */
@@ -75,5 +80,21 @@ class KernelTest extends TestCase
                 Kernel::SHOPWARE_FALLBACK_VERSION,
             ],
         ];
+    }
+
+    public function testDatabaseTimeZonesAreEqual(): void
+    {
+        $env = (bool) EnvironmentHelper::getVariable('SHOPWARE_DBAL_TIMEZONE_SUPPORT_ENABLED', false);
+
+        if ($env === false) {
+            static::markTestSkipped('Database does not support timezones');
+        }
+
+        $c = $this->getContainer()->get(Connection::class);
+
+        static::assertSame(
+            $c->fetchOne('SELECT @@session.time_zone'),
+            date_default_timezone_get()
+        );
     }
 }

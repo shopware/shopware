@@ -28,10 +28,9 @@ describe('Product: Visual tests', () => {
     });
 
     it('@visual: check appearance of basic product workflow', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
 
         cy.get('.sw-product-list-grid').should('be.visible');
@@ -40,9 +39,8 @@ describe('Product: Visual tests', () => {
             mainMenuId: 'sw-catalogue',
             subMenuId: 'sw-product'
         });
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getData')
+            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-product-list__content').should('be.visible');
 
         cy.get('.sw-data-grid__skeleton').should('not.exist');
@@ -106,14 +104,13 @@ describe('Product: Visual tests', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/property-group`,
-            method: 'post'
+            method: 'POST'
         }).as('getPropertyGroups');
 
         cy.get('.sw-product-list-grid').should('be.visible');
@@ -132,9 +129,9 @@ describe('Product: Visual tests', () => {
             .click();
 
         // Take snapshot for visual testing
-        cy.wait('@getPropertyGroups').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getPropertyGroups').its('response.statusCode').should('equal', 200);
+
+        cy.get('.sw-modal').should('be.visible');
 
         cy.handleModalSnapshot('Generate variants');
         cy.contains('.group_grid__column-name', 'Color').should('be.visible');
@@ -165,14 +162,13 @@ describe('Product: Visual tests', () => {
         const page = new ProductStreamObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
-        cy.route({
-            url: `${Cypress.env('apiPath')}/search/product-stream`,
-            method: 'post'
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/search/product-stream`,
+            method: 'POST'
         }).as('saveStream');
 
         cy.createProductFixture({
@@ -224,9 +220,8 @@ describe('Product: Visual tests', () => {
 
         // Save and verify cross selling stream
         cy.get('.sw-button-process').click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 200);
 
         // Verify in storefront
         cy.visit('/');

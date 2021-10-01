@@ -76,6 +76,15 @@
             <tag name="shopware.demodata_generator"/>
         </service>
 
+        <service id="Shopware\Core\Framework\Demodata\Generator\FlowGenerator">
+            <argument type="service" id="Doctrine\DBAL\Connection" />
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventCollector"/>
+            <argument type="service" id="Shopware\Core\Content\Flow\Api\FlowActionCollector"/>
+            <tag name="shopware.demodata_generator"/>
+            <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />
+        </service>
+
         <service id="Shopware\Core\Framework\Demodata\Generator\MediaGenerator">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter" />
             <argument type="service" id="Shopware\Core\Content\Media\File\FileSaver" />

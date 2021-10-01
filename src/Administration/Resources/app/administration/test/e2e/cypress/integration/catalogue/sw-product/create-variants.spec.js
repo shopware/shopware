@@ -32,10 +32,9 @@ describe('Product: Test variants', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Navigate to variant generator listing and start
@@ -68,10 +67,10 @@ describe('Product: Test variants', () => {
         cy.get('.product-basic-form .sw-inheritance-switch').eq(0).click();
         cy.get('input[name=sw-field--product-name]').clearTypeAndCheck('New Product name');
         cy.get(page.elements.productSaveAction).click();
+
         // Verify updated product
-        cy.wait('@productCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@productCall')
+            .its('response.statusCode').should('equal', 200);
 
         // Verify in storefront
         cy.visit('/');
@@ -92,22 +91,21 @@ describe('Product: Test variants', () => {
     it('@base @catalogue: variants display corresponding name based on specific language', () => {
         const page = new PropertyPageObject();
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/user-config`,
-            method: 'post'
+            method: 'POST'
         }).as('searchUserConfig');
 
         cy.visit(`${Cypress.env('admin')}#/sw/property/index`);
 
         // Add option to property group
-        cy.wait('@searchUserConfig').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-            cy.clickContextMenuItem(
-                '.sw-property-list__edit-action',
-                page.elements.contextMenuButton,
-                `${page.elements.dataGridRow}--0`
-            );
-        });
+        cy.wait('@searchUserConfig')
+            .its('response.statusCode').should('equal', 200);
+        cy.clickContextMenuItem(
+            '.sw-property-list__edit-action',
+            page.elements.contextMenuButton,
+            `${page.elements.dataGridRow}--0`
+        );
 
         cy.get(page.elements.cardTitle).contains('Basic information');
 

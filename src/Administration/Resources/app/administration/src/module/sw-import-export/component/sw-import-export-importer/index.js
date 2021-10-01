@@ -29,11 +29,6 @@ Shopware.Component.register('sw-import-export-importer', {
             selectedProfileId: null,
             selectedProfile: null,
             config: {},
-            progressOffset: 0,
-            progressTotal: null,
-            progressText: '',
-            progressState: '',
-            progressLogEntry: null,
             isLoading: false,
             importFile: null,
             importModalProfile: null,
@@ -81,48 +76,19 @@ Shopware.Component.register('sw-import-export-importer', {
         },
     },
 
-    watch: {
-        importFile: {
-            handler(newValue) {
-                if (newValue) {
-                    this.resetProgressStats();
-                }
-            },
-        },
-    },
-
     methods: {
         onProfileSelect(profileId, profile) {
             this.selectedProfileId = profileId;
             this.selectedProfile = profile;
         },
 
-        resetProgressStats() {
-            // Reset progress stats
-            this.progressOffset = 0;
-            this.progressTotal = null;
-            this.progressText = '';
-            this.progressState = '';
-            this.progressLogEntry = null;
-        },
-
         onStartProcess(dryRun = false) {
             this.isLoading = true;
 
-            this.resetProgressStats();
-            this.progressTotal = 0;
-
             const profile = this.selectedProfileId;
 
-            this.importExport.import(profile, this.importFile, this.handleProgress, this.config, dryRun).then((result) => {
-                const logEntry = result.data.log;
-                if (!dryRun) {
-                    this.importFile = null;
-                }
-
-                this.logRepository.get(logEntry.id, Shopware.Context.api, this.logCriteria).then((entry) => {
-                    this.progressLogEntry = entry;
-                });
+            this.importExport.import(profile, this.importFile, this.handleProgress, this.config, dryRun).then(() => {
+                this.importFile = null;
             }).catch((error) => {
                 if (!error.response || !error.response.data || !error.response.data.errors) {
                     this.createNotificationError({
@@ -136,7 +102,6 @@ Shopware.Component.register('sw-import-export-importer', {
                     });
                 }
 
-                this.resetProgressStats();
                 this.isLoading = false;
             });
         },
@@ -145,27 +110,13 @@ Shopware.Component.register('sw-import-export-importer', {
             this.onStartProcess(true);
         },
 
-        handleProgress(progress) {
-            this.progressOffset = Math.round(progress.offset / 1024); // Convert byte to kilobyte
-            this.progressTotal = Math.round(progress.total / 1024); // Convert byte to kilobyte
-            this.progressState = progress.state;
+        handleProgress(log) {
+            this.createNotificationSuccess({
+                message: this.$tc('sw-import-export.importer.messageImportStarted', 0),
+            });
 
-            if (progress.state === 'succeeded') {
-                this.createNotificationSuccess({
-                    message: this.$tc('sw-import-export.importer.messageImportSuccess', 0),
-                });
-                this.onProgressFinished();
-            } else if (progress.state === 'failed') {
-                this.createNotificationError({
-                    message: this.$tc('sw-import-export.importer.messageImportError', 0),
-                });
-                this.onProgressFinished();
-            }
-        },
-
-        onProgressFinished() {
             this.isLoading = false;
-            this.$emit('import-finish');
+            this.$emit('import-started', log);
         },
 
         setImportModalProfile(profileName) {

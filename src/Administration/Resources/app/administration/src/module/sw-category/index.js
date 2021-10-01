@@ -23,6 +23,8 @@ import './view/sw-category-detail-seo';
 
 import './acl';
 
+import defaultSearchConfiguration from './default-search-configuration';
+
 const { Module } = Shopware;
 
 Module.register('sw-category', {
@@ -36,6 +38,35 @@ Module.register('sw-category', {
     icon: 'default-symbol-products',
     favicon: 'icon-module-products.png',
     entity: 'category',
+
+    searchMatcher: (regex, labelType, manifest) => {
+        const match = labelType.toLowerCase().match(regex);
+
+        if (!match) {
+            return false;
+        }
+
+        return [
+            {
+                name: manifest.name,
+                icon: manifest.icon,
+                color: manifest.color,
+                label: labelType,
+                entity: manifest.entity,
+                route: manifest.routes.index,
+                privilege: manifest.routes.index?.meta.privilege,
+            },
+            {
+                name: manifest.name,
+                icon: manifest.icon,
+                color: manifest.color,
+                route: { ...manifest.routes.landingPageDetail, params: { id: 'create' } },
+                entity: 'landing_page',
+                privilege: manifest.routes.landingPageDetail?.meta.privilege,
+                action: true,
+            },
+        ];
+    },
 
     routes: {
         index: {
@@ -148,4 +179,6 @@ Module.register('sw-category', {
         privilege: 'category.viewer',
         position: 20,
     }],
+
+    defaultSearchConfiguration,
 });

@@ -9,11 +9,13 @@ use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\MailActionInterface;
+use Shopware\Core\Framework\Event\MailAware;
+use Shopware\Core\Framework\Event\UserAware;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryDefinition;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryEntity;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class UserRecoveryRequestEvent extends Event implements BusinessEventInterface, MailActionInterface
+class UserRecoveryRequestEvent extends Event implements BusinessEventInterface, MailActionInterface, UserAware, MailAware
 {
     public const EVENT_NAME = 'user.recovery.request';
 
@@ -88,5 +90,13 @@ class UserRecoveryRequestEvent extends Event implements BusinessEventInterface, 
     public function getResetUrl(): string
     {
         return $this->resetUrl;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_8225)
+     */
+    public function getUserId(): string
+    {
+        return $this->getUserRecovery()->getId();
     }
 }

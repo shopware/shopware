@@ -80,6 +80,14 @@ Component.register('sw-order-line-items-grid', {
 
         getLineItemColumns() {
             const columnDefinitions = [{
+                property: 'quantity',
+                dataIndex: 'quantity',
+                label: 'sw-order.detailBase.columnQuantity',
+                allowResize: false,
+                align: 'right',
+                inlineEdit: true,
+                width: '90px',
+            }, {
                 property: 'label',
                 dataIndex: 'label',
                 label: 'sw-order.detailBase.columnProductName',
@@ -87,7 +95,6 @@ Component.register('sw-order-line-items-grid', {
                 primary: true,
                 inlineEdit: true,
                 multiLine: true,
-                width: '200px',
             }, {
                 property: 'unitPrice',
                 dataIndex: 'unitPrice',
@@ -96,15 +103,20 @@ Component.register('sw-order-line-items-grid', {
                 align: 'right',
                 inlineEdit: true,
                 width: '120px',
-            }, {
-                property: 'quantity',
-                dataIndex: 'quantity',
-                label: 'sw-order.detailBase.columnQuantity',
-                allowResize: false,
-                align: 'right',
-                inlineEdit: true,
-                width: '80px',
-            }, {
+            }];
+
+            if (this.taxStatus !== 'tax-free') {
+                columnDefinitions.push({
+                    property: 'price.taxRules[0]',
+                    label: 'sw-order.detailBase.columnTax',
+                    allowResize: false,
+                    align: 'right',
+                    inlineEdit: true,
+                    width: '90px',
+                });
+            }
+
+            return [...columnDefinitions, {
                 property: 'totalPrice',
                 dataIndex: 'totalPrice',
                 label: this.taxStatus === 'gross' ?
@@ -112,21 +124,8 @@ Component.register('sw-order-line-items-grid', {
                     'sw-order.detailBase.columnTotalPriceNet',
                 allowResize: false,
                 align: 'right',
-                width: '80px',
+                width: '120px',
             }];
-
-            if (this.taxStatus !== 'tax-free') {
-                return [...columnDefinitions, {
-                    property: 'price.taxRules[0]',
-                    label: 'sw-order.detailBase.columnTax',
-                    allowResize: false,
-                    align: 'right',
-                    inlineEdit: true,
-                    width: '100px',
-                }];
-            }
-
-            return columnDefinitions;
         },
 
         salesChannelId() {
@@ -235,6 +234,12 @@ Component.register('sw-order-line-items-grid', {
             this.selectedItems = {};
 
             Promise.all(deletionPromises).then(() => {
+                this.$emit('item-delete');
+            });
+        },
+
+        onDeleteItem(item) {
+            this.orderLineItemRepository.delete(item.id, this.context).then(() => {
                 this.$emit('item-delete');
             });
         },

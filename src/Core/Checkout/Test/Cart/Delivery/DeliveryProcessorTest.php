@@ -32,6 +32,7 @@ use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class DeliveryProcessorTest extends TestCase
@@ -59,7 +60,7 @@ class DeliveryProcessorTest extends TestCase
         $eventDispatcher = new EventDispatcher();
         $this->contextPersister = new SalesChannelContextPersister($this->connection, $eventDispatcher);
         $this->salesChannelContext = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $shippingMethodPriceEntity = new ShippingMethodPriceEntity();
         $shippingMethodPriceEntity->setUniqueIdentifier('test');

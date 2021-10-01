@@ -12,7 +12,7 @@
         {% endblock %}
         {% block sw_notification_center_item_header_timestamp %}
         <p class="sw-notification-center-item__timestamp">
-            {{ dateFormatted }}
+            <sw-time-ago :date="notification.timestamp" />
         </p>
         {% endblock %}
         {% block sw_notification_center_item_header_delete %}

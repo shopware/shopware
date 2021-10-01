@@ -42,7 +42,7 @@ class CsrfPlaceholderHandler
             return $response;
         }
 
-        if ($response->getStatusCode() !== Response::HTTP_OK) {
+        if ($response->getStatusCode() !== Response::HTTP_OK && $response->getStatusCode() !== Response::HTTP_NOT_FOUND) {
             return $response;
         }
 

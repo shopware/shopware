@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import SalesChannelPageObject from '../../../support/pages/module/sw-sales-channel.page-object';
 
@@ -33,10 +33,9 @@ describe('Sales Channel: Test saving and loading the analytics tab', () => {
         const page = new SalesChannelPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/sales-channel/*`,
-            method: 'patch'
+        cy.intercept({
+            method: 'PATCH',
+            url: `${Cypress.env('apiPath')}/sales-channel/*`
         }).as('saveData');
 
         page.openSalesChannel('Storefront', 1);
@@ -46,9 +45,8 @@ describe('Sales Channel: Test saving and loading the analytics tab', () => {
         cy.get('input[name=analyticsActive]').click();
 
         cy.get(page.elements.salesChannelSaveAction).click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
 
         cy.get('input[name=trackingId]').should('have.value', 'Example analytics ID');
     });

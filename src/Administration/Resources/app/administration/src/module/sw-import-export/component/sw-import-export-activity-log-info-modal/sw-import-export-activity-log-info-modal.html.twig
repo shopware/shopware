@@ -1,0 +1,93 @@
+{% block sw_import_export_activity_log_info_modal %}
+<sw-modal
+    v-if="logEntity"
+    class="sw-import-export-activity-log-info-modal"
+    variant="small"
+    :title="$tc('sw-import-export.activity.logInfo.modalTitle')"
+    @modal-close="$emit('log-close')"
+>
+
+    {% block sw_import_export_activity_log_info_modal_description %}
+    <dl class="sw-import-export-activity-log-info-modal__description-list">
+        {% block sw_import_export_activity_log_info_modal_description_name %}
+        <div class="sw-import-export-activity-log-info-modal__list-item sw-import-export-activity-log-info-modal__item-file-name">
+            <dt>{{ $tc('sw-import-export.activity.logInfo.labelFilename') }}</dt>
+            <dd>{{ logEntity.file.originalName }}</dd>
+        </div>
+        {% endblock %}
+        {% block sw_import_export_activity_log_info_modal_description_profile %}
+        <div class="sw-import-export-activity-log-info-modal__list-item sw-import-export-activity-log-info-modal__item-profile">
+            <dt>{{ $tc('sw-import-export.activity.logInfo.labelProfile') }}</dt>
+            <dd>{{ logEntity.profile.name }}</dd>
+        </div>
+        {% endblock %}
+        {% block sw_import_export_activity_log_info_modal_description_records %}
+        <div class="sw-import-export-activity-log-info-modal__list-item sw-import-export-activity-log-info-modal__item-records">
+            <dt>{{ $tc('sw-import-export.activity.logInfo.labelExportRecords') }}</dt>
+            <dd>{{ logEntity.records }}</dd>
+        </div>
+        {% endblock %}
+        {% block sw_import_export_activity_log_info_modal_description_size %}
+        <div class="sw-import-export-activity-log-info-modal__list-item sw-import-export-activity-log-info-modal__item-size">
+            <dt>{{ $tc('sw-import-export.activity.logInfo.labelSize') }}</dt>
+            <dd>{{ calculateFileSize(logEntity.file.size) }}</dd>
+        </div>
+        {% endblock %}
+        {% block sw_import_export_activity_log_info_modal_description_date %}
+        <div class="sw-import-export-activity-log-info-modal__list-item sw-import-export-activity-log-info-modal__item-date">
+            <dt>{{ $tc('sw-import-export.activity.logInfo.labelDate') }}</dt>
+            <dd>{{ logEntity.createdAt | date({hour: '2-digit', minute: '2-digit'}) }}</dd>
+        </div>
+        {% endblock %}
+        {% block sw_import_export_activity_log_info_modal_description_user %}
+        <div class="sw-import-export-activity-log-info-modal__list-item sw-import-export-activity-log-info-modal__item-user">
+            <dt>{{ $tc('sw-import-export.activity.logInfo.labelUser') }}</dt>
+            <dd>{{ logEntity.username }}</dd>
+        </div>
+        {% endblock %}
+        {% block sw_import_export_activity_log_info_modal_description_state %}
+        <div class="sw-import-export-activity-log-info-modal__list-item sw-import-export-activity-log-info-modal__item-state">
+            <dt>{{ $tc('sw-import-export.activity.logInfo.labelState') }}</dt>
+            <dd>
+                <sw-color-badge
+                    v-if="logEntity.state === 'failed'"
+                    class="sw-import-export-activity-log-info-modal__color-badge"
+                    variant="error"
+                    rounded
+                />
+                <sw-color-badge
+                    v-else-if="logEntity.state === 'succeeded'"
+                    class="sw-import-export-activity-log-info-modal__color-badge"
+                    variant="success"
+                    rounded
+                />
+                <sw-color-badge
+                    v-else
+                    class="sw-import-export-activity-log-info-modal__color-badge"
+                    rounded
+                />
+                {{ getStateLabel(logEntity.state) }}
+            </dd>
+        </div>
+        {% endblock %}
+        {% block sw_import_export_activity_log_info_modal_description_type %}
+        <div class="sw-import-export-activity-log-info-modal__list-item sw-import-export-activity-log-info-modal__item-type">
+            <dt>{{ $tc('sw-import-export.activity.logInfo.labelType') }}</dt>
+            <dd>{{ typeText }}</dd>
+        </div>
+        {% endblock %}
+    </dl>
+    {% endblock %}
+
+    {% block sw_import_export_activity_log_info_modal_download %}
+    <sw-button
+        class="sw-import-export-activity-log-info-modal__download-button"
+        size="small"
+        :disabled="logEntity.activity === 'export' && logEntity.state !== 'succeeded'"
+        @click="openDownload(logEntity.fileId)"
+    >
+        {{ $tc('sw-import-export.activity.logInfo.labelDownloadFile') }}
+    </sw-button>
+    {% endblock %}
+</sw-modal>
+{% endblock %}

@@ -2,6 +2,7 @@ variables:
     MYSQL_ROOT_PASSWORD: app
     WEB_DOCUMENT_ROOT: $CI_PROJECT_DIR/public
     GIT_STRATEGY: clone
+    GIT_DEPTH: 10
     LOG_STDOUT: $CI_PROJECT_DIR/var/log/stdout.log
     MYSQL_CMD: mysqld
     PROJECT_ROOT: $CI_PROJECT_DIR
@@ -10,6 +11,7 @@ variables:
     COMPOSER_PROCESS_TIMEOUT: 7200 # 60s * 60 * 2 = 2 hours
     DD_ENV: ci
     DATADOG_SITE: datadoghq.eu
+    MYSQL_INITDB_SKIP_TZINFO: 1
 
 default:
     image: shopware/development:7.4-composer-2
@@ -26,7 +28,7 @@ default:
 # for jobs which should run on each MR/Pipeline
 .base:
     # we want our base pipeline to finish fast
-    timeout: 20m
+    timeout: 30m
     # do not download assets from previous stages by default
     dependencies: []
     rules:

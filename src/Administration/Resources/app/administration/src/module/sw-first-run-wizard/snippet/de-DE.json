@@ -122,6 +122,9 @@
           "description": "Shopware Markets gibt Dir die Möglichkeit Deinen Shop mit den Marktplätzen von Amazon und eBay zu verbinden und erlaubt, Produkte und Bestellungen so einfach wie nur möglich zu übertragen.<br>Wir haben Shopware Markets erstellt, um  mithilfe von Verkaufskanälen Dein Business noch weiter wachsen zu lassen *¹.",
           "footnote": "*¹ Für die Verwendung von Shopware Markets und den zusätzlichen Verkaufskanälen wird eine zahlungspflichtiges Abonnement benötigt."
         },
+        "defaults": {
+            "modalTitle": "Standardwerte definieren"
+        },
         "finish": {
             "headlineAllDone": "Herzlichen Glückwunsch!",
             "message": "Dein Shopware 6 {edition} ist jetzt verifiziert.",
@@ -143,7 +146,8 @@
             "plugins": "Erweiterungen",
             "shopware": "Shopware Account",
             "store": "Shopware Store",
-            "markets": "Shopware Markets"
+            "markets": "Shopware Markets",
+            "defaults": "Standardwerte"
         }
     },
     "sw-privileges": {

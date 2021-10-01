@@ -38,6 +38,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ImportExportTest extends ImportExportTestCase
@@ -201,7 +202,7 @@ class ImportExportTest extends ImportExportTestCase
             'hash' => 'asdf',
             'status' => NewsletterSubscribeRoute::STATUS_DIRECT,
             'confirmedAt' => new \DateTimeImmutable('2020-02-29 13:37'),
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
         ];
         /** @var EntityRepositoryInterface $repo */
         $repo = $this->getContainer()->get('newsletter_recipient.repository');
@@ -430,6 +431,42 @@ class ImportExportTest extends ImportExportTestCase
         $progress = $this->import($context, ProductDefinition::ENTITY_NAME, '/fixtures/products.csv', 'products.csv');
 
         static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
+
+        $criteria = new Criteria();
+        $criteria->addAssociation('options.group');
+        $criteria->addAssociation('configuratorSettings');
+        $criteria->addFilter(new EqualsFilter('parentId', 'e5c8b8f701034e8dbea72ac0fc32521e'));
+
+        /** @var ProductEntity $result */
+        $result = $this->productRepository->search($criteria, Context::createDefaultContext())->first();
+
+        static::assertCount(2, $result->getVariation());
+
+        $criteria->resetFilters();
+        $criteria->addFilter(new EqualsFilter('id', 'e5c8b8f701034e8dbea72ac0fc32521e'));
+
+        /** @var ProductEntity $result */
+        $result = $this->productRepository->search($criteria, Context::createDefaultContext())->first();
+
+        static::assertEquals(2, $result->getConfiguratorSettings()->count());
+    }
+
+    public function testProductsCoverIsUpdated(): void
+    {
+        $context = Context::createDefaultContext();
+        $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
+
+        $progress = $this->import($context, ProductDefinition::ENTITY_NAME, '/fixtures/products_with_updated_cover.csv', 'products.csv');
+
+        static::assertSame(Progress::STATE_SUCCEEDED, $progress->getState());
+
+        /** @var ProductEntity $product */
+        $product = $this->productRepository->search(
+            (new Criteria(['e5c8b8f701034e8dbea72ac0fc32521e']))->addAssociation('media'),
+            Context::createDefaultContext()
+        )->first();
+
+        static::assertEquals(1, $product->getMedia()->count());
     }
 
     /**
@@ -726,7 +763,7 @@ class ImportExportTest extends ImportExportTestCase
         $connection->rollBack();
         $connection->executeUpdate('DELETE FROM `product`');
 
-        $progress = $this->import(Context::createDefaultContext(), ProductDefinition::ENTITY_NAME, '/fixtures/products_with_invalid.csv', 'products.csv', null, true);
+        $progress = $this->import(Context::createDefaultContext(), ProductDefinition::ENTITY_NAME, '/fixtures/products_with_invalid_dryrun.csv', 'products.csv', null, true);
         static::assertImportExportFailed($progress);
 
         $ids = $this->productRepository->searchIds(new Criteria(), Context::createDefaultContext());

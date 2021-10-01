@@ -1,7 +1,7 @@
 import template from './sw-product-stream-modal-preview.html.twig';
 import './sw-product-stream-modal-preview.scss';
 
-const { Component, Context } = Shopware;
+const { Component, Context, Feature } = Shopware;
 const { Criteria } = Shopware.Data;
 
 Component.register('sw-product-stream-modal-preview', {
@@ -65,13 +65,16 @@ Component.register('sw-product-stream-modal-preview', {
     },
 
     watch: {
+        /* @deprecated tag:v6.5.0 watcher not debounced anymore, use `@search-term-change` event */
         searchTerm() {
-            this.page = 1;
-            this.isLoading = true;
-            this.loadEntityData()
-                .then(() => {
-                    this.isLoading = false;
-                });
+            if (!Feature.isActive('FEATURE_NEXT_16271')) {
+                this.page = 1;
+                this.isLoading = true;
+                this.loadEntityData()
+                    .then(() => {
+                        this.isLoading = false;
+                    });
+            }
         },
     },
 
@@ -80,6 +83,16 @@ Component.register('sw-product-stream-modal-preview', {
     },
 
     methods: {
+        onSearchTermChange() {
+            if (Feature.isActive('FEATURE_NEXT_16271')) {
+                this.page = 1;
+                this.isLoading = true;
+                this.loadEntityData()
+                    .then(() => {
+                        this.isLoading = false;
+                    });
+            }
+        },
         createdComponent() {
             this.isLoading = true;
 

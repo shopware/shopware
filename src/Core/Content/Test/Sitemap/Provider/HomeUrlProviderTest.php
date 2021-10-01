@@ -4,13 +4,13 @@ namespace Shopware\Core\Content\Test\Sitemap\Provider;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Sitemap\Provider\HomeUrlProvider;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 
 class HomeUrlProviderTest extends TestCase
 {
@@ -26,7 +26,7 @@ class HomeUrlProviderTest extends TestCase
         parent::setUp();
 
         $contextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
-        $this->salesChannelContext = $contextFactory->create('', Defaults::SALES_CHANNEL);
+        $this->salesChannelContext = $contextFactory->create('', TestDefaults::SALES_CHANNEL);
     }
 
     public function testGetHomeUrlSalesChannelIsExistingTwoDomain(): void
@@ -62,7 +62,7 @@ class HomeUrlProviderTest extends TestCase
         $criteria->addAssociation('locale');
         $languages = $this->getContainer()->get('language.repository')->search($criteria, $this->salesChannelContext->getContext())->getEntities();
 
-        $languageId = $this->salesChannelContext->getSalesChannel()->getLanguageId();
+        $languageId = $this->salesChannelContext->getLanguageId();
         $language = $languages->get($languageId);
 
         $domain = new SalesChannelDomainEntity();

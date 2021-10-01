@@ -71,7 +71,7 @@
         {% block sw_import_export_exporter_modal_exporter %}
         <sw-import-export-exporter
             :source-entity="exportModalProfile"
-            @export-finish="$emit('export-finish')"
+            @export-started="$emit('export-started', $event)"
         />
         {% endblock %}
 
@@ -91,11 +91,6 @@
     {% block sw_import_export_exporter_progress %}
     <sw-import-export-progress
         activity-type="export"
-        :offset="progressOffset"
-        :total="progressTotal"
-        :log-entry="progressLogEntry"
-        :state="progressState"
-        :is-loading="isLoading"
         :disable-button="disableExporting"
         @process-start="onStartProcess"
     />

@@ -7,7 +7,25 @@
   "sw-sales-channel": {
     "general": {
       "titleMenuItems": "Verkaufskanäle",
-      "tooltipOpenStorefront": "Öffne Storefront"
+      "tooltipOpenStorefront": "Öffne Storefront",
+      "titleMenuMoreItems": "Mehr",
+      "manageSalesChannels": "Verkaufskanäle verwalten"
+    },
+    "list": {
+      "title": "Verkaufskanäle",
+      "subTitle": "Über Verkaufskanäle können Sie Ihren Kunden Produkte über Social Media, der Storefront, Marktplätze oder persönlich verkaufen.",
+      "placeholderSearchBar": "Durchsuche alle Verkaufskanäle...",
+      "buttonAddSalesChannel": "Verkaufskanal anlegen",
+      "columnName": "Verkaufskanal",
+      "columnStatus": "Status",
+      "status": {
+        "maintenance": "Wartung",
+        "online": "Online",
+        "offline": "Offline"
+      },
+      "contextMenuEdit": "Bearbeiten",
+      "productsLabel": "Produkte",
+      "productsCount": "Produkte"
     },
     "modal": {
       "title": "Verkaufskanal anlegen",

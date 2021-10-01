@@ -9,11 +9,13 @@ use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -32,13 +34,14 @@ class ContactFormRouteTest extends TestCase
 
     protected function setUp(): void
     {
+        Feature::skipTestIfActive('FEATURE_NEXT_8225', $this);
         $this->ids = new TestDataCollection(Context::createDefaultContext());
 
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
         ]);
 
-        $this->assignMailtemplatesToSalesChannel(Defaults::SALES_CHANNEL, $this->ids->context);
+        $this->assignMailtemplatesToSalesChannel(TestDefaults::SALES_CHANNEL, $this->ids->context);
     }
 
     public function testContactFormSendMail(): void
@@ -54,7 +57,7 @@ class ContactFormRouteTest extends TestCase
             $phpunit->assertStringContainsString('essage: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
         };
 
-        $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
+        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $this->browser
             ->request(
@@ -112,7 +115,7 @@ class ContactFormRouteTest extends TestCase
             $phpunit->assertStringContainsString('essage: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
         };
 
-        $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
+        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $this->browser
             ->request(
@@ -167,7 +170,7 @@ class ContactFormRouteTest extends TestCase
             $phpunit->assertStringContainsString('essage: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
         };
 
-        $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
+        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $this->browser
             ->request(
@@ -298,7 +301,7 @@ class ContactFormRouteTest extends TestCase
                 'name' => Uuid::randomHex(),
                 'url' => Uuid::randomHex(),
                 'salesChannels' => [
-                    ['id' => Defaults::SALES_CHANNEL],
+                    ['id' => TestDefaults::SALES_CHANNEL],
                 ],
                 'slotConfig' => $slotConfig,
             ],

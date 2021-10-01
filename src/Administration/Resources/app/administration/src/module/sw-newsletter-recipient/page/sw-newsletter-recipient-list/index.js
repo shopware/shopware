@@ -26,6 +26,7 @@ Component.register('sw-newsletter-recipient-list', {
             tagFilters: [],
             internalFilters: {},
             tagCollection: null,
+            searchConfigEntity: 'newsletter_recipient',
         };
     },
 
@@ -71,7 +72,7 @@ Component.register('sw-newsletter-recipient-list', {
 
         getList() {
             this.isLoading = true;
-            const criteria = new Criteria(this.page, this.limit);
+            let criteria = new Criteria(this.page, this.limit);
             criteria.setTerm(this.term);
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
             criteria.addAssociation('salesChannel');
@@ -79,6 +80,8 @@ Component.register('sw-newsletter-recipient-list', {
             Object.values(this.internalFilters).forEach((item) => {
                 criteria.addFilter(item);
             });
+
+            criteria = this.addQueryScores(this.term, criteria);
 
             this.repository = this.repositoryFactory.create('newsletter_recipient');
             this.repository.search(criteria).then((searchResult) => {

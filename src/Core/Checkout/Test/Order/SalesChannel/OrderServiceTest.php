@@ -24,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
@@ -33,6 +34,8 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelD
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
+use Shopware\Storefront\Controller\AccountOrderController;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
@@ -74,7 +77,7 @@ class OrderServiceTest extends TestCase
         $contextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $this->salesChannelContext = $contextFactory->create(
             '',
-            Defaults::SALES_CHANNEL,
+            TestDefaults::SALES_CHANNEL,
             [SalesChannelContextService::CUSTOMER_ID => $this->createCustomer('Jon', 'Doe')]
         );
     }
@@ -107,6 +110,12 @@ class OrderServiceTest extends TestCase
 
     public function testOrderDeliveryStateTransitionSendsMail(): void
     {
+        Feature::skipTestIfInActive('FEATURE_NEXT_8225', $this);
+        if (!$this->getContainer()->has(AccountOrderController::class)) {
+            // ToDo: NEXT-16882 - Reactivate tests again
+            static::markTestSkipped('Order mail tests should be fixed without storefront in NEXT-16882');
+        }
+
         $orderId = $this->performOrder();
 
         // getting the id of the order delivery
@@ -120,7 +129,7 @@ class OrderServiceTest extends TestCase
         $domain = 'http://shopware.' . Uuid::randomHex();
         $this->setDomainForSalesChannel($domain, Defaults::LANGUAGE_SYSTEM);
 
-        $this->assignMailtemplatesToSalesChannel(Defaults::SALES_CHANNEL, $this->salesChannelContext->getContext());
+        $this->assignMailtemplatesToSalesChannel(TestDefaults::SALES_CHANNEL, $this->salesChannelContext->getContext());
 
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
@@ -134,7 +143,7 @@ class OrderServiceTest extends TestCase
             $eventDidRun = true;
         };
 
-        $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
+        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $this->orderService->orderDeliveryStateTransition(
             $orderDeliveryId,
@@ -150,6 +159,11 @@ class OrderServiceTest extends TestCase
 
     public function testSkipOrderDeliveryStateTransitionSendsMail(): void
     {
+        if (!$this->getContainer()->has(AccountOrderController::class)) {
+            // ToDo: NEXT-16882 - Reactivate tests again
+            static::markTestSkipped('Order mail tests should be fixed without storefront in NEXT-16882');
+        }
+
         $orderId = $this->performOrder();
 
         // getting the id of the order delivery
@@ -163,7 +177,7 @@ class OrderServiceTest extends TestCase
         $domain = 'http://shopware.' . Uuid::randomHex();
         $this->setDomainForSalesChannel($domain, Defaults::LANGUAGE_SYSTEM);
 
-        $this->assignMailtemplatesToSalesChannel(Defaults::SALES_CHANNEL, $this->salesChannelContext->getContext());
+        $this->assignMailtemplatesToSalesChannel(TestDefaults::SALES_CHANNEL, $this->salesChannelContext->getContext());
 
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
@@ -177,7 +191,7 @@ class OrderServiceTest extends TestCase
             $eventDidRun = true;
         };
 
-        $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
+        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $this->salesChannelContext
             ->getContext()
@@ -197,11 +211,17 @@ class OrderServiceTest extends TestCase
 
     public function testOrderDeliveryStateTransitionSendsMailDe(): void
     {
+        Feature::skipTestIfInActive('FEATURE_NEXT_8225', $this);
+        if (!$this->getContainer()->has(AccountOrderController::class)) {
+            // ToDo: NEXT-16882 - Reactivate tests again
+            static::markTestSkipped('Order mail tests should be fixed without storefront in NEXT-16882');
+        }
+
         $contextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $previousContext = $this->salesChannelContext;
         $this->salesChannelContext = $contextFactory->create(
             '',
-            Defaults::SALES_CHANNEL,
+            TestDefaults::SALES_CHANNEL,
             [
                 SalesChannelContextService::CUSTOMER_ID => $this->createCustomer('Jon', 'De'),
                 SalesChannelContextService::LANGUAGE_ID => $this->getDeDeLanguageId(),
@@ -220,7 +240,7 @@ class OrderServiceTest extends TestCase
         $domain = 'http://shopware.' . Uuid::randomHex();
         $this->setDomainForSalesChannel($domain, $this->getDeDeLanguageId());
 
-        $this->assignMailtemplatesToSalesChannel(Defaults::SALES_CHANNEL, $this->salesChannelContext->getContext());
+        $this->assignMailtemplatesToSalesChannel(TestDefaults::SALES_CHANNEL, $this->salesChannelContext->getContext());
 
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
@@ -234,7 +254,7 @@ class OrderServiceTest extends TestCase
             $eventDidRun = true;
         };
 
-        $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
+        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $this->orderService->orderDeliveryStateTransition(
             $orderDeliveryId,
@@ -281,6 +301,12 @@ class OrderServiceTest extends TestCase
 
     public function testOrderTransactionStateTransitionSendsMail(): void
     {
+        Feature::skipTestIfInActive('FEATURE_NEXT_8225', $this);
+        if (!$this->getContainer()->has(AccountOrderController::class)) {
+            // ToDo: NEXT-16882 - Reactivate tests again
+            static::markTestSkipped('Order mail tests should be fixed without storefront in NEXT-16882');
+        }
+
         $orderId = $this->performOrder();
 
         // getting the id of the order transaction
@@ -294,7 +320,7 @@ class OrderServiceTest extends TestCase
         $domain = 'http://shopware.' . Uuid::randomHex();
         $this->setDomainForSalesChannel($domain, Defaults::LANGUAGE_SYSTEM);
 
-        $this->assignMailtemplatesToSalesChannel(Defaults::SALES_CHANNEL, $this->salesChannelContext->getContext());
+        $this->assignMailtemplatesToSalesChannel(TestDefaults::SALES_CHANNEL, $this->salesChannelContext->getContext());
 
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
@@ -308,7 +334,7 @@ class OrderServiceTest extends TestCase
             $eventDidRun = true;
         };
 
-        $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
+        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $this->orderService->orderTransactionStateTransition(
             $orderTransactionId,
@@ -324,6 +350,11 @@ class OrderServiceTest extends TestCase
 
     public function testSkipOrderTransactionStateTransitionSendsMail(): void
     {
+        if (!$this->getContainer()->has(AccountOrderController::class)) {
+            // ToDo: NEXT-16882 - Reactivate tests again
+            static::markTestSkipped('Order mail tests should be fixed without storefront in NEXT-16882');
+        }
+
         $orderId = $this->performOrder();
 
         // getting the id of the order transaction
@@ -337,7 +368,7 @@ class OrderServiceTest extends TestCase
         $domain = 'http://shopware.' . Uuid::randomHex();
         $this->setDomainForSalesChannel($domain, Defaults::LANGUAGE_SYSTEM);
 
-        $this->assignMailtemplatesToSalesChannel(Defaults::SALES_CHANNEL, $this->salesChannelContext->getContext());
+        $this->assignMailtemplatesToSalesChannel(TestDefaults::SALES_CHANNEL, $this->salesChannelContext->getContext());
 
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
@@ -351,7 +382,7 @@ class OrderServiceTest extends TestCase
             $eventDidRun = true;
         };
 
-        $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
+        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $this->salesChannelContext
             ->getContext()
@@ -399,7 +430,7 @@ class OrderServiceTest extends TestCase
         $contextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
         $this->salesChannelContext = $contextFactory->create(
             '',
-            Defaults::SALES_CHANNEL,
+            TestDefaults::SALES_CHANNEL,
             [SalesChannelContextService::CUSTOMER_ID => $this->createCustomer('Jon', 'Doe', $additionalData)]
         );
 
@@ -420,13 +451,19 @@ class OrderServiceTest extends TestCase
 
     public function testCreateOrderSendsMail(): void
     {
+        Feature::skipTestIfInActive('FEATURE_NEXT_8225', $this);
+        if (!$this->getContainer()->has(AccountOrderController::class)) {
+            // ToDo: NEXT-16882 - Reactivate tests again
+            static::markTestSkipped('Order mail tests should be fixed without storefront in NEXT-16882');
+        }
+
         $data = new RequestDataBag(['tos' => true]);
         $this->fillCart($this->salesChannelContext->getToken());
 
         $domain = 'http://shopware.' . Uuid::randomHex();
         $this->setDomainForSalesChannel($domain, Defaults::LANGUAGE_SYSTEM);
 
-        $this->assignMailtemplatesToSalesChannel(Defaults::SALES_CHANNEL, $this->salesChannelContext->getContext());
+        $this->assignMailtemplatesToSalesChannel(TestDefaults::SALES_CHANNEL, $this->salesChannelContext->getContext());
 
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
@@ -436,7 +473,7 @@ class OrderServiceTest extends TestCase
             $eventDidRun = true;
         };
 
-        $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
+        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $this->orderService->createOrder($data, $this->salesChannelContext);
 
@@ -460,12 +497,18 @@ class OrderServiceTest extends TestCase
 
     public function testOrderStateTransitionSendsMail(): void
     {
+        Feature::skipTestIfInActive('FEATURE_NEXT_8225', $this);
+        if (!$this->getContainer()->has(AccountOrderController::class)) {
+            // ToDo: NEXT-16882 - Reactivate tests again
+            static::markTestSkipped('Order mail tests should be fixed without storefront in NEXT-16882');
+        }
+
         $orderId = $this->performOrder();
 
         $domain = 'http://shopware.' . Uuid::randomHex();
         $this->setDomainForSalesChannel($domain, Defaults::LANGUAGE_SYSTEM);
 
-        $this->assignMailtemplatesToSalesChannel(Defaults::SALES_CHANNEL, $this->salesChannelContext->getContext());
+        $this->assignMailtemplatesToSalesChannel(TestDefaults::SALES_CHANNEL, $this->salesChannelContext->getContext());
 
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
@@ -484,7 +527,7 @@ class OrderServiceTest extends TestCase
             $eventDidRun = true;
         };
 
-        $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
+        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $this->orderService->orderStateTransition($orderId, 'cancel', new ParameterBag(), $this->salesChannelContext->getContext());
 
@@ -495,6 +538,12 @@ class OrderServiceTest extends TestCase
 
     public function testMailTemplateHasCorrectDomain(): void
     {
+        Feature::skipTestIfInActive('FEATURE_NEXT_8225', $this);
+        if (!$this->getContainer()->has(AccountOrderController::class)) {
+            // ToDo: NEXT-16882 - Reactivate tests again
+            static::markTestSkipped('Order mail tests should be fixed without storefront in NEXT-16882');
+        }
+
         $data = new RequestDataBag(['tos' => true]);
         $this->fillCart($this->salesChannelContext->getToken());
 
@@ -519,7 +568,7 @@ class OrderServiceTest extends TestCase
         $secondDomain = 'http://shopware.second-domain';
         $this->setDomainForSalesChannel($secondDomain, $languageId);
 
-        $this->assignMailtemplatesToSalesChannel(Defaults::SALES_CHANNEL, $this->salesChannelContext->getContext());
+        $this->assignMailtemplatesToSalesChannel(TestDefaults::SALES_CHANNEL, $this->salesChannelContext->getContext());
 
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
@@ -532,7 +581,7 @@ class OrderServiceTest extends TestCase
             $eventDidRun = true;
         };
 
-        $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
+        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $this->orderService->createOrder($data, $this->salesChannelContext);
 
@@ -543,13 +592,19 @@ class OrderServiceTest extends TestCase
 
     public function testMailTemplateHandlesVirtualDomains(): void
     {
+        Feature::skipTestIfInActive('FEATURE_NEXT_8225', $this);
+        if (!$this->getContainer()->has(AccountOrderController::class)) {
+            // ToDo: NEXT-16882 - Reactivate tests again
+            static::markTestSkipped('Order mail tests should be fixed without storefront in NEXT-16882');
+        }
+
         $data = new RequestDataBag(['tos' => true]);
         $this->fillCart($this->salesChannelContext->getToken());
 
         $domain = 'http://shopware.test/virtual-domain';
         $this->setDomainForSalesChannel($domain, Defaults::LANGUAGE_SYSTEM);
 
-        $this->assignMailtemplatesToSalesChannel(Defaults::SALES_CHANNEL, $this->salesChannelContext->getContext());
+        $this->assignMailtemplatesToSalesChannel(TestDefaults::SALES_CHANNEL, $this->salesChannelContext->getContext());
 
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
@@ -562,7 +617,7 @@ class OrderServiceTest extends TestCase
             $eventDidRun = true;
         };
 
-        $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
+        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $this->orderService->createOrder($data, $this->salesChannelContext);
 
@@ -587,7 +642,7 @@ class OrderServiceTest extends TestCase
 
         $customer = [
             'id' => $customerId,
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
             'defaultShippingAddress' => [
                 'id' => $customerId,
                 'firstName' => $firstName,
@@ -600,7 +655,7 @@ class OrderServiceTest extends TestCase
             ],
             'defaultBillingAddressId' => $customerId,
             'defaultPaymentMethodId' => $paymentMethodId,
-            'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+            'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'email' => Uuid::randomHex() . '@example.com',
             'password' => 'not',
             'firstName' => $firstName,
@@ -645,7 +700,7 @@ class OrderServiceTest extends TestCase
             'visibilities' => [
                 [
                     'id' => $productId,
-                    'salesChannelId' => Defaults::SALES_CHANNEL,
+                    'salesChannelId' => TestDefaults::SALES_CHANNEL,
                     'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
                 ],
             ],
@@ -677,7 +732,7 @@ class OrderServiceTest extends TestCase
         $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
 
         $data = [
-            'id' => Defaults::SALES_CHANNEL,
+            'id' => TestDefaults::SALES_CHANNEL,
             'domains' => [[
                 'languageId' => $languageId,
                 'currencyId' => Defaults::CURRENCY,
@@ -694,7 +749,7 @@ class OrderServiceTest extends TestCase
         $connection = $this->getContainer()->get(Connection::class);
 
         $connection->delete(SalesChannelDomainDefinition::ENTITY_NAME, [
-            'sales_channel_id' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL),
+            'sales_channel_id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL),
         ]);
     }
 }

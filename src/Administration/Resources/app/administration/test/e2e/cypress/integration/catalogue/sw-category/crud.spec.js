@@ -18,18 +18,17 @@ describe('Category: Create several categories', () => {
         const page = new CategoryPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/category`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/category`,
-            method: 'post'
+            method: 'POST'
         }).as('loadCategory');
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/category/**`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('editCategory');
 
         // Add category before root one
@@ -48,10 +47,8 @@ describe('Category: Create several categories', () => {
         });
 
         // Save and verify category
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-            cy.get('.sw-loader').should('not.exist');
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-confirm-field__button-list').then((btn) => {
             if (btn.attr('style').includes('display: none;')) {
                 cy.get('.sw-category-tree__inner .sw-tree-actions__headline').click();
@@ -63,18 +60,14 @@ describe('Category: Create several categories', () => {
         cy.contains('Categorian').click();
 
         // Assign category and set it active
-        cy.wait('@loadCategory').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@loadCategory').its('response.statusCode').should('equal', 200);
         cy.get('.sw-category-detail-base').should('be.visible');
         cy.get('input[name="categoryActive"]').click();
 
         cy.get('.sw-category-detail__save-action').click();
-        cy.wait('@editCategory').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-            cy.get('.sw-category-detail__save-action')
-                .should('have.css', 'background-color', 'rgb(24, 158, 255)');
-        });
+        cy.wait('@editCategory').its('response.statusCode').should('equal', 204);
+        cy.get('.sw-category-detail__save-action')
+            .should('have.css', 'background-color', 'rgb(24, 158, 255)');
 
         // Verify category in Storefront
         cy.visit('/');
@@ -109,8 +102,10 @@ describe('Category: Create several categories', () => {
         cy.get('.sw-category-detail-base__type-selection')
             .typeSingleSelectAndCheck('Entry point', '.sw-category-detail-base__type-selection');
 
-        cy.get('.sw-category-detail__tab-products').scrollIntoView().should('not.be.visible');
-        cy.get('.sw-category-detail__tab-seo').scrollIntoView().should('not.be.visible');
+        cy.get('.sw-category-layout-card').should('not.exist');
+        cy.get('.sw-many-to-many-assignment-card').should('not.exist');
+        cy.get('.sw-category-seo-form').should('not.exist');
+        cy.get('.sw-seo-url__card').should('not.exist');
 
         cy.get('.sw-category-detail__tab-cms').scrollIntoView().should('not.be.visible');
         cy.get('.sw-category-link-settings').should('not.exist');
@@ -143,14 +138,13 @@ describe('Category: Create several categories', () => {
 
         // we need to create a new category, because Home can not be a link because it's an entry point
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/category`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/category`,
-            method: 'post'
+            method: 'POST'
         }).as('loadCategory');
 
         // Add category before root one
@@ -169,10 +163,9 @@ describe('Category: Create several categories', () => {
         });
 
         // Save and verify category
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-            cy.get('.sw-loader').should('not.exist');
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
+        cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-confirm-field__button-list').then((btn) => {
             if (btn.attr('style').includes('display: none;')) {
                 cy.get('.sw-category-tree__inner .sw-tree-actions__headline').click();
@@ -184,9 +177,8 @@ describe('Category: Create several categories', () => {
         cy.contains('Categorian').click();
 
         // Assign category and set it active
-        cy.wait('@loadCategory').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@loadCategory')
+            .its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-category-detail-base__menu').should('exist');
         cy.get('.sw-category-detail__tab-products').scrollIntoView().should('be.visible');

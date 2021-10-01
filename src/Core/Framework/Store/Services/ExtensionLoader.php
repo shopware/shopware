@@ -35,7 +35,7 @@ class ExtensionLoader
 {
     private const DEFAULT_LOCALE = 'en_GB';
 
-    private EntityRepositoryInterface $themeRepository;
+    private ?EntityRepositoryInterface $themeRepository;
 
     /**
      * @var array<string>|null
@@ -52,7 +52,7 @@ class ExtensionLoader
 
     public function __construct(
         EntityRepositoryInterface $languageRepository,
-        EntityRepositoryInterface $themeRepository,
+        ?EntityRepositoryInterface $themeRepository,
         AbstractAppLoader $appLoader,
         ConfigurationService $configurationService,
         StoreService $storeService
@@ -204,7 +204,7 @@ class ExtensionLoader
      */
     private function getInstalledThemeNames(Context $context): array
     {
-        if ($this->installedThemeNames === null) {
+        if ($this->installedThemeNames === null && $this->themeRepository instanceof EntityRepositoryInterface) {
             $themeNameAggregationName = 'theme_names';
             $criteria = new Criteria();
             $criteria->addAggregation(new TermsAggregation($themeNameAggregationName, 'technicalName'));
@@ -215,7 +215,7 @@ class ExtensionLoader
             return $this->installedThemeNames = $themeNameAggregation->getKeys();
         }
 
-        return $this->installedThemeNames;
+        return $this->installedThemeNames ?? [];
     }
 
     private function loadLocalAppsCollection(Context $context): ExtensionCollection

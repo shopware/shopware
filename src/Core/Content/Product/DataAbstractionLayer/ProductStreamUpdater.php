@@ -10,12 +10,13 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
-use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
@@ -32,16 +33,20 @@ class ProductStreamUpdater extends EntityIndexer
 
     private MessageBusInterface $messageBus;
 
+    private ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater;
+
     public function __construct(
         Connection $connection,
         ProductDefinition $productDefinition,
         EntityRepositoryInterface $repository,
-        MessageBusInterface $messageBus
+        MessageBusInterface $messageBus,
+        ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater
     ) {
         $this->connection = $connection;
         $this->productDefinition = $productDefinition;
         $this->repository = $repository;
         $this->messageBus = $messageBus;
+        $this->manyToManyIdFieldUpdater = $manyToManyIdFieldUpdater;
     }
 
     public function getName(): string
@@ -96,11 +101,13 @@ class ProductStreamUpdater extends EntityIndexer
 
         $binary = Uuid::fromHexToBytes($id);
 
+        $ids = [];
         while ($matches = $iterator->fetchIds()) {
             foreach ($matches as $id) {
                 if (!\is_string($id)) {
                     continue;
                 }
+                $ids[] = $id;
                 $insert->addInsert('product_stream_mapping', [
                     'product_id' => Uuid::fromHexToBytes($id),
                     'product_version_id' => $version,
@@ -109,16 +116,22 @@ class ProductStreamUpdater extends EntityIndexer
             }
         }
 
-        RetryableQuery::retryable(function () use ($binary): void {
+        RetryableTransaction::retryable($this->connection, function () use ($insert, $binary): void {
             $this->connection->executeStatement(
                 'DELETE FROM product_stream_mapping WHERE product_stream_id = :id',
                 ['id' => $binary],
             );
-        });
-
-        RetryableQuery::retryable(function () use ($insert): void {
             $insert->execute();
         });
+
+        foreach (array_chunk($ids, 250) as $chunkedIds) {
+            $this->manyToManyIdFieldUpdater->update(
+                ProductDefinition::ENTITY_NAME,
+                $chunkedIds,
+                $message->getContext(),
+                'streamIds'
+            );
+        }
     }
 
     public function update(EntityWrittenContainerEvent $event): ?EntityIndexingMessage
@@ -177,15 +190,12 @@ class ProductStreamUpdater extends EntityIndexer
             }
         }
 
-        RetryableQuery::retryable(function () use ($ids): void {
+        RetryableTransaction::retryable($this->connection, function () use ($ids, $insert): void {
             $this->connection->executeStatement(
                 'DELETE FROM product_stream_mapping WHERE product_id IN (:ids)',
                 ['ids' => Uuid::fromHexToBytesList($ids)],
                 ['ids' => Connection::PARAM_STR_ARRAY]
             );
-        });
-
-        RetryableQuery::retryable(function () use ($insert): void {
             $insert->execute();
         });
     }

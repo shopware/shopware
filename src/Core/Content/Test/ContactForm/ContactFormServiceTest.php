@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Test\ContactForm;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ContactForm\SalesChannel\ContactFormRoute;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
-use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class ContactFormServiceTest extends TestCase
@@ -30,11 +31,12 @@ class ContactFormServiceTest extends TestCase
 
     public function testContactFormSendMail(): void
     {
+        Feature::skipTestIfActive('FEATURE_NEXT_8225', $this);
         /** @var AbstractSalesChannelContextFactory $salesChannelContextFactory */
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
-        $context = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
-        $this->assignMailtemplatesToSalesChannel(Defaults::SALES_CHANNEL, $context->getContext());
+        $this->assignMailtemplatesToSalesChannel(TestDefaults::SALES_CHANNEL, $context->getContext());
 
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
@@ -44,10 +46,10 @@ class ContactFormServiceTest extends TestCase
         $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, $phpunit): void {
             $eventDidRun = true;
             $phpunit->assertStringContainsString('Contact email address: test@shopware.com', $event->getContents()['text/html']);
-            $phpunit->assertStringContainsString('essage: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
+            $phpunit->assertStringContainsString('Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
         };
 
-        $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
+        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $validationEventDidRun = false;
         $validationListenerClosure = static function () use (&$validationEventDidRun): void {
@@ -56,7 +58,7 @@ class ContactFormServiceTest extends TestCase
 
         $validationEventName = 'framework.validation.contact_form.create';
 
-        $dispatcher->addListener($validationEventName, $validationListenerClosure);
+        $this->addEventListener($dispatcher, $validationEventName, $validationListenerClosure);
 
         $systemConfig = $this->getContainer()->get(SystemConfigService::class);
         $systemConfig->set('core.basicInformation.firstNameFieldRequired', true);
@@ -88,9 +90,9 @@ class ContactFormServiceTest extends TestCase
     {
         /** @var AbstractSalesChannelContextFactory $salesChannelContextFactory */
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
-        $context = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
-        $this->assignMailtemplatesToSalesChannel(Defaults::SALES_CHANNEL, $context->getContext());
+        $this->assignMailtemplatesToSalesChannel(TestDefaults::SALES_CHANNEL, $context->getContext());
 
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
@@ -100,10 +102,10 @@ class ContactFormServiceTest extends TestCase
         $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, $phpunit): void {
             $eventDidRun = true;
             $phpunit->assertStringContainsString('Contact email address: test@shopware.com', $event->getContents()['text/html']);
-            $phpunit->assertStringContainsString('essage: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
+            $phpunit->assertStringContainsString('Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
         };
 
-        $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
+        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $systemConfig = $this->getContainer()->get(SystemConfigService::class);
         $systemConfig->set('core.basicInformation.firstNameFieldRequired', true);
@@ -131,9 +133,9 @@ class ContactFormServiceTest extends TestCase
     {
         /** @var AbstractSalesChannelContextFactory $salesChannelContextFactory */
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
-        $context = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
-        $this->assignMailtemplatesToSalesChannel(Defaults::SALES_CHANNEL, $context->getContext());
+        $this->assignMailtemplatesToSalesChannel(TestDefaults::SALES_CHANNEL, $context->getContext());
 
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
@@ -143,10 +145,10 @@ class ContactFormServiceTest extends TestCase
         $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, $phpunit): void {
             $eventDidRun = true;
             $phpunit->assertStringContainsString('Contact email address: test@shopware.com', $event->getContents()['text/html']);
-            $phpunit->assertStringContainsString('essage: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
+            $phpunit->assertStringContainsString('Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
         };
 
-        $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
+        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $systemConfig = $this->getContainer()->get(SystemConfigService::class);
         $systemConfig->set('core.basicInformation.firstNameFieldRequired', false);
@@ -174,9 +176,9 @@ class ContactFormServiceTest extends TestCase
     {
         /** @var AbstractSalesChannelContextFactory $salesChannelContextFactory */
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
-        $context = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
-        $this->assignMailtemplatesToSalesChannel(Defaults::SALES_CHANNEL, $context->getContext());
+        $this->assignMailtemplatesToSalesChannel(TestDefaults::SALES_CHANNEL, $context->getContext());
 
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
@@ -186,10 +188,10 @@ class ContactFormServiceTest extends TestCase
         $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, $phpunit): void {
             $eventDidRun = true;
             $phpunit->assertStringContainsString('Contact email address: test@shopware.com', $event->getContents()['text/html']);
-            $phpunit->assertStringContainsString('essage: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
+            $phpunit->assertStringContainsString('Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
         };
 
-        $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
+        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $systemConfig = $this->getContainer()->get(SystemConfigService::class);
         $systemConfig->set('core.basicInformation.firstNameFieldRequired', false);
@@ -215,11 +217,12 @@ class ContactFormServiceTest extends TestCase
 
     public function testContactFormOptionalFieldsSendMail(): void
     {
+        Feature::skipTestIfInActive('FEATURE_NEXT_8225', $this);
         /** @var AbstractSalesChannelContextFactory $salesChannelContextFactory */
         $salesChannelContextFactory = $this->getContainer()->get(SalesChannelContextFactory::class);
-        $context = $salesChannelContextFactory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $context = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
-        $this->assignMailtemplatesToSalesChannel(Defaults::SALES_CHANNEL, $context->getContext());
+        $this->assignMailtemplatesToSalesChannel(TestDefaults::SALES_CHANNEL, $context->getContext());
 
         /** @var EventDispatcher $dispatcher */
         $dispatcher = $this->getContainer()->get('event_dispatcher');
@@ -229,10 +232,10 @@ class ContactFormServiceTest extends TestCase
         $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, $phpunit): void {
             $eventDidRun = true;
             $phpunit->assertStringContainsString('Contact email address: test@shopware.com', $event->getContents()['text/html']);
-            $phpunit->assertStringContainsString('essage: Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
+            $phpunit->assertStringContainsString('Lorem ipsum dolor sit amet', $event->getContents()['text/html']);
         };
 
-        $dispatcher->addListener(MailSentEvent::class, $listenerClosure);
+        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $systemConfig = $this->getContainer()->get(SystemConfigService::class);
         $systemConfig->set('core.basicInformation.firstNameFieldRequired', false);

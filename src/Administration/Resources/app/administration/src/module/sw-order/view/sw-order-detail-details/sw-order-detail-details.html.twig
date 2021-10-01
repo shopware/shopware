@@ -1,0 +1,147 @@
+{% block sw_order_detail_details %}
+<div>
+    {% block sw_order_detail_details_user_card %}
+    <sw-order-user-card
+        :key="isEditing"
+        :current-order="order"
+        :version-context="versionContext"
+        :is-loading="isLoading"
+        :is-editing="isEditing"
+        @order-change="saveAndReload"
+        @order-reset="recalculateAndReload"
+        @error="$emit('error',$event)"
+    >
+
+        {% block sw_order_detail_details_overview_status_change %}
+        <sw-container
+            v-if="!isEditing"
+            slot="additional-actions"
+            columns="minmax(min-content, 1fr) minmax(min-content, 1fr) 1fr"
+            gap="0 15px"
+        >
+
+            {% block sw_order_detail_details_status_change_transaction %}
+            <sw-order-state-select
+                v-if="!isLoading && transaction"
+                v-tooltip="{
+                    message: $tc('sw-privileges.tooltip.warning'),
+                    disabled: acl.can('order.editor'),
+                    showOnDisabledElements: true
+                }"
+                class="sw-order-state-select__payment-state"
+                rounded-style
+                :disabled="!acl.can('order.editor')"
+                :transition-options="transactionOptions"
+                :placeholder="transactionOptionPlaceholder"
+                :background-style="transactionOptionsBackground"
+                @state-select="onQuickTransactionStatusChange"
+            />
+            {% endblock %}
+
+            {% block sw_order_detail_details_status_change_delivery %}
+            <sw-order-state-select
+                v-if="!isLoading && delivery"
+                v-tooltip="{
+                    message: $tc('sw-privileges.tooltip.warning'),
+                    disabled: acl.can('order.editor'),
+                    showOnDisabledElements: true
+                }"
+                class="sw-order-state-select__delivery-state"
+                rounded-style
+                :transition-options="deliveryOptions"
+                :disabled="!acl.can('order.editor')"
+                :placeholder="deliveryOptionPlaceholder"
+                :background-style="deliveryOptionsBackground"
+                @state-select="onQuickDeliveryStatusChange"
+            />
+            {% endblock %}
+
+            {% block sw_order_detail_details_status_change_order %}
+            <sw-order-state-select
+                v-if="!isLoading"
+                v-tooltip="{
+                    message: $tc('sw-privileges.tooltip.warning'),
+                    disabled: acl.can('order.editor'),
+                    showOnDisabledElements: true
+                }"
+                class="sw-order-state-select__order-state"
+                rounded-style
+                :transition-options="orderOptions"
+                :disabled="!acl.can('order.editor')"
+                :placeholder="orderOptionPlaceholder"
+                :background-style="orderOptionsBackground"
+                @state-select="onQuickOrderStatusChange"
+            />
+            {% endblock %}
+
+            {% block sw_order_detail_base_show_state_history_button %}
+            {# needs to be (re)moved to the correct place(s) when details tab is correctly added #}
+            <sw-button
+                v-if="feature.isActive('FEATURE_NEXT_7530')"
+                @click="showStateHistoryModal = true"
+            >
+                Show Status History
+            </sw-button>
+            {% endblock %}
+        </sw-container>
+        {% endblock %}
+
+    </sw-order-user-card>
+    {% endblock %}
+
+    {% block sw_order_detail_details_customer_comment_card %}
+    <sw-order-customer-comment
+        v-if="order.customerComment"
+        class="sw-order-customer-comment"
+        :is-loading="isLoading"
+        :customer-comment="order.customerComment"
+    />
+    {% endblock %}
+
+    {% block sw_order_detail_details_status_card %}
+    <sw-order-state-history-card
+        v-if="!isEditing"
+        ref="state-card"
+        :title="$tc('sw-order.stateCard.cardTitle')"
+        :is-loading="isLoading"
+        :order="order"
+        @order-state-change="reloadEntityData"
+        @options-change="onStateTransitionOptionsChanged"
+    />
+    {% endblock %}
+
+    {% block sw_order_detail_details_delivery_metadata %}
+    <sw-order-delivery-metadata
+        v-if="delivery"
+        class="sw-order-delivery-metadata"
+        :title="$tc('sw-order.detailDeliveries.cardTitleItems', 0, { count: ' '})"
+        :is-loading="isLoading"
+        :order="order"
+        :delivery="delivery"
+    />
+    {% endblock %}
+
+    {% block sw_order_detail_details_custom_fields %}
+    <sw-card
+        v-if="customFieldSets.length > 0"
+        :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+        :is-loading="isLoading"
+    >
+        <sw-custom-field-set-renderer
+            :entity="order"
+            :disabled="!isEditing || !acl.can('order.editor')"
+            :sets="customFieldSets"
+        />
+    </sw-card>
+    {% endblock %}
+
+    {% block sw_order_detail_base_state_history_modal %}
+    <sw-order-state-history-modal
+        v-if="showStateHistoryModal && feature.isActive('FEATURE_NEXT_7530')"
+        :order="order"
+        :is-loading="isLoading"
+        @modal-close="showStateHistoryModal = false"
+    />
+    {% endblock %}
+</div>
+{% endblock %}

@@ -7,6 +7,7 @@ use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\Event\CategoryIndexerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater;
@@ -22,40 +23,19 @@ class CategoryIndexer extends EntityIndexer
     public const TREE_UPDATER = 'category.tree';
     public const BREADCRUMB_UPDATER = 'category.breadcrumb';
 
-    /**
-     * @var IteratorFactory
-     */
-    private $iteratorFactory;
+    private IteratorFactory $iteratorFactory;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $repository;
+    private EntityRepositoryInterface $repository;
 
-    /**
-     * @var ChildCountUpdater
-     */
-    private $childCountUpdater;
+    private ChildCountUpdater $childCountUpdater;
 
-    /**
-     * @var TreeUpdater
-     */
-    private $treeUpdater;
+    private TreeUpdater $treeUpdater;
 
-    /**
-     * @var CategoryBreadcrumbUpdater
-     */
-    private $breadcrumbUpdater;
+    private CategoryBreadcrumbUpdater $breadcrumbUpdater;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
     public function __construct(
         Connection $connection,
@@ -162,25 +142,32 @@ class CategoryIndexer extends EntityIndexer
 
         $context = $message->getContext();
 
-        $this->connection->beginTransaction();
+        RetryableTransaction::retryable($this->connection, function () use ($message, $ids, $context): void {
+            if ($message->allow(self::CHILD_COUNT_UPDATER)) {
+                // listen to parent id changes
+                $this->childCountUpdater->update(CategoryDefinition::ENTITY_NAME, $ids, $context);
+            }
 
-        if ($message->allow(self::CHILD_COUNT_UPDATER)) {
-            // listen to parent id changes
-            $this->childCountUpdater->update(CategoryDefinition::ENTITY_NAME, $ids, $context);
-        }
+            if ($message->allow(self::TREE_UPDATER)) {
+                $this->treeUpdater->batchUpdate($ids, CategoryDefinition::ENTITY_NAME, $context);
+            }
 
-        if ($message->allow(self::TREE_UPDATER)) {
-            $this->treeUpdater->batchUpdate($ids, CategoryDefinition::ENTITY_NAME, $context);
-        }
-
-        if ($message->allow(self::BREADCRUMB_UPDATER)) {
-            // listen to name changes
-            $this->breadcrumbUpdater->update($ids, $context);
-        }
-
-        $this->connection->commit();
+            if ($message->allow(self::BREADCRUMB_UPDATER)) {
+                // listen to name changes
+                $this->breadcrumbUpdater->update($ids, $context);
+            }
+        });
 
         $this->eventDispatcher->dispatch(new CategoryIndexerEvent($ids, $context, $message->getSkip()));
+    }
+
+    public function getOptions(): array
+    {
+        return [
+            self::CHILD_COUNT_UPDATER,
+            self::TREE_UPDATER,
+            self::BREADCRUMB_UPDATER,
+        ];
     }
 
     private function fetchChildren(array $categoryIds, string $versionId): array

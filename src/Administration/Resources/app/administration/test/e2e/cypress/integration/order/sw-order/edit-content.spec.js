@@ -3,28 +3,28 @@
 import OrderPageObject from '../../../support/pages/module/sw-order.page-object';
 
 function navigateToOrder(page) {
-    cy.route({
-        url: `${Cypress.env('apiPath')}/_action/version/order/**`,
-        method: 'post'
+    cy.intercept({
+        url: `**/${Cypress.env('apiPath')}/_action/version/order/**`,
+        method: 'POST'
     }).as('orderEditCall');
 
-    cy.route({
-        url: `${Cypress.env('apiPath')}/_action/version/merge/order/**`,
-        method: 'post'
+    cy.intercept({
+        url: `**/${Cypress.env('apiPath')}/_action/version/merge/order/**`,
+        method: 'POST'
     }).as('orderSaveCall');
 
-    cy.route({
-        url: `${Cypress.env('apiPath')}/_action/order/**/product/**`,
-        method: 'post'
+    cy.intercept({
+        url: `**/${Cypress.env('apiPath')}/_action/order/**/product/**`,
+        method: 'POST'
     }).as('orderAddProductCall');
 
-    cy.route({
-        url: `${Cypress.env('apiPath')}/_action/order/**/recalculate`,
-        method: 'post'
+    cy.intercept({
+        url: `**/${Cypress.env('apiPath')}/_action/order/**/recalculate`,
+        method: 'POST'
     }).as('orderRecalculateCall');
 
-    cy.route({
-        url: `${Cypress.env('apiPath')}/order-line-item/**`,
+    cy.intercept({
+        url: `**/${Cypress.env('apiPath')}/order-line-item/**`,
         method: 'delete'
     }).as('deleteLineItemCall');
 
@@ -34,12 +34,12 @@ function navigateToOrder(page) {
         `${page.elements.dataGridRow}--0`
     );
 
-    // edit order
-    cy.get('.sw-order-detail__smart-bar-edit-button').click();
-
-    cy.wait('@orderEditCall').then((xhr) => {
-        expect(xhr).to.have.property('status', 200);
+    cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+        // edit order
+        cy.get('.sw-order-detail__smart-bar-edit-button').click();
     });
+
+    cy.wait('@orderEditCall').its('response.statusCode').should('equal', 200);
 }
 
 /**
@@ -103,6 +103,8 @@ describe('Order: Read order', () => {
     });
 
     it('@base @order: can add existing product', () => {
+        // skip for feature FEATURE_NEXT_7530, this test is reactivated again with NEXT-16674
+        cy.skipOnFeature('FEATURE_NEXT_7530');
         const page = new OrderPageObject();
 
         navigateToOrder(page);
@@ -117,22 +119,20 @@ describe('Order: Read order', () => {
         cy.get('.sw-order-product-select__single-select')
             .typeSingleSelectAndCheck('Product name', '.sw-order-product-select__single-select');
         cy.get('.sw-data-grid__inline-edit-save').click();
-        cy.wait('@orderAddProductCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@orderAddProductCall').its('response.statusCode').should('equal', 204);
 
         // click save
         cy.get('.sw-order-detail__smart-bar-save-button').click();
 
-        cy.wait('@orderSaveCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@orderSaveCall').its('response.statusCode').should('equal', 204);
 
         // assert save successful
         cy.get('.sw-data-grid__row--0 > .sw-data-grid__cell--quantity > .sw-data-grid__cell-content').contains('2');
     });
 
     it('@base @order: can add new products', () => {
+        // skip for feature FEATURE_NEXT_7530, this test is reactivated again with NEXT-16674
+        cy.skipOnFeature('FEATURE_NEXT_7530');
         const page = new OrderPageObject();
 
         navigateToOrder(page);
@@ -149,17 +149,12 @@ describe('Order: Read order', () => {
         cy.get('#sw-field--item-quantity').clear().type('010');
 
         cy.get('.sw-data-grid__inline-edit-save').click();
-        cy.wait('@orderAddProductCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@orderAddProductCall').its('response.statusCode').should('equal', 204);
 
         // click save
         cy.get('.sw-order-detail__smart-bar-save-button').click();
 
-        // assert save successful
-        cy.wait('@orderSaveCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@orderSaveCall').its('response.statusCode').should('equal', 204);
 
         // Get correct quantity of both items
         cy.get('.sw-data-grid__row--1')
@@ -174,6 +169,9 @@ describe('Order: Read order', () => {
     });
 
     it('@base @order: can add custom products', () => {
+        // skip for feature FEATURE_NEXT_7530, this test is reactivated again with NEXT-16674
+        cy.skipOnFeature('FEATURE_NEXT_7530');
+
         const page = new OrderPageObject();
 
         navigateToOrder(page);
@@ -203,16 +201,12 @@ describe('Order: Read order', () => {
         // save line item
         cy.get('.sw-data-grid__inline-edit-save').click();
 
-        cy.wait('@orderRecalculateCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@orderRecalculateCall').its('response.statusCode').should('equal', 204);
 
         // click save
         cy.get('.sw-order-detail__smart-bar-save-button').click();
 
-        cy.wait('@orderSaveCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@orderSaveCall').its('response.statusCode').should('equal', 204);
 
         // Assert the price breakdown contains both VATs. This also implies that a recalculation has taken place.
         assertPriceBreakdownContains(/^\s*plus 19\% VAT\s*$/, /^\s*€.[0-9]+\.[0-9]{2}\s*$/);
@@ -220,6 +214,9 @@ describe('Order: Read order', () => {
     });
 
     it('@base @order: can add custom credit items', () => {
+        // skip for feature FEATURE_NEXT_7530, this test is reactivated again with NEXT-16674
+        cy.skipOnFeature('FEATURE_NEXT_7530');
+
         const page = new OrderPageObject();
 
         navigateToOrder(page);
@@ -244,56 +241,99 @@ describe('Order: Read order', () => {
         // save line item
         cy.get('.sw-data-grid__inline-edit-save').click();
 
-        cy.wait('@orderRecalculateCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@orderRecalculateCall').its('response.statusCode').should('equal', 204);
 
         // click save
         cy.get('.sw-order-detail__smart-bar-save-button').click();
 
-        cy.wait('@orderSaveCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@orderSaveCall').its('response.statusCode').should('equal', 204);
 
         // Assert that the total is negative
         assertPriceBreakdownContains(/^\s*Total including VAT\s*$/, /^\s*-€[0-9,]+.[0-9]{2}\s*$/);
     });
 
-    it('@base @order: can delete items', () => {
+    it('@base @order: can delete multiple items', () => {
         const page = new OrderPageObject();
 
         navigateToOrder(page);
 
-        cy.get('.sw-order-detail-base__line-item-grid-card').scrollIntoView();
-        cy.get('.sw-order-detail-base__line-item-grid-card').within(() => {
-            // assert that one row exists
-            cy.get('.sw-data-grid__body').children().should('have.length', 1);
+        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get('.sw-order-detail-general__line-item-grid-card').scrollIntoView().within(() => {
+                // assert that one row exists
+                cy.get('.sw-data-grid__body').children().should('have.length', 1);
 
-            // delete the only item
-            cy.get('.sw-data-grid__select-all').click();
-            cy.get('.sw-data-grid__bulk').within(() => {
-                cy.get('.link').click();
-            });
+                // delete the only item
+                cy.get('.sw-data-grid__select-all').click();
+                cy.get('.sw-data-grid__bulk').within(() => {
+                    cy.get('.link').click();
+                });
 
-            cy.wait('@deleteLineItemCall').then((xhr) => {
-                expect(xhr).to.have.property('status', 204);
+                cy.wait('@deleteLineItemCall').its('response.statusCode').should('equal', 204);
             });
         });
+
+        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get('.sw-order-detail-base__line-item-grid-card').scrollIntoView().within(() => {
+                // assert that one row exists
+                cy.get('.sw-data-grid__body').children().should('have.length', 1);
+
+                // delete the only item
+                cy.get('.sw-data-grid__select-all').click();
+                cy.get('.sw-data-grid__bulk').within(() => {
+                    cy.get('.link').click();
+                });
+
+                cy.wait('@deleteLineItemCall').its('response.statusCode').should('equal', 204);
+            });
+        })
 
         // click save
         cy.get('.sw-order-detail__smart-bar-save-button').click();
 
-        cy.wait('@orderSaveCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@orderSaveCall').its('response.statusCode').should('equal', 204);
 
         // assert that the item is still gone after saving
-        cy.get('.sw-order-detail-base__line-item-grid-card').within(() => {
-            cy.get('.sw-data-grid__body').children().should('have.length', 0);
+        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get('.sw-order-detail-general__line-item-grid-card .sw-data-grid__body').children().should('have.length', 0);
+        });
+        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get('.sw-order-detail-base__line-item-grid-card .sw-data-grid__body').children().should('have.length', 0);
         });
     });
 
+    it('@base @order: can delete single item', () => {
+        cy.onlyOnFeature('FEATURE_NEXT_7530');
+
+        const page = new OrderPageObject();
+
+        navigateToOrder(page);
+
+        cy.get('.sw-order-detail-general__line-item-grid-card').scrollIntoView();
+        cy.get('.sw-order-detail-general__line-item-grid-card .sw-data-grid__body').children().should('have.length', 1);
+
+        // delete the only item
+        cy.clickContextMenuItem(
+            '.sw-context-menu__content',
+            page.elements.contextMenuButton,
+            '.sw-order-detail-general__line-item-grid-card',
+            'Remove from order'
+        );
+
+        cy.wait('@deleteLineItemCall').its('response.statusCode').should('equal', 204);
+
+        // click save
+        cy.get('.sw-order-detail__smart-bar-save-button').click();
+
+        cy.wait('@orderSaveCall').its('response.statusCode').should('equal', 204);
+
+        // assert that the item is still gone after saving
+        cy.get('.sw-order-detail-general__line-item-grid-card .sw-data-grid__body').children().should('have.length', 0);
+    });
+
     it('@base @order: can edit existing line items', () => {
+        // skip for feature FEATURE_NEXT_7530, this test is reactivated again with NEXT-16674
+        cy.skipOnFeature('FEATURE_NEXT_7530');
+
         const page = new OrderPageObject();
 
         navigateToOrder(page);
@@ -312,16 +352,12 @@ describe('Order: Read order', () => {
         // save line item
         cy.get('.sw-data-grid__inline-edit-save').click();
 
-        cy.wait('@orderRecalculateCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@orderRecalculateCall').its('response.statusCode').should('equal', 204);
 
         // click save
         cy.get('.sw-order-detail__smart-bar-save-button').click();
 
-        cy.wait('@orderSaveCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@orderSaveCall').its('response.statusCode').should('equal', 204);
 
         // check that the changes have been persisted
         // currency and formatting independently regex for the price

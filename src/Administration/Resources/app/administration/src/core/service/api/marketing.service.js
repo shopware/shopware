@@ -97,7 +97,9 @@ export default class MarketingService extends ApiService {
                                 },
                                 description: {
                                     text: {
+                                        // eslint-disable-next-line max-len
                                         'de-DE': 'Es ist {goToShopwareHomePage}, öffne den {goToExtensionStoreAndOpenCategory} oder gehe zum {goToExtensionStore}',
+                                        // eslint-disable-next-line max-len
                                         'en-GB': 'Its {goToShopwareHomePage}, open {goToExtensionStoreAndOpenCategory} or go to the {goToExtensionStore}',
                                     },
                                     inlineActions: [

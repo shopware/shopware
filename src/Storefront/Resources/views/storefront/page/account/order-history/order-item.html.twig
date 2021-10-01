@@ -16,9 +16,13 @@
                     ORDER_TRANSACTION_STATE_CANCELLED
                 ] %}
 
-                {% set state = order.transactions.last.stateMachineState.technicalName %}
+                {% set orderState = order.stateMachineState.technicalName %}
+                {% set orderPaymentState = order.transactions.last.stateMachineState.technicalName %}
 
-                {% set isPaymentNeeded = state in states %}
+                {# @deprecated tag:v6.5.0 - Use "orderPaymentState" instead. #}
+                {% set state = orderPaymentState %}
+
+                {% set isPaymentNeeded = orderPaymentState in states and orderState != ORDER_STATE_CANCELLED %}
 
                 <div class="row flex-wrap">
                     {% block page_account_order_item_heading %}
@@ -39,7 +43,7 @@
                                         {% endblock %}
                                     {% else %}
                                         {% block page_account_order_item_status_badge %}
-                                            <span class="badge badge-lg order-item-status-badge order-item-status-badge-{{ order.stateMachineState.technicalName}}">
+                                            <span class="badge badge-lg order-item-status-badge order-item-status-badge-{{ orderState }}">
                                                 {{ order.stateMachineState.translated.name }}
                                             </span>
                                         {% endblock %}
@@ -72,9 +76,6 @@
                                 {% block page_account_order_item_context_menu_content %}
                                     <div class="dropdown-menu dropdown-menu-right order-table-header-context-menu-content"
                                          aria-labelledby="accountOrderDropdown">
-
-                                        {% set orderState = order.stateMachineState.technicalName %}
-                                        {% set orderPaymentState = order.transactions.last.stateMachineState.technicalName %}
 
                                         {% if orderState != ORDER_STATE_CANCELLED and orderPaymentState in ALLOWED_TRANSACTION_STATES %}
                                             {% block page_account_order_item_context_menu_content_change_payment_button %}

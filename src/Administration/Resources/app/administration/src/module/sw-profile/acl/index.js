@@ -8,6 +8,9 @@ Shopware.Service('privileges')
                 privileges: [
                     'user_change_me',
                     'user:read',
+                    'user_config:read',
+                    'user_config:update',
+                    'user_config:create',
                 ],
                 dependencies: [],
             },

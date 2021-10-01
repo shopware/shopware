@@ -4,6 +4,7 @@ namespace Shopware\Recovery\Install\Service;
 
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 use Shopware\Recovery\Common\Service\SystemConfigService;
 use Shopware\Recovery\Exception\LanguageNotFoundException;
 use Shopware\Recovery\Install\Struct\Shop;
@@ -256,22 +257,22 @@ class ShopService
 
         $statement = $this->connection->prepare(
             'INSERT INTO sales_channel (
-                 id,
-                 type_id, access_key, navigation_category_id, navigation_category_version_id,
-                 language_id, currency_id, payment_method_id,
-                 shipping_method_id, country_id, customer_group_id, created_at
-             ) VALUES (
-                 ?,
-                 UNHEX(?), ?, ?, UNHEX(?),
-                 ?, ?, ?,
-                 ?, ?, UNHEX(?), ?
-             )'
+                id,
+                type_id, access_key, navigation_category_id, navigation_category_version_id,
+                language_id, currency_id, payment_method_id,
+                shipping_method_id, country_id, customer_group_id, created_at
+            ) VALUES (
+                ?,
+                UNHEX(?), ?, ?, UNHEX(?),
+                ?, ?, ?,
+                ?, ?, UNHEX(?), ?
+            )'
         );
         $statement->execute([
             $id,
             $typeId, $this->getSalesChannelAccessKey(), $this->getRootCategoryId(), Defaults::LIVE_VERSION,
             $languageId, $currencyId, $paymentMethod,
-            $shippingMethod, $countryId, Defaults::FALLBACK_CUSTOMER_GROUP, (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            $shippingMethod, $countryId, TestDefaults::FALLBACK_CUSTOMER_GROUP, (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $statement = $this->connection->prepare(

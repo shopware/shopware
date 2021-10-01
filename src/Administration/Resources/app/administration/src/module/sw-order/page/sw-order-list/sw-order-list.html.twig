@@ -81,6 +81,7 @@
                 :allow-column-edit="true"
                 identifier="sw-order-list"
                 :disable-data-fetching="true"
+                :maximum-select-items="1000"
                 @column-sort="onSortColumn"
                 @page-change="onPageChange"
                 @selection-change="updateSelection"
@@ -133,41 +134,80 @@
                 {% block sw_order_list_grid_columns_state %}
                 <template #column-stateMachineState.name="{ item }">
                     <sw-label
+                        v-if="!feature.isActive('FEATURE_NEXT_7530')"
                         :variant="getVariantFromOrderState(item)"
                         appearance="pill"
                     >
                         {{ item.stateMachineState.translated.name }}
                     </sw-label>
+
+                    <div
+                        v-if="feature.isActive('FEATURE_NEXT_7530')"
+                        class="sw-order-list__state"
+                    >
+                        <sw-color-badge
+                            :color="getVariantFromOrderState(item)"
+                            rounded
+                        />
+
+                        {{ item.stateMachineState.translated.name }}
+                    </div>
                 </template>
                 {% endblock %}
 
                 {% block sw_order_list_grid_columns_transaction_state %}
                 <template #column-transactions.last().stateMachineState.name="{ item }">
                     <sw-label
-                        v-if="item.transactions && item.transactions[0]"
+                        v-if="!feature.isActive('FEATURE_NEXT_7530') && item.transactions && item.transactions[0]"
                         :variant="getVariantFromPaymentState(item)"
                         appearance="pill"
                     >
                         {{ item.transactions.last().stateMachineState.translated.name }}
                     </sw-label>
+
+                    <div
+                        v-if="feature.isActive('FEATURE_NEXT_7530') && item.transactions && item.transactions[0]"
+                        class="sw-order-list__state"
+                    >
+                        <sw-color-badge
+                            v-if="item.transactions && item.transactions[0]"
+                            :color="getVariantFromPaymentState(item)"
+                            rounded
+                        />
+
+                        {{ item.transactions.last().stateMachineState.translated.name }}
+                    </div>
                 </template>
                 {% endblock %}
 
                 {% block sw_order_list_grid_columns_delivery_state %}
                 <template #column-deliveries[0].stateMachineState.name="{ item }">
                     <sw-label
-                        v-if="item.deliveries && item.deliveries[0]"
+                        v-if="!feature.isActive('FEATURE_NEXT_7530') && item.deliveries && item.deliveries[0]"
                         :variant="getVariantFromDeliveryState(item)"
                         appearance="pill"
                     >
                         {{ item.deliveries[0].stateMachineState.translated.name }}
                     </sw-label>
+
+                    <div
+                        v-if="feature.isActive('FEATURE_NEXT_7530') && item.deliveries && item.deliveries[0]"
+                        class="sw-order-list__state"
+                    >
+                        <sw-color-badge
+                            v-if="item.deliveries && item.deliveries[0]"
+                            :color="getVariantFromDeliveryState(item)"
+                            rounded
+                        />
+
+                        {{ item.deliveries[0].stateMachineState.translated.name }}
+                    </div>
                 </template>
                 {% endblock %}
 
                 {% block sw_order_list_grid_columns_order_date %}
                 <template #column-orderDateTime="{ item }">
-                    {{ item.orderDateTime | date({hour: '2-digit', minute: '2-digit'}) }}
+                    <sw-time-ago :date="item.orderDateTime" />
                 </template>
                 {% endblock %}
                 {% endblock %}
@@ -253,7 +293,7 @@
                 <template #bulk>
                     <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                     <a
-                        v-if="feature.isActive('FEATURE_NEXT_6061') && acl.can('order.editor')"
+                        v-if="acl.can('order.editor')"
                         class="link link-primary"
                         @click="showBulkEditModal = true"
                     >
@@ -263,7 +303,7 @@
                 {% endblock %}
 
                 {% block sw_order_list_bulk_edit_modal %}
-                <template #bulk-modals>
+                <template #bulk-modals="{ selection }">
                     <sw-bulk-edit-modal
                         v-if="showBulkEditModal"
                         ref="bulkEditModal"
@@ -276,7 +316,11 @@
                         {% block sw_order_list_bulk_edit_grid_columns_order_number %}
                         <template #column-orderNumber="{ item }">
                             {% block sw_order_list_bulk_edit_grid_order_number_link %}
-                            <router-link :to="{ name: 'sw.order.detail', params: { id: item.id } }">
+                            <router-link
+                                :to="{ name: 'sw.order.detail', params: { id: item.id } }"
+                                target="_blank"
+                                rel="noreferrer noopener"
+                            >
                                 {{ item.orderNumber }}
                             </router-link>
                             {% endblock %}
@@ -296,7 +340,11 @@
 
                         {% block sw_order_list_bulk_edit_grid_columns_customer_name %}
                         <template #column-orderCustomer.firstName="{ item }">
-                            <router-link :to="{ name: 'sw.customer.detail', params: { id: item.orderCustomer.customerId } }">
+                            <router-link
+                                :to="{ name: 'sw.customer.detail', params: { id: item.orderCustomer.customerId } }"
+                                target="_blank"
+                                rel="noreferrer noopener"
+                            >
                                 {{ item.orderCustomer.lastName }}, {{ item.orderCustomer.firstName }}
                             </router-link>
                         </template>

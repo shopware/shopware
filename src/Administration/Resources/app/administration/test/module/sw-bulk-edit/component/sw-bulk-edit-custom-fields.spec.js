@@ -67,7 +67,6 @@ function createWrapper(customProps = {}) {
                     }]
                 }
             ]),
-            selectedCustomFields: {},
             ...customProps
         },
         stubs: {
@@ -142,20 +141,21 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields', () => {
         expect(wrapper.vm.currentIsChanged).toBe(wrapper.vm.isChanged);
     });
 
-    it('should be able to add the target field to the selectedCustomFields when user toggle to the change type field', async () => {
+    it('should be emit change event when user toggle to the change type field', async () => {
         wrapper = createWrapper();
 
         await wrapper.vm.$nextTick();
 
         const changeToggle = wrapper.find('.sw-bulk-edit-custom-fields__change');
         changeToggle.find('.sw-field__checkbox input').trigger('click');
+
+        await wrapper.vm.$nextTick();
 
         expect(Object.keys(wrapper.vm.selectedCustomFields).length).toEqual(1);
-        expect(wrapper.vm.selectedCustomFields.field1).toBe('');
-        expect(wrapper.emitted('change')[0]).toEqual([true]);
+        expect(wrapper.emitted().change).toBeTruthy();
     });
 
-    it('should be able to remove the target field in the selectedCustomFields when user toggle to the change type field', async () => {
+    it('should only emit selected custom fields when user toggle to the change type field', async () => {
         wrapper = createWrapper();
 
         await wrapper.vm.$nextTick();
@@ -163,17 +163,21 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields', () => {
         const changeToggle = wrapper.find('.sw-bulk-edit-custom-fields__change');
         changeToggle.find('.sw-field__checkbox input').trigger('click');
 
-        expect(wrapper.emitted('change')[0]).toEqual([true]);
-
         await wrapper.vm.$nextTick();
+
+        expect(wrapper.emitted().change[0]).toBeTruthy();
+        expect(Object.keys(wrapper.emitted().change[0][0]).length).toEqual(1);
 
         changeToggle.find('.sw-field__checkbox input').trigger('click');
 
+        await wrapper.vm.$nextTick();
+
         expect(Object.keys(wrapper.vm.selectedCustomFields).length).toEqual(0);
-        expect(wrapper.emitted('change')[1]).toEqual([false]);
+
+        expect(Object.keys(wrapper.emitted().change[1][0]).length).toEqual(0);
     });
 
-    it('should be get data from target input field of the customField', async () => {
+    it('should be get data from target input field of the customField only if its checked', async () => {
         wrapper = createWrapper({
             entity: {
                 customFields: {
@@ -182,15 +186,21 @@ describe('src/module/sw-bulk-edit/component/sw-bulk-edit-custom-fields', () => {
             }
         });
 
+        const customField = wrapper.find('#field1');
+        await customField.setValue('this is a text field');
+        await customField.trigger('input');
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.entity.customFields.field1).toBe('this is a text field');
+        expect(wrapper.vm.selectedCustomFields.field1).toBe(undefined);
+
         const changeToggle = wrapper.find('.sw-bulk-edit-custom-fields__change');
         changeToggle.find('.sw-field__checkbox input').trigger('click');
 
         await wrapper.vm.$nextTick();
 
-        const customField = wrapper.find('#field1');
-        await customField.setValue('this is a text field');
-        await customField.trigger('input');
-
+        expect(wrapper.vm.entity.customFields.field1).toBe('this is a text field');
         expect(wrapper.vm.selectedCustomFields.field1).toBe('this is a text field');
     });
 });

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Store\Command;
 
 use GuzzleHttp\Exception\ClientException;
+use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -16,25 +17,17 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\Question;
 
 class StoreLoginCommand extends Command
 {
     public static $defaultName = 'store:login';
 
-    /**
-     * @var StoreClient
-     */
-    private $storeClient;
+    private StoreClient $storeClient;
 
-    /**
-     * @var SystemConfigService
-     */
-    private $configService;
+    private SystemConfigService $configService;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $userRepository;
+    private EntityRepositoryInterface $userRepository;
 
     public function __construct(
         StoreClient $storeClient,
@@ -53,7 +46,8 @@ class StoreLoginCommand extends Command
      */
     protected function configure(): void
     {
-        $this->addOption('shopwareId', 'i', InputOption::VALUE_REQUIRED, 'Shopware ID')
+        $this
+            ->addOption('shopwareId', 'i', InputOption::VALUE_REQUIRED, 'Shopware ID')
             ->addOption('password', 'p', InputOption::VALUE_REQUIRED, 'Password')
             ->addOption('user', 'u', InputOption::VALUE_REQUIRED, 'User')
             ->addOption('host', 'g', InputOption::VALUE_OPTIONAL, 'License host')
@@ -63,6 +57,8 @@ class StoreLoginCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $io = new ShopwareStyle($input, $output);
+
         $context = Context::createDefaultContext();
 
         $host = $input->getOption('host');
@@ -73,6 +69,21 @@ class StoreLoginCommand extends Command
         $shopwareId = $input->getOption('shopwareId');
         $password = $input->getOption('password');
         $user = $input->getOption('user');
+
+        if (!$password) {
+            $passwordQuestion = new Question('Enter password');
+            $passwordQuestion->setValidator(static function ($value): string {
+                if ($value === null || trim($value) === '') {
+                    throw new \RuntimeException('The password cannot be empty');
+                }
+
+                return $value;
+            });
+            $passwordQuestion->setHidden(true);
+            $passwordQuestion->setMaxAttempts(3);
+
+            $password = $io->askQuestion($passwordQuestion);
+        }
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('user.username', $user));
@@ -94,6 +105,8 @@ class StoreLoginCommand extends Command
         } catch (ClientException $exception) {
             throw new StoreApiException($exception);
         }
+
+        $io->success('Successfully logged in.');
 
         return Command::SUCCESS;
     }

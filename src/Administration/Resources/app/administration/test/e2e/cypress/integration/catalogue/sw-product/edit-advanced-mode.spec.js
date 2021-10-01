@@ -28,19 +28,12 @@ describe('Product: Mode advanced settings at product detail', () => {
     });
 
     it('@catalogue: should not show the cards, fields when unchecking or toggling in advanced mode menu in General tab', () => {
-        const page = new ProductPageObject();
-
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/user-config/*`,
             method: 'PATCH'
         }).as('saveUserConfig');
 
-        cy.clickContextMenuItem(
-            '.sw-entity-listing__context-menu-edit-action',
-            page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
-        );
+        cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--name a').click();
 
         cy.get('.sw-product-basic-form__promotion-switch').should('be.visible');
 
@@ -90,100 +83,91 @@ describe('Product: Mode advanced settings at product detail', () => {
         cy.get('.sw-product-settings-mode__advanced-mode').click();
 
         // Promotion switch should be hidden
-        cy.get('.sw-product-basic-form__promotion-switch').should('not.be.visible');
+        cy.get('.sw-product-basic-form__promotion-switch').should('not.exist');
 
         // Purchase price and list price field should be hidden
         cy.get('.sw-product-detail-base__prices').scrollIntoView().then(() => {
             priceFieldsClassName.forEach(item => {
-                cy.get(item).should('not.be.visible');
+                cy.get(item).should('not.exist');
             });
         });
 
         // Labelling card should be hidden
         cy.get('.sw-product-detail-base__labelling-card').should('not.be.visible');
 
-        // Delivery fields shoud be hidden
+        // Delivery fields should be hidden
         cy.get('.sw-product-detail-base__deliverability').scrollIntoView().then(() => {
             deliveryFieldsClassName.forEach(item => {
-                cy.get(item).should('not.be.visible');
+                cy.get(item).should('not.exist');
             });
         });
 
-        // Structure fields shoud be hidden
+        // Structure fields should be hidden
         cy.get('.sw-product-detail-base__visibility-structure').scrollIntoView().then(() => {
             structureFieldsClassName.forEach(item => {
-                cy.get(item).should('not.be.visible');
+                cy.get(item).should('not.exist');
             });
         });
 
         // Toggle on advanced mode
         cy.get('.sw-product-settings-mode__advanced-mode').click();
 
-        cy.wait('@saveUserConfig').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveUserConfig')
+            .its('response.statusCode').should('equal', 204);
 
         cy.get('.sw-product-settings-mode__list .sw-product-settings-mode__item').eq(0).click();
-        cy.wait('@saveUserConfig').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-            cy.get('.sw-product-detail-base__info').should('not.be.visible');
-        });
+        cy.wait('@saveUserConfig')
+            .its('response.statusCode').should('equal', 204);
+        cy.get('.sw-product-detail-base__info').should('not.be.visible');
 
         cy.get('.sw-product-settings-mode__list .sw-product-settings-mode__item').eq(1).click();
-        cy.wait('@saveUserConfig').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-            cy.get('.sw-product-detail-base__prices').should('not.be.visible');
-        });
+        cy.wait('@saveUserConfig')
+            .its('response.statusCode').should('equal', 204);
+        cy.get('.sw-product-detail-base__prices').should('not.be.visible');
 
         cy.get('.sw-product-settings-mode__list .sw-product-settings-mode__item').eq(2).click();
-        cy.wait('@saveUserConfig').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-            cy.get('.sw-product-detail-base__deliverability').should('not.be.visible');
-        });
+        cy.wait('@saveUserConfig')
+            .its('response.statusCode').should('equal', 204);
+        cy.get('.sw-product-detail-base__deliverability').should('not.be.visible');
 
         cy.get('.sw-product-settings-mode__list .sw-product-settings-mode__item').eq(3).click();
-        cy.wait('@saveUserConfig').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-            cy.get('.sw-product-detail-base__visibility-structure').should('not.be.visible');
-        });
+        cy.wait('@saveUserConfig')
+            .its('response.statusCode').should('equal', 204);
+        cy.get('.sw-product-detail-base__visibility-structure').should('not.be.visible');
 
         cy.get('.sw-product-settings-mode__list .sw-product-settings-mode__item').eq(4).click();
-        cy.wait('@saveUserConfig').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-            cy.get('.sw-product-detail-base__media').should('not.be.visible');
-        });
+        cy.wait('@saveUserConfig')
+            .its('response.statusCode').should('equal', 204);
+        cy.get('.sw-product-detail-base__media').should('not.be.visible');
 
         cy.get('.sw-product-settings-mode__list .sw-product-settings-mode__item').eq(5).click();
-        cy.wait('@saveUserConfig').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-            cy.get('.sw-product-detail-base__labelling-card').should('not.be.visible');
-        });
+        cy.wait('@saveUserConfig')
+            .its('response.statusCode').should('equal', 204);
+        cy.get('.sw-product-detail-base__labelling-card').should('not.be.visible');
     });
 
     it('@catalogue: should not show the cards, fields when unchecking or toggling in advanced mode menu in Specification tab', () => {
         const page = new ProductPageObject();
 
-        cy.server();
-        cy.route({
+        cy.intercept({
             method: 'PATCH',
-            url: '/api/custom-field-set/*'
+            url: `${Cypress.env('apiPath')}/custom-field-set/*`
         }).as('saveData');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/user-config/*`,
             method: 'PATCH'
         }).as('saveUserConfig');
 
         cy.visit(`${Cypress.env('admin')}#/sw/settings/custom/field/index`);
 
-        cy.get('.sw-custom-field-set-list__column-name').click();
+        cy.get('.sw-custom-field-set-list__column-name').first().click();
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-settings-custom-field-set-detail-base__label-entities').typeMultiSelectAndCheck('Products');
         cy.get('.sw-button-process').click();
 
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
 
         cy.awaitAndCheckNotification('has been saved');
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
@@ -233,32 +217,36 @@ describe('Product: Mode advanced settings at product detail', () => {
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-product-settings-mode__advanced-mode').click();
 
-        cy.wait('@saveUserConfig').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveUserConfig')
+            .its('response.statusCode').should('equal', 204);
+        cy.get('.sw-loader').should('not.exist');
+
 
         cy.get('.sw-product-settings-mode__list .sw-product-settings-mode__item').eq(0).click();
-        cy.wait('@saveUserConfig').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-            cy.get('sw-product-detail-specification__measures-packaging').should('not.be.visible');
-        });
+        cy.wait('@saveUserConfig')
+            .its('response.statusCode').should('equal', 204);
+        cy.get('.sw-loader').should('not.exist');
+
+        cy.get('sw-product-detail-specification__measures-packaging').should('not.exist');
 
         cy.get('.sw-product-settings-mode__list .sw-product-settings-mode__item').eq(1).click();
-        cy.wait('@saveUserConfig').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-            cy.get('.sw-product-properties').should('not.be.visible');
-        });
+        cy.wait('@saveUserConfig')
+            .its('response.statusCode').should('equal', 204);
+
+        cy.get('.sw-product-properties').should('not.be.visible');
 
         cy.get('.sw-product-settings-mode__list .sw-product-settings-mode__item').eq(2).click();
-        cy.wait('@saveUserConfig').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-            cy.get('.sw-product-detail-specification__essential-characteristics').should('not.be.visible');
-        });
+        cy.wait('@saveUserConfig')
+            .its('response.statusCode').should('equal', 204);
+        cy.get('.sw-loader').should('not.exist');
+
+        cy.get('.sw-product-detail-specification__essential-characteristics').should('not.be.visible');
 
         cy.get('.sw-product-settings-mode__list .sw-product-settings-mode__item').eq(3).click();
-        cy.wait('@saveUserConfig').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-            cy.get('.sw-product-detail-specification__custom-fields').should('not.be.visible');
-        });
+        cy.wait('@saveUserConfig')
+            .its('response.statusCode').should('equal', 204);
+        cy.get('.sw-loader').should('not.exist');
+
+        cy.get('.sw-product-detail-specification__custom-fields').should('not.be.visible');
     });
 });

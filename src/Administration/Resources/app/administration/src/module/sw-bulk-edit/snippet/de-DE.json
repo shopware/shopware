@@ -1,8 +1,8 @@
 {
   "sw-bulk-edit": {
     "general": {
-      "mainMenuTitle": "Mehrfach-Bearbeitung",
-      "descriptionTextModule": "Modul zur Mehrfach-Bearbeitung von Daten",
+      "mainMenuTitle": "Mehrfachänderung",
+      "descriptionTextModule": "Modul zur Mehrfachänderung von Daten",
       "defaultChangeLabel": "Ändern:"
     },
     "changeTypes": {
@@ -12,8 +12,8 @@
       "remove": "Entfernen"
     },
     "product": {
-      "textTitle": "Mehrfach-Bearbeitung: {productTotal} Produkte",
-      "messageEmptyTitle": "Keine Produkte für die Mehrfachbearbeitung ausgewählt",
+      "textTitle": "Mehrfachänderung: {productTotal} Produkte",
+      "messageEmptyTitle": "Keine Produkte für die Mehrfachänderung ausgewählt",
       "messageEmptySubline": "Gehe zurück und wähle Produkte aus.",
       "generalInformation": {
         "cardTitle": "Allgemeine Informationen",
@@ -22,7 +22,7 @@
         },
         "manufacturer": {
           "changeLabel": "Ändern: Hersteller",
-          "placeholderManufacturer": "Gib einen Produkthersteller ein ..."
+          "placeholderManufacturer": "Produkthersteller auswählen ..."
         },
         "active": {
           "changeLabel": "Ändern: Aktiv",
@@ -33,10 +33,39 @@
           "switchLabel": "Produkt hervorheben"
         }
       },
+      "prices": {
+        "cardTitle": "Preise",
+        "taxRate": {
+          "changeLabel": "Ändern: Steuersatz",
+          "placeholderTax": "Steuersatz auswählen ..."
+        },
+        "price": {
+          "changeLabel": "Ändern: Preis",
+          "placeholderPrice": "Preis eingeben ..."
+        },
+        "purchasePrices": {
+          "changeLabel": "Ändern: Einkaufspreis",
+          "placeholderPurchasePrices": "Einkaufspreis eingeben ..."
+        },
+        "listPrice": {
+          "changeLabel": "Ändern: Streichpreis",
+          "placeholderListPrice": "Streichpreis eingeben ..."
+        }
+      },
+      "advancedPrices": {
+        "cardTitle": "Erweiterte Preise",
+        "changeLabel": "Ändern: Erweiterte Preise",
+        "openModalButton": "Erweiterte Preise anzeigen"
+      },
+      "property": {
+        "cardTitle": "Eigenschaften",
+        "changeLabel": "Ändern: Eigenschaften"
+      },
       "deliverability": {
         "cardTitle": "Lieferbarkeit",
         "stock": {
-          "changeLabel": "Ändern: Lagerbestand"
+          "changeLabel": "Ändern: Lagerbestand",
+          "placeholderStock": "Lagerbestand eingeben ... "
         },
         "isCloseout": {
           "changeLabel": "Ändern: Abverkauf",
@@ -44,124 +73,156 @@
         },
         "deliveryTime": {
           "changeLabel": "Ändern: Lieferzeit",
-          "placeholderDeliveryTime": "Gib die Lieferzeit an..."
+          "placeholderDeliveryTime": "Lieferzeit auswählen ..."
         },
         "restockTime": {
-          "changeLabel": "Ändern: Wiederauffüllzeit"
+          "changeLabel": "Ändern: Wiederauffüllzeit",
+          "placeholderRestockTime": "Wiederauffüllzeit in Tagen eingeben ..."
         },
         "freeShipping": {
           "changeLabel": "Ändern: Versandkostenfrei",
           "switchLabel": "Versandkostenfrei"
         },
         "minOrderQuantity": {
-          "changeLabel": "Ändern: Mindestabnahme"
+          "changeLabel": "Ändern: Mindestabnahme",
+          "placeholderMinOrderQuantity": "Mindestabnahme eingeben ..."
         },
         "purchaseSteps": {
-          "changeLabel": "Ändern: Staffelung"
+          "changeLabel": "Ändern: Staffelung",
+          "placeholderPurchaseSteps": "Staffelung eingeben  ..."
         },
         "maxOrderQuantity": {
-          "changeLabel": "Ändern: Maximalabnahme"
+          "changeLabel": "Ändern: Maximalabnahme",
+          "placeholderMaxOrderQuantity": "Maximalabnahme eingeben ..."
         }
+      },
+      "assignment": {
+        "cardTitle": "Zuweisung",
+        "categories": {
+          "changeLabel": "Ändern: Kategorie",
+          "placeholder": "Kategorie auswählen ..."
+        },
+        "tags": {
+          "changeLabel": "Ändern: Tags",
+          "placeholder": "Tags eingeben ..."
+        },
+        "visibilities": {
+          "changeLabel": "Ändern: Verkaufskanal",
+          "placeholder": "Verkaufskanäle auswählen ..."
+        },
+        "searchKeywords": {
+          "changeLabel": "Ändern: Suchbegriffe",
+          "placeholder": "Suchbegriffe eingeben ..."
+        }
+      },
+      "media": {
+        "cardTitle": "Medien",
+        "changeLabel": "Ändern: Medien"
       },
       "labelling": {
         "cardTitle": "Auszeichnung",
         "releaseDate": {
           "changeLabel": "Ändern: Erscheinungsdatum",
-          "placeholderReleaseDate": "Gib ein Einstelldatum ein ..."
+          "placeholderReleaseDate": "Erscheinungsdatum eingeben ..."
         }
       },
       "seo": {
         "cardTitle": "SEO",
         "metaTitle": {
           "changeLabel": "Ändern: Meta-Titel",
-          "placeholderMetaTitle": "Gib einen Meta-Titel ein..."
+          "placeholderMetaTitle": "Meta-Titel eingeben ..."
         },
         "metaDescription": {
           "changeLabel": "Ändern: Meta-Beschreibung",
-          "placeholderMetaDescription": "Gib eine Beschreibung ein..."
+          "placeholderMetaDescription": "Beschreibung eingeben ..."
         },
         "seoKeywords": {
           "changeLabel": "Ändern: Schlüsselwörter",
-          "placeholderSeoKeywords": "Gib ein oder mehrere Schlüsselwörter ein..."
+          "placeholderSeoKeywords": "Schlüsselwörter eingeben ..."
         }
       },
       "measuresAndPackaging": {
         "cardTitle": "Maße & Verpackung",
         "widthTitle": {
           "changeLabel": "Ändern: Breite",
-          "placeholder": "-"
+          "placeholder": "z.B. 500 ..."
         },
         "heightTitle": {
           "changeLabel": "Ändern: Höhe",
-          "placeholder": "-"
+          "placeholder": "z.B. 200 ..."
         },
         "lengthTitle": {
           "changeLabel": "Ändern: Länge",
-          "placeholder": "-"
+          "placeholder": "z.B.100 ..."
         },
         "weightTitle": {
           "changeLabel": "Ändern: Gewicht",
-          "placeholder": "-"
+          "placeholder": "z.B. 0,4 ..."
         },
         "sellingUnitTitle": {
           "changeLabel": "Ändern: Verkaufseinheit",
-          "placeholder": "Verkaufseinheit eingeben..."
+          "placeholder": "Verkaufseinheit eingeben ..."
         },
         "scaleUnitTitle": {
           "changeLabel": "Ändern: Maßeinheit",
-          "placeholder": "Maßeinheit eingeben..."
+          "placeholder": "Maßeinheit eingeben ..."
         },
         "packUnitTitle": {
           "changeLabel": "Ändern: Packaging unit",
-          "placeholder": "Verpackungseinheit eingeben..."
+          "placeholder": "Verpackungseinheit eingeben ..."
         },
         "packUnitPluralTitle": {
           "changeLabel": "Ändern: Packaging unit plural",
-          "placeholder": "Verpackungseinheit-Mehrzahl eingeben..."
+          "placeholder": "Verpackungseinheit-Mehrzahl eingeben ..."
         },
         "basicUnitTitle": {
           "changeLabel": "Ändern: Grundeinheit",
-          "placeholder": "Grundeinheit eingeben..."
+          "placeholder": "Grundeinheit eingeben ..."
         }
       },
+      "featureSets": {
+        "cardTitle": "Wesentliche Merkmale",
+        "changeLabel": "Ändern: Template",
+        "placeholder": "Template auswählen ..."
+      },
       "customFields": {
-        "cardTitle": "Freitextfelder",
+        "cardTitle": "Zusatzfelder",
         "changeLabel": "Ändern: {name}"
       }
     },
     "modal": {
       "confirm": {
-        "title": "Mehrfachbearbeitung - Änderungen anwenden?",
-        "description": "Bist Du sicher, dass Du die Änderungen auf {itemCount} ausgewählte Entität anwenden möchtest? Die Änderungen können nicht rückgängig gemacht werden. | Bist Du sicher, dass Du die Änderungen auf die {itemCount} ausgewählten Entitäten anwenden möchtest? Die Änderungen können nicht rückgängig gemacht werden.",
+        "title": "Mehrfachänderung - Anwenden?",
+        "description": "Änderungen auf {itemCount} ausgewähltes Element anwenden? Diese Änderungen können nicht rückgängig gemacht werden. | Änderungen auf {itemCount} ausgewählte Elemente anwenden? Diese Änderungen können nicht rückgängig gemacht werden.",
         "buttons": {
           "applyChanges": "Änderungen anwenden"
         }
       },
       "process": {
-        "title": "Mehrfachbearbeitung - Prozess gestartet",
-        "description": "Abhängig von der Anzahl ausgewählter Entitäten und den jeweiligen Änderungen, kann dieser Vorgang einige Zeit in Anspruch nehmen.",
-        "helpText": "Bitte beachte, dass Du während des Mehrfachbearbeitungsvorgangs keine manuellen Änderungen an den Entitäten vornimmst, da dies unvorhergesehene Effekte haben kann.",
+        "title": "Mehrfachänderung - Prozess gestartet",
+        "description": "Abhängig von der Anzahl der vergenommenen Änderungen, kann dieser Vorgang einige Zeit in Anspruch nehmen.",
+        "helpText": "Bitte beachte, dass Du während des Mehrfachänderungsvorgangs keine manuellen Änderungen an den ausgewählten Elementen vornimmst, da dies unvorhergesehene Effekte haben kann.",
         "buttons": {
           "cancel": "Abbrechen"
         }
       },
       "success": {
-        "title": "Mehrfachbearbeitung - Abgeschlossen",
-        "description": "Die Mehrfachbearbeitung der ausgewählten Entitäten ist abgeschlossen."
+        "title": "Mehrfachänderung - Erfolg",
+        "description": "Mehrfachänderung abgeschlossen."
       },
       "error": {
-        "title": "Mehrfachbearbeitung - Fehler",
-        "description": "Die Mehrfachbearbeitung der ausgewählten Entitäten ist abgeschlossen, aber es sind Fehler aufgetreten. Details hierzu findest Du in der Log-Datei.",
+        "title": "Mehrfachänderung - Fehler",
+        "description": "Mehrfachänderung mit Fehlern abgeschlossen.",
         "buttons": {
           "openLog": "Log-Datei öffnen"
         }
       },
-      "warningText": "Wenn Du die Mehrfachbearbeitung abbrichts oder während des Prozesses den Browser-Tab schließt, werden die Änderungen u.U. nicht vollständig umgesetzt und es kann zu irreversiblen und ungewünschten Datenzuständen kommen."
+      "warningText": "Wenn Du die Mehrfachänderung abbrichts oder während des Prozesses den Browser-Tab schließt, werden die Änderungen u.U. nicht vollständig abgeschlossen und es kann zu irreversibel beschädigten Datenständen kommen."
     },
     "order": {
-      "textTitle": "Mehrfachbearbeitung: {orderTotal} Bestellungen",
+      "textTitle": "Mehrfachänderung: {orderTotal} Bestellungen",
       "messageEmptyTitle": "Keine Bestellungen ausgewählt",
-      "messageEmptySubline": "Bitte gehe zurück und wähle Bestellungen aus.",
+      "messageEmptySubline": "Gehe zurück und wähle Bestellungen aus.",
       "status": {
         "cardTitle": "Status",
         "payment": {
@@ -195,7 +256,17 @@
           },
           "skipSentDocuments": "Bereits verschickte Dokumente überspringen"
         }
+      },
+      "customFields": {
+        "cardTitle": "Zusatzfelder",
+        "changeLabel": "Ändern: {name}"
+      },
+      "tags": {
+        "cardTitle": "Tags",
+        "changeLabel": "Ändern: Tags",
+        "placeholder": "Tags eingeben ..."
       }
-    }
+    },
+    "applyChanges": "Änderungen übernehmen"
   }
 }

@@ -6,10 +6,21 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemsInCartRule;
 use Shopware\Core\Checkout\Test\Cart\Common\Generator;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @major-deprecated (flag:FEATURE_NEXT_17016) This rule will be removed. Use the LineItemRule instead.
+ */
 class LineItemsInCartRuleTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        if (Feature::isActive('FEATURE_NEXT_17016')) {
+            static::markTestSkipped('Rule is deprecated NEXT-17016');
+        }
+    }
+
     public function testRuleWithExactLineItemsMatch(): void
     {
         $rule = (new LineItemsInCartRule())->assign(['identifiers' => ['A', 'B']]);

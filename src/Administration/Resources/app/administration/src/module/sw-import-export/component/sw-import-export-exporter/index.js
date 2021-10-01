@@ -31,11 +31,6 @@ Shopware.Component.register('sw-import-export-exporter', {
             config: {
                 parameters: {},
             },
-            progressOffset: 0,
-            progressTotal: null,
-            progressText: '',
-            progressState: '',
-            progressLogEntry: null,
             isLoading: false,
             exportModalProfile: null,
         };
@@ -86,26 +81,10 @@ Shopware.Component.register('sw-import-export-exporter', {
             this.selectedProfile = profile;
         },
 
-        resetProgressStats() {
-            // Reset progress stats
-            this.progressOffset = 0;
-            this.progressTotal = 0;
-            this.progressText = '';
-            this.progressState = '';
-            this.progressLogEntry = null;
-        },
-
         onStartProcess() {
             this.isLoading = true;
-            this.resetProgressStats();
 
-            this.importExport.export(this.selectedProfileId, this.handleProgress, this.config).then(res => {
-                const logEntry = res.data.log;
-
-                this.logRepository.get(logEntry.id).then((entry) => {
-                    this.progressLogEntry = entry;
-                });
-            }).catch((error) => {
+            this.importExport.export(this.selectedProfileId, this.handleProgress, this.config).catch((error) => {
                 if (!error.response || !error.response.data || !error.response.data.errors) {
                     this.createNotificationError({
                         message: error.message,
@@ -118,29 +97,17 @@ Shopware.Component.register('sw-import-export-exporter', {
                     });
                 }
 
-                this.resetProgressStats();
                 this.isLoading = false;
             });
         },
 
-        handleProgress(progress) {
-            this.progressOffset = progress.offset;
-            this.progressTotal = progress.total;
-            // ToDo snippet text for states
-            this.progressText = progress.state;
-            this.progressState = progress.state;
-
-            if (progress.state === 'succeeded') {
-                this.onProgressFinished(progress);
-            }
-        },
-
-        onProgressFinished() {
+        handleProgress(log) {
             this.createNotificationSuccess({
-                message: this.$tc('sw-import-export.exporter.messageExportSuccess', 0),
+                message: this.$tc('sw-import-export.exporter.messageExportStarted', 0),
             });
+
             this.isLoading = false;
-            this.$emit('export-finish');
+            this.$emit('export-started', log);
         },
 
         setExportModalProfile(profileName) {

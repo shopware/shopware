@@ -112,6 +112,9 @@ class HttpKernel
         $parameters = [
             'url' => $url,
             'charset' => 'utf8mb4',
+            'driverOptions' => [
+                \PDO::ATTR_STRINGIFY_FETCHES => true,
+            ],
         ];
 
         if ($sslCa = EnvironmentHelper::getVariable('DATABASE_SSL_CA')) {
@@ -171,7 +174,7 @@ class HttpKernel
         // check for http caching
         $enabled = $container->hasParameter('shopware.http.cache.enabled')
             && $container->getParameter('shopware.http.cache.enabled');
-        if ($enabled) {
+        if ($enabled && $container->has(CacheStore::class)) {
             $kernel = new HttpCache($kernel, $container->get(CacheStore::class), null, ['debug' => $this->debug]);
         }
 
@@ -222,6 +225,10 @@ class HttpKernel
     private function getProjectDir()
     {
         if ($this->projectDir === null) {
+            if ($dir = $_ENV['PROJECT_ROOT'] ?? $_SERVER['PROJECT_ROOT'] ?? false) {
+                return $this->projectDir = $dir;
+            }
+
             $r = new \ReflectionObject($this);
 
             if (!file_exists($dir = $r->getFileName())) {

@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -143,7 +144,8 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
         $this->addDomain($domainUrlTest['domain']);
 
         $caughtEvent = null;
-        $this->getContainer()->get('event_dispatcher')->addListener(
+        $this->addEventListener(
+            $this->getContainer()->get('event_dispatcher'),
             CustomerAccountRecoverRequestEvent::EVENT_NAME,
             static function (CustomerAccountRecoverRequestEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;
@@ -178,14 +180,16 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
         $dispatcher = $this->getContainer()->get('event_dispatcher');
 
         $caughtEvent = null;
-        $dispatcher->addListener(
+        $this->addEventListener(
+            $dispatcher,
             CustomerAccountRecoverRequestEvent::EVENT_NAME,
             static function (CustomerAccountRecoverRequestEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;
             }
         );
 
-        $dispatcher->addListener(
+        $this->addEventListener(
+            $dispatcher,
             PasswordRecoveryUrlEvent::class,
             static function (PasswordRecoveryUrlEvent $event): void {
                 $event->setRecoveryUrl($event->getRecoveryUrl() . '/?somethingSpecial=1');
@@ -254,7 +258,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
             [
                 'id' => $customerId,
                 'active' => $active,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultShippingAddress' => [
                     'id' => $addressId,
                     'firstName' => 'Max',
@@ -287,11 +291,11 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
                     ],
                     'salesChannels' => [
                         [
-                            'id' => Defaults::SALES_CHANNEL,
+                            'id' => TestDefaults::SALES_CHANNEL,
                         ],
                     ],
                 ],
-                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => $email,
                 'password' => $password,
                 'firstName' => 'Max',

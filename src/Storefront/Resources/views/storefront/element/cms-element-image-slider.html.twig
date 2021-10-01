@@ -1,5 +1,5 @@
 {% block element_image_slider %}
-    {%  set sliderConfig = element.fieldConfig.elements %}
+    {% set sliderConfig = element.fieldConfig.elements %}
 
     <div class="cms-element-{{ element.type }}{% if sliderConfig.displayMode.value == "standard" and sliderConfig.verticalAlign.value %} has-vertical-alignment{% endif %}">
         {% set baseSliderOptions = {

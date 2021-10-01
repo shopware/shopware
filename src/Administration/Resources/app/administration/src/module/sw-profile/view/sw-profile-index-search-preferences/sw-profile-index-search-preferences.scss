@@ -1,0 +1,50 @@
+.sw-profile-index-search-preferences-searchable-elements {
+    $this: &;
+
+    &__entity-container {
+        columns: 2 auto;
+        column-gap: 30px;
+        margin: -15px 0;
+    }
+
+    &__entity {
+        break-inside: avoid;
+        list-style: none;
+        padding: 15px 0;
+    }
+
+    &__entity-field {
+        user-select: none;
+        padding: 8px 32px;
+        line-height: 0;
+
+        // Careful: last-child must go before first-child selector to make sure there is no extra space if an entity displays only one field.
+        &:last-child {
+            padding-bottom: 0;
+        }
+
+        &:first-child {
+            padding: 0;
+        }
+
+        &:nth-child(2) {
+            padding-top: 16px;
+        }
+
+        .sw-field--checkbox {
+            display: inline-block;
+            margin: 0;
+        }
+
+        #{$this}__entity {
+            padding-bottom: 0;
+        }
+
+        #{$this}__entity-field {
+            &:first-child {
+                padding-left: 32px;
+                padding-right: 32px;
+            }
+        }
+    }
+}

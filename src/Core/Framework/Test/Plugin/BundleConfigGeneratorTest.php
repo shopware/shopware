@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Plugin\BundleConfigGeneratorInterface;
 use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\App\StorefrontPluginRegistryTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 
 class BundleConfigGeneratorTest extends TestCase
 {
@@ -15,10 +16,7 @@ class BundleConfigGeneratorTest extends TestCase
     use AppSystemTestBehaviour;
     use StorefrontPluginRegistryTestBehaviour;
 
-    /**
-     * @var BundleConfigGeneratorInterface
-     */
-    private $configGenerator;
+    private BundleConfigGeneratorInterface $configGenerator;
 
     public function setUp(): void
     {
@@ -56,12 +54,15 @@ class BundleConfigGeneratorTest extends TestCase
         static::assertEquals('Resources/app/storefront/src/main.js', $storefrontConfig['entryFilePath']);
         static::assertNull($storefrontConfig['webpack']);
 
-        $expectedStyles = [
-            $appPath . 'Resources/app/storefront/src/scss/base.scss',
-            $appPath . 'Resources/app/storefront/src/scss/overrides.scss',
-        ];
+        // Style files can and need only be imported if storefront is installed
+        if ($this->getContainer()->has(StorefrontPluginRegistry::class)) {
+            $expectedStyles = [
+                $appPath . 'Resources/app/storefront/src/scss/base.scss',
+                $appPath . 'Resources/app/storefront/src/scss/overrides.scss',
+            ];
 
-        static::assertEquals([], array_diff($expectedStyles, $storefrontConfig['styleFiles']));
+            static::assertEquals([], array_diff($expectedStyles, $storefrontConfig['styleFiles']));
+        }
     }
 
     public function testGenerateAppConfigWithPluginAndScriptAndStylePaths(): void
@@ -90,17 +91,20 @@ class BundleConfigGeneratorTest extends TestCase
         static::assertEquals('Resources/app/storefront/src/main.js', $storefrontConfig['entryFilePath']);
         static::assertNull($storefrontConfig['webpack']);
 
-        if (mb_strpos($appPath, $projectDir) === 0) {
-            // make relative
-            $appPath = ltrim(mb_substr($appPath, mb_strlen($projectDir)), '/');
+        // Style files can and need only be imported if storefront is installed
+        if ($this->getContainer()->has(StorefrontPluginRegistry::class)) {
+            if (mb_strpos($appPath, $projectDir) === 0) {
+                // make relative
+                $appPath = ltrim(mb_substr($appPath, mb_strlen($projectDir)), '/');
+            }
+
+            // Only base.scss from /_fixture/apps/plugin/ should be included
+            $expectedStyles = [
+                $appPath . 'Resources/app/storefront/src/scss/base.scss',
+            ];
+
+            static::assertEquals($expectedStyles, $storefrontConfig['styleFiles']);
         }
-
-        // Only base.scss from /_fixture/apps/plugin/ should be included
-        $expectedStyles = [
-            $appPath . 'Resources/app/storefront/src/scss/base.scss',
-        ];
-
-        static::assertEquals($expectedStyles, $storefrontConfig['styleFiles']);
     }
 
     public function testGenerateAppConfigIgnoresInactiveApps(): void

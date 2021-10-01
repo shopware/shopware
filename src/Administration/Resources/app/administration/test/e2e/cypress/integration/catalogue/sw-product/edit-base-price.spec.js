@@ -23,10 +23,9 @@ describe('Product: Base price', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         cy.clickContextMenuItem(
@@ -47,9 +46,7 @@ describe('Product: Base price', () => {
 
         // Save product
         cy.get(page.elements.productSaveAction).click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 200);
 
         // Verify in storefront
         cy.visit('/');

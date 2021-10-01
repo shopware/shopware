@@ -23,8 +23,14 @@ class OrderStateMachineApiService extends ApiService {
             });
     }
 
-    transitionOrderTransactionState(orderId, actionName, mediaIds = {}, additionalParams = {}, additionalHeaders = {}) {
-        const route = `_action/order_transaction/${orderId}/state/${actionName}`;
+    transitionOrderTransactionState(
+        orderTransactionId,
+        actionName,
+        mediaIds = {},
+        additionalParams = {},
+        additionalHeaders = {},
+    ) {
+        const route = `_action/order_transaction/${orderTransactionId}/state/${actionName}`;
 
         const headers = this.getBasicHeaders(additionalHeaders);
 
@@ -35,8 +41,14 @@ class OrderStateMachineApiService extends ApiService {
             });
     }
 
-    transitionOrderDeliveryState(orderId, actionName, mediaIds = {}, additionalParams = {}, additionalHeaders = {}) {
-        const route = `_action/order_delivery/${orderId}/state/${actionName}`;
+    transitionOrderDeliveryState(
+        orderDeliveryStateId,
+        actionName,
+        mediaIds = {},
+        additionalParams = {},
+        additionalHeaders = {},
+    ) {
+        const route = `_action/order_delivery/${orderDeliveryStateId}/state/${actionName}`;
 
         const headers = this.getBasicHeaders(additionalHeaders);
 

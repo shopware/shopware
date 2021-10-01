@@ -1,7 +1,7 @@
 // / <reference types="Cypress" />
 const uuid = require('uuid/v4');
 
-describe('Review: Test pagination and the corosponding URL parameters', () => {
+describe('Review: Test pagination and the corresponding URL parameters', () => {
     // eslint-disable-next-line no-undef
     before(() => {
         let authToken;

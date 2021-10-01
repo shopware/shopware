@@ -7,7 +7,6 @@ use Elasticsearch\Client;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
@@ -64,7 +63,9 @@ use Shopware\Core\Framework\Test\TestCaseBase\SessionTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAggregator;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
@@ -121,7 +122,7 @@ class ElasticsearchProductTest extends TestCase
 
         $this->navigationId = $this->connection->fetchColumn(
             'SELECT LOWER(HEX(navigation_category_id)) FROM sales_channel WHERE id = :id',
-            ['id' => Uuid::fromHexToBytes(Defaults::SALES_CHANNEL)]
+            ['id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL)]
         );
 
         $this->registerDefinition(ExtendedProductDefinition::class);
@@ -229,7 +230,12 @@ class ElasticsearchProductTest extends TestCase
 
             $this->indexElasticSearch();
 
-            $languages = $this->languageRepository->searchIds(new Criteria(), $context);
+            $criteria = new Criteria();
+            $criteria->addFilter(
+                new NandFilter([new EqualsFilter('salesChannelDomains.id', null)])
+            );
+
+            $languages = $this->languageRepository->searchIds($criteria, $context);
 
             foreach ($languages->getIds() as $languageId) {
                 $index = $this->helper->getIndexName($this->productDefinition, $languageId);
@@ -262,6 +268,8 @@ class ElasticsearchProductTest extends TestCase
                     ->build(),
             ], $context);
 
+            $this->refreshIndex();
+
             $criteria = new Criteria();
             $criteria->addFilter(new EqualsFilter('productNumber', 'u7'));
 
@@ -270,6 +278,8 @@ class ElasticsearchProductTest extends TestCase
             static::assertCount(1, $result->getIds());
 
             $this->productRepository->delete([['id' => $ids->get('u7')]], $context);
+
+            $this->refreshIndex();
             $result = $this->productRepository->searchIds($criteria, $context);
             static::assertCount(0, $result->getIds());
         } catch (\Exception $e) {
@@ -1960,7 +1970,13 @@ class ElasticsearchProductTest extends TestCase
             $this->helper->setEnabled(true);
 
             $context = $this->getContainer()->get(SalesChannelContextFactory::class)
-                ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+                ->create(
+                    Uuid::randomHex(),
+                    TestDefaults::SALES_CHANNEL,
+                    [
+                        SalesChannelContextService::LANGUAGE_ID => Defaults::LANGUAGE_SYSTEM,
+                    ]
+                );
 
             $request = new Request();
 
@@ -2028,7 +2044,14 @@ class ElasticsearchProductTest extends TestCase
             $cases = $this->providerCheapestPriceFilter();
 
             $context = $this->getContainer()->get(SalesChannelContextFactory::class)
-                ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+                ->create(
+                    Uuid::randomHex(),
+                    TestDefaults::SALES_CHANNEL,
+                    [
+                        SalesChannelContextService::LANGUAGE_ID => Defaults::LANGUAGE_SYSTEM,
+                    ]
+                );
+
             $context->getContext()->addState(Context::STATE_ELASTICSEARCH_AWARE);
 
             $searcher = $this->createEntitySearcher();
@@ -2113,7 +2136,14 @@ class ElasticsearchProductTest extends TestCase
     {
         try {
             $context = $this->getContainer()->get(SalesChannelContextFactory::class)
-                ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+                ->create(
+                    Uuid::randomHex(),
+                    TestDefaults::SALES_CHANNEL,
+                    [
+                        SalesChannelContextService::LANGUAGE_ID => Defaults::LANGUAGE_SYSTEM,
+                    ]
+                );
+
             $context->getContext()->addState(Context::STATE_ELASTICSEARCH_AWARE);
 
             $cases = $this->providerCheapestPriceSorting();
@@ -2210,41 +2240,93 @@ class ElasticsearchProductTest extends TestCase
         $context = $this->createIndexingContext();
 
         // Fetch: Default language
-        $products = $this->definition->fetch([$ids->getBytes('dal-1')], $context);
+        $esProducts = $this->definition->fetch([$ids->getBytes('dal-1')], $context);
 
-        $product = $products[$ids->get('dal-1')];
+        $esProduct = $esProducts[$ids->get('dal-1')];
 
-        $p = $this->getContainer()->get('product.repository')->search(new Criteria([$ids->get('dal-1')]), $context)->first();
+        $criteria = new Criteria([$ids->get('dal-1')]);
+        $dalProduct = $this->getContainer()->get('product.repository')->search($criteria, $context)->first();
 
-        static::assertSame((string) $p->getTranslation('name'), $product['name']);
-        static::assertSame((string) $p->getTranslation('description'), $product['description']);
-        static::assertSame($p->getTranslation('customFields'), $product['customFields']);
+        static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
+        static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
+        static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
 
         // Fetch: Second language
         $languageContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$ids->get('language-1')]);
         $languageContext->addExtensions($context->getExtensions());
-        $products = $this->definition->fetch([$ids->getBytes('dal-1')], $languageContext);
+        $esProducts = $this->definition->fetch([$ids->getBytes('dal-1')], $languageContext);
 
-        $product = $products[$ids->get('dal-1')];
+        $esProduct = $esProducts[$ids->get('dal-1')];
 
-        $p = $this->fetchProductFromDAL($ids, $languageContext);
+        $criteria = new Criteria([$ids->get('dal-1')]);
+        $dalProduct = $this->getContainer()->get('product.repository')
+            ->search($criteria, $languageContext)
+            ->first();
 
-        static::assertSame((string) $p->getTranslation('name'), $product['name']);
-        static::assertSame((string) $p->getTranslation('description'), $product['description']);
-        static::assertSame($p->getTranslation('customFields'), $product['customFields']);
+        static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
+        static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
+        static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
 
         // Fetch: Third language
         $languageContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$ids->get('language-2'), $ids->get('language-1')]);
         $languageContext->addExtensions($context->getExtensions());
-        $products = $this->definition->fetch([$ids->getBytes('dal-1')], $languageContext);
+        $esProducts = $this->definition->fetch([$ids->getBytes('dal-1')], $languageContext);
 
-        $product = $products[$ids->get('dal-1')];
+        $esProduct = $esProducts[$ids->get('dal-1')];
 
-        $p = $this->fetchProductFromDAL($ids, $languageContext);
+        $criteria = new Criteria([$ids->get('dal-1')]);
+        $dalProduct = $this->getContainer()->get('product.repository')
+            ->search($criteria, $languageContext)
+            ->first();
 
-        static::assertSame((string) $p->getTranslation('name'), $product['name']);
-        static::assertSame((string) $p->getTranslation('description'), $product['description']);
-        static::assertSame($p->getTranslation('customFields'), $product['customFields']);
+        static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
+        static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
+        static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
+
+        // Fetch: Second language variant fallback to parent
+        $languageContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$ids->get('language-2'), $ids->get('language-1')]);
+        $languageContext->addExtensions($context->getExtensions());
+        $languageContext->setConsiderInheritance(true);
+        $esProducts = $this->definition->fetch([$ids->getBytes('dal-2.1')], $languageContext);
+
+        $esProduct = $esProducts[$ids->get('dal-2.1')];
+
+        $criteria = new Criteria([$ids->get('dal-2.1')]);
+        $dalProduct = $this->getContainer()->get('product.repository')->search($criteria, $languageContext)->first();
+
+        static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
+        static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
+        static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
+
+        // Fetch: Fallback through parent to variant in other language
+        $languageContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$ids->get('language-3'), $ids->get('language-2')]);
+        $languageContext->addExtensions($context->getExtensions());
+        $languageContext->setConsiderInheritance(true);
+        $esProducts = $this->definition->fetch([$ids->getBytes('dal-2.2')], $languageContext);
+
+        $esProduct = $esProducts[$ids->get('dal-2.2')];
+
+        $criteria = new Criteria([$ids->get('dal-2.2')]);
+        $dalProduct = $this->getContainer()->get('product.repository')->search($criteria, $languageContext)->first();
+
+        static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
+        static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
+        static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
+
+        // Fetch: Fallback to parent on null-entry
+        $languageContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$ids->get('language-1')]);
+        $languageContext->addExtensions($context->getExtensions());
+        $languageContext->setConsiderInheritance(true);
+        $esProducts = $this->definition->fetch([$ids->getBytes('dal-2.2')], $languageContext);
+
+        $esProduct = $esProducts[$ids->get('dal-2.2')];
+
+        $criteria = new Criteria([$ids->get('dal-2.2')]);
+        $dalProduct = $this->getContainer()->get('product.repository')->search($criteria, $languageContext)->first();
+
+        static::assertSame((string) $dalProduct->getTranslation('name'), $esProduct['name']);
+        static::assertSame((string) $dalProduct->getTranslation('description'), $esProduct['description']);
+        static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields']);
     }
 
     /**
@@ -2541,6 +2623,8 @@ class ElasticsearchProductTest extends TestCase
         $this->ids->set('language-1', $secondLanguage);
         $thirdLanguage = $this->createLanguage($secondLanguage);
         $this->ids->set('language-2', $thirdLanguage);
+        $fourthLanguage = $this->createLanguage();
+        $this->ids->set('language-3', $fourthLanguage);
 
         $this->getContainer()->get(Connection::class)->executeStatement('DELETE FROM custom_field');
 
@@ -2596,7 +2680,7 @@ class ElasticsearchProductTest extends TestCase
                 ->name('Silk')
                 ->category('navi')
                 ->customField('testField', 'Silk')
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->tax('t1')
                 ->manufacturer('m1')
                 ->price(50)
@@ -2616,7 +2700,7 @@ class ElasticsearchProductTest extends TestCase
                 ->name('Rubber')
                 ->category('navi')
                 ->customField('testField', 'Rubber')
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->tax('t1')
                 ->manufacturer('m2')
                 ->price(100)
@@ -2635,7 +2719,7 @@ class ElasticsearchProductTest extends TestCase
                 ->name('Stilk')
                 ->category('navi')
                 ->customField('testField', 'Stilk')
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->tax('t2')
                 ->manufacturer('m2')
                 ->price(150)
@@ -2651,7 +2735,7 @@ class ElasticsearchProductTest extends TestCase
                 ->name('Grouped 1')
                 ->category('navi')
                 ->customField('testField', 'Grouped 1')
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->tax('t2')
                 ->manufacturer('m2')
                 ->price(200)
@@ -2665,7 +2749,7 @@ class ElasticsearchProductTest extends TestCase
                 ->name('Grouped 2')
                 ->category('navi')
                 ->customField('testField', 'Grouped 2')
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->tax('t3')
                 ->manufacturer('m3')
                 ->price(250)
@@ -2678,7 +2762,7 @@ class ElasticsearchProductTest extends TestCase
                 ->name('Spachtelmasse of some awesome company')
                 ->category('navi')
                 ->customField('testField', 'Spachtelmasse')
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->tax('t3')
                 ->manufacturer('m3')
                 ->price(300)
@@ -2690,7 +2774,7 @@ class ElasticsearchProductTest extends TestCase
             (new ProductBuilder($this->ids, 'product-7'))
                 ->name('Test Product for Timezone ReleaseDate')
                 ->category('navi')
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->tax('t3')
                 ->price(300)
                 ->releaseDate('2024-12-11 23:59:00')
@@ -2700,7 +2784,7 @@ class ElasticsearchProductTest extends TestCase
                 ->name('Other product')
                 ->category('navi')
                 ->customField('testField', 'Other product')
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->tax('t3')
                 ->manufacturer('m3')
                 ->price(300)
@@ -2712,7 +2796,7 @@ class ElasticsearchProductTest extends TestCase
                 ->name('Other product')
                 ->category('navi')
                 ->customField('testField', 'Other product')
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->tax('t3')
                 ->manufacturer('m3')
                 ->price(300)
@@ -2724,7 +2808,7 @@ class ElasticsearchProductTest extends TestCase
                 ->name('Other product')
                 ->category('navi')
                 ->customField('testField', 'Other product')
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->tax('t3')
                 ->manufacturer('m3')
                 ->price(300)
@@ -2736,7 +2820,7 @@ class ElasticsearchProductTest extends TestCase
                 ->name('Other product')
                 ->category('navi')
                 ->customField('testField', 'Other product')
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->tax('t3')
                 ->manufacturer('m3')
                 ->price(300)
@@ -2748,7 +2832,7 @@ class ElasticsearchProductTest extends TestCase
                 ->name('Other product')
                 ->category('navi')
                 ->customField('testField', 'Other product')
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->tax('t3')
                 ->manufacturer('m3')
                 ->price(300)
@@ -2760,7 +2844,7 @@ class ElasticsearchProductTest extends TestCase
                 ->name('aa')
                 ->category('navi')
                 ->customField('testField', 'aa')
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->tax('t1')
                 ->manufacturer('m2')
                 ->price(100)
@@ -2773,7 +2857,7 @@ class ElasticsearchProductTest extends TestCase
                 ->name('Aa')
                 ->category('navi')
                 ->customField('testField', 'Aa')
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->tax('t1')
                 ->manufacturer('m2')
                 ->price(100)
@@ -2786,7 +2870,7 @@ class ElasticsearchProductTest extends TestCase
                 ->name('AA')
                 ->category('navi')
                 ->customField('testField', 'AA')
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->tax('t1')
                 ->manufacturer('m2')
                 ->price(100)
@@ -2799,7 +2883,7 @@ class ElasticsearchProductTest extends TestCase
                 ->name('Ba')
                 ->category('navi')
                 ->customField('testField', 'Ba')
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->tax('t1')
                 ->manufacturer('m2')
                 ->price(100)
@@ -2812,7 +2896,7 @@ class ElasticsearchProductTest extends TestCase
                 ->name('BA')
                 ->category('navi')
                 ->customField('testField', 'BA')
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->tax('t1')
                 ->manufacturer('m2')
                 ->price(100)
@@ -2825,7 +2909,7 @@ class ElasticsearchProductTest extends TestCase
                 ->name('BB')
                 ->category('navi')
                 ->customField('testField', 'BB')
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->tax('t1')
                 ->manufacturer('m2')
                 ->price(100)
@@ -2839,13 +2923,13 @@ class ElasticsearchProductTest extends TestCase
             (new ProductBuilder($this->ids, 'p.1'))
                 ->price(70)
                 ->price(99, null, 'currency')
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->build(),
 
             // no rule = 79€
             (new ProductBuilder($this->ids, 'p.2'))
                 ->price(80)
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->variant(
                     (new ProductBuilder($this->ids, 'v.2.1'))
                         ->build()
@@ -2861,7 +2945,7 @@ class ElasticsearchProductTest extends TestCase
             // no rule = 90€
             (new ProductBuilder($this->ids, 'p.3'))
                 ->price(90)
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->variant(
                     (new ProductBuilder($this->ids, 'v.3.1'))
                         ->build()
@@ -2876,7 +2960,7 @@ class ElasticsearchProductTest extends TestCase
             // no rule = 60€
             (new ProductBuilder($this->ids, 'p.4'))
                 ->price(100)
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->variant(
                     (new ProductBuilder($this->ids, 'v.4.1'))
                         ->price(60)
@@ -2895,7 +2979,7 @@ class ElasticsearchProductTest extends TestCase
                 ->price(110)
                 ->prices('rule-a', 130)
                 ->prices('rule-a', 120, 'default', null, 3)
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->build(),
 
             // no rule = 120€  ||  rule-a = 130€
@@ -2905,7 +2989,7 @@ class ElasticsearchProductTest extends TestCase
                 ->prices('rule-a', 140, 'default', null, 3)
                 ->prices('rule-a', 199, 'currency')
                 ->prices('rule-a', 188, 'currency', null, 3)
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->variant(
                     (new ProductBuilder($this->ids, 'v.6.1'))
                         ->prices('rule-a', 140)
@@ -2925,7 +3009,7 @@ class ElasticsearchProductTest extends TestCase
                 ->price(130)
                 ->prices('rule-a', 150)
                 ->prices('rule-a', 140, 'default', null, 3)
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->variant(
                     (new ProductBuilder($this->ids, 'v.7.1'))
                         ->prices('rule-a', 160)
@@ -2943,7 +3027,7 @@ class ElasticsearchProductTest extends TestCase
                 ->price(140)
                 ->prices('rule-a', 160)
                 ->prices('rule-a', 150, 'default', null, 3)
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->variant(
                     (new ProductBuilder($this->ids, 'v.8.1'))
                         ->prices('rule-a', 170)
@@ -2961,7 +3045,7 @@ class ElasticsearchProductTest extends TestCase
             // no-rule = 150€   ||   rule-a  = 160€
             (new ProductBuilder($this->ids, 'p.9'))
                 ->price(150)
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->variant(
                     (new ProductBuilder($this->ids, 'v.9.1'))
                         ->prices('rule-a', 170)
@@ -2978,7 +3062,7 @@ class ElasticsearchProductTest extends TestCase
             // no rule = 150€  ||  rule-a = 150€
             (new ProductBuilder($this->ids, 'p.10'))
                 ->price(160)
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->variant(
                     (new ProductBuilder($this->ids, 'v.10.1'))
                         ->prices('rule-a', 170)
@@ -2999,7 +3083,7 @@ class ElasticsearchProductTest extends TestCase
                 ->prices('rule-a', 180, 'default', null, 3)
                 ->prices('rule-b', 200)
                 ->prices('rule-b', 190, 'default', null, 3)
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->variant(
                     (new ProductBuilder($this->ids, 'v.11.1'))
                         ->build()
@@ -3013,7 +3097,7 @@ class ElasticsearchProductTest extends TestCase
             // no rule = 180 ||  rule-a = 210  || rule-b = 180 || a+b = 210 || b+a = 200/180
             (new ProductBuilder($this->ids, 'p.12'))
                 ->price(180)
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->variant(
                     (new ProductBuilder($this->ids, 'v.12.1'))
                         ->prices('rule-a', 220)
@@ -3033,7 +3117,7 @@ class ElasticsearchProductTest extends TestCase
             // no rule = 190 ||  rule-a = 220  || rule-b = 190 || a+b = 220 || b+a = 210/190
             (new ProductBuilder($this->ids, 'p.13'))
                 ->price(190)
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->prices('rule-a', 230)
                 ->prices('rule-a', 220, 'default', null, 3)
                 ->variant(
@@ -3054,7 +3138,7 @@ class ElasticsearchProductTest extends TestCase
                 ->name('Default')
                 ->category('navi')
                 ->customField('testField', 'Silk')
-                ->visibility(Defaults::SALES_CHANNEL)
+                ->visibility(TestDefaults::SALES_CHANNEL)
                 ->tax('t1')
                 ->manufacturer('m1')
                 ->price(50)
@@ -3070,6 +3154,42 @@ class ElasticsearchProductTest extends TestCase
                 ->add('width', 1.3)
                 ->translation($secondLanguage, 'name', 'Second')
                 ->translation($thirdLanguage, 'name', 'Third')
+                ->build(),
+
+            (new ProductBuilder($this->ids, 'dal-2'))
+                ->name('Default')
+                ->category('pants')
+                ->customField('testField', 'Silk')
+                ->visibility(TestDefaults::SALES_CHANNEL)
+                ->tax('t1')
+                ->manufacturer('m1')
+                ->price(60)
+                ->releaseDate('2019-01-01 10:11:00')
+                ->purchasePrice(0)
+                ->stock(2)
+                ->category('c1')
+                ->category('c2')
+                ->property('red', 'color')
+                ->property('xl', 'size')
+                ->add('weight', 12.3)
+                ->add('height', 9.3)
+                ->add('width', 1.3)
+                ->translation($secondLanguage, 'name', 'Second')
+                ->translation($thirdLanguage, 'name', 'Third')
+                ->variant(
+                    (new ProductBuilder($this->ids, 'dal-2.1'))
+                        ->translation($secondLanguage, 'name', 'Variant 1 Second')
+                        ->translation($secondLanguage, 'description', 'Variant 1 Second Desc')
+                        ->build()
+                )
+                ->variant(
+                    (new ProductBuilder($this->ids, 'dal-2.2'))
+                        ->translation($secondLanguage, 'name', null)
+                        ->translation($secondLanguage, 'description', 'Variant 2 Second Desc')
+                        ->translation($thirdLanguage, 'name', 'Variant 2 Third')
+                        ->translation($thirdLanguage, 'description', 'Variant 2 Third Desc')
+                        ->build()
+                )
                 ->build(),
         ];
 
@@ -3096,10 +3216,10 @@ class ElasticsearchProductTest extends TestCase
                         'territory' => 'test',
                     ],
                     'salesChannels' => [
-                        ['id' => Defaults::SALES_CHANNEL],
+                        ['id' => TestDefaults::SALES_CHANNEL],
                     ],
                     'salesChannelDefaultAssignments' => [
-                        ['id' => Defaults::SALES_CHANNEL],
+                        ['id' => TestDefaults::SALES_CHANNEL],
                     ],
                 ],
             ],
@@ -3115,10 +3235,5 @@ class ElasticsearchProductTest extends TestCase
         $context->addExtension('currencies', $this->getContainer()->get('currency.repository')->search(new Criteria(), Context::createDefaultContext()));
 
         return $context;
-    }
-
-    private function fetchProductFromDAL(IdsCollection $ids, Context $languageContext): ProductEntity
-    {
-        return $this->getContainer()->get('product.repository')->search(new Criteria([$ids->get('dal-1')]), $languageContext)->first();
     }
 }

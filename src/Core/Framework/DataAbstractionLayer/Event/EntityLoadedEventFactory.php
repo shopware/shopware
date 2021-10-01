@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Event;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelEntityLoadedEvent;
@@ -69,8 +70,12 @@ class EntityLoadedEventFactory
     private function recursion(array $entities, array $mapping): array
     {
         foreach ($entities as $entity) {
-            if (!$entity instanceof Entity) {
+            if (!$entity instanceof Entity && !$entity instanceof EntityCollection) {
                 continue;
+            }
+
+            if ($entity instanceof EntityCollection) {
+                return $this->recursion($entity->getElements(), $mapping);
             }
 
             $mapping = $this->map($entity, $mapping);

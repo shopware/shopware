@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 describe('Language: Visual testing', () => {
     // eslint-disable-next-line no-undef
@@ -17,10 +17,9 @@ describe('Language: Visual testing', () => {
     });
 
     it('@base @visual: check appearance of language module', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/language`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
@@ -29,9 +28,9 @@ describe('Language: Visual testing', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('#sw-settings-language').click();
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+
+        cy.wait('@getData')
+            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.takeSnapshot('[Language] Listing', '.sw-settings-language-list');
 

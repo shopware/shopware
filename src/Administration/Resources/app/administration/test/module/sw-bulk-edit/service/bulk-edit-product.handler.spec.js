@@ -1,10 +1,10 @@
 import BulkEditApiFactory from 'src/module/sw-bulk-edit/service/bulk-edit.api.factory';
 import BulkEditProductHandler from 'src/module/sw-bulk-edit/service/handler/bulk-edit-product.handler';
 
-function getBulkEditApiFactory() {
-    const factory = new BulkEditApiFactory();
+const EntityDefinitionFactory = require('src/core/factory/entity-definition.factory').default;
 
-    return factory;
+function getBulkEditApiFactory() {
+    return new BulkEditApiFactory();
 }
 
 function getBulkEditProductHandler() {
@@ -34,7 +34,11 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
     it('should call buildBulkSyncPayload when using bulkEdit', async () => {
         const handler = getBulkEditProductHandler();
 
-        const bulkEditProductHandler = jest.spyOn(handler, 'buildBulkSyncPayload').mockImplementation(() => Promise.resolve({}));
+        const bulkEditProductHandler = jest.spyOn(handler, 'buildBulkSyncPayload').mockImplementation(() => Promise.resolve({
+            upsert: {
+                entity: 'order'
+            }
+        }));
 
         const result = await handler.bulkEdit(['abc', 'xyz'], []);
 
@@ -60,11 +64,24 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
         expect(buildBulkSyncPayloadMethod).toHaveBeenCalledWith(changes);
 
         expect(syncMethod).toHaveBeenCalledTimes(1);
-        expect(syncMethod).toHaveBeenCalledWith(payload, {}, { 'single-operation': 1 });
+        expect(syncMethod).toHaveBeenCalledWith(payload, {}, { 'single-operation': 1, 'sw-language-id': Shopware.Context.api.languageId });
         expect(result).toEqual(true);
     });
 
     describe('test buildBulkSyncPayload', () => {
+        let handler = null;
+
+        beforeEach(() => {
+            handler = getBulkEditProductHandler();
+
+            handler.groupedPayload = {
+                upsert: {},
+                delete: {}
+            };
+            handler.entityName = 'product';
+            handler.entityIds = ['product_1', 'product_2'];
+        });
+
         const cases = [
             [
                 'empty changes',
@@ -222,21 +239,10 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                 }
             ],
             [
-                'change association with invalid mapping entity',
+                'change association with invalid field',
                 [{
                     type: 'overwrite',
-                    mappingEntity: 'invalid_mapping_entity',
-                    field: 'categoryId',
-                    value: ['category_1', 'category_2']
-                }],
-                {}
-            ],
-            [
-                'change association with invalid mapping entity field',
-                [{
-                    type: 'overwrite',
-                    mappingEntity: 'product_category',
-                    field: 'customerId',
+                    field: 'invalidField',
                     value: ['category_1', 'category_2']
                 }],
                 {}
@@ -245,9 +251,8 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                 'overwrite an association with no duplicated',
                 [{
                     type: 'overwrite',
-                    mappingEntity: 'product_category',
-                    field: 'categoryId',
-                    value: ['category_1', 'category_2']
+                    field: 'categories',
+                    value: [{ id: 'category_1' }, { id: 'category_2' }]
                 }],
                 {
                     'upsert-product_category': {
@@ -281,9 +286,8 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                 'overwrite an association with some duplicated',
                 [{
                     type: 'overwrite',
-                    mappingEntity: 'product_category',
-                    field: 'categoryId',
-                    value: ['category_1', 'category_2']
+                    field: 'categories',
+                    value: [{ id: 'category_1' }, { id: 'category_2' }]
                 }],
                 {
                     'upsert-product_category': {
@@ -318,27 +322,27 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                 {
                     product_category: [
                         {
-                            product_id: 'product_1',
-                            category_id: 'category_1'
+                            productId: 'product_1',
+                            categoryId: 'category_1'
                         },
                         {
-                            product_id: 'product_2',
-                            category_id: 'category_2'
+                            productId: 'product_2',
+                            categoryId: 'category_2'
                         },
                         {
-                            product_id: 'product_1',
-                            category_id: 'category_3'
+                            productId: 'product_1',
+                            categoryId: 'category_3'
                         },
                         {
-                            product_id: 'product_2',
-                            category_id: 'category_4'
+                            productId: 'product_2',
+                            categoryId: 'category_4'
                         }
                     ]
                 }
             ],
             [
                 'overwrite an oneToMany association',
-                [{ type: 'overwrite', mappingEntity: 'product_media', field: 'mediaId', value: ['media_1', 'media_2'] }],
+                [{ type: 'overwrite', field: 'media', mappingReferenceField: 'mediaId', value: [{ mediaId: 'media_1' }, { mediaId: 'media_2' }] }],
                 {
                     'upsert-product_media': {
                         action: 'upsert',
@@ -353,16 +357,185 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                                 mediaId: 'media_1'
                             }
                         ]
+                    },
+                    'delete-product_media': {
+                        action: 'delete',
+                        entity: 'product_media',
+                        payload: [
+                            {
+                                id: 'product_media_3'
+                            }
+                        ]
                     }
                 },
                 {
                     product_media: [
                         {
+                            id: 'product_media_1',
                             productId: 'product_1',
                             mediaId: 'media_2'
                         },
                         {
+                            id: 'product_media_2',
                             productId: 'product_2',
+                            mediaId: 'media_2'
+                        },
+                        {
+                            id: 'product_media_3',
+                            productId: 'product_2',
+                            mediaId: 'media_3'
+                        }
+                    ]
+                }
+            ],
+            [
+                'overwrite an oneToMany association with extra field',
+                [{ type: 'overwrite', field: 'visibilities', mappingReferenceField: 'salesChannelId', value: [{ salesChannelId: 'scn_1', visibility: 20 }, { salesChannelId: 'scn_2', visibility: 30 }] }],
+                {
+                    'upsert-product_visibility': {
+                        action: 'upsert',
+                        entity: 'product_visibility',
+                        payload: [
+                            {
+                                productId: 'product_2',
+                                salesChannelId: 'scn_1',
+                                visibility: 20
+                            },
+                            {
+                                productId: 'product_1',
+                                salesChannelId: 'scn_2',
+                                visibility: 30
+                            },
+                            {
+                                id: 'product_scn_2',
+                                visibility: 30
+                            }
+                        ]
+                    },
+                    'delete-product_visibility': {
+                        action: 'delete',
+                        entity: 'product_visibility',
+                        payload: [
+                            {
+                                id: 'product_scn_3'
+                            },
+                            {
+                                id: 'product_scn_4'
+                            }
+                        ]
+                    }
+                },
+                {
+                    product_visibility: [
+                        {
+                            id: 'product_scn_1',
+                            productId: 'product_1',
+                            visibility: 20,
+                            salesChannelId: 'scn_1'
+                        },
+                        {
+                            id: 'product_scn_2',
+                            productId: 'product_2',
+                            visibility: 20,
+                            salesChannelId: 'scn_2'
+                        },
+                        {
+                            id: 'product_scn_3',
+                            productId: 'product_1',
+                            salesChannelId: 'scn_3'
+                        },
+                        {
+                            id: 'product_scn_4',
+                            productId: 'product_2',
+                            salesChannelId: 'scn_4'
+                        }
+                    ]
+                }
+            ],
+            [
+                'add an oneToMany association',
+                [{ type: 'add', field: 'media', mappingReferenceField: 'mediaId', value: [{ mediaId: 'media_1' }, { mediaId: 'media_2' }] }],
+                {
+                    'upsert-product_media': {
+                        action: 'upsert',
+                        entity: 'product_media',
+                        payload: [
+                            {
+                                productId: 'product_1',
+                                mediaId: 'media_1'
+                            },
+                            {
+                                productId: 'product_2',
+                                mediaId: 'media_1'
+                            },
+                            {
+                                productId: 'product_2',
+                                mediaId: 'media_2'
+                            }
+                        ]
+                    }
+                },
+                {
+                    product_media: [
+                        {
+                            id: 'product_media_1',
+                            productId: 'product_1',
+                            mediaId: 'media_2'
+                        }
+                    ]
+                }
+            ],
+            [
+                'remove an oneToMany association',
+                [{ type: 'clear', field: 'media', mappingReferenceField: 'mediaId', value: [{ mediaId: 'media_1' }, { mediaId: 'media_2' }] }],
+                {
+                    'delete-product_media': {
+                        action: 'delete',
+                        entity: 'product_media',
+                        payload: [
+                            {
+                                id: 'product_media_1'
+                            }
+                        ]
+                    }
+                },
+                {
+                    product_media: [
+                        {
+                            id: 'product_media_1',
+                            productId: 'product_1',
+                            mediaId: 'media_2'
+                        }
+                    ]
+                }
+            ],
+            [
+                'clear an oneToMany association',
+                [{ type: 'clear', field: 'media', mappingReferenceField: 'mediaId' }],
+                {
+                    'delete-product_media': {
+                        action: 'delete',
+                        entity: 'product_media',
+                        payload: [
+                            {
+                                id: 'product_media_1'
+                            },
+                            {
+                                id: 'product_media_2'
+                            }
+                        ]
+                    }
+                },
+                {
+                    product_media: [
+                        {
+                            id: 'product_media_1',
+                            productId: 'product_1',
+                            mediaId: 'media_1'
+                        },
+                        {
+                            id: 'product_media_2',
+                            productId: 'product_1',
                             mediaId: 'media_2'
                         }
                     ]
@@ -372,28 +545,27 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                 'overwrite an association with all duplicated',
                 [{
                     type: 'overwrite',
-                    mappingEntity: 'product_category',
-                    field: 'categoryId',
-                    value: ['category_1', 'category_2']
+                    field: 'categories',
+                    value: [{ id: 'category_1' }, { id: 'category_2' }]
                 }],
                 {},
                 {
                     product_category: [
                         {
-                            product_id: 'product_1',
-                            category_id: 'category_1'
+                            productId: 'product_1',
+                            categoryId: 'category_1'
                         },
                         {
-                            product_id: 'product_1',
-                            category_id: 'category_2'
+                            productId: 'product_1',
+                            categoryId: 'category_2'
                         },
                         {
-                            product_id: 'product_2',
-                            category_id: 'category_1'
+                            productId: 'product_2',
+                            categoryId: 'category_1'
                         },
                         {
-                            product_id: 'product_2',
-                            category_id: 'category_2'
+                            productId: 'product_2',
+                            categoryId: 'category_2'
                         }
                     ]
                 }
@@ -402,9 +574,8 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                 'overwrite an association with duplicated',
                 [{
                     type: 'overwrite',
-                    mappingEntity: 'product_category',
-                    field: 'categoryId',
-                    value: ['category_1', 'category_2']
+                    field: 'categories',
+                    value: [{ id: 'category_1' }, { id: 'category_2' }]
                 }],
                 {
                     'upsert-product_category': {
@@ -425,12 +596,12 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                 {
                     product_category: [
                         {
-                            product_id: 'product_1',
-                            category_id: 'category_1'
+                            productId: 'product_1',
+                            categoryId: 'category_1'
                         },
                         {
-                            product_id: 'product_2',
-                            category_id: 'category_2'
+                            productId: 'product_2',
+                            categoryId: 'category_2'
                         }
                     ]
 
@@ -440,9 +611,8 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                 'add an association',
                 [{
                     type: 'add',
-                    mappingEntity: 'product_category',
-                    field: 'categoryId',
-                    value: ['category_1', 'category_2', 'category_3']
+                    field: 'categories',
+                    value: [{ id: 'category_1' }, { id: 'category_2' }, { id: 'category_3' }]
                 }],
                 {
                     'upsert-product_category': {
@@ -467,20 +637,20 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                 {
                     product_category: [
                         {
-                            product_id: 'product_1',
-                            category_id: 'category_1'
+                            productId: 'product_1',
+                            categoryId: 'category_1'
                         },
                         {
-                            product_id: 'product_2',
-                            category_id: 'category_2'
+                            productId: 'product_2',
+                            categoryId: 'category_2'
                         },
                         {
-                            product_id: 'product_1',
-                            category_id: 'category_3'
+                            productId: 'product_1',
+                            categoryId: 'category_3'
                         },
                         {
-                            product_id: 'product_2',
-                            category_id: 'category_4'
+                            productId: 'product_2',
+                            categoryId: 'category_4'
                         }
                     ]
                 }
@@ -489,9 +659,8 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                 'remove an association',
                 [{
                     type: 'remove',
-                    mappingEntity: 'product_category',
-                    field: 'categoryId',
-                    value: ['category_1', 'category_2']
+                    field: 'categories',
+                    value: [{ id: 'category_1' }, { id: 'category_2' }]
                 }],
                 {
                     'delete-product_category': {
@@ -512,12 +681,12 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                 {
                     product_category: [
                         {
-                            product_id: 'product_1',
-                            category_id: 'category_1'
+                            productId: 'product_1',
+                            categoryId: 'category_1'
                         },
                         {
-                            product_id: 'product_2',
-                            category_id: 'category_2'
+                            productId: 'product_2',
+                            categoryId: 'category_2'
                         }
                     ]
                 }
@@ -527,12 +696,11 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                 [
                     { type: 'overwrite', field: 'description', value: 'test' },
                     { type: 'clear', field: 'stock' },
-                    { type: 'remove', mappingEntity: 'product_media', field: 'mediaId', value: ['media_1'] },
+                    { type: 'remove', mappingReferenceField: 'mediaId', field: 'media', value: { mediaId: 'media_1' } },
                     {
                         type: 'add',
-                        mappingEntity: 'product_category',
-                        field: 'categoryId',
-                        value: ['category_1', 'category_2']
+                        field: 'categories',
+                        value: [{ id: 'category_1' }, { id: 'category_2' }]
                     }
                 ],
                 {
@@ -579,20 +747,20 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                 {
                     product_category: [
                         {
-                            product_id: 'product_1',
-                            category_id: 'category_1'
+                            productId: 'product_1',
+                            categoryId: 'category_1'
                         },
                         {
-                            product_id: 'product_2',
-                            category_id: 'category_2'
+                            productId: 'product_2',
+                            categoryId: 'category_2'
                         },
                         {
-                            product_id: 'product_1',
-                            category_id: 'category_3'
+                            productId: 'product_1',
+                            categoryId: 'category_3'
                         },
                         {
-                            product_id: 'product_2',
-                            category_id: 'category_4'
+                            productId: 'product_2',
+                            categoryId: 'category_4'
                         }
                     ],
                     product_media: [
@@ -607,11 +775,147 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
             ]
         ];
 
-        const handler = getBulkEditProductHandler();
-        handler.entityName = 'product';
-        handler.entityIds = ['product_1', 'product_2'];
-
         it.each(cases)('%s', async (testName, input, output, existAssociations = {}) => {
+            const mockEntitySchema = {
+                product: {
+                    entity: 'product',
+                    properties: {
+                        id: {
+                            type: 'uuid'
+                        },
+                        price: {
+                            type: 'json_object',
+                            properties: []
+                        },
+                        cover: {
+                            type: 'association',
+                            relation: 'many_to_one',
+                            entity: 'product_media'
+                        },
+                        name: {
+                            type: 'string'
+                        },
+                        description: {
+                            type: 'string'
+                        },
+                        stock: {
+                            type: 'int'
+                        },
+                        customFields: {
+                            type: 'json_object'
+                        },
+                        media: {
+                            type: 'association',
+                            relation: 'one_to_many',
+                            entity: 'product_media',
+                            localField: 'id',
+                            referenceField: 'productId'
+                        },
+                        manufacturer: {
+                            type: 'association',
+                            relation: 'many_to_one',
+                            entity: 'product_manufacturer'
+                        },
+                        translations: {
+                            type: 'association',
+                            relation: 'one_to_many',
+                            entity: 'product_translation'
+                        },
+                        categories: {
+                            type: 'association',
+                            relation: 'many_to_many',
+                            entity: 'category',
+                            flags: {},
+                            localField: 'id',
+                            referenceField: 'id',
+                            mapping: 'product_category',
+                            local: 'productId',
+                            reference: 'categoryId'
+                        },
+                        visibilities: {
+                            type: 'association',
+                            relation: 'one_to_many',
+                            entity: 'product_visibility',
+                            localField: 'id',
+                            referenceField: 'productId'
+                        }
+                    }
+                },
+                product_category: {
+                    entity: 'product_category',
+                    relation: 'many_to_many'
+                },
+                product_visibility: {
+                    entity: 'product_visibility',
+                    properties: {
+                        id: {
+                            type: 'uuid'
+                        },
+                        productId: {
+                            type: 'uuid'
+                        },
+                        salesChannelId: {
+                            type: 'uuid'
+                        },
+                        visibility: {
+                            type: 'int'
+                        }
+                    }
+                },
+                product_manufacturer: {
+                    entity: 'product_manufacturer',
+                    properties: {
+                        id: {
+                            type: 'uuid'
+                        },
+                        name: {
+                            type: 'string'
+                        },
+                        media: {
+                            type: 'association',
+                            relation: 'many_to_one',
+                            entity: 'media'
+                        },
+                        products: {
+                            type: 'association',
+                            relation: 'one_to_many',
+                            entity: 'product'
+                        }
+                    }
+                },
+                product_media: {
+                    entity: 'product_media',
+                    properties: {
+                        id: {
+                            type: 'uuid'
+                        },
+                        media: {
+                            type: 'association',
+                            relation: 'many_to_one',
+                            entity: 'media'
+                        }
+                    }
+                },
+                media: {
+                    entity: 'media',
+                    properties: {
+                        id: {
+                            type: 'uuid'
+                        },
+                        translations: {
+                            type: 'association',
+                            relation: 'one_to_many',
+                            entity: 'media_translation'
+                        }
+                    }
+                }
+            };
+
+            Shopware.EntityDefinition = EntityDefinitionFactory;
+            Object.keys(mockEntitySchema).forEach((entity) => {
+                Shopware.EntityDefinition.add(entity, mockEntitySchema[entity]);
+            });
+
             const spy = jest.spyOn(console, 'warn').mockImplementation();
 
             const spyRepository = jest.spyOn(handler.repositoryFactory, 'create').mockImplementation((entity) => {
@@ -622,6 +926,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
             });
 
             expect(await handler.buildBulkSyncPayload(input)).toEqual(output);
+
             spy.mockRestore();
 
             spyRepository.mockRestore();

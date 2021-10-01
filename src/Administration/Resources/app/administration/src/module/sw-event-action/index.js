@@ -2,8 +2,13 @@ import './page/sw-event-action-list';
 import './page/sw-event-action-detail';
 import './component/sw-event-action-list-expand-labels';
 import './component/sw-event-action-detail-recipients';
+import './component/sw-event-action-deprecated-modal';
+import './component/sw-event-action-deprecated-alert';
 import './acl';
 
+/**
+ * @major-deprecated (flag:FEATURE_NEXT_8225) - will be removed. Please use `sw-flow` - Flow builder instead.
+ */
 Shopware.Module.register('sw-event-action', {
     type: 'core',
     name: 'event-action',

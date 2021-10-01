@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Api\Controller;
 
 use OpenApi\Annotations as OA;
-use Shopware\Core\Framework\Adapter\Asset\LastModifiedVersionStrategy;
+use Shopware\Core\Content\Flow\Api\FlowActionCollector;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\EntitySchemaGenerator;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
@@ -62,12 +62,18 @@ class InfoController extends AbstractController
      */
     private $eventCollector;
 
+    /**
+     * @internal (flag:FEATURE_NEXT_8225)
+     */
+    private ?FlowActionCollector $flowActionCollector;
+
     public function __construct(
         DefinitionService $definitionService,
         ParameterBagInterface $params,
         Kernel $kernel,
         Packages $packages,
         BusinessEventCollector $eventCollector,
+        ?FlowActionCollector $flowActionCollector = null,
         bool $enableUrlFeature = true,
         array $cspTemplates = []
     ) {
@@ -76,6 +82,7 @@ class InfoController extends AbstractController
         $this->packages = $packages;
         $this->kernel = $kernel;
         $this->enableUrlFeature = $enableUrlFeature;
+        $this->flowActionCollector = $flowActionCollector;
         $this->cspTemplates = $cspTemplates;
         $this->eventCollector = $eventCollector;
     }
@@ -108,7 +115,7 @@ class InfoController extends AbstractController
         $apiType = $request->query->getAlpha('type', DefinitionService::TypeJsonApi);
         $data = $this->definitionService->generate(OpenApi3Generator::FORMAT, DefinitionService::API, $apiType);
 
-        return $this->json($data);
+        return new JsonResponse($data);
     }
 
     /**
@@ -119,7 +126,7 @@ class InfoController extends AbstractController
     {
         $data = $this->definitionService->getSchema(OpenApi3Generator::FORMAT, DefinitionService::API);
 
-        return $this->json($data);
+        return new JsonResponse($data);
     }
 
     /**
@@ -130,7 +137,7 @@ class InfoController extends AbstractController
     {
         $data = $this->definitionService->getSchema(EntitySchemaGenerator::FORMAT, DefinitionService::API);
 
-        return $this->json($data);
+        return new JsonResponse($data);
     }
 
     /**
@@ -190,7 +197,7 @@ class InfoController extends AbstractController
      */
     public function config(): JsonResponse
     {
-        return $this->json([
+        return new JsonResponse([
             'version' => $this->params->get('kernel.shopware_version'),
             'versionRevision' => $this->params->get('kernel.shopware_version_revision'),
             'adminWorker' => [
@@ -229,9 +236,26 @@ class InfoController extends AbstractController
      */
     public function infoShopwareVersion(): JsonResponse
     {
-        return $this->json([
+        return new JsonResponse([
             'version' => $this->params->get('kernel.shopware_version'),
         ]);
+    }
+
+    /**
+     * @Since("6.4.5.0")
+     * @Route("/api/_info/flow-actions.json", name="api.info.actions", methods={"GET"})
+     *
+     * @internal (flag:FEATURE_NEXT_8225)
+     */
+    public function flowActions(Context $context): JsonResponse
+    {
+        if (!$this->flowActionCollector) {
+            return $this->json([]);
+        }
+
+        $events = $this->flowActionCollector->collect($context);
+
+        return $this->json($events);
     }
 
     private function getBundles(): array
@@ -280,9 +304,7 @@ class InfoController extends AbstractController
             return [];
         }
 
-        $strategy = new LastModifiedVersionStrategy($bundlePath);
-
-        return [$strategy->applyVersion($path)];
+        return [$path];
     }
 
     private function getAdministrationScripts(Bundle $bundle): array
@@ -294,8 +316,6 @@ class InfoController extends AbstractController
             return [];
         }
 
-        $strategy = new LastModifiedVersionStrategy($bundlePath);
-
-        return [$strategy->applyVersion($path)];
+        return [$path];
     }
 }

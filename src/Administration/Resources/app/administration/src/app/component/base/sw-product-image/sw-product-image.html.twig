@@ -10,8 +10,9 @@
             :source="mediaId"
             :hide-tooltip="false"
         />
+
         <sw-label
-            v-if="isCover"
+            v-if="showCoverLabel && isCover"
             class="sw-product-image__cover-label"
             variant="primary"
             size="medium"
@@ -24,7 +25,7 @@
             {% block sw_product_image_context %}
             {% block sw_product_image_context_cover_action %}
             <sw-context-menu-item
-                v-if="!isCover"
+                v-if="showCoverLabel && !isCover"
                 @click="$emit('sw-product-image-cover')"
             >
                 {{ $tc('global.sw-product-image.context.buttonAsCover') }}

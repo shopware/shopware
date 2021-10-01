@@ -9,6 +9,7 @@
       "CONTENT__INVALID_CATEGORY_TYPE_AS_ENTRY_POINT": "Dieser Typ kann nicht gewählt werden, während die Kategorie als Einstiegspunkt festgelegt ist.",
       "SHOPWARE_INVALID_IP": "Bitte gib eine gültige IP-Adresse ein.",
       "INVALID_URL": "Bitte gib eine gültige URL ein.",
+      "INVALID_MAIL": "Bitte gib eine gültige E-Mail-Adresse ein.",
       "FRAMEWORK__RATE_LIMIT_EXCEEDED": "Zu viele Anfragen. Bitte warten Sie {seconds} Sekunden, bevor Sie es erneut versuchen.",
       "DUPLICATED_URL": "Diese URL wird bereits genutzt. Bitte wähle eine andere Domain."
     },
@@ -206,7 +207,9 @@
       "labelSettingsCompactMode": "Kompaktmodus verwenden",
       "labelSettingsPreviewImages": "Vorschaubilder anzeigen",
       "labelColumnHide": "Spalte ausblenden",
-      "labelSelectionCount": "Ausgewählt:"
+      "labelSelectionCount": "Ausgewählt:",
+      "labelDeSelectAll": "Alle abwählen",
+      "maximumSelectionExceed": "Maximale Anzahl Artikel ausgewählt"
     },
     "sw-pagination": {
       "labelItemsPerPage": "Einträge pro Seite:"
@@ -216,6 +219,10 @@
     },
     "sw-text-preview": {
       "showMoreButton": "Mehr zeigen"
+    },
+    "sw-time-ago": {
+      "justNow": "Gerade eben",
+      "minutesAgo": "Vor einer Minute | Vor {minutesAgo} Minuten"
     },
     "sw-media-field": {
       "labelToggleSearchExisting": "Medien durchsuchen ...",
@@ -480,11 +487,11 @@
       "messageNoResults": "Es wurden keine Ergebnisse für \"{term}\" gefunden."
     },
     "sw-multi-tag-select": {
-      "enterValidData": "Bitte gib einen gültigen Wert ein",
+      "enterValidData": "Gültigen Wert eingeben ...",
       "addData": "Eintrag hinzufügen"
     },
     "sw-multi-tag-ip-select": {
-      "enterValidIp": "Bitte gib eine gültige IPv4- oder IPv6-Adresse ein",
+      "enterValidIp": "Gültige IPv4- oder IPv6-Adresse eingeben ...",
       "addIpAddress": "IP-Adresse hinzufügen",
       "knownIps": {
         "you": "Du"
@@ -502,11 +509,13 @@
       "placeholderSearchField": "Finde Produkte, Kunden, Bestellungen ...",
       "placeholderTypeSearchField": "Alle {entity} durchsuchen ...",
       "placeholderShortcutInfo": "Tipp: Über die \"f\"-Taste, kannst Du die Suche schneller öffnen.",
-      "placeholderSearchShortcutInfo": "Tipp: Über die <span>f</span>-Taste, kannst Du die Suche schneller öffnen.",
+      "placeholderSearchShortcutInfo": "Drücke <span>f</span>, um die Suche zu öffnen.",
       "moduleFiltersHeadline": "Modulfilter",
-      "placeholderFilterShortcutInfo": "Type <span>#</span> in the search to quickly set a module filter.",
+      "placeholderFilterShortcutInfo": "Gib <span>#</span> in die Suche ein, um Modulfilter festzulegen.",
       "searchTypeAll": "Alle",
-      "moduleFilter": "Modulfilter"
+      "moduleFilter": "Modulfilter",
+      "messageNoResultsV2": "Wir haben keine genauen Übereinstimmungen für \"{term}\" gefunden.",
+      "messageNoResultsDetailV2": "Versuche es mit anderen Schlüsselwörtern oder überprüfe die Suchbegriffe nach Tippfehlern."
     },
     "sw-search-bar-item": {
       "typeLabelCustomer": "Kunde",
@@ -514,7 +523,30 @@
       "typeLabelOrder": "Bestellung",
       "typeLabelMedia": "Medium",
       "typeLabelCategory": "Kategorie",
-      "typeLabelCms": "CMS"
+      "typeLabelCms": "CMS",
+      "typeLabelModule": "Modul",
+      "typeLabelAction": "Aktion",
+      "addNewEntity": "Neue {entity} hinzufügen",
+      "shortcuts": {
+        "product": "G P | A P",
+        "category": "G C | ",
+        "customers": "G U | A U",
+        "property": "G P R | A P R",
+        "manufacturer": "G M | A M",
+        "settings-rule": "G S R | A R",
+        "sales-channel": " | A S",
+        "cms": "G E | A E",
+        "dashboard": "G H | ",
+        "product-stream": "G D | ",
+        "order": "G O | ",
+        "media": "G M E | ",
+        "promotion-v2": "G P O | ",
+        "settings": "G S | ",
+        "newsletter-recipient": "G N | ",
+        "settings-snippet": "G S | ",
+        "settings-payment": "G S P | ",
+        "settings-shipping": "G S S | "
+      }
     },
     "sw-search-more-results": {
       "labelShowResultsInModule": "Ergebnisse im Modul anzeigen ({count})",
@@ -548,6 +580,7 @@
         "orderCountRule": "Anzahl Bestellungen",
         "salesChannelRule": "Verkaufskanal",
         "currencyRule": "Währung",
+        "languageRule": "Sprache",
         "billingCountryRule": "Rechnungsland",
         "billingStreetRule": "Rechnungsstraße",
         "billingZipCodeRule": "Rechnungsadresse-PLZ",
@@ -555,6 +588,10 @@
         "customerTagRule": "Kunden Tag",
         "customerNumberRule": "Kundennummer",
         "differentAddressesRule": "Abweichende Adressen",
+        "emailRule": {
+          "label": "E-Mail-Adresse des Kunden",
+          "placeholder": "Eindeutige E-Mail-Adresse eingeben, oder \"*\" als Platzhalterzeichen verwenden ..."
+        },
         "isNewCustomerRule": "Neuer Kunde",
         "lastNameRule": "Nachname",
         "isCompanyRule": "Firmenkunde",
@@ -599,6 +636,7 @@
         "hasDeliveryFreeItemRule": "Versandkostenfrei",
         "timeRangeRule": "Zeitraum",
         "weightOfCartRule": "Warenkorb Gewicht",
+        "volumeOfCartRule": "Warenkorb Volumen",
         "dayOfWeekRule": "Wochentag",
         "lineItemTagRule": "Positionen mit Tag",
         "alwaysValidRule": "Immer zutreffend",
@@ -613,12 +651,15 @@
         "lineItemClearanceSale": "Positionen mit Abverkauf",
         "lineItemPromotedRule": "Hervorgehobene Positionen",
         "lineItemInCategoryRule": "Positionen in Kategorie",
+        "lineItemInProductStreamRule": "Positionen in dynamischer Produktgruppe",
         "lineItemTaxationRule": "Positionen mit Steuersatz",
         "lineItemDimensionWidthRule": "Positionen mit Breite",
         "lineItemDimensionHeightRule": "Positionen mit Höhe",
         "lineItemDimensionLengthRule": "Positionen mit Länge",
         "lineItemDimensionWeightRule": "Positionen mit Gewicht",
+        "lineItemDimensionVolumeRule": "Positionen mit Volumen",
         "lineItemListPriceRule": "Positionen mit Streichpreis",
+        "lineItemStockRule": "Positionen mit verfügbarem Bestand",
         "paymentMethodRule": "Zahlungsart",
         "shippingMethodRule": "Versandart",
         "lineItemGoodsTotalRule": "Gesamtanzahl Produkte im Warenkorb",
@@ -632,7 +673,8 @@
               "placeholder": "Zusatzfeld wählen..."
             }
           }
-        }
+        },
+        "customerCustomFieldRule": "Kunde mit Zusatzfeld"
       }
     },
     "sw-product-image": {
@@ -661,6 +703,7 @@
       "customer": "Kunde | Kunden",
       "customer_address": "Adresse | Adressen",
       "customer_group": "Kundengruppe | Kundengruppen",
+      "extension": "Erweiterung | Erweiterungen",
       "integration": "Integration | Integrationen",
       "language": "Sprache | Sprachen",
       "mail_header_footer": "Header & Footer",
@@ -712,7 +755,12 @@
       "feature_set": "Template | Templates",
       "event_action": "Business-Events",
       "property_group": "Eigenschaftsgruppe | Eigenschaftsgruppen",
-      "document_base_config": "Dokumenten-Grundeinstellung | Dokumenten-Grundeinstellungen"
+      "document_base_config": "Dokumenten-Grundeinstellung | Dokumenten-Grundeinstellungen",
+      "product_feature_set": "Neues Template | Neue Templates",
+      "custom-field-set": "Zusatzfeld-Set",
+      "store_settings": "Produkt-Sortierung",
+      "flow": "Flow Builder",
+      "module": "Modul"
     },
     "day-of-week": {
       "monday": "Montag",
@@ -799,9 +847,9 @@
       "Reduced rate 2": "Stark ermäßigter Satz"
     },
     "sw-bulk-edit-modal": {
-      "bulkEdit": "Mehrfach-Bearbeitung",
-      "startBulkEdit": "Beginne die Mehrfach-Bearbeitung",
-      "bulkEditModalTitle": "Mehrfach-Bearbeitung - {count} Element ausgewählt | Mehrfach-Bearbeitung - {count} Elemente ausgewählt"
+      "bulkEdit": "Mehrfachänderung",
+      "startBulkEdit": "Mehrfachänderung starten",
+      "bulkEditModalTitle": "Mehrfachänderung - {count} Elemente ausgewählt | Mehrfachänderung - {count} Elemente ausgewählt"
     }
   },
   "sw-text-editor-toolbar": {

@@ -49,4 +49,13 @@
     &.has--error {
         margin-bottom: 12px;
     }
+
+    &__hint {
+        margin-top: 4px;
+        font-size: $font-size-extra-small;
+        color: $color-gray-500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
 }

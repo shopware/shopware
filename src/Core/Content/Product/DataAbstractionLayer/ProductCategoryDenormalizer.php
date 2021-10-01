@@ -3,12 +3,11 @@
 namespace Shopware\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DBALException;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
-use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 class ProductCategoryDenormalizer
@@ -36,14 +35,7 @@ class ProductCategoryDenormalizer
         $versionId = Uuid::fromHexToBytes($context->getVersionId());
         $liveVersionId = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
 
-        $update = new RetryableQuery(
-            $this->connection->prepare('UPDATE product SET category_tree = :tree WHERE id = :id AND version_id = :version')
-        );
-
-        $delete = new RetryableQuery(
-            $this->connection->prepare('DELETE FROM `product_category_tree` WHERE `product_id` = :id AND `product_version_id` = :version')
-        );
-
+        $changeSets = [];
         $inserts = [];
         foreach ($categories as $productId => $mapping) {
             $productId = Uuid::fromHexToBytes($productId);
@@ -55,11 +47,14 @@ class ProductCategoryDenormalizer
                 $json = json_encode($categoryIds);
             }
 
-            $params = ['id' => $productId, 'tree' => $json, 'version' => $versionId];
-
-            $update->execute($params);
-
-            $delete->execute(['id' => $productId, 'version' => $versionId]);
+            $changeSets[] = [
+                'type' => 'update',
+                'params' => ['id' => $productId, 'tree' => $json, 'version' => $versionId],
+            ];
+            $changeSets[] = [
+                'type' => 'delete',
+                'params' => ['id' => $productId, 'version' => $versionId],
+            ];
 
             if (empty($categoryIds)) {
                 continue;
@@ -75,7 +70,21 @@ class ProductCategoryDenormalizer
             }
         }
 
-        $this->insertTree($inserts);
+        RetryableTransaction::retryable($this->connection, function () use ($changeSets, $inserts): void {
+            $update = $this->connection->prepare('UPDATE product SET category_tree = :tree WHERE id = :id AND version_id = :version');
+            $delete = $this->connection->prepare('DELETE FROM `product_category_tree` WHERE `product_id` = :id AND `product_version_id` = :version');
+            foreach ($changeSets as $changeSet) {
+                if ($changeSet['type'] === 'update') {
+                    $update->execute($changeSet['params']);
+                } elseif ($changeSet['type'] === 'delete') {
+                    $delete->execute($changeSet['params']);
+                } else {
+                    throw new \LogicException('only "update" and "delete" are allowed as changeSet types');
+                }
+            }
+
+            $this->insertTree($inserts);
+        });
     }
 
     private function insertTree(array $inserts): void
@@ -84,26 +93,11 @@ class ProductCategoryDenormalizer
             return;
         }
 
-        try {
-            $queue = new MultiInsertQueryQueue($this->connection, 250);
-            foreach ($inserts as $insert) {
-                $queue->addInsert('product_category_tree', $insert);
-            }
-            $queue->execute();
-        } catch (DBALException $e) {
-            $query = new RetryableQuery(
-                $this->connection->prepare('
-                    INSERT IGNORE INTO product_category_tree
-                        (`product_id`, `product_version_id`, `category_id`, `category_version_id`)
-                    VALUES
-                        (:product_id, :product_version_id, :category_id, :category_version_id)
-                ')
-            );
-
-            foreach ($inserts as $insert) {
-                $query->execute($insert);
-            }
+        $queue = new MultiInsertQueryQueue($this->connection, 250, true);
+        foreach ($inserts as $insert) {
+            $queue->addInsert('product_category_tree', $insert);
         }
+        $queue->execute();
     }
 
     private function fetchMapping(array $ids, Context $context): array

@@ -12,12 +12,12 @@ Component.register('sw-empty-state', {
     props: {
         title: {
             type: String,
-            default: '',
+            default: null,
             required: true,
         },
         subline: {
             type: String,
-            default: '',
+            default: null,
             required: false,
         },
         showDescription: {
@@ -27,12 +27,12 @@ Component.register('sw-empty-state', {
         },
         color: {
             type: String,
-            default: '',
+            default: null,
             required: false,
         },
         icon: {
             type: String,
-            default: '',
+            default: null,
             required: false,
         },
         absolute: {
@@ -45,19 +45,24 @@ Component.register('sw-empty-state', {
             default: false,
             required: false,
         },
+        autoHeight: {
+            type: Boolean,
+            default: false,
+            required: false,
+        },
     },
 
     computed: {
         moduleColor() {
-            return this.color || this.$route.meta.$module.color;
+            return this.color ?? this.$route.meta.$module.color;
         },
 
         moduleDescription() {
-            return this.subline || this.$tc(this.$route.meta.$module.description);
+            return this.subline ?? this.$tc(this.$route.meta.$module.description);
         },
 
         moduleIcon() {
-            return this.icon || this.$route.meta.$module.icon;
+            return this.icon ?? this.$route.meta.$module.icon;
         },
 
         hasActionSlot() {
@@ -68,6 +73,7 @@ Component.register('sw-empty-state', {
             return {
                 'sw-empty-state--absolute': this.absolute,
                 'sw-empty-state--empty-module': this.emptyModule,
+                'sw-empty-state--auto-height': this.autoHeight,
             };
         },
     },

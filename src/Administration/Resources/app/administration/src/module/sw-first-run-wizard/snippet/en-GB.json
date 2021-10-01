@@ -122,6 +122,9 @@
           "description": "Shopware Markets enables you to connect your Shop to the Amazon and eBay marketplaces - while making the transfer of products and orders as convenient as possible.<br>Shopware Markets was designed to even further grow your business with the help of Sales Channels*¹.",
           "footnote": "*¹ A paid subscription is required to use Shopware Markets added Sales Channels."
         },
+        "defaults": {
+            "modalTitle": "Setup default values"
+        },
         "finish": {
             "headlineAllDone": "All done!",
             "message": "Your Shopware 6 {edition} is now verified.",
@@ -143,7 +146,8 @@
             "plugins": "Extensions",
             "shopware": "Shopware Account",
             "store": "Shopware Store",
-            "markets": "Shopware Markets"
+            "markets": "Shopware Markets",
+            "defaults": "Default values"
         }
     },
     "sw-privileges": {

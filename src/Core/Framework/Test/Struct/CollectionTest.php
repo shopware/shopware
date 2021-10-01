@@ -212,6 +212,17 @@ class CollectionTest extends TestCase
 
         static::assertEquals('b', $collection->last());
     }
+
+    public function testGetAt(): void
+    {
+        $collection = new TestCollection();
+        static::assertFalse($collection->has(0));
+
+        $collection->add('a');
+        $collection->add('b');
+        static::assertEquals('a', $collection->getAt(0));
+        static::assertEquals('b', $collection->getAt(1));
+    }
 }
 
 class TestCollection extends Collection

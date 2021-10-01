@@ -158,6 +158,15 @@ class Record implements \JsonSerializable
             $this->attributes[$key] = $data[$key] ?? null;
         }
 
+        // Force customFields to be an object when it's empty
+        if (isset($this->attributes['customFields']) && $this->attributes['customFields'] === []) {
+            $this->attributes['customFields'] = new \stdClass();
+        }
+
+        if (isset($this->attributes['translated']['customFields']) && $this->attributes['translated']['customFields'] === []) {
+            $this->attributes['translated']['customFields'] = new \stdClass();
+        }
+
         if ($entity->hasExtension('foreignKeys')) {
             $extension = $entity->getExtension('foreignKeys')
                 ->jsonSerialize();

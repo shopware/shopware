@@ -15,6 +15,7 @@ use Shopware\Core\System\Language\SalesChannel\CachedLanguageRoute;
 use Shopware\Core\System\Language\SalesChannel\LanguageRoute;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -35,7 +36,7 @@ class CachedLanguageRouteTest extends TestCase
     ];
 
     private const ASSIGNED = [
-        'salesChannels' => [['id' => Defaults::SALES_CHANNEL]],
+        'salesChannels' => [['id' => TestDefaults::SALES_CHANNEL]],
     ];
 
     private SalesChannelContext $context;
@@ -45,7 +46,7 @@ class CachedLanguageRouteTest extends TestCase
         parent::setUp();
 
         $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)
-            ->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 
     /**

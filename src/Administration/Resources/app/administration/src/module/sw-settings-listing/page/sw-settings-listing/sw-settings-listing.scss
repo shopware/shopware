@@ -1,40 +1,12 @@
 @import "~scss/mixins";
-@import "~scss/variables";
 
 .sw-settings-listing-index {
     &__sorting-options-card div.sw-card__content {
         padding: 0;
     }
 
-    .sw-settings-listing-index__product-presentation-select-field {
-        margin-bottom: 0;
-    }
-
     .sw-settings-listing-index__sorting-options-empty-state {
         position: static;
-    }
-
-    &__default-sales-channel-description {
-        font-size: 14px;
-        margin-bottom: 25px;
-    }
-
-    &__default-sales-channel-card .sw-field--switch {
-        margin: 0;
-    }
-
-    .sw-card__quick-link {
-        display: flex;
-        justify-content: flex-end;
-        cursor: pointer;
-    }
-
-    &__visibility-modal {
-        font-size: $font-size-small;
-    }
-
-    &__visibility-modal .sw-grid .sw-grid__header .sw-grid-column {
-        font-size: $font-size-small;
     }
 
     .sw-data-grid__cell-content span.is--truncate {

@@ -28,7 +28,7 @@ describe('Wishlist: for wishlist', () => {
                 headers: {
                     Authorization: `Bearer ${result.access}`
                 },
-                method: 'post',
+                method: 'POST',
                 url: `api/_action/system-config/batch`,
                 body: {
                     null: {
@@ -181,10 +181,11 @@ describe('Wishlist: for wishlist', () => {
 
         cy.visit('/');
 
-        cy.server();
-        cy.route({
+        cy.onlyOnFeature('FEATURE_NEXT_10549');
+
+        cy.intercept({
+            method: 'POST',
             url: '/wishlist/guest-pagelet',
-            method: 'post'
         }).as('guestPagelet');
 
         let heartIcon = cy.get(`.product-wishlist-${product.id}`).first();
@@ -202,12 +203,11 @@ describe('Wishlist: for wishlist', () => {
         cy.visit('/wishlist');
         cy.title().should('eq', 'Your wishlist');
 
-        cy.wait('@guestPagelet').then(xhr => {
-            expect(xhr).to.have.property('status', 200);
+        cy.wait('@guestPagelet')
+            .its('response.statusCode').should('equal', 200);
 
-            cy.get('.cms-listing-col').eq(0).contains('Test product 2');
-            cy.get('.cms-listing-col').eq(1).contains(product.name);
-        });
+        cy.get('.cms-listing-col').eq(0).contains('Test product 2');
+        cy.get('.cms-listing-col').eq(1).contains(product.name);
     });
 
     it('@wishlist: Heart icon badge display on product box in product listing pagination', () => {

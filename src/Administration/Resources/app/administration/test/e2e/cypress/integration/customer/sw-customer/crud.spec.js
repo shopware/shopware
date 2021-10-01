@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import CustomerPageObject from '../../../support/pages/module/sw-customer.page-object';
 
@@ -38,10 +38,10 @@ describe('Customer: Test crud operations', () => {
     it('@base @customer: create customer', () => {
         const page = new CustomerPageObject();
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/customer`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Fill in basic data
@@ -54,14 +54,12 @@ describe('Customer: Test crud operations', () => {
         cy.get('input[name=sw-field--customer-lastName]').type(customer.lastName);
         cy.get(page.elements.customerMailInput).type('tester@example.com');
 
-        cy.window().then((win) => {
-            // check vat id field not exists in customer address form
-            cy.get('.sw-customer-address-form input#vatId').should('not.be.visible');
+        // check vat id field not exists in customer address form
+        cy.get('.sw-customer-address-form input#vatId').should('not.exist');
 
-            // check vat id field exists in customer base form and type
-            cy.get('.sw-customer-base-form input#vatId').should('be.visible');
-            cy.get('.sw-customer-base-form input#vatId').type(customer.vatId);
-        });
+        // check vat id field exists in customer base form and type
+        cy.get('.sw-customer-base-form input#vatId').should('be.visible');
+        cy.get('.sw-customer-base-form input#vatId').type(customer.vatId);
 
         cy.get('.sw-customer-base-form__customer-group-select')
             .typeSingleSelectAndCheck('Standard customer group', '.sw-customer-base-form__customer-group-select');
@@ -79,9 +77,7 @@ describe('Customer: Test crud operations', () => {
         cy.get(page.elements.customerSaveAction).click();
 
         // Verify new customer in detail
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(`${page.elements.customerMetaData}-customer-name`)
             .contains(`${customer.firstName} ${customer.lastName}`);
@@ -107,10 +103,10 @@ describe('Customer: Test crud operations', () => {
         const page = new CustomerPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/customer/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         // Open customer
@@ -125,19 +121,14 @@ describe('Customer: Test crud operations', () => {
         cy.get('#sw-field--customer-firstName').clear().type('Ronald');
         cy.get('#sw-field--customer-lastName').clear().type('Weasley');
 
-        cy.window().then((win) => {
-
-            // check vat id field exists in customer base form and type
-            cy.get('.sw-customer-card__metadata input#vatId').should('be.visible');
-            cy.get('.sw-customer-card__metadata input#vatId').type('TEST-VAT-ID-02');
-        });
+        // check vat id field exists in customer base form and type
+        cy.get('.sw-customer-card__metadata input#vatId').should('be.visible');
+        cy.get('.sw-customer-card__metadata input#vatId').type('TEST-VAT-ID-02');
 
         cy.get(page.elements.customerSaveAction).click();
 
         // Verify updated customer
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
         cy.get(page.elements.smartBarBack).click();
         cy.get('.sw-data-grid__cell--firstName').contains('Weasley, Ronald');
     });
@@ -146,8 +137,8 @@ describe('Customer: Test crud operations', () => {
         const page = new CustomerPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/customer/*`,
             method: 'delete'
         }).as('deleteData');
@@ -163,9 +154,7 @@ describe('Customer: Test crud operations', () => {
         cy.get(`${page.elements.modal}__footer ${page.elements.dangerButton}`).click();
 
         // Verify updated customer
-        cy.wait('@deleteData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteData').its('response.statusCode').should('equal', 204);
         cy.get(page.elements.emptyState).should('be.visible');
         cy.get(page.elements.smartBarAmount).contains('(0)');
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Pep Eroni');

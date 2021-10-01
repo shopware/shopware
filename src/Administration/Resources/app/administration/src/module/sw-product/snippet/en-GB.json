@@ -2,7 +2,7 @@
   "sw-product": {
     "visibility": {
       "textHeadline": "Product display modes per Sales Channel",
-      "placeholderVisibility": "Select Sales Channel...",
+      "placeholderVisibility": "Select Sales Channels...",
       "columnAll": "Visible",
       "columnSearchOnly": "Hide in Listings",
       "columnLinkOnly": "Hide in Listings and search",

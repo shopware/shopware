@@ -1,9 +1,10 @@
 @import "~scss/variables";
 
-$sw-order-state-card-neutral: $color-darkgray-200;
+$sw-order-state-card-neutral: $color-gray-700;
 $sw-order-state-card-progress: $color-shopware-brand-500;
 $sw-order-state-card-danger: $color-crimson-500;
 $sw-order-state-card-success: $color-emerald-500;
+$sw-order-state-card-warning: $color-pumpkin-spice-500;
 
 .sw-order-state-card-entry {
     .sw-order-state-card__history-entry {
@@ -34,6 +35,10 @@ $sw-order-state-card-success: $color-emerald-500;
             background: lighten($sw-order-state-card-danger, 42%);
         }
 
+        .sw-order-state__warning-icon-bg {
+            background: lighten($sw-order-state-card-warning, 42%);
+        }
+
         .sw-order-state__success-icon-bg {
             background: lighten($sw-order-state-card-success, 40%);
         }
@@ -44,6 +49,10 @@ $sw-order-state-card-success: $color-emerald-500;
 
         .sw-order-state__progress-icon {
             color: $sw-order-state-card-progress;
+        }
+
+        .sw-order-state__warning-icon {
+            color: $sw-order-state-card-warning;
         }
 
         .sw-order-state__danger-icon {

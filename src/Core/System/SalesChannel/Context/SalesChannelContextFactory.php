@@ -20,6 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -37,80 +38,38 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $salesChannelRepository;
+    private EntityRepositoryInterface $salesChannelRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $currencyRepository;
+    private EntityRepositoryInterface $currencyRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $customerRepository;
+    private EntityRepositoryInterface $customerRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $customerGroupRepository;
+    private EntityRepositoryInterface $customerGroupRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $countryRepository;
+    private EntityRepositoryInterface $countryRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $taxRepository;
+    private EntityRepositoryInterface $taxRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $addressRepository;
+    private EntityRepositoryInterface $addressRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $paymentMethodRepository;
+    private EntityRepositoryInterface $paymentMethodRepository;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $shippingMethodRepository;
+    private EntityRepositoryInterface $shippingMethodRepository;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $countryStateRepository;
+    private EntityRepositoryInterface $countryStateRepository;
 
-    /**
-     * @var TaxDetector
-     */
-    private $taxDetector;
+    private TaxDetector $taxDetector;
 
     /**
      * @var iterable|TaxRuleTypeFilterInterface[]
      */
     private $taxRuleTypeFilter;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $currencyCountryRepository;
+    private EntityRepositoryInterface $currencyCountryRepository;
 
     public function __construct(
         EntityRepositoryInterface $salesChannelRepository,
@@ -168,9 +127,14 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             throw new \RuntimeException(sprintf('Sales channel with id %s not found or not valid!', $salesChannelId));
         }
 
-        //load active language, fallback to shop language
-        if (\array_key_exists(SalesChannelContextService::LANGUAGE_ID, $options)) {
-            $salesChannel->setLanguageId($options[SalesChannelContextService::LANGUAGE_ID]);
+        if (!Feature::isActive('FEATURE_NEXT_17276')) {
+            /*
+             * @deprecated tag:v6.5.0 - Overriding the languageId of the SalesChannel is deprecated and will be removed in v6.5.0
+             * use `$salesChannelContext->getLanguageId()` instead
+             */
+            if (\array_key_exists(SalesChannelContextService::LANGUAGE_ID, $options)) {
+                $salesChannel->setLanguageId($options[SalesChannelContextService::LANGUAGE_ID]);
+            }
         }
 
         //load active currency, fallback to shop currency
@@ -203,6 +167,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         }
 
         $groupId = $salesChannel->getCustomerGroupId();
+        /** @deprecated tag:v6.5.0 - Fallback customer group is deprecated and will be removed */
         $groupIds = [$salesChannel->getCustomerGroupId(), Defaults::FALLBACK_CUSTOMER_GROUP];
 
         if ($customer) {
@@ -212,12 +177,13 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 
         $groupIds = array_keys(array_flip($groupIds));
 
-        //fallback customer group is hard coded to 'EK'
         $criteria = new Criteria($groupIds);
         $criteria->setTitle('context-factory::customer-group');
 
         $customerGroups = $this->customerGroupRepository->search($criteria, $context);
-        $fallbackGroup = $customerGroups->get(Defaults::FALLBACK_CUSTOMER_GROUP);
+
+        /** @deprecated tag:v6.5.0 - Fallback customer group is deprecated and will be removed */
+        $fallbackGroup = $customerGroups->has(Defaults::FALLBACK_CUSTOMER_GROUP) ? $customerGroups->get(Defaults::FALLBACK_CUSTOMER_GROUP) : $customerGroups->get($salesChannel->getCustomerGroupId());
         $customerGroup = $customerGroups->get($groupId);
 
         //loads tax rules based on active customer and delivery address
@@ -280,7 +246,6 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         $criteria = new Criteria();
         $criteria->setTitle('context-factory::taxes');
         $criteria->addAssociation('rules.type');
-        $criteria->addExtension('test', new Criteria());
 
         $taxes = $this->taxRepository->search($criteria, $context)->getEntities();
 

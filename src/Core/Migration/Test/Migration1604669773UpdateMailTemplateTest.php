@@ -25,7 +25,8 @@ Phone: {{ contactFormData.phone }}
 
 Subject: {{ contactFormData.subject }}
 
-Message: {{ contactFormData.comment }}
+Message:
+{{ contactFormData.comment }}
 EOF;
 
     private const PLAIN_DE = <<<'EOF'
@@ -38,7 +39,8 @@ Telefonnummer: {{ contactFormData.phone }}
 
 Betreff: {{ contactFormData.subject }}
 
-Nachricht: {{ contactFormData.comment }}
+Nachricht:
+{{ contactFormData.comment }}
 EOF;
 
     private const HTML_EN = <<<'EOF'
@@ -54,7 +56,8 @@ EOF;
         <br/>
         Subject: {{ contactFormData.subject }}<br/>
         <br/>
-        Message: {{ contactFormData.comment }}<br/>
+        Message:<br/>
+        {{ contactFormData.comment|nl2br }}<br/>
     </p>
 </div>
 EOF;
@@ -72,7 +75,8 @@ EOF;
         <br/>
         Betreff: {{ contactFormData.subject }}<br/>
         <br/>
-        Message: {{ contactFormData.comment }}<br/>
+        Message:<br/>
+        {{ contactFormData.comment|nl2br }}<br/>
     </p>
 </div>
 EOF;

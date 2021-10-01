@@ -1,2 +1,174 @@
 {% block sw_flow_trigger %}
+<div
+    class="sw-flow-trigger"
+    :class="swFlowTriggerClasses"
+>
+    {% block sw_flow_trigger_select_field %}
+    <div class="sw-flow-trigger__select-toolbar">
+        <sw-contextual-field
+            v-tooltip="{
+                message: getBreadcrumb(eventName),
+                disabled: !eventName,
+            }"
+            class="sw-flow-trigger__search-field"
+            required
+            :label="$tc('sw-flow.detail.trigger.name')"
+            :disabled="disabled"
+            :error="flowEventNameError"
+        >
+            <template #sw-field-input="{ identification, disabled, error, size, setFocusClass, removeFocusClass }">
+                <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
+                <input
+                    ref="searchInput"
+                    v-model="searchTerm"
+                    type="text"
+                    class="sw-flow-trigger__input-field"
+                    :placeholder="$tc('sw-flow.detail.trigger.placeholder')"
+                    :disabled="disabled"
+                    @focus="openDropdown({ setFocusClass, removeFocusClass });"
+                >
+
+                {% block sw_flow_trigger_loader %}
+                <sw-loader
+                    v-if="isLoading"
+                    class="sw-flow-trigger__loader"
+                    size="16px"
+                />
+                {% endblock %}
+            </template>
+        </sw-contextual-field>
+    </div>
+    {% endblock %}
+
+    {% block sw_flow_trigger_select_transition %}
+    <transition name="sw-flow-trigger__fade-down">
+        {% block sw_flow_trigger_event_selection %}
+        <div
+            v-if="isExpanded"
+            class="sw-flow-trigger__event-selection"
+        >
+
+            {% block sw_flow_trigger_container %}
+            <sw-container class="sw-flow-trigger__event-container">
+
+                {% block sw_flow_trigger_select_tree %}
+                <sw-tree
+                    v-if="showTreeView"
+                    ref="flowTriggerTree"
+                    :active-tree-item-id="eventName"
+                    route-params-active-element-id="eventName"
+                    :sortable="false"
+                    :items="eventTree"
+                    :searchable="false"
+                    :disable-context-menu="true"
+                    :on-change-route="changeTrigger"
+                    bind-items-to-folder
+                >
+
+                    {% block sw_flow_trigger_tree_headline %}
+                    <template #headline>
+                        <span></span>
+                    </template>
+                    {% endblock %}
+
+                    {% block sw_flow_trigger_tree_search %}
+                    <template #search>
+                        <span></span>
+                    </template>
+                    {% endblock %}
+
+                    <template
+                        #items="{
+                            treeItems,
+                            sortable,
+                            disableContextMenu,
+                            onChangeRoute,
+                            newElementId,
+                            checkItem
+                        }"
+                    >
+                        <sw-tree-item
+                            v-for="item in treeItems"
+                            :key="item.id"
+                            should-focus
+                            :active-focus-id="selectedTreeItem.id"
+                            :sortable="sortable"
+                            :item="item"
+                            :on-change-route="onChangeRoute"
+                            :display-checkbox="false"
+                            @check-item="checkItem"
+                        >
+
+                            {% block sw_flow_trigger_tree_item_actions %}
+                            <template #actions>
+                                <span></span>
+                            </template>
+                            {% endblock %}
+                        </sw-tree-item>
+                    </template>
+                </sw-tree>
+                {% endblock %}
+
+                {% block sw_flow_trigger_search_list %}
+                <ul
+                    v-else-if="searchResult.length > 0 && searchTerm.length > 0"
+                    class="sw-flow-trigger__search-results"
+                >
+                    {% block sw_flow_trigger_search_list_item %}
+                    <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+                    <li
+                        v-for="item in searchResult"
+                        :key="item.id"
+                        class="sw-flow-trigger__search-result"
+                        :class="{ 'is--focus': isSearchResultInFocus(item)}"
+                        @click="onClickSearchItem(item)"
+                    >
+                        {% block sw_flow_trigger_search_list_item_icon %}
+                        <div class="sw-flow-trigger__search-result-icon">
+                            <sw-icon
+                                name="small-default-circle-small"
+                                size="18"
+                            />
+                        </div>
+                        {% endblock %}
+
+                        {% block sw_flow_trigger_search_list_item_name %}
+                        <span class="sw-flow-trigger__search-result-name">
+                            {% block sw_flow_trigger_search_list_item_name_highlight %}
+                            <sw-highlight-text
+                                :search-term="searchTerm"
+                                :text="getBreadcrumb(item.name)"
+                            />
+                            {% endblock %}
+                        </span>
+                        {% endblock %}
+                    </li>
+                    {% endblock %}
+                </ul>
+                {% endblock %}
+
+                {% block sw_flow_trigger_search_empty %}
+                <p
+                    v-else
+                    class="sw-flow-trigger__empty"
+                >
+                    {{ $tc('sw-flow.detail.trigger.textNoEvent') }}
+                </p>
+                {% endblock %}
+
+            </sw-container>
+        {% endblock %}
+        </div>
+        {% endblock %}
+    </transition>
+    {% endblock %}
+
+    {% block sw_flow_event_change_confirm_modal %}
+    <sw-flow-event-change-confirm-modal
+        v-if="showConfirmModal"
+        @modal-confirm="onConfirm"
+        @modal-close="onCloseConfirm"
+    />
+    {% endblock %}
+</div>
 {% endblock %}

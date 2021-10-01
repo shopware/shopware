@@ -66,6 +66,7 @@
                 sort-by="code"
                 sort-direction="ASC"
                 @selection-change="onSelectionChange"
+                @items-delete-finish="$emit('delete-finish')"
             >
 
                 {% block sw_promotion_v2_individual_codes_behavior_grid_redeemed %}

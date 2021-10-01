@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Api\Controller;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Administration\Service\AdminOrderCartService;
+use Shopware\Core\Checkout\Cart\ApiOrderCartService;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Processor;
 use Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartOrderRoute;
@@ -65,65 +65,29 @@ class SalesChannelProxyController extends AbstractController
         ProductCartProcessor::ALLOW_PRODUCT_PRICE_OVERWRITES => true,
     ];
 
-    /**
-     * @var DataValidator
-     */
-    protected $validator;
+    protected DataValidator $validator;
 
-    /**
-     * @var SalesChannelContextPersister
-     */
-    protected $contextPersister;
+    protected SalesChannelContextPersister $contextPersister;
 
-    /**
-     * @var Processor
-     */
-    protected $processor;
+    protected Processor $processor;
 
-    /**
-     * @var KernelInterface
-     */
-    private $kernel;
+    private KernelInterface $kernel;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $salesChannelRepository;
+    private EntityRepositoryInterface $salesChannelRepository;
 
-    /**
-     * @var SalesChannelRequestContextResolver
-     */
-    private $requestContextResolver;
+    private SalesChannelRequestContextResolver $requestContextResolver;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var AdminOrderCartService
-     */
-    private $adminOrderCartService;
+    private ApiOrderCartService $adminOrderCartService;
 
-    /**
-     * @var SalesChannelContextServiceInterface
-     */
-    private $contextService;
+    private SalesChannelContextServiceInterface $contextService;
 
-    /**
-     * @var AbstractCartOrderRoute
-     */
-    private $orderRoute;
+    private AbstractCartOrderRoute $orderRoute;
 
-    /**
-     * @var CartService
-     */
-    private $cartService;
+    private CartService $cartService;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     public function __construct(
         KernelInterface $kernel,
@@ -133,7 +97,7 @@ class SalesChannelProxyController extends AbstractController
         SalesChannelRequestContextResolver $requestContextResolver,
         SalesChannelContextServiceInterface $contextService,
         EventDispatcherInterface $eventDispatcher,
-        AdminOrderCartService $adminOrderCartService,
+        ApiOrderCartService $adminOrderCartService,
         AbstractCartOrderRoute $orderRoute,
         CartService $cartService,
         Connection $connection

@@ -47,17 +47,16 @@
       "associationsLoadingError": "Die Zuweisungen der Regel konnten nicht geladen werden.",
       "types": {
         "shipping": "Versandart",
-        "payment": "Zahlungart",
-        "price": "Preis"
+        "payment": "Zahlungsart",
+        "price": "Preis",
+        "flowBuilder": "Flow Builder"
       }
     },
     "conditionFilter": {
-      "infoText": "Nutze Filter um zu definieren, welche Positionen diese Bedingung erfüllen müssen."
+      "infoText": "Nutze Filter, um zu definieren welche Positionen diese Bedingung erfüllen müssen."
     },
     "conditionModal": {
       "modalTitle": "Filter",
-      "delete": "Löschen",
-      "close": "Schließen",
       "messageSaveError": "Beim Speichern des Filters ist ein Fehler aufgetreten."
     }
   },

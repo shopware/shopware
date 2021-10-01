@@ -195,6 +195,7 @@ namespace DocsTest {
     use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
     use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
     use Shopware\Core\System\SalesChannel\SalesChannelContext;
+    use Shopware\Core\Test\TestDefaults;
 
     class DocsLineItemTest extends TestCase
     {
@@ -319,7 +320,7 @@ namespace DocsTest {
                 'tax' => ['id' => Uuid::randomHex(), 'taxRate' => 17, 'name' => 'with id'],
                 'active' => true,
                 'visibilities' => [
-                    ['salesChannelId' => Defaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                    ['salesChannelId' => TestDefaults::SALES_CHANNEL, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
                 ],
             ]], $this->getSalesChannelContext()->getContext());
         }
@@ -328,7 +329,7 @@ namespace DocsTest {
         {
             return $this->getContainer()
                 ->get(SalesChannelContextService::class)
-                ->get(new SalesChannelContextServiceParameters(Defaults::SALES_CHANNEL, $this->salesChannelToken));
+                ->get(new SalesChannelContextServiceParameters(TestDefaults::SALES_CHANNEL, $this->salesChannelToken));
         }
 
         private function ensureProductInCart(): void

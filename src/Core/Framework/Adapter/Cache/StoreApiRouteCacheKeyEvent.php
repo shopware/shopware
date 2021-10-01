@@ -3,12 +3,11 @@
 namespace Shopware\Core\Framework\Adapter\Cache;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class StoreApiRouteCacheKeyEvent extends Event implements SalesChannelAware
+class StoreApiRouteCacheKeyEvent extends Event
 {
     protected array $parts;
 

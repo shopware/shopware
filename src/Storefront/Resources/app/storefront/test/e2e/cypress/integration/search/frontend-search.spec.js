@@ -2,10 +2,7 @@ let product = {};
 
 describe('Searches for products', () => {
     beforeEach(() => {
-        cy.setToInitialState()
-            .then(() => {
-                cy.loginViaApi();
-            }).then(() => {
+        cy.loginViaApi().then(() => {
             cy.visit('');
         });
 

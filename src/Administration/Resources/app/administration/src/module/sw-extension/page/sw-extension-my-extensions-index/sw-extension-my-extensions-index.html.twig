@@ -13,7 +13,7 @@
     <template #search-bar>
         {% block sw_extension_my_extensions_index_smart_bar_search_slot_search_bar %}
         <sw-search-bar
-            :initial-search-type="$tc('sw-extension.my-extensions.listing.initialSearchType')"
+            initial-search-type="extension"
             :placeholder="$tc('sw-extension.my-extensions.listing.placeholderSearchBar')"
             @search="onSearch"
         />
@@ -24,13 +24,13 @@
     {% block sw_extension_my_extensions_index_smart_bar_tabs %}
     <template #page-tabs>
         {% block sw_extension_my_extensions_index_smart_bar_tabs_app %}
-        <sw-tabs-item :route="{ name: 'sw.extension.my-extensions.listing.app' }">
+        <sw-tabs-item :route="{ name: 'sw.extension.my-extensions.listing.app', query: queryParams }">
             {{ $tc('sw-extension.my-extensions.tabs.app') }}
         </sw-tabs-item>
         {% endblock %}
 
         {% block sw_extension_my_extensions_index_smart_bar_tabs_theme %}
-        <sw-tabs-item :route="{ name: 'sw.extension.my-extensions.listing.theme' }">
+        <sw-tabs-item :route="{ name: 'sw.extension.my-extensions.listing.theme', query: queryParams }">
             {{ $tc('sw-extension.my-extensions.tabs.theme') }}
         </sw-tabs-item>
         {% endblock %}

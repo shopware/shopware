@@ -63,12 +63,18 @@ class NamespaceHierarchyBuilderTest extends TestCase
 
         $hierarchyBuilder = $this->getContainer()->get(NamespaceHierarchyBuilder::class);
 
-        static::assertEquals([
-            'SwagThemeTest',
+        $coreHierarchy = [
             'Elasticsearch',
             'Storefront',
             'Administration',
             'Framework',
+        ];
+        // Remove not installed core bundles from hierarchy
+        $coreHierarchy = array_intersect($coreHierarchy, array_keys($this->getContainer()->getParameter('kernel.bundles')));
+
+        static::assertEquals([
+            'SwagThemeTest',
+            ...$coreHierarchy,
         ], array_keys($hierarchyBuilder->buildHierarchy()));
     }
 }

@@ -97,7 +97,8 @@ function createWrapper(privileges = []) {
                         </template>
                     </div>
                 `
-            }
+            },
+            'sw-empty-state': true
         }
     });
 }

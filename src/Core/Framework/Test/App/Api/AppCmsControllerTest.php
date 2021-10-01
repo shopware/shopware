@@ -16,11 +16,20 @@ class AppCmsControllerTest extends TestCase
     public function testGetBlocks(): void
     {
         $this->loadAppsFromDir(__DIR__ . '/../Manifest/_fixtures/test');
-        $url = '/api/app-system/cms/blocks';
-        $this->getBrowser()->request('GET', $url);
+        $this->getBrowser()->request('GET', '/api/app-system/cms/blocks');
         $response = $this->getBrowser()->getResponse();
 
         static::assertEquals(200, $response->getStatusCode());
-        static::assertJsonStringEqualsJsonFile(__DIR__ . '/_fixtures/expectedCmsBlocks.json', $response->getContent());
+
+        $expected = json_decode(file_get_contents(__DIR__ . '/_fixtures/expectedCmsBlocks.json'), true, 512, \JSON_THROW_ON_ERROR);
+        $actual = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        // Remove template
+        unset($expected['blocks'][1]['template'], $actual['blocks'][1]['template']);
+
+        static::assertEquals(
+            $expected,
+            $actual
+        );
     }
 }

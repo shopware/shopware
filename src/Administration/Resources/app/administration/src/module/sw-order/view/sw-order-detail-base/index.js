@@ -1,9 +1,12 @@
 import template from './sw-order-detail-base.html.twig';
 
 const { Component, Utils, Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+const { EntityCollection, Criteria } = Shopware.Data;
 const { get, format, array } = Utils;
 
+/**
+ * @feature-deprecated (flag:FEATURE_NEXT_7530) will be dropped
+ */
 Component.register('sw-order-detail-base', {
     template,
 
@@ -53,6 +56,9 @@ Component.register('sw-order-detail-base', {
             customFieldSets: [],
             promotions: [],
             promotionError: null,
+            missingProductLineItems: [],
+            convertedProductLineItems: [],
+            originLineItems: [],
         };
     },
 
@@ -108,10 +114,12 @@ Component.register('sw-order-detail-base', {
         },
 
         transactionOptionPlaceholder() {
-            if (this.isLoading) return null;
+            const headline = this.$tc('sw-order.stateCard.headlineTransactionState');
+            if (this.isLoading) {
+                return null;
+            }
 
-            return `${this.$tc('sw-order.stateCard.headlineTransactionState')}: \
-            ${this.transaction.stateMachineState.translated.name}`;
+            return `${headline}: ${this.transaction.stateMachineState.translated.name}`;
         },
 
         transactionOptionsBackground() {
@@ -124,12 +132,12 @@ Component.register('sw-order-detail-base', {
         },
 
         orderOptionPlaceholder() {
+            const headline = this.$tc('sw-order.stateCard.headlineOrderState');
             if (this.isLoading) {
                 return null;
             }
 
-            return `${this.$tc('sw-order.stateCard.headlineOrderState')}: \
-            ${this.order.stateMachineState.translated.name}`;
+            return `${headline}: ${this.order.stateMachineState.translated.name}`;
         },
 
         orderOptionsBackground() {
@@ -142,12 +150,12 @@ Component.register('sw-order-detail-base', {
         },
 
         deliveryOptionPlaceholder() {
+            const headline = this.$tc('sw-order.stateCard.headlineDeliveryState');
             if (this.isLoading) {
                 return null;
             }
 
-            return `${this.$tc('sw-order.stateCard.headlineDeliveryState')}: \
-            ${this.delivery.stateMachineState.translated.name}`;
+            return `${headline}: ${this.delivery.stateMachineState.translated.name}`;
         },
 
         deliveryOptionsBackground() {
@@ -171,6 +179,10 @@ Component.register('sw-order-detail-base', {
                 .getAssociation('lineItems')
                 .addFilter(Criteria.equals('parentId', null))
                 .addSorting(Criteria.sort('position', 'ASC'));
+
+            if (this.acl.can('order.editor')) {
+                criteria.addAssociation('lineItems.product');
+            }
 
             criteria
                 .getAssociation('lineItems.children')
@@ -318,15 +330,37 @@ Component.register('sw-order-detail-base', {
 
         reloadEntityData() {
             this.$emit('loading-change', true);
+            this.orderOptions = [];
+            this.transactionOptions = [];
+            this.deliveryOptions = [];
 
             return this.orderRepository.get(this.orderId, this.versionContext, this.orderCriteria).then((response) => {
                 this.order = response;
+                this.cloneLineItems();
                 this.$emit('loading-change', false);
                 return Promise.resolve();
             }).catch(() => {
                 this.$emit('loading-change', false);
                 return Promise.reject();
             });
+        },
+
+        cloneLineItems() {
+            const originLineItems = new EntityCollection(
+                this.orderLineItemRepository.route,
+                this.orderLineItemRepository.entityName,
+                this.versionContext,
+            );
+
+            this.order.lineItems.forEach(lineItem => {
+                const lineItemClone = this.orderLineItemRepository.create();
+                Object.entries(lineItem).forEach(([key]) => {
+                    lineItemClone[key] = lineItem[key];
+                });
+                originLineItems.add(lineItemClone);
+            });
+
+            this.originLineItems = originLineItems;
         },
 
         emitIdentifier() {
@@ -385,17 +419,20 @@ Component.register('sw-order-detail-base', {
                 this.versionContext = newContext;
                 return this.reloadEntityData();
             }).then(() => {
+                return this.convertMissingProductLineItems();
+            }).then(() => {
                 this.$emit('editing-change', true);
                 return Promise.resolve();
-            }).finally(() => {
-                this.$emit('loading-change', false);
-            });
+            })
+                .finally(() => {
+                    this.$emit('loading-change', false);
+                });
         },
 
         onSaveEdits() {
             this.$emit('loading-change', true);
             this.$emit('editing-change', false);
-
+            this.order.lineItems = this.originLineItems;
             this.orderRepository.save(this.order, this.versionContext)
                 .then(() => {
                     return this.orderRepository.mergeVersion(this.versionContext.versionId, this.versionContext);
@@ -403,6 +440,8 @@ Component.register('sw-order-detail-base', {
                     this.$emit('error', error);
                 }).finally(() => {
                     this.versionContext.versionId = Shopware.Context.api.liveVersionId;
+                    this.missingProductLineItems = [];
+                    this.convertedProductLineItems = [];
                     this.reloadEntityData();
                 });
         },
@@ -420,6 +459,8 @@ Component.register('sw-order-detail-base', {
             });
 
             this.versionContext.versionId = Shopware.Context.api.liveVersionId;
+            this.missingProductLineItems = [];
+            this.convertedProductLineItems = [];
             this.reloadEntityData().then(() => {
                 this.$emit('editing-change', false);
             });
@@ -617,6 +658,29 @@ Component.register('sw-order-detail-base', {
                     this.promotionCodeTags = [...this.promotionCodeTags, { ...lineItem.payload, isInvalid: false }];
                 }
             });
+        },
+
+        convertMissingProductLineItems() {
+            this.convertedProductLineItems = this.order.lineItems.filter((lineItem) => {
+                return (lineItem.payload.isConvertedProductLineItem && lineItem.type === 'custom');
+            });
+
+            this.missingProductLineItems = this.order.lineItems.filter((lineItem) => {
+                return (!lineItem.hasOwnProperty('product') && lineItem.type === 'product');
+            });
+
+            this.missingProductLineItems.forEach((lineItem) => {
+                lineItem.type = 'custom';
+                lineItem.productId = null;
+                lineItem.referencedId = null;
+                lineItem.payload.isConvertedProductLineItem = true;
+            });
+
+            if (this.missingProductLineItems.length === 0) {
+                return Promise.resolve();
+            }
+
+            return this.orderRepository.save(this.order, this.versionContext);
         },
     },
 });

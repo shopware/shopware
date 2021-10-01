@@ -107,6 +107,7 @@ config/services*
 custom
 files/*
 install.lock
+/phpstan.neon
 docker-compose.override.yaml
 
 vendor-bin/**/vendor

@@ -23,6 +23,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepositoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Page\PageLoadedEvent;
 use Shopware\Storefront\Pagelet\PageletLoadedEvent;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -239,7 +240,7 @@ trait StorefrontPageTestBehaviour
 
     protected function catchEvent(string $eventName, &$eventResult): void
     {
-        $this->getContainer()->get('event_dispatcher')->addListener($eventName, static function ($event) use (&$eventResult): void {
+        $this->addEventListener($this->getContainer()->get('event_dispatcher'), $eventName, static function ($event) use (&$eventResult): void {
             $eventResult = $event;
         });
     }
@@ -254,7 +255,7 @@ trait StorefrontPageTestBehaviour
         $data = [
             [
                 'id' => $customerId,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultShippingAddress' => [
                     'id' => $addressId,
                     'firstName' => 'Max',
@@ -267,7 +268,7 @@ trait StorefrontPageTestBehaviour
                 ],
                 'defaultBillingAddressId' => $addressId,
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => 'foo@bar.de',
                 'password' => 'password',
                 'firstName' => 'Max',
@@ -291,7 +292,7 @@ trait StorefrontPageTestBehaviour
 
         $salesChannelId = Uuid::randomHex();
         $salesChannel['id'] = $salesChannelId;
-        $salesChannel['customerGroupId'] = Defaults::FALLBACK_CUSTOMER_GROUP;
+        $salesChannel['customerGroupId'] = TestDefaults::FALLBACK_CUSTOMER_GROUP;
 
         $salesChannelRepository->create([$salesChannel], Context::createDefaultContext());
 

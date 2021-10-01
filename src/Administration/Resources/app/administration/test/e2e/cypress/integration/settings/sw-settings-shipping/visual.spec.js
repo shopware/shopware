@@ -17,10 +17,9 @@ describe('Administration: Check module navigation in settings', () => {
     });
 
     it('@base @visual: check appearance of shipping module', () => {
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/search/shipping-method`,
-            method: 'post'
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/search/shipping-method`,
+            method: 'POST'
         }).as('getData');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
@@ -29,9 +28,8 @@ describe('Administration: Check module navigation in settings', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('#sw-settings-shipping').click();
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getData')
+            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-settings-shipping-list__content').should('exist');
         cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.sortAndCheckListingAscViaColumn('Name', 'Express');

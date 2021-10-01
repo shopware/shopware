@@ -149,7 +149,19 @@ class ThemeLifecycleHandler
             return;
         }
 
-        $mappings = $this->connection->fetchAllAssociative('SELECT LOWER(HEX(sales_channel_id)) as sales_channel_id, LOWER(HEX(theme_id)) as theme_id FROM theme_sales_channel');
+        if (!$config->getIsTheme()) {
+            // Recompile all themes as the extension generally extends the storefront
+            $mappings = $this->connection->fetchAllAssociative('SELECT LOWER(HEX(sales_channel_id)) as sales_channel_id, LOWER(HEX(theme_id)) as theme_id FROM theme_sales_channel');
+        } else {
+            // Recompile only the updated themes and children thereof
+            $mappings = $this->connection->fetchAllAssociative('
+                SELECT LOWER(HEX(`theme_sales_channel`.`sales_channel_id`)) as sales_channel_id, LOWER(HEX(`theme_sales_channel`.`theme_id`)) as theme_id
+                FROM `theme_sales_channel`
+                INNER JOIN `theme` ON `theme_sales_channel`.`theme_id` = `theme`.`id`
+                LEFT JOIN `theme` AS `parent` ON `theme`.`parent_theme_id` = `parent`.`id`
+                WHERE `parent`.`technical_name` = :themeName OR `theme`.`technical_name` = :themeName
+            ', ['themeName' => $config->getTechnicalName()]);
+        }
 
         foreach ($mappings as $mapping) {
             $this->themeService->compileTheme(

@@ -85,4 +85,15 @@ class IdsCollection
     {
         return isset($this->ids[$key]);
     }
+
+    public function getKey(string $id): ?string
+    {
+        foreach ($this->ids as $key => $value) {
+            if ($value === $id) {
+                return $key;
+            }
+        }
+
+        return null;
+    }
 }

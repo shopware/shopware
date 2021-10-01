@@ -38,6 +38,14 @@ $sw-order-user-card-link: $color-shopware-brand-500;
         }
     }
 
+    &__info-summary {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-end;
+        margin-left: 64px;
+    }
+
     .sw-order-user-card__summary-vertical {
         line-height: 15px;
 

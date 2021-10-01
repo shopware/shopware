@@ -115,11 +115,12 @@ class MailService extends AbstractMailService
 
     public function send(array $data, Context $context, array $templateData = []): ?Email
     {
-        $mailBeforeValidateEvent = new MailBeforeValidateEvent($data, $context, $templateData);
-        $this->eventDispatcher->dispatch($mailBeforeValidateEvent);
-        $data = $mailBeforeValidateEvent->getData();
+        $event = new MailBeforeValidateEvent($data, $context, $templateData);
+        $this->eventDispatcher->dispatch($event);
+        $data = $event->getData();
+        $templateData = $event->getTemplateData();
 
-        if ($mailBeforeValidateEvent->isPropagationStopped()) {
+        if ($event->isPropagationStopped()) {
             return null;
         }
 
@@ -130,7 +131,7 @@ class MailService extends AbstractMailService
         $salesChannelId = $data['salesChannelId'];
         $salesChannel = null;
 
-        if ($salesChannelId !== null && !isset($templateData['salesChannel'])) {
+        if (($salesChannelId !== null && !isset($templateData['salesChannel'])) || $this->isTestMode($data)) {
             $criteria = $this->getSalesChannelDomainCriteria($salesChannelId, $context);
 
             /** @var SalesChannelEntity|null $salesChannel */
@@ -148,7 +149,7 @@ class MailService extends AbstractMailService
         $senderEmail = $this->getSender($data, $salesChannelId);
 
         $contents = $this->buildContents($data, $salesChannel);
-        if (isset($data['testMode']) && (bool) $data['testMode'] === true) {
+        if ($this->isTestMode($data)) {
             $this->templateRenderer->enableTestMode();
             if (!isset($templateData['order']) && !isset($templateData['order']['deepLinkCode']) || $templateData['order']['deepLinkCode'] === '') {
                 $templateData['order']['deepLinkCode'] = 'home';
@@ -207,17 +208,17 @@ class MailService extends AbstractMailService
             return null;
         }
 
-        $mailBeforeSentEvent = new MailBeforeSentEvent($data, $mail, $context);
-        $this->eventDispatcher->dispatch($mailBeforeSentEvent);
+        $event = new MailBeforeSentEvent($data, $mail, $context);
+        $this->eventDispatcher->dispatch($event);
 
-        if ($mailBeforeSentEvent->isPropagationStopped()) {
+        if ($event->isPropagationStopped()) {
             return null;
         }
 
         $this->mailSender->send($mail);
 
-        $mailSentEvent = new MailSentEvent($data['subject'], $recipients, $contents, $context);
-        $this->eventDispatcher->dispatch($mailSentEvent);
+        $event = new MailSentEvent($data['subject'], $recipients, $contents, $context);
+        $this->eventDispatcher->dispatch($event);
 
         return $mail;
     }
@@ -317,5 +318,10 @@ class MailService extends AbstractMailService
             );
 
         return $criteria;
+    }
+
+    private function isTestMode(array $data = []): bool
+    {
+        return isset($data['testMode']) && (bool) $data['testMode'] === true;
     }
 }

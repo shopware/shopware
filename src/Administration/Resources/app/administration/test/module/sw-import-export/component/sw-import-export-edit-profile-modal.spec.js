@@ -211,4 +211,69 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         await wrapper.vm.$nextTick();
         expect(wrapper.vm.profile.config.updateEntities).toBeTruthy();
     });
+
+    it.each(
+        [
+            {
+                sourceEntity: 'product',
+                profileType: null,
+                availableEntities: ['product', 'customer', 'order'],
+                disabledEntities: [],
+                availableProfileTypes: ['import', 'import-export', 'export'],
+                disabledProfileTypes: []
+            },
+            {
+                sourceEntity: 'order',
+                profileType: null,
+                availableEntities: ['product', 'customer', 'order'],
+                disabledEntities: [],
+                availableProfileTypes: ['export'],
+                disabledProfileTypes: ['import', 'import-export']
+            },
+            {
+                sourceEntity: null,
+                profileType: 'export',
+                availableEntities: ['product', 'customer', 'order'],
+                disabledEntities: [],
+                availableProfileTypes: ['import', 'import-export', 'export'],
+                disabledProfileTypes: []
+            },
+            {
+                sourceEntity: null,
+                profileType: 'import',
+                availableEntities: ['product', 'customer'],
+                disabledEntities: ['order'],
+                availableProfileTypes: ['import', 'import-export', 'export'],
+                disabledProfileTypes: []
+            },
+            {
+                sourceEntity: 'order',
+                profileType: 'export',
+                availableEntities: ['product', 'customer', 'order'],
+                disabledEntities: [],
+                availableProfileTypes: ['export'],
+                disabledProfileTypes: ['import', 'import-export']
+            }
+        ]
+    )('should enable disable correct types and entities ', async (data) => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_8097'];
+        wrapper.setProps({ profile: mockProfile });
+        wrapper.vm.profile.sourceEntity = data.sourceEntity;
+        wrapper.vm.profile.type = data.profileType;
+
+        data.availableEntities.forEach(entity => {
+            const currentEntity = wrapper.vm.supportedEntities.find(item => item.value === entity);
+            expect(wrapper.vm.shouldDisableObjectType(currentEntity)).toBeFalsy();
+        });
+        data.disabledEntities.forEach(entity => {
+            const currentEntity = wrapper.vm.supportedEntities.find(item => item.value === entity);
+            expect(wrapper.vm.shouldDisableObjectType(currentEntity)).toBeTruthy();
+        });
+        data.availableProfileTypes.forEach(profileType => {
+            expect(wrapper.vm.shouldDisableProfileType({ value: profileType })).toBeFalsy();
+        });
+        data.disabledProfileTypes.forEach(profileType => {
+            expect(wrapper.vm.shouldDisableProfileType({ value: profileType })).toBeTruthy();
+        });
+    });
 });

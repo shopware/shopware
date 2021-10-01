@@ -85,7 +85,7 @@ class SitemapExporter implements SitemapExporterInterface
             $lastProvider,
             null,
             $context->getSalesChannel()->getId(),
-            $context->getSalesChannel()->getLanguageId()
+            $context->getLanguageId()
         );
     }
 
@@ -108,21 +108,41 @@ class SitemapExporter implements SitemapExporterInterface
 
     private function generateCacheKeyForSalesChannel(SalesChannelContext $salesChannelContext): string
     {
-        return sprintf('sitemap-exporter-running-%s-%s', $salesChannelContext->getSalesChannel()->getId(), $salesChannelContext->getSalesChannel()->getLanguageId());
+        return sprintf('sitemap-exporter-running-%s-%s', $salesChannelContext->getSalesChannel()->getId(), $salesChannelContext->getLanguageId());
     }
 
     private function initSitemapHandles(SalesChannelContext $context): void
     {
-        $languageId = $context->getSalesChannel()->getLanguageId();
+        $languageId = $context->getLanguageId();
         $domainsEntity = $context->getSalesChannel()->getDomains();
 
-        $sitemapHandles = [];
+        $sitemapDomains = [];
         if ($domainsEntity instanceof SalesChannelDomainCollection) {
             foreach ($domainsEntity as $domain) {
                 if ($domain->getLanguageId() === $languageId) {
-                    $sitemapHandles[$domain->getUrl()] = $this->sitemapHandleFactory->create($this->filesystem, $context, $domain->getUrl());
+                    $urlParts = \parse_url($domain->getUrl());
+
+                    if ($urlParts === false) {
+                        continue;
+                    }
+
+                    $arrayKey = ($urlParts['host'] ?? '') . ($urlParts['path'] ?? '');
+
+                    if (\array_key_exists($arrayKey, $sitemapDomains) && $sitemapDomains[$arrayKey]['scheme'] === 'https') {
+                        continue;
+                    }
+
+                    $sitemapDomains[$arrayKey] = [
+                        'url' => $domain->getUrl(),
+                        'scheme' => $urlParts['scheme'] ?? '',
+                    ];
                 }
             }
+        }
+
+        $sitemapHandles = [];
+        foreach ($sitemapDomains as $sitemapDomain) {
+            $sitemapHandles[$sitemapDomain['url']] = $this->sitemapHandleFactory->create($this->filesystem, $context, $sitemapDomain['url']);
         }
 
         if (empty($sitemapHandles)) {

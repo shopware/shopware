@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-media-library', {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: ['repositoryFactory', 'acl', 'searchRankingService', 'feature'],
 
     mixins: [
         Mixin.getByName('media-grid-listener'),
@@ -131,6 +131,14 @@ Component.register('sw-media-library', {
         showLoadMoreButton() {
             return !this.isLoading && (!this.itemLoaderDone || !this.folderLoaderDone);
         },
+
+        searchRankingFields() {
+            if (!this.feature.isActive('FEATURE_NEXT_6040')) {
+                return {};
+            }
+
+            return this.searchRankingService.getSearchFieldsByEntity('media');
+        },
     },
 
     watch: {
@@ -227,7 +235,7 @@ Component.register('sw-media-library', {
             if (this.folderLoaderDone) {
                 this.pageItem += 1;
 
-                const criteria = new Criteria(this.pageItem, this.limit);
+                let criteria = new Criteria(this.pageItem, this.limit);
                 criteria
                     .addFilter(Criteria.equals('mediaFolderId', this.folderId))
                     .addAssociation('tags')
@@ -241,6 +249,14 @@ Component.register('sw-media-library', {
                     .addAssociation('shippingMethods')
                     .addSorting(Criteria.sort(this.sorting.sortBy, this.sorting.sortDirection))
                     .setTerm(this.term);
+
+                if (this.feature.isActive('FEATURE_NEXT_6040')) {
+                    criteria = this.searchRankingService.buildSearchQueriesForEntity(
+                        this.searchRankingFields,
+                        this.term,
+                        criteria,
+                    );
+                }
 
                 const items = await this.mediaRepository.search(criteria, Context.api);
 

@@ -17,14 +17,13 @@ describe('Country: Visual testing', () => {
     });
 
     it('@visual: check appearance of country module', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/country`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/country/**/states`,
-            method: 'post'
+            method: 'POST'
         }).as('getStates');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
@@ -35,9 +34,8 @@ describe('Country: Visual testing', () => {
         cy.get('#sw-settings-country').click();
 
         // Ensure snapshot consistency
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getData')
+            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-data-grid-skeleton').should('not.exist');
 
         // Take Snapshot
@@ -49,16 +47,15 @@ describe('Country: Visual testing', () => {
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-loader__element').should('not.exist');
         cy.get('input[name="sw-field--country-name"]').should('not.have.value', '');
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getData')
+            .its('response.statusCode').should('equal', 200);
 
         // Take Snapshot
         cy.takeSnapshot('[Country] Detail', '.sw-settings-country-general__options-container');
 
         cy.get('.sw-loader').should('not.exist');
 
-        cy.get('input[name="sw-field--country-customerTax-enabled"]').should('be.visible');
+        cy.get('input[name="sw-field--country-customerTax-enabled"]').should('exist');
         cy.get('input[name="sw-field--country-customerTax-enabled"]').check().then(() => {
             cy.get('.sw-settings-country-general-customer-tax').should('be.visible');
             cy.get('input[name=sw-field--country-customerTax-amount]').should('be.visible');

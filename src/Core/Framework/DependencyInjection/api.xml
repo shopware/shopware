@@ -40,7 +40,7 @@
         <service id="Shopware\Core\Framework\Api\Controller\ApiController" public="true">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="serializer"/>
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
+            <argument type="service" id="api.request_criteria_builder"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\CompositeEntitySearcher"/>
             <argument type="service" id="Shopware\Core\Framework\Api\Converter\ApiVersionConverter"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionValidator"/>
@@ -173,6 +173,7 @@
             <argument type="service" id="kernel" />
             <argument type="service" id="assets.packages" />
             <argument type="service" id="Shopware\Core\Framework\Event\BusinessEventCollector" />
+            <argument type="service" id="Shopware\Core\Content\Flow\Api\FlowActionCollector" on-invalid="null"/>
             <argument>%shopware.media.enable_url_upload_feature%</argument>
             <argument>%shopware.security.csp_templates%</argument>
             <call method="setContainer">
@@ -194,13 +195,6 @@
             <argument type="service" id="cache.object"/>
             <argument type="service" id="Shopware\Storefront\Framework\Cache\CacheWarmer\CacheWarmer" on-invalid="null"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry"/>
-            <call method="setContainer">
-                <argument type="service" id="service_container"/>
-            </call>
-        </service>
-
-        <service id="Shopware\Core\Framework\Api\Controller\CaptchaController" public="true">
-            <argument type="tagged" tag="shopware.storefront.captcha"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

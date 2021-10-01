@@ -213,6 +213,7 @@ Component.register('sw-category-detail', {
                 .addFilter(Criteria.equals('isCanonical', true));
 
             criteria.addAssociation('tags')
+                .addAssociation('cmsPage.sections.blocks.slots')
                 .addAssociation('media')
                 .addAssociation('navigationSalesChannels.homeCmsPage.previewMedia')
                 .addAssociation('serviceSalesChannels')
@@ -598,7 +599,7 @@ Component.register('sw-category-detail', {
             this.isSaveSuccessful = false;
         },
 
-        onSave() {
+        async onSave() {
             this.isSaveSuccessful = false;
 
             const pageOverrides = this.getCmsPageOverrides();
@@ -610,14 +611,15 @@ Component.register('sw-category-detail', {
             if (!this.entryPointOverwriteConfirmed) {
                 this.checkForEntryPointOverwrite();
                 if (this.showEntryPointOverwriteModal) {
-                    return;
+                    return Promise.resolve();
                 }
             }
 
             this.isLoading = true;
-            this.updateSeoUrls().then(() => {
-                return this.categoryRepository.save(this.category, { ...Shopware.Context.api });
-            }).then(() => {
+            await this.updateSeoUrls();
+            await this.saveSlotConfig();
+
+            return this.categoryRepository.save(this.category, { ...Shopware.Context.api }).then(() => {
                 this.isSaveSuccessful = true;
                 this.entryPointOverwriteConfirmed = false;
                 return this.setCategory();
@@ -631,6 +633,24 @@ Component.register('sw-category-detail', {
                     ),
                 });
             });
+        },
+
+        saveSlotConfig() {
+            if (this.category.cmsPage.locked || Object.values(this.category.slotConfig).length < 1) {
+                return Promise.resolve();
+            }
+
+            this.category.cmsPage.sections.forEach((section) => {
+                section.blocks.forEach((block) => {
+                    block.slots.forEach((slot) => {
+                        if (this.category.slotConfig[slot.id]) {
+                            slot.config = this.category.slotConfig[slot.id];
+                        }
+                    });
+                });
+            });
+
+            return this.cmsPageRepository.save(this.category.cmsPage, Shopware.Context.api);
         },
 
         checkForEntryPointOverwrite() {
@@ -680,12 +700,12 @@ Component.register('sw-category-detail', {
                 if (this.landingPage.salesChannels.length === 0) {
                     this.addLandingPageSalesChannelError();
 
-                    return;
+                    return Promise.resolve();
                 }
             }
 
             this.isLoading = true;
-            this.landingPageRepository.save(this.landingPage).then(() => {
+            return this.landingPageRepository.save(this.landingPage, Shopware.Context.api).then(() => {
                 this.isSaveSuccessful = true;
 
                 if (this.landingPageId === 'create') {

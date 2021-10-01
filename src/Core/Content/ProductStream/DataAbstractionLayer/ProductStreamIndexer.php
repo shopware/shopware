@@ -107,6 +107,7 @@ class ProductStreamIndexer extends EntityIndexer
         $filters = FetchModeHelper::group($filters);
 
         $update = new RetryableQuery(
+            $this->connection,
             $this->connection->prepare('UPDATE product_stream SET api_filter = :serialized, invalid = :invalid WHERE id = :id')
         );
 

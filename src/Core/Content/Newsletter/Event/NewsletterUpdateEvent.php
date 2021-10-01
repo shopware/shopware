@@ -10,13 +10,14 @@ use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\MailActionInterface;
+use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @deprecated tag:v6.5.0 will be removed as it was not thrown
  */
-class NewsletterUpdateEvent extends Event implements MailActionInterface, SalesChannelAware
+class NewsletterUpdateEvent extends Event implements MailActionInterface, SalesChannelAware, MailAware
 {
     public const EVENT_NAME = NewsletterEvents::NEWSLETTER_UPDATE_EVENT;
 

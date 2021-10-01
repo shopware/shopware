@@ -1,48 +1,31 @@
 describe('Offcanvas navigation with regards to children visibility', () => {
 
     beforeEach(() => {
-        cy.setToInitialState()
-            .then(() => {
-                cy.searchViaAdminApi({
-                    endpoint: 'category',
-                    data: {
-                        field: 'name',
-                        value: 'Home'
-                    }
-                }).then(({id: categoryId}) => {
-                    cy.createCategoryFixture({
-                        name: 'Visible children',
-                        type: 'folder',
-                        parentId: categoryId,
+        cy.searchViaAdminApi({
+            endpoint: 'category',
+            data: {
+                field: 'name',
+                value: 'Home'
+            }
+        }).then(({id: categoryId}) => {
+            cy.createCategoryFixture({
+                name: 'Visible children',
+                type: 'folder',
+                parentId: categoryId,
+                children: [
+                    {
+                        name: 'Visible grandchildren',
+                        type: 'page',
                         children: [
                             {
-                                name: 'Visible grandchildren',
-                                type: 'page',
-                                children: [
-                                    {
-                                        name: 'Visible',
-                                        type: 'page'
-                                    }
-                                ]
-                            },
-                            {
-                                name: 'Invisible grandchildren',
-                                type: 'page',
-                                children: [
-                                    {
-                                        name: 'Invisible',
-                                        type: 'page',
-                                        visible: false
-                                    }
-                                ]
+                                name: 'Visible',
+                                type: 'page'
                             }
                         ]
-                    });
-
-                    cy.createCategoryFixture({
-                        name: 'Invisible children',
+                    },
+                    {
+                        name: 'Invisible grandchildren',
                         type: 'page',
-                        parentId: categoryId,
                         children: [
                             {
                                 name: 'Invisible',
@@ -50,11 +33,25 @@ describe('Offcanvas navigation with regards to children visibility', () => {
                                 visible: false
                             }
                         ]
-                    });
-                });
-            }).then(() => {
-                cy.visit('/');
+                    }
+                ]
             });
+
+            cy.createCategoryFixture({
+                name: 'Invisible children',
+                type: 'page',
+                parentId: categoryId,
+                children: [
+                    {
+                        name: 'Invisible',
+                        type: 'page',
+                        visible: false
+                    }
+                ]
+            });
+        }).then(() => {
+            cy.visit('/');
+        });
     });
 
     context('iphone-6 resolution', () => {
@@ -65,8 +62,7 @@ describe('Offcanvas navigation with regards to children visibility', () => {
         });
 
         it('@navigation: Check menu entries for visible children', () => {
-            cy.server();
-            cy.route({
+            cy.intercept({
                 url: '/widgets/menu/offcanvas*',
                 method: 'GET'
             }).as('offcanvasMenuRequest');

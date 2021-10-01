@@ -42,9 +42,13 @@ class AdditionalPermissionValidationTest extends TestCase
 
     public function setUp(): void
     {
-        $this->rootDirs = array_map(static function (string $class): string {
+        $this->rootDirs = array_filter(array_map(static function (string $class): ?string {
+            if (!\class_exists($class)) {
+                return null;
+            }
+
             return \dirname((string) (new \ReflectionClass($class))->getFileName());
-        }, self::ROOT_CLASSES);
+        }, self::ROOT_CLASSES));
     }
 
     public function testSourceFilesForUnvalidatedPrivileges(): void

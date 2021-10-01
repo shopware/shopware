@@ -9,7 +9,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Migration\V6_4\Migration1624262862UpdateDefaultValueOnCaptchaV2;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Storefront\Framework\Captcha\BasicCaptcha;
 
 class Migration1624262862UpdateDefaultValueOnCaptchaV2Test extends TestCase
 {
@@ -17,6 +16,11 @@ class Migration1624262862UpdateDefaultValueOnCaptchaV2Test extends TestCase
     use DatabaseTransactionBehaviour;
 
     private const CONFIG_KEY = 'core.basicInformation.activeCaptchasV2';
+
+    /**
+     * @see \Shopware\Storefront\Framework\Captcha\BasicCaptcha::CAPTCHA_NAME
+     */
+    private const CAPTCHA_NAME = 'basicCaptcha';
 
     private Connection $connection;
 
@@ -53,7 +57,7 @@ class Migration1624262862UpdateDefaultValueOnCaptchaV2Test extends TestCase
     {
         $systemConfig = $this->getContainer()->get(SystemConfigService::class);
 
-        $systemConfig->set('core.basicInformation.activeCaptchas', [BasicCaptcha::CAPTCHA_NAME]);
+        $systemConfig->set('core.basicInformation.activeCaptchas', [self::CAPTCHA_NAME]);
         $connection = $this->getContainer()->get(Connection::class);
 
         $connection->update('system_config', [
@@ -73,6 +77,6 @@ class Migration1624262862UpdateDefaultValueOnCaptchaV2Test extends TestCase
         ]);
         $activeCaptchasV2 = json_decode($activeCaptchasV2, true);
 
-        static::assertTrue($activeCaptchasV2['_value'][BasicCaptcha::CAPTCHA_NAME]['isActive']);
+        static::assertTrue($activeCaptchasV2['_value'][self::CAPTCHA_NAME]['isActive']);
     }
 }

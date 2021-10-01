@@ -181,7 +181,7 @@
         {% block sw_product_modal_variant_generation_footer_generate %}
         <sw-button
             class="sw-product-variant-generation__generate-action"
-            variant="primary"
+            :variant="buttonVariant"
             size="small"
             @click="generateVariants(false)"
         >

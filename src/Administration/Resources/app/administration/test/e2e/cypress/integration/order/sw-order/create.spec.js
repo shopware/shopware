@@ -21,18 +21,15 @@ describe('Order: Create order', () => {
     it('@base @order: create order with an existing customer', () => {
         const page = new OrderPageObject();
 
-        // start server
-        cy.server();
-
         // network requests
-        cy.route({
-            url: `${Cypress.env('apiPath')}/_proxy/store-api/**/checkout/cart/line-item`,
-            method: 'post'
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/_proxy/store-api/**/checkout/cart/line-item`,
+            method: 'POST'
         }).as('addLineItem');
 
-        cy.route({
-            url: `${Cypress.env('apiPath')}/_proxy-order/**`,
-            method: 'post'
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/_proxy-order/**`,
+            method: 'POST'
         }).as('saveOrder');
 
         // navigate to order create page
@@ -83,23 +80,27 @@ describe('Order: Create order', () => {
         cy.get(`${page.elements.dataGridInlineEditSave}`)
             .click();
 
-        cy.wait('@addLineItem').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@addLineItem').its('response.statusCode').should('equal', 200);
 
         // save order
         cy.contains('Save order')
             .click();
 
-        cy.wait('@saveOrder').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        // deny payment reminder
+        cy.get('.sw-order-create__remind-payment-modal-decline')
+            .click();
+
+        cy.wait('@saveOrder').its('response.statusCode').should('equal', 200);
 
         // assert saving successful
         cy.get('.sw-order-detail')
             .should('be.visible');
-        cy.get(`.sw-order-detail-base ${page.elements.userMetadata}`)
-            .contains('Pep Eroni');
+
+        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get(`.sw-order-detail-base ${page.elements.userMetadata}`)
+                .contains('Pep Eroni');
+        });
+
         cy.get(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--label`)
             .contains('Product name');
         cy.get(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--quantity`)
@@ -109,33 +110,30 @@ describe('Order: Create order', () => {
     it('@base @order: create order with a new customer, update line item and shipping cost manually', () => {
         const page = new OrderPageObject();
 
-        // start server
-        cy.server();
-
         // network requests
-        cy.route({
-            url: `${Cypress.env('apiPath')}/customer`,
-            method: 'post'
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/customer`,
+            method: 'POST'
         }).as('createCustomerCall');
 
-        cy.route({
-            url: `${Cypress.env('apiPath')}/_proxy/store-api/**/checkout/cart/line-item`,
-            method: 'post'
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/_proxy/store-api/**/checkout/cart/line-item`,
+            method: 'POST'
         }).as('addLineItem');
 
-        cy.route({
-            url: `${Cypress.env('apiPath')}/_proxy/store-api/**/checkout/cart/line-item`,
-            method: 'patch'
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/_proxy/store-api/**/checkout/cart/line-item`,
+            method: 'PATCH'
         }).as('updateLineItem');
 
-        cy.route({
-            url: `${Cypress.env('apiPath')}/_proxy/modify-shipping-costs`,
-            method: 'patch'
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/_proxy/modify-shipping-costs`,
+            method: 'PATCH'
         }).as('modifyShippingCostsCall');
 
-        cy.route({
-            url: `${Cypress.env('apiPath')}/_proxy-order/**`,
-            method: 'post'
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/_proxy-order/**`,
+            method: 'POST'
         }).as('saveOrder');
 
         // navigate to order create page
@@ -306,9 +304,7 @@ describe('Order: Create order', () => {
         cy.get('.sw-modal .sw-modal__footer .sw-button--primary')
             .click({ force: true });
 
-        cy.wait('@createCustomerCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@createCustomerCall').its('response.statusCode').should('equal', 204);
 
         // assert creating new customer successful with the different address
         cy.get('.sw-order-create-details-body input[name="sw-field--email"]')
@@ -346,9 +342,7 @@ describe('Order: Create order', () => {
         cy.get(`${page.elements.dataGridInlineEditSave}`)
             .click();
 
-        cy.wait('@addLineItem').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@addLineItem').its('response.statusCode').should('equal', 200);
 
         // enter item price
         cy.get(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--unitPrice`)
@@ -360,9 +354,7 @@ describe('Order: Create order', () => {
         cy.get(`${page.elements.dataGridInlineEditSave}`)
             .click();
 
-        cy.wait('@updateLineItem').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@updateLineItem').its('response.statusCode').should('equal', 200);
 
         // enter shipping cost
         cy.get('.sw-order-create-summary__data dd > div[tooltip-id]')
@@ -374,23 +366,27 @@ describe('Order: Create order', () => {
         cy.get('.sw-order-create-summary__data dd > div[tooltip-id] .sw-button--primary')
             .click({ force: true });
 
-        cy.wait('@modifyShippingCostsCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@modifyShippingCostsCall').its('response.statusCode').should('equal', 200);
 
         // save order
         cy.contains('Save order')
             .click();
 
-        cy.wait('@saveOrder').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        // deny payment reminder
+        cy.get('.sw-order-create__remind-payment-modal-decline')
+            .click();
+
+        cy.wait('@saveOrder').its('response.statusCode').should('equal', 200);
 
         // assert saving successful
         cy.get('.sw-order-detail')
             .should('be.visible');
-        cy.get(`.sw-order-detail-base ${page.elements.userMetadata}`)
-            .contains('Golden Stars');
+
+        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get(`.sw-order-detail-base ${page.elements.userMetadata}`)
+                .contains('Golden Stars');
+        });
+
         cy.get(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--label`)
             .contains('Product name');
         cy.get(`${page.elements.dataGridRow}--0 ${page.elements.dataGridColumn}--quantity`)
@@ -405,11 +401,30 @@ describe('Order: Create order', () => {
         cy.get('a[href="#/sw/promotion/v2/create"]').click();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/promotion`,
-            method: 'post'
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/promotion`,
+            method: 'POST'
         }).as('savePromotion');
+
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/search/promotion/**/discounts`,
+            method: 'POST'
+        }).as('saveDiscount');
+
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/promotion/**`,
+            method: 'PATCH'
+        }).as('patchPromotion');
+
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/_proxy/store-api/**/checkout/cart/line-item`,
+            method: 'POST'
+        }).as('addLineItem');
+
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/_proxy-order/**`,
+            method: 'POST'
+        }).as('saveOrder');
 
         // Create promotion
         cy.get('.sw-promotion-v2-detail').should('be.visible');
@@ -417,9 +432,8 @@ describe('Order: Create order', () => {
         cy.get('input[name="sw-field--promotion-active"]').click();
 
         cy.get('.sw-promotion-v2-detail__save-action').click();
-        cy.wait('@savePromotion').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@savePromotion')
+            .its('response.statusCode').should('equal', 204);
 
         cy.get('#sw-field--selectedCodeType').select('Fixed promotion code');
         cy.get('#sw-field--promotion-code').typeAndCheck('DISCOUNT');
@@ -446,9 +460,6 @@ describe('Order: Create order', () => {
 
         cy.get('.sw-button--ghost').should('be.visible');
         cy.contains('.sw-button--ghost', 'Add discount').click();
-        cy.wait('@filteredResultCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
         cy.get(page.elements.loader).should('not.exist');
 
         cy.get('.sw-promotion-discount-component').should('be.visible');
@@ -457,15 +468,8 @@ describe('Order: Create order', () => {
             .clear()
             .type('10');
 
-        cy.route({
-            url: `${Cypress.env('apiPath')}/promotion/**`,
-            method: 'patch'
-        }).as('patchPromotion');
-
         cy.get('.sw-promotion-v2-detail__save-action').click();
-        cy.wait('@patchPromotion').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@patchPromotion').its('response.statusCode').should('equal', 204);
 
         // Verify promotion in Administration
         cy.get(page.elements.smartBarBack).click();
@@ -476,19 +480,6 @@ describe('Order: Create order', () => {
 
         // Navigate to order list page
         cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
-
-        // Create
-        // start server
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/_proxy/store-api/**/checkout/cart/line-item`,
-            method: 'post'
-        }).as('addLineItem');
-
-        cy.route({
-            url: `${Cypress.env('apiPath')}/_proxy-order/**`,
-            method: 'post'
-        }).as('saveOrder');
 
         // navigate to order create page
         cy.contains('Add order').click();
@@ -521,9 +512,7 @@ describe('Order: Create order', () => {
         cy.get(`${page.elements.dataGridInlineEditSave}`)
             .click();
 
-        cy.wait('@addLineItem').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@addLineItem').its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-tagged-field__input').typeAndCheck('DISCOUNT').type('{enter}');
 
@@ -545,15 +534,20 @@ describe('Order: Create order', () => {
         cy.contains('Save order')
             .click();
 
-        cy.wait('@saveOrder').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        // deny payment reminder
+        cy.get('.sw-order-create__remind-payment-modal-decline')
+            .click();
+
+        cy.wait('@saveOrder').its('response.statusCode').should('equal', 200);
 
         // assert saving successful
         cy.get('.sw-order-detail')
             .should('be.visible');
-        cy.get(`.sw-order-detail-base ${page.elements.userMetadata}`)
-            .contains('Pep Eroni');
+
+        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get(`.sw-order-detail-base ${page.elements.userMetadata}`)
+                .contains('Pep Eroni');
+        });
 
         cy.get('tbody .sw-data-grid__row').should('have.length', 2);
     });
@@ -561,18 +555,15 @@ describe('Order: Create order', () => {
     it('@order: add invalid promotion code', () => {
         const page = new OrderPageObject();
 
-        // start server
-        cy.server();
-
         // network requests
-        cy.route({
-            url: `${Cypress.env('apiPath')}/_proxy/store-api/**/checkout/cart/line-item`,
-            method: 'post'
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/_proxy/store-api/**/checkout/cart/line-item`,
+            method: 'POST'
         }).as('addLineItem');
 
-        cy.route({
-            url: `${Cypress.env('apiPath')}/_proxy-order/**`,
-            method: 'post'
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/_proxy-order/**`,
+            method: 'POST'
         }).as('saveOrder');
 
         // navigate to order create page
@@ -623,9 +614,7 @@ describe('Order: Create order', () => {
         cy.get(`${page.elements.dataGridInlineEditSave}`)
             .click();
 
-        cy.wait('@addLineItem').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@addLineItem').its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-tagged-field__input').typeAndCheck('CODE').type('{enter}');
 
@@ -650,21 +639,27 @@ describe('Order: Create order', () => {
         cy.get(`${page.elements.modal}__footer button${page.elements.primaryButton}`).click();
 
         // Verify that notification is visible to user
-        cy.get('.sw-alert--error').should('not.be.visible');
+        cy.get('.sw-alert--error').should('not.exist');
 
         // save order
         cy.contains('Save order')
             .click();
 
-        cy.wait('@saveOrder').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        // deny payment reminder
+        cy.get('.sw-order-create__remind-payment-modal-decline')
+            .click();
+
+        cy.wait('@saveOrder').its('response.statusCode').should('equal', 200);
 
         // assert saving successful
         cy.get('.sw-order-detail')
             .should('be.visible');
-        cy.get('.sw-order-detail-base .sw-order-user-card__metadata')
-            .contains('Pep Eroni');
+
+        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get('.sw-order-detail-base .sw-order-user-card__metadata')
+                .contains('Pep Eroni');
+        });
+
         cy.get('.sw-data-grid__row--0 > .sw-data-grid__cell--label > .sw-data-grid__cell-content')
             .contains('Product name');
         cy.get('.sw-data-grid__row--0 > .sw-data-grid__cell--quantity > .sw-data-grid__cell-content')

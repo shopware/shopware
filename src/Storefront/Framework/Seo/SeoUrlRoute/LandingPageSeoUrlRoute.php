@@ -10,6 +10,7 @@ use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 class LandingPageSeoUrlRoute implements SeoUrlRouteInterface
@@ -37,9 +38,19 @@ class LandingPageSeoUrlRoute implements SeoUrlRouteInterface
         );
     }
 
-    public function prepareCriteria(Criteria $criteria): void
+    /**
+     * @internal (flag:FEATURE_NEXT_13410) make $salesChannel parameter required
+     */
+    public function prepareCriteria(Criteria $criteria/*, SalesChannelEntity $salesChannel */): void
     {
+        /** @var SalesChannelEntity|null $salesChannel */
+        $salesChannel = \func_num_args() === 2 ? func_get_arg(1) : null;
+
         $criteria->addFilter(new EqualsFilter('active', true));
+
+        if ($salesChannel && Feature::isActive('FEATURE_NEXT_13410')) {
+            $criteria->addFilter(new EqualsFilter('salesChannels.id', $salesChannel->getId()));
+        }
     }
 
     public function getMapping(Entity $landingPage, ?SalesChannelEntity $salesChannel): SeoUrlMapping

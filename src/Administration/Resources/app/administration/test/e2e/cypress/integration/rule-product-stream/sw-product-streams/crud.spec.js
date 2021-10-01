@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 import ProductStreamObject from '../../../support/pages/module/sw-product-stream.page-object';
 
@@ -20,10 +20,10 @@ describe('Dynamic product group: Test crud operations', () => {
         const page = new ProductStreamObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/product-stream`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         cy.get('.sw-product-stream-list__create-action').click();
@@ -34,9 +34,7 @@ describe('Dynamic product group: Test crud operations', () => {
         cy.get(page.elements.streamSaveAction).click();
 
         // Verify property in listing
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('01st1st Productstream');
@@ -48,10 +46,10 @@ describe('Dynamic product group: Test crud operations', () => {
         const page = new ProductStreamObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/product-stream/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
         // Edit product stream
@@ -65,9 +63,7 @@ describe('Dynamic product group: Test crud operations', () => {
         cy.get(page.elements.streamSaveAction).click();
 
         // Verify property in listing
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Streamline');
@@ -78,8 +74,8 @@ describe('Dynamic product group: Test crud operations', () => {
         const page = new ProductStreamObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/product-stream/*`,
             method: 'delete'
         }).as('deleteData');
@@ -97,9 +93,7 @@ describe('Dynamic product group: Test crud operations', () => {
         cy.get('button.sw-button').contains('Delete').click();
 
         // Verify property in listing
-        cy.wait('@deleteData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteData').its('response.statusCode').should('equal', 204);
         cy.get(`${page.elements.dataGridRow}--0`).should('not.exist');
     });
 });

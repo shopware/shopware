@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\EntityProtection;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -17,6 +16,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigDefinition;
 use Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyDefinition;
+use Shopware\Core\Test\TestDefaults;
 
 class EntityProtectionValidatorTest extends TestCase
 {
@@ -183,22 +183,23 @@ class EntityProtectionValidatorTest extends TestCase
 
     public function testItDoesNotValidateCascadeDeletes(): void
     {
+        /** @var EntityRepositoryInterface $salesChannelRepository */
+        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+        $countBefore = $salesChannelRepository->search(new Criteria(), Context::createDefaultContext())->getTotal();
+
         // system_config has a cascade delete on sales_channel
         $this->getBrowser()
             ->request(
                 'DELETE',
-                '/api/sales-channel/' . Defaults::SALES_CHANNEL
+                '/api/sales-channel/' . TestDefaults::SALES_CHANNEL
             );
 
         $response = $this->getBrowser()->getResponse();
 
         static::assertEquals(204, $response->getStatusCode(), $response->getContent());
 
-        /** @var EntityRepositoryInterface $salesChannelRepository */
-        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
-
         static::assertEquals(
-            1,
+            $countBefore - 1,
             $salesChannelRepository->search(new Criteria(), Context::createDefaultContext())->getTotal()
         );
     }

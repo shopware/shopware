@@ -420,7 +420,7 @@ Directive.register('draggable', {
         const dragConfig = mergeConfigs(defaultDragConfig, binding);
 
         if (el.dragConfig.disabled !== dragConfig.disabled) {
-            if (dragConfig.disabled === true) {
+            if (dragConfig.disabled !== true) {
                 el.classList.remove(el.dragConfig.draggableCls);
                 el.classList.add(dragConfig.draggableCls);
                 el.addEventListener('mousedown', el.boundDragListener);

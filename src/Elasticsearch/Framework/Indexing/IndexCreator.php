@@ -43,6 +43,11 @@ class IndexCreator
         $this->createAliasIfNotExisting($index, $alias);
     }
 
+    public function aliasExists(string $alias): bool
+    {
+        return $this->client->indices()->existsAlias(['name' => $alias]);
+    }
+
     private function indexExists(string $index): bool
     {
         return $this->client->indices()->exists(['index' => $index]);

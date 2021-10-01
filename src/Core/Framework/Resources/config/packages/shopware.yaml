@@ -27,7 +27,7 @@ shopware:
         strategy: "%env(string:default:default_cdn_strategy:SHOPWARE_CDN_STRATEGY_DEFAULT)%"
 
     api:
-        max_limit: 500
+        max_limit: 100
         api_browser:
             auth_required: true
         store:
@@ -184,6 +184,11 @@ shopware:
               major: true
               description: "Reduce database queries if all required data for the line items is already assign"
               # issue: NEXT-13250
+            - name: FEATURE_NEXT_17276
+              default: false
+              major: true
+              description: "Don't override languageId of SalesChannel in SalesChannelContext"
+              # issue: NEXT-17276
             - name: FEATURE_NEXT_16151
               default: false
               major: true
@@ -206,7 +211,7 @@ shopware:
               # issue: NEXT-15053
             - name: FEATURE_NEXT_14114
               default: false
-              major: false
+              major: true
               description: "Brexit Changes"
               # issue: NEXT-14114
             - name: FEATURE_NEXT_12455
@@ -227,11 +232,10 @@ shopware:
               default: false
               major: true
               description: "Refactoring of Storefront theme assets"
-            - name: FEATURE_NEXT_6061
+            - name: FEATURE_NEXT_15998
               default: false
               major: false
-              description: "Bulk Edit for Orders and Products"
-              # issue: NEXT-6061
+              # issue: NEXT-15998
             - name: FEATURE_NEXT_15707
               default: false
               major: false
@@ -275,6 +279,10 @@ shopware:
               default: false
               major: false
               description: "Register Doi Domain"
+            - name: FEATURE_NEXT_13410
+              default: false
+              major: true
+              description: "Make sales channels required in seo generator"
               # issue: NEXT-16200
             - name: FEATURE_NEXT_8097
               default: false
@@ -305,6 +313,56 @@ shopware:
               major: true
               description: "Default transaction state for async app payments"
               # issue: NEXT-13601
+            - name: FEATURE_NEXT_16992
+              default: false
+              major: true
+              description: "Remove page_product_detail_not_available and buy_widget_not_available block"
+              # issue: NEXT-16992
+            - name: FEATURE_NEXT_7530
+              default: false
+              major: true
+              description: "Improve orders UX in Administration"
+              # issue: NEXT-7530
+            - name: FEATURE_NEXT_16824
+              default: false
+              major: true
+              description: "Cart merged event"
+              # issue: NEXT-16824
+            - name: FEATURE_NEXT_16271
+              default: false
+              major: true
+              description: "Refactor `sw-simple-search-field` component to a transparent wrapper component"
+              # issue: NEXT-16271
+            - name: FEATURE_NEXT_17275
+              default: false
+              major: true
+              description: "StorefrontRenderEvent only gets original view"
+              # issue: NEXT-17275
+            - name: FEATURE_NEXT_17016
+              default: false
+              major: true
+              description: "Add, update or improve the selection and specification of Rule Builder Condition Fields."
+              # issue: NEXT-17016
+            - name: FEATURE_NEXT_16236
+              default: false
+              major: true
+              description: "Change customer creation behaviour on checkout/register page to opt in customer account."
+              # issue: NEXT-16236
+            - name: FEATURE_NEXT_16769
+              default: false
+              major: true
+              description: "Prepared payment flow"
+              # issue: NEXT-16769
+            - name: FEATURE_NEXT_16640
+              default: false
+              major: true
+              description: "Change ExceptionHandlerInterface by removing Command $command argument"
+              # issue: NEXT-16640
+            - name: FEATURE_NEXT_17261
+              default: false
+              major: false
+              description: "Bulk Edit for Customers and Documents"
+              # issue: NEXT-17261
 
     logger:
         file_rotation_count: 14

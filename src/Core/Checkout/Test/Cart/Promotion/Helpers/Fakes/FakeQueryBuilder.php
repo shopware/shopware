@@ -20,7 +20,7 @@ class FakeQueryBuilder extends QueryBuilder
     }
 
     /**
-     * @return \Doctrine\DBAL\Driver\Statement|int|FakeResultStatement
+     * @return \Doctrine\DBAL\ForwardCompatibility\Result|int|FakeResultStatement
      */
     public function execute()
     {

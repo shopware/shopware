@@ -13,13 +13,13 @@ use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Rule\LineItemOfTypeRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 
 class CalculatorTest extends TestCase
 {
@@ -44,7 +44,7 @@ class CalculatorTest extends TestCase
     {
         $this->calculator = $this->getContainer()->get(Calculator::class);
         $this->factory = $this->getContainer()->get(SalesChannelContextFactory::class);
-        $this->context = $this->factory->create(Uuid::randomHex(), Defaults::SALES_CHANNEL);
+        $this->context = $this->factory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
     }
 
     public function testCalculateSimplePrice(): void

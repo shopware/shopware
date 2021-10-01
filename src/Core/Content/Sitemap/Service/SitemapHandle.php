@@ -96,7 +96,7 @@ class SitemapHandle implements SitemapHandleInterface
 
     private function getPath(SalesChannelContext $salesChannelContext): string
     {
-        return 'sitemap/salesChannel-' . $salesChannelContext->getSalesChannel()->getId() . '-' . $salesChannelContext->getSalesChannel()->getLanguageId() . '/';
+        return 'sitemap/salesChannel-' . $salesChannelContext->getSalesChannel()->getId() . '-' . $salesChannelContext->getLanguageId() . '/';
     }
 
     private function getTmpFilePath(SalesChannelContext $salesChannelContext): string

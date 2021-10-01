@@ -6,10 +6,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\Pathname\UrlGeneratorInterface;
 use Shopware\Core\Content\Test\Media\MediaFixtures;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Profiler\Profiler;
 use Symfony\Component\Mailer\DataCollector\MessageDataCollector;
@@ -70,6 +70,46 @@ class MailActionControllerTest extends TestCase
 
         static::assertSame('This is plain text', $partsByType['text/plain']);
         static::assertSame('<h1>This is HTML</h1>', $partsByType['text/html']);
+    }
+
+    public function testSendingMailWithMailTemplateData(): void
+    {
+        $data = $this->getTestData();
+        $data['contentHtml'] = '<span> {{ order.deliveries.0.trackingCodes.0 }}</span><span> {{ order.deliveries.1.trackingCodes.1 }}</span>';
+        $data['testMode'] = true;
+        $data['mailTemplateData'] = [
+            'order' => [
+                'salesChannel' => [],
+                'deepLinkCode' => 'home',
+                'deliveries' => [
+                    0 => [
+                        'trackingCodes' => ['324fsdf', '1234sdf'],
+                    ],
+                    1 => [
+                        'trackingCodes' => ['dfvv456', '435x4'],
+                    ],
+                ],
+            ],
+        ];
+
+        $this->getBrowser()->request('POST', '/api/_action/mail-template/send', $data);
+
+        // check response status code
+        static::assertSame(Response::HTTP_OK, $this->getBrowser()->getResponse()->getStatusCode());
+
+        /** @var MessageDataCollector $mailCollector */
+        $mailCollector = $this->getBrowser()->getProfile()->getCollector('mailer');
+
+        // checks that an email was sent
+        $messages = $mailCollector->getEvents()->getMessages();
+        static::assertGreaterThan(0, \count($messages));
+        /** @var Email $message */
+        $message = array_pop($messages);
+
+        $partsByType = [];
+        $partsByType['text/html'] = $message->getHtmlBody();
+
+        static::assertSame('<span>324fsdf</span><span>435x4</span>', $partsByType['text/html']);
     }
 
     public function testSendingMailWithAttachments(): void
@@ -150,7 +190,7 @@ class MailActionControllerTest extends TestCase
             'subject' => 'My precious subject',
             'senderName' => 'No Reply',
             'mediaIds' => [],
-            'salesChannelId' => Defaults::SALES_CHANNEL,
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
         ];
     }
 
@@ -159,7 +199,7 @@ class MailActionControllerTest extends TestCase
         $testData['mailTemplateType'] = [
             'templateData' => [
                 'salesChannel' => [
-                    'id' => Defaults::SALES_CHANNEL,
+                    'id' => TestDefaults::SALES_CHANNEL,
                 ],
             ],
         ];
@@ -216,7 +256,7 @@ class MailActionControllerTest extends TestCase
             'footerHtml' => ' <h1>Footer</h1>',
             'salesChannels' => [
                 [
-                    'id' => Defaults::SALES_CHANNEL,
+                    'id' => TestDefaults::SALES_CHANNEL,
                 ],
             ],
         ];

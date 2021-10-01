@@ -118,6 +118,7 @@ class NewsletterUnsubscribeRoute extends AbstractNewsletterUnsubscribeRoute
             new EqualsFilter('email', $email),
             new EqualsFilter('salesChannelId', $context->getSalesChannel()->getId())
         );
+        $criteria->addAssociation('salutation');
         $criteria->setLimit(1);
 
         return $this->newsletterRecipientRepository

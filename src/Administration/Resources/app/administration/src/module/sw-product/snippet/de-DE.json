@@ -2,7 +2,7 @@
   "sw-product": {
     "visibility": {
       "textHeadline": "Sichtbarkeit je Verkaufskanal festlegen",
-      "placeholderVisibility": "Weise Verkaufskanäle zu ...",
+      "placeholderVisibility": "Verkaufskanäle zuweisen ...",
       "columnAll": "Sichtbar",
       "columnSearchOnly": "In Produktlisten ausblenden",
       "columnLinkOnly": "In Produktlisten und der Suche ausblenden",
@@ -146,7 +146,7 @@
     },
     "detailBase": {
       "cardTitleDeliverabilityInfo": "Lieferbarkeit",
-      "cardTitleProductInfo": "Informationen",
+      "cardTitleProductInfo": "Allgemeine Informationen",
       "cardTitleAssignment": "Zuweisung",
       "cardTitlePrices": "Preise",
       "cardTitleSettings": "Auszeichnung",

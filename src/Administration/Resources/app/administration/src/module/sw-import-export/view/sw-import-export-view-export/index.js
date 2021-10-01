@@ -14,7 +14,8 @@ Shopware.Component.register('sw-import-export-view-export', {
     },
 
     methods: {
-        reloadContent() {
+        reloadContent(log) {
+            this.$refs.activityGrid.addActivity(log);
             this.$refs.activityGrid.fetchActivities();
         },
     },

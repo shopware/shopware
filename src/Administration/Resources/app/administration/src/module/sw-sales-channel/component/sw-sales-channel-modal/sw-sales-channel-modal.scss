@@ -10,4 +10,19 @@
         font-weight: normal;
         font-size: 18px;
     }
+
+    footer.sw-modal__footer {
+        display: flex;
+        gap: 8px;
+    }
+
+    .sw-modal__footer {
+        a {
+            color: $color-shopware-brand-500;
+        }
+    }
+
+    &__footer_left {
+        margin-right: auto;
+    }
 }

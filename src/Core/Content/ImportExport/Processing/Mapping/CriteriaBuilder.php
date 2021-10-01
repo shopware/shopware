@@ -28,6 +28,10 @@ class CriteriaBuilder
             $prefix = '';
 
             foreach ($parts as $assoc) {
+                if ($assoc === 'extensions') {
+                    continue; // extension associations must also be joined if the field is in the mapping
+                }
+
                 $field = $tmpDefinition->getField($assoc);
                 if (!$field || !$field instanceof AssociationField) {
                     break;

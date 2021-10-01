@@ -3,12 +3,13 @@
 namespace Shopware\Core\Content\Test\Seo\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Test\TestNavigationSeoUrlRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
-use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
 /**
  * @group store-api
@@ -18,15 +19,9 @@ class SeoUrlRouteTest extends TestCase
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
-    /**
-     * @var \Symfony\Bundle\FrameworkBundle\KernelBrowser
-     */
-    private $browser;
+    private KernelBrowser $browser;
 
-    /**
-     * @var TestDataCollection
-     */
-    private $ids;
+    private TestDataCollection $ids;
 
     protected function setUp(): void
     {
@@ -132,7 +127,7 @@ class SeoUrlRouteTest extends TestCase
 
         $data = [
             'languageId' => Defaults::LANGUAGE_SYSTEM,
-            'routeName' => NavigationPageSeoUrlRoute::ROUTE_NAME,
+            'routeName' => TestNavigationSeoUrlRoute::ROUTE_NAME,
             'salesChannelId' => $this->ids->get('sales-channel'),
             'pathInfo' => 'foo',
             'seoPathInfo' => 'foo',

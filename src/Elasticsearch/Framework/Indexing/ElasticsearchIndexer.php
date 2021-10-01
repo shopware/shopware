@@ -4,6 +4,7 @@ namespace Shopware\Elasticsearch\Framework\Indexing;
 
 use Doctrine\DBAL\Connection;
 use Elasticsearch\Client;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
@@ -13,6 +14,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NandFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -21,6 +24,7 @@ use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Elasticsearch\Exception\ElasticsearchIndexingException;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
+use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexerLanguageCriteriaEvent;
 
 class ElasticsearchIndexer extends AbstractMessageHandler
 {
@@ -42,6 +46,8 @@ class ElasticsearchIndexer extends AbstractMessageHandler
 
     private EntityRepositoryInterface $languageRepository;
 
+    private EventDispatcherInterface $eventDispatcher;
+
     private int $indexingBatchSize;
 
     public function __construct(
@@ -54,6 +60,7 @@ class ElasticsearchIndexer extends AbstractMessageHandler
         LoggerInterface $logger,
         EntityRepositoryInterface $currencyRepository,
         EntityRepositoryInterface $languageRepository,
+        EventDispatcherInterface $eventDispatcher,
         int $indexingBatchSize
     ) {
         $this->connection = $connection;
@@ -65,6 +72,7 @@ class ElasticsearchIndexer extends AbstractMessageHandler
         $this->logger = $logger;
         $this->currencyRepository = $currencyRepository;
         $this->languageRepository = $languageRepository;
+        $this->eventDispatcher = $eventDispatcher;
         $this->indexingBatchSize = $indexingBatchSize;
     }
 
@@ -126,32 +134,9 @@ class ElasticsearchIndexer extends AbstractMessageHandler
 
         $messages = $this->generateMessages($definition, $ids);
 
-        $indices = [];
-
         /** @var ElasticsearchIndexingMessage $message */
         foreach ($messages as $message) {
             $this->handle($message);
-
-            $data = $message->getData();
-            if (!$data instanceof IndexingDto) {
-                continue;
-            }
-
-            $indices[] = $data->getIndex();
-        }
-
-        $indices = array_unique($indices);
-        $indices = array_filter($indices, fn (string $index) => $this->client->indices()->exists(['index' => $index]));
-
-        if (empty($indices)) {
-            return;
-        }
-
-        try {
-            $this->client->indices()->refresh([
-                'index' => implode(',', array_unique($indices)),
-            ]);
-        } catch (\Exception $e) {
         }
     }
 
@@ -292,7 +277,7 @@ class ElasticsearchIndexer extends AbstractMessageHandler
 
     private function init(): IndexerOffset
     {
-        $this->connection->executeUpdate('DELETE FROM elasticsearch_index_task');
+        $this->connection->executeStatement('DELETE FROM elasticsearch_index_task');
 
         $this->createScripts();
 
@@ -313,17 +298,22 @@ class ElasticsearchIndexer extends AbstractMessageHandler
 
                 $index = $alias . '_' . $timestamp->getTimestamp();
 
+                $hasAlias = $this->indexCreator->aliasExists($alias);
+
                 $this->indexCreator->createIndex($definition, $index, $alias, $context);
 
                 $iterator = $this->iteratorFactory->createIterator($definition->getEntityDefinition());
 
-                $this->connection->insert('elasticsearch_index_task', [
-                    'id' => Uuid::randomBytes(),
-                    '`entity`' => $definition->getEntityDefinition()->getEntityName(),
-                    '`index`' => $index,
-                    '`alias`' => $alias,
-                    '`doc_count`' => $iterator->fetchCount(),
-                ]);
+                // We don't need an index task, when it's the first indexing. This will allow alias swapping to nothing
+                if ($hasAlias) {
+                    $this->connection->insert('elasticsearch_index_task', [
+                        'id' => Uuid::randomBytes(),
+                        '`entity`' => $definition->getEntityDefinition()->getEntityName(),
+                        '`index`' => $index,
+                        '`alias`' => $alias,
+                        '`doc_count`' => $iterator->fetchCount(),
+                    ]);
+                }
             }
         }
 
@@ -361,7 +351,10 @@ class ElasticsearchIndexer extends AbstractMessageHandler
     {
         $context = Context::createDefaultContext();
         $criteria = new Criteria();
+        $criteria->addFilter(new NandFilter([new EqualsFilter('salesChannelDomains.id', null)]));
         $criteria->addSorting(new FieldSorting('id'));
+
+        $this->eventDispatcher->dispatch(new ElasticsearchIndexerLanguageCriteriaEvent($criteria, $context));
 
         /** @var LanguageCollection $languages */
         $languages = $this->languageRepository

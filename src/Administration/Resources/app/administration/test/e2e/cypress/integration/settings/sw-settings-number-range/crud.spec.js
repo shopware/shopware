@@ -14,18 +14,19 @@ describe('Number Range: Test crud number range', () => {
     });
 
     it('@settings: create and read number range', () => {
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/number-range`,
-            method: 'post'
+        cy.intercept({
+            url: '/api/search/number-range',
+            method: 'POST'
         }).as('saveData');
-        cy.route({
+
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/number-range-type`,
-            method: 'post'
+            method: 'POST'
         }).as('searchNumberRangeType');
-        cy.route({
+
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/sales-channel`,
-            method: 'post'
+            method: 'POST'
         }).as('searchSalesChannel');
 
         cy.get('a[href="#/sw/settings/number/range/create"]').click();
@@ -40,9 +41,9 @@ describe('Number Range: Test crud number range', () => {
                 '#numberRangeTypes'
             );
 
-        cy.wait('@searchNumberRangeType').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@searchNumberRangeType')
+            .its('response.statusCode').should('equal', 200);
+
         cy.wait('@searchSalesChannel').then(({ response }) => {
             const { attributes } = response.body.data[0];
             cy.get('.sw-multi-select').typeMultiSelectAndCheck(attributes.name);
@@ -50,9 +51,7 @@ describe('Number Range: Test crud number range', () => {
         cy.get(page.elements.numberRangeSaveAction).click();
 
         // Verify creation
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 200);
 
         cy.get(page.elements.smartBarBack).click();
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Name e2e');
@@ -63,10 +62,9 @@ describe('Number Range: Test crud number range', () => {
 
     it('@settings: update and read number range', () => {
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/number-range/*`,
-            method: 'patch'
+        cy.intercept({
+            url: '/api/number-range/*',
+            method: 'PATCH'
         }).as('saveData');
 
         cy.clickContextMenuItem(
@@ -80,9 +78,7 @@ describe('Number Range: Test crud number range', () => {
         cy.get(page.elements.numberRangeSaveAction).click();
 
         // Verify creation
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Cancellations update');
@@ -93,9 +89,8 @@ describe('Number Range: Test crud number range', () => {
 
     it('@settings: delete number range', () => {
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/number-range/*`,
+        cy.intercept({
+            url: '/api/number-range/*',
             method: 'delete'
         }).as('deleteData');
 
@@ -113,9 +108,7 @@ describe('Number Range: Test crud number range', () => {
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
 
         // Verify deletion
-        cy.wait('@deleteData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.modal).should('not.exist');
     });

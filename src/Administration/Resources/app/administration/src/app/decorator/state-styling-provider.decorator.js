@@ -33,6 +33,24 @@ Application.addServiceProviderDecorator('stateStyleDataProviderService', (stateS
         variant: 'neutral',
     });
 
+    stateStyleService.addStyle('order_transaction.state', 'authorized', {
+        icon: 'progress',
+        color: 'progress',
+        variant: 'progress',
+    });
+
+    stateStyleService.addStyle('order_transaction.state', 'unconfirmed', {
+        icon: 'progress',
+        color: 'progress',
+        variant: 'progress',
+    });
+
+    stateStyleService.addStyle('order_transaction.state', 'in_progress', {
+        icon: 'progress',
+        color: 'progress',
+        variant: 'progress',
+    });
+
     stateStyleService.addStyle('order_transaction.state', 'paid', {
         icon: 'done',
         color: 'done',
@@ -40,33 +58,45 @@ Application.addServiceProviderDecorator('stateStyleDataProviderService', (stateS
     });
 
     stateStyleService.addStyle('order_transaction.state', 'paid_partially', {
-        icon: 'progress',
-        color: 'progress',
-        variant: 'progress',
+        icon: 'warning',
+        color: 'warning',
+        variant: 'warning',
     });
 
     stateStyleService.addStyle('order_transaction.state', 'refunded', {
-        icon: 'progress',
-        color: 'progress',
-        variant: 'progress',
+        icon: 'done',
+        color: 'done',
+        variant: 'done',
     });
 
     stateStyleService.addStyle('order_transaction.state', 'refunded_partially', {
-        icon: 'progress',
-        color: 'progress',
-        variant: 'progress',
+        icon: 'warning',
+        color: 'warning',
+        variant: 'warning',
     });
 
     stateStyleService.addStyle('order_transaction.state', 'reminded', {
-        icon: 'progress',
-        color: 'progress',
-        variant: 'progress',
+        icon: 'warning',
+        color: 'warning',
+        variant: 'warning',
     });
 
     stateStyleService.addStyle('order_transaction.state', 'cancelled', {
         icon: 'danger',
         color: 'danger',
         variant: 'danger',
+    });
+
+    stateStyleService.addStyle('order_transaction.state', 'failed', {
+        icon: 'danger',
+        color: 'danger',
+        variant: 'danger',
+    });
+
+    stateStyleService.addStyle('order_transaction.state', 'chargeback', {
+        icon: 'done',
+        color: 'done',
+        variant: 'done',
     });
 
     // Order Delivery State Styles
@@ -82,22 +112,22 @@ Application.addServiceProviderDecorator('stateStyleDataProviderService', (stateS
         variant: 'done',
     });
 
-    stateStyleService.addStyle('order_delivery.state', 'shipped-partially', {
-        icon: 'progress',
-        color: 'progress',
-        variant: 'progress',
+    stateStyleService.addStyle('order_delivery.state', 'shipped_partially', {
+        icon: 'warning',
+        color: 'warning',
+        variant: 'warning',
     });
 
     stateStyleService.addStyle('order_delivery.state', 'returned', {
-        icon: 'progress',
-        color: 'progress',
-        variant: 'progress',
+        icon: 'done',
+        color: 'done',
+        variant: 'done',
     });
 
     stateStyleService.addStyle('order_delivery.state', 'returned_partially', {
-        icon: 'progress',
-        color: 'progress',
-        variant: 'progress',
+        icon: 'warning',
+        color: 'warning',
+        variant: 'warning',
     });
 
     stateStyleService.addStyle('order_delivery.state', 'cancelled', {

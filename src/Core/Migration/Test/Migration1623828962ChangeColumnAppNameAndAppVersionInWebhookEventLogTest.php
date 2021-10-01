@@ -4,6 +4,7 @@ namespace Shopware\Core\Migration\Test;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -43,7 +44,7 @@ class Migration1623828962ChangeColumnAppNameAndAppVersionInWebhookEventLogTest e
         $webhookEventId = Uuid::randomHex();
         $webhookId = Uuid::randomHex();
 
-        $webhookEventMessage = new WebhookEventMessage($webhookEventId, [], null, $webhookId, '6.4', 'http://test.com', null);
+        $webhookEventMessage = new WebhookEventMessage($webhookEventId, [], null, $webhookId, '6.4', 'http://test.com', null, Defaults::LANGUAGE_SYSTEM, 'en-GB');
 
         $webhookEventLogRepo = $this->getContainer()->get('webhook_event_log.repository');
         $webhookEventLogRepo->create([[

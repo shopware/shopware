@@ -85,6 +85,16 @@
                 </sw-context-menu-item>
                 {% endblock %}
 
+                {% block sw_import_export_view_profile_profiles_listing_download_template %}
+                <sw-context-menu-item
+                    v-if="feature.isActive('FEATURE_NEXT_15998')"
+                    class="sw-import-export-view-profiles__listing-download-template-action"
+                    @click="onDownloadTemplate(item)"
+                >
+                    {{ $tc('sw-import-export.profile.downloadTemplateLabel') }}
+                </sw-context-menu-item>
+                {% endblock %}
+
                 {% block sw_import_export_view_profile_profiles_listing_delete %}
                 <sw-context-menu-item
                     class="sw-import-export-view-profiles__listing-delete-action"

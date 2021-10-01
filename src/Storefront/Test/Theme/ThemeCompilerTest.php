@@ -4,12 +4,12 @@ namespace Shopware\Storefront\Test\Theme;
 
 use League\Flysystem\Filesystem;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedScriptsEvent;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
 use Shopware\Storefront\Event\ThemeCompilerEnrichScssVariablesEvent;
@@ -148,6 +148,25 @@ class ThemeCompilerTest extends TestCase
                     'name' => 'sw-custom-header',
                     'type' => 'switch',
                     'value' => true,
+                ],
+                'sw-multi-test' => [
+                    'name' => 'sw-multi-test',
+                    'type' => 'text',
+                    'value' => [
+                        'top',
+                        'bottom',
+                    ],
+                    'custom' => [
+                        'componentName' => 'sw-multi-select',
+                        'options' => [
+                            [
+                                'value' => 'bottom',
+                            ],
+                            [
+                                'value' => 'top',
+                            ],
+                        ],
+                    ],
                 ],
             ],
         ];
@@ -372,7 +391,7 @@ PHP_EOL;
         $config->setAssetPaths(['bla']);
 
         $compiler->compileTheme(
-            Defaults::SALES_CHANNEL,
+            TestDefaults::SALES_CHANNEL,
             'test',
             $config,
             new StorefrontPluginConfigurationCollection()

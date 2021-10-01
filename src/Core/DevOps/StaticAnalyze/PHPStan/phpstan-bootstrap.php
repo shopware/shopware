@@ -16,7 +16,7 @@ if (!\defined('TEST_PROJECT_DIR')) {
             return $_ENV['PROJECT_ROOT'];
         }
 
-        if (file_exists('vendor')) {
+        if (file_exists('vendor') && (file_exists('.env') || file_exists('.env.dist'))) {
             return (string) getcwd();
         }
 
@@ -32,6 +32,7 @@ if (!\defined('TEST_PROJECT_DIR')) {
     })());
 }
 
+$_ENV['PROJECT_ROOT'] = $_SERVER['PROJECT_ROOT'] = TEST_PROJECT_DIR;
 $classLoader = require TEST_PROJECT_DIR . '/vendor/autoload.php';
 
 (new Dotenv())->loadEnv(TEST_PROJECT_DIR . '/.env');

@@ -5,11 +5,11 @@ namespace Shopware\Core\Checkout\Test\Customer\Subscriber;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Test\Cart\LineItem\Group\Helpers\Traits\LineItemTestFixtureBehaviour;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\IpUtils;
 
@@ -18,14 +18,14 @@ class CustomerRemoteAddressSubscriberTest extends TestCase
     use SalesChannelFunctionalTestBehaviour;
     use LineItemTestFixtureBehaviour;
 
-    /**
-     * @var KernelBrowser
-     */
-    private $browser;
+    private KernelBrowser $browser;
 
     public function setUp(): void
     {
-        $this->browser = $this->createCustomSalesChannelBrowser(['id' => Defaults::SALES_CHANNEL]);
+        $this->browser = $this->createCustomSalesChannelBrowser([
+            'id' => TestDefaults::SALES_CHANNEL,
+            'languages' => [],
+        ]);
         $this->assignSalesChannelContext($this->browser);
     }
 
@@ -69,7 +69,7 @@ class CustomerRemoteAddressSubscriberTest extends TestCase
         $this->getContainer()->get('customer.repository')->create([
             [
                 'id' => $customerId,
-                'salesChannelId' => Defaults::SALES_CHANNEL,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'defaultShippingAddress' => [
                     'id' => $addressId,
                     'firstName' => 'Max',
@@ -82,7 +82,7 @@ class CustomerRemoteAddressSubscriberTest extends TestCase
                 ],
                 'defaultBillingAddressId' => $addressId,
                 'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
-                'groupId' => Defaults::FALLBACK_CUSTOMER_GROUP,
+                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
                 'email' => $email,
                 'password' => $password,
                 'firstName' => 'Max',

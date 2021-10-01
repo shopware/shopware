@@ -20,18 +20,15 @@ describe('Media: Test crud operations of folders', () => {
         const page = new MediaPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/media-folder`,
-            method: 'post'
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/media-folder`,
+            method: 'POST'
         }).as('saveData');
 
         // Create folder
         cy.get(page.elements.loader).should('not.exist');
         page.createFolder('1 thing to fold about');
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
         cy.get('.sw-media-base-item__name[title="1 thing to fold about"]')
             .should('be.visible');
     });
@@ -40,10 +37,9 @@ describe('Media: Test crud operations of folders', () => {
         const page = new MediaPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/media-folder/*`,
-            method: 'patch'
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/media-folder/*`,
+            method: 'PATCH'
         }).as('saveData');
 
         // Edit folder's name
@@ -61,9 +57,7 @@ describe('Media: Test crud operations of folders', () => {
         cy.get(`${page.elements.folderNameInput}`).type('An Edith gets a new name');
         cy.get(`${page.elements.folderNameInput}`).type('{enter}');
 
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
         cy.get('.sw-media-base-item__name[title="An Edith gets a new name"]').should('be.visible');
     });
 
@@ -71,17 +65,16 @@ describe('Media: Test crud operations of folders', () => {
         const page = new MediaPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/media-folder`,
-            method: 'post'
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/media-folder`,
+            method: 'POST'
         }).as('saveData');
-        cy.route({
-            url: `${Cypress.env('apiPath')}/media-folder-configuration`,
-            method: 'post'
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/media-folder-configuration`,
+            method: 'POST'
         }).as('postChildConfiguration');
-        cy.route({
-            url: `${Cypress.env('apiPath')}/media-folder-configuration/**`,
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/media-folder-configuration/**`,
             method: 'delete'
         }).as('deleteChildConfiguration');
 
@@ -93,9 +86,7 @@ describe('Media: Test crud operations of folders', () => {
         cy.get(page.elements.loader).should('not.exist');
         page.createFolder('new child');
 
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         page.openChildConfiguration('new child');
 
@@ -108,9 +99,7 @@ describe('Media: Test crud operations of folders', () => {
         cy.get('.sw-media-modal-folder-settings__confirm').click();
 
         // Wait for new child configuration to be posted with new data
-        cy.wait('@postChildConfiguration').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@postChildConfiguration').its('response.statusCode').should('equal', 204);
 
         page.openCurrentFolderConfiguration();
 
@@ -130,9 +119,7 @@ describe('Media: Test crud operations of folders', () => {
         cy.get('.sw-media-modal-folder-settings__confirm').click();
 
         // Wait for unused child configuration to be deleted
-        cy.wait('@deleteChildConfiguration').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteChildConfiguration').its('response.statusCode').should('equal', 204);
 
         page.openChildConfiguration('new child');
 
@@ -147,8 +134,7 @@ describe('Media: Test crud operations of folders', () => {
         const page = new MediaPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/media-folder/*`,
             method: 'delete'
         }).as('deleteData');
@@ -167,9 +153,7 @@ describe('Media: Test crud operations of folders', () => {
             .contains('Are you sure you want to delete the folder "A thing to fold about"?');
         cy.get('.sw-media-modal-delete__confirm').click();
 
-        cy.wait('@deleteData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteData').its('response.statusCode').should('equal', 204);
         cy.get('.sw-media-base-item__name[title="1 thing to fold about"]')
             .should('not.exist');
     });

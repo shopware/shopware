@@ -9,39 +9,33 @@ use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlGenerator;
 use Shopware\Core\Content\Seo\SeoUrlPersister;
+use Shopware\Core\Content\Test\TestNavigationSeoUrlRoute;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
 class SeoUrlPersisterTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use StorefrontSalesChannelTestHelper;
+    use SalesChannelApiTestBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $seoUrlRepository;
+    private EntityRepositoryInterface $seoUrlRepository;
 
-    /**
-     * @var SeoUrlPersister
-     */
-    private $seoUrlPersister;
+    private SeoUrlPersister $seoUrlPersister;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $categoryRepository;
+    private EntityRepositoryInterface $categoryRepository;
 
-    /**
-     * @var SeoUrlGenerator
-     */
-    private $seoUrlGenerator;
+    private SeoUrlGenerator $seoUrlGenerator;
+
+    private SalesChannelEntity $salesChannel;
 
     public function setUp(): void
     {
@@ -51,8 +45,11 @@ class SeoUrlPersisterTest extends TestCase
         $this->seoUrlGenerator = $this->getContainer()->get(SeoUrlGenerator::class);
 
         $connection = $this->getContainer()->get(Connection::class);
-        $connection->exec('DELETE FROM `sales_channel`');
-        $connection->exec('DELETE FROM `seo_url`');
+        $connection->executeStatement('DELETE FROM `sales_channel`');
+        $connection->executeStatement('DELETE FROM `seo_url`');
+
+        $id = $this->createSalesChannel()['id'];
+        $this->salesChannel = $this->getContainer()->get('sales_channel.repository')->search(new Criteria([$id]), Context::createDefaultContext())->first();
     }
 
     public function testUpdateSeoUrlsDefault(): void
@@ -67,11 +64,11 @@ class SeoUrlPersisterTest extends TestCase
                 'seoPathInfo' => 'fancy-path',
             ],
         ];
-        $this->seoUrlPersister->updateSeoUrls($context, 'foo.route', array_column($seoUrlUpdates, 'foreignKey'), $seoUrlUpdates);
+        $this->seoUrlPersister->updateSeoUrls($context, 'foo.route', array_column($seoUrlUpdates, 'foreignKey'), $seoUrlUpdates, $this->salesChannel);
         $seoUrls = $this->seoUrlRepository->search(new Criteria(), Context::createDefaultContext())->getEntities();
         static::assertCount(1, $seoUrls);
 
-        $this->seoUrlPersister->updateSeoUrls($context, 'foo.route', array_column($seoUrlUpdates, 'foreignKey'), $seoUrlUpdates);
+        $this->seoUrlPersister->updateSeoUrls($context, 'foo.route', array_column($seoUrlUpdates, 'foreignKey'), $seoUrlUpdates, $this->salesChannel);
         $seoUrls = $this->seoUrlRepository->search(new Criteria(), Context::createDefaultContext())->getEntities();
         static::assertCount(1, $seoUrls);
 
@@ -82,7 +79,7 @@ class SeoUrlPersisterTest extends TestCase
                 'seoPathInfo' => 'fancy-path-2',
             ],
         ];
-        $this->seoUrlPersister->updateSeoUrls($context, 'foo.route', array_column($seoUrlUpdates, 'foreignKey'), $seoUrlUpdates);
+        $this->seoUrlPersister->updateSeoUrls($context, 'foo.route', array_column($seoUrlUpdates, 'foreignKey'), $seoUrlUpdates, $this->salesChannel);
         $seoUrls = $this->seoUrlRepository->search(new Criteria(), Context::createDefaultContext())->getEntities();
 
         static::assertCount(2, $seoUrls);
@@ -123,7 +120,7 @@ class SeoUrlPersisterTest extends TestCase
             ],
         ];
         $fks = array_column($seoUrlUpdates, 'foreignKey');
-        $this->seoUrlPersister->updateSeoUrls(Context::createDefaultContext(), 'r', $fks, $seoUrlUpdates);
+        $this->seoUrlPersister->updateSeoUrls(Context::createDefaultContext(), 'r', $fks, $seoUrlUpdates, $this->salesChannel);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsAnyFilter('foreignKey', [$fk1, $fk2]));
@@ -152,7 +149,7 @@ class SeoUrlPersisterTest extends TestCase
             ],
         ];
         $fks = array_column($initialSeoUrlUpdates, 'foreignKey');
-        $this->seoUrlPersister->updateSeoUrls(Context::createDefaultContext(), 'r', $fks, $initialSeoUrlUpdates);
+        $this->seoUrlPersister->updateSeoUrls(Context::createDefaultContext(), 'r', $fks, $initialSeoUrlUpdates, $this->salesChannel);
 
         $intermediateSeoUrlUpdates = [
             [
@@ -162,8 +159,8 @@ class SeoUrlPersisterTest extends TestCase
                 'seoPathInfo' => 'intermediate',
             ],
         ];
-        $this->seoUrlPersister->updateSeoUrls(Context::createDefaultContext(), 'r', $fks, $intermediateSeoUrlUpdates);
-        $this->seoUrlPersister->updateSeoUrls(Context::createDefaultContext(), 'r', $fks, $initialSeoUrlUpdates);
+        $this->seoUrlPersister->updateSeoUrls(Context::createDefaultContext(), 'r', $fks, $intermediateSeoUrlUpdates, $this->salesChannel);
+        $this->seoUrlPersister->updateSeoUrls(Context::createDefaultContext(), 'r', $fks, $initialSeoUrlUpdates, $this->salesChannel);
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsAnyFilter('foreignKey', [$fk1]));
@@ -194,7 +191,7 @@ class SeoUrlPersisterTest extends TestCase
             ],
         ];
         $fks = array_column($seoUrlUpdates, 'foreignKey');
-        $this->seoUrlPersister->updateSeoUrls($defaultContext, 'r', $fks, $seoUrlUpdates);
+        $this->seoUrlPersister->updateSeoUrls($defaultContext, 'r', $fks, $seoUrlUpdates, $this->salesChannel);
 
         $seoUrlUpdates = [
             [
@@ -204,7 +201,7 @@ class SeoUrlPersisterTest extends TestCase
             ],
         ];
         $fks = array_column($seoUrlUpdates, 'foreignKey');
-        $this->seoUrlPersister->updateSeoUrls($deContext, 'r', $fks, $seoUrlUpdates);
+        $this->seoUrlPersister->updateSeoUrls($deContext, 'r', $fks, $seoUrlUpdates, $this->salesChannel);
 
         $criteria = (new Criteria())->addFilter(new EqualsFilter('routeName', 'r'));
         /** @var SeoUrlCollection $result */
@@ -231,7 +228,7 @@ class SeoUrlPersisterTest extends TestCase
             ],
         ];
         $fks = array_column($seoUrlUpdates, 'foreignKey');
-        $this->seoUrlPersister->updateSeoUrls($context, 'r', $fks, $seoUrlUpdates);
+        $this->seoUrlPersister->updateSeoUrls($context, 'r', $fks, $seoUrlUpdates, $this->salesChannel);
 
         $seoUrlUpdates = [
             [
@@ -242,7 +239,7 @@ class SeoUrlPersisterTest extends TestCase
             ],
         ];
         $fks = array_column($seoUrlUpdates, 'foreignKey');
-        $this->seoUrlPersister->updateSeoUrls($context, 'r', $fks, $seoUrlUpdates);
+        $this->seoUrlPersister->updateSeoUrls($context, 'r', $fks, $seoUrlUpdates, $this->salesChannel);
 
         $seoUrlUpdates = [
             [
@@ -253,7 +250,7 @@ class SeoUrlPersisterTest extends TestCase
             ],
         ];
         $fks = array_column($seoUrlUpdates, 'foreignKey');
-        $this->seoUrlPersister->updateSeoUrls($context, 'r', $fks, $seoUrlUpdates);
+        $this->seoUrlPersister->updateSeoUrls($context, 'r', $fks, $seoUrlUpdates, $this->salesChannel);
 
         $criteria = (new Criteria())->addFilter(new EqualsFilter('routeName', 'r'));
         /** @var SeoUrlCollection $result */
@@ -274,7 +271,7 @@ class SeoUrlPersisterTest extends TestCase
                 'isModified' => false,
             ],
         ];
-        $this->seoUrlPersister->updateSeoUrls($context, 'foo.route', array_column($seoUrlUpdates, 'foreignKey'), $seoUrlUpdates);
+        $this->seoUrlPersister->updateSeoUrls($context, 'foo.route', array_column($seoUrlUpdates, 'foreignKey'), $seoUrlUpdates, $this->salesChannel);
         $seoUrls = $this->seoUrlRepository->search(new Criteria(), Context::createDefaultContext())->getEntities();
         static::assertCount(1, $seoUrls);
 
@@ -286,7 +283,7 @@ class SeoUrlPersisterTest extends TestCase
                 'isModified' => true,
             ],
         ];
-        $this->seoUrlPersister->updateSeoUrls($context, 'foo.route', array_column($seoUrlUpdates, 'foreignKey'), $seoUrlUpdates);
+        $this->seoUrlPersister->updateSeoUrls($context, 'foo.route', array_column($seoUrlUpdates, 'foreignKey'), $seoUrlUpdates, $this->salesChannel);
         $seoUrls = $this->seoUrlRepository->search(new Criteria(), Context::createDefaultContext())->getEntities();
 
         static::assertCount(2, $seoUrls);
@@ -304,7 +301,7 @@ class SeoUrlPersisterTest extends TestCase
             ],
         ];
 
-        $this->seoUrlPersister->updateSeoUrls($context, 'foo.route', array_column($seoUrlUpdates, 'foreignKey'), $seoUrlUpdates);
+        $this->seoUrlPersister->updateSeoUrls($context, 'foo.route', array_column($seoUrlUpdates, 'foreignKey'), $seoUrlUpdates, $this->salesChannel);
         $seoUrls = $this->seoUrlRepository->search(new Criteria(), Context::createDefaultContext())->getEntities();
 
         static::assertCount(2, $seoUrls);
@@ -317,17 +314,17 @@ class SeoUrlPersisterTest extends TestCase
 
     public function testUpdateSeoUrlsShouldMarkSeoUrlAsDeleted(): void
     {
-        $isActive = false;
-        $category = $this->createCategory($isActive);
-        $this->createSeoUrlInDatabase($category->getId());
+        $category = $this->createCategory(false);
+        $this->createSeoUrlInDatabase($category->getId(), $this->salesChannel->getId());
 
         $seoUrls = $this->generateSeoUrls($category->getId());
 
         $this->seoUrlPersister->updateSeoUrls(
             Context::createDefaultContext(),
-            'frontend.navigation.page',
+            TestNavigationSeoUrlRoute::ROUTE_NAME,
             [$category->getId()],
-            $seoUrls
+            $seoUrls,
+            $this->salesChannel
         );
 
         $seoUrl = $this->getSeoUrlFromDatabase($category->getId());
@@ -342,7 +339,7 @@ class SeoUrlPersisterTest extends TestCase
     {
         $isActive = true;
         $category = $this->createCategory($isActive);
-        $this->createSeoUrlInDatabase($category->getId());
+        $this->createSeoUrlInDatabase($category->getId(), $this->salesChannel->getId());
 
         $seoUrls = $this->generateSeoUrls($category->getId());
 
@@ -350,7 +347,50 @@ class SeoUrlPersisterTest extends TestCase
             Context::createDefaultContext(),
             'frontend.navigation.page',
             [$category->getId()],
-            $seoUrls
+            $seoUrls,
+            $this->salesChannel
+        );
+
+        $seoUrl = $this->getSeoUrlFromDatabase($category->getId());
+
+        static::assertFalse($seoUrl->getIsDeleted());
+    }
+
+    public function testUpdaterDoesNotTouchOtherUrlsFromOtherSalesChannels(): void
+    {
+        $category = $this->createCategory(true);
+
+        $this->seoUrlRepository->create([
+            [
+                'foreignKey' => $category->getId(),
+                'routeName' => 'frontend.navigation.page',
+                'pathInfo' => sprintf('navigation/%s', $category->getId()),
+                'seoPathInfo' => 'FancyCategory',
+                'isCanonical' => true,
+                'isDeleted' => false,
+                'salesChannelId' => $this->salesChannel->getId(),
+            ],
+        ], Context::createDefaultContext());
+
+        $otherSalesChannelId = $this->createSalesChannel([
+            'domains' => [
+                [
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'currencyId' => Defaults::CURRENCY,
+                    'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                    'url' => 'http://second',
+                ],
+            ],
+        ])['id'];
+
+        $otherSalesChannel = $this->getContainer()->get('sales_channel.repository')->search(new Criteria([$otherSalesChannelId]), Context::createDefaultContext())->first();
+
+        $this->seoUrlPersister->updateSeoUrls(
+            Context::createDefaultContext(),
+            'frontend.navigation.page',
+            [$category->getId()],
+            [],
+            $otherSalesChannel
         );
 
         $seoUrl = $this->getSeoUrlFromDatabase($category->getId());
@@ -371,7 +411,7 @@ class SeoUrlPersisterTest extends TestCase
         return $this->categoryRepository->search(new Criteria([$id]), Context::createDefaultContext())->first();
     }
 
-    private function getSeoUrlFromDatabase(string $categoryId): SeoUrlEntity
+    private function getSeoUrlFromDatabase(string $categoryId): ?SeoUrlEntity
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('foreignKey', $categoryId));
@@ -379,13 +419,14 @@ class SeoUrlPersisterTest extends TestCase
         return $this->seoUrlRepository->search($criteria, Context::createDefaultContext())->first();
     }
 
-    private function createSeoUrlInDatabase(string $categoryId): void
+    private function createSeoUrlInDatabase(string $categoryId, string $salesChannelId): void
     {
         $this->seoUrlRepository->create([
             [
                 'foreignKey' => $categoryId,
-                'routeName' => 'frontend.navigation.page',
-                'pathInfo' => sprintf('navigation/%s', $categoryId),
+                'routeName' => TestNavigationSeoUrlRoute::ROUTE_NAME,
+                'pathInfo' => sprintf('test/%s', $categoryId),
+                'salesChannelId' => $salesChannelId,
                 'seoPathInfo' => 'FancyCategory',
                 'isCanonical' => true,
                 'isDeleted' => false,
@@ -395,12 +436,24 @@ class SeoUrlPersisterTest extends TestCase
 
     private function generateSeoUrls(string $categoryId): iterable
     {
+        /** @var SalesChannelEntity|null $salesChannel */
+        $salesChannel = $this->getContainer()->get('sales_channel.repository')
+            ->search(
+                (new Criteria())->addFilter(new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT))->setLimit(1),
+                Context::createDefaultContext()
+            )
+            ->first();
+
+        if ($salesChannel === null) {
+            static::markTestSkipped('Sales channel with type of storefront is required');
+        }
+
         return $this->seoUrlGenerator->generate(
             [$categoryId],
             'mytemplate',
-            $this->getContainer()->get(NavigationPageSeoUrlRoute::class),
+            $this->getContainer()->get(TestNavigationSeoUrlRoute::class),
             Context::createDefaultContext(),
-            null
+            $salesChannel
         );
     }
 }

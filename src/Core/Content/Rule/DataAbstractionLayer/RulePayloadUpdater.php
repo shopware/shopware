@@ -34,6 +34,7 @@ class RulePayloadUpdater
         $rules = FetchModeHelper::group($conditions);
 
         $update = new RetryableQuery(
+            $this->connection,
             $this->connection->prepare('UPDATE `rule` SET payload = :payload, invalid = :invalid WHERE id = :id')
         );
 

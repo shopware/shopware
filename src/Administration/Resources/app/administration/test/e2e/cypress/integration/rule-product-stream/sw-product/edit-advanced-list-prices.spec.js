@@ -22,10 +22,9 @@ describe('Product: Edit list prices of context prices', () => {
             const emptySelectRule = '.sw-product-detail-context-prices__empty-state-select-rule';
 
             // Request we want to wait for later
-            cy.server();
-            cy.route({
+            cy.intercept({
                 url: `${Cypress.env('apiPath')}/_action/sync`,
-                method: 'post'
+                method: 'POST'
             }).as('saveData');
 
             // Edit base data of product
@@ -60,9 +59,7 @@ describe('Product: Edit list prices of context prices', () => {
             cy.get(page.elements.productSaveAction).click();
 
             // Verify updated product
-            cy.wait('@saveData').then((xhr) => {
-                expect(xhr).to.have.property('status', 200);
-            });
+            cy.wait('@saveData').its('response.statusCode').should('equal', 200);
             cy.get(page.elements.smartBarBack).click();
             cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
                 .contains('Product name');

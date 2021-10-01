@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\CacheWarmer\WarmableInterface;
 use Symfony\Component\Translation\Formatter\MessageFormatterInterface;
 use Symfony\Component\Translation\MessageCatalogueInterface;
+use Symfony\Component\Translation\Translator as SymfonyTranslator;
 use Symfony\Component\Translation\TranslatorBagInterface;
 use Symfony\Contracts\Translation\LocaleAwareInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -54,6 +55,10 @@ class Translator extends AbstractTranslator
 
     private array $traces = [];
 
+    private EntityRepositoryInterface $snippetSetRepository;
+
+    private array $snippets = [];
+
     public function __construct(
         TranslatorInterface $translator,
         RequestStack $requestStack,
@@ -61,7 +66,8 @@ class Translator extends AbstractTranslator
         MessageFormatterInterface $formatter,
         SnippetService $snippetService,
         EntityRepositoryInterface $languageRepository,
-        string $environment
+        string $environment,
+        EntityRepositoryInterface $snippetSetRepository
     ) {
         $this->translator = $translator;
         $this->requestStack = $requestStack;
@@ -70,6 +76,7 @@ class Translator extends AbstractTranslator
         $this->snippetService = $snippetService;
         $this->languageRepository = $languageRepository;
         $this->environment = $environment;
+        $this->snippetSetRepository = $snippetSetRepository;
     }
 
     public static function buildName(string $id): string
@@ -129,7 +136,7 @@ class Translator extends AbstractTranslator
             $fallbackLocale = null;
         }
 
-        return $this->getCustomizedCatalog($catalog, $fallbackLocale);
+        return $this->getCustomizedCatalog($catalog, $fallbackLocale, $locale);
     }
 
     /**
@@ -182,6 +189,11 @@ class Translator extends AbstractTranslator
         $this->isCustomized = [];
         $this->fallbackLocale = null;
         $this->snippetSetId = null;
+        if ($this->translator instanceof SymfonyTranslator) {
+            // Reset FallbackLocale in memory cache of symfony implementation
+            // set fallback values from Framework/Resources/config/translation.yaml
+            $this->translator->setFallbackLocales(['en_GB', 'en']);
+        }
     }
 
     /**
@@ -203,8 +215,22 @@ class Translator extends AbstractTranslator
         $this->snippetSetId = null;
     }
 
-    public function getSnippetSetId(): ?string
+    public function getSnippetSetId(?string $locale = null): ?string
     {
+        if ($locale !== null) {
+            if (\array_key_exists($locale, $this->snippets)) {
+                return $this->snippets[$locale];
+            }
+
+            $criteria = new Criteria();
+            $criteria->addFilter(new EqualsFilter('iso', $locale));
+
+            $snippetSetId = $this->snippetSetRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
+            if ($snippetSetId !== null) {
+                return $this->snippets[$locale] = $snippetSetId;
+            }
+        }
+
         if ($this->snippetSetId !== null) {
             return $this->snippetSetId;
         }
@@ -247,9 +273,9 @@ class Translator extends AbstractTranslator
     /**
      * Add language specific snippets provided by the admin
      */
-    private function getCustomizedCatalog(MessageCatalogueInterface $catalog, ?string $fallbackLocale): MessageCatalogueInterface
+    private function getCustomizedCatalog(MessageCatalogueInterface $catalog, ?string $fallbackLocale, ?string $locale = null): MessageCatalogueInterface
     {
-        $snippetSetId = $this->getSnippetSetId();
+        $snippetSetId = $this->getSnippetSetId($locale);
         if (!$snippetSetId) {
             return $catalog;
         }

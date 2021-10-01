@@ -15,15 +15,9 @@ use Symfony\Component\Serializer\Serializer;
 
 class StructEncoder
 {
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $definitionRegistry;
+    private DefinitionInstanceRegistry $definitionRegistry;
 
-    /**
-     * @var Serializer
-     */
-    private $serializer;
+    private Serializer $serializer;
 
     private array $protections = [];
 
@@ -85,7 +79,11 @@ class StructEncoder
 
         $alias = $struct->getApiAlias();
 
-        foreach ($data as $property => $value) {
+        foreach ($data as $property => &$value) {
+            if ($property === 'customFields' && $value === []) {
+                $value = new \stdClass();
+            }
+
             if ($property === 'extensions') {
                 $data[$property] = $this->encodeExtensions($struct, $fields, $value);
 
@@ -131,6 +129,7 @@ class StructEncoder
 
             $data[$property] = $this->encodeNestedArray($struct->getApiAlias(), $property, $value, $fields);
         }
+        unset($value);
 
         $data['apiAlias'] = $struct->getApiAlias();
 
@@ -143,7 +142,11 @@ class StructEncoder
             return $data;
         }
 
-        foreach ($data as $property => $value) {
+        foreach ($data as $property => &$value) {
+            if ($property === 'customFields' && $value === []) {
+                $value = new \stdClass();
+            }
+
             $accessor = $prefix . '.' . $property;
             if ($prefix === 'translated') {
                 $accessor = $property;
@@ -161,6 +164,8 @@ class StructEncoder
 
             $data[$property] = $this->encodeNestedArray($alias, $accessor, $value, $fields);
         }
+
+        unset($value);
 
         return $data;
     }

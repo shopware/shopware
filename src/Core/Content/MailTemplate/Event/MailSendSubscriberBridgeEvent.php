@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Event\BusinessEvent;
 use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 
+/**
+ * @feature-deprecated (flag:FEATURE_NEXT_8225) tag:v6.5.0.0 - Will be removed in v6.5.0.0 Use FlowSendMailActionEvent instead
+ */
 class MailSendSubscriberBridgeEvent implements ShopwareEvent
 {
     private DataBag $dataBag;

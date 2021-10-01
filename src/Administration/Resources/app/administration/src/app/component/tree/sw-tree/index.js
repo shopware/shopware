@@ -261,6 +261,7 @@ Component.register('sw-tree', {
                 treeItems.push({
                     data: item,
                     id: item.id,
+                    schema: item.schema,
                     parentId: parentId,
                     childCount: childCount,
                     children: this.getTreeItems(item.id),

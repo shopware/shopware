@@ -8,8 +8,9 @@ import 'src/app/component/form/field-base/sw-field-error';
 import 'src/app/component/base/sw-button';
 import 'src/module/sw-users-permissions/page/sw-users-permissions-user-detail';
 import 'src/app/component/base/sw-button-process';
+import TimezoneService from 'src/core/service/timezone.service';
 
-function createWrapper(privileges = []) {
+async function createWrapper(privileges = []) {
     const localVue = createLocalVue();
     localVue.directive('tooltip', {
         bind(el, binding) {
@@ -26,7 +27,7 @@ function createWrapper(privileges = []) {
         }
     });
 
-    return shallowMount(Shopware.Component.build('sw-users-permissions-user-detail'), {
+    const wrapper = shallowMount(Shopware.Component.build('sw-users-permissions-user-detail'), {
         localVue,
         provide: {
             acl: {
@@ -113,6 +114,7 @@ function createWrapper(privileges = []) {
             'sw-select-field': true,
             'sw-switch-field': true,
             'sw-entity-multi-select': true,
+            'sw-single-select': true,
             'sw-icon': true,
             'sw-data-grid': {
                 props: ['dataSource'],
@@ -124,13 +126,25 @@ function createWrapper(privileges = []) {
 </div>
                 `
             },
-            'sw-context-menu-item': true
+            'sw-context-menu-item': true,
+            'sw-empty-state': true
         }
     });
+
+    // wait until all loading promises are done
+    await wrapper.vm.$nextTick();
+
+    return wrapper;
 }
 
 describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', () => {
     let wrapper;
+
+    beforeAll(() => {
+        Shopware.Service().register('timezoneService', () => {
+            return new TimezoneService();
+        });
+    });
 
     beforeEach(async () => {
         Shopware.State.get('session').languageId = '123456789';
@@ -285,7 +299,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
     });
 
     it('should enable all fields when user has not editor rights', async () => {
-        wrapper = createWrapper('users_and_permissions.editor');
+        wrapper = await createWrapper('users_and_permissions.editor');
 
         await wrapper.setData({
             isLoading: false,

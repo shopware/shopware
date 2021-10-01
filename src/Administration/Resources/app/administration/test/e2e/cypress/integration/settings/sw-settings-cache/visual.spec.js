@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 describe('Cache: Visual testing', () => {
     beforeEach(() => {
@@ -13,10 +13,9 @@ describe('Cache: Visual testing', () => {
     });
 
     it('@visual: check appearance of country module', () => {
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/_action/cache_info`,
-            method: 'get'
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/_action/cache_info`,
+            method: 'GET'
         }).as('getData');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
@@ -29,9 +28,8 @@ describe('Cache: Visual testing', () => {
         cy.get('#sw-settings__content-grid-system').should('be.visible');
         cy.get('#sw-settings-cache').click();
 
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getData')
+            .its('response.statusCode').should('equal', 200);
         cy.get('.sw-loader').should('not.exist');
         cy.takeSnapshot('[Cache] Detail', '.sw-settings-cache');
     });

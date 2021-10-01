@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\Migration1610523204AddInheritanceForProductCmsPage;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\TestDefaults;
 
 class Migration1610523204AddInheritanceForProductCmsPageTest extends TestCase
 {
@@ -140,6 +141,6 @@ class Migration1610523204AddInheritanceForProductCmsPageTest extends TestCase
 
         $token = Uuid::randomHex();
 
-        return $salesChannelContextFactory->create($token, Defaults::SALES_CHANNEL);
+        return $salesChannelContextFactory->create($token, TestDefaults::SALES_CHANNEL);
     }
 }

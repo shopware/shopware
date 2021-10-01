@@ -19,10 +19,9 @@ describe('Customer group: Test crud operations', () => {
         const salesChannelPage = new SalesChannelPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/customer-group`,
-            method: 'post'
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/customer-group`,
+            method: 'POST'
         }).as('saveData');
 
         // Create customer-group
@@ -36,9 +35,7 @@ describe('Customer group: Test crud operations', () => {
         cy.get(page.elements.customerGroupSaveAction).click();
 
         // Verify and check usage of customer-group
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
         cy.get(`${page.elements.dataGridRow}--1 .sw-data-grid__cell--name`).should('be.visible')
@@ -66,10 +63,9 @@ describe('Customer group: Test crud operations', () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/customer-group/*`,
-            method: 'patch'
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/customer-group/*`,
+            method: 'PATCH'
         }).as('saveData');
 
         // Edit base data
@@ -85,9 +81,7 @@ describe('Customer group: Test crud operations', () => {
         cy.get(page.elements.customerGroupSaveAction).click();
 
         // Verify and check usage of customer-group
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get(page.elements.smartBarBack).click();
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).should('be.visible')
@@ -98,9 +92,8 @@ describe('Customer group: Test crud operations', () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/customer-group/*`,
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/customer-group/*`,
             method: 'delete'
         }).as('deleteData');
 
@@ -119,18 +112,15 @@ describe('Customer group: Test crud operations', () => {
         cy.get(page.elements.modal).should('not.exist');
 
         // Verify deletion
-        cy.wait('@deleteData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteData').its('response.statusCode').should('equal', 204);
     });
 
     it('@settings: throw error when deleting standard customer group', () => {
         const page = new SettingsPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/customer-group/*`,
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/customer-group/*`,
             method: 'delete'
         }).as('deleteData');
 
@@ -151,8 +141,6 @@ describe('Customer group: Test crud operations', () => {
         cy.get('.sw-alert--error').should('be.visible');
 
         // Verify that api blocks delete
-        cy.wait('@deleteData').then((xhr) => {
-            expect(xhr).to.have.property('status', 409);
-        });
+        cy.wait('@deleteData').its('response.statusCode').should('equal', 409);
     });
 });

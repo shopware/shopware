@@ -39,6 +39,8 @@ module.exports = {
                             module: path.join(__dirname, 'src/module'),
                             scss: path.join(__dirname, 'src/app/assets/scss'),
                             assets: path.join(__dirname, 'static'),
+                            // Alias for externals
+                            Shopware: path.join(__dirname, 'src/core/shopware'),
                         },
                     },
                 },

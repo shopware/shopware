@@ -484,7 +484,7 @@ class EntityReader implements EntityReaderInterface
     ): void {
         $propertyAccessor = $this->buildOneToManyPropertyAccessor($definition, $association);
 
-        //inject sorting for foreign key, otherwise the internal counter wouldn't work `order by customer_address.customer_id, other_sortings`
+        // inject sorting for foreign key, otherwise the internal counter wouldn't work `order by customer_address.customer_id, other_sortings`
         $sorting = array_merge(
             [new FieldSorting($propertyAccessor, FieldSorting::ASCENDING)],
             $fieldCriteria->getSorting()
@@ -753,6 +753,11 @@ class EntityReader implements EntityReaderInterface
         EntityCollection $collection,
         Criteria $fieldCriteria
     ): array {
+        $sortings = $fieldCriteria->getSorting();
+
+        // Remove first entry
+        array_shift($sortings);
+
         //build query based on provided association criteria (sortings, search, filter)
         $query = $this->criteriaQueryBuilder->build(
             new QueryBuilder($this->connection),
@@ -780,6 +785,17 @@ class EntityReader implements EntityReaderInterface
             ]
         );
 
+        foreach ($query->getQueryPart('orderBy') as $i => $sorting) {
+            // The first order is the primary key
+            if ($i === 0) {
+                continue;
+            }
+            --$i;
+
+            // Strip the ASC/DESC at the end of the sort
+            $query->addSelect(\sprintf('%s as sort_%s', substr($sorting, 0, -4), $i));
+        }
+
         $root = EntityDefinitionQueryHelper::escape($definition->getEntityName());
 
         //create a wrapper query which select the root primary key and the grouped reference ids
@@ -790,6 +806,10 @@ class EntityReader implements EntityReaderInterface
                 'LOWER(HEX(child.id)) as child_id',
             ]
         );
+
+        foreach ($sortings as $i => $sorting) {
+            $wrapper->addOrderBy(sprintf('sort_%s', $i), $sorting->getDirection());
+        }
 
         $wrapper->from($root, $root);
 

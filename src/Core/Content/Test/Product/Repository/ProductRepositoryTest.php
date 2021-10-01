@@ -38,6 +38,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\System\Tax\TaxEntity;
+use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -51,30 +52,15 @@ class ProductRepositoryTest extends TestCase
     public const TEST_LOCALE_ID = 'cf735c44dc7b4428bb3870fe4ffea2df';
     public const TEST_LANGUAGE_LOCALE_CODE = 'sw-AG';
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $repository;
+    private EntityRepositoryInterface $repository;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var Context
-     */
-    private $context;
+    private Context $context;
 
-    /**
-     * @var SearchKeywordUpdater
-     */
-    private $searchKeywordUpdater;
+    private SearchKeywordUpdater $searchKeywordUpdater;
 
     protected function setUp(): void
     {
@@ -2317,7 +2303,7 @@ class ProductRepositoryTest extends TestCase
 
     public function testDuplicateProductNumber(): void
     {
-        $productNumber = Uuid::randomHex();
+        $productNumber = 'sw1' . Uuid::randomHex();
 
         $data = [
             'id' => Uuid::randomHex(),
@@ -3115,10 +3101,10 @@ class ProductRepositoryTest extends TestCase
                         'territory' => 'test',
                     ],
                     'salesChannels' => [
-                        ['id' => Defaults::SALES_CHANNEL],
+                        ['id' => TestDefaults::SALES_CHANNEL],
                     ],
                     'salesChannelDefaultAssignments' => [
-                        ['id' => Defaults::SALES_CHANNEL],
+                        ['id' => TestDefaults::SALES_CHANNEL],
                     ],
                 ],
             ],
@@ -3129,9 +3115,13 @@ class ProductRepositoryTest extends TestCase
     private function resetSearchKeywordUpdaterConfig(): void
     {
         $class = new \ReflectionClass($this->searchKeywordUpdater);
-        $property = $class->getProperty('decorated');
-        $property->setAccessible(true);
-        $searchKeywordUpdaterInner = $property->getValue($this->searchKeywordUpdater);
+        if ($class->hasProperty('decorated')) {
+            $property = $class->getProperty('decorated');
+            $property->setAccessible(true);
+            $searchKeywordUpdaterInner = $property->getValue($this->searchKeywordUpdater);
+        } else {
+            $searchKeywordUpdaterInner = $this->searchKeywordUpdater;
+        }
 
         $class = new \ReflectionClass($searchKeywordUpdaterInner);
         $property = $class->getProperty('config');

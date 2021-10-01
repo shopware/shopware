@@ -50,6 +50,24 @@ export default class ImportExportService extends ApiService {
     }
 
     /**
+     * Get url for profile template download.
+     *
+     * @internal (flag:FEATURE_NEXT_15998)
+     * @param profileId {string}
+     * @returns {string}
+     */
+    async getTemplateFileDownloadUrl(profileId) {
+        const prepareResponse = await this.httpClient.post(
+            `/_action/import-export/prepare-template-file-download?profileId=${profileId}`,
+            {},
+            { headers: this.getBasicHeaders() },
+        );
+
+        return `${Shopware.Context.api.apiPath}/_action/${this.getApiBasePath()}/` +
+            `file/download?fileId=${prepareResponse.data.fileId}&accessToken=${prepareResponse.data.accessToken}`;
+    }
+
+    /**
      * Imports data from the csv file with the given profile. The callback function gets called with progress information
      * and final result data.
      *
@@ -89,21 +107,15 @@ export default class ImportExportService extends ApiService {
     /**
      * @param logEntry {String} log entity
      * @param callback
-     * @param progress
      * @returns {Promise<void>}
      */
-    async trackProgress(logEntry, callback, progress) {
-        const { data: { progress: newProgress } } = await this.httpClient.post('/_action/import-export/process', {
+    async trackProgress(logEntry, callback) {
+        await this.httpClient.post('/_action/import-export/process', {
             logId: logEntry.data.log.id,
-            offset: (progress?.offset) ? progress.offset : 0,
         }, { headers: this.getBasicHeaders() });
 
-        callback.call(this, newProgress);
+        callback.call(this, logEntry.data.log);
 
-        if (newProgress.offset >= newProgress.total) {
-            return logEntry;
-        }
-
-        return this.trackProgress(logEntry, callback, newProgress);
+        return logEntry;
     }
 }

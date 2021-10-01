@@ -5,6 +5,7 @@ import './component/sw-product-stream-field-select';
 import './component/sw-product-stream-value';
 import './component/sw-product-stream-modal-preview';
 import './component/sw-product-stream-filter';
+import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module } = Shopware;
 
@@ -62,4 +63,6 @@ Module.register('sw-product-stream', {
         color: '#57D9A3',
         position: 30,
     }],
+
+    defaultSearchConfiguration,
 });

@@ -17,10 +17,9 @@ describe('Sales Channel: Test crud operations', () => {
         const page = new SalesChannelPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/sales-channel`,
-            method: 'post'
+        cy.intercept({
+            url: `**/**/${Cypress.env('apiPath')}/sales-channel`,
+            method: 'POST'
         }).as('saveData');
 
         // Open sales channel creation
@@ -37,11 +36,8 @@ describe('Sales Channel: Test crud operations', () => {
         page.fillInBasicSalesChannelData('1st Epic Sales Channel');
 
         cy.get(page.elements.salesChannelSaveAction).click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-            cy.get('.sw-button-process__status-indicator > svg > path').should('be.visible');
-            cy.get('.sw-button-process__status-indicator > svg > path').should('not.exist');
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
 
         // Verify creation
         cy.get('.sw-loader').should('not.exist');
@@ -62,10 +58,9 @@ describe('Sales Channel: Test crud operations', () => {
         const page = new SalesChannelPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/sales-channel/*`,
-            method: 'patch'
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/sales-channel/*`,
+            method: 'PATCH'
         }).as('saveData');
 
         // Edit and verify change in sales channel
@@ -73,9 +68,8 @@ describe('Sales Channel: Test crud operations', () => {
         cy.get(page.elements.salesChannelNameInput).clear();
         cy.get(page.elements.salesChannelNameInput).type('Channel No 9');
         cy.get(page.elements.salesChannelSaveAction).click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
         cy.contains('Channel No 9');
     });
 
@@ -83,18 +77,16 @@ describe('Sales Channel: Test crud operations', () => {
         const page = new SalesChannelPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
-            url: `${Cypress.env('apiPath')}/sales-channel/*`,
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/sales-channel/*`,
             method: 'delete'
         }).as('deleteData');
 
         // Delete sales channel
         page.openSalesChannel('Headless');
         page.deleteSingleSalesChannel('Headless');
-        cy.wait('@deleteData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteData')
+            .its('response.statusCode').should('equal', 204);
         cy.get('.sw-admin-menu__sales-channel-item--1').should('not.exist');
     });
 });

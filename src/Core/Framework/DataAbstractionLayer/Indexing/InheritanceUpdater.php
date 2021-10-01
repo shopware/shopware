@@ -114,7 +114,7 @@ class InheritanceUpdater
                 $sql
             );
 
-            RetryableQuery::retryable(function () use ($params, $sql): void {
+            RetryableQuery::retryable($this->connection, function () use ($params, $sql): void {
                 $this->connection->executeUpdate(
                     $sql,
                     $params,
@@ -163,7 +163,7 @@ class InheritanceUpdater
                 $sql
             );
 
-            RetryableQuery::retryable(function () use ($sql, $params): void {
+            RetryableQuery::retryable($this->connection, function () use ($sql, $params): void {
                 $this->connection->executeUpdate(
                     $sql,
                     $params,
@@ -190,7 +190,7 @@ class InheritanceUpdater
                 $sql
             );
 
-            RetryableQuery::retryable(function () use ($sql, $params): void {
+            RetryableQuery::retryable($this->connection, function () use ($sql, $params): void {
                 $this->connection->executeUpdate(
                     $sql,
                     $params,

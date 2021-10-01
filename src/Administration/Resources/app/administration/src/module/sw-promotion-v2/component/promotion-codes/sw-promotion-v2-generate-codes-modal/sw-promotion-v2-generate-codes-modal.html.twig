@@ -10,6 +10,7 @@
 
         {% block sw_promotion_v2_generate_codes_modal_warning %}
         <sw-alert
+            v-if="promotion.individualCodes && promotion.individualCodes.length > 0"
             class="sw-promotion-v2-generate-codes-modal__warning"
             variant="warning"
         >

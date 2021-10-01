@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// / <reference types="Cypress" />
 
 describe('Category: Test ACL privileges', () => {
     beforeEach(() => {
@@ -66,15 +66,14 @@ describe('Category: Test ACL privileges', () => {
         cy.viewport(1920, 1080);
         cy.visit(`${Cypress.env('admin')}#/sw/cms/index`);
 
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveData');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/category/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('saveCategory');
 
         cy.get('.sw-cms-list-item--0').click();
@@ -94,10 +93,10 @@ describe('Category: Test ACL privileges', () => {
 
         // Save new page layout
         cy.get('.sw-cms-detail__save-action').click();
-        cy.wait('@saveData').then(() => {
-            cy.get('.sw-cms-detail__back-btn').click();
-            cy.get('.sw-cms-list-item--0 .sw-cms-list-item__title').contains('Vierte Wand');
-        });
+        cy.wait('@saveData')
+            .its('response.statusCode').should('equal', 204);
+        cy.get('.sw-cms-detail__back-btn').click();
+        cy.get('.sw-cms-list-item--0 .sw-cms-list-item__title').contains('Vierte Wand');
     });
 
     it('@catalogue: can edit shopping experiences detail page', () => {
@@ -119,10 +118,9 @@ describe('Category: Test ACL privileges', () => {
         cy.viewport(1920, 1080);
         cy.visit(`${Cypress.env('admin')}#/sw/cms/index`);
 
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/cms-page`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         // Fill in basic data
@@ -149,9 +147,7 @@ describe('Category: Test ACL privileges', () => {
 
         // Save new page layout
         cy.get('.sw-cms-detail__save-action').click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.get('.sw-cms-detail__back-btn').click();
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('Laidout');

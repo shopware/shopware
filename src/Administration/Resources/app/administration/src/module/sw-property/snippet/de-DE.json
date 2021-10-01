@@ -7,7 +7,7 @@
     },
     "list": {
       "textProperties": "Eigenschaften",
-      "buttonAddProperty": "Hinzufügen",
+      "buttonAddProperty": "Eigenschaft anlegen",
       "columnName": "Eigenschaft",
       "columnOptions": "Eigenschafts-Ausprägungen",
       "columnFilterable": "In Produktfilter anzeigen",

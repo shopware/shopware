@@ -105,7 +105,7 @@ class Migration1554199340AddImportExportProfile extends MigrationStep
 
     private function getCustomerGroupMap(): array
     {
-        return ['default' => Defaults::FALLBACK_CUSTOMER_GROUP];
+        return ['default' => 'cfbd5018d38d41d8adca10d94fc8bdd6'];
     }
 
     private function getCountryMap(Connection $connection): array
@@ -120,7 +120,7 @@ class Migration1554199340AddImportExportProfile extends MigrationStep
 
     private function getSalesChannelMap(): array
     {
-        return ['default' => Defaults::SALES_CHANNEL];
+        return ['default' => '98432def39fc4624b33213a56b8c944d'];
     }
 
     private function getPaymentMethodMap(Connection $connection): array

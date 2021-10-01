@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\App;
 
-use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
+use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator;
 use Shopware\Core\Framework\App\Lifecycle\RefreshableAppDryRun;
 use Shopware\Core\Framework\Context;
@@ -12,19 +12,13 @@ use Shopware\Core\Framework\Context;
  */
 class AppService
 {
-    /**
-     * @var AppLifecycleIterator
-     */
-    private $appLifecycleIterator;
+    private AppLifecycleIterator $appLifecycleIterator;
 
-    /**
-     * @var AppLifecycle
-     */
-    private $appLifecycle;
+    private AbstractAppLifecycle $appLifecycle;
 
     public function __construct(
         AppLifecycleIterator $appLifecycleIterator,
-        AppLifecycle $appLifecycle
+        AbstractAppLifecycle $appLifecycle
     ) {
         $this->appLifecycleIterator = $appLifecycleIterator;
         $this->appLifecycle = $appLifecycle;

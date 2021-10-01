@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\App\Command;
 
 use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
+use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -22,17 +22,11 @@ class UninstallAppCommand extends Command
 {
     protected static $defaultName = 'app:uninstall';
 
-    /**
-     * @var AppLifecycle
-     */
-    private $appLifecycle;
+    private AbstractAppLifecycle $appLifecycle;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $appRepository;
+    private EntityRepositoryInterface $appRepository;
 
-    public function __construct(AppLifecycle $appLifecycle, EntityRepositoryInterface $appRepository)
+    public function __construct(AbstractAppLifecycle $appLifecycle, EntityRepositoryInterface $appRepository)
     {
         parent::__construct();
         $this->appLifecycle = $appLifecycle;

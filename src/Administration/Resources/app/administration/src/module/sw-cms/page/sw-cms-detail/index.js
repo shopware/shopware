@@ -665,6 +665,7 @@ Component.register('sw-cms-detail', {
         }, debounceTimeout),
 
         onSave() {
+
             this.isSaveSuccessful = false;
 
             if ((this.isSystemDefaultLanguage && !this.page.name) || !this.page.type) {
@@ -720,6 +721,7 @@ Component.register('sw-cms-detail', {
                 this.pageConfigOpen('blocks');
                 return Promise.reject();
             }
+            this.onPageUpdate();
 
             const { foundEmptyRequiredField, foundProductPageElements } = this.getSlotValidations(sections);
 

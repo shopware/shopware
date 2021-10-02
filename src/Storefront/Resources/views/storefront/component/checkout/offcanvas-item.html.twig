@@ -65,7 +65,7 @@
                             <div class="cart-item-details-container">
                                 {% block component_offcanvas_product_label %}
                                     <div class="cart-item-details">
-                                        {% if type == 'product' %}
+                                        {% if type == constant('Shopware\\Core\\Checkout\\Cart\\LineItem\\LineItem::PRODUCT_LINE_ITEM_TYPE') %}
                                             <a href="{{ seoUrl('frontend.detail.page', {'productId': referencedId}) }}"
                                                class="cart-item-label"
                                                title="{{ label }}">
@@ -93,7 +93,7 @@
                                 {% endblock %}
 
                                 {% block component_offcanvas_product_details_features %}
-                                    {% if lineItem.type == 'product' and lineItem.payload.features is not null %}
+                                    {% if lineItem.type == constant('Shopware\\Core\\Checkout\\Cart\\LineItem\\LineItem::PRODUCT_LINE_ITEM_TYPE') and lineItem.payload.features is not null %}
                                         {% sw_include '@Storefront/storefront/component/product/feature/list.html.twig' with {
                                             'features': lineItem.payload.features
                                         } %}

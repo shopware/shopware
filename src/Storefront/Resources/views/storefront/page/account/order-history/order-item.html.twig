@@ -118,7 +118,7 @@
                                                     {% block page_account_order_item_context_menu_reorder_form_line_items_input %}
                                                         {% for lineItem in order.lineItems %}
                                                             {% block page_account_order_item_context_menu_reorder_form_line_item_input %}
-                                                                {% if lineItem.type == 'product' %}
+                                                                {% if lineItem.type == constant('Shopware\\Core\\Checkout\\Cart\\LineItem\\LineItem::PRODUCT_LINE_ITEM_TYPE') %}
                                                                     <input type="hidden"
                                                                            name="lineItems[{{ lineItem.identifier }}][id]"
                                                                            value="{{ lineItem.identifier }}">

@@ -96,7 +96,7 @@
                                             <div class="cart-item-details-container">
 
                                                 {% block page_checkout_item_info_label %}
-                                                    {% if lineItem.type == 'product' %}
+                                                    {% if lineItem.type == constant('Shopware\\Core\\Checkout\\Cart\\LineItem\\LineItem::PRODUCT_LINE_ITEM_TYPE') %}
                                                         <a href="{{ seoUrl('frontend.detail.page', {'productId': lineItem.referencedId}) }}"
                                                            class="cart-item-label"
                                                            title="{{ lineItem.label }}"
@@ -131,7 +131,7 @@
                                                 {% endblock %}
 
                                                 {% block page_checkout_item_info_features %}
-                                                    {% if lineItem.type == 'product' and lineItem.payload.features is not null %}
+                                                    {% if lineItem.type == constant('Shopware\\Core\\Checkout\\Cart\\LineItem\\LineItem::PRODUCT_LINE_ITEM_TYPE') and lineItem.payload.features is not null %}
                                                         {% sw_include '@Storefront/storefront/component/product/feature/list.html.twig' with {
                                                             'features': lineItem.payload.features
                                                         } %}
@@ -158,7 +158,7 @@
                                                 {% endblock %}
 
                                                 {% block page_checkout_item_wishlist %}
-                                                    {% if config('core.cart.wishlistEnabled') and lineItem.type == 'product' %}
+                                                    {% if config('core.cart.wishlistEnabled') and lineItem.type == constant('Shopware\\Core\\Checkout\\Cart\\LineItem\\LineItem::PRODUCT_LINE_ITEM_TYPE') %}
                                                         {% sw_include '@Storefront/storefront/component/product/card/wishlist.html.twig' with {
                                                             showText: true,
                                                             size: 'sm',

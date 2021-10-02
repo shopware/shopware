@@ -181,7 +181,7 @@
 
                             {% block page_account_order_item_detail_price_value %}
                                 <span class="order-item-value order-item-price-value">
-                                    {% if lineItem.type == 'promotion' %}
+                                    {% if lineItem.type == constant('Shopware\\Core\\Checkout\\Cart\\LineItem\\LineItem::PROMOTION_LINE_ITEM_TYPE') %}
                                         /
                                     {% else %}
                                         {{ lineItem.unitPrice|currency(order.currency.isoCode) }}{{ "general.star"|trans|sw_sanitize }}

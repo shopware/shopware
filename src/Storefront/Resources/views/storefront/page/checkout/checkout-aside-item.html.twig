@@ -74,7 +74,7 @@
                     {% endblock %}
 
                     {% block page_checkout_aside_item_info_features %}
-                        {% if lineItem.type == 'product' and lineItem.payload.features is not null %}
+                        {% if lineItem.type == constant('Shopware\\Core\\Checkout\\Cart\\LineItem\\LineItem::PRODUCT_LINE_ITEM_TYPE') and lineItem.payload.features is not null %}
                             {% sw_include '@Storefront/storefront/component/product/feature/list.html.twig' with {
                                 'features': lineItem.payload.features
                             } %}

@@ -23,6 +23,15 @@
             />
             {{ $tc('sw-newsletter-recipient.list.textHeadline') }}
             {% endblock %}
+
+            {% block sw_newsletter_recipient_list_smart_bar_header_amount %}
+            <span
+                v-if="!isLoading"
+                class="sw-page__smart-bar-amount"
+            >
+                ({{ total }})
+            </span>
+            {% endblock %}
         </h2>
         {% endblock %}
     </template>

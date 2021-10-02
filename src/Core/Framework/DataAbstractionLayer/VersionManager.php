@@ -359,12 +359,14 @@ class VersionManager
 
         $data = $this->filterPropertiesForClone($definition, $data, $keepIds, $id, $definition, $context->getContext());
         $data['id'] = $newId;
+
         if(isset($data['createdAt'])) {
             $data['createdAt'] = new \DateTime();
         }
         if(isset($data['updatedAt'])) {
             $data['updatedAt'] = null;
         }
+
         $data = array_replace_recursive($data, $behavior->getOverwrites());
 
         $versionContext = $context->createWithVersionId($versionId);

@@ -286,6 +286,47 @@
         "placeholder": "Tags eingeben ..."
       }
     },
+    "customer": {
+      "textTitle": "Mehrfachbearbeitung: {customerTotal} Kunden",
+      "messageEmptyTitle": "Keine Kunden ausgewählt",
+      "messageEmptySubline": "Gehe zurück und wähle Kunden aus.",
+      "account": {
+        "cardTitle": "Konto",
+        "customerGroup": {
+          "label": "Ändern: Kundengruppe",
+          "placeholder": "Kundengruppe auswählen ..."
+        },
+        "defaultPaymentMethod": {
+          "label": "Ändern: Standard-Zahlungsart",
+          "placeholder": "Standard-Zahlungsart auswählen ..."
+        },
+        "status": {
+          "label": "Ändern: Kontostatus"
+        },
+        "language": {
+          "label": "Ändern: Sprache",
+          "placeholder": "Sprache auswählen ..."
+        },
+        "customerGroupRequest": {
+          "label": "Antworten auf: Kundengruppenanfrage",
+          "helpText": "Bitte beachte, dass E-Mails nur an die ausgewählten Kunden gesendet werden. Kunden, die keine Anfrage gestellt haben, werden übersprungen.",
+          "placeholder": "Antwortmöglichkeit auswählen ...",
+          "options": {
+            "accept": "Annehmen",
+            "decline": "Ablehnen"
+          }
+        }
+      },
+      "customFields": {
+        "cardTitle": "Zusatzfelder",
+        "changeLabel": "Ändern: {name}"
+      },
+      "tags": {
+        "cardTitle": "Tags",
+        "changeLabel": "Ändern: Tags",
+        "placeholder": "Tags hinzufügen ..."
+      }
+    },
     "applyChanges": "Änderungen übernehmen"
   }
 }

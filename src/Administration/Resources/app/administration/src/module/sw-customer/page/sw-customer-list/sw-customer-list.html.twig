@@ -69,12 +69,14 @@
                 detail-route="sw.customer.detail"
                 :show-selection="acl.can('customer.deleter')"
                 :allow-inline-edit="acl.can('customer.editor')"
+                :allow-bulk-edit="feature.isActive('FEATURE_NEXT_17261') && acl.can('customer.editor')"
                 :is-loading="isLoading"
                 :disable-data-fetching="true"
                 @selection-change="updateSelection"
                 @inline-edit-save="onInlineEditSave"
                 @page-change="onPageChange"
                 @column-sort="onSortColumn"
+                @bulk-edit-modal-open="onBulkEditModalOpen"
             >
 
                 {% block sw_customer_list_grid_columns %}
@@ -252,6 +254,55 @@
                     />
                     {% endblock %}
                 </template>
+
+                {% block sw_customer_list_bulk_edit_modal %}
+                <template
+                    v-if="feature.isActive('FEATURE_NEXT_17261')"
+                    #bulk-edit-modal="{ selection }"
+                >
+                    <sw-bulk-edit-modal
+                        v-if="showBulkEditModal"
+                        ref="bulkEditModal"
+                        class="sw-customer-bulk-edit-modal"
+                        :selection="selection"
+                        :bulk-grid-edit-columns="customerColumns"
+                        @edit-items="onBulkEditItems"
+                        @modal-close="onBulkEditModalClose"
+                    >
+                        {% block sw_customer_list_bulk_edit_grid_columns_name %}
+                        <template #column-firstName="{ item }">
+                            <router-link
+                                :to="{ name: 'sw.customer.detail', params: { id: item.id } }"
+                                target="_blank"
+                                rel="noreferrer noopener"
+                            >
+                                {{ item.lastName }}, {{ item.firstName }}
+                            </router-link>
+                        </template>
+                        {% endblock %}
+
+                        {% block sw_customer_list_bulk_edit_grid_columns_group %}
+                        <template #column-group="{ item }">
+                            <sw-label
+                                v-if="item.requestedGroup"
+                                class="sw-customer-list__requested-group-label"
+                                variant="warning"
+                                appearance="pill"
+                            >
+                                {{ $tc('sw-customer.list.columnGroupRequested') }} {{ item.requestedGroup.translated.name }}
+                            </sw-label>
+                            <sw-label
+                                v-else
+                                size="default"
+                                appearance="pill"
+                            >
+                                {{ item.group.translated.name }}
+                            </sw-label>
+                        </template>
+                        {% endblock %}
+                    </sw-bulk-edit-modal>
+                </template>
+                {% endblock %}
             </sw-entity-listing>
             {% endblock %}
 

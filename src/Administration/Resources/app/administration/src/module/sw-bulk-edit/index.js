@@ -1,5 +1,6 @@
 import './page/sw-bulk-edit-product';
 import './page/sw-bulk-edit-order';
+import './page/sw-bulk-edit-customer';
 import './component/sw-bulk-edit-order/sw-bulk-edit-order-documents';
 import './component/sw-bulk-edit-custom-fields';
 import './component/sw-bulk-edit-change-type';
@@ -75,6 +76,41 @@ Module.register('sw-bulk-edit', {
                     path: 'save',
                     redirect: {
                         name: 'sw.bulk.edit.order.save.confirm',
+                    },
+                    children: {
+                        confirm: {
+                            component: 'sw-bulk-edit-save-modal-confirm',
+                            path: 'confirm',
+                        },
+                        process: {
+                            component: 'sw-bulk-edit-save-modal-process',
+                            path: 'process',
+                        },
+                        success: {
+                            component: 'sw-bulk-edit-save-modal-success',
+                            path: 'success',
+                        },
+                        error: {
+                            component: 'sw-bulk-edit-save-modal-error',
+                            path: 'error',
+                        },
+                    },
+                },
+            },
+        },
+
+        customer: {
+            component: 'sw-bulk-edit-customer',
+            path: 'customer',
+            meta: {
+                parentPath: 'sw.customer.index',
+            },
+            children: {
+                save: {
+                    component: 'sw-bulk-edit-save-modal',
+                    path: 'save',
+                    redirect: {
+                        name: 'sw.bulk.edit.customer.save.confirm',
                     },
                     children: {
                         confirm: {

@@ -360,10 +360,10 @@ class VersionManager
         $data = $this->filterPropertiesForClone($definition, $data, $keepIds, $id, $definition, $context->getContext());
         $data['id'] = $newId;
 
-        if(isset($data['createdAt'])) {
+        if (isset($data['createdAt'])) {
             $data['createdAt'] = new \DateTime();
         }
-        if(isset($data['updatedAt'])) {
+        if (isset($data['updatedAt'])) {
             $data['updatedAt'] = null;
         }
 

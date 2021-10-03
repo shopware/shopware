@@ -665,7 +665,6 @@ Component.register('sw-cms-detail', {
         }, debounceTimeout),
 
         onSave() {
-
             this.isSaveSuccessful = false;
 
             if ((this.isSystemDefaultLanguage && !this.page.name) || !this.page.type) {

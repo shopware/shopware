@@ -2,34 +2,25 @@
 
 namespace Shopware\Core\System\Currency;
 
-use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Document\DocumentService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
-use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Locale\LanguageLocaleProvider;
 
 class CurrencyFormatter
 {
     /**
-     * @var string[]
-     */
-    protected $localeCache = [];
-
-    /**
      * @var \NumberFormatter[]
      */
-    private $formatter = [];
+    private array $formatter = [];
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private LanguageLocaleProvider $languageLocaleProvider;
 
-    public function __construct(Connection $connection)
+    public function __construct(LanguageLocaleProvider $languageLocaleProvider)
     {
-        $this->connection = $connection;
+        $this->languageLocaleProvider = $languageLocaleProvider;
     }
 
     /**
@@ -40,7 +31,7 @@ class CurrencyFormatter
     {
         $decimals = $decimals ?? $context->getRounding()->getDecimals();
 
-        $locale = $this->getLocale($languageId);
+        $locale = $this->languageLocaleProvider->getLocaleForLanguageId($languageId);
         $formatter = $this->getFormatter($locale, \NumberFormatter::CURRENCY);
         $formatter->setAttribute(\NumberFormatter::FRACTION_DIGITS, $decimals);
 
@@ -67,25 +58,5 @@ class CurrencyFormatter
         }
 
         return $this->formatter[$hash] = new \NumberFormatter($locale, $format);
-    }
-
-    private function getLocale(string $languageId): string
-    {
-        if (\array_key_exists($languageId, $this->localeCache)) {
-            return $this->localeCache[$languageId];
-        }
-
-        $code = $this->connection->fetchColumn('
-            SELECT `locale`.`code`
-            FROM `locale`
-            INNER JOIN `language` ON `language`.`locale_id` = `locale`.`id`
-            WHERE `language`.`id` = :id
-        ', ['id' => Uuid::fromHexToBytes($languageId)]);
-
-        if ($code === null) {
-            throw new LanguageNotFoundException($languageId);
-        }
-
-        return $this->localeCache[$languageId] = $code;
     }
 }

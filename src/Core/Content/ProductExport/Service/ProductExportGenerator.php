@@ -23,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\SalesChannelReposit
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Locale\LanguageLocaleProvider;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
@@ -33,61 +34,33 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ProductExportGenerator implements ProductExportGeneratorInterface
 {
-    /**
-     * @var ProductStreamBuilderInterface
-     */
-    private $productStreamBuilder;
+    private ProductStreamBuilderInterface $productStreamBuilder;
 
-    /**
-     * @var int
-     */
-    private $readBufferSize;
+    private int $readBufferSize;
 
-    /**
-     * @var SalesChannelRepositoryInterface
-     */
-    private $productRepository;
+    private SalesChannelRepositoryInterface $productRepository;
 
-    /**
-     * @var ProductExportRendererInterface
-     */
-    private $productExportRender;
+    private ProductExportRendererInterface $productExportRender;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var ProductExportValidatorInterface
-     */
-    private $productExportValidator;
+    private ProductExportValidatorInterface $productExportValidator;
 
-    /**
-     * @var SalesChannelContextServiceInterface
-     */
-    private $salesChannelContextService;
+    private SalesChannelContextServiceInterface $salesChannelContextService;
 
-    /**
-     * @var Translator
-     */
-    private $translator;
+    private Translator $translator;
 
-    /**
-     * @var SalesChannelContextPersister
-     */
-    private $contextPersister;
+    private SalesChannelContextPersister $contextPersister;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     private SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler;
 
     private TwigVariableParser $twigVariableParser;
 
     private ProductDefinition $productDefinition;
+
+    private LanguageLocaleProvider $languageLocaleProvider;
 
     public function __construct(
         ProductStreamBuilderInterface $productStreamBuilder,
@@ -102,7 +75,8 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         int $readBufferSize,
         SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler,
         TwigVariableParser $twigVariableParser,
-        ProductDefinition $productDefinition
+        ProductDefinition $productDefinition,
+        LanguageLocaleProvider $languageLocaleProvider
     ) {
         $this->productStreamBuilder = $productStreamBuilder;
         $this->productRepository = $productRepository;
@@ -117,6 +91,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         $this->seoUrlPlaceholderHandler = $seoUrlPlaceholderHandler;
         $this->twigVariableParser = $twigVariableParser;
         $this->productDefinition = $productDefinition;
+        $this->languageLocaleProvider = $languageLocaleProvider;
     }
 
     public function generate(ProductExportEntity $productExport, ExportBehavior $exportBehavior): ?ProductExportResult
@@ -142,7 +117,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         $this->translator->injectSettings(
             $productExport->getStorefrontSalesChannelId(),
             $productExport->getSalesChannelDomain()->getLanguageId(),
-            $productExport->getSalesChannelDomain()->getLanguage()->getLocaleId(),
+            $this->languageLocaleProvider->getLocaleForLanguageId($productExport->getSalesChannelDomain()->getLanguageId()),
             $context->getContext()
         );
 

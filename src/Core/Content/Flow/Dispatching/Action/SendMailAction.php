@@ -27,7 +27,7 @@ use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
-use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\System\Locale\LanguageLocaleProvider;
 use Symfony\Contracts\EventDispatcher\Event;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -59,9 +59,9 @@ class SendMailAction extends FlowAction
 
     private Translator $translator;
 
-    private EntityRepositoryInterface $languageRepository;
-
     private Connection $connection;
+
+    private LanguageLocaleProvider $languageLocaleProvider;
 
     public function __construct(
         AbstractMailService $emailService,
@@ -74,8 +74,8 @@ class SendMailAction extends FlowAction
         EventDispatcherInterface $eventDispatcher,
         EntityRepositoryInterface $mailTemplateTypeRepository,
         Translator $translator,
-        EntityRepositoryInterface $languageRepository,
-        Connection $connection
+        Connection $connection,
+        LanguageLocaleProvider $languageLocaleProvider
     ) {
         $this->mailTemplateRepository = $mailTemplateRepository;
         $this->mediaService = $mediaService;
@@ -87,8 +87,8 @@ class SendMailAction extends FlowAction
         $this->eventDispatcher = $eventDispatcher;
         $this->mailTemplateTypeRepository = $mailTemplateTypeRepository;
         $this->translator = $translator;
-        $this->languageRepository = $languageRepository;
         $this->connection = $connection;
+        $this->languageLocaleProvider = $languageLocaleProvider;
     }
 
     public static function getName(): string
@@ -313,20 +313,10 @@ class SendMailAction extends FlowAction
             return false;
         }
 
-        $criteria = new Criteria([$event->getContext()->getLanguageId()]);
-        $criteria->addAssociation('locale');
-
-        /** @var LanguageEntity $language */
-        $language = $this->languageRepository->search($criteria, $event->getContext())->first();
-        $locale = $language->getLocale();
-        if (!$locale) {
-            return false;
-        }
-
         $this->translator->injectSettings(
             $event->getSalesChannelId(),
             $event->getContext()->getLanguageId(),
-            $locale->getCode(),
+            $this->languageLocaleProvider->getLocaleForLanguageId($event->getContext()->getLanguageId()),
             $event->getContext()
         );
 

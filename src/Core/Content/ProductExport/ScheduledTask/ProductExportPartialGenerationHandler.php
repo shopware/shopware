@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
 use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Locale\LanguageLocaleProvider;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -25,60 +26,29 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 class ProductExportPartialGenerationHandler extends AbstractMessageHandler
 {
-    /**
-     * @var AbstractSalesChannelContextFactory
-     */
-    private $salesChannelContextFactory;
+    private AbstractSalesChannelContextFactory $salesChannelContextFactory;
 
-    /**
-     * @var EntityRepository
-     */
-    private $productExportRepository;
+    private EntityRepository $productExportRepository;
 
-    /**
-     * @var ProductExportGeneratorInterface
-     */
-    private $productExportGenerator;
+    private ProductExportGeneratorInterface $productExportGenerator;
 
-    /**
-     * @var int
-     */
-    private $readBufferSize;
+    private int $readBufferSize;
 
-    /**
-     * @var MessageBusInterface
-     */
-    private $messageBus;
+    private MessageBusInterface $messageBus;
 
-    /**
-     * @var ProductExportFileHandlerInterface
-     */
-    private $productExportFileHandler;
+    private ProductExportFileHandlerInterface $productExportFileHandler;
 
-    /**
-     * @var ProductExportRendererInterface
-     */
-    private $productExportRender;
+    private ProductExportRendererInterface $productExportRender;
 
-    /**
-     * @var Translator
-     */
-    private $translator;
+    private Translator $translator;
 
-    /**
-     * @var SalesChannelContextServiceInterface
-     */
-    private $salesChannelContextService;
+    private SalesChannelContextServiceInterface $salesChannelContextService;
 
-    /**
-     * @var SalesChannelContextPersister
-     */
-    private $contextPersister;
+    private SalesChannelContextPersister $contextPersister;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
+
+    private LanguageLocaleProvider $languageLocaleProvider;
 
     public function __construct(
         ProductExportGeneratorInterface $productExportGenerator,
@@ -91,7 +61,8 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
         SalesChannelContextServiceInterface $salesChannelContextService,
         SalesChannelContextPersister $contextPersister,
         Connection $connection,
-        int $readBufferSize
+        int $readBufferSize,
+        LanguageLocaleProvider $languageLocaleProvider
     ) {
         $this->productExportGenerator = $productExportGenerator;
         $this->salesChannelContextFactory = $salesChannelContextFactory;
@@ -104,6 +75,7 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
         $this->contextPersister = $contextPersister;
         $this->connection = $connection;
         $this->readBufferSize = $readBufferSize;
+        $this->languageLocaleProvider = $languageLocaleProvider;
     }
 
     public static function getHandledMessages(): iterable
@@ -125,7 +97,6 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
         $criteria
             ->addAssociation('salesChannel')
             ->addAssociation('salesChannelDomain.salesChannel')
-            ->addAssociation('salesChannelDomain.language.locale')
             ->addAssociation('productStream.filters.queries')
             ->setLimit(1);
 
@@ -211,7 +182,7 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
         $this->translator->injectSettings(
             $productExport->getStorefrontSalesChannelId(),
             $productExport->getSalesChannelDomain()->getLanguageId(),
-            $productExport->getSalesChannelDomain()->getLanguage()->getLocaleId(),
+            $this->languageLocaleProvider->getLocaleForLanguageId($productExport->getSalesChannelDomain()->getLanguageId()),
             $context->getContext()
         );
 
@@ -221,7 +192,7 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
 
         $this->translator->resetInjection();
 
-        $writeProductExportSuccesful = $this->productExportFileHandler->finalizePartialProductExport(
+        $writeProductExportSuccessful = $this->productExportFileHandler->finalizePartialProductExport(
             $filePath,
             $finalFilePath,
             $headerContent,
@@ -230,7 +201,7 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
 
         $this->connection->delete('sales_channel_api_context', ['token' => $contextToken]);
 
-        if (!$writeProductExportSuccesful) {
+        if (!$writeProductExportSuccessful) {
             return;
         }
 

@@ -36,7 +36,6 @@ class TranslatorTest extends TestCase
 
         $this->translator->resetInMemoryCache();
         $this->translator->warmUp('');
-        $this->clearInternalTranslatorFallbackLocaleCache();
     }
 
     public function testPassthru(): void
@@ -271,14 +270,5 @@ class TranslatorTest extends TestCase
             'newId' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
             'oldId' => $currentDeId,
         ]);
-    }
-
-    private function clearInternalTranslatorFallbackLocaleCache(): void
-    {
-        $reflection = new \ReflectionClass($this->translator);
-        $prop = $reflection->getProperty('fallbackLocale');
-
-        $prop->setAccessible(true);
-        $prop->setValue($this->translator, null);
     }
 }

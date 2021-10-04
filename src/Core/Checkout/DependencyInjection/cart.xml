@@ -207,8 +207,8 @@
         </service>
 
         <service id="Shopware\Core\Content\Product\Cart\ProductFeatureBuilder">
-            <argument type="service" id="language.repository"/>
             <argument type="service" id="custom_field.repository"/>
+            <argument type="service" id="Shopware\Core\System\Locale\LanguageLocaleProvider"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Transaction\TransactionProcessor"/>

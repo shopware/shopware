@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\SalesChannelRequest;
+use Shopware\Core\System\Locale\LanguageLocaleProvider;
 use Shopware\Core\System\Snippet\SnippetService;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\CacheWarmer\WarmableInterface;
@@ -41,10 +42,6 @@ class Translator extends AbstractTranslator
 
     private SnippetService $snippetService;
 
-    private ?string $fallbackLocale = null;
-
-    private EntityRepositoryInterface $languageRepository;
-
     private ?string $snippetSetId = null;
 
     private ?string $localeBeforeInject = null;
@@ -59,24 +56,26 @@ class Translator extends AbstractTranslator
 
     private array $snippets = [];
 
+    private LanguageLocaleProvider $languageLocaleProvider;
+
     public function __construct(
         TranslatorInterface $translator,
         RequestStack $requestStack,
         CacheItemPoolInterface $cache,
         MessageFormatterInterface $formatter,
         SnippetService $snippetService,
-        EntityRepositoryInterface $languageRepository,
         string $environment,
-        EntityRepositoryInterface $snippetSetRepository
+        EntityRepositoryInterface $snippetSetRepository,
+        LanguageLocaleProvider $languageLocaleProvider
     ) {
         $this->translator = $translator;
         $this->requestStack = $requestStack;
         $this->cache = $cache;
         $this->formatter = $formatter;
         $this->snippetService = $snippetService;
-        $this->languageRepository = $languageRepository;
         $this->environment = $environment;
         $this->snippetSetRepository = $snippetSetRepository;
+        $this->languageLocaleProvider = $languageLocaleProvider;
     }
 
     public static function buildName(string $id): string
@@ -187,7 +186,6 @@ class Translator extends AbstractTranslator
     public function resetInMemoryCache(): void
     {
         $this->isCustomized = [];
-        $this->fallbackLocale = null;
         $this->snippetSetId = null;
         if ($this->translator instanceof SymfonyTranslator) {
             // Reset FallbackLocale in memory cache of symfony implementation
@@ -309,20 +307,8 @@ class Translator extends AbstractTranslator
 
     private function getFallbackLocale(): string
     {
-        if ($this->fallbackLocale) {
-            return $this->fallbackLocale;
-        }
-
         try {
-            $criteria = new Criteria();
-            $criteria->setTitle('snippet-translator::load-fallback');
-
-            $criteria->addFilter(new EqualsFilter('id', Defaults::LANGUAGE_SYSTEM));
-            $criteria->addAssociation('locale');
-
-            $defaultLanguage = $this->languageRepository->search($criteria, Context::createDefaultContext())->get(Defaults::LANGUAGE_SYSTEM);
-
-            return $this->fallbackLocale = $defaultLanguage->getLocale()->getCode();
+            return $this->languageLocaleProvider->getLocaleForLanguageId(Defaults::LANGUAGE_SYSTEM);
         } catch (ConnectionException $_) {
             // this allows us to use the translator even if there's no db connection yet
             return 'en-GB';

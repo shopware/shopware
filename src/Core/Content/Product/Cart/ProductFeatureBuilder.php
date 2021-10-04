@@ -8,32 +8,29 @@ use Shopware\Core\Content\Product\Aggregate\ProductFeatureSet\ProductFeatureSetD
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
 use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\System\CustomField\CustomFieldEntity;
-use Shopware\Core\System\Language\LanguageEntity;
-use Shopware\Core\System\Locale\LocaleEntity;
+use Shopware\Core\System\Locale\LanguageLocaleProvider;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class ProductFeatureBuilder
 {
-    private EntityRepositoryInterface $languageRepository;
-
     private EntityRepositoryInterface $customFieldRepository;
 
+    private LanguageLocaleProvider $languageLocaleProvider;
+
     public function __construct(
-        EntityRepositoryInterface $languageRepository,
-        EntityRepositoryInterface $customFieldRepository
+        EntityRepositoryInterface $customFieldRepository,
+        LanguageLocaleProvider $languageLocaleProvider
     ) {
-        $this->languageRepository = $languageRepository;
         $this->customFieldRepository = $customFieldRepository;
+        $this->languageLocaleProvider = $languageLocaleProvider;
     }
 
     public function prepare(iterable $lineItems, CartDataCollection $data, SalesChannelContext $context): void
     {
-        $this->loadSystemLanguage($data, $context->getContext());
         $this->loadCustomFields($lineItems, $data, $context);
     }
 
@@ -100,38 +97,6 @@ class ProductFeatureBuilder
         }
 
         return array_filter($features);
-    }
-
-    /**
-     * Since it's not intended to display custom field labels outside of the admin at the moment,
-     * their labels are indexed by the locale code of the system language (fixed value, not translated).
-     * loadSystemLanguage fetches the system language and is only needed for being able to read these labels
-     * later on.
-     *
-     * @see https://issues.shopware.com/issues/NEXT-9321
-     */
-    private function loadSystemLanguage(CartDataCollection $data, Context $context): void
-    {
-        $key = 'language-' . Defaults::LANGUAGE_SYSTEM;
-
-        if ($data->has($key)) {
-            return;
-        }
-
-        $criteria = new Criteria([Defaults::LANGUAGE_SYSTEM]);
-        $criteria->setTitle('cart::products::feature-builder');
-        $criteria->addAssociation('locale');
-
-        $systemLanguage = $this
-            ->languageRepository->search($criteria, $context)
-            ->getEntities()
-            ->first();
-
-        if ($systemLanguage === null) {
-            return;
-        }
-
-        $data->set($key, $systemLanguage);
     }
 
     private function loadCustomFields(iterable $lineItems, CartDataCollection $data, SalesChannelContext $context): void
@@ -280,7 +245,7 @@ class ProductFeatureBuilder
         }
 
         $customField = $data->get($fieldKey);
-        $label = $this->getCustomFieldLabel($customField, $data);
+        $label = $this->getCustomFieldLabel($customField);
 
         if (empty($label)) {
             return null;
@@ -322,27 +287,20 @@ class ProductFeatureBuilder
         ];
     }
 
-    private function getCustomFieldLabel(CustomFieldEntity $customField, CartDataCollection $data): ?string
+    /**
+     * Since it's not intended to display custom field labels outside of the admin at the moment,
+     * their labels are indexed by the locale code of the system language (fixed value, not translated).
+     *
+     * @see https://issues.shopware.com/issues/NEXT-9321
+     */
+    private function getCustomFieldLabel(CustomFieldEntity $customField): ?string
     {
         if ($customField->getConfig() === null || !\array_key_exists('label', $customField->getConfig())) {
             return null;
         }
 
         $labels = $customField->getConfig()['label'];
-        $lang = null;
-        $localeCode = null;
-
-        if ($data->has('language-' . Defaults::LANGUAGE_SYSTEM)) {
-            $lang = $data->get('language-' . Defaults::LANGUAGE_SYSTEM);
-        }
-
-        if ($lang instanceof LanguageEntity && $lang->getLocale() instanceof LocaleEntity) {
-            $localeCode = $lang->getLocale()->getCode();
-        }
-
-        if ($localeCode === null || !\array_key_exists($localeCode, $labels)) {
-            return null;
-        }
+        $localeCode = $this->languageLocaleProvider->getLocaleForLanguageId(Defaults::LANGUAGE_SYSTEM);
 
         return $labels[$localeCode];
     }

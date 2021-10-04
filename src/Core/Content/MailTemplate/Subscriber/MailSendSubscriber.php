@@ -20,8 +20,7 @@ use Shopware\Core\Framework\Event\BusinessEvent;
 use Shopware\Core\Framework\Event\MailActionInterface;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
-use Shopware\Core\System\Language\LanguageEntity;
-use Shopware\Core\System\Locale\LocaleEntity;
+use Shopware\Core\System\Locale\LanguageLocaleProvider;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\EventDispatcher\Event;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -54,7 +53,7 @@ class MailSendSubscriber implements EventSubscriberInterface
 
     private Translator $translator;
 
-    private EntityRepositoryInterface $languageRepository;
+    private LanguageLocaleProvider $languageLocaleProvider;
 
     public function __construct(
         AbstractMailService $emailService,
@@ -67,7 +66,7 @@ class MailSendSubscriber implements EventSubscriberInterface
         EventDispatcherInterface $eventDispatcher,
         EntityRepositoryInterface $mailTemplateTypeRepository,
         Translator $translator,
-        EntityRepositoryInterface $languageRepository
+        LanguageLocaleProvider $languageLocaleProvider
     ) {
         $this->mailTemplateRepository = $mailTemplateRepository;
         $this->mediaService = $mediaService;
@@ -79,7 +78,7 @@ class MailSendSubscriber implements EventSubscriberInterface
         $this->eventDispatcher = $eventDispatcher;
         $this->mailTemplateTypeRepository = $mailTemplateTypeRepository;
         $this->translator = $translator;
-        $this->languageRepository = $languageRepository;
+        $this->languageLocaleProvider = $languageLocaleProvider;
     }
 
     public static function getSubscribedEvents(): array
@@ -284,18 +283,10 @@ class MailSendSubscriber implements EventSubscriberInterface
             return false;
         }
 
-        $criteria = new Criteria([$event->getContext()->getLanguageId()]);
-        $criteria->addAssociation('locale');
-
-        /** @var LanguageEntity $language */
-        $language = $this->languageRepository->search($criteria, $event->getContext())->first();
-        $locale = $language->getLocale();
-        \assert($locale instanceof LocaleEntity);
-
         $this->translator->injectSettings(
             $event->getSalesChannelId(),
             $event->getContext()->getLanguageId(),
-            $locale->getCode(),
+            $this->languageLocaleProvider->getLocaleForLanguageId($event->getContext()->getLanguageId()),
             $event->getContext()
         );
 

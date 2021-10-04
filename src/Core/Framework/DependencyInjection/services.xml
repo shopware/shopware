@@ -228,9 +228,9 @@ base-uri 'self';
             <argument type="service" id="cache.object"/>
             <argument type="service" id="translator.formatter"/>
             <argument type="service" id="Shopware\Core\System\Snippet\SnippetService"/>
-            <argument type="service" id="language.repository"/>
             <argument>%kernel.environment%</argument>
             <argument type="service" id="snippet_set.repository"/>
+            <argument type="service" id="Shopware\Core\System\Locale\LanguageLocaleProvider"/>
 
             <tag name="monolog.logger"/>
         </service>

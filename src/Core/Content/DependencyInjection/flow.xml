@@ -70,8 +70,8 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="mail_template_type.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
-            <argument type="service" id="language.repository"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\System\Locale\LanguageLocaleProvider"/>
             <tag name="kernel.event_subscriber"/>
             <tag name="flow.action" priority="500" />
             <tag name="shopware.feature" flag="FEATURE_NEXT_8225" />

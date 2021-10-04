@@ -23,54 +23,28 @@ class Context extends Struct
     /**
      * @var string[]
      */
-    protected $languageIdChain;
+    protected array $languageIdChain;
 
-    /**
-     * @var string
-     */
-    protected $versionId;
+    protected string $versionId;
 
-    /**
-     * @var string
-     */
-    protected $currencyId;
+    protected string $currencyId;
 
-    /**
-     * @var float
-     */
-    protected $currencyFactor;
+    protected float $currencyFactor;
 
-    /**
-     * @var string
-     */
-    protected $scope = self::USER_SCOPE;
+    protected string $scope = self::USER_SCOPE;
 
-    /**
-     * @var array
-     */
-    protected $ruleIds;
+    protected array $ruleIds;
 
-    /**
-     * @var ContextSource
-     */
-    protected $source;
+    protected ContextSource $source;
 
-    /**
-     * @var bool
-     */
-    protected $considerInheritance;
+    protected bool $considerInheritance;
 
     /**
      * @see CartPrice::TAX_STATE_GROSS, CartPrice::TAX_STATE_NET, CartPrice::TAX_STATE_FREE
-     *
-     * @var string
      */
-    protected $taxState = CartPrice::TAX_STATE_GROSS;
+    protected string $taxState = CartPrice::TAX_STATE_GROSS;
 
-    /**
-     * @var CashRoundingConfig
-     */
-    protected $rounding;
+    protected CashRoundingConfig $rounding;
 
     public function __construct(
         ContextSource $source,

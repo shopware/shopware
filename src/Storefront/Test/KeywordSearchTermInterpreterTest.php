@@ -21,25 +21,13 @@ class KeywordSearchTermInterpreterTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var ProductSearchTermInterpreterInterface
-     */
-    private $interpreter;
+    private ProductSearchTermInterpreterInterface $interpreter;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $productSearchConfigRepository;
+    private EntityRepositoryInterface $productSearchConfigRepository;
 
-    /**
-     * @var string
-     */
-    private $productSearchConfigId;
+    private string $productSearchConfigId;
 
     protected function setUp(): void
     {
@@ -97,9 +85,7 @@ class KeywordSearchTermInterpreterTest extends TestCase
     {
         $context = Context::createDefaultContext();
 
-        $matches = $this->interpreter->interpret($term, $context);
-
-        $tokenTerms = $matches->getTokenTerms();
+        $tokenTerms = $this->interpreter->interpret($term, $context)->getTokenTerms();
 
         static::assertEquals(\count($expected), \count($tokenTerms));
         foreach ($tokenTerms as $index => $tokenTerm) {
@@ -427,14 +413,11 @@ class KeywordSearchTermInterpreterTest extends TestCase
             '10',
             '2',
             '3',
-        ];
-
-        $keywords = array_merge($keywords, [
             'between',
             'against',
             'betweencoffee',
             'betweenbike',
-        ]);
+        ];
 
         $languageId = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
 

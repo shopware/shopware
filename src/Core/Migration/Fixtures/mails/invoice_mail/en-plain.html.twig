@@ -1,0 +1,5 @@
+{% if order.orderCustomer.salutation %}{{ order.orderCustomer.salutation.translated.letterName ~ ' ' }}{% endif %}{{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},
+
+Attached to this email you will find the invoice for your order with the number: {{ order.orderNumber }}
+
+If you have any questions, do not hesitate to contact us.

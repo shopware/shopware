@@ -74,7 +74,7 @@ class MetadataLoaderTest extends TestCase
     {
         $result = $this
             ->getMetadataLoader()
-            ->loadFromFile($this->createMediaFile(__DIR__ . '/../fixtures/Shopware_5_3_Broschuere.pdf'), new DocumentType());
+            ->loadFromFile($this->createMediaFile(__DIR__ . '/../fixtures/small.pdf'), new DocumentType());
 
         static::assertNull($result);
     }

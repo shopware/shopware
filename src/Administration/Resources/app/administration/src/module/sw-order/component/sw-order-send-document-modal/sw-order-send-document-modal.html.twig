@@ -35,7 +35,7 @@
 
     {% block sw_order_send_document_modal_mail_template_select %}
     <sw-entity-single-select
-        v-model="mailTemplate"
+        v-model="mailTemplateId"
         entity="mail_template"
         :criteria="mailTemplateCriteria"
         label-property="mailTemplateType.name"
@@ -64,12 +64,15 @@
     {% endblock %}
 
     {% block sw_order_send_document_modal_mail_content %}
-    <sw-field
-        v-model="content"
-        type="textarea"
-        :label="$tc('sw-order.documentSendModal.labelContent')"
-        disabled
-    />
+    <div class="sw-order-send-document-modal__email-content-label">
+        {{ $tc('sw-order.documentSendModal.labelContent') }}
+    </div>
+
+    <div
+        class="sw-order-send-document-modal__email-content"
+        v-html="$sanitize(content)"
+    >
+    </div>
     {% endblock %}
 
     <template #modal-footer>

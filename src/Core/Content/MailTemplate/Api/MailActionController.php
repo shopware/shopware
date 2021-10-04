@@ -4,9 +4,11 @@ namespace Shopware\Core\Content\MailTemplate\Api;
 
 use OpenApi\Annotations as OA;
 use Shopware\Core\Content\Mail\Service\AbstractMailService;
+use Shopware\Core\Content\MailTemplate\Service\AttachmentLoader;
 use Shopware\Core\Framework\Adapter\Twig\Exception\StringTemplateRenderingException;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -20,22 +22,20 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class MailActionController extends AbstractController
 {
-    /**
-     * @var AbstractMailService
-     */
-    private $mailService;
+    private AbstractMailService $mailService;
 
-    /**
-     * @var StringTemplateRenderer
-     */
-    private $templateRenderer;
+    private StringTemplateRenderer $templateRenderer;
+
+    private AttachmentLoader $attachmentLoader;
 
     public function __construct(
         AbstractMailService $mailService,
-        StringTemplateRenderer $templateRenderer
+        StringTemplateRenderer $templateRenderer,
+        AttachmentLoader $attachmentLoader
     ) {
         $this->mailService = $mailService;
         $this->templateRenderer = $templateRenderer;
+        $this->attachmentLoader = $attachmentLoader;
     }
 
     /**
@@ -155,6 +155,13 @@ Take a look at the `salesChannel` entity for possible values. For example `{{ sa
      *                 example={"test1@example.com": "Test user 1", "test2@example.com": "Test user 2"},
      *                 @OA\AdditionalProperties(type="string", description="Name of the recipient.")
      *             ),
+     *             @OA\Parameter(
+     *                 name="documentIds",
+     *                 description="Feature flag FEATURE_NEXT_7530 is required for this parameter. A list of document ids which will be added as attachments.",
+     *                 @OA\Schema(type="array",
+     *                     @OA\Items(type="string", pattern="^[0-9a-f]{32}$")
+     *                 ),
+     *             ),
      *         )
      *     ),
      *     @OA\Response(
@@ -175,6 +182,13 @@ Take a look at the `salesChannel` entity for possible values. For example `{{ sa
     {
         $data = $post->all();
         $mailTemplateData = $data['mailTemplateData'] ?? [];
+
+        if (Feature::isActive('FEATURE_NEXT_7530') && !empty($data['documentIds'])) {
+            $data['binAttachments'] = \array_merge(
+                $data['binAttachments'] ?? [],
+                $this->attachmentLoader->load($data['documentIds'], $context)
+            );
+        }
 
         $message = $this->mailService->send($data, $context, $mailTemplateData);
 

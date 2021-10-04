@@ -1,0 +1,9 @@
+<div style="font-family:arial; font-size:12px;">
+
+    {% if order.orderCustomer.salutation %}{{ order.orderCustomer.salutation.translated.letterName ~ ' ' }}{% endif %}{{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br>
+    <br>
+    Im Anhang dieser E-Mail finden Sie die Rechnung für Ihre Bestellung mit der Nummer: {{ order.orderNumber }}<br>
+    <br>
+    Sollten Sie Fragen haben, zögern Sie nicht, uns zu kontaktieren.
+    <br>
+</div>

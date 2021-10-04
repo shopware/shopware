@@ -183,6 +183,16 @@ trait BasicTestDataBehaviour
         return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
     }
 
+    protected function getValidDocumentTypeId(): string
+    {
+        /** @var EntityRepositoryInterface $repository */
+        $repository = $this->getContainer()->get('document_type.repository');
+
+        $criteria = (new Criteria())->setLimit(1);
+
+        return $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0];
+    }
+
     protected function getStateMachineState(string $stateMachine = OrderStates::STATE_MACHINE, string $state = OrderStates::STATE_OPEN): string
     {
         /** @var EntityRepositoryInterface $repository */

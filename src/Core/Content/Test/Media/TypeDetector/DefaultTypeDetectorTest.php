@@ -98,7 +98,7 @@ class DefaultTypeDetectorTest extends TestCase
     public function testDetectPdf(): void
     {
         $type = $this->getDefaultTypeDetector()->detect(
-            $this->createMediaFile(__DIR__ . '/../fixtures/Shopware_5_3_Broschuere.pdf'),
+            $this->createMediaFile(__DIR__ . '/../fixtures/small.pdf'),
             null
         );
 

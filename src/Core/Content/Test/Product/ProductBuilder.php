@@ -275,6 +275,13 @@ class ProductBuilder
         return $this;
     }
 
+    public function existingProperty(string $key): self
+    {
+        $this->properties[] = ['id' => $this->ids->get($key)];
+
+        return $this;
+    }
+
     public function stock(int $stock): self
     {
         $this->stock = $stock;

@@ -145,6 +145,17 @@ class EntityWrittenContainerEvent extends NestedEvent
         });
     }
 
+    public function getPrimaryKeysWithPayloadIgnoringFields(string $entity, array $ignoredFields): array
+    {
+        return $this->findPrimaryKeys($entity, function (EntityWriteResult $result) use ($ignoredFields) {
+            if ($result->getOperation() === EntityWriteResult::OPERATION_DELETE) {
+                return true;
+            }
+
+            return !empty(array_diff(array_keys($result->getPayload()), $ignoredFields));
+        });
+    }
+
     public function getPrimaryKeysWithPropertyChange(string $entity, array $properties): array
     {
         return $this->findPrimaryKeys($entity, function (EntityWriteResult $result) use ($properties) {

@@ -47,11 +47,19 @@
       "buttonRenameTheme": "Save",
       "modalTitleReset": "Reset theme",
       "modalTextResetInfo": "Are you sure you want to reset the theme to the default settings?",
-      "modalTextResetAssigned": "This will change the visualization of your shop.",
+      "modalTextResetAssigned": "This will change the appearance of your shop.",
       "buttonSave": "Save",
       "modalTitleSave": "Save theme",
-      "textSaveInfo": "Do you really want to save the changes? This will change the visualization of your shop.",
-      "addToMediaLabel": "Add to {name}"
+      "textSaveInfo": "Do you really want to save the changes? This will change the appearance of your shops.",
+      "addToMediaLabel": "Add to {name}",
+      "salesChannelAlreadyAssignedModal": {
+        "descriptionSingle": "This Sales Channel is already assigned to a theme. If you go on and save, the theme assignment will be replaced with <b>{newThemeName}</b>:",
+        "descriptionMultiple": "Some of your chosen Sales Channels are already assigned to a theme. If you go on and save, the following theme assignments will be replaced with <b>{newThemeName}</b>:"
+      },
+      "salesChannelRemovedModal": {
+        "descriptionSingle": "You have removed a theme assignment. If you go on and save, the theme assignment will be replaced with <b>{defaultThemeName}</b>:",
+        "descriptionMultiple": "You have removed some of your theme assignments. If you go on and save, the following theme assignments will be replaced with <b>{defaultThemeName}</b>:"
+      }
     },
     "list": {
       "titleSidebarItemRefresh": "Refresh",
@@ -77,6 +85,7 @@
       "salesChannel": "Assigned to the following Sales Channels",
       "inheritanceInfo": "This theme is a duplicate and is derived from the \"{parentThemeName}\" theme.",
       "showFullError": "Show full error",
+      "salesChannelHelpText": "It is not possible to remove these assignments here. If you want to change a Sales Channel's theme, visit the respective Sales Channel's settings.",
       "label": {
         "media": "Media",
         "colors": "Colours",

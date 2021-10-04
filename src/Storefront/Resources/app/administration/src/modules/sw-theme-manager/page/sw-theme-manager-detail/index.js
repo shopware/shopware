@@ -31,7 +31,13 @@ Component.register('sw-theme-manager-detail', {
             mappedFields: {
                 color: 'colorpicker',
                 fontFamily: 'text'
-            }
+            },
+            defaultTheme: null,
+            themeCompatibleSalesChannels: [],
+            salesChannelsWithTheme: null,
+            newAssignedSalesChannels: [],
+            overwrittenSalesChannelAssignments: [],
+            removedSalesChannels: [],
         };
     },
 
@@ -56,6 +62,10 @@ Component.register('sw-theme-manager-detail', {
 
         defaultFolderRepository() {
             return this.repositoryFactory.create('media_default_folder');
+        },
+
+        salesChannelRepository() {
+            return this.repositoryFactory.create('sales_channel');
         },
 
         previewMedia() {
@@ -93,6 +103,10 @@ Component.register('sw-theme-manager-detail', {
 
         hasMoreThanOneTab() {
             return Object.values(this.structuredThemeFields.tabs).length > 1;
+        },
+
+        isDefaultTheme() {
+            return this.theme.id === this.defaultTheme.id;
         }
     },
 
@@ -155,8 +169,20 @@ Component.register('sw-theme-manager-detail', {
         },
 
         setPageContext() {
+            this.getDefaultTheme().then((defaultTheme) => {
+                this.defaultTheme = defaultTheme;
+            });
+
             this.getDefaultFolderId().then((folderId) => {
                 this.defaultMediaFolderId = folderId;
+            });
+
+            this.getThemeCompatibleSalesChannels().then((ids) => {
+                this.themeCompatibleSalesChannels = ids;
+            });
+
+            this.getSalesChannelsWithTheme().then((salesChannels) => {
+                this.salesChannelsWithTheme = salesChannels;
             });
         },
 
@@ -228,8 +254,11 @@ Component.register('sw-theme-manager-detail', {
         },
 
         onSave() {
-            if (this.theme.salesChannels.length > 0) {
+            this.findChangedSalesChannels();
+
+            if (this.theme.salesChannels.length > 0 || this.removedSalesChannels.length > 0) {
                 this.showSaveModal = true;
+
                 return;
             }
 
@@ -253,9 +282,7 @@ Component.register('sw-theme-manager-detail', {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            const newValues = getObjectDiff(this.baseThemeConfig, this.themeConfig);
-
-            return this.themeService.updateTheme(this.themeId, { config: newValues }).then(() => {
+            return Promise.all([this.saveSalesChannels(), this.saveThemeConfig()]).then(() => {
                 this.getTheme();
             }).catch((error) => {
                 this.isLoading = false;
@@ -281,6 +308,70 @@ Component.register('sw-theme-manager-detail', {
             });
         },
 
+        saveSalesChannels() {
+            const promises = [];
+
+            if (this.newAssignedSalesChannels.length > 0) {
+                this.newAssignedSalesChannels.forEach((salesChannelId) => {
+                    promises.push(this.themeService.assignTheme(this.themeId, salesChannelId));
+                });
+            }
+
+            if (this.removedSalesChannels.length > 0) {
+                this.removedSalesChannels.forEach((salesChannel) => {
+                    promises.push(this.themeService.assignTheme(this.defaultTheme.id, salesChannel.id));
+                });
+            }
+
+            return Promise.all(promises);
+        },
+
+        findChangedSalesChannels() {
+            this.newAssignedSalesChannels = [];
+            this.removedSalesChannels = [];
+            this.overwrittenSalesChannelAssignments = [];
+
+            const diff = this.themeRepository.getSyncChangeset([this.theme]);
+
+            if (diff.changeset.length > 0 && diff.changeset[0].changes.hasOwnProperty('salesChannels')) {
+                this.findAddedSalesChannels(diff.changeset[0].changes.salesChannels);
+            }
+
+            if (diff.deletions.length > 0) {
+                this.findRemovedSalesChannels(diff.deletions);
+            }
+        },
+
+        findAddedSalesChannels(salesChannels) {
+            salesChannels.forEach((salesChannel) => {
+                this.newAssignedSalesChannels.push(salesChannel.id);
+
+                const overwrittenSalesChannel = this.salesChannelsWithTheme.get(salesChannel.id);
+                if (overwrittenSalesChannel !== null) {
+                    this.overwrittenSalesChannelAssignments.push({
+                        id: salesChannel.id,
+                        salesChannelName: this.theme.salesChannels.get(salesChannel.id).translated.name,
+                        oldThemeName: overwrittenSalesChannel.extensions.themes[0].name
+                    });
+                }
+            });
+        },
+
+        findRemovedSalesChannels(salesChannels) {
+            salesChannels.forEach((salesChannel) => {
+                this.removedSalesChannels.push({
+                    id: salesChannel.key,
+                    name: this.theme.getOrigin().salesChannels.get(salesChannel.key).translated.name
+                });
+            });
+        },
+
+        saveThemeConfig() {
+            const newValues = getObjectDiff(this.baseThemeConfig, this.themeConfig);
+
+            return this.themeService.updateTheme(this.themeId, { config: newValues });
+        },
+
         saveFinish() {
             this.isSaveSuccessful = false;
         },
@@ -297,6 +388,28 @@ Component.register('sw-theme-manager-detail', {
             return !this.mappedFields[field] ? null : this.mappedFields[field];
         },
 
+        getThemeCompatibleSalesChannels() {
+            const criteria = new Criteria();
+            criteria.addAssociation('type');
+            criteria.addFilter(Criteria.equalsAny('type.name', ['Storefront', 'Headless']));
+
+            return this.salesChannelRepository.search(criteria, Shopware.Context.api).then((searchResult) => {
+                return searchResult.getIds();
+            });
+        },
+
+        getSalesChannelsWithTheme() {
+            const criteria = new Criteria();
+            criteria.addAssociation('themes');
+            criteria.addFilter(Criteria.not('or', [
+                Criteria.equals('themes.id', null),
+            ]));
+
+            return this.salesChannelRepository.search(criteria, Shopware.Context.api).then((searchResult) => {
+                return searchResult;
+            });
+        },
+
         getDefaultFolderId() {
             const criteria = new Criteria(1, 1);
             criteria.addAssociation('folder');
@@ -309,6 +422,15 @@ Component.register('sw-theme-manager-detail', {
                 }
 
                 return null;
+            });
+        },
+
+        getDefaultTheme() {
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.equals('technicalName', 'Storefront'));
+
+            return this.themeRepository.search(criteria, Shopware.Context.api).then((response) => {
+               return response.first();
             });
         },
 
@@ -328,6 +450,18 @@ Component.register('sw-theme-manager-detail', {
             delete config.custom;
 
             return { type: field.type, config: config };
-        }
+        },
+
+        selectionDisablingMethod(selection) {
+            if (!this.isDefaultTheme) {
+                return false;
+            }
+
+            return this.theme.getOrigin().salesChannels.has(selection.id);
+        },
+
+        isThemeCompatible(item) {
+            return this.themeCompatibleSalesChannels.includes(item.id);
+        },
     }
 });

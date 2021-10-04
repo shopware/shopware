@@ -81,6 +81,11 @@ Component.register('sw-entity-multi-select', {
             required: false,
             default: false,
         },
+        selectionDisablingMethod: {
+            type: Function,
+            required: false,
+            default: () => false,
+        },
     },
 
     data() {
@@ -320,6 +325,14 @@ Component.register('sw-entity-multi-select', {
 
         getKey(object, keyPath, defaultValue) {
             return get(object, keyPath, defaultValue);
+        },
+
+        isSelectionDisabled(selection) {
+            if (this.disabled) {
+                return true;
+            }
+
+            return this.selectionDisablingMethod(selection);
         },
     },
 });

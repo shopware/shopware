@@ -92,20 +92,8 @@
         }
     }
 
-    .sw-theme-manager-detail__info-saleschannels {
-        margin-top: 12px;
-        font-weight: 600;
-
-        .sw-theme-manager-detail__saleschannel {
-            .sw-theme-manager-detail__saleschannel-link {
-                color: $color-shopware-brand-500;
-                text-decoration: none;
-
-                &:hover {
-                    text-decoration: underline;
-                }
-            }
-        }
+    .sw-theme-manager-detail__saleschannels-select {
+        margin-top: 20px;
     }
 
     .sw-theme-manager-detail__content--section_field {
@@ -134,5 +122,11 @@
         .sw_theme_manager__duplicate-info {
             margin-bottom: 16px;
         }
+    }
+}
+
+.sw-theme-manager-detail-modal {
+    .sw_theme_manager__confirm-save-text, .sw-theme-manager-detail__sales-channel-warning {
+        margin-bottom: 15px;
     }
 }

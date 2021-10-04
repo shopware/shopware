@@ -46,12 +46,20 @@
       "placeholderRenameThemeName": "Namen eintragen",
       "buttonRenameTheme": "Speichern",
       "modalTextResetInfo": "Bist du sicher, dass du das Theme auf die Standardeinstellungen zurücksetzen möchtest?",
-      "modalTextResetAssigned": "Dies kann die Visualisierung Ihres Shops verändern.",
+      "modalTextResetAssigned": "Dies kann das Aussehen Deines Shops verändern.",
       "modalTitleReset": "Theme zurücksetzen",
       "buttonSave": "Speichern",
       "modalTitleSave": "Theme speichern",
-      "textSaveInfo": "Möchtest du die Änderungen wirklich speichern? Dies wird die Visualisierung Ihres Shops verändern.",
-      "addToMediaLabel": "Zu {name} hinzufügen"
+      "textSaveInfo": "Möchtest du die Änderungen wirklich speichern? Dies wird das Aussehen Deiner Shops verändern.",
+      "addToMediaLabel": "Zu {name} hinzufügen",
+      "salesChannelAlreadyAssignedModal": {
+        "descriptionSingle": "Der von Dir gewählte Verkaufskanal ist bereits einem Theme zugewiesen. Wenn du fortfährst und speicherst, wird diese Theme-Zuweisung ersetzt durch <b>{newThemeName}</b>:",
+        "descriptionMultiple": "Einige der von Dir gewählten Verkaufskanäle sind bereits einem Theme zugewiesen. Wenn du fortfährst und speicherst, werden die folgenden Theme-Zuweisungen ersetzt durch <b>{newThemeName}</b>:"
+      },
+      "salesChannelRemovedModal": {
+        "descriptionSingle": "Du hast eine Theme-Zuweisung entfernt. Wenn du fortfährst und speicherst, wird diese Theme-Zuweisung ersetzt durch <b>{defaultThemeName}</b>:",
+        "descriptionMultiple": "Du hast einige Theme-Zuweisungen entfernt. Wenn du fortfährst und speicherst, werden die folgenden Theme-Zuweisungen ersetzt durch <b>{defaultThemeName}</b>:"
+      }
     },
     "list": {
       "titleSidebarItemRefresh": "Aktualisieren",
@@ -77,6 +85,7 @@
       "salesChannel": "Folgenden Verkaufskanälen zugewiesen",
       "inheritanceInfo": "Dieses Theme ist ein Duplikat und wird abgeleitet vom \"{parentThemeName}\" Theme.",
       "showFullError": "Kompletten Fehler anzeigen",
+      "salesChannelHelpText": "Es ist nicht möglich, diese Zuordnungen hier zu entfernen. Wenn du das Theme eines Verkaufskanals ändern möchtest, besuche die Einstellungen des jeweiligen Verkaufskanals.",
       "label": {
         "media": "Media",
         "colors": "Farben",

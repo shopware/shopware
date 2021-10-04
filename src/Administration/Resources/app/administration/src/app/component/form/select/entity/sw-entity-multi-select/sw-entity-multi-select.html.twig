@@ -19,6 +19,7 @@
             value-property="id"
             v-bind="{ size, labelProperty, placeholder, searchTerm, disabled }"
             :hide-labels="hideLabels"
+            :selection-disabling-method="selectionDisablingMethod"
             @total-count-click="expandValueLimit"
             @item-remove="remove"
             @last-item-delete="removeLastItem"
@@ -80,6 +81,7 @@
                         is="sw-select-result"
                         :selected="isSelected(item)"
                         v-bind="{ item, index }"
+                        :disabled="isSelectionDisabled(item)"
                         @item-select="addItem"
                     >
                         {% block sw_entity_multi_select_base_results_list_result_label %}

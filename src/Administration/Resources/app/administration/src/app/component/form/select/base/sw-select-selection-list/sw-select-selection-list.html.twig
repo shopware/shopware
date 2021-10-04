@@ -17,7 +17,7 @@
             v-bind="{ selection, defaultLabel: selection[labelProperty], disabled }"
         >
             <sw-label
-                :dismissable="!disabled"
+                :dismissable="!isSelectionDisabled(selection)"
                 :size="size"
                 @dismiss="onClickDismiss(selection)"
             >

@@ -38,23 +38,5 @@ describe('Theme: Visual tests', () => {
             .contains('Shopware default theme')
             .click();
         cy.get('.sw-colorpicker').should('be.visible');
-
-
-        // Change color of the element to ensure consistent snapshots
-        cy.changeElementStyling(
-            ':nth-child(2) > .sw-theme-manager-detail__saleschannel-link > span',
-            'color: #fff'
-        );
-        cy.get(':nth-child(2) > .sw-theme-manager-detail__saleschannel-link > span')
-            .should('have.css', 'color', 'rgb(255, 255, 255)');
-
-        // Change color of the element to ensure consistent snapshots
-        cy.changeElementStyling(
-            ':nth-child(3) > .sw-theme-manager-detail__saleschannel-link > span',
-            'color: #fff'
-        );
-
-        // Take snapshot for visual testing
-        cy.takeSnapshot('[Theme] Detail', '.sw-theme-manager-detail__area');
     });
 });

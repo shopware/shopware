@@ -18,25 +18,13 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterface
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var TokenizerInterface
-     */
-    private $tokenizer;
+    private TokenizerInterface $tokenizer;
 
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
+    private LoggerInterface $logger;
 
-    /**
-     * @var AbstractTokenFilter
-     */
-    private $tokenFilter;
+    private AbstractTokenFilter $tokenFilter;
 
     public function __construct(
         Connection $connection,
@@ -55,21 +43,26 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
         $tokens = $this->tokenizer->tokenize($word);
 
         $tokens = $this->tokenFilter->filter($tokens, $context);
+
         if (empty($tokens)) {
             return new SearchPattern(new SearchTerm(''));
         }
+
         $tokenSlops = $this->slop($tokens);
         if (!$this->checkSlops(array_values($tokenSlops))) {
             return new SearchPattern(new SearchTerm($word));
         }
+
         $tokenKeywords = $this->fetchKeywords($context, $tokenSlops);
         $matches = array_fill(0, \count($tokens), []);
         $matches = $this->groupTokenKeywords($matches, $tokenKeywords);
 
         $combines = $this->permute($tokens);
+
         foreach ($combines as $token) {
             $tokens[] = $token;
         }
+
         $tokens = array_keys(array_flip($tokens));
 
         $pattern = new SearchPattern(new SearchTerm($word));
@@ -199,6 +192,7 @@ class ProductSearchTermInterpreter implements ProductSearchTermInterpreterInterf
 
         $query->andWhere('language_id = :language');
         $query->andWhere('(' . implode(' OR ', $wheres) . ')');
+        $query->addOrderBy('keyword', 'ASC');
 
         $query->setParameter('language', Uuid::fromHexToBytes($context->getLanguageId()));
 

@@ -6,10 +6,10 @@ author_email: cccpmik@gmail.com
 author_github: BlackScorp
 ---
 # Core
-*  
+* changed 'cloneEntity()' method in 'src/Core/Framework/DataAbstractionLayer/VersionManager.php' to reset the createdAt and modifiedAt timestamps if exists 
 ___
 # API
-*  changed 'cloneEntity()' method in 'src/Core/Framework/DataAbstractionLayer/VersionManager.php' to reset the createdAt and modifiedAt timestamps if exists
+*  
 ___
 # Administration
 *  

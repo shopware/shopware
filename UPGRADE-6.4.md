@@ -1,6 +1,152 @@
 UPGRADE FROM 6.3.x.x to 6.4
 =======================
 
+# 6.4.5.0
+If multiple `RetryableQuery` are used within the same SQL transaction, and a deadlock occurs, the whole transaction is
+rolled back internally and can be retried. But if instead only the last `RetryableQuery` is retried this can cause all
+kinds of unwanted behaviour (e.g. foreign key constraints).
+
+With the changes to the `RetryableQuery`, you are now encouraged to pass a `Doctrine\DBAL\Connection` in the constructor
+and the static `retryable` function. This way, in case of a deadlock, the `RetryableQuery` can detect an ongoing
+transaction and may rethrow the error instead of retrying itself.
+
+#### Old usages (now deprecated):
+  ```php
+  $retryableQuery = new RetryableQuery($query);
+  
+  RetryableQuery::retryable(function () use ($sql): void {
+      $this->connection->executeUpdate($sql);
+  });
+  ```
+
+#### New usages:
+  ```php
+  $retryableQuery = new RetryableQuery($connection, $query);
+  
+  RetryableQuery::retryable($this->connection, function () use ($sql): void {
+      $this->connection->executeUpdate($sql);
+  });
+  ```
+
+If you are knowingly using a SQL transaction to execute multiple statements, use the newly added `RetryableTransaction`
+class. With it the whole transaction can be retried in case of a deadlock.
+#### Example usage
+  ```php
+  RetryableTransaction::retryable($this->connection, function () use ($sql): void {
+      $this->connection->executeUpdate($sql);
+  });
+  ```
+## Deprecation of AdminOrderCartService
+
+The `\Shopware\Administration\Service\AdminOrderCartService` was deprecated and will be removed in v6.5.0.0, please use the newly added `\Shopware\Core\Checkout\Cart\ApiOrderCartService` instead. 
+
+## Deprecation of Shopware\Storefront\Page\Address\Listing\AddressListingCriteriaEvent
+
+The `\Shopware\Storefront\Page\Address\Listing\AddressListingCriteriaEvent` was deprecated and will be removed in v6.5.0.0, if you subscribed to the event please use the newly added `\Shopware\Core\Checkout\Customer\Event\AddressListingCriteriaEvent` instead.
+
+## Deprecation of Shopware\Storefront\Event\ProductExportContentTypeEvent
+
+The `\Shopware\Storefront\Event\ProductExportContentTypeEvent` was deprecated and will be removed in v6.5.0.0, if you subscribed to the event please use the newly added `\Shopware\Core\Content\ProductExport\Event\ProductExportContentTypeEvent` instead.
+
+## Deprecation of Shopware\Core\Framework\Adapter\Asset\ThemeAssetPackage
+
+The `\Shopware\Core\Framework\Adapter\Asset\ThemeAssetPackage` was deprecated and will be removed in v6.5.0.0, please use the newly added `\Shopware\Storefront\Theme\ThemeAssetPackage` instead.
+## RegisterController::register
+
+Registering a customer with `\Shopware\Storefront\Controller\RegisterController::register` now requires the request parameter `createCustomerAccount` to create a customer account.
+If you dont specify this parameter a guest account will be created.
+## Deprecating reading entities with the storage name of the primary key fields
+
+When you added a custom entity definition with a combined primary key you need to pass the field names when you want to read specific entities.
+The use of storage names when reading entities is deprecated by now, please use the property names instead.
+The support of reading entities with the storage name of the primary keys will be removed in 6.5.0.0.
+
+### Before
+```php
+new Criteria([
+    [
+        'storage_name_of_first_pk' => 1,
+        'storage_name_of_second_pk' => 2,
+    ],
+]);
+```
+
+### Now
+```php
+new Criteria([
+    [
+        'propertyNameOfFirstPk' => 1,
+        'propertyNameOfSecondPk' => 2,
+    ],
+]);
+```
+## StorefrontRenderEvent Changed
+If you use the `StorefrontRenderEvent` you will get the original template as the `view` parameter instead of the inheriting template from v6.5.0.0
+Take this in account if your subscriber depends on the inheriting template currently.
+## Symfony Asset Version Strategy construction moved to dependency injection container
+
+To be able to decorate the Symfony asset versioning easier, you can now decorate the service in the DI container instead of overwriting the service where it will be constructed.
+
+Shopware offers by default many assets like `theme`, all those assets have an own version strategy service in the di like `shopware.asset.theme.version_strategy`
+
+This can be decorated in the DI and the new class needs to implement the `\Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface` interface.
+Here is an example to build the version strategy with the content instead of timestamps
+```php
+<?php declare(strict_types=1);
+
+class Md5ContentVersionStrategy implements VersionStrategyInterface
+{
+    private FilesystemInterface $filesystem;
+
+    private TagAwareAdapterInterface $cacheAdapter;
+
+    private string $cacheTag;
+
+    public function __construct(string $cacheTag, FilesystemInterface $filesystem, TagAwareAdapterInterface $cacheAdapter)
+    {
+        $this->filesystem = $filesystem;
+        $this->cacheAdapter = $cacheAdapter;
+        $this->cacheTag = $cacheTag;
+    }
+
+    public function getVersion(string $path)
+    {
+        return $this->applyVersion($path);
+    }
+
+    public function applyVersion(string $path)
+    {
+        try {
+            $hash = $this->getHash($path);
+        } catch (FileNotFoundException $e) {
+            return $path;
+        }
+
+        return $path . '?' . $hash;
+    }
+
+    private function getHash(string $path): string
+    {
+        $cacheKey = 'metaDataFlySystem-' . md5($path);
+
+        /** @var ItemInterface $item */
+        $item = $this->cacheAdapter->getItem($cacheKey);
+
+        if ($item->isHit()) {
+            return $item->get();
+        }
+
+        $hash = md5($this->filesystem->read($path));
+
+        $item->set($hash);
+        $item->tag($this->cacheTag);
+        $this->cacheAdapter->saveDeferred($item);
+
+        return $item->get();
+    }
+}
+```
+
 # 6.4.4.1
 ## Deprecating reading entities with the storage name of the primary key fields
 

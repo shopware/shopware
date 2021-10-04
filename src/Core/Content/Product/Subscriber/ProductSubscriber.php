@@ -40,9 +40,8 @@ class ProductSubscriber implements EventSubscriberInterface
                 }
             }
 
-            $product->setVariation(
-                $this->buildVariation($product)
-            );
+            $variants = $product->getOptions() === null ? [] : $this->buildVariation($product->getOptions()->getElements());
+            $product->setVariation($variants);
 
             if ($product instanceof SalesChannelProductEntity) {
                 if (Feature::isActive('FEATURE_NEXT_16151')) {
@@ -102,13 +101,9 @@ class ProductSubscriber implements EventSubscriberInterface
         return $collection;
     }
 
-    private function buildVariation(ProductEntity $product): array
+    private function buildVariation(array $options): array
     {
-        if ($product->getOptions() === null) {
-            return [];
-        }
-
-        $product->getOptions()->sort(function (PropertyGroupOptionEntity $a, PropertyGroupOptionEntity $b) {
+        uasort($options, function (PropertyGroupOptionEntity $a, PropertyGroupOptionEntity $b) {
             if ($a->getGroup() === null || $b->getGroup() === null) {
                 return $a->getGroupId() <=> $b->getGroupId();
             }
@@ -121,7 +116,7 @@ class ProductSubscriber implements EventSubscriberInterface
         });
 
         // fallback - simply take all option names unordered
-        $names = $product->getOptions()->map(function (PropertyGroupOptionEntity $option) {
+        $names = array_map(function (PropertyGroupOptionEntity $option) {
             if (!$option->getGroup()) {
                 return [];
             }
@@ -130,7 +125,7 @@ class ProductSubscriber implements EventSubscriberInterface
                 'group' => $option->getGroup()->getTranslation('name'),
                 'option' => $option->getTranslation('name'),
             ];
-        });
+        }, $options);
 
         return array_values($names);
     }

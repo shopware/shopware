@@ -17,6 +17,7 @@
             :error="flowEventNameError"
         >
             <template #sw-field-input="{ identification, disabled, error, size, setFocusClass, removeFocusClass }">
+                {% block sw_flow_trigger_select_field_input %}
                 <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
                 <input
                     ref="searchInput"
@@ -27,12 +28,21 @@
                     :disabled="disabled"
                     @focus="openDropdown({ setFocusClass, removeFocusClass });"
                 >
+                {% endblock %}
 
                 {% block sw_flow_trigger_loader %}
                 <sw-loader
                     v-if="isLoading"
                     class="sw-flow-trigger__loader"
                     size="16px"
+                />
+                {% endblock %}
+
+                {% block sw_flow_trigger_dropdown_icon %}
+                <sw-icon
+                    class="sw-flow-trigger__dropdown-icon"
+                    name="small-arrow-medium-down"
+                    small
                 />
                 {% endblock %}
             </template>

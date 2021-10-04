@@ -182,6 +182,7 @@ Component.register('sw-flow-sequence-condition', {
         arrowClasses(trueCase) {
             return {
                 'is--disabled': this.disabledAddSequence(trueCase),
+                'has--true-action': !this.sequence.trueBlock,
             };
         },
 
@@ -257,6 +258,7 @@ Component.register('sw-flow-sequence-condition', {
         toggleAddButton() {
             if (this.sequence.ruleId) {
                 this.showRuleSelection = false;
+                return;
             }
 
             this.showAddButton = !this.showAddButton;

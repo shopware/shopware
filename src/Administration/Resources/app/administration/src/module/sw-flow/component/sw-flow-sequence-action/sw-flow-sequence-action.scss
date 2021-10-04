@@ -88,6 +88,7 @@
 
     &__action-description {
         font-size: 14px;
+        margin-left: 20px;
     }
 
     &__context-button {
@@ -139,18 +140,20 @@
 
     &__add-action {
         border-top: 1px solid $color-gray-300;
+        height: 56px;
+        display: flex;
     }
 
     &__add-button {
         @include flex-centering-vertical;
 
-        padding: 12px 24px;
+        padding-left: 24px;
         cursor: pointer;
 
         p {
             color: $color-shopware-brand-500;
             text-decoration: underline;
-            font-size: 14px;
+            font-size: $font-size-small;
         }
     }
 
@@ -167,8 +170,9 @@
         @include flex-centering-vertical;
 
         justify-content: start;
-        padding: 12px 24px;
+        padding: 0 24px;
         margin-bottom: 0;
+        width: 100%;
     }
 
     &__selection-action {

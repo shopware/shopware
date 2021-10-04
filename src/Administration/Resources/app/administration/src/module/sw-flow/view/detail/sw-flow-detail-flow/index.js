@@ -24,6 +24,12 @@ Component.register('sw-flow-detail-flow', {
         },
     },
 
+    data() {
+        return {
+            flowContainerStyle: null,
+        };
+    },
+
     computed: {
         sequenceRepository() {
             return this.repositoryFactory.create('flow_sequence');
@@ -54,6 +60,31 @@ Component.register('sw-flow-detail-flow', {
                 }
             },
             immediate: true,
+        },
+
+        sequences: {
+            handler() {
+                const sequenceContainers = document.getElementsByName('root-sequence');
+                let maxWidth = 0;
+
+                this.$nextTick(() => {
+                    Array.from(sequenceContainers).forEach((item) => {
+                        maxWidth = item.offsetWidth > maxWidth ? item.offsetWidth : maxWidth;
+                    });
+
+                    if (maxWidth <= 840) {
+                        this.flowContainerStyle = null;
+                        return;
+                    }
+
+                    if (maxWidth > 840 && maxWidth <= 1300) {
+                        this.flowContainerStyle = { 'max-width': '1300px' };
+                        return;
+                    }
+
+                    this.flowContainerStyle = { 'max-width': '100%' };
+                });
+            },
         },
     },
 

@@ -18,7 +18,7 @@ Component.register('sw-search-bar-item', {
     inject: [
         'searchTypeService',
         'feature',
-        'recentlySearchService'
+        'recentlySearchService',
     ],
 
     props: {
@@ -99,7 +99,11 @@ Component.register('sw-search-bar-item', {
         },
 
         moduleName() {
-            const { action, label, entity } = this.item;
+            const { action, label, entity, title } = this.item;
+
+            if (title && !action) {
+                return this.$tc(`${title}`, 2);
+            }
 
             return action ? this.$tc(
                 'global.sw-search-bar-item.addNewEntity',
@@ -113,11 +117,15 @@ Component.register('sw-search-bar-item', {
         },
 
         iconName() {
-            return this.type === 'module' && this.item?.icon ? this.item.icon : this.entityIconName;
+            return ['module', 'frequently_used'].includes(this.type) && this.item?.icon
+                ? this.item.icon
+                : this.entityIconName;
         },
 
         iconColor() {
-            return this.type === 'module' && this.item?.color ? this.item.color : this.entityIconColor;
+            return ['module', 'frequently_used'].includes(this.type) && this.item?.color
+                ? this.item.color
+                : this.entityIconColor;
         },
 
         shortcut() {

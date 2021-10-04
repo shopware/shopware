@@ -112,6 +112,6 @@ describe('app/service/recently-search.service.js', () => {
         expect(foundOldProduct).toEqual(data[0]);
         expect(foundOldProduct.entity).toEqual(uniqueProduct.entity);
         expect(foundOldProduct.id).toEqual(uniqueProduct.id);
-        expect(foundOldProduct.timestamp).toBeGreaterThan(uniqueProduct.timestamp);
+        expect(foundOldProduct.timestamp).toBeGreaterThanOrEqual(uniqueProduct.timestamp);
     });
 });

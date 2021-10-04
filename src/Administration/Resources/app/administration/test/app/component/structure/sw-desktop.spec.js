@@ -96,7 +96,7 @@ function createWrapper() {
             appUrlChangeService: {
                 getUrlDiff: jest.fn(() => Promise.resolve())
             },
-            adminIncrementApiService: {
+            userActivityApiService: {
                 increment: jest.fn(() => Promise.resolve())
             }
         }
@@ -106,6 +106,12 @@ function createWrapper() {
 describe('src/app/component/structure/sw-desktop', () => {
     beforeAll(() => {
         global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
+    });
+
+    beforeEach(() => {
+        Shopware.State.get('session').currentUser = {
+            id: 'id'
+        };
     });
 
     it('should be a Vue.js component', async () => {

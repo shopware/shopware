@@ -10,7 +10,7 @@ const { hasOwnProperty } = Shopware.Utils.object;
 Component.register('sw-desktop', {
     template,
 
-    inject: ['feature', 'appUrlChangeService', 'adminIncrementApiService'],
+    inject: ['feature', 'appUrlChangeService', 'userActivityApiService'],
 
     data() {
         return {
@@ -24,6 +24,10 @@ Component.register('sw-desktop', {
             return {
                 'sw-desktop--no-nav': this.noNavigation,
             };
+        },
+
+        currentUser() {
+            return Shopware.State.get('session').currentUser;
         },
     },
 
@@ -80,11 +84,11 @@ Component.register('sw-desktop', {
             }
 
             const data = {
-                key: metadata.route.name,
-                payload: metadata,
+                key: `${metadata.name}@${metadata.route.name}`,
+                cluster: this.currentUser.id,
             };
 
-            return this.adminIncrementApiService.increment(data);
+            return this.userActivityApiService.increment(data);
         },
 
         getModuleMetadata() {
@@ -108,8 +112,8 @@ Component.register('sw-desktop', {
             }
 
             if (
-                routes?.index?.name === routeName
-                || routes.index?.children?.some(child => child.name === routeName)
+                routes?.index?.name === routeName ||
+                routes.index?.children?.some(child => child.name === routeName)
             ) {
                 const { components, children, meta, props, ...route } = routes.index;
                 return {
@@ -124,8 +128,8 @@ Component.register('sw-desktop', {
             }
 
             if (
-                routes?.create?.name === routeName
-                || routes.create?.children?.some(child => child.name === routeName)
+                routes?.create?.name === routeName ||
+                routes.create?.children?.some(child => child.name === routeName)
             ) {
                 const { components, children, meta, props, ...route } = routes.create;
                 return {
@@ -157,8 +161,8 @@ Component.register('sw-desktop', {
             );
 
             return metadata.find(
-                item => item.route.name === routeName
-                        || item.route?.children?.some(child => child.name === routeName),
+                item => item.route.name === routeName ||
+                    item.route?.children?.some(child => child.name === routeName),
             );
         },
     },

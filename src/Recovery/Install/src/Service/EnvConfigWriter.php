@@ -5,26 +5,25 @@ namespace Shopware\Recovery\Install\Service;
 use Defuse\Crypto\Key;
 use Shopware\Recovery\Install\Struct\DatabaseConnectionInformation;
 use Shopware\Recovery\Install\Struct\Shop;
+use Symfony\Component\Dotenv\Dotenv;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 class EnvConfigWriter
 {
-    /**
-     * @var string
-     */
-    private $configPath;
+    private string $configPath;
 
-    /**
-     * @var string
-     */
-    private $instanceId;
+    private string $instanceId;
 
     private array $defaultEnvVars;
 
-    public function __construct(string $configPath, string $instanceId, array $defaultEnvVars = [])
+    private KernelInterface $kernel;
+
+    public function __construct(string $configPath, string $instanceId, array $defaultEnvVars = [], KernelInterface $kernel)
     {
         $this->configPath = $configPath;
         $this->instanceId = $instanceId;
         $this->defaultEnvVars = $defaultEnvVars;
+        $this->kernel = $kernel;
     }
 
     public function writeConfig(DatabaseConnectionInformation $info, Shop $shop): void
@@ -51,24 +50,15 @@ MAILER_URL=null://localhost
         $key = Key::createNewRandomKey();
         $secret = $key->saveToAsciiSafeString();
 
-        $dbUrl = sprintf(
-            'mysql://%s:%s@%s:%s/%s',
-            rawurlencode($info->username),
-            rawurlencode($info->password),
-            rawurlencode($info->hostname),
-            rawurlencode((string) $info->port),
-            rawurlencode($info->databaseName)
-        );
-
         $defaults = $this->defaultEnvVars;
         $appEnvVars = array_filter([
             'APP_ENV' => 'prod',
             'APP_SECRET' => $secret,
             'APP_URL' => 'http://' . $shop->host . $shop->basePath,
-            'DATABASE_SSL_CA' => $info->sslCaPath,
-            'DATABASE_SSL_CERT' => $info->sslCertPath,
-            'DATABASE_SSL_KEY' => $info->sslCertKeyPath,
-            'DATABASE_SSL_DONT_VERIFY_SERVER_CERT' => $info->sslDontVerifyServerCert ? '1' : '',
+            'DATABASE_SSL_CA' => $info->getSslCaPath(),
+            'DATABASE_SSL_CERT' => $info->getSslCertPath(),
+            'DATABASE_SSL_KEY' => $info->getSslCertKeyPath(),
+            'DATABASE_SSL_DONT_VERIFY_SERVER_CERT' => $info->getSslDontVerifyServerCert() ? '1' : '',
         ]);
 
         // override app env vars
@@ -81,7 +71,7 @@ MAILER_URL=null://localhost
 
         $additionalEnvVars = array_merge(
             [
-                'DATABASE_URL' => $dbUrl,
+                'DATABASE_URL' => $info->asDsn(),
                 'COMPOSER_HOME' => SW_PATH . '/var/cache/composer',
                 'INSTANCE_ID' => $this->instanceId,
                 'BLUE_GREEN_DEPLOYMENT' => (int) $_ENV['BLUE_GREEN_DEPLOYMENT'],
@@ -115,6 +105,12 @@ MAILER_URL=null://localhost
                 chmod($htaccessPath, $perms | 0644);
             }
         }
+
+        // reboot shopware kernel, to get new DB connection
+        // Don't use `reboot()` directly as that does not reinitialize the connection
+        $this->kernel->shutdown();
+        (new Dotenv())->usePutenv()->overload($this->configPath);
+        $this->kernel->boot();
     }
 
     private function toEnv(array $keyValuePairs): string

@@ -68,7 +68,6 @@ return [
     'database-configuration_field_host' => 'Server:',
     'database-configuration_advanced_settings' => 'Avancerede indstillinger',
     'database-configuration_field_port' => 'Port:',
-    'database-configuration_field_socket' => 'Socket (valgfri):',
     'database-configuration_field_user' => 'Bruger:',
     'database-configuration_field_password' => 'Kodeord:',
     'database-configuration_field_database' => 'Database navn:',

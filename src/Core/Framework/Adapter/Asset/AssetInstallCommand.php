@@ -39,6 +39,9 @@ class AssetInstallCommand extends Command
             $this->assetService->copyAssetsFromBundle($bundle->getName());
         }
 
+        $io->writeln('Copying files for bundle: Recovery');
+        $this->assetService->copyRecoveryAssets();
+
         $io->success('Successfully copied all bundle files');
 
         return self::SUCCESS;

@@ -67,7 +67,6 @@ return [
     'database-configuration_field_host' => 'Server:',
     'database-configuration_advanced_settings' => 'Avancerade inställningar',
     'database-configuration_field_port' => 'Port:',
-    'database-configuration_field_socket' => 'Uttag/Socket (valfritt):',
     'database-configuration_field_user' => 'Användare:',
     'database-configuration_field_password' => 'Lösenord:',
     'database-configuration_field_database' => 'Databas, namn:',

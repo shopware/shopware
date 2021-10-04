@@ -2,13 +2,14 @@
 
 namespace Shopware\Recovery\Common\Service;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 class SystemConfigService
 {
-    private $connection;
+    private Connection $connection;
 
-    public function __construct(\PDO $connection)
+    public function __construct(Connection $connection)
     {
         $this->connection = $connection;
     }

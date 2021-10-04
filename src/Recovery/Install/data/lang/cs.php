@@ -67,7 +67,6 @@ return [
     'database-configuration_field_host' => 'Server:',
     'database-configuration_advanced_settings' => 'Rozšířená nastavení',
     'database-configuration_field_port' => 'Port:',
-    'database-configuration_field_socket' => 'Soket (volitelně):',
     'database-configuration_field_user' => 'Uživatel:',
     'database-configuration_field_password' => 'Heslo:',
     'database-configuration_field_database' => 'Název databáze:',

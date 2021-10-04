@@ -108,14 +108,14 @@ class MigrationTest extends TestCase
         $this->assertTestMigrationsWereExecuted($app);
     }
 
-    public function testMigrationsDuringtCLIInstall(): void
+    public function testMigrationsDuringCLIInstall(): void
     {
         $this->dropDatabase();
         $this->createDatabase();
         $app = new InstallApplication('production');
         $command = $app->get('install');
 
-        $connectionInfo = new DatabaseConnectionInformation([
+        $connectionInfo = (new DatabaseConnectionInformation())->assign([
             'hostname' => $this->config['dbhost'],
             'port' => $this->config['dbport'],
             'username' => $this->config['dbuser'],
@@ -169,7 +169,7 @@ class MigrationTest extends TestCase
         $this->assertTestMigrationsWereExecuted($app);
     }
 
-    public function testMigrationsDuringtCLIUpdate(): void
+    public function testMigrationsDuringCLIUpdate(): void
     {
         $this->setUpUpdateGlobals();
 

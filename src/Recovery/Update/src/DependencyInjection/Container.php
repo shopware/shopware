@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader as CoreMigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationRuntime as CoreMigrationRuntime;
 use Shopware\Core\Framework\Migration\MigrationSource as CoreMigrationSource;
+use Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator;
 use Shopware\Recovery\Common\DependencyInjection\Container as BaseContainer;
 use Shopware\Recovery\Common\HttpClient\CurlClient;
 use Shopware\Recovery\Common\Service\JwtCertificateService;
@@ -123,6 +124,9 @@ class Container extends BaseContainer
             if (file_exists(SW_PATH . '/platform/src/Core/schema.sql')) {
                 $coreBasePath = SW_PATH . '/platform/src/Core';
                 $storefrontBasePath = SW_PATH . '/platform/src/Storefront';
+            } elseif (file_exists(SW_PATH . '/src/Core/schema.sql')) {
+                $coreBasePath = SW_PATH . '/src/Core';
+                $storefrontBasePath = SW_PATH . '/src/Storefront';
             } else {
                 $coreBasePath = SW_PATH . '/vendor/shopware/core';
                 $storefrontBasePath = SW_PATH . '/vendor/shopware/storefront';
@@ -248,11 +252,14 @@ class Container extends BaseContainer
         };
 
         $container['jwt_certificate.writer'] = static function () {
-            return new JwtCertificateService(SW_PATH . '/config/jwt/');
+            return new JwtCertificateService(
+                SW_PATH . '/config/jwt/',
+                new JwtCertificateGenerator()
+            );
         };
 
         $container['system.config'] = static function ($c) {
-            return new SystemConfigService($c['db']);
+            return new SystemConfigService($c['dbal']);
         };
     }
 }

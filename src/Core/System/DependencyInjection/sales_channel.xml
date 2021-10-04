@@ -114,33 +114,24 @@
         <service id="Shopware\Core\System\SalesChannel\SalesChannel\ContextRoute"/>
 
         <service id="Shopware\Core\System\SalesChannel\Command\SalesChannelCreateCommand">
-            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-            <argument type="service" id="sales_channel.repository"/>
             <argument type="service" id="payment_method.repository"/>
             <argument type="service" id="shipping_method.repository"/>
             <argument type="service" id="country.repository"/>
             <argument type="service" id="snippet_set.repository"/>
             <argument type="service" id="category.repository"/>
-
-            <tag name="console.command"/>
+            <argument type="service" id="Shopware\Core\Maintenance\SalesChannel\Service\SalesChannelCreator"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Command\SalesChannelListCommand">
             <argument type="service" id="sales_channel.repository"/>
-
-            <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Command\SalesChannelMaintenanceEnableCommand">
             <argument type="service" id="sales_channel.repository"/>
-
-            <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Command\SalesChannelMaintenanceDisableCommand">
             <argument type="service" id="sales_channel.repository"/>
-
-            <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry" public="true">

@@ -2,9 +2,9 @@
 
 namespace Shopware\Core\System\SalesChannel\Command;
 
-class SalesChannelMaintenanceDisableCommand extends SalesChannelMaintenanceEnableCommand
+/**
+ * @deprecated tag:v6.5.0 - Will be removed, use the Command from the maintenance bundle instead
+ */
+class SalesChannelMaintenanceDisableCommand extends \Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelMaintenanceDisableCommand
 {
-    protected static $defaultName = 'sales-channel:maintenance:disable';
-
-    protected $setMaintenanceMode = false;
 }

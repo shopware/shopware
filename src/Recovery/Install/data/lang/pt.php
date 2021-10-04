@@ -67,7 +67,6 @@ return [
     'database-configuration_field_host' => 'Servidor:',
     'database-configuration_advanced_settings' => 'Configurações avançadas',
     'database-configuration_field_port' => 'Porta:',
-    'database-configuration_field_socket' => 'Socket (opcional):',
     'database-configuration_field_user' => 'Utilizador:',
     'database-configuration_field_password' => 'Palavra-passe:',
     'database-configuration_field_database' => 'Nome da base de dados:',

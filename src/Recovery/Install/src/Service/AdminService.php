@@ -2,43 +2,38 @@
 
 namespace Shopware\Recovery\Install\Service;
 
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Maintenance\User\Service\UserProvisioner;
 use Shopware\Recovery\Install\Struct\AdminUser;
 
 class AdminService
 {
-    /**
-     * @var \PDO
-     */
-    private $connection;
+    private Connection $connection;
 
-    public function __construct(\PDO $connection)
+    private UserProvisioner $userProvisioner;
+
+    public function __construct(Connection $connection, UserProvisioner $userProvisioner)
     {
         $this->connection = $connection;
+        $this->userProvisioner = $userProvisioner;
     }
 
     public function createAdmin(AdminUser $user): void
     {
         $localeId = $this->getLocaleId($user);
 
-        $sql = <<<'EOT'
-INSERT INTO user
-(id,first_name,last_name,email,username,`password`,locale_id,active,admin,created_at)
-VALUES
-(?,?,?,?,?,?,?,1,1,NOW());
-EOT;
-
-        $prepareStatement = $this->connection->prepare($sql);
-        $prepareStatement->execute([
-            Uuid::randomBytes(),
-            $user->firstName,
-            $user->lastName,
-            $user->email,
+        $this->userProvisioner->provision(
             $user->username,
-            password_hash($user->password, \PASSWORD_BCRYPT),
-            $localeId,
-        ]);
+            $user->password,
+            [
+                'firstName' => $user->firstName,
+                'lastName' => $user->lastName,
+                'email' => $user->email,
+                'localeId' => $localeId,
+            ]
+        );
     }
 
     private function getLocaleId(AdminUser $user): string

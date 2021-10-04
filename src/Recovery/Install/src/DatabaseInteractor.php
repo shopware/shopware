@@ -2,18 +2,15 @@
 
 namespace Shopware\Recovery\Install;
 
+use Shopware\Core\Maintenance\System\Service\DatabaseInitializer;
 use Shopware\Recovery\Common\IOHelper;
-use Shopware\Recovery\Install\Service\DatabaseService;
 use Shopware\Recovery\Install\Struct\DatabaseConnectionInformation;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Question\Question;
 
 class DatabaseInteractor
 {
-    /**
-     * @var IOHelper
-     */
-    private $IOHelper;
+    private IOHelper $IOHelper;
 
     public function __construct(IOHelper $IOHelper)
     {
@@ -23,22 +20,19 @@ class DatabaseInteractor
     public function askDatabaseConnectionInformation(
         DatabaseConnectionInformation $connectionInformation
     ): DatabaseConnectionInformation {
-        $databaseHost = $this->askForDatabaseHostname((string) $connectionInformation->hostname);
-        $databasePort = $this->askForDatabasePort((string) $connectionInformation->port);
-        $question = new Question('Please enter database socket: ', $connectionInformation->socket);
-        $databaseSocket = $this->askQuestion($question);
-        $databaseUser = $this->askForDatabaseUsername((string) $connectionInformation->username);
-        $databasePassword = $this->askForDatabasePassword((string) $connectionInformation->password);
+        $databaseHost = $this->askForDatabaseHostname($connectionInformation->getHostname());
+        $databasePort = $this->askForDatabasePort($connectionInformation->getPort());
+        $databaseUser = $this->askForDatabaseUsername($connectionInformation->getUsername());
+        $databasePassword = $this->askForDatabasePassword($connectionInformation->getPassword());
 
         $dbSslCa = $this->IOHelper->ask('Please enter database SSL CA path: ', '');
         $dbSslCert = $this->IOHelper->ask('Please enter database SSL cerificate path: ', '');
         $dbSslKey = $this->IOHelper->ask('Please enter database SSL key path: ', '');
         $dbSslDontVerify = $this->IOHelper->askConfirmation(new ConfirmationQuestion('Don\'t verify database server certificate?'));
 
-        return new DatabaseConnectionInformation([
+        return (new DatabaseConnectionInformation())->assign([
             'hostname' => $databaseHost,
             'port' => $databasePort,
-            'socket' => $databaseSocket,
             'username' => $databaseUser,
             'password' => $databasePassword,
             'sslCaPath' => $dbSslCa,
@@ -48,13 +42,12 @@ class DatabaseInteractor
         ]);
     }
 
-    public function createDatabase(\PDO $connection): string
+    public function createDatabase(DatabaseInitializer $initializer): string
     {
         $question = new Question('Please enter the name database to be created: ');
         $databaseName = $this->askQuestion($question);
 
-        $service = new DatabaseService($connection);
-        $service->createDatabase($databaseName);
+        $initializer->createDatabase($databaseName);
 
         return $databaseName;
     }
@@ -62,9 +55,9 @@ class DatabaseInteractor
     /**
      * @return bool|string|null
      */
-    public function continueWithExistingTables(string $databaseName, \PDO $pdo)
+    public function continueWithExistingTables(string $databaseName, DatabaseInitializer $initializer)
     {
-        $tableCount = (new DatabaseService($pdo))->getTableCount();
+        $tableCount = $initializer->getTableCount($databaseName);
         if ($tableCount === 0) {
             return true;
         }

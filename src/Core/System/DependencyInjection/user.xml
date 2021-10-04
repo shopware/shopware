@@ -14,13 +14,11 @@
         </service>
 
         <service id="Shopware\Core\System\User\Command\UserCreateCommand">
-            <argument type="service" id="Shopware\Core\System\User\Service\UserProvisioner"/>
-            <tag name="console.command"/>
+            <argument type="service" id="Shopware\Core\Maintenance\User\Service\UserProvisioner"/>
         </service>
 
         <service id="Shopware\Core\System\User\Command\UserChangePasswordCommand">
             <argument type="service" id="user.repository"/>
-            <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Core\System\User\Aggregate\UserAccessKey\UserAccessKeyDefinition">

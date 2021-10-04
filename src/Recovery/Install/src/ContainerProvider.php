@@ -2,7 +2,6 @@
 
 namespace Shopware\Recovery\Install;
 
-use Doctrine\DBAL\DriverManager;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use Psr\Log\NullLogger;
@@ -10,15 +9,19 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader as CoreMigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationRuntime as CoreMigrationRuntime;
 use Shopware\Core\Framework\Migration\MigrationSource as CoreMigrationSource;
-use Shopware\Recovery\Common\DumpIterator;
+use Shopware\Core\Maintenance\SalesChannel\Service\SalesChannelCreator;
+use Shopware\Core\Maintenance\System\Service\JwtCertificateGenerator;
+use Shopware\Core\Maintenance\System\Service\ShopConfigurator;
+use Shopware\Core\Maintenance\User\Service\UserProvisioner;
 use Shopware\Recovery\Common\HttpClient\CurlClient;
 use Shopware\Recovery\Common\Service\JwtCertificateService;
 use Shopware\Recovery\Common\Service\Notification;
 use Shopware\Recovery\Common\Service\UniqueIdGenerator;
 use Shopware\Recovery\Common\SystemLocker;
+use Shopware\Recovery\Install\Service\AdminService;
 use Shopware\Recovery\Install\Service\BlueGreenDeploymentService;
-use Shopware\Recovery\Install\Service\DatabaseService;
 use Shopware\Recovery\Install\Service\EnvConfigWriter;
+use Shopware\Recovery\Install\Service\ShopService;
 use Shopware\Recovery\Install\Service\TranslationService;
 use Shopware\Recovery\Install\Service\WebserverCheck;
 use Slim\App;
@@ -46,14 +49,8 @@ class ContainerProvider implements ServiceProviderInterface
         $container['config'] = $this->config;
         $container['install.language'] = '';
 
-        $container['shopware.version'] = static function () {
-            $version = null;
-            $versionFile = SW_PATH . '/public/recovery/install/data/version';
-            if (is_readable($versionFile)) {
-                $version = file_get_contents($versionFile) ?: null;
-            }
-
-            return trim($version ?? '6.4.9999999.9999999-dev');
+        $container['shopware.version'] = static function ($c) {
+            return $c['shopware.kernel']->getContainer()->getParameter('kernel.shopware_version');
         };
 
         $container['default.env.path'] = static function () {
@@ -133,17 +130,6 @@ class ContainerProvider implements ServiceProviderInterface
             return new TranslationService($c->offsetGet('translations'));
         };
 
-        // dump class contains state so we define it as factory here
-        $container['database.dump_iterator'] = $container->factory(static function () {
-            if (file_exists(SW_PATH . '/platform/src/Core/schema.sql')) {
-                $dumpFile = SW_PATH . '/platform/src/Core/schema.sql';
-            } else {
-                $dumpFile = SW_PATH . '/vendor/shopware/core/schema.sql';
-            }
-
-            return new DumpIterator($dumpFile);
-        });
-
         $container['http-client'] = static function () {
             return new CurlClient();
         };
@@ -154,13 +140,8 @@ class ContainerProvider implements ServiceProviderInterface
 
         $container['install.requirementsPath'] = static function () use ($recoveryRoot) {
             $check = new RequirementsPath(SW_PATH, $recoveryRoot . '/Common/requirements.php');
-            $check->addFile('public/recovery/install/data');
 
             return $check;
-        };
-
-        $container['db'] = static function (): void {
-            throw new \RuntimeException('Identifier DB not initialized yet');
         };
 
         $container['uniqueid.generator'] = static function () {
@@ -173,12 +154,16 @@ class ContainerProvider implements ServiceProviderInterface
             return new EnvConfigWriter(
                 SW_PATH . '/.env',
                 $c['uniqueid.generator']->getUniqueId(),
-                $c['default.env']
+                $c['default.env'],
+                $c['shopware.kernel']
             );
         };
 
         $container['jwt_certificate.writer'] = static function () {
-            return new JwtCertificateService(SW_PATH . '/config/jwt/');
+            return new JwtCertificateService(
+                SW_PATH . '/config/jwt/',
+                new JwtCertificateGenerator()
+            );
         };
 
         $container['webserver.check'] = static function ($c) {
@@ -186,10 +171,6 @@ class ContainerProvider implements ServiceProviderInterface
                 $c['config']['check.ping_url'],
                 $c['http-client']
             );
-        };
-
-        $container['database.service'] = static function ($c) {
-            return new DatabaseService($c['db']);
         };
 
         $container['menu.helper'] = static function ($c) {
@@ -211,13 +192,8 @@ class ContainerProvider implements ServiceProviderInterface
             );
         };
 
-        $container['dbal'] = static function ($c) {
-            $options = [
-                'pdo' => $c['db'],
-                'driver' => 'pdo_mysql',
-            ];
-
-            return DriverManager::getConnection($options);
+        $container['dbal'] = static function (): void {
+            throw new \RuntimeException('Identifier dbal not initialized yet');
         };
 
         $container['migration.sources'] = static function ($c) {
@@ -242,6 +218,18 @@ class ContainerProvider implements ServiceProviderInterface
         $container['blue.green.deployment.service'] = static function ($c) {
             return new BlueGreenDeploymentService($c['dbal']);
         };
+
+        $container['shop.configurator'] = static function ($c) {
+            return new ShopConfigurator($c['dbal']);
+        };
+
+        $container['shop.service'] = static function ($c) {
+            return new ShopService($c['dbal'], $c['shop.configurator'], $c['shopware.kernel']->getContainer()->get(SalesChannelCreator::class));
+        };
+
+        $container['admin.service'] = static function ($c) {
+            return new AdminService($c['dbal'], $c['shopware.kernel']->getContainer()->get(UserProvisioner::class));
+        };
     }
 
     private static function createMigrationSource(string $version, bool $addReplacements = false): CoreMigrationSource
@@ -249,6 +237,9 @@ class ContainerProvider implements ServiceProviderInterface
         if (file_exists(SW_PATH . '/platform/src/Core/schema.sql')) {
             $coreBasePath = SW_PATH . '/platform/src/Core';
             $storefrontBasePath = SW_PATH . '/platform/src/Storefront';
+        } elseif (file_exists(SW_PATH . '/src/Core/schema.sql')) {
+            $coreBasePath = SW_PATH . '/src/Core';
+            $storefrontBasePath = SW_PATH . '/src/Storefront';
         } else {
             $coreBasePath = SW_PATH . '/vendor/shopware/core';
             $storefrontBasePath = SW_PATH . '/vendor/shopware/storefront';

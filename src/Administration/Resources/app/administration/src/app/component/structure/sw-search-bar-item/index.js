@@ -18,6 +18,7 @@ Component.register('sw-search-bar-item', {
     inject: [
         'searchTypeService',
         'feature',
+        'recentlySearchService'
     ],
 
     props: {
@@ -146,6 +147,10 @@ Component.register('sw-search-bar-item', {
 
             return name;
         },
+
+        currentUser() {
+            return Shopware.State.get('session').currentUser;
+        },
     },
 
     created() {
@@ -206,6 +211,14 @@ Component.register('sw-search-bar-item', {
                 column: this.column,
             });
             this.isActive = true;
+        },
+
+        onClickSearchResult(entity, id, payload = {}) {
+            if (!this.feature.isActive('FEATURE_NEXT_6040')) {
+                return;
+            }
+
+            this.recentlySearchService.add(this.currentUser.id, entity, id, payload);
         },
     },
 });

@@ -219,6 +219,11 @@ function createWrapper(props, searchTypes = searchTypeServiceTypes, privileges =
                         }
                     };
                 }
+            },
+            recentlySearchService: {
+                get: () => {
+                    return [];
+                }
             }
         },
         propsData: props

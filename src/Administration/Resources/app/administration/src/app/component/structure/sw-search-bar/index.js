@@ -22,6 +22,7 @@ Component.register('sw-search-bar', {
         'acl',
         'feature',
         'searchRankingService',
+        'recentlySearchService',
     ],
 
     shortcuts: {
@@ -156,6 +157,10 @@ Component.register('sw-search-bar', {
             return {
                 product: new Criteria().setLimit(this.searchLimit).addAssociation('options.group'),
             };
+        },
+
+        currentUser() {
+            return Shopware.State.get('session').currentUser;
         },
     },
 
@@ -902,6 +907,56 @@ Component.register('sw-search-bar', {
             this.searchTerm = null;
             this.showResultsContainer = false;
             this.showTypeSelectContainer = false;
+        },
+
+        getRecentlySearch() {
+            return new Promise(async resolve => {
+                const items = this.recentlySearchService.get(this.currentUser.id);
+
+                const queries = {};
+
+                items.forEach(item => {
+                    if (!this.acl.can(`${item.entity}:read`)) {
+                        return;
+                    }
+
+                    queries[item.entity] ??= new Criteria();
+
+                    const ids = [item.id, ...queries[item.entity].ids];
+                    queries[item.entity].setIds(ids);
+                });
+
+                if (Object.keys(queries).length === 0) {
+                    resolve();
+                }
+
+                const searchResult = await this.searchService.searchQuery(queries);
+
+                if (!searchResult.data) {
+                    resolve();
+                }
+
+                const mapResult = [];
+
+                items.forEach(item => {
+                    const entities = searchResult.data[item.entity] ? searchResult.data[item.entity].data : [];
+
+                    const foundEntity = entities.find(entity => entity.id === item.id);
+
+                    if (foundEntity) {
+                        mapResult.push({
+                            item: foundEntity,
+                            entity: item.entity,
+                        });
+                    }
+                });
+
+                resolve({
+                    entity: 'recently_searched',
+                    total: mapResult.length,
+                    entities: mapResult,
+                });
+            });
         },
     },
 });

@@ -1,5 +1,13 @@
-import { shallowMount } from '@vue/test-utils';
+/* eslint-disable max-len */
+import { shallowMount, createLocalVue } from '@vue/test-utils';
 import 'src/app/component/structure/sw-search-bar-item';
+import 'src/app/component/base/sw-highlight-text';
+import RecentlySearchService from 'src/app/service/recently-search.service';
+
+const swSearchBarItemComponent = Shopware.Component.build('sw-search-bar-item');
+const recentlySearchService = new RecentlySearchService();
+const spyOnClickSearchResult = jest.spyOn(swSearchBarItemComponent.methods, 'onClickSearchResult');
+const spyRecentlySearchServiceAdd = jest.spyOn(recentlySearchService, 'add');
 
 const searchTypeServiceTypes = {
     product: {
@@ -34,9 +42,89 @@ const searchTypeServiceTypes = {
     }
 };
 
-function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-search-bar-item'), {
-        propsData: {
+function createWrapper(props) {
+    const localVue = createLocalVue();
+
+    return shallowMount(swSearchBarItemComponent, {
+        localVue,
+        stubs: {
+            'sw-icon': true,
+            'sw-highlight-text': true,
+            'sw-shortcut-overview-item': true,
+            'router-link': {
+                template: '<div class="sw-router-link"><slot></slot></div>',
+                props: ['to']
+            }
+        },
+        propsData: props,
+        provide: {
+            recentlySearchService,
+            searchTypeService: {
+                getTypes: () => searchTypeServiceTypes
+            }
+        },
+        computed: {
+            currentUser() {
+                return {
+                    id: 'userId'
+                };
+            }
+        }
+    });
+}
+
+describe('src/app/component/structure/sw-search-bar-item', () => {
+    /** @type Wrapper */
+    let wrapper;
+
+    it('should be a Vue.js component', async () => {
+        wrapper = createWrapper({
+            entityIconName: 'default-shopping-basket',
+            entityIconColor: 'blue',
+            column: 1,
+            index: 1,
+            type: 'product',
+            item: {
+                id: 'productId',
+                name: 'Awesome Product'
+            }
+        });
+
+        expect(wrapper.vm).toBeTruthy();
+    });
+
+    it('should add clicked search result into recently search stack', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
+
+        wrapper = createWrapper({
+            entityIconName: 'default-shopping-basket',
+            entityIconColor: 'blue',
+            column: 1,
+            index: 1,
+            type: 'product',
+            item: {
+                id: 'productId',
+                name: 'Awesome Product'
+            }
+        });
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.sw-router-link').exists()).toBe(true);
+
+        wrapper.find('.sw-router-link').trigger('click');
+
+        expect(spyOnClickSearchResult).toHaveBeenCalledTimes(1);
+        expect(spyOnClickSearchResult).toHaveBeenCalledWith('product', 'productId');
+
+        expect(spyRecentlySearchServiceAdd).toHaveBeenCalledTimes(1);
+        expect(spyRecentlySearchServiceAdd).toHaveBeenCalledWith('userId', 'product', 'productId', {});
+    });
+
+    it('should get correct name of variant products', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
+
+        wrapper = createWrapper({
             item: {
                 name: null,
                 id: '1001',
@@ -53,22 +141,7 @@ function createWrapper() {
             searchTerm: null,
             entityIconColor: '',
             entityIconName: ''
-        },
-        provide: {
-            searchTypeService: {
-                getTypes: () => searchTypeServiceTypes
-            }
-        }
-    });
-}
-
-describe('src/app/component/structure/sw-search-bar-item', () => {
-    let wrapper;
-
-    it('should get correct name of variant products', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
-
-        wrapper = createWrapper();
+        });
 
         await wrapper.vm.$nextTick();
 

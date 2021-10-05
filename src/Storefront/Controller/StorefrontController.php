@@ -208,9 +208,9 @@ abstract class StorefrontController extends AbstractController
 
     protected function renderView(string $view, array $parameters = []): string
     {
-        if (isset($this->twig)) {
-            $view = $this->getTemplateFinder()->find($view);
+        $view = $this->getTemplateFinder()->find($view);
 
+        if (isset($this->twig)) {
             return $this->twig->render($view, $parameters);
         }
 

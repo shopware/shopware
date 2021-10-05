@@ -82,6 +82,23 @@ class StorefrontControllerTest extends TestCase
         static::assertEquals('inherited', $rendered);
     }
 
+    public function testStorefrontPluginTemplatePaths(): void
+    {
+        $twig = $this->createFinder([
+            new BundleFixture('TestPlugin1', __DIR__ . '/fixtures/Plugins/TestPlugin1/'),
+            new BundleFixture('Storefront', __DIR__ . '/fixtures/Storefront/'),
+        ]);
+
+        $controller = new TestController();
+        $controller->setTwig($twig);
+        $controller->setContainer($this->getContainer());
+        $controller->setTemplateFinder($twig->getExtension(InheritanceExtension::class)->getFinder());
+
+        $rendered = $controller->testRenderViewInheritance('@Storefront/storefront/page/plugin/index.html.twig');
+
+        static::assertEquals('plugin', $rendered);
+    }
+
     public function cartProvider(): \Generator
     {
         yield 'cart with salutation errors' => [

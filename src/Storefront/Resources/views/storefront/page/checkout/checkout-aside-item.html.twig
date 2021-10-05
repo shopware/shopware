@@ -3,6 +3,8 @@
     {% set isNested = lineItem.children.count > 0 %}
     {% set childrenTemplate = '@Storefront/storefront/page/checkout/checkout-aside-item-children.html.twig' %}
 
+    {% set PRODUCT_LINE_ITEM_TYPE = constant('Shopware\\Core\\Checkout\\Cart\\LineItem\\LineItem::PRODUCT_LINE_ITEM_TYPE') %}
+
     {# @deprecated tag:v6.5.0 - `cartItemClasses` & `isChild` will be removed with no replacement #}
     {% set cartItemClasses = '' %}
 
@@ -74,7 +76,7 @@
                     {% endblock %}
 
                     {% block page_checkout_aside_item_info_features %}
-                        {% if lineItem.type == 'product' and lineItem.payload.features is not null %}
+                        {% if lineItem.type == PRODUCT_LINE_ITEM_TYPE and lineItem.payload.features is not null %}
                             {% sw_include '@Storefront/storefront/component/product/feature/list.html.twig' with {
                                 'features': lineItem.payload.features
                             } %}

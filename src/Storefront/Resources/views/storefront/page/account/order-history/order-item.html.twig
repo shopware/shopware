@@ -5,6 +5,7 @@
 {% set ORDER_TRANSACTION_STATE_UNCONFIRMED = constant('Shopware\\Core\\Checkout\\Order\\Aggregate\\OrderTransaction\\OrderTransactionStates::STATE_UNCONFIRMED') %}
 {% set ALLOWED_TRANSACTION_STATES = constant('Shopware\\Core\\Checkout\\Order\\SalesChannel\\OrderService::ALLOWED_TRANSACTION_STATES') %}
 {% set ORDER_STATE_CANCELLED = constant('Shopware\\Core\\Checkout\\Order\\OrderStates::STATE_CANCELLED') %}
+{% set PRODUCT_LINE_ITEM_TYPE = constant('Shopware\\Core\\Checkout\\Cart\\LineItem\\LineItem::PRODUCT_LINE_ITEM_TYPE') %}
 
 {% block page_account_order_item_overview %}
     <div class="order-wrapper">
@@ -118,7 +119,7 @@
                                                     {% block page_account_order_item_context_menu_reorder_form_line_items_input %}
                                                         {% for lineItem in order.lineItems %}
                                                             {% block page_account_order_item_context_menu_reorder_form_line_item_input %}
-                                                                {% if lineItem.type == 'product' %}
+                                                                {% if lineItem.type == PRODUCT_LINE_ITEM_TYPE %}
                                                                     <input type="hidden"
                                                                            name="lineItems[{{ lineItem.identifier }}][id]"
                                                                            value="{{ lineItem.identifier }}">

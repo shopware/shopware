@@ -1,4 +1,7 @@
 {% block page_account_order_item_detail_list_item %}
+    {% set PROMOTION_LINE_ITEM_TYPE = constant('Shopware\\Core\\Checkout\\Cart\\LineItem\\LineItem::PROMOTION_LINE_ITEM_TYPE') %}
+
+
     {% set isDiscount = (not lineItem.good and lineItem.price.totalPrice <= 0) %}
     {% set isNested = lineItem.children.count > 0 %}
     {% set childrenTemplate = '@Storefront/storefront/page/account/order-history/order-detail-list-item-children.html.twig' %}
@@ -181,7 +184,7 @@
 
                             {% block page_account_order_item_detail_price_value %}
                                 <span class="order-item-value order-item-price-value">
-                                    {% if lineItem.type == 'promotion' %}
+                                    {% if lineItem.type == PROMOTION_LINE_ITEM_TYPE %}
                                         /
                                     {% else %}
                                         {{ lineItem.unitPrice|currency(order.currency.isoCode) }}{{ "general.star"|trans|sw_sanitize }}

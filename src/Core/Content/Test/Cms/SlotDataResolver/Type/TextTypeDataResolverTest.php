@@ -196,6 +196,32 @@ class TextTypeDataResolverTest extends TestCase
         static::assertSame($product->getDescription(), $textStruct->getContent());
     }
 
+    public function testWithStaticContentAndMappedCustomFieldVariable(): void
+    {
+        $product = new ProductEntity();
+        $product->setName('TextProduct');
+        $product->setCustomFields(['testfield' => 'testing123']);
+
+        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), $this->createMock(ProductDefinition::class), $product);
+        $result = new ElementDataCollection();
+
+        $fieldConfig = new FieldConfigCollection();
+        $fieldConfig->add(new FieldConfig('content', FieldConfig::SOURCE_STATIC, '<h1>Title {{ product.customFields.testfield }}</h1>'));
+
+        $slot = new CmsSlotEntity();
+        $slot->setUniqueIdentifier('id');
+        $slot->setType('text');
+        $slot->setConfig([]);
+        $slot->setFieldConfig($fieldConfig);
+
+        $this->textResolver->enrich($slot, $resolverContext, $result);
+
+        /** @var TextStruct|null $textStruct */
+        $textStruct = $slot->getData();
+        static::assertInstanceOf(TextStruct::class, $textStruct);
+        static::assertSame('<h1>Title testing123</h1>', $textStruct->getContent());
+    }
+
     public function testWithStaticContentAndMappedVariable(): void
     {
         $product = new ProductEntity();

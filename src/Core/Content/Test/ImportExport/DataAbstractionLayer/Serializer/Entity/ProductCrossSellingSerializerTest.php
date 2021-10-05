@@ -55,7 +55,7 @@ class ProductCrossSellingSerializerTest extends TestCase
         $serializer = new ProductCrossSellingSerializer($assignedProductsRepository);
         $serializer->setRegistry($this->getContainer()->get(SerializerRegistry::class));
 
-        $serialized = iterator_to_array($serializer->serialize(new Config([], []), $productCrossSellingDefinition, $crossSelling));
+        $serialized = iterator_to_array($serializer->serialize(new Config([], [], []), $productCrossSellingDefinition, $crossSelling));
 
         static::assertNotEmpty($serialized);
 
@@ -71,7 +71,7 @@ class ProductCrossSellingSerializerTest extends TestCase
         static::assertSame($crossSelling->getProductId(), $serialized['productId']);
         static::assertSame(implode('|', $productsIds), $serialized['assignedProducts']);
 
-        $deserialized = $serializer->deserialize(new Config([], []), $productCrossSellingDefinition, $serialized);
+        $deserialized = $serializer->deserialize(new Config([], [], []), $productCrossSellingDefinition, $serialized);
 
         static::assertSame($crossSelling->getId(), $deserialized['id']);
         static::assertSame($crossSelling->getProductId(), $deserialized['productId']);

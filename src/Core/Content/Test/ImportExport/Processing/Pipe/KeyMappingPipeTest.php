@@ -13,7 +13,7 @@ class KeyMappingPipeTest extends TestCase
         $mapping = [];
         $keyMappingPipe = new KeyMappingPipe($mapping, true);
 
-        $config = new Config($mapping, []);
+        $config = new Config($mapping, [], []);
         $actualOutput = iterator_to_array($keyMappingPipe->in($config, ['foo' => 'bar']));
         static::assertEmpty($actualOutput);
 
@@ -73,7 +73,7 @@ class KeyMappingPipeTest extends TestCase
         ];
         $keyMappingPipe = new KeyMappingPipe($mapping, true);
 
-        $config = new Config($mapping, []);
+        $config = new Config($mapping, [], []);
 
         $actualOutput = iterator_to_array($keyMappingPipe->in($config, $input));
 
@@ -155,7 +155,7 @@ class KeyMappingPipeTest extends TestCase
         ];
         $keyMappingPipe = new KeyMappingPipe($mapping, true);
 
-        $config = new Config($mapping, []);
+        $config = new Config($mapping, [], []);
         $actualOutput = iterator_to_array($keyMappingPipe->in($config, $input));
 
         static::assertSame($expetedOutput, $actualOutput);
@@ -255,7 +255,7 @@ class KeyMappingPipeTest extends TestCase
 
         $config = new Config($mapping, [
             'flatten' => false,
-        ]);
+        ], []);
         $actualOutput = iterator_to_array($keyMappingPipe->in($config, $input));
 
         static::assertSame($expetedOutput, $actualOutput);
@@ -280,7 +280,7 @@ class KeyMappingPipeTest extends TestCase
         ];
 
         $keyMappingPipe = new KeyMappingPipe();
-        $config = new Config($mapping, []);
+        $config = new Config($mapping, [], []);
         $actualOutput = iterator_to_array($keyMappingPipe->in($config, $input));
         static::assertSame([
             'TestCustomString' => 'hello world',

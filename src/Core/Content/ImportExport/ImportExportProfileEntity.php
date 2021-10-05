@@ -62,6 +62,11 @@ class ImportExportProfileEntity extends Entity
     protected $mapping;
 
     /**
+     * @var array|null
+     */
+    protected $updateBy;
+
+    /**
      * @var ImportExportLogCollection|null
      */
     protected $importExportLogs;
@@ -154,6 +159,16 @@ class ImportExportProfileEntity extends Entity
     public function setMapping(array $mapping): void
     {
         $this->mapping = $mapping;
+    }
+
+    public function getUpdateBy(): ?array
+    {
+        return $this->updateBy;
+    }
+
+    public function setUpdateBy(?array $updateBy): void
+    {
+        $this->updateBy = $updateBy;
     }
 
     public function getImportExportLogs(): ?ImportExportLogCollection

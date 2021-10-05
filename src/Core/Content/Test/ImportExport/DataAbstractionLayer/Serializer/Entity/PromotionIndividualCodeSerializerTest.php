@@ -61,7 +61,7 @@ class PromotionIndividualCodeSerializerTest extends TestCase
 
     public function testNonExistingPromo(): void
     {
-        $config = new Config([], []);
+        $config = new Config([], [], []);
         $promoCode = [
             'promotion' => [
                 'translations' => [
@@ -93,7 +93,7 @@ class PromotionIndividualCodeSerializerTest extends TestCase
 
     public function testExistingPromoName(): void
     {
-        $config = new Config([], []);
+        $config = new Config([], [], []);
         $promoCode = [
             'promotion' => [
                 'translations' => [
@@ -126,7 +126,7 @@ class PromotionIndividualCodeSerializerTest extends TestCase
 
     public function testExistingPromoNameAndCode(): void
     {
-        $config = new Config([], []);
+        $config = new Config([], [], []);
         $promoCode = [
             'promotion' => [
                 'translations' => [

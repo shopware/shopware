@@ -41,7 +41,7 @@ class SalutationSerializerTest extends TestCase
 
     public function testSimple(): void
     {
-        $config = new Config([], []);
+        $config = new Config([], [], []);
 
         $salutation = [
             'id' => Uuid::randomHex(),
@@ -68,7 +68,7 @@ class SalutationSerializerTest extends TestCase
 
     public function testDeserializeOnlySalutationKey(): void
     {
-        $config = new Config([], []);
+        $config = new Config([], [], []);
 
         $salutation = [
             'salutationKey' => 'mrs',
@@ -87,7 +87,7 @@ class SalutationSerializerTest extends TestCase
 
     public function testUsesNotSpecifiedAsFallback(): void
     {
-        $config = new Config([], []);
+        $config = new Config([], [], []);
 
         $salutation = [
             'salutationKey' => 'unknown',

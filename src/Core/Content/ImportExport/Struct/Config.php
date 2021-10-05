@@ -4,34 +4,41 @@ namespace Shopware\Core\Content\ImportExport\Struct;
 
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\Processing\Mapping\MappingCollection;
+use Shopware\Core\Content\ImportExport\Processing\Mapping\UpdateByCollection;
 use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 
 class Config
 {
     use JsonSerializableTrait;
 
-    /**
-     * @var MappingCollection
-     */
-    protected $mapping;
+    protected MappingCollection $mapping;
+
+    protected UpdateByCollection $updateBy;
+
+    protected array $parameters = [];
 
     /**
-     * @var array
+     * @deprecated tag:v6.5.0 The parameter $updateBy will be required
      */
-    protected $parameters = [];
-
-    public function __construct(iterable $mapping, iterable $parameters)
+    public function __construct(iterable $mapping, iterable $parameters, iterable $updateBy = [])
     {
         $this->mapping = MappingCollection::fromIterable($mapping);
 
         foreach ($parameters as $key => $value) {
             $this->parameters[$key] = $value;
         }
+
+        $this->updateBy = UpdateByCollection::fromIterable($updateBy);
     }
 
     public function getMapping(): MappingCollection
     {
         return $this->mapping;
+    }
+
+    public function getUpdateBy(): UpdateByCollection
+    {
+        return $this->updateBy;
     }
 
     public function get(string $key)
@@ -45,7 +52,8 @@ class Config
 
         return new Config(
             $config['mapping'] ?? [],
-            $config['parameters'] ?? []
+            $config['parameters'] ?? [],
+            $config['updateBy'] ?? []
         );
     }
 }

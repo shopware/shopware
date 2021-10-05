@@ -40,7 +40,7 @@ class OrderSerializerTest extends TestCase
     {
         $order = $this->createOrder();
         $orderDefinition = $this->getContainer()->get('order.repository')->getDefinition();
-        $config = new Config([], []);
+        $config = new Config([], [], []);
 
         $serialized = iterator_to_array($this->serializer->serialize($config, $orderDefinition, $order));
 

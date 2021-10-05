@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field;
 
+use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\PrimaryKeyResolver;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -10,6 +11,13 @@ use Shopware\Core\Framework\Struct\Struct;
 
 class ToOneSerializer extends FieldSerializer
 {
+    private PrimaryKeyResolver $primaryKeyResolver;
+
+    public function __construct(PrimaryKeyResolver $primaryKeyResolver)
+    {
+        $this->primaryKeyResolver = $primaryKeyResolver;
+    }
+
     public function serialize(Config $config, Field $toOne, $record): iterable
     {
         if (!$toOne instanceof ManyToOneAssociationField && !$toOne instanceof OneToOneAssociationField) {
@@ -41,6 +49,7 @@ class ToOneSerializer extends FieldSerializer
 
         $definition = $toOne->getReferenceDefinition();
         $entitySerializer = $this->serializerRegistry->getEntity($definition->getEntityName());
+        $records = $this->primaryKeyResolver->resolvePrimaryKeyFromUpdatedBy($config, $definition, $records);
 
         $result = $entitySerializer->deserialize($config, $definition, $records);
 

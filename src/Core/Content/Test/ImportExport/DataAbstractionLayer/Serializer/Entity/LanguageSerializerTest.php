@@ -36,7 +36,7 @@ class LanguageSerializerTest extends TestCase
     {
         $this->createCountry();
 
-        $config = new Config([], []);
+        $config = new Config([], [], []);
         $language = [
             'locale' => [
                 'code' => 'xx-XX',

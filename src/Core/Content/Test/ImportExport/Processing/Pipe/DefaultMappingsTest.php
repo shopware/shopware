@@ -44,7 +44,7 @@ class DefaultMappingsTest extends TestCase
 
         $mapping = $this->getDefaultMapping(MediaDefinition::ENTITY_NAME);
 
-        $config = new Config($mapping, []);
+        $config = new Config($mapping, [], []);
         $mappingPipe = new KeyMappingPipe($mapping, true);
         $mappedMedia = iterator_to_array($mappingPipe->in($config, $media));
 
@@ -128,7 +128,7 @@ class DefaultMappingsTest extends TestCase
 
         $mapping = $this->getDefaultMapping(ProductDefinition::ENTITY_NAME);
 
-        $config = new Config($mapping, []);
+        $config = new Config($mapping, [], []);
         $mappingPipe = new KeyMappingPipe($mapping, true);
         $mappedProduct = iterator_to_array($mappingPipe->in($config, $product));
 
@@ -224,7 +224,7 @@ class DefaultMappingsTest extends TestCase
 
         $mapping = $this->getDefaultMapping(CategoryDefinition::ENTITY_NAME);
 
-        $config = new Config($mapping, []);
+        $config = new Config($mapping, [], []);
         $mappingPipe = new KeyMappingPipe($mapping, true);
         $mappedCategory = iterator_to_array($mappingPipe->in($config, $category));
 
@@ -277,7 +277,7 @@ class DefaultMappingsTest extends TestCase
     {
         $mapping = $this->getDefaultMapping(NewsletterRecipientDefinition::ENTITY_NAME);
 
-        $config = new Config($mapping, []);
+        $config = new Config($mapping, [], []);
         $mappingPipe = new KeyMappingPipe($mapping, true);
 
         $newsletterRecipient = [
@@ -334,7 +334,7 @@ class DefaultMappingsTest extends TestCase
     {
         $mapping = $this->getDefaultMapping(ProductConfiguratorSettingDefinition::ENTITY_NAME);
 
-        $config = new Config($mapping, []);
+        $config = new Config($mapping, [], []);
         $mappingPipe = new KeyMappingPipe($mapping, true);
 
         $setting = [

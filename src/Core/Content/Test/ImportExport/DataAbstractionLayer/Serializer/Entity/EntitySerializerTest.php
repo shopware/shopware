@@ -61,7 +61,7 @@ class EntitySerializerTest extends TestCase
         $serializer = new EntitySerializer();
         $serializerRegistry = $this->getContainer()->get(SerializerRegistry::class);
         $serializer->setRegistry($serializerRegistry);
-        $return = $serializer->deserialize(new Config([], []), $productDefinition, $importData);
+        $return = $serializer->deserialize(new Config([], [], []), $productDefinition, $importData);
         static::assertSame($expectedData, iterator_to_array($return));
     }
 
@@ -81,7 +81,7 @@ class EntitySerializerTest extends TestCase
         $serializer = new EntitySerializer();
         $serializerRegistry = $this->getContainer()->get(SerializerRegistry::class);
         $serializer->setRegistry($serializerRegistry);
-        $return = $serializer->deserialize(new Config([], []), $productDefinition, $importData);
+        $return = $serializer->deserialize(new Config([], [], []), $productDefinition, $importData);
         static::assertSame($expectedData, iterator_to_array($return));
     }
 
@@ -115,7 +115,7 @@ class EntitySerializerTest extends TestCase
         $serializer = new EntitySerializer();
         $serializerRegistry = $this->getContainer()->get(SerializerRegistry::class);
         $serializer->setRegistry($serializerRegistry);
-        $return = $serializer->deserialize(new Config([], []), $productDefinition, $importData);
+        $return = $serializer->deserialize(new Config([], [], []), $productDefinition, $importData);
         static::assertSame($expectedData, iterator_to_array($return));
     }
 
@@ -174,7 +174,7 @@ class EntitySerializerTest extends TestCase
         $serializer = new EntitySerializer();
         $serializerRegistry = $this->getContainer()->get(SerializerRegistry::class);
         $serializer->setRegistry($serializerRegistry);
-        $return = $serializer->serialize(new Config([], []), $productDefinition, $exportData);
+        $return = $serializer->serialize(new Config([], [], []), $productDefinition, $exportData);
         $return = iterator_to_array($return);
 
         // teardown test extension (definition can't be removed from the definitionRegistry, but shouldn't cause problems)

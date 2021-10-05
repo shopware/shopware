@@ -35,7 +35,7 @@ class CountrySerializerTest extends TestCase
     {
         $this->createCountry();
 
-        $config = new Config([], []);
+        $config = new Config([], [], []);
         $country = [
             'iso' => 'XX',
         ];

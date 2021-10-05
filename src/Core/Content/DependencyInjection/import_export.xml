@@ -87,6 +87,11 @@
         </service>
 
 
+        <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\PrimaryKeyResolver">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field\FieldSerializer"/>
+        </service>
+
         <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\SerializerRegistry">
             <argument type="tagged" tag="shopware.import_export.entity_serializer"/>
             <argument type="tagged" tag="shopware.import_export.field_serializer"/>
@@ -103,6 +108,8 @@
         </service>
 
         <service id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Field\ToOneSerializer">
+            <argument type="service" id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\PrimaryKeyResolver"/>
+
             <tag name="shopware.import_export.field_serializer" priority="-500"/>
         </service>
 
@@ -195,6 +202,7 @@
         <service id="Shopware\Core\Content\ImportExport\Processing\Pipe\PipeFactory">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\SerializerRegistry"/>
+            <argument type="service" id="Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\PrimaryKeyResolver"/>
 
             <tag name="shopware.import_export.pipe_factory" />
         </service>

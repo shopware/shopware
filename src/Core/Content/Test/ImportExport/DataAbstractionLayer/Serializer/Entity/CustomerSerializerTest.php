@@ -54,7 +54,7 @@ class CustomerSerializerTest extends TestCase
         $this->createCustomerGroup();
         $this->createPaymentMethod();
 
-        $config = new Config([], []);
+        $config = new Config([], [], []);
         $customer = [
             'group' => [
                 'translations' => [

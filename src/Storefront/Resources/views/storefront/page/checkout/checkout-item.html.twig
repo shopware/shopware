@@ -3,6 +3,8 @@
     {# @var delivery \Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery #}
     {# @var lineItem \Shopware\Core\Checkout\Cart\LineItem\LineItem #}
 
+    {% set PRODUCT_LINE_ITEM_TYPE = constant('Shopware\\Core\\Checkout\\Cart\\LineItem\\LineItem::PRODUCT_LINE_ITEM_TYPE') %}ś
+
     {% set isDiscount = (not lineItem.good and lineItem.price.totalPrice <= 0) %}
     {% set isNested = lineItem.children.count > 0 %}
 
@@ -96,7 +98,7 @@
                                             <div class="cart-item-details-container">
 
                                                 {% block page_checkout_item_info_label %}
-                                                    {% if lineItem.type == constant('Shopware\\Core\\Checkout\\Cart\\LineItem\\LineItem::PRODUCT_LINE_ITEM_TYPE') %}
+                                                    {% if lineItem.type == PRODUCT_LINE_ITEM_TYPE %}
                                                         <a href="{{ seoUrl('frontend.detail.page', {'productId': lineItem.referencedId}) }}"
                                                            class="cart-item-label"
                                                            title="{{ lineItem.label }}"
@@ -131,7 +133,7 @@
                                                 {% endblock %}
 
                                                 {% block page_checkout_item_info_features %}
-                                                    {% if lineItem.type == constant('Shopware\\Core\\Checkout\\Cart\\LineItem\\LineItem::PRODUCT_LINE_ITEM_TYPE') and lineItem.payload.features is not null %}
+                                                    {% if lineItem.type == PRODUCT_LINE_ITEM_TYPE and lineItem.payload.features is not null %}
                                                         {% sw_include '@Storefront/storefront/component/product/feature/list.html.twig' with {
                                                             'features': lineItem.payload.features
                                                         } %}
@@ -158,7 +160,7 @@
                                                 {% endblock %}
 
                                                 {% block page_checkout_item_wishlist %}
-                                                    {% if config('core.cart.wishlistEnabled') and lineItem.type == constant('Shopware\\Core\\Checkout\\Cart\\LineItem\\LineItem::PRODUCT_LINE_ITEM_TYPE') %}
+                                                    {% if config('core.cart.wishlistEnabled') and line == PRODUCT_LINE_ITEM_TYPE %}
                                                         {% sw_include '@Storefront/storefront/component/product/card/wishlist.html.twig' with {
                                                             showText: true,
                                                             size: 'sm',

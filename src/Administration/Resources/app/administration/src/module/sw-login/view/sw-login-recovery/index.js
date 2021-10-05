@@ -42,7 +42,7 @@ Component.register('sw-login-recovery', {
         displayRecoveryInfo(data = null) {
             let seconds = 0;
 
-            if (Shopware.Feature.isActive('FEATURE_NEXT_13795') && data !== null) {
+            if (data !== null) {
                 let error = data?.errors;
 
                 error = Array.isArray(error) ? error[0] : error;

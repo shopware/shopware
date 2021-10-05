@@ -4,7 +4,6 @@ namespace Shopware\Core\Framework\Test\RateLimiter\Policy;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Test\Customer\SalesChannel\CustomerTestTrait;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\RateLimiter\Policy\TimeBackoff;
 use Shopware\Core\Framework\RateLimiter\RateLimiterFactory;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -38,9 +37,8 @@ class TimeBackoffLimiterTest extends TestCase
 
     public function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_13795', $this);
-
         $this->config = [
+            'enabled' => true,
             'id' => 'test_limit',
             'policy' => 'time_backoff',
             'reset' => '5 minutes',

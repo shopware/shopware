@@ -16,7 +16,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
@@ -114,7 +113,7 @@ class LoginRoute extends AbstractLoginRoute
         $event = new CustomerBeforeLoginEvent($context, $email);
         $this->eventDispatcher->dispatch($event);
 
-        if (Feature::isActive('FEATURE_NEXT_13795') && $this->requestStack->getMainRequest() !== null) {
+        if ($this->requestStack->getMainRequest() !== null) {
             $cacheKey = strtolower($email) . '-' . $this->requestStack->getMainRequest()->getClientIp();
 
             try {
@@ -134,7 +133,7 @@ class LoginRoute extends AbstractLoginRoute
             throw new UnauthorizedHttpException('json', $exception->getMessage());
         }
 
-        if (Feature::isActive('FEATURE_NEXT_13795') && isset($cacheKey)) {
+        if (isset($cacheKey)) {
             $this->rateLimiter->reset(RateLimiter::LOGIN_ROUTE, $cacheKey);
         }
 

@@ -18,6 +18,7 @@ class RateLimiterFactoryTest extends TestCase
     {
         $factory = new RateLimiterFactory(
             [
+                'enabled' => true,
                 'id' => 'test_limiter',
                 'policy' => 'time_backoff',
                 'reset' => '1 hour',
@@ -43,6 +44,7 @@ class RateLimiterFactoryTest extends TestCase
     {
         $factory = new RateLimiterFactory(
             [
+                'enabled' => true,
                 'id' => 'test_limiter',
                 'policy' => 'token_bucket',
                 'limit' => 3,

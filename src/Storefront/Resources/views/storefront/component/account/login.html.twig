@@ -43,7 +43,7 @@
                                     type: "danger",
                                     content: errorSnippet|trans|sw_sanitize
                                 } %}
-                            {% elseif feature('FEATURE_NEXT_13795') and waitTime != null %}
+                            {% elseif waitTime != null %}
                                 {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
                                     type: "info",
                                     content: "account.loginThrottled"|trans({"%seconds%": waitTime})|sw_sanitize

@@ -1,7 +1,6 @@
 ---
 title: Implement rate limiter
 issue: NEXT-13795
-flag: FEATURE_NEXT_13795
 author_github: @Dominik28111
 ---
 # Core
@@ -25,7 +24,7 @@ ___
 * Changed method `Shopware\Core\Checkout\Order\SalesChannel\OrderRoute::load()` to implement rate limit for guest login.
 * Changed method `Shopware\Core\Content\ContactForm\SalesChannel\ContactFormRoute::load()` to implement rate limit.
 * Changed method `Shopware\Core\Framework\Api\Controller\AuthController::token()` to implement rate limit.
-* Changed method `Shopware\Core\System\User\Api\UserRecoveryController::createUserRecovery()` o implement rate limit.
+* Changed method `Shopware\Core\System\User\Api\UserRecoveryController::createUserRecovery()` to implement rate limit.
 ___
 # Administration
 * Added data prop `loginAlertMessage` in `app/administration/src/module/sw-login/view/sw-login-login/index.js`.
@@ -46,3 +45,40 @@ ___
 * Changed method `Shopware\Storefront\Controller\FormController::sendContactForm()` to handle rate limit exception and add an alert to response.
 * Changed method `_handleResponse()` in `app/storefront/src/plugin/forms/form-cms-handler.plugin.js` to show alerts of type info.
 * Changed `{% block component_account_login_form_error %}` in `views/storefront/component/account/login.html.twig` to display info alert with rate limit message.
+___
+# Upgrade Information
+
+## Rate Limiter
+
+With 6.4.6.0 we have implemented a rate limit by default to reduce the risk of bruteforce for the following routes:
+- `/store-api/account/login`
+- `/store-api/account/recovery-password`
+- `/store-api/order`
+- `/store-api/contact-form`
+- `/api/oauth/token`
+- `/api/_action/user/user-recovery`
+
+### Rate Limiter configuration
+
+The confiuration for the rate limit can be found in the `shopware.yaml` under the map `shopware.api.rate_limiter`.
+More information about the configuration can be found at the [developer documentation](https://developer.shopware.com/docs/guides/hosting/infrastructure/rate-limiter).
+Below you can find an example configuration.
+
+```yaml
+shopware:
+  api:
+    rate_limiter:
+      example_route:
+        enabled: true
+        policy: 'time_backoff'
+        reset: '24 hours'
+        limits:
+          - limit: 10
+            interval: '10 seconds'
+          - limit: 15
+            interval: '30 seconds'
+          - limit: 20
+            interval: '60 seconds'
+```
+
+If you plan to create your own rate limits, head over to our [developer documentation](https://developer.shopware.com/docs/guides/plugins/plugins/framework/rate-limiter/add-rate-limiter-to-api-route).

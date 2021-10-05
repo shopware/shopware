@@ -52,8 +52,6 @@ describe('module/sw-login/recovery-info.spec.js', () => {
     });
 
     it('should display the rate limit info', () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_13795'];
-
         const wrapper = createWrapper({
             waitTime: 1
         });

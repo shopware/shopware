@@ -22,7 +22,6 @@ use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
@@ -74,28 +73,18 @@ class ControllerRateLimiterTest extends TestCase
 
     public static function setUpBeforeClass(): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_13795')) {
-            return;
-        }
-
         DisableRateLimiterCompilerPass::disableNoLimit();
         KernelLifecycleManager::bootKernel(true, Uuid::randomHex());
     }
 
     public static function tearDownAfterClass(): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_13795')) {
-            return;
-        }
-
         DisableRateLimiterCompilerPass::enableNoLimit();
         KernelLifecycleManager::bootKernel(true, Uuid::randomHex());
     }
 
     public function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_13795', $this);
-
         $this->context = Context::createDefaultContext();
         $this->ids = new TestDataCollection($this->context);
 

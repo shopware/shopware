@@ -5,7 +5,6 @@ namespace Shopware\Core\Framework\Api\Controller;
 use League\OAuth2\Server\AuthorizationServer;
 use OpenApi\Annotations as OA;
 use Shopware\Core\Framework\Api\Controller\Exception\AuthThrottledException;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
@@ -97,14 +96,12 @@ class AuthController extends AbstractController
     {
         $response = new Response();
 
-        if (Feature::isActive('FEATURE_NEXT_13795')) {
-            try {
-                $cacheKey = $request->get('username') . '-' . $request->getClientIp();
+        try {
+            $cacheKey = $request->get('username') . '-' . $request->getClientIp();
 
-                $this->rateLimiter->ensureAccepted(RateLimiter::OAUTH, $cacheKey);
-            } catch (RateLimitExceededException $exception) {
-                throw new AuthThrottledException($exception->getWaitTime(), $exception);
-            }
+            $this->rateLimiter->ensureAccepted(RateLimiter::OAUTH, $cacheKey);
+        } catch (RateLimitExceededException $exception) {
+            throw new AuthThrottledException($exception->getWaitTime(), $exception);
         }
 
         $psr7Request = $this->psrHttpFactory->createRequest($request);
@@ -112,9 +109,7 @@ class AuthController extends AbstractController
 
         $response = $this->authorizationServer->respondToAccessTokenRequest($psr7Request, $psr7Response);
 
-        if (Feature::isActive('FEATURE_NEXT_13795') && isset($cacheKey)) {
-            $this->rateLimiter->reset(RateLimiter::OAUTH, $cacheKey);
-        }
+        $this->rateLimiter->reset(RateLimiter::OAUTH, $cacheKey);
 
         return (new HttpFoundationFactory())->createResponse($response);
     }

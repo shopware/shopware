@@ -14,7 +14,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Routing\Annotation\ContextTokenRequired;
@@ -125,7 +124,7 @@ Returns a success indicating a successful initialisation of the reset flow.",
     {
         $this->validateRecoverEmail($data, $context);
 
-        if (Feature::isActive('FEATURE_NEXT_13795') && ($request = $this->requestStack->getMainRequest()) !== null) {
+        if (($request = $this->requestStack->getMainRequest()) !== null) {
             $this->rateLimiter->ensureAccepted(RateLimiter::RESET_PASSWORD, strtolower($data->get('email') . '-' . $request->getClientIp()));
         }
 

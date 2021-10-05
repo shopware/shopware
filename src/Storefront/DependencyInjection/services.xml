@@ -23,11 +23,12 @@
             <parameter>https</parameter>
             <parameter>forwarded</parameter>
             <parameter>host</parameter>
-            <parameter>x_forwarded_for</parameter>
-            <parameter>x_forwarded_host</parameter>
-            <parameter>x_forwarded_proto</parameter>
-            <parameter>x_forwarded_port</parameter>
-            <parameter>x_forwarded_prefix</parameter>
+            <parameter>remote_addr</parameter>
+            <parameter>http_x_forwarded_for</parameter>
+            <parameter>http_x_forwarded_host</parameter>
+            <parameter>http_x_forwarded_proto</parameter>
+            <parameter>http_x_forwarded_port</parameter>
+            <parameter>http_x_forwarded_prefix</parameter>
         </parameter>
     </parameters>
 

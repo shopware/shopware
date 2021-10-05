@@ -15,11 +15,12 @@
                 @sw-card-filter-term-change="onFilterEntity(entity, ...arguments)"
             >
                 <template #filter>
-                    {% block sw_customer_detail_addresses_add_button %}
+                    {% block sw_settings_rule_detail_assignments_add_button %}
                         <sw-button
                             v-if="entity.allowAdd"
                             size="small"
                             class="sw-settings-rule-detail-assignments__add-button"
+                            @click="onOpenAddModal(entity)"
                         >
                             {{ $tc('sw-property.detail.addOption') }}
                         </sw-button>
@@ -132,6 +133,15 @@
             </template>
         {% endblock %}
     </sw-modal>
+    {% endblock %}
+
+    {% block sw_settings_rule_detail_assignments_add_modal %}
+    <sw-settings-rule-add-assignment-modal v-if="addModal"
+                                           :rule="rule"
+                                           :entityContext="addEntityContext"
+                                           @entities-saved="onEntitiesSaved"
+                                           @close-add-modal="onCloseAddModal">
+    </sw-settings-rule-add-assignment-modal>
     {% endblock %}
 </div>
 {% endblock %}

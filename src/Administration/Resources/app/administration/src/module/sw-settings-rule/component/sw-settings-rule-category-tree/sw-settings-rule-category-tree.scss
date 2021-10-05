@@ -1,0 +1,26 @@
+.sw-card.sw-settings-rule-category-tree {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    max-width: unset;
+
+    .sw-card__toolbar {
+        border-top: none;
+    }
+
+    .sw-card__content {
+        padding: 0;
+        border: none;
+        height: 650px;
+
+        .sw-tree {
+            border: none;
+        }
+    }
+
+    .sw-tree__content {
+        max-height: unset;
+        min-height: unset;
+        height: 100%;
+    }
+}

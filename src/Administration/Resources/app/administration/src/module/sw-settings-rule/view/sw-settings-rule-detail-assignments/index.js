@@ -37,6 +37,8 @@ Component.register('sw-settings-rule-detail-assignments', {
             deleteModal: false,
             deleteEntity: null,
             deleteItem: null,
+            addModal: false,
+            addEntityContext: null,
         };
     },
 
@@ -112,6 +114,47 @@ Component.register('sw-settings-rule-detail-assignments', {
                             allowEdit: false,
                         },
                     ],
+                    addContext: {
+                        type: 'update',
+                        entity: 'shipping_method',
+                        column: 'availabilityRuleId',
+                        criteria: () => {
+                            const criteria = new Criteria();
+                            criteria.addFilter(Criteria.not('AND', [Criteria.equals('availabilityRuleId', this.rule.id)]));
+
+                            return criteria;
+                        },
+                        gridColumns: [
+                            {
+                                property: 'name',
+                                label: 'Name',
+                                rawData: true,
+                                sortable: true,
+                                allowEdit: false,
+                            },
+                            {
+                                property: 'description',
+                                label: 'Description',
+                                rawData: true,
+                                sortable: true,
+                                allowEdit: false,
+                            },
+                            {
+                                property: 'taxType',
+                                label: 'Tax calculation',
+                                rawData: true,
+                                sortable: true,
+                                allowEdit: false,
+                            },
+                            {
+                                property: 'active',
+                                label: 'Active',
+                                rawData: true,
+                                sortable: true,
+                                allowEdit: false,
+                            },
+                        ],
+                    },
                 },
                 {
                     id: 'shipping_method_prices',
@@ -173,6 +216,47 @@ Component.register('sw-settings-rule-detail-assignments', {
                         entity: 'payment_method',
                         column: 'availabilityRuleId',
                     },
+                    addContext: {
+                        type: 'update',
+                        entity: 'payment_method',
+                        column: 'availabilityRuleId',
+                        criteria: () => {
+                            const criteria = new Criteria();
+                            criteria.addFilter(Criteria.not('AND', [Criteria.equals('availabilityRuleId', this.rule.id)]));
+
+                            return criteria;
+                        },
+                        gridColumns: [
+                            {
+                                property: 'name',
+                                label: 'Name',
+                                rawData: true,
+                                sortable: true,
+                                allowEdit: false,
+                            },
+                            {
+                                property: 'extension',
+                                label: 'Extension',
+                                rawData: true,
+                                sortable: true,
+                                allowEdit: false,
+                            },
+                            {
+                                property: 'active',
+                                label: 'Active',
+                                rawData: true,
+                                sortable: true,
+                                allowEdit: false,
+                            },
+                            {
+                                property: 'position',
+                                label: 'Position',
+                                rawData: true,
+                                sortable: true,
+                                allowEdit: false,
+                            },
+                        ],
+                    },
                 },
                 {
                     id: 'promotion-order-rule',
@@ -200,6 +284,47 @@ Component.register('sw-settings-rule-detail-assignments', {
                         type: 'delete',
                         entity: 'promotion_order_rule',
                         column: 'promotionId',
+                    },
+                    addContext: {
+                        type: 'insert',
+                        entity: 'promotion_order_rule',
+                        column: 'promotionId',
+                        criteria: () => {
+                            const criteria = new Criteria();
+                            criteria.addFilter(Criteria.not('AND', [Criteria.equals('orderRules.id', this.rule.id)]));
+
+                            return criteria;
+                        },
+                        gridColumns: [
+                            {
+                                property: 'name',
+                                label: 'Name',
+                                rawData: true,
+                                sortable: true,
+                                allowEdit: false,
+                            },
+                            {
+                                property: 'active',
+                                label: 'Active',
+                                rawData: true,
+                                sortable: true,
+                                allowEdit: false,
+                            },
+                            {
+                                property: 'validFrom',
+                                label: 'Valid from',
+                                rawData: true,
+                                sortable: true,
+                                allowEdit: false,
+                            },
+                            {
+                                property: 'validTo',
+                                label: 'Valid to',
+                                rawData: true,
+                                sortable: true,
+                                allowEdit: false,
+                            },
+                        ],
                     },
                 },
                 {
@@ -229,6 +354,47 @@ Component.register('sw-settings-rule-detail-assignments', {
                         entity: 'promotion_persona_rule',
                         column: 'promotionId',
                     },
+                    addContext: {
+                        type: 'insert',
+                        entity: 'promotion_persona_rule',
+                        column: 'promotionId',
+                        criteria: () => {
+                            const criteria = new Criteria();
+                            criteria.addFilter(Criteria.not('AND', [Criteria.equals('personaRules.id', this.rule.id)]));
+
+                            return criteria;
+                        },
+                        gridColumns: [
+                            {
+                                property: 'name',
+                                label: 'Name',
+                                rawData: true,
+                                sortable: true,
+                                allowEdit: false,
+                            },
+                            {
+                                property: 'active',
+                                label: 'Active',
+                                rawData: true,
+                                sortable: true,
+                                allowEdit: false,
+                            },
+                            {
+                                property: 'validFrom',
+                                label: 'Valid from',
+                                rawData: true,
+                                sortable: true,
+                                allowEdit: false,
+                            },
+                            {
+                                property: 'validTo',
+                                label: 'Valid to',
+                                rawData: true,
+                                sortable: true,
+                                allowEdit: false,
+                            },
+                        ],
+                    },
                 },
                 {
                     id: 'promotion-cart-rule',
@@ -256,6 +422,47 @@ Component.register('sw-settings-rule-detail-assignments', {
                         type: 'delete',
                         entity: 'promotion_cart_rule',
                         column: 'promotionId',
+                    },
+                    addContext: {
+                        type: 'insert',
+                        entity: 'promotion_cart_rule',
+                        column: 'promotionId',
+                        criteria: () => {
+                            const criteria = new Criteria();
+                            criteria.addFilter(Criteria.not('AND', [Criteria.equals('cartRules.id', this.rule.id)]));
+
+                            return criteria;
+                        },
+                        gridColumns: [
+                            {
+                                property: 'name',
+                                label: 'Name',
+                                rawData: true,
+                                sortable: true,
+                                allowEdit: false,
+                            },
+                            {
+                                property: 'active',
+                                label: 'Active',
+                                rawData: true,
+                                sortable: true,
+                                allowEdit: false,
+                            },
+                            {
+                                property: 'validFrom',
+                                label: 'Valid from',
+                                rawData: true,
+                                sortable: true,
+                                allowEdit: false,
+                            },
+                            {
+                                property: 'validTo',
+                                label: 'Valid to',
+                                rawData: true,
+                                sortable: true,
+                                allowEdit: false,
+                            },
+                        ],
                     },
                 },
                 {
@@ -340,6 +547,42 @@ Component.register('sw-settings-rule-detail-assignments', {
                         entity: 'event_action_rule',
                         column: 'eventActionId',
                     },
+                    addContext: {
+                        type: 'insert',
+                        entity: 'event_action_rule',
+                        column: 'eventActionId',
+                        criteria: () => {
+                            const criteria = new Criteria();
+                            criteria.addFilter(Criteria.not('AND', [Criteria.equals('rules.id', this.rule.id)]));
+                            criteria.addFilter(Criteria.equals('actionName', 'action.mail.send'));
+                            criteria.addFilter(Criteria.not('AND', [Criteria.equals('config.mail_template_id', null)]));
+
+                            return criteria;
+                        },
+                        gridColumns: [
+                            {
+                                property: 'eventName',
+                                label: 'Event',
+                                rawData: true,
+                                sortable: true,
+                                allowEdit: false,
+                            },
+                            {
+                                property: 'title',
+                                label: 'Title',
+                                rawData: true,
+                                sortable: true,
+                                allowEdit: false,
+                            },
+                            {
+                                property: 'active',
+                                label: 'Active',
+                                rawData: true,
+                                sortable: true,
+                                allowEdit: false,
+                            },
+                        ],
+                    },
                 },
             ];
         },
@@ -375,6 +618,25 @@ Component.register('sw-settings-rule-detail-assignments', {
             this.deleteModal = false;
             this.deleteContext = null;
             this.deleteItem = null;
+        },
+
+        onOpenAddModal(entityContext) {
+            this.addModal = true;
+            this.addEntityContext = entityContext;
+        },
+
+        onCloseAddModal() {
+            this.addModal = false;
+            this.addEntityContext = null;
+        },
+
+        onEntitiesSaved() {
+            this.addModal = false;
+
+            const api = this.addEntityContext.api ? this.addEntityContext.api() : Context.api;
+            this.addEntityContext.repository.search(this.addEntityContext.criteria(), api).then((result) => {
+                this.addEntityContext.loadedData = result;
+            });
         },
 
         onDelete() {

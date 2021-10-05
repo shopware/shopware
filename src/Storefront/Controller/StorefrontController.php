@@ -54,7 +54,7 @@ abstract class StorefrontController extends AbstractController
         }
         $this->get('event_dispatcher')->dispatch($event);
 
-        $response = $this->render($view, $event->getParameters(), new StorefrontResponse());
+        $response = $this->render($event->getView(), $event->getParameters(), new StorefrontResponse());
 
         if (!$response instanceof StorefrontResponse) {
             throw new \RuntimeException('Symfony render implementation changed. Providing a response is no longer supported');

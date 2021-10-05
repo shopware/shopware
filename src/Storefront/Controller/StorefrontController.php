@@ -54,7 +54,7 @@ abstract class StorefrontController extends AbstractController
         }
         $this->get('event_dispatcher')->dispatch($event);
 
-        $response = $this->render($event->getView(), $event->getParameters(), new StorefrontResponse());
+        $response = $this->render($view, $event->getParameters(), new StorefrontResponse());
 
         if (!$response instanceof StorefrontResponse) {
             throw new \RuntimeException('Symfony render implementation changed. Providing a response is no longer supported');
@@ -208,9 +208,9 @@ abstract class StorefrontController extends AbstractController
 
     protected function renderView(string $view, array $parameters = []): string
     {
-        if (isset($this->twig)) {
-            $view = $this->getTemplateFinder()->find($view);
+        $view = $this->getTemplateFinder()->find($view);
 
+        if (isset($this->twig)) {
             return $this->twig->render($view, $parameters);
         }
 

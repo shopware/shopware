@@ -1,5 +1,6 @@
 ---
 title: Use view from event
+issue: NEXT-17713
 author: Rune Laenen
 author_email: rune@laenen.me
 author_github: runelaenen

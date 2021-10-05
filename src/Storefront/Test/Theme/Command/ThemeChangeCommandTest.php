@@ -84,7 +84,7 @@ class ThemeChangeCommandTest extends TestCase
         $application->add($themeChangeCommand);
 
         $commandTester->execute([
-            'theme' => $themes[0]['technicalName'],
+            'theme-name' => $themes[0]['technicalName'],
             '--all' => true,
         ]);
     }
@@ -119,7 +119,7 @@ class ThemeChangeCommandTest extends TestCase
         $application->add($themeChangeCommand);
 
         $commandTester->execute([
-            'theme' => $themes[0]['technicalName'],
+            'theme-name' => $themes[0]['technicalName'],
             '--sales-channel' => $salesChannel['id'],
         ]);
     }
@@ -140,7 +140,7 @@ class ThemeChangeCommandTest extends TestCase
         $application = new Application();
         $application->add($themeChangeCommand);
 
-        $commandTester->execute(['theme' => 'not existing theme', '--sales-channel' => 'not existing saleschannel'], ['interactive' => true]);
+        $commandTester->execute(['theme-name' => 'not existing theme', '--sales-channel' => 'not existing saleschannel'], ['interactive' => true]);
 
         static::assertStringContainsString('[ERROR] Could not find sales channel with ID not existing saleschannel', $commandTester->getDisplay());
     }

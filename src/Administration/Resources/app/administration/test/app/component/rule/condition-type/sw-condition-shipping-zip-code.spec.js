@@ -28,7 +28,8 @@ describe('components/rule/condition-type/sw-condition-shipping-zip-code', () => 
                 'sw-field-error': true,
                 'sw-single-select': true,
                 'sw-arrow-field': true,
-                'sw-condition-type-select': true
+                'sw-condition-type-select': true,
+                'sw-label': true
             },
             provide: {
                 conditionDataProviderService: new ConditionDataProviderService(),
@@ -46,7 +47,7 @@ describe('components/rule/condition-type/sw-condition-shipping-zip-code', () => 
         expect(wrapper.vm).toBeTruthy();
     });
 
-    it('should get correct zipCodes', async () => {
+    it('should get correct numeric zipCodes', async () => {
         await wrapper.setProps({
             condition: {
                 value: {
@@ -55,10 +56,32 @@ describe('components/rule/condition-type/sw-condition-shipping-zip-code', () => 
                 }
             }
         });
+        await wrapper.setData({
+            isNumeric: true
+        });
 
         expect(wrapper.vm.zipCodes).toBe(12345);
 
         const input = wrapper.find('input[name=sw-field--zipCodes]');
         expect(input.element.value).toBe('12345');
+    });
+
+    it('should get correct alphanumeric zipCodes', async () => {
+        await wrapper.setProps({
+            condition: {
+                value: {
+                    zipCodes: ['12345'],
+                    operator: '='
+                }
+            }
+        });
+        await wrapper.setData({
+            isNumeric: false
+        });
+
+        expect(wrapper.vm.zipCodes).toStrictEqual(['12345']);
+
+        const tagList = wrapper.find('.sw-tagged-field__tag-list');
+        expect(tagList.text()).toContain('12345');
     });
 });

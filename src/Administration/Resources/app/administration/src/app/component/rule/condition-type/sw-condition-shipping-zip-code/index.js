@@ -1,4 +1,5 @@
 import template from './sw-condition-shipping-zip-code.html.twig';
+import './sw-condition-shipping-zip-code.scss';
 
 const { Component } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
@@ -17,14 +18,19 @@ Component.extend('sw-condition-shipping-zip-code', 'sw-condition-base', {
     data() {
         return {
             inputKey: 'zipCodes',
+            isNumeric: false,
         };
     },
 
     computed: {
         operators() {
-            return this.conditionDataProviderService.addEmptyOperatorToOperatorSet(
-                this.conditionDataProviderService.getOperatorSet('zipCode'),
-            );
+            if (!this.isNumeric) {
+                return this.conditionDataProviderService.addEmptyOperatorToOperatorSet(
+                    this.conditionDataProviderService.getOperatorSet('multiStore'),
+                );
+            }
+
+            return this.conditionDataProviderService.getOperatorSet('zipCode');
         },
 
         zipCodes: {
@@ -32,10 +38,10 @@ Component.extend('sw-condition-shipping-zip-code', 'sw-condition-base', {
                 this.ensureValueExist();
 
                 if (!this.condition.value.zipCodes) {
-                    return this.isMultipleValues ? [] : null;
+                    return !this.isNumeric ? [] : null;
                 }
 
-                return this.isMultipleValues ? this.condition.value.zipCodes : Number(this.condition.value.zipCodes[0]);
+                return !this.isNumeric ? this.condition.value.zipCodes : Number(this.condition.value.zipCodes[0]);
             },
             set(zipCodes) {
                 this.ensureValueExist();
@@ -48,15 +54,52 @@ Component.extend('sw-condition-shipping-zip-code', 'sw-condition-base', {
             },
         },
 
-        isMultipleValues() {
-            this.ensureValueExist();
-            return ['=', '!='].includes(this.condition.value.operator);
+        taggedFieldPlaceholder() {
+            const defaultPlaceholder = this.$tc('global.sw-tagged-field.text-default-placeholder');
+
+            return `${defaultPlaceholder} ${this.$tc('global.sw-condition.condition.zipCodeWildcardPlaceholder')}`;
         },
 
         ...mapPropertyErrors('condition', ['value.operator', 'value.zipCodes']),
 
         currentError() {
             return this.conditionValueOperatorError || this.conditionValueZipCodesError;
+        },
+
+        numericOptions() {
+            return [
+                {
+                    value: false,
+                    label: this.$tc('sw-property.detail.alphanumericSortingType'),
+                },
+                {
+                    value: true,
+                    label: this.$tc('sw-property.detail.numericSortingType'),
+                },
+            ];
+        },
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
+    methods: {
+        createdComponent() {
+            this.ensureValueExist();
+
+            if (this.condition.value.operator !== undefined) {
+                this.isNumeric = !['=', '!=', 'empty'].includes(this.condition.value.operator);
+            }
+        },
+        onChangeNumeric(value) {
+            this.ensureValueExist();
+
+            if (value === null) {
+                this.isNumeric = false;
+            }
+
+            this.condition.value.operator = undefined;
         },
     },
 });

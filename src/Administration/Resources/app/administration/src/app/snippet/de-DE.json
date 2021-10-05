@@ -674,7 +674,8 @@
             }
           }
         },
-        "customerCustomFieldRule": "Kunde mit Zusatzfeld"
+        "customerCustomFieldRule": "Kunde mit Zusatzfeld",
+        "zipCodeWildcardPlaceholder": "\"*\" als Platzhalterzeichen verwenden ..."
       }
     },
     "sw-product-image": {

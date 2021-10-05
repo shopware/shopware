@@ -104,12 +104,10 @@ export default function createConditionService() {
             operators.empty,
         ],
         zipCode: [
-            operators.isOneOf,
             operators.greaterThan,
             operators.greaterThanEquals,
             operators.lowerThan,
             operators.lowerThanEquals,
-            operators.isNoneOf,
         ],
     };
 

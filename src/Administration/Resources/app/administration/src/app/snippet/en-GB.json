@@ -674,7 +674,8 @@
             }
           }
         },
-        "customerCustomFieldRule": "Customer with custom field"
+        "customerCustomFieldRule": "Customer with custom field",
+        "zipCodeWildcardPlaceholder": "Use \"*\" as a wildcard character ..."
       }
     },
     "sw-product-image": {

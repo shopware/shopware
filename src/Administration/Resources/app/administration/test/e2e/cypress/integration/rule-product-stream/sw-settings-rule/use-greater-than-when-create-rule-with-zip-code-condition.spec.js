@@ -53,6 +53,12 @@ describe('Rule builder: Test use greater/lower than on zipcode condition', () =>
                     cy.get('.sw-select-result-list-popover-wrapper').should('be.visible');
                     cy.get('.sw-select-result-list-popover-wrapper').contains('Shipping postal code').click();
                 });
+            cy.get('.sw-condition-zipcode-type-select')
+                .then((conditionZipCodeTypeSelect) => {
+                    cy.wrap(conditionZipCodeTypeSelect).click();
+                    cy.get('.sw-select-result-list-popover-wrapper').should('be.visible');
+                    cy.get('.sw-select-result-list-popover-wrapper').contains('Numeric').click();
+                });
             cy.get('.sw-condition-operator-select')
                 .then((conditionOperatorSelect) => {
                     cy.wrap(conditionOperatorSelect).click();
@@ -104,6 +110,12 @@ describe('Rule builder: Test use greater/lower than on zipcode condition', () =>
                     cy.wrap(conditionTypeSelect).click();
                     cy.get('.sw-select-result-list-popover-wrapper').should('be.visible');
                     cy.get('.sw-select-result-list-popover-wrapper').contains('Billing postal code').click();
+                });
+            cy.get('.sw-condition-zipcode-type-select')
+                .then((conditionZipCodeTypeSelect) => {
+                    cy.wrap(conditionZipCodeTypeSelect).click();
+                    cy.get('.sw-select-result-list-popover-wrapper').should('be.visible');
+                    cy.get('.sw-select-result-list-popover-wrapper').contains('Numeric').click();
                 });
             cy.get('.sw-condition-operator-select')
                 .then((conditionOperatorSelect) => {

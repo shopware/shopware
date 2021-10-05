@@ -191,16 +191,6 @@ parameters:
 			path: src/Core/Checkout/Customer/Rule/BillingStreetRule.php
 
 		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Rule\\\\BillingZipCodeRule\\:\\:\\$zipCodes \\(array\\<string\\>\\) does not accept array\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/Rule/BillingZipCodeRule.php
-
-		-
-			message: "#^Cannot call method getZipcode\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Aggregate\\\\CustomerAddress\\\\CustomerAddressEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/Rule/BillingZipCodeRule.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Rule\\\\CustomerGroupRule\\:\\:\\$customerGroupIds \\(array\\<string\\>\\) does not accept array\\|null\\.$#"
 			count: 1
 			path: src/Core/Checkout/Customer/Rule/CustomerGroupRule.php
@@ -234,11 +224,6 @@ parameters:
 			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Rule\\\\ShippingStreetRule\\:\\:\\$streetName \\(string\\) does not accept string\\|null\\.$#"
 			count: 1
 			path: src/Core/Checkout/Customer/Rule/ShippingStreetRule.php
-
-		-
-			message: "#^Property Shopware\\\\Core\\\\Checkout\\\\Customer\\\\Rule\\\\ShippingZipCodeRule\\:\\:\\$zipCodes \\(array\\<string\\>\\) does not accept array\\|null\\.$#"
-			count: 1
-			path: src/Core/Checkout/Customer/Rule/ShippingZipCodeRule.php
 
 		-
 			message: "#^Parameter \\#2 \\$hash of function password_verify expects string, string\\|null given\\.$#"

@@ -204,6 +204,7 @@ Component.register('sw-tree', {
             immediate: true,
             handler() {
                 this.treeItems = this.getTreeItems(this.isSearched ? null : this.rootParentId);
+                this._eventFromEdit = null;
             },
         },
 

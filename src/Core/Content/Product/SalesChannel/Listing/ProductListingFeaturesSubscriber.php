@@ -14,6 +14,7 @@ use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingCollection;
 use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -353,16 +354,22 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         }
 
         $criteria = new Criteria($ids);
+        $criteria->setLimit(500);
         $criteria->addAssociation('group');
         $criteria->addAssociation('media');
         $criteria->addFilter(new EqualsFilter('group.filterable', true));
         $criteria->setTitle('product-listing::property-filter');
+        $criteria->addSorting(new FieldSorting('id', FieldSorting::ASCENDING));
 
-        /** @var PropertyGroupOptionCollection $options */
-        $options = $this->optionRepository->search($criteria, $event->getContext())->getEntities();
+        $mergedOptions = new PropertyGroupOptionCollection();
+
+        $repositoryIterator = new RepositoryIterator($this->optionRepository, $event->getContext(), $criteria);
+        while (($result = $repositoryIterator->fetch()) !== null) {
+            $mergedOptions->merge($result->getEntities());
+        }
 
         // group options by their property-group
-        $grouped = $options->groupByPropertyGroups();
+        $grouped = $mergedOptions->groupByPropertyGroups();
         $grouped->sortByPositions();
         $grouped->sortByConfig();
 

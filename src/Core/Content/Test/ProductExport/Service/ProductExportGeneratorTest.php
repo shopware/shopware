@@ -28,7 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Locale\LanguageLocaleProvider;
+use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
@@ -133,7 +133,7 @@ class ProductExportGeneratorTest extends TestCase
             $this->getContainer()->get(SeoUrlPlaceholderHandlerInterface::class),
             $this->getContainer()->get(TwigVariableParser::class),
             $this->getContainer()->get(ProductDefinition::class),
-            $this->getContainer()->get(LanguageLocaleProvider::class),
+            $this->getContainer()->get(LanguageLocaleCodeProvider::class),
         );
 
         $exportGenerator->generate($productExport, $exportBehavior);
@@ -200,7 +200,7 @@ class ProductExportGeneratorTest extends TestCase
             $this->getContainer()->get(SeoUrlPlaceholderHandlerInterface::class),
             $this->getContainer()->get(TwigVariableParser::class),
             $this->getContainer()->get(ProductDefinition::class),
-            $this->getContainer()->get(LanguageLocaleProvider::class),
+            $this->getContainer()->get(LanguageLocaleCodeProvider::class),
         );
 
         try {

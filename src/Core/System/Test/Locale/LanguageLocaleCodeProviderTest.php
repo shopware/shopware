@@ -7,17 +7,17 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Locale\LanguageLocaleProvider;
+use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 
-class LanguageLocaleProviderTest extends TestCase
+class LanguageLocaleCodeProviderTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private LanguageLocaleProvider $languageLocaleProvider;
+    private LanguageLocaleCodeProvider $languageLocaleProvider;
 
     public function setUp(): void
     {
-        $this->languageLocaleProvider = $this->getContainer()->get(LanguageLocaleProvider::class);
+        $this->languageLocaleProvider = $this->getContainer()->get(LanguageLocaleCodeProvider::class);
     }
 
     public function testGetLocaleForLanguageId(): void

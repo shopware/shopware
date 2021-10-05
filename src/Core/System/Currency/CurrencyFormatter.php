@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
-use Shopware\Core\System\Locale\LanguageLocaleProvider;
+use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 
 class CurrencyFormatter
 {
@@ -16,9 +16,9 @@ class CurrencyFormatter
      */
     private array $formatter = [];
 
-    private LanguageLocaleProvider $languageLocaleProvider;
+    private LanguageLocaleCodeProvider $languageLocaleProvider;
 
-    public function __construct(LanguageLocaleProvider $languageLocaleProvider)
+    public function __construct(LanguageLocaleCodeProvider $languageLocaleProvider)
     {
         $this->languageLocaleProvider = $languageLocaleProvider;
     }

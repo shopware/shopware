@@ -44,7 +44,7 @@
             <argument type="service" id="Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\TwigVariableParser"/>
             <argument type="service" id="Shopware\Core\Content\Product\ProductDefinition"/>
-            <argument type="service" id="Shopware\Core\System\Locale\LanguageLocaleProvider"/>
+            <argument type="service" id="Shopware\Core\System\Locale\LanguageLocaleCodeProvider"/>
         </service>
 
         <service id="Shopware\Core\Content\ProductExport\Command\ProductExportGenerateCommand">
@@ -78,7 +78,7 @@
             <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="string">%product_export.read_buffer_size%</argument>
-            <argument type="service" id="Shopware\Core\System\Locale\LanguageLocaleProvider"/>
+            <argument type="service" id="Shopware\Core\System\Locale\LanguageLocaleCodeProvider"/>
             <tag name="messenger.message_handler"/>
         </service>
 

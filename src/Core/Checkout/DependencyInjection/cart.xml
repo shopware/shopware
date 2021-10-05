@@ -208,7 +208,7 @@
 
         <service id="Shopware\Core\Content\Product\Cart\ProductFeatureBuilder">
             <argument type="service" id="custom_field.repository"/>
-            <argument type="service" id="Shopware\Core\System\Locale\LanguageLocaleProvider"/>
+            <argument type="service" id="Shopware\Core\System\Locale\LanguageLocaleCodeProvider"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\Transaction\TransactionProcessor"/>

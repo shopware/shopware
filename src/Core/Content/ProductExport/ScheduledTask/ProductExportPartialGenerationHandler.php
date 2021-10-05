@@ -16,7 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\MessageQueue\Handler\AbstractMessageHandler;
 use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Locale\LanguageLocaleProvider;
+use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -48,7 +48,7 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
 
     private Connection $connection;
 
-    private LanguageLocaleProvider $languageLocaleProvider;
+    private LanguageLocaleCodeProvider $languageLocaleProvider;
 
     public function __construct(
         ProductExportGeneratorInterface $productExportGenerator,
@@ -62,7 +62,7 @@ class ProductExportPartialGenerationHandler extends AbstractMessageHandler
         SalesChannelContextPersister $contextPersister,
         Connection $connection,
         int $readBufferSize,
-        LanguageLocaleProvider $languageLocaleProvider
+        LanguageLocaleCodeProvider $languageLocaleProvider
     ) {
         $this->productExportGenerator = $productExportGenerator;
         $this->salesChannelContextFactory = $salesChannelContextFactory;

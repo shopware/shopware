@@ -13,7 +13,7 @@
             <tag name="shopware.entity.definition"/>
         </service>
 
-        <service id="Shopware\Core\System\Locale\LanguageLocaleProvider">
+        <service id="Shopware\Core\System\Locale\LanguageLocaleCodeProvider">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
         </service>
     </services>

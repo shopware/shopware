@@ -27,7 +27,7 @@ use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
-use Shopware\Core\System\Locale\LanguageLocaleProvider;
+use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Symfony\Contracts\EventDispatcher\Event;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -61,7 +61,7 @@ class SendMailAction extends FlowAction
 
     private Connection $connection;
 
-    private LanguageLocaleProvider $languageLocaleProvider;
+    private LanguageLocaleCodeProvider $languageLocaleProvider;
 
     public function __construct(
         AbstractMailService $emailService,
@@ -75,7 +75,7 @@ class SendMailAction extends FlowAction
         EntityRepositoryInterface $mailTemplateTypeRepository,
         Translator $translator,
         Connection $connection,
-        LanguageLocaleProvider $languageLocaleProvider
+        LanguageLocaleCodeProvider $languageLocaleProvider
     ) {
         $this->mailTemplateRepository = $mailTemplateRepository;
         $this->mediaService = $mediaService;

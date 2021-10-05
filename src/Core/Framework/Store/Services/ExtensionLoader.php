@@ -22,7 +22,7 @@ use Shopware\Core\Framework\Store\Struct\PermissionCollection;
 use Shopware\Core\Framework\Store\Struct\StoreCategoryCollection;
 use Shopware\Core\Framework\Store\Struct\StoreCollection;
 use Shopware\Core\Framework\Store\Struct\VariantCollection;
-use Shopware\Core\System\Locale\LanguageLocaleProvider;
+use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Storefront\Framework\ThemeInterface;
 use Symfony\Component\Intl\Languages;
@@ -48,14 +48,14 @@ class ExtensionLoader
 
     private StoreService $storeService;
 
-    private LanguageLocaleProvider $languageLocaleProvider;
+    private LanguageLocaleCodeProvider $languageLocaleProvider;
 
     public function __construct(
         ?EntityRepositoryInterface $themeRepository,
         AbstractAppLoader $appLoader,
         ConfigurationService $configurationService,
         StoreService $storeService,
-        LanguageLocaleProvider $languageLocaleProvider
+        LanguageLocaleCodeProvider $languageLocaleProvider
     ) {
         $this->themeRepository = $themeRepository;
         $this->appLoader = $appLoader;

@@ -11,7 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\SalesChannelRequest;
-use Shopware\Core\System\Locale\LanguageLocaleProvider;
+use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\Snippet\SnippetService;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\CacheWarmer\WarmableInterface;
@@ -56,7 +56,7 @@ class Translator extends AbstractTranslator
 
     private array $snippets = [];
 
-    private LanguageLocaleProvider $languageLocaleProvider;
+    private LanguageLocaleCodeProvider $languageLocaleProvider;
 
     public function __construct(
         TranslatorInterface $translator,
@@ -66,7 +66,7 @@ class Translator extends AbstractTranslator
         SnippetService $snippetService,
         string $environment,
         EntityRepositoryInterface $snippetSetRepository,
-        LanguageLocaleProvider $languageLocaleProvider
+        LanguageLocaleCodeProvider $languageLocaleProvider
     ) {
         $this->translator = $translator;
         $this->requestStack = $requestStack;

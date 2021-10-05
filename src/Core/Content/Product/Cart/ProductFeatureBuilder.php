@@ -12,18 +12,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\System\CustomField\CustomFieldEntity;
-use Shopware\Core\System\Locale\LanguageLocaleProvider;
+use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class ProductFeatureBuilder
 {
     private EntityRepositoryInterface $customFieldRepository;
 
-    private LanguageLocaleProvider $languageLocaleProvider;
+    private LanguageLocaleCodeProvider $languageLocaleProvider;
 
     public function __construct(
         EntityRepositoryInterface $customFieldRepository,
-        LanguageLocaleProvider $languageLocaleProvider
+        LanguageLocaleCodeProvider $languageLocaleProvider
     ) {
         $this->customFieldRepository = $customFieldRepository;
         $this->languageLocaleProvider = $languageLocaleProvider;
@@ -302,7 +302,7 @@ class ProductFeatureBuilder
         $labels = $customField->getConfig()['label'];
         $localeCode = $this->languageLocaleProvider->getLocaleForLanguageId(Defaults::LANGUAGE_SYSTEM);
 
-        return $labels[$localeCode];
+        return $labels[$localeCode] ?? null;
     }
 
     private function getDataKey(string $id): string

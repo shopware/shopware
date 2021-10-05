@@ -230,7 +230,7 @@ base-uri 'self';
             <argument type="service" id="Shopware\Core\System\Snippet\SnippetService"/>
             <argument>%kernel.environment%</argument>
             <argument type="service" id="snippet_set.repository"/>
-            <argument type="service" id="Shopware\Core\System\Locale\LanguageLocaleProvider"/>
+            <argument type="service" id="Shopware\Core\System\Locale\LanguageLocaleCodeProvider"/>
 
             <tag name="monolog.logger"/>
         </service>

@@ -127,7 +127,7 @@
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\Service\ConfigurationService"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\StoreService"/>
-            <argument type="service" id="Shopware\Core\System\Locale\LanguageLocaleProvider"/>
+            <argument type="service" id="Shopware\Core\System\Locale\LanguageLocaleCodeProvider"/>
             <tag name="shopware.feature" flag="FEATURE_NEXT_12608"/>
         </service>
 

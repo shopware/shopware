@@ -20,7 +20,7 @@ use Shopware\Core\Framework\Event\BusinessEvent;
 use Shopware\Core\Framework\Event\MailActionInterface;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
-use Shopware\Core\System\Locale\LanguageLocaleProvider;
+use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\EventDispatcher\Event;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -53,7 +53,7 @@ class MailSendSubscriber implements EventSubscriberInterface
 
     private Translator $translator;
 
-    private LanguageLocaleProvider $languageLocaleProvider;
+    private LanguageLocaleCodeProvider $languageLocaleProvider;
 
     public function __construct(
         AbstractMailService $emailService,
@@ -66,7 +66,7 @@ class MailSendSubscriber implements EventSubscriberInterface
         EventDispatcherInterface $eventDispatcher,
         EntityRepositoryInterface $mailTemplateTypeRepository,
         Translator $translator,
-        LanguageLocaleProvider $languageLocaleProvider
+        LanguageLocaleCodeProvider $languageLocaleProvider
     ) {
         $this->mailTemplateRepository = $mailTemplateRepository;
         $this->mediaService = $mediaService;

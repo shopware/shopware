@@ -22,29 +22,75 @@ class Context extends Struct
 
     /**
      * @var string[]
+     *
+     * @deprecated tag:v6.5.0 prop will be natively typed as `array` in future versions
      */
-    protected array $languageIdChain;
+    protected $languageIdChain;
 
-    protected string $versionId;
+    /**
+     * @var string
+     *
+     * @deprecated tag:v6.5.0 prop will be natively typed as `string` in future versions
+     */
+    protected $versionId;
 
-    protected string $currencyId;
+    /**
+     * @var string
+     *
+     * @deprecated tag:v6.5.0 prop will be natively typed as `string` in future versions
+     */
+    protected $currencyId;
 
-    protected float $currencyFactor;
+    /**
+     * @var float
+     *
+     * @deprecated tag:v6.5.0 prop will be natively typed as `float` in future versions
+     */
+    protected $currencyFactor;
 
-    protected string $scope = self::USER_SCOPE;
+    /**
+     * @var string
+     *
+     * @deprecated tag:v6.5.0 prop will be natively typed as `string` in future versions
+     */
+    protected $scope = self::USER_SCOPE;
 
-    protected array $ruleIds;
+    /**
+     * @var array
+     *
+     * @deprecated tag:v6.5.0 prop will be natively typed as `array` in future versions
+     */
+    protected $ruleIds;
 
-    protected ContextSource $source;
+    /**
+     * @var ContextSource
+     *
+     * @deprecated tag:v6.5.0 prop will be natively typed as `ContextSource` in future versions
+     */
+    protected $source;
 
-    protected bool $considerInheritance;
+    /**
+     * @var bool
+     *
+     * @deprecated tag:v6.5.0 prop will be natively typed as `bool` in future versions
+     */
+    protected $considerInheritance;
 
     /**
      * @see CartPrice::TAX_STATE_GROSS, CartPrice::TAX_STATE_NET, CartPrice::TAX_STATE_FREE
+     *
+     * @var string
+     *
+     * @deprecated tag:v6.5.0 prop will be natively typed as `string` in future versions
      */
-    protected string $taxState = CartPrice::TAX_STATE_GROSS;
+    protected $taxState = CartPrice::TAX_STATE_GROSS;
 
-    protected CashRoundingConfig $rounding;
+    /**
+     * @var CashRoundingConfig
+     *
+     * @deprecated tag:v6.5.0 prop will be natively typed as `CashRoundingConfig` in future versions
+     */
+    protected $rounding;
 
     public function __construct(
         ContextSource $source,

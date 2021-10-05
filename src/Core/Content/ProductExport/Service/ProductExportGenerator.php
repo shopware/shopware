@@ -23,7 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\SalesChannelReposit
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Locale\LanguageLocaleProvider;
+use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
@@ -60,7 +60,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
 
     private ProductDefinition $productDefinition;
 
-    private LanguageLocaleProvider $languageLocaleProvider;
+    private LanguageLocaleCodeProvider $languageLocaleProvider;
 
     public function __construct(
         ProductStreamBuilderInterface $productStreamBuilder,
@@ -76,7 +76,7 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         SeoUrlPlaceholderHandlerInterface $seoUrlPlaceholderHandler,
         TwigVariableParser $twigVariableParser,
         ProductDefinition $productDefinition,
-        LanguageLocaleProvider $languageLocaleProvider
+        LanguageLocaleCodeProvider $languageLocaleProvider
     ) {
         $this->productStreamBuilder = $productStreamBuilder;
         $this->productRepository = $productRepository;

@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
-class LanguageLocaleProvider
+class LanguageLocaleCodeProvider
 {
     private Connection $connection;
 
@@ -30,8 +30,8 @@ class LanguageLocaleProvider
 
     public function getLocalesForLanguageIds(array $languageIds): array
     {
-        if (\count(array_intersect_key($this->locales, array_flip($languageIds))) === \count($languageIds)) {
-            return array_intersect_key($this->locales, array_flip($languageIds));
+        if ($this->areAllLanguageIdsCached($languageIds)) {
+            return $this->getCachedLocalesForLanguageIds($languageIds);
         }
 
         $locales = $this->fetchLocales($languageIds);
@@ -51,5 +51,15 @@ class LanguageLocaleProvider
             ['languageIds' => Uuid::fromHexToBytesList($languageIds)],
             ['languageIds' => Connection::PARAM_STR_ARRAY]
         );
+    }
+
+    private function areAllLanguageIdsCached(array $languageIds): bool
+    {
+        return \count(array_intersect_key($this->locales, array_flip($languageIds))) === \count($languageIds);
+    }
+
+    private function getCachedLocalesForLanguageIds(array $languageIds): array
+    {
+        return array_intersect_key($this->locales, array_flip($languageIds));
     }
 }

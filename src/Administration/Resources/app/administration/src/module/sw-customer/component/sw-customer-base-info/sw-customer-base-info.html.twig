@@ -185,7 +185,12 @@
                 {{ $tc('sw-customer.baseInfo.labelLastLogin') }}
             </dt>
             <dd>
-                {{ customer.lastLogin ? customer.lastLogin : $tc('sw-customer.baseInfo.emptyTextLogin') }}
+                <template v-if="customer.lastLogin">
+                    {{ customer.lastLogin | date({hour: '2-digit', minute: '2-digit'}) }}
+                </template>
+                <template v-else>
+                    {{ $tc('sw-customer.baseInfo.emptyTextLogin') }}
+                </template>
             </dd>
         </sw-description-list>
         {% endblock %}

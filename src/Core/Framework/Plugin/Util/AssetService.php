@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Plugin\Util;
 
+use Google\Cloud\Core\Exception\NotFoundException;
 use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
@@ -49,7 +50,12 @@ class AssetService
         }
 
         $targetDirectory = $this->getTargetDirectory($bundle);
-        $this->filesystem->deleteDir($targetDirectory);
+
+        try {
+            $this->filesystem->deleteDir($targetDirectory);
+        } catch (NotFoundException $e) {
+            // The Gcloud client throws an exception if the file doesn't exist, ignore this.
+        }
 
         $this->copy($originDir, $targetDirectory);
 

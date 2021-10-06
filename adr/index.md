@@ -29,3 +29,4 @@
 * [2021-08-10 - Storefront coding standars](2021-08-10-storefront-coding-standards.md)
 * [2021-08-11 - Make shopware/platform stand-alone for development and testing](2021-08-11-make-platform-stand-alone.md)
 * [2021-08-31 - Refactor admin build process to webpack-multi-compiler mode](2021-08-31-refactor-admin-build-process-to-webpack-multi-compiler-mode.md)
+* [2021-10-01 - Payment Flow](2021-10-01-payment-flow.md)

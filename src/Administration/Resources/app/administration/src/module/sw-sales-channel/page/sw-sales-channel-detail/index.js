@@ -99,6 +99,10 @@ Component.register('sw-sales-channel-detail', {
             return this.repositoryFactory.create('sales_channel');
         },
 
+        salesChannelAnalyticsRepository() {
+            return this.repositoryFactory.create('sales_channel_analytics');
+        },
+
         customFieldRepository() {
             return this.repositoryFactory.create('custom_field_set');
         },
@@ -171,7 +175,7 @@ Component.register('sw-sales-channel-detail', {
         loadSalesChannel() {
             this.isLoading = true;
             this.salesChannelRepository
-                .get(this.$route.params.id, Shopware.Context.api, this.getLoadSalesChannelCriteria())
+                .get(this.$route.params.id, Context.api, this.getLoadSalesChannelCriteria())
                 .then((entity) => {
                     this.salesChannel = entity;
 
@@ -282,7 +286,7 @@ Component.register('sw-sales-channel-detail', {
             this.productComparison.invalidFileName = invalidFileName;
         },
 
-        onSave() {
+        async onSave() {
             this.isLoading = true;
 
             this.isSaveSuccessful = false;
@@ -290,23 +294,33 @@ Component.register('sw-sales-channel-detail', {
                 this.salesChannel.productExports.add(this.productExport);
             }
 
-            this.salesChannelRepository
-                .save(this.salesChannel, Context.api)
-                .then(() => {
-                    this.isLoading = false;
-                    this.isSaveSuccessful = true;
+            const analyticsId = this.salesChannel.analyticsId;
+            if (analyticsId && !this.salesChannel?.analytics?.trackingId) {
+                this.salesChannel.analyticsId = null
+                delete this.salesChannel.analytics
+            }
 
-                    this.$root.$emit('sales-channel-change');
-                    this.loadEntityData();
-                }).catch(() => {
-                    this.isLoading = false;
+            try {
+                await this.salesChannelRepository.save(this.salesChannel, Context.api)
 
-                    this.createNotificationError({
-                        message: this.$tc('sw-sales-channel.detail.messageSaveError', 0, {
-                            name: this.salesChannel.name || this.placeholder(this.salesChannel, 'name'),
-                        }),
-                    });
+                if (analyticsId && !this.salesChannel?.analytics?.trackingId) {
+                    await this.salesChannelAnalyticsRepository.delete(analyticsId, Context.api)
+                }
+
+                this.isLoading = false;
+                this.isSaveSuccessful = true;
+
+                this.$root.$emit('sales-channel-change');
+                this.loadEntityData();
+            } catch (error) {
+                this.isLoading = false;
+
+                this.createNotificationError({
+                    message: this.$tc('sw-sales-channel.detail.messageSaveError', 0, {
+                        name: this.salesChannel.name || this.placeholder(this.salesChannel, 'name'),
+                    }),
                 });
+            }
         },
 
         abortOnLanguageChange() {

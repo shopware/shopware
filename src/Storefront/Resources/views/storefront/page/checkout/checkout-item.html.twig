@@ -3,7 +3,7 @@
     {# @var delivery \Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery #}
     {# @var lineItem \Shopware\Core\Checkout\Cart\LineItem\LineItem #}
 
-    {% set PRODUCT_LINE_ITEM_TYPE = constant('Shopware\\Core\\Checkout\\Cart\\LineItem\\LineItem::PRODUCT_LINE_ITEM_TYPE') %}ś
+    {% set PRODUCT_LINE_ITEM_TYPE = constant('Shopware\\Core\\Checkout\\Cart\\LineItem\\LineItem::PRODUCT_LINE_ITEM_TYPE') %}
 
     {% set isDiscount = (not lineItem.good and lineItem.price.totalPrice <= 0) %}
     {% set isNested = lineItem.children.count > 0 %}

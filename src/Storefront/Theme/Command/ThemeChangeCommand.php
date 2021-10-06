@@ -52,14 +52,14 @@ class ThemeChangeCommand extends Command
 
     protected function configure(): void
     {
-        $this->addArgument('theme', InputArgument::OPTIONAL, 'Technical theme name');
+        $this->addArgument('theme-name', InputArgument::OPTIONAL, 'Technical theme name');
         $this->addOption('sales-channel', 's', InputOption::VALUE_REQUIRED, 'Sales Channel ID. Can not be used together with --all.');
         $this->addOption('all', null, InputOption::VALUE_NONE, 'Set theme for all sales channel Can not be used together with -s');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $themeName = $input->getArgument('theme');
+        $themeName = $input->getArgument('theme-name');
         $salesChannelOption = $input->getOption('sales-channel');
 
         $this->io = new SymfonyStyle($input, $output);

@@ -4,6 +4,11 @@ namespace Shopware\Core\Content\MailTemplate;
 
 class MailTemplateTypes
 {
+    /**
+     * @feature-deprecated (flag:FEATURE_NEXT_7530) Will be removed with 6.5 use \Shopware\Core\Content\MailTemplate\MailTemplateTypes::MAILTYPE_DOCUMENT_CANCELLATION_INVOICE instead.
+     */
+    public const MAILTYPE_DOCUMENT_STORNO = 'storno_mail';
+
     public const MAILTYPE_NEWSLETTER = 'newsletter';
 
     public const MAILTYPE_NEWSLETTER_DO_CONFIRM = 'newsletter_do_confirm'; // after subscription with confirm instructions
@@ -16,7 +21,7 @@ class MailTemplateTypes
 
     public const MAILTYPE_DOCUMENT_CREDIT_NOTE = 'credit_note_mail';
 
-    public const MAILTYPE_DOCUMENT_STORNO = 'storno_mail';
+    public const MAILTYPE_DOCUMENT_CANCELLATION_INVOICE = 'cancellation_mail';
 
     public const MAILTYPE_ORDER_CONFIRM = 'order_confirmation_mail';
 

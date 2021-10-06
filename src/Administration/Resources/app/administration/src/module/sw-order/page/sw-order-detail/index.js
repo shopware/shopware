@@ -77,7 +77,7 @@ Component.register('sw-order-detail', {
 
             criteria
                 .addAssociation('currency')
-                .addAssociation('orderCustomer')
+                .addAssociation('orderCustomer.salutation')
                 .addAssociation('language');
 
             criteria

@@ -342,7 +342,8 @@
       "labelRecipient": "E-Mail-Adresse",
       "labelContent": "Inhalt",
       "labelSubject": "Betreff",
-      "labelClose": "Schließen"
+      "labelClose": "Schließen",
+      "errorMessage": "Beim Versenden der E-Mail ist etwas schief gelaufen."
     },
     "stateModal": {
       "modalTitle": "Dokumente anhängen"

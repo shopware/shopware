@@ -11,7 +11,16 @@ class MailApiService extends ApiService {
         this.name = 'mailService';
     }
 
-    testMailTemplate(recipient, mailTemplate, mailTemplateMedia, salesChannelId) {
+    sendMailTemplate(
+        recipientMail,
+        recipient,
+        mailTemplate,
+        mailTemplateMedia,
+        salesChannelId,
+        testMode = false,
+        documentIds = [],
+        templateData = null,
+    ) {
         const apiRoute = `/_action/${this.getApiBasePath()}/send`;
 
         return this.httpClient.post(
@@ -19,14 +28,15 @@ class MailApiService extends ApiService {
             {
                 contentHtml: mailTemplate.contentHtml ?? mailTemplate.translated?.contentHtml,
                 contentPlain: mailTemplate.contentPlain ?? mailTemplate.translated?.contentPlain,
-                mailTemplateData: mailTemplate.mailTemplateType.templateData,
-                recipients: { [recipient]: recipient },
+                mailTemplateData: templateData ?? mailTemplate.mailTemplateType.templateData,
+                recipients: { [recipientMail]: recipient },
                 salesChannelId: salesChannelId,
                 mediaIds: mailTemplateMedia.getIds(),
                 subject: mailTemplate.subject ?? mailTemplate.translated?.subject,
                 senderMail: mailTemplate.senderMail,
                 senderName: mailTemplate.senderName ?? mailTemplate.translated?.senderName,
-                testMode: true,
+                documentIds,
+                testMode,
             },
             {
                 headers: this.getBasicHeaders(),
@@ -34,6 +44,18 @@ class MailApiService extends ApiService {
         ).then((response) => {
             return ApiService.handleResponse(response);
         });
+    }
+
+    testMailTemplate(recipient, mailTemplate, mailTemplateMedia, salesChannelId, documentIds = []) {
+        return this.sendMailTemplate(
+            recipient,
+            recipient,
+            mailTemplate,
+            mailTemplateMedia,
+            salesChannelId,
+            true,
+            documentIds,
+        );
     }
 
     buildRenderPreview(mailTemplateType, mailTemplate) {

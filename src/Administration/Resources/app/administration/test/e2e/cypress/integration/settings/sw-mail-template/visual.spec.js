@@ -35,7 +35,7 @@ describe('Mail templates: Check module navigation in settings', () => {
         cy.wait('@getData').its('response.statusCode').should('equals', 200);
 
         cy.get('.sw-data-grid-skeleton').should('not.exist');
-        cy.sortAndCheckListingAscViaColumn('Type', 'Contact form');
+        cy.sortAndCheckListingAscViaColumn('Type', 'Cancellation invoice');
 
         cy.wait('@getData').its('response.statusCode').should('equals', 200);
         cy.get('.sw-data-grid-skeleton').should('not.exist');

@@ -258,7 +258,7 @@ class GenerateThumbnailsCommandTest extends TestCase
         $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaPdf);
         $this->getPublicFilesystem()->putStream(
             $filePath,
-            fopen(__DIR__ . '/../fixtures/Shopware_5_3_Broschuere.pdf', 'rb')
+            fopen(__DIR__ . '/../fixtures/small.pdf', 'rb')
         );
 
         $filePath = $this->urlGenerator->getRelativeMediaUrl($mediaJpg);

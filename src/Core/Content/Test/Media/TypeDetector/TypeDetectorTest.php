@@ -115,7 +115,7 @@ class TypeDetectorTest extends TestCase
     public function testDetectPdf(): void
     {
         $type = $this->getTypeDetector()->detect(
-            $this->createMediaFile(__DIR__ . '/../fixtures/Shopware_5_3_Broschuere.pdf')
+            $this->createMediaFile(__DIR__ . '/../fixtures/small.pdf')
         );
 
         static::assertInstanceOf(DocumentType::class, $type);

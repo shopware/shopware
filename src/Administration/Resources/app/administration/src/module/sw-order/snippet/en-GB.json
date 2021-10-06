@@ -342,7 +342,8 @@
       "labelRecipient": "Email address",
       "labelContent": "Email content",
       "labelSubject": "Subject",
-      "labelClose": "Close"
+      "labelClose": "Close",
+      "errorMessage": "Something went wrong while sending the Email."
     },
     "stateModal": {
       "modalTitle": "Add documents"

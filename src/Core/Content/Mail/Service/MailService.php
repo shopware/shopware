@@ -142,7 +142,7 @@ class MailService extends AbstractMailService
             }
 
             $templateData['salesChannel'] = $salesChannel;
-        } elseif (isset($templateData['salesChannel'])) {
+        } elseif ($this->templateDataContainsSalesChannel($templateData)) {
             $salesChannel = $templateData['salesChannel'];
         }
 
@@ -323,5 +323,10 @@ class MailService extends AbstractMailService
     private function isTestMode(array $data = []): bool
     {
         return isset($data['testMode']) && (bool) $data['testMode'] === true;
+    }
+
+    private function templateDataContainsSalesChannel(array $templateData): bool
+    {
+        return isset($templateData['salesChannel']) && $templateData['salesChannel'] instanceof SalesChannelEntity;
     }
 }

@@ -1,0 +1,5 @@
+{% if order.orderCustomer.salutation %}{{ order.orderCustomer.salutation.translated.letterName ~ ' ' }}{% endif %}{{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},
+
+Im Anhang dieser E-Mail finden Sie die Gutschrift für Ihre Bestellung mit der Nummer: {{ order.orderNumber }}
+
+Sollten Sie Fragen haben, zögern Sie nicht, uns zu kontaktieren.

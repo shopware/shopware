@@ -21,6 +21,7 @@ Shopware.Service('privileges')
                     'order_address:read',
                     'sales_channel:read',
                     'order_customer:read',
+                    'salutation:read',
                     'currency:read',
                     'document:read',
                     'order_transaction:read',

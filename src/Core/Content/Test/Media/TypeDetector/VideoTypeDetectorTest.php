@@ -86,7 +86,7 @@ class VideoTypeDetectorTest extends TestCase
     public function testDetectPdf(): void
     {
         $type = $this->getVideoTypeDetector()->detect(
-            $this->createMediaFile(__DIR__ . '/../fixtures/Shopware_5_3_Broschuere.pdf'),
+            $this->createMediaFile(__DIR__ . '/../fixtures/small.pdf'),
             null
         );
 

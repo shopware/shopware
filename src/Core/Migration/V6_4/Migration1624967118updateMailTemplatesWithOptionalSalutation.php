@@ -29,6 +29,10 @@ class Migration1624967118updateMailTemplatesWithOptionalSalutation extends Migra
         'order_transaction.state.refunded',
         'order_transaction.state.refunded_partially',
         'order_transaction.state.reminded',
+        'cancellation_mail',
+        'credit_note_mail',
+        'delivery_mail',
+        'invoice_mail',
     ];
 
     public function getCreationTimestamp(): int

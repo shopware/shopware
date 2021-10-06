@@ -38,6 +38,7 @@
         <service id="Shopware\Core\Content\MailTemplate\Api\MailActionController" public="true">
             <argument type="service" id="Shopware\Core\Content\Mail\Service\MailService"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer"/>
+            <argument type="service" id="Shopware\Core\Content\MailTemplate\Service\AttachmentLoader"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
@@ -87,6 +88,12 @@
         <service id="mailer.transport_factory" class="Shopware\Core\Content\Mail\Service\MailerTransportFactory">
             <argument type="tagged_iterator" tag="mailer.transport_factory" />
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+        </service>
+
+        <service id="Shopware\Core\Content\MailTemplate\Service\AttachmentLoader">
+            <argument type="service" id="document.repository"/>
+            <argument type="service" id="Shopware\Core\Checkout\Document\DocumentService"/>
+            <argument type="service" id="event_dispatcher"/>
         </service>
     </services>
 </container>

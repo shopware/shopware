@@ -106,13 +106,6 @@ class EntityReader implements EntityReaderInterface
         EntityCollection $collection,
         FieldCollection $fields
     ): EntityCollection {
-        $hasFilters = !empty($criteria->getFilters()) || !empty($criteria->getPostFilters());
-        $hasIds = !empty($criteria->getIds());
-
-        if (!$hasFilters && !$hasIds) {
-            return $collection;
-        }
-
         $fields = $this->addAssociationFieldsToCriteria($criteria, $definition, $fields);
 
         if ($definition->isInheritanceAware() && $criteria->hasAssociation('parent')) {
@@ -125,6 +118,7 @@ class EntityReader implements EntityReaderInterface
 
         $collection = $this->fetchAssociations($criteria, $definition, $context, $collection, $fields);
 
+        $hasIds = !empty($criteria->getIds());
         if ($hasIds && empty($criteria->getSorting())) {
             $collection->sortByIdArray($criteria->getIds());
         }

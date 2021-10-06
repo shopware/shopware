@@ -46,11 +46,6 @@ class RepositorySearchDetector
             $criteria->getPostFilters()
         );
 
-        //no filter and no ids? fetch all records
-        if (empty($filters) && empty($criteria->getIds())) {
-            return true;
-        }
-
         /** @var CriteriaPartInterface $filter */
         foreach ($filters as $filter) {
             $accessors = $filter->getFields();

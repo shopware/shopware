@@ -69,6 +69,7 @@ class ProductControllerTest extends TestCase
 
         static::assertSame(200, $response->getStatusCode());
         static::assertInstanceOf(JsonResponse::class, $response);
+        static::assertEquals($productId, $content['productId']);
         static::assertStringContainsString($productId, $content['url']);
     }
 

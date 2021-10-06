@@ -44,6 +44,7 @@ use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\Locale\LocaleDefinition;
 use Shopware\Core\Test\TestDefaults;
@@ -51,8 +52,6 @@ use Shopware\Core\Test\TestDefaults;
 class EntityRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
-
-    private Connection $connection;
 
     public function testSetEntityLoadedEventFactory(): void
     {
@@ -1223,6 +1222,31 @@ class EntityRepositoryTest extends TestCase
         $multiFilter = $criteria->getFilters()[0];
         static::assertEquals(MultiFilter::CONNECTION_OR, $multiFilter->getOperator());
         static::assertCount(2, $multiFilter->getQueries());
+    }
+
+    public function testEmptyFiltersAreHandledByEntityReaderWithoutPriorSearch(): void
+    {
+        $searcherMock = $this->createMock(EntitySearcherInterface::class);
+        $searcherMock->expects(static::never())
+            ->method('search');
+
+        $repository = new EntityRepository(
+            $this->getContainer()->get(CurrencyDefinition::class),
+            $this->getContainer()->get(EntityReaderInterface::class),
+            $this->getContainer()->get(VersionManager::class),
+            $searcherMock,
+            $this->getContainer()->get(EntityAggregatorInterface::class),
+            $this->getContainer()->get('event_dispatcher'),
+            $this->getContainer()->get(EntityLoadedEventFactory::class)
+        );
+
+        $result = $repository->search(new Criteria(), Context::createDefaultContext());
+        $currencyCount = (int) $this->getContainer()->get(Connection::class)->fetchOne('SELECT COUNT(`id`) FROM `currency`');
+
+        static::assertEquals(
+            $currencyCount,
+            $result->getEntities()->count()
+        );
     }
 
     protected function createRepository(

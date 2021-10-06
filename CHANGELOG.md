@@ -1,6 +1,9 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/2020-08-03-Implement-New-Changelog.md).
 
+## 6.4.5.1
+*  [NEXT-17713 - Use view from event](/changelog/release-6-4-5-1/2021-10-05-use-view-from-event.md) ([Rune Laenen](https://github.com/runelaenen))
+
 ## 6.4.5.0
 *  [NEXT-14082 - Adds the RetryableTransaction to prevent database deadlocks](/changelog/release-6-4-5-0/2021-02-18-add-retryable-transaction-to-prevent-deadlocks.md) ([Hannes Wernery](https://github.com/hanneswernery))
 *  [NEXT-15011 - Cms Page Translation Name Nullable](/changelog/release-6-4-5-0/2021-04-08-cms-page-translation-name-nullable.md) ([Rune Laenen](https://github.com/runelaenen))

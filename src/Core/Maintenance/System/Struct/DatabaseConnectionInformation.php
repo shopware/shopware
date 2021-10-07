@@ -10,7 +10,7 @@ class DatabaseConnectionInformation extends Struct
 {
     protected string $hostname = '';
 
-    protected string $port = '';
+    protected int $port = 3306;
 
     protected ?string $username;
 
@@ -46,7 +46,7 @@ class DatabaseConnectionInformation extends Struct
 
         return (new self())->assign([
             'hostname' => $params['host'],
-            'port' => $params['port'] ?? 3306,
+            'port' => (int) ($params['port'] ?? '3306'),
             'username' => $params['user'] ?? null,
             'password' => $params['pass'] ?? null,
             'databaseName' => $dbName,
@@ -92,7 +92,7 @@ class DatabaseConnectionInformation extends Struct
             'mysql://%s%s:%s',
             $this->username && $this->password ? ($this->username . ':' . $this->password . '@') : '',
             $this->hostname,
-            $this->port ?? 3306
+            $this->port
         );
 
         if (!$withoutDatabaseName) {
@@ -117,7 +117,7 @@ class DatabaseConnectionInformation extends Struct
         return $this->hostname;
     }
 
-    public function getPort(): string
+    public function getPort(): int
     {
         return $this->port;
     }

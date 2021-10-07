@@ -492,6 +492,80 @@ class EntityRepositoryTest extends TestCase
         static::assertSame($old->getChildren(), $new->getChildren());
     }
 
+    public function testCloneShouldUpdateDates(): void
+    {
+        $id = Uuid::randomHex();
+        $data = [
+            'id' => $id,
+            'name' => 'Main',
+            'children' => [
+                ['id' => Uuid::randomHex(), 'name' => 'Child1'],
+                ['id' => Uuid::randomHex(), 'name' => 'Child2'],
+            ],
+        ];
+
+        $repository = $this->createRepository(CategoryDefinition::class);
+
+        $context = Context::createDefaultContext();
+
+        $repository->create([$data], $context);
+        $newId = Uuid::randomHex();
+
+        // Ensure updatedAt is set
+        $repository->update([
+            [
+                'id' => $id,
+                'name' => 'Test',
+            ],
+        ], $context);
+
+        $criteria = new Criteria([$id]);
+        /** @var CategoryEntity $preCloneEntity */
+        $preCloneEntity = $repository->search($criteria, $context)->first();
+
+        $result = $repository->clone($id, $context, $newId);
+        static::assertInstanceOf(EntityWrittenContainerEvent::class, $result);
+
+        $written = $result->getEventByEntityName(CategoryDefinition::ENTITY_NAME);
+        static::assertCount(3, $written->getIds());
+        static::assertContains($newId, $written->getIds());
+
+        $criteria = new Criteria([$id, $newId]);
+        $entities = $repository->search($criteria, $context);
+
+        static::assertEquals([$id, $newId], $criteria->getIds());
+        static::assertEmpty($criteria->getSorting());
+        static::assertEmpty($criteria->getFilters());
+        static::assertEmpty($criteria->getPostFilters());
+        static::assertEmpty($criteria->getAggregations());
+        static::assertEmpty($criteria->getAssociations());
+        static::assertNull($criteria->getLimit());
+        static::assertNull($criteria->getOffset());
+
+        static::assertCount(2, $entities);
+        static::assertTrue($entities->has($id));
+        static::assertTrue($entities->has($newId));
+
+        /** @var CategoryEntity $postClone */
+        $postClone = $entities->get($id);
+        /** @var CategoryEntity $new */
+        $cloned = $entities->get($newId);
+
+        static::assertInstanceOf(CategoryEntity::class, $postClone);
+        static::assertInstanceOf(CategoryEntity::class, $cloned);
+
+        static::assertSame($postClone->getName(), $cloned->getName());
+        static::assertSame($postClone->getChildren(), $cloned->getChildren());
+
+        // Assert createdAt and updatedAt didn't change
+        static::assertEquals($preCloneEntity->getCreatedAt(), $postClone->getCreatedAt());
+        static::assertEquals($preCloneEntity->getUpdatedAt(), $postClone->getUpdatedAt());
+
+        // Assert that createdAt changed
+        static::assertNotEquals($postClone->getCreatedAt(), $cloned->getCreatedAt());
+        static::assertNull($cloned->getUpdatedAt());
+    }
+
     public function testCloneWithUnknownId(): void
     {
         $id = Uuid::randomHex();

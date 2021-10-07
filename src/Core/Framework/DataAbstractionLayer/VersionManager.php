@@ -8,10 +8,12 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ChildrenAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\DateTimeField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -51,55 +53,25 @@ class VersionManager
 {
     public const DISABLE_AUDIT_LOG = 'disable-audit-log';
 
-    /**
-     * @var EntityWriterInterface
-     */
-    private $entityWriter;
+    private EntityWriterInterface $entityWriter;
 
-    /**
-     * @var EntityReaderInterface
-     */
-    private $entityReader;
+    private EntityReaderInterface $entityReader;
 
-    /**
-     * @var EntitySearcherInterface
-     */
-    private $entitySearcher;
+    private EntitySearcherInterface $entitySearcher;
 
-    /**
-     * @var EntityWriteGatewayInterface
-     */
-    private $entityWriteGateway;
+    private EntityWriteGatewayInterface $entityWriteGateway;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var SerializerInterface
-     */
-    private $serializer;
+    private SerializerInterface $serializer;
 
-    /**
-     * @var VersionCommitDefinition
-     */
-    private $versionCommitDefinition;
+    private VersionCommitDefinition $versionCommitDefinition;
 
-    /**
-     * @var VersionCommitDataDefinition
-     */
-    private $versionCommitDataDefinition;
+    private VersionCommitDataDefinition $versionCommitDataDefinition;
 
-    /**
-     * @var VersionDefinition
-     */
-    private $versionDefinition;
+    private VersionDefinition $versionDefinition;
 
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $registry;
+    private DefinitionInstanceRegistry $registry;
 
     public function __construct(
         EntityWriterInterface $entityWriter,
@@ -360,11 +332,19 @@ class VersionManager
         $data = $this->filterPropertiesForClone($definition, $data, $keepIds, $id, $definition, $context->getContext());
         $data['id'] = $newId;
 
-        if (isset($data['createdAt'])) {
+        $createdAtField = $definition->getField('createdAt');
+        $updatedAtField = $definition->getField('updatedAt');
+
+        if ($createdAtField instanceof DateTimeField) {
             $data['createdAt'] = new \DateTime();
         }
-        if (isset($data['updatedAt'])) {
-            $data['updatedAt'] = null;
+
+        if ($updatedAtField instanceof DateTimeField) {
+            if ($updatedAtField->getFlag(Required::class)) {
+                $data['updatedAt'] = new \DateTime();
+            } else {
+                $data['updatedAt'] = null;
+            }
         }
 
         $data = array_replace_recursive($data, $behavior->getOverwrites());

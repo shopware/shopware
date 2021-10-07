@@ -2,64 +2,46 @@
 
 namespace Shopware\Core\System\Locale;
 
-use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Routing\Exception\LanguageNotFoundException;
-use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Language\LanguageLoaderInterface;
 
 class LanguageLocaleCodeProvider
 {
-    private Connection $connection;
+    private LanguageLoaderInterface $languageLoader;
 
-    private array $locales = [];
+    private array $languages = [];
 
-    public function __construct(Connection $connection)
+    public function __construct(LanguageLoaderInterface $languageLoader)
     {
-        $this->connection = $connection;
+        $this->languageLoader = $languageLoader;
     }
 
     public function getLocaleForLanguageId(string $languageId): string
     {
-        $result = $this->getLocalesForLanguageIds([$languageId]);
+        $languages = $this->getLanguages();
 
-        if (!\array_key_exists($languageId, $result)) {
+        if (!\array_key_exists($languageId, $languages)) {
             throw new LanguageNotFoundException($languageId);
         }
 
-        return $result[$languageId];
+        return $languages[$languageId]['code'];
     }
 
     public function getLocalesForLanguageIds(array $languageIds): array
     {
-        if ($this->areAllLanguageIdsCached($languageIds)) {
-            return $this->getCachedLocalesForLanguageIds($languageIds);
+        $languages = $this->getLanguages();
+
+        $requestedLanguages = array_intersect_key($languages, array_flip($languageIds));
+
+        return array_column($requestedLanguages, 'code', 'id');
+    }
+
+    private function getLanguages(): array
+    {
+        if (\count($this->languages) === 0) {
+            $this->languages = $this->languageLoader->loadLanguages();
         }
 
-        $locales = $this->fetchLocales($languageIds);
-
-        $this->locales = array_merge($this->locales, $locales);
-
-        return $locales;
-    }
-
-    private function fetchLocales(array $languageIds): array
-    {
-        return $this->connection->fetchAllKeyValue(
-            'SELECT LOWER(HEX(language.id)), locale.code
-            FROM language
-            INNER JOIN locale ON locale.id = language.locale_id
-            WHERE language.id in (:languageIds)',
-            ['languageIds' => Uuid::fromHexToBytesList($languageIds)],
-            ['languageIds' => Connection::PARAM_STR_ARRAY]
-        );
-    }
-
-    private function areAllLanguageIdsCached(array $languageIds): bool
-    {
-        return \count(array_intersect_key($this->locales, array_flip($languageIds))) === \count($languageIds);
-    }
-
-    private function getCachedLocalesForLanguageIds(array $languageIds): array
-    {
-        return array_intersect_key($this->locales, array_flip($languageIds));
+        return $this->languages;
     }
 }

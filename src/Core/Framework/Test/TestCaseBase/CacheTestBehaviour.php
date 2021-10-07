@@ -27,7 +27,7 @@ trait CacheTestBehaviour
 
         $this->resetInternalCache(ProductPriceCalculator::class, 'units', null);
 
-        $this->resetInternalCache(LanguageLocaleCodeProvider::class, 'locales', []);
+        $this->resetInternalCache(LanguageLocaleCodeProvider::class, 'languages', []);
 
         if (Feature::isActive('FEATURE_NEXT_8225')) {
             $this->resetInternalCache(CachedFlowLoader::class, 'flows', []);

@@ -152,7 +152,8 @@ class ExtensionLoader
 
     public function getLocalesCodesFromLanguageIds(array $languageIds): array
     {
-        $codes = $this->languageLocaleProvider->getLocalesForLanguageIds($languageIds);
+        $codes = array_values($this->languageLocaleProvider->getLocalesForLanguageIds($languageIds));
+        sort($codes);
 
         return array_map(static function (string $locale): string {
             return str_replace('-', '_', $locale);

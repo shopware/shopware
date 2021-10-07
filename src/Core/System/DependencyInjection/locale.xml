@@ -14,7 +14,7 @@
         </service>
 
         <service id="Shopware\Core\System\Locale\LanguageLocaleCodeProvider">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\System\Language\LanguageLoader"/>
         </service>
     </services>
 </container>

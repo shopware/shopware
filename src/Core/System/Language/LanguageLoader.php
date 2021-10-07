@@ -7,10 +7,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 
 class LanguageLoader implements LanguageLoaderInterface
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     public function __construct(Connection $connection)
     {

@@ -197,19 +197,14 @@ Instead of passing uuids, you can also use one of the following aliases for the 
             new EqualsFilter('level', $rootLevel + $depth + 1),
             new EqualsFilter('active', true),
             new EqualsFilter('visible', true)
-        )->addAggregation(
-            new TermsAggregation(
-                'category-ids',
-                'parentId',
-                null,
-                null,
-                new CountAggregation('visible-children-count', 'id')
-            )
+        );
+
+        $criteria->addAggregation(
+            new TermsAggregation('category-ids', 'parentId', null, null, new CountAggregation('visible-children-count', 'id'))
         );
 
         $termsResult = $this->categoryRepository
-            ->search($criteria, $context)
-            ->getAggregations()
+            ->aggregate($criteria, $context)
             ->get('category-ids');
 
         if ($termsResult instanceof TermsResult) {

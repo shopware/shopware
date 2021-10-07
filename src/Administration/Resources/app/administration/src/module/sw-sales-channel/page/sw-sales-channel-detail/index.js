@@ -296,15 +296,15 @@ Component.register('sw-sales-channel-detail', {
 
             const analyticsId = this.salesChannel.analyticsId;
             if (analyticsId && !this.salesChannel?.analytics?.trackingId) {
-                this.salesChannel.analyticsId = null
-                delete this.salesChannel.analytics
+                this.salesChannel.analyticsId = null;
+                delete this.salesChannel.analytics;
             }
 
             try {
-                await this.salesChannelRepository.save(this.salesChannel, Context.api)
+                await this.salesChannelRepository.save(this.salesChannel, Context.api);
 
                 if (analyticsId && !this.salesChannel?.analytics?.trackingId) {
-                    await this.salesChannelAnalyticsRepository.delete(analyticsId, Context.api)
+                    await this.salesChannelAnalyticsRepository.delete(analyticsId, Context.api);
                 }
 
                 this.isLoading = false;

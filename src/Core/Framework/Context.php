@@ -22,41 +22,57 @@ class Context extends Struct
 
     /**
      * @var string[]
+     *
+     * @deprecated tag:v6.5.0 prop will be natively typed as `array` in future versions
      */
     protected $languageIdChain;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.5.0 prop will be natively typed as `string` in future versions
      */
     protected $versionId;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.5.0 prop will be natively typed as `string` in future versions
      */
     protected $currencyId;
 
     /**
      * @var float
+     *
+     * @deprecated tag:v6.5.0 prop will be natively typed as `float` in future versions
      */
     protected $currencyFactor;
 
     /**
      * @var string
+     *
+     * @deprecated tag:v6.5.0 prop will be natively typed as `string` in future versions
      */
     protected $scope = self::USER_SCOPE;
 
     /**
      * @var array
+     *
+     * @deprecated tag:v6.5.0 prop will be natively typed as `array` in future versions
      */
     protected $ruleIds;
 
     /**
      * @var ContextSource
+     *
+     * @deprecated tag:v6.5.0 prop will be natively typed as `ContextSource` in future versions
      */
     protected $source;
 
     /**
      * @var bool
+     *
+     * @deprecated tag:v6.5.0 prop will be natively typed as `bool` in future versions
      */
     protected $considerInheritance;
 
@@ -64,11 +80,15 @@ class Context extends Struct
      * @see CartPrice::TAX_STATE_GROSS, CartPrice::TAX_STATE_NET, CartPrice::TAX_STATE_FREE
      *
      * @var string
+     *
+     * @deprecated tag:v6.5.0 prop will be natively typed as `string` in future versions
      */
     protected $taxState = CartPrice::TAX_STATE_GROSS;
 
     /**
      * @var CashRoundingConfig
+     *
+     * @deprecated tag:v6.5.0 prop will be natively typed as `CashRoundingConfig` in future versions
      */
     protected $rounding;
 

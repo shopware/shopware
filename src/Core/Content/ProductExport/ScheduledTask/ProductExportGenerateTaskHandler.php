@@ -73,10 +73,6 @@ class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
 
             $criteria = new Criteria();
             $criteria
-                ->addAssociation('salesChannel')
-                ->addAssociation('salesChannelDomain.salesChannel')
-                ->addAssociation('salesChannelDomain.language.locale')
-                ->addAssociation('productStream.filters.queries')
                 ->addFilter(new EqualsFilter('generateByCronjob', true))
                 ->addFilter(
                     new MultiFilter(

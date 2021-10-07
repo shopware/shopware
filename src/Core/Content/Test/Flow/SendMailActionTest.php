@@ -36,6 +36,7 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
+use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -100,8 +101,8 @@ class SendMailActionTest extends TestCase
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get('mail_template_type.repository'),
             $this->getContainer()->get(Translator::class),
-            $this->getContainer()->get('language.repository'),
-            $this->getContainer()->get(Connection::class)
+            $this->getContainer()->get(Connection::class),
+            $this->getContainer()->get(LanguageLocaleCodeProvider::class)
         );
 
         $mailFilterEvent = null;
@@ -196,8 +197,8 @@ class SendMailActionTest extends TestCase
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get('mail_template_type.repository'),
             $translator,
-            $this->getContainer()->get('language.repository'),
-            $this->getContainer()->get(Connection::class)
+            $this->getContainer()->get(Connection::class),
+            $this->getContainer()->get(LanguageLocaleCodeProvider::class),
         );
 
         $mailFilterEvent = null;

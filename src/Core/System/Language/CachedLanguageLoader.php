@@ -9,15 +9,9 @@ class CachedLanguageLoader implements LanguageLoaderInterface, EventSubscriberIn
 {
     private const CACHE_KEY = 'shopware.languages';
 
-    /**
-     * @var CacheItemPoolInterface
-     */
-    private $cache;
+    private CacheItemPoolInterface $cache;
 
-    /**
-     * @var LanguageLoaderInterface
-     */
-    private $loader;
+    private LanguageLoaderInterface $loader;
 
     public function __construct(LanguageLoaderInterface $loader, CacheItemPoolInterface $cache)
     {

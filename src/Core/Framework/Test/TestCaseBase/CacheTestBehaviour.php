@@ -7,6 +7,7 @@ use Shopware\Core\Content\Flow\Dispatching\CachedFlowLoader;
 use Shopware\Core\Content\Product\SalesChannel\Price\ProductPriceCalculator;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCacheClearer;
+use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 trait CacheTestBehaviour
@@ -25,6 +26,8 @@ trait CacheTestBehaviour
         $this->resetInternalCache(AddressValidator::class, 'available', []);
 
         $this->resetInternalCache(ProductPriceCalculator::class, 'units', null);
+
+        $this->resetInternalCache(LanguageLocaleCodeProvider::class, 'languages', []);
 
         if (Feature::isActive('FEATURE_NEXT_8225')) {
             $this->resetInternalCache(CachedFlowLoader::class, 'flows', []);

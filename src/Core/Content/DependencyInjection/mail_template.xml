@@ -80,7 +80,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="mail_template_type.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Translation\Translator"/>
-            <argument type="service" id="language.repository"/>
+            <argument type="service" id="Shopware\Core\System\Locale\LanguageLocaleCodeProvider"/>
         </service>
 
         <service id="core_mailer" alias="mailer" />

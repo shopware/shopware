@@ -1206,16 +1206,6 @@ parameters:
 			path: src/Core/Content/ProductExport/Event/ProductExportLoggingEvent.php
 
 		-
-			message: "#^Cannot call method getLocaleId\\(\\) on Shopware\\\\Core\\\\System\\\\Language\\\\LanguageEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/ProductExport/ScheduledTask/ProductExportPartialGenerationHandler.php
-
-		-
-			message: "#^Cannot call method getLocaleId\\(\\) on Shopware\\\\Core\\\\System\\\\Language\\\\LanguageEntity\\|null\\.$#"
-			count: 1
-			path: src/Core/Content/ProductExport/Service/ProductExportGenerator.php
-
-		-
 			message: "#^Parameter \\#1 \\$templateSource of method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\StringTemplateRenderer\\:\\:render\\(\\) expects string, string\\|null given\\.$#"
 			count: 1
 			path: src/Core/Content/ProductExport/Service/ProductExportRenderer.php

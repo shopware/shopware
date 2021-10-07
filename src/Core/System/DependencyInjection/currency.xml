@@ -34,7 +34,7 @@
         </service>
 
         <service id="Shopware\Core\System\Currency\CurrencyFormatter" public="true">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\System\Locale\LanguageLocaleCodeProvider"/>
         </service>
 
         <service id="Shopware\Core\System\Currency\SalesChannel\CurrencyRoute" public="true">

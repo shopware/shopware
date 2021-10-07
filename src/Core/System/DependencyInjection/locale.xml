@@ -12,5 +12,9 @@
         <service id="Shopware\Core\System\Locale\Aggregate\LocaleTranslation\LocaleTranslationDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
+
+        <service id="Shopware\Core\System\Locale\LanguageLocaleCodeProvider">
+            <argument type="service" id="Shopware\Core\System\Language\LanguageLoader"/>
+        </service>
     </services>
 </container>

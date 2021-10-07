@@ -1,0 +1,120 @@
+{
+    "name": "My totally legit Shopping Experience",
+    "type": "landingpage",
+    "sections": [
+        {
+            "type": "default",
+            "position": 0,
+            "blocks": [
+                {
+                    "position": 0,
+                    "type": "text",
+                    "slots": [
+                        {
+                            "type": "text",
+                            "slot": "content",
+                            "config": {
+                                "content": {
+                                    "source": "static",
+                                    "value": "<h2>Section 1 - Block A</h2>"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "position": 1,
+                    "type": "text",
+                    "slots": [
+                        {
+                            "type": "text",
+                            "slot": "content",
+                            "config": {
+                                "content": {
+                                    "source": "static",
+                                    "value": "<h2>Section 1 - Block B</h2>"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "default",
+            "position": 1,
+            "blocks": [
+                {
+                    "position": 0,
+                    "type": "text",
+                    "slots": [
+                        {
+                            "type": "text",
+                            "slot": "content",
+                            "config": {
+                                "content": {
+                                    "source": "static",
+                                    "value": "<h2>Section 2 - Block C</h2>"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "position": 1,
+                    "type": "text",
+                    "slots": [
+                        {
+                            "type": "text",
+                            "slot": "content",
+                            "config": {
+                                "content": {
+                                    "source": "static",
+                                    "value": "<h2>Section 2 - Block D</h2>"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "default",
+            "position": 2,
+            "blocks": [
+                {
+                    "position": 0,
+                    "type": "text",
+                    "slots": [
+                        {
+                            "type": "text",
+                            "slot": "content",
+                            "config": {
+                                "content": {
+                                    "source": "static",
+                                    "value": "<h2>Section 3 - Block E</h2>"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "position": 1,
+                    "type": "text",
+                    "slots": [
+                        {
+                            "type": "text",
+                            "slot": "content",
+                            "config": {
+                                "content": {
+                                    "source": "static",
+                                    "value": "<h2>Section 3 - Block F</h2>"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

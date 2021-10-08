@@ -2,7 +2,6 @@
     {% if not sliderConfig %}
         {% set sliderConfig = element.fieldConfig.elements %}
     {% endif %}
-
     <div class="product-detail-cross-selling">
         <div class="card card-tabs" data-cross-selling="true">
             {% block cms_element_cross_selling_tabs_navigation %}
@@ -11,11 +10,10 @@
                         <ul class="nav nav-tabs product-detail-tab-navigation-list"
                             id="product-detail-cross-selling-tabs"
                             role="tablist">
-                            {% for item in element.data.crossSellings.elements %}
+                            {% for item in element.data.crossSellings.elements|filter(item => item.total > 0 and item.crossSelling.active == true) %}
                                 {% set crossSelling = item.crossSelling %}
                                 {% set products = item.products %}
                                 {% set id = crossSelling.id %}
-                                {% if crossSelling.active and products %}
                                     <li class="nav-item">
                                         <a class="nav-link product-detail-tab-navigation-link{% if loop.first %} active{% endif %}"
                                            id="cross-selling-tab-{{ id }}"
@@ -30,7 +28,6 @@
                                             </span>
                                         </a>
                                     </li>
-                                {% endif %}
                             {% endfor %}
                         </ul>
                     {% endblock %}
@@ -41,7 +38,7 @@
                 <div class="product-detail-tabs-content card-body">
                     {% block cms_element_cross_selling_tabs_content_container %}
                         <div class="tab-content">
-                            {% for item in element.data.crossSellings.elements %}
+                            {% for item in element.data.crossSellings.elements|filter(item => item.total > 0 and item.crossSelling.active == true) %}
                                 {% set crossSelling = item.crossSelling %}
                                 {% set products = item.products %}
                                 {% set id = crossSelling.id %}

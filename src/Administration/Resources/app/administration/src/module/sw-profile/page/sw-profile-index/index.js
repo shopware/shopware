@@ -101,6 +101,14 @@ Component.register('sw-profile-index', {
     },
 
     watch: {
+        '$route'(newValue) {
+            if (!newValue || newValue.name === 'sw.profile.index.searchPreferences') {
+                return;
+            }
+
+            this.resetGeneralData();
+        },
+
         'user.avatarMedia.id'() {
             if (!this.user.avatarMedia?.id) {
                 return;
@@ -237,12 +245,31 @@ Component.register('sw-profile-index', {
             return this.userRepository.get(user.data.id);
         },
 
+        resetGeneralData() {
+            if (!this.feature.isActive('FEATURE_NEXT_6040')) {
+                return;
+            }
+
+            this.avatarMediaItem = null;
+            this.newPassword = null;
+            this.newPasswordConfirm = null;
+
+            this.createdComponent();
+            this.beforeMountComponent();
+        },
+
         async saveFinish() {
             this.isSaveSuccessful = false;
             this.user = await this.getUserData();
         },
 
         onSave() {
+            if (this.$route.name === 'sw.profile.index.searchPreferences' && this.feature.isActive('FEATURE_NEXT_6040')) {
+                this.saveUserSearchPreferences();
+
+                return;
+            }
+
             if (this.checkEmail() === false) {
                 return;
             }
@@ -299,10 +326,6 @@ Component.register('sw-profile-index', {
                 });
 
                 return;
-            }
-
-            if (this.feature.isActive('FEATURE_NEXT_6040')) {
-                this.saveUserSearchPreferences();
             }
 
             const context = { ...Shopware.Context.api };
@@ -447,7 +470,18 @@ Component.register('sw-profile-index', {
 
             this.userSearchPreferences.value = value;
 
-            return this.userConfigRepository.save(this.userSearchPreferences);
+            this.isLoading = true;
+            this.isSaveSuccessful = false;
+            return this.userConfigRepository.save(this.userSearchPreferences)
+                .then(() => {
+                    this.isLoading = false;
+                    this.isSaveSuccessful = true;
+                })
+                .catch((error) => {
+                    this.isLoading = false;
+                    this.isSaveSuccessful = false;
+                    this.createNotificationError({ message: error.message });
+                });
         },
     },
 });

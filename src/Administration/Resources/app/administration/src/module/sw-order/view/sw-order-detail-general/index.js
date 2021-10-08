@@ -226,6 +226,10 @@ Component.register('sw-order-detail-general', {
             this.$emit('save-and-recalculate');
         },
 
+        onSaveEdits() {
+            this.$emit('save-edits');
+        },
+
         recalculateAndReload() {
             this.$emit('recalculate-and-reload');
         },

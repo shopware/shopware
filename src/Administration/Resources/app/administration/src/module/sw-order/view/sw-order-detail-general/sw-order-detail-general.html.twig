@@ -1,5 +1,21 @@
 {% block sw_order_detail_general %}
 <div class="sw-order-detail-general">
+    {% block sw_order_detail_general_info_card %}
+    <sw-card
+        class="sw-order-detail-base__general-info"
+        :title="$tc('sw-order.detailBase.cardTitleGeneralInfo')"
+        :is-loading="isLoading"
+    >
+        {% block sw_order_detail_general_info %}
+        <sw-order-general-info
+            ref="swOrderGeneralInfo"
+            :order="order"
+            @save-edits="onSaveEdits"
+        />
+        {% endblock %}
+    </sw-card>
+    {% endblock %}
+
     {% block sw_order_detail_general_line_items_card %}
     <sw-card
         class="sw-order-detail-general__line-item-grid-card"
@@ -22,7 +38,7 @@
                 :editable="isEditing"
                 @item-delete="recalculateAndReload"
                 @item-edit="recalculateAndReload"
-                @existing-item-edit="saveAndRecalculate"
+                @existing-item-edit="onSaveEdits"
                 @item-added="recalculateAndReload"
                 @item-cancel="recalculateAndReload"
             />

@@ -12,6 +12,8 @@ const { Component } = Shopware;
 Component.register('sw-select-selection-list', {
     template,
 
+    inject: ['feature'],
+
     props: {
         selections: {
             type: Array,
@@ -42,6 +44,11 @@ Component.register('sw-select-selection-list', {
             type: String,
             required: false,
             default: null,
+        },
+        alwaysShowPlaceholder: {
+            type: Boolean,
+            required: false,
+            default: false,
         },
         placeholder: {
             type: String,
@@ -77,6 +84,12 @@ Component.register('sw-select-selection-list', {
 
     computed: {
         showPlaceholder() {
+            if (this.feature.isActive('FEATURE_NEXT_7530')) {
+                return (this.alwaysShowPlaceholder || (this.selections.length === 0 && this.hideLabels))
+                    ? this.placeholder
+                    : '';
+            }
+
             return (this.selections.length > 0 && !this.hideLabels) ? '' : this.placeholder;
         },
     },

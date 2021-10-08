@@ -1,0 +1,156 @@
+{% block sw_order_detail_base_general_info %}
+<div>
+    {% block sw_order_detail_base_general_info_summary %}
+    <div class="sw-order-detail-base__general-info__summary">
+        {% block sw_order_detail_base_general_info_summary_main %}
+        <div class="sw-order-detail-base__general-info__summary-main">
+            {% block sw_order_detail_base_general_info_summary_main_header %}
+            <div class="sw-order-detail-base__general-info__summary-main-header">
+                {{ summaryMainHeader }}
+            </div>
+            {% endblock %}
+            {% block sw_order_detail_base_general_info_summary_main_total %}
+            <div class="sw-order-detail-base__general-info__summary-main-total">
+                {{ order.amountTotal | currency(
+                    order.currency.translated.shortName, order.totalRounding.decimals
+                ) }}
+            </div>
+            {% endblock %}
+        </div>
+        {% endblock %}
+
+        {% block sw_order_detail_base_general_info_summary_sub %}
+        <div class="sw-order-detail-base__general-info__summary-sub">
+            {% block sw_order_detail_base_general_info_summary_sub_description %}
+            <div class="sw-order-detail-base__general-info__summary-sub-description">
+                {{ $tc('sw-order.generalTab.info.summary.at') }}
+                {{ order.orderDate | date({
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
+                }) }}
+                {{ $tc('sw-order.generalTab.info.summary.with') }}
+                {{ order.transactions.last().paymentMethod.translated.name }}
+                {{ $tc('sw-order.generalTab.info.summary.and') }}
+                {{ order.deliveries.last().shippingMethod.translated.name }}
+            </div>
+            {% endblock %}
+            {% block sw_order_detail_base_general_info_summary_sub_last_changed %}
+            <div class="sw-order-detail-base__general-info__summary-sub-last-changed">
+                {% block sw_order_detail_base_general_info_summary_sub_last_changed_time %}
+                <div
+                    v-if="lastChangedDateTime"
+                    class="sw-order-detail-base__general-info__summary-sub-last-changed-time"
+                >
+                    {{ $tc('sw-order.generalTab.info.summary.lastChanged') }}:
+                    {{ lastChangedDateTime| date({
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric'
+                    }) }}
+                </div>
+                {% endblock %}
+                {% block sw_order_detail_base_general_info_summary_sub_last_changed_user %}
+                <div
+                    v-if="lastChangedUser"
+                    class="sw-order-detail-base__general-info__summary-sub-last-changed-user"
+                >
+                    {{ $tc('sw-order.generalTab.info.summary.by') }}
+                    {{ lastChangedUser.firstName }} {{ lastChangedUser.lastName }}
+                </div>
+                {% endblock %}
+            </div>
+            {% endblock %}
+        </div>
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_order_state_change_card_modal %}
+    <sw-order-state-change-modal
+        v-if="showModal"
+        :order="order"
+        :is-loading="isLoading"
+        :technical-name="''"
+        @page-leave="onLeaveModalClose"
+        @page-leave-confirm="onLeaveModalConfirm"
+    />
+    {% endblock %}
+
+    {% block sw_order_detail_base_general_info_order_states %}
+    <div class="sw-order-detail-base__general-info__order-states">
+        {% block sw_order_detail_base_general_info_order_states_payment %}
+        <div class="sw-order-detail-base__general-info__order-state">
+            <sw-order-state-select-v2
+                v-tooltip="{
+                    message: $tc('sw-privileges.tooltip.warning'),
+                    disabled: acl.can('order.editor'),
+                    showOnDisabledElements: true
+                }"
+                :transition-options="paymentStateOptions"
+                state-type="order_transaction"
+                :rounded-style="true"
+                :placeholder="transaction.stateMachineState.translated.name"
+                :label="$tc('sw-order.stateCard.headlineTransactionState')"
+                :background-style="backgroundStyle('order_transaction')"
+                @state-select="onStateSelected"
+            />
+        </div>
+        {% endblock %}
+        {% block sw_order_detail_base_general_info_order_states_shipping %}
+        <div class="sw-order-detail-base__general-info__order-state">
+            <sw-order-state-select-v2
+                v-tooltip="{
+                    message: $tc('sw-privileges.tooltip.warning'),
+                    disabled: acl.can('order.editor'),
+                    showOnDisabledElements: true
+                }"
+                :transition-options="deliveryStateOptions"
+                state-type="order_delivery"
+                :rounded-style="true"
+                :placeholder="delivery.stateMachineState.translated.name"
+                :label="$tc('sw-order.stateCard.headlineDeliveryState')"
+                :background-style="backgroundStyle('order_delivery')"
+                @state-select="onStateSelected"
+            />
+        </div>
+        {% endblock %}
+        {% block sw_order_detail_base_general_info_order_states_order %}
+        <div class="sw-order-detail-base__general-info__order-state">
+            <sw-order-state-select-v2
+                v-tooltip="{
+                    message: $tc('sw-privileges.tooltip.warning'),
+                    disabled: acl.can('order.editor'),
+                    showOnDisabledElements: true
+                }"
+                :transition-options="orderStateOptions"
+                :rounded-style="true"
+                state-type="order"
+                :placeholder="order.stateMachineState.translated.name"
+                :label="$tc('sw-order.stateCard.headlineOrderState')"
+                :background-style="backgroundStyle('order')"
+                @state-select="onStateSelected"
+            />
+        </div>
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_order_detail_base_general_info_order_tags %}
+    <sw-entity-tag-select
+        class="sw-order-detail-base__general-info__order-tags"
+        size="small"
+        :entity-collection="tagCollection"
+        :disabled="!acl.can('order.editor')"
+        :placeholder="$tc('sw-order.generalTab.tagSelect.placeholder')"
+        :always-show-placeholder="true"
+        @item-add="onTagAdd"
+        @item-remove="onTagRemove"
+    />
+    {% endblock %}
+</div>
+{% endblock %}

@@ -186,6 +186,7 @@ Component.register('sw-order-detail', {
 
                         this.createNewVersionId().then(() => {
                             State.commit('swOrderDetail/setLoading', ['order', false]);
+                            State.commit('swOrderDetail/setSavedSuccessful', true);
                             this.isLoading = false;
                         });
                     });

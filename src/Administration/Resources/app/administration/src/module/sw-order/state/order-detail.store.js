@@ -8,6 +8,7 @@ export default {
                 order: false,
             },
             editing: true,
+            savedSuccessful: false,
             versionContext: null,
         };
     },
@@ -38,6 +39,10 @@ export default {
             if (state.loading[name] !== undefined) {
                 state.loading[name] = data;
             }
+        },
+
+        setSavedSuccessful(state, value) {
+            state.savedSuccessful = value;
         },
 
         setVersionContext(state, versionContext) {

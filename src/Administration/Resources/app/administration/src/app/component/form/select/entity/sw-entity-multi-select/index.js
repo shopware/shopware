@@ -1,4 +1,5 @@
 import template from './sw-entity-multi-select.html.twig';
+import './sw-entity-multi-select.scss';
 
 const { Component, Mixin } = Shopware;
 const { debounce, get } = Shopware.Utils;
@@ -42,6 +43,12 @@ Component.register('sw-entity-multi-select', {
             type: String,
             required: false,
             default: '',
+        },
+
+        alwaysShowPlaceholder: {
+            type: Boolean,
+            required: false,
+            default: false,
         },
 
         criteria: {

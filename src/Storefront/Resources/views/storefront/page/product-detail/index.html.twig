@@ -63,11 +63,13 @@
                 {% endblock %}
 
                 {% block page_product_detail_cross_selling %}
-                    <div class="product-detail-tabs product-detail-cross-selling">
-                        {% sw_include '@Storefront/storefront/page/product-detail/cross-selling/tabs.html.twig' with {
-                            crossSellings: page.crossSellings
-                        } %}
-                    </div>
+                    {% if page.crossSellings.elements is defined and page.crossSellings.elements|filter(item => item.total > 0)|length > 0 %}
+                        <div class="product-detail-tabs product-detail-cross-selling">
+                            {% sw_include '@Storefront/storefront/page/product-detail/cross-selling/tabs.html.twig' with {
+                                crossSellings: page.crossSellings
+                            } %}
+                        </div>
+                    {% endif %}
                 {% endblock %}
             {% endblock %}
         </div>

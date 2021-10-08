@@ -54,6 +54,63 @@ class Migration1632721037OrderDocumentMailTemplateTest extends TestCase
         static::assertCount(4, $this->getTemplateIds($mailTemplateTypeIds));
     }
 
+    public function testMigrationWithExistingTemplateData(): void
+    {
+        $this->rollbackMigrationChanges();
+
+        // Add invoice for example
+        $existingTypeId = Uuid::randomBytes();
+        $this->connection->insert(
+            'mail_template_type',
+            [
+                'id' => $existingTypeId,
+                'technical_name' => MailTemplateTypes::MAILTYPE_DOCUMENT_INVOICE,
+                'available_entities' => json_encode(['order' => 'order', 'salesChannel' => 'sales_channel']),
+                'template_data' => '{"order":{"orderNumber":"10060","orderCustomer":{"firstName":"Max","lastName":"Mustermann"}},"salesChannel":{"name":"Storefront"}}',
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]
+        );
+
+        $this->connection->insert(
+            'mail_template_type_translation',
+            [
+                'mail_template_type_id' => $existingTypeId,
+                'name' => 'Invoice',
+                'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
+                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            ]
+        );
+
+        $migration = new Migration1632721037OrderDocumentMailTemplate();
+        $migration->update($this->connection);
+
+        $mailTemplateTypeIds = $this->getMailTemplateTypeIds();
+        static::assertCount(4, $mailTemplateTypeIds);
+        static::assertCount(4, $this->getTemplateIds($mailTemplateTypeIds));
+    }
+
+    public function testNewMailTemplatesAreAddedWithGermanAsDefault(): void
+    {
+        // Rollback migration data and make sure its gone
+        $this->rollbackMigrationChanges();
+        static::assertEmpty($this->getMailTemplateTypeIds());
+
+        $this->connection->executeUpdate('SET FOREIGN_KEY_CHECKS = 0;');
+        $this->connection->executeUpdate('DELETE FROM language WHERE id != UNHEX(?)', [Defaults::LANGUAGE_SYSTEM]);
+        $this->connection->executeUpdate('SET FOREIGN_KEY_CHECKS = 1;');
+
+        $languageId = $this->createNewLanguageEntry('de-DE');
+        $this->swapDefaultLanguageId($languageId);
+
+        // Rerun migration and make sure everything is added again
+        $migration = new Migration1632721037OrderDocumentMailTemplate();
+        $migration->update($this->connection);
+
+        $mailTemplateTypeIds = $this->getMailTemplateTypeIds();
+        static::assertCount(4, $mailTemplateTypeIds);
+        static::assertCount(4, $this->getTemplateIds($mailTemplateTypeIds));
+    }
+
     private function rollbackMigrationChanges(): void
     {
         $typeIds = $this->getMailTemplateTypeIds();

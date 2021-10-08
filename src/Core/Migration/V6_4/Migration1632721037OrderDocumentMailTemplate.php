@@ -7,9 +7,13 @@ use Shopware\Core\Content\MailTemplate\MailTemplateTypes;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Migration\Traits\ImportTranslationsTrait;
+use Shopware\Core\Migration\Traits\Translations;
 
 class Migration1632721037OrderDocumentMailTemplate extends MigrationStep
 {
+    use ImportTranslationsTrait;
+
     private const LOCALE_EN_GB = 'en-GB';
     private const LOCALE_DE_DE = 'de-DE';
 
@@ -47,20 +51,35 @@ class Migration1632721037OrderDocumentMailTemplate extends MigrationStep
             ],
         ];
 
-        $defaultLangId = $this->getLanguageIdByLocale($connection, self::LOCALE_EN_GB);
-        $deLangId = $this->getLanguageIdByLocale($connection, self::LOCALE_DE_DE);
-
         foreach ($documentTypeTranslationMapping as $technicalName => $values) {
-            $connection->insert(
-                'mail_template_type',
-                [
-                    'id' => $values['typeId'],
-                    'technical_name' => $technicalName,
-                    'available_entities' => json_encode(['order' => 'order', 'salesChannel' => 'sales_channel']),
-                    'template_data' => '{"order":{"orderNumber":"10060","orderCustomer":{"firstName":"Max","lastName":"Mustermann"}},"salesChannel":{"name":"Storefront"}}',
-                    'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                ]
-            );
+            $existingTypeId = $this->getExistingMailTemplateTypeId($technicalName, $connection);
+            if ($existingTypeId !== null) {
+                $values['typeId'] = $existingTypeId;
+            } else {
+                $connection->insert(
+                    'mail_template_type',
+                    [
+                        'id' => $values['typeId'],
+                        'technical_name' => $technicalName,
+                        'available_entities' => json_encode(['order' => 'order', 'salesChannel' => 'sales_channel']),
+                        'template_data' => '{"order":{"orderNumber":"10060","orderCustomer":{"firstName":"Max","lastName":"Mustermann"}},"salesChannel":{"name":"Storefront"}}',
+                        'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                    ]
+                );
+
+                $translations = new Translations(
+                    [
+                        'mail_template_type_id' => $values['typeId'],
+                        'name' => $values['nameDe'],
+                    ],
+                    [
+                        'mail_template_type_id' => $values['typeId'],
+                        'name' => $values['name'],
+                    ]
+                );
+
+                $this->importTranslation('mail_template_type_translation', $translations, $connection);
+            }
 
             $connection->insert(
                 'mail_template',
@@ -72,110 +91,29 @@ class Migration1632721037OrderDocumentMailTemplate extends MigrationStep
                 ]
             );
 
-            if ($defaultLangId !== $deLangId) {
-                $connection->insert(
-                    'mail_template_type_translation',
-                    [
-                        'mail_template_type_id' => $values['typeId'],
-                        'name' => $values['name'],
-                        'language_id' => $defaultLangId,
-                        'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                    ]
-                );
+            $translations = new Translations(
+                [
+                    'mail_template_id' => $values['templateId'],
+                    'sender_name' => '{{ salesChannel.name }}',
+                    'subject' => 'Neues Dokument für Ihre Bestellung',
+                    'content_html' => $this->getMailTemplateContent($technicalName, self::LOCALE_DE_DE, true),
+                    'content_plain' => $this->getMailTemplateContent($technicalName, self::LOCALE_DE_DE, false),
+                ],
+                [
+                    'mail_template_id' => $values['templateId'],
+                    'sender_name' => '{{ salesChannel.name }}',
+                    'subject' => 'New document for your order',
+                    'content_html' => $this->getMailTemplateContent($technicalName, self::LOCALE_DE_DE, true),
+                    'content_plain' => $this->getMailTemplateContent($technicalName, self::LOCALE_DE_DE, false),
+                ],
+            );
 
-                $connection->insert(
-                    'mail_template_translation',
-                    [
-                        'mail_template_id' => $values['templateId'],
-                        'language_id' => $defaultLangId,
-                        'sender_name' => '{{ salesChannel.name }}',
-                        'subject' => 'New document for your order',
-                        'description' => '',
-                        'content_html' => $this->getMailTemplateContent($technicalName, self::LOCALE_EN_GB, true),
-                        'content_plain' => $this->getMailTemplateContent($technicalName, self::LOCALE_EN_GB, false),
-                        'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                    ]
-                );
-            }
-
-            if ($defaultLangId !== Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM)) {
-                $connection->insert(
-                    'mail_template_type_translation',
-                    [
-                        'mail_template_type_id' => $values['typeId'],
-                        'name' => $values['name'],
-                        'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
-                        'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                    ]
-                );
-
-                $connection->insert(
-                    'mail_template_translation',
-                    [
-                        'mail_template_id' => $values['templateId'],
-                        'language_id' => Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM),
-                        'sender_name' => '{{ salesChannel.name }}',
-                        'subject' => 'New document for your order',
-                        'description' => '',
-                        'content_html' => $this->getMailTemplateContent($technicalName, self::LOCALE_EN_GB, true),
-                        'content_plain' => $this->getMailTemplateContent($technicalName, self::LOCALE_EN_GB, false),
-                        'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                    ]
-                );
-            }
-
-            if ($deLangId) {
-                $connection->insert(
-                    'mail_template_type_translation',
-                    [
-                        'mail_template_type_id' => $values['typeId'],
-                        'name' => $values['nameDe'],
-                        'language_id' => $deLangId,
-                        'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                    ]
-                );
-
-                $connection->insert(
-                    'mail_template_translation',
-                    [
-                        'mail_template_id' => $values['templateId'],
-                        'language_id' => $deLangId,
-                        'sender_name' => '{{ salesChannel.name }}',
-                        'subject' => 'Neues Dokument für Ihre Bestellung',
-                        'description' => '',
-                        'content_html' => $this->getMailTemplateContent($technicalName, self::LOCALE_DE_DE, true),
-                        'content_plain' => $this->getMailTemplateContent($technicalName, self::LOCALE_DE_DE, false),
-                        'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-                    ]
-                );
-            }
+            $this->importTranslation('mail_template_translation', $translations, $connection);
         }
     }
 
     public function updateDestructive(Connection $connection): void
     {
-    }
-
-    private function getLanguageIdByLocale(Connection $connection, string $locale): ?string
-    {
-        $sql = <<<'SQL'
-SELECT `language`.`id`
-FROM `language`
-INNER JOIN `locale` ON `locale`.`id` = `language`.`locale_id`
-WHERE `locale`.`code` = :code
-SQL;
-
-        /** @var string|false $languageId */
-        $languageId = $connection->executeQuery($sql, ['code' => $locale])->fetchColumn();
-        if (!$languageId && $locale !== self::LOCALE_EN_GB) {
-            return null;
-        }
-
-        if (!$languageId) {
-            return Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
-        }
-
-        return $languageId;
     }
 
     private function getMailTemplateContent(string $technicalName, string $locale, bool $html): string
@@ -245,5 +183,18 @@ SQL;
         }
 
         return $templateContentMapping[$technicalName][$locale][$html ? 'html' : 'plain'];
+    }
+
+    private function getExistingMailTemplateTypeId(string $technicalName, Connection $connection): ?string
+    {
+        $result = $connection->createQueryBuilder()
+            ->select('id')
+            ->from('mail_template_type')
+            ->where('technical_name = :technicalName')
+            ->setParameter('technicalName', $technicalName)
+            ->execute()
+            ->fetchColumn();
+
+        return $result ?: null;
     }
 }

@@ -42,7 +42,7 @@
 
                 {% block sw_customer_detail_order_card_grid_columns_order_date_time %}
                 <template #column-orderDateTime="{ item }">
-                    {{ item.orderDateTime | date({hour: '2-digit', minute: '2-digit'}) }}
+                    {{ item.orderDateTime }}
                 </template>
                 {% endblock %}
             {% endblock %}

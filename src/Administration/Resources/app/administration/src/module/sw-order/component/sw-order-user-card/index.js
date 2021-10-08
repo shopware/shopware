@@ -93,18 +93,14 @@ Component.register('sw-order-user-card', {
 
         lastChangedDate() {
             if (this.currentOrder) {
-                const options = { hour: '2-digit', minute: '2-digit' };
-
                 if (this.currentOrder.updatedAt) {
                     return format.date(
                         this.currentOrder.updatedAt,
-                        options,
                     );
                 }
 
                 return format.date(
                     this.currentOrder.orderDateTime,
-                    options,
                 );
             }
             return '';

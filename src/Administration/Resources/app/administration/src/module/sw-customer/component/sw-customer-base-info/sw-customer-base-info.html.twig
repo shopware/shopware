@@ -186,7 +186,7 @@
             </dt>
             <dd>
                 <template v-if="customer.lastLogin">
-                    {{ customer.lastLogin | date({hour: '2-digit', minute: '2-digit'}) }}
+                    {{ customer.lastLogin | date }}
                 </template>
                 <template v-else>
                     {{ $tc('sw-customer.baseInfo.emptyTextLogin') }}
@@ -225,7 +225,7 @@
             {% block sw_customer_base_metadata_birthday_content %}
             <dd v-if="!customerEditMode">
                 <template v-if="customer.birthday">
-                    {{ customer.birthday | date }}
+                    {{ customer.birthday | date({ minute: undefined, hour: undefined }) }}
                 </template>
                 <template v-else>
                     {{ $tc('sw-customer.baseInfo.emptyTextBirthday') }}

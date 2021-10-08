@@ -387,6 +387,7 @@
     "shippingCountry": "Shipping country",
     "paymentMethod": "Payment method",
     "shippingMethod": "Shipping method",
+    "notAvailableSuffix": "(not available)",
     "product-stock-reached": "The product \"%name%\" is only available %quantity% times",
     "product-out-of-stock": "The product \"%name%\" is not available any more",
     "purchase-steps-quantity": "The product \"%name%\" is not available in this quantity. The quantity was changed to %quantity%",

@@ -80,7 +80,10 @@ function createWrapper(privileges = [], fieldType = null, conditionType = '', en
                 type: fieldType,
                 entity,
                 getField: () => ({ type: fieldType }),
-                isJsonField: () => false
+                isJsonField: () => false,
+                filterProperties: () => {
+                    return {};
+                }
             },
             condition: {
                 type: conditionType
@@ -107,6 +110,7 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
 
     it.each([
         ['boolean', 'equals', 'sw-single-select-stub'],
+        ['empty', 'equals', 'sw-single-select-stub'],
         ['uuid', 'equals', 'sw-entity-single-select-stub', 'product'],
         ['uuid', 'equals', 'sw-entity-single-select-stub']
     ])('should have a disabled input with %s field type', async (fieldType, actualCondition, element, entity = '') => {
@@ -185,6 +189,35 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
         expect(wrapper.emitted('boolean-change')[0][0].value).toEqual('0');
     });
 
+    it('should fire events with correct types when trigger value for empty type changes', async () => {
+        const wrapper = createWrapper(['product_stream.viewer'], 'empty', 'equals', '', true);
+        wrapper.vm.$nextTick();
+
+        const productStreamValueSwitch = wrapper.find('.sw-product-stream-value');
+        await productStreamValueSwitch.find('.sw-select__selection').trigger('click');
+        await wrapper.vm.$nextTick();
+
+        let productStreamValueYes = productStreamValueSwitch.findAll('.sw-select-result').at(0);
+
+        expect(productStreamValueYes.text()).toBe('global.default.yes');
+        productStreamValueYes.trigger('click');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.emitted('empty-change')).toBeTruthy();
+        expect(wrapper.emitted('empty-change')[0][0].type).toEqual('notEquals');
+
+        await productStreamValueSwitch.find('.sw-select__selection').trigger('click');
+        await wrapper.vm.$nextTick();
+
+        productStreamValueYes = productStreamValueSwitch.findAll('.sw-select-result').at(1);
+
+        expect(productStreamValueYes.text()).toBe('global.default.no');
+        productStreamValueYes.trigger('click');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.emitted('empty-change')[1][0].type).toEqual('equals');
+    });
+
     it('should return correct fieldDefinition with json accessor', async () => {
         const wrapper = createWrapper();
 
@@ -202,6 +235,47 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
             value: 'json.test',
             type: 'string'
         });
+    });
+
+    it('should return empty filterType for foreign key field of manyToOne relation', async () => {
+        const wrapper = createWrapper();
+
+        await wrapper.setProps({
+            fieldName: 'fkField',
+            definition: {
+                entity: 'product',
+                getField: () => {
+                    return {
+                        type: 'uuid'
+                    };
+                },
+                isJsonField: () => false,
+                filterProperties: (filter) => {
+                    if (typeof filter !== 'function') {
+                        return {};
+                    }
+
+                    const properties = {
+                        fkField: {
+                            localField: 'fkField',
+                            relation: 'many_to_one'
+                        }
+                    };
+
+                    const result = {};
+                    Object.keys(properties).forEach((propertyName) => {
+                        if (filter(properties[propertyName]) === true) {
+                            result[propertyName] = properties[propertyName];
+                        }
+                    });
+
+                    return result;
+                }
+            }
+        });
+        wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.fieldType).toEqual('empty');
     });
 });
 

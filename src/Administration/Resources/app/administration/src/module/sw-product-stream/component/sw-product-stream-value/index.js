@@ -135,6 +135,16 @@ Component.register('sw-product-stream-value', {
                 return 'object';
             }
 
+            if (this.fieldDefinition.type === 'uuid') {
+                const isManyToOneFkField = Object.keys(this.definition.filterProperties((field) => {
+                    return field.localField === this.fieldName && field.relation === 'many_to_one';
+                })).length > 0;
+
+                if (isManyToOneFkField) {
+                    return 'empty';
+                }
+            }
+
             return this.fieldDefinition.type;
         },
 
@@ -142,6 +152,13 @@ Component.register('sw-product-stream-value', {
             return [
                 { label: this.$tc('global.default.yes'), value: '1' },
                 { label: this.$tc('global.default.no'), value: '0' },
+            ];
+        },
+
+        reversedEmptyOptions() {
+            return [
+                { label: this.$tc('global.default.yes'), value: false },
+                { label: this.$tc('global.default.no'), value: true },
             ];
         },
 
@@ -194,6 +211,10 @@ Component.register('sw-product-stream-value', {
         lte: {
             get() { return this.actualCondition.parameters ? this.actualCondition.parameters.lte : null; },
             set(value) { this.actualCondition.parameters.lte = value; },
+        },
+
+        isEmptyValue() {
+            return this.filterType === 'equals';
         },
 
         stringValue: {
@@ -347,6 +368,10 @@ Component.register('sw-product-stream-value', {
 
         setBooleanValue(value) {
             this.$emit('boolean-change', { type: +value ? 'equals' : 'notEquals', value });
+        },
+
+        setEmptyValue(value) {
+            this.$emit('empty-change', { type: value ? 'equals' : 'notEquals' });
         },
 
         setSearchTerm(value) {

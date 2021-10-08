@@ -27,6 +27,7 @@
                 :disabled="!acl.can('product_stream.editor')"
                 @type-change="changeType"
                 @boolean-change="changeBooleanValue"
+                @empty-change="changeEmptyValue"
             />
             {% endblock %}
         </div>

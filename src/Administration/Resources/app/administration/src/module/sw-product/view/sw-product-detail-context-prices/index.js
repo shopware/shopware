@@ -14,6 +14,14 @@ Component.register('sw-product-detail-context-prices', {
         Mixin.getByName('notification'),
     ],
 
+    props: {
+        isSetDefaultPrice: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+    },
+
     data() {
         return {
             rules: [],
@@ -248,9 +256,9 @@ Component.register('sw-product-detail-context-prices', {
             newPriceRule.currencyId = this.defaultCurrency.id;
             newPriceRule.price = [{
                 currencyId: this.defaultCurrency.id,
-                gross: this.defaultPrice.gross,
+                gross: this.isSetDefaultPrice ? 0 : this.defaultPrice.gross,
                 linked: this.defaultPrice.linked,
-                net: this.defaultPrice.net,
+                net: this.isSetDefaultPrice ? 0 : this.defaultPrice.net,
                 listPrice: null,
             }];
 

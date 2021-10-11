@@ -52,10 +52,10 @@ class CheckoutControllerTest extends TestCase
     private const CUSTOMER_NAME = 'Tester';
     private const TEST_AFFILIATE_CODE = 'testAffiliateCode';
     private const TEST_CAMPAIGN_CODE = 'testCampaignCode';
-    private const SHIPPING_METHOD_BLOCKED_ERROR_CONTENT = 'The shipping method Standard is blocked for your current shopping cart.';
-    private const PAYMENT_METHOD_BLOCKED_ERROR_CONTENT = 'The payment method Cash On Delivery is blocked for your current shopping cart.';
+    private const SHIPPING_METHOD_BLOCKED_ERROR_CONTENT = 'The shipping method "Standard" is blocked for your current shopping cart.';
+    private const PAYMENT_METHOD_BLOCKED_ERROR_CONTENT = 'The payment method "Cash On Delivery" is blocked for your current shopping cart.';
     private const PROMOTION_NOT_FOUND_ERROR_CONTENT = 'Promotion with code "tn-08" could not be found.';
-    private const PRODUCT_STOCK_REACHED_ERROR_CONTENT = 'The product Car is not available any more';
+    private const PRODUCT_STOCK_REACHED_ERROR_CONTENT = 'The product "Car" is not available any more';
 
     /**
      * @var string
@@ -179,7 +179,6 @@ class CheckoutControllerTest extends TestCase
      */
     public function testOffCanvasWithErrorsFlash($errorTypes, $errorKeys): void
     {
-        static::markTestSkipped('snippet not working');
         $contextToken = Uuid::randomHex();
         $productId = Uuid::randomHex();
         $cartService = $this->getContainer()->get(CartService::class);
@@ -196,6 +195,8 @@ class CheckoutControllerTest extends TestCase
             SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST => true,
             PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => $salesChannelContext,
             RequestTransformer::STOREFRONT_URL => 'http://test.de',
+            SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE => 'en-GB',
+            SalesChannelRequest::ATTRIBUTE_DOMAIN_SNIPPET_SET_ID => $this->getSnippetSetIdForLocale('en-GB'),
         ]);
         $this->getContainer()->get('request_stack')->push($request);
         $cartLineItem = $cartService->getCart($contextToken, $salesChannelContext);
@@ -206,6 +207,8 @@ class CheckoutControllerTest extends TestCase
         }
         $response = $this->getContainer()->get(CheckoutController::class)->offcanvas($request, $salesChannelContext);
         $contentReturn = $response->getContent();
+        static::assertNotFalse($contentReturn);
+
         $crawler = new Crawler();
         $crawler->addHtmlContent($contentReturn);
         $errorContent = $crawler->filterXPath('//div[@class="alert-content"]')->text();

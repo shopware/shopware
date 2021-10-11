@@ -233,11 +233,9 @@ class CheckoutController extends StorefrontController
     public function offcanvas(Request $request, SalesChannelContext $context): Response
     {
         $page = $this->offcanvasCartPageLoader->load($request, $context);
-        if ($request->cookies->get('sf_redirect') === null) {
-            $cart = $page->getCart();
-            $this->addCartErrors($cart);
-            $cart->getErrors()->clear();
-        }
+        $cart = $page->getCart();
+        $this->addCartErrors($cart);
+        $cart->getErrors()->clear();
 
         return $this->renderStorefront('@Storefront/storefront/component/checkout/offcanvas-cart.html.twig', ['page' => $page]);
     }

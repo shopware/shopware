@@ -162,7 +162,7 @@ describe('Minimal install', () => {
         // @frw: skip mail configuration
         cy.get('.sw-modal.sw-first-run-wizard-modal').should('be.visible');
         cy.get('.sw-step-display').should('be.visible');
-        cy.get('.sw-step-display .sw-step-item.sw-step-item--active span').contains('Mailer configuration');
+        cy.get('.sw-first-run-wizard-mailer-selection__headline').contains('Establishing email communication');
 
         // Take snapshot for visual testing
         cy.prepareAdminForScreenshot();
@@ -211,17 +211,15 @@ describe('Minimal install', () => {
         cy.get('.sw-first-run-wizard-finish').should('be.visible');
         cy.get('.sw-step-display .sw-step-item.sw-step-item--success span').contains('Shopware Store');
 
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: '/api/_action/store/frw/finish',
             method: 'post'
         }).as('finishCall');
 
         cy.get('.sw-button span').contains('Finish').click();
 
-        cy.wait('@finishCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        }, { responseTimeout: 60000 });
+        cy.wait('@finishCall').its('response.statusCode').should('equal', 200);
+
 
         cy.location().should((loc) => {
             expect(loc.pathname).to.eq(`${Cypress.env('admin')}`);

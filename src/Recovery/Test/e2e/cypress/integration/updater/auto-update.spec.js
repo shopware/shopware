@@ -8,6 +8,12 @@ describe('Minimal auto update', () => {
      * - update-service-mock.js must be running
      */
     it('@update: de-DE and EUR', () => {
+        // Routes to wait for
+        cy.intercept({ url: '*download-latest-update*', method: 'get' }).as('downloadLatestUpdate');
+        cy.intercept({ url: '*deactivate-plugins*', method: 'get' }).as('deactivatePlugins');
+        cy.intercept({ url: '*unpack*', method: 'get' }).as('unpack');
+        cy.intercept({ url: '*applyMigrations*', method: 'get' }).as('applyMigrations');
+
         cy.visit('/admin');
 
         cy.get('.sw-login__content').should('be.visible');
@@ -34,28 +40,18 @@ describe('Minimal auto update', () => {
             .should('be.visible')
             .click();
 
-        cy.server();
-        cy.route({ url: '*download-latest-update*', method: 'get' }).as('downloadLatestUpdate');
-        cy.route({ url: '*deactivate-plugins*', method: 'get' }).as('deactivatePlugins');
-        cy.route({ url: '*unpack*', method: 'get' }).as('unpack');
-        cy.route({ url: '*applyMigrations*', method: 'get' }).as('applyMigrations');
-
         cy.get('.sw-settings-shopware-updates-check__start-update-actions > .sw-button--primary')
             .should('be.enabled')
             .click();
 
         cy.wait('@downloadLatestUpdate', { responseTimeout: 600000, timeout: 600000 })
-            .then((xhr) => {
-                expect(xhr).to.have.property('status', 200);
-            });
+            .its('response.statusCode').should('equal', 200);
+
         cy.wait('@deactivatePlugins', { responseTimeout: 600000, timeout: 600000 })
-            .then((xhr) => {
-                expect(xhr).to.have.property('status', 200);
-            });
+            .its('response.statusCode').should('equal', 200);
+
         cy.wait('@unpack', { responseTimeout: 600000, timeout: 600000 })
-            .then((xhr) => {
-                expect(xhr).to.have.property('status', 200);
-            });
+            .its('response.statusCode').should('equal', 200);
 
         cy.get('section.content--main', { timeout: 120000 }).should('be.visible');
         cy.get('.navigation--list .is--active .navigation--link').contains('Datenbank-Migration');
@@ -66,9 +62,7 @@ describe('Minimal auto update', () => {
         cy.takeSnapshot('Migration');
 
         cy.wait('@applyMigrations', { responseTimeout: 300000, timeout: 310000 })
-            .then((xhr) => {
-                expect(xhr).to.have.property('status', 200);
-            });
+            .its('response.statusCode').should('equal', 200);
 
         cy.get('[name="cleanupForm"]', { timeout: 120000 }).should('be.visible');
         cy.get('.is--active > .navigation--link', { timeout: 1000 }).contains('Aufräumen');

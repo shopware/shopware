@@ -42,6 +42,8 @@ describe('Sales Channel: Test crud operations', () => {
         // Verify creation
         cy.get('.sw-loader').should('not.exist');
         cy.get(page.elements.salesChannelNameInput).should('have.value', '1st Epic Sales Channel');
+        cy.get('.sw-admin-menu__sales-channel-item').should('have.length', 3);
+        cy.get('.sw-admin-menu__sales-channel-item--0').contains('1st Epic Sales Channel');
 
         // Check if the sales channel can be used in other modules
         cy.clickMainMenuItem({

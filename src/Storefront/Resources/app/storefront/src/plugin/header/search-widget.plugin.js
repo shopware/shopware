@@ -106,6 +106,7 @@ export default class SearchWidgetPlugin extends Plugin {
      */
     _suggest(value) {
         const url = this._url + encodeURIComponent(value);
+        this._client.abort();
 
         // init loading indicator
         const indicator = new ButtonLoadingIndicator(this._submitButton);
@@ -113,7 +114,6 @@ export default class SearchWidgetPlugin extends Plugin {
 
         this.$emitter.publish('beforeSearch');
 
-        this._client.abort();
         this._client.get(url, (response) => {
             // remove existing search results popover first
             this._clearSuggestResults();
@@ -176,7 +176,7 @@ export default class SearchWidgetPlugin extends Plugin {
             console.warn(`Called selector '${this.options.searchWidgetCollapseButtonSelector}' for the search toggle button not found. Autofocus has been disabled on mobile.`);
             return
         }
-        
+
         const event = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
         this._toggleButton.addEventListener(event, () => {
             setTimeout(() => this._focusInput(), 0);

@@ -291,6 +291,7 @@
 
                 {% block sw_order_list_bulk_selected_actions_content %}
                 <template #bulk>
+                    {% block sw_order_list_bulk_selected_actions_content_bulk_edit %}
                     <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
                     <a
                         v-if="acl.can('order.editor')"
@@ -299,6 +300,7 @@
                     >
                         {{ $tc('global.sw-bulk-edit-modal.bulkEdit') }}
                     </a>
+                    {% endblock %}
                 </template>
                 {% endblock %}
 

@@ -85,6 +85,7 @@ class KeywordSearchTermInterpreterTest extends TestCase
      */
     public function testMatchingTokenTerms(string $term, array $expected): void
     {
+        static::markTestSkipped('Test is flaky. Will be fixed with NEXT-17291');
         $context = Context::createDefaultContext();
 
         $tokenTerms = $this->interpreter->interpret($term, $context)->getTokenTerms();

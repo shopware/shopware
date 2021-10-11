@@ -1,6 +1,6 @@
 ---
 title: Use environment STOREFRONT_ASSETS_PORT for hot reload
-issue: noticket
+issue: NEXT-17813
 author: Manuel Selbach
 author_email: m.selbach@kellerkinder.de 
 author_github: manuelselbach

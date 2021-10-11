@@ -96,4 +96,24 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
 
         expect(wrapper.vm.newPasswordConfirm).toBe('Shopware');
     });
+
+    it('should reset general data if route changes', () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
+
+        const wrapper = createWrapper();
+        wrapper.vm.createdComponent = jest.fn();
+        wrapper.vm.beforeMountComponent = jest.fn();
+
+        wrapper.vm.resetGeneralData();
+
+        expect(wrapper.vm.avatarMediaItem).toEqual(null);
+        expect(wrapper.vm.newPassword).toEqual(null);
+        expect(wrapper.vm.newPasswordConfirm).toEqual(null);
+
+        expect(wrapper.vm.createdComponent).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.beforeMountComponent).toHaveBeenCalledTimes(1);
+
+        wrapper.vm.createdComponent.mockRestore();
+        wrapper.vm.beforeMountComponent.mockRestore();
+    });
 });

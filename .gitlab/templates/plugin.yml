@@ -51,6 +51,18 @@ variables:
     BROWSER:
         value: chrome
         description: 'Browser to use for cypress and percy tests. Possible values: "chrome", "firefox", "electron"'
+    STOREFRONT_CYPRESS_SPEC:
+        value: ''
+        description: 'Can be used instead of the tagging to define which storefront spec files should be used. Example: "cypress/integration/content/**/*,cypress/integration/catalogue/**/*"'
+    ADMIN_CYPRESS_SPEC:
+        value: ''
+        description: 'Can be used instead of the tagging to define which storefront spec files should be used. Example: "cypress/integration/content/**/*,cypress/integration/catalogue/**/*"'
+    STOREFRONT_PERCY_SPEC:
+        value: ''
+        description: 'Can be used instead of the tagging to define which storefront spec files should be used. Example: "cypress/integration/visual/**/*,cypress/integration/catalogue/**/*"'
+    ADMIN_PERCY_SPEC:
+        value: ''
+        description: 'Can be used instead of the tagging to define which storefront spec files should be used. Example: "cypress/integration/visual/**/*,cypress/integration/catalogue/**/*"'
 
 
 workflow:
@@ -282,7 +294,14 @@ template filled:
     needs: []
     script:
         - *e2e-prepare
-        - ./node_modules/.bin/cypress run --browser $BROWSER --headless --env grep=visual,invert=1
+        - >
+          if [[ -z "$CYPRESS_SPEC" ]]; then
+              echo "Running non visual tests"
+              ./node_modules/.bin/cypress run --browser $BROWSER --headless --env grep=visual,invert=1
+          else
+              echo "Running specs: $CYPRESS_SPEC"
+              ./node_modules/.bin/cypress run --browser $BROWSER --headless --spec "$CYPRESS_SPEC"
+          fi
     after_script:
         - export PLUGIN_NAME="${PLUGIN_NAME:-${CI_PROJECT_TITLE}}"
         - cd custom/plugins/$PLUGIN_NAME/${PLUGIN_SOURCE_DIR}${E2E_PROJECT_PATH}
@@ -303,6 +322,7 @@ cypress admin:
     extends: .base e2e
     variables:
         E2E_PROJECT_PATH: Resources/app/administration/test/e2e/
+        CYPRESS_SPEC: $ADMIN_CYPRESS_SPEC
         APP_ENV: e2e
     rules:
         -   exists:
@@ -313,6 +333,7 @@ cypress storefront:
     extends: .base e2e
     variables:
         E2E_PROJECT_PATH: Resources/app/storefront/test/e2e/
+        CYPRESS_SPEC: $STOREFRONT_CYPRESS_SPEC
         APP_ENV: e2e
     rules:
         -   exists:
@@ -336,10 +357,14 @@ percy admin:
             allow_failure: true
     script:
         - *e2e-prepare
-        - ./node_modules/.bin/percy exec -- ./node_modules/.bin/cypress run
-                --browser $BROWSER
-                --headless
-                --env grep=visual
+        - >
+            if [[ -z "$ADMIN_PERCY_SPEC" ]]; then
+                echo "Running visual tests"
+                ./node_modules/.bin/percy exec -- ./node_modules/.bin/cypress run --browser $BROWSER --headless --env grep=visual
+            else
+                echo "Running specs: $CYPRESS_SPEC"
+                ./node_modules/.bin/percy exec -- ./node_modules/.bin/cypress run --browser $BROWSER --headless --spec "$ADMIN_PERCY_SPEC"
+            fi
 
 percy storefront:
     extends: cypress storefront
@@ -358,10 +383,14 @@ percy storefront:
             allow_failure: true
     script:
         - *e2e-prepare
-        - ./node_modules/.bin/percy exec -- ./node_modules/.bin/cypress run
-            --browser $BROWSER
-            --headless
-            --env grep=visual
+        - >
+            if [[ -z "$STOREFRONT_PERCY_SPEC" ]]; then
+                echo "Running visual tests"
+                ./node_modules/.bin/percy exec -- ./node_modules/.bin/cypress run --browser $BROWSER --headless --env grep=visual
+            else
+                echo "Running specs: $CYPRESS_SPEC"
+                ./node_modules/.bin/percy exec -- ./node_modules/.bin/cypress run --browser $BROWSER --headless --spec "$STOREFRONT_PERCY_SPEC"
+            fi
 
 upload zip to store:
     stage: deploy

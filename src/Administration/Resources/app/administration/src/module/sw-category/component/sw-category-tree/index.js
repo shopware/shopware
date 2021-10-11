@@ -280,8 +280,8 @@ Component.register('sw-category-tree', {
             const ids = Object.keys(checkedItems);
 
             const hasNavigationCategories = ids.some((id) => {
-                return this.loadedCategories[id].navigationSalesChannels !== null
-                    && this.loadedCategories[id].navigationSalesChannels.length > 0;
+                return this.loadedCategories[id]?.navigationSalesChannels !== null
+                    && this.loadedCategories[id]?.navigationSalesChannels.length > 0;
             });
 
             if (hasNavigationCategories) {
@@ -309,7 +309,7 @@ Component.register('sw-category-tree', {
             });
         },
 
-        onDeleteCategory({ data: category, children }) {
+        onDeleteCategory({ data: category, children, checked }) {
             if (category.isNew()) {
                 this.$delete(this.loadedCategories, category.id);
                 return Promise.resolve();
@@ -355,6 +355,14 @@ Component.register('sw-category-tree', {
 
                 if (category.id === this.categoryId) {
                     this.$router.push({ name: 'sw.category.index' });
+                }
+
+                if (checked === true) {
+                    this.$refs.categoryTree.checkedElementsCount -= 1;
+                    this.$emit(
+                        'category-checked-elements-count',
+                        this.$refs.categoryTree.checkedElementsCount,
+                    );
                 }
             });
         },

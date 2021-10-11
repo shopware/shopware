@@ -320,7 +320,30 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
         const notificationMock = wrapper.vm.createNotificationError;
 
         expect(notificationMock).toHaveBeenCalledTimes(0);
+        expect(wrapper.emitted()['category-checked-elements-count']).not.toBeDefined();
 
         wrapper.vm.createNotificationError.mockRestore();
+    });
+
+    it('should be able to set elements count when delete category is checked', async () => {
+        const wrapper = createWrapper();
+
+        await wrapper.setData({
+            isLoadingInitialData: false
+        });
+        wrapper.vm.$refs.categoryTree.checkedElementsCount = 2;
+
+        const category = {
+            id: '1a',
+            isNew: () => false
+        };
+
+        await wrapper.vm.onDeleteCategory({ data: category, children: [], checked: true });
+
+        const emitted = wrapper.emitted()['category-checked-elements-count'];
+
+        expect(emitted).toBeTruthy();
+        expect(emitted).toEqual([[1]]);
+        expect(wrapper.vm.$refs.categoryTree.checkedElementsCount).toBe(1);
     });
 });

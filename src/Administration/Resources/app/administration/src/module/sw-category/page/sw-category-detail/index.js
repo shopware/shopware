@@ -636,7 +636,7 @@ Component.register('sw-category-detail', {
         },
 
         saveSlotConfig() {
-            if (this.category.cmsPage.locked || Object.values(this.category.slotConfig).length < 1) {
+            if (this.category.cmsPage === undefined || this.category.cmsPage.locked || Object.values(this.category.slotConfig).length < 1) {
                 return Promise.resolve();
             }
 

@@ -4,7 +4,13 @@ import ProductPageObject from '../../../support/pages/module/sw-product.page-obj
 
 describe('Review: Test ACL privileges', () => {
     beforeEach(() => {
-        cy.setToInitialState()
+        cy.window()
+            .then((win) => {
+                win.location.href = 'about:blank';
+            })
+            .then(() => {
+                cy.setToInitialState()
+            })
             .then(() => {
                 cy.loginViaApi();
             })

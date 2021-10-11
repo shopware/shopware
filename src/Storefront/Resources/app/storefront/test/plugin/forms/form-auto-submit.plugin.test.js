@@ -8,6 +8,7 @@ describe('Form auto submit plugin', () => {
     let spyNativeFormSubmit = jest.fn();
     let spyOnSubmit = jest.fn();
     let spyOnChange = jest.fn();
+    let spyUpdateParams = jest.fn();
 
     const template = `
         <form id="newsletterForm" action="/newsletter/configure" method="post">
@@ -46,6 +47,7 @@ describe('Form auto submit plugin', () => {
 
         spyOnSubmit = jest.spyOn(FormAutoSubmitPlugin.prototype, '_onSubmit');
         spyOnChange = jest.spyOn(FormAutoSubmitPlugin.prototype, '_onChange');
+        spyUpdateParams = jest.spyOn(FormAutoSubmitPlugin.prototype, '_updateRedirectParameters');
         spyNativeFormSubmit = jest.spyOn(window.HTMLFormElement.prototype, 'submit');
     });
 
@@ -136,5 +138,25 @@ describe('Form auto submit plugin', () => {
         const expectedError = '[FormAutoSubmitPlugin] The option "ajaxContainerSelector" must be given when using ajax.'
 
         expect(() => createPlugin({ useAjax: true })).toThrow(expectedError);
+    });
+
+    it('should update redirect parameters on form change', () => {
+        createPlugin({ changeTriggerSelectors: ['.form-unsubscribe', '.form-name'] });
+
+        const emailField = document.querySelector('.form-email');
+
+        emailField.dispatchEvent(new Event('change', { bubbles: true }));
+
+        expect(spyOnChange).toHaveBeenCalled();
+        expect(spyUpdateParams).toHaveBeenCalled();
+    });
+
+    test('should generate correct input for redirect parameter', () => {
+        const formAutoSubmitPlugin = createPlugin();
+
+        const input = document.createElement('div');
+        input.innerHTML = '<input name="redirectParameters[name]" type="hidden" value="value" />';
+
+        expect(formAutoSubmitPlugin._createInputForRedirectParameter('name', 'value')).toStrictEqual(input.firstChild);
     });
 });

@@ -2,47 +2,18 @@
 <sw-modal
     class="sw-settings-rule-add-assignment-modal"
     :title="entityContext.label"
-:variant="modalSize"
+    :variant="modalSize"
     @modal-close="onCloseAddModal">
 
     {% block sw_settings_rule_add_assignment_modal_listing %}
-        <sw-entity-listing
+        <sw-settings-rule-add-assignment-listing
             v-if="entityContext.entityName !== 'category'"
             class="sw-settings-rule-detail-assignments__entity-listing"
-            :columns="entityContext.addContext.gridColumns"
-            :is-loading="isLoading"
-            :items="entities"
-            :repository="repository"
-            :local-mode="false"
-            :allow-delete="false"
-            :allow-inline-edit="false"
-            :show-settings="false"
-            :criteria-limit="criteriaLimit"
-            :show-selection="true"
-            :allow-column-edit="false"
-            :full-page="false"
-            @selection-change="onSelect"
+            :entityContext="entityContext"
+            :ruleId="rule.id"
+            @select-item="onSelect"
         >
-            <template
-                slot="column-active"
-                slot-scope="{ item }"
-            >
-                {% block sw_settings_rule_add_assignment_modal_listing_active_flag %}
-                <sw-icon
-                    v-if="item.active"
-                    name="small-default-checkmark-line-medium"
-                    small
-                    class="is--active"
-                />
-                <sw-icon
-                    v-else
-                    name="small-default-x-line-medium"
-                    small
-                    class="is--inactive"
-                />
-                {% endblock %}
-            </template>
-        </sw-entity-listing>
+        </sw-settings-rule-add-assignment-listing>
     {% endblock %}
 
     {% block sw_settings_rule_add_assignment_modal_category_tree %}

@@ -18,11 +18,13 @@
                     {% block sw_settings_rule_detail_assignments_add_button %}
                         <sw-button
                             v-if="entity.allowAdd"
+                            :disabled="disableAdd(entity)"
+                            variant="ghost"
                             size="small"
                             class="sw-settings-rule-detail-assignments__add-button"
                             @click="onOpenAddModal(entity)"
                         >
-                            {{ $tc('sw-property.detail.addOption') }}
+                            {{ $tc('sw-settings-rule.detail.buttonAddAssignment') }}
                         </sw-button>
                     {% endblock %}
                 </template>
@@ -31,7 +33,7 @@
 
         <template #grid>
             {% block sw_settings_rule_detail_assignments_entity_listing %}
-            <sw-entity-listing
+            <sw-settings-rule-assignment-listing
                 v-if="entity.loadedData && entity.loadedData.length > 0"
                 class="sw-settings-rule-detail-assignments__entity-listing"
                 :class="'sw-settings-rule-detail-assignments__entity-listing-' + entity.entityName"
@@ -41,14 +43,15 @@
                 :repository="entity.repository"
                 :local-mode="false"
                 :criteria-limit="5"
-                :allow-delete="false"
+                :allow-delete="allowDeletion(entity)"
                 :allow-inline-edit="false"
                 :show-settings="false"
-                :show-selection="false"
+                :show-selection="allowDeletion(entity)"
                 :allow-column-edit="false"
                 :steps="associationSteps"
                 :columns="entity.gridColumns"
                 :full-page="false"
+                @delete-items="deleteItems(entity, ...arguments)"
             >
                 <template #actions="{ item }">
                     {% block sw_settings_rule_detail_assignments_entity_listing_actions %}
@@ -67,7 +70,7 @@
                     {% endblock %}
                     {% endblock %}
                 </template>
-            </sw-entity-listing>
+            </sw-settings-rule-assignment-listing>
 
             {% block sw_settings_rule_detail_assignments_empty_state %}
             <sw-empty-state
@@ -124,7 +127,7 @@
                 {% block sw_settings_rule_detail_assignments_delete_modal_confirm %}
                     {% block sw_settings_rule_detail_assignments_delete_modal_confirm_single %}
                         <sw-button size="small"
-                                   variant="primary"
+                                   variant="danger"
                                    @click="onDelete">
                             {{ $tc('global.default.delete') }}
                         </sw-button>

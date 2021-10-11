@@ -3,6 +3,7 @@ import template from './sw-settings-rule-add-assignment-modal.html.twig';
 import './sw-settings-rule-assignment-modal.scss';
 
 const { Component, Context } = Shopware;
+const { Criteria } = Shopware.Data;
 
 Component.register('sw-settings-rule-add-assignment-modal', {
     template,
@@ -35,7 +36,7 @@ Component.register('sw-settings-rule-add-assignment-modal', {
 
     computed: {
         modalSize() {
-            return this.entityContext.entityName === 'category' ? 'default' : 'full';
+            return this.entityContext.entityName === 'category' ? 'default' : 'large';
         },
     },
 
@@ -55,8 +56,7 @@ Component.register('sw-settings-rule-add-assignment-modal', {
 
         loadEntities() {
             const api = this.entityContext.api ? this.entityContext.api() : Context.api;
-            const criteria = this.entityContext.addContext.criteria();
-            criteria.setLimit(10);
+            const criteria = new Criteria(1, this.criteriaLimit);
 
             this.repository.search(criteria, api).then((result) => {
                 this.entities = result;

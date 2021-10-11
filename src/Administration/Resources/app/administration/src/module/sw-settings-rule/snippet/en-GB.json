@@ -36,6 +36,7 @@
       "messageSaveError": "An error occurred while saving rule \"{name}\".",
       "tabGeneral": "General",
       "tabAssignments": "Assignments",
+      "buttonAddAssignment":  "Add assignment",
       "associations": {
         "products": "Product price rules",
         "shippingMethodPrices": "Shipping method price rules",

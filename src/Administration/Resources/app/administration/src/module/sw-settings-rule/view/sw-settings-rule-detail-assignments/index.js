@@ -43,12 +43,6 @@ Component.register('sw-settings-rule-detail-assignments', {
     },
 
     computed: {
-        hasNoAssociations() {
-            return this.associationEntities.every((entity) => {
-                return entity.loadedData && entity.loadedData.total === 0;
-            });
-        },
-
         /* eslint-disable max-len */
         /**
          * Definition of the associated entities of the current rule.
@@ -63,6 +57,7 @@ Component.register('sw-settings-rule-detail-assignments', {
             return [
                 {
                     id: 'product',
+                    notAssignedDataTotal: 0,
                     allowAdd: false,
                     entityName: 'product',
                     label: this.$tc('sw-settings-rule.detail.associations.products'),
@@ -93,6 +88,7 @@ Component.register('sw-settings-rule-detail-assignments', {
                 },
                 {
                     id: 'shipping_method_availability_rule',
+                    notAssignedDataTotal: 0,
                     allowAdd: true,
                     entityName: 'shipping_method',
                     label: this.$tc('sw-settings-rule.detail.associations.shippingMethodAvailabilityRule'),
@@ -158,6 +154,7 @@ Component.register('sw-settings-rule-detail-assignments', {
                 },
                 {
                     id: 'shipping_method_prices',
+                    notAssignedDataTotal: 0,
                     allowAdd: false,
                     entityName: 'shipping_method',
                     label: this.$tc('sw-settings-rule.detail.associations.shippingMethodPrices'),
@@ -190,6 +187,7 @@ Component.register('sw-settings-rule-detail-assignments', {
                 },
                 {
                     id: 'payment_method',
+                    notAssignedDataTotal: 0,
                     allowAdd: true,
                     entityName: 'payment_method',
                     label: this.$tc('sw-settings-rule.detail.associations.paymentMethods'),
@@ -260,6 +258,7 @@ Component.register('sw-settings-rule-detail-assignments', {
                 },
                 {
                     id: 'promotion-order-rule',
+                    notAssignedDataTotal: 0,
                     allowAdd: true,
                     entityName: 'promotion',
                     label: this.$tc('sw-settings-rule.detail.associations.promotionOrderRules'),
@@ -289,6 +288,7 @@ Component.register('sw-settings-rule-detail-assignments', {
                         type: 'insert',
                         entity: 'promotion_order_rule',
                         column: 'promotionId',
+                        association: 'orderRules',
                         criteria: () => {
                             const criteria = new Criteria();
                             criteria.addFilter(Criteria.not('AND', [Criteria.equals('orderRules.id', this.rule.id)]));
@@ -329,6 +329,7 @@ Component.register('sw-settings-rule-detail-assignments', {
                 },
                 {
                     id: 'promotion-customer-rule',
+                    notAssignedDataTotal: 0,
                     allowAdd: true,
                     entityName: 'promotion',
                     label: this.$tc('sw-settings-rule.detail.associations.promotionCustomerRules'),
@@ -358,6 +359,7 @@ Component.register('sw-settings-rule-detail-assignments', {
                         type: 'insert',
                         entity: 'promotion_persona_rule',
                         column: 'promotionId',
+                        association: 'personaRules',
                         criteria: () => {
                             const criteria = new Criteria();
                             criteria.addFilter(Criteria.not('AND', [Criteria.equals('personaRules.id', this.rule.id)]));
@@ -398,6 +400,7 @@ Component.register('sw-settings-rule-detail-assignments', {
                 },
                 {
                     id: 'promotion-cart-rule',
+                    notAssignedDataTotal: 0,
                     allowAdd: true,
                     entityName: 'promotion',
                     label: this.$tc('sw-settings-rule.detail.associations.promotionCartRules'),
@@ -427,6 +430,7 @@ Component.register('sw-settings-rule-detail-assignments', {
                         type: 'insert',
                         entity: 'promotion_cart_rule',
                         column: 'promotionId',
+                        association: 'cartRules',
                         criteria: () => {
                             const criteria = new Criteria();
                             criteria.addFilter(Criteria.not('AND', [Criteria.equals('cartRules.id', this.rule.id)]));
@@ -467,6 +471,7 @@ Component.register('sw-settings-rule-detail-assignments', {
                 },
                 {
                     id: 'promotion-discount-rule',
+                    notAssignedDataTotal: 0,
                     allowAdd: false,
                     entityName: 'promotion',
                     label: this.$tc('sw-settings-rule.detail.associations.promotionDiscountRules'),
@@ -490,6 +495,7 @@ Component.register('sw-settings-rule-detail-assignments', {
                 },
                 {
                     id: 'promotion-group-rule',
+                    notAssignedDataTotal: 0,
                     allowAdd: false,
                     entityName: 'promotion',
                     label: this.$tc('sw-settings-rule.detail.associations.promotionGroupRules'),
@@ -513,6 +519,7 @@ Component.register('sw-settings-rule-detail-assignments', {
                 },
                 {
                     id: 'event_action',
+                    notAssignedDataTotal: 0,
                     allowAdd: true,
                     entityName: 'event_action',
                     label: this.$tc('sw-settings-rule.detail.associations.eventActions'),
@@ -551,6 +558,7 @@ Component.register('sw-settings-rule-detail-assignments', {
                         type: 'insert',
                         entity: 'event_action_rule',
                         column: 'eventActionId',
+                        association: 'rules',
                         criteria: () => {
                             const criteria = new Criteria();
                             criteria.addFilter(Criteria.not('AND', [Criteria.equals('rules.id', this.rule.id)]));
@@ -598,6 +606,14 @@ Component.register('sw-settings-rule-detail-assignments', {
             this.loadAssociationData();
         },
 
+        disableAdd(entity) {
+            return entity.notAssignedDataTotal === 0;
+        },
+
+        allowDeletion(entity) {
+            return !!entity.deleteContext;
+        },
+
         prepareAssociationEntitiesList() {
             this.associationEntities = this.associationEntitiesConfig.map((item) => {
                 return {
@@ -634,8 +650,23 @@ Component.register('sw-settings-rule-detail-assignments', {
             this.addModal = false;
 
             const api = this.addEntityContext.api ? this.addEntityContext.api() : Context.api;
-            this.addEntityContext.repository.search(this.addEntityContext.criteria(), api).then((result) => {
-                this.addEntityContext.loadedData = result;
+            return this.addEntityContext.repository.search(this.addEntityContext.criteria(), api).then(async (result) => {
+                const total = await this.loadNotAssignedDataTotals(this.addEntityContext, api);
+                this.associationEntities.forEach((entity) => {
+                    if (entity.id === this.addEntityContext.id) {
+                        entity.loadedData = result;
+                        entity.notAssignedDataTotal = total;
+                    }
+                });
+            });
+        },
+
+        deleteItems(entity, selection) {
+            Object.values(selection).forEach((item) => {
+                this.deleteEntity = entity;
+                this.deleteItem = item;
+
+                this.onDelete();
             });
         },
 
@@ -648,8 +679,14 @@ Component.register('sw-settings-rule-detail-assignments', {
 
 
                 repository.save(this.deleteItem, api).then(() => {
-                    return this.deleteEntity.repository.search(this.deleteEntity.criteria(), api).then((result) => {
-                        this.deleteEntity.loadedData = result;
+                    return this.deleteEntity.repository.search(this.deleteEntity.criteria(), api).then(async (result) => {
+                        const total = await this.loadNotAssignedDataTotals(this.deleteEntity, api);
+                        this.associationEntities.forEach((entity) => {
+                            if (this.deleteEntity.id === entity.id) {
+                                entity.loadedData = result;
+                                entity.notAssignedDataTotal = total;
+                            }
+                        });
                     });
                 });
             } else {
@@ -667,8 +704,14 @@ Component.register('sw-settings-rule-detail-assignments', {
                         },
                     },
                 ], api).then(() => {
-                    return this.deleteEntity.repository.search(this.deleteEntity.criteria(), api).then((result) => {
-                        this.deleteEntity.loadedData = result;
+                    return this.deleteEntity.repository.search(this.deleteEntity.criteria(), api).then(async (result) => {
+                        const total = await this.loadNotAssignedDataTotals(this.deleteEntity, api);
+                        this.associationEntities.forEach((entity) => {
+                            if (this.deleteEntity.id === entity.id) {
+                                entity.loadedData = result;
+                                entity.notAssignedDataTotal = total;
+                            }
+                        });
                     });
                 });
             }
@@ -688,6 +731,20 @@ Component.register('sw-settings-rule-detail-assignments', {
             });
         },
 
+        async loadNotAssignedDataTotals(item, api) {
+            if (!item.deleteContext && !item.addContext) {
+                return Promise.resolve(true);
+            }
+
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.not('AND', item.criteria().filters));
+            criteria.setLimit(1);
+
+            return item.repository.search(criteria, api).then((notAssignedDataResult) => {
+                return Promise.resolve(notAssignedDataResult.total);
+            });
+        },
+
         loadAssociationData() {
             this.isLoading = true;
 
@@ -695,8 +752,9 @@ Component.register('sw-settings-rule-detail-assignments', {
                 .all(this.associationEntities.map((item) => {
                     const api = item.api ? item.api() : Context.api;
 
-                    return item.repository.search(item.criteria(), api).then((result) => {
+                    return item.repository.search(item.criteria(), api).then(async (result) => {
                         item.loadedData = result;
+                        item.notAssignedDataTotal = await this.loadNotAssignedDataTotals(item, api);
                     });
                 }))
                 .catch(() => {

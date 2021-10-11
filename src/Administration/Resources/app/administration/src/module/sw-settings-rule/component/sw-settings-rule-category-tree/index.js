@@ -76,7 +76,6 @@ Component.register('sw-settings-rule-category-tree', {
 
             // create criteria
             const categoryCriteria = new Criteria(1, 500);
-            categoryCriteria.addAssociation(this.association);
             categoryCriteria.getAssociation(this.association).addFilter(Criteria.equals('id', this.rule.id));
 
             if (term !== null && term !== '') {

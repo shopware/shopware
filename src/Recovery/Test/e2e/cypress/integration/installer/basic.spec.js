@@ -7,7 +7,7 @@ describe('Minimal install', () => {
      * - install.lock must not exist
      */
     it('@install: en-GB and GBP', () => {
-        cy.visit('/', {
+        cy.visit('/recovery/install/index.php', {
             headers: {
                 'Accept-Language': Cypress.env('acceptLanguage')
             }
@@ -158,6 +158,7 @@ describe('Minimal install', () => {
         cy.prepareAdminForScreenshot();
         cy.takeSnapshot('FRW - Default values', '.sw-modal.sw-first-run-wizard-modal');
         cy.get('.sw-button span').contains('Next').click();
+        cy.get('.sw-loader__element').should('not.exist');
 
         // @frw: skip mail configuration
         cy.get('.sw-modal.sw-first-run-wizard-modal').should('be.visible');

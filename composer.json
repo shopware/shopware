@@ -193,6 +193,7 @@
         ],
         "setup": [
             "@composer install",
+            "@composer install -d src/Recovery",
             "mkdir -p config/jwt || true",
             "mkdir -p custom/plugins || true",
             "@init:db",
@@ -208,6 +209,8 @@
         "npm:storefront": "@npm:storefront:bin npm",
         "npm:e2e:admin:bin": "export CYPRESS_shopwareRoot=\"$PWD\"; cd src/Administration/Resources/app/administration/test/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$CYPRESS_shopwareRoot\"/bin/exec-with-env ",
         "npm:e2e:admin": "@npm:e2e:admin:bin npm",
+        "npm:e2e:recovery:bin": "export CYPRESS_shopwareRoot=\"$PWD\"; cd src/Recovery/Test/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$CYPRESS_shopwareRoot\"/bin/exec-with-env ",
+        "npm:e2e:recovery": "@npm:e2e:recovery:bin npm",
         "npm:e2e:storefront:bin": "export CYPRESS_shopwareRoot=\"$PWD\"; cd src/Storefront/Resources/app/storefront/test/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$CYPRESS_shopwareRoot\"/bin/exec-with-env ",
         "npm:e2e:storefront": "@npm:e2e:storefront:bin npm",
         "build:js:admin": [
@@ -272,6 +275,7 @@
         ],
         "init:e2e:admin": "@npm:e2e:admin clean-install",
         "init:e2e:storefront": "@npm:e2e:storefront clean-install",
+        "init:e2e:recovery": "@npm:e2e:recovery clean-install",
         "e2e:setup": [
             "@putenv APP_ENV=e2e",
             "@setup",
@@ -291,17 +295,32 @@
         "e2e:storefront:cypress": [
             "export APP_ENV=e2e; export CYPRESS_localUsage=1; export CYPRESS_shopwareRoot=\"$PWD\"; cd src/Storefront/Resources/app/storefront/test/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$CYPRESS_shopwareRoot\"/bin/exec-with-env cypress"
         ],
+        "e2e:storefront:percy": [
+            "export APP_ENV=e2e; export CYPRESS_localUsage=1; export CYPRESS_shopwareRoot=\"$PWD\"; cd src/Storefront/Resources/app/storefront/test/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$CYPRESS_shopwareRoot\"/bin/exec-with-env percy"
+        ],
+        "e2e:recovery:cypress": [
+            "export APP_ENV=e2e; export CYPRESS_localUsage=1; export CYPRESS_shopwareRoot=\"$PWD\"; cd src/Recovery/Test/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$CYPRESS_shopwareRoot\"/bin/exec-with-env cypress"
+        ],
+        "e2e:recovery:percy": [
+            "export APP_ENV=e2e; export CYPRESS_localUsage=1; export CYPRESS_shopwareRoot=\"$PWD\"; cd src/Recovery/Test/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$CYPRESS_shopwareRoot\"/bin/exec-with-env percy"
+        ],
         "e2e:admin:run": [
             "@e2e:admin:cypress run --browser chrome --headless"
         ],
         "e2e:storefront:run": [
             "@e2e:storefront:cypress run --browser chrome --headless"
         ],
+        "e2e:recovery:run": [
+            "@e2e:recovery:cypress run --browser chrome --headless"
+        ],
         "e2e:admin:open": [
             "@e2e:admin:cypress open"
         ],
         "e2e:storefront:open": [
             "@e2e:storefront:cypress open"
+        ],
+        "e2e:recovery:open": [
+            "@e2e:recovery:cypress open"
         ]
     },
     "conflict": {

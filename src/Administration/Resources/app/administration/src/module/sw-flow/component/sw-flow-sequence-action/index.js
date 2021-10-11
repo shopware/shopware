@@ -2,7 +2,7 @@ import template from './sw-flow-sequence-action.html.twig';
 import './sw-flow-sequence-action.scss';
 import { ACTION } from '../../constant/flow.constant';
 
-const { Component, State } = Shopware;
+const { Component, State, Mixin } = Shopware;
 const utils = Shopware.Utils;
 const { ShopwareError } = Shopware.Classes;
 const { mapState, mapGetters } = Component.getComponentHelper();
@@ -11,6 +11,10 @@ Component.register('sw-flow-sequence-action', {
     template,
 
     inject: ['repositoryFactory', 'flowBuilderService', 'feature'],
+
+    mixins: [
+        Mixin.getByName('sw-inline-snippet'),
+    ],
 
     props: {
         sequence: {
@@ -36,6 +40,10 @@ Component.register('sw-flow-sequence-action', {
     computed: {
         sequenceRepository() {
             return this.repositoryFactory.create('flow_sequence');
+        },
+
+        customFieldSetRepository() {
+            return this.repositoryFactory.create('custom_field_set');
         },
 
         actionOptions() {
@@ -90,21 +98,23 @@ Component.register('sw-flow-sequence-action', {
             if (this.feature.isActive('FEATURE_NEXT_17973')) {
                 actionDescription[ACTION.CHANGE_CUSTOMER_GROUP] = (config) => this.getCustomerGroupDescription(config);
                 actionDescription[ACTION.CHANGE_CUSTOMER_STATUS] = (config) => this.getCustomerStatusDescription(config);
+                actionDescription[ACTION.SET_CUSTOMER_CUSTOM_FIELD] = (config) => this.getCustomFieldDescription(config);
+                actionDescription[ACTION.SET_ORDER_CUSTOM_FIELD] = (config) => this.getCustomFieldDescription(config);
             }
 
             return actionDescription;
         },
 
-        ...mapState(
-            'swFlowState',
+        ...mapState('swFlowState',
             [
                 'invalidSequences',
                 'stateMachineState',
                 'documentTypes',
                 'mailTemplates',
                 'customerGroups',
-            ],
-        ),
+                'customFieldSets',
+                'customFields',
+            ]),
         ...mapGetters('swFlowState', ['availableActions']),
     },
 
@@ -386,6 +396,22 @@ Component.register('sw-flow-sequence-action', {
             }
 
             return mailSendDescription;
+        },
+
+        getCustomFieldDescription(config) {
+            const customFieldSet = this.customFieldSets.find(item => item.id === config.customFieldSetId);
+            const customField = this.customFields.find(item => item.id === config.customFieldId);
+            if (!customFieldSet || !customField) {
+                return '';
+            }
+
+            return `${this.$tc('sw-flow.actions.labelCustomFieldSet', 0, {
+                customFieldSet: this.getInlineSnippet(customFieldSet.config.label) || customFieldSet.name,
+            })}<br>${this.$tc('sw-flow.actions.labelCustomField', 0, {
+                customField: this.getInlineSnippet(customField.config.label) || customField.name,
+            })}<br>${this.$tc('sw-flow.actions.labelCustomFieldOption', 0, {
+                customFieldOption: config.optionLabel,
+            })}`;
         },
     },
 });

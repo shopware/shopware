@@ -99,6 +99,18 @@
             <tag name="flow.action" priority="400" />
         </service>
 
+        <service id="Shopware\Core\Content\Flow\Dispatching\Action\SetCustomerCustomFieldAction">
+            <tag name="kernel.event_subscriber" />
+            <tag name="flow.action" priority="350" />
+            <tag name="shopware.feature" flag="FEATURE_NEXT_17973"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Flow\Dispatching\Action\SetOrderCustomFieldAction">
+            <tag name="kernel.event_subscriber" />
+            <tag name="flow.action" priority="300" />
+            <tag name="shopware.feature" flag="FEATURE_NEXT_17973"/>
+        </service>
+
         <service id="Shopware\Core\Content\Flow\Dispatching\Action\StopFlowAction">
             <tag name="kernel.event_subscriber" />
             <tag name="flow.action" priority="1" />

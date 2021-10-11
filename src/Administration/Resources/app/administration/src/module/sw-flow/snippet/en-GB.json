@@ -76,6 +76,7 @@
       "mailSend": "Send email",
       "setOrderState": "Set status",
       "stopFlow": "Stop flow",
+      "setCustomField": "Set custom field",
       "changeCustomerGroup": "Change customer group",
       "changeCustomerStatus": "Change customer status",
       "textStopFlowDescription": "Subsequent actions/ sequences will not be executed.",
@@ -88,6 +89,9 @@
       "labelTo": "To: {entity}",
       "labelTag": "Tag: {tagNames}",
       "labelTemplate": "Template: {template}",
+      "labelCustomFieldSet": "Custom field set: {customFieldSet}",
+      "labelCustomField": "Custom field: {customField}",
+      "labelCustomFieldOption": "Custom field option: {customFieldOption}",
       "placeholderSelectAction": "Select action ..."
     },
     "rule": {
@@ -189,6 +193,22 @@
         "labelLatestDocuments": "Add (latest) documents",
         "placeholderLatestDocuments": "Add documents ...",
         "documentDescription": "If the selected document doesn't exist you'll have to generate it first. Otherwise no documents will be sent."
+      },
+      "setEntityCustomField": {
+        "title": "Change custom field",
+        "customFieldSet": "Custom field category",
+        "customFieldSetPlaceHolder": "Select custom field category ...",
+        "customField": "Custom field",
+        "customFieldPlaceHolder": "Select custom field ...",
+        "requiredMessageError": "\"{item}\" should not be empty!",
+        "customFieldOption": "Field options",
+        "options": {
+          "overwrite": "Overwrite",
+          "notOverwrite": "Do not overwrite",
+          "clear": "Clear",
+          "add": "Add",
+          "remove": "Remove"
+        }
       },
       "confirmation": {
         "textConfirmChangeTrigger": "Are you sure you want to change the trigger event? <br> The flow sequence will be reset if you press the confirm button."

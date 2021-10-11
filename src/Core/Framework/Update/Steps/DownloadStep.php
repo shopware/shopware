@@ -43,8 +43,8 @@ class DownloadStep
             return microtime(true) - $startTime > 10;
         });
 
-        $offset = $download->downloadFile($this->version->uri, $this->destination, (int) ($this->version->size), $this->version->sha1);
+        $offset = $download->downloadFile($this->version->uri, $this->destination, (int) $this->version->size, $this->version->sha1);
 
-        return new ValidResult($offset, (int) ($this->version->size));
+        return new ValidResult($offset, (int) $this->version->size);
     }
 }

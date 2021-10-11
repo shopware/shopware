@@ -42,7 +42,7 @@ class CustomFieldEntity extends Entity
     protected $customFieldSet;
 
     /**
-     * @var ProductSearchConfigFieldCollection |null
+     * @var ProductSearchConfigFieldCollection|null
      */
     protected $productSearchConfigFields;
 

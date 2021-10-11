@@ -24,7 +24,7 @@ class ReplaceRecursiveFilterTest extends TestCase
     public function testGetFilterReturnsArrayWithTwigFilter(): void
     {
         $firstTwigFilter = $this->replaceRecursiveFilter->getFilters()[0];
-        $this::assertInstanceOf(TwigFilter::class, $firstTwigFilter);
+        static::assertInstanceOf(TwigFilter::class, $firstTwigFilter);
     }
 
     public function testIfFilterContainsReplaceRecursive(): void
@@ -68,7 +68,7 @@ class ReplaceRecursiveFilterTest extends TestCase
 
         $result = $this->replaceRecursiveFilter->replaceRecursive($arrayOne, $arrayTwo);
 
-        $this::assertEquals($expect, $result);
+        static::assertEquals($expect, $result);
     }
 
     public function testReplaceRecursiveThreeObjects(): void
@@ -120,6 +120,6 @@ class ReplaceRecursiveFilterTest extends TestCase
 
         $result = $this->replaceRecursiveFilter->replaceRecursive($arrayOne, $arrayTwo, $arrayThree);
 
-        $this::assertEquals($expect, $result);
+        static::assertEquals($expect, $result);
     }
 }

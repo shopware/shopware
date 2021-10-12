@@ -16,8 +16,7 @@ describe('Media: Visual tests', () => {
         const page = new MediaPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `api/_action/media/**/upload?extension=png&fileName=sw-login-background`,
             method: 'post'
         }).as('saveDataFileUpload');
@@ -26,9 +25,7 @@ describe('Media: Visual tests', () => {
 
         const notification = Cypress.env('locale') === 'en-GB' ?
             'File has been saved' : 'Eine Datei erfolgreich gespeichert';
-        cy.wait('@saveDataFileUpload').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveDataFileUpload').its('response.statusCode').should('equal', 204);
         cy.get('.sw-media-base-item__name[title="sw-login-background.png"]')
             .should('be.visible');
 

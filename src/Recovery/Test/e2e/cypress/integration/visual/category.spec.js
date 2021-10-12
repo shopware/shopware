@@ -14,8 +14,7 @@ describe('Category: Visual tests', () => {
 
     it('@visual: check appearance of basic category workflow', () => {
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: '/api/search/category',
             method: 'POST'
         }).as('dataRequest');
@@ -24,9 +23,7 @@ describe('Category: Visual tests', () => {
         cy.get('.sw-loader').should('not.exist');
         cy.get('.sw-category-detail-base').should('be.visible');
 
-        cy.wait('@dataRequest').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@dataRequest').its('response.statusCode').should('equal', 200);
 
         // Change visibility of the element to ensure consistent snapshots
         cy.changeElementStyling(

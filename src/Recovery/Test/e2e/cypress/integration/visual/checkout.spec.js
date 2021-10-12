@@ -16,8 +16,7 @@ describe('Checkout: Visual tests', () => {
         const page = new CheckoutPageObject();
         const accountPage = new AccountPageObject();
 
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: '/widgets/checkout/info',
             method: 'get'
         }).as('cartInfo');
@@ -38,27 +37,23 @@ describe('Checkout: Visual tests', () => {
         // Take snapshot for visual testing
         cy.takeSnapshot(`Checkout - See product`,
             '.product-detail-buy',
-            { widths: [375, 1920] }
+            { widths: [ 375, 1920 ] }
         );
 
         cy.get('.product-detail-buy .btn-buy').click();
 
         // Off canvas
         cy.get('.offcanvas').should('be.visible');
-        cy.wait('@cartInfo').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-            cy.get('.cart-item-price').contains('64');
-        });
+        cy.wait('@cartInfo').its('response.statusCode').should('equal', 200);
+        cy.get('.cart-item-price').contains('64');
 
         const continueShopping = Cypress.env('locale') === 'en-GB' ?
             'Continue shopping' : 'Weiter einkaufen';
         cy.contains(continueShopping).should('be.visible');
         cy.contains(continueShopping).click();
 
-        cy.wait('@cartInfo').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-            cy.get('.header-cart-total').contains('64');
-        });
+        cy.wait('@cartInfo').its('response.statusCode').should('equal', 200);
+        cy.get('.header-cart-total').contains('64');
 
         cy.get('.header-cart').click();
         cy.get('.offcanvas').should('be.visible');
@@ -133,7 +128,8 @@ describe('Checkout: Visual tests', () => {
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
+            '', true
         );
         cy.get('.sw-order-detail').should('be.visible');
 
@@ -167,6 +163,5 @@ describe('Checkout: Visual tests', () => {
 
         // Take snapshot for visual testing
         cy.takeSnapshot('Order detail', '.sw-order-detail');
-
     });
 });

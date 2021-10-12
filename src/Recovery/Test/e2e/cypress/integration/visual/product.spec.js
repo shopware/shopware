@@ -16,12 +16,11 @@ describe('Product: Visual tests', () => {
         const page = new ProductPageObject();
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
             method: 'post'
         }).as('saveData');
-        cy.route({
+        cy.intercept({
             url: '/api/_action/calculate-price',
             method: 'post'
         }).as('calculatePrice');
@@ -37,9 +36,8 @@ describe('Product: Visual tests', () => {
         cy.get('.sw-list-price-field > :nth-child(1) #sw-price-field-gross').type('10');
         cy.get('.sw-list-price-field > :nth-child(1) #sw-price-field-gross').blur();
 
-        cy.wait('@calculatePrice').then(() => {
-            cy.get('.sw-list-price-field > :nth-child(1) #sw-price-field-net').should('have.value', '8.4033613445378');
-        });
+        cy.wait('@calculatePrice').its('response.statusCode').should('equal', 200);
+        cy.get('.sw-list-price-field > :nth-child(1) #sw-price-field-net').should('have.value', '8.4033613445378');
 
         cy.get('input[name=sw-field--product-stock]').type('100');
 
@@ -54,9 +52,7 @@ describe('Product: Visual tests', () => {
         cy.get(page.elements.productSaveAction).click();
 
         // Save product
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-loader').should('not.exist');
         const save = Cypress.env('locale') === 'en-GB' ? 'Save' : 'Speichern';

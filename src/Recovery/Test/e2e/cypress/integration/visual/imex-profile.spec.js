@@ -10,8 +10,7 @@ describe('Import/Export - Profiles:  Visual tests', () => {
     });
 
     it('@visual: check appearance of basic im/ex profile workflow', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: '/api/import-export-profile',
             method: 'post'
         }).as('saveData');

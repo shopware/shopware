@@ -60,5 +60,4 @@ describe('Validate checkout after auto update', () => {
         cy.get('#confirmFormSubmit').click();
         cy.get('.finish-header').contains(' Vielen Dank für Ihre Bestellung bei Footwear!');
     });
-
 });

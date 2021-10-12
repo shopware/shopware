@@ -37,18 +37,9 @@ export default class MediaPageObject {
         return this;
     }
 
-    uploadImageUsingFileUpload(path, name) {
-        cy.fixture(path).then(fileContent => {
-            cy.get(this.elements.uploadInput).upload(
-                {
-                    fileContent,
-                    fileName: name,
-                    mimeType: 'image/png'
-                }, {
-                    subjectType: 'input'
-                }
-            );
-        });
+    uploadImageUsingFileUpload(path) {
+        cy.get(this.elements.uploadInput).attachFile(path);
+        cy.get('.sw-media-preview-v2__item').should('be.visible');
 
         cy.get('.sw-media-preview-v2__item').should('be.visible');
 

@@ -1,21 +1,21 @@
 // / <reference types="Cypress" />
 
 describe('Validate cart after auto update', () => {
-   
+
     // dependent pre-update > product.spec.js
     it('@base @catalogue: should complete shopping', ()=>{
-        
+
         // Login
         cy.visit('/account/login');
         cy.get('.login-card').should('be.visible');
         cy.get('#loginMail').typeAndCheckStorefront('markus.stein@test.com');
         cy.get('#loginPassword').typeAndCheckStorefront('shopware');
         cy.get('.login-submit [type="submit"]').click();
-    
+
         // Go to cart
         cy.visit('/checkout/cart');
-    
-        let productName = 'Product created before update'   
+
+        let productName = 'Product created before update'
         cy.get('.cart-item-details-container [title]').contains(productName);
         cy.get('.cart-item-total-price.col-12.col-md-2.col-sm-4').contains('14,99');
         cy.get('.col-5.checkout-aside-summary-total').contains('14,99');
@@ -46,9 +46,7 @@ describe('Validate cart after auto update', () => {
         cy.get('#confirmFormSubmit').scrollIntoView();
         cy.get('#confirmFormSubmit').click();
         cy.get('.finish-header').contains(' Vielen Dank für Ihre Bestellung bei Footwear!');
-    
-    })
-
+    });
 });
 
 

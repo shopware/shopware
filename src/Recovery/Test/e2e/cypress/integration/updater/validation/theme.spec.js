@@ -19,8 +19,7 @@ describe('Validation of theme and cache after auto update', () => {
     });
 
     it('@update: Check theme compile', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: '/api/_action/theme/**/assign/**',
             method: 'POST'
         }).as('themeAssign');
@@ -43,9 +42,7 @@ describe('Validation of theme and cache after auto update', () => {
         cy.contains('.sw-button--primary','Theme wechseln').click();
 
         // Ensure theme assignment request is successful
-        cy.wait('@themeAssign').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@themeAssign').its('response.statusCode').should('equal', 200);
         cy.get('.sw-loader').should('not.exist');
 
         cy.contains('Shopware default theme');
@@ -69,11 +66,8 @@ describe('Validation of theme and cache after auto update', () => {
         cy.contains('.sw-button--primary','Theme wechseln').click();
 
         // Ensure theme assignment request is successful
-        cy.wait('@themeAssign').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@themeAssign').its('response.statusCode').should('equal', 200);
         cy.get('.sw-loader').should('not.exist');
-
         cy.contains('Footwear Theme');
 
         cy.visit('/');

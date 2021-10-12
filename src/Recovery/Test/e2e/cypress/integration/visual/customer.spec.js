@@ -43,8 +43,7 @@ describe('Customer:  Visual test', () => {
     it('@visual: check appearance of basic customer workflow', () => {
         const page = new CustomerPageObject();
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: 'api/customer',
             method: 'post'
         }).as('saveData');
@@ -84,16 +83,13 @@ describe('Customer:  Visual test', () => {
         cy.get('#sw-field--customer-password').type('shopware');
 
         // Fill in address and save
-
         customer.salutation = Cypress.env('locale') === 'en-GB' ? 'Mr' : 'Herr';
         customer.country = Cypress.env('locale') === 'en-GB' ? 'Germany' : 'Deutschland';
         page.createBasicAddress(customer);
         cy.get(page.elements.customerSaveAction).click();
 
         // Verify new customer in detail
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         const language = Cypress.env('locale') === 'en-GB' ? 'English' : 'Deutsch';
         cy.get('.sw-card-section--secondary').contains(language);

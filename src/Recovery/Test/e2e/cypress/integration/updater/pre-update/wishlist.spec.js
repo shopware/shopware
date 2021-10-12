@@ -62,8 +62,7 @@ describe('activate wishlist and add product before update', ()=>{
         cy.get(page.elements.productSaveAction).contains('Speichern').click();
 
         // change theme to display wishlist
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: 'api/search/theme',
             method: 'POST',
             body: {}
@@ -74,10 +73,8 @@ describe('activate wishlist and add product before update', ()=>{
         cy.get('.sw-modal__footer > .sw-button--primary > .sw-button__content').click();
         cy.get('.sw-button--primary.sw-button--small .sw-button__content').click();
 
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-            cy.get('.sw-loader').should('not.exist');
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 200);
+        cy.get('.sw-loader').should('not.exist');
 
         // login
         cy.visit('/account/login').reload();
@@ -87,8 +84,7 @@ describe('activate wishlist and add product before update', ()=>{
         cy.get('.login-submit [type="submit"]').click();
 
         // wait for product added to wishlist
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: 'wishlist/add/6dfd9dc216ab4ac99598b837ac600369',
             method: 'POST',
             body: {}
@@ -103,15 +99,11 @@ describe('activate wishlist and add product before update', ()=>{
         cy.get('.text-wishlist-remove').contains('Vom Merkzettel entfernen').should('be.visible');
 
         // confirm wishlist request
-        cy.wait('@dataRequest').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@dataRequest').its('response.statusCode').should('equal', 200);
         cy.get('[data-wishlist-storage]').contains('1').should('be.visible')
 
         // confirm product in wishlist
         cy.visit('/wishlist');
         cy.get('.card-body-wishlist').contains(productName).should('be.visible');
-
-    })
-
-})
+    });
+});

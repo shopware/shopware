@@ -17,7 +17,5 @@ describe('check wishlist after update', ()=>{
         cy.get('[data-wishlist-storage]').contains('1').should('be.visible')
         let productName = 'Wishlist Test'
         cy.get('.card-body-wishlist').contains(productName);
-
-    })
-
-})
+    });
+});

@@ -395,7 +395,7 @@ Component.register('sw-cms-detail', {
                 this.isLoading = false;
                 this.createNotificationError({
                     title: exception.message,
-                    message: exception.response.statusText,
+                    message: exception?.response?.statusText ?? this.$t('global.default.error'),
                 });
 
                 warn(this._name, exception.message, exception.response);

@@ -22,7 +22,7 @@ class XmlValidator implements ValidatorInterface
             $backup = false;
         }
 
-        if (!simplexml_load_string($productExportContent)) {
+        if (!simplexml_load_string($productExportContent, 'SimpleXMLElement', LIBXML_COMPACT | LIBXML_PARSEHUGE)) {
             $errors->add(new XmlValidationError($productExportEntity->getId(), libxml_get_errors()));
         }
 

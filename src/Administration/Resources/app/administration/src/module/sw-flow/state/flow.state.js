@@ -135,7 +135,7 @@ export default {
                 }
 
                 // check if the current active action contains any required keys from an action option.
-                const isActive = action.requirements.some(item => state.triggerEvent.aware.includes(item));
+                const isActive = action.requirements.some(item => state.triggerEvent?.aware?.includes(item));
 
                 if (isActive) {
                     availableAction.push(action.name);

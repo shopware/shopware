@@ -84,7 +84,10 @@ module.exports = (on, config) => {
                     service: 'Cypress',
                     'test-description': failedTest?.title?.[0],
                     'test-it': failedTest?.title?.[1],
-                    'test-retries': failedAttempts
+                    'test-retries': failedAttempts,
+                    'test-target-branch': config.env['TARGET_BRANCH'],
+                    'test-target-commit': config.env['TARGET_COMMIT'],
+                    'test-commit-branch': config.env['COMMIT_BRANCH'],
                 }
             })
         })

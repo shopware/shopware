@@ -342,6 +342,7 @@
                         {% block sw_cms_sidebar_navigator_section_menu_duplicate %}
                         <sw-context-menu-item
                             class="sw-cms-sidebar__navigator-section-duplicate"
+                            :disabled="!sectionIsDuplicable(section)"
                             @click="onSectionDuplicate(section)"
                         >
                             {{ $tc('sw-cms.sidebar.contentMenu.duplicate') }}
@@ -373,6 +374,7 @@
                             :block="block"
                             class="sw-cms-sidebar__navigator-block"
                             :removable="blockIsRemovable(block)"
+                            :duplicable="blockIsDuplicable(block)"
                             :class="{ 'is--dragging': block.isDragging }"
                             @block-delete="onBlockDelete($event, section)"
                             @block-duplicate="onBlockDuplicate($event, section)"

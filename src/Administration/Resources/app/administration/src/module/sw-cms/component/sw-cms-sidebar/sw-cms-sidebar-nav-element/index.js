@@ -18,6 +18,12 @@ Component.register('sw-cms-sidebar-nav-element', {
             required: false,
             default: false,
         },
+
+        duplicable: {
+            type: Boolean,
+            required: false,
+            default: true,
+        },
     },
 
     methods: {

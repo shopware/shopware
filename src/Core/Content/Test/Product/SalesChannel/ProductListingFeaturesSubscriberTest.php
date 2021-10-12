@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\Events\ProductListingCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductSearchCriteriaEvent;
 use Shopware\Core\Content\Product\SalesChannel\Exception\ProductSortingNotFoundException;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingFeaturesSubscriber;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Defaults;
@@ -575,7 +576,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                     'rating-filter' => true,
                     'shipping-free-filter' => true,
                     'property-filter' => true,
-                    'property-whitelist' => null,
+                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => null,
                 ],
                 new Request(),
             ],
@@ -587,7 +588,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                     'rating-filter' => true,
                     'shipping-free-filter' => true,
                     'property-filter' => true,
-                    'property-whitelist' => null,
+                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => null,
                 ],
                 new Request([], ['manufacturer-filter' => true]),
             ],
@@ -605,7 +606,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                     'rating-filter' => true,
                     'shipping-free-filter' => true,
                     'property-filter' => true,
-                    'property-whitelist' => null,
+                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => null,
                 ],
                 new Request([], ['manufacturer-filter' => false]),
             ],
@@ -617,7 +618,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                     'rating-filter' => true,
                     'shipping-free-filter' => true,
                     'property-filter' => true,
-                    'property-whitelist' => null,
+                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => null,
                 ],
                 new Request([], ['price-filter' => true]),
             ],
@@ -635,7 +636,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                     'rating-filter' => true,
                     'shipping-free-filter' => true,
                     'property-filter' => true,
-                    'property-whitelist' => null,
+                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => null,
                 ],
                 new Request([], ['price-filter' => false]),
             ],
@@ -647,7 +648,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                     'rating-filter' => true,
                     'shipping-free-filter' => true,
                     'property-filter' => true,
-                    'property-whitelist' => null,
+                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => null,
                 ],
                 new Request([], ['rating-filter' => true]),
             ],
@@ -665,7 +666,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                     'rating-filter' => false,
                     'shipping-free-filter' => true,
                     'property-filter' => true,
-                    'property-whitelist' => null,
+                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => null,
                 ],
                 new Request([], ['rating-filter' => false]),
             ],
@@ -677,7 +678,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                     'rating-filter' => true,
                     'shipping-free-filter' => true,
                     'property-filter' => true,
-                    'property-whitelist' => null,
+                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => null,
                 ],
                 new Request([], ['shipping-free-filter' => true]),
             ],
@@ -695,7 +696,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                     'rating-filter' => true,
                     'shipping-free-filter' => false,
                     'property-filter' => true,
-                    'property-whitelist' => null,
+                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => null,
                 ],
                 new Request([], ['shipping-free-filter' => false]),
             ],
@@ -707,7 +708,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                     'rating-filter' => true,
                     'shipping-free-filter' => true,
                     'property-filter' => true,
-                    'property-whitelist' => null,
+                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => null,
                 ],
                 new Request([], ['property-filter' => true]),
             ],
@@ -724,7 +725,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                     'rating-filter' => true,
                     'shipping-free-filter' => true,
                     'property-filter' => false,
-                    'property-whitelist' => null,
+                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => null,
                 ],
                 new Request([], ['property-filter' => false]),
             ],
@@ -741,9 +742,9 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                     'rating-filter' => true,
                     'shipping-free-filter' => true,
                     'property-filter' => false,
-                    'property-whitelist' => null,
+                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => null,
                 ],
-                new Request([], ['property-filter' => false, 'property-whitelist' => null]),
+                new Request([], ['property-filter' => false, ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => null]),
             ],
             [
                 [
@@ -758,9 +759,9 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                     'rating-filter' => true,
                     'shipping-free-filter' => true,
                     'property-filter' => false,
-                    'property-whitelist' => [],
+                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => [],
                 ],
-                new Request([], ['property-filter' => false, 'property-whitelist' => []]),
+                new Request([], ['property-filter' => false, ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => []]),
             ],
             [
                 [
@@ -777,9 +778,9 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                     'rating-filter' => true,
                     'shipping-free-filter' => true,
                     'property-filter' => false,
-                    'property-whitelist' => [$id1],
+                    ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => [$id1],
                 ],
-                new Request([], ['property-filter' => false, 'property-whitelist' => [$id1]]),
+                new Request([], ['property-filter' => false, ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => [$id1]]),
             ],
         ];
     }
@@ -945,7 +946,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                         ],
                     ],
                 ]),
-                new Request([], ['property-filter' => false, 'property-whitelist' => null]),
+                new Request([], ['property-filter' => false, ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => null]),
                 [
                     'aggregation' => 'properties',
                     'instanceOf' => null,
@@ -969,7 +970,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                         ],
                     ],
                 ]),
-                new Request([], ['property-filter' => false, 'property-whitelist' => []]),
+                new Request([], ['property-filter' => false, ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => []]),
                 [
                     'aggregation' => 'properties',
                     'instanceOf' => null,
@@ -993,7 +994,7 @@ class ProductListingFeaturesSubscriberTest extends TestCase
                         ],
                     ],
                 ]),
-                new Request([], ['property-filter' => false, 'property-whitelist' => [$ids->get('textile')]]),
+                new Request([], ['property-filter' => false, ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM => [$ids->get('textile')]]),
                 [
                     'aggregation' => 'properties',
                     'instanceOf' => EntityResult::class,

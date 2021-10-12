@@ -42,6 +42,8 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
 {
     public const DEFAULT_SEARCH_SORT = 'score';
 
+    public const PROPERTY_GROUP_IDS_REQUEST_PARAM = 'property-whitelist';
+
     /**
      * @var EntityRepositoryInterface
      */
@@ -477,7 +479,7 @@ class ProductListingFeaturesSubscriber implements EventSubscriberInterface
         if (!$request->request->get('property-filter', true)) {
             $filters->remove('properties');
 
-            if (\count($propertyWhitelist = $request->request->all('property-whitelist'))) {
+            if (\count($propertyWhitelist = $request->request->all(self::PROPERTY_GROUP_IDS_REQUEST_PARAM))) {
                 $filters->add($this->getPropertyFilter($request, $propertyWhitelist));
             }
         }

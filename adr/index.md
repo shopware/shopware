@@ -30,4 +30,6 @@
 * [2021-08-11 - Make shopware/platform stand-alone for development and testing](2021-08-11-make-platform-stand-alone.md)
 * [2021-08-31 - Refactor admin build process to webpack-multi-compiler mode](2021-08-31-refactor-admin-build-process-to-webpack-multi-compiler-mode.md)
 * [2021-09-06 - Make Core mail templates independent from Storefront urls](2021-09-06-make-core-mail-templates-independent-from-storefront-urls.md)
+* [2021-09-14 - Technical concept custom entities](2021-09-14-technical-concept-custom-entities.md)
 * [2021-10-01 - Payment Flow](2021-10-01-payment-flow.md)
+

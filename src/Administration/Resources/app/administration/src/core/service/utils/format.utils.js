@@ -8,6 +8,7 @@ export default {
     date,
     md5,
     fileSize,
+    toISODate,
 };
 
 /**
@@ -110,4 +111,14 @@ export function fileSize(bytes, locale = 'de-DE') {
     }
 
     return `${result.toFixed(2).toLocaleString(locale)}${units[i]}`;
+}
+
+/**
+ * @param {Date} dateObj
+ * @param {bool} useTime
+ */
+export function toISODate(dateObj, useTime = true) {
+    const isoDate = dateObj.toISOString();
+
+    return useTime ? isoDate : isoDate.split('T')[0];
 }

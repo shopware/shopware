@@ -274,7 +274,7 @@ Component.register('sw-dashboard-index', {
         },
 
         formatDate(date) {
-            return `${date.getFullYear()}-${(`0${date.getMonth() + 1}`).slice(-2)}-${date.getDate()}`;
+            return Shopware.Utils.format.toISODate(date, false);
         },
 
         orderGridColumns() {

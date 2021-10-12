@@ -1,4 +1,4 @@
-import { fileSize, date } from 'src/core/service/utils/format.utils';
+import { fileSize, date, toISODate } from 'src/core/service/utils/format.utils';
 
 describe('src/core/service/utils/format.utils.js', () => {
     describe('filesize', () => {
@@ -126,6 +126,20 @@ describe('src/core/service/utils/format.utils.js', () => {
             expect(currencyFilter(42, undefined, 0)).toBe('$42');
 
             Shopware.Context.app.systemCurrencyISOCode = 'EUR';
+        });
+    });
+
+    describe('toISODate', () => {
+        it('formats the date with time', () => {
+            const dateWithTime = new Date(Date.UTC(2021, 0, 1, 13, 37, 0));
+
+            expect(toISODate(dateWithTime)).toBe('2021-01-01T13:37:00.000Z');
+        });
+
+        it('formats the date without time', () => {
+            const dateWithoutTime = new Date(Date.UTC(2021, 0, 1, 13, 37, 0));
+
+            expect(toISODate(dateWithoutTime, false)).toBe('2021-01-01');
         });
     });
 });

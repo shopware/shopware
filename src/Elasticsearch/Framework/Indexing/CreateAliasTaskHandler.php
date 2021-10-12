@@ -28,7 +28,6 @@ class CreateAliasTaskHandler extends ScheduledTaskHandler
         parent::__construct($scheduledTaskRepository);
         $this->client = $client;
         $this->connection = $connection;
-        $this->scheduledTaskRepository = $scheduledTaskRepository;
         $this->elasticsearchHelper = $elasticsearchHelper;
         $this->config = $config;
     }

@@ -45,7 +45,7 @@ class AppActionLoader
         $criteria = new Criteria([$actionId]);
         $criteria->addAssociation('app.integration');
 
-        /** @var ActionButtonEntity | null $actionButton */
+        /** @var ActionButtonEntity|null $actionButton */
         $actionButton = $this->actionButtonRepo->search($criteria, $context)->first();
 
         if ($actionButton === null) {

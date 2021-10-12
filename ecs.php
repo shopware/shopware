@@ -33,6 +33,7 @@ use PhpCsFixer\Fixer\Strict\DeclareStrictTypesFixer;
 use PhpCsFixer\Fixer\StringNotation\ExplicitStringVariableFixer;
 use PhpCsFixer\Fixer\Whitespace\BlankLineBeforeStatementFixer;
 use PhpCsFixer\Fixer\Whitespace\CompactNullableTypehintFixer;
+use PhpCsFixer\Fixer\Phpdoc\PhpdocToCommentFixer;
 use PhpCsFixerCustomFixers\Fixer\NoImportFromGlobalNamespaceFixer;
 use PhpCsFixerCustomFixers\Fixer\NoSuperfluousConcatenationFixer;
 use PhpCsFixerCustomFixers\Fixer\NoUselessCommentFixer;
@@ -45,6 +46,7 @@ use Symplify\CodingStandard\Fixer\ArrayNotation\ArrayOpenerAndCloserNewlineFixer
 use Symplify\CodingStandard\Fixer\ArrayNotation\StandaloneLineInMultilineArrayFixer;
 use Symplify\EasyCodingStandard\ValueObject\Option;
 use Symplify\EasyCodingStandard\ValueObject\Set\SetList;
+use PHP_CodeSniffer\Standards\Generic\Sniffs\CodeAnalysis\AssignmentInConditionSniff;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
     $containerConfigurator->import(SetList::SYMFONY);
@@ -102,6 +104,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $parameters->set(Option::CACHE_DIRECTORY, $_SERVER['SHOPWARE_TOOL_CACHE_ECS'] ?? 'var/cache/cs_fixer');
     $parameters->set(Option::CACHE_NAMESPACE, 'platform');
+    $parameters->set(Option::PARALLEL, true);
 
     $parameters->set(Option::SKIP, [
         // Compatibility fixes for doctrine annotation parser https://github.com/doctrine/annotations/issues/421
@@ -117,6 +120,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         PhpdocSummaryFixer::class => null,
         ExplicitStringVariableFixer::class => null,
         StandaloneLineInMultilineArrayFixer::class => null,
+        AssignmentInConditionSniff::class => null,
+        PhpdocToCommentFixer::class => null,
         // would otherwise destroy the example in the annotation
         NoUselessCommentFixer::class => ['src/Core/System/Annotation/Concept/DeprecationPattern/ReplaceDecoratedInterface.php'],
         // Would otherwise fix the blocking whitespace in the currency formatter tests

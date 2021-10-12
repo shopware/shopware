@@ -1084,10 +1084,10 @@ class SalesChannelProxyControllerTest extends TestCase
 
                 static::assertArrayHasKey('errors', $response);
                 static::assertEquals('FRAMEWORK__MISSING_PRIVILEGE_ERROR', $response['errors'][0]['code'] ?? null);
-                static::assertTrue(str_contains(
-                    $response['errors'][0]['detail'] ?? '',
-                    $testOrderOnly ? CreditOrderLineItemListener::ACL_ORDER_CREATE_DISCOUNT_PRIVILEGE : 'order_line_item:create'
-                ));
+                static::assertStringContainsString(
+                    $testOrderOnly ? CreditOrderLineItemListener::ACL_ORDER_CREATE_DISCOUNT_PRIVILEGE : 'order_line_item:create',
+                    $response['errors'][0]['detail'] ?? ''
+                );
             }
 
             TestUser::createNewTestUser(

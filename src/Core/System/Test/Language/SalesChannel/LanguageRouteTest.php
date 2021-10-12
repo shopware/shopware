@@ -5,11 +5,9 @@ namespace Shopware\Core\System\Test\Language\SalesChannel;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
-use Shopware\Core\System\Locale\LocaleCollection;
 
 /**
  * @group store-api
@@ -126,21 +124,33 @@ class LanguageRouteTest extends TestCase
 
     private function createData(): void
     {
-        /** @var LocaleCollection $locales */
-        $locales = $this->getContainer()->get('locale.repository')->search(new Criteria(), $this->ids->context);
+        $this->getContainer()->get('locale.repository')->create([
+            [
+                'id' => $this->ids->get('locale-1'),
+                'code' => 'locale-1',
+                'name' => 'locale-1',
+                'territory' => 'locale-1',
+            ],
+            [
+                'id' => $this->ids->get('locale-2'),
+                'code' => 'locale-2',
+                'name' => 'locale-2',
+                'territory' => 'locale-2',
+            ],
+        ], $this->ids->context);
 
         $data = [
             [
                 'id' => $this->ids->create('language'),
                 'name' => 'match',
-                'localeId' => $locales->first()->getId(),
-                'translationCodeId' => $locales->first()->getId(),
+                'localeId' => $this->ids->get('locale-1'),
+                'translationCodeId' => $this->ids->get('locale-1'),
             ],
             [
                 'id' => $this->ids->create('language2'),
                 'name' => 'match2',
-                'localeId' => $locales->last()->getId(),
-                'translationCodeId' => $locales->last()->getId(),
+                'localeId' => $this->ids->get('locale-2'),
+                'translationCodeId' => $this->ids->get('locale-2'),
             ],
         ];
 

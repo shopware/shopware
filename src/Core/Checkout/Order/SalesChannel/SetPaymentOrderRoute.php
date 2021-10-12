@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedEvent;
+use Shopware\Core\Checkout\Order\Exception\PaymentMethodNotChangeableException;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Exception\InvalidTransactionException;
 use Shopware\Core\Checkout\Payment\Exception\UnknownPaymentMethodException;
@@ -128,6 +129,8 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
         );
 
         $this->validateRequest($context, $paymentMethodId);
+
+        $this->validatePaymentState($order);
 
         $this->setPaymentMethod($paymentMethodId, $order, $context);
 
@@ -294,5 +297,17 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
         }
 
         return $order;
+    }
+
+    /**
+     * @throws PaymentMethodNotChangeableException
+     */
+    private function validatePaymentState(OrderEntity $order): void
+    {
+        if ($this->orderService->isPaymentChangeableByTransactionState($order)) {
+            return;
+        }
+
+        throw new PaymentMethodNotChangeableException($order->getId());
     }
 }

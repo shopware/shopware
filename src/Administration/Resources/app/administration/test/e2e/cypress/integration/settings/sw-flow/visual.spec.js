@@ -19,10 +19,9 @@ describe('Flow builder: Visual testing', () => {
     it('@visual: @check appearance of flow builder workflow', () => {
         cy.onlyOnFeature('FEATURE_NEXT_8225');
 
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/flow`,
-            method: 'post'
+            method: 'POST'
         }).as('getData');
 
         cy.get('.sw-dashboard-index__welcome-text').should('be.visible');
@@ -31,9 +30,7 @@ describe('Flow builder: Visual testing', () => {
             mainMenuId: 'sw-settings'
         });
         cy.get('#sw-flow').click();
-        cy.wait('@getData').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@getData').its('response.statusCode').should('equal', 200);
 
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Order placed');
         cy.get('.sw-data-grid-skeleton').should('not.exist');

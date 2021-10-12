@@ -15,16 +15,14 @@ describe('Flow builder: set order status testing', () => {
             });
     });
 
-    // NEXT-17407 - this test does not work and needs to be fixed
-    it.skip('@settings: set order state flow', () => {
+    it('@settings: set order state flow', () => {
         cy.onlyOnFeature('FEATURE_NEXT_8225');
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/flow/index`);
 
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/flow`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         cy.get('.sw-flow-list').should('be.visible');
@@ -63,9 +61,7 @@ describe('Flow builder: set order status testing', () => {
 
         // Save
         cy.get('.sw-flow-detail__save').click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.visit('/account/login');
 
@@ -108,8 +104,16 @@ describe('Flow builder: set order status testing', () => {
 
         cy.get('.sw-loader').should('not.exist');
 
-        cy.get('.sw-order-state-select__order-state').contains('Order status: In progress');
-        cy.get('.sw-order-state-select__payment-state').contains('Payment status: In Progress');
-        cy.get('.sw-order-state-select__delivery-state').contains('Delivery status: Shipped');
+        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get('.sw-order-state-select__order-state').contains('Order status: In progress');
+            cy.get('.sw-order-state-select__payment-state').contains('Payment status: In Progress');
+            cy.get('.sw-order-state-select__delivery-state').contains('Delivery status: Shipped');
+        });
+
+        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get('.sw-order-state-select-v2 .sw-single-select[label="Order status"]').contains('In progress');
+            cy.get('.sw-order-state-select-v2 .sw-single-select[label="Payment status"]').contains('In Progress');
+            cy.get('.sw-order-state-select-v2 .sw-single-select[label="Delivery status"]').contains('Shipped');
+        });
     });
 });

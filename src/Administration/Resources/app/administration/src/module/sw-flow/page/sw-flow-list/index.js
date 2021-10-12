@@ -65,6 +65,7 @@ Component.register('sw-flow-list', {
                     dataIndex: 'eventName',
                     label: this.$tc('sw-flow.list.labelColumnTrigger'),
                     allowResize: true,
+                    multiLine: true,
                 },
                 {
                     property: 'description',
@@ -145,6 +146,10 @@ Component.register('sw-flow-list', {
         updateRecords(result) {
             this.flows = result;
             this.total = result.total;
+        },
+
+        getTranslatedEventName(value) {
+            return value.replace(/\./g, '_');
         },
     },
 });

@@ -87,6 +87,12 @@ class SystemInstallCommand extends Command
             [
                 'command' => 'dal:refresh:index',
             ],
+            [
+                'command' => 'scheduled-task:register',
+            ],
+            [
+                'command' => 'plugin:refresh',
+            ],
         ];
 
         /** @var Application $application */

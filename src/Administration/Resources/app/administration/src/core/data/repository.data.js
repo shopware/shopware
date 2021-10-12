@@ -1,4 +1,5 @@
 import Criteria from './criteria.data';
+import RepositoryIterator from './repository-iterator.data';
 
 export default class Repository {
     /**
@@ -412,35 +413,43 @@ export default class Repository {
     }
 
     /**
-     * Allows to iterate all ids of the provided criteria.
+     * Iterates over a paginated search request for the repository entity.
      * @param {Criteria} criteria
-     * @param {function} callback
-     * @param context
+     * @param {Object} context
      * @returns {Promise}
      */
-    iterateIds(criteria, callback, context = Shopware.Context.api) {
-        if (criteria.limit == null) {
-            criteria.setLimit(50);
-        }
-        criteria.setTotalCountMode(1);
+    iterate(criteria, context = Shopware.Context.api) {
+        return new RepositoryIterator(this, criteria, context).iterate(null);
+    }
 
-        return this.searchIds(criteria, context).then((response) => {
-            const ids = response.data;
+    /**
+     * Iterates over a paginated search request for the repository entity.
+     * @param {Criteria} criteria
+     * @param {Object} context
+     * @returns {Promise}
+     */
+    async iterateAsync(criteria, context = Shopware.Context.api) {
+        return new RepositoryIterator(this, criteria, context).iterateAsync();
+    }
 
-            if (ids.length <= 0) {
-                return Promise.resolve();
-            }
+    /**
+     * Iterates over a paginated search request for the repository entity ids.
+     * @param {Criteria} criteria
+     * @param {Object} context
+     * @returns {Promise}
+     */
+    iterateIds(criteria, context = Shopware.Context.api) {
+        return new RepositoryIterator(this, criteria, context).iterateIds(null);
+    }
 
-            return callback(ids).then(() => {
-                if (ids.length < criteria.limit) {
-                    return Promise.resolve();
-                }
-
-                criteria.setPage(criteria.page + 1);
-
-                return this.iterateIds(criteria, callback);
-            });
-        });
+    /**
+     * Iterates over a paginated search request for the repository entity ids.
+     * @param {Criteria} criteria
+     * @param {Object} context
+     * @returns {Promise}
+     */
+    async iterateIdsAsync(criteria, context = Shopware.Context.api) {
+        return new RepositoryIterator(this, criteria, context).iterateIdsAsync();
     }
 
     /**

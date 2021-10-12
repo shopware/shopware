@@ -179,6 +179,8 @@ class CheckoutControllerTest extends TestCase
      */
     public function testOffCanvasWithErrorsFlash($errorTypes, $errorKeys): void
     {
+        static::markTestSkipped('Flaky due to wrong flash message. Fix with NEXT-17888');
+
         $contextToken = Uuid::randomHex();
         $productId = Uuid::randomHex();
         $cartService = $this->getContainer()->get(CartService::class);

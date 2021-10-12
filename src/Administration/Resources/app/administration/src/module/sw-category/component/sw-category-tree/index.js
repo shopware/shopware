@@ -276,7 +276,7 @@ Component.register('sw-category-tree', {
             this.$emit('category-checked-elements-count', count);
         },
 
-        deleteCheckedItems(checkedItems) {
+        async deleteCheckedItems(checkedItems) {
             const ids = Object.keys(checkedItems);
 
             const hasNavigationCategories = ids.some((id) => {
@@ -304,8 +304,14 @@ Component.register('sw-category-tree', {
                 return;
             }
 
-            this.categoryRepository.syncDeleted(ids, Shopware.Context.api).then(() => {
-                ids.forEach(id => this.removeFromStore(id));
+            await this.categoryRepository.syncDeleted(ids, Shopware.Context.api);
+
+            const categories = ids.map((id) => this.loadedCategories[id]);
+
+            await this.fixSortingForCategories(categories);
+
+            ids.forEach(id => {
+                this.removeFromStore(id);
             });
         },
 
@@ -326,10 +332,9 @@ Component.register('sw-category-tree', {
 
                 // reinsert category in sorting because the tree
                 // already overwrites the afterCategoryId of the following category
-                const next = Object.values(this.loadedCategories).find((item) => {
-                    return item.parentId === category.parentId && item.afterCategoryId === category.afterCategoryId;
-                });
-                if (next !== null) {
+                const next = this.getNextCategory(category);
+
+                if (next) {
                     next.afterCategoryId = category.id;
                 }
 
@@ -340,18 +345,19 @@ Component.register('sw-category-tree', {
                 return Promise.resolve();
             }
 
-            return this.categoryRepository.delete(category.id).then(() => {
+            return this.categoryRepository.delete(category.id).then(async () => {
                 this.removeFromStore(category.id);
 
                 if (category.parentId !== null) {
-                    this.categoryRepository.get(
+                    const updatedParent = await this.categoryRepository.get(
                         category.parentId,
                         Shopware.Context.api,
                         this.criteria,
-                    ).then((updatedParent) => {
-                        this.addCategory(updatedParent);
-                    });
+                    );
+                    this.addCategory(updatedParent);
                 }
+
+                await this.fixSortingForCategories([category], true);
 
                 if (category.id === this.categoryId) {
                     this.$router.push({ name: 'sw.category.index' });
@@ -364,6 +370,36 @@ Component.register('sw-category-tree', {
                         this.$refs.categoryTree.checkedElementsCount,
                     );
                 }
+            });
+        },
+
+        fixSortingForCategories(categories, isSorted = false) {
+            const categoriesToBeChanged = [];
+
+            categories.forEach(category => {
+                // We need the second parameter, because the value of `afterCategoryId` of the actual next category
+                // is either updated already in case of `onDeleteCategory`, but not in case of `deleteCheckedItems`
+                const nextCategory = this.getNextCategory(category, isSorted ? 'afterCategoryId' : 'id');
+
+                if (!nextCategory) {
+                    return;
+                }
+
+                nextCategory.afterCategoryId = category.afterCategoryId;
+
+                if (categories.find(item => item.id === nextCategory.id)) {
+                    return;
+                }
+
+                categoriesToBeChanged.push(nextCategory);
+            });
+
+            return this.categoryRepository.saveAll(categoriesToBeChanged);
+        },
+
+        getNextCategory(category, key = 'id') {
+            return Object.values(this.loadedCategories).find((item) => {
+                return item.parentId === category.parentId && item.afterCategoryId === category[key];
             });
         },
 

@@ -45,7 +45,9 @@ function createWrapper() {
                         }
                     ]),
                     delete: () => Promise.resolve(),
-                    get: () => Promise.resolve()
+                    get: () => Promise.resolve(),
+                    saveAll: () => Promise.resolve(),
+                    syncDeleted: () => Promise.resolve()
                 })
             }
         },
@@ -286,6 +288,7 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
             const category = {
                 id: '1a',
                 isNew: () => false,
+                parentId: 'parent',
                 ...entryPoint
             };
 
@@ -300,6 +303,34 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
 
             wrapper.vm.createNotificationError.mockRestore();
         });
+    });
+
+    it('should not be able to delete a category having serviceSalesChannels as initial entry point', async () => {
+        const wrapper = createWrapper();
+        wrapper.vm.createNotificationError = jest.fn();
+
+        await wrapper.setData({
+            isLoadingInitialData: false
+        });
+
+        const entryPoint = { serviceSalesChannels: [{ id: '4d9ef75adbb149aa99785a0a969b3b7a' }] };
+        const category = {
+            id: '1a',
+            isNew: () => false,
+            parentId: 'parent',
+            ...entryPoint
+        };
+
+        await wrapper.vm.onDeleteCategory({ data: category, children: [] });
+
+        const notificationMock = wrapper.vm.createNotificationError;
+
+        expect(notificationMock).toBeCalledTimes(1);
+        expect(notificationMock).toHaveBeenCalledWith({
+            message: 'sw-category.general.errorNavigationEntryPoint'
+        });
+
+        wrapper.vm.createNotificationError.mockRestore();
     });
 
     it('should be able to delete a category having an empty entry point', async () => {
@@ -345,5 +376,57 @@ describe('src/module/sw-category/component/sw-category-tree', () => {
         expect(emitted).toBeTruthy();
         expect(emitted).toEqual([[1]]);
         expect(wrapper.vm.$refs.categoryTree.checkedElementsCount).toBe(1);
+    });
+
+    it('should fix the sorting right after deleting a single category', async () => {
+        const wrapper = createWrapper();
+
+        const category = {
+            id: '2',
+            isNew: () => false,
+            parentId: '1',
+            afterCategoryId: '1'
+        };
+
+        await wrapper.setData({
+            loadedCategories: {
+                1: { id: '1', parentId: '1', afterCategoryId: null },
+                2: { id: '2', parentId: '1', afterCategoryId: '1' },
+                // The `afterCategoryId` is "1" here, because in the actual code it was already fixed before
+                // `onDeleteCategory` is executed, see `sw-tree`::deleteElement()
+                3: { id: '3', parentId: '1', afterCategoryId: '1' },
+                4: { id: '4', parentId: '1', afterCategoryId: '3' }
+            }
+        });
+
+        await wrapper.vm.onDeleteCategory({ data: category, children: [] });
+
+        expect(wrapper.vm.loadedCategories[3].afterCategoryId).toBe('1');
+    });
+
+    it('should fix the sorting right after deleting multiple categories', async () => {
+        const wrapper = createWrapper();
+
+        const categories = {
+            2: {},
+            4: {},
+            5: {}
+        };
+
+        await wrapper.setData({
+            loadedCategories: {
+                1: { id: '1', parentId: '1', navigationSalesChannels: null, afterCategoryId: null },
+                2: { id: '2', parentId: '1', navigationSalesChannels: null, afterCategoryId: '1' },
+                3: { id: '3', parentId: '1', navigationSalesChannels: null, afterCategoryId: '2' },
+                4: { id: '4', parentId: '1', navigationSalesChannels: null, afterCategoryId: '3' },
+                5: { id: '5', parentId: '1', navigationSalesChannels: null, afterCategoryId: '4' },
+                6: { id: '6', parentId: '1', navigationSalesChannels: null, afterCategoryId: '5' }
+            }
+        });
+
+        await wrapper.vm.deleteCheckedItems(categories);
+
+        expect(wrapper.vm.loadedCategories[3].afterCategoryId).toBe('1');
+        expect(wrapper.vm.loadedCategories[6].afterCategoryId).toBe('3');
     });
 });

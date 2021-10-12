@@ -9,11 +9,6 @@ use Shopware\Core\Framework\Struct\Struct;
 class ProductDescriptionReviewsStruct extends Struct
 {
     /**
-     * @var SalesChannelProductEntity|null
-     */
-    protected $product;
-
-    /**
      * @var string|null
      */
     protected $productId;
@@ -27,6 +22,11 @@ class ProductDescriptionReviewsStruct extends Struct
      * @var ProductReviewResult|null
      */
     protected $reviews;
+
+    /**
+     * @var SalesChannelProductEntity|null
+     */
+    private $product;
 
     public function getProduct(): ?SalesChannelProductEntity
     {

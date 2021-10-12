@@ -10,7 +10,7 @@ class ProductSliderStruct extends Struct
     /**
      * @var ProductCollection|null
      */
-    protected $products;
+    private $products;
 
     private ?string $streamId;
 

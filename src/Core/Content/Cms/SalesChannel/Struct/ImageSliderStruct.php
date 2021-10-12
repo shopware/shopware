@@ -7,14 +7,14 @@ use Shopware\Core\Framework\Struct\Struct;
 class ImageSliderStruct extends Struct
 {
     /**
-     * @var ImageSliderItemStruct[]|null
-     */
-    protected $sliderItems = [];
-
-    /**
      * @var array|null
      */
     protected $navigation;
+
+    /**
+     * @var ImageSliderItemStruct[]|null
+     */
+    private $sliderItems = [];
 
     /**
      * @return ImageSliderItemStruct[]|null

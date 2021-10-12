@@ -9,7 +9,7 @@ class ManufacturerLogoStruct extends ImageStruct
     /**
      * @var ProductManufacturerEntity|null
      */
-    protected $manufacturer;
+    private $manufacturer;
 
     public function getManufacturer(): ?ProductManufacturerEntity
     {

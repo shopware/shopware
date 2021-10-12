@@ -8,11 +8,6 @@ use Shopware\Core\Framework\Struct\Struct;
 class ImageStruct extends Struct
 {
     /**
-     * @var MediaEntity|null
-     */
-    protected $media;
-
-    /**
      * @var string|null
      */
     protected $mediaId;
@@ -26,6 +21,11 @@ class ImageStruct extends Struct
      * @var bool|null
      */
     protected $newTab;
+
+    /**
+     * @var MediaEntity|null
+     */
+    private $media;
 
     public function getMedia(): ?MediaEntity
     {

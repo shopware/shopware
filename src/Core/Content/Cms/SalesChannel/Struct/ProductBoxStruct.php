@@ -8,14 +8,14 @@ use Shopware\Core\Framework\Struct\Struct;
 class ProductBoxStruct extends Struct
 {
     /**
-     * @var SalesChannelProductEntity|null
-     */
-    protected $product;
-
-    /**
      * @var string|null
      */
     protected $productId;
+
+    /**
+     * @var SalesChannelProductEntity|null
+     */
+    private $product;
 
     public function getProduct(): ?SalesChannelProductEntity
     {

@@ -18,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
@@ -34,18 +35,22 @@ class PaymentTransactionChainProcessor
 
     private StateMachineRegistry $stateMachineRegistry;
 
+    private SystemConfigService $systemConfigService;
+
     public function __construct(
         TokenFactoryInterfaceV2 $tokenFactory,
         EntityRepositoryInterface $orderRepository,
         RouterInterface $router,
         PaymentHandlerRegistry $paymentHandlerRegistry,
-        StateMachineRegistry $stateMachineRegistry
+        StateMachineRegistry $stateMachineRegistry,
+        SystemConfigService $systemConfigService
     ) {
         $this->tokenFactory = $tokenFactory;
         $this->orderRepository = $orderRepository;
         $this->router = $router;
         $this->paymentHandlerRegistry = $paymentHandlerRegistry;
         $this->stateMachineRegistry = $stateMachineRegistry;
+        $this->systemConfigService = $systemConfigService;
     }
 
     /**
@@ -116,13 +121,23 @@ class PaymentTransactionChainProcessor
             return null;
         }
 
+        $paymentFinalizeTransactionTime = $this->systemConfigService->get('core.cart.paymentFinalizeTransactionTime', $salesChannelContext->getSalesChannelId());
+
+        if (\is_numeric($paymentFinalizeTransactionTime)) {
+            $paymentFinalizeTransactionTime = (int) $paymentFinalizeTransactionTime;
+            // setting is in minutes, token holds in seconds
+            $paymentFinalizeTransactionTime *= 60;
+        } else {
+            $paymentFinalizeTransactionTime = null;
+        }
+
         $tokenStruct = new TokenStruct(
             null,
             null,
             $transaction->getPaymentMethodId(),
             $transaction->getId(),
             $finishUrl,
-            null,
+            $paymentFinalizeTransactionTime,
             $errorUrl
         );
 

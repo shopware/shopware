@@ -23,6 +23,12 @@
             <label lang="de-DE">Stornierungen erlauben</label>
         </input-field>
 
+        <input-field type="int">
+            <name>paymentFinalizeTransactionTime</name>
+            <defaultValue>30</defaultValue>
+            <label>Time in minutes for a customer to finalize a transaction</label>
+            <label lang="de-DE">Zeit in Minuten, die ein Kunde Zeit hat eine Transaktion abzuschließen</label>
+        </input-field>
     </card>
 
     <card>

@@ -28,6 +28,7 @@
     <div
         v-if="sequenceData.trueBlock"
         class="sw-flow-sequence__true-block"
+        :class="trueBlockClasses"
     >
         <sw-flow-sequence
             :sequence="sequenceData.trueBlock"

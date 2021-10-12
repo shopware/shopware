@@ -38,6 +38,7 @@
         {% block sw_flow_tag_modal_footer_cancel_button %}
         <sw-button
             class="sw-flow-tag-modal__cancel-button"
+            size="small"
             @click="onClose"
         >
             {{ $tc('global.default.cancel') }}
@@ -48,6 +49,7 @@
         <sw-button
             class="sw-flow-tag-modal__save-button"
             variant="primary"
+            size="small"
             @click="onSaveTag"
         >
             {{ isNewTag

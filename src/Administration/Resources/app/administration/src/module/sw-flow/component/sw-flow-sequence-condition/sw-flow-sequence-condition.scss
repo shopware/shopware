@@ -3,34 +3,32 @@
 
 .sw-flow-sequence-condition {
     position: relative;
-    padding-right: 90px;
-    padding-bottom: 60px;
-    margin-right: 8px;
-    margin-bottom: 8px;
+    display: grid;
+    grid-template-columns: min-content;
+    grid-template-rows: min-content;
 
     &__container {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(322px, 1fr));
-        grid-auto-rows: min-content;
-        grid-auto-flow: dense;
+        grid-column: 1;
+        grid-row: 1;
+        width: 322px;
     }
 
     &__true-arrow {
-        position: absolute;
-        top: 45px;
-        left: 322px;
-        border-top: 2px dashed $color-gray-400;
-        width: calc(100% - 322px);
-        transform: translateY(-50%);
+        grid-column: 2;
+        grid-row: 1;
+        position: relative;
+        width: 100%;
+        min-width: 100px;
+        top: 40px;
 
         &.has--true-action {
-            width: 92px;
+            width: 110px;
         }
 
         .icon--small-arrow-large-right {
             position: absolute;
-            top: -9px;
-            right: -8px;
+            top: -7px;
+            right: 0;
             color: $color-gray-500;
         }
 
@@ -45,9 +43,7 @@
 
             .sw-flow-sequence-condition__true-action {
                 &.sw-context-button {
-                    top: -13px;
-                    right: -21px;
-                    position: absolute;
+                    right: -13px;
                 }
             }
 
@@ -68,8 +64,7 @@
     }
 
     &__true-arrow &__oval {
-        left: -7px;
-        top: calc(50% - 22px);
+        left: -6px;
     }
 
     &__true-label {
@@ -86,15 +81,21 @@
     }
 
     &__false-arrow {
-        position: absolute;
-        left: 160px;
-        border-left: 2px dashed $color-gray-400;
-        height: 60px;
-        bottom: 0;
+        grid-column: 1;
+        grid-row: 2;
+        position: relative;
+        left: 50%;
+        height: 100%;
+        min-height: 70px;
+        width: 50%;
+
+        &.has--false-action {
+            height: 70px;
+        }
 
         .icon--small-arrow-large-down {
             position: absolute;
-            bottom: -4px;
+            bottom: 0;
             left: -9px;
             color: $color-gray-500;
         }
@@ -107,19 +108,11 @@
                     border: none;
                 }
             }
-
-            .sw-flow-sequence-condition__false-action {
-                &.sw-context-button {
-                    bottom: -21px;
-                    left: -13px;
-                    position: absolute;
-                }
-            }
         }
     }
 
     &__false-label {
-        top: 50%;
+        top: 36px;
         transform: translate(-50%, -50%);
 
         &.sw-label {
@@ -153,16 +146,26 @@
         }
     }
 
+    &__true-line {
+        border-top: 2px dashed $color-gray-400;
+        height: 2px;
+        width: calc(100% - 6px);
+        position: absolute;
+    }
+
+    &__false-line {
+        border-left: 2px dashed $color-gray-400;
+        height: calc(100% - 6px);
+        position: absolute;
+        left: -2px;
+    }
+
     &__true-action {
         &.sw-context-button {
-            top: -13px;
+            top: -11px;
             right: 0;
             position: absolute;
         }
-    }
-
-    &__true-action + &__true-label {
-        left: 40%;
     }
 
     &__false-action {
@@ -285,6 +288,10 @@
         padding: 0 24px;
         margin-bottom: 0;
         width: 100%;
+
+        .icon--small-default-x-circle {
+            cursor: pointer;
+        }
     }
 
     &__selection-rule {
@@ -299,7 +306,7 @@
         border: 2px dashed $color-gray-300;
         border-radius: 8px;
         color: $color-darkgray-200;
-        grid-row: span 2;
+        top: 0;
 
         h3 {
             font-size: $font-size-large;

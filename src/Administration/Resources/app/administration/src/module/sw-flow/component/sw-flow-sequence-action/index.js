@@ -258,10 +258,11 @@ Component.register('sw-flow-sequence-action', {
 
             if (actionName.includes('tag') &&
                 (actionName.includes('add') || actionName.includes('remove'))) {
-                return this.$tc('sw-flow.actions.tagDescription', 0, {
+                return `${this.$tc('sw-flow.actions.labelTo', 0, {
                     entity: config.entity,
+                })}<br>${this.$tc('sw-flow.actions.labelTag', 0, {
                     tagNames: this.convertTagString(Object.values(config.tagIds)),
-                });
+                })}`;
             }
 
             if (typeof this.actionDescription[actionName] !== 'function') {
@@ -329,21 +330,24 @@ Component.register('sw-flow-sequence-action', {
         getMailSendDescription(config) {
             const mailTemplateData = this.mailTemplates.find(item => item.id === config.mailTemplateId);
 
-            const mailTemplate = mailTemplateData?.mailTemplateType?.name;
+            let mailSendDescription = this.$tc('sw-flow.actions.labelTemplate', 0, {
+                template: mailTemplateData?.mailTemplateType?.name,
+            });
+
             let mailDescription = mailTemplateData?.description;
 
             if (mailDescription) {
-                // need to truncate string for UI fit in.
-                mailDescription = mailDescription.length > 30 ? `${mailDescription.substring(0, 30)}...` : mailDescription;
-                return this.$tc('sw-flow.actions.mailTemplateAndDescription', 0, {
-                    template: mailTemplate,
+                // Truncate description string
+                mailDescription = mailDescription.length > 30
+                    ? `${mailDescription.substring(0, 30)}...`
+                    : mailDescription;
+
+                mailSendDescription = `${mailSendDescription}<br>${this.$tc('sw-flow.actions.labelDescription', 0, {
                     description: mailDescription,
-                });
+                })}`;
             }
 
-            return this.$tc('sw-flow.actions.mailTemplate', 0, {
-                template: mailTemplate,
-            });
+            return mailSendDescription;
         },
     },
 });

@@ -76,14 +76,15 @@
       "setOrderState": "Status setzen",
       "stopFlow": "Flow anhalten",
       "textStopFlowDescription": "Nachfolgende Aktionen/Sequenzen werden nicht ausgeführt.",
+      "labelDescription": "Beschreibung: {description}",
       "contextButton": {
         "editAction": "Aktion bearbeiten",
         "deleteAction": "Aktion entfernen"
       },
       "addAction": "Aktion hinzufügen",
-      "tagDescription": "<div class='sw-flow-sequence-action__tags-description'><div>To: <span>{entity}<span></div><p>Tag: {tagNames}</p></div>",
-      "mailTemplate": "Template: {template}",
-      "mailTemplateAndDescription": "<div><div>Template: <span>{template}<span></div><p>Beschreibung: {description}</p></div>",
+      "labelTo": "Zu: {entity}",
+      "labelTag": "Tag: {tagNames}",
+      "labelTemplate": "Template: {template}",
       "placeholderSelectAction": "Aktion auswählen ..."
     },
     "rule": {

@@ -191,6 +191,7 @@ Component.register('sw-flow-sequence-condition', {
             return {
                 'is--disabled': this.disabledAddSequence(trueCase),
                 'has--true-action': !this.sequence.trueBlock,
+                'has--false-action': !this.sequence.falseBlock,
             };
         },
 

@@ -248,6 +248,46 @@ class SetPaymentOrderRouteTest extends TestCase
         static::assertNull($this->transactionStateEventResult);
     }
 
+    public function testSetPaymentMethodValidatePaymentStateValidChange(): void
+    {
+        $this->sendValidRequest($this->ids->get('order-1'), $this->getAvailablePaymentMethodId(1));
+        $transactions = $this->getTransactions($this->ids->get('order-1'));
+        static::assertCount(2, $transactions);
+        $firstTransaction = $transactions->first();
+        static::assertNotNull($firstTransaction);
+        $lastTransaction = $transactions->last();
+        static::assertNotNull($lastTransaction);
+        static::assertNotSame($firstTransaction->getId(), $lastTransaction->getId());
+
+        static::assertSame('cancelled', $firstTransaction->getStateMachineState()->getTechnicalName());
+        static::assertSame('open', $lastTransaction->getStateMachineState()->getTechnicalName());
+
+        static::assertNotNull($this->paymentMethodChangedEventResult);
+        static::assertSame($lastTransaction->getId(), $this->paymentMethodChangedEventResult->getOrderTransaction()->getId());
+        static::assertNotNull($this->transactionStateEventResult);
+        static::assertSame($firstTransaction->getId(), $this->transactionStateEventResult->getEntityId());
+        static::assertSame('open', $this->transactionStateEventResult->getFromPlace()->getTechnicalName());
+        static::assertSame('cancelled', $this->transactionStateEventResult->getToPlace()->getTechnicalName());
+    }
+
+    public function testSetPaymentMethodValidatePaymentStateInvalidChange(): void
+    {
+        $orderId = $this->ids->get('order-1');
+        $this->setFirstTransactionState($orderId, OrderTransactionStates::STATE_AUTHORIZED);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/order/payment',
+                [
+                    'orderId' => $orderId,
+                    'paymentMethodId' => $this->getAvailablePaymentMethodId(1),
+                ]
+            );
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $this->browser->getResponse()->getStatusCode());
+    }
+
     private function createOrder(string $customerId): string
     {
         $id = Uuid::randomHex();

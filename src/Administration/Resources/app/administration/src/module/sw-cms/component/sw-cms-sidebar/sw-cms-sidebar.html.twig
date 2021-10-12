@@ -290,6 +290,7 @@
                 v-for="(section, sectionIndex) in page.sections"
                 :key="section.id"
                 class="sw-cms-sidebar__navigator-section"
+                :id="`sw-cms-sidebar__section-${section.id}`"
             >
 
                 {% block sw_cms_sidebar_navigator_section_header %}
@@ -311,6 +312,7 @@
 
                         {% block sw_cms_sidebar_navigator_section_menu_move_up %}
                         <sw-context-menu-item
+                            class="sw-cms-sidebar__navigator-section-move-up"
                             :disabled="section.position === 0"
                             @click="moveSectionUp(section)"
                         >
@@ -320,6 +322,7 @@
 
                         {% block sw_cms_sidebar_navigator_section_menu_move_down %}
                         <sw-context-menu-item
+                            class="sw-cms-sidebar__navigator-section-move-down"
                             :disabled="section.position === page.sections.length - 1"
                             @click="moveSectionDown(section)"
                         >
@@ -328,19 +331,26 @@
                         {% endblock %}
 
                         {% block sw_cms_sidebar_navigator_section_menu_settings %}
-                        <sw-context-menu-item @click="openSectionSettings(sectionIndex)">
+                        <sw-context-menu-item
+                            class="sw-cms-sidebar__navigator-section-settings"
+                            @click="openSectionSettings(sectionIndex)"
+                        >
                             {{ $tc('sw-cms.sidebar.contentMenu.settings') }}
                         </sw-context-menu-item>
                         {% endblock %}
 
                         {% block sw_cms_sidebar_navigator_section_menu_duplicate %}
-                        <sw-context-menu-item @click="onSectionDuplicate(section)">
+                        <sw-context-menu-item
+                            class="sw-cms-sidebar__navigator-section-duplicate"
+                            @click="onSectionDuplicate(section)"
+                        >
                             {{ $tc('sw-cms.sidebar.contentMenu.duplicate') }}
                         </sw-context-menu-item>
                         {% endblock %}
 
                         {% block sw_cms_sidebar_navigator_section_menu_delete %}
                         <sw-context-menu-item
+                            class="sw-cms-sidebar__navigator-section-delete"
                             variant="danger"
                             @click="onSectionDelete(section.id)"
                         >

@@ -652,6 +652,8 @@ Component.register('sw-cms-detail', {
         },
 
         onPageSave(debounced = false) {
+            this.onPageUpdate();
+
             if (debounced) {
                 this.debouncedPageSave();
                 return;

@@ -25,6 +25,7 @@
         {% block sw_flow_event_change_confirm_footer_cancel_button %}
         <sw-button
             class="sw-flow-event-change-confirm-modal__cancel-button"
+            size="small"
             @click="onClose"
         >
             {{ $tc('global.default.cancel') }}
@@ -35,6 +36,7 @@
         <sw-button
             class="sw-flow-event-change-confirm-modal__confirm-button"
             variant="primary"
+            size="small"
             @click="onConfirm"
         >
             {{ $tc('global.default.confirm') }}

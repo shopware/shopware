@@ -126,6 +126,7 @@
         {% block sw_flow_create_mail_template_modal_footer_cancel_button %}
         <sw-button
             class="sw-flow-create-mail-template-modal__cancel-button"
+            size="small"
             @click="onClose"
         >
             {{ $tc('global.default.cancel') }}
@@ -136,6 +137,7 @@
         <sw-button
             class="sw-flow-create-mail-template-modal__save-button"
             variant="primary"
+            size="small"
             :is-loading="isLoading"
             @click="onAddMailTemplate"
         >

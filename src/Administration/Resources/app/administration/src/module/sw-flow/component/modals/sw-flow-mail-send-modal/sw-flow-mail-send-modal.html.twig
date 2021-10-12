@@ -180,6 +180,7 @@
         {% block sw_flow_mail_send_modal_footer_cancel_button %}
         <sw-button
             class="sw-flow-mail-send-modal__cancel-button"
+            size="small"
             @click="onClose"
         >
             {{ $tc('global.default.cancel') }}
@@ -190,6 +191,7 @@
         <sw-button
             class="sw-flow-mail-send-modal__save-button"
             variant="primary"
+            size="small"
             @click="onAddAction"
         >
             {{ sequence.id

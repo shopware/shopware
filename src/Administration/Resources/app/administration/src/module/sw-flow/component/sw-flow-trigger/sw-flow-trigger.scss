@@ -111,7 +111,7 @@ $sw-flow-trigger-transition-results: all ease-in-out 0.2s;
     &__dropdown-icon {
         position: absolute;
         right: 10px;
-        top: 55%;
+        top: 40px;
         background: $color-white;
         cursor: pointer;
     }
@@ -131,11 +131,21 @@ $sw-flow-trigger-transition-results: all ease-in-out 0.2s;
 
     @media screen and (max-height: 800px) {
         &__search-results {
-            max-height: 420px;
+            max-height: 400px;
         }
 
         .sw-tree .sw-tree__content {
-            max-height: 420px;
+            max-height: 400px;
+        }
+    }
+
+    @media screen and (max-height: 1024px) {
+        &__search-results {
+            max-height: 480px;
+        }
+
+        .sw-tree .sw-tree__content {
+            max-height: 480px;
         }
     }
 }

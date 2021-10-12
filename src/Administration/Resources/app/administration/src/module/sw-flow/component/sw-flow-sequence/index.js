@@ -37,5 +37,29 @@ Component.register('sw-flow-sequence', {
         isConditionSequence() {
             return this.sequenceData.ruleId || this.sequenceData.ruleId === '';
         },
+
+        trueBlockClasses() {
+            if (this.sequence.parentId || !this.isConditionSequence) {
+                return null;
+            }
+
+            let falseBlock = this.sequence?.falseBlock;
+            let trueBlock = this.sequence?.trueBlock;
+
+            if (!falseBlock || !trueBlock) {
+                return null;
+            }
+
+            falseBlock = Object.values(falseBlock);
+            trueBlock = Object.values(trueBlock);
+
+            // Check if both true block and false block are selector components
+            return {
+                'has--selector': falseBlock[0].actionName === null
+                    && falseBlock[0].ruleId === null
+                    && trueBlock[0].actionName === null
+                    && trueBlock[0].ruleId === null,
+            };
+        },
     },
 });

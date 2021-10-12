@@ -41,6 +41,7 @@
         {% block sw_flow_set_order_state_modal_footer_cancel_button %}
         <sw-button
             class="sw-flow-set-order-state-modal__cancel-button"
+            size="small"
             @click="onClose"
         >
             {{ $tc('global.default.cancel') }}
@@ -51,6 +52,7 @@
         <sw-button
             class="sw-flow-set-order-state-modal__save-button"
             variant="primary"
+            size="small"
             @click="onAddAction"
         >
             {{ sequence.id

@@ -23,6 +23,7 @@
         {% block sw_flow_generate_document_modal_footer_cancel_button %}
         <sw-button
             class="sw-flow-generate-document-modal__cancel-button"
+            size="small"
             @click="onClose"
         >
             {{ $tc('global.default.cancel') }}
@@ -33,6 +34,7 @@
         <sw-button
             class="sw-flow-generate-document-modal__save-button"
             variant="primary"
+            size="small"
             @click="onAddAction"
         >
             {{ sequence.id

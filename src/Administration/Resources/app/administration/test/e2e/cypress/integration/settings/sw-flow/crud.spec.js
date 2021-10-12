@@ -64,32 +64,27 @@ describe('Flow builder: Test crud operations', () => {
         // Click save without entering any data
         cy.get('.sw-flow-detail__save').click();
 
-        cy.awaitAndCheckNotification('The flow could not be saved.');
+        // Verify 400 Bad request
+        cy.wait('@saveEmptyData').its('response.statusCode').should('equal', 400);
 
-        cy.get('.sw-flow-detail__tab-flow').click();
-
-        // Check if empty required fields have error messages
-        cy.get('.sw-flow-trigger__search-field .sw-field__error')
+        // Automatically jump to tab Flow and check if name field has error message
+        cy.get('.sw-flow-detail-general__general-name .sw-field__error')
             .should('be.visible')
             .should('contain', 'This field must not be empty.');
 
-        cy.get('.sw-flow-trigger__input-field').type('order placed');
-        cy.get('.sw-flow-trigger__search-result').should('be.visible');
-        cy.get('.sw-flow-trigger__search-result').eq(0).click();
+        cy.awaitAndCheckNotification('The flow could not be saved.');
 
-        cy.get('.sw-flow-trigger__search-field .sw-field__error')
+        cy.get('.sw-flow-detail-general__general-name').type('Order placed');
+        cy.get('.sw-flow-detail-general__general-name .sw-field__error')
             .should('not.exist');
 
-        cy.get('.sw-flow-detail__tab-general').click();
-
-        // Click save without entering any data
         cy.get('.sw-flow-detail__save').click();
 
         // Verify 400 Bad request
         cy.wait('@saveEmptyData').its('response.statusCode').should('equal', 400);
 
-        // Check if empty required fields have error messages
-        cy.get('.sw-flow-detail-general__general-name .sw-field__error')
+        // Check if trigger event field ha error message
+        cy.get('.sw-flow-trigger__search-field .sw-field__error')
             .should('be.visible')
             .should('contain', 'This field must not be empty.');
 

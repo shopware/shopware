@@ -153,27 +153,6 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
         expect(saveButton.attributes().disabled).toBeFalsy();
     });
 
-    it('should show warning notification if event name is empty', async () => {
-        const wrapper = createWrapper([
-            'flow.editor'
-        ]);
-
-        Shopware.State.commit('swFlowState/setFlow',
-            {
-                eventName: '',
-                name: 'Flow 1',
-                sequences: []
-            });
-
-        wrapper.vm.createNotificationWarning = jest.fn();
-
-        const saveButton = wrapper.find('.sw-flow-detail__save');
-        await saveButton.trigger('click');
-
-        expect(wrapper.vm.createNotificationWarning).toHaveBeenCalled();
-        wrapper.vm.createNotificationWarning.mockRestore();
-    });
-
     it('should able to remove selector sequences before saving', async () => {
         const wrapper = createWrapper([
             'flow.editor'

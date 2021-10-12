@@ -80,16 +80,12 @@ abstract class KernelPluginLoader extends Bundle
         }
 
         foreach ($this->pluginInstances->getActives() as $plugin) {
-            if (!\in_array($plugin->getName(), $loadedBundles, true)) {
-                yield $plugin;
-                $loadedBundles[] = $plugin->getName();
-            }
-
             $copy = new KernelPluginCollection($this->getPluginInstances()->all());
             $additionalBundleParameters = new AdditionalBundleParameters($this->classLoader, $copy, $kernelParameters);
             $additionalBundles = $plugin->getAdditionalBundles($additionalBundleParameters);
+            [$preLoaded, $postLoaded] = $this->splitBundlesIntoPreAndPost($additionalBundles);
 
-            foreach ($additionalBundles as $bundle) {
+            foreach ([...\array_values($preLoaded), $plugin, ...\array_values($postLoaded)] as $bundle) {
                 if (!\in_array($bundle->getName(), $loadedBundles, true)) {
                     yield $bundle;
                     $loadedBundles[] = $bundle->getName();
@@ -290,5 +286,29 @@ abstract class KernelPluginLoader extends Bundle
 
             $this->pluginInstances->add($plugin);
         }
+    }
+
+    /**
+     * @param Bundle[] $bundles
+     *
+     * @return array<Bundle[]>
+     */
+    private function splitBundlesIntoPreAndPost(array $bundles): array
+    {
+        $pre = [];
+        $post = [];
+
+        foreach ($bundles as $index => $bundle) {
+            if (\is_int($index) && $index < 0) {
+                $pre[$index] = $bundle;
+            } else {
+                $post[$index] = $bundle;
+            }
+        }
+
+        \ksort($pre);
+        \ksort($post);
+
+        return [$pre, $post];
     }
 }

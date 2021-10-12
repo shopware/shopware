@@ -65,6 +65,13 @@ class RepositoryIterator
         return null;
     }
 
+    public function iterateIds(): \Generator
+    {
+        while (($ids = $this->fetchIds()) !== null) {
+            yield from $ids;
+        }
+    }
+
     public function fetch(): ?EntitySearchResult
     {
         $this->criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
@@ -79,5 +86,12 @@ class RepositoryIterator
         }
 
         return $result;
+    }
+
+    public function iterate(): \Generator
+    {
+        while (($result = $this->fetch()) !== null) {
+            yield from $result->getEntities()->getIterator();
+        }
     }
 }

@@ -64,8 +64,9 @@
                         class="sw-flow-sequence-action__action-item"
                     >
 
-                        {% block sw_flow_sequence_action_actions_header %}
+                        {% block sw_flow_sequence_action_actions_item_header %}
                         <div class="sw-flow-sequence-action__action-header">
+                            {% block sw_flow_sequence_action_actions_item_name %}
                             <div class="sw-flow-sequence-action__action-name">
                                 <sw-icon
                                     :name="`${item.icon}`"
@@ -75,13 +76,14 @@
 
                                 <h3>{{ item.label }}</h3>
                             </div>
+                            {% endblock %}
 
-                            {% block sw_flow_sequence_action_context_button %}
+                            {% block sw_flow_sequence_action_actions_item_context_button %}
                             <sw-context-button
                                 class="sw-flow-sequence-action__context-button"
                                 :disabled="disabled"
                             >
-                                {% block sw_flow_sequence_action_context_button_edit %}
+                                {% block sw_flow_sequence_action_actions_item_button_edit %}
                                 <sw-context-menu-item
                                     v-if="isNotStopFlow(item)"
                                     class="sw-flow-sequence-action__edit-action"
@@ -91,7 +93,7 @@
                                 </sw-context-menu-item>
                                 {% endblock %}
 
-                                {% block sw_flow_sequence_action_context_button_delete %}
+                                {% block sw_flow_sequence_action_actions_item_button_delete %}
                                 <sw-context-menu-item
                                     variant="danger"
                                     class="sw-flow-sequence-action__delete-action"
@@ -105,11 +107,13 @@
                         </div>
                         {% endblock %}
 
+                        {% block sw_flow_sequence_action_actions_item_description %}
                         <div
                             class="sw-flow-sequence-action__action-description"
                             v-html="getActionDescription(item)"
                         >
                         </div>
+                        {% endblock %}
                     </li>
                     {% endblock %}
                 </ul>

@@ -58,6 +58,14 @@ Component.register('sw-flow-sequence-condition', {
             return this.flowBuilderService.getActionModalName(this.actionModal);
         },
 
+        ruleDescription() {
+            if (!this.sequence?.rule?.description) {
+                return null;
+            }
+
+            return this.sequence.rule.description.replace(/\n/g, '<br>');
+        },
+
         ...mapState('swFlowState', ['invalidSequences']),
     },
 

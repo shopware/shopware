@@ -8,7 +8,7 @@ import './component/sw-flow-sequence';
 import './component/sw-flow-sequence-action';
 import './component/sw-flow-sequence-condition';
 import './component/sw-flow-sequence-selector';
-import './component/modals/sw-flow-create-rule-modal';
+import './component/modals/sw-flow-rule-modal';
 import './component/modals/sw-flow-tag-modal';
 import './component/modals/sw-flow-set-order-state-modal';
 import './component/modals/sw-flow-generate-document-modal';

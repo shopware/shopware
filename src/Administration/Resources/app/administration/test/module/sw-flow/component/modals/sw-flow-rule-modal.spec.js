@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
-import 'src/module/sw-flow/component/modals/sw-flow-create-rule-modal';
+import 'src/module/sw-flow/component/modals/sw-flow-rule-modal';
 import 'src/app/component/base/sw-tabs';
 import 'src/app/component/base/sw-tabs-item';
 
@@ -16,7 +16,7 @@ function createRuleMock(isNew) {
 }
 
 function createWrapper() {
-    return shallowMount(Shopware.Component.build('sw-flow-create-rule-modal'), {
+    return shallowMount(Shopware.Component.build('sw-flow-rule-modal'), {
         provide: {
             repositoryFactory: {
                 create: () => {
@@ -29,6 +29,7 @@ function createWrapper() {
                     };
                 }
             },
+
             ruleConditionDataProviderService: {
                 getModuleTypes: () => []
             }
@@ -53,6 +54,9 @@ function createWrapper() {
             'sw-button': {
                 template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>'
             },
+            'sw-button-process': {
+                template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>'
+            },
             'sw-icon': true,
             'sw-condition-tree': true,
             'sw-container': true,
@@ -64,21 +68,21 @@ function createWrapper() {
     });
 }
 
-describe('module/sw-flow/component/sw-flow-create-rule-modal', () => {
+describe('module/sw-flow/component/sw-flow-rule-modal', () => {
     it('should show element correctly', async () => {
         const wrapper = createWrapper();
 
-        const conditionElement = wrapper.find('.sw-flow-create-rule-modal__rule');
+        const conditionElement = wrapper.find('.sw-flow-rule-modal__rule');
         expect(conditionElement.exists()).toBe(true);
 
         const fieldClasses = [
-            '.sw-flow-create-rule-modal__name',
-            '.sw-flow-create-rule-modal__priority',
-            '.sw-flow-create-rule-modal__description',
-            '.sw-flow-create-rule-modal__type'
+            '.sw-flow-rule-modal__name',
+            '.sw-flow-rule-modal__priority',
+            '.sw-flow-rule-modal__description',
+            '.sw-flow-rule-modal__type'
         ];
 
-        const detailHeaderTab = wrapper.find('.sw-flow-create-rule-modal__tab-detail');
+        const detailHeaderTab = wrapper.find('.sw-flow-rule-modal__tab-detail');
         detailHeaderTab.trigger('click');
         await wrapper.vm.$nextTick();
 
@@ -87,10 +91,10 @@ describe('module/sw-flow/component/sw-flow-create-rule-modal', () => {
         });
     });
 
-    it('should emit event process-finish when saving rule sucessfully', async () => {
+    it('should emit event process-finish when saving rule successfully', async () => {
         const wrapper = await createWrapper();
 
-        const saveButton = wrapper.find('.sw-flow-create-rule-modal__save-button');
+        const saveButton = wrapper.find('.sw-flow-rule-modal__save-button');
         await saveButton.trigger('click');
         await wrapper.vm.$nextTick();
 

@@ -79,7 +79,7 @@ function createWrapper(propsData = {}) {
                 `
             },
             'sw-label': true,
-            'sw-flow-create-rule-modal': true
+            'sw-flow-rule-modal': true
         },
         propsData: {
             sequence: sequenceFixture,
@@ -395,7 +395,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
         expect(sequencesState.length).toEqual(0);
     });
 
-    it('should able to edit rule', async () => {
+    it('should able to change rule', async () => {
         const sequence = {
             ...sequenceFixture,
             ruleId: '1111',
@@ -412,7 +412,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
             sequence
         });
 
-        const editButton = wrapper.find('.sw-flow-sequence-condition__rule-edit');
+        const editButton = wrapper.find('.sw-flow-sequence-condition__rule-change');
         await editButton.trigger('click');
 
         const ruleSelect = wrapper.find('.sw-entity-single-select__selection-input');
@@ -493,7 +493,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
         });
     });
 
-    it('should show create rule modal', async () => {
+    it('should show rule modal when click on create new rule option', async () => {
         const sequence = {
             ...sequenceFixture,
             ruleId: ''
@@ -505,13 +505,41 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
             sequence
         });
 
-        let createRuleModal = wrapper.find('sw-flow-create-rule-modal-stub');
+        let createRuleModal = wrapper.find('sw-flow-rule-modal-stub');
         expect(createRuleModal.exists()).toBeFalsy();
 
         const createRuleButton = wrapper.find('.sw-select-result__create-new-rule');
         await createRuleButton.trigger('click');
 
-        createRuleModal = wrapper.find('sw-flow-create-rule-modal-stub');
+        createRuleModal = wrapper.find('sw-flow-rule-modal-stub');
         expect(createRuleModal.exists()).toBeTruthy();
+    });
+
+    it('should show rule modal when click on edit rule option', async () => {
+        const sequence = {
+            ...sequenceFixture,
+            ruleId: '1111',
+            rule: {
+                name: 'Rule name',
+                id: '1111'
+            }
+        };
+
+        Shopware.State.commit('swFlowState/setSequences',
+            getSequencesCollection([{ ...sequence }]));
+
+        const wrapper = createWrapper({
+            sequence
+        });
+
+        let ruleModal = wrapper.find('sw-flow-rule-modal-stub');
+        expect(ruleModal.exists()).toBeFalsy();
+
+        const editButton = wrapper.find('.sw-flow-sequence-condition__rule-edit');
+        await editButton.trigger('click');
+
+        ruleModal = wrapper.find('sw-flow-rule-modal-stub');
+        expect(ruleModal.exists()).toBeTruthy();
+        expect(ruleModal.attributes()['rule-id']).toEqual('1111');
     });
 });

@@ -5,7 +5,7 @@ const { Component, State } = Shopware;
 const { Criteria } = Shopware.Data;
 const utils = Shopware.Utils;
 const { ShopwareError } = Shopware.Classes;
-const { mapState } = Component.getComponentHelper();
+const { mapState, mapGetters } = Component.getComponentHelper();
 
 Component.register('sw-flow-sequence-condition', {
     template,
@@ -33,6 +33,7 @@ Component.register('sw-flow-sequence-condition', {
             showRuleSelection: false,
             fieldError: null,
             showAddButton: false,
+            selectedRuleId: null,
         };
     },
 
@@ -67,6 +68,7 @@ Component.register('sw-flow-sequence-condition', {
         },
 
         ...mapState('swFlowState', ['invalidSequences']),
+        ...mapGetters('swFlowState', ['sequences']),
     },
 
     watch: {
@@ -106,9 +108,10 @@ Component.register('sw-flow-sequence-condition', {
 
         onCloseModal() {
             this.showCreateRuleModal = false;
+            this.selectedRuleId = null;
         },
 
-        onCreateRuleSuccess(rule) {
+        onSaveRuleSuccess(rule) {
             this.onRuleChange(rule);
         },
 
@@ -122,6 +125,24 @@ Component.register('sw-flow-sequence-condition', {
                 rule,
                 ruleId: rule.id,
             });
+
+            if (this.selectedRuleId) {
+                // Update other conditions which use the same rule
+                this.sequences.forEach(sequence => {
+                    if (sequence.ruleId !== this.selectedRuleId
+                        || sequence.id === this.sequence.id) {
+                        return;
+                    }
+
+                    State.commit('swFlowState/updateSequence', {
+                        id: sequence.id,
+                        rule,
+                        ruleId: rule.id,
+                    });
+                });
+
+                this.selectedRuleId = null;
+            }
 
             this.removeFieldError();
             this.showRuleSelection = false;
@@ -271,6 +292,11 @@ Component.register('sw-flow-sequence-condition', {
             }
 
             this.showAddButton = !this.showAddButton;
+        },
+
+        onEditRule() {
+            this.selectedRuleId = this.sequence?.rule?.id;
+            this.showCreateRuleModal = true;
         },
     },
 });

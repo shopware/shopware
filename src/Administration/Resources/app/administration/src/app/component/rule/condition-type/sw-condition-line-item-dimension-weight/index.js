@@ -3,7 +3,7 @@ import template from './sw-condition-line-item-dimension-weight.html.twig';
 const { Component } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
-Component.extend('sw-condition-line-item-dimension-weight', 'sw-condition-base', {
+Component.extend('sw-condition-line-item-dimension-weight', 'sw-condition-base-line-item', {
     template,
 
     data() {

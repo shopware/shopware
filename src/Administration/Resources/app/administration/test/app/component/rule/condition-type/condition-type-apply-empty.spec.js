@@ -1,6 +1,7 @@
 /* global adminPath */
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/rule/sw-condition-base';
+import 'src/app/component/rule/sw-condition-base-line-item';
 import 'src/app/component/rule/sw-condition-type-select';
 import 'src/app/component/rule/sw-condition-operator-select';
 import 'src/app/component/context-menu/sw-context-button';
@@ -104,6 +105,7 @@ function createWrapperForComponent(componentName, props = {}) {
             'sw-entity-tag-select': true,
             'sw-entity-multi-select': true,
             'sw-condition-base': true,
+            'sw-condition-base-line-item': true,
             'sw-tagged-field': true,
             'sw-context-menu-item': true,
             'sw-number-field': true,
@@ -123,7 +125,11 @@ function createWrapperForComponent(componentName, props = {}) {
             repositoryFactory: {
                 create: () => ({})
             },
-            removeNodeFromTree: () => {}
+            insertNodeIntoTree: () => ({}),
+            removeNodeFromTree: () => ({}),
+            createCondition: () => ({}),
+            conditionScopes: [],
+            unwrapAllLineItemsCondition: () => ({})
         },
         propsData: {
             condition: {},

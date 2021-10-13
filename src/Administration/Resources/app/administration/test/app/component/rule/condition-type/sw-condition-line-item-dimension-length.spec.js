@@ -3,6 +3,7 @@ import ConditionDataProviderService from 'src/app/service/rule-condition.service
 import 'src/app/component/rule/condition-type/sw-condition-line-item-dimension-length';
 import 'src/app/component/rule/sw-condition-operator-select';
 import 'src/app/component/rule/sw-condition-base';
+import 'src/app/component/rule/sw-condition-base-line-item';
 import 'src/app/component/base/sw-button';
 import 'src/app/component/form/sw-number-field';
 import 'src/app/component/form/sw-text-field';
@@ -32,7 +33,12 @@ describe('components/rule/condition-type/sw-condition-line-item-dimension-length
                 conditionDataProviderService: new ConditionDataProviderService(),
                 availableTypes: {},
                 childAssociationField: {},
-                validationService: {}
+                validationService: {},
+                insertNodeIntoTree: () => ({}),
+                removeNodeFromTree: () => ({}),
+                createCondition: () => ({}),
+                conditionScopes: [],
+                unwrapAllLineItemsCondition: () => ({})
             },
             propsData: {
                 condition: {}

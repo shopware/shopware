@@ -3,7 +3,7 @@ import template from './sw-condition-line-item-clearance-sale.html.twig';
 const { Component } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 
-Component.extend('sw-condition-line-item-clearance-sale', 'sw-condition-base', {
+Component.extend('sw-condition-line-item-clearance-sale', 'sw-condition-base-line-item', {
     template,
 
     computed: {

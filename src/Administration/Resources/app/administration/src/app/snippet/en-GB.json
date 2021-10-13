@@ -628,6 +628,10 @@
           "label": "Condition was not found",
           "error-message": "Condition type {type} was not found. The condition includes the field: {fields} | The condition type {type} was not found. The conditions include the fields: {fields}"
         },
+        "lineItemCondition": {
+          "any": "Any line item",
+          "all": "All line items"
+        },
         "subCondition": "Subcondition",
         "deleteConditions": "Delete container",
         "deleteAllConditions": "Delete all",

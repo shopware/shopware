@@ -4,7 +4,7 @@ const { Component, Context } = Shopware;
 const { mapPropertyErrors } = Component.getComponentHelper();
 const { EntityCollection, Criteria } = Shopware.Data;
 
-Component.extend('sw-condition-line-item-taxation', 'sw-condition-base', {
+Component.extend('sw-condition-line-item-taxation', 'sw-condition-base-line-item', {
     template,
     inheritAttrs: false,
 

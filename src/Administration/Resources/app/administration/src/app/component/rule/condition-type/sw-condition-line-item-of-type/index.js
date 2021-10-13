@@ -11,7 +11,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
  * @component-example
  * <sw-condition-line-item-of-type :condition="condition" :level="0"></sw-condition-line-item-of-type>
  */
-Component.extend('sw-condition-line-item-of-type', 'sw-condition-base', {
+Component.extend('sw-condition-line-item-of-type', 'sw-condition-base-line-item', {
     template,
 
     computed: {

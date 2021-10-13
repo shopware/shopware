@@ -12,7 +12,7 @@ const { EntityCollection, Criteria } = Shopware.Data;
  * @component-example
  * <sw-condition-line-item-property :condition="condition" :level="0"></sw-condition-line-item-property>
  */
-Component.extend('sw-condition-line-item-property', 'sw-condition-base', {
+Component.extend('sw-condition-line-item-property', 'sw-condition-base-line-item', {
     template,
 
     inject: ['repositoryFactory', 'feature'],

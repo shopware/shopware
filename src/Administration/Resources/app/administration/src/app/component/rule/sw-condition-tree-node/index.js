@@ -35,6 +35,18 @@ Component.register('sw-condition-tree-node', {
             required: false,
             default: false,
         },
+
+        insertBefore: {
+            type: Function,
+            required: false,
+            default: null,
+        },
+
+        insertAfter: {
+            type: Function,
+            required: false,
+            default: null,
+        },
     },
 
     computed: {
@@ -49,6 +61,11 @@ Component.register('sw-condition-tree-node', {
         },
 
         insertNewNodeBefore() {
+            if (typeof this.insertBefore === 'function') {
+                this.insertBefore();
+                return;
+            }
+
             this.insertNodeIntoTree(
                 this.parentCondition,
                 this.createCondition(
@@ -61,6 +78,11 @@ Component.register('sw-condition-tree-node', {
         },
 
         insertNewNodeAfter() {
+            if (typeof this.insertAfter === 'function') {
+                this.insertAfter();
+                return;
+            }
+
             this.insertNodeIntoTree(
                 this.parentCondition,
                 this.createCondition(

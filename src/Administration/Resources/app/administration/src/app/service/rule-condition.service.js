@@ -231,6 +231,10 @@ export default function createConditionService() {
         return { type: null, value: {} };
     }
 
+    function isAllLineItemsContainer(condition) {
+        return condition.type === 'allLineItemsContainer';
+    }
+
     function getComponentByCondition(condition) {
         if (isAndContainer(condition)) {
             return 'sw-condition-and-container';
@@ -238,6 +242,10 @@ export default function createConditionService() {
 
         if (isOrContainer(condition)) {
             return 'sw-condition-or-container';
+        }
+
+        if (isAllLineItemsContainer(condition)) {
+            return 'sw-condition-all-line-items-container';
         }
 
         if (!condition.type) {

@@ -128,38 +128,39 @@ Component.register('sw-order-send-document-modal', {
         onSendDocument() {
             this.isLoading = true;
 
-            this.mailTemplateRepository.get(this.mailTemplateId, Shopware.Context.api, this.mailTemplateSendCriteria).then((mailTemplate) => {
-                this.mailService.sendMailTemplate(
-                    this.recipient,
-                    `${this.order.orderCustomer.firstName} ${this.order.orderCustomer.lastName}`,
-                    {
-                        ...mailTemplate,
-                        ...{
-                            subject: this.subject,
-                            recipient: this.recipient,
+            this.mailTemplateRepository.get(this.mailTemplateId, Shopware.Context.api, this.mailTemplateSendCriteria)
+                .then((mailTemplate) => {
+                    this.mailService.sendMailTemplate(
+                        this.recipient,
+                        `${this.order.orderCustomer.firstName} ${this.order.orderCustomer.lastName}`,
+                        {
+                            ...mailTemplate,
+                            ...{
+                                subject: this.subject,
+                                recipient: this.recipient,
+                            },
                         },
-                    },
-                    {
-                        getIds: () => {},
-                    },
-                    this.order.salesChannelId,
-                    false,
-                    [this.document.id],
-                    {
-                        order: this.order,
-                        salesChannel: this.order.salesChannel,
-                    },
-                ).catch(() => {
-                    this.createNotificationError({
-                        message: this.$tc('sw-order.documentSendModal.errorMessage'),
+                        {
+                            getIds: () => {},
+                        },
+                        this.order.salesChannelId,
+                        false,
+                        [this.document.id],
+                        {
+                            order: this.order,
+                            salesChannel: this.order.salesChannel,
+                        },
+                    ).catch(() => {
+                        this.createNotificationError({
+                            message: this.$tc('sw-order.documentSendModal.errorMessage'),
+                        });
+                        this.$emit('modal-close');
+                    }).then(() => {
+                        this.$emit('document-sent');
+                    }).finally(() => {
+                        this.isLoading = false;
                     });
-                    this.$emit('modal-close');
-                }).then(() => {
-                    this.$emit('document-sent');
-                }).finally(() => {
-                    this.isLoading = false;
                 });
-            });
         },
     },
 });

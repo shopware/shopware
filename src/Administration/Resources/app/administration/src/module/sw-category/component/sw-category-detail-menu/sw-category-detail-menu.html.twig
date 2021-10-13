@@ -16,12 +16,13 @@
 
     {% block sw_category_detail_menu_media %}
     <sw-upload-listener
+        :key="category.id + 'uploadListener'"
         :upload-tag="category.id"
         auto-upload
         @media-upload-finish="onSetMediaItem"
-        :key="category.id + 'uploadListener'"
     />
     <sw-media-upload-v2
+        :key="category.id + 'upload'"
         :label="$tc('sw-category.base.menu.imageLabel')"
         variant="regular"
         :disabled="!acl.can('category.editor')"
@@ -32,12 +33,12 @@
         @media-drop="onMediaDropped"
         @media-upload-sidebar-open="openMediaSidebar"
         @media-upload-remove-image="onRemoveMediaItem"
-        :key="category.id + 'upload'"
     />
     {% endblock %}
 
     {% block sw_category_detail_menu_description %}
     <sw-text-editor
+        :key="category.id + 'description'"
         v-model="category.description"
         class="sw-category-detail-base__description"
         type="textarea"
@@ -46,7 +47,6 @@
         sanitize-field-name="category_translation.description"
         :label="$tc('sw-category.base.menu.descriptionLabel')"
         :placeholder="$tc('sw-category.base.menu.descriptionPlaceholder')"
-        :key="category.id + 'description'"
     />
     {% endblock %}
 </sw-card>

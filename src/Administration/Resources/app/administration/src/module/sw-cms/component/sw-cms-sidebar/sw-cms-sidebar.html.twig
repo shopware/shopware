@@ -288,9 +288,9 @@
             {% block sw_cms_sidebar_navigator_section %}
             <div
                 v-for="(section, sectionIndex) in page.sections"
+                :id="`sw-cms-sidebar__section-${section.id}`"
                 :key="section.id"
                 class="sw-cms-sidebar__navigator-section"
-                :id="`sw-cms-sidebar__section-${section.id}`"
             >
 
                 {% block sw_cms_sidebar_navigator_section_header %}

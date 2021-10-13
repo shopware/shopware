@@ -1,14 +1,15 @@
 import template from './sw-import-export-activity-detail-modal.html.twig';
 import './sw-import-export-activity-detail-modal.scss';
 
-const { Mixin } = Shopware;
+const { Component, Mixin } = Shopware;
 const { format } = Shopware.Utils;
 
 /**
- * @deprecated tag:v6.5.0 - Remove component + snippets. This component is replaced by the `sw-import-export-activity-log-info-modal` and `sw-import-export-activity-result-modal`.
+ * @deprecated tag:v6.5.0 - Remove component + snippets. This component is replaced by the
+ *  `sw-import-export-activity-log-info-modal` and `sw-import-export-activity-result-modal`.
  * @private
  */
-Shopware.Component.register('sw-import-export-activity-detail-modal', {
+Component.register('sw-import-export-activity-detail-modal', {
     template,
 
     inject: ['importExport'],

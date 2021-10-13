@@ -39,7 +39,10 @@ Component.extend('sw-bulk-edit-custom-fields', 'sw-custom-field-set-renderer', {
         },
 
         updateCustomField(item) {
-            if (!this.entity.customFields.hasOwnProperty(item.name) || !this.selectedCustomFields.hasOwnProperty(item.name)) {
+            if (
+                !this.entity.customFields.hasOwnProperty(item.name) ||
+                !this.selectedCustomFields.hasOwnProperty(item.name)
+            ) {
                 return;
             }
 

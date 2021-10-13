@@ -1,10 +1,10 @@
 import template from './sw-flow-tag-modal.html.twig';
 
-const { Component, Mixin, Context } = Shopware;
+const { Component, Mixin, Context, EntityDefinition } = Shopware;
 const { ShopwareError } = Shopware.Classes;
 const { EntityCollection, Criteria } = Shopware.Data;
 const { mapState } = Component.getComponentHelper();
-const { capitalizeString } = Shopware.Utils.string;
+const { capitalizeString, snakeCase } = Shopware.Utils.string;
 
 Component.register('sw-flow-tag-modal', {
     template,
@@ -125,6 +125,11 @@ Component.register('sw-flow-tag-modal', {
 
             Object.entries(this.triggerEvent.data).forEach(([key, value]) => {
                 if (value.type !== 'entity') {
+                    return;
+                }
+
+                const hasTagsAssociation = EntityDefinition.get(snakeCase(key)).properties?.tags;
+                if (!hasTagsAssociation) {
                     return;
                 }
 

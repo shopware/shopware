@@ -16,7 +16,7 @@
 |`contact_form.send` | Triggers when a contact form is send | - | {"contactFormData":"object"}
 |`customer.group.registration.accepted` | __EMPTY__ | `customer:read` `customer_group:read` | {"entity":"customer_group"}
 |`customer.group.registration.declined` | __EMPTY__ | `customer:read` `customer_group:read` | {"entity":"customer_group"}
-|`customer.recovery.request` | Triggers when a customer recovers his password | `customer_recovery:read` | {"entity":"customer_recovery","resetUrl":"string","shopName":"string"}
+|`customer.recovery.request` | Triggers when a customer recovers his password | `customer_recovery:read` `customer:read` | {"entity":"customer","resetUrl":"string","shopName":"string"}
 |`mail.after.create.message` | __EMPTY__ | - | {"data":"array","message":"object"}
 |`mail.before.send` | Triggers before a mail is send | - | {"data":"array","templateData":"array"}
 |`mail.sent` | Triggers when a mail is send from Shopware | - | {"subject":"string","contents":"string","recipients":"array"}

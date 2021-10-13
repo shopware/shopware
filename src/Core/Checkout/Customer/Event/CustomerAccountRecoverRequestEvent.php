@@ -4,6 +4,8 @@ namespace Shopware\Core\Checkout\Customer\Event;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\EventData\EntityType;
@@ -78,6 +80,7 @@ class CustomerAccountRecoverRequestEvent extends Event implements MailActionInte
     {
         return (new EventDataCollection())
             ->add('customerRecovery', new EntityType(CustomerRecoveryDefinition::class))
+            ->add('customer', new EntityType(CustomerDefinition::class))
             ->add('resetUrl', new ScalarValueType(ScalarValueType::TYPE_STRING))
             ->add('shopName', new ScalarValueType(ScalarValueType::TYPE_STRING));
     }
@@ -108,6 +111,14 @@ class CustomerAccountRecoverRequestEvent extends Event implements MailActionInte
     public function getShopName(): string
     {
         return $this->shopName;
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_8225)
+     */
+    public function getCustomer(): ?CustomerEntity
+    {
+        return $this->customerRecovery->getCustomer();
     }
 
     /**

@@ -196,6 +196,8 @@ General styling for cms elements
 .cms-element-image-slider,
 .cms-element-product-description-reviews,
 .cms-element-image-gallery {
+    word-break: break-word;
+
     &.has-vertical-alignment {
         display: flex;
         height: 100%;

@@ -91,6 +91,7 @@
       "createNewRule": "Neue Regel erstellen",
       "contextButton": {
         "editRule": "Regel bearbeiten",
+        "changeRule": "Regel ändern",
         "deleteRule": "Regel entfernen"
       },
       "placeholderSelectRule": "Regel auswählen ..."
@@ -100,8 +101,9 @@
       "buttonSaveAction": "Aktion speichern",
       "rule": {
         "labelAddNewRule": "Neue Regel hinzufügen",
+        "labelEditRule": "Regel bearbeiten",
         "tabRule": "Regel",
-        "detailsTab": "Details",
+        "tabDetail": "Detail",
         "buttonAddRule": "Speichern und anwenden",
         "labelName": "Name",
         "placeholderName": "Namen eingeben ...",

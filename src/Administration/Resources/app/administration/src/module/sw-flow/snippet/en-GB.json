@@ -91,6 +91,7 @@
       "createNewRule": "Create new rule",
       "contextButton": {
         "editRule": "Edit rule",
+        "changeRule": "Change rule",
         "deleteRule": "Delete rule"
       },
       "placeholderSelectRule": "Select rule ..."
@@ -100,8 +101,9 @@
       "buttonSaveAction": "Save action",
       "rule": {
         "labelAddNewRule": "Add new rule",
+        "labelEditRule": "Edit rule",
         "tabRule": "Rule",
-        "detailsTab": "Details",
+        "tabDetail": "Detail",
         "buttonAddRule": "Save and apply",
         "labelName": "Name",
         "placeholderName": "Enter rule name ...",

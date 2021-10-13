@@ -1,0 +1,148 @@
+{% block sw_flow_rule_modal %}
+<sw-modal
+    class="sw-flow-rule-modal"
+    variant="large"
+    :title="modalTitle"
+    :is-loading="isLoading"
+    @modal-close="onClose"
+>
+    {% block sw_flow_rule_modal_tabs %}
+    <sw-tabs default-item="rule">
+        {% block sw_flow_rule_headers %}
+        <template #default="{ active }">
+            {% block sw_flow_rule_modal_tab_rule %}
+            <sw-tabs-item
+                class="sw-flow-rule-modal__tab-rule"
+                v-bind="$props"
+                name="rule"
+                :active-tab="active"
+            >
+                {{ $tc('sw-flow.modals.rule.tabRule') }}
+            </sw-tabs-item>
+            {% endblock %}
+
+            {% block sw_flow_rule_modal_tab_detail %}
+            <sw-tabs-item
+                class="sw-flow-rule-modal__tab-detail"
+                v-bind="$props"
+                name="detail"
+                :active-tab="active"
+            >
+                {{ $tc('sw-flow.modals.rule.tabDetail') }}
+            </sw-tabs-item>
+            {% endblock %}
+        </template>
+        {% endblock %}
+
+        {% block sw_flow_rule_modal_content %}
+        <template #content="{ active }">
+            <div class="sw-flow-rule-modal__content">
+                {% block sw_flow_rule_modal_tab_rule_content %}
+                <template v-if="active === 'rule'">
+                    {% block sw_flow_rule_modal_conditions_card %}
+                    <sw-condition-tree
+                        v-if="conditionRepository"
+                        class="sw-flow-rule-modal__rule"
+                        association-field="ruleId"
+                        :initial-conditions="conditions"
+                        :condition-repository="conditionRepository"
+                        :condition-data-provider-service="ruleConditionDataProviderService"
+                        :association-value="rule.id"
+                        :root-condition="null"
+                        @conditions-changed="onConditionsChanged"
+                    />
+                {% endblock %}
+                </template>
+                {% endblock %}
+
+                {% block sw_flow_rule_modal_tab_detail_content %}
+                <template v-if="active === 'detail'">
+                    <sw-container
+                        columns="2fr 1fr"
+                        gap="0px 32px"
+                    >
+                        {% block sw_flow_rule_modal_detail_name %}
+                        <sw-text-field
+                            v-model="rule.name"
+                            class="sw-flow-rule-modal__name"
+                            required
+                            :label="$tc('sw-flow.modals.rule.labelName')"
+                            :placeholder="$tc('sw-flow.modals.rule.placeholderName')"
+                            :error="ruleNameError"
+                        />
+                        {% endblock %}
+
+                        {% block sw_flow_rule_modal_detail_priority %}
+                        <sw-number-field
+                            v-model="rule.priority"
+                            class="sw-flow-rule-modal__priority"
+                            required
+                            :label="$tc('sw-flow.modals.rule.labelPriority')"
+                            :placeholder="$tc('sw-flow.modals.rule.placeholderPriority')"
+                            :error="rulePriorityError"
+                        />
+                    {% endblock %}
+                    </sw-container>
+
+                    {% block sw_flow_rule_modal_detail_description %}
+                    <sw-textarea-field
+                        v-model="rule.description"
+                        class="sw-flow-rule-modal__description"
+                        :label="$tc('sw-flow.modals.rule.labelDescription')"
+                        :placeholder="$tc('sw-flow.modals.rule.placeholderDescription')"
+                    />
+                    {% endblock %}
+
+                    {% block sw_flow_rule_modal_detail_type %}
+                    <sw-multi-select
+                        v-model="moduleTypes"
+                        class="sw-flow-rule-modal__type"
+                        value-property="id"
+                        label-property="name"
+                        :label="$tc('sw-flow.modals.rule.labelType')"
+                        :placeholder="$tc('sw-flow.modals.rule.placeholderType')"
+                        :options="availableModuleTypes"
+                    >
+                        <template #selection-label-property="{ item }">
+                            {{ $tc(item.name) }}
+                        </template>
+
+                        <template #result-label-property="{ item }">
+                            {{ $tc(item.name) }}
+                        </template>
+                    </sw-multi-select>
+                {% endblock %}
+                </template>
+            {% endblock %}
+            </div>
+        </template>
+        {% endblock %}
+    </sw-tabs>
+    {% endblock %}
+
+    <template #modal-footer>
+        {% block sw_flow_rule_modal_footer_cancel_button %}
+        <sw-button
+            class="sw-flow-rule-modal__cancel-button"
+            size="small"
+            @click="onClose"
+        >
+            {{ $tc('global.default.cancel') }}
+        </sw-button>
+        {% endblock %}
+
+        {% block sw_flow_rule_modal_footer_save_button %}
+        <sw-button-process
+            class="sw-flow-rule-modal__save-button"
+            variant="primary"
+            size="small"
+            :is-loading="isSaveLoading"
+            :process-success="isSaveSuccessful"
+            @click="onSaveRule"
+        >
+            {{ $tc('sw-flow.modals.rule.buttonAddRule') }}
+        </sw-button-process>
+        {% endblock %}
+    </template>
+</sw-modal>
+{% endblock %}

@@ -8,11 +8,6 @@ use Shopware\Core\Framework\Struct\Struct;
 class ImageSliderItemStruct extends Struct
 {
     /**
-     * @var MediaEntity|null
-     */
-    protected $media;
-
-    /**
      * @var string|null
      */
     protected $url;
@@ -21,6 +16,11 @@ class ImageSliderItemStruct extends Struct
      * @var bool|null
      */
     protected $newTab;
+
+    /**
+     * @var MediaEntity|null
+     */
+    private $media;
 
     public function getMedia(): ?MediaEntity
     {

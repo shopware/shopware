@@ -9,16 +9,6 @@ use Shopware\Core\Framework\Struct\Struct;
 class BuyBoxStruct extends Struct
 {
     /**
-     * @var SalesChannelProductEntity|null
-     */
-    protected $product;
-
-    /**
-     * @var PropertyGroupCollection|null
-     */
-    protected $configuratorSettings;
-
-    /**
      * @var string|null
      */
     protected $productId;
@@ -27,6 +17,16 @@ class BuyBoxStruct extends Struct
      * @var int
      */
     protected $totalReviews;
+
+    /**
+     * @var SalesChannelProductEntity|null
+     */
+    private $product;
+
+    /**
+     * @var PropertyGroupCollection|null
+     */
+    private $configuratorSettings;
 
     public function getProduct(): ?SalesChannelProductEntity
     {

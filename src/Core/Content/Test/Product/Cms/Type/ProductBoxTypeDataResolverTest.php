@@ -3,7 +3,13 @@
 namespace Shopware\Core\Content\Test\Product\Cms\Type;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockCollection;
+use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockEntity;
+use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionCollection;
+use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionEntity;
+use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
+use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
@@ -142,13 +148,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
             $resolverContext->getSalesChannelContext()->getContext()
         ));
 
-        $fieldConfig = new FieldConfigCollection();
-        $fieldConfig->add(new FieldConfig('product', FieldConfig::SOURCE_STATIC, 'product123'));
-
-        $slot = new CmsSlotEntity();
-        $slot->setUniqueIdentifier('id');
-        $slot->setType('product-box');
-        $slot->setFieldConfig($fieldConfig);
+        $slot = $this->enrichProductWithCmsConfig($product);
 
         $this->productBoxResolver->enrich($slot, $resolverContext, $result);
         /** @var ProductBoxStruct|null $productBoxStruct */
@@ -156,13 +156,17 @@ class ProductBoxTypeDataResolverTest extends TestCase
         static::assertInstanceOf(ProductBoxStruct::class, $productBoxStruct);
 
         /*
-         * conditional assertions depending on if an product should be returned or not
+         * conditional assertions depending on if a product should be returned or not
          */
         if ($closeout && $hidden && $availableStock === 0) {
             static::assertNull($productBoxStruct->getProductId());
         } else {
             static::assertSame($productBoxStruct->getProductId(), $product->getId());
             static::assertSame($product, $productBoxStruct->getProduct());
+
+            $serializedProduct = json_encode($product);
+            static::assertNotEquals(\JSON_ERROR_RECURSION, json_last_error());
+            static::assertNotFalse($serializedProduct);
         }
     }
 
@@ -222,7 +226,6 @@ class ProductBoxTypeDataResolverTest extends TestCase
         $productBoxStruct = $slot->getData();
         static::assertInstanceOf(ProductBoxStruct::class, $productBoxStruct);
         static::assertSame($parent->getId(), $productBoxStruct->getProductId());
-        static::assertSame($parent, $productBoxStruct->getProduct());
     }
 
     public function testEnrichWithMappedConfigButInvalidProperty(): void
@@ -277,5 +280,33 @@ class ProductBoxTypeDataResolverTest extends TestCase
             [true, true, 1],
             [true, true, 0],
         ];
+    }
+
+    protected function enrichProductWithCmsConfig(SalesChannelProductEntity $product): CmsSlotEntity
+    {
+        $fieldConfig = new FieldConfigCollection();
+        $fieldConfig->add(new FieldConfig('product', FieldConfig::SOURCE_STATIC, $product->getId()));
+
+        $slot = new CmsSlotEntity();
+        $slot->setUniqueIdentifier('id');
+        $slot->setSlot('product-box');
+        $slot->setType('product-box');
+        $slot->setFieldConfig($fieldConfig);
+        $slot->getFieldConfig();
+
+        $cmsBlock = new CmsBlockEntity();
+        $cmsBlock->setUniqueIdentifier('block1');
+        $cmsBlock->setSlots(new CmsSlotCollection([$slot]));
+
+        $cmsSection = new CmsSectionEntity();
+        $cmsSection->setUniqueIdentifier('section1');
+        $cmsSection->setBlocks(new CmsBlockCollection([$cmsBlock]));
+
+        $cmsPage = new CmsPageEntity();
+        $cmsPage->setSections(new CmsSectionCollection([$cmsSection]));
+
+        $product->setCmsPage($cmsPage);
+
+        return $slot;
     }
 }

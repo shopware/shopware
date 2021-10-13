@@ -158,6 +158,13 @@
                                         <div class="form-group">
                                             <label for="paymentMethodId">{{ "checkout.paymentMethod"|trans|sw_sanitize }}</label>
                                             <select class="custom-select" type="text" id="paymentMethodId" name="paymentMethodId">
+                                                {% if context.paymentMethod.id not in page.paymentMethods.ids %}
+                                                    <option value="{{ context.paymentMethod.id }}"
+                                                            selected="selected"
+                                                            disabled="disabled">
+                                                        {{ context.paymentMethod.translated.name }} {{ "checkout.notAvailableSuffix"|trans|sw_sanitize }}
+                                                    </option>
+                                                {% endif %}
                                                 {% for payment in page.paymentMethods %}
                                                     <option value="{{ payment.id }}"
                                                         {% if payment.id == context.paymentMethod.id %} selected="selected"{% endif %}>
@@ -172,6 +179,13 @@
                                         <div class="form-group">
                                             <label for="shippingMethodId">{{ "checkout.shippingMethod"|trans|sw_sanitize }}</label>
                                             <select class="custom-select" type="text" id="shippingMethodId" name="shippingMethodId">
+                                                {% if context.shippingMethod.id not in page.shippingMethods.ids %}
+                                                    <option value="{{ context.shippingMethod.id }}"
+                                                            selected="selected"
+                                                            disabled="disabled">
+                                                        {{ context.shippingMethod.translated.name }} {{ "checkout.notAvailableSuffix"|trans|sw_sanitize }}
+                                                    </option>
+                                                {% endif %}
                                                 {% for shipping in page.shippingMethods %}
                                                     <option value="{{ shipping.id }}"
                                                         {% if shipping.id == context.shippingMethod.id %} selected="selected"{% endif %}>

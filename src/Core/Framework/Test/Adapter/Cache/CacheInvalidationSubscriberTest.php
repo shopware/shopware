@@ -9,7 +9,6 @@ use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidationSubscriber;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
-use Shopware\Core\Framework\Demodata\Generator\PropertyGroupGenerator;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
@@ -46,7 +45,7 @@ class CacheInvalidationSubscriberTest extends TestCase
             [
                 'id' => $this->ids->get('group1'),
                 'sortingType' => PropertyGroupDefinition::SORTING_TYPE_POSITION,
-            ]
+            ],
         ], $this->ids->context);
 
         $this->cacheInvalidatorMock->expects(static::once())
@@ -65,7 +64,7 @@ class CacheInvalidationSubscriberTest extends TestCase
             [
                 'id' => $this->ids->get('group1'),
                 'name' => 'new name',
-            ]
+            ],
         ], $this->ids->context);
 
         $this->cacheInvalidatorMock->expects(static::once())
@@ -107,7 +106,7 @@ class CacheInvalidationSubscriberTest extends TestCase
         $event = $optionRepository->update([
             [
                 'id' => $this->ids->get('property-assigned'),
-                'colorHexCode' => '#000000'
+                'colorHexCode' => '#000000',
             ],
         ], $this->ids->context);
 
@@ -126,7 +125,7 @@ class CacheInvalidationSubscriberTest extends TestCase
         $event = $optionRepository->update([
             [
                 'id' => $this->ids->get('property-unassigned'),
-                'colorHexCode' => '#000000'
+                'colorHexCode' => '#000000',
             ],
         ], $this->ids->context);
 
@@ -145,7 +144,7 @@ class CacheInvalidationSubscriberTest extends TestCase
         $event = $optionRepository->update([
             [
                 'id' => $this->ids->get('property-assigned'),
-                'name' => 'updated'
+                'name' => 'updated',
             ],
         ], $this->ids->context);
 
@@ -164,7 +163,7 @@ class CacheInvalidationSubscriberTest extends TestCase
         $event = $optionRepository->update([
             [
                 'id' => $this->ids->get('property-unassigned'),
-                'name' => 'updated'
+                'name' => 'updated',
             ],
         ], $this->ids->context);
 
@@ -181,7 +180,7 @@ class CacheInvalidationSubscriberTest extends TestCase
 
         $builder = new ProductBuilder($this->ids, 'product2');
         $builder->price(10)
-            ->existingProperty('property-assigned');
+            ->property('property-assigned', '');
 
         $event = $this->getContainer()->get('product.repository')->create([$builder->build()], $this->ids->context);
 
@@ -192,7 +191,7 @@ class CacheInvalidationSubscriberTest extends TestCase
         $this->cacheInvalidationSubscriber->invalidatePropertyFilters($event);
     }
 
-    private function insertDefaultPropertyGroup()
+    private function insertDefaultPropertyGroup(): void
     {
         $groupRepository = $this->getContainer()->get('property_group.repository');
 
@@ -217,7 +216,7 @@ class CacheInvalidationSubscriberTest extends TestCase
 
         $builder = new ProductBuilder($this->ids, 'product1');
         $builder->price(10)
-            ->existingProperty('property-assigned');
+            ->property('property-assigned', '');
 
         $this->getContainer()->get('product.repository')->create([$builder->build()], $this->ids->context);
     }

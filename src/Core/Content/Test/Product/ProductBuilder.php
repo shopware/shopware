@@ -263,6 +263,12 @@ class ProductBuilder
 
     public function property(string $key, string $group): self
     {
+        if ($this->ids->has($key)) {
+            $this->properties[] = ['id' => $this->ids->get($key)];
+
+            return $this;
+        }
+
         $this->properties[] = [
             'id' => $this->ids->get($key),
             'name' => $key,
@@ -271,13 +277,6 @@ class ProductBuilder
                 'name' => $group,
             ],
         ];
-
-        return $this;
-    }
-
-    public function existingProperty(string $key): self
-    {
-        $this->properties[] = ['id' => $this->ids->get($key)];
 
         return $this;
     }

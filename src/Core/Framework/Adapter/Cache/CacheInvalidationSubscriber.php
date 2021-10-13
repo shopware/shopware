@@ -542,20 +542,13 @@ class CacheInvalidationSubscriber implements EventSubscriberInterface
         // invalidates the product listing route and detail rule, each time a property group changed
         $propertyGroupIds = array_unique(array_merge(
             $event->getPrimaryKeysWithPayloadIgnoringFields(PropertyGroupDefinition::ENTITY_NAME, ['id', 'updatedAt']),
-            array_map(static function (array $pk): string {
-                    return $pk['propertyGroupId'];
-                }, $event->getPrimaryKeysWithPayloadIgnoringFields(PropertyGroupTranslationDefinition::ENTITY_NAME, ['propertyGroupId', 'languageId', 'updatedAt'])
-            )
+            array_column($event->getPrimaryKeysWithPayloadIgnoringFields(PropertyGroupTranslationDefinition::ENTITY_NAME, ['propertyGroupId', 'languageId', 'updatedAt']), 'propertyGroupId')
         ));
-        // invalidates the product listing route and detail rule, each time a property option changed
-        $propertyOptionIds = $event->getPrimaryKeysWithPayload(PropertyGroupOptionDefinition::ENTITY_NAME);
 
+        // invalidates the product listing route and detail rule, each time a property option changed
         $propertyOptionIds = array_unique(array_merge(
             $event->getPrimaryKeysWithPayloadIgnoringFields(PropertyGroupOptionDefinition::ENTITY_NAME, ['id', 'updatedAt']),
-            array_map(static function (array $pk): string {
-                    return $pk['propertyGroupOptionId'];
-                }, $event->getPrimaryKeysWithPayloadIgnoringFields(PropertyGroupOptionTranslationDefinition::ENTITY_NAME, ['propertyGroupOptionId', 'languageId', 'updatedAt'])
-            )
+            array_column($event->getPrimaryKeysWithPayloadIgnoringFields(PropertyGroupOptionTranslationDefinition::ENTITY_NAME, ['propertyGroupOptionId', 'languageId', 'updatedAt']), 'propertyGroupOptionId')
         ));
 
         if (empty($propertyGroupIds) && empty($propertyOptionIds)) {

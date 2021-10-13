@@ -212,7 +212,9 @@
             "navigationPreviewPositionLeft": "Links",
             "navigationPreviewPositionUnderneath": "Darunter",
             "zoom": "Zoom",
-            "fullscreen": "Vollbild-Galerie"
+            "fullscreen": "Vollbild-Galerie",
+            "keepAspectRatioOnZoom": "Seitenverhältnis beim Zoomen beibehalten",
+            "magnifierOverGallery": "Lupe über Galerie"
           }
         }
       },

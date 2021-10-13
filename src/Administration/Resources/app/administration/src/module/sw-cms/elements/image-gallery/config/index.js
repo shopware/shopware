@@ -138,6 +138,8 @@ Component.register('sw-cms-el-config-image-gallery', {
             this.element.config.navigationDots.value = 'inside';
             this.element.config.zoom.value = true;
             this.element.config.fullScreen.value = true;
+            this.element.config.keepAspectRatioOnZoom.value = true;
+            this.element.config.magnifierOverGallery.value = false;
             this.element.config.displayMode.value = 'contain';
             this.element.config.minHeight.value = '430px';
         },

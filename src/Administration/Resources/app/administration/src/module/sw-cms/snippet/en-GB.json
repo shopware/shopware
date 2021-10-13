@@ -212,7 +212,9 @@
             "navigationPreviewPositionLeft": "Left",
             "navigationPreviewPositionUnderneath": "Underneath",
             "zoom": "Zoom",
-            "fullscreen": "Fullscreen gallery"
+            "fullscreen": "Fullscreen gallery",
+            "keepAspectRatioOnZoom": "Keep aspect ratio on zoom",
+            "magnifierOverGallery": "Magnifier over gallery"
           }
         }
       },

@@ -10,7 +10,8 @@
 
         {% set zoom = sliderConfig.zoom.value %}
         {% set gutter = sliderConfig.gutter.value %}
-        {% set magnifierOverGallery = true %}
+        {% set keepAspectRatioOnZoom = sliderConfig.keepAspectRatioOnZoom.value %}
+        {% set magnifierOverGallery = sliderConfig.magnifierOverGallery.value %}
         {% set zoomModal = sliderConfig.fullScreen.value %}
         {% set minHeight = sliderConfig.minHeight.value %}
         {% set displayMode = sliderConfig.displayMode.value %}
@@ -38,6 +39,12 @@
         {% set magnifierOptions = magnifierOptions|merge({
             'magnifierOverGallery': true,
             'cursorType': 'crosshair'
+        }) %}
+    {% endif %}
+
+    {% if keepAspectRatioOnZoom is defined and keepAspectRatioOnZoom is not null %}
+        {% set magnifierOptions = magnifierOptions|merge({
+            'keepAspectRatioOnZoom': keepAspectRatioOnZoom
         }) %}
     {% endif %}
 

@@ -81,6 +81,13 @@ export default class MagnifierPlugin extends Plugin {
         scaleZoomImage: false,
 
         /**
+         * keep the aspect ratio of the image when zoomed
+         *
+         * @type boolean
+         */
+        keepAspectRatioOnZoom: true,
+
+        /**
          * css cursor type when zoom is active
          *
          * @type string
@@ -229,7 +236,9 @@ export default class MagnifierPlugin extends Plugin {
     _setZoomImageSize(imageSize) {
         const factor = imageSize.y / imageSize.x;
         const zoomImageSize = this._getZoomImageSize();
-        const height = this.options.scaleZoomImage ? zoomImageSize.x * factor : zoomImageSize.y;
+        const height = this.options.keepAspectRatioOnZoom
+            ? this.options.scaleZoomImage ? zoomImageSize.x * factor : zoomImageSize.y
+            : zoomImageSize.x;
         this._zoomImage.style.height = `${height}px`;
         this._zoomImage.style.minHeight = `${height}px`;
     }
@@ -248,9 +257,13 @@ export default class MagnifierPlugin extends Plugin {
      */
     calculateZoomImageBackgroundPosition(mousePos, imageSize, overlaySize, imageDimensions, zoomImageBackgroundSize) {
         const maxOverlayRange = imageSize.subtract(imageSize.divide(this.options.zoomFactor)).subtract(new Vector2(1, 1));
-        let position = mousePos.subtract(overlaySize.divide(2)).clamp(0, imageSize.subtract(overlaySize)).divide(maxOverlayRange).clamp(0, 1);
+        let position = mousePos.subtract(overlaySize.divide(2)).clamp(0, imageSize.subtract(overlaySize)).divide(maxOverlayRange);
         const orientation = this.getImageOrientation(imageDimensions, imageSize);
         const percentWidthWithoutLens = 1 - 1 / this.options.zoomFactor;
+
+        if (this.options.keepAspectRatioOnZoom) {
+            position = position.clamp(0, 1);
+        }
 
         if (orientation === LANDSCAPE_ORIENTATION) {
             position = position.multiply(new Vector2(percentWidthWithoutLens, 1));
@@ -397,8 +410,16 @@ export default class MagnifierPlugin extends Plugin {
     _getOverlaySize(zoomImageSize) {
         const overlaySize = zoomImageSize.divide(this.options.zoomFactor);
 
+        if (!this.options.keepAspectRatioOnZoom) {
+            const min = Math.min(overlaySize.x, overlaySize.y);
+
+            overlaySize.x = min;
+            overlaySize.y = min;
+        }
+
         this._overlay.style.width = `${Math.ceil(overlaySize.x)}px`;
         this._overlay.style.height = `${Math.ceil(overlaySize.y)}px`;
+
         return overlaySize;
     }
 

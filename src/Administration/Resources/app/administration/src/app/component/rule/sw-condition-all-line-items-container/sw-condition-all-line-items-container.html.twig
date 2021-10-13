@@ -1,0 +1,18 @@
+{% block sw_condition_all_line_items_container %}
+<div
+    class="condition-all-line-items-container"
+    :class="containerRowClass"
+>
+    <template v-for="(child, index) in condition[childAssociationField]">
+        <sw-condition-tree-node
+            :key="`condition-all-line-items-child--${index}`"
+            :parent-condition="condition"
+            :condition="child"
+            :disabled="disabled"
+            :level="level + 1"
+            :insert-before="onInsertBefore"
+            :insert-after="onInsertAfter"
+        />
+    </template>
+</div>
+{% endblock %}

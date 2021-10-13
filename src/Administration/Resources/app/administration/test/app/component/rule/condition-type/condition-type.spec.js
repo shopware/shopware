@@ -1,6 +1,7 @@
 /* global adminPath */
 import { shallowMount } from '@vue/test-utils';
 import 'src/app/component/rule/sw-condition-base';
+import 'src/app/component/rule/sw-condition-base-line-item';
 import ConditionDataProviderService from 'src/app/service/rule-condition.service';
 import fs from 'fs';
 // eslint-disable-next-line
@@ -79,7 +80,12 @@ function createWrapperForComponent(componentName, props = {}) {
             childAssociationField: {},
             repositoryFactory: {
                 create: () => ({})
-            }
+            },
+            insertNodeIntoTree: () => ({}),
+            removeNodeFromTree: () => ({}),
+            createCondition: () => ({}),
+            conditionScopes: [],
+            unwrapAllLineItemsCondition: () => ({})
         },
         propsData: {
             condition: {},

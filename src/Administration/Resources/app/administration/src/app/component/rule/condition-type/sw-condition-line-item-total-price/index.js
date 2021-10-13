@@ -11,7 +11,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
  * @component-example
  * <sw-condition-line-item-total-price :condition="condition" :level="0"></sw-condition-line-item-total-price>
  */
-Component.extend('sw-condition-line-item-total-price', 'sw-condition-base', {
+Component.extend('sw-condition-line-item-total-price', 'sw-condition-base-line-item', {
     template,
 
     computed: {

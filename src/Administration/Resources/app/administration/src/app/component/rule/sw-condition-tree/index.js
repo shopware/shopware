@@ -18,6 +18,7 @@ Component.register('sw-condition-tree', {
             removeNodeFromTree: this.removeNodeFromTree,
             childAssociationField: this.childAssociationField,
             conditionDataProviderService: this.conditionDataProviderService,
+            conditionScopes: this.scopes,
         };
     },
 

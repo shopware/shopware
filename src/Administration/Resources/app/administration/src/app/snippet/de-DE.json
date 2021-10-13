@@ -628,6 +628,10 @@
           "label": "Die Bedingung konnte nicht gefunden werden",
           "error-message": "Der Bedingungstyp {type} konnte nicht gefunden werden. Die Bedingung besitzt das Feld: {fields} | Der Bedingungstyp {type} konnte nicht gefunden werden. Die Bedingungen besitzen die Felder: {fields}"
         },
+        "lineItemCondition": {
+          "any": "Einzelne Position",
+          "all": "Alle Positionen"
+        },
         "subCondition": "Unterbedingung",
         "deleteConditions": "Container entfernen",
         "deleteAllConditions": "Alle entfernen",

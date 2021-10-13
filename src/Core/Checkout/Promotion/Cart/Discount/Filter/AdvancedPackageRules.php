@@ -43,7 +43,9 @@ class AdvancedPackageRules extends SetGroupScopeFilter
                 }
             }
 
-            $newPackages[] = new DiscountPackage(new LineItemQuantityCollection($foundItems));
+            if (\count($foundItems) > 0) {
+                $newPackages[] = new DiscountPackage(new LineItemQuantityCollection($foundItems));
+            }
         }
 
         return new DiscountPackageCollection($newPackages);

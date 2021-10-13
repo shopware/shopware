@@ -14,6 +14,8 @@ use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemQuantity;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Packager\LineItemGroupCountPackager;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Packager\LineItemGroupUnitPriceGrossPackager;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Packager\LineItemGroupUnitPriceNetPackager;
+use Shopware\Core\Checkout\Cart\LineItem\Group\ProductLineItemProvider;
+use Shopware\Core\Checkout\Cart\LineItem\Group\RulesMatcher\AnyRuleLineItemMatcher;
 use Shopware\Core\Checkout\Cart\LineItem\Group\RulesMatcher\AnyRuleMatcher;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Sorter\LineItemGroupPriceAscSorter;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Sorter\LineItemGroupPriceDescSorter;
@@ -115,7 +117,8 @@ class LineItemGroupBuilderTest extends TestCase
                 ]
             ),
             $this->fakeTakeAllRuleMatcher,
-            new LineItemQuantitySplitter($quantityPriceCalculator)
+            new LineItemQuantitySplitter($quantityPriceCalculator),
+            new ProductLineItemProvider()
         );
 
         $this->unitTestBuilder = new LineItemGroupBuilder(
@@ -130,8 +133,9 @@ class LineItemGroupBuilderTest extends TestCase
                     new LineItemGroupPriceDescSorter(),
                 ]
             ),
-            new AnyRuleMatcher(),
-            new LineItemQuantitySplitter($quantityPriceCalculator)
+            new AnyRuleMatcher(new AnyRuleLineItemMatcher()),
+            new LineItemQuantitySplitter($quantityPriceCalculator),
+            new ProductLineItemProvider()
         );
     }
 

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\Test\Cart\LineItem\Group\RuleMatcher;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\LineItem\Group\RulesMatcher\AnyRuleLineItemMatcher;
 use Shopware\Core\Checkout\Cart\LineItem\Group\RulesMatcher\AnyRuleMatcher;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
@@ -77,7 +78,7 @@ class AnyRuleMatcherTest extends TestCase
             new RuleCollection([$ruleEntity])
         );
 
-        $matcher = new AnyRuleMatcher();
+        $matcher = new AnyRuleMatcher(new AnyRuleLineItemMatcher());
 
         $matchedItems = $matcher->getMatchingItems($group, new LineItemFlatCollection([$productLower50, $product50]), $this->context);
 
@@ -150,7 +151,7 @@ class AnyRuleMatcherTest extends TestCase
             new RuleCollection([$rulesMinPrice, $rulesMinQuantity])
         );
 
-        $matcher = new AnyRuleMatcher();
+        $matcher = new AnyRuleMatcher(new AnyRuleLineItemMatcher());
 
         $matchedItems = $matcher->getMatchingItems(
             $group,

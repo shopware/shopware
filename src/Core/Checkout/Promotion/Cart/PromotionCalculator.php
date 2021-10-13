@@ -460,6 +460,8 @@ class PromotionCalculator
                 /** @var LineItem $cartItem */
                 $cartItem = $cart->get($item->getLineItemId());
 
+                $cartItem->setStackable(true);
+
                 // create a new item with only a quantity of x
                 // including calculated price for our original cart item
                 $qtyItem = $this->lineItemQuantitySplitter->split($cartItem, $item->getQuantity(), $context);

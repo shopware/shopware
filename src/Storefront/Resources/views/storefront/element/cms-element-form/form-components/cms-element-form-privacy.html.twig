@@ -16,15 +16,13 @@
 
         {% block cms_form_privacy_opt_in_label %}
             <label for="{{ identifierTemplate|format(_key) }}" class=" custom-control-label">
-                {{ "general.privacyNotice"|trans({
-                    '%privacyUrl%': path('frontend.cms.page',{ id: config('core.basicInformation.privacyPage') })
-                })
-                |trans({
-                    '%tosUrl%': path('frontend.cms.page',{ id: config('core.basicInformation.tosPage') })
-                })
+                {{ "general.privacyNotice"
+                |trans({'%privacyUrl%': path('frontend.cms.page',{ id: config('core.basicInformation.privacyPage')})})
+                {# replace '%url%' for compatibility with versions before 6.4.5.1 - should be deprecated #}
+                |trans({'%url%': path('frontend.cms.page',{ id: config('core.basicInformation.privacyPage')})})
+                |trans({'%tosUrl%': path('frontend.cms.page',{ id: config('core.basicInformation.tosPage') })})
                 |raw }}
             </label>
         {% endblock %}
-
     </div>
 {% endblock %}

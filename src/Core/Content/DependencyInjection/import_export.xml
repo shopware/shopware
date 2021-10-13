@@ -256,12 +256,6 @@
             <tag name="kernel.event_subscriber"/>
         </service>
 
-        <service id="Shopware\Core\Content\ImportExport\Event\Subscriber\UpdateNumberRangesSubscriber">
-            <argument type="service" id="number_range.repository"/>
-
-            <tag name="kernel.event_subscriber"/>
-        </service>
-
         <service id="Shopware\Core\Content\ImportExport\Command\ImportEntityCommand">
             <argument type="service" id="Shopware\Core\Content\ImportExport\Service\ImportExportService"/>
             <argument type="service" id="import_export_profile.repository"/>

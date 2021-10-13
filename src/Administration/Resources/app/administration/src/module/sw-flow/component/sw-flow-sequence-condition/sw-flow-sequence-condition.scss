@@ -245,6 +245,11 @@
         }
     }
 
+    &__rule-description {
+        font-size: $font-size-small;
+        margin-left: 20px;
+    }
+
     &__add-rule {
         border-top: 1px solid $color-gray-300;
         height: 56px;

@@ -168,7 +168,7 @@
                         {% block sw_flow_sequence_condition_rule_header %}
                         <div class="sw-flow-sequence-condition__rule-header">
 
-                            {% block sw_flow_sequence_condition_rule_left %}
+                            {% block sw_flow_sequence_condition_rule_name %}
                             <div class="sw-flow-sequence-condition__rule-name">
                                 <sw-icon
                                     size="12px"
@@ -206,11 +206,14 @@
                             {% endblock %}
                         </div>
 
-                        <p>{{ sequence.description }}</p>
                         {% endblock %}
 
                         {% block sw_flow_sequence_condition_rule_description %}
-                        <p>{{ sequence.rule.description }}</p>
+                        <div
+                            v-html="ruleDescription"
+                            class="sw-flow-sequence-condition__rule-description"
+                        >
+                        </div>
                         {% endblock %}
                     </div>
                     {% endblock %}

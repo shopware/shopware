@@ -43,6 +43,13 @@ Component.register('sw-settings-rule-detail-assignments', {
     },
 
     computed: {
+        /** @deprecated tag:v6.5.0 Unused method will be removed */
+        hasNoAssociations() {
+            return this.associationEntities.every((entity) => {
+                return entity.loadedData && entity.loadedData.total === 0;
+            });
+        },
+
         /* eslint-disable max-len */
         /**
          * Definition of the associated entities of the current rule.
@@ -114,6 +121,7 @@ Component.register('sw-settings-rule-detail-assignments', {
                         type: 'update',
                         entity: 'shipping_method',
                         column: 'availabilityRuleId',
+                        searchColumn: 'name',
                         criteria: () => {
                             const criteria = new Criteria();
                             criteria.addFilter(Criteria.not('AND', [Criteria.equals('availabilityRuleId', this.rule.id)]));
@@ -218,6 +226,7 @@ Component.register('sw-settings-rule-detail-assignments', {
                         type: 'update',
                         entity: 'payment_method',
                         column: 'availabilityRuleId',
+                        searchColumn: 'name',
                         criteria: () => {
                             const criteria = new Criteria();
                             criteria.addFilter(Criteria.not('AND', [Criteria.equals('availabilityRuleId', this.rule.id)]));
@@ -288,6 +297,7 @@ Component.register('sw-settings-rule-detail-assignments', {
                         type: 'insert',
                         entity: 'promotion_order_rule',
                         column: 'promotionId',
+                        searchColumn: 'name',
                         association: 'orderRules',
                         criteria: () => {
                             const criteria = new Criteria();
@@ -359,6 +369,7 @@ Component.register('sw-settings-rule-detail-assignments', {
                         type: 'insert',
                         entity: 'promotion_persona_rule',
                         column: 'promotionId',
+                        searchColumn: 'name',
                         association: 'personaRules',
                         criteria: () => {
                             const criteria = new Criteria();
@@ -430,6 +441,7 @@ Component.register('sw-settings-rule-detail-assignments', {
                         type: 'insert',
                         entity: 'promotion_cart_rule',
                         column: 'promotionId',
+                        searchColumn: 'name',
                         association: 'cartRules',
                         criteria: () => {
                             const criteria = new Criteria();
@@ -558,6 +570,7 @@ Component.register('sw-settings-rule-detail-assignments', {
                         type: 'insert',
                         entity: 'event_action_rule',
                         column: 'eventActionId',
+                        searchColumn: 'eventName',
                         association: 'rules',
                         criteria: () => {
                             const criteria = new Criteria();
@@ -593,6 +606,13 @@ Component.register('sw-settings-rule-detail-assignments', {
                     },
                 },
             ];
+        },
+
+        /** @deprecated tag:v6.5.0 Unused method will be removed */
+        loadedAssociationEntities() {
+            return this.associationEntities.filter((item) => {
+                return item.loadedData && item.loadedData.total > 0;
+            });
         },
     },
 

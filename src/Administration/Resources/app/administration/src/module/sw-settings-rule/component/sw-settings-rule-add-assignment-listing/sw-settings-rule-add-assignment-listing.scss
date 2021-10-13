@@ -1,0 +1,14 @@
+.sw-card.sw-settings-rule-add-assignment-listing__card {
+    max-width: none;
+    width: 100%;
+    margin: 0;
+
+    .sw-card__toolbar {
+        border-top: none;
+    }
+
+    .sw-card__content {
+        padding: 0;
+        border: none;
+    }
+}

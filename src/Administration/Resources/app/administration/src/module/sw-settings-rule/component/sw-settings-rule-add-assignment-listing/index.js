@@ -1,7 +1,9 @@
 import template from './sw-settings-rule-add-assignment-listing.html.twig';
+import './sw-settings-rule-add-assignment-listing.scss';
 
 const { Component, Context } = Shopware;
 const { Criteria } = Shopware.Data;
+const { cloneDeep } = Shopware.Utils.object;
 
 Component.register('sw-settings-rule-add-assignment-listing', {
     template,
@@ -75,10 +77,16 @@ Component.register('sw-settings-rule-add-assignment-listing', {
             return this.doSearch();
         },
 
-        doSearch() {
+        doSearch(term) {
             this.loading = true;
             const api = this.entityContext.api ? this.entityContext.api() : Context.api;
-            return this.repository.search(this.criteria, api).then((result) => {
+            const criteria = cloneDeep(this.criteria);
+
+            if (term) {
+                criteria.addFilter(Criteria.contains(this.entityContext.addContext.searchColumn ?? 'name', term));
+            }
+
+            return this.repository.search(criteria, api).then((result) => {
                 this.items = result;
                 this.total = result.total;
             }).finally(() => {

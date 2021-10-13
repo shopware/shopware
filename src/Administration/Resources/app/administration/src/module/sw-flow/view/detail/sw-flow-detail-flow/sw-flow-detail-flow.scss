@@ -2,9 +2,12 @@
 @import "~scss/mixins";
 
 .sw-flow-detail-flow {
-    display: flex;
-    flex-direction: column;
-    margin: auto;
+    &__content {
+        display: flex;
+        flex-direction: column;
+        margin: auto;
+        max-width: 840px;
+    }
 
     &__trigger-card {
         display: grid;
@@ -48,21 +51,13 @@
         left: -5px;
         background: $color-white;
         border: 1px solid $color-gray-400;
-
-        &::before {
-            display: block;
-            content: "";
-            height: 16px;
-            margin-left: 4px;
-            margin-top: 10px;
-            border-left: 2px dashed $color-gray-300;
-        }
+        z-index: 2;
     }
 
     &__sequence-diagram {
         position: relative;
         margin-left: 29px;
-        padding: 25px 0 44px 0;
+        padding: 0 0 44px 0;
     }
 
     &__position {
@@ -79,24 +74,15 @@
             padding-top: 63px;
         }
 
-        &:not(:last-child) .sw-flow-detail-flow__position-connection {
-            @include circle(19px);
-
-            position: absolute;
-            left: 0;
-            top: 55px;
-            border-bottom: 2px dashed $color-gray-500;
-            border-bottom-left-radius: 32px 24px;
-        }
-
         &:not(:first-child) .sw-flow-detail-flow__position-connection {
-            @include circle(24px);
+            @include size(24px);
 
             position: absolute;
             left: 0;
-            top: 125px;
-            border-bottom: 2px dashed $color-gray-500;
-            border-bottom-left-radius: 32px 24px;
+            top: 118px;
+            border-bottom: 2px dashed $color-gray-400;
+            border-left: 2px dashed $color-gray-400;
+            border-bottom-left-radius: 40px;
         }
 
         &:last-child .sw-flow-detail-flow__position-plus {
@@ -142,7 +128,7 @@
         &::before {
             display: block;
             content: "";
-            border-left: 2px dashed $color-gray-300;
+            border-left: 2px dashed $color-gray-400;
             z-index: 1;
         }
 
@@ -150,7 +136,7 @@
             display: block;
             content: "";
             height: 165px;
-            border-left: 2px dashed $color-gray-300;
+            border-left: 2px dashed $color-gray-400;
             z-index: 1;
         }
     }

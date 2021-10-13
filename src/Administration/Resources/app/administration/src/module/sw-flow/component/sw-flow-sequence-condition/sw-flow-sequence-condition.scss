@@ -23,6 +23,10 @@
         width: calc(100% - 322px);
         transform: translateY(-50%);
 
+        &.has--true-action {
+            width: 92px;
+        }
+
         .icon--small-arrow-large-right {
             position: absolute;
             top: -9px;
@@ -48,7 +52,7 @@
             }
 
             .sw-flow-sequence-condition__true-label {
-                left: 50%;
+                left: 50px;
             }
         }
     }
@@ -70,13 +74,14 @@
 
     &__true-label {
         transform: translate(-50%, -50%);
-        left: 50%;
+        left: 50px;
 
         &.sw-label {
             background: $color-emerald-600;
             color: $color-white;
             border: none;
             text-transform: uppercase;
+            font-weight: $font-weight-semi-bold;
         }
     }
 
@@ -122,6 +127,7 @@
             color: $color-white;
             border: none;
             text-transform: uppercase;
+            font-weight: $font-weight-semi-bold;
         }
     }
 
@@ -241,18 +247,20 @@
 
     &__add-rule {
         border-top: 1px solid $color-gray-300;
+        height: 56px;
+        display: flex;
     }
 
     &__add-button {
         @include flex-centering-vertical;
 
-        padding: 12px 24px;
+        padding-left: 24px;
         cursor: pointer;
 
         p {
             color: $color-shopware-brand-500;
             text-decoration: underline;
-            font-size: 14px;
+            font-size: $font-size-small;
         }
     }
 
@@ -269,8 +277,9 @@
         @include flex-centering-vertical;
 
         justify-content: start;
-        padding: 12px 24px;
+        padding: 0 24px;
         margin-bottom: 0;
+        width: 100%;
     }
 
     &__selection-rule {

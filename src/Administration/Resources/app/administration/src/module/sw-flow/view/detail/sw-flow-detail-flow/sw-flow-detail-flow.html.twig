@@ -1,84 +1,91 @@
 {% block sw_flow_detail_flow %}
 <div class="sw-flow-detail-flow">
-    {% block sw_flow_detail_trigger_card %}
-    <div class="sw-flow-detail-flow__trigger-card">
-        {% block sw_flow_detail_flow_trigger_select %}
-        <div class="sw-flow-detail-flow__trigger-select">
-            {% block sw_flow_detail_flow_single_select %}
-            <sw-flow-trigger
-                :overlay="true"
-                :disabled="!acl.can('flow.editor')"
-                :event-name="flow.eventName"
-                @option-select="onEventChange"
-            />
-            {% endblock %}
-        </div>
-        {% endblock %}
-
-        {% block sw_flow_detail_flow_trigger_explains %}
-        <div
-            v-if="!flow.eventName"
-            class="sw-flow-detail-flow__trigger-explain"
-        >
-            {% block sw_flow_detail_flow_trigger_explains_title %}
-            <h3>{{ $tc('sw-flow.detail.trigger.title') }}</h3>
-            {% endblock %}
-
-            {% block sw_flow_detail_flow_trigger_explains_help_text %}
-            <p v-html="$tc('sw-flow.detail.trigger.helpText')"></p>
-            {% endblock %}
-        </div>
-        {% endblock %}
-    </div>
-    {% endblock %}
-
-    {% block sw_flow_detail_flow_sequence_diagram %}
+    {% block sw_flow_detail_flow_content %}
     <div
-        v-if="flow.eventName"
-        class="sw-flow-detail-flow__sequence-diagram"
+        class="sw-flow-detail-flow__content"
+        :style="flowContainerStyle"
     >
-        {% block sw_flow_detail_flow_start_line %}
-        <div class="sw-flow-detail-flow__oval"></div>
+        {% block sw_flow_detail_trigger_card %}
+        <div class="sw-flow-detail-flow__trigger-card">
+            {% block sw_flow_detail_flow_trigger_select %}
+            <div class="sw-flow-detail-flow__trigger-select">
+                {% block sw_flow_detail_flow_single_select %}
+                <sw-flow-trigger
+                    :disabled="!acl.can('flow.editor')"
+                    :event-name="flow.eventName"
+                    @option-select="onEventChange"
+                />
+                {% endblock %}
+            </div>
+            {% endblock %}
+
+            {% block sw_flow_detail_flow_trigger_explains %}
+            <div
+                v-if="!flow.eventName"
+                class="sw-flow-detail-flow__trigger-explain"
+            >
+                {% block sw_flow_detail_flow_trigger_explains_title %}
+                <h3>{{ $tc('sw-flow.detail.trigger.title') }}</h3>
+                {% endblock %}
+
+                {% block sw_flow_detail_flow_trigger_explains_help_text %}
+                <p v-html="$tc('sw-flow.detail.trigger.helpText')"></p>
+                {% endblock %}
+            </div>
+            {% endblock %}
+        </div>
         {% endblock %}
 
-        {% block sw_flow_detail_flow_position %}
+        {% block sw_flow_detail_flow_sequence_diagram %}
         <div
-            v-for="sequence in formatSequences"
-            :key="sequence.id"
-            class="sw-flow-detail-flow__position"
+            v-if="flow.eventName"
+            class="sw-flow-detail-flow__sequence-diagram"
         >
-
-            {% block sw_flow_sequence_icon_plus %}
-            <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
-            <div
-                class="sw-flow-detail-flow__position-plus"
-                :disabled="!acl.can('flow.editor')"
-                @click="onAddRootSequence"
-            >
-                <sw-icon
-                    small
-                    name="small-default-plus-line-medium"
-                />
-            </div>
+            {% block sw_flow_detail_flow_start_line %}
+            <div class="sw-flow-detail-flow__oval"></div>
             {% endblock %}
 
-            {% block sw_flow_sequence_icon_connection %}
-            <div class="sw-flow-detail-flow__position-connection">
-                <sw-icon
-                    small
-                    name="small-arrow-large-right"
-                />
-            </div>
-            {% endblock %}
-
-            {% block sw_flow_detail_flow_sequences %}
+            {% block sw_flow_detail_flow_position %}
             <div
-                class="sw-flow-detail-flow__sequences"
+                v-for="sequence in formatSequences"
+                :key="sequence.id"
+                class="sw-flow-detail-flow__position"
             >
-                <sw-flow-sequence
-                    :sequence="sequence"
+
+                {% block sw_flow_sequence_icon_plus %}
+                <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+                <div
+                    class="sw-flow-detail-flow__position-plus"
                     :disabled="!acl.can('flow.editor')"
-                />
+                    @click="onAddRootSequence"
+                >
+                    <sw-icon
+                        small
+                        name="small-default-plus-line-medium"
+                    />
+                </div>
+                {% endblock %}
+
+                {% block sw_flow_sequence_icon_connection %}
+                <div class="sw-flow-detail-flow__position-connection">
+                    <sw-icon
+                        small
+                        name="small-arrow-large-right"
+                    />
+                </div>
+                {% endblock %}
+
+                {% block sw_flow_detail_flow_sequences %}
+                <div
+                    class="sw-flow-detail-flow__sequences"
+                >
+                    <sw-flow-sequence
+                        name="root-sequence"
+                        :sequence="sequence"
+                        :disabled="!acl.can('flow.editor')"
+                    />
+                </div>
+                {% endblock %}
             </div>
             {% endblock %}
         </div>

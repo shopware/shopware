@@ -106,6 +106,12 @@ $sw-flow-trigger-transition-results: all ease-in-out 0.2s;
         }
     }
 
+    &__dropdown-icon {
+        position: absolute;
+        right: 10px;
+        top: 55%;
+    }
+
     // Vue.js transitions
     .sw-flow-trigger__fade-down-enter-active,
     .sw-flow-trigger__fade-down-leave-active {

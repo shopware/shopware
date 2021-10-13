@@ -13,7 +13,9 @@
 
         {% block sw_event_action_deprecated_alert_more_info_link  %}
         <a
-            href="/"
+            :href="$tc('sw-event-action.deprecatedAlert.linkFlowBuilder')"
+            target="_blank"
+            rel="noopener"
             class="sw-event-action-deprecated-alert__link"
         >
             {{ $tc('sw-event-action.deprecatedAlert.linkMoreInfo') }}

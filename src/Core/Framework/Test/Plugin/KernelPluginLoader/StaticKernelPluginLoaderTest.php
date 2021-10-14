@@ -185,12 +185,14 @@ class StaticKernelPluginLoaderTest extends TestCase
 
         $bundles = iterator_to_array($loader->getBundles());
 
-        static::assertCount(3, $bundles);
-        static::assertInstanceOf('SwagTest\SwagTest', $bundles[0]);
-        static::assertSame($loader, $bundles[2]);
+        static::assertCount(4, $bundles);
+        static::assertInstanceOf('Shopware\Core\Framework\Test\Plugin\_fixture\bundles\GizmoBundle', $bundles[0]);
+        static::assertInstanceOf('SwagTest\SwagTest', $bundles[1]);
+        static::assertInstanceOf('Shopware\Core\Framework\Test\Plugin\_fixture\bundles\FooBarBundle', $bundles[2]);
+        static::assertSame($loader, $bundles[3]);
     }
 
-    public function testGetBundlesWithAdditionalBundlesThatAreDuplicates(): void
+    public function testGetBundlesWithAdditionalBundlesThatAreDuplicatesButKeepOrder(): void
     {
         $activePluginData = $this->getActivePlugin()->jsonSerialize();
         $activePluginDataWithUnneededBundles = $this->getActivePluginWithBundle()->jsonSerialize();
@@ -201,11 +203,12 @@ class StaticKernelPluginLoaderTest extends TestCase
 
         $bundles = iterator_to_array($loader->getBundles([], ['FrameworkBundle']));
 
-        static::assertCount(4, $bundles);
-        static::assertInstanceOf('SwagTest\SwagTest', $bundles[0]);
-        static::assertInstanceOf('Shopware\Core\Framework\Test\Plugin\_fixture\bundles\FooBarBundle', $bundles[1]);
-        static::assertInstanceOf('SwagTestWithBundle\SwagTestWithBundle', $bundles[2]);
-        static::assertSame($loader, $bundles[3]);
+        static::assertCount(5, $bundles);
+        static::assertInstanceOf('Shopware\Core\Framework\Test\Plugin\_fixture\bundles\GizmoBundle', $bundles[0]);
+        static::assertInstanceOf('SwagTest\SwagTest', $bundles[1]);
+        static::assertInstanceOf('Shopware\Core\Framework\Test\Plugin\_fixture\bundles\FooBarBundle', $bundles[2]);
+        static::assertInstanceOf('SwagTestWithBundle\SwagTestWithBundle', $bundles[3]);
+        static::assertSame($loader, $bundles[4]);
     }
 
     public function testGetBundlesNoActive(): void

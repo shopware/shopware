@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Plugin\Context\DeactivateContext;
 use Shopware\Core\Framework\Plugin\Context\UninstallContext;
 use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Shopware\Core\Framework\Test\Plugin\_fixture\bundles\FooBarBundle;
+use Shopware\Core\Framework\Test\Plugin\_fixture\bundles\GizmoBundle;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class SwagTest extends Plugin
@@ -96,9 +97,11 @@ class SwagTest extends Plugin
     public function getAdditionalBundles(AdditionalBundleParameters $parameters): array
     {
         require_once __DIR__ . '/../../../bundles/FooBarBundle.php';
+        require_once __DIR__ . '/../../../bundles/GizmoBundle.php';
 
         return [
             new FooBarBundle(),
+            -10 => new GizmoBundle(),
         ];
     }
 }

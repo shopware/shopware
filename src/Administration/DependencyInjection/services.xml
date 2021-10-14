@@ -44,6 +44,17 @@
             <tag name="shopware.feature" flag="FEATURE_NEXT_6040"/>
         </service>
 
+        <service id="Shopware\Administration\Controller\UserConfigController" public="true">
+            <argument type="service" id="user_config.repository"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+
+            <tag name="shopware.feature" flag="FEATURE_NEXT_6040"/>
+        </service>
+
         <service id="Shopware\Administration\Service\AdminSearcher">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
 

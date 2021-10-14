@@ -53,6 +53,7 @@ parameters:
         - src/Core/System/Test/*.php
         - src/Elasticsearch/*Test.php
         - src/Storefront/*Test.php
+        - src/Administration/Test/Controller/*.php
 
         # node_modules
         - src/**/node_modules/*

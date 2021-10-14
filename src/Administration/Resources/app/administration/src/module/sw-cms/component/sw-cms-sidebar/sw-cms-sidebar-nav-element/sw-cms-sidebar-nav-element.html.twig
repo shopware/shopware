@@ -10,7 +10,7 @@
     {% block sw_cms_sidebar_sidebar_navigator_element_duplicate %}
     <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
     <div
-        v-if="removable"
+        v-if="duplicable && removable"
         class="navigator-element__action-duplicate"
         @click="onBlockDuplicate"
     >
@@ -19,6 +19,10 @@
             size="16"
         />
     </div>
+    <div
+        v-else
+        class="navigator-element__action-duplicate"
+    ></div>
     {% endblock %}
 
     {% block sw_cms_sidebar_sidebar_navigator_element_delete %}

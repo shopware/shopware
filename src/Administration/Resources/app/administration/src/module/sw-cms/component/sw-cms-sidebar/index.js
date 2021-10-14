@@ -1,4 +1,5 @@
 import template from './sw-cms-sidebar.html.twig';
+import CMS from '../../constant/sw-cms.constant';
 import './sw-cms-sidebar.scss';
 
 const { Component, Mixin } = Shopware;
@@ -146,6 +147,24 @@ Component.register('sw-cms-sidebar', {
 
         blockIsRemovable(block) {
             return (this.cmsBlocks[block.type].removable !== false) && this.isSystemDefaultLanguage;
+        },
+
+        blockIsUnique(block) {
+            if (this.page.type !== CMS.PAGE_TYPES.PRODUCT_DETAIL) {
+                return false;
+            }
+
+            return block.slots.some((slot) => {
+                return CMS.UNIQUE_SLOTS_KEBAB.includes(slot.type);
+            });
+        },
+
+        blockIsDuplicable(block) {
+            return !this.blockIsUnique(block);
+        },
+
+        sectionIsDuplicable(section) {
+            return section.blocks.every((block) => this.blockIsDuplicable(block));
         },
 
         async onBlockDragSort(dragData, dropData, validDrop) {

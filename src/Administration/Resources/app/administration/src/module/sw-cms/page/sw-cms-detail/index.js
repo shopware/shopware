@@ -1,4 +1,5 @@
 import template from './sw-cms-detail.html.twig';
+import CMS from '../../constant/sw-cms.constant';
 import './sw-cms-detail.scss';
 
 const { Component, Mixin } = Shopware;
@@ -267,7 +268,7 @@ Component.register('sw-cms-detail', {
         },
 
         isProductPage() {
-            return this.page.type === 'product_detail';
+            return this.page.type === CMS.PAGE_TYPES.PRODUCT_DETAIL;
         },
     },
 
@@ -596,18 +597,18 @@ Component.register('sw-cms-detail', {
 
         getSlotValidations(sections) {
             const foundEmptyRequiredField = [];
-            const foundProductPageElements = {
-                buyBox: 0,
-                productDescriptionReviews: 0,
-                crossSelling: 0,
-            };
+            const foundProductPageElements = CMS.UNIQUE_SLOTS.reduce((accumulator, element) => {
+                accumulator[element] = 0;
+
+                return accumulator;
+            }, {});
 
             sections.forEach((section) => {
                 section.blocks.forEach((block) => {
                     block.backgroundMedia = null;
 
                     block.slots.forEach((slot) => {
-                        if (this.page.type === 'product_detail' && this.isProductPageElement(slot)) {
+                        if (this.page.type === CMS.PAGE_TYPES.PRODUCT_DETAIL && this.isProductPageElement(slot)) {
                             if (slot.type === 'buy-box') {
                                 foundProductPageElements.buyBox += 1;
                             } else if (slot.type === 'product-description-reviews') {
@@ -681,7 +682,7 @@ Component.register('sw-cms-detail', {
             }
             const sections = this.page.sections;
 
-            if (this.page.type === 'product_list') {
+            if (this.page.type === CMS.PAGE_TYPES.LISTING) {
                 let foundListingBlock = false;
 
                 sections.forEach((section) => {
@@ -725,7 +726,7 @@ Component.register('sw-cms-detail', {
 
             const { foundEmptyRequiredField, foundProductPageElements } = this.getSlotValidations(sections);
 
-            if (this.page.type === 'product_detail') {
+            if (this.page.type === CMS.PAGE_TYPES.PRODUCT_DETAIL) {
                 const warningMessages = this.getRedundantElementsWarning(foundProductPageElements);
 
                 if (warningMessages.length > 0) {
@@ -740,7 +741,7 @@ Component.register('sw-cms-detail', {
             }
 
             const missingElements = this.getMissingElements(foundProductPageElements);
-            if (this.page.type === 'product_detail' && missingElements.length > 0 && !this.isSaveable) {
+            if (this.page.type === CMS.PAGE_TYPES.PRODUCT_DETAIL && missingElements.length > 0 && !this.isSaveable) {
                 this.missingElements = missingElements;
                 this.showMissingElementModal = true;
 
@@ -862,7 +863,7 @@ Component.register('sw-cms-detail', {
         },
 
         onPageTypeChange() {
-            if (this.page.type === 'product_list') {
+            if (this.page.type === CMS.PAGE_TYPES.LISTING) {
                 this.processProductListingType();
             } else {
                 this.page.sections.forEach((section) => {
@@ -874,7 +875,7 @@ Component.register('sw-cms-detail', {
                 });
             }
 
-            if (this.page.type === 'product_detail') {
+            if (this.page.type === CMS.PAGE_TYPES.PRODUCT_DETAIL) {
                 this.processProductDetailType();
             }
 
@@ -972,7 +973,7 @@ Component.register('sw-cms-detail', {
         },
 
         isProductPageElement(slot) {
-            return ['buy-box', 'product-description-reviews', 'cross-selling'].includes(slot.type);
+            return CMS.UNIQUE_SLOTS_KEBAB.includes(slot.type);
         },
 
         onOpenLayoutAssignment() {
@@ -994,6 +995,10 @@ Component.register('sw-cms-detail', {
 
         onCloseMissingElementModal() {
             this.showMissingElementModal = false;
+
+            this.$nextTick(() => {
+                this.loadPage(this.pageId);
+            });
         },
 
         onSaveMissingElementModal() {

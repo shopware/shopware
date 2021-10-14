@@ -256,7 +256,8 @@ Component.register('sw-bulk-edit-product', {
                 config: {
                     componentName: 'sw-number-field',
                     changeLabel: this.$tc('sw-bulk-edit.product.deliverability.minOrderQuantity.changeLabel'),
-                    placeholder: this.$tc('sw-bulk-edit.product.deliverability.minOrderQuantity.placeholderMinOrderQuantity'),
+                    placeholder:
+                        this.$tc('sw-bulk-edit.product.deliverability.minOrderQuantity.placeholderMinOrderQuantity'),
                     numberType: 'int',
                     allowOverwrite: true,
                     allowClear: true,
@@ -282,7 +283,8 @@ Component.register('sw-bulk-edit-product', {
                 config: {
                     componentName: 'sw-number-field',
                     changeLabel: this.$tc('sw-bulk-edit.product.deliverability.maxOrderQuantity.changeLabel'),
-                    placeholder: this.$tc('sw-bulk-edit.product.deliverability.maxOrderQuantity.placeholderMaxOrderQuantity'),
+                    placeholder:
+                        this.$tc('sw-bulk-edit.product.deliverability.maxOrderQuantity.placeholderMaxOrderQuantity'),
                     numberType: 'int',
                     allowOverwrite: true,
                     allowClear: true,

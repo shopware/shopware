@@ -15,14 +15,11 @@ use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriberConfig;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
@@ -166,7 +163,7 @@ class SendMailAction extends FlowAction
         $data->set('subject', $mailTemplate->getTranslation('subject'));
         $data->set('mediaIds', []);
 
-        $attachments = $this->buildAttachments($mailEvent, $mailTemplate, $extension, $eventConfig);
+        $attachments = array_unique($this->buildAttachments($mailEvent, $mailTemplate, $extension, $eventConfig), \SORT_REGULAR);
 
         if (!empty($attachments)) {
             $data->set('binAttachments', $attachments);
@@ -267,40 +264,15 @@ class SendMailAction extends FlowAction
             }
         }
 
+        if (!empty($extensions->getDocumentIds())) {
+            $attachments = $this->buildOrderAttachments($extensions->getDocumentIds(), $attachments, $mailEvent->getContext());
+        }
+
         if (empty($eventConfig['documentTypeIds']) || !\is_array($eventConfig['documentTypeIds']) || !$mailEvent instanceof OrderAware) {
             return $attachments;
         }
 
-        $criteria = new Criteria();
-        $criteria->addAssociation('documentMediaFile');
-        $criteria->addAssociation('documentType');
-
-        $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_AND, [
-            new EqualsFilter('orderId', $mailEvent->getOrderId()),
-            new EqualsAnyFilter('documentTypeId', $eventConfig['documentTypeIds']),
-        ]));
-
-        $criteria->addGroupField(new FieldGrouping('documentTypeId'));
-
-        $criteria->addSorting(
-            new FieldSorting('createdAt', FieldSorting::DESCENDING)
-        );
-
-        $entities = $this->documentRepository->search($criteria, $mailEvent->getContext());
-
-        foreach ($entities as $document) {
-            $documentId = $document->getId();
-            $document = $this->documentService->getDocument($document, $mailEvent->getContext());
-
-            $attachments[] = [
-                'id' => $documentId,
-                'content' => $document->getFileBlob(),
-                'fileName' => $document->getFilename(),
-                'mimeType' => $document->getContentType(),
-            ];
-        }
-
-        return $attachments;
+        return $this->buildFlowSettingAttachments($mailEvent->getOrderId(), $eventConfig['documentTypeIds'], $attachments, $mailEvent->getContext());
     }
 
     private function injectTranslator(MailAware $event): bool
@@ -341,5 +313,73 @@ class SendMailAction extends FlowAction
             default:
                 return $mailEvent->getMailStruct()->getRecipients();
         }
+    }
+
+    private function buildOrderAttachments(array $documentIds, array $attachments, Context $context): array
+    {
+        $criteria = new Criteria($documentIds);
+        $criteria->addAssociation('documentMediaFile');
+        $criteria->addAssociation('documentType');
+
+        $entities = $this->documentRepository->search($criteria, $context);
+
+        return $this->mappingAttachmentsInfo($entities, $attachments, $context);
+    }
+
+    private function buildFlowSettingAttachments(string $orderId, array $documentTypeIds, array $attachments, Context $context): array
+    {
+        $documents = $this->connection->fetchAllAssociative(
+            'SELECT
+                LOWER(hex(`document`.`document_type_id`)) as doc_type,
+                LOWER(hex(`document`.`id`)) as doc_id,
+                `document`.`created_at` as newest_date
+            FROM
+                `document`
+            WHERE
+                HEX(`document`.`order_id`) = :orderId
+                AND HEX(`document`.`document_type_id`) IN (:documentTypeIds)
+            ORDER BY `document`.`created_at` DESC',
+            [
+                'orderId' => $orderId,
+                'documentTypeIds' => $documentTypeIds,
+            ],
+            [
+                'documentTypeIds' => Connection::PARAM_STR_ARRAY,
+            ]
+        );
+
+        $documentsGroupByType = FetchModeHelper::group($documents);
+
+        foreach ($documentsGroupByType as $document) {
+            $documentIds[] = array_shift($document)['doc_id'];
+        }
+
+        if (empty($documentIds)) {
+            return $attachments;
+        }
+
+        $criteria = new Criteria($documentIds);
+        $criteria->addAssociations(['documentMediaFile', 'documentType']);
+
+        $entities = $this->documentRepository->search($criteria, $context);
+
+        return $this->mappingAttachmentsInfo($entities, $attachments, $context);
+    }
+
+    private function mappingAttachmentsInfo(EntityCollection $entities, array $attachments, Context $context): array
+    {
+        foreach ($entities as $document) {
+            $documentId = $document->getId();
+            $document = $this->documentService->getDocument($document, $context);
+
+            $attachments[] = [
+                'id' => $documentId,
+                'content' => $document->getFileBlob(),
+                'fileName' => $document->getFilename(),
+                'mimeType' => $document->getContentType(),
+            ];
+        }
+
+        return $attachments;
     }
 }

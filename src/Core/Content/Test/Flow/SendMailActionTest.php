@@ -29,7 +29,6 @@ use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Feature;
@@ -56,7 +55,7 @@ class SendMailActionTest extends TestCase
     /**
      * @dataProvider sendMailProvider
      */
-    public function testEmailSend(array $recipients, ?bool $hasAttachment = true): void
+    public function testEmailSend(array $recipients, ?bool $hasFlowSettingAttachment = true, ?bool $hasOrderSettingAttachment = true): void
     {
         $documentRepository = $this->getContainer()->get('document.repository');
         $orderRepository = $this->getContainer()->get('order.repository');
@@ -69,10 +68,6 @@ class SendMailActionTest extends TestCase
         $customerId = $this->createCustomer($context);
         $orderId = $this->createOrder($customerId, $context);
 
-        if ($hasAttachment) {
-            $documentId = $this->createDocumentWithFile($orderId, $context);
-        }
-
         $mailTemplateId = $this->getContainer()
             ->get('mail_template.repository')
             ->searchIds($criteria, $context)
@@ -83,11 +78,26 @@ class SendMailActionTest extends TestCase
         $config = array_filter([
             'mailTemplateId' => $mailTemplateId,
             'recipient' => $recipients,
-            'documentTypeIds' => $hasAttachment ? [$this->getDocIdByType(DeliveryNoteGenerator::DELIVERY_NOTE)] : [],
+            'documentTypeIds' => $hasFlowSettingAttachment ? [$this->getDocIdByType(DeliveryNoteGenerator::DELIVERY_NOTE)] : [],
         ]);
 
         $order = $orderRepository->search(new Criteria([$orderId]), $context)->first();
         $event = new CheckoutOrderPlacedEvent($context, $order, Defaults::SALES_CHANNEL);
+
+        if ($hasFlowSettingAttachment || $hasOrderSettingAttachment) {
+            $documentIdOlder = $this->createDocumentWithFile($orderId, $context);
+            $documentIdNewer = $this->createDocumentWithFile($orderId, $context);
+        }
+
+        if ($hasOrderSettingAttachment) {
+            $event->getContext()->addExtension(
+                MailSendSubscriber::MAIL_CONFIG_EXTENSION,
+                new MailSendSubscriberConfig(
+                    false,
+                    [$documentIdNewer],
+                )
+            );
+        }
 
         $mailService = new TestEmailService();
         $subscriber = new SendMailAction(
@@ -130,11 +140,16 @@ class SendMailActionTest extends TestCase
             default:
                 static::assertEquals($mailService->data['recipients'], [$order->getOrderCustomer()->getEmail() => $order->getOrderCustomer()->getFirstName() . ' ' . $order->getOrderCustomer()->getLastName()]);
         }
-        if ($hasAttachment) {
-            $criteria = new Criteria();
-            $criteria->addFilter(new EqualsFilter('id', $documentId))->addFilter(new EqualsFilter('sent', true));
-            $document = $documentRepository->search($criteria, $context)->first();
-            static::assertNotNull($document);
+        if ($hasFlowSettingAttachment) {
+            $criteria = new Criteria([$documentIdOlder, $documentIdNewer]);
+            $documents = $documentRepository->search($criteria, $context);
+            foreach ($documents as $document) {
+                if ($document->getSent()) {
+                    static::assertEquals($documentIdNewer, $document->getId());
+                } else {
+                    static::assertEquals($documentIdOlder, $document->getId());
+                }
+            }
         }
     }
 
@@ -149,6 +164,8 @@ class SendMailActionTest extends TestCase
             ],
         ]];
         yield 'Test send mail without attachments' => [['type' => 'customer'], false];
+        yield 'Test send mail with attachments from order setting' => [['type' => 'customer'], false, true];
+        yield 'Test send mail with attachments from order setting and flow setting ' => [['type' => 'customer'], true, true];
     }
 
     public function testTranslatorInjectionInMail(): void

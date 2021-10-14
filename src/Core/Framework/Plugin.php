@@ -29,7 +29,7 @@ abstract class Plugin extends Bundle
         $this->basePath = $basePath;
 
         if ($projectDir && mb_strpos($this->basePath, '/') !== 0) {
-            $this->basePath = $projectDir . '/' . $this->basePath;
+            $this->basePath = rtrim($projectDir, '/') . '/' . $this->basePath;
         }
 
         $this->path = $this->computePluginClassPath();

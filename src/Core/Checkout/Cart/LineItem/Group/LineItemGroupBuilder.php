@@ -5,7 +5,6 @@ namespace Shopware\Core\Checkout\Cart\LineItem\Group;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Exception\InvalidQuantityException;
 use Shopware\Core\Checkout\Cart\Exception\LineItemNotStackableException;
-use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemQuantitySplitter;
@@ -13,26 +12,24 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class LineItemGroupBuilder
 {
-    /**
-     * @var LineItemGroupServiceRegistry
-     */
-    private $registry;
+    private LineItemGroupServiceRegistry $registry;
 
-    /**
-     * @var LineItemGroupRuleMatcherInterface
-     */
-    private $ruleMatcher;
+    private LineItemGroupRuleMatcherInterface $ruleMatcher;
 
-    /**
-     * @var LineItemQuantitySplitter
-     */
-    private $quantitySplitter;
+    private LineItemQuantitySplitter $quantitySplitter;
 
-    public function __construct(LineItemGroupServiceRegistry $registry, LineItemGroupRuleMatcherInterface $ruleMatcher, LineItemQuantitySplitter $lineItemQuantitySplitter)
-    {
+    private AbstractProductLineItemProvider $lineItemProvider;
+
+    public function __construct(
+        LineItemGroupServiceRegistry $registry,
+        LineItemGroupRuleMatcherInterface $ruleMatcher,
+        LineItemQuantitySplitter $lineItemQuantitySplitter,
+        AbstractProductLineItemProvider $lineItemProvider
+    ) {
         $this->registry = $registry;
         $this->ruleMatcher = $ruleMatcher;
         $this->quantitySplitter = $lineItemQuantitySplitter;
+        $this->lineItemProvider = $lineItemProvider;
     }
 
     /**
@@ -47,7 +44,7 @@ class LineItemGroupBuilder
         $result = new LineItemGroupBuilderResult();
 
         // filter out all promotion items
-        $cartProducts = $this->getCartProducts($cart);
+        $cartProducts = $this->lineItemProvider->getProducts($cart);
 
         // split quantities into separate line items
         // so we have a real list of products like we would have
@@ -165,11 +162,6 @@ class LineItemGroupBuilder
         return $newRestOfCart;
     }
 
-    private function getCartProducts(Cart $cart): LineItemCollection
-    {
-        return $cart->getLineItems()->filterType(LineItem::PRODUCT_LINE_ITEM_TYPE);
-    }
-
     /**
      * @throws InvalidQuantityException
      * @throws LineItemNotStackableException
@@ -179,11 +171,17 @@ class LineItemGroupBuilder
         $items = [];
 
         foreach ($cartItems as $item) {
+            $isStackable = $item->isStackable();
+
+            $item->setStackable(true);
+
             for ($i = 1; $i <= $item->getQuantity(); ++$i) {
                 $tmpItem = $this->quantitySplitter->split($item, 1, $context);
 
                 $items[] = $tmpItem;
             }
+
+            $item->setStackable($isStackable);
         }
 
         return new LineItemFlatCollection($items);

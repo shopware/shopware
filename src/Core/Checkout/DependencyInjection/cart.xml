@@ -303,10 +303,17 @@
         <!-- LINE ITEM GROUPS -->
         <!-- ==================================================================================================================== -->
 
+        <service id="Shopware\Core\Checkout\Cart\LineItem\Group\RulesMatcher\AbstractAnyRuleLineItemMatcher"
+                 class="Shopware\Core\Checkout\Cart\LineItem\Group\RulesMatcher\AnyRuleLineItemMatcher"/>
+
+        <service id="Shopware\Core\Checkout\Cart\LineItem\Group\AbstractProductLineItemProvider"
+                 class="Shopware\Core\Checkout\Cart\LineItem\Group\ProductLineItemProvider"/>
+
         <service id="Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder">
             <argument type="service" id="Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupServiceRegistry"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\LineItem\Group\RulesMatcher\AnyRuleMatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Cart\LineItem\LineItemQuantitySplitter"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\LineItem\Group\AbstractProductLineItemProvider"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupServiceRegistry">
@@ -334,7 +341,8 @@
             <tag name="lineitem.group.sorter"/>
         </service>
 
-        <service id="Shopware\Core\Checkout\Cart\LineItem\Group\RulesMatcher\AnyRuleMatcher"/>
-
+        <service id="Shopware\Core\Checkout\Cart\LineItem\Group\RulesMatcher\AnyRuleMatcher">
+            <argument type="service" id="Shopware\Core\Checkout\Cart\LineItem\Group\RulesMatcher\AbstractAnyRuleLineItemMatcher"/>
+        </service>
     </services>
 </container>

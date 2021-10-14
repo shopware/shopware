@@ -28,7 +28,7 @@ class LineItemQuantitySplitter
     public function split(LineItem $item, int $quantity, SalesChannelContext $context): LineItem
     {
         // clone the original line item
-        $tmpItem = LineItem::createFromLineItem($item);
+        $tmpItem = clone $item;
 
         // use calculated item price
         $unitPrice = $tmpItem->getPrice()->getUnitPrice();

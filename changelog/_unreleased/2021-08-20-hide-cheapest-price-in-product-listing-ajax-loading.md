@@ -1,5 +1,6 @@
 ---
 title: Hide cheapest price in product listing ajax loading
+issue: NEXT-17980 
 author: Joshua Behrens
 author_email: code@joshua-behrens.de
 author_github: @JoshuaBehrens

@@ -136,7 +136,10 @@ class ProductController extends StorefrontController
             $salesChannelContext
         );
 
-        $response = new JsonResponse(['url' => $url]);
+        $response = new JsonResponse([
+            'url' => $url,
+            'productId' => $productId,
+        ]);
         $response->headers->set(AbstractSessionListener::NO_AUTO_CACHE_CONTROL_HEADER, '1');
 
         return $response;

@@ -57,7 +57,7 @@ if (file_exists($rootDir . '/.env')) {
 
 if (!\Shopware\Core\DevOps\Environment\EnvironmentHelper::hasVariable('DATABASE_URL')) {
     // Dummy setting to be able to boot the kernel
-    $_SERVER['DATABASE_URL'] = 'mysql://mysql';
+    $_SERVER['DATABASE_URL'] = 'mysql://_placeholder.test';
 }
 
 if (\PHP_SAPI === 'cli') {

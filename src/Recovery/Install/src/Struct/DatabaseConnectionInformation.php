@@ -27,7 +27,7 @@ class DatabaseConnectionInformation extends CoreDatabaseConnectionInformation
         return (new self())->assign([
             'username' => $postData['c_database_user'],
             'hostname' => $postData['c_database_host'],
-            'port' => $postData['c_database_port'],
+            'port' => (int) ($postData['c_database_port'] ?? '3306'),
             'databaseName' => $postData['c_database_schema'] ?? '',
             'password' => $postData['c_database_password'],
             'sslCaPath' => $postData['c_database_ssl_ca_path'],

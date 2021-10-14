@@ -1,7 +1,7 @@
 {
   "viewportHeight": 1080,
   "viewportWidth": 1920,
-  "baseUrl": "http://docker.vm:8000",
+  "baseUrl": "http://localhost:8000",
   "watchForFileChanges": true,
   "requestTimeout": 10000,
   "responseTimeout": 60000,
@@ -34,7 +34,8 @@
     "dbHost": "mysql",
     "dbName": "sw6_e2e_test",
     "acceptLanguage": "en-GB,en;q=0.5",
-    "expectedVersion": "6.2."
+    "expectedVersion": "6.2.",
+    "minAuthTokenLifetime": 60
   },
   "chromeWebSecurity": false
 }

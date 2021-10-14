@@ -4,6 +4,16 @@
   "version": "1.0.0",
   "description": "E2E Test suite for the installer",
   "license": "MIT",
+  "scripts": {
+    "cypress:open": "./node_modules/.bin/cypress open",
+    "cypress:run": "./node_modules/.bin/cypress run",
+    "cypress": "./node_modules/.bin/cypress",
+    "open": "./node_modules/.bin/cypress open",
+    "cy:run:chrome": "cypress run --browser chrome",
+    "cy:run:firefox": "cypress run --browser firefox",
+    "combine-reports": "mochawesome-merge cypress/results/mocha/*.json > cypress/mochareports/report.json",
+    "generate-report": "marge cypress/mochareports/*.json -f report -o mochareports"
+  },
   "dependencies": {
     "@babel/core": "^7.7.7",
     "@percy/cypress": "^3.1.0",

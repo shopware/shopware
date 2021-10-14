@@ -234,18 +234,18 @@ Shopware.Component.register('sw-import-export-edit-profile-modal-mapping', {
                 // return if mapping is the most upper one
                 if (index === 0) return;
 
-                const previousMapping = this.profile.mapping[index - 1];
+                const previousMapping = this.sortedMappings[index - 1];
                 this.swapItems(previousMapping, mapping);
 
                 return;
             }
 
-            const totalLengthOfMappings = this.profile.mapping.length;
+            const totalLengthOfMappings = this.sortedMappings.length;
             if (direction === 'down') {
                 // return if mapping is the lowest
                 if (index === totalLengthOfMappings - 1) return;
 
-                const nextMapping = this.profile.mapping[index + 1];
+                const nextMapping = this.sortedMappings[index + 1];
                 this.swapItems(mapping, nextMapping);
             }
         },

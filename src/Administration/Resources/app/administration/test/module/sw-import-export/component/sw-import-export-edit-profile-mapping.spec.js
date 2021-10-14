@@ -272,4 +272,47 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         const amountWhileUsingSearch = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row').wrappers.length;
         expect(amountWhileUsingSearch).toBe(1);
     });
+
+    it('should always use the direct neighbour when swapping positions', async () => {
+        const profileMock = getProfileMock();
+        profileMock.mapping.pop();
+        profileMock.systemDefault = false;
+
+        wrapper = await createWrapper(profileMock);
+
+        const firstRowDownwardsButton = wrapper.find('.sw-data-grid__row--0 .sw-button-group .sw-button:last-of-type');
+        await firstRowDownwardsButton.trigger('click');
+
+        const addButton = wrapper.find('.sw-import-export-edit-profile-modal-mapping__add-action');
+        await addButton.trigger('click');
+
+        const newItemInputField = wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--csvName input');
+        await newItemInputField.setValue('custom_value');
+
+        const newItemDownwardsButton = wrapper.find('.sw-data-grid__row--0 .sw-button-group .sw-button:last-of-type');
+        await newItemDownwardsButton.trigger('click');
+
+        const reorderedMappings = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
+        const customMappingOrder = [
+            {
+                position: 0,
+                mappedKey: 'parent_id'
+            },
+            {
+                position: 1,
+                mappedKey: 'custom_value'
+            },
+            {
+                position: 2,
+                mappedKey: 'id'
+            }
+        ];
+
+        reorderedMappings.wrappers.forEach((currentWrapper, index) => {
+            const key = currentWrapper.find('input[type="text"]').element.value;
+
+            expect(key).toBe(customMappingOrder[index].mappedKey);
+            expect(customMappingOrder[index].position).toBe(index);
+        });
+    });
 });

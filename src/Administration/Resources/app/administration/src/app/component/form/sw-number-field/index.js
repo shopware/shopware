@@ -70,6 +70,12 @@ Component.extend('sw-number-field', 'sw-text-field', {
             },
         },
 
+        fillDigits: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
         allowEmpty: {
             type: Boolean,
             required: false,
@@ -112,7 +118,9 @@ Component.extend('sw-number-field', 'sw-text-field', {
                 return '';
             }
 
-            return this.currentValue.toString();
+            return this.fillDigits && this.numberType !== 'int'
+                ? this.currentValue.toFixed(this.digits)
+                : this.currentValue.toString();
         },
     },
 

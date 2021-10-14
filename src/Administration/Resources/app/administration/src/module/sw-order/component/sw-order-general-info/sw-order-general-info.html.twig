@@ -97,6 +97,7 @@
                 :placeholder="transaction.stateMachineState.translated.name"
                 :label="$tc('sw-order.stateCard.headlineTransactionState')"
                 :background-style="backgroundStyle('order_transaction')"
+                :disabled="!acl.can('order.editor')"
                 @state-select="onStateSelected"
             />
         </div>
@@ -115,6 +116,7 @@
                 :placeholder="delivery.stateMachineState.translated.name"
                 :label="$tc('sw-order.stateCard.headlineDeliveryState')"
                 :background-style="backgroundStyle('order_delivery')"
+                :disabled="!acl.can('order.editor')"
                 @state-select="onStateSelected"
             />
         </div>
@@ -133,6 +135,7 @@
                 :placeholder="order.stateMachineState.translated.name"
                 :label="$tc('sw-order.stateCard.headlineOrderState')"
                 :background-style="backgroundStyle('order')"
+                :disabled="!acl.can('order.editor')"
                 @state-select="onStateSelected"
             />
         </div>

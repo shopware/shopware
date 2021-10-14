@@ -1,3 +1,4 @@
+{% block sw_tagged_field %}
 {% block sw_order_promotion_tag_field %}
 <sw-block-field
     class="sw-tagged-field sw-order-promotion-tag-field"
@@ -27,6 +28,7 @@
                     v-if="item.isInvalid"
                     :key="item.code + item.isInvalid"
                     :size="size"
+                    :dismissable="!disabled"
                     variant="danger"
                     @selected="setFocus(true)"
                     @dismiss="dismissTag(item)"
@@ -42,6 +44,7 @@
                         width: 220
                     }"
                     :size="size"
+                    :dismissable="!disabled"
                     @selected="setFocus(true)"
                     @dismiss="dismissTag(item)"
                 >
@@ -74,4 +77,5 @@
         {% endblock %}
     </template>
 </sw-block-field>
+{% endblock %}
 {% endblock %}

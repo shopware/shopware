@@ -1,0 +1,90 @@
+{% block sw_order_detail_state_card %}
+<sw-card
+    class="sw-order-detail-state-card"
+    :title="title"
+    :is-loading="isLoading || statesLoading"
+>
+
+    {% block sw_order_detail_state_card_state %}
+    <div class="sw-order-detail-state-card__state">
+        <sw-container
+            class="sw-order-detail-state-card__state-container"
+            gap="16px"
+            columns="33% auto auto"
+        >
+
+            {% block sw_order_detail_state_card_state_select %}
+            <sw-order-state-select-v2
+                v-tooltip="{
+                    message: $tc('sw-privileges.tooltip.warning'),
+                    disabled: acl.can('order.editor'),
+                    showOnDisabledElements: true
+                }"
+                :transition-options="stateOptions"
+                :state-type="entityName"
+                :rounded-style="true"
+                :placeholder="entity.stateMachineState.translated.name"
+                :label="stateLabel"
+                :background-style="stateSelectBackgroundStyle"
+                :disabled="disabled"
+                @state-select="onStateSelected"
+            />
+            {% endblock %}
+
+            {% block sw_order_detail_state_card_state_history_text %}
+            <div
+                v-if="lastStateChange"
+                class="sw-order-detail-state-card__state-history-text"
+            >
+                <i18n path="sw-order.stateCard.labelHistory">
+                    <template #time>
+                        <sw-time-ago :date="lastStateChange.createdAt" />
+                    </template>
+                    <template #author>
+                        {{ lastStateChange.user ? lastStateChange.user.firstName + ' ' + lastStateChange.user.lastName : $tc('sw-order.stateCard.labelSystemUser') }}
+                    </template>
+                </i18n>
+            </div>
+            <div v-else></div>
+            {% endblock %}
+
+            {% block sw_order_detail_state_card_state_history_button %}
+            <sw-external-link
+                class="sw-order-detail-state-card__state-history-button"
+                icon="default-arrow-simple-right"
+                @click="onShowStatusHistory"
+            >
+                {{ $tc('sw-order.stateCard.labelShowHistoryModal') }}
+            </sw-external-link>
+            {% endblock %}
+
+        </sw-container>
+
+        {% block sw_order_state_change_card_state_modal %}
+        <sw-order-state-change-modal
+            v-if="showStateChangeModal"
+            :order="order"
+            :is-loading="isLoading"
+            :technical-name="''"
+            @page-leave="onLeaveModalClose"
+            @page-leave-confirm="onLeaveModalConfirm"
+        />
+        {% endblock %}
+    </div>
+    {% endblock %}
+
+    {% block sw_order_state_change_card_divider %}
+    <hr class="sw-order-detail-state-card__divider">
+    {% endblock %}
+
+    {% block sw_order_state_change_card_content %}
+    <sw-container
+        class="sw-order-detail-state-card__content"
+        columns="1fr 1fr"
+    >
+        <slot></slot>
+    </sw-container>
+    {% endblock %}
+
+</sw-card>
+{% endblock %}

@@ -22,6 +22,7 @@ use Shopware\Core\Checkout\Order\Exception\DeliveryWithoutAddressException;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Payment\Exception\InvalidOrderException;
+use Shopware\Core\Checkout\Promotion\Cart\PromotionCollector;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Defaults;
@@ -213,8 +214,8 @@ class RecalculationService
         $options[SalesChannelContextService::PERMISSIONS] = \array_merge(
             OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS,
             [
-                'skipPromotion' => false,
-                'skipAutomaticPromotions' => true,
+                PromotionCollector::SKIP_PROMOTION => false,
+                PromotionCollector::SKIP_AUTOMATIC_PROMOTIONS => true,
             ]
         );
 
@@ -260,8 +261,8 @@ class RecalculationService
         $options[SalesChannelContextService::PERMISSIONS] = \array_merge(
             OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS,
             [
-                'skipPromotion' => false,
-                'skipAutomaticPromotions' => $skipAutomaticPromotions,
+                PromotionCollector::SKIP_PROMOTION => false,
+                PromotionCollector::SKIP_AUTOMATIC_PROMOTIONS => $skipAutomaticPromotions,
             ]
         );
 

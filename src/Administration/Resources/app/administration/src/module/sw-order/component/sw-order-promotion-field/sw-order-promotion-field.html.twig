@@ -1,0 +1,25 @@
+{% block sw_order_promotion_field %}
+<div class="sw-order-promotion-field">
+
+    {% block sw_order_promotion_field_codes %}
+    <sw-order-promotion-tag-field
+        v-model="promotionCodeTags"
+        :disabled="!hasLineItem || isLoading || !acl.can('order_line_item.editor')"
+        :currency="currency"
+        :label="$tc('sw-order.detailsTab.promotionsField.labelPromotions')"
+        :placeholder="$tc('sw-order.detailsTab.promotionsField.placeholderPromotions')"
+        :error="promotionError"
+        @on-remove-code="onRemoveExistingCode"
+    />
+    {% endblock %}
+
+    {% block sw_order_promotion_field_switch %}
+    <sw-switch-field
+        v-model="disabledAutoPromotionVisibility"
+        :disabled="isLoading || !acl.can('order_line_item.editor')"
+        :label="$tc('sw-order.detailsTab.promotionsField.labelToggleAutomaticPromotions')"
+    />
+    {% endblock %}
+
+</div>
+{% endblock %}

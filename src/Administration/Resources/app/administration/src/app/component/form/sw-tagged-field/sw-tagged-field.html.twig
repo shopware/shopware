@@ -17,6 +17,7 @@
                 :key="`sw-tagged-field-value--${index}`"
             >
                 <sw-label
+                    :dismissable="!disabled"
                     :size="size"
                     @selected="setFocus(true)"
                     @dismiss="dismissTag(index)"

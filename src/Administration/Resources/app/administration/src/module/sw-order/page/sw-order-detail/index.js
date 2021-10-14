@@ -182,7 +182,7 @@ Component.register('sw-order-detail', {
                     }).catch((error) => {
                         this.onError('error', error);
                     }).finally(() => {
-                        State.commit('swOrderDetail/setVersionContext', Shopware.Context.api); // ?? do we need that anymore?
+                        State.commit('swOrderDetail/setVersionContext', Shopware.Context.api);
 
                         this.createNewVersionId().then(() => {
                             State.commit('swOrderDetail/setLoading', ['order', false]);
@@ -228,7 +228,9 @@ Component.register('sw-order-detail', {
             return this.orderRepository.save(this.order, this.versionContext).then(() => {
                 return this.orderService.recalculateOrder(this.orderId, this.versionContext.versionId, {}, {});
             }).then(() => {
-                State.commit('swOrderDetail/setVersionContext', Shopware.Context.api); // ?? do we need that anymore?
+                if (!this.feature.isActive('FEATURE_NEXT_7530')) {
+                    State.commit('swOrderDetail/setVersionContext', Shopware.Context.api);
+                }
 
                 return this.reloadEntityData();
             }).catch((error) => {
@@ -259,7 +261,9 @@ Component.register('sw-order-detail', {
             State.commit('swOrderDetail/setLoading', ['order', true]);
 
             return this.orderRepository.save(this.order, this.versionContext).then(() => {
-                State.commit('swOrderDetail/setVersionContext', Shopware.Context.api); // ?? do we need that anymore?
+                if (!this.feature.isActive('FEATURE_NEXT_7530')) {
+                    State.commit('swOrderDetail/setVersionContext', Shopware.Context.api);
+                }
 
                 return this.reloadEntityData();
             }).catch((error) => {

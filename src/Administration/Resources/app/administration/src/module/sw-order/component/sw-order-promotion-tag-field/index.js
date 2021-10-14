@@ -4,10 +4,8 @@ import template from './sw-order-promotion-tag-field.html.twig';
 const { Component, Utils } = Shopware;
 const { format } = Utils;
 
-Component.register('sw-order-promotion-tag-field', {
+Component.extend('sw-order-promotion-tag-field', 'sw-tagged-field', {
     template,
-
-    extends: 'sw-tagged-field',
 
     props: {
         currency: {

@@ -126,6 +126,17 @@
         />
         <div class="sw-text-editor-toolbar-button__link-menu-buttons">
             {% block sw_text_editor_toolbar_button_link_menu_buttons %}
+            {% block sw_text_editor_toolbar_button_link_menu_button_remove %}
+            <sw-button
+                size="small"
+                variant="primary"
+                class="sw-text-editor-toolbar-button__link-menu-buttons-button-remove"
+                @click="handleButtonClick({ type: 'linkRemove' })"
+            >
+                {{ $tc('sw-text-editor-toolbar.link.remove') }}
+            </sw-button>
+            {% endblock %}
+            {% block sw_text_editor_toolbar_button_link_menu_button_insert %}
             <sw-button
                 size="small"
                 variant="primary"
@@ -134,6 +145,7 @@
             >
                 {{ $tc('sw-text-editor-toolbar.link.insert') }}
             </sw-button>
+            {% endblock %}
             {% endblock %}
         </div>
         {% endblock %}

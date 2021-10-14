@@ -261,6 +261,10 @@ Component.register('sw-text-editor-toolbar', {
                 return;
             }
 
+            if (button.type === 'linkRemove') {
+                this.$emit('removeLink');
+            }
+
             if (button.type === 'foreColor') {
                 this.keepSelection(true);
             }

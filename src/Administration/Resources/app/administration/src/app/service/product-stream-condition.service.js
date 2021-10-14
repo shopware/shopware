@@ -62,6 +62,7 @@ export default function conditionService() {
             'isCloseout',
             'purchasePrices',
             'createdAt',
+            'coverId',
         ],
     };
 
@@ -139,6 +140,11 @@ export default function conditionService() {
         boolean: [
             productFilterTypes.equals,
         ],
+
+        empty: [
+            productFilterTypes.equals,
+        ],
+
         string: [
             productFilterTypes.equals,
             productFilterTypes.notEquals,

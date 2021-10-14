@@ -9,6 +9,7 @@
         <sw-container class="sw-product-stream-value__placeholder" />
         {% endblock %}
     </template>
+
     <template v-else-if="fieldType === 'boolean'">
         {% block sw_product_stream_value_boolean_value %}
         <sw-single-select
@@ -19,6 +20,20 @@
             :disabled="disabled"
             show-clearable-button
             @change="setBooleanValue"
+        />
+        {% endblock %}
+    </template>
+
+    <template v-else-if="fieldType === 'empty'">
+        {% block sw_product_stream_value_empty_value %}
+        <sw-single-select
+            class="sw-product-stream-value__select"
+            size="medium"
+            :options="reversedEmptyOptions"
+            :value="isEmptyValue"
+            :disabled="disabled"
+            show-clearable-button
+            @change="setEmptyValue"
         />
         {% endblock %}
     </template>

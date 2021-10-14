@@ -142,6 +142,15 @@ Component.extend('sw-product-stream-filter', 'sw-condition-base', {
             this.condition.value = value;
         },
 
+        changeEmptyValue({ type }) {
+            this.handleWrapForTypeNull(type);
+            if (this.condition.type === 'not') {
+                this.condition.queries[0].value = null;
+            }
+
+            this.condition.value = null;
+        },
+
         changeType({ type, parameters }) {
             if (this.handleWrapForTypeNull(type, parameters)) {
                 this.actualCondition.parameters = parameters;

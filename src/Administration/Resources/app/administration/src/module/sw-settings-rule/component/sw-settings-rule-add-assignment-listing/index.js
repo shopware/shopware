@@ -40,7 +40,8 @@ Component.register('sw-settings-rule-add-assignment-listing', {
 
             if (this.entityContext.addContext.association) {
                 criteria.addAssociation(this.entityContext.addContext.association);
-                criteria.getAssociation(this.entityContext.addContext.association).addFilter(Criteria.equals('id', this.ruleId));
+                criteria.getAssociation(this.entityContext.addContext.association)
+                    .addFilter(Criteria.equals('id', this.ruleId));
             }
 
             return criteria;

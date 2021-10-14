@@ -38,6 +38,8 @@
       "tabAssignments": "Zuweisungen",
       "buttonAddAssignment":  "Zuweisung hinzufügen",
       "associations": {
+        "shippingMethods": "Versandarten",
+        "promotions": "Rabatten & Aktionen",
         "products": "Produkt Preisregeln",
         "shippingMethodPrices": "Versandarten Preisregeln",
         "paymentMethods": "Zahlarten",

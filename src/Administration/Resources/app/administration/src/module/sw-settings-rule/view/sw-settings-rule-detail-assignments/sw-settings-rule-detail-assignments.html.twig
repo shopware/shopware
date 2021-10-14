@@ -3,40 +3,15 @@
 
     {% block sw_settings_rule_detail_assignments_entity_cards %}
     <sw-card
-        v-for="entity in associationEntities"
-        :key="entity.id"
+        v-for="entity in loadedAssociationEntities"
+        :key="entity.entityName"
         class="sw-settings-rule-detail-assignments__card"
         :class="'sw-settings-rule-detail-assignments__card-' + entity.entityName"
         :title="entity.label"
     >
-        <template #toolbar>
-            {% block sw_settings_rule_detail_assignments_toolbar %}
-            <sw-card-filter
-                placeholder=""
-                @sw-card-filter-term-change="onFilterEntity(entity, ...arguments)"
-            >
-                <template #filter>
-                    {% block sw_settings_rule_detail_assignments_add_button %}
-                        <sw-button
-                            v-if="entity.allowAdd"
-                            :disabled="disableAdd(entity)"
-                            variant="ghost"
-                            size="small"
-                            class="sw-settings-rule-detail-assignments__add-button"
-                            @click="onOpenAddModal(entity)"
-                        >
-                            {{ $tc('sw-settings-rule.detail.buttonAddAssignment') }}
-                        </sw-button>
-                    {% endblock %}
-                </template>
-            </sw-card-filter>
-            {% endblock %}
-        </template>
-
         <template #grid>
             {% block sw_settings_rule_detail_assignments_entity_listing %}
-            <sw-settings-rule-assignment-listing
-                v-if="entity.loadedData && entity.loadedData.length > 0"
+            <sw-entity-listing
                 class="sw-settings-rule-detail-assignments__entity-listing"
                 :class="'sw-settings-rule-detail-assignments__entity-listing-' + entity.entityName"
                 :is-loading="isLoading"
@@ -45,50 +20,23 @@
                 :repository="entity.repository"
                 :local-mode="false"
                 :criteria-limit="5"
-                :allow-delete="allowDeletion(entity)"
+                :allow-delete="false"
                 :allow-inline-edit="false"
                 :show-settings="false"
-                :show-selection="allowDeletion(entity)"
+                :show-selection="false"
                 :allow-column-edit="false"
                 :steps="associationSteps"
                 :columns="entity.gridColumns"
                 :full-page="false"
-                @delete-items="deleteItems(entity, ...arguments)"
             >
                 <template #actions="{ item }">
                     {% block sw_settings_rule_detail_assignments_entity_listing_actions %}
-                    {% block sw_settings_rule_detail_assignments_entity_listing_view_action %}
                     <sw-context-menu-item :router-link="{ name: entity.detailRoute, params: { id: item.id } }">
                         {{ $tc('global.default.view') }}
                     </sw-context-menu-item>
                     {% endblock %}
-                    {% block sw_settings_rule_detail_assignments_entity_listing_delete_action %}
-                    <sw-context-menu-item
-                        v-if="entity.deleteContext"
-                        variant="danger"
-                        @click="onOpenDeleteModal(entity, item)">
-                        {{ $tc('global.default.delete') }}
-                    </sw-context-menu-item>
-                    {% endblock %}
-                    {% endblock %}
                 </template>
-            </sw-settings-rule-assignment-listing>
-
-            {% block sw_settings_rule_detail_assignments_empty_state %}
-            <sw-empty-state
-                v-else
-                :title="$tc('sw-settings-rule.detail.hasNoAssociations')"
-                :absolute="false"
-                :show-description="false"
-            >
-                <template #icon>
-                    <img
-                        :src="'administration/static/img/empty-states/settings-empty-state.svg' | asset"
-                        :alt="$tc('sw-settings-rule.detail.hasNoAssociations')"
-                    >
-                </template>
-            </sw-empty-state>
-            {% endblock %}
+            </sw-entity-listing>
             {% endblock %}
         </template>
     </sw-card>
@@ -103,50 +51,24 @@
     </sw-card>
     {% endblock %}
 
-    {% block sw_settings_rule_detail_assignments_delete_modal %}
-    <sw-modal
-        v-if="deleteModal"
-        :title="$tc('sw-settings-rule.detail.titleModalDelete')"
-        variant="small"
-        @modal-close="onCloseDeleteModal">
-
-        {% block sw_settings_rule_detail_assignments_delete_modal_text %}
-            <p class="sw-settings-rule-detail-assignments__delete-text">
-                {{ $tc('sw-settings-rule.detail.textModalDelete') }}
-            </p>
-        {% endblock %}
-
-        {% block sw_settings_rule_detail_assignments_delete_modal_footer %}
-            <template #modal-footer>
-
-                {% block sw_settings_rule_detail_assignments_delete_modal_cancel %}
-                    <sw-button size="small"
-                               @click="onCloseDeleteModal">
-                        {{ $tc('global.default.cancel') }}
-                    </sw-button>
-                {% endblock %}
-
-                {% block sw_settings_rule_detail_assignments_delete_modal_confirm %}
-                    {% block sw_settings_rule_detail_assignments_delete_modal_confirm_single %}
-                        <sw-button size="small"
-                                   variant="danger"
-                                   @click="onDelete">
-                            {{ $tc('global.default.delete') }}
-                        </sw-button>
-                    {% endblock %}
-                {% endblock %}
+    {% block sw_settings_rule_detail_assignments_empty_state %}
+    <sw-card
+        v-if="hasNoAssociations"
+        class="sw-settings-rule-detail-assignments__empty-state"
+    >
+        <sw-empty-state
+            :title="$tc('sw-settings-rule.detail.hasNoAssociations')"
+            :absolute="false"
+            :show-description="false"
+        >
+            <template #icon>
+                <img
+                    :src="'administration/static/img/empty-states/settings-empty-state.svg' | asset"
+                    :alt="$tc('sw-settings-rule.detail.hasNoAssociations')"
+                >
             </template>
-        {% endblock %}
-    </sw-modal>
-    {% endblock %}
-
-    {% block sw_settings_rule_detail_assignments_add_modal %}
-    <sw-settings-rule-add-assignment-modal v-if="addModal"
-                                           :rule="rule"
-                                           :entityContext="addEntityContext"
-                                           @entities-saved="onEntitiesSaved"
-                                           @close-add-modal="onCloseAddModal">
-    </sw-settings-rule-add-assignment-modal>
+        </sw-empty-state>
+    </sw-card>
     {% endblock %}
 </div>
 {% endblock %}

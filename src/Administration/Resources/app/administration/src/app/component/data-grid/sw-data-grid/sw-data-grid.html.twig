@@ -257,7 +257,10 @@
                         v-if="showSelection"
                         class="sw-data-grid__cell sw-data-grid__cell--selection"
                     >
-                        <slot name="selection-content" v-bind="{ item, isSelected, isRecordSelectable, selectItem, itemIdentifierProperty }">
+                        <slot
+                            name="selection-content"
+                            v-bind="{ item, isSelected, isRecordSelectable, selectItem, itemIdentifierProperty }"
+                        >
                             {% block sw_data_grid_body_cell_selection_content %}
                             <div class="sw-data-grid__cell-content">
                                 {% block sw_data_grid_select_item_checkbox %}

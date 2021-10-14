@@ -38,6 +38,8 @@
       "tabAssignments": "Assignments",
       "buttonAddAssignment":  "Add assignment",
       "associations": {
+        "shippingMethods": "Shipping methods",
+        "promotions": "Promotions",
         "products": "Product price rules",
         "shippingMethodPrices": "Shipping method price rules",
         "paymentMethods": "Payment methods",

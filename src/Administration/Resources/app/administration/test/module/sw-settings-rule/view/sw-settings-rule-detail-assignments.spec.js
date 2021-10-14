@@ -141,6 +141,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         // Wait for loading to be disabled and re-render
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
 
         // Expect entity listings to be present
         expect(wrapper.find('.sw-settings-rule-detail-assignments__card-product .sw-entity-listing-stub').exists()).toBeTruthy();
@@ -167,6 +168,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         // Wait for loading to be disabled and re-render
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
 
         // Expect entity listings to be present
         expect(wrapper.find('.sw-settings-rule-detail-assignments__card-shipping_method .sw-entity-listing-stub').exists()).toBeTruthy();
@@ -189,6 +191,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         await wrapper.vm.$nextTick();
 
         // Wait for loading to be disabled and re-render
+        await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
         await wrapper.vm.$nextTick();
 

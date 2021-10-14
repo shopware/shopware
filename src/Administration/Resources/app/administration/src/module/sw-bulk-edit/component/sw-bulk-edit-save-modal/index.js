@@ -19,6 +19,10 @@ Component.register('sw-bulk-edit-save-modal', {
             required: true,
             type: String,
         },
+        bulkEditData: {
+            type: Object,
+            required: true,
+        },
     },
 
     data() {

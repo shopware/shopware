@@ -10,6 +10,7 @@
     <div class="sw-bulk-edit-save-modal-body">
         <router-view
             :item-total="itemTotal"
+            :bulk-edit-data="bulkEditData"
             @changes-apply="applyChanges"
             @buttons-update="updateButtons"
             @redirect="redirect"

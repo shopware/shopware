@@ -194,6 +194,23 @@
       "confirm": {
         "title": "Mehrfachänderung - Anwenden?",
         "description": "Änderungen auf {itemCount} ausgewähltes Element anwenden? Diese Änderungen können nicht rückgängig gemacht werden. | Änderungen auf {itemCount} ausgewählte Elemente anwenden? Diese Änderungen können nicht rückgängig gemacht werden.",
+        "switchLabel": "Trigger Flows with this bulk edit",
+        "switchHelpText": "If this action is active, all triggers created in the Flow Builder are executed for all changes of this bulk edit. Under certain circumstances, this can lead to Flows being executed twice.",
+        "alertTitle": "Following Flows could be triggered:",
+        "triggeredFlows": {
+          "orderDeliveries": {
+            "key": "orderDeliveries",
+            "label": "Order Delivery State Changed"
+          },
+          "orderTransactions": {
+            "key": "orderTransactions",
+            "label": "Order Transaction State Changed"
+          },
+          "orders": {
+            "key": "orders",
+            "label": "Order State Changed"
+          }
+        },
         "buttons": {
           "applyChanges": "Änderungen anwenden"
         }
@@ -217,7 +234,7 @@
           "openLog": "Log-Datei öffnen"
         }
       },
-      "warningText": "Wenn Du die Mehrfachänderung abbrichts oder während des Prozesses den Browser-Tab schließt, werden die Änderungen u.U. nicht vollständig abgeschlossen und es kann zu irreversibel beschädigten Datenständen kommen."
+      "warningText": "Please wait until the bulk edit is completed. This may take a moment. If you close the browser tab or cancel the process, not all changes may be applied. You can always run the bulk edit again."
     },
     "order": {
       "textTitle": "Mehrfachänderung: {orderTotal} Bestellungen",

@@ -1,0 +1,20 @@
+@import "~scss/variables.scss";
+
+.sw-bulk-edit-save-modal-confirm {
+    &__trigger-flows-switch.sw-field--switch {
+        margin: -10px auto 10px;
+    }
+
+    &__trigger-flows-switch.sw-field--switch .sw-field__label label {
+        margin-right: 0;
+    }
+
+    &__trigger-flows-alert.sw-alert {
+        font-size: $font-size-small;
+    }
+
+    &__trigger-flows-alert p {
+        color: $color-darkgray-200;
+        font-weight: $font-weight-semi-bold;
+    }
+}

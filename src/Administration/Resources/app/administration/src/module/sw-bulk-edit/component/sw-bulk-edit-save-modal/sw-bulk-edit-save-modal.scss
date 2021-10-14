@@ -6,6 +6,10 @@
         grid-auto-columns: max-content;
     }
 
+    &__warning.sw-alert {
+        font-size: $font-size-small;
+    }
+
     &__help-text {
         font-size: $font-size-small;
         padding-bottom: 20px;

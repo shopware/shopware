@@ -9,6 +9,7 @@ use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductListingStruct;
 use Shopware\Core\Content\Product\SalesChannel\Listing\AbstractProductListingRoute;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingFeaturesSubscriber;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -124,12 +125,12 @@ class ProductListingCmsElementResolver extends AbstractCmsElementResolver
         // setup the default behavior
         $defaults = ['manufacturer-filter', 'rating-filter', 'shipping-free-filter', 'price-filter', 'property-filter'];
 
-        $request->request->set('property-whitelist', null);
+        $request->request->set(ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM, null);
 
         $config = $slot->get('config');
 
         if (isset($config['propertyWhitelist']['value']) && \count($config['propertyWhitelist']['value']) > 0) {
-            $request->request->set('property-whitelist', $config['propertyWhitelist']['value']);
+            $request->request->set(ProductListingFeaturesSubscriber::PROPERTY_GROUP_IDS_REQUEST_PARAM, $config['propertyWhitelist']['value']);
         }
 
         if (!isset($config['filters']['value'])) {

@@ -45,7 +45,7 @@
 
                 {% block sw_customer_detail_order_card_grid_columns_order_date_time %}
                 <template #column-orderDateTime="{ item }">
-                    {{ item.orderDateTime }}
+                    <sw-time-ago :date="item.orderDateTime" />
                 </template>
                 {% endblock %}
             {% endblock %}

@@ -55,7 +55,8 @@
       "advancedPrices": {
         "cardTitle": "Erweiterte Preise",
         "changeLabel": "Ändern: Erweiterte Preise",
-        "openModalButton": "Erweiterte Preise anzeigen"
+        "selectRule": "Select pricing rule ...",
+        "newAdvancedPrices": "Create new Advanced Prices ({count})"
       },
       "property": {
         "cardTitle": "Eigenschaften",

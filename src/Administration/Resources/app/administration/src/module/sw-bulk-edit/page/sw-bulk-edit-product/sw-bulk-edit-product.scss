@@ -5,7 +5,9 @@
         padding: 0;
 
         .sw-card__quick-link {
-            padding-top: 24px;
+            text-align: right;
+            display: block;
+            padding-top: 14px;
             cursor: pointer;
         }
     }

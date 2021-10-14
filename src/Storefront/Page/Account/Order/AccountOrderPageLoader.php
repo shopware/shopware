@@ -70,10 +70,9 @@ class AccountOrderPageLoader
         $page->setDeepLinkCode($request->get('deepLinkCode'));
 
         if ($request->get('deepLinkCode') && $page->getOrders()->first() !== null) {
-            $this->accountService->login(
-                $page->getOrders()->first()->getOrderCustomer()->getCustomer()->getEmail(),
-                $salesChannelContext,
-                true
+            $this->accountService->loginById(
+                $page->getOrders()->first()->getOrderCustomer()->getCustomer()->getId(),
+                $salesChannelContext
             );
         }
 

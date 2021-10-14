@@ -6,6 +6,7 @@ use Psr\EventDispatcher\StoppableEventInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Flow\Dispatching\Struct\Flow;
 use Shopware\Core\Content\Flow\Exception\ExecuteSequenceException;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEvent;
 use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Event\FlowEventAware;
@@ -63,6 +64,10 @@ class FlowDispatcher implements EventDispatcherInterface
         }
 
         if ($event instanceof StoppableEventInterface && $event->isPropagationStopped()) {
+            return $event;
+        }
+
+        if ($event->getContext()->hasState(Context::SKIP_TRIGGER_FLOW)) {
             return $event;
         }
 

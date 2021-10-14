@@ -6,7 +6,7 @@
 
     {% block sw_bulk_edit_save_modal_confirm_trigger_flows %}
     <div
-        v-if="feature.isActive('FEATURE_NEXT_8225') && triggeredFlows.length > 0"
+        v-if="triggeredFlows.length > 0"
         class="sw-bulk-edit-save-modal-confirm__trigger-flows"
     >
         {% block sw_bulk_edit_save_modal_confirm_trigger_flows_switch %}
@@ -23,7 +23,6 @@
         {% block sw_bulk_edit_save_modal_confirm_trigger_flows_alert %}
         <sw-alert
             v-show="isFlowTriggered"
-            variant="info"
             class="sw-bulk-edit-save-modal-confirm__trigger-flows-alert"
         >
             <p>{{ $tc('sw-bulk-edit.modal.confirm.alertTitle') }}</p>

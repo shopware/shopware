@@ -196,19 +196,19 @@
         "description": "Apply changes to {itemCount} selected item? This action cannot be undone. | Apply changes to {itemCount} selected items? This action cannot be undone.",
         "switchLabel": "Trigger Flows with this bulk edit",
         "switchHelpText": "If this action is active, all triggers created in the Flow Builder are executed for all changes of this bulk edit. Under certain circumstances, this can lead to Flows being executed twice.",
-        "alertTitle": "Following Flows could be triggered:",
+        "alertTitle": "The following triggers/flows might be executed:",
         "triggeredFlows": {
           "orderDeliveries": {
             "key": "orderDeliveries",
-            "label": "Order Delivery State Changed"
+            "label": "Delivery state changes"
           },
           "orderTransactions": {
             "key": "orderTransactions",
-            "label": "Order Transaction State Changed"
+            "label": "Payment state changes"
           },
           "orders": {
             "key": "orders",
-            "label": "Order State Changed"
+            "label": "Order state changes"
           }
         },
         "buttons": {
@@ -234,7 +234,7 @@
           "openLog": "Open log file"
         }
       },
-      "warningText": "Please wait until the bulk edit is completed. This may take a moment. If you close the browser tab or cancel the process, not all changes may be applied. You can always run the bulk edit again."
+      "warningText": "Please wait for the bulk edit to complete. This may take a while. If you close the browser tab or cancel the process prematurely, not all changes will be applied. You can run the bulk edit again at any time."
     },
     "order": {
       "textTitle": "Bulk edit: {orderTotal} orders",

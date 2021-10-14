@@ -19,9 +19,33 @@ Component.register('sw-bulk-edit-save-modal', {
             required: true,
             type: String,
         },
+        /**
+        * {
+        *     ...
+        *     orderDeliveries: {
+        *         isChanged: true,
+        *         type: 'overwrite',
+        *         value: 'cancel'
+        *     },
+        *     orderTransactions: {
+        *         isChanged: true,
+        *         type: 'overwrite',
+        *         value: 'cancel'
+        *     },
+        *     orders: {
+        *         isChanged: true,
+        *         type: 'overwrite',
+        *         value: 'cancel'
+        *     }
+        *     ...
+        * }
+        */
         bulkEditData: {
             type: Object,
-            required: true,
+            required: false,
+            default: () => {
+                return {};
+            },
         },
     },
 

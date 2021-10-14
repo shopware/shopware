@@ -44,18 +44,30 @@ class BulkEditOrderHandler extends BulkEditBaseHandler {
                                 order.transactions.first()?.id,
                                 change.value,
                                 optionsMail,
+                                {},
+                                {
+                                    'sw-skip-trigger-flow': !Shopware.State.get('swBulkEdit').isFlowTriggered,
+                                },
                             );
                         case 'orderDeliveries':
                             return this.orderStateMachineService.transitionOrderDeliveryState(
                                 order.deliveries.first()?.id,
                                 change.value,
                                 optionsMail,
+                                {},
+                                {
+                                    'sw-skip-trigger-flow': !Shopware.State.get('swBulkEdit').isFlowTriggered,
+                                },
                             );
                         default:
                             return this.orderStateMachineService.transitionOrderState(
                                 order.id,
                                 change.value,
                                 optionsMail,
+                                {},
+                                {
+                                    'sw-skip-trigger-flow': !Shopware.State.get('swBulkEdit').isFlowTriggered,
+                                },
                             );
                     }
                 });

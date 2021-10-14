@@ -6,26 +6,51 @@ const { Component } = Shopware;
 Component.register('sw-bulk-edit-save-modal-confirm', {
     template,
 
-    inject: ['feature'],
-
     props: {
         itemTotal: {
             required: true,
             type: Number,
         },
+        /**
+        * {
+        *     ...
+        *     orderDeliveries: {
+        *         isChanged: true,
+        *         type: 'overwrite',
+        *         value: 'cancel'
+        *     },
+        *     orderTransactions: {
+        *         isChanged: true,
+        *         type: 'overwrite',
+        *         value: 'cancel'
+        *     },
+        *     orders: {
+        *         isChanged: true,
+        *         type: 'overwrite',
+        *         value: 'cancel'
+        *     }
+        *     ...
+        * }
+        */
         bulkEditData: {
             type: Object,
-            required: true,
+            required: false,
+            default: () => {
+                return {};
+            },
         },
     },
 
-    data() {
-        return {
-            isFlowTriggered: true,
-        };
-    },
-
     computed: {
+        isFlowTriggered: {
+            get() {
+                return Shopware.State.get('swBulkEdit').isFlowTriggered;
+            },
+            set(isFlowTriggered) {
+                Shopware.State.commit('swBulkEdit/setIsFlowTriggered', isFlowTriggered);
+            },
+        },
+
         triggeredFlows() {
             const triggeredFlows = [];
 

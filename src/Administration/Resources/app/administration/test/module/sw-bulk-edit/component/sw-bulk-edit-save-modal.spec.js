@@ -18,7 +18,8 @@ function createWrapper() {
         props: {
             itemTotal: 1,
             isLoading: false,
-            processStatus: ''
+            processStatus: '',
+            bulkEditData: {}
         },
         mocks: {
             $route: { name: 'sw.bulk.edit.product.save.confirm' }

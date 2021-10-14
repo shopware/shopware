@@ -19,6 +19,7 @@ class Context extends Struct
     public const USER_SCOPE = 'user';
     public const CRUD_API_SCOPE = 'crud';
     public const STATE_ELASTICSEARCH_AWARE = 'elasticsearchAware';
+    public const SKIP_TRIGGER_FLOW = 'skipTriggerFlow';
 
     /**
      * @var string[]

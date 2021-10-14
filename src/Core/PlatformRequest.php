@@ -19,6 +19,7 @@ final class PlatformRequest
     public const HEADER_INHERITANCE = 'sw-inheritance';
     public const HEADER_VERSION_ID = 'sw-version-id';
     public const HEADER_INCLUDE_SEO_URLS = 'sw-include-seo-urls';
+    public const HEADER_SKIP_TRIGGER_FLOW = 'sw-skip-trigger-flow';
 
     /**
      * Sync controller headers

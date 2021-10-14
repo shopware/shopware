@@ -67,6 +67,14 @@ class ApiRequestContextResolver implements RequestContextResolverInterface
             $rounding
         );
 
+        if ($request->headers->has(PlatformRequest::HEADER_SKIP_TRIGGER_FLOW)) {
+            $skipTriggerFlow = filter_var($request->headers->get(PlatformRequest::HEADER_SKIP_TRIGGER_FLOW, 'false'), \FILTER_VALIDATE_BOOLEAN);
+
+            if ($skipTriggerFlow) {
+                $context->addState(Context::SKIP_TRIGGER_FLOW);
+            }
+        }
+
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, $context);
     }
 

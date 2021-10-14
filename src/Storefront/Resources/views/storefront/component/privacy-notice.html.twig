@@ -20,9 +20,10 @@
                     {% block component_privacy_dpi_label %}
                         <label class="custom-control-label no-validation"
                                for="acceptedDataProtection">
-                            {{ "general.privacyNotice"|trans({
-                                '%url%': path('frontend.cms.page',{ id: config('core.basicInformation.privacyPage') })
-                            })|raw }}
+                            {{ "general.privacyNotice"
+                            |trans({'%privacyUrl%': path('frontend.cms.page',{ id: config('core.basicInformation.privacyPage')})})
+                            |trans({'%tosUrl%': path('frontend.cms.page',{ id: config('core.basicInformation.tosPage')})})
+                            |raw }}
 
                             {{ "general.required"|trans|sw_sanitize }}
                         </label>
@@ -32,10 +33,10 @@
                 <div class="data-protection-information">
                     {% block component_privacy_label %}
                         <label>
-                            {{ "general.privacyNotice"|trans({
-                                '%privacyUrl%': path('frontend.cms.page',{ id: config('core.basicInformation.privacyPage') }),
-                                '%tosUrl%': path('frontend.cms.page',{ id: config('core.basicInformation.tosPage') })
-                            })|raw }}
+                            {{ "general.privacyNotice"
+                            |trans({'%privacyUrl%': path('frontend.cms.page',{ id: config('core.basicInformation.privacyPage')})})
+                            |trans({'%tosUrl%': path('frontend.cms.page',{ id: config('core.basicInformation.tosPage')})})
+                            |raw }}
                         </label>
                     {% endblock %}
                 </div>

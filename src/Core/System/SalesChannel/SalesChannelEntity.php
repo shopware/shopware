@@ -179,7 +179,7 @@ class SalesChannelEntity extends Entity
     protected $maintenance;
 
     /**
-     * @var string
+     * @var array|null
      */
     protected $maintenanceIpWhitelist;
 
@@ -550,12 +550,12 @@ class SalesChannelEntity extends Entity
         $this->maintenance = $maintenance;
     }
 
-    public function getMaintenanceIpWhitelist(): ?string
+    public function getMaintenanceIpWhitelist(): ?array
     {
         return $this->maintenanceIpWhitelist;
     }
 
-    public function setMaintenanceIpWhitelist(?string $maintenanceIpWhitelist): void
+    public function setMaintenanceIpWhitelist(?array $maintenanceIpWhitelist): void
     {
         $this->maintenanceIpWhitelist = $maintenanceIpWhitelist;
     }

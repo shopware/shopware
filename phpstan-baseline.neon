@@ -3316,11 +3316,6 @@ parameters:
 			path: src/Core/System/SalesChannel/Exception/LanguageOfSalesChannelDomainDeleteException.php
 
 		-
-			message: "#^Property Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelEntity\\:\\:\\$maintenanceIpWhitelist \\(string\\) does not accept string\\|null\\.$#"
-			count: 1
-			path: src/Core/System/SalesChannel/SalesChannelEntity.php
-
-		-
 			message: "#^Property Shopware\\\\Core\\\\System\\\\SalesChannel\\\\SalesChannelEntity\\:\\:\\$analyticsId \\(string\\) does not accept string\\|null\\.$#"
 			count: 1
 			path: src/Core/System/SalesChannel/SalesChannelEntity.php

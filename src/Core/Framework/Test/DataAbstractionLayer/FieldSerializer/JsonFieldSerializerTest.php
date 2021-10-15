@@ -9,7 +9,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ConfigJsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ConfigJsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
@@ -29,7 +28,7 @@ class JsonFieldSerializerTest extends TestCase
     use DataAbstractionLayerFieldTestBehaviour;
 
     /**
-     * @var ConfigJsonFieldSerializer
+     * @var JsonFieldSerializer
      */
     private $serializer;
 
@@ -166,5 +165,12 @@ class JsonFieldSerializerTest extends TestCase
         $result = $this->serializer->encode($field, $this->existence, $kvPair, $this->parameters)->current();
 
         static::assertNull($result);
+    }
+
+    public function testIgnoresInvalidUtf8Characters(): void
+    {
+        $result = $this->serializer::encodeJson("something\x82 another");
+
+        static::assertEquals('"something another"', $result);
     }
 }

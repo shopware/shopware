@@ -5,28 +5,29 @@ $sw-flow-trigger-transition-results: all ease-in-out 0.2s;
 
 .sw-flow-trigger {
     &__event-selection {
-        width: 100%;
+        min-width: 100%;
+        max-width: 150%;
+    }
 
-        .sw-tree {
-            border: unset;
-            max-width: 274px;
-        }
+    .sw-tree {
+        border: unset;
+        max-width: 150%;
+    }
 
-        .sw-tree-item {
-            &.is--no-children {
-                .sw-tree-item__element {
-                    cursor: pointer;
-                }
-            }
-
-            .sw-tree-item__label {
-                text-transform: capitalize;
+    .sw-tree-item {
+        &.is--no-children {
+            .sw-tree-item__element {
+                cursor: pointer;
             }
         }
 
-        .sw-tree-item__children .sw-tree-item__element .sw-tree-item__icon {
-            width: auto;
+        .sw-tree-item__label {
+            text-transform: capitalize;
         }
+    }
+
+    .sw-tree-item__children .sw-tree-item__element .sw-tree-item__icon {
+        width: auto;
     }
 
     &.overlay {
@@ -57,6 +58,7 @@ $sw-flow-trigger-transition-results: all ease-in-out 0.2s;
 
         .sw-block-field__block input {
             text-transform: capitalize;
+            text-overflow: ellipsis;
         }
     }
 
@@ -110,6 +112,8 @@ $sw-flow-trigger-transition-results: all ease-in-out 0.2s;
         position: absolute;
         right: 10px;
         top: 55%;
+        background: $color-white;
+        cursor: pointer;
     }
 
     // Vue.js transitions
@@ -123,5 +127,15 @@ $sw-flow-trigger-transition-results: all ease-in-out 0.2s;
     .sw-flow-trigger__fade-down-leave-to {
         transform: translateY(-8px);
         opacity: 0;
+    }
+
+    @media screen and (max-height: 800px) {
+        &__search-results {
+            max-height: 420px;
+        }
+
+        .sw-tree .sw-tree__content {
+            max-height: 420px;
+        }
     }
 }

@@ -7,12 +7,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\ArrayType;
 use Shopware\Core\Framework\Event\EventData\EntityCollectionType;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\ObjectType;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
+use Shopware\Core\Framework\Event\FlowEventAware;
 
 class BusinessEventEncoder
 {
@@ -32,7 +32,7 @@ class BusinessEventEncoder
         $this->definitionRegistry = $definitionRegistry;
     }
 
-    public function encode(BusinessEventInterface $event): array
+    public function encode(FlowEventAware $event): array
     {
         return $this->encodeType($event::getAvailableData()->toArray(), $event);
     }

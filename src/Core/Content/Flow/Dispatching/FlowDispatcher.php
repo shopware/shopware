@@ -9,6 +9,7 @@ use Shopware\Core\Content\Flow\Exception\ExecuteSequenceException;
 use Shopware\Core\Framework\Event\BusinessEvent;
 use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Framework\Feature;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -51,8 +52,14 @@ class FlowDispatcher implements EventDispatcherInterface
             return $event;
         }
 
-        if ($event instanceof BusinessEvent || $event instanceof FlowEvent) {
-            return $event;
+        if (Feature::isActive('FEATURE_NEXT_17858')) {
+            if ($event instanceof FlowEvent) {
+                return $event;
+            }
+        } else {
+            if ($event instanceof BusinessEvent || $event instanceof FlowEvent) {
+                return $event;
+            }
         }
 
         if ($event instanceof StoppableEventInterface && $event->isPropagationStopped()) {

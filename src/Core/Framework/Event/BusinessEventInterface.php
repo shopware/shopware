@@ -9,7 +9,7 @@ use Shopware\Core\Framework\Event\EventData\EventDataCollection;
  *
  * Tag for events that can be used in the action/action system
  */
-interface BusinessEventInterface extends ShopwareEvent
+interface BusinessEventInterface extends FlowEventAware
 {
     public static function getAvailableData(): EventDataCollection;
 

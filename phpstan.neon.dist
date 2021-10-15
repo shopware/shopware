@@ -138,7 +138,7 @@ parameters:
             path: src/Core/Framework/Api/Sync/SyncService.php
         # EventDispatcherInterface::dispatch() should be return object
         -
-            message: '#Method Shopware\\Core\\Content\\Flow\\Dispatching\\FlowDispatcher::dispatch\(\) should return TEvent of object but returns \(Shopware\\Core\\Framework\\Event\\BusinessEvent&Shopware\\Core\\Framework\\Event\\FlowEventAware\&TEvent of object\)\|\(Shopware\\Core\\Framework\\Event\\FlowEvent&Shopware\\Core\\Framework\\Event\\FlowEventAware\&TEvent of object\)\.#'
+            message: '#Method Shopware\\Core\\Content\\Flow\\Dispatching\\FlowDispatcher\:\:dispatch\(\) should return TEvent of object but returns \(Shopware\\Core\\Framework\\Event\\BusinessEvent\&TEvent of object\)\|\(Shopware\\Core\\Framework\\Event\\FlowEvent&Shopware\\Core\\Framework\\Event\\FlowEventAware\&TEvent of object\)\.#'
             path: src/Core/Content/Flow/Dispatching/FlowDispatcher.php
         # can be removed with feature flag FEATURE_NEXT_12455
         -

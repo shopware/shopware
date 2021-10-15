@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Webhook\Hookable;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\Event\BusinessEvent;
 use Shopware\Core\Framework\Event\BusinessEventInterface;
+use Shopware\Core\Framework\Event\FlowEvent;
+use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
 use Shopware\Core\Framework\Webhook\Hookable;
 
@@ -33,18 +36,32 @@ class HookableEventFactory
     {
         // BusinessEvent are the generic Events that get wrapped around the specific events
         // we don't want to dispatch those to the webhooks
-        if ($event instanceof BusinessEvent) {
-            return [];
+        if (Feature::isActive('FEATURE_NEXT_17858')) {
+            if ($event instanceof FlowEvent) {
+                return [];
+            }
+        } else {
+            if ($event instanceof BusinessEvent) {
+                return [];
+            }
         }
 
         if ($event instanceof Hookable) {
             return [$event];
         }
 
-        if ($event instanceof BusinessEventInterface) {
-            return [
-                HookableBusinessEvent::fromBusinessEvent($event, $this->eventEncoder),
-            ];
+        if (Feature::isActive('FEATURE_NEXT_17858')) {
+            if ($event instanceof FlowEventAware) {
+                return [
+                    HookableBusinessEvent::fromBusinessEvent($event, $this->eventEncoder),
+                ];
+            }
+        } else {
+            if ($event instanceof BusinessEventInterface) {
+                return [
+                    HookableBusinessEvent::fromBusinessEvent($event, $this->eventEncoder),
+                ];
+            }
         }
 
         if ($event instanceof EntityWrittenContainerEvent) {

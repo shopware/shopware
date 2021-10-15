@@ -10,6 +10,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
+use Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction;
+use Shopware\Core\Content\Flow\Dispatching\FlowState;
 use Shopware\Core\Content\MailTemplate\Subscriber\MailSendSubscriber;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEvents;
@@ -25,7 +27,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Event\BusinessEvent;
+use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\App\GuzzleHistoryCollector;
 use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -328,13 +332,23 @@ class WebhookDispatcherTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $event = new BusinessEvent(
-            MailSendSubscriber::ACTION_NAME,
-            new CustomerBeforeLoginEvent(
-                $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
-                'test@example.com'
-            )
-        );
+        if (Feature::isActive('FEATURE_NEXT_17858')) {
+            $event = new FlowEvent(
+                SendMailAction::getName(),
+                new FlowState(new CustomerBeforeLoginEvent(
+                    $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
+                    'test@example.com'
+                ))
+            );
+        } else {
+            $event = new BusinessEvent(
+                MailSendSubscriber::ACTION_NAME,
+                new CustomerBeforeLoginEvent(
+                    $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL),
+                    'test@example.com'
+                )
+            );
+        }
 
         $clientMock = $this->createMock(Client::class);
         $clientMock->expects(static::never())

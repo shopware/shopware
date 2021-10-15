@@ -508,7 +508,7 @@ Component.register('sw-flow-trigger', {
                 State.commit('swFlowState/setTriggerEvent', this.getDataByEvent(id));
                 this.$emit('option-select', id);
             } else {
-                this.showConfirmModal = true;
+                this.showConfirmModal = this.flow.eventName !== item.id;
                 this.triggerSelect = this.getDataByEvent(item.id);
             }
         },

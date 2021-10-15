@@ -64,7 +64,7 @@ describe('Flow builder: Test crud operations', () => {
         // Click save without entering any data
         cy.get('.sw-flow-detail__save').click();
 
-        cy.awaitAndCheckNotification('Please choose trigger event before saving.');
+        cy.awaitAndCheckNotification('The flow could not be saved.');
 
         cy.get('.sw-flow-detail__tab-flow').click();
 

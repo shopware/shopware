@@ -158,6 +158,13 @@ describe('module/sw-flow/page/sw-flow-detail', () => {
             'flow.editor'
         ]);
 
+        Shopware.State.commit('swFlowState/setFlow',
+            {
+                eventName: '',
+                name: 'Flow 1',
+                sequences: []
+            });
+
         wrapper.vm.createNotificationWarning = jest.fn();
 
         const saveButton = wrapper.find('.sw-flow-detail__save');

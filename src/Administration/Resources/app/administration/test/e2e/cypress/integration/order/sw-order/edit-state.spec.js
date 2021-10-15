@@ -29,8 +29,7 @@ describe('Order: Test order state', () => {
     });
 
     it('@base @order: edit order state', () => {
-        // skip for feature FEATURE_NEXT_7530, this test is reactivated again with NEXT-16682
-        cy.skipOnFeature('FEATURE_NEXT_7530');
+        cy.onlyOnFeature('FEATURE_NEXT_7530');
 
         const page = new OrderPageObject();
 
@@ -40,16 +39,29 @@ describe('Order: Test order state', () => {
             method: 'POST'
         }).as('orderCall');
 
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/search/state-machine-state`,
+            method: 'post',
+        }).as(`stateMachineTypeCall`);
+
+        // wait for state select to load all available state machines
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/_action/state-machine/**/**/state`,
+            method: 'get',
+        }).as(`stateMachineTypeStateCall`);
+
         cy.clickContextMenuItem(
             '.sw-order-list__order-view-action',
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
 
-        cy.wait('@orderCall').its('response.statusCode').should('equal', 200);
-
         cy.get('.sw-loader__element').should('not.exist');
-        cy.get('.sw-order-state-select__order-state .sw-loader__element').should('not.exist');
+
+        cy.wait('@orderCall').its('response.statusCode').should('equal', 200);
+        cy.wait('@stateMachineTypeCall').its('response.statusCode').should('equal', 200);
+        cy.wait('@stateMachineTypeStateCall').its('response.statusCode').should('equal', 200);
+
         page.setOrderState({
             stateTitle: 'Reminded',
             type: 'payment',
@@ -57,10 +69,11 @@ describe('Order: Test order state', () => {
             call: 'remind'
         });
 
-        cy.wait('@orderCall').its('response.statusCode').should('equal', 200);
-
         cy.get('.sw-loader__element').should('not.exist');
-        cy.get('.sw-order-state-select__order-state .sw-loader__element').should('not.exist');
+
+        cy.wait('@orderCall').its('response.statusCode').should('equal', 200);
+        cy.wait('@stateMachineTypeCall').its('response.statusCode').should('equal', 200);
+        cy.wait('@stateMachineTypeStateCall').its('response.statusCode').should('equal', 200);
 
         // Change order state to "Cancelled"
         page.setOrderState({
@@ -80,10 +93,12 @@ describe('Order: Test order state', () => {
             `${page.elements.dataGridRow}--0`
         );
 
-        cy.wait('@orderCall').its('response.statusCode').should('equal', 200);
-
         cy.get('.sw-loader__element').should('not.exist');
-        cy.get('.sw-order-state-select__order-state .sw-loader__element').should('not.exist');
+
+        cy.wait('@orderCall').its('response.statusCode').should('equal', 200);
+        cy.wait('@stateMachineTypeCall').its('response.statusCode').should('equal', 200);
+        cy.wait('@stateMachineTypeStateCall').its('response.statusCode').should('equal', 200);
+
         page.setOrderState({
             stateTitle: 'Open',
             type: 'order',
@@ -102,20 +117,24 @@ describe('Order: Test order state', () => {
             `${page.elements.dataGridRow}--0`
         );
 
-        cy.wait('@orderCall').its('response.statusCode').should('equal', 200);
-
         cy.get('.sw-loader__element').should('not.exist');
-        cy.get('.sw-order-state-select__order-state .sw-loader__element').should('not.exist');
+
+        cy.wait('@orderCall').its('response.statusCode').should('equal', 200);
+        cy.wait('@stateMachineTypeCall').its('response.statusCode').should('equal', 200);
+        cy.wait('@stateMachineTypeStateCall').its('response.statusCode').should('equal', 200);
+
         page.setOrderState({
             stateTitle: 'In progress',
             type: 'order',
             signal: 'progress',
             call: 'process'
         });
-        cy.wait('@orderCall').its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-loader__element').should('not.exist');
-        cy.get('.sw-order-state-select__order-state .sw-loader__element').should('not.exist');
+
+        cy.wait('@orderCall').its('response.statusCode').should('equal', 200);
+        cy.wait('@stateMachineTypeCall').its('response.statusCode').should('equal', 200);
+        cy.wait('@stateMachineTypeStateCall').its('response.statusCode').should('equal', 200);
 
         // Change payment state to "Paid"
         page.setOrderState({
@@ -124,10 +143,12 @@ describe('Order: Test order state', () => {
             signal: 'success',
             call: 'pay'
         });
-        cy.wait('@orderCall').its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-loader__element').should('not.exist');
-        cy.get('.sw-order-state-select__order-state .sw-loader__element').should('not.exist');
+
+        cy.wait('@orderCall').its('response.statusCode').should('equal', 200);
+        cy.wait('@stateMachineTypeCall').its('response.statusCode').should('equal', 200);
+        cy.wait('@stateMachineTypeStateCall').its('response.statusCode').should('equal', 200);
 
         // Set state to "Done"
         page.setOrderState({
@@ -142,9 +163,8 @@ describe('Order: Test order state', () => {
             .contains('Done');
     });
 
-    it('@order: check order history', () => {
-        // skip for feature FEATURE_NEXT_7530, this test is reactivated again with NEXT-16682
-        cy.skipOnFeature('FEATURE_NEXT_7530');
+    it('@order: edit order state on details tab', () => {
+        cy.onlyOnFeature('FEATURE_NEXT_7530');
 
         const page = new OrderPageObject();
 
@@ -154,6 +174,84 @@ describe('Order: Test order state', () => {
             method: 'POST'
         }).as('orderCall');
 
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/search/state-machine-state`,
+            method: 'post',
+        }).as(`stateMachineTypeCall`);
+
+        // wait for state select to load all available state machines
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/_action/state-machine/**/**/state`,
+            method: 'get',
+        }).as(`stateMachineTypeStateCall`);
+
+        cy.clickContextMenuItem(
+            '.sw-order-list__order-view-action',
+            page.elements.contextMenuButton,
+            `${page.elements.dataGridRow}--0`
+        );
+
+        page.changeActiveTab('details');
+
+        cy.get('.sw-loader__element').should('not.exist');
+
+        cy.wait('@orderCall').its('response.statusCode').should('equal', 200);
+        cy.wait('@stateMachineTypeCall').its('response.statusCode').should('equal', 200);
+        cy.wait('@stateMachineTypeStateCall').its('response.statusCode').should('equal', 200);
+
+        page.setOrderState({
+            stateTitle: 'Reminded',
+            type: 'payment',
+            signal: 'warning',
+            call: 'remind'
+        });
+
+        cy.get('.sw-loader__element').should('not.exist');
+
+        cy.wait('@orderCall').its('response.statusCode').should('equal', 200);
+        cy.wait('@stateMachineTypeCall').its('response.statusCode').should('equal', 200);
+        cy.wait('@stateMachineTypeStateCall').its('response.statusCode').should('equal', 200);
+
+        page.setOrderState({
+            stateTitle: 'Cancelled',
+            type: 'order',
+            signal: 'danger',
+            call: 'cancel'
+        });
+
+        cy.get('.sw-loader__element').should('not.exist');
+
+        cy.wait('@orderCall').its('response.statusCode').should('equal', 200);
+        cy.wait('@stateMachineTypeCall').its('response.statusCode').should('equal', 200);
+        cy.wait('@stateMachineTypeStateCall').its('response.statusCode').should('equal', 200);
+
+        cy.get(page.elements.smartBarBack).click();
+        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--stateMachineState-name`)
+            .contains('Cancelled');
+    });
+
+    it('@order: check order history', () => {
+        cy.onlyOnFeature('FEATURE_NEXT_7530');
+
+        const page = new OrderPageObject();
+
+        // Request we want to wait for later
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/search/order`,
+            method: 'POST'
+        }).as('orderCall');
+
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/search/state-machine-state`,
+            method: 'post',
+        }).as(`stateMachineTypeCall`);
+
+        // wait for state select to load all available state machines
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/_action/state-machine/**/**/state`,
+            method: 'get',
+        }).as(`stateMachineTypeStateCall`);
+
         cy.get(`${page.elements.dataGridRow}--0`).contains('Mustermann, Max');
 
         cy.clickContextMenuItem(
@@ -162,11 +260,11 @@ describe('Order: Test order state', () => {
             `${page.elements.dataGridRow}--0`
         );
 
-        cy.wait('@orderCall').its('response.statusCode').should('equal', 200);
+        page.changeActiveTab('details');
 
-        cy.get(`${page.elements.userMetadata}-user-name`)
-            .contains('Max Mustermann');
-        cy.get('.sw-order-delivery-metadata').scrollIntoView();
+        cy.wait('@orderCall').its('response.statusCode').should('equal', 200);
+        cy.wait('@stateMachineTypeCall').its('response.statusCode').should('equal', 200);
+        cy.wait('@stateMachineTypeStateCall').its('response.statusCode').should('equal', 200);
 
         // Check current order and payment status history
         page.checkOrderHistoryEntry({
@@ -175,6 +273,7 @@ describe('Order: Test order state', () => {
             signal: 'neutral',
             call: 'reopen'
         });
+
         page.checkOrderHistoryEntry({
             stateTitle: 'Open',
             type: 'order',
@@ -194,7 +293,6 @@ describe('Order: Test order state', () => {
             stateTitle: 'Cancelled',
             type: 'order',
             signal: 'danger',
-            position: 1
         });
 
         // Set payment status to "Reminded"
@@ -204,11 +302,11 @@ describe('Order: Test order state', () => {
             scope: 'history-card',
             call: 'remind'
         });
+
         page.checkOrderHistoryEntry({
             stateTitle: 'Reminded',
             type: 'payment',
             signal: 'warning',
-            position: 1
         });
 
         // Set order status to "Open"
@@ -218,10 +316,10 @@ describe('Order: Test order state', () => {
             scope: 'history-card',
             call: 'reopen'
         });
+
         page.checkOrderHistoryEntry({
             stateTitle: 'Open',
             type: 'order',
-            position: 2
         });
 
         // Set order status to "In progess"
@@ -231,11 +329,11 @@ describe('Order: Test order state', () => {
             scope: 'history-card',
             call: 'process'
         });
+
         page.checkOrderHistoryEntry({
             stateTitle: 'In progress',
             type: 'order',
             signal: 'progress',
-            position: 3
         });
 
         // Set order status to "Done"
@@ -245,11 +343,11 @@ describe('Order: Test order state', () => {
             scope: 'history-card',
             call: 'complete'
         });
+
         page.checkOrderHistoryEntry({
             stateTitle: 'Done',
             type: 'order',
             signal: 'success',
-            position: 4
         });
 
         // Set payment status to "Paid"
@@ -259,11 +357,11 @@ describe('Order: Test order state', () => {
             scope: 'history-card',
             call: 'pay'
         });
+
         page.checkOrderHistoryEntry({
             stateTitle: 'Paid',
             type: 'payment',
             signal: 'success',
-            position: 2
         });
 
         // Verify order completion in listing

@@ -106,29 +106,29 @@ describe('Order: Read order with nested line items', () => {
         );
 
         // Check if the labels are rendered correctly
-        cy.get('.sw-data-grid__row--0 .sw-order-line-items-grid__item-label')
+        cy.get(`${page.elements.dataGridRow}--0 .sw-order-line-items-grid__item-label`)
             .contains('LineItem 1');
-        cy.get('.sw-data-grid__row--1 .sw-order-line-items-grid__item-label')
+        cy.get(`${page.elements.dataGridRow}--1 .sw-order-line-items-grid__item-label`)
             .contains('LineItem 2');
-        cy.get('.sw-data-grid__row--2 .sw-order-line-items-grid__item-label')
+        cy.get(`${page.elements.dataGridRow}--2 .sw-order-line-items-grid__item-label`)
             .contains('LineItem 3');
 
         // Check if items with children have a button to toggle the nested line items modal
-        cy.get('.sw-data-grid__row--0 .sw-order-line-items-grid__item-product')
+        cy.get(`${page.elements.dataGridRow}--0 .sw-order-line-items-grid__item-product`)
             .children()
             .should('have.length', '2');
-        cy.get('.sw-data-grid__row--1 .sw-order-line-items-grid__item-product')
+        cy.get(`${page.elements.dataGridRow}--1 .sw-order-line-items-grid__item-product`)
             .children()
             .should('have.length', '2');
-        cy.get('.sw-data-grid__row--2 .sw-order-line-items-grid__item-product')
+        cy.get(`${page.elements.dataGridRow}--2 .sw-order-line-items-grid__item-product`)
             .children()
             .should('have.length', '1');
 
         // Check first nested line item modal
-        cy.get('.sw-data-grid__row--0 .sw-order-line-items-grid__item-nested-indicator').click();
+        cy.get(`${page.elements.dataGridRow}--0 .sw-order-line-items-grid__item-nested-indicator`).click();
 
         // Check correct amount in each nesting level
-        cy.get('.sw-modal__title').contains('Item: LineItem 1 - €0.01');
+        cy.get(page.elements.modalTitle).contains('Item: LineItem 1 - €0.01');
         cy.get('.sw-order-nested-line-items-row__nesting-level').should('have.length', '8');
 
         // Check the contents of the first row completely
@@ -160,11 +160,11 @@ describe('Order: Read order with nested line items', () => {
             .contains('€11.11');
 
         // Close modal and check the second
-        cy.get('.sw-modal__close').click();
-        cy.get('.sw-data-grid__row--1 .sw-order-line-items-grid__item-nested-indicator').click();
+        cy.get(page.elements.modalClose).click();
+        cy.get(`${page.elements.dataGridRow}--1 .sw-order-line-items-grid__item-nested-indicator`).click();
 
         // Check correct amount in each nesting level
-        cy.get('.sw-modal__title').contains('Item: LineItem 2 - €0.02');
+        cy.get(page.elements.modalTitle).contains('Item: LineItem 2 - €0.02');
         cy.get('.sw-order-nested-line-items-row__nesting-level').should('have.length', '1');
 
         // Check the contents of the third row with some values

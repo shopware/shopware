@@ -54,6 +54,26 @@ describe('Order: Test ACL privileges', () => {
             cy.get('.sw-order-base__label-sales-channel').contains('Storefront');
         });
 
+        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get(page.elements.tabs.general.summaryMainHeader)
+                .contains('- Max Mustermann (max.mustermann@example.com)');
+
+            cy.get(page.elements.tabs.general.summaryMainTotal)
+                .contains('64');
+
+            cy.get(page.elements.stateSelects.orderStateSelect)
+                .find('input')
+                .should('have.attr', 'placeholder', 'Open');
+
+            cy.get(page.elements.stateSelects.orderDeliveryStateSelect)
+                .find('input')
+                .should('have.attr', 'placeholder', 'Open');
+
+            cy.get(page.elements.stateSelects.orderTransactionStateSelect)
+                .find('input')
+                .should('have.attr', 'placeholder', 'Open');
+        });
+
         cy.get('.sw-order-detail__summary').scrollIntoView();
         cy.get(`${page.elements.dataGridRow}--0`).contains('Product name');
         cy.get(`${page.elements.dataGridRow}--0`).contains('64');
@@ -68,9 +88,6 @@ describe('Order: Test ACL privileges', () => {
     });
 
     it('@acl: can edit order', () => {
-        // skip for feature FEATURE_NEXT_7530, this test is reactivated again with NEXT-16682
-        cy.skipOnFeature('FEATURE_NEXT_7530');
-
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/order/**/product/**`,
             method: 'POST'
@@ -80,6 +97,13 @@ describe('Order: Test ACL privileges', () => {
             url: `**/${Cypress.env('apiPath')}/_action/version/merge/order/**`,
             method: 'POST'
         }).as('orderSaveCall');
+
+        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
+            cy.intercept({
+                url: `**/${Cypress.env('apiPath')}/_action/order/**/recalculate`,
+                method: 'POST'
+            }).as('recalculateCall');
+        });
 
         const page = new OrderPageObject();
 
@@ -111,21 +135,41 @@ describe('Order: Test ACL privileges', () => {
             cy.get('.sw-order-detail__smart-bar-edit-button').click();
         });
 
+        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get(page.elements.tabs.general.summaryMainHeader)
+                .contains('- Max Mustermann (max.mustermann@example.com)');
+
+            cy.get(page.elements.tabs.general.summaryMainTotal)
+                .contains('64');
+        });
+
+        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get('.sw-order-detail-base__line-item-grid-card').scrollIntoView();
+        });
+
+        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get(page.elements.tabs.general.gridCard).scrollIntoView();
+        });
+
         // click "add product"
-        cy.get('.sw-order-detail-base__line-item-grid-card').scrollIntoView();
-        cy.get('.sw-order-line-items-grid__actions-container-add-product-btn').click();
+        cy.get(page.elements.tabs.general.addProductButton).click();
 
         // select product
-        cy.get('.sw-data-grid__row--0 > .sw-data-grid__cell--label').dblclick();
+        cy.get(`${page.elements.dataGridRow}--0 > ${page.elements.dataGridColumn}--label`)
+            .dblclick();
 
         cy.get('.sw-order-product-select__single-select')
             .typeSingleSelectAndCheck('Product name', '.sw-order-product-select__single-select');
 
-        cy.get('.sw-data-grid__inline-edit-save').click();
+        cy.get(page.elements.dataGridInlineEditSave).click();
         cy.wait('@orderAddProductCall').its('response.statusCode').should('equal', 204);
 
+        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
+            cy.wait('@recalculateCall').its('response.statusCode').should('equal', 204);
+        });
+
         // click save
-        cy.get('.sw-order-detail__smart-bar-save-button').click();
+        cy.get(page.elements.smartBarSave).click();
 
         cy.wait('@orderSaveCall').its('response.statusCode').should('equal', 204);
     });

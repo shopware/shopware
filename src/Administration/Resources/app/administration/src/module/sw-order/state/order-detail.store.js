@@ -6,6 +6,7 @@ export default {
             order: null,
             loading: {
                 order: false,
+                states: false,
             },
             editing: true,
             savedSuccessful: false,

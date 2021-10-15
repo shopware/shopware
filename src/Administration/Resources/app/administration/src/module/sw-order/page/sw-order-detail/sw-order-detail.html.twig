@@ -120,6 +120,7 @@
 
                 <sw-tabs-item
                     v-if="feature.isActive('FEATURE_NEXT_7530')"
+                    class="sw-order-detail__tabs-tab-general"
                     :route="{ name: 'sw.order.detail.general', params: { id: $route.params.id } }"
                     :title="$tc('sw-order.detail.tabGeneral')"
                 >
@@ -130,6 +131,7 @@
                 {% block sw_order_detail_content_tabs_details %}
                 <sw-tabs-item
                     v-if="feature.isActive('FEATURE_NEXT_7530')"
+                    class="sw-order-detail__tabs-tab-details"
                     :route="{ name: 'sw.order.detail.details', params: { id: $route.params.id } }"
                     :title="$tc('sw-order.detail.tabDetails')"
                 >
@@ -140,6 +142,7 @@
                 {% block sw_order_detail_content_tabs_documents %}
                 <sw-tabs-item
                     v-if="feature.isActive('FEATURE_NEXT_7530')"
+                    class="sw-order-detail__tabs-tab-documents"
                     :route="{ name: 'sw.order.detail.documents', params: { id: $route.params.id } }"
                     :title="$tc('sw-order.detail.tabDocuments')"
                 >

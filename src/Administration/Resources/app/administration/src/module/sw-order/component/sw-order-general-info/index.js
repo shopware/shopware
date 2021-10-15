@@ -235,6 +235,8 @@ Component.register('sw-order-general-info', {
         },
 
         getTransitionOptions() {
+            Shopware.State.commit('swOrderDetail/setLoading', ['states', true]);
+
             const statePromises = [this.stateMachineService.getState('order', this.order.id)];
 
             if (this.transaction) {
@@ -279,6 +281,8 @@ Component.register('sw-order-general-info', {
                 }
 
                 return Promise.resolve();
+            }).finally(() => {
+                Shopware.State.commit('swOrderDetail/setLoading', ['states', false]);
             });
         },
 

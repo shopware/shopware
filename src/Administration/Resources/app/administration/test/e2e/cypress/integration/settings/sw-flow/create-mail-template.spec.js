@@ -17,8 +17,6 @@ describe('Flow builder: Create mail template for send mail action testing', () =
     });
 
     it('@settings: create mail template for send mail action', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_8225');
-
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/flow/index`);
 
         const page = new SettingsPageObject();

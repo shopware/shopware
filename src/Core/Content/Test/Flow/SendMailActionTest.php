@@ -31,7 +31,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\FlowEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
@@ -40,17 +39,9 @@ use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-/**
- * @internal (flag:FEATURE_NEXT_8225)
- */
 class SendMailActionTest extends TestCase
 {
     use IntegrationTestBehaviour;
-
-    protected function setUp(): void
-    {
-        Feature::skipTestIfInActive('FEATURE_NEXT_8225', $this);
-    }
 
     /**
      * @dataProvider sendMailProvider

@@ -24,7 +24,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
@@ -110,7 +109,6 @@ class OrderServiceTest extends TestCase
 
     public function testOrderDeliveryStateTransitionSendsMail(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_8225', $this);
         if (!$this->getContainer()->has(AccountOrderController::class)) {
             // ToDo: NEXT-16882 - Reactivate tests again
             static::markTestSkipped('Order mail tests should be fixed without storefront in NEXT-16882');
@@ -211,7 +209,6 @@ class OrderServiceTest extends TestCase
 
     public function testOrderDeliveryStateTransitionSendsMailDe(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_8225', $this);
         if (!$this->getContainer()->has(AccountOrderController::class)) {
             // ToDo: NEXT-16882 - Reactivate tests again
             static::markTestSkipped('Order mail tests should be fixed without storefront in NEXT-16882');
@@ -301,7 +298,6 @@ class OrderServiceTest extends TestCase
 
     public function testOrderTransactionStateTransitionSendsMail(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_8225', $this);
         if (!$this->getContainer()->has(AccountOrderController::class)) {
             // ToDo: NEXT-16882 - Reactivate tests again
             static::markTestSkipped('Order mail tests should be fixed without storefront in NEXT-16882');
@@ -451,7 +447,6 @@ class OrderServiceTest extends TestCase
 
     public function testCreateOrderSendsMail(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_8225', $this);
         if (!$this->getContainer()->has(AccountOrderController::class)) {
             // ToDo: NEXT-16882 - Reactivate tests again
             static::markTestSkipped('Order mail tests should be fixed without storefront in NEXT-16882');
@@ -497,7 +492,6 @@ class OrderServiceTest extends TestCase
 
     public function testOrderStateTransitionSendsMail(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_8225', $this);
         if (!$this->getContainer()->has(AccountOrderController::class)) {
             // ToDo: NEXT-16882 - Reactivate tests again
             static::markTestSkipped('Order mail tests should be fixed without storefront in NEXT-16882');
@@ -538,7 +532,6 @@ class OrderServiceTest extends TestCase
 
     public function testMailTemplateHasCorrectDomain(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_8225', $this);
         if (!$this->getContainer()->has(AccountOrderController::class)) {
             // ToDo: NEXT-16882 - Reactivate tests again
             static::markTestSkipped('Order mail tests should be fixed without storefront in NEXT-16882');
@@ -592,7 +585,6 @@ class OrderServiceTest extends TestCase
 
     public function testMailTemplateHandlesVirtualDomains(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_8225', $this);
         if (!$this->getContainer()->has(AccountOrderController::class)) {
             // ToDo: NEXT-16882 - Reactivate tests again
             static::markTestSkipped('Order mail tests should be fixed without storefront in NEXT-16882');

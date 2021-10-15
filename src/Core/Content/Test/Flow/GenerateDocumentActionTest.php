@@ -27,7 +27,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\FlowEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -38,9 +37,6 @@ use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @internal (flag:FEATURE_NEXT_8225)
- */
 class GenerateDocumentActionTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -59,7 +55,6 @@ class GenerateDocumentActionTest extends TestCase
 
     protected function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_8225', $this);
         $this->connection = $this->getContainer()->get(Connection::class);
         $this->documentService = $this->getContainer()->get(DocumentService::class);
         $this->orderRepository = $this->getContainer()->get('order.repository');

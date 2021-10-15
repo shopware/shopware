@@ -13,13 +13,14 @@ use Shopware\Core\Framework\Event\BusinessEventDispatcher;
 use Shopware\Core\Framework\Event\BusinessEvents;
 use Shopware\Core\Framework\Event\EventAction\EventActionCollection;
 use Shopware\Core\Framework\Event\EventAction\EventActionDefinition;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
- * @feature-deprecated (flag:FEATURE_NEXT_8225) tag:v6.5.0 - Will be removed in v6.5.0, use FlowDispatcherTest instead.
+ * @deprecated tag:v6.5.0 - Will be removed in v6.5.0, use FlowDispatcherTest instead.
  */
 class BusinessEventDispatcherTest extends TestCase
 {
@@ -42,6 +43,10 @@ class BusinessEventDispatcherTest extends TestCase
 
     protected function setUp(): void
     {
+        if (Feature::isActive('FEATURE_NEXT_17858')) {
+            static::markTestSkipped('Business Event is deprecated since v6.4.6, flag FEATURE_NEXT_17858');
+        }
+
         $this->testSubscriber = new ActionTestSubscriber();
 
         $this->eventActionRepository = $this->getContainer()->get('event_action.repository');
@@ -51,9 +56,11 @@ class BusinessEventDispatcherTest extends TestCase
 
     protected function tearDown(): void
     {
-        parent::tearDown();
+        if (!Feature::isActive('FEATURE_NEXT_17858')) {
+            parent::tearDown();
 
-        $this->dispatcher->removeSubscriber($this->testSubscriber);
+            $this->dispatcher->removeSubscriber($this->testSubscriber);
+        }
     }
 
     public function testAllEventsPassthru(): void

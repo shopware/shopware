@@ -17,20 +17,18 @@ describe('Flow builder: Create new rule for condition sequence testing', () => {
     });
 
     it('@settings: create new rule for condition sequence', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_8225');
-
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/flow/index`);
 
         const page = new SettingsPageObject();
-        cy.server();
-        cy.route({
+
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/flow`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/rule`,
-            method: 'post'
+            method: 'POST'
         }).as('getRule');
 
         cy.get('.sw-flow-list').should('be.visible');
@@ -52,10 +50,9 @@ describe('Flow builder: Create new rule for condition sequence testing', () => {
         cy.get('.sw-flow-sequence-selector__add-condition').click();
         cy.get('.sw-flow-sequence-condition__selection-rule').click();
 
-        cy.wait('@getRule').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-            cy.get('.sw-select-result__create-new-rule').click();
-        });
+        cy.wait('@getRule').its('response.statusCode').should('equal', 200);
+
+        cy.get('.sw-select-result__create-new-rule').click();
 
         cy.get('.sw-flow-create-rule-modal').should('be.visible');
 
@@ -83,9 +80,7 @@ describe('Flow builder: Create new rule for condition sequence testing', () => {
 
         // Save
         cy.get('.sw-flow-detail__save').click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.visit(`${Cypress.env('admin')}#/sw/settings/rule/index`);
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Time rule');

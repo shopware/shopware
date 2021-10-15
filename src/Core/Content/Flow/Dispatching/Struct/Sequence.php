@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Flow\Dispatching\Struct;
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * @internal (flag:FEATURE_NEXT_8225) - Internal used for FlowBuilder feature
+ * @internal not intended for decoration or replacement
  */
 class Sequence extends Struct
 {

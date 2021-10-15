@@ -19,6 +19,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Event\BusinessEventInterface;
+use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\EventLog\WebhookEventLogDefinition;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
@@ -93,8 +95,14 @@ class WebhookDispatcher implements EventDispatcherInterface
 
         foreach ($this->eventFactory->createHookablesFor($event) as $hookable) {
             $context = Context::createDefaultContext();
-            if ($event instanceof BusinessEventInterface || $event instanceof AppChangedEvent || $event instanceof EntityWrittenContainerEvent) {
-                $context = $event->getContext();
+            if (Feature::isActive('FEATURE_NEXT_17858')) {
+                if ($event instanceof FlowEventAware || $event instanceof AppChangedEvent || $event instanceof EntityWrittenContainerEvent) {
+                    $context = $event->getContext();
+                }
+            } else {
+                if ($event instanceof BusinessEventInterface || $event instanceof AppChangedEvent || $event instanceof EntityWrittenContainerEvent) {
+                    $context = $event->getContext();
+                }
             }
 
             $this->callWebhooks($hookable, $context);

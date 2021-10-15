@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Event;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\Struct;
 
 class BusinessEventDefinition extends Struct
@@ -17,14 +18,14 @@ class BusinessEventDefinition extends Struct
     protected $class;
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_8225) - tag:v6.5.0 - Will be removed in v6.5.0, use $aware instead.
+     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0, use $aware instead.
      *
      * @var bool
      */
     protected $mailAware;
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_8225) - tag:v6.5.0 - Will be removed in v6.5.0, use $aware instead.
+     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0, use $aware instead.
      *
      * @var bool
      */
@@ -36,15 +37,12 @@ class BusinessEventDefinition extends Struct
     protected $data;
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_8225) - tag:v6.5.0 - Will be removed in v6.5.0, use $aware instead.
+     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0, use $aware instead.
      *
      * @var bool
      */
     protected $salesChannelAware;
 
-    /**
-     * @internal (flag:FEATURE_NEXT_8225)
-     */
     protected array $aware = [];
 
     public function __construct(
@@ -86,34 +84,42 @@ class BusinessEventDefinition extends Struct
     }
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_8225) - tag:v6.5.0 - Will be removed in v6.5.0, use BusinessEventDefinition::getAware() instead.
+     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0, use BusinessEventDefinition::getAware() instead.
      */
     public function isMailAware(): bool
     {
+        Feature::triggerDeprecated('FEATURE_NEXT_17858', 'v6.4.6', 'v6.5.0', 'Will be removed in v6.5.0, use BusinessEventDefinition::getAware() instead.');
+
         return $this->mailAware;
     }
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_8225) - tag:v6.5.0 - Will be removed in v6.5.0, use BusinessEventDefinition::addAware() instead.
+     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0, use BusinessEventDefinition::addAware() instead.
      */
     public function setMailAware(bool $mailAware): void
     {
+        Feature::triggerDeprecated('FEATURE_NEXT_17858', 'v6.4.6', 'v6.5.0', 'Will be removed in v6.5.0, use BusinessEventDefinition::addAware() instead.');
+
         $this->mailAware = $mailAware;
     }
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_8225) - tag:v6.5.0 - Will be removed in v6.5.0, use BusinessEventDefinition::getAware() instead.
+     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0, use BusinessEventDefinition::getAware() instead.
      */
     public function isLogAware(): bool
     {
+        Feature::triggerDeprecated('FEATURE_NEXT_17858', 'v6.4.6', 'v6.5.0', 'Will be removed in v6.5.0, use BusinessEventDefinition::getAware() instead.');
+
         return $this->logAware;
     }
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_8225) - tag:v6.5.0 - Will be removed in v6.5.0, use BusinessEventDefinition::addAware() instead.
+     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0, use BusinessEventDefinition::addAware() instead.
      */
     public function setLogAware(bool $logAware): void
     {
+        Feature::triggerDeprecated('FEATURE_NEXT_17858', 'v6.4.6', 'v6.5.0', 'Will be removed in v6.5.0, use BusinessEventDefinition::addAware() instead.');
+
         $this->logAware = $logAware;
     }
 
@@ -133,18 +139,22 @@ class BusinessEventDefinition extends Struct
     }
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_8225) - tag:v6.5.0 - Will be removed in v6.5.0, use BusinessEventDefinition::getAware() instead.
+     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0, use BusinessEventDefinition::getAware() instead.
      */
     public function isSalesChannelAware(): bool
     {
+        Feature::triggerDeprecated('FEATURE_NEXT_17858', 'v6.4.6', 'v6.5.0', 'Will be removed in v6.5.0, use BusinessEventDefinition::getAware() instead.');
+
         return $this->salesChannelAware;
     }
 
     /**
-     * @feature-deprecated (flag:FEATURE_NEXT_8225) - tag:v6.5.0 - Will be removed in v6.5.0, use BusinessEventDefinition::addAware() instead.
+     * @deprecated tag:v6.5.0 - Will be removed in v6.5.0, use BusinessEventDefinition::addAware() instead.
      */
     public function setSalesChannelAware(bool $salesChannelAware): void
     {
+        Feature::triggerDeprecated('FEATURE_NEXT_17858', 'v6.4.6', 'v6.5.0', 'Will be removed in v6.5.0, use BusinessEventDefinition::addAware() instead.');
+
         $this->salesChannelAware = $salesChannelAware;
     }
 

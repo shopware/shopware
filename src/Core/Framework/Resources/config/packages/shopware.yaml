@@ -229,11 +229,6 @@ shopware:
               default: false
               major: true
               description: "Remove single record handling in sync service. Only single operation should be supported"
-            - name: FEATURE_NEXT_8225
-              default: false
-              major: false
-              description: "Flow builder"
-              # issue: NEXT-8225
             - name: FEATURE_NEXT_14699
               default: false
               major: true
@@ -369,6 +364,11 @@ shopware:
               major: false
               description: "Bulk Edit for Customers and Documents"
               # issue: NEXT-17261
+            - name: FEATURE_NEXT_17858
+              default: false
+              major: true
+              description: "Major feature flag for Business Event"
+              # issue: NEXT-17858
 
     logger:
         file_rotation_count: 14

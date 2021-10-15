@@ -4,9 +4,6 @@ namespace Shopware\Core\Framework\Event;
 
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 
-/**
- * @internal (flag:FEATURE_NEXT_8225)
- */
 interface FlowEventAware extends ShopwareEvent
 {
     public static function getAvailableData(): EventDataCollection;

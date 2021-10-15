@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\Event\EventAction;
 
 /**
- * @feature-deprecated (flag:FEATURE_NEXT_8225) tag:v6.5.0 - Will be removed in v6.5.0.
+ * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
  */
 class EventActionEvents
 {

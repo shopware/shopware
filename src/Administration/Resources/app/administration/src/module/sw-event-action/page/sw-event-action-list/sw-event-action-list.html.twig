@@ -121,15 +121,11 @@
         {% endblock %}
 
         {% block sw_event_action_list_deprecated_modal %}
-        <sw-event-action-deprecated-modal
-            v-if="feature.isActive('FEATURE_NEXT_8225')"
-        />
+        <sw-event-action-deprecated-modal />
         {% endblock %}
 
         {% block sw_event_action_list_deprecated_alert %}
-        <sw-event-action-deprecated-alert
-            v-if="feature.isActive('FEATURE_NEXT_8225')"
-        />
+        <sw-event-action-deprecated-alert />
         {% endblock %}
 
     </template>

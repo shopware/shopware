@@ -28,9 +28,6 @@ use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Symfony\Contracts\EventDispatcher\Event;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @internal (flag:FEATURE_NEXT_8225)
- */
 class SendMailAction extends FlowAction
 {
     public const ACTION_NAME = MailTemplateActions::MAIL_TEMPLATE_MAIL_SEND_ACTION;

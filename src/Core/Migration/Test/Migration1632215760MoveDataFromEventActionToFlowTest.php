@@ -12,9 +12,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
-use Shopware\Core\Migration\V6_4\Migration1625583619MoveDataFromEventActionToFlow;
+use Shopware\Core\Migration\V6_4\Migration1632215760MoveDataFromEventActionToFlow;
 
-class Migration1625583619MoveDataFromEventActionToFlowTest extends TestCase
+class Migration1632215760MoveDataFromEventActionToFlowTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
@@ -70,8 +70,7 @@ class Migration1625583619MoveDataFromEventActionToFlowTest extends TestCase
 
         $this->eventActionRepository->create($data, $this->ids->context);
 
-        $migration = new Migration1625583619MoveDataFromEventActionToFlow();
-        $migration->internal = true;
+        $migration = new Migration1632215760MoveDataFromEventActionToFlow();
         $migration->update($this->connection);
 
         $flows = $this->connection->fetchFirstColumn('SELECT `event_name` FROM `flow`');
@@ -97,8 +96,7 @@ class Migration1625583619MoveDataFromEventActionToFlowTest extends TestCase
     {
         $this->createEventActionWithSalesChannelAndRule();
 
-        $migration = new Migration1625583619MoveDataFromEventActionToFlow();
-        $migration->internal = true;
+        $migration = new Migration1632215760MoveDataFromEventActionToFlow();
         $migration->update($this->connection);
 
         $criteria = new Criteria();

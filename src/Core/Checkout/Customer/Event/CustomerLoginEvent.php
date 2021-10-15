@@ -78,9 +78,6 @@ class CustomerLoginEvent extends Event implements BusinessEventInterface, SalesC
             ->add('contextToken', new ScalarValueType(ScalarValueType::TYPE_STRING));
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_8225)
-     */
     public function getCustomerId(): string
     {
         return $this->getCustomer()->getId();

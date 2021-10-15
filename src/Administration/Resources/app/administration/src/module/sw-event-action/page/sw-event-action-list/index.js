@@ -5,7 +5,7 @@ const snakeCase = Shopware.Utils.string.snakeCase;
 const { Component, Mixin, Data: { Criteria } } = Shopware;
 
 /**
- * @major-deprecated (flag:FEATURE_NEXT_8225) - will be removed. Please use `sw-flow` - Flow builder instead.
+ * @deprecated tag:v6.5.0 - Will be removed in v6.5.0. Please use `sw-flow` - Flow builder instead.
  */
 Component.register('sw-event-action-list', {
     template,
@@ -13,7 +13,6 @@ Component.register('sw-event-action-list', {
     inject: [
         'repositoryFactory',
         'acl',
-        'feature',
     ],
 
     mixins: [

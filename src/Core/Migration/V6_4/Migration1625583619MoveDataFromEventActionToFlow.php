@@ -10,12 +10,18 @@ use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionDefinition;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 class Migration1625583619MoveDataFromEventActionToFlow extends MigrationStep
 {
+    private const RECIPIENT_TYPE_DEFAULT = 'default';
+
+    private const RECIPIENT_TYPE_CUSTOM = 'custom';
+
+    public bool $internal = false;
+
     private array $ruleIds = [];
 
     private array $ruleQueue = [];
@@ -35,8 +41,22 @@ class Migration1625583619MoveDataFromEventActionToFlow extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_8225')) {
+        if (!$this->internal) {
             return;
+        }
+
+        $columnNameInDb = $connection->fetchOne(
+            'SELECT COLUMN_NAME FROM information_schema.COLUMNS
+                WHERE TABLE_SCHEMA = DATABASE()
+                AND TABLE_NAME = "event_action"
+                AND COLUMN_NAME = "migrated_flow_id";'
+        );
+
+        if (!$columnNameInDb) {
+            $connection->executeStatement('
+                ALTER TABLE `event_action`
+                ADD COLUMN `migrated_flow_id` BINARY(16) NULL AFTER `active`;
+            ');
         }
 
         $this->insertFlow($connection);
@@ -65,7 +85,9 @@ class Migration1625583619MoveDataFromEventActionToFlow extends MigrationStep
             FROM event_action
             LEFT JOIN event_action_rule ON event_action.id = event_action_rule.event_action_id
             LEFT JOIN event_action_sales_channel ON event_action.id = event_action_sales_channel.event_action_id
-            WHERE event_action.action_name = :actionName AND JSON_EXTRACT(event_action.config, "$.mail_template_id") IS NOT NULL
+            WHERE event_action.action_name = :actionName
+                AND JSON_EXTRACT(event_action.config, "$.mail_template_id") IS NOT NULL
+                AND event_action.migrated_flow_id IS NULL
             GROUP BY event_action.id;',
             ['actionName' => SendMailAction::getName()]
         );
@@ -141,7 +163,10 @@ class Migration1625583619MoveDataFromEventActionToFlow extends MigrationStep
                 'created_at' => $createdAt,
             ];
 
-            $eventActionIds[] = $flowValue['event_action_id'];
+            $eventActionIds[] = [
+                'flowId' => $flowId,
+                'eventActionId' => $flowValue['event_action_id'],
+            ];
         }
 
         $queue = new MultiInsertQueryQueue($connection);
@@ -168,7 +193,17 @@ class Migration1625583619MoveDataFromEventActionToFlow extends MigrationStep
 
         $queue->execute();
 
-        $this->deleteMigratedEventAction($connection, $eventActionIds);
+        $update = new RetryableQuery(
+            $connection,
+            $connection->prepare('UPDATE `event_action` SET `active` = 0, `migrated_flow_id` = :flowId WHERE id = :eventActionId')
+        );
+
+        foreach ($eventActionIds as $eventAction) {
+            $update->execute([
+                'flowId' => $eventAction['flowId'],
+                'eventActionId' => $eventAction['eventActionId'],
+            ]);
+        }
     }
 
     private function createSalesChannelRule(Connection $connection, array $salesChannelIds, string $createdAt): string
@@ -376,18 +411,19 @@ class Migration1625583619MoveDataFromEventActionToFlow extends MigrationStep
         return $eventName;
     }
 
-    private function deleteMigratedEventAction(Connection $connection, array $eventActionIds): void
-    {
-        $connection->executeStatement(
-            'DELETE FROM event_action WHERE id IN (:eventActionIds)',
-            ['eventActionIds' => $eventActionIds],
-            ['eventActionIds' => Connection::PARAM_STR_ARRAY],
-        );
-    }
-
     private function getNewConfig(string $config): string
     {
         $config = json_decode($config, true);
+
+        $type = self::RECIPIENT_TYPE_DEFAULT;
+        $recipients = [];
+        if (\array_key_exists('recipients', $config)) {
+            $type = self::RECIPIENT_TYPE_CUSTOM;
+            $recipients = $config['recipients'];
+
+            unset($config['recipients']);
+        }
+
         $result = [];
         foreach ($config as $key => $value) {
             $key = lcfirst(implode('', array_map('ucfirst', explode('_', $key))));
@@ -395,8 +431,8 @@ class Migration1625583619MoveDataFromEventActionToFlow extends MigrationStep
         }
 
         $result['recipient'] = [
-            'data' => [],
-            'type' => 'default',
+            'data' => $recipients,
+            'type' => $type,
         ];
 
         return (string) json_encode($result);

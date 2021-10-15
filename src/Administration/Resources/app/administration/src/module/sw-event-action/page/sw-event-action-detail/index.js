@@ -6,7 +6,7 @@ const { Component, Utils, Mixin, Data: { Criteria }, Classes: { ShopwareError } 
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 /**
- * @major-deprecated (flag:FEATURE_NEXT_8225) - will be removed. Please use `sw-flow` - Flow builder instead.
+ * @deprecated tag:v6.5.0 - Will be removed in v6.5.0. Please use `sw-flow` - Flow builder instead.
  */
 Component.register('sw-event-action-detail', {
     template,
@@ -16,7 +16,6 @@ Component.register('sw-event-action-detail', {
         'businessEventService',
         'acl',
         'customFieldDataProviderService',
-        'feature',
     ],
 
     mixins: [

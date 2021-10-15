@@ -13,9 +13,6 @@ use Shopware\Core\System\StateMachine\Exception\IllegalTransitionException;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
-/**
- * @internal (flag:FEATURE_NEXT_8225)
- */
 class SetOrderStateAction extends FlowAction
 {
     private Connection $connection;

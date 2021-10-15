@@ -1,7 +1,6 @@
 ---
 title: Create handler for send mail action.
 issue: NEXT-15154
-flag: FEATURE_NEXT_8225
 ---
 # Core
 * Added a new constant `SEND_MAIL` in `Shopware\Core\Content\Flow\Action\FlowAction`.

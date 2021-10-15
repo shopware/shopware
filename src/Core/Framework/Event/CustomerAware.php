@@ -2,9 +2,6 @@
 
 namespace Shopware\Core\Framework\Event;
 
-/**
- * @internal (flag:FEATURE_NEXT_8225)
- */
 interface CustomerAware extends FlowEventAware
 {
     public function getCustomerId(): string;

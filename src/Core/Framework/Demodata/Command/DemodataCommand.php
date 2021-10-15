@@ -20,7 +20,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Demodata\DemodataRequest;
 use Shopware\Core\Framework\Demodata\DemodataService;
 use Shopware\Core\Framework\Demodata\Event\DemodataRequestCreatedEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 use Shopware\Core\System\User\UserDefinition;
 use Symfony\Component\Console\Command\Command;
@@ -75,10 +74,7 @@ class DemodataCommand extends Command
         $this->addOption('order-attributes', null, InputOption::VALUE_REQUIRED, 'Order attribute count');
         $this->addOption('customer-attributes', null, InputOption::VALUE_REQUIRED, 'Customer attribute count');
         $this->addOption('media-attributes', null, InputOption::VALUE_REQUIRED, 'Media attribute count');
-
-        if (Feature::isActive('FEATURE_NEXT_8225')) {
-            $this->addOption('flows', 'fl', InputOption::VALUE_OPTIONAL, 'Flows count', '0');
-        }
+        $this->addOption('flows', 'fl', InputOption::VALUE_OPTIONAL, 'Flows count', '0');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -107,10 +103,7 @@ class DemodataCommand extends Command
         $request->add(OrderDefinition::class, (int) $input->getOption('orders'));
         $request->add(ProductReviewDefinition::class, (int) $input->getOption('reviews'));
         $request->add(UserDefinition::class, (int) $input->getOption('users'));
-
-        if (Feature::isActive('FEATURE_NEXT_8225')) {
-            $request->add(FlowDefinition::class, (int) $input->getOption('flows'));
-        }
+        $request->add(FlowDefinition::class, (int) $input->getOption('flows'));
 
         $request->add(
             CustomFieldSetDefinition::class,

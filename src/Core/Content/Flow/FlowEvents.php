@@ -4,9 +4,6 @@ namespace Shopware\Core\Content\Flow;
 
 use Shopware\Core\Content\Flow\Events\FlowIndexerEvent;
 
-/**
- * @internal (flag:FEATURE_NEXT_8225)
- */
 class FlowEvents
 {
     /**

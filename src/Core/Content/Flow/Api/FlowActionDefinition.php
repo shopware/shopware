@@ -4,9 +4,6 @@ namespace Shopware\Core\Content\Flow\Api;
 
 use Shopware\Core\Framework\Struct\Struct;
 
-/**
- * @internal (flag:FEATURE_NEXT_8225)
- */
 class FlowActionDefinition extends Struct
 {
     protected string $name;

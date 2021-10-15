@@ -5,10 +5,11 @@ namespace Shopware\Core\Framework\Event\EventAction;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\MailTemplate\MailTemplateEvents;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
+use Shopware\Core\Framework\Feature;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @feature-deprecated (flag:FEATURE_NEXT_8225) tag:v6.5.0 - Will be removed in v6.5.0.
+ * @deprecated tag:v6.5.0 - Will be removed in v6.5.0.
  */
 class EventActionSubscriber implements EventSubscriberInterface
 {
@@ -31,6 +32,12 @@ class EventActionSubscriber implements EventSubscriberInterface
 
     public function deleted(EntityDeletedEvent $event): void
     {
+        Feature::triggerDeprecated('FEATURE_NEXT_17858', 'v6.4.6', 'v6.5.0', 'Will be removed in v6.5.0.');
+
+        if (Feature::isActive('FEATURE_NEXT_17858')) {
+            return;
+        }
+
         $ids = $event->getIds();
 
         if (empty($ids)) {

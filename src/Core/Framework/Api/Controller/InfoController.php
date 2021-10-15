@@ -62,9 +62,6 @@ class InfoController extends AbstractController
      */
     private $eventCollector;
 
-    /**
-     * @internal (flag:FEATURE_NEXT_8225)
-     */
     private ?FlowActionCollector $flowActionCollector;
 
     public function __construct(
@@ -244,8 +241,6 @@ class InfoController extends AbstractController
     /**
      * @Since("6.4.5.0")
      * @Route("/api/_info/flow-actions.json", name="api.info.actions", methods={"GET"})
-     *
-     * @internal (flag:FEATURE_NEXT_8225)
      */
     public function flowActions(Context $context): JsonResponse
     {

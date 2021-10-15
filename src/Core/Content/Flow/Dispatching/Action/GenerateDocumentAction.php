@@ -18,9 +18,6 @@ use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 
-/**
- * @internal (flag:FEATURE_NEXT_8225)
- */
 class GenerateDocumentAction extends FlowAction
 {
     protected DocumentService $documentService;

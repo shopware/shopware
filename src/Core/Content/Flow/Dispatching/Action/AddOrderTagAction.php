@@ -6,9 +6,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Event\OrderAware;
 
-/**
- * @internal (flag:FEATURE_NEXT_8225)
- */
 class AddOrderTagAction extends FlowAction
 {
     private EntityRepositoryInterface $orderRepository;

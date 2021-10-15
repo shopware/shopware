@@ -29,9 +29,6 @@ use Shopware\Core\Framework\Event\BusinessEventDefinition;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-/**
- * @internal (flag:FEATURE_NEXT_8225)
- */
 class FlowGenerator implements DemodataGeneratorInterface
 {
     private array $ids = [];

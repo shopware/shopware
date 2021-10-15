@@ -83,9 +83,6 @@ class CustomerRegisterEvent extends Event implements MailActionInterface, SalesC
         return $this->salesChannelContext->getSalesChannel()->getId();
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_8225)
-     */
     public function getCustomerId(): string
     {
         return $this->getCustomer()->getId();

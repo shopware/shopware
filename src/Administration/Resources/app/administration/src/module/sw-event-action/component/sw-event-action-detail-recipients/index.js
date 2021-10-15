@@ -4,7 +4,7 @@ import './sw-event-action-detail-recipients.scss';
 const { Component, Utils, Classes: { ShopwareError } } = Shopware;
 
 /**
- * @major-deprecated (flag:FEATURE_NEXT_8225) - will be removed. Please use `sw-flow` - Flow builder instead.
+ * @deprecated tag:v6.5.0 - Will be removed in v6.5.0. Please use `sw-flow` - Flow builder instead.
  */
 Component.register('sw-event-action-detail-recipients', {
     template,

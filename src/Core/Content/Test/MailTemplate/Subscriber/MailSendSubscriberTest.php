@@ -38,22 +38,21 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * @feature-deprecated (flag:FEATURE_NEXT_8225) tag:v6.5.0.0 - Will be removed in v6.5.0.0 Use SendMailActionTest instead
+ * @deprecated tag:v6.5.0 - Will be removed in v6.5.0 Use SendMailActionTest instead
  */
 class MailSendSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
-
-    protected function setUp(): void
-    {
-        Feature::skipTestIfActive('FEATURE_NEXT_8225', $this);
-    }
 
     /**
      * @dataProvider sendMailProvider
      */
     public function testEmailSend(bool $skip, ?array $recipients, array $contactFormRecipients = []): void
     {
+        if (Feature::isActive('FEATURE_NEXT_17858')) {
+            static::markTestSkipped('Business Event is deprecated since v6.4.6, flag FEATURE_NEXT_17858');
+        }
+
         $documentRepository = $this->getContainer()->get('document.repository');
 
         $criteria = new Criteria();
@@ -136,6 +135,10 @@ class MailSendSubscriberTest extends TestCase
 
     public function testTranslatorInjectionInMail(): void
     {
+        if (Feature::isActive('FEATURE_NEXT_17858')) {
+            static::markTestSkipped('Business Event is deprecated since v6.4.6, flag FEATURE_NEXT_17858');
+        }
+
         $criteria = new Criteria();
         $criteria->setLimit(1);
 

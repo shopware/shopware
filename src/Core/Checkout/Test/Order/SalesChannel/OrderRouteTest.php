@@ -396,8 +396,6 @@ class OrderRouteTest extends TestCase
 
     public function testSetAnotherPaymentMethodToOrder(): void
     {
-        Feature::skipTestIfActive('FEATURE_NEXT_8225', $this);
-        Feature::skipTestIfInActive('FEATURE_NEXT_8225', $this);
         if (!$this->getContainer()->has(AccountOrderController::class)) {
             // ToDo: NEXT-16882 - Reactivate tests again
             static::markTestSkipped('Order mail tests should be fixed without storefront in NEXT-16882');
@@ -445,7 +443,8 @@ class OrderRouteTest extends TestCase
 
     public function testUpdatedRulesOnPaymentMethodChange(): void
     {
-        Feature::skipTestIfActive('FEATURE_NEXT_8225', $this);
+        Feature::skipTestIfActive('FEATURE_NEXT_17858', $this);
+
         if (!$this->getContainer()->has(AccountOrderController::class)) {
             // ToDo: NEXT-16882 - Reactivate tests again
             static::markTestSkipped('Order mail tests should be fixed without storefront in NEXT-16882');

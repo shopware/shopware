@@ -1,9 +1,8 @@
 import ApiService from '../api.service';
 
 /**
- * @major-deprecated (flag:FEATURE_NEXT_8225) - will be removed. Please use `sw-flow` - Flow builder instead.
- */
-/**
+ * @deprecated tag:v6.5.0 - Will be removed in v6.5.0. Please use `sw-flow` - Flow builder instead.
+ *
  * @class
  * @extends ApiService
  */

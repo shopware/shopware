@@ -77,9 +77,6 @@ class CustomerChangedPaymentMethodEvent extends Event implements BusinessEventIn
             ->add('customer', new EntityType(CustomerDefinition::class));
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_8225)
-     */
     public function getCustomerId(): string
     {
         return $this->getCustomer()->getId();

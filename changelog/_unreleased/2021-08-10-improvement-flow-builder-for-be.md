@@ -1,7 +1,6 @@
 ---
 title: Improvement flow builder for BE
 issue: NEXT-16555
-flag: FEATURE_NEXT_8225
 ---
 # Core
 * Changed namespace of `FlowActionDefinition`, `FlowActionCollector` and `FlowActionCollectorResponse` classes to `Shopware\Core\Content\Flow\Api`.

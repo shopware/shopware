@@ -12,15 +12,11 @@ use Shopware\Core\Content\Flow\Dispatching\FlowDispatcher;
 use Shopware\Core\Content\Flow\Dispatching\FlowLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @internal (flag:FEATURE_NEXT_8225)
- */
 class FlowDispatcherTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -39,8 +35,6 @@ class FlowDispatcherTest extends TestCase
 
     protected function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_8225', $this);
-
         $this->flowActionTestSubscriber = new FlowActionTestSubscriber();
 
         $this->flowRepository = $this->getContainer()->get('flow.repository');
@@ -60,11 +54,9 @@ class FlowDispatcherTest extends TestCase
 
     protected function tearDown(): void
     {
-        if (Feature::isActive('FEATURE_NEXT_8225')) {
-            parent::tearDown();
+        parent::tearDown();
 
-            $this->dispatcher->removeSubscriber($this->flowActionTestSubscriber);
-        }
+        $this->dispatcher->removeSubscriber($this->flowActionTestSubscriber);
     }
 
     public function testAllEventsPassThrough(): void

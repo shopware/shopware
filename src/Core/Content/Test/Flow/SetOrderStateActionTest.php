@@ -24,14 +24,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Event\FlowEvent;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 
-/**
- * @internal (flag:FEATURE_NEXT_8225)
- */
 class SetOrderStateActionTest extends TestCase
 {
     use OrderActionTrait;
@@ -44,7 +40,6 @@ class SetOrderStateActionTest extends TestCase
 
     protected function setUp(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_8225', $this);
         $this->flowRepository = $this->getContainer()->get('flow.repository');
 
         $this->connection = $this->getContainer()->get(Connection::class);

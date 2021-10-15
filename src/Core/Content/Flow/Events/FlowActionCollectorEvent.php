@@ -6,9 +6,6 @@ use Shopware\Core\Content\Flow\Api\FlowActionCollectorResponse;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 
-/**
- * @internal (flag:FEATURE_NEXT_8225)
- */
 class FlowActionCollectorEvent extends NestedEvent
 {
     private FlowActionCollectorResponse $flowActionCollectorResponse;

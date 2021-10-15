@@ -92,9 +92,6 @@ class UserRecoveryRequestEvent extends Event implements BusinessEventInterface, 
         return $this->resetUrl;
     }
 
-    /**
-     * @internal (flag:FEATURE_NEXT_8225)
-     */
     public function getUserId(): string
     {
         return $this->getUserRecovery()->getId();

@@ -3,12 +3,16 @@
 namespace Shopware\Core\Framework\Test\Webhook\Hookable;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Flow\Dispatching\FlowState;
+use Shopware\Core\Content\Test\Flow\TestFlowBusinessEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\BusinessEvent;
+use Shopware\Core\Framework\Event\FlowEvent;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\Event\TestBusinessEvent;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -31,12 +35,21 @@ class HookableEventFactoryTest extends TestCase
 
     public function testDoesNotCreateEventForConcreteBusinessEvent(): void
     {
-        $hookables = $this->hookableEventFactory->createHookablesFor(
-            new BusinessEvent(
-                'test',
-                new TestBusinessEvent(Context::createDefaultContext())
-            )
-        );
+        if (Feature::isActive('FEATURE_NEXT_17858')) {
+            $hookables = $this->hookableEventFactory->createHookablesFor(
+                new FlowEvent(
+                    'test',
+                    new FlowState(new TestFlowBusinessEvent(Context::createDefaultContext()))
+                )
+            );
+        } else {
+            $hookables = $this->hookableEventFactory->createHookablesFor(
+                new BusinessEvent(
+                    'test',
+                    new TestBusinessEvent(Context::createDefaultContext())
+                )
+            );
+        }
 
         static::assertEmpty($hookables);
     }

@@ -108,7 +108,9 @@ function createWrapper(privileges = []) {
             'sw-pagination': true,
             'sw-data-grid-column-boolean': true,
             'sw-event-action-list-expand-labels': true,
-            'sw-checkbox-field': true
+            'sw-checkbox-field': true,
+            'sw-event-action-deprecated-alert': true,
+            'sw-event-action-deprecated-modal': true
         },
 
         provide: {

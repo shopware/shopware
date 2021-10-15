@@ -4,53 +4,47 @@ namespace Shopware\Core\Framework\Webhook\Hookable;
 
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
-use Shopware\Core\Framework\Event\BusinessEventInterface;
 use Shopware\Core\Framework\Event\EventData\ArrayType;
 use Shopware\Core\Framework\Event\EventData\EntityCollectionType;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\ObjectType;
+use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\BusinessEventEncoder;
 use Shopware\Core\Framework\Webhook\Hookable;
 
 class HookableBusinessEvent implements Hookable
 {
-    /**
-     * @var BusinessEventInterface
-     */
-    private $businessEvent;
+    private FlowEventAware $flowEventAware;
 
-    /**
-     * @var BusinessEventEncoder
-     */
-    private $businessEventEncoder;
+    private BusinessEventEncoder $businessEventEncoder;
 
-    private function __construct(BusinessEventInterface $businessEvent, BusinessEventEncoder $businessEventEncoder)
+    private function __construct(FlowEventAware $flowEventAware, BusinessEventEncoder $businessEventEncoder)
     {
-        $this->businessEvent = $businessEvent;
+        $this->flowEventAware = $flowEventAware;
         $this->businessEventEncoder = $businessEventEncoder;
     }
 
     public static function fromBusinessEvent(
-        BusinessEventInterface $businessEvent,
+        FlowEventAware $flowEventAware,
         BusinessEventEncoder $businessEventEncoder
     ): self {
-        return new self($businessEvent, $businessEventEncoder);
+        return new self($flowEventAware, $businessEventEncoder);
     }
 
     public function getName(): string
     {
-        return $this->businessEvent->getName();
+        return $this->flowEventAware->getName();
     }
 
     public function getWebhookPayload(): array
     {
-        return $this->businessEventEncoder->encode($this->businessEvent);
+        return $this->businessEventEncoder->encode($this->flowEventAware);
     }
 
     public function isAllowed(string $appId, AclPrivilegeCollection $permissions): bool
     {
-        foreach ($this->businessEvent::getAvailableData()->toArray() as $dataType) {
+        foreach ($this->flowEventAware::getAvailableData()->toArray() as $dataType) {
             if (!$this->checkPermissionsForDataType($dataType, $permissions)) {
                 return false;
             }

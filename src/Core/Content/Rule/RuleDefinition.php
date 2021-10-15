@@ -38,7 +38,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Event\EventAction\Aggregate\EventActionRule\EventActionRuleDefinition;
 use Shopware\Core\Framework\Event\EventAction\EventActionDefinition;
-use Shopware\Core\Framework\Feature;
 
 class RuleDefinition extends EntityDefinition
 {
@@ -66,7 +65,7 @@ class RuleDefinition extends EntityDefinition
 
     protected function defineFields(): FieldCollection
     {
-        $fields = new FieldCollection([
+        return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
             (new StringField('name', 'name'))->addFlags(new ApiAware(), new Required()),
             (new IntField('priority', 'priority'))->addFlags(new Required()),
@@ -85,6 +84,7 @@ class RuleDefinition extends EntityDefinition
             (new OneToManyAssociationField('shippingMethods', ShippingMethodDefinition::class, 'availability_rule_id'))->addFlags(new RestrictDelete()),
             (new OneToManyAssociationField('paymentMethods', PaymentMethodDefinition::class, 'availability_rule_id', 'id'))->addFlags(new RestrictDelete()),
             (new OneToManyAssociationField('personaPromotions', PromotionDefinition::class, 'persona_rule_id', 'id'))->addFlags(new RestrictDelete()),
+            (new OneToManyAssociationField('flowSequences', FlowSequenceDefinition::class, 'rule_id', 'id'))->addFlags(new RestrictDelete()),
 
             // Promotion References
             (new ManyToManyAssociationField('personaPromotions', PromotionDefinition::class, PromotionPersonaRuleDefinition::class, 'rule_id', 'promotion_id'))->addFlags(new RestrictDelete()),
@@ -92,14 +92,7 @@ class RuleDefinition extends EntityDefinition
             (new ManyToManyAssociationField('cartPromotions', PromotionDefinition::class, PromotionCartRuleDefinition::class, 'rule_id', 'promotion_id'))->addFlags(new RestrictDelete()),
             (new ManyToManyAssociationField('promotionDiscounts', PromotionDiscountDefinition::class, PromotionDiscountRuleDefinition::class, 'rule_id', 'discount_id'))->addFlags(new RestrictDelete()),
             (new ManyToManyAssociationField('promotionSetGroups', PromotionSetGroupDefinition::class, PromotionSetGroupRuleDefinition::class, 'rule_id', 'setgroup_id'))->addFlags(new RestrictDelete()),
-            (new ManyToManyAssociationField('eventActions', EventActionDefinition::class, EventActionRuleDefinition::class, 'rule_id', 'event_action_id'))->addFlags(new CascadeDelete()),
+            (new ManyToManyAssociationField('eventActions', EventActionDefinition::class, EventActionRuleDefinition::class, 'rule_id', 'event_action_id'))->addFlags(new CascadeDelete(), new Deprecated('v6.4.6', 'v6.5.0')),
         ]);
-
-        if (Feature::isActive('FEATURE_NEXT_8225')) {
-            $fields->add((new OneToManyAssociationField('flowSequences', FlowSequenceDefinition::class, 'rule_id', 'id'))->addFlags(new RestrictDelete()));
-            $fields->add((new ManyToManyAssociationField('eventActions', EventActionDefinition::class, EventActionRuleDefinition::class, 'rule_id', 'event_action_id'))->addFlags(new CascadeDelete(), new Deprecated('v6.4.0', 'v6.5.0')));
-        }
-
-        return $fields;
     }
 }

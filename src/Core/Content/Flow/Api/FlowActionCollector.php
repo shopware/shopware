@@ -7,9 +7,6 @@ use Shopware\Core\Content\Flow\Events\FlowActionCollectorEvent;
 use Shopware\Core\Framework\Context;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-/**
- * @internal (flag:FEATURE_NEXT_8225)
- */
 class FlowActionCollector
 {
     protected iterable $actions;

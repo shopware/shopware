@@ -175,7 +175,7 @@ Component.register('sw-flow-detail', {
         },
 
         onSave() {
-            if (!this.flow.eventName) {
+            if (!this.flow.eventName && this.flow.name) {
                 Shopware.State.dispatch('error/addApiError',
                     {
                         expression: `flow.${this.flow.id}.eventName`,
@@ -187,6 +187,8 @@ Component.register('sw-flow-detail', {
                 this.createNotificationWarning({
                     message: this.$tc('sw-flow.flowNotification.messageRequiredEventName'),
                 });
+
+                this.$router.push({ name: 'sw.flow.create.flow' });
 
                 return null;
             }
@@ -218,10 +220,6 @@ Component.register('sw-flow-detail', {
                     } else {
                         this.getDetailFlow();
                     }
-
-                    this.createNotificationSuccess({
-                        message: this.$tc('sw-flow.flowNotification.messageSaveSuccess'),
-                    });
 
                     this.isSaveSuccessful = true;
                 })

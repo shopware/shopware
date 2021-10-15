@@ -329,8 +329,20 @@ Component.register('sw-flow-sequence-action', {
         getMailSendDescription(config) {
             const mailTemplateData = this.mailTemplates.find(item => item.id === config.mailTemplateId);
 
-            return this.$tc('sw-flow.actions.mailDescription', 0, {
-                template: mailTemplateData?.mailTemplateType?.name,
+            const mailTemplate = mailTemplateData?.mailTemplateType?.name;
+            let mailDescription = mailTemplateData?.description;
+
+            if (mailDescription) {
+                // need to truncate string for UI fit in.
+                mailDescription = mailDescription.length > 30 ? `${mailDescription.substring(0, 30)}...` : mailDescription;
+                return this.$tc('sw-flow.actions.mailTemplateAndDescription', 0, {
+                    template: mailTemplate,
+                    description: mailDescription,
+                });
+            }
+
+            return this.$tc('sw-flow.actions.mailTemplate', 0, {
+                template: mailTemplate,
             });
         },
     },

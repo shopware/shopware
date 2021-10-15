@@ -32,7 +32,7 @@ class JsonFieldSerializer extends AbstractFieldSerializer
     /**
      * mariadbs `JSON_VALID` function does not allow escaped unicode.
      */
-    public static function encodeJson($value, int $options = \JSON_UNESCAPED_UNICODE | \JSON_PRESERVE_ZERO_FRACTION): string
+    public static function encodeJson($value, int $options = \JSON_UNESCAPED_UNICODE | \JSON_PRESERVE_ZERO_FRACTION | \JSON_THROW_ON_ERROR | \JSON_INVALID_UTF8_IGNORE): string
     {
         return json_encode($value, $options);
     }

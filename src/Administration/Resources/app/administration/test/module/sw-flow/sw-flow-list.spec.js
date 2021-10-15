@@ -17,7 +17,8 @@ function createWrapper(privileges = []) {
                 search: () => {
                     return Promise.resolve([
                         {
-                            id: '44de136acf314e7184401d36406c1e90'
+                            id: '44de136acf314e7184401d36406c1e90',
+                            eventName: 'checkout.order.placed'
                         }
                     ]);
                 }
@@ -56,10 +57,11 @@ function createWrapper(privileges = []) {
             'sw-entity-listing': {
                 props: ['items'],
                 template: `
-                    <div>
-                        <template v-for="item in items">
+                    <div class="sw-data-grid">
+                        <div class="sw-data-grid__row" v-for="item in items">
+                            <slot name="column-eventName" v-bind="{ item }"></slot>
                             <slot name="actions" v-bind="{ item }"></slot>
-                        </template>
+                        </div>
                     </div>
                 `
             },
@@ -75,7 +77,6 @@ describe('module/sw-flow/page/sw-flow-list', () => {
         const wrapper = createWrapper([
             'flow.creator'
         ]);
-        await wrapper.vm.$nextTick();
 
         const createButton = wrapper.find('.sw-flow-list__create');
 
@@ -84,8 +85,6 @@ describe('module/sw-flow/page/sw-flow-list', () => {
 
     it('should be not able to create a flow ', async () => {
         const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
-
         const createButton = wrapper.find('.sw-flow-list__create');
 
         expect(createButton.attributes().disabled).toBeTruthy();
@@ -135,5 +134,17 @@ describe('module/sw-flow/page/sw-flow-list', () => {
         const deleteMenuItem = wrapper.find('.sw-flow-list__item-delete');
         expect(deleteMenuItem.exists()).toBeTruthy();
         expect(deleteMenuItem.attributes().disabled).toBeTruthy();
+    });
+
+    it('should show trigger column correctly', async () => {
+        const wrapper = createWrapper([
+            'flow.viewer'
+        ]);
+
+        await wrapper.vm.$nextTick();
+
+        const item = wrapper.find('.sw-data-grid__row');
+        expect(item.text()).toContain('global.businessEvents.checkout_order_placed');
+        expect(item.text()).toContain('checkout.order.placed');
     });
 });

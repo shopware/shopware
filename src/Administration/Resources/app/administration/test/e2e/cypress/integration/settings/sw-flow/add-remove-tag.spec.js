@@ -15,14 +15,12 @@ describe('Flow builder: Add remove tag testing', () => {
             });
     });
 
-    // NEXT-17407 - this test does not work and needs to be fixed
-    it.skip('@settings: add and remove tag action flow', () => {
+    it('@settings: add and remove tag action flow', () => {
         cy.onlyOnFeature('FEATURE_NEXT_8225');
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/flow/index`);
 
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/flow`,
             method: 'post'
         }).as('saveData');
@@ -116,9 +114,7 @@ describe('Flow builder: Add remove tag testing', () => {
 
         // Save
         cy.get('.sw-flow-detail__save').click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.visit('/account/login');
 
@@ -185,21 +181,43 @@ describe('Flow builder: Add remove tag testing', () => {
 
         cy.get('.sw-loader').should('not.exist');
 
-        cy.get('.sw-order-user-card__tag-select .sw-select-selection-list__item-holder').should('have.length', 1);
-        cy.get('.sw-order-user-card__tag-select .sw-select-selection-list__item-holder').eq(0).contains('USA Customer');
+        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get('.sw-order-user-card__tag-select .sw-select-selection-list__item-holder').should('have.length', 1);
+            cy.get('.sw-order-user-card__tag-select').contains('USA Customer');
 
-        cy.get('.smart-bar__back-btn').click();
-        cy.get('.sw-data-grid-skeleton').should('not.exist');
+            cy.get('.smart-bar__back-btn').click();
+            cy.get('.sw-data-grid-skeleton').should('not.exist');
 
-        cy.clickContextMenuItem(
-            '.sw-order-list__order-view-action',
-            page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--1`
-        );
+            cy.clickContextMenuItem(
+                '.sw-order-list__order-view-action',
+                page.elements.contextMenuButton,
+                `${page.elements.dataGridRow}--1`
+            );
 
-        cy.get('.sw-loader').should('not.exist');
-        cy.get('.sw-order-user-card__tag-select .sw-select-selection-list__item-holder').should('have.length', 2);
-        cy.get('.sw-order-user-card__tag-select .sw-select-selection-list__item-holder').eq(0).contains('New Customer');
-        cy.get('.sw-order-user-card__tag-select .sw-select-selection-list__item-holder').eq(1).contains('Not USA Customer');
+            cy.get('.sw-loader').should('not.exist');
+            cy.get('.sw-order-user-card__tag-select .sw-select-selection-list__item-holder').should('have.length', 2);
+            cy.get('.sw-order-user-card__tag-select').contains('New Customer');
+            cy.get('.sw-order-user-card__tag-select').contains('Not USA Customer');
+        });
+
+
+        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get('.sw-order-detail-base__general-info__order-tags .sw-select-selection-list__item-holder').should('have.length', 1);
+            cy.get('.sw-order-detail-base__general-info__order-tags').contains('USA Customer');
+
+            cy.get('.smart-bar__back-btn').click();
+            cy.get('.sw-data-grid-skeleton').should('not.exist');
+
+            cy.clickContextMenuItem(
+                '.sw-order-list__order-view-action',
+                page.elements.contextMenuButton,
+                `${page.elements.dataGridRow}--1`
+            );
+
+            cy.get('.sw-loader').should('not.exist');
+            cy.get('.sw-order-detail-base__general-info__order-tags .sw-select-selection-list__item-holder').should('have.length', 2);
+            cy.get('.sw-order-detail-base__general-info__order-tags').contains('New Customer');
+            cy.get('.sw-order-detail-base__general-info__order-tags').contains('Not USA Customer');
+        });
     });
 });

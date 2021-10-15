@@ -15,16 +15,14 @@ describe('Flow builder: generate document testing', () => {
             });
     });
 
-    // NEXT-17407 - this test does not work and needs to be fixed
-    it.skip('@settings: generate document flow', () => {
+    it('@settings: generate document flow', () => {
         cy.onlyOnFeature('FEATURE_NEXT_8225');
 
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/flow/index`);
 
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/flow`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         cy.get('.sw-flow-list').should('be.visible');
@@ -58,9 +56,7 @@ describe('Flow builder: generate document testing', () => {
 
         // Save
         cy.get('.sw-flow-detail__save').click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         cy.visit('/account/login');
 
@@ -103,14 +99,21 @@ describe('Flow builder: generate document testing', () => {
 
         cy.get('.sw-loader').should('not.exist');
 
-        cy.get('.sw-order-detail-base__document-grid').scrollIntoView().then(() => {
-            cy.get('.sw-order-detail-base__document-grid .sw-data-grid__row--0').should('be.visible');
-            cy.get('.sw-order-detail-base__document-grid .sw-data-grid__row--0')
-                .contains('Invoice');
+        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get('.sw-order-detail-base__document-grid').scrollIntoView().then(() => {
+                cy.get('.sw-order-detail-base__document-grid .sw-data-grid__row--0').should('be.visible');
+                cy.get('.sw-order-detail-base__document-grid .sw-data-grid__row--0')
+                    .contains('Invoice');
+            });
+
         });
 
-        cy.get('.sw-order-detail-base__document-grid .sw-data-grid__row--0 .sw-data-grid__cell--actions .sw-context-button')
-            .click();
-        cy.get('.sw-context-menu-item').contains('Download');
+        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get('.sw-tabs-item[title="Documents"]').click();
+            cy.get('.sw-loader').should('not.exist');
+
+            cy.get('.sw-data-grid__row--0').should('be.visible');
+            cy.get('.sw-data-grid__row--0').contains('Invoice');
+        });
     });
 });

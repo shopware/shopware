@@ -19,10 +19,9 @@ describe('Flow builder: Test crud operations', () => {
     it('@settings: Create and read flow', () => {
         const page = new SettingsPageObject();
 
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/flow`,
-            method: 'post'
+            method: 'POST'
         }).as('saveData');
 
         cy.get('.sw-flow-list').should('be.visible');
@@ -42,9 +41,7 @@ describe('Flow builder: Test crud operations', () => {
 
         // Save
         cy.get('.sw-flow-detail__save').click();
-        cy.wait('@saveData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
 
         // Verify successful save
         cy.get('.sw-loader__element').should('not.exist');
@@ -57,10 +54,9 @@ describe('Flow builder: Test crud operations', () => {
     });
 
     it('@settings: Try to create flow with empty required fields', () => {
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/flow`,
-            method: 'post'
+            method: 'POST'
         }).as('saveEmptyData');
 
         cy.get('.sw-flow-list').should('be.visible');
@@ -94,9 +90,7 @@ describe('Flow builder: Test crud operations', () => {
         cy.get('.sw-flow-detail__save').click();
 
         // Verify 400 Bad request
-        cy.wait('@saveEmptyData').then((xhr) => {
-            expect(xhr).to.have.property('status', 400);
-        });
+        cy.wait('@saveEmptyData').its('response.statusCode').should('equal', 400);
 
         // Check if empty required fields have error messages
         cy.get('.sw-flow-detail-general__general-name .sw-field__error')
@@ -106,14 +100,12 @@ describe('Flow builder: Test crud operations', () => {
         cy.awaitAndCheckNotification('The flow could not be saved.');
     });
 
-    // NEXT-17407 - this test does not work and needs to be fixed
-    it.skip('@settings: Update and read flow', () => {
+    it('@settings: Update and read flow', () => {
         const page = new SettingsPageObject();
 
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/flow/*`,
-            method: 'patch'
+            method: 'PATCH'
         }).as('updateData');
 
         cy.get('.sw-flow-list').should('be.visible');
@@ -127,7 +119,9 @@ describe('Flow builder: Test crud operations', () => {
         cy.clickContextMenuItem(
             '.sw-flow-list__item-edit',
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
+            'Edit',
+            true
         );
 
         // Verify correct detail page
@@ -151,9 +145,7 @@ describe('Flow builder: Test crud operations', () => {
         cy.get('li.sw-flow-sequence-action__action-item').should('have.length', 2);
 
         cy.get('.sw-flow-detail__save').click();
-        cy.wait('@updateData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@updateData').its('response.statusCode').should('equal', 204);
 
         // Verify updated element
         cy.get(page.elements.smartBarBack).click();
@@ -166,22 +158,25 @@ describe('Flow builder: Test crud operations', () => {
     it('@settings: Delete flow', () => {
         const page = new SettingsPageObject();
 
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/flow/*`,
-            method: 'delete'
+            method: 'DELETE'
         }).as('deleteData');
 
         cy.get('.sw-flow-list').should('be.visible');
 
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Order placed');
+        cy.get('.sw-data-grid-skeleton').should('not.exist');
+
         cy.get(`${page.elements.dataGridRow}--0`).should('be.visible')
             .contains('Order placed');
 
         cy.clickContextMenuItem(
             `${page.elements.contextMenu}-item--danger`,
             page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
+            `${page.elements.dataGridRow}--0`,
+            'Delete',
+            true
         );
 
         cy.get('.sw-modal__body')
@@ -189,9 +184,7 @@ describe('Flow builder: Test crud operations', () => {
         cy.get(`${page.elements.modal}__footer button${page.elements.dangerButton}`).click();
         cy.get(page.elements.modal).should('not.exist');
 
-        cy.wait('@deleteData').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@deleteData').its('response.statusCode').should('equal', 204);
 
         cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`)
             .contains('Order placed').should('not.exist');

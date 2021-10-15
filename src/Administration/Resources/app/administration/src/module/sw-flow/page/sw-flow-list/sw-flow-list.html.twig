@@ -91,6 +91,15 @@
                     {% endblock %}
                 </template>
                 {% endblock %}
+
+                {% block sw_flow_list_grid_columns_event_name %}
+                <template #column-eventName="{ item }">
+                    <strong>
+                        {{ $tc('global.businessEvents.' + getTranslatedEventName(item.eventName)) }}
+                    </strong>
+                    <p>{{ item.eventName }}</p>
+                </template>
+                {% endblock %}
                 {% endblock %}
 
                 {% block sw_flow_list_grid_actions %}

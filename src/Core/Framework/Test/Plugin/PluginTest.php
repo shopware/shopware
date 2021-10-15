@@ -55,4 +55,11 @@ class PluginTest extends TestCase
 
         static::assertEquals(self::$symlinkedSwagTestPluginPath, $plugin->getBasePath());
     }
+
+    public function testGetBasePathIncludingSlash(): void
+    {
+        $plugin = new SwagTest(true, 'somePlugin', '/www/');
+
+        static::assertEquals('/www/somePlugin', $plugin->getBasePath());
+    }
 }

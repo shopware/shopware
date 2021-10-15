@@ -70,6 +70,9 @@ class ThemeFileResolver
         callable $configFileResolver,
         array $included = []
     ): FileCollection {
+        // convertPathsToAbsolute changes the path, this should not affect the passed configuration
+        $themeConfig = clone $themeConfig;
+
         /** @var FileCollection $files */
         $files = $configFileResolver($themeConfig, $onlySourceFiles);
 

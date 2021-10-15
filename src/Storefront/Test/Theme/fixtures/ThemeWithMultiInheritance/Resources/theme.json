@@ -1,6 +1,6 @@
 {
   "name": "ThemeWithMultiInheritance",
-  "author": "Shopware AG",
+  "author": "shopware AG",
   "views": [
     "@ThemeA",
     "@ThemeB",

@@ -163,4 +163,30 @@ class ThemeFileResolverTest extends TestCase
 
         static::assertTrue($pluginStyleIncluded);
     }
+
+    public function testResolveFilesDoesntAffectPassedArguments(): void
+    {
+        $themePluginBundle = new ThemeWithStorefrontSkinScss();
+        $storefrontBundle = new MockStorefront();
+
+        $factory = new StorefrontPluginConfigurationFactory($this->getContainer()->getParameter('kernel.project_dir'));
+        $config = $factory->createFromBundle($themePluginBundle);
+        $storefront = $factory->createFromBundle($storefrontBundle);
+
+        $configCollection = new StorefrontPluginConfigurationCollection();
+        $configCollection->add($config);
+        $configCollection->add($storefront);
+
+        $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
+        static::assertSame('src/Storefront/Test/Theme/fixtures/ThemeWithStorefrontSkinScss/Resources/app/storefront/src/scss/overrides.scss', $config->getStyleFiles()->first()->getFilepath());
+
+        (new ThemeFileResolver(new ThemeFileImporter($projectDir)))->resolveFiles(
+            $config,
+            $configCollection,
+            false
+        );
+
+        // Path is still relative
+        static::assertSame('src/Storefront/Test/Theme/fixtures/ThemeWithStorefrontSkinScss/Resources/app/storefront/src/scss/overrides.scss', $config->getStyleFiles()->first()->getFilepath());
+    }
 }

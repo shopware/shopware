@@ -51,7 +51,6 @@ class DeleteAddressRouteTest extends TestCase
             );
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
-
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $response['contextToken']);
     }
 
@@ -142,6 +141,61 @@ class DeleteAddressRouteTest extends TestCase
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
         static::assertSame('CHECKOUT__CUSTOMER_ADDRESS_IS_DEFAULT', $response['errors'][0]['code']);
+    }
+
+    /**
+     * @group mysample
+     */
+    public function testDeleteActiveAddress(): void
+    {
+        $data = [
+            'salutationId' => $this->getValidSalutationId(),
+            'firstName' => 'Test',
+            'lastName' => 'Test',
+            'street' => 'Test',
+            'city' => 'Test',
+            'zipcode' => 'Test',
+            'countryId' => $this->getValidCountryId(),
+        ];
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/address',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                \json_encode($data)
+            );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+        $addressId = $response['id'];
+
+        $contextData = [
+            'billingAddressId' => $addressId,
+            'shippingAddressId' => $addressId,
+        ];
+
+        $this->browser
+        ->request(
+            'PATCH',
+            '/store-api/context',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            \json_encode($contextData)
+        );
+
+        $this->browser
+            ->request(
+                'DELETE',
+                '/store-api/account/address/' . $addressId
+            );
+
+        static::assertNotSame(204, $this->browser->getResponse()->getStatusCode());
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertSame('CHECKOUT__CUSTOMER_ADDRESS_IS_ACTIVE', $response['errors'][0]['code']);
     }
 
     public function testDeleteNewCreatedAddressGuest(): void

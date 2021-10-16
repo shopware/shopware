@@ -4,6 +4,7 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use OpenApi\Annotations as OA;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Exception\CannotDeleteActiveAddressException;
 use Shopware\Core\Checkout\Customer\Exception\CannotDeleteDefaultAddressException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -72,6 +73,11 @@ An automatic fallback is not applied.",
     public function delete(string $addressId, SalesChannelContext $context, CustomerEntity $customer): NoContentResponse
     {
         $this->validateAddress($addressId, $context, $customer);
+
+        if($addressId === $context->getCustomer()->getActiveBillingAddress()->getId()
+            || $addressId === $context->getCustomer()->getActiveShippingAddress()->getId()) {
+            throw new CannotDeleteActiveAddressException($addressId);
+        }
 
         if ($addressId === $customer->getDefaultBillingAddressId()
             || $addressId === $customer->getDefaultShippingAddressId()) {

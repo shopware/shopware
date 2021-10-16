@@ -376,7 +376,7 @@
     "finishUpdateHeader": "Vielen Dank für die Aktualisierung Ihrer Bestellung!",
     "finishPaymentHeader": "Die Zahlungsart Ihrer Bestellung wurde zu \"%paymentName%\" geändert!",
     "finishInfoHeader": "Informationen",
-    "finishInfoOrdernumber": "Ihre Bestellnummer:",
+    "finishInfoOrdernumber": "Ihre Bestellnummer: ",
     "finishInfoConfirmationMail": "Bestellbestätigungs-E-Mail wurde verschickt.",
     "finishButtonBackToShop": "Zurück zum Shop",
     "finishChangePayment":  "Zahlungsart ändern",

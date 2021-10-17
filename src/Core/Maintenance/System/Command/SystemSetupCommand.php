@@ -182,7 +182,7 @@ class SystemSetupCommand extends Command
         };
 
         $dbUser = $io->ask('Database user', 'app', $emptyValidation);
-        $dbPass = $io->askHidden('Database password');
+        $dbPass = $io->askHidden('Database password') ?: '';
         $dbHost = $io->ask('Database host', 'localhost', $emptyValidation);
         $dbPort = $io->ask('Database port', '3306', $emptyValidation);
         $dbName = $io->ask('Database name', 'shopware', $emptyValidation);

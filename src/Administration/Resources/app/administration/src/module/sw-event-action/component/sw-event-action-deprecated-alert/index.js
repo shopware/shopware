@@ -14,6 +14,14 @@ Component.register('sw-event-action-deprecated-alert', {
         'repositoryFactory',
     ],
 
+    props: {
+        showAtTop: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+    },
+
     data() {
         return {
             showAlert: false,
@@ -32,7 +40,10 @@ Component.register('sw-event-action-deprecated-alert', {
 
         userSettingCriteria() {
             const criteria = new Criteria();
-            const configurationKey = 'deprecatedAlert.businessEvent';
+            const configurationKey = this.showAtTop
+                ? 'deprecatedAlert.businessEvent.atTop'
+                : 'deprecatedAlert.businessEvent.atBottom';
+            console.log(configurationKey);
             criteria.addFilter(Criteria.equals('key', configurationKey));
             criteria.addFilter(Criteria.equals('userId', this.currentUser?.id));
 
@@ -61,7 +72,9 @@ Component.register('sw-event-action-deprecated-alert', {
 
         createUserSetting() {
             const newDeprecatedAlert = this.userConfigRepository.create();
-            newDeprecatedAlert.key = 'deprecatedAlert.businessEvent';
+            newDeprecatedAlert.key = this.showAtTop
+                ? 'deprecatedAlert.businessEvent.atTop'
+                : 'deprecatedAlert.businessEvent.atBottom';
             newDeprecatedAlert.userId = this.currentUser?.id;
             this.currentSetting = newDeprecatedAlert;
         },

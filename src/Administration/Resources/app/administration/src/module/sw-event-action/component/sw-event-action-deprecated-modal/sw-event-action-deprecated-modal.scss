@@ -1,6 +1,10 @@
 @import "~scss/variables";
 
 .sw-event-action-deprecated-modal {
+    &.sw-modal.sw-modal--large .sw-modal__dialog {
+        max-width: 1024px;
+    }
+
     &__content-title {
         font-weight: bold;
     }
@@ -25,7 +29,7 @@
 
         img {
             width: 100%;
-            height: 100%;
+            height: auto;
         }
     }
 }

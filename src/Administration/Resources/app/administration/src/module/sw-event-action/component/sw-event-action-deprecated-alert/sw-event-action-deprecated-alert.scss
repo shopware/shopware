@@ -9,6 +9,18 @@
     margin: 0 auto;
     z-index: 1000;
 
+    &.is--top {
+        position: relative;
+        left: auto;
+        right: auto;
+        bottom: auto;
+        width: 800px;
+
+        .sw-alert__message {
+            margin-left: 20px;
+        }
+    }
+
     .sw-alert__message {
         font-size: $font-size-small;
         color: $color-darkgray-200;
@@ -23,5 +35,21 @@
         line-height: 22px;
         font-size: $font-size-small;
         margin-top: 3px;
+    }
+}
+
+@media screen and (max-width: 1360px) {
+    .sw-event-action-deprecated-alert {
+        &.is--top {
+            max-width: 770px;
+        }
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .sw-event-action-deprecated-alert {
+        &.is--top {
+            width: auto;
+        }
     }
 }

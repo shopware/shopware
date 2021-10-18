@@ -45,6 +45,7 @@
             <argument type="service" id="router"/>
             <argument type="service" id="Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerRegistry"/>
             <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
 
         <service id="shopware.jwt_signer" class="Lcobucci\JWT\Signer\Rsa\Sha256"/>

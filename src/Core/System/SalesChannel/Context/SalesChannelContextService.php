@@ -95,6 +95,10 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
             $session[self::ORIGINAL_CONTEXT] = $parameters->getOriginalContext();
         }
 
+        if ($parameters->getCustomerId() !== null) {
+            $session[self::CUSTOMER_ID] = $parameters->getCustomerId();
+        }
+
         $context = $this->factory->create($token, $parameters->getSalesChannelId(), $session);
 
         $result = $this->ruleLoader->loadByToken($context, $token);

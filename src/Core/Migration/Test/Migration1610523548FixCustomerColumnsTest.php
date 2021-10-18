@@ -139,8 +139,6 @@ class Migration1610523548FixCustomerColumnsTest extends TestCase
     private function insertTestCustomer(): void
     {
         $id = Uuid::randomHex();
-        $shippingAddressId = Uuid::randomHex();
-        $billingAddressId = Uuid::randomHex();
         $salutationId = $this->getSalutationId();
 
         $customer = [
@@ -154,8 +152,26 @@ class Migration1610523548FixCustomerColumnsTest extends TestCase
             'defaultPaymentMethodId' => $this->getDefaultPaymentMethodId(),
             'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
             'salesChannelId' => TestDefaults::SALES_CHANNEL,
-            'defaultBillingAddressId' => $billingAddressId,
-            'defaultShippingAddressId' => $shippingAddressId,
+            'defaultShippingAddress' => [
+                'id' => UUID::randomHex(),
+                'firstName' => 'Max',
+                'lastName' => 'Mustermann',
+                'street' => 'Musterstraße 1',
+                'city' => 'Schoöppingen',
+                'zipcode' => '12345',
+                'salutationId' => $this->getValidSalutationId(),
+                'countryId' => $this->getValidCountryId(),
+            ],
+            'defaultBillingAddress' => [
+                'id' => Uuid::randomHex(),
+                'firstName' => 'Max',
+                'lastName' => 'Mustermann',
+                'street' => 'Musterstraße 1',
+                'city' => 'Schoöppingen',
+                'zipcode' => '12345',
+                'salutationId' => $this->getValidSalutationId(),
+                'countryId' => $this->getValidCountryId(),
+            ],
             'doubleOptInRegistration' => true,
             'doubleOptInEmailSentDate' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
             'doubleOptInConfirmDate' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),

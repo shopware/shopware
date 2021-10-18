@@ -10,6 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -24,10 +27,16 @@ class CustomerGroupRegistrationActionController
 
     private EventDispatcherInterface $eventDispatcher;
 
-    public function __construct(EntityRepositoryInterface $customerRepository, EventDispatcherInterface $eventDispatcher)
-    {
+    private SalesChannelContextServiceInterface $salesChannelContextService;
+
+    public function __construct(
+        EntityRepositoryInterface $customerRepository,
+        EventDispatcherInterface $eventDispatcher,
+        SalesChannelContextServiceInterface $salesChannelContextService
+    ) {
         $this->customerRepository = $customerRepository;
         $this->eventDispatcher = $eventDispatcher;
+        $this->salesChannelContextService = $salesChannelContextService;
     }
 
     /**
@@ -61,10 +70,22 @@ class CustomerGroupRegistrationActionController
         $this->customerRepository->update($updateData, $context);
 
         foreach ($customers as $customer) {
+            $salesChannelContext = $this->salesChannelContextService->get(
+                new SalesChannelContextServiceParameters(
+                    $customer->getSalesChannelId(),
+                    Uuid::randomHex(),
+                    $context->getLanguageId(),
+                    null,
+                    null,
+                    $context,
+                    $customer->getId(),
+                )
+            );
+
             $this->eventDispatcher->dispatch(new CustomerGroupRegistrationAccepted(
                 $customer,
                 $customer->getRequestedGroup(),
-                $context
+                $salesChannelContext->getContext()
             ));
         }
 
@@ -101,10 +122,22 @@ class CustomerGroupRegistrationActionController
         $this->customerRepository->update($updateData, $context);
 
         foreach ($customers as $customer) {
+            $salesChannelContext = $this->salesChannelContextService->get(
+                new SalesChannelContextServiceParameters(
+                    $customer->getSalesChannelId(),
+                    Uuid::randomHex(),
+                    $context->getLanguageId(),
+                    null,
+                    null,
+                    $context,
+                    $customer->getId(),
+                )
+            );
+
             $this->eventDispatcher->dispatch(new CustomerGroupRegistrationDeclined(
                 $customer,
                 $customer->getRequestedGroup(),
-                $context
+                $salesChannelContext->getContext()
             ));
         }
 

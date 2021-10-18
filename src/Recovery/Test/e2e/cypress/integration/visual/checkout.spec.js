@@ -52,11 +52,11 @@ describe('Checkout: Visual tests', () => {
         cy.contains(continueShopping).should('be.visible');
         cy.contains(continueShopping).click();
 
+        cy.get('.header-cart').click();
+
+        cy.get('.offcanvas').should('be.visible');
         cy.wait('@cartInfo').its('response.statusCode').should('equal', 200);
         cy.get('.header-cart-total').contains('64');
-
-        cy.get('.header-cart').click();
-        cy.get('.offcanvas').should('be.visible');
 
         // Take snapshot for visual testing on desktop
         cy.takeSnapshot(`Checkout - Offcanvas`,

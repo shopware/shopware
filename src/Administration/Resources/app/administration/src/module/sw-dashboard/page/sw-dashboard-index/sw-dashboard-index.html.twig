@@ -37,9 +37,7 @@
                     v-if="mappedProperties"
                     class="sw-dashboard-index__campaign-banner"
                 >
-                    <sw-campaign-banner
-                        v-bind="mappedProperties"
-                    />
+                    <sw-campaign-banner v-bind="mappedProperties" />
                 </div>
             </template>
         </sw-campaign-property-mapping>
@@ -273,15 +271,32 @@
             {% block sw_dashboard_index_content_statistics_headline %}
             <div class="sw-dashboard-index__card-headline">
                 {% block sw_dashboard_index_content_statistics_headline_title %}
-                <h1>{{ $tc('sw-dashboard.monthStats.headline') }}</h1>
+                <h1>
+                    {{ $tc('sw-dashboard.monthStats.headline') }}
+                    <span class="sw-dashboard-index__card-headline-timerange">
+                        ({{ dateAgo.toUTCString() | date({ minute: undefined, hour: undefined, month: 'short', year: undefined }) }}.
+                        -
+                        {{ today.toUTCString() | date({ minute: undefined, hour: undefined, month: 'short', year: undefined }) }}.)
+                    </span>
+                </h1>
                 {% endblock %}
 
                 {% block sw_dashboard_index_content_statistics_headline_date %}
-                <span class="sw-dashboard-index__card-headline-timerange">
-                    {{ dateAgo.toUTCString() | date({ minute: undefined, hour: undefined, month: 'short', year: undefined }) }}
-                    -
-                    {{ today.toUTCString() | date({ minute: undefined, hour: undefined, month: 'short', year: undefined }) }}
-                </span>
+                <div class="sw-dashboard-index__card-headline-select">
+                    <sw-select-field
+                        v-model="statisticDateRanges.value"
+                        size="small"
+                        @change="getHistoryOrderData"
+                    >
+                        <option
+                            v-for="(value, option) in statisticDateRanges.options"
+                            :key="option"
+                            :value="option"
+                        >
+                            {{ $tc(`sw-dashboard.monthStats.dateRanges.${option}`) }}
+                        </option>
+                    </sw-select-field>
+                </div>
                 {% endblock %}
             </div>
             {% endblock %}
@@ -291,9 +306,9 @@
                 {% block sw_dashboard_index_content_statistics_count_chart_count %}
                 <sw-chart
                     type="line"
-                    :series="orderCountMonthSeries"
+                    :series="orderCountSeries"
                     :options="chartOptionsOrderCount"
-                    fill-empty-dates
+                    :fill-empty-values="getTimeUnitInterval"
                     sort
                 />
                 {% endblock %}
@@ -305,9 +320,9 @@
                 {% block sw_dashboard_index_content_statistics_count_chart_sum %}
                 <sw-chart
                     type="line"
-                    :series="orderSumMonthSeries"
+                    :series="orderSumSeries"
                     :options="chartOptionsOrderSum"
-                    fill-empty-dates
+                    :fill-empty-values="getTimeUnitInterval"
                     sort
                 />
                 {% endblock %}

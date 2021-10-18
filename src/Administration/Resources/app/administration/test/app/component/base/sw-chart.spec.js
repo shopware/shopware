@@ -18,47 +18,13 @@ const chartSeries = [
     { name: 'Another demo Serie', data: [12, 24, 35, 58, 88, 95, 125, 145, 148] }
 ];
 
-// generate function
-const generateRandomDateSeries = (numberOfSeries = 1, numberOfDates = 30) => {
-    const demoDateSeries = [];
-
-    for (let i = 0; i < numberOfSeries; i += 1) {
-        demoDateSeries.push({
-            name: `Demo dates ${i}`,
-            data: []
-        });
-    }
-
-    let today;
-    let seriesNumber;
-    let randomDate;
-    for (let i = 0; i < numberOfDates; i += 1) {
-        today = new Date();
-        today.setHours(0, 0, 0, 0);
-        seriesNumber = Math.floor(Math.random() * numberOfSeries);
-        randomDate = new Date();
-        randomDate.setHours(0, 0, 0, 0);
-
-        // get random date in the double amount of numberOfDates
-        randomDate.setDate(randomDate.getDate() - Math.floor(Math.random() * (numberOfDates * 2)));
-
-        // push random number on random date
-        demoDateSeries[seriesNumber].data.push({
-            x: randomDate.getTime(),
-            y: Math.random() * 100
-        });
-    }
-
-    return demoDateSeries;
-};
-
 // initial component setup
-const setup = ({ type, series, options, fillEmptyDates, sort } = {}) => {
+const setup = ({ type, series, options, fillEmptyValues, sort } = {}) => {
     const propsData = {
         type: type || 'line',
         series: series || chartSeries,
         options: options || chartOptions,
-        fillEmptyDates: fillEmptyDates || false,
+        fillEmptyValues: fillEmptyValues,
         sort: sort || false
     };
 
@@ -104,57 +70,110 @@ describe('components/base/sw-chart', () => {
         expect(wrapper.vm.mergedOptions.tooltip.theme).toMatch('dark');
     });
 
-    it('should fill empty dates', async () => {
-        const numberOfSeries = 2;
+    it('should fill empty day values', async () => {
         const numberOfDates = 30;
-        const demoDateSeries = generateRandomDateSeries(numberOfSeries, numberOfDates);
 
         const dateAgo = new Date();
         dateAgo.setHours(0, 0, 0, 0);
-        dateAgo.setDate(dateAgo.getDate() - (numberOfDates * 2));
+        dateAgo.setDate(dateAgo.getDate() - numberOfDates);
 
         const wrapper = setup({
-            series: demoDateSeries,
+            series: [{
+                name: 'Demo dates',
+                data: [
+                    {
+                        x: new Date().setDate(new Date().getDate() - 20),
+                        y: Math.random() * 100
+                    }
+                ]
+            }],
             options: {
                 xaxis: { type: 'datetime', min: dateAgo }
             },
-            fillEmptyDates: true
+            fillEmptyValues: 'day'
         });
 
-        // Expect that the number of dates are greater or equal the double amount of number of dates
-        expect(wrapper.vm.optimizedSeries[0].data.length).toBeGreaterThanOrEqual(numberOfDates * 2);
-
-        // check if the number of generated items matches the optimizes series
-        const seriesOneLength = demoDateSeries[0].data.length;
-        expect(wrapper.vm.optimizedSeries[0].data).not.toHaveLength(seriesOneLength);
-
-        const seriesTwoLength = demoDateSeries[1].data.length;
-        expect(wrapper.vm.optimizedSeries[1].data).not.toHaveLength(seriesTwoLength);
+        // Expect that the number of values are greater or equal the double amount of number of dates
+        expect(wrapper.vm.optimizedSeries[0].data.length).toEqual(numberOfDates + 1);
     });
 
-    it('should not fill empty dates', async () => {
-        const numberOfSeries = 2;
-        const numberOfDates = 30;
-        const demoDateSeries = generateRandomDateSeries(numberOfSeries, numberOfDates);
+    it('should fill empty hour values', async () => {
+        const numberOfHours = 24;
 
         const dateAgo = new Date();
-        dateAgo.setHours(0, 0, 0, 0);
-        dateAgo.setDate(dateAgo.getDate() - (numberOfDates * 2));
+        dateAgo.setHours(dateAgo.getHours() - numberOfHours);
 
         const wrapper = setup({
-            series: demoDateSeries,
+            series: [{
+                name: 'Demo dates',
+                data: [
+                    {
+                        x: new Date().setHours(new Date().getHours() - 20),
+                        y: Math.random() * 100
+                    }
+                ]
+            }],
             options: {
                 xaxis: { type: 'datetime', min: dateAgo }
             },
-            fillEmptyDates: false
+            fillEmptyValues: 'hour'
         });
 
-        // check if the number of generated items matches the optimizes series
-        const seriesOneLength = demoDateSeries[0].data.length;
-        expect(wrapper.vm.optimizedSeries[0].data).toHaveLength(seriesOneLength);
+        // Expect that the number of values are greater or equal the double amount of number of dates
+        expect(wrapper.vm.optimizedSeries[0].data.length).toEqual(numberOfHours + 1);
+    });
 
-        const seriesTwoLength = demoDateSeries[1].data.length;
-        expect(wrapper.vm.optimizedSeries[1].data).toHaveLength(seriesTwoLength);
+    it('should fill empty minute values', async () => {
+        const numberOfMinutes = 60;
+
+        const dateAgo = new Date();
+        dateAgo.setMinutes(dateAgo.getMinutes() - numberOfMinutes);
+
+        const wrapper = setup({
+            series: [{
+                name: 'Demo dates',
+                data: [
+                    {
+                        x: new Date().setMinutes(new Date().getMinutes() - 20),
+                        y: Math.random() * 100
+                    }
+                ]
+            }],
+            options: {
+                xaxis: { type: 'datetime', min: dateAgo }
+            },
+            fillEmptyValues: 'minute'
+        });
+
+        // Expect that the number of values are greater or equal the double amount of number of dates
+        expect(wrapper.vm.optimizedSeries[0].data.length).toEqual(numberOfMinutes + 1);
+    });
+
+    it('should not fill empty values', async () => {
+        const numberOfDates = 30;
+
+        const dateAgo = new Date();
+        dateAgo.setHours(0, 0, 0, 0);
+        dateAgo.setDate(dateAgo.getDate() - numberOfDates);
+
+        // if fillEmptyValues is not present, there should be no additional values
+        const wrapper = setup({
+            series: [{
+                name: 'Demo dates',
+                data: [
+                    {
+                        x: new Date().setDate(new Date().getDate() - 20),
+                        y: Math.random() * 100
+                    }
+                ]
+            }],
+            options: {
+                xaxis: { type: 'datetime', min: dateAgo }
+            }
+        });
+
+        // Expect that the number of values are greater or equal the double amount of number of dates
+        expect(wrapper.vm.optimizedSeries[0].data.length).toEqual(1);
     });
 
     it('should sort the series', async () => {

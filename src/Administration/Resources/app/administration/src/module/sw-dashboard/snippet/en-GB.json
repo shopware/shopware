@@ -72,7 +72,14 @@
       "orderTime": "Time"
     },
     "monthStats": {
-      "headline": "Statistics over the last 30 days",
+      "headline": "Statistics",
+      "dateRanges": {
+        "30Days": "last 30 Days",
+        "14Days": "last 14 Days",
+        "7Days": "last 7 Days",
+        "yesterday": "since yesterday",
+        "24Hours": "last 24h"
+      },
       "orderNumber": "Orders",
       "turnover": "Turnover",
       "numberOfOrders": "Count",

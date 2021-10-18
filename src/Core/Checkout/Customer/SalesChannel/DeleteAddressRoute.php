@@ -74,14 +74,14 @@ An automatic fallback is not applied.",
     {
         $this->validateAddress($addressId, $context, $customer);
 
-        if($addressId === $context->getCustomer()->getActiveBillingAddress()->getId()
-            || $addressId === $context->getCustomer()->getActiveShippingAddress()->getId()) {
-            throw new CannotDeleteActiveAddressException($addressId);
+        if ($addressId === $customer->getDefaultBillingAddressId()
+        || $addressId === $customer->getDefaultShippingAddressId()) {
+            throw new CannotDeleteDefaultAddressException($addressId);
         }
 
-        if ($addressId === $customer->getDefaultBillingAddressId()
-            || $addressId === $customer->getDefaultShippingAddressId()) {
-            throw new CannotDeleteDefaultAddressException($addressId);
+        if($addressId === $context->getCustomer()->getActiveBillingAddress()->getId()
+        || $addressId === $context->getCustomer()->getActiveShippingAddress()->getId()) {
+            throw new CannotDeleteActiveAddressException($addressId);
         }
 
         $this->addressRepository->delete([['id' => $addressId]], $context->getContext());

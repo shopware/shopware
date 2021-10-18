@@ -119,6 +119,7 @@
             <argument type="service" id="Shopware\Core\Content\Flow\Indexing\FlowPayloadUpdater"/>
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="messenger.bus.shopware"/>
             <tag name="shopware.entity_indexer"/>
             <tag name="kernel.event_subscriber"/>
         </service>

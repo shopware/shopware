@@ -14,7 +14,13 @@ import 'src/app/component/form/sw-field';
 import 'src/app/component/form/sw-number-field';
 import 'src/app/component/form/sw-text-field';
 import 'src/app/component/form/field-base/sw-contextual-field';
+import 'src/app/component/form/sw-list-price-field';
+import 'src/app/component/form/sw-price-field';
+import 'src/app/component/form/select/entity/sw-entity-single-select';
 import Vuex from 'vuex';
+import flushPromises from 'flush-promises';
+
+const { EntityCollection } = Shopware.Data;
 
 describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
     Shopware.State.registerModule('swProductDetail', productStore);
@@ -59,7 +65,11 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
                 'sw-number-field': Shopware.Component.build('sw-number-field'),
                 'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
                 'sw-context-button': true,
-                'sw-context-menu-item': true
+                'sw-context-menu-item': true,
+                'sw-list-price-field': Shopware.Component.build('sw-list-price-field'),
+                'sw-price-field': Shopware.Component.build('sw-price-field'),
+                'sw-entity-single-select': Shopware.Component.build('sw-entity-single-select'),
+                'sw-select-base': Shopware.Component.build('sw-select-base')
             },
             provide: {
                 repositoryFactory: {
@@ -74,7 +84,14 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
                             rules.total = rules.length;
 
                             return {
-                                search: () => Promise.resolve(rules)
+                                search: () => Promise.resolve(rules),
+                                get: () => Promise.resolve(rules)
+                            };
+                        }
+
+                        if (repositoryName === 'product_price') {
+                            return {
+                                create: () => ({ search: () => Promise.resolve() })
                             };
                         }
 
@@ -193,5 +210,85 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
         // check if input field has a value of 5 and is not disabled
         expect(secondQuantityField.element.value).toBe('5');
         expect(secondQuantityField.attributes('disabled')).toBe(undefined);
+    });
+
+    it('should show default price', async () => {
+        const entities = [
+            {
+                ruleId: 'rule1',
+                quantityStart: 1,
+                quantityEnd: 4,
+                price: [{
+                    currencyId: 'euro',
+                    gross: 1,
+                    linked: false,
+                    net: 1,
+                    listPrice: null
+                }]
+            }
+        ];
+
+        Shopware.State.commit('swProductDetail/setProduct', {
+            id: 'productId',
+            parentId: null,
+            prices: new EntityCollection(
+                '/test-price',
+                'product_price',
+                null,
+                { isShopwareContext: true },
+                entities,
+                entities.length,
+                null
+            )
+        });
+
+        Shopware.State.commit('swProductDetail/setParentProduct', {
+            id: 'parentProductId'
+        });
+
+        Shopware.State.commit('swProductDetail/setCurrencies', [
+            { id: 'euro', translated: { name: 'Euro' }, isSystemDefault: true, isoCode: 'EUR' }
+        ]);
+
+        wrapper = await createWrapper();
+        const rulesEntities = [
+            {
+                id: 'rule1',
+                name: 'customers'
+            },
+            {
+                id: 'rule2',
+                name: 'products'
+            }
+        ];
+
+        await wrapper.setData({
+            rules: new EntityCollection(
+                '/test-rule',
+                'rule',
+                null,
+                { isShopwareContext: true },
+                rulesEntities,
+                rulesEntities.length,
+                null
+            )
+        });
+
+        await wrapper.setProps({
+            isSetDefaultPrice: true
+        });
+
+        wrapper.vm.$parent.$el.children.item(0).scrollTo = () => {};
+
+        await wrapper.vm.$nextTick();
+
+        const firstPriceFieldGross = wrapper.find('.context-price-group-0 .sw-data-grid__row--0 .sw-data-grid__cell--price-EUR .sw-list-price-field__price input[name="sw-price-field-gross"]');
+        expect(firstPriceFieldGross.element.value).toBe('1');
+
+        await wrapper.vm.onAddNewPriceGroup('rule2');
+        await flushPromises();
+
+        const secondPriceFieldGross = wrapper.find('.context-price-group-1 .sw-data-grid__row--0 .sw-data-grid__cell--price-EUR .sw-list-price-field__price input[name="sw-price-field-gross"]');
+        expect(secondPriceFieldGross.element.value).toBe('0');
     });
 });

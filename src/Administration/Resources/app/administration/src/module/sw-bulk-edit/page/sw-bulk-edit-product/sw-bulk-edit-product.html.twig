@@ -106,7 +106,13 @@
                     :title="$tc('sw-bulk-edit.product.advancedPrices.cardTitle')"
                     @modal-close="displayAdvancePricesModal = false"
                 >
-                    <sw-product-detail-context-prices />
+                    <template v-if="feature.isActive('FEATURE_NEXT_17261')">
+                        <sw-product-detail-context-prices :is-set-default-price="true" />
+                    </template>
+
+                    <template v-if="!feature.isActive('FEATURE_NEXT_17261')">
+                        <sw-product-detail-context-prices />
+                    </template>
 
                     {% block sw_bulk_edit_product_content_advanced_prices_modal_footer %}
                     <template #modal-footer>

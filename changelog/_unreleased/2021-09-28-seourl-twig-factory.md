@@ -1,12 +1,13 @@
 ---
-title:              Factory to build Seo Url Twig Environment      
-author:             Björn Herzke                          
-author_email:       bjoern.herzke@brandung.de                   
-author_github:      @wrongspot
+title: Factory to build Seo Url Twig Environment
+issue: NEXT-17849
+author: Björn Herzke                          
+author_email: bjoern.herzke@brandung.de                   
+author_github: @wrongspot
 ---
 # Core
-*  Added new class `src/Core/Content/Seo/SeoUrlTwigFactory.php`
-
+* Added new class `src/Core/Content/Seo/SeoUrlTwigFactory.php`
+___
 # Upgrade Information
 
 ### Create own SeoUrl Twig Extension

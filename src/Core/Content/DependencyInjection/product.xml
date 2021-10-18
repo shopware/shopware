@@ -136,8 +136,20 @@
             <argument type="service" id="event_dispatcher"/>
         </service>
 
-        <service id="Shopware\Core\Content\Product\SalesChannelProductBuilder">
+        <service id="Shopware\Core\Content\Product\AbstractPropertyGroupSorter" class="Shopware\Core\Content\Product\PropertyGroupSorter"/>
+
+        <service id="Shopware\Core\Content\Product\AbstractProductMaxPurchaseCalculator" class="Shopware\Core\Content\Product\ProductMaxPurchaseCalculator">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\AbstractIsNewDetector" class="Shopware\Core\Content\Product\IsNewDetector">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Product\SalesChannelProductBuilder">
+            <argument type="service" id="Shopware\Core\Content\Product\AbstractPropertyGroupSorter"/>
+            <argument type="service" id="Shopware\Core\Content\Product\AbstractProductMaxPurchaseCalculator"/>
+            <argument type="service" id="Shopware\Core\Content\Product\AbstractIsNewDetector"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\ProductVariationBuilder"/>

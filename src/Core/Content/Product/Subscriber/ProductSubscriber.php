@@ -2,13 +2,13 @@
 
 namespace Shopware\Core\Content\Product\Subscriber;
 
+use Shopware\Core\Content\Product\AbstractProductVariationBuilder;
+use Shopware\Core\Content\Product\AbstractSalesChannelProductBuilder;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceContainer;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\ProductEvents;
-use Shopware\Core\Content\Product\ProductVariationBuilder;
 use Shopware\Core\Content\Product\SalesChannel\Price\AbstractProductPriceCalculator;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
-use Shopware\Core\Content\Product\SalesChannelProductBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelEntityLoadedEvent;
@@ -16,15 +16,15 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class ProductSubscriber implements EventSubscriberInterface
 {
-    private SalesChannelProductBuilder $salesChannelProductBuilder;
+    private AbstractSalesChannelProductBuilder $salesChannelProductBuilder;
 
-    private ProductVariationBuilder $productVariationBuilder;
+    private AbstractProductVariationBuilder $productVariationBuilder;
 
     private AbstractProductPriceCalculator $calculator;
 
     public function __construct(
-        SalesChannelProductBuilder $salesChannelProductBuilder,
-        ProductVariationBuilder $productVariationBuilder,
+        AbstractSalesChannelProductBuilder $salesChannelProductBuilder,
+        AbstractProductVariationBuilder $productVariationBuilder,
         AbstractProductPriceCalculator $calculator
     ) {
         $this->salesChannelProductBuilder = $salesChannelProductBuilder;

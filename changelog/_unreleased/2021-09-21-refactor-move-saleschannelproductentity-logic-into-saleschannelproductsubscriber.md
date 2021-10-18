@@ -6,7 +6,9 @@ author_email: max@swk-web.com
 author_github: @aragon999
 ---
 # Core
-* Move the logic of sorting product properties and cheapest price computation from the event `product.loaded` to the event `sales_channel.product.loaded`, since it will be only computed for `Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity`
-* Remove the `Shopware\Core\Content\Product\SalesChannel\SalesChannelProductSubscriber` and merge the logic into `Shopware\Core\Content\Product\Subscriber\ProductSubscriber`
-* Add `Shopware\Core\Content\Product\ProductVariationBuilder` to build variations of the product
-* Add `Shopware\Core\Content\Product\SalesChannelProductBuilder` to build different properties which are needed for the `SalesChannelProductEntity`
+* Removed class `Shopware\Core\Content\Product\SalesChannel\SalesChannelProductSubscriber` and merge the logic into `Shopware\Core\Content\Product\Subscriber\ProductSubscriber`, since it will be only computed for `Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity`.
+* Added class `Shopware\Core\Content\Product\ProductVariationBuilder` to build variations of the product.
+* Added class `Shopware\Core\Content\Product\SalesChannelProductBuilder` to build different properties which are needed for the `SalesChannelProductEntity`.
+* Added class `Shopware\Core\Content\Product\IsNewDetector`.
+* Added class `Shopware\Core\Content\Product\PropertyGroupSorter`.
+* Added class `Shopware\Core\Content\Product\ProductMaxPurchaseCalculator`.

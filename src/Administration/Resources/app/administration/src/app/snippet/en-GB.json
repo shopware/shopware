@@ -867,9 +867,7 @@
       "buttonVariantPrimarySmall": "Primary (small)",
       "buttonVariantSecondarySmall": "Secondary (small)",
       "placeholder": "Enter URL...",
-      "linkTo": "Link to",
-      "insert": "Insert",
-      "remove": "Remove"
+      "linkTo": "Link to"
     },
     "table": {
       "addHeading": "Add table heading",

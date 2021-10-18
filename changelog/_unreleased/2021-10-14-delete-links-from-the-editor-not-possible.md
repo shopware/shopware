@@ -9,4 +9,4 @@ author_email: n.limberg@shopware.com
 * Added the new class `sw-text-editor-toolbar-button__link-menu-buttons-button-remove` in `sw-text-editor-toolbar-button.html.twig`
 * Added method `onRemoveLink` in `sw-text-editor/index.js` to implement the new link removal functionality
 * Added handler for the new `removeLink` event emited in the `onButtonClick` method in `sw-text-editor.html.twig`
-* Added snippit for the new button text `sw-text-editor-toolbar.link.remove`
+* Removed `sw-text-editor-toolbar.link.insert` snippet and replaced it with snippets from the `global.default` namespace

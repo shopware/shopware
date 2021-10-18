@@ -107,14 +107,14 @@
             type="text"
             :placeholder="$tc('sw-text-editor-toolbar.link.placeholder')"
         />
-        <sw-field
+        <sw-switch-field
             v-model="buttonConfig.newTab"
-            type="switch"
+            class="sw-text-editor-toolbar-button__link-menu-switch sw-text-editor-toolbar-button__link-menu-new-tab"
             :label="$tc('sw-text-editor-toolbar.link.openInNewTab')"
         />
-        <sw-field
+        <sw-switch-field
             v-model="buttonConfig.displayAsButton"
-            type="switch"
+            class="sw-text-editor-toolbar-button__link-menu-switch sw-text-editor-toolbar-button__link-menu-display-button"
             :label="$tc('sw-text-editor-toolbar.link.displayAsButton')"
         />
         <sw-field
@@ -129,13 +129,13 @@
             {% block sw_text_editor_toolbar_button_link_menu_button_remove %}
             <sw-button
                 size="small"
-                variant="primary"
                 class="sw-text-editor-toolbar-button__link-menu-buttons-button-remove"
                 @click="handleButtonClick({ type: 'linkRemove' })"
             >
-                {{ $tc('sw-text-editor-toolbar.link.remove') }}
+                {{ $tc('global.default.remove') }}
             </sw-button>
             {% endblock %}
+
             {% block sw_text_editor_toolbar_button_link_menu_button_insert %}
             <sw-button
                 size="small"
@@ -143,7 +143,7 @@
                 class="sw-text-editor-toolbar-button__link-menu-buttons-button-insert"
                 @click="handleButtonClick(buttonConfig)"
             >
-                {{ $tc('sw-text-editor-toolbar.link.insert') }}
+                {{ $tc('global.default.add') }}
             </sw-button>
             {% endblock %}
             {% endblock %}

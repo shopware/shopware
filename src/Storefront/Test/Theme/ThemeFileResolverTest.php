@@ -178,7 +178,7 @@ class ThemeFileResolverTest extends TestCase
         $configCollection->add($storefront);
 
         $projectDir = $this->getContainer()->getParameter('kernel.project_dir');
-        static::assertSame('src/Storefront/Test/Theme/fixtures/ThemeWithStorefrontSkinScss/Resources/app/storefront/src/scss/overrides.scss', $config->getStyleFiles()->first()->getFilepath());
+        $currentPath = $config->getStyleFiles()->first()->getFilepath();
 
         (new ThemeFileResolver(new ThemeFileImporter($projectDir)))->resolveFiles(
             $config,
@@ -187,6 +187,6 @@ class ThemeFileResolverTest extends TestCase
         );
 
         // Path is still relative
-        static::assertSame('src/Storefront/Test/Theme/fixtures/ThemeWithStorefrontSkinScss/Resources/app/storefront/src/scss/overrides.scss', $config->getStyleFiles()->first()->getFilepath());
+        static::assertSame($currentPath, $config->getStyleFiles()->first()->getFilepath());
     }
 }

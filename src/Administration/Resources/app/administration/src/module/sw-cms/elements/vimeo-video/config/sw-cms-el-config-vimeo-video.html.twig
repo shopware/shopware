@@ -2,9 +2,9 @@
 <div class="sw-cms-el-config-vimeo-video">
 
     {% block sw_cms_element_vimeo_video_config_video_id %}
-    <sw-field
+    <sw-text-field
         v-model="videoID"
-        type="text"
+        class="sw-cms-el-config-vimeo-video__video-id"
         :label="$tc('sw-cms.elements.vimeoVideo.config.label.videoId')"
         :placeholder="$tc('sw-cms.elements.vimeoVideo.config.placeholder.videoId')"
     />
@@ -14,35 +14,31 @@
     <div class="sw-cms-el-config-vimeo-video__player-controls">
 
         {% block sw_cms_element_vimeo_video_config_autoplay %}
-        <sw-field
+        <sw-switch-field
             v-model="element.config.autoplay.value"
-            type="switch"
             :label="$tc('sw-cms.elements.vimeoVideo.config.label.autoPlay')"
             :help-text="$tc('sw-cms.elements.vimeoVideo.config.helpText.autoPlay')"
         />
         {% endblock %}
 
         {% block sw_cms_element_vimeo_video_config_do_not_track %}
-        <sw-field
+        <sw-switch-field
             v-model="element.config.doNotTrack.value"
-            type="switch"
             :label="$tc('sw-cms.elements.vimeoVideo.config.label.advancedPrivacy')"
             :help-text="$tc('sw-cms.elements.vimeoVideo.config.helpText.advancedPrivacy')"
         />
         {% endblock %}
 
         {% block sw_cms_element_vimeo_video_config_loop %}
-        <sw-field
+        <sw-switch-field
             v-model="element.config.loop.value"
-            type="switch"
             :label="$tc('sw-cms.elements.vimeoVideo.config.label.loop')"
         />
         {% endblock %}
 
         {% block sw_cms_element_vimeo_video_config_controls %}
-        <sw-field
+        <sw-switch-field
             v-model="element.config.controls.value"
-            type="switch"
             :label="$tc('sw-cms.elements.vimeoVideo.config.label.showControls')"
         />
         {% endblock %}
@@ -53,6 +49,7 @@
     {% block sw_cms_element_vimeo_video_config_color %}
     <sw-colorpicker
         v-model="element.config.color.value"
+        class="sw-cms-el-config-vimeo-video__color"
         :label="$tc('sw-cms.elements.vimeoVideo.config.label.controlsColor')"
         color-output="hex"
         :z-index="1001"
@@ -64,25 +61,22 @@
     <div class="sw-cms-el-config-vimeo-video__artist-information">
 
         {% block sw_cms_element_vimeo_video_config_byline %}
-        <sw-field
+        <sw-switch-field
             v-model="element.config.byLine.value"
-            type="switch"
             :label="$tc('sw-cms.elements.vimeoVideo.config.label.byLine')"
         />
         {% endblock %}
 
         {% block sw_cms_element_vimeo_video_config_portrait %}
-        <sw-field
+        <sw-switch-field
             v-model="element.config.portrait.value"
-            type="switch"
             :label="$tc('sw-cms.elements.vimeoVideo.config.label.showPortrait')"
         />
         {% endblock %}
 
         {% block sw_cms_element_vimeo_video_config_title %}
-        <sw-field
+        <sw-switch-field
             v-model="element.config.title.value"
-            type="switch"
             :label="$tc('sw-cms.elements.vimeoVideo.config.label.showTitle')"
         />
         {% endblock %}
@@ -92,9 +86,8 @@
 
     {% block sw_cms_element_vimeo_video_config_needs_confirmation %}
     <div class="sw-cms-el-config-vimeo-video__confirmation">
-        <sw-field
+        <sw-switch-field
             v-model="element.config.needsConfirmation.value"
-            type="switch"
             :label="$tc('sw-cms.elements.vimeoVideo.config.label.needsConfirmation')"
         />
     </div>

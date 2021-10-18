@@ -3,7 +3,9 @@
 namespace Shopware\Core\Content\Flow\Indexing;
 
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Flow\Dispatching\CachedFlowLoader;
 use Shopware\Core\Content\Flow\Dispatching\FlowBuilder;
+use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -14,10 +16,13 @@ class FlowPayloadUpdater
 
     private FlowBuilder $flowBuilder;
 
-    public function __construct(Connection $connection, FlowBuilder $flowBuilder)
+    private CacheInvalidator $cacheInvalidator;
+
+    public function __construct(Connection $connection, FlowBuilder $flowBuilder, CacheInvalidator $cacheInvalidator)
     {
         $this->connection = $connection;
         $this->flowBuilder = $flowBuilder;
+        $this->cacheInvalidator = $cacheInvalidator;
     }
 
     public function update(array $ids): array
@@ -73,6 +78,8 @@ class FlowPayloadUpdater
 
             $updated[$flowId] = ['payload' => $serialized, 'invalid' => $invalid];
         }
+
+        $this->cacheInvalidator->invalidate([CachedFlowLoader::KEY]);
 
         return $updated;
     }

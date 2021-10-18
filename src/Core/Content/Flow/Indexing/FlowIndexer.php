@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\Flow\Indexing;
 
-use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Flow\Events\FlowIndexerEvent;
 use Shopware\Core\Content\Flow\FlowDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
@@ -30,8 +29,6 @@ class FlowIndexer extends EntityIndexer implements EventSubscriberInterface
 
     private EventDispatcherInterface $eventDispatcher;
 
-    private Connection $connection;
-
     private MessageBusInterface $messageBus;
 
     public function __construct(
@@ -39,14 +36,12 @@ class FlowIndexer extends EntityIndexer implements EventSubscriberInterface
         EntityRepositoryInterface $repository,
         FlowPayloadUpdater $payloadUpdater,
         EventDispatcherInterface $eventDispatcher,
-        Connection $connection,
         MessageBusInterface $messageBus
     ) {
         $this->iteratorFactory = $iteratorFactory;
         $this->repository = $repository;
         $this->payloadUpdater = $payloadUpdater;
         $this->eventDispatcher = $eventDispatcher;
-        $this->connection = $connection;
         $this->messageBus = $messageBus;
     }
 

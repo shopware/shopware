@@ -164,13 +164,13 @@ $content-max-width: 960px;
 
         h1 {
             color: $color-darkgray-200;
-            font-size: ($font-size-default * 1.75);
+            font-size: $font-size-large;
+            line-height: 25px;
             font-weight: normal;
             margin-bottom: 0;
         }
 
         .sw-dashboard-index__card-headline-timerange {
-            font-size: ($font-size-default * 1.5);
             color: $color-gray-500;
         }
     }

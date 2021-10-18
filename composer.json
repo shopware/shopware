@@ -214,7 +214,9 @@
         "npm:e2e:storefront:bin": "export CYPRESS_shopwareRoot=\"$PWD\"; cd src/Storefront/Resources/app/storefront/test/e2e; export PATH=\"$PWD/node_modules/.bin/:$PATH\"; \"$CYPRESS_shopwareRoot\"/bin/exec-with-env ",
         "npm:e2e:storefront": "@npm:e2e:storefront:bin npm",
         "build:js:admin": [
-            "@npm:admin run build"
+            "@php bin/console bundle:dump",
+            "@npm:admin run build",
+            "@php bin/console assets:install"
         ],
         "build:js:storefront": [
             "@npm:storefront run production",

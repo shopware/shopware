@@ -15,6 +15,16 @@ Component.register('sw-dashboard-index', {
             todayOrderData: [],
             todayOrderDataLoaded: false,
             cachedHeadlineGreetingKey: null,
+            statisticDateRanges: {
+                value: '30Days',
+                options: {
+                    '30Days': 30,
+                    '14Days': 14,
+                    '7Days': 7,
+                    yesterday: 1,
+                    '24Hours': 24,
+                },
+            },
         };
     },
 
@@ -61,8 +71,13 @@ Component.register('sw-dashboard-index', {
 
         chartOptionsOrderCount() {
             return {
-                title: { text: this.$tc('sw-dashboard.monthStats.orderNumber') },
-
+                title: {
+                    text: this.$tc('sw-dashboard.monthStats.orderNumber'),
+                    style: {
+                        fontSize: '16px',
+                        fontWeight: '600',
+                    },
+                },
                 xaxis: {
                     type: 'datetime',
                     min: this.dateAgo.getTime(),
@@ -82,8 +97,13 @@ Component.register('sw-dashboard-index', {
 
         chartOptionsOrderSum() {
             return {
-                title: { text: this.$tc('sw-dashboard.monthStats.turnover') },
-
+                title: {
+                    text: this.$tc('sw-dashboard.monthStats.turnover'),
+                    style: {
+                        fontSize: '16px',
+                        fontWeight: '600',
+                    },
+                },
                 xaxis: {
                     type: 'datetime',
                     min: this.dateAgo.getTime(),
@@ -106,7 +126,14 @@ Component.register('sw-dashboard-index', {
             return this.repositoryFactory.create('order');
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - Will be renamed, use orderCountSeries instead
+         */
         orderCountMonthSeries() {
+            return this.orderCountSeries;
+        },
+
+        orderCountSeries() {
             if (!this.historyOrderData) {
                 return [];
             }
@@ -131,7 +158,14 @@ Component.register('sw-dashboard-index', {
             return 0;
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - Will be renamed, use orderSumSeries instead
+         */
         orderSumMonthSeries() {
+            return this.orderSumSeries;
+        },
+
+        orderSumSeries() {
             if (!this.historyOrderData) {
                 return [];
             }
@@ -165,10 +199,19 @@ Component.register('sw-dashboard-index', {
         },
 
         dateAgo() {
-            // get date 30 days ago
             const date = new Date();
+            const selectedDateRange = this.statisticDateRanges.value;
+            const dateRange = this.statisticDateRanges.options[selectedDateRange] ?? 0;
+
+            // special case for "24Hours": return directly because we need hours instead of days
+            if (selectedDateRange === '24Hours') {
+                date.setHours(date.getHours() - dateRange);
+
+                return date;
+            }
+
+            date.setDate(date.getDate() - dateRange);
             date.setHours(0, 0, 0, 0);
-            date.setDate(date.getDate() - 30);
 
             return date;
         },
@@ -190,8 +233,11 @@ Component.register('sw-dashboard-index', {
                 if (dateCount.key) {
                     const timeConverted = this.parseDate(dateCount.key);
 
-                    // if time is equal to today
-                    return timeConverted === this.today.getTime();
+                    const todayStart = new Date().setHours(0, 0, 0, 0);
+                    const todayEnd = new Date().setHours(24, 59, 59, 59);
+
+                    // if time is today
+                    return timeConverted >= todayStart && timeConverted <= todayEnd;
                 }
 
                 return false;
@@ -201,6 +247,16 @@ Component.register('sw-dashboard-index', {
                 return findDateStats;
             }
             return null;
+        },
+
+        getTimeUnitInterval() {
+            const statisticDateRange = this.statisticDateRanges.value;
+
+            if (statisticDateRange === 'yesterday' || statisticDateRange === '24Hours') {
+                return 'hour';
+            }
+
+            return 'day';
         },
 
         systemCurrencyISOCode() {
@@ -228,16 +284,20 @@ Component.register('sw-dashboard-index', {
                 return;
             }
 
-            this.fetchHistoryOrderData().then((response) => {
-                if (response.aggregations) {
-                    this.historyOrderData = response.aggregations.order_count_month;
-                }
-            });
+            this.getHistoryOrderData();
 
             this.todayOrderDataLoaded = false;
             this.fetchTodayData().then((response) => {
                 this.todayOrderData = response;
                 this.todayOrderDataLoaded = true;
+            });
+        },
+
+        getHistoryOrderData() {
+            this.fetchHistoryOrderData().then((response) => {
+                if (response.aggregations) {
+                    this.historyOrderData = response.aggregations.order_count_month;
+                }
             });
         },
 
@@ -249,10 +309,10 @@ Component.register('sw-dashboard-index', {
                 Criteria.histogram(
                     'order_count_month',
                     'orderDateTime',
-                    'day',
+                    this.getTimeUnitInterval,
                     null,
                     Criteria.sum('totalAmount', 'amountTotal'),
-                    Intl.DateTimeFormat().resolvedOptions().timeZone,
+                    Shopware?.State?.get('session')?.currentUser?.timeZone ?? 'UTC',
                 ),
             );
 

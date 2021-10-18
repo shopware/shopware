@@ -31,8 +31,8 @@ const { warn } = Shopware.Utils.debug;
  * <br>
  * Two helper functions can be useful in some use cases.
  * <br>
- * "fillEmptyDates": Fill each day from "options.xaxis.min" to "options.xaxis.max". When no "max"
- * is defined the actual day will be used. The values have to be a timestamp in milliseconds.
+ * "fillEmptyValues": Fill each day/hour/minute from "options.xaxis.min" to "options.xaxis.max". When no "max"
+ * is defined the actual time unit will be used. The values have to be a timestamp in milliseconds.
  * <br>
  * "sort": The values in each series will be sorted in an ascending order.
  * @component-example
@@ -75,7 +75,7 @@ const { warn } = Shopware.Utils.debug;
  *             }
  *         }
  *     }"
- *     :fillEmptyDates="true"
+ *     :fillEmptyValues="day"
  *     :sort="true">
  * </sw-chart>
  */
@@ -121,10 +121,26 @@ Component.register('sw-chart', {
             default: 400,
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - Will be replaced, use fillEmptyValues instead
+         */
         fillEmptyDates: {
             type: Boolean,
             required: false,
             default: false,
+        },
+
+        fillEmptyValues: {
+            type: String,
+            required: false,
+            default: null,
+            validator(givenValue) {
+                return [
+                    'day',
+                    'hour',
+                    'minute',
+                ].includes(givenValue);
+            },
         },
 
         sort: {
@@ -163,7 +179,10 @@ Component.register('sw-chart', {
 
             let optimizedSeries = object.deepCopyObject(this.series);
 
-            if (this.fillEmptyDates) {
+            /**
+             * @deprecated tag:v6.5.0 - fillEmptyDates will be replaced by fillEmptyValues
+             */
+            if (this.fillEmptyValues || this.fillEmptyDates) {
                 optimizedSeries = this.addZeroValuesToSeries(optimizedSeries);
             }
 
@@ -345,9 +364,60 @@ Component.register('sw-chart', {
             return newSeries;
         },
 
+        setDateTime(date) {
+            /**
+             * @deprecated tag:v6.5.0 - fillEmptyDates will be replaced by fillEmptyValues, so this if can be removed
+             */
+            if (this.fillEmptyDates) {
+                this.fillEmptyValues = 'day';
+            }
+
+            switch (this.fillEmptyValues) {
+                case 'day':
+                default:
+                    date.setHours(0, 0, 0, 0);
+                    break;
+                case 'hour':
+                    date.setMinutes(0, 0, 0);
+                    break;
+                case 'minute':
+                    date.setSeconds(0, 0);
+                    break;
+            }
+
+            return date;
+        },
+
+        incrementByTimeUnit(date) {
+            /**
+             * @deprecated tag:v6.5.0 - fillEmptyDates will be replaced by fillEmptyValues, so this if can be removed
+             */
+            if (this.fillEmptyDates) {
+                this.fillEmptyValues = 'day';
+            }
+
+            switch (this.fillEmptyValues) {
+                case 'day':
+                default:
+                    date.setDate(date.getDate() + 1);
+                    break;
+                case 'hour':
+                    date.setHours(date.getHours() + 1);
+                    break;
+                case 'minute':
+                    date.setMinutes(date.getMinutes() + 1);
+                    break;
+            }
+
+            return date;
+        },
+
         getZeroValues() {
             // check if empty dates should filled and xaxis is datetime
-            if (!(this.fillEmptyDates && this.options.xaxis && this.options.xaxis.type === 'datetime')) {
+            /**
+             * @deprecated tag:v6.5.0 - fillEmptyDates will be replaced by fillEmptyValues
+             */
+            if (!((this.fillEmptyValues || this.fillEmptyDates) && this.options.xaxis && this.options.xaxis.type === 'datetime')) {
                 return [];
             }
 
@@ -360,7 +430,7 @@ Component.register('sw-chart', {
             // get timestamps for start date
             const fromDate = new Date();
             fromDate.setTime(this.options.xaxis.min);
-            fromDate.setHours(0, 0, 0, 0);
+            this.setDateTime(fromDate);
             const fromDateTimestamp = fromDate.getTime();
 
             // get timestamps for end date
@@ -371,7 +441,7 @@ Component.register('sw-chart', {
             } else {
                 // get actual day
                 const toDate = new Date();
-                toDate.setHours(0, 0, 0, 0);
+                this.setDateTime(toDate);
                 toDate.getTime();
                 toDateTimestamp = toDate.getTime();
             }
@@ -389,8 +459,8 @@ Component.register('sw-chart', {
                     y: 0,
                 });
 
-                // go to next date
-                indexDate.setDate(indexDate.getDate() + 1);
+                // go to next date unit
+                this.incrementByTimeUnit(indexDate);
             }
 
             return zeroTimestamps;

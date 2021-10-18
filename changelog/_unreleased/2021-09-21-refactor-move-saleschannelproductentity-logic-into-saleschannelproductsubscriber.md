@@ -1,5 +1,6 @@
 ---
 title: Move SalesChannelProductEntity logic into sales_channel.product.loaded event
+issue: NEXT-17472
 author: Max
 author_email: max@swk-web.com
 author_github: @aragon999

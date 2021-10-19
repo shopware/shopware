@@ -213,7 +213,6 @@ Component.register('sw-category-detail', {
                 .addFilter(Criteria.equals('isCanonical', true));
 
             criteria.addAssociation('tags')
-                .addAssociation('cmsPage.sections.blocks.slots')
                 .addAssociation('media')
                 .addAssociation('navigationSalesChannels.homeCmsPage.previewMedia')
                 .addAssociation('serviceSalesChannels')
@@ -617,7 +616,6 @@ Component.register('sw-category-detail', {
 
             this.isLoading = true;
             await this.updateSeoUrls();
-            await this.saveSlotConfig();
 
             return this.categoryRepository.save(this.category, { ...Shopware.Context.api }).then(() => {
                 this.isSaveSuccessful = true;
@@ -635,6 +633,9 @@ Component.register('sw-category-detail', {
             });
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - Will be removed completely - Slot config should not override the template config at all
+         */
         saveSlotConfig() {
             if (
                 this.category.cmsPage === undefined ||

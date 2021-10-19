@@ -150,7 +150,7 @@ Component.register('sw-cms-el-config-product-slider', {
 
                 this.productRepository
                     .search(criteria, Object.assign({}, Shopware.Context.api, { inheritance: true }))
-                    .then(result => {
+                    .then((result) => {
                         this.productCollection = result;
                     });
             }

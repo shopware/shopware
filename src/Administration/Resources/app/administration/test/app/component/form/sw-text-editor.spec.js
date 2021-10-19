@@ -670,4 +670,52 @@ describe('src/app/component/form/sw-text-editor', () => {
         newTabSwitch = wrapper.find('input[name="sw-field--buttonConfig-newTab"]');
         expect(newTabSwitch.element.checked).toBe(false);
     });
+
+    it('should remove link from text', async () => {
+        wrapper = createWrapper();
+
+        await addTextToEditor(wrapper, '<a href="http://shopware.com" target="_blank"><bold><u>Shop<strike id="anchor">ware</strike></u></bold></a>');
+
+        // select "ware"
+        const linkOne = document.getElementById('anchor');
+        await addAndCheckSelection(wrapper, linkOne, 0, 4, 'ware');
+        document.dispatchEvent(new Event('mouseup'));
+
+        // click on link button
+        await wrapper.get('.sw-text-editor-toolbar-button__type-link .sw-text-editor-toolbar-button__icon').trigger('click');
+
+        // link menu should be opened
+        const linkMenu = wrapper.find('.sw-text-editor-toolbar-button__link-menu');
+        expect(linkMenu.exists()).toBe(true);
+
+        // trigger the link removal
+        await wrapper.get('.sw-text-editor-toolbar-button__link-menu-buttons-button-remove').trigger('click');
+
+        // check that the link got removed
+        expect(wrapper.vm.getContentValue()).toBe('<bold><u>Shop<strike id="anchor">ware</strike></u></bold>');
+    });
+
+    it("should leave the text alone, if there isn't link to be removed", async () => {
+        wrapper = createWrapper();
+
+        await addTextToEditor(wrapper, '<bold><u>Shop<strike id="anchor">ware</strike></u></bold>');
+
+        // select "ware"
+        const linkOne = document.getElementById('anchor');
+        await addAndCheckSelection(wrapper, linkOne, 0, 4, 'ware');
+        document.dispatchEvent(new Event('mouseup'));
+
+        // click on link button
+        await wrapper.get('.sw-text-editor-toolbar-button__type-link .sw-text-editor-toolbar-button__icon').trigger('click');
+
+        // link menu should be opened
+        const linkMenu = wrapper.find('.sw-text-editor-toolbar-button__link-menu');
+        expect(linkMenu.exists()).toBe(true);
+
+        // trigger the link removal
+        await wrapper.get('.sw-text-editor-toolbar-button__link-menu-buttons-button-remove').trigger('click');
+
+        // check that the link got removed
+        expect(wrapper.vm.getContentValue()).toBe('<bold><u>Shop<strike id="anchor">ware</strike></u></bold>');
+    });
 });

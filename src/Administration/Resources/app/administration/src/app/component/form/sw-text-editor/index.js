@@ -760,6 +760,15 @@ Component.register('sw-text-editor', {
             this.selection = document.getSelection();
         },
 
+        onRemoveLink() {
+            const parentAnchorTag = this.selection.focusNode.parentElement.closest('a');
+
+            if (parentAnchorTag) {
+                parentAnchorTag.insertAdjacentHTML('afterend', parentAnchorTag.innerHTML);
+                parentAnchorTag.remove();
+            }
+        },
+
         onClick() {
             this.isActive = true;
         },

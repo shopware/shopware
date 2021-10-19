@@ -121,6 +121,12 @@ $sw-text-editor-toolbar-button-arrow-shadow: rgba(120, 138, 155, 0.5);
             display: grid;
             grid-auto-flow: column;
             justify-content: end;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .sw-text-editor-toolbar-button__link-menu-switch {
+            margin: 0;
         }
 
         .sw-field {

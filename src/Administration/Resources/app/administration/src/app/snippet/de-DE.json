@@ -867,8 +867,7 @@
       "buttonVariantPrimarySmall": "Primär (klein)",
       "buttonVariantSecondarySmall": "Sekundär (klein)",
       "placeholder": "URL eingeben ...",
-      "linkTo": "Link zu",
-      "insert": "Einfügen"
+      "linkTo": "Link zu"
     },
     "table": {
       "addHeading": "Tabellenkopf hinzufügen",

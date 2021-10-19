@@ -2,21 +2,21 @@
 
 namespace Shopware\Core\Content\Flow\Indexing;
 
-use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Flow\Events\FlowIndexerEvent;
 use Shopware\Core\Content\Flow\FlowDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
-use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IterateEntityIndexerMessage;
 use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostInstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostUninstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostUpdateEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class FlowIndexer extends EntityIndexer implements EventSubscriberInterface
@@ -29,20 +29,20 @@ class FlowIndexer extends EntityIndexer implements EventSubscriberInterface
 
     private EventDispatcherInterface $eventDispatcher;
 
-    private Connection $connection;
+    private MessageBusInterface $messageBus;
 
     public function __construct(
         IteratorFactory $iteratorFactory,
         EntityRepositoryInterface $repository,
         FlowPayloadUpdater $payloadUpdater,
         EventDispatcherInterface $eventDispatcher,
-        Connection $connection
+        MessageBusInterface $messageBus
     ) {
         $this->iteratorFactory = $iteratorFactory;
         $this->repository = $repository;
         $this->payloadUpdater = $payloadUpdater;
         $this->eventDispatcher = $eventDispatcher;
-        $this->connection = $connection;
+        $this->messageBus = $messageBus;
     }
 
     public function getName(): string
@@ -63,12 +63,8 @@ class FlowIndexer extends EntityIndexer implements EventSubscriberInterface
 
     public function refreshPlugin(): void
     {
-        // Delete the payload and invalid flag of all rules
-        $update = new RetryableQuery(
-            $this->connection,
-            $this->connection->prepare('UPDATE `flow` SET `payload` = null, `invalid` = 0')
-        );
-        $update->execute();
+        // Schedule indexer to update flows
+        $this->messageBus->dispatch(new IterateEntityIndexerMessage($this->getName(), null));
     }
 
     /**
@@ -104,9 +100,7 @@ class FlowIndexer extends EntityIndexer implements EventSubscriberInterface
 
     public function handle(EntityIndexingMessage $message): void
     {
-        $ids = $message->getData();
-
-        $ids = array_unique(array_filter($ids));
+        $ids = array_unique(array_filter($message->getData()));
 
         if (empty($ids)) {
             return;

@@ -14,7 +14,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  */
 class CachedFlowLoader extends AbstractFlowLoader implements EventSubscriberInterface
 {
-    private const KEY = 'flow-loader';
+    public const KEY = 'flow-loader';
 
     private array $flows = [];
 

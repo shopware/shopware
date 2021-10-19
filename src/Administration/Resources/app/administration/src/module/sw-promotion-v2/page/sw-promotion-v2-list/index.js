@@ -10,6 +10,7 @@ Component.register('sw-promotion-v2-list', {
     inject: [
         'repositoryFactory',
         'acl',
+        'feature',
     ],
 
     mixins: [
@@ -64,7 +65,12 @@ Component.register('sw-promotion-v2-list', {
             this.isLoading = true;
 
             const criteria = await this.addQueryScores(this.term, this.promotionCriteria);
+            if (this.feature.isActive('FEATURE_NEXT_6040') && !this.entitySearchable) {
+                this.isLoading = false;
+                this.total = 0;
 
+                return false;
+            }
             return this.promotionRepository.search(criteria).then((searchResult) => {
                 this.isLoading = false;
                 this.total = searchResult.total;

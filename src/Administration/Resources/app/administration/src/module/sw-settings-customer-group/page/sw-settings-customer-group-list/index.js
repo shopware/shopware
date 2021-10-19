@@ -6,7 +6,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-settings-customer-group-list', {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: ['repositoryFactory', 'acl', 'feature'],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -63,6 +63,12 @@ Component.register('sw-settings-customer-group-list', {
             this.isLoading = true;
 
             const criteria = await this.addQueryScores(this.term, this.allCustomerGroupsCriteria);
+            if (this.feature.isActive('FEATURE_NEXT_6040') && !this.entitySearchable) {
+                this.isLoading = false;
+                this.total = 0;
+
+                return;
+            }
 
             this.customerGroupRepository.search(criteria)
                 .then((searchResult) => {

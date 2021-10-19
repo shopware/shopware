@@ -17,6 +17,7 @@ Mixin.register('listing', {
             term: undefined,
             disableRouteParams: false,
             searchConfigEntity: null,
+            entitySearchable: true,
         };
     },
 
@@ -261,11 +262,20 @@ Mixin.register('listing', {
             );
         },
 
+        isValidTerm(term) {
+            return term && term.trim().length > 1;
+        },
+
         async addQueryScores(term, originalCriteria) {
-            if (!this.feature.isActive('FEATURE_NEXT_6040') || !this.searchConfigEntity) {
+            this.entitySearchable = true;
+            if (!this.feature.isActive('FEATURE_NEXT_6040') || !this.searchConfigEntity || !this.isValidTerm(term)) {
                 return originalCriteria;
             }
             const searchRankingFields = await this.searchRankingService.getSearchFieldsByEntity(this.searchConfigEntity);
+            if (!searchRankingFields || Object.keys(searchRankingFields).length < 1) {
+                this.entitySearchable = false;
+                return originalCriteria;
+            }
 
             return this.searchRankingService.buildSearchQueriesForEntity(
                 searchRankingFields,

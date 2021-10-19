@@ -515,7 +515,7 @@
       "searchTypeAll": "All",
       "moduleFilter": "Module filter",
       "messageNoResultsV2": "We didn't find any exact matches for \"{term}\".",
-      "messageNoResultsDetailV2": "You might want to try using different keywords or check your inputs for typos."
+      "messageNoResultsDetailV2": "You might want to try using different keywords or check the configuration of your search."
     },
     "sw-search-bar-item": {
       "typeLabelCustomer": "Customer",
@@ -1186,5 +1186,9 @@
   },
   "sw-sidebar-filter-panel": {
     "resetButton": "Reset all"
+  },
+  "sw-empty-state": {
+    "messageNoResultTitle": "Nothing found",
+    "messageNoResultSubline": "Edit your filters or your search terms to find results. Please also check the configuration of your search."
   }
 }

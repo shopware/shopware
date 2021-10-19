@@ -127,17 +127,19 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
         expect(element.attributes()['allow-inline-edit']).toBeTruthy();
     });
 
-    it('should add query score to the criteria ', async () => {
+    it('should add query score to the criteria', async () => {
         global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
-
         const wrapper = createWrapper();
-
+        await wrapper.setData({
+            term: 'foo'
+        });
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria();
         });
+
         wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
-            return {};
+            return { name: 500 };
         });
 
         await wrapper.vm.getList();
@@ -146,6 +148,76 @@ describe('src/module/sw-promotion-v2/page/sw-promotion-v2-list', () => {
         expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(1);
 
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity.mockRestore();
+        wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
+    });
+
+    it('should not get search ranking fields when term is null', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+        wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
+            return new Criteria();
+        });
+
+        wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
+            return {};
+        });
+
+        await wrapper.vm.getList();
+
+        expect(wrapper.vm.searchRankingService.buildSearchQueriesForEntity).toHaveBeenCalledTimes(0);
+        expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(0);
+
+        wrapper.vm.searchRankingService.buildSearchQueriesForEntity.mockRestore();
+        wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
+    });
+
+    it('should not build query score when search ranking field is null ', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
+        const wrapper = createWrapper();
+        await wrapper.setData({
+            term: 'foo'
+        });
+
+        await wrapper.vm.$nextTick();
+        wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
+            return new Criteria();
+        });
+
+        wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
+            return {};
+        });
+
+        await wrapper.vm.getList();
+
+        expect(wrapper.vm.searchRankingService.buildSearchQueriesForEntity).toHaveBeenCalledTimes(0);
+        expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(1);
+
+        wrapper.vm.searchRankingService.buildSearchQueriesForEntity.mockRestore();
+        wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
+    });
+
+    it('should show empty state when there is not item after filling search term', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
+        const wrapper = createWrapper();
+        await wrapper.setData({
+            term: 'foo'
+        });
+        await wrapper.vm.$nextTick();
+        wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
+            return {};
+        });
+        await wrapper.vm.getList();
+
+        const emptyState = wrapper.find('sw-promotion-v2-empty-state-hero-stub');
+
+        expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(1);
+        expect(emptyState.exists()).toBeTruthy();
+        expect(emptyState.attributes().title).toBe('sw-empty-state.messageNoResultTitle');
+        expect(emptyState.attributes().description).toBe('sw-empty-state.messageNoResultSubline');
+        expect(wrapper.find('sw-entity-listing-stub').exists()).toBeFalsy();
+        expect(wrapper.vm.entitySearchable).toEqual(false);
+
         wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
     });
 });

@@ -73,6 +73,7 @@
                 {% block sw_settings_customer_group_list_grid %}
                 <template slot="grid">
                     <sw-entity-listing
+                        v-if="entitySearchable"
                         ref="listing"
                         class="sw-settings-customer-group-list-grid"
                         identifier="sw-settings-customer-group-list"
@@ -138,6 +139,14 @@
             </sw-card>
             {% endblock %}
         </sw-card-view>
+
+        {% block sw_settings_customer_group_list_empty_state %}
+        <sw-empty-state
+            v-if="feature.isActive('FEATURE_NEXT_6040') && !isLoading && !total && isValidTerm(term)"
+            :title="$tc('sw-empty-state.messageNoResultTitle')"
+            :subline="$tc('sw-empty-state.messageNoResultSubline')"
+        />
+        {% endblock %}
     </template>
     {% endblock %}
 

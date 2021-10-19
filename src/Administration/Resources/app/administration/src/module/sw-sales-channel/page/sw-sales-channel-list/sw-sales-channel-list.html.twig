@@ -61,6 +61,7 @@
         >
             {% block sw_sales_channel_list_grid %}
             <sw-entity-listing
+                v-if="entitySearchable"
                 slot="grid"
                 :is-loading="isLoading"
                 :columns="salesChannelColumns"
@@ -131,6 +132,17 @@
                 </template>
                 {% endblock %}
             </sw-entity-listing>
+            {% endblock %}
+
+            {% block sw_sales_channel_list_empty_state %}
+            <template v-if="!isLoading && !total && feature.isActive('FEATURE_NEXT_6040')">
+                <sw-empty-state
+                    v-if="isValidTerm(term)"
+                    :style="{ minHeight: '200px' }"
+                    :title="$tc('sw-empty-state.messageNoResultTitle')"
+                    :subline="$tc('sw-empty-state.messageNoResultSubline')"
+                />
+            </template>
             {% endblock %}
         </sw-card>
         {% endblock %}

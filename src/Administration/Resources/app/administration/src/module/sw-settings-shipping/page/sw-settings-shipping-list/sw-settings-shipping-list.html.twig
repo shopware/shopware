@@ -61,6 +61,7 @@
         <div class="sw-settings-shipping-list__content">
             {% block sw_settings_shipping_list_grid %}
             <sw-entity-listing
+                v-if="entitySearchable"
                 ref="swSettingsTaxGrid"
                 :items="shippingMethods"
                 :columns="columns"
@@ -198,10 +199,17 @@
             {% endblock %}
 
             {% block sw_settings_shipping_list_empty_state %}
-            <sw-empty-state
-                v-if="!isLoading && !total"
-                :title="$tc('sw-settings-shipping.list.messageEmpty')"
-            />
+            <template v-if="!isLoading && !total">
+                <sw-empty-state
+                    v-if="feature.isActive('FEATURE_NEXT_6040') && isValidTerm(term)"
+                    :title="$tc('sw-empty-state.messageNoResultTitle')"
+                    :subline="$tc('sw-empty-state.messageNoResultSubline')"
+                />
+                <sw-empty-state
+                    v-else
+                    :title="$tc('sw-settings-shipping.list.messageEmpty')"
+                />
+            </template>
             {% endblock %}
         </div>
         {% endblock %}

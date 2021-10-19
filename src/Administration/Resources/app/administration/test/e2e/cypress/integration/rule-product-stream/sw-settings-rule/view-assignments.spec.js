@@ -24,6 +24,10 @@ describe('Rule builder: Test viewing rule assignments in other entities', () => 
             method: 'PATCH'
         }).as('saveShippingMethod');
 
+        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
+            cy.setEntitySearchable('shipping_method', 'name');
+        });
+
         // Open rule
         cy.get(`${page.elements.dataGridRow}--0`).should('be.visible');
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('Ruler');

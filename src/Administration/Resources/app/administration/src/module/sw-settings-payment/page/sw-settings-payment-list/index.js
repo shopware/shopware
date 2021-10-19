@@ -57,6 +57,12 @@ Component.register('sw-settings-payment-list', {
             criteria.addAssociation('appPaymentMethod.app');
 
             criteria = await this.addQueryScores(this.term, criteria);
+            if (this.feature.isActive('FEATURE_NEXT_6040') && !this.entitySearchable) {
+                this.isLoading = false;
+                this.total = 0;
+
+                return;
+            }
 
             this.paymentRepository.search(criteria).then((items) => {
                 this.total = items.total;

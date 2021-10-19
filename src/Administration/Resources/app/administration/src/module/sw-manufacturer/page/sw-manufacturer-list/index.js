@@ -6,7 +6,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-manufacturer-list', {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: ['repositoryFactory', 'acl', 'feature'],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -69,6 +69,13 @@ Component.register('sw-manufacturer-list', {
             this.isLoading = true;
 
             const criteria = await this.addQueryScores(this.term, this.manufacturerCriteria);
+
+            if (this.feature.isActive('FEATURE_NEXT_6040') && !this.entitySearchable) {
+                this.isLoading = false;
+                this.total = 0;
+
+                return false;
+            }
 
             return this.manufacturerRepository.search(criteria)
                 .then(searchResult => {

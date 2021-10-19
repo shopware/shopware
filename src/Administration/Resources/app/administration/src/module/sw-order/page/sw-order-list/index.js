@@ -373,6 +373,13 @@ Component.register('sw-order-list', {
 
             this.activeFilterNumber = criteria.filters.length;
 
+            if (this.feature.isActive('FEATURE_NEXT_6040') && !this.entitySearchable) {
+                this.isLoading = false;
+                this.total = 0;
+
+                return;
+            }
+
             try {
                 const response = await this.orderRepository.search(criteria);
 

@@ -69,7 +69,7 @@
         <div class="sw-settings-payment-list__content">
             {% block sw_settings_payment_list_grid %}
             <sw-entity-listing
-                v-if="payment"
+                v-if="payment && entitySearchable"
                 ref="swSettingsPaymentGrid"
                 class="sw-settings-payment-list-grid"
                 :items="payment"
@@ -205,6 +205,14 @@
                 </template>
                 {% endblock %}
             </sw-entity-listing>
+            {% endblock %}
+
+            {% block sw_settings_payment_list_empty_state %}
+            <sw-empty-state
+                v-if="feature.isActive('FEATURE_NEXT_6040') && !isLoading && !total && isValidTerm(term)"
+                :title="$tc('sw-empty-state.messageNoResultTitle')"
+                :subline="$tc('sw-empty-state.messageNoResultSubline')"
+            />
             {% endblock %}
         </div>
         {% endblock %}

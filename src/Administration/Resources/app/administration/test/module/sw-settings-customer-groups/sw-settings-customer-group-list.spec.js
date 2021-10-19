@@ -3,6 +3,7 @@ import 'src/module/sw-settings-customer-group/page/sw-settings-customer-group-li
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
 import flushPromises from 'flush-promises';
+import 'src/app/component/base/sw-empty-state';
 
 function createWrapper(privileges = []) {
     const localVue = createLocalVue();
@@ -53,7 +54,8 @@ function createWrapper(privileges = []) {
                             </slot>
                         </template>
                     </div>`
-            }
+            },
+            'sw-empty-state': true
         },
         provide: {
             repositoryFactory: {
@@ -218,10 +220,57 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
         expect(entityList.attributes()['show-selection']).toBeTruthy();
     });
 
-    it('should add query score to the criteria ', async () => {
+    it('should add query score to the criteria', async () => {
         global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
-
         const wrapper = createWrapper();
+        await wrapper.setData({
+            term: 'foo'
+        });
+        await wrapper.vm.$nextTick();
+        wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
+            return new Criteria();
+        });
+
+        wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
+            return { name: 500 };
+        });
+
+        await wrapper.vm.getList();
+
+        expect(wrapper.vm.searchRankingService.buildSearchQueriesForEntity).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(1);
+
+        wrapper.vm.searchRankingService.buildSearchQueriesForEntity.mockRestore();
+        wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
+    });
+
+    it('should not get search ranking fields when term is null', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
+        wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
+            return new Criteria();
+        });
+
+        wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
+            return {};
+        });
+
+        await wrapper.vm.getList();
+
+        expect(wrapper.vm.searchRankingService.buildSearchQueriesForEntity).toHaveBeenCalledTimes(0);
+        expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(0);
+
+        wrapper.vm.searchRankingService.buildSearchQueriesForEntity.mockRestore();
+        wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
+    });
+
+    it('should not build query score when search ranking field is null ', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
+        const wrapper = createWrapper();
+        await wrapper.setData({
+            term: 'foo'
+        });
 
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
@@ -234,10 +283,33 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
 
         await wrapper.vm.getList();
 
-        expect(wrapper.vm.searchRankingService.buildSearchQueriesForEntity).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.searchRankingService.buildSearchQueriesForEntity).toHaveBeenCalledTimes(0);
         expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(1);
 
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity.mockRestore();
+        wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
+    });
+
+    it('should show empty state when there is not item after filling search term', async () => {
+        const wrapper = createWrapper();
+        await wrapper.setData({
+            term: 'foo'
+        });
+        await wrapper.vm.$nextTick();
+        wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
+            return {};
+        });
+        await wrapper.vm.getList();
+
+        const emptyState = wrapper.find('sw-empty-state-stub');
+
+        expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(1);
+        expect(emptyState.exists()).toBeTruthy();
+        expect(emptyState.attributes().title).toBe('sw-empty-state.messageNoResultTitle');
+        expect(emptyState.attributes().subline).toBe('sw-empty-state.messageNoResultSubline');
+        expect(wrapper.find('sw-entity-listing-stub').exists()).toBeFalsy();
+        expect(wrapper.vm.entitySearchable).toEqual(false);
+
         wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
     });
 });

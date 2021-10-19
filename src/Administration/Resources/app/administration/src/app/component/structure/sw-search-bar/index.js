@@ -397,6 +397,18 @@ Component.register('sw-search-bar', {
                 });
 
                 const userSearchPreference = await this.searchRankingService.getUserSearchPreference();
+                if (!userSearchPreference || Object.keys(userSearchPreference).length < 1) {
+                    this.activeResultColumn = 0;
+                    this.activeResultIndex = 0;
+                    this.isLoading = false;
+
+                    if (!this.showTypeSelectContainer) {
+                        this.showResultsContainer = true;
+                    }
+
+                    return;
+                }
+
                 const queries = this.searchRankingService.buildGlobalSearchQueries(userSearchPreference, searchTerm);
                 const response = await this.searchService.searchQuery(queries);
                 const data = response.data;
@@ -467,6 +479,19 @@ Component.register('sw-search-bar', {
             if (this.feature.isActive('FEATURE_NEXT_6040')) {
                 criteria.setLimit(10);
                 const searchRankingFields = await this.searchRankingService.getSearchFieldsByEntity(entityName);
+                if (!searchRankingFields || Object.keys(searchRankingFields).length < 1) {
+                    entityResults.total = 0;
+                    entityResults.entity = this.currentSearchType;
+
+                    this.results.push(entityResults);
+                    this.isLoading = false;
+                    if (!this.showTypeSelectContainer) {
+                        this.showResultsContainer = true;
+                    }
+
+                    return;
+                }
+
                 criteria = this.searchRankingService.buildSearchQueriesForEntity(
                     searchRankingFields,
                     searchTerm,

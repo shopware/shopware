@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-cms-list', {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: ['repositoryFactory', 'acl', 'feature'],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -147,6 +147,12 @@ Component.register('sw-cms-list', {
             this.isLoading = true;
 
             const criteria = await this.addQueryScores(this.term, this.listCriteria);
+            if (this.feature.isActive('FEATURE_NEXT_6040') && !this.entitySearchable) {
+                this.isLoading = false;
+                this.total = 0;
+
+                return false;
+            }
 
             return this.pageRepository.search(criteria).then((searchResult) => {
                 this.total = searchResult.total;

@@ -38,16 +38,20 @@
     >
         {% block sw_media_library_empty_state %}
         <sw-empty-state
-            v-if="!isLoading && selectableItems.length === 0"
-            :title="$tc('sw-media.mediaLibrary.titleEmptyState')"
+            v-if="!isLoading && (selectableItems.length === 0 || (feature.isActive('FEATURE_NEXT_6040') && isValidTerm(term)))"
+            :title="feature.isActive('FEATURE_NEXT_6040')
+                ? $tc('sw-empty-state.messageNoResultTitle')
+                : $tc('sw-media.mediaLibrary.titleEmptyState')"
         >
             <template slot="icon">
                 <img
                     :src="'/administration/static/img/empty-states/media-empty-state.svg' | asset"
-                    :alt="$tc('sw-media.mediaLibrary.descriptionEmptyState')"
+                    :alt="feature.isActive('FEATURE_NEXT_6040')
+                        ? $tc('sw-empty-state.messageNoResultSubline')
+                        : $tc('sw-media.mediaLibrary.descriptionEmptyState')"
                 >
             </template>
-            {{ $tc('sw-media.mediaLibrary.descriptionEmptyState') }}
+            {{ feature.isActive('FEATURE_NEXT_6040') ? $tc('sw-empty-state.messageNoResultSubline') : $tc('sw-media.mediaLibrary.descriptionEmptyState') }}
         </sw-empty-state>
         {% endblock %}
 

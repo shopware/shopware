@@ -6,7 +6,7 @@ const { Component, Mixin, Data: { Criteria, EntityCollection } } = Shopware;
 Component.register('sw-newsletter-recipient-list', {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: ['repositoryFactory', 'acl', 'feature'],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -82,6 +82,12 @@ Component.register('sw-newsletter-recipient-list', {
             });
 
             criteria = await this.addQueryScores(this.term, criteria);
+            if (this.feature.isActive('FEATURE_NEXT_6040') && !this.entitySearchable) {
+                this.isLoading = false;
+                this.total = 0;
+
+                return;
+            }
 
             this.repository = this.repositoryFactory.create('newsletter_recipient');
             this.repository.search(criteria).then((searchResult) => {

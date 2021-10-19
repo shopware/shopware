@@ -331,6 +331,15 @@
                     {% endblock %}
                 </div>
                 {% endblock %}
+
+                {% block sw_cms_list_listing_list_empty_state %}
+                <sw-empty-state
+                    v-if="feature.isActive('FEATURE_NEXT_6040') && isValidTerm(term) && !isLoading && !total"
+                    :title="$tc('sw-empty-state.messageNoResultTitle')"
+                    :subline="$tc('sw-empty-state.messageNoResultSubline')"
+                    :style="{ minHeight: '200px' }"
+                />
+                {% endblock %}
             </div>
             {% endblock %}
         </div>

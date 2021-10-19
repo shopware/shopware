@@ -62,6 +62,7 @@
         <div class="sw-manufacturer-list__content">
             {% block sw_manufacturer_list_grid %}
             <sw-entity-listing
+                v-if="entitySearchable"
                 class="sw-manufacturer-list__grid"
                 detail-route="sw.manufacturer.detail"
                 :is-loading="isLoading"
@@ -87,6 +88,14 @@
                 </template>
                 {% endblock %}
             </sw-entity-listing>
+            {% endblock %}
+
+            {% block sw_manufacturer_list_empty_state %}
+            <sw-empty-state
+                v-if="feature.isActive('FEATURE_NEXT_6040') && !isLoading && !total && isValidTerm(term)"
+                :title="$tc('sw-empty-state.messageNoResultTitle')"
+                :subline="$tc('sw-empty-state.messageNoResultSubline')"
+            />
             {% endblock %}
 
             {% block sw_manufacturer_list_grid_loader %}

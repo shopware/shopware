@@ -10,6 +10,7 @@ Component.register('sw-product-stream-list', {
     inject: [
         'repositoryFactory',
         'acl',
+        'feature',
     ],
 
     mixins: [
@@ -68,6 +69,12 @@ Component.register('sw-product-stream-list', {
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
 
             criteria = await this.addQueryScores(this.term, criteria);
+            if (this.feature.isActive('FEATURE_NEXT_6040') && !this.entitySearchable) {
+                this.isLoading = false;
+                this.total = 0;
+
+                return false;
+            }
 
             return this.productStreamRepository.search(criteria).then((items) => {
                 this.total = items.total;

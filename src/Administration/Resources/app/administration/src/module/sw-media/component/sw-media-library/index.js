@@ -131,14 +131,6 @@ Component.register('sw-media-library', {
         showLoadMoreButton() {
             return !this.isLoading && (!this.itemLoaderDone || !this.folderLoaderDone);
         },
-
-        searchRankingFields() {
-            if (!this.feature.isActive('FEATURE_NEXT_6040')) {
-                return {};
-            }
-
-            return this.searchRankingService.getSearchFieldsByEntity('media');
-        },
     },
 
     watch: {
@@ -257,6 +249,10 @@ Component.register('sw-media-library', {
                         this.term,
                         criteria,
                     );
+                    if (!searchRankingFields || Object.keys(searchRankingFields).length < 1) {
+                        this.isLoading = false;
+                        return;
+                    }
                 }
 
                 const items = await this.mediaRepository.search(criteria, Context.api);
@@ -266,6 +262,10 @@ Component.register('sw-media-library', {
             }
 
             this.isLoading = false;
+        },
+
+        isValidTerm(term) {
+            return term && term.trim().length > 1;
         },
 
         loadNextItems() {

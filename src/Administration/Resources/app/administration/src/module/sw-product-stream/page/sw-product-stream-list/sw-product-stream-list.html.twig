@@ -63,7 +63,7 @@
 
             {% block sw_product_stream_list_grid %}
             <sw-entity-listing
-                v-if="productStreams"
+                v-if="productStreams && entitySearchable"
                 ref="swProductStreamGrid"
                 class="sw-product-stream-list-grid"
                 :items="productStreams"
@@ -132,9 +132,20 @@
 
             {% block sw_product_stream_list_empty_state %}
             <sw-empty-state
-                v-else-if="!isLoading && !total"
+                v-else-if="!feature.isActive('FEATURE_NEXT_6040') && !isLoading && !total"
                 :title="$tc('sw-product-stream.list.messageEmpty')"
             />
+            <template v-else-if="feature.isActive('FEATURE_NEXT_6040') && !isLoading && !total">
+                <sw-empty-state
+                    v-if="isValidTerm(term)"
+                    :title="$tc('sw-empty-state.messageNoResultTitle')"
+                    :subline="$tc('sw-empty-state.messageNoResultSubline')"
+                />
+                <sw-empty-state
+                    v-else
+                    :title="$tc('sw-product-stream.list.messageEmpty')"
+                />
+            </template>
             {% endblock %}
 
             {% block sw_product_list_grid_loader %}

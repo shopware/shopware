@@ -98,9 +98,13 @@ class Uuid
         return self::fromBytesToHex(md5($string, true));
     }
 
-    public static function isValid(string $id): bool
+    public static function isValid($id): bool //HOTFIX tf 2021-10-18
     {
-        if (!preg_match('/' . self::VALID_PATTERN . '/', $id)) {
+        if($id && is_string($id)) {
+            if (!preg_match('/' . self::VALID_PATTERN . '/', $id)) {
+                return false;
+            }
+        } else {
             return false;
         }
 

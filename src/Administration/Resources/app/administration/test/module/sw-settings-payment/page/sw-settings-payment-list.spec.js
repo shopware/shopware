@@ -2,6 +2,7 @@ import { shallowMount } from '@vue/test-utils';
 import 'src/module/sw-settings-payment/page/sw-settings-payment-list';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
+import flushPromises from 'flush-promises';
 
 function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-settings-payment-list'), {
@@ -36,9 +37,9 @@ function createWrapper(privileges = []) {
             },
             searchRankingService: {
                 getSearchFieldsByEntity: () => {
-                    return {
+                    return Promise.resolve({
                         name: searchRankingPoint.HIGH_SEARCH_RANKING
-                    };
+                    });
                 },
                 buildSearchQueriesForEntity: (searchFields, term, criteria) => {
                     return criteria;
@@ -103,7 +104,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-list', () => {
 
     it('should not be able to inline edit', async () => {
         const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const entityListing = wrapper.find('.sw-settings-payment-list-grid');
 
@@ -115,7 +116,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-list', () => {
         const wrapper = createWrapper([
             'payment.editor'
         ]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const entityListing = wrapper.find('.sw-settings-payment-list-grid');
         expect(entityListing.exists()).toBeTruthy();
@@ -124,7 +125,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-list', () => {
 
     it('should not be able to delete', async () => {
         const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const deleteMenuItem = wrapper.find('.sw-settings-payment-list__delete-action');
         expect(deleteMenuItem.attributes().disabled).toBeTruthy();
@@ -134,7 +135,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-list', () => {
         const wrapper = createWrapper([
             'payment.deleter'
         ]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const deleteMenuItem = wrapper.find('.sw-settings-payment-list__delete-action');
         expect(deleteMenuItem.attributes().disabled).toBeFalsy();
@@ -142,7 +143,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-list', () => {
 
     it('should not be able to edit', async () => {
         const wrapper = createWrapper();
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const editMenuItem = wrapper.find('.sw-settings-payment-list__edit-action');
         expect(editMenuItem.attributes().disabled).toBeTruthy();
@@ -152,20 +153,10 @@ describe('module/sw-settings-payment/page/sw-settings-payment-list', () => {
         const wrapper = createWrapper([
             'payment.editor'
         ]);
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const editMenuItem = wrapper.find('.sw-settings-payment-list__edit-action');
         expect(editMenuItem.attributes().disabled).toBeFalsy();
-    });
-
-    it('should get search ranking fields as a computed field', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
-
-        const wrapper = createWrapper();
-
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm.searchRankingFields).toEqual({ name: searchRankingPoint.HIGH_SEARCH_RANKING });
     });
 
     it('should add query score to the criteria ', async () => {
@@ -178,10 +169,17 @@ describe('module/sw-settings-payment/page/sw-settings-payment-list', () => {
             return new Criteria();
         });
 
+        wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
+            return {};
+        });
+
         await wrapper.vm.getList();
 
         expect(wrapper.vm.searchRankingService.buildSearchQueriesForEntity).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(1);
+
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity.mockRestore();
+        wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
     });
 });
 

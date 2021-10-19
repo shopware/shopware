@@ -92,10 +92,10 @@ Component.register('sw-settings-shipping-list', {
     },
 
     methods: {
-        getList() {
+        async getList() {
             this.isLoading = true;
 
-            const criteria = this.addQueryScores(this.term, this.listingCriteria);
+            const criteria = await this.addQueryScores(this.term, this.listingCriteria);
 
             this.shippingRepository.search(criteria).then((items) => {
                 this.total = items.total;

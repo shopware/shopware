@@ -39,7 +39,18 @@ function createWrapper(privileges = []) {
                 getUser: () => Promise.resolve()
             },
             mediaDefaultFolderService: {},
-            searchPreferencesService: {}
+            searchPreferencesService: {},
+            searchRankingService: {
+                clearCacheUserSearchConfiguration: () => {}
+            },
+            userConfigService: {
+                upsert: () => {
+                    return Promise.resolve();
+                },
+                search: () => {
+                    return Promise.resolve();
+                }
+            }
         }
     });
 }

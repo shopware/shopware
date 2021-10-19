@@ -369,7 +369,7 @@ Component.register('sw-order-list', {
             let criteria = await Shopware.Service('filterService')
                 .mergeWithStoredFilters(this.storeKey, this.orderCriteria);
 
-            criteria = this.addQueryScores(this.term, criteria);
+            criteria = await this.addQueryScores(this.term, criteria);
 
             this.activeFilterNumber = criteria.filters.length;
 

@@ -87,6 +87,20 @@ function createWrapper(props, searchTypes = searchTypeServiceTypes, privileges =
                     };
 
                     return Promise.resolve(result);
+                },
+                searchQuery: () => {
+                    const result = {
+                        data: {
+                            foo: {
+                                total: 1,
+                                data: [
+                                    { name: 'Baz', id: '12345' }
+                                ]
+                            }
+                        }
+                    };
+
+                    return Promise.resolve(result);
                 }
             },
             repositoryFactory: {
@@ -147,11 +161,19 @@ function createWrapper(props, searchTypes = searchTypeServiceTypes, privileges =
             },
             searchRankingService: {
                 getUserSearchPreference: () => {
-                    return {
+                    return Promise.resolve({
                         foo: {}
-                    };
+                    });
+                },
+                getSearchFieldsByEntity: (entity) => {
+                    const data = { foo: {} };
+                    return Promise.resolve(data[entity]);
                 },
                 buildSearchQueriesForEntity: (searchFields, term, criteria) => {
+                    if (!searchFields) {
+                        return criteria;
+                    }
+
                     return criteria.addQuery(Criteria.equals('name', 'Baz'), 1).setTerm(null);
                 },
                 buildGlobalSearchQueries: (userSearchPreference, searchTerm) => {
@@ -1054,15 +1076,5 @@ describe('src/app/component/structure/sw-search-bar', () => {
                 })
             ])
         );
-    });
-
-    it('should get user search preferences as a computed field', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
-
-        wrapper = createWrapper();
-
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm.userSearchPreference).toEqual({ foo: {} });
     });
 });

@@ -74,10 +74,10 @@ Component.register('sw-property-list', {
             this.getList();
         },
 
-        getList() {
+        async getList() {
             this.isLoading = true;
 
-            const criteria = this.addQueryScores(this.term, this.defaultCriteria);
+            const criteria = await this.addQueryScores(this.term, this.defaultCriteria);
 
             return this.propertyRepository.search(criteria).then((items) => {
                 this.total = items.total;

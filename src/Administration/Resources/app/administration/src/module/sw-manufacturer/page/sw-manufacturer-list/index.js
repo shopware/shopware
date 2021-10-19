@@ -65,10 +65,10 @@ Component.register('sw-manufacturer-list', {
             this.getList(languageId);
         },
 
-        getList() {
+        async getList() {
             this.isLoading = true;
 
-            const criteria = this.addQueryScores(this.term, this.manufacturerCriteria);
+            const criteria = await this.addQueryScores(this.term, this.manufacturerCriteria);
 
             return this.manufacturerRepository.search(criteria)
                 .then(searchResult => {

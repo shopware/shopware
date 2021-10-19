@@ -58,7 +58,7 @@ Component.register('sw-product-stream-list', {
             return this.getList();
         },
 
-        getList() {
+        async getList() {
             this.isLoading = true;
 
             let criteria = new Criteria(this.page, this.limit);
@@ -67,7 +67,7 @@ Component.register('sw-product-stream-list', {
             this.naturalSorting = this.sortBy === 'createdAt';
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
 
-            criteria = this.addQueryScores(this.term, criteria);
+            criteria = await this.addQueryScores(this.term, criteria);
 
             return this.productStreamRepository.search(criteria).then((items) => {
                 this.total = items.total;

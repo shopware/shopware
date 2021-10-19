@@ -100,9 +100,9 @@ function createWrapper(privileges = []) {
             filterFactory: {},
             searchRankingService: {
                 getSearchFieldsByEntity: () => {
-                    return {
+                    return Promise.resolve({
                         name: searchRankingPoint.HIGH_SEARCH_RANKING
-                    };
+                    });
                 },
                 buildSearchQueriesForEntity: (searchFields, term, criteria) => {
                     return criteria;
@@ -168,14 +168,6 @@ describe('src/module/sw-order/page/sw-order-list', () => {
         expect(secondRow.find('.sw-order-list__manual-order-label').exists()).toBeFalsy();
     });
 
-    it('should get search ranking fields as a computed field', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
-
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm.searchRankingFields).toEqual({ name: searchRankingPoint.HIGH_SEARCH_RANKING });
-    });
-
     it('should add query score to the criteria ', async () => {
         global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
 
@@ -184,9 +176,16 @@ describe('src/module/sw-order/page/sw-order-list', () => {
             return new Criteria();
         });
 
+        wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
+            return {};
+        });
+
         await wrapper.vm.getList();
 
         expect(wrapper.vm.searchRankingService.buildSearchQueriesForEntity).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(1);
+
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity.mockRestore();
+        wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
     });
 });

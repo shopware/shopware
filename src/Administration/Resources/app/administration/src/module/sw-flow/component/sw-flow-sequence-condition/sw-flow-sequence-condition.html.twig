@@ -193,9 +193,18 @@
                                 {% block sw_flow_sequence_condition_rule_context_button_edit %}
                                 <sw-context-menu-item
                                     class="sw-flow-sequence-condition__rule-edit"
-                                    @click="showRuleSelection = true"
+                                    @click="onEditRule"
                                 >
                                     {{ $tc('sw-flow.rule.contextButton.editRule') }}
+                                </sw-context-menu-item>
+                                {% endblock %}
+
+                                {% block sw_flow_sequence_condition_rule_context_button_change %}
+                                <sw-context-menu-item
+                                    class="sw-flow-sequence-condition__rule-change"
+                                    @click="showRuleSelection = true"
+                                >
+                                    {{ $tc('sw-flow.rule.contextButton.changeRule') }}
                                 </sw-context-menu-item>
                                 {% endblock %}
 
@@ -321,11 +330,11 @@
     </div>
     {% endblock %}
 
-    {% block sw_flow_sequence_condition_create_rule_modal %}
-    <sw-flow-create-rule-modal
+    {% block sw_flow_sequence_condition_rule_modal %}
+    <sw-flow-rule-modal
         v-if="showCreateRuleModal"
-        :sequence="sequence"
-        @process-finish="onCreateRuleSuccess"
+        :rule-id="selectedRuleId"
+        @process-finish="onSaveRuleSuccess"
         @modal-close="onCloseModal"
     />
     {% endblock %}

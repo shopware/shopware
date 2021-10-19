@@ -80,6 +80,7 @@ Component.extend('sw-product-variants-media-upload', 'sw-media-upload-v2', {
             this.getMediaDefaultFolderId()
                 .then((id) => {
                     this.mediaDefaultFolderId = id;
+                    this.updateMediaItemPositions();
                 })
                 .catch(() => {
                     this.mediaDefaultFolderId = null;
@@ -130,6 +131,7 @@ Component.extend('sw-product-variants-media-upload', 'sw-media-upload-v2', {
                     });
                 });
             });
+            this.updateMediaItemPositions();
         },
 
         addMedia(media) {
@@ -174,6 +176,7 @@ Component.extend('sw-product-variants-media-upload', 'sw-media-upload-v2', {
             }
 
             this.source.media.add(newMedia);
+            this.updateMediaItemPositions();
         },
 
         isReplacedMedia(targetId) {
@@ -205,6 +208,12 @@ Component.extend('sw-product-variants-media-upload', 'sw-media-upload-v2', {
         onClosePreviewModal() {
             this.activeItemId = null;
             this.showPreviewModal = false;
+        },
+
+        updateMediaItemPositions() {
+            this.source.media.forEach((medium, index) => {
+                medium.position = index;
+            });
         },
     },
 });

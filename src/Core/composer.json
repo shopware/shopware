@@ -1,6 +1,7 @@
 {
     "name": "shopware/core",
     "type": "library",
+    "version": "6.4.6.0",
     "description": "Shopware platform is the core for all Shopware ecommerce products.",
     "keywords": [
         "shopware",

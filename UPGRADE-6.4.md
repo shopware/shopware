@@ -1,6 +1,154 @@
 UPGRADE FROM 6.3.x.x to 6.4
 =======================
 
+# 6.4.6.0
+## Rate Limiter
+
+With 6.4.6.0 we have implemented a rate limit by default to reduce the risk of bruteforce for the following routes:
+- `/store-api/account/login`
+- `/store-api/account/recovery-password`
+- `/store-api/order`
+- `/store-api/contact-form`
+- `/api/oauth/token`
+- `/api/_action/user/user-recovery`
+
+### Rate Limiter configuration
+
+The confiuration for the rate limit can be found in the `shopware.yaml` under the map `shopware.api.rate_limiter`.
+More information about the configuration can be found at the [developer documentation](https://developer.shopware.com/docs/guides/hosting/infrastructure/rate-limiter).
+Below you can find an example configuration.
+
+```yaml
+shopware:
+  api:
+    rate_limiter:
+      example_route:
+        enabled: true
+        policy: 'time_backoff'
+        reset: '24 hours'
+        limits:
+          - limit: 10
+            interval: '10 seconds'
+          - limit: 15
+            interval: '30 seconds'
+          - limit: 20
+            interval: '60 seconds'
+```
+
+If you plan to create your own rate limits, head over to our [developer documentation](https://developer.shopware.com/docs/guides/plugins/plugins/framework/rate-limiter/add-rate-limiter-to-api-route).
+## Update `/api/_info/events.json` API
+* Added `aware` property to `BusinessEventDefinition` class at `Shopware\Core\Framework\Event`.
+* Deprecated `mailAware`, `logAware` and `salesChannelAware` properties in `BusinessEventDefinition` class at `Shopware\Core\Framework\Event`.
+### Response of API
+* Before:
+```json
+[
+    {
+        "name": "checkout.customer.before.login",
+        "class": "Shopware\\Core\\Checkout\\Customer\\Event\\CustomerBeforeLoginEvent",
+        "mailAware": false,
+        "logAware": false,
+        "data": {
+            "email": {
+                "type": "string"
+            }
+        },
+        "salesChannelAware": true,
+        "extensions": []
+    }
+]
+```
+* After:
+```json
+[
+    {
+        "name": "checkout.customer.before.login",
+        "class": "Shopware\\Core\\Checkout\\Customer\\Event\\CustomerBeforeLoginEvent",
+        "data": {
+            "email": {
+                "type": "string"
+            }
+        },
+        "aware": [
+            "Shopware\\Core\\Framework\\Event\\SalesChannelAware"
+        ],
+        "extensions": []
+    }
+]
+```
+## Added Maintenance-Bundle
+
+A maintenance bundle was added to have one place where CLI-commands und Utils are located, that help with the ongoing maintenance of the shop.
+
+To load enable that bundle, you should add the following line to your `/config/bundles.php` file, because from 6.5.0 onward the bundle will not be loaded automatically anymore:
+```php
+return [
+   ...
+   Shopware\Core\Maintenance\Maintenance::class => ['all' => true],
+];
+```
+In that refactoring we moved some CLI commands into that new bundle and deprecated the old command classes. The new commands are marked as internal, as you should not rely on the PHP interface of those commands, only on the CLI API.
+
+Additionally we've moved the `UserProvisioner` service from the `Core/System/User` namespace, to the `Core/Maintenance/User` namespace, make sure you use the service from the new location.
+Before:
+```php
+use Shopware\Core\System\User\Service\UserProvisioner;
+```
+After:
+```php
+use Shopware\Core\Maintenance\User\Service\UserProvisioner;
+```
+### Create own SeoUrl Twig Extension
+Create a regular Twig extension, instead of tagging it with name `twig.extension` use tag name `shopware.seo_url.twig.extension`
+
+Example Class:
+```php
+<?php declare(strict_types=1);
+
+namespace SwagExample\Core\Content\Seo\Twig;
+
+use Twig\Extension\AbstractExtension;
+use Twig\TwigFilter;
+
+class ExampleTwigFilter extends AbstractExtension
+{
+    public function getFilters(): array
+    {
+        return [
+            new TwigFilter('lastBigLetter', [$this, 'convert']),
+        ];
+    }
+
+    public function convert(string $text): string
+    {
+        return strrev(ucfirst(strrev($text)));
+    }
+}
+```
+
+Example service.xml:
+```xml
+<service id="SwagExample\Core\Content\Seo\Twig\ExampleTwigFilter">
+    <tag name="shopware.seo_url.twig.extension"/>
+</service>
+```
+## Context`s properties will be natively typed
+The properties of `\Shopware\Core\Framework\Context` will be natively typed in the future. 
+If you extend the `Context` make sure your implementations adheres to the type constraints for the protected properties.
+When you depend on a self-shipped bundle to already been loaded before your plugin, you can now use negative keys in `getAdditionalBundles` to express a different order. Use negative keys to load them before your plugin instance:
+
+```
+class AcmePlugin extends Plugin
+{
+    public function getAdditionalBundles(AdditionalBundleParameters $parameters): array
+    {
+        return [
+            -10 => new DependencyBundle(),
+        ];
+    }
+}
+```
+
 # 6.4.5.0
 If multiple `RetryableQuery` are used within the same SQL transaction, and a deadlock occurs, the whole transaction is
 rolled back internally and can be retried. But if instead only the last `RetryableQuery` is retried this can cause all

@@ -39,6 +39,10 @@
     {% block sw_event_action_detail_content %}
     <template #content>
         <sw-card-view>
+            {% block sw_event_action_detail_deprecated_alert %}
+            <sw-event-action-deprecated-alert show-at-top />
+            {% endblock %}
+
             {% block sw_event_action_detail_content_base %}
             <sw-card
                 class="sw-event-action-detail__base"
@@ -204,11 +208,6 @@
             </sw-card>
             {% endblock %}
         </sw-card-view>
-
-        {% block sw_event_action_list_deprecated_alert %}
-        <sw-event-action-deprecated-alert />
-        {% endblock %}
-
     </template>
     {% endblock %}
 </sw-page>

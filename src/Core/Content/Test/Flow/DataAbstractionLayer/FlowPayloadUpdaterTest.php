@@ -126,6 +126,45 @@ class FlowPayloadUpdaterTest extends TestCase
         static::assertSame(serialize(new Flow($this->ids->get('flow_id'), $expected)), $flow->getPayload());
     }
 
+    public function testPayloadShouldUpdateAfterDeletedAllSequence(): void
+    {
+        $this->createTestData();
+
+        $flowSequenceRepository = $this->getContainer()->get('flow_sequence.repository');
+        $flowSequenceRepository->delete([
+            ['id' => $this->ids->get('flow_sequence_id2')],
+            ['id' => $this->ids->get('flow_sequence_id1')],
+            ['id' => $this->ids->get('flow_sequence_id')],
+        ], $this->ids->context);
+
+        $criteria = new Criteria([$this->ids->get('flow_id')]);
+        $criteria->addAssociation('sequences');
+        $flow = $this->flowRepository->search($criteria, $this->ids->context)->first();
+
+        static::assertSame([], $flow->getSequences()->getElements());
+        static::assertSame(serialize(new Flow($this->ids->get('flow_id'), [])), $flow->getPayload());
+    }
+
+    public function testPayloadShouldBeCorrectWithoutSequence(): void
+    {
+        $this->flowRepository->create([[
+            'id' => $this->ids->create('flow_id'),
+            'name' => 'Create Order',
+            'eventName' => CheckoutOrderPlacedEvent::EVENT_NAME,
+            'priority' => 1,
+            'active' => true,
+            'payload' => null,
+            'invalid' => true,
+        ]], $this->ids->context);
+
+        $criteria = new Criteria([$this->ids->get('flow_id')]);
+        $criteria->addAssociation('sequences');
+        $flow = $this->flowRepository->search($criteria, $this->ids->context)->first();
+
+        static::assertSame([], $flow->getSequences()->getElements());
+        static::assertSame(serialize(new Flow($this->ids->get('flow_id'), [])), $flow->getPayload());
+    }
+
     private function createTestData(): void
     {
         $this->flowRepository->create([[

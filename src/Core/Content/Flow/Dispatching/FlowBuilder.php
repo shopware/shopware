@@ -16,6 +16,10 @@ class FlowBuilder
 
         $sequences = [];
         foreach ($flowSequences as $flowSequence) {
+            if ($flowSequence['sequence_id'] === null) {
+                continue;
+            }
+
             $sequences[] = $this->createNestedSequence($flowSequence, []);
         }
 

@@ -318,6 +318,10 @@ class OrderConverter
         $salesChannelContext = $this->salesChannelContextFactory->create(Uuid::randomHex(), $order->getSalesChannelId(), $options);
         $salesChannelContext->getContext()->addExtensions($context->getExtensions());
 
+        if ($context->hasState(Context::SKIP_TRIGGER_FLOW)) {
+            $salesChannelContext->getContext()->addState(Context::SKIP_TRIGGER_FLOW);
+        }
+
         if ($order->getItemRounding() !== null) {
             $salesChannelContext->setItemRounding($order->getItemRounding());
         }

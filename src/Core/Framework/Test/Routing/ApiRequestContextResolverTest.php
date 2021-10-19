@@ -103,6 +103,45 @@ class ApiRequestContextResolverTest extends TestCase
         }
     }
 
+    public function testContextSkipTriggerFlowState(): void
+    {
+        $user = $this->createUser([], true);
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID, 'test');
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, $this->createAccessKey($user->getUserId()));
+        $request->attributes->set('_routeScope', new RouteScope(['scopes' => ['api']]));
+
+        $this->resolver->resolve($request);
+
+        static::assertTrue(
+            $request->attributes->has(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT)
+        );
+
+        /** @var Context $context */
+        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
+
+        static::assertFalse($context->hasState(Context::SKIP_TRIGGER_FLOW));
+
+        $request = new Request();
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_ACCESS_TOKEN_ID, 'test');
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_OAUTH_CLIENT_ID, $this->createAccessKey($user->getUserId()));
+        $request->attributes->set('_routeScope', new RouteScope(['scopes' => ['api']]));
+
+        $request->headers->set(PlatformRequest::HEADER_SKIP_TRIGGER_FLOW, true);
+
+        $this->resolver->resolve($request);
+
+        static::assertTrue(
+            $request->attributes->has(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT)
+        );
+
+        /** @var Context $context */
+        $context = $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
+
+        static::assertTrue($context->hasState(Context::SKIP_TRIGGER_FLOW));
+    }
+
     public function userRoleProvider()
     {
         return [

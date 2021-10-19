@@ -3,6 +3,35 @@
     <p class="sw-bulk-edit-save-modal__help-text">
         {{ $tc('sw-bulk-edit.modal.confirm.description', itemTotal, {itemCount: itemTotal}) }}
     </p>
+
+    {% block sw_bulk_edit_save_modal_confirm_trigger_flows %}
+    <div
+        v-if="triggeredFlows.length > 0"
+        class="sw-bulk-edit-save-modal-confirm__trigger-flows"
+    >
+        {% block sw_bulk_edit_save_modal_confirm_trigger_flows_switch %}
+        <sw-field
+            v-model="isFlowTriggered"
+            type="switch"
+            name="sw-bulk-edit-save-modal-confirm-trigger-flows-switch"
+            class="sw-bulk-edit-save-modal-confirm__trigger-flows-switch"
+            :label="$tc('sw-bulk-edit.modal.confirm.switchLabel')"
+            :help-text="$tc('sw-bulk-edit.modal.confirm.switchHelpText')"
+        />
+        {% endblock %}
+
+        {% block sw_bulk_edit_save_modal_confirm_trigger_flows_alert %}
+        <sw-alert
+            v-show="isFlowTriggered"
+            class="sw-bulk-edit-save-modal-confirm__trigger-flows-alert"
+        >
+            <p>{{ $tc('sw-bulk-edit.modal.confirm.alertTitle') }}</p>
+            <span>{{ triggeredFlows.join(', ') }}</span>
+        </sw-alert>
+        {% endblock %}
+    </div>
+    {% endblock %}
+
     <sw-alert
         variant="warning"
         class="sw-bulk-edit-save-modal__warning"

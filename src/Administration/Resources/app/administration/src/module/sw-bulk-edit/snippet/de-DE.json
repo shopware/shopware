@@ -194,6 +194,23 @@
       "confirm": {
         "title": "Mehrfachänderung - Anwenden?",
         "description": "Änderungen auf {itemCount} ausgewähltes Element anwenden? Diese Änderungen können nicht rückgängig gemacht werden. | Änderungen auf {itemCount} ausgewählte Elemente anwenden? Diese Änderungen können nicht rückgängig gemacht werden.",
+        "switchLabel": "Flows auslösen",
+        "switchHelpText": "Wenn diese Option aktiv ist, werden alle im Flow Builder angelegten Trigger für alle Änderungen dieser Mehrfachänderung ausgeführt. Dies kann unter Umständen dazu führen, dass Flows doppelt ausgeführt werden.",
+        "alertTitle": "Diese Trigger/Flows könnten ausgelöst werden:",
+        "triggeredFlows": {
+          "orderDeliveries": {
+            "key": "orderDeliveries",
+            "label": "Lieferstatusänderung"
+          },
+          "orderTransactions": {
+            "key": "orderTransactions",
+            "label": "Zahlungsstatusänderung"
+          },
+          "orders": {
+            "key": "orders",
+            "label": "Bestellstatusänderung"
+          }
+        },
         "buttons": {
           "applyChanges": "Änderungen anwenden"
         }
@@ -217,7 +234,7 @@
           "openLog": "Log-Datei öffnen"
         }
       },
-      "warningText": "Wenn Du die Mehrfachänderung abbrichts oder während des Prozesses den Browser-Tab schließt, werden die Änderungen u.U. nicht vollständig abgeschlossen und es kann zu irreversibel beschädigten Datenständen kommen."
+      "warningText": "Bitte warte, bis die Mehrfachänderung abgeschlossen ist. Dies kann einen Moment dauern. Solltest du den Browser-Tab vorzeitig schließen oder den Prozess abbrechen, werden eventuell nicht alle Änderungen übernommen. Du kannst Mehrfachänderungen jederzeit erneut durchführen."
     },
     "order": {
       "textTitle": "Mehrfachänderung: {orderTotal} Bestellungen",

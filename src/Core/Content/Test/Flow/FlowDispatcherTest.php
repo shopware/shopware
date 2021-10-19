@@ -93,6 +93,26 @@ class FlowDispatcherTest extends TestCase
         static::assertEquals(0, $this->flowActionTestSubscriber->actions['unit_test_action_false'] ?? 0);
     }
 
+    public function testEventSkipTrigger(): void
+    {
+        $context = Context::createDefaultContext();
+        $context->setRuleIds([$this->ids->create('ruleId')]);
+        $event = new TestFlowBusinessEvent($context);
+        $this->createFlow(true);
+
+        $event->getContext()->addState(Context::SKIP_TRIGGER_FLOW);
+
+        $this->dispatcher->dispatch($event);
+
+        static::assertEquals(0, $this->flowActionTestSubscriber->actions['unit_test_action_true'] ?? 0);
+
+        $event->getContext()->removeState(Context::SKIP_TRIGGER_FLOW);
+
+        $this->dispatcher->dispatch($event);
+
+        static::assertEquals(1, $this->flowActionTestSubscriber->actions['unit_test_action_true'] ?? 0);
+    }
+
     public function testSingleEventActionIsDispatchedFalseCase(): void
     {
         $context = Context::createDefaultContext();

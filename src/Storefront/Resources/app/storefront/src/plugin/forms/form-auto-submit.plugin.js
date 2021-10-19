@@ -93,6 +93,8 @@ export default class FormAutoSubmitPlugin extends Plugin {
      * @private
      */
     _onChange(event) {
+        this._updateRedirectParameters();
+
         if (this.options.changeTriggerSelectors && !this._targetMatchesSelector(event)) {
             return;
         }
@@ -164,5 +166,25 @@ export default class FormAutoSubmitPlugin extends Plugin {
         window.PluginManager.initializePlugins();
 
         this.$emitter.publish('onAfterAjaxSubmit');
+    }
+
+    _updateRedirectParameters() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const params = Object.fromEntries(urlParams.entries());
+
+        Object.keys(params).map(param => this._createInputForRedirectParameter(param, params[param]))
+            .forEach((input) => {
+                this._form.appendChild(input);
+            });
+    }
+
+    _createInputForRedirectParameter(name, value) {
+        const input = document.createElement('input');
+
+        input.setAttribute('type', 'hidden');
+        input.setAttribute('name', `redirectParameters[${name}]`);
+        input.setAttribute('value', value);
+
+        return input;
     }
 }

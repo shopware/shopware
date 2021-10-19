@@ -63,7 +63,6 @@
     "flowNotification": {
       "messageDeleteSuccess": "Flow gelöscht.",
       "messageDeleteError": "Flow konnte nicht gelöscht werden.",
-      "messageSaveSuccess": "Flow gespeichert.",
       "messageSaveError": "Flow konnte nicht gespeichert werden.",
       "messageError": "Ein Fehler ist aufgetreten.",
       "messageRequiredEventName": "Wähle bitte ein Trigger-Ereignis vor dem Speichern.",
@@ -77,13 +76,15 @@
       "setOrderState": "Status setzen",
       "stopFlow": "Flow anhalten",
       "textStopFlowDescription": "Nachfolgende Aktionen/Sequenzen werden nicht ausgeführt.",
+      "labelDescription": "Beschreibung: {description}",
       "contextButton": {
         "editAction": "Aktion bearbeiten",
         "deleteAction": "Aktion entfernen"
       },
       "addAction": "Aktion hinzufügen",
-      "tagDescription": "<div class='sw-flow-sequence-action__tags-description'><div>To: <span>{entity}<span></div><p>Tag: {tagNames}</p></div>",
-      "mailDescription": "Template: {template}",
+      "labelTo": "Zu: {entity}",
+      "labelTag": "Tag: {tagNames}",
+      "labelTemplate": "Template: {template}",
       "placeholderSelectAction": "Aktion auswählen ..."
     },
     "rule": {

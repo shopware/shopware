@@ -5,8 +5,7 @@ import { ACTION } from '../../constant/flow.constant';
 
 const { Component, Mixin, Context, State } = Shopware;
 const { Criteria } = Shopware.Data;
-const { ShopwareError } = Shopware.Classes;
-const { mapState, mapGetters } = Component.getComponentHelper();
+const { mapState, mapGetters, mapPropertyErrors } = Component.getComponentHelper();
 
 Component.register('sw-flow-detail', {
     template,
@@ -109,6 +108,7 @@ Component.register('sw-flow-detail', {
 
         ...mapState('swFlowState', ['flow']),
         ...mapGetters('swFlowState', ['sequences', 'mailTemplateIds']),
+        ...mapPropertyErrors('flow', ['name', 'eventName']),
     },
 
     watch: {
@@ -175,22 +175,6 @@ Component.register('sw-flow-detail', {
         },
 
         onSave() {
-            if (!this.flow.eventName) {
-                Shopware.State.dispatch('error/addApiError',
-                    {
-                        expression: `flow.${this.flow.id}.eventName`,
-                        error: new ShopwareError({
-                            code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
-                        }),
-                    });
-
-                this.createNotificationWarning({
-                    message: this.$tc('sw-flow.flowNotification.messageRequiredEventName'),
-                });
-
-                return null;
-            }
-
             // Remove selector sequence type before saving
             this.removeAllSelectors();
 
@@ -219,20 +203,56 @@ Component.register('sw-flow-detail', {
                         this.getDetailFlow();
                     }
 
-                    this.createNotificationSuccess({
-                        message: this.$tc('sw-flow.flowNotification.messageSaveSuccess'),
-                    });
-
                     this.isSaveSuccessful = true;
                 })
                 .catch(() => {
                     this.createNotificationError({
                         message: this.$tc('sw-flow.flowNotification.messageSaveError'),
                     });
+
+                    this.handleFieldValiationError();
                 })
                 .finally(() => {
                     this.isLoading = false;
                 });
+        },
+
+        handleFieldValiationError() {
+            if (!this.flowNameError && !this.flowEventNameError) {
+                return;
+            }
+
+            const currentRouteName = this.$router.history.current.name;
+
+            const hasErrorTabFlow = (currentRouteName === 'sw.flow.create.flow'
+               || currentRouteName === 'sw.flow.detail.flow')
+               && this.flowEventNameError;
+
+            const hasErrorTabGeneral = (currentRouteName === 'sw.flow.create.general'
+                || currentRouteName === 'sw.flow.detail.general')
+                && this.flowNameError;
+
+            if (hasErrorTabFlow || hasErrorTabGeneral) {
+                return;
+            }
+
+            // Navigate to another tab which contains field errors
+            if (this.flowId) {
+                this.$router.push({
+                    name: this.flowNameError
+                        ? 'sw.flow.detail.general'
+                        : 'sw.flow.detail.flow',
+                    params: { flowId: this.flowId },
+                });
+
+                return;
+            }
+
+            this.$router.push({
+                name: this.flowNameError
+                    ? 'sw.flow.create.general'
+                    : 'sw.flow.create.flow',
+            });
         },
 
         saveFinish() {

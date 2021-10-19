@@ -6,6 +6,9 @@
         class="sw-flow-sequence-condition__true-arrow"
         :class="arrowClasses(true)"
     >
+        {% block sw_flow_sequence_condition_true_arrow_line %}
+        <div class="sw-flow-sequence-condition__true-line"></div>
+        {% endblock %}
 
         {% block sw_flow_sequence_condition_true_arrow_oval %}
         <div class="sw-flow-sequence-condition__oval"></div>
@@ -60,6 +63,9 @@
         class="sw-flow-sequence-condition__false-arrow"
         :class="arrowClasses(false)"
     >
+        {% block sw_flow_sequence_condition_false_arrow_line %}
+        <div class="sw-flow-sequence-condition__false-line"></div>
+        {% endblock %}
 
         {% block sw_flow_sequence_condition_false_arrow_oval %}
         <div class="sw-flow-sequence-condition__oval"></div>
@@ -168,7 +174,7 @@
                         {% block sw_flow_sequence_condition_rule_header %}
                         <div class="sw-flow-sequence-condition__rule-header">
 
-                            {% block sw_flow_sequence_condition_rule_left %}
+                            {% block sw_flow_sequence_condition_rule_name %}
                             <div class="sw-flow-sequence-condition__rule-name">
                                 <sw-icon
                                     size="12px"
@@ -206,11 +212,14 @@
                             {% endblock %}
                         </div>
 
-                        <p>{{ sequence.description }}</p>
                         {% endblock %}
 
                         {% block sw_flow_sequence_condition_rule_description %}
-                        <p>{{ sequence.rule.description }}</p>
+                        <div
+                            class="sw-flow-sequence-condition__rule-description"
+                            v-html="ruleDescription"
+                        >
+                        </div>
                         {% endblock %}
                     </div>
                     {% endblock %}

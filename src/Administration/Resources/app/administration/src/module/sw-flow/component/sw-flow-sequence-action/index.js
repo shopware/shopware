@@ -258,10 +258,11 @@ Component.register('sw-flow-sequence-action', {
 
             if (actionName.includes('tag') &&
                 (actionName.includes('add') || actionName.includes('remove'))) {
-                return this.$tc('sw-flow.actions.tagDescription', 0, {
+                return `${this.$tc('sw-flow.actions.labelTo', 0, {
                     entity: config.entity,
+                })}<br>${this.$tc('sw-flow.actions.labelTag', 0, {
                     tagNames: this.convertTagString(Object.values(config.tagIds)),
-                });
+                })}`;
             }
 
             if (typeof this.actionDescription[actionName] !== 'function') {
@@ -329,9 +330,24 @@ Component.register('sw-flow-sequence-action', {
         getMailSendDescription(config) {
             const mailTemplateData = this.mailTemplates.find(item => item.id === config.mailTemplateId);
 
-            return this.$tc('sw-flow.actions.mailDescription', 0, {
+            let mailSendDescription = this.$tc('sw-flow.actions.labelTemplate', 0, {
                 template: mailTemplateData?.mailTemplateType?.name,
             });
+
+            let mailDescription = mailTemplateData?.description;
+
+            if (mailDescription) {
+                // Truncate description string
+                mailDescription = mailDescription.length > 30
+                    ? `${mailDescription.substring(0, 30)}...`
+                    : mailDescription;
+
+                mailSendDescription = `${mailSendDescription}<br>${this.$tc('sw-flow.actions.labelDescription', 0, {
+                    description: mailDescription,
+                })}`;
+            }
+
+            return mailSendDescription;
         },
     },
 });

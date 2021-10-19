@@ -72,12 +72,12 @@ Component.register('sw-flow-detail-flow', {
                         maxWidth = item.offsetWidth > maxWidth ? item.offsetWidth : maxWidth;
                     });
 
-                    if (maxWidth <= 840) {
+                    if (maxWidth <= 870) {
                         this.flowContainerStyle = null;
                         return;
                     }
 
-                    if (maxWidth > 840 && maxWidth <= 1300) {
+                    if (maxWidth > 870 && maxWidth <= 1300) {
                         this.flowContainerStyle = { 'max-width': '1300px' };
                         return;
                     }
@@ -85,6 +85,7 @@ Component.register('sw-flow-detail-flow', {
                     this.flowContainerStyle = { 'max-width': '100%' };
                 });
             },
+            immediate: true,
         },
     },
 

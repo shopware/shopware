@@ -6,7 +6,8 @@
         display: flex;
         flex-direction: column;
         margin: auto;
-        max-width: 840px;
+        max-width: 870px;
+        transition: max-width 0.3s ease-in-out;
     }
 
     &__trigger-card {

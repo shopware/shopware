@@ -205,9 +205,11 @@ General styling for cms elements
 }
 
 .cms-element-image-gallery {
-    // hides magnifier overlay because zoom container is displayed over gallery
-    .magnifier-overlay {
-        display: none;
+    .js-magnifier-zoom-image-container {
+        // hides magnifier overlay because zoom container is displayed over gallery
+        .magnifier-overlay {
+            display: none;
+        }
     }
 }
 

@@ -51,6 +51,14 @@ Shopware.Service('cmsService').registerCmsElement({
             source: 'static',
             value: false,
         },
+        keepAspectRatioOnZoom: {
+            source: 'static',
+            value: true,
+        },
+        magnifierOverGallery: {
+            source: 'static',
+            value: false,
+        },
     },
     enrich: function enrich(elem, data) {
         if (Object.keys(data).length < 1) {

@@ -261,6 +261,28 @@
                         {% endblock %}
                     </div>
                     {% endblock %}
+
+                    {% block sw_cms_element_image_gallery_config_settings_aspect_ratio_magnifier_over_gallery_toggles %}
+                    <div class="sw-cms-el-config-image-gallery__setting-option">
+
+                        {% block sw_cms_element_image_gallery_config_settings_toggle_keep_aspect_ratio_on_zoom %}
+                        <sw-switch-field
+                            v-model="element.config.keepAspectRatioOnZoom.value"
+                            bordered
+                            :label="$tc('sw-cms.elements.imageGallery.config.label.keepAspectRatioOnZoom')"
+                        />
+                        {% endblock %}
+
+                        {% block sw_cms_element_image_gallery_config_settings_toggle_magnifier_over_gallery %}
+                        <sw-switch-field
+                            v-model="element.config.magnifierOverGallery.value"
+                            bordered
+                            :label="$tc('sw-cms.elements.imageGallery.config.label.magnifierOverGallery')"
+                            :help-text="$tc('sw-cms.elements.imageGallery.config.label.magnifierOverGalleryHelpText')"
+                        />
+                        {% endblock %}
+                    </div>
+                    {% endblock %}
                 </div>
             </sw-container>
             {% endblock %}

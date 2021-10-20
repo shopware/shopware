@@ -101,6 +101,14 @@ function createWrapper(activeTab = 'content') {
                     fullScreen: {
                         source: 'static',
                         value: false
+                    },
+                    keepAspectRatioOnZoom: {
+                        source: 'static',
+                        value: true
+                    },
+                    magnifierOverGallery: {
+                        source: 'static',
+                        value: false
                     }
                 },
                 data: {}

@@ -150,7 +150,7 @@
                         <sw-password-field
                             v-if="editMode"
                             v-model="customer.passwordNew"
-                            autocomplete="off"
+                            autocomplete="new-password"
                             :label="$tc('sw-profile.index.labelNewPassword')"
                             :placeholder="$tc('sw-customer.card.placeholderNewPassword')"
                         />
@@ -160,7 +160,7 @@
                         <sw-password-field
                             v-if="editMode"
                             v-model="customer.passwordConfirm"
-                            autocomplete="off"
+                            autocomplete="new-password"
                             :label="$tc('sw-profile.index.labelNewPasswordConfirm')"
                             :placeholder="$tc('sw-customer.card.placeholderNewPasswordConfirm')"
                         />

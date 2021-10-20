@@ -41,7 +41,7 @@ abstract class AbstractCmsElementResolver implements CmsElementResolverInterface
             }
 
             try {
-                $value = $value->get($part);
+                $value = \is_array($value) ? $value[$part] : $value->get($part);
 
                 // if we are at the destination entity and it does not have a value for the field
                 // on it's on, then try to get the translation fallback

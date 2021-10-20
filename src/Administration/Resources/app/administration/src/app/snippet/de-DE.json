@@ -855,6 +855,13 @@
       "bulkEdit": "Mehrfachänderung",
       "startBulkEdit": "Mehrfachänderung starten",
       "bulkEditModalTitle": "Mehrfachänderung - {count} Elemente ausgewählt | Mehrfachänderung - {count} Elemente ausgewählt"
+    },
+    "sw-search-preferences-modal": {
+      "title": "Sucheinstellungen",
+      "description": "Nur die hier ausgewählten Elemente werden als Suchergebnisse angezeigt. Für detailierte Anpassungen der Suche <span id='sw-search-preferences-modal-link'>`öffne die Sucheinstellungen` &#8594;</span>",
+      "tooltipMessage": "Dein Benutzerkonto hat keine Berechtigung für dieses Modul. Bitte kontaktiere den Administrator.",
+      "columnActive": "Aktiv",
+      "columnModuleName": "Modulname"
     }
   },
   "sw-text-editor-toolbar": {

@@ -10,7 +10,7 @@ const swProfileStateMock = {
     state() {
         return {
             searchPreferences: [],
-            userSearchPreferences: {}
+            userSearchPreferences: null
         };
     },
     mutations: {
@@ -64,7 +64,16 @@ function createWrapper(privileges = []) {
                     return privileges.includes(identifier);
                 }
             },
-            searchPreferencesService: {}
+            searchPreferencesService: {
+                getDefaultSearchPreferences: () => {},
+                getUserSearchPreferences: () => {},
+                createUserSearchPreferences: () => {
+                    return {
+                        key: 'search.preferences',
+                        userId: 'userId'
+                    };
+                }
+            }
         }
     });
 }
@@ -80,9 +89,39 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
         expect(wrapper.vm).toBeTruthy();
     });
 
+    it('should get data source once component created', async () => {
+        const wrapper = createWrapper();
+        wrapper.vm.getDataSource = jest.fn(() => Promise.resolve());
+
+        await wrapper.vm.createdComponent();
+
+        expect(wrapper.vm.getDataSource).toHaveBeenCalledTimes(1);
+        wrapper.vm.getDataSource.mockRestore();
+    });
+
+    it('should add event listeners once component created', async () => {
+        const wrapper = createWrapper();
+        wrapper.vm.addEventListeners = jest.fn();
+
+        await wrapper.vm.createdComponent();
+
+        expect(wrapper.vm.addEventListeners).toHaveBeenCalledTimes(1);
+        wrapper.vm.addEventListeners.mockRestore();
+    });
+
+    it('should remove event listeners before component destroyed', async () => {
+        const wrapper = createWrapper();
+        wrapper.vm.removeEventListeners = jest.fn();
+
+        await wrapper.vm.beforeDestroyComponent();
+
+        expect(wrapper.vm.removeEventListeners).toHaveBeenCalledTimes(1);
+        wrapper.vm.removeEventListeners.mockRestore();
+    });
+
     it('should get user search preferences once component created', async () => {
         const wrapper = createWrapper();
-        wrapper.vm.searchPreferencesService.getUserSearchPreferences = jest.fn(() => Promise.resolve([]));
+        wrapper.vm.searchPreferencesService.getUserSearchPreferences = jest.fn(() => Promise.resolve());
 
         await wrapper.vm.createdComponent();
 

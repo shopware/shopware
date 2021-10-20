@@ -266,14 +266,13 @@
                     v-html="$tc('global.sw-search-bar.placeholderSearchShortcutInfo')"
                 ></p>
 
-                <!-- eslint-disable-next-line vuejs-accessibility/anchor-has-content -->
-                <a>
-                    <sw-icon
-                        :style="{ 'color': '#7d8c9b' }"
-                        name="default-action-settings"
-                        small
-                    />
-                </a>
+                <sw-icon
+                    small
+                    name="default-action-settings"
+                    class="sw-search-bar__footer-action-setting"
+                    :style="{ 'color': '#7d8c9b' }"
+                    @click="toggleSearchPreferencesModal"
+                />
             </div>
             {% endblock %}
         </div>
@@ -375,14 +374,13 @@
                     v-html="$tc('global.sw-search-bar.placeholderSearchShortcutInfo')"
                 ></p>
 
-                <!-- eslint-disable-next-line vuejs-accessibility/anchor-has-content -->
-                <a>
-                    <sw-icon
-                        :style="{ 'color': '#7d8c9b' }"
-                        name="default-action-settings"
-                        small
-                    />
-                </a>
+                <sw-icon
+                    small
+                    name="default-action-settings"
+                    class="sw-search-bar__footer-action-setting"
+                    :style="{ 'color': '#7d8c9b' }"
+                    @click="toggleSearchPreferencesModal"
+                />
             </div>
             {% endblock %}
         </div>
@@ -436,6 +434,13 @@
         </div>
         {% endblock %}
     </div>
+    {% endblock %}
+
+    {% block sw_search_bar_search_preferences_modal %}
+    <sw-search-preferences-modal
+        v-if="showSearchPreferencesModal"
+        @modal-close="toggleSearchPreferencesModal"
+    />
     {% endblock %}
 </div>
 {% endblock %}

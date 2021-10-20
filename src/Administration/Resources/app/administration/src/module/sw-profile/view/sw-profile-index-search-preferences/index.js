@@ -2,12 +2,11 @@ import template from './sw-profile-index-search-preferences.html.twig';
 import './sw-profile-index-search-preferences.scss';
 
 const { Component, Module, State, Mixin } = Shopware;
-const { mapState } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-profile-index-search-preferences', {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'searchPreferencesService'],
+    inject: ['acl', 'searchPreferencesService'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -20,12 +19,40 @@ Component.register('sw-profile-index-search-preferences', {
     },
 
     computed: {
-        ...mapState('swProfile', [
-            'searchPreferences',
-        ]),
+        searchPreferences: {
+            get() {
+                return State.get('swProfile').searchPreferences;
+            },
+            set(searchPreferences) {
+                State.commit('swProfile/setSearchPreferences', searchPreferences);
+            },
+        },
+
+        userSearchPreferences: {
+            get() {
+                return State.get('swProfile').userSearchPreferences;
+            },
+            set(userSearchPreferences) {
+                State.commit('swProfile/setUserSearchPreferences', userSearchPreferences);
+            },
+        },
 
         defaultSearchPreferences() {
-            return this.searchPreferencesService.getDefaultSearchPreferences();
+            const defaultSearchPreferences = this.searchPreferencesService.getDefaultSearchPreferences();
+
+            if (this.userSearchPreferences === null) {
+                return defaultSearchPreferences;
+            }
+
+            return defaultSearchPreferences.reduce((accumulator, currentValue) => {
+                const value = this.userSearchPreferences.find((item) => {
+                    return Object.keys(item)[0] === Object.keys(currentValue)[0];
+                });
+
+                accumulator.push(value || currentValue);
+
+                return accumulator;
+            }, []);
         },
     },
 
@@ -33,51 +60,43 @@ Component.register('sw-profile-index-search-preferences', {
         this.createdComponent();
     },
 
+    beforeDestroy() {
+        this.beforeDestroyComponent();
+    },
+
     methods: {
-        async createdComponent() {
+        createdComponent() {
+            this.getDataSource();
+            this.addEventListeners();
+        },
+
+        beforeDestroyComponent() {
+            this.removeEventListeners();
+        },
+
+        async getDataSource() {
             this.isLoading = true;
 
             try {
-                const userSearchPreferences = await this.searchPreferencesService.getUserSearchPreferences();
-
-                if (!userSearchPreferences) {
-                    this.createUserSearchPreferences();
-
-                    const searchPreferences = this.searchPreferencesService.processSearchPreferences(
-                        this.defaultSearchPreferences,
-                    );
-                    State.commit('swProfile/setSearchPreferences', searchPreferences);
-
-                    return;
-                }
-
-                State.commit('swProfile/setUserSearchPreferences', userSearchPreferences);
-
-                const tempSearchPreferences = this.defaultSearchPreferences.reduce((accumulator, currentValue) => {
-                    const value = userSearchPreferences.find((item) => {
-                        return Object.keys(item)[0] === Object.keys(currentValue)[0];
-                    });
-
-                    accumulator.push(value || currentValue);
-
-                    return accumulator;
-                }, []);
-
-                const searchPreferences = this.searchPreferencesService.processSearchPreferences(tempSearchPreferences);
-                State.commit('swProfile/setSearchPreferences', searchPreferences);
+                this.userSearchPreferences = await this.searchPreferencesService.getUserSearchPreferences();
+                this.searchPreferences = this.searchPreferencesService.processSearchPreferences(
+                    this.defaultSearchPreferences,
+                );
             } catch (error) {
                 this.createNotificationError({ message: error.message });
-                State.commit('swProfile/setSearchPreferences', []);
-                State.commit('swProfile/setUserSearchPreferences', {});
+                this.searchPreferences = [];
+                this.userSearchPreferences = null;
             } finally {
                 this.isLoading = false;
             }
         },
 
-        createUserSearchPreferences() {
-            const userSearchPreferences = this.searchPreferencesService.createUserSearchPreferences();
+        addEventListeners() {
+            this.$root.$on('sw-search-preferences-modal-close', this.getDataSource);
+        },
 
-            State.commit('swProfile/setUserSearchPreferences', userSearchPreferences);
+        removeEventListeners() {
+            this.$root.$off('sw-search-preferences-modal-close', this.getDataSource);
         },
 
         getModuleTitle(entityName) {

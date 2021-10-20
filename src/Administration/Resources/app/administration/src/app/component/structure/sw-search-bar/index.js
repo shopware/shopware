@@ -71,6 +71,7 @@ Component.register('sw-search-bar', {
             moduleFactory: {},
             salesChannels: [],
             salesChannelTypes: [],
+            showSearchPreferencesModal: false,
         };
     },
 
@@ -838,6 +839,15 @@ Component.register('sw-search-bar', {
                         },
                     ];
                 }, []);
+        },
+
+        toggleSearchPreferencesModal() {
+            this.showSearchPreferencesModal = !this.showSearchPreferencesModal;
+
+            // Clear search term, turn off search results
+            this.searchTerm = null;
+            this.showResultsContainer = false;
+            this.showTypeSelectContainer = false;
         },
     },
 });

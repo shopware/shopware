@@ -1,0 +1,71 @@
+<!-- eslint-disable vuejs-accessibility/click-events-have-key-events -->
+{% block sw_search_preferences_modal %}
+<sw-modal
+    class="sw-search-preferences-modal"
+    :title="$tc('global.sw-search-preferences-modal.title')"
+    :is-loading="isLoading"
+    @modal-close="onClose"
+>
+    {% block sw_search_preferences_modal_description %}
+    <p
+        class="sw-search-preferences-modal__description"
+        v-html="$tc('global.sw-search-preferences-modal.description')"
+    >
+    </p>
+    {% endblock %}
+
+    {% block sw_search_preferences_modal_grid %}
+    <sw-data-grid
+        :show-selection="false"
+        :show-actions="false"
+        :plain-appearance="true"
+        :data-source="searchPreferences"
+        :columns="searchPreferencesColumns"
+    >
+        <template #column-active="{ item }">
+            {% block sw_search_preferences_modal_grid_column_active %}
+            <sw-checkbox-field
+                v-model="item._searchable"
+                v-tooltip="{
+                    message: $tc('global.sw-search-preferences-modal.tooltipMessage'),
+                    disabled: acl.can(`${item.entityName}.editor`),
+                    showOnDisabledElements: true
+                }"
+                :disabled="!acl.can(`${item.entityName}.editor`)"
+            />
+            {% endblock %}
+        </template>
+
+        <template #column-moduleName="{ item }">
+            {% block sw_search_preferences_modal_grid_column_module_name %}
+            <span>{{ getModuleName(item.entityName) }}</span>
+            {% endblock %}
+        </template>
+    </sw-data-grid>
+    {% endblock %}
+
+    <template #modal-footer>
+        {% block sw_search_preferences_modal_button_cancel %}
+        <sw-button
+            size="small"
+            class="sw-search-preferences-modal__button-cancel"
+            @click="onCancel"
+        >
+            {{ $tc('global.default.cancel') }}
+        </sw-button>
+        {% endblock %}
+
+        {% block sw_search_preferences_modal_button_save %}
+        <sw-button
+            variant="primary"
+            size="small"
+            class="sw-search-preferences-modal__button-save"
+            :disabled="isLoading"
+            @click="onSave"
+        >
+            {{ $tc('global.default.save') }}
+        </sw-button>
+        {% endblock %}
+    </template>
+</sw-modal>
+{% endblock %}

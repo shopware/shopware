@@ -855,6 +855,13 @@
       "bulkEdit": "Bulk edit",
       "startBulkEdit": "Start bulk edit",
       "bulkEditModalTitle": "Bulk edit - {count} items selected | Bulk edit - {count} items selected"
+    },
+    "sw-search-preferences-modal": {
+      "title": "Search preferences",
+      "description": "Only selected elements will appear in the search results. For detailed settings <span id='sw-search-preferences-modal-link'>open search settings &#8594;</span>",
+      "tooltipMessage": "Your account doesn't have access to this module.",
+      "columnActive": "Active",
+      "columnModuleName": "Module name"
     }
   },
   "sw-text-editor-toolbar": {

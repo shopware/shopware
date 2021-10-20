@@ -55,13 +55,21 @@ Component.register('sw-profile-index', {
     computed: {
         ...mapState('swProfile', [
             'searchPreferences',
-            'userSearchPreferences',
         ]),
 
         ...mapPropertyErrors('user', [
             'email',
             'timeZone',
         ]),
+
+        userSearchPreferences: {
+            get() {
+                return State.get('swProfile').userSearchPreferences;
+            },
+            set(userSearchPreferences) {
+                State.commit('swProfile/setUserSearchPreferences', userSearchPreferences);
+            },
+        },
 
         isDisabled() {
             return true; // TODO use ACL here with NEXT-1653
@@ -81,10 +89,6 @@ Component.register('sw-profile-index', {
 
         mediaRepository() {
             return this.repositoryFactory.create('media');
-        },
-
-        userConfigRepository() {
-            return this.repositoryFactory.create('user_config');
         },
 
         userMediaCriteria() {
@@ -462,7 +466,9 @@ Component.register('sw-profile-index', {
         },
 
         saveUserSearchPreferences() {
-            const value = this.searchPreferences.map(({ entityName, _searchable, fields }) => {
+            // eslint-disable-next-line max-len
+            this.userSearchPreferences = this.userSearchPreferences ?? this.searchPreferencesService.createUserSearchPreferences();
+            this.userSearchPreferences.value = this.searchPreferences.map(({ entityName, _searchable, fields }) => {
                 return {
                     [entityName]: {
                         _searchable,
@@ -471,12 +477,11 @@ Component.register('sw-profile-index', {
                 };
             });
 
-            this.userSearchPreferences.value = value;
             this.searchRankingService.clearCacheUserSearchConfiguration();
 
             this.isLoading = true;
             this.isSaveSuccessful = false;
-            return this.userConfigService.upsert({ [KEY_USER_SEARCH_PREFERENCE]: value })
+            return this.userConfigService.upsert({ [KEY_USER_SEARCH_PREFERENCE]: this.userSearchPreferences.value })
                 .then(() => {
                     this.isLoading = false;
                     this.isSaveSuccessful = true;

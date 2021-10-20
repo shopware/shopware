@@ -1,5 +1,6 @@
 import template from './sw-cms-page-form.html.twig';
 import './sw-cms-page-form.scss';
+import CMS from '../../constant/sw-cms.constant';
 
 const { Component } = Shopware;
 
@@ -23,21 +24,30 @@ Component.register('sw-cms-page-form', {
         cmsElements() {
             return this.cmsService.getCmsElementRegistry();
         },
+
+        slotPositions() {
+            return CMS.SLOT_POSITIONS;
+        },
     },
 
     created() {
-        const twoColumnSorting = ['left', 'right'];
-
-        this.page.sections.forEach((section) => {
-            section.blocks.forEach((block) => {
-                if (block.type === 'text-two-column') {
-                    block.slots.sort((a, b) => twoColumnSorting.indexOf(a.slot) - twoColumnSorting.indexOf(b.slot));
-                }
-            });
-        });
+        this.createdComponent();
     },
 
     methods: {
+        createdComponent() {
+            this.page.sections.forEach((section) => {
+                section.blocks.forEach((block) => {
+                    block.slots.sort((a, b) => {
+                        const positionA = this.slotPositions[a.slot] ?? this.slotPositions.default;
+                        const positionB = this.slotPositions[b.slot] ?? this.slotPositions.default;
+
+                        return positionA - positionB;
+                    });
+                });
+            });
+        },
+
         getBlockTitle(block) {
             if (block.config?.name) {
                 return block.config.name;

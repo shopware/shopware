@@ -212,7 +212,10 @@
             "navigationPreviewPositionLeft": "Left",
             "navigationPreviewPositionUnderneath": "Underneath",
             "zoom": "Zoom",
-            "fullscreen": "Fullscreen gallery"
+            "fullscreen": "Fullscreen gallery",
+            "keepAspectRatioOnZoom": "Keep aspect ratio on zoom",
+            "magnifierOverGallery": "Show magnifier over Gallery",
+            "magnifierOverGalleryHelpText": "Show the magnifier box on top of the gallery instead of showing it next to the gallery"
           }
         }
       },

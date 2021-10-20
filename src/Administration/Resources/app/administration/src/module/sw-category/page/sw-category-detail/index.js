@@ -216,7 +216,8 @@ Component.register('sw-category-detail', {
                 .addAssociation('media')
                 .addAssociation('navigationSalesChannels.homeCmsPage.previewMedia')
                 .addAssociation('serviceSalesChannels')
-                .addAssociation('footerSalesChannels');
+                .addAssociation('footerSalesChannels')
+                .addAssociation('translations');
 
             return criteria;
         },
@@ -370,6 +371,7 @@ Component.register('sw-category-detail', {
 
                 this.updateCmsPageDataMapping();
                 Shopware.State.commit('cmsPageState/setCurrentPage', cmsPage);
+
                 return this.cmsPage;
             });
         },
@@ -398,7 +400,8 @@ Component.register('sw-category-detail', {
             criteria.addAssociation('sections.blocks');
             criteria.getAssociation('sections.blocks')
                 .addSorting(Criteria.sort('position', 'ASC'))
-                .addAssociation('slots');
+                .getAssociation('slots')
+                .addAssociation('translations');
 
             return this.cmsPageRepository.search(criteria).then((response) => {
                 const cmsPage = response.get(cmsPageId);

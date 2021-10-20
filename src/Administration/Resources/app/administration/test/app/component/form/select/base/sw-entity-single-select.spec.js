@@ -70,7 +70,20 @@ function getPropertyCollection() {
 const createEntitySingleSelect = (customOptions) => {
     const localVue = createLocalVue();
     localVue.directive('popover', {});
-    localVue.directive('tooltip', {});
+    localVue.directive('tooltip', {
+        bind(el, binding) {
+            el.setAttribute('tooltip-message', binding.value.message);
+            el.setAttribute('tooltip-disabled', binding.value.disabled);
+        },
+        inserted(el, binding) {
+            el.setAttribute('tooltip-message', binding.value.message);
+            el.setAttribute('tooltip-disabled', binding.value.disabled);
+        },
+        update(el, binding) {
+            el.setAttribute('tooltip-message', binding.value.message);
+            el.setAttribute('tooltip-disabled', binding.value.disabled);
+        }
+    });
 
     const options = {
         localVue,
@@ -128,6 +141,88 @@ describe('components/sw-entity-single-select', () => {
         const { singleSelection } = swEntitySingleSelect.vm;
 
         expect(singleSelection).toBeNull();
+    });
+
+    it('should have disabled state results according to function', async () => {
+        const wrapper = createEntitySingleSelect({
+            propsData: {
+                value: null,
+                entity: 'test',
+                selectionDisablingMethod: item => item.name === 'second entry'
+            },
+            provide: {
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            search: () => Promise.resolve(getCollection())
+                        };
+                    }
+                }
+            }
+        });
+
+        await wrapper.find('input').trigger('click');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.sw-select-option--0').classes()).not.toContain('is--disabled');
+        expect(wrapper.find('.sw-select-option--1').classes()).toContain('is--disabled');
+        expect(wrapper.find('.sw-select-option--2').classes()).not.toContain('is--disabled');
+    });
+
+    it('should have no tooltip and enabled results with no disabling function', async () => {
+        const wrapper = createEntitySingleSelect({
+            propsData: {
+                value: null,
+                entity: 'test'
+            },
+            provide: {
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            search: () => Promise.resolve(getCollection())
+                        };
+                    }
+                }
+            }
+        });
+
+        await wrapper.find('input').trigger('click');
+        await wrapper.vm.$nextTick();
+
+        const firstEntry = wrapper.find('.sw-select-option--0');
+        expect(firstEntry.attributes('tooltip-message')).toBeFalsy();
+        expect(firstEntry.attributes('tooltip-disabled')).toBe('true');
+        expect(wrapper.find('.sw-select-option--0').classes()).not.toContain('is--disabled');
+    });
+
+    it('should show disabled selection tooltip when appropriate', async () => {
+        const wrapper = createEntitySingleSelect({
+            propsData: {
+                value: null,
+                entity: 'test',
+                selectionDisablingMethod: item => item.name === 'second entry',
+                disabledSelectionTooltip: { message: 'test message' }
+            },
+            provide: {
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            search: () => Promise.resolve(getCollection())
+                        };
+                    }
+                }
+            }
+        });
+
+        await wrapper.find('input').trigger('click');
+        await wrapper.vm.$nextTick();
+
+        const firstEntry = wrapper.find('.sw-select-option--0');
+        expect(firstEntry.attributes('tooltip-message')).toBe('test message');
+        expect(firstEntry.attributes('tooltip-disabled')).toBe('true');
+        const secondEntry = wrapper.find('.sw-select-option--1');
+        expect(secondEntry.attributes('tooltip-message')).toBe('test message');
+        expect(secondEntry.attributes('tooltip-disabled')).toBe('false');
     });
 
     it('should have a reset option when it is defined an the value is null', async () => {

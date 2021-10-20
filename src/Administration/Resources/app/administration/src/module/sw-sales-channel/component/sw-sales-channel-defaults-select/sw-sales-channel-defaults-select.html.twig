@@ -28,6 +28,8 @@
             :value="defaultId"
             :error="defaultsValueError"
             :criteria="criteria"
+            :selection-disabling-method="isDisabledItem"
+            :disabled-selection-tooltip="{ message: disabledTooltipMessage }"
             @change="updateDefault"
         />
     </template>

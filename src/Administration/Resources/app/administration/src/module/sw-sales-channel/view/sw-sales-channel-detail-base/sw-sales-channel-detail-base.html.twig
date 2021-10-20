@@ -147,6 +147,23 @@
         />
         {% endblock %}
 
+        {% block sw_sales_channel_detail_base_disabled_countries_warning %}
+        <sw-alert
+            v-if="disabledCountries.length > 0"
+            variant="warning"
+            :title="$tc('global.default.warning')"
+        >
+            <span
+                v-html="$tc('sw-sales-channel.detail.warningDisabledCountries', disabledCountries.length, {
+                    name: disabledCountries.first().name,
+                    addition: disabledCountries.length > 2
+                        ? $tc('sw-sales-channel.detail.warningDisabledAddition', 1, { amount: disabledCountries.length - 1 })
+                        : disabledCountries.last().name
+                })"
+            ></span>
+        </sw-alert>
+        {% endblock %}
+
         {% block sw_sales_channel_detail_base_general_input_countries %}
         <sw-sales-channel-defaults-select
             v-if="!isProductComparison"
@@ -155,8 +172,10 @@
             :property-label="$tc('sw-sales-channel.detail.labelInputCountries')"
             :help-text="$tc('sw-sales-channel.detail.countryMultiSelectHelpText')"
             default-property-name="countryId"
+            :criteria="countryCriteria"
             :disabled="!acl.can('sales_channel.editor')"
             :default-property-label="$tc('sw-sales-channel.detail.labelInputDefaultCountry')"
+            :disabled-tooltip-message="$tc('sw-sales-channel.detail.tooltipDisabledCountry')"
         />
         {% endblock %}
 
@@ -181,6 +200,23 @@
         :is-loading="isLoading"
         :title="$tc('sw-sales-channel.detail.titleShippingPayment')"
     >
+        {% block sw_sales_channel_detail_base_disabled_payments_methods_warning %}
+        <sw-alert
+            v-if="disabledPaymentMethods.length > 0"
+            variant="warning"
+            :title="$tc('global.default.warning')"
+        >
+            <span
+                v-html="$tc('sw-sales-channel.detail.warningDisabledPaymentMethod', disabledPaymentMethods.length, {
+                    name: disabledPaymentMethods.first().distinguishableName,
+                    addition: disabledPaymentMethods.length > 2
+                        ? $tc('sw-sales-channel.detail.warningDisabledAddition', 1, { amount: disabledPaymentMethods.length - 1 })
+                        : disabledPaymentMethods.last().distinguishableName
+                })"
+            ></span>
+        </sw-alert>
+        {% endblock %}
+
         {% block sw_sales_channel_detail_base_general_input_payments_methods %}
         <sw-sales-channel-defaults-select
             v-if="!isProductComparison"
@@ -191,7 +227,25 @@
             default-property-name="paymentMethodId"
             :disabled="!acl.can('sales_channel.editor')"
             :default-property-label="$tc('sw-sales-channel.detail.labelInputDefaultPaymentMethod')"
+            :disabled-tooltip-message="$tc('sw-sales-channel.detail.tooltipDisabledPaymentMethod')"
         />
+        {% endblock %}
+
+        {% block sw_sales_channel_detail_base_disabled_shipping_methods_warning %}
+        <sw-alert
+            v-if="disabledShippingMethods.length > 0"
+            variant="warning"
+            :title="$tc('global.default.warning')"
+        >
+            <span
+                v-html="$tc('sw-sales-channel.detail.warningDisabledShippingMethod', disabledShippingMethods.length, {
+                    name: disabledShippingMethods.first().name,
+                    addition: disabledShippingMethods.length > 2
+                        ? $tc('sw-sales-channel.detail.warningDisabledAddition', 1, { amount: disabledShippingMethods.length - 1 })
+                        : disabledShippingMethods.last().name
+                })"
+            ></span>
+        </sw-alert>
         {% endblock %}
 
         {% block sw_sales_channel_detail_base_general_input_shipping_methods %}
@@ -203,6 +257,7 @@
             default-property-name="shippingMethodId"
             :disabled="!acl.can('sales_channel.editor')"
             :default-property-label="$tc('sw-sales-channel.detail.labelInputDefaultShippingMethod')"
+            :disabled-tooltip-message="$tc('sw-sales-channel.detail.tooltipDisabledShippingMethod')"
         />
         {% endblock %}
 

@@ -135,6 +135,27 @@ Component.register('sw-sales-channel-detail-base', {
             return criteria;
         },
 
+        countryCriteria() {
+            const criteria = new Criteria();
+
+            criteria.addSorting(Criteria.sort('position', 'ASC'));
+            criteria.addSorting(Criteria.sort('name', 'ASC'));
+
+            return criteria;
+        },
+
+        disabledCountries() {
+            return this.salesChannel?.countries?.filter(country => country.active === false) ?? [];
+        },
+
+        disabledPaymentMethods() {
+            return this.salesChannel?.paymentMethods?.filter(paymentMethod => paymentMethod.active === false) ?? [];
+        },
+
+        disabledShippingMethods() {
+            return this.salesChannel?.shippingMethods?.filter(shippingMethod => shippingMethod.active === false) ?? [];
+        },
+
         storefrontDomainsLoaded() {
             return this.storefrontDomains.length > 0;
         },

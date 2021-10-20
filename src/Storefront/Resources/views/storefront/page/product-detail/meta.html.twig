@@ -19,8 +19,10 @@
         <meta property="product:brand"
               content="{{ page.product.manufacturer.translated.name }}"/>
     {% endif %}
-    <meta property="product:price"
-          content="{{ page.product.calculatedPrice.unitPrice|currency }}"/>
+    <meta property="product:price:amount"
+          content="{{ page.product.calculatedPrice.unitPrice|round(context.currency.itemRounding.decimals) }}"/>
+    <meta property="product:price:currency"
+          content="{{ context.currency.isoCode }}"/>
     <meta property="product:product_link"
           content="{{ seoUrl('frontend.detail.page', { productId: page.product.id }) }}"/>
 

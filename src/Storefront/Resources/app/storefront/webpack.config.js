@@ -57,7 +57,7 @@ let webpackConfig = {
                 hot: true,
                 compress: false,
                 disableHostCheck: true,
-                port: 9999,
+                port: parseInt(process.env.STOREFRONT_ASSETS_PORT || 9999, 10),
                 host: '127.0.0.1',
                 clientLogLevel: 'warning',
                 headers: {

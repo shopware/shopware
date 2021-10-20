@@ -32,4 +32,5 @@
 * [2021-09-06 - Make Core mail templates independent from Storefront urls](2021-09-06-make-core-mail-templates-independent-from-storefront-urls.md)
 * [2021-09-14 - Technical concept custom entities](2021-09-14-technical-concept-custom-entities.md)
 * [2021-10-01 - Payment Flow](2021-10-01-payment-flow.md)
+* [2021-10-13 - Refund handling](2021-10-13-refund-handling.md)
 

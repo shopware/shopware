@@ -1,0 +1,13 @@
+{% block sw_condition_value_content %}
+<div class="sw-condition-is-newsletter-recipient">
+    {% block sw_condition_is_newsletter_recipient %}
+    <sw-single-select
+        v-model="isNewsletterRecipient"
+        size="medium"
+        :options="selectValues"
+        :disabled="disabled"
+        show-clearable-button
+    />
+    {% endblock %}
+</div>
+{% endblock %}

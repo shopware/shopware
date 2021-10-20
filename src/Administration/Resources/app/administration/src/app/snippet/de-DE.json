@@ -595,6 +595,7 @@
         "isNewCustomerRule": "Neuer Kunde",
         "lastNameRule": "Nachname",
         "isCompanyRule": "Firmenkunde",
+        "isNewsletterRecipient": "Kunde ist Newsletter-Empfänger",
         "daysSinceLastOrderRule": "Tage seit letzter Bestellung",
         "shippingCountryRule": "Lieferland",
         "shippingStreetRule": "Lieferstraße",

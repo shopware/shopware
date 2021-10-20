@@ -91,6 +91,11 @@ Application.addServiceProviderDecorator('ruleConditionDataProviderService', (rul
         label: 'global.sw-condition.condition.isCompanyRule',
         scopes: ['checkout'],
     });
+    ruleConditionService.addCondition('customerIsNewsletterRecipient', {
+        component: 'sw-condition-is-newsletter-recipient',
+        label: 'global.sw-condition.condition.isNewsletterRecipient',
+        scopes: ['checkout'],
+    });
     ruleConditionService.addCondition('customerShippingCountry', {
         component: 'sw-condition-shipping-country',
         label: 'global.sw-condition.condition.shippingCountryRule',

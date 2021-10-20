@@ -1,28 +1,24 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Checkout\Customer\DataAbstractionLayer;
+namespace Shopware\Core\Content\Newsletter\DataAbstractionLayer;
 
-use Shopware\Core\Checkout\Customer\CustomerDefinition;
-use Shopware\Core\Checkout\Customer\Event\CustomerIndexerEvent;
+use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
 use Shopware\Core\Content\Newsletter\DataAbstractionLayer\Indexing\CustomerNewsletterSalesChannelsUpdater;
+use Shopware\Core\Content\Newsletter\Event\NewsletterRecipientIndexerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
-use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-class CustomerIndexer extends EntityIndexer
+class NewsletterRecipientIndexer extends EntityIndexer
 {
-    public const MANY_TO_MANY_ID_FIELD_UPDATER = 'customer.many-to-many-id-field';
-    public const NEWSLETTER_SALES_CHANNELS_UPDATER = 'customer.newsletter-sales-channels';
+    public const CUSTOMER_NEWSLETTER_SALES_CHANNELS_UPDATER = 'newsletter_recipients.customer-newsletter-sales-channels';
 
     private IteratorFactory $iteratorFactory;
 
     private EntityRepositoryInterface $repository;
-
-    private ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater;
 
     private CustomerNewsletterSalesChannelsUpdater $customerNewsletterSalesChannelsUpdater;
 
@@ -31,20 +27,18 @@ class CustomerIndexer extends EntityIndexer
     public function __construct(
         IteratorFactory $iteratorFactory,
         EntityRepositoryInterface $repository,
-        ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater,
         CustomerNewsletterSalesChannelsUpdater $customerNewsletterSalesChannelsUpdater,
         EventDispatcherInterface $eventDispatcher
     ) {
         $this->iteratorFactory = $iteratorFactory;
         $this->repository = $repository;
-        $this->manyToManyIdFieldUpdater = $manyToManyIdFieldUpdater;
         $this->customerNewsletterSalesChannelsUpdater = $customerNewsletterSalesChannelsUpdater;
         $this->eventDispatcher = $eventDispatcher;
     }
 
     public function getName(): string
     {
-        return 'customer.indexer';
+        return 'newsletter_recipient.indexer';
     }
 
     /**
@@ -62,18 +56,18 @@ class CustomerIndexer extends EntityIndexer
             return null;
         }
 
-        return new CustomerIndexingMessage(array_values($ids), $iterator->getOffset());
+        return new NewsletterRecipientIndexingMessage(array_values($ids), $iterator->getOffset());
     }
 
     public function update(EntityWrittenContainerEvent $event): ?EntityIndexingMessage
     {
-        $updates = $event->getPrimaryKeys(CustomerDefinition::ENTITY_NAME);
+        $updates = $event->getPrimaryKeys(NewsletterRecipientDefinition::ENTITY_NAME);
 
         if (empty($updates)) {
             return null;
         }
 
-        return new CustomerIndexingMessage(array_values($updates), null, $event->getContext());
+        return new NewsletterRecipientIndexingMessage(array_values($updates), null, $event->getContext());
     }
 
     public function handle(EntityIndexingMessage $message): void
@@ -81,28 +75,27 @@ class CustomerIndexer extends EntityIndexer
         $ids = $message->getData();
         $ids = array_unique(array_filter($ids));
 
-        if (empty($ids)) {
+        if (empty($ids) || !$message instanceof NewsletterRecipientIndexingMessage) {
             return;
         }
 
         $context = $message->getContext();
 
-        if ($message->allow(self::MANY_TO_MANY_ID_FIELD_UPDATER)) {
-            $this->manyToManyIdFieldUpdater->update(CustomerDefinition::ENTITY_NAME, $ids, $context);
+        if ($message->allow(self::CUSTOMER_NEWSLETTER_SALES_CHANNELS_UPDATER)) {
+            if ($message->isDeletedNewsletterRecipients()) {
+                $this->customerNewsletterSalesChannelsUpdater->delete($ids);
+            } else {
+                $this->customerNewsletterSalesChannelsUpdater->update($ids);
+            }
         }
 
-        if ($message->allow(self::NEWSLETTER_SALES_CHANNELS_UPDATER)) {
-            $this->customerNewsletterSalesChannelsUpdater->update($ids, true);
-        }
-
-        $this->eventDispatcher->dispatch(new CustomerIndexerEvent($ids, $context, $message->getSkip()));
+        $this->eventDispatcher->dispatch(new NewsletterRecipientIndexerEvent($ids, $context, $message->getSkip()));
     }
 
     public function getOptions(): array
     {
         return [
-            self::MANY_TO_MANY_ID_FIELD_UPDATER,
-            self::NEWSLETTER_SALES_CHANNELS_UPDATER,
+            self::CUSTOMER_NEWSLETTER_SALES_CHANNELS_UPDATER,
         ];
     }
 }

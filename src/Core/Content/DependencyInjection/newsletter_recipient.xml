@@ -49,5 +49,22 @@
             <argument type="service" id="Shopware\Core\Framework\Validation\DataValidator"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
+
+        <service id="Shopware\Core\Content\Newsletter\DataAbstractionLayer\NewsletterRecipientIndexer">
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory"/>
+            <argument type="service" id="newsletter_recipient.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Newsletter\DataAbstractionLayer\Indexing\CustomerNewsletterSalesChannelsUpdater"/>
+            <argument type="service" id="event_dispatcher"/>
+            <tag name="shopware.entity_indexer"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Newsletter\DataAbstractionLayer\Indexing\CustomerNewsletterSalesChannelsUpdater">
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="Shopware\Core\Content\Newsletter\Event\Subscriber\NewsletterRecipientDeletedSubscriber">
+            <argument type="service" id="messenger.bus.shopware"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
     </services>
 </container>

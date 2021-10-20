@@ -1,54 +1,54 @@
-// merge 16.11.2020
 /**
  * Shopware End Developer API
  * @module Shopware
  * @ignore
  */
-const Bottle = require('bottlejs');
+import Bottle from 'bottlejs';
 
-const ModuleFactory = require('src/core/factory/module.factory').default;
-const ComponentFactory = require('src/core/factory/component.factory').default;
-const TemplateFactory = require('src/core/factory/template.factory').default;
-const EntityFactory = require('src/core/factory/entity.factory').default;
-const StateFactory = require('src/core/factory/state.factory').default;
-const ServiceFactory = require('src/core/factory/service.factory').default;
-const ClassesFactory = require('src/core/factory/classes-factory').default;
-const MixinFactory = require('src/core/factory/mixin.factory').default;
-const FilterFactory = require('src/core/factory/filter.factory').default;
-const DirectiveFactory = require('src/core/factory/directive.factory').default;
-const LocaleFactory = require('src/core/factory/locale.factory').default;
-const ShortcutFactory = require('src/core/factory/shortcut.factory').default;
-const PluginBootFactory = require('src/core/factory/plugin-boot.factory').default;
-const ApiServiceFactory = require('src/core/factory/api-service.factory').default;
-const EntityDefinitionFactory = require('src/core/factory/entity-definition.factory').default;
-const WorkerNotificationFactory = require('src/core/factory/worker-notification.factory').default;
+import ModuleFactory from 'src/core/factory/module.factory';
+import ComponentFactory from 'src/core/factory/component.factory';
+import TemplateFactory from 'src/core/factory/template.factory';
+import EntityFactory from 'src/core/factory/entity.factory';
+import StateFactory from 'src/core/factory/state.factory';
+import ServiceFactory from 'src/core/factory/service.factory';
+import ClassesFactory from 'src/core/factory/classes-factory';
+import MixinFactory from 'src/core/factory/mixin.factory';
+import FilterFactory from 'src/core/factory/filter.factory';
+import DirectiveFactory from 'src/core/factory/directive.factory';
+import LocaleFactory from 'src/core/factory/locale.factory';
+import ShortcutFactory from 'src/core/factory/shortcut.factory';
+import PluginBootFactory from 'src/core/factory/plugin-boot.factory';
+import ApiServiceFactory from 'src/core/factory/api-service.factory';
+import EntityDefinitionFactory from 'src/core/factory/entity-definition.factory';
+import WorkerNotificationFactory from 'src/core/factory/worker-notification.factory';
 
-const Feature = require('src/core/feature').default;
-const ShopwareError = require('src/core/data/ShopwareError').default;
-const ApiService = require('src/core/service/api.service').default;
-const utils = require('src/core/service/util.service').default;
-const FlatTreeHelper = require('src/core/helper/flattree.helper').default;
-const SanitizerHelper = require('src/core/helper/sanitizer.helper').default;
-const DeviceHelper = require('src/core/helper/device.helper').default;
-const MiddlewareHelper = require('src/core/helper/middleware.helper').default;
-const data = require('src/core/data/index').default;
-const ApplicationBootstrapper = require('src/core/application').default;
+import Feature from 'src/core/feature';
+import ShopwareError from 'src/core/data/ShopwareError';
+import ApiService from 'src/core/service/api.service';
+import utils from 'src/core/service/util.service';
+import FlatTreeHelper from 'src/core/helper/flattree.helper';
+import SanitizerHelper from 'src/core/helper/sanitizer.helper';
+import DeviceHelper from 'src/core/helper/device.helper';
+import MiddlewareHelper from 'src/core/helper/middleware.helper';
+import data from 'src/core/data/index';
+import ApplicationBootstrapper from 'src/core/application';
 
-const RefreshTokenHelper = require('src/core/helper/refresh-token.helper').default;
-const HttpFactory = require('src/core/factory/http.factory').default;
-const RepositoryFactory = require('src/core/data/repository-factory.data').default;
-const ApiContextFactory = require('src/core/factory/api-context.factory').default;
-const AppContextFactory = require('src/core/factory/app-context.factory').default;
-const RouterFactory = require('src/core/factory/router.factory').default;
-const ApiServices = require('src/core/service/api').default;
-const ModuleFilterFactory = require('src/core/data/filter-factory.data').default;
+import RefreshTokenHelper from 'src/core/helper/refresh-token.helper';
+import HttpFactory from 'src/core/factory/http.factory';
+import RepositoryFactory from 'src/core/data/repository-factory.data';
+import ApiContextFactory from 'src/core/factory/api-context.factory';
+import AppContextFactory from 'src/core/factory/app-context.factory';
+import RouterFactory from 'src/core/factory/router.factory';
+import ApiServices from 'src/core/service/api';
+import ModuleFilterFactory from 'src/core/data/filter-factory.data';
 
-const container = new Bottle({
-    strict: true,
-});
+// strict mode was set to false because it was defined wrong previously
+Bottle.config = { strict: false };
+const container = new Bottle();
 
 const application = new ApplicationBootstrapper(container);
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call
 application
     .addFactory('component', () => {
         return ComponentFactory;
@@ -99,23 +99,15 @@ application
         return WorkerNotificationFactory;
     });
 
-const Shopware = function Shopware() {
-    /**
-     * @memberOf module:Shopware
-     * @type {Object}
-     */
-    this.Module = {
+class ShopwareClass {
+    public Module = {
         register: ModuleFactory.registerModule,
         getModuleRegistry: ModuleFactory.getModuleRegistry,
         getModuleRoutes: ModuleFactory.getModuleRoutes,
         getModuleByEntityName: ModuleFactory.getModuleByEntityName,
     };
 
-    /**
-     * @memberOf module:Shopware
-     * @type {Object}
-     */
-    this.Component = {
+    public Component = {
         register: ComponentFactory.register,
         extend: ComponentFactory.extend,
         override: ComponentFactory.override,
@@ -126,24 +118,20 @@ const Shopware = function Shopware() {
         registerComponentHelper: ComponentFactory.registerComponentHelper,
     };
 
-    /**
-     * @memberOf module:Shopware
-     * @type {Object}
-     */
-    this.Template = {
+    public Template = {
         register: TemplateFactory.registerComponentTemplate,
         extend: TemplateFactory.extendComponentTemplate,
         override: TemplateFactory.registerTemplateOverride,
         getRenderedTemplate: TemplateFactory.getRenderedTemplate,
+        // @ts-expect-error
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         find: TemplateFactory.findCustomTemplate,
+        // @ts-expect-error
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         findOverride: TemplateFactory.findCustomTemplate,
     };
 
-    /**
-     * @memberOf module:Shopware
-     * @type {Object}
-     */
-    this.Entity = {
+    public Entity = {
         addDefinition: EntityFactory.addEntityDefinition,
         getDefinition: EntityFactory.getEntityDefinition,
         getDefinitionRegistry: EntityFactory.getDefinitionRegistry,
@@ -155,100 +143,52 @@ const Shopware = function Shopware() {
         getTranslatableProperties: EntityFactory.getTranslatableProperties,
     };
 
-    /**
-     * @memberOf module:Shopware
-     * @type {Object}
-     */
-    this.State = StateFactory();
+    public State = StateFactory();
 
-    /**
-     * @memberOf module:Shopware
-     * @type {Object}
-     */
-    this.Mixin = {
+    public Mixin = {
         register: MixinFactory.register,
         getByName: MixinFactory.getByName,
     };
 
-    /**
-     * @memberOf module:Shopware
-     * @type {Object}
-     */
-    this.Filter = {
+    public Filter = {
         register: FilterFactory.register,
         getByName: FilterFactory.getByName,
         getRegistry: FilterFactory.getRegistry,
     };
 
-    /**
-     * @memberOf module:Shopware
-     * @type {Object}
-     */
-    this.Directive = {
+    public Directive = {
         register: DirectiveFactory.registerDirective,
         getByName: DirectiveFactory.getDirectiveByName,
         getDirectiveRegistry: DirectiveFactory.getDirectiveRegistry,
     };
 
-    /**
-     * @memberOf module:Shopware
-     * @type {Object}
-     */
-    this.Locale = {
+    public Locale = {
         register: LocaleFactory.register,
         extend: LocaleFactory.extend,
         getByName: LocaleFactory.getLocaleByName,
         getLocaleRegistry: LocaleFactory.getLocaleRegistry,
     };
 
-    /**
-     * @memberOf module:Shopware
-     * @type {Object}
-     */
-    this.Shortcut = {
+    public Shortcut = {
         getShortcutRegistry: ShortcutFactory.getShortcutRegistry,
         getPathByCombination: ShortcutFactory.getPathByCombination,
         register: ShortcutFactory.register,
     };
 
-    /**
-     * @memberOf module:Shopware
-     * @type {Object}
-     */
-    this.Plugin = {
+    public Plugin = {
         addBootPromise: PluginBootFactory.addBootPromise,
         getBootPromises: PluginBootFactory.getBootPromises,
     };
 
-    /**
-     * @memberOf module:Shopware
-     * @type {Object}
-     */
-    this.Service = ServiceFactory;
+    public Service = ServiceFactory;
 
-    /**
-     * @memberOf module:Shopware
-     * @type {module:core/service/utils}
-     */
-    this.Utils = utils;
+    public Utils = utils;
 
-    /**
-     * @memberOf module:Shopware
-     * @type {module:core/application}
-     */
-    this.Application = application;
+    public Application = application;
 
-    /**
-     * @memberOf module:Shopware
-     * @type {module:core/feature}
-     */
-    this.Feature = Feature;
+    public Feature = Feature;
 
-    /**
-     * @memberOf module:Shopware
-     * @type {Object}
-     */
-    this.ApiService = {
+    public ApiService = {
         register: ApiServiceFactory.register,
         getByName: ApiServiceFactory.getByName,
         getRegistry: ApiServiceFactory.getRegistry,
@@ -256,11 +196,7 @@ const Shopware = function Shopware() {
         has: ApiServiceFactory.has,
     };
 
-    /**
-     * @memberOf module:Shopware
-     * @type {Object}
-     */
-    this.EntityDefinition = {
+    public EntityDefinition = {
         getScalarTypes: EntityDefinitionFactory.getScalarTypes,
         getJsonTypes: EntityDefinitionFactory.getJsonTypes,
         getDefinitionRegistry: EntityDefinitionFactory.getDefinitionRegistry,
@@ -273,11 +209,7 @@ const Shopware = function Shopware() {
         getRequiredFields: EntityDefinitionFactory.getRequiredFields,
     };
 
-    /**
-     * @memberOf module:Shopware
-     * @type {Object}
-     */
-    this.WorkerNotification = {
+    public WorkerNotification = {
         register: WorkerNotificationFactory.register,
         getRegistry: WorkerNotificationFactory.getRegistry,
         override: WorkerNotificationFactory.override,
@@ -285,11 +217,7 @@ const Shopware = function Shopware() {
         initialize: WorkerNotificationFactory.initialize,
     };
 
-    /**
-     * @memberOf module:Shopware
-     * @type {Object}
-     */
-    this.Defaults = {
+    public Defaults = {
         systemLanguageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
         defaultLanguageIds: ['2fbb5fe2e29a4d70aa5854ce7ce3e20b'],
         versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
@@ -299,26 +227,14 @@ const Shopware = function Shopware() {
         defaultSalutationId: 'ed643807c9f84cc8b50132ea3ccb1c3b',
     };
 
-    /**
-     * @memberOf module:Shopware
-     * @type {Object}
-     */
-    this.Data = data;
+    public Data = data;
 
-    /**
-     * @memberOf module:Shopware
-     * @type {Object}
-     */
-    this.Classes = ClassesFactory({
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    public Classes = ClassesFactory({
         ShopwareError: ShopwareError,
         ApiService: ApiService,
     },
     {
-        /**
-         * @memberOf module:Shopware.Classes
-         * @type {Object}
-         * @private
-         */
         _private: {
             HttpFactory: HttpFactory,
             RepositoryFactory: RepositoryFactory,
@@ -329,41 +245,27 @@ const Shopware = function Shopware() {
         },
     });
 
-    /**
-     * @memberOf module:Shopware
-     * @type {Object}
-     */
-    this.Helper = {
+    public Helper = {
         FlatTreeHelper: FlatTreeHelper,
         MiddlewareHelper: MiddlewareHelper,
         RefreshTokenHelper: RefreshTokenHelper,
         SanitizerHelper: SanitizerHelper,
         DeviceHelper: DeviceHelper,
     };
-};
 
-// hidden in prototype
-Shopware.prototype = {
-    /**
-     * @memberOf module:Shopware
-     * @type {Object}
-     */
-    get Context() {
+    public get Context(): $TSFixMe {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-call
         return this.State.get('context');
-    },
+    }
 
-    /**
-     * @memberOf module:Shopware
-     * @type {Object}
-     * @private
-     */
-    _private: {
+    private _private = {
         ApiServices: ApiServices,
-    },
-};
+    }
+}
 
-const ShopwareInstance = new Shopware();
+const ShopwareInstance = new ShopwareClass();
 
 window.Shopware = ShopwareInstance;
-exports.default = ShopwareInstance;
-module.exports = exports.default;
+
+export default ShopwareInstance;
+export { ShopwareClass };

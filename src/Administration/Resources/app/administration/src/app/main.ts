@@ -1,3 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+
 /** Initializer */
 import initializers from 'src/app/init';
 import preInitializer from 'src/app/init-pre/';
@@ -62,6 +68,7 @@ const allInitializers = { ...preInitializer, ...initializers, ...postInitializer
 
 // Add initializers to application
 Object.keys(allInitializers).forEach((key) => {
+    // @ts-expect-error
     const initializer = allInitializers[key];
     Application.addInitializer(key, initializer);
 });
@@ -72,23 +79,23 @@ Application
         return new FeatureService(Feature);
     })
     .addServiceProvider('menuService', () => {
-        return MenuService(factoryContainer.module);
+        return new MenuService(factoryContainer.module);
     })
     .addServiceProvider('privileges', () => {
         return new PrivilegesService();
     })
     .addServiceProvider('acl', () => {
-        return new AclService(Shopware.State, Shopware.State.get('settingsItems'));
+        return new AclService(Shopware.State);
     })
     .addServiceProvider('loginService', () => {
         const serviceContainer = Application.getContainer('service');
         const initContainer = Application.getContainer('init');
 
-        const loginService = LoginService(initContainer.httpClient, Shopware.Context.api);
+        const loginService = new LoginService(initContainer.httpClient, Shopware.Context.api);
 
         addPluginUpdatesListener(loginService, serviceContainer);
         addShopwareUpdatesListener(loginService, serviceContainer);
-        addCustomerGroupRegistrationListener(loginService, serviceContainer);
+        addCustomerGroupRegistrationListener(loginService);
 
         return loginService;
     })
@@ -102,13 +109,13 @@ Application
         return new TimezoneService();
     })
     .addServiceProvider('ruleConditionDataProviderService', () => {
-        return RuleConditionService();
+        return new RuleConditionService();
     })
     .addServiceProvider('productStreamConditionService', () => {
-        return ProductStreamConditionService();
+        return new ProductStreamConditionService();
     })
     .addServiceProvider('customFieldDataProviderService', () => {
-        return CustomFieldService();
+        return new CustomFieldService();
     })
     .addServiceProvider('extensionHelperService', () => {
         return new ExtensionHelperService({
@@ -120,10 +127,10 @@ Application
         return LanguageAutoFetchingService();
     })
     .addServiceProvider('stateStyleDataProviderService', () => {
-        return StateStyleService();
+        return new StateStyleService();
     })
     .addServiceProvider('searchTypeService', () => {
-        return SearchTypeService();
+        return new SearchTypeService();
     })
     .addServiceProvider('localeToLanguageService', () => {
         return LocaleToLanguageService();
@@ -132,7 +139,7 @@ Application
         return EntityMappingService;
     })
     .addServiceProvider('shortcutService', () => {
-        return ShortcutService(factoryContainer.shortcut);
+        return new ShortcutService(factoryContainer.shortcut);
     })
     .addServiceProvider('licenseViolationService', () => {
         return LicenseViolationsService(Application.getContainer('service').storeService);
@@ -159,7 +166,7 @@ Application
             appRepository: Shopware.Service('repositoryFactory').create('app'),
         });
     })
-    .addServiceProvider('appCmsService', (container) => {
+    .addServiceProvider('appCmsService', (container: $TSFixMe) => {
         const appCmsBlocksService = container.appCmsBlocks;
         return new AppCmsService(appCmsBlocksService, adapter);
     })

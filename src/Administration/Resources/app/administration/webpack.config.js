@@ -9,6 +9,7 @@ const ESLintPlugin = require('eslint-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const WebpackCopyAfterBuildPlugin = require('@shopware-ag/webpack-copy-after-build');
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const path = require('path');
 const fs = require('fs');
 const chalk = require('chalk');
@@ -176,7 +177,7 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
 
     // Sync with .eslintrc.js
     resolve: {
-        extensions: ['.js', '.vue', '.json', '.less', '.twig'],
+        extensions: ['.js', '.ts', '.vue', '.json', '.less', '.twig'],
         alias: {
             vue$: 'vue/dist/vue.esm.js',
             src: path.join(__dirname, 'src'),
@@ -192,7 +193,7 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
                 loader: 'html-loader',
             },
             {
-                test: /\.(js|tsx?|vue)$/,
+                test: /\.(js|ts|tsx?|vue)$/,
                 loader: 'babel-loader',
                 include: [
                     /**
@@ -384,6 +385,8 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
     },
 
     plugins: [
+        new ForkTsCheckerWebpackPlugin(),
+
         new webpack.DefinePlugin({
             'process.env': {
                 NODE_ENV: isDev ? '"development"' : '"production"',
@@ -449,8 +452,8 @@ const coreConfig = {
     })(),
 
     entry: {
-        commons: [`${path.resolve('src')}/core/shopware.js`],
-        app: `${path.resolve('src')}/app/main.js`,
+        commons: [`${path.resolve('src')}/core/shopware.ts`],
+        app: `${path.resolve('src')}/app/main.ts`,
     },
 
     output: {

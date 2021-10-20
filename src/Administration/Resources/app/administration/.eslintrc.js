@@ -1,5 +1,21 @@
 const path = require('path');
 
+const baseRules = {
+    'file-progress/activate': 1,
+    // Match the max line length with the phpstorm default settings
+    'max-len': ['warn', 125, { ignoreRegExpLiterals: true }],
+    // Warn about useless path segment in import statements
+    'import/no-useless-path-segments': 0,
+    // don't require .vue and .js extensions
+    'import/extensions': ['error', 'always', {
+        js: 'never',
+        vue: 'never',
+    }],
+    'no-console': ['error', { allow: ['warn', 'error'] }],
+    'inclusive-language/use-inclusive-words': 'error',
+    'comma-dangle': ['error', 'always-multiline'],
+};
+
 module.exports = {
     root: true,
     extends: [
@@ -23,6 +39,7 @@ module.exports = {
         'twig-vue',
         'inclusive-language',
         'vuejs-accessibility',
+        'file-progress',
     ],
 
     settings: {
@@ -32,7 +49,7 @@ module.exports = {
                 config: {
                     // Sync with webpack.config.js
                     resolve: {
-                        extensions: ['.js', '.vue', '.json', '.less', '.twig'],
+                        extensions: ['.js', '.ts', '.vue', '.json', '.less', '.twig'],
                         alias: {
                             vue$: 'vue/dist/vue.esm.js',
                             src: path.join(__dirname, 'src'),
@@ -49,17 +66,7 @@ module.exports = {
     },
 
     rules: {
-        // Match the max line length with the phpstorm default settings
-        'max-len': ['warn', 125, { ignoreRegExpLiterals: true }],
-        // Warn about useless path segment in import statements
-        'import/no-useless-path-segments': 0,
-        // don't require .vue and .js extensions
-        'import/extensions': ['error', 'always', {
-            js: 'never',
-            vue: 'never',
-        }],
-        'no-console': ['error', { allow: ['warn', 'error'] }],
-        'inclusive-language/use-inclusive-words': 'error',
+        ...baseRules,
     },
 
     overrides: [
@@ -71,7 +78,7 @@ module.exports = {
             files: ['**/*.js'],
             excludedFiles: '*.spec.js',
             rules: {
-                'comma-dangle': ['error', 'always-multiline'],
+                ...baseRules,
                 'vue/require-prop-types': 'error',
                 'vue/require-default-prop': 'error',
                 'vue/no-mutating-props': ['off'],
@@ -146,8 +153,10 @@ module.exports = {
                 }],
             },
         }, {
-            files: ['**/*.spec.js', '**/fixtures/*.js'],
+            files: ['**/*.spec.js', '**/*.spec.ts', '**/fixtures/*.js', 'test/**/*.js', 'test/**/*.ts'],
             rules: {
+                'no-console': 0,
+                'comma-dangle': 0,
                 'max-len': 0,
                 'inclusive-language/use-inclusive-words': 0,
             },
@@ -155,6 +164,42 @@ module.exports = {
             files: ['**/snippet/*.json'],
             rules: {
                 'inclusive-language/use-inclusive-words': 'error',
+            },
+        }, {
+            files: ['**/*.ts', '**/*.tsx'],
+            excludedFiles: '*.spec.ts',
+            extends: [
+                '@shopware-ag/eslint-config-base',
+                'plugin:@typescript-eslint/eslint-recommended',
+                'plugin:@typescript-eslint/recommended',
+                'plugin:@typescript-eslint/recommended-requiring-type-checking',
+            ],
+            parser: '@typescript-eslint/parser',
+            parserOptions: {
+                tsconfigRootDir: __dirname,
+                project: ['./tsconfig.json'],
+            },
+            plugins: ['@typescript-eslint'],
+            rules: {
+                ...baseRules,
+                '@typescript-eslint/ban-ts-comment': 0,
+                '@typescript-eslint/no-unsafe-member-access': 1,
+                '@typescript-eslint/no-unsafe-call': 1,
+                '@typescript-eslint/no-unsafe-assignment': 1,
+                '@typescript-eslint/no-unsafe-return': 1,
+                '@typescript-eslint/explicit-module-boundary-types': 0,
+                '@typescript-eslint/explicit-function-return-type': 1,
+                '@typescript-eslint/prefer-ts-expect-error': 1,
+                'import/extensions': [
+                    'error',
+                    'ignorePackages',
+                    {
+                        js: 'never',
+                        jsx: 'never',
+                        ts: 'never',
+                        tsx: 'never',
+                    },
+                ],
             },
         },
     ],

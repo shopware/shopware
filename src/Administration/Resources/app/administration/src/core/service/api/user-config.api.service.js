@@ -39,7 +39,7 @@ class UserConfigService extends ApiService {
                 return ApiService.handleResponse(response);
             })
             .catch((error) => {
-                console.log(error);
+                Shopware.Utils.debug.error(error);
             });
     }
 

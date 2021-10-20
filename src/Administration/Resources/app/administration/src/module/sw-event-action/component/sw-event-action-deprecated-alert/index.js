@@ -43,7 +43,7 @@ Component.register('sw-event-action-deprecated-alert', {
             const configurationKey = this.showAtTop
                 ? 'deprecatedAlert.businessEvent.atTop'
                 : 'deprecatedAlert.businessEvent.atBottom';
-            console.log(configurationKey);
+            Shopware.Utils.debug.warn(configurationKey);
             criteria.addFilter(Criteria.equals('key', configurationKey));
             criteria.addFilter(Criteria.equals('userId', this.currentUser?.id));
 

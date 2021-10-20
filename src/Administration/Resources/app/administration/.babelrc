@@ -6,7 +6,8 @@
         "modules": false,
         "corejs": 2
       }
-    ]
+    ],
+    "@babel/preset-typescript"
   ],
   "plugins": [
     "@babel/plugin-transform-runtime",

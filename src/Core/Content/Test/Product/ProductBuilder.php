@@ -63,7 +63,11 @@ class ProductBuilder
 
     protected array $productReviews = [];
 
-    protected bool $closeout = false;
+    protected ?bool $isCloseout = false;
+
+    protected array $configuratorSettings = [];
+
+    protected array $options = [];
 
     public function __construct(IdsCollection $ids, string $number, int $stock = 1, string $taxKey = 't1')
     {
@@ -327,9 +331,32 @@ class ProductBuilder
         return $this;
     }
 
-    public function closeout(): ProductBuilder
+    public function closeout(?bool $state = true): ProductBuilder
     {
-        $this->closeout = true;
+        $this->isCloseout = $state;
+
+        return $this;
+    }
+
+    public function configuratorSetting(string $key, string $group): self
+    {
+        $this->configuratorSettings[] = [
+            'option' => [
+                'id' => $this->ids->get($key),
+                'name' => $key,
+                'group' => [
+                    'id' => $this->ids->get($group),
+                    'name' => $group,
+                ],
+            ],
+        ];
+
+        return $this;
+    }
+
+    public function option(string $key): self
+    {
+        $this->options[] = ['id' => $this->ids->get($key)];
 
         return $this;
     }

@@ -16,15 +16,9 @@ class AvailableCombinationLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    /**
-     * @var AvailableCombinationLoader|null
-     */
-    private $loader;
+    private AvailableCombinationLoader $loader;
 
-    /**
-     * @var EntityRepositoryInterface|null
-     */
-    private $productRepository;
+    private EntityRepositoryInterface $productRepository;
 
     protected function setUp(): void
     {
@@ -49,6 +43,57 @@ class AvailableCombinationLoaderTest extends TestCase
         }
     }
 
+    /**
+     * @dataProvider availabilityProvider
+     */
+    public function testCombinationAvailability(int $stock, bool $expected, ?bool $parentCloseout, ?bool $isCloseout): void
+    {
+        $context = Context::createDefaultContext();
+        $productId = $this->createProduct(
+            $context,
+            [
+                'isCloseout' => $parentCloseout,
+            ],
+            [
+                'isCloseout' => $isCloseout,
+                'stock' => $stock,
+            ]
+        );
+
+        $result = $this->loader->load($productId, $context);
+
+        foreach ($result->getCombinations() as $combination) {
+            static::assertEquals($expected, $result->isAvailable($combination));
+        }
+    }
+
+    public function availabilityProvider(): iterable
+    {
+        yield 'test parentCloseout = true and isCloseout = true and stock = 0' => [0, false, true, true];
+        yield 'test parentCloseout = true and isCloseout = false and stock = 0' => [0, true, true, false];
+        yield 'test parentCloseout = true and isCloseout = null and stock = 0' => [0, false, true, null];
+
+        yield 'test parentCloseout = false and isCloseout = true and stock = 0' => [0, false, false, true];
+        yield 'test parentCloseout = false and isCloseout = false and stock = 0' => [0, true, false, false];
+        yield 'test parentCloseout = false and isCloseout = null and stock = 0' => [0, true, false, null];
+
+        yield 'test parentCloseout = null and isCloseout = true and stock = 0' => [0, false, null, true];
+        yield 'test parentCloseout = null and isCloseout = false and stock = 0' => [0, true, null, false];
+        yield 'test parentCloseout = null and isCloseout = null and stock = 0' => [0, true, null, null];
+
+        yield 'test parentCloseout = true and isCloseout = true and stock = 1' => [1, true, true, true];
+        yield 'test parentCloseout = true and isCloseout = false and stock = 1' => [1, true, true, false];
+        yield 'test parentCloseout = true and isCloseout = null and stock = 1' => [1, true, true, null];
+
+        yield 'test parentCloseout = false and isCloseout = true and stock = 1' => [1, true, false, true];
+        yield 'test parentCloseout = false and isCloseout = false and stock = 1' => [1, true, false, false];
+        yield 'test parentCloseout = false and isCloseout = null and stock = 1' => [1, true, false, null];
+
+        yield 'test parentCloseout = null and isCloseout = true and stock = 1' => [1, true, null, true];
+        yield 'test parentCloseout = null and isCloseout = false and stock = 1' => [1, true, null, false];
+        yield 'test parentCloseout = null and isCloseout = null and stock = 1' => [1, true, null, null];
+    }
+
     private static function ashuffle(array &$a)
     {
         $keys = array_keys($a);
@@ -62,8 +107,11 @@ class AvailableCombinationLoaderTest extends TestCase
         return true;
     }
 
-    private function createProduct(Context $context): string
-    {
+    private function createProduct(
+        Context $context,
+        array $productOverrides = [],
+        array $variantOverrides = []
+    ): string {
         // create product with property groups and 1 variant and get its configurator settings
         $productId = Uuid::randomHex();
         $variantId = Uuid::randomHex();
@@ -104,39 +152,43 @@ class AvailableCombinationLoaderTest extends TestCase
         }
 
         $configuratorGroupConfig = null;
-        $data = [
-            [
-                'id' => $productId,
-                'name' => 'Test product',
-                'productNumber' => 'a.0',
-                'manufacturer' => ['name' => 'test'],
-                'tax' => ['id' => UUid::randomHex(), 'taxRate' => 19, 'name' => 'test'],
-                'stock' => 10,
-                'active' => true,
-                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => true]],
-                'configuratorSettings' => $configuratorSettings,
-                'configuratorGroupConfig' => $configuratorGroupConfig,
-                'visibilities' => [
-                    [
-                        'salesChannelId' => TestDefaults::SALES_CHANNEL,
-                        'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
-                    ],
+
+        $product = [
+            'id' => $productId,
+            'name' => 'Test product',
+            'productNumber' => 'a.0',
+            'manufacturer' => ['name' => 'test'],
+            'tax' => ['id' => UUid::randomHex(), 'taxRate' => 19, 'name' => 'test'],
+            'stock' => 10,
+            'active' => true,
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => true]],
+            'configuratorSettings' => $configuratorSettings,
+            'configuratorGroupConfig' => $configuratorGroupConfig,
+            'visibilities' => [
+                [
+                    'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                    'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
                 ],
-            ],
-            [
-                'id' => $variantId,
-                'productNumber' => 'variant',
-                'stock' => 10,
-                'active' => true,
-                'parentId' => $productId,
-                'options' => array_map(static function (array $group) {
-                    // Assign first option from each group
-                    return ['id' => $group[0]];
-                }, $optionIds),
             ],
         ];
 
-        $this->productRepository->create($data, $context);
+        $product = \array_replace_recursive($product, $productOverrides);
+
+        $variant = [
+            'id' => $variantId,
+            'productNumber' => 'variant',
+            'stock' => 10,
+            'active' => true,
+            'parentId' => $productId,
+            'options' => array_map(static function (array $group) {
+                // Assign first option from each group
+                return ['id' => $group[0]];
+            }, $optionIds),
+        ];
+
+        $variant = \array_replace_recursive($variant, $variantOverrides);
+
+        $this->productRepository->create([$product, $variant], $context);
 
         return $productId;
     }

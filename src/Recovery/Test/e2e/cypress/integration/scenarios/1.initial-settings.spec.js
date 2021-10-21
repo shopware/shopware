@@ -1,33 +1,36 @@
 /// <reference types="Cypress" />
 
-describe('Sales Channel: set initial settings', () => {
+describe('sales channel: set and validate initial settings', () => {
 
-    beforeEach(() => {
-        cy.visit(`${Cypress.env('admin')}#/login`);
-        cy.login();
+    before(() => {
+        cy.setToInitialState().then(() => {
+            cy.loginViaApi();
+        });
     });
 
-    it('@package: login & logout',()=>{
-        cy.get('.sw-admin-menu__user-actions-toggle').should('be.visible').click();
-        cy.get('.sw-admin-menu__logout-action').should('be.visible').click();
-        cy.contains('.sw-login__content-headline', 'Shopware')
-    });
+    it('@package: should set and validate default sales channel settings', () => {
 
-    it('@package: set default settings for sales channels',()=>{
+        cy.visit(`${Cypress.env('admin')}#/sw/settings/listing/index`);
+        cy.url().should('include', 'settings/listing/index');
         cy.setSalesChannel('E2E install test');
-        cy.setSalesChannel('Headless');
+        cy.visit(`${Cypress.env('admin')}#/sw/settings/shipping/index`);
+        cy.url().should('include', 'settings/shipping/index');
         cy.setShippingMethod('Standard', 5, 4);
-        cy.setShippingMethod('Express', 10, 8);
+        cy.visit(`${Cypress.env('admin')}#/sw/settings/payment/index`);
+        cy.url().should('include', 'settings/payment/index');
         cy.setPaymentMethod('Cash on delivery');
-        cy.setPaymentMethod('Invoice');
+        cy.visit(`${Cypress.env('admin')}#/sw/dashboard/index`);
+        cy.url().should('include', 'dashboard/index');
         cy.selectCountry('E2E install test','Netherlands');
         cy.selectLanguage('E2E install test', 'Dutch');
         cy.selectPayment('E2E install test', 'Cash on delivery');
         cy.selectShipping('E2E install test', 'Standard');
         cy.selectCurrency('E2E install test','Euro');
-        cy.selectCountry('Headless','Germany');
-        cy.selectLanguage('Headless', 'Deutsch');
-        cy.selectPayment('Headless', 'Invoice');
-        cy.selectShipping('Headless', 'Express');
+
+        // Logout
+        cy.get('.sw-admin-menu__user-actions-toggle').should('be.visible').click();
+        cy.get('.sw-admin-menu__logout-action').should('be.visible').click();
+        cy.contains('.sw-login__content-headline', 'Shopware').should('be.visible');
     });
+
 });

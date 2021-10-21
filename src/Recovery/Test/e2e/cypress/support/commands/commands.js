@@ -185,26 +185,32 @@ Cypress.Commands.add('sortListingViaColumn', (
  * @name setSalesChannel
  * @function
  * @param {String} salesChannel - Title of the sales channel
- *
  */
 Cypress.Commands.add('setSalesChannel', (salesChannel) => {
     cy.intercept({
-        url: `${Cypress.env('apiPath')}/search/sales-channel`,
+        url: `**/${Cypress.env('apiPath')}/_action/system-config/batch`,
+        method: 'post'
+    }).as('saveData');
+    cy.intercept({
+        url: `**/${Cypress.env('apiPath')}/search/sales-channel`,
         method: 'post'
     }).as('sales-channel');
-    cy.visit(`${Cypress.env('admin')}#/sw/settings/listing/index`);
-    cy.get('.sw-select-selection-list').click();
+
+    cy.wait('@sales-channel').its('response.statusCode').should('equal', 200);
     cy.get('.sw-select-selection-list').then(($body) => {
         if ($body.text().includes(salesChannel)) {
-            cy.get(".sw-settings-listing__save-action").click();
-        } else {
-            cy.get('.sw-select-selection-list__input').type(salesChannel);
-            cy.contains('.sw-select-option--0.sw-select-result', salesChannel).click();
             cy.get('.sw-settings-listing__save-action').click();
+        } else {
+            cy.get('.sw-select-selection-list__input').should('be.visible').type(salesChannel);
+            cy.wait('@sales-channel').its('response.statusCode').should('equal', 200);
+            cy.contains('.sw-select-option--0.sw-select-result', salesChannel).should('be.visible').click();
+            cy.wait('@sales-channel').its('response.statusCode').should('equal', 200);
+            cy.get('.sw-settings-listing__save-action').should('be.visible').click();
         }
-    })
-    cy.wait('@sales-channel').its('response.statusCode').should('equal', 200);
-    cy.contains('.sw-select-selection-list', salesChannel);
+    });
+    cy.get('.sw-loader').should('not.exist');
+    cy.wait('@saveData').its('response.statusCode').should('equal', 204);
+    cy.contains('.sw-select-selection-list', salesChannel).should('be.visible');
 });
 
 /**
@@ -218,18 +224,19 @@ Cypress.Commands.add('setSalesChannel', (salesChannel) => {
  */
 Cypress.Commands.add('setShippingMethod', (shippingMethod, gross, net) => {
     cy.intercept({
-        url: `${Cypress.env('apiPath')}/search/shipping-method`,
+        url: `**/${Cypress.env('apiPath')}/search/shipping-method`,
         method: 'POST'
     }).as('set-shipping');
-    cy.visit(`${Cypress.env('admin')}#/sw/settings/shipping/index`);
-    cy.contains(shippingMethod).click();
+
+    cy.contains(shippingMethod).should('be.visible').click();
     cy.get('.sw-settings-shipping-detail__condition_container').scrollIntoView();
-    cy.get('.sw-settings-shipping-detail__condition_container .sw-entity-single-select__selection').type('Always valid (Default)');
-    cy.get('.sw-select-result-list__content').contains('Always valid (Default)').click();
+    cy.get('.sw-settings-shipping-detail__condition_container .sw-entity-single-select__selection').should('be.visible')
+        .type('Always valid (Default)');
+    cy.get('.sw-select-result-list__content').contains('Always valid (Default)').should('be.visible').click();
     cy.get('.sw-settings-shipping-price-matrix').scrollIntoView();
     cy.get('.sw-data-grid__cell--price-EUR .sw-field--small:nth-of-type(1) [type]').clear().type(gross);
     cy.get('.sw-data-grid__cell--price-EUR .sw-field--small:nth-of-type(2) [type]').clear().type(net);
-    cy.get('.sw-settings-shipping-method-detail__save-action').click();
+    cy.get('.sw-settings-shipping-method-detail__save-action').should('be.visible').click();
     cy.wait('@set-shipping').its('response.statusCode').should('equal', 200);
 });
 
@@ -242,15 +249,16 @@ Cypress.Commands.add('setShippingMethod', (shippingMethod, gross, net) => {
  */
 Cypress.Commands.add('setPaymentMethod', (paymentMethod) => {
     cy.intercept({
-        url: `${Cypress.env('apiPath')}/search/payment-method`,
+        url: `**/${Cypress.env('apiPath')}/search/payment-method`,
         method: 'POST'
     }).as('set-payment');
-    cy.visit(`${Cypress.env('admin')}#/sw/settings/payment/index`);
-    cy.contains(paymentMethod).click();
+
+    cy.contains(paymentMethod).should('be.visible').click();
     cy.get('.sw-settings-payment-detail__condition_container').scrollIntoView();
-    cy.get('.sw-settings-payment-detail__condition_container .sw-entity-single-select__selection').type('Always valid (Default)');
-    cy.get('.sw-select-result-list__content').contains('Always valid (Default)').click();
-    cy.get('.sw-payment-detail__save-action').click();
+    cy.get('.sw-settings-payment-detail__condition_container .sw-entity-single-select__selection').should('be.visible')
+        .type('Always valid (Default)');
+    cy.get('.sw-select-result-list__content').contains('Always valid (Default)').should('be.visible').click();
+    cy.get('.sw-payment-detail__save-action').should('be.visible').click();
     cy.wait('@set-payment').its('response.statusCode').should('equal', 200);
 });
 
@@ -264,30 +272,36 @@ Cypress.Commands.add('setPaymentMethod', (paymentMethod) => {
  */
 Cypress.Commands.add('selectCountry', (salesChannel, country) => {
     cy.intercept({
-        url: `${Cypress.env('apiPath')}/search/sales-channel`,
+        url: `**/${Cypress.env('apiPath')}/search/sales-channel`,
         method: 'post'
     }).as('sales-channel');
     cy.intercept({
-        url: `${Cypress.env('apiPath')}/search/country`,
+        url: `**/${Cypress.env('apiPath')}/search/country`,
         method: 'post'
     }).as('country');
-    cy.visit(`${Cypress.env('admin')}#/sw/dashboard/index`);
-    cy.contains(salesChannel).click();
+
+    cy.contains(salesChannel).should('be.visible').click();
     cy.get('.sw-sales-channel-detail__select-countries').then(($body) => {
         if (!$body.text().includes(country)) {
-            cy.get('.sw-sales-channel-detail__select-countries').find('.sw-select-selection-list__input').type(country);
-            cy.get('.sw-select-result-list__content').contains(country).click();
+            cy.get('.sw-sales-channel-detail__select-countries .sw-select-selection-list__input').should('be.visible').type(country);
+            cy.wait('@country').its('response.statusCode').should('equal', 200);
+            cy.get('.sw-select-result-list__content').contains(country).should('be.visible').click();
             cy.wait('@country').its('response.statusCode').should('equal', 200);
         }
     });
-    cy.get('.sw-sales-channel-detail__assign-countries').type(country);
-    cy.wait('@country').its('response.statusCode').should('equal', 200)
-    cy.get('.sw-select-result-list__content').contains(country).click();
-    cy.get('.sw-sales-channel-detail__save-action').click();
+    cy.get('.sw-sales-channel-detail__assign-countries').then(($body) => {
+        if (!$body.text().includes(country)) {
+            cy.get('.sw-sales-channel-detail__assign-countries').should('be.visible').type(country);
+            cy.wait('@country').its('response.statusCode').should('equal', 200);
+            cy.contains('.sw-select-option--0.sw-select-result',country).should('be.visible').click();
+            cy.wait('@country').its('response.statusCode').should('equal', 200);
+        }
+    });
+    cy.get('.sw-sales-channel-detail__save-action').should('be.visible').click();
     cy.wait('@sales-channel').its('response.statusCode').should('equal', 200);
     cy.get('.sw-loader').should('not.exist');
-    cy.contains('.sw-sales-channel-detail__select-countries', country);
-    cy.contains('.sw-sales-channel-detail__assign-countries', country);
+    cy.contains('.sw-sales-channel-detail__select-countries', country).should('be.visible');
+    cy.contains('.sw-sales-channel-detail__assign-countries', country).should('be.visible');
 });
 
 /**
@@ -300,30 +314,34 @@ Cypress.Commands.add('selectCountry', (salesChannel, country) => {
  */
 Cypress.Commands.add('selectPayment', (salesChannel, paymentMethod) => {
     cy.intercept({
-        url: `${Cypress.env('apiPath')}/search/sales-channel`,
+        url: `**/${Cypress.env('apiPath')}/search/sales-channel`,
         method: 'post'
     }).as('sales-channel');
     cy.intercept({
-        url: `${Cypress.env('apiPath')}/search/payment-method`,
+        url: `**/${Cypress.env('apiPath')}/search/payment-method`,
         method: 'post'
     }).as('payment-method');
-    cy.visit(`${Cypress.env('admin')}#/sw/dashboard/index`);
-    cy.contains(salesChannel).click();
-        cy.get('.sw-sales-channel-detail__select-payment-methods').then(($body) => {
+
+    cy.contains(salesChannel).should('be.visible').click();
+    cy.get('.sw-sales-channel-detail__select-payment-methods').scrollIntoView();
+    cy.get('.sw-sales-channel-detail__select-payment-methods').then(($body) => {
         if (!$body.text().includes(paymentMethod)) {
-            cy.get('.sw-sales-channel-detail__select-payment-methods').find('.sw-select-selection-list__input').type(paymentMethod);
-            cy.get('.sw-select-result-list__content').contains(paymentMethod).click();
+            cy.get('.sw-sales-channel-detail__select-payment-methods .sw-select-selection-list__input').should('be.visible')
+                .type(paymentMethod);
+            cy.wait('@payment-method').its('response.statusCode').should('equal', 200);
+            cy.get('.sw-select-result-list__content').contains(paymentMethod).should('be.visible').click();
             cy.wait('@payment-method').its('response.statusCode').should('equal', 200);
         }
     });
-    cy.get('.sw-sales-channel-detail__assign-payment-methods').type(paymentMethod);
+    cy.get('.sw-sales-channel-detail__assign-payment-methods').type(paymentMethod).should('be.visible');
     cy.wait('@payment-method').its('response.statusCode').should('equal', 200);
-    cy.get('.sw-select-result-list__content').contains(paymentMethod).click();
-    cy.get('.sw-sales-channel-detail__save-action').click();
+    cy.contains('.sw-select-option--0.sw-select-result',paymentMethod).should('be.visible').click();
+    cy.get('.sw-sales-channel-detail__save-action').should('be.visible').click();
     cy.wait('@sales-channel').its('response.statusCode').should('equal', 200);
     cy.get('.sw-loader').should('not.exist');
-    cy.contains('.sw-sales-channel-detail__select-payment-methods', paymentMethod);
-    cy.contains('.sw-sales-channel-detail__assign-payment-methods', paymentMethod);
+    cy.get('.sw-sales-channel-detail__select-payment-methods').scrollIntoView();
+    cy.contains('.sw-sales-channel-detail__select-payment-methods', paymentMethod).should('be.visible');
+    cy.contains('.sw-sales-channel-detail__assign-payment-methods', paymentMethod).should('be.visible');
 });
 
 /**
@@ -336,30 +354,38 @@ Cypress.Commands.add('selectPayment', (salesChannel, paymentMethod) => {
  */
 Cypress.Commands.add('selectShipping', (salesChannel, shippingMethod) => {
     cy.intercept({
-        url: `${Cypress.env('apiPath')}/search/sales-channel`,
+        url: `**/${Cypress.env('apiPath')}/search/sales-channel`,
         method: 'post'
     }).as('sales-channel');
     cy.intercept({
-        url: `${Cypress.env('apiPath')}/search/shipping-method`,
+        url: `**/${Cypress.env('apiPath')}/search/shipping-method`,
         method: 'post'
     }).as('shipping-method');
-    cy.visit(`${Cypress.env('admin')}#/sw/dashboard/index`);
-    cy.contains(salesChannel).click();
+
+    cy.contains(salesChannel).should('be.visible').click();
+    cy.get('.sw-sales-channel-detail__select-shipping-methods').scrollIntoView();
     cy.get('.sw-sales-channel-detail__select-shipping-methods').then(($body) => {
         if (!$body.text().includes(shippingMethod)) {
-            cy.get('.sw-sales-channel-detail__select-shipping-methods').find('.sw-select-selection-list__input').type(shippingMethod);
-            cy.get('.sw-select-result-list__content').contains(shippingMethod).click();
+            cy.get('.sw-sales-channel-detail__select-shipping-methods .sw-select-selection-list__input').should('be.visible')
+                .type(shippingMethod);
+            cy.wait('@shipping-method').its('response.statusCode').should('equal', 200);
+            cy.get('.sw-select-result-list__content').contains(shippingMethod).should('be.visible').click();
             cy.wait('@shipping-method').its('response.statusCode').should('equal', 200);
         }
     });
-    cy.get('.sw-sales-channel-detail__assign-shipping-methods').type(shippingMethod);
-    cy.wait('@shipping-method').its('response.statusCode').should('equal', 200);
-    cy.get('.sw-select-result-list__content').contains(shippingMethod).click();
-    cy.get('.sw-sales-channel-detail__save-action').click();
+    cy.get('.sw-sales-channel-detail__assign-shipping-methods').then(($body) => {
+        if (!$body.text().includes(shippingMethod)) {
+            cy.get('.sw-sales-channel-detail__assign-shipping-methods').type(shippingMethod).should('be.visible');
+            cy.wait('@shipping-method').its('response.statusCode').should('equal', 200);
+            cy.contains('.sw-select-option--0.sw-select-result', shippingMethod).should('be.visible').click();
+        }
+    });
+    cy.get('.sw-sales-channel-detail__save-action').should('be.visible').click();
     cy.wait('@sales-channel').its('response.statusCode').should('equal', 200);
     cy.get('.sw-loader').should('not.exist');
-    cy.contains('.sw-sales-channel-detail__select-shipping-methods', shippingMethod);
-    cy.contains('.sw-sales-channel-detail__assign-shipping-methods', shippingMethod);
+    cy.get('.sw-sales-channel-detail__select-shipping-methods').scrollIntoView();
+    cy.contains('.sw-sales-channel-detail__select-shipping-methods', shippingMethod).should('be.visible');
+    cy.contains('.sw-sales-channel-detail__assign-shipping-methods', shippingMethod).should('be.visible');
 });
 
 /**
@@ -372,30 +398,38 @@ Cypress.Commands.add('selectShipping', (salesChannel, shippingMethod) => {
  */
 Cypress.Commands.add('selectCurrency', (salesChannel, currency) => {
     cy.intercept({
-        url: `${Cypress.env('apiPath')}/search/sales-channel`,
+        url: `**/${Cypress.env('apiPath')}/search/sales-channel`,
         method: 'post'
     }).as('sales-channel');
     cy.intercept({
-        url: `${Cypress.env('apiPath')}/search/currency`,
+        url: `**/${Cypress.env('apiPath')}/search/currency`,
         method: 'post'
     }).as('currency');
-    cy.visit(`${Cypress.env('admin')}#/sw/dashboard/index`);
-    cy.contains(salesChannel).click();
+
+    cy.contains(salesChannel).should('be.visible').click();
+    cy.get('.sw-sales-channel-detail__select-currencies').scrollIntoView();
     cy.get('.sw-sales-channel-detail__select-currencies').then(($body) => {
         if (!$body.text().includes(currency)) {
-            cy.get('.sw-sales-channel-detail__select-currencies').find('.sw-select-selection-list__input').type(currency);
+            cy.get('.sw-sales-channel-detail__select-currencies .sw-select-selection-list__input').type(currency).should('be.visible');
             cy.wait('@currency').its('response.statusCode').should('equal', 200);
-            cy.get('.sw-select-result-list__content').contains(currency).click();
+            cy.get('.sw-select-result-list__content').contains(currency).should('be.visible').click();
             cy.wait('@currency').its('response.statusCode').should('equal', 200);
         }
     });
-    cy.get('.sw-sales-channel-detail__assign-currencies').type(currency);
-    cy.get('.sw-select-result-list__content').contains(currency).click();
+    cy.get('.sw-sales-channel-detail__assign-currencies').then(($body) => {
+        if (!$body.text().includes(currency)) {
+            cy.get('.sw-sales-channel-detail__assign-currencies').type(currency).should('be.visible');
+            cy.wait('@currency').its('response.statusCode').should('equal', 200);
+            cy.contains('.sw-select-option--0.sw-select-result', currency).should('be.visible').click();
+            cy.wait('@currency').its('response.statusCode').should('equal', 200);
+        }
+    });
     cy.get('.sw-sales-channel-detail__save-action').click();
     cy.wait('@sales-channel').its('response.statusCode').should('equal', 200);
     cy.get('.sw-loader').should('not.exist');
-    cy.contains('.sw-sales-channel-detail__select-currencies', currency);
-    cy.contains('.sw-sales-channel-detail__assign-currencies', currency);
+    cy.get('.sw-sales-channel-detail__select-currencies').scrollIntoView();
+    cy.contains('.sw-sales-channel-detail__select-currencies', currency).should('be.visible');
+    cy.contains('.sw-sales-channel-detail__assign-currencies', currency).should('be.visible');
 });
 
 /**
@@ -408,29 +442,36 @@ Cypress.Commands.add('selectCurrency', (salesChannel, currency) => {
  */
 Cypress.Commands.add('selectLanguage', (salesChannel, language) => {
     cy.intercept({
-        url: `${Cypress.env('apiPath')}/search/sales-channel`,
+        url: `**/${Cypress.env('apiPath')}/search/sales-channel`,
         method: 'post'
     }).as('sales-channel');
     cy.intercept({
-        url: `${Cypress.env('apiPath')}/search/language`,
+        url: `**/${Cypress.env('apiPath')}/search/language`,
         method: 'post'
     }).as('language');
-    cy.visit(`${Cypress.env('admin')}#/sw/dashboard/index`);
-    cy.contains(salesChannel).click();
 
+    cy.contains(salesChannel).should('be.visible').click();
+    cy.get('.sw-sales-channel-detail__select-languages').scrollIntoView();
     cy.get('.sw-sales-channel-detail__select-languages').then(($body) => {
         if (!$body.text().includes(language)) {
-            cy.get('.sw-sales-channel-detail__select-languages').find('.sw-select-selection-list__input').type(language);
-            cy.get('.sw-select-result-list__content').contains(language).click();
+            cy.get('.sw-sales-channel-detail__select-languages .sw-select-selection-list__input').type(language).should('be.visible');
+            cy.wait('@language').its('response.statusCode').should('equal', 200);
+            cy.get('.sw-select-result-list__content').contains(language).should('be.visible').click();
             cy.wait('@language').its('response.statusCode').should('equal', 200);
         }
     });
-    cy.get('.sw-sales-channel-detail__assign-languages').type(language);
-    cy.wait('@language').its('response.statusCode').should('equal', 200);
-    cy.get('.sw-select-result-list__content').contains(language).click();
-    cy.get('.sw-sales-channel-detail__save-action').click();
-    cy.wait('@sales-channel').its('response.statusCode').should('equal', 200);
+    cy.get('.sw-sales-channel-detail__assign-languages').then(($body) => {
+        if (!$body.text().includes(language)) {
+            cy.get('.sw-sales-channel-detail__assign-languages').type(language).should('be.visible');
+            cy.wait('@language').its('response.statusCode').should('equal', 200);
+            cy.contains('.sw-select-option--0.sw-select-result', language).should('be.visible').click();
+        }
+    });
+    cy.get('.sw-sales-channel-detail__save-action').should('be.visible').click();
     cy.get('.sw-loader').should('not.exist');
-    cy.contains('.sw-sales-channel-detail__select-languages', language);
-    cy.contains('.sw-sales-channel-detail__assign-languages', language);
+    cy.wait('@sales-channel').its('response.statusCode').should('equal', 200);
+    cy.get('.sw-sales-channel-detail__select-languages').scrollIntoView();
+    cy.contains('.sw-sales-channel-detail__select-languages', language).should('be.visible');
+    cy.contains('.sw-sales-channel-detail__assign-languages', language).should('be.visible');
 });
+

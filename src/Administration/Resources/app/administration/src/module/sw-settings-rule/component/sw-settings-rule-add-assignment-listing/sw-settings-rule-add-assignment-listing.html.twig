@@ -35,6 +35,20 @@
         </template>
 
         <template
+            slot="column-name"
+            slot-scope="{ item }"
+        >
+            {% block sw_settings_rule_add_assignment_listing_name %}
+                <sw-product-variant-info v-if="item.variation" :variations="item.variation">
+                    {{ item.translated.name }}
+                </sw-product-variant-info>
+                <span v-else>
+                    {{ item.translated.name }}
+                </span>
+            {% endblock %}
+        </template>
+
+        <template
             slot="column-active"
             slot-scope="{ item }"
         >
@@ -51,6 +65,12 @@
                 small
                 class="is--inactive"
             />
+            {% endblock %}
+        </template>
+
+        <template #column-taxType="{ item }">
+            {% block sw_settings_rule_add_assignment_listing_tax_type %}
+                {{ shippingTaxTypeLabel(item.taxType) }}
             {% endblock %}
         </template>
 

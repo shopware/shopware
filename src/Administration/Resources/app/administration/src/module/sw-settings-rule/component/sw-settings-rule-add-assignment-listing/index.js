@@ -44,7 +44,24 @@ Component.register('sw-settings-rule-add-assignment-listing', {
                     .addFilter(Criteria.equals('id', this.ruleId));
             }
 
+            if (this.entityContext.entityName === 'product') {
+                criteria.addAssociation('options.group');
+            }
+
             return criteria;
+        },
+
+        shippingCostTaxOptions() {
+            return [{
+                label: this.$tc('sw-settings-shipping.shippingCostOptions.auto'),
+                value: 'auto',
+            }, {
+                label: this.$tc('sw-settings-shipping.shippingCostOptions.highest'),
+                value: 'highest',
+            }, {
+                label: this.$tc('sw-settings-shipping.shippingCostOptions.fixed'),
+                value: 'fixed',
+            }];
         },
     },
 
@@ -93,6 +110,16 @@ Component.register('sw-settings-rule-add-assignment-listing', {
             }).finally(() => {
                 this.loading = false;
             });
+        },
+
+        shippingTaxTypeLabel(taxName) {
+            if (!taxName) {
+                return '';
+            }
+
+            const tax = this.shippingCostTaxOptions.find((i) => taxName === i.value) || '';
+
+            return tax?.label;
         },
     },
 });

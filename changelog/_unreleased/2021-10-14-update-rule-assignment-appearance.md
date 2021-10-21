@@ -8,6 +8,7 @@ author_github: King-of-Babylon
 ---
 # Administration
 * Added a new slot `selection-content` to `sw-data-grid` component
+* Added a new slot `bulk-modal-delete-confirm-text` to `sw-entity-listing` component
 * Changed `sendDeletions` function of `repository.data.js` to handle deletions via multiple primary keys
 * Added new components
     * `sw-settings-rule-add-assignment-listing`

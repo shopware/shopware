@@ -57,10 +57,20 @@
             >
                 <template #link-column="{ item, column, renderColumn }">
                     <router-link v-if="column.routerLink" :to="getRouterLink(entity, item)">
-                        {{ renderColumn(item, column) }}
+                        <sw-product-variant-info v-if="item.variation" :variations="item.variation">
+                            {{ renderColumn(item, column) }}
+                        </sw-product-variant-info>
+                        <span v-if="!item.variation">
+                            {{ renderColumn(item, column) }}
+                        </span>
                     </router-link>
                     <span v-else>
-                        {{ renderColumn(item, column) }}
+                        <sw-product-variant-info v-if="item.variation" :variations="item.variation">
+                            {{ renderColumn(item, column) }}
+                        </sw-product-variant-info>
+                        <span v-else>
+                            {{ renderColumn(item, column) }}
+                        </span>
                     </span>
                 </template>
                 <template #actions="{ item }">
@@ -76,10 +86,25 @@
                         variant="danger"
                         @click="onOpenDeleteModal(entity, item)"
                     >
-                        {{ $tc('global.default.delete') }}
+                        {{ $tc('global.default.remove') }}
                     </sw-context-menu-item>
                     {% endblock %}
                     {% endblock %}
+                </template>
+
+                <template #bulk-modal-delete-confirm-text="{ selectionCount }">
+                    {{ $tc('sw-settings-rule.detail.textModalBulkDelete', selectionCount, { count: selectionCount }) }}
+                </template>
+
+                <template #bulk-modal-delete-items="{ isBulkLoading, deleteItems }">
+                    <sw-button
+                        variant="danger"
+                        size="small"
+                        :is-loading="isBulkLoading"
+                        @click="deleteItems"
+                    >
+                        {{ $tc('global.default.remove') }}
+                    </sw-button>
                 </template>
             </sw-settings-rule-assignment-listing>
 
@@ -145,7 +170,7 @@
                 variant="danger"
                 @click="onDelete"
             >
-                {{ $tc('global.default.delete') }}
+                {{ $tc('global.default.remove') }}
             </sw-button>
             {% endblock %}
             {% endblock %}

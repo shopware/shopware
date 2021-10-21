@@ -55,7 +55,12 @@
     @modal-close="showBulkDeleteModal = false"
 >
     <p class="sw-data-grid__confirm-bulk-delete-text">
-        {{ $tc('global.entity-components.deleteMessage', selectionCount, { count: selectionCount }) }}
+        <slot
+            name="bulk-modal-delete-confirm-text"
+            v-bind="{ selectionCount }"
+        >
+            {{ $tc('global.entity-components.deleteMessage', selectionCount, { count: selectionCount }) }}
+        </slot>
     </p>
 
     <template #modal-footer>
@@ -68,7 +73,7 @@
             </sw-button>
         </slot>
 
-        <slot name="bulk-modal-delete-items">
+        <slot name="bulk-modal-delete-items" v-bind="{ isBulkLoading, deleteItems }">
             <sw-button
                 variant="danger"
                 size="small"

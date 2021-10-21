@@ -74,6 +74,7 @@ Component.register('sw-settings-rule-detail-assignments', {
                             const criteria = new Criteria();
                             criteria.setLimit(this.associationLimit);
                             criteria.addFilter(Criteria.equals('prices.rule.id', this.rule.id));
+                            criteria.addAssociation('options.group');
 
                             return criteria;
                         },
@@ -562,7 +563,7 @@ Component.register('sw-settings-rule-detail-assignments', {
                             },
                             {
                                 property: 'title',
-                                label: 'Business Event Title',
+                                label: 'Business Event title',
                                 rawData: true,
                                 sortable: true,
                                 width: '50%',

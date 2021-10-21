@@ -427,6 +427,23 @@
         "columnProductNumber": "Produktnummer",
         "columnPriceGross": "Gesamt",
         "columnPriceNet": "Nettopreis"
+      },
+      "customItem": {
+        "labelName": "Enter item name",
+        "labelPriceNet": "Price net",
+        "placeholderPriceNet": "Enter price (net)",
+        "labelPriceGross": "Price gross",
+        "placeholderPriceGross": "Enter price (gross)",
+        "labelAmount": "Amount",
+        "labelVat": "Vat",
+        "labelTotal": "Total"
+      },
+      "credit": {
+        "labelCreditName": "Credit Name",
+        "placeholderCreditName": "Enter credit name...",
+        "labelCreditAmountNet": "Credit amount net",
+        "placeholderAmountNet": "Enter credit amount net...",
+        "labelCreditVat": "VAT"
       }
     },
     "filters": {

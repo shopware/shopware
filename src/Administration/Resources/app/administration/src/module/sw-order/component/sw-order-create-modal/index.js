@@ -10,6 +10,8 @@ Component.register('sw-order-create-modal', {
     data() {
         return {
             productItems: [],
+            customItem: {},
+            creditItem: {},
             isLoading: false,
         };
     },
@@ -52,7 +54,6 @@ Component.register('sw-order-create-modal', {
         async onPreviewOrder() {
             // Get product line items
             const items = this.productItems.map(product => this.addExistingProduct(product));
-
             // TODO: items concat custom item and credit
             this.isLoading = true;
 
@@ -122,6 +123,11 @@ Component.register('sw-order-create-modal', {
             item.priceDefinition.type = this.lineItemPriceTypes.QUANTITY;
             item.priceDefinition.taxRules[0].taxRate = customItem.tax.taxRate;
             item.priceDefinition.quantity = customItem.quantity;
+            item.priceDefinition.quantity = customItem.amount;
+            item.label = customItem.label;
+            item.priceDefinition.price = customItem.price;
+
+            return item;
         },
 
         addCreditItem(credit) {

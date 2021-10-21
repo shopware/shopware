@@ -66,7 +66,7 @@
 
             <template #content="{ active }">
                 {% block sw_order_create_modal_tabs_content %}
-                <div class="sw-order-create-modal__content">
+                <div class="addExistingProductsw-order-create-modal__content">
                     {% block sw_order_create_modal_tabs_content_customer %}
                     <sw-order-customer-grid
                         v-show="active === 'customer'"
@@ -80,11 +80,27 @@
                     />
                     {% endblock %}
 
-                    {% block sw_order_create_modal_tabs_content_custom_item %}{% endblock %}
+                    {% block sw_order_create_modal_tabs_content_custom_item %}
+                        <sw-order-create-custom-item
+                            v-show="active === 'custom-item'"
+                            :cart="cart"
+                            :disabled="!customer"
+                        />
+                    {% endblock %}
 
                     {% block sw_order_create_modal_tabs_content_options %}{% endblock %}
 
-                    {% block sw_order_create_modal_tabs_content_credit %}{% endblock %}
+                    {% block sw_order_create_modal_tabs_content_credit %}
+                        <sw-order-create-credit
+                            v-show="active === 'credit'"
+                            :cart="cart"
+                            :disabled="!customer"
+                        />
+                    {% endblock %}
+
+                    {% block sw_order_create_modal_tabs_content_save %}
+
+                    {% endblock %}
                 </div>
                 {% endblock %}
             </template>

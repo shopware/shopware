@@ -49,6 +49,8 @@ import '../sw-customer/component/sw-customer-address-form';
 import '../sw-customer/component/sw-customer-address-form-options';
 import './component/sw-order-create-modal';
 import './component/sw-order-product-grid';
+import './component/sw-order-create-custom-item';
+import './component/sw-order-create-credit';
 
 import defaultSearchConfiguration from './default-search-configuration';
 

@@ -134,6 +134,10 @@ describe('Shipping: Test acl privileges', () => {
             method: 'delete'
         }).as('deleteData');
 
+        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
+            cy.setEntitySearchable('shipping_method', 'name');
+        });
+
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Luftpost');
         cy.get('.sw-data-grid-skeleton').should('not.exist');
         cy.clickContextMenuItem(

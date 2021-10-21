@@ -57,7 +57,7 @@
         <div class="sw-customer-list__content">
             {% block sw_customer_list_grid %}
             <sw-entity-listing
-                v-if="customers"
+                v-if="customers && entitySearchable"
                 ref="swCustomerGrid"
                 class="sw-customer-list-grid"
                 identifier="sw-customer-list"
@@ -258,14 +258,20 @@
             {% block sw_customer_list_empty_state %}
             <template v-if="!isLoading && !total">
                 <sw-empty-state
-                    v-if="filterCriteria.length"
-                    :title="$tc('sw-customer.filter.messageEmptyTitle')"
-                    :subline="$tc('sw-customer.filter.messageEmptySubline')"
+                    v-if="filterCriteria.length || (feature.isActive('FEATURE_NEXT_6040') && isValidTerm(term))"
+                    :title="feature.isActive('FEATURE_NEXT_6040')
+                        ? $tc('sw-empty-state.messageNoResultTitle')
+                        : $tc('sw-customer.filter.messageEmptyTitle')"
+                    :subline="feature.isActive('FEATURE_NEXT_6040')
+                        ? $tc('sw-empty-state.messageNoResultSubline')
+                        : $tc('sw-customer.filter.messageEmptySubline')"
                 >
                     <template #icon>
                         <img
                             :src="'/administration/static/img/empty-states/customer-empty-state.svg' | asset"
-                            :alt="$tc('sw-customer.filter.messageEmptyTitle')"
+                            :alt="feature.isActive('FEATURE_NEXT_6040')
+                                ? $tc('sw-empty-state.messageNoResultTitle')
+                                : $tc('sw-customer.filter.messageEmptyTitle')"
                         >
                     </template>
                 </sw-empty-state>

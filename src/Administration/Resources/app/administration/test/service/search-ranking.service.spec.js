@@ -8,6 +8,12 @@ Shopware.Service().register('userConfigService', () => {
     };
 });
 
+Shopware.Service().register('loginService', () => {
+    return {
+        addOnLoginListener: () => {}
+    };
+});
+
 describe('app/service/search-ranking.service.js', () => {
     const entity = 'product';
     const defaultModule = {

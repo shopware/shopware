@@ -25,6 +25,10 @@ describe('Payment: Test crud operations', () => {
             method: 'POST'
         }).as('saveData');
 
+        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
+            cy.setEntitySearchable('payment_method', 'name');
+        });
+
         // Create customer-group
         cy.get('a[href="#/sw/settings/payment/create"]').click();
         cy.get('#sw-field--paymentMethod-name').typeAndCheck('Bar bei Abholung');
@@ -50,6 +54,10 @@ describe('Payment: Test crud operations', () => {
             url: `${Cypress.env('apiPath')}/payment-method/*`,
             method: 'PATCH'
         }).as('saveData');
+
+        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
+            cy.setEntitySearchable('payment_method', 'name');
+        });
 
         // Edit base data
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('CredStick');
@@ -79,6 +87,10 @@ describe('Payment: Test crud operations', () => {
             url: `${Cypress.env('apiPath')}/payment-method/*`,
             method: 'delete'
         }).as('deleteData');
+
+        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
+            cy.setEntitySearchable('payment_method', 'name');
+        });
 
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('CredStick');
         cy.clickContextMenuItem(

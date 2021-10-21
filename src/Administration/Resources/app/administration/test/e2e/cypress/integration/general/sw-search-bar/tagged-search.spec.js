@@ -194,6 +194,10 @@ describe('Search bar: Check search functionality with tags', () => {
 
         const page = new MediaPageObject();
 
+        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
+            cy.setEntitySearchable('media', ['fileName', 'title']);
+        });
+
         cy.get(page.elements.loader).should('not.exist');
         cy.clickContextMenuItem(
             page.elements.showMediaAction,

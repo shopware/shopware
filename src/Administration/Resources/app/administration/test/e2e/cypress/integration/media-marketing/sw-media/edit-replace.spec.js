@@ -24,7 +24,9 @@ describe('Media: Replace media', () => {
             url: `**/${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw-login-background`,
             method: 'POST'
         }).as('uploadMedia');
-
+        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
+            cy.setEntitySearchable('media', ['fileName', 'title']);
+        });
 
         cy.get(page.elements.loader).should('not.exist');
         cy.get(page.elements.smartBarHeader).contains('Media');
@@ -72,6 +74,10 @@ describe('Media: Replace media', () => {
             url: `**/${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw-login-background`,
             method: 'POST'
         }).as('uploadMedia');
+
+        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
+            cy.setEntitySearchable('media', ['fileName', 'title']);
+        });
 
         cy.get(page.elements.loader).should('not.exist');
         cy.get(page.elements.smartBarHeader).contains('Media');

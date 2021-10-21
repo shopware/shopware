@@ -13,6 +13,7 @@ Component.register('sw-product-list', {
         'numberRangeService',
         'acl',
         'filterFactory',
+        'feature',
     ],
 
     mixins: [
@@ -218,6 +219,13 @@ Component.register('sw-product-list', {
             criteria = await this.addQueryScores(this.term, criteria);
 
             this.activeFilterNumber = criteria.filters.length - 1;
+
+            if (this.feature.isActive('FEATURE_NEXT_6040') && !this.entitySearchable) {
+                this.isLoading = false;
+                this.total = 0;
+
+                return;
+            }
 
             try {
                 const result = await Promise.all([

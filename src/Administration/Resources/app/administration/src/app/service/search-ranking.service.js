@@ -26,10 +26,14 @@ export const KEY_USER_SEARCH_PREFERENCE = 'search.preferences';
  * @returns {Object}
  */
 export default function createSearchRankingService() {
+    const loginService = Service('loginService');
+
     const cacheDefaultSearchScore = {};
     const cacheModules = {};
     let cacheUserSearchConfiguration;
     let cacheDefaultUserSearchPreference;
+
+    loginService.addOnLoginListener(clearCacheUserSearchConfiguration);
 
     return {
         getSearchFieldsByEntity,

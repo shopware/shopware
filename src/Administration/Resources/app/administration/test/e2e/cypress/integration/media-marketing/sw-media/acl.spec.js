@@ -117,6 +117,10 @@ describe('Media: Test ACL privileges', () => {
             cy.visit(`${Cypress.env('admin')}#/sw/media/index`);
         });
 
+        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
+            cy.setEntitySearchable('media', ['fileName', 'title']);
+        });
+
         cy.get('.sw-media-upload-v2__button-compact-upload').should('be.enabled');
         cy.get('.sw-media-upload-v2__button-context-menu').should('be.enabled');
 

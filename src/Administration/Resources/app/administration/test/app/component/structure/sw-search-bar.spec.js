@@ -122,6 +122,21 @@ function createWrapper(props, searchTypes = searchTypeServiceTypes, privileges =
                             }]);
                         }
 
+                        if (entity === 'category') {
+                            const result = [
+                                {
+                                    name: 'Home',
+                                    id: '12345'
+                                }, {
+                                    name: 'Electronics',
+                                    id: '55523'
+                                }
+                            ];
+                            result.total = 2;
+
+                            return Promise.resolve(result);
+                        }
+
                         criteria = criteria.parse();
                         if (criteria.query && !criteria.term) {
                             const result = [
@@ -163,11 +178,11 @@ function createWrapper(props, searchTypes = searchTypeServiceTypes, privileges =
             searchRankingService: {
                 getUserSearchPreference: () => {
                     return Promise.resolve({
-                        foo: {}
+                        foo: { name: 500 }
                     });
                 },
                 getSearchFieldsByEntity: (entity) => {
-                    const data = { foo: {} };
+                    const data = { foo: { name: 500 }, category: { name: 500 } };
                     return Promise.resolve(data[entity]);
                 },
                 buildSearchQueriesForEntity: (searchFields, term, criteria) => {
@@ -1025,6 +1040,61 @@ describe('src/app/component/structure/sw-search-bar', () => {
                 })
             ])
         );
+    });
+
+    it('should not build the search query score for the criteria when search with repository with search ranking field is null', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
+        wrapper = await createWrapper(
+            {
+                initialSearchType: 'product'
+            },
+            {
+                foo: {
+                    entityName: 'foo',
+                    placeholderSnippet: 'sw-foo.general.placeholderSearchBar',
+                    listingRoute: 'sw.foo.index'
+                }
+            }
+        );
+
+        wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
+            return new Criteria();
+        });
+        wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
+            return {};
+        });
+
+        const searchInput = wrapper.find('.sw-search-bar__input');
+
+        // open search
+        await searchInput.trigger('focus');
+
+        // set categories as active type
+        const moduleFilterSelect = wrapper.find('.sw-search-bar__type--v2');
+        await moduleFilterSelect.trigger('click');
+
+        const moduleFilterItems = wrapper.findAll('.sw-search-bar__type-item');
+        await moduleFilterItems.at(0).trigger('click');
+
+        // open search again
+        await searchInput.trigger('focus');
+
+        // type search value
+        await searchInput.setValue('shorts');
+        await flushPromises();
+
+        const debouncedDoListSearchWithContainer = swSearchBarComponent.methods.doListSearchWithContainer;
+        await debouncedDoListSearchWithContainer.flush();
+
+        expect(spyLoadTypeSearchResults).toHaveBeenCalledTimes(1);
+
+        expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.searchRankingService.buildSearchQueriesForEntity).toHaveBeenCalledTimes(0);
+
+        wrapper.vm.searchRankingService.buildSearchQueriesForEntity.mockRestore();
+        wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
+
+        await flushPromises();
     });
 
     it('should send search query scores for all entity when do global search', async () => {

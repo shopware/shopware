@@ -35,7 +35,9 @@ describe('Media: Move folder and image', () => {
             true
         );
         cy.get(page.elements.smartBarHeader).contains('1st folder');
-
+        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
+            cy.setEntitySearchable('media', ['fileName', 'title']);
+        });
         // Upload image in folder
         page.uploadImageUsingFileUpload('img/sw-login-background.png');
         cy.awaitAndCheckNotification('File has been saved.');

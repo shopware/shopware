@@ -35,7 +35,7 @@ describe('Search bar: Check main functionality', () => {
         cy.get('input.sw-search-bar__input').type('Product');
         cy.get('.sw-search-bar__results').should('be.visible');
         cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
-            cy.get('.sw-search-more-results__link').contains('Show all 1 matching results in products...')
+            cy.get('.sw-search-more-results__link').contains('Show all 1 matching results in products...');
         });
         cy.get('.sw-search-bar-item')
             .should('be.visible')
@@ -59,7 +59,7 @@ describe('Search bar: Check main functionality', () => {
         cy.get('input.sw-search-bar__input').type('Home');
         cy.get('.sw-search-bar__results').should('be.visible');
         cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
-            cy.get('.sw-search-more-results__link').contains('Show all 1 matching results in categories...')
+            cy.get('.sw-search-more-results__link').contains('Show all 1 matching results in categories...');
         });
         cy.get('.sw-search-bar-item')
             .should('be.visible')
@@ -85,7 +85,7 @@ describe('Search bar: Check main functionality', () => {
         cy.get('input.sw-search-bar__input').type('Pep Eroni');
         cy.get('.sw-search-bar__results').should('be.visible');
         cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
-            cy.get('.sw-search-more-results__link').contains('Show all 1 matching results in customers...')
+            cy.get('.sw-search-more-results__link').contains('Show all 1 matching results in customers...');
         });
         cy.get('.sw-search-bar-item')
             .should('be.visible')
@@ -149,7 +149,7 @@ describe('Search bar: Check main functionality', () => {
         });
 
         cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
-            cy.get('.sw-search-more-results__link').contains('Show all 1 matching results in orders...')
+            cy.get('.sw-search-more-results__link').contains('Show all 1 matching results in orders...');
 
             cy.get('.sw-search-bar-item')
                 .should('be.visible')
@@ -169,6 +169,10 @@ describe('Search bar: Check main functionality', () => {
             });
 
         const page = new MediaPageObject();
+
+        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
+            cy.setEntitySearchable('media', ['fileName', 'title']);
+        });
 
         cy.get(page.elements.loader).should('not.exist');
         cy.clickContextMenuItem(
@@ -200,7 +204,7 @@ describe('Search bar: Check main functionality', () => {
         cy.get('input.sw-search-bar__input').type('sw-login-background');
         cy.get('.sw-search-bar__results').should('be.visible');
         cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
-            cy.get('.sw-search-more-results__link').contains('Show all 1 matching results in media...')
+            cy.get('.sw-search-more-results__link').contains('Show all 1 matching results in media...');
         });
         cy.get('.sw-search-bar-item')
             .should('be.visible')

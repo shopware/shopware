@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-sales-channel-list', {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: ['repositoryFactory', 'acl', 'feature'],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -87,6 +87,12 @@ Component.register('sw-sales-channel-list', {
             this.isLoading = true;
 
             const criteria = await this.addQueryScores(this.term, this.salesChannelCriteria);
+            if (this.feature.isActive('FEATURE_NEXT_6040') && !this.entitySearchable) {
+                this.isLoading = false;
+                this.total = 0;
+
+                return false;
+            }
 
             return this.salesChannelRepository.search(criteria)
                 .then(searchResult => {

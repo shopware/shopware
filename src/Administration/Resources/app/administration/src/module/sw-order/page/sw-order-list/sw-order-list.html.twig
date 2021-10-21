@@ -70,6 +70,7 @@
 
             {% block sw_order_list_grid %}
             <sw-data-grid
+                v-if="entitySearchable"
                 :data-source="orders"
                 :columns="orderColumns"
                 :full-page="true"
@@ -415,14 +416,20 @@
             {% block sw_order_list_empty_state %}
             <template v-if="!isLoading && !total">
                 <sw-empty-state
-                    v-if="filterCriteria.length"
-                    :title="$tc('sw-order.filters.messageEmptyTitle')"
-                    :subline="$tc('sw-order.filters.messageEmptySubline')"
+                    v-if="filterCriteria.length || (feature.isActive('FEATURE_NEXT_6040') && isValidTerm(term))"
+                    :title="feature.isActive('FEATURE_NEXT_6040')
+                        ? $tc('sw-empty-state.messageNoResultTitle')
+                        : $tc('sw-order.filters.messageEmptyTitle')"
+                    :subline="feature.isActive('FEATURE_NEXT_6040')
+                        ? $tc('sw-empty-state.messageNoResultSubline')
+                        : $tc('sw-order.filters.messageEmptySubline')"
                 >
                     <template #icon>
                         <img
                             :src="'/administration/static/img/empty-states/order-empty-state.svg' | asset"
-                            :alt="$tc('sw-order.filters.messageEmptyTitle')"
+                            :alt="feature.isActive('FEATURE_NEXT_6040')
+                                ? $tc('sw-empty-state.messageNoResultTitle')
+                                : $tc('sw-order.filters.messageEmptyTitle')"
                         >
                     </template>
                 </sw-empty-state>

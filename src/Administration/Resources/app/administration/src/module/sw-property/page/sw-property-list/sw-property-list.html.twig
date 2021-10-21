@@ -72,6 +72,7 @@
 
             {% block sw_property_list_grid %}
             <sw-entity-listing
+                v-if="entitySearchable"
                 ref="propertyList"
                 class="sw-property-list-grid"
                 :items="propertyGroup"
@@ -207,10 +208,17 @@
             {% endblock %}
 
             {% block sw_property_list_empty_state %}
-            <sw-empty-state
-                v-if="!total && !isLoading"
-                :title="$tc('sw-property.list.messageEmpty')"
-            />
+            <template v-if="!isLoading && !total">
+                <sw-empty-state
+                    v-if="feature.isActive('FEATURE_NEXT_6040') && isValidTerm(term)"
+                    :title="$tc('sw-empty-state.messageNoResultTitle')"
+                    :subline="$tc('sw-empty-state.messageNoResultSubline')"
+                />
+                <sw-empty-state
+                    v-else
+                    :title="$tc('sw-property.list.messageEmpty')"
+                />
+            </template>
             {% endblock %}
         </div>
         {% endblock %}

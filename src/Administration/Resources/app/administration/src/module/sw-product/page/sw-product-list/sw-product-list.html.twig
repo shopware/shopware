@@ -63,6 +63,7 @@
 
             {% block sw_product_list_grid %}
             <sw-entity-listing
+                v-if="entitySearchable"
                 ref="swProductGrid"
                 class="sw-product-list-grid"
                 :items="products"
@@ -261,14 +262,20 @@
             {% block sw_product_list_empty_state %}
             <template v-if="!isLoading && !total">
                 <sw-empty-state
-                    v-if="filterCriteria.length"
-                    :title="$tc('sw-product.filters.messageEmptyTitle')"
-                    :subline="$tc('sw-product.filters.messageEmptySubline')"
+                    v-if="filterCriteria.length || (feature.isActive('FEATURE_NEXT_6040') && isValidTerm(term))"
+                    :title="feature.isActive('FEATURE_NEXT_6040')
+                        ? $tc('sw-empty-state.messageNoResultTitle')
+                        : $tc('sw-product.filters.messageEmptyTitle')"
+                    :subline="feature.isActive('FEATURE_NEXT_6040')
+                        ? $tc('sw-empty-state.messageNoResultSubline')
+                        : $tc('sw-product.filters.messageEmptySubline')"
                 >
                     <template #icon>
                         <img
                             :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
-                            :alt="$tc('sw-product.filters.messageEmptyTitle')"
+                            :alt="feature.isActive('FEATURE_NEXT_6040')
+                                ? $tc('sw-empty-state.messageNoResultTitle')
+                                : $tc('sw-product.filters.messageEmptyTitle')"
                         >
                     </template>
                 </sw-empty-state>

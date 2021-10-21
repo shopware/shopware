@@ -35,6 +35,14 @@ describe('Media: Visual tests', () => {
             method: 'POST'
         }).as('saveDataUrlUpload');
 
+        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
+            cy.setEntitySearchable('media', ['fileName', 'title']);
+        });
+
+        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
+            cy.setEntitySearchable('media', ['fileName', 'title']);
+        });
+
         cy.clickMainMenuItem({
             targetPath: '#/sw/media/index',
             mainMenuId: 'sw-content',

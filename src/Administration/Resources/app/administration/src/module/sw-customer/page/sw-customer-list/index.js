@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-customer-list', {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'filterFactory'],
+    inject: ['repositoryFactory', 'acl', 'filterFactory', 'feature'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -214,6 +214,13 @@ Component.register('sw-customer-list', {
             const newCriteria = await this.addQueryScores(this.term, this.defaultCriteria);
 
             this.activeFilterNumber = criteria.filters.length;
+
+            if (this.feature.isActive('FEATURE_NEXT_6040') && !this.entitySearchable) {
+                this.isLoading = false;
+                this.total = 0;
+
+                return;
+            }
 
             try {
                 const items = await this.customerRepository.search(newCriteria);

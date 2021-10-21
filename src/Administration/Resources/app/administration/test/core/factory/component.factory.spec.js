@@ -1086,14 +1086,16 @@ describe('core/factory/component.factory.js', () => {
         });
 
         ComponentFactory.extend('second-component', 'first-component', {
-            template: '{% block first %}{% parent %}<div>Second.</div>{% endblock %}'
+            template: '{% block first %}{% parent %}<div>First extended.</div>{% endblock %}'
         });
 
         const firstComponent = ComponentFactory.build('first-component');
         const secondComponent = ComponentFactory.build('second-component');
 
         expect(firstComponent.template).toBe('<div><div>First.</div><div>First overridden.</div></div>');
-        expect(secondComponent.template).toBe('<div><div>First.</div><div>Second.</div></div>');
+        expect(secondComponent.template).toBe(
+            '<div><div>First.</div><div>First overridden.</div><div>First extended.</div></div>'
+        );
     });
 
     it('should render a component which extends a component with an override using a mixed order', async () => {
@@ -1102,7 +1104,7 @@ describe('core/factory/component.factory.js', () => {
         });
 
         ComponentFactory.extend('second-component', 'first-component', {
-            template: '{% block first %}{% parent %}<div>Second.</div>{% endblock %}'
+            template: '{% block first %}{% parent %}<div>First extended.</div>{% endblock %}'
         });
 
         ComponentFactory.register('first-component', {
@@ -1113,7 +1115,9 @@ describe('core/factory/component.factory.js', () => {
         const secondComponent = ComponentFactory.build('second-component');
 
         expect(firstComponent.template).toBe('<div><div>First.</div><div>First overridden.</div></div>');
-        expect(secondComponent.template).toBe('<div><div>First.</div><div>Second.</div></div>');
+        expect(secondComponent.template).toBe(
+            '<div><div>First.</div><div>First overridden.</div><div>First extended.</div></div>'
+        );
     });
 
     it('should fix the Social Shopping chain bug', async () => {

@@ -38,7 +38,7 @@
                 :editable="isEditing"
                 @item-delete="recalculateAndReload"
                 @item-edit="recalculateAndReload"
-                @existing-item-edit="onSaveEdits"
+                @existing-item-edit="saveAndRecalculate"
                 @item-added="recalculateAndReload"
                 @item-cancel="recalculateAndReload"
             />

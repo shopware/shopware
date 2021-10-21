@@ -234,7 +234,8 @@
           "openLog": "Log-Datei öffnen"
         }
       },
-      "warningText": "Bitte warte, bis die Mehrfachänderung abgeschlossen ist. Dies kann einen Moment dauern. Solltest du den Browser-Tab vorzeitig schließen oder den Prozess abbrechen, werden eventuell nicht alle Änderungen übernommen. Du kannst Mehrfachänderungen jederzeit erneut durchführen."
+      "warningText": "Bitte warte, bis die Mehrfachänderung abgeschlossen ist. Dies kann einen Moment dauern. Solltest du den Browser-Tab vorzeitig schließen oder den Prozess abbrechen, werden eventuell nicht alle Änderungen übernommen. Du kannst Mehrfachänderungen jederzeit erneut durchführen.",
+      "messageBeforeTabLeave": "Mehrfachänderungen werden gerade durchgeführt. Wenn du den Tab schließt, werden eventuell nicht alle Änderungen übernommen."
     },
     "order": {
       "textTitle": "Mehrfachänderung: {orderTotal} Bestellungen",

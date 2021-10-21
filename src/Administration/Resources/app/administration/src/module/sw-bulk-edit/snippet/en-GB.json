@@ -234,7 +234,8 @@
           "openLog": "Open log file"
         }
       },
-      "warningText": "Please wait for the bulk edit to complete. This may take a while. If you close the browser tab or cancel the process prematurely, not all changes will be applied. You can run the bulk edit again at any time."
+      "warningText": "Please wait for the bulk edit to complete. This may take a while. If you close the browser tab or cancel the process prematurely, not all changes will be applied. You can run the bulk edit again at any time.",
+      "messageBeforeTabLeave": "Bulk edits are being made. If you close the tab, not all changes may be applied."
     },
     "order": {
       "textTitle": "Bulk edit: {orderTotal} orders",

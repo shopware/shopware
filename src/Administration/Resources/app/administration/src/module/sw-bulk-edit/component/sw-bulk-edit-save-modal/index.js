@@ -6,6 +6,8 @@ const { Component } = Shopware;
 Component.register('sw-bulk-edit-save-modal', {
     template,
 
+    inject: ['feature'],
+
     props: {
         itemTotal: {
             required: true,
@@ -93,7 +95,42 @@ Component.register('sw-bulk-edit-save-modal', {
         },
     },
 
+    created() {
+        this.createdComponent();
+    },
+
+    beforeDestroy() {
+        this.beforeDestroyComponent();
+    },
+
     methods: {
+        createdComponent() {
+            this.addEventListeners();
+        },
+
+        beforeDestroyComponent() {
+            this.removeEventListeners();
+        },
+
+        addEventListeners() {
+            window.addEventListener('beforeunload', (event) => this.beforeUnloadListener(event));
+        },
+
+        removeEventListeners() {
+            window.removeEventListener('beforeunload', (event) => this.beforeUnloadListener(event));
+        },
+
+        beforeUnloadListener(event) {
+            if (!this.feature.isActive('FEATURE_NEXT_17261') || !this.isLoading) {
+                return '';
+            }
+
+            event.preventDefault();
+            event.returnValue = this.$tc('sw-bulk-edit.modal.messageBeforeTabLeave');
+
+            return this.$tc('sw-bulk-edit.modal.messageBeforeTabLeave');
+        },
+
         onModalClose() {
             this.$emit('modal-close');
         },

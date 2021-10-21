@@ -18,25 +18,27 @@
 
         {% if page.cart.deliveries is defined %}
 
-            {% set activeShipping = page.cart.deliveries.elements[0] %}
+            {% for activeShipping in page.cart.deliveries.elements %}
 
-            {% block component_offcanvas_summary_content_info %}
-                <div class="row offcanvas-shipping-info">
-                    <span class="col-7 shipping-label shipping-cost">
-                        <strong>{{ "checkout.summaryShipping"|trans|sw_sanitize }}</strong>
+                {% block component_offcanvas_summary_content_info %}
+                    <div class="row offcanvas-shipping-info">
+                        <span class="col-7 shipping-label shipping-cost">
+                                <strong>{{ "checkout.summaryShipping"|trans|sw_sanitize }}</strong>
+                                    {% if loop.first %}
+                                        <small {% if page.shippingMethods|length %}class="js-toggle-shipping-selection"{% endif %}>
+                                        ({{ activeShipping.shippingMethod.translated.name }})
+                                    </small>
+                                {% endif %}
+                        </span>
 
-                        <small {% if page.shippingMethods|length %}class="js-toggle-shipping-selection"{% endif %}>
-                            ({{ activeShipping.shippingMethod.translated.name }})
-                        </small>
-                    </span>
+                        <span class="col-5 pb-2 shipping-value shipping-cost">
+                            <strong>+ {{ activeShipping.shippingCosts.totalPrice|currency }}</strong>
+                        </span>
+                    </div>
+                {% endblock %}
+        {% endfor %}
 
-                    <span class="col-5 shipping-value shipping-cost">
-                        <strong>+ {{ activeShipping.shippingCosts.totalPrice|currency }}</strong>
-                    </span>
-                </div>
-            {% endblock %}
-
-            {% block component_offcanvas_summary_content_shipping %}
+        {% block component_offcanvas_summary_content_shipping %}
                 {% if page.shippingMethods|length %}
                     <div class="offcanvas-shipping-preference mb-2 mt-2 offcanvas-shipping-preference--hidden">
                         <form
@@ -69,7 +71,6 @@
                     </div>
                 {% endif %}
             {% endblock %}
-
         {% endif %}
     </div>
 

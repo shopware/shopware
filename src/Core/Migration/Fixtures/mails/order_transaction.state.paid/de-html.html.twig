@@ -94,7 +94,9 @@ Bestellnummer: {{ order.orderNumber }}<br>
 <p>
     <br>
     <br>
-    Versandkosten: {{ order.deliveries.first.shippingCosts.totalPrice|currency(currencyIsoCode) }}<br>
+    {% for shippingCost in order.deliveries %}
+        Versandkosten: {{ shippingCost.shippingCosts.totalPrice|currency(currencyIsoCode) }}<br>
+    {% endfor %}
     Gesamtkosten Netto: {{ order.amountNet|currency(currencyIsoCode) }}<br>
         {% for calculatedTax in order.price.calculatedTaxes %}
             {% if order.taxStatus is same as('net') %}zzgl.{% else %}inkl.{% endif %} {{ calculatedTax.taxRate }}% MwSt. {{ calculatedTax.tax|currency(currencyIsoCode) }}<br>

@@ -148,7 +148,10 @@
 
                                         {% block component_offcanvas_product_total_price %}
                                             <div class="cart-item-price">
-                                                {{ price.totalPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
+                                                {# Shipping costs discounts always have a price of 0, which might be confusing, therefore we do not show those #}
+                                                {% if lineItem.payload.discountScope != 'delivery' %}
+                                                    {{ price.totalPrice|currency }}{{ "general.star"|trans|sw_sanitize }}
+                                                {% endif %}
                                                 {% set referencePrice = price.referencePrice %}
                                                 {% if referencePrice is not null %}
                                                     <small class="cart-item-reference-price">

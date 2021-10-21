@@ -21,6 +21,7 @@ Component.register('sw-promotion-v2-sales-channel-select', {
     data() {
         return {
             salesChannels: [],
+            sortBy: 'name',
         };
     },
 
@@ -63,6 +64,13 @@ Component.register('sw-promotion-v2-sales-channel-select', {
                 this.handleWithRepository(deleted, added);
             },
         },
+
+        salesChannelCriteria() {
+            const salesChannelCriteria = new Criteria(1, 500);
+            salesChannelCriteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
+
+            return salesChannelCriteria;
+        },
     },
 
     created() {
@@ -72,7 +80,7 @@ Component.register('sw-promotion-v2-sales-channel-select', {
     methods: {
         createdComponent() {
             this.salesChannelRepository
-                .search(new Criteria(1, 500))
+                .search(this.salesChannelCriteria)
                 .then(searchresult => {
                     this.salesChannels = searchresult;
                 });

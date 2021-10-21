@@ -26,6 +26,20 @@ Component.register('sw-category-tree-field', {
             type: String,
             required: true,
         },
+
+        categoryCriteria: {
+            type: Criteria,
+            required: false,
+            default() {
+                return new Criteria(1, 500);
+            },
+        },
+
+        singleSelect: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     data() {
@@ -168,11 +182,11 @@ Component.register('sw-category-tree-field', {
             this.isFetching = true;
 
             // create criteria
-            const categoryCriteria = new Criteria(1, 500);
-            categoryCriteria.addFilter(Criteria.equals('parentId', parentId));
+            const criteria = Criteria.fromCriteria(this.categoryCriteria);
+            criteria.addFilter(Criteria.equals('parentId', parentId));
 
             // search for categories
-            return this.globalCategoryRepository.search(categoryCriteria, Shopware.Context.api).then((searchResult) => {
+            return this.globalCategoryRepository.search(criteria, Shopware.Context.api).then((searchResult) => {
                 // when requesting root categories, replace the data
                 if (parentId === null) {
                     this.categories = searchResult;
@@ -200,6 +214,7 @@ Component.register('sw-category-tree-field', {
         },
 
         onCheckItem(item) {
+            this.removeCheckedItems(item.id);
             const itemIsInCategories = this.categoriesCollection.has(item.id);
 
             if (item.checked && !itemIsInCategories) {
@@ -598,6 +613,19 @@ Component.register('sw-category-tree-field', {
             }
 
             return foundInChildren;
+        },
+
+        removeCheckedItems(keepId) {
+            if (!this.singleSelect) {
+                return;
+            }
+
+            this.categoriesCollection.forEach((category, index) => {
+                if (category.id !== keepId) {
+                    this.categoriesCollection.splice(index, 1);
+                    index -= 1;
+                }
+            });
         },
     },
 });

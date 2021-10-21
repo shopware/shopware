@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-category-link-settings', {
     template,
 
-    inject: ['acl'],
+    inject: ['acl', 'repositoryFactory'],
 
     props: {
         category: {
@@ -20,6 +20,12 @@ Component.register('sw-category-link-settings', {
             required: false,
             default: false,
         },
+    },
+
+    data() {
+        return {
+            categoriesCollection: [],
+        };
     },
 
     computed: {
@@ -90,10 +96,20 @@ Component.register('sw-category-link-settings', {
 
         categoryCriteria() {
             const criteria = new Criteria();
-            criteria.addFilter(Criteria.not('and', [Criteria.equals('id', this.category.id)]));
             criteria.addFilter(Criteria.equals('type', 'page'));
 
             return criteria;
+        },
+
+        internalLinkCriteria() {
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.equals('id', this.category.internalLink));
+
+            return criteria;
+        },
+
+        categoryRepository() {
+            return this.repositoryFactory.create('category');
         },
     },
 
@@ -106,6 +122,8 @@ Component.register('sw-category-link-settings', {
             if (!this.category.linkType && this.category.externalLink) {
                 this.category.linkType = 'external';
             }
+
+            this.createCategoryCollection();
         },
 
         changeEntity() {
@@ -113,6 +131,24 @@ Component.register('sw-category-link-settings', {
                 this.category.linkType = 'internal';
             }
 
+            this.category.internalLink = null;
+        },
+
+        createCategoryCollection() {
+            this.categoryRepository.create('category');
+
+            this.categoryRepository
+                .search(this.internalLinkCriteria, Shopware.Context.api)
+                .then(result => {
+                    this.categoriesCollection = result;
+                });
+        },
+
+        onSelectionAdd(item) {
+            this.category.internalLink = item.id;
+        },
+
+        onSelectionRemove() {
             this.category.internalLink = null;
         },
     },

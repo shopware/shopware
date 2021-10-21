@@ -4,6 +4,24 @@ import 'src/module/sw-category/component/sw-category-link-settings';
 function createWrapper(privileges = [], category = {}) {
     const localVue = createLocalVue();
 
+    const responses = global.repositoryFactoryMock.responses;
+
+    responses.addResponse({
+        method: 'Post',
+        url: '/search/category',
+        status: 200,
+        response: {
+            data: [
+                {
+                    id: Shopware.Utils.createId(),
+                    attributes: {
+                        id: Shopware.Utils.createId()
+                    }
+                }
+            ]
+        }
+    });
+
     return shallowMount(Shopware.Component.build('sw-category-link-settings'), {
         localVue,
         stubs: {
@@ -11,7 +29,8 @@ function createWrapper(privileges = [], category = {}) {
             'sw-text-field': true,
             'sw-single-select': true,
             'sw-entity-single-select': true,
-            'sw-switch-field': true
+            'sw-switch-field': true,
+            'sw-category-tree-field': true
         },
         provide: {
             acl: {
@@ -115,17 +134,6 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
         const productSelectField = wrapper.find('sw-entity-single-select-stub');
         expect(productSelectField.attributes().entity).toEqual('product');
         expect(wrapper.vm.category.internalLink).toBe('someUuid');
-
-        await wrapper.setProps({
-            category: {
-                linkType: 'category'
-            }
-        });
-        await wrapper.findAll('sw-single-select-stub').at(1).vm.$emit('change');
-
-        const categorySelectField = wrapper.find('sw-entity-single-select-stub');
-        expect(categorySelectField.attributes().entity).toEqual('category');
-        expect(wrapper.vm.category.internalLink).toBeNull();
     });
 
     it('should clean up on switch to internal', async () => {
@@ -190,5 +198,32 @@ describe('src/module/sw-category/component/sw-category-link-settings', () => {
 
         const newTabField = wrapper.find('sw-switch-field-stub');
         expect(newTabField.attributes().disabled).toBeTruthy();
+    });
+
+    it('should show only categories with type page', async () => {
+        const wrapper = createWrapper([
+            'category.editor'
+        ], {
+            linkType: 'category',
+            internalLink: 'someUuid'
+        });
+
+        wrapper.find('sw-category-tree-field-stub');
+        const criteria = wrapper.vm.categoryCriteria;
+        const expectedFilters = [{ type: 'equals', field: 'type', value: 'page' }];
+
+        expect(criteria.filters).toEqual(expect.arrayContaining(expectedFilters));
+    });
+
+    it('should have correct internal link', async () => {
+        const wrapper = createWrapper([
+            'category.editor'
+        ], {
+            linkType: 'category',
+            internalLink: 'someUuid'
+        });
+
+        wrapper.find('sw-category-tree-field-stub');
+        expect(wrapper.vm.category.internalLink).toBe('someUuid');
     });
 });

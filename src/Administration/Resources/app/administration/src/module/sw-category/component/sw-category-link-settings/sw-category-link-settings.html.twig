@@ -37,17 +37,18 @@
     {% endblock %}
 
     {% block sw_category_detail_link_type_select_entity_category %}
-    <sw-entity-single-select
-        v-if="category.linkType === 'category'"
-        v-model="category.internalLink"
-        class="sw-category-link-settings__selection-category"
-        :disabled="!acl.can('category.editor')"
-        :label="$tc('global.entities.category')"
-        :placeholder="$tc('sw-category.base.link.categoryPlaceholder')"
-        :criteria="categoryCriteria"
-        entity="category"
-        show-clearable-button
-    />
+    <template v-if="category.linkType === 'category'">
+        <sw-category-tree-field
+            :categories-collection="categoriesCollection"
+            :placeholder="$tc('sw-category.base.link.categoryPlaceholder')"
+            :category-criteria="categoryCriteria"
+            :single-select="true"
+            :label="$tc('global.entities.category')"
+            class="sw-category-link-settings__selection-category"
+            @selection-add="onSelectionAdd"
+            @selection-remove="onSelectionRemove"
+        />
+    </template>
     {% endblock %}
 
     {% block sw_category_detail_link_type_select_entity_product %}

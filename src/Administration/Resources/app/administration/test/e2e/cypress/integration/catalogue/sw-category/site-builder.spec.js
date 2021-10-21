@@ -223,8 +223,8 @@ describe('Category: site builder feature', () => {
             .typeSingleSelectAndCheck('Internal', '.sw-category-link-settings__type');
         cy.get('.sw-category-link-settings__entity .sw-block-field__block')
             .typeSingleSelectAndCheck('Category', '.sw-category-link-settings__entity');
-        cy.get('.sw-category-link-settings__selection-category .sw-block-field__block')
-            .typeSingleSelectAndCheck('Home', '.sw-category-link-settings__selection-category');
+        cy.get('.sw-category-link-settings__selection-category .sw-block-field__block .sw-category-tree__input-field').click();
+        cy.get('.sw-category-tree-field__results .sw-tree__content').contains('.sw-tree-item__element', 'Home').find('.sw-field__checkbox input').click({force: true});
 
         // save and wait for the loading state to finish
         cy.get('.sw-category-detail__save-action').click();

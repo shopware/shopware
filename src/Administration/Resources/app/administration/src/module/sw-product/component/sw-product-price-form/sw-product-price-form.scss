@@ -19,4 +19,10 @@ $sw-product-price-suffix-font-size: 20px;
             margin-top: 16px;
         }
     }
+
+    .sw-product-price-form__price-list:not(.has--parent) {
+        .sw-inherit-wrapper__toggle-wrapper {
+            margin: 0;
+        }
+    }
 }

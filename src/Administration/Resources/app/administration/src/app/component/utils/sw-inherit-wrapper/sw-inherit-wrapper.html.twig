@@ -1,7 +1,7 @@
 {% block sw_inherit_wrapper %}
 <div
     class="sw-inherit-wrapper"
-    :class="{ 'is--inherited': isInherited, 'is--required': required }"
+    :class="{ 'is--inherited': isInherited, 'is--required': required, 'has--parent' : hasParent }"
 >
     {% block sw_inherit_wrapper_toggle %}
     <template v-if="label">

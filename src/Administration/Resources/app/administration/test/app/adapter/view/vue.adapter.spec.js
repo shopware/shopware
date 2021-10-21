@@ -1,6 +1,6 @@
 import { shallowMount, config } from '@vue/test-utils';
 import VueAdapter from 'src/app/adapter/view/vue.adapter';
-import ViewAdapter from 'src/core/adapter/view.adapter';
+import ViewAdapter from 'src/core/adapter/view.adapter.ts';
 import ComponentFactory from 'src/core/factory/component.factory';
 
 jest.mock('vue-i18n', () => (function MockI18n() {}));

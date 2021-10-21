@@ -1,6 +1,17 @@
+import type Bottle from 'bottlejs';
+import type ViewAdapter from './adapter/view.adapter';
 /**
  * @module core/application
  */
+
+interface bundlesSinglePluginResponse {
+    css?: string | string[],
+    js?: string | string[]
+}
+
+interface bundlesPluginResponse {
+    [key: string]: bundlesSinglePluginResponse
+}
 
 /**
  * The application bootstrapper bootstraps the application and registers the necessary
@@ -9,19 +20,18 @@
  *
  * The bootstrapper provides you with the ability to register middleware for all or specific
  * services too.
- *
- * @class
- * @memberOf module:core/application
  */
 class ApplicationBootstrapper {
+    public $container: Bottle;
+
+    public view: null | ViewAdapter;
+
     /**
      * Provides the necessary class properties for the class to work probably
-     *
-     * @constructor
-     * @param {Bottle} container
      */
-    constructor(container) {
-        const noop = () => {};
+    constructor(container: Bottle) {
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        const noop = (): void => {};
         this.$container = container;
 
         this.view = null;
@@ -35,16 +45,13 @@ class ApplicationBootstrapper {
 
     /**
      * Returns all containers. Use this method if you're want to get initializers in your services.
-     *
-     * @param {String=} containerName Name of the nested container. "init" & "service" are the core containers.
-     * @returns {Bottle.IContainer}
      */
-    getContainer(containerName) {
-        const containerNames = this.$container.list();
-
-        if (containerNames.indexOf(containerName) !== -1) {
+    getContainer<T extends Bottle.IContainerChildren>(containerName: T): Bottle.IContainer[T] {
+        if (typeof containerName === 'string' && this.$container.container[containerName]) {
             return this.$container.container[containerName];
         }
+
+        // @ts-expect-error
         return this.$container.container;
     }
 
@@ -57,12 +64,11 @@ class ApplicationBootstrapper {
      * Shopware.Application.addFactory('module', (container) => {
      *    return ModuleFactory();
      * });
-     *
-     * @param {String} name Name of the factory
-     * @param {Function} factory Factory method
-     * @returns {module:core/application.ApplicationBootstrapper}
      */
-    addFactory(name, factory) {
+    addFactory<T extends keyof FactoryContainer>(
+        name: T,
+        factory: (container: Bottle.IContainer) => FactoryContainer[T],
+    ): this {
         this.$container.factory(`factory.${name}`, factory.bind(this));
 
         return this;
@@ -82,12 +88,12 @@ class ApplicationBootstrapper {
      *    // Do something with the service
      *    next();
      * });
-     *
-     * @param args
-     * @returns {module:core/application.ApplicationBootstrapper}
      */
-    addFactoryMiddleware(...args) {
-        return this._addMiddleware('factory', args);
+    addFactoryMiddleware<SERVICE extends keyof Bottle.IContainer['factory']>(
+        nameOrMiddleware: SERVICE|Bottle.Middleware,
+        middleware? : Bottle.Middleware,
+    ): this {
+        return this._addMiddleware('factory', nameOrMiddleware, middleware);
     }
 
     /**
@@ -104,12 +110,12 @@ class ApplicationBootstrapper {
      *    // Do something with the service
      *    next();
      * });
-     *
-     * @param args
-     * @returns {module:core/application.ApplicationBootstrapper}
      */
-    addFactoryDecorator(...args) {
-        return this._addDecorator('factory', args);
+    addFactoryDecorator(
+        nameOrDecorator: keyof FactoryContainer|Bottle.Decorator,
+        decorator? : Bottle.Decorator,
+    ): this {
+        return this._addDecorator('factory', nameOrDecorator, decorator);
     }
 
     /**
@@ -122,12 +128,8 @@ class ApplicationBootstrapper {
      * Shopware.Application.addInitializer('httpClient', (container) => {
      *    return HttpFactory(container.apiContext);
      * });
-     *
-     * @param {String} name Name of the initializer
-     * @param {Function} initializer Factory method
-     * @returns {module:core/application.ApplicationBootstrapper}
      */
-    addInitializer(name, initializer) {
+    addInitializer<I extends keyof InitContainer>(name: I, initializer: () => InitContainer[I]): this {
         this.$container.factory(`init.${name}`, initializer.bind(this));
         return this;
     }
@@ -142,17 +144,18 @@ class ApplicationBootstrapper {
      * Shopware.Application.addServiceProvider('productService', (container) => {
      *    return new ProductApiService(container.mediaService);
      * });
-     *
-     * @param {String} name Name of the service
-     * @param {Function} provider Factory method for the service
-     * @returns {module:core/application.ApplicationBootstrapper}
      */
-    addServiceProvider(name, provider) {
+    addServiceProvider<S extends keyof ServiceContainer>(
+        name: S,
+        provider: (serviceContainer: ServiceContainer) => ServiceContainer[S],
+    ): this {
+        // @ts-expect-error
         this.$container.factory(`service.${name}`, provider.bind(this));
         return this;
     }
 
-    registerConfig(config) {
+    // TODO: implement Context typings
+    registerConfig(config: { apiContext?: $TSFixMe, appContext?: $TSFixMe }): this {
         this.registerApiContext(config.apiContext);
         this.registerAppContext(config.appContext);
 
@@ -161,11 +164,11 @@ class ApplicationBootstrapper {
 
     /**
      * Registers the api context (api path, path to resources etc.)
-     *
-     * @param {Object} context
-     * @returns {ApplicationBootstrapper}
      */
-    registerApiContext(context) {
+    registerApiContext(context: $TSFixMe): this {
+        // TODO: implement Context typings
+        // eslint-disable-next-line max-len
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call
         Shopware.Context.api = Shopware.Classes._private.ApiContextFactory(context);
 
         return this;
@@ -173,11 +176,11 @@ class ApplicationBootstrapper {
 
     /**
      * Registers the app context (firstRunWizard, etc.)
-     *
-     * @param {Object} context
-     * @returns {ApplicationBootstrapper}
      */
-    registerAppContext(context) {
+    registerAppContext(context: $TSFixMe): this {
+        // TODO: implement Context typings
+        // eslint-disable-next-line max-len
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call
         Shopware.Context.app = Shopware.Classes._private.AppContextFactory(context);
 
         return this;
@@ -197,37 +200,39 @@ class ApplicationBootstrapper {
      *    // Do something with the service
      *    next();
      * });
-     *
-     * @param args
-     * @returns {module:core/application.ApplicationBootstrapper}
      */
-    addServiceProviderMiddleware(...args) {
-        return this._addMiddleware('service', args);
+    addServiceProviderMiddleware<SERVICE extends keyof ServiceContainer>(
+        nameOrMiddleware: SERVICE|Bottle.Middleware,
+        middleware? : Bottle.Middleware,
+    ): this {
+        return this._addMiddleware('service', nameOrMiddleware, middleware);
     }
 
     /**
      * Helper method which registers a middleware
-     *
-     * @param {String} containerName
-     * @param {Array} args
-     * @returns {module:core/application.ApplicationBootstrapper}
-     * @private
      */
-    _addMiddleware(containerName, args) {
-        const name = (args.length > 1 ? `${containerName}.${args[0]}` : containerName);
-        const middlewareFn = (args.length > 1 ? args[1] : args[0]);
+    private _addMiddleware<CONTAINER extends Bottle.IContainerChildren>(
+        containerName: CONTAINER,
+        nameOrMiddleware: keyof Bottle.IContainer[CONTAINER]|Bottle.Middleware,
+        middleware? : Bottle.Middleware,
+    ): this {
+        if (typeof nameOrMiddleware === 'string' && !!middleware) {
+            this.$container.middleware(`${containerName}.${nameOrMiddleware}`, middleware);
+        }
 
-        this.$container.middleware(name, middlewareFn);
+        if (typeof nameOrMiddleware === 'function' && !!nameOrMiddleware) {
+            this.$container.middleware(containerName, nameOrMiddleware);
+        }
 
         return this;
     }
 
     /**
      * Initializes the feature flags from context settings
-     *
-     * @returns {module:core/application.ApplicationBootstrapper}
      */
-    initializeFeatureFlags() {
+    initializeFeatureFlags(): this {
+        // TODO: implement Context typings
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         Shopware.Feature.init(Shopware.Context.app.features);
 
         return this;
@@ -247,38 +252,37 @@ class ApplicationBootstrapper {
      *    // Do something with the service
      *    next();
      * });
-     *
-     * @param args
-     * @returns {module:core/application.ApplicationBootstrapper}
      */
-    addServiceProviderDecorator(...args) {
-        return this._addDecorator('service', args);
+    addServiceProviderDecorator(
+        nameOrDecorator: keyof ServiceContainer|Bottle.Decorator,
+        decorator? : Bottle.Decorator,
+    ): this {
+        return this._addDecorator('service', nameOrDecorator, decorator);
     }
 
     /**
      * Helper method which registers a decorator
-     *
-     * @param {String} containerName
-     * @param {Array} args
-     * @returns {module:core/application.ApplicationBootstrapper}
-     * @private
      */
-    _addDecorator(containerName, args) {
-        const name = (args.length > 1 ? `${containerName}.${args[0]}` : containerName);
-        const middlewareFn = (args.length > 1 ? args[1] : args[0]);
+    _addDecorator<CONTAINER extends Bottle.IContainerChildren>(
+        containerName: CONTAINER,
+        nameOrDecorator: keyof Bottle.IContainer[CONTAINER]|Bottle.Decorator,
+        decorator? : Bottle.Decorator,
+    ): this {
+        if (typeof nameOrDecorator === 'string' && !!decorator) {
+            this.$container.decorator(`${containerName}.${nameOrDecorator}`, decorator);
+        }
 
-        this.$container.decorator(name, middlewareFn);
+        if (typeof nameOrDecorator === 'function' && !!nameOrDecorator) {
+            this.$container.decorator(containerName, nameOrDecorator);
+        }
 
         return this;
     }
 
     /**
      * Starts the bootstrapping process of the application.
-     *
-     * @param {Object} [config={}]
-     * @returns {module:core/application.ApplicationBootstrapper}
      */
-    start(config = {}) {
+    start(config = {}): Promise<$TSFixMe> {
         return this.initState()
             .registerConfig(config)
             .initializeFeatureFlags()
@@ -287,9 +291,9 @@ class ApplicationBootstrapper {
 
     /**
      * Get the global state
-     * @returns {Object}
      */
-    initState() {
+    initState(): this {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const initaliziation = this.getContainer('init').state;
 
         if (initaliziation) {
@@ -301,32 +305,32 @@ class ApplicationBootstrapper {
 
     /**
      * Returns the root of the application e.g. a new Vue instance
-     *
-     * @returns {Boolean|Vue}
      */
-    getApplicationRoot() {
-        if (!this.view.root) {
+    getApplicationRoot(): Vue | boolean {
+        if (!this.view?.root) {
             return false;
         }
 
         return this.view.root;
     }
 
-    setViewAdapter(viewAdapterInstance) {
+    setViewAdapter(viewAdapterInstance: ViewAdapter): void {
         this.view = viewAdapterInstance;
     }
 
     /**
      * Boot the application depending on login status
-     *
-     * @returns {Promise<module:core/application.ApplicationBootstrapper>}
      */
-    startBootProcess() {
+    startBootProcess(): Promise<$TSFixMe> {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const loginService = this.getContainer('service').loginService;
+        // eslint-disable-next-line max-len
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
         const isUserLoggedIn = loginService.isLoggedIn();
 
         // if user is not logged in
         if (!isUserLoggedIn) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
             loginService.logout();
             return this.bootLogin();
         }
@@ -336,10 +340,8 @@ class ApplicationBootstrapper {
 
     /**
      * Boot the login.
-     *
-     * @returns {Promise<module:core/application.ApplicationBootstrapper>}
      */
-    bootLogin() {
+    bootLogin(): Promise<$TSFixMe> {
         // set force reload after successful login
         sessionStorage.setItem('sw-login-should-reload', 'true');
 
@@ -352,17 +354,21 @@ class ApplicationBootstrapper {
          */
 
         return this.initializeLoginInitializer()
-            .then(() => this.view.initDependencies())
+            .then(() => {
+                if (!this.view) {
+                    return Promise.reject();
+                }
+
+                return this.view.initDependencies();
+            })
             .then(() => this.createApplicationRoot())
             .catch((error) => this.createApplicationRootError(error));
     }
 
     /**
      * Boot the whole application.
-     *
-     * @returns {Promise<module:core/application.ApplicationBootstrapper>}
      */
-    bootFullApplication() {
+    bootFullApplication(): Promise<$TSFixMe> {
         const initContainer = this.getContainer('init');
 
         /**
@@ -378,7 +384,11 @@ class ApplicationBootstrapper {
         return this.initializeInitializers(initContainer)
             .then(() => this.loadPlugins())
             .then(() => Promise.all(Shopware.Plugin.getBootPromises()))
-            .then(() => this.view.initDependencies())
+            .then(() => {
+                if (!this.view) { return Promise.reject(); }
+
+                return this.view.initDependencies();
+            })
             .then(() => this.createApplicationRoot())
             .catch((error) => this.createApplicationRootError(error));
     }
@@ -386,26 +396,36 @@ class ApplicationBootstrapper {
     /**
      * Creates the application root and injects the provider container into the
      * view instance to keep the dependency injection of Vue.js in place.
-     *
-     * @returns {Promise<module:core/application.ApplicationBootstrapper>}
      */
-    createApplicationRoot() {
+    createApplicationRoot(): Promise<this> {
         const initContainer = this.getContainer('init');
+        // eslint-disable-next-line max-len
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
         const router = initContainer.router.getRouterInstance();
 
         // We're in a test environment, we're not needing an application root
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         if (Shopware.Context.app.environment === 'testing') {
             return Promise.resolve(this);
         }
 
+        if (!this.view) {
+            return Promise.reject(new Error('The ViewAdapter was not defined in the application.'));
+        }
+
         this.view.init(
             '#app',
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             router,
+            // @ts-expect-error
             this.getContainer('service'),
         );
 
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
         const firstRunWizard = Shopware.Context.app.firstRunWizard;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
         if (firstRunWizard && !router.history.current.name.startsWith('sw.first.run.wizard.')) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
             router.push({
                 name: 'sw.first.run.wizard.index',
             });
@@ -418,12 +438,11 @@ class ApplicationBootstrapper {
         return Promise.resolve(this);
     }
 
-    _resolveViewInitialized;
+    _resolveViewInitialized: undefined | ((arg0?: unknown) => void);
 
     /**
      * You can use this Promise to do things after the view
      * was initialized.
-     * @type {Promise<undefined>}
      */
     viewInitialized = new Promise((resolve) => {
         this._resolveViewInitialized = resolve;
@@ -431,22 +450,29 @@ class ApplicationBootstrapper {
 
     /**
      * Creates the application root and show the error message.
-     *
-     * @returns {Promise<module:core/application.ApplicationBootstrapper>}
      */
-    createApplicationRootError(error) {
+    createApplicationRootError(error: unknown): void {
         console.error(error);
         const container = this.getContainer('init');
+        // eslint-disable-next-line max-len
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
         const router = container.router.getRouterInstance();
 
-        this.view.init(
+        this.view?.init(
             '#app',
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             router,
+            // @ts-expect-error
             this.getContainer('service'),
         );
 
-        this.view.root.initError = error;
+        // @ts-expect-error
+        if (this.view?.root?.initError) {
+            // @ts-expect-error
+            this.view.root.initError = error;
+        }
 
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
         router.push({
             name: 'error',
         });
@@ -455,13 +481,8 @@ class ApplicationBootstrapper {
     /**
      * Initialize the initializers right away cause these are the mandatory services for the application
      * to boot successfully.
-     *
-     * @private
-     * @param {Bottle.IContainer} container Bottle container
-     * @param {String} [prefix='init']
-     * @returns {Promise<any[]>}
      */
-    initializeInitializers(container, prefix = 'init') {
+    private initializeInitializers(container: InitContainer, prefix = 'init'): Promise<unknown[]> {
         const services = container.$list().map((serviceName) => {
             return `${prefix}.${serviceName}`;
         });
@@ -474,13 +495,8 @@ class ApplicationBootstrapper {
     /**
      * Initialize the initializers right away cause these are the mandatory services for the application
      * to boot successfully.
-     *
-     * @private
-     * @param {Bottle.IContainer} container Bottle container
-     * @param {String} [prefix='init']
-     * @returns {Promise<any[]>}
      */
-    initializeLoginInitializer() {
+    private initializeLoginInitializer(): Promise<unknown[]> {
         const loginInitializer = [
             'login',
             'baseComponents',
@@ -504,12 +520,18 @@ class ApplicationBootstrapper {
         return Promise.all(asyncInitializers);
     }
 
-    getAsyncInitializers(initializer) {
+    getAsyncInitializers(initializer: InitContainer | string[]): unknown[] {
         const initContainer = this.getContainer('init');
-        const asyncInitializers = [];
+        const asyncInitializers: unknown[] = [];
+
         Object.keys(initializer).forEach((serviceKey) => {
+            // @ts-expect-error
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             const service = initContainer[serviceKey];
-            if (service && service.constructor.name === 'Promise') {
+
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            if (service?.constructor?.name === 'Promise') {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                 asyncInitializers.push(service);
             }
         });
@@ -519,19 +541,18 @@ class ApplicationBootstrapper {
 
     /**
      * Load all plugins from the server and inject them into the Site.
-     * @private
-     * @returns {Promise<any[][]>}
      */
-    async loadPlugins() {
+    private async loadPlugins():Promise<(unknown[] | null)[]> {
         const isDevelopmentMode = process.env.NODE_ENV;
 
-        let plugins;
+        let plugins: bundlesPluginResponse;
         // only in webpack dev mode
         if (isDevelopmentMode === 'development') {
             const response = await fetch('./sw-plugin-dev.json');
-            plugins = await response.json();
+            plugins = await response.json() as bundlesPluginResponse;
         } else {
-            plugins = Shopware.Context.app.config.bundles;
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            plugins = Shopware.Context.app.config.bundles as bundlesPluginResponse;
         }
 
         const injectAllPlugins = Object.values(plugins).map((plugin) => this.injectPlugin(plugin));
@@ -541,11 +562,8 @@ class ApplicationBootstrapper {
 
     /**
      * Inject plugin scripts and styles
-     * @private
-     * @param {Object} plugin
-     * @returns {Promise<any[]>}
      */
-    async injectPlugin(plugin) {
+    private async injectPlugin(plugin: bundlesSinglePluginResponse): Promise<unknown[] | null> {
         let allScripts = [];
         let allStyles = [];
 
@@ -574,24 +592,21 @@ class ApplicationBootstrapper {
 
     /**
      * Inject js to end of body
-     * @private
-     * @param {String} scriptSrc
-     * @returns {Promise<any[]>}
      */
-    injectJs(scriptSrc) {
-        return new Promise((resolve, reject) => {
+    private injectJs(scriptSrc: string): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
             // create script tag with src
             const script = document.createElement('script');
             script.src = scriptSrc;
             script.async = true;
 
             // resolve when script was loaded succcessfully
-            script.onload = () => {
+            script.onload = ():void => {
                 resolve();
             };
 
             // when script get not loaded successfully
-            script.onerror = () => {
+            script.onerror = ():void => {
                 reject();
             };
 
@@ -602,24 +617,21 @@ class ApplicationBootstrapper {
 
     /**
      * Inject js to end of head
-     * @private
-     * @param {String} styleSrc
-     * @returns {Promise<any[]>}
      */
-    injectCss(styleSrc) {
-        return new Promise((resolve, reject) => {
+    private injectCss(styleSrc: string): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
             // create style link with src
             const link = document.createElement('link');
             link.rel = 'stylesheet';
             link.href = styleSrc;
 
             // resolve when script was loaded succcessfully
-            link.onload = () => {
+            link.onload = ():void => {
                 resolve();
             };
 
             // when style get not loaded successfully
-            link.onerror = () => {
+            link.onerror = ():void => {
                 reject();
             };
 

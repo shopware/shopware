@@ -70,6 +70,7 @@ const allInitializers = { ...preInitializer, ...initializers, ...postInitializer
 Object.keys(allInitializers).forEach((key) => {
     // @ts-expect-error
     const initializer = allInitializers[key];
+    // @ts-expect-error
     Application.addInitializer(key, initializer);
 });
 

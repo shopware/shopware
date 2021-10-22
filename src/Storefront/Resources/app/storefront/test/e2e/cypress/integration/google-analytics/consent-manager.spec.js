@@ -36,15 +36,19 @@ describe('Google Analytics: New analytics cookie in Cookie Consent Manager', () 
         }).as('cookieOffcanvas');
 
         cy.visit('/');
+
+        cy.getCookie('_swag_ga_ga').should('be.null');
+
+        cy.get('.js-cookie-configuration-button > .btn').click();
+        cy.wait('@cookieOffcanvas')
+            .its('response.statusCode').should('equal', 200);
+        cy.get('.offcanvas-cookie').should('be.visible');
+        cy.get('.offcanvas-cookie-group').eq(1).find('.custom-control-label').first().click();
+        cy.get('.js-offcanvas-cookie-submit').click();
+
+        cy.reload();
+
         cy.window().then((win) => {
-            cy.getCookie('_swag_ga_ga').should('be.null');
-
-            cy.wait('@cookieOffcanvas')
-                .its('response.statusCode').should('equal', 200);
-            cy.get('.offcanvas-cookie').should('be.visible');
-            cy.get('.offcanvas-cookie-group').eq(1).find('.custom-control-label').first().click();
-            cy.get('.js-offcanvas-cookie-submit').click();
-
             cy.waitUntil(() => cy.getCookie('_swag_ga_ga').then(cookie => cookie && cookie.value !== null));
             cy.get('.offcanvas-cookie').should('not.exist').then(() => {
                 win.PluginManager.getPluginInstances('CookieConfiguration')[0].openOffCanvas();

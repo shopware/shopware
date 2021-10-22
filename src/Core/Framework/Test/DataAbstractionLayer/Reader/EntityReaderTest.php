@@ -12,6 +12,7 @@ use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTransla
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationEntity;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -2159,6 +2160,95 @@ class EntityReaderTest extends TestCase
                 'active-query',
                 'active',
             ],
+        ];
+    }
+
+    /**
+     * @dataProvider casesToManyReadPaginatedInherited
+     */
+    public function testOneToManyReadingInherited(array $criteriaConfig, array $expectedMedia, string $type): void
+    {
+        $ids = new IdsCollection();
+
+        $variant = new ProductBuilder($ids, 'p1.1');
+
+        $product = (new ProductBuilder($ids, 'p1'))
+            ->name('Test Product')
+            ->price(50, 50);
+
+        if (str_contains($type, 'main')) {
+            $product
+                ->media('m-1', 1)
+                ->media('m-2', 2)
+                ->media('m-3', 3);
+        }
+
+        if (str_contains($type, 'variant')) {
+            $variant
+                ->media('v-1', 1)
+                ->media('v-2', 2)
+                ->media('v-3', 3);
+        }
+
+        $product->variant($variant->build());
+
+        $productRepository = $this->getContainer()->get('product.repository');
+        $productRepository->create([
+            $product->build(),
+        ], $ids->context);
+
+        $criteria = new Criteria([$ids->get('p1.1')]);
+        $media = $criteria->getAssociation('media');
+        $media->addSorting(new FieldSorting('position', FieldSorting::ASCENDING));
+        $media->assign($criteriaConfig);
+        $ids->context->setConsiderInheritance(true);
+
+        $product = $productRepository->search($criteria, $ids->context)->first();
+
+        static::assertInstanceOf(ProductEntity::class, $product);
+        static::assertNotNull($product->getMedia());
+
+        static::assertSame($expectedMedia, array_values($product->getMedia()->map(static function (ProductMediaEntity $m) {
+            return $m->getMedia()->getFileName();
+        })));
+    }
+
+    public function casesToManyReadPaginatedInherited(): iterable
+    {
+        yield 'parent-data: with limit at 2 with 3 elements' => [
+            ['limit' => 2], // Criteria
+            ['m-1', 'm-2'], // expected media
+            'main',
+        ];
+
+        yield 'parent-data: with limit at 2 and page 2 with 3 elements' => [
+            ['limit' => 2, 'offset' => 2],
+            ['m-3'],
+            'main',
+        ];
+
+        yield 'child-data: with limit at 2 with 3 elements' => [
+            ['limit' => 2],
+            ['v-1', 'v-2'],
+            'variant',
+        ];
+
+        yield 'child-data: with limit at 2 and page 2 with 3 elements' => [
+            ['limit' => 2, 'offset' => 2],
+            ['v-3'],
+            'variant',
+        ];
+
+        yield 'child-and-main: with limit at 2 with 3 elements' => [
+            ['limit' => 2],
+            ['v-1', 'v-2'],
+            'variant-main',
+        ];
+
+        yield 'child-and-main: with limit at 2 and page 2 with 3 elements' => [
+            ['limit' => 2, 'offset' => 2],
+            ['v-3'],
+            'variant-main',
         ];
     }
 }

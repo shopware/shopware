@@ -65,6 +65,8 @@ class ProductBuilder
 
     protected bool $closeout = false;
 
+    protected array $media = [];
+
     public function __construct(IdsCollection $ids, string $number, int $stock = 1, string $taxKey = 't1')
     {
         $this->ids = $ids;
@@ -330,6 +332,17 @@ class ProductBuilder
     public function closeout(): ProductBuilder
     {
         $this->closeout = true;
+
+        return $this;
+    }
+
+    public function media(string $key, int $position = 0): ProductBuilder
+    {
+        $this->media[] = [
+            'id' => $this->ids->get($key),
+            'position' => $position,
+            'media' => ['fileName' => $key],
+        ];
 
         return $this;
     }

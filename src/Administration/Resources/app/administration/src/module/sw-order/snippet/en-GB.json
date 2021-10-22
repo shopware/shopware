@@ -205,6 +205,7 @@
       "labelTrackingCodes": "Track and trace codes",
       "labelAffiliateCode": "Affiliate code",
       "labelCampaignCode": "Campaign code",
+      "labelCustomerComment": "Additional information",
       "buttonAddDeliveryAddress": "Add new address",
       "labelSameDeliveryAndBillingAddress": "Billing / shipping addresses are identical",
       "buttonContinueOnVersionedOrder": "Load",
@@ -267,6 +268,8 @@
       "headlineOrderState": "Order status",
       "headlineTransactionState": "Payment status",
       "headlineDeliveryState": "Delivery status",
+      "labelHistory": "Status set {time} by {author}",
+      "labelShowHistoryModal": "Show status history",
       "labelLastEditedBy": "Last edited by",
       "labelSystemUser": "System",
       "labelSelectStatePlaceholder": "Select a status...",
@@ -327,6 +330,17 @@
       },
       "tagSelect": {
         "placeholder": "Add tags ..."
+      }
+    },
+    "detailsTab": {
+      "labelTransactionCard": "Payment",
+      "labelDeliveryCard": "Shipping",
+      "labelOrderCard": "Order",
+      "promotionsField": {
+        "labelPromotions": "Promotions",
+        "placeholderPromotions": "Enter promotion code ...",
+        "automaticPromotion":  "automatically applied",
+        "labelToggleAutomaticPromotions": "Disable automatically applied promotions"
       }
     },
     "documentModal": {

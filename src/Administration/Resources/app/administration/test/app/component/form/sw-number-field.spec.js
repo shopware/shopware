@@ -54,6 +54,53 @@ describe('app/component/form/sw-number-field', () => {
         expect(input.element.value).toBe('0');
     });
 
+    it('should fill digits when appropriate', async () => {
+        const wrapper = createWrapper({ propsData: { fillDigits: true } });
+
+        const input = wrapper.find('input');
+
+        await input.setValue('5');
+        await input.trigger('change');
+        expect(input.element.value).toBe('5.00');
+
+        await wrapper.setProps({ digits: 1 });
+        await input.setValue('5.1');
+        await input.trigger('change');
+        expect(input.element.value).toBe('5.1');
+
+        await wrapper.setProps({ value: 5.0 });
+        await input.trigger('change');
+        await input.trigger('change');
+        expect(input.element.value).toBe('5.0');
+
+        await input.setValue('5.0001');
+        await input.trigger('change');
+        expect(input.element.value).toBe('5.0001');
+    });
+
+    it('should not fill digits when not appropriate', async () => {
+        const wrapper = createWrapper({
+            propsData: {
+                fillDigits: true,
+                numberType: 'int'
+            }
+        });
+
+        const input = wrapper.find('input');
+        await input.setValue('5');
+        await input.trigger('change');
+        expect(input.element.value).toBe('5');
+    });
+
+    it('should not fill digits when disabled (default)', async () => {
+        const wrapper = createWrapper();
+
+        const input = wrapper.find('input');
+        await input.setValue('5');
+        await input.trigger('change');
+        expect(input.element.value).toBe('5');
+    });
+
     it('should clear input field when user deletes everything and emits null', async () => {
         const wrapper = createWrapper();
 

@@ -1,9 +1,10 @@
 import template from './sw-order-detail-details.html.twig';
+import './sw-order-detail-details.scss';
 
-const { Component, Utils, Mixin } = Shopware;
+const { Component, State } = Shopware;
 const { Criteria } = Shopware.Data;
-const { array } = Utils;
-const { mapGetters, mapState } = Shopware.Component.getComponentHelper();
+const { array } = Shopware.Utils;
+const { mapGetters, mapState } = Component.getComponentHelper();
 
 Component.register('sw-order-detail-details', {
     template,
@@ -14,10 +15,6 @@ Component.register('sw-order-detail-details', {
         'stateStyleDataProviderService',
         'acl',
         'feature',
-    ],
-
-    mixins: [
-        Mixin.getByName('notification'),
     ],
 
     props: {
@@ -40,8 +37,6 @@ Component.register('sw-order-detail-details', {
             orderOptions: [],
             deliveryOptions: [],
             customFieldSets: [],
-            promotions: [],
-            promotionError: null,
             showStateHistoryModal: false,
         };
     },
@@ -49,7 +44,6 @@ Component.register('sw-order-detail-details', {
     computed: {
         ...mapGetters('swOrderDetail', [
             'isLoading',
-            'isEditing',
         ]),
 
         ...mapState('swOrderDetail', [
@@ -141,13 +135,26 @@ Component.register('sw-order-detail-details', {
             return criteria;
         },
 
-        disabledAutoPromotionVisibility: {
-            get() {
-                return !this.hasAutomaticPromotions;
-            },
-            set(state) {
-                this.toggleAutomaticPromotions(state);
-            },
+        salesChannelCriteria() {
+            const criteria = new Criteria();
+
+            if (this.order.salesChannelId) {
+                criteria.addFilter(Criteria.equals('salesChannels.id', this.order.salesChannelId));
+            }
+
+            return criteria;
+        },
+
+        paymentMethodCriteria() {
+            const criteria = new Criteria();
+
+            if (this.order.salesChannelId) {
+                criteria.addFilter(Criteria.equals('salesChannels.id', this.order.salesChannelId));
+            }
+
+            criteria.addFilter(Criteria.equals('afterOrderEnabled', 1));
+
+            return criteria;
         },
 
         taxStatus() {
@@ -226,12 +233,24 @@ Component.register('sw-order-detail-details', {
             this.$emit('save-and-recalculate');
         },
 
-        recalculateAndReload() {
-            this.$emit('recalculate-and-reload');
+        saveAndReload() {
+            this.$emit('save-and-reload');
         },
 
-        saveAndReload() {
-            this.$emit('save-and-reload=');
+        onSaveEdits() {
+            this.$emit('save-edits');
+        },
+
+        reloadEntityData() {
+            this.$emit('reload-entity-data');
+        },
+
+        showError(error) {
+            this.$emit('error', error);
+        },
+
+        updateLoading(loadingValue) {
+            State.commit('swOrderDetail/setLoading', ['order', loadingValue]);
         },
     },
 });

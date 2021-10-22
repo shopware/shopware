@@ -205,6 +205,7 @@
       "labelTrackingCodes": "Sendungsnummer(n)",
       "labelAffiliateCode": "Affiliate-Code",
       "labelCampaignCode": "Kampagnen-Code",
+      "labelCustomerComment": "Zusätzliche Informationen",
       "buttonContinueOnVersionedOrder": "Laden",
       "buttonAddDeliveryAddress": "Neue Addresse hinzufügen",
       "labelSameDeliveryAndBillingAddress": "Rechnungs- und Lieferadresse sind identisch",
@@ -267,6 +268,8 @@
       "headlineOrderState": "Bestellstatus",
       "headlineTransactionState": "Zahlungsstatus",
       "headlineDeliveryState": "Lieferstatus",
+      "labelHistory": "Status geändert {time} von {author}",
+      "labelShowHistoryModal": "Statusverlauf anzeigen",
       "labelLastEditedBy": "Zuletzt geändert von",
       "labelSystemUser": "System",
       "labelSelectStatePlaceholder": "Bitte wählen ...",
@@ -327,6 +330,17 @@
       },
       "tagSelect": {
         "placeholder": "Tags hinzufügen ..."
+      }
+    },
+    "detailsTab": {
+      "labelTransactionCard": "Zahlung",
+      "labelDeliveryCard": "Versand",
+      "labelOrderCard": "Bestellung",
+      "promotionsField": {
+        "labelPromotions": "Rabattaktionen",
+        "placeholderPromotions": "Rabattcode eingeben...",
+        "automaticPromotion":  "automatisch hinzugefügt",
+        "labelToggleAutomaticPromotions": "Automatische hinzugefügte Werbeaktionen deaktivieren"
       }
     },
     "documentModal": {

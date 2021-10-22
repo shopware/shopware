@@ -104,15 +104,27 @@ describe('Product: Edit product media', () => {
             .and('match', /sw-test-image/);
         cy.awaitAndCheckNotification('File has been saved.');
 
+        // Add third image to product
+        cy.get('#files')
+            .attachFile('img/plugin-manager--login.png');
+        cy.get('.sw-product-image:nth-of-type(3) img')
+            .first()
+            .should('have.attr', 'src')
+            .and('match', /plugin-manager--login/);
+        cy.awaitAndCheckNotification('File has been saved.');
+
+        cy.get(page.elements.productSaveAction).click();
+        cy.wait('@saveProduct').its('response.statusCode').should('equal', 200);
+
         // Change cover image
-        cy.get(`.sw-product-image:nth-of-type(2) ${page.elements.contextMenuButton}`)
+        cy.get(`.sw-product-image:nth-of-type(3) ${page.elements.contextMenuButton}`)
             .click({ force: true });
         cy.contains('Use as cover').click();
-        cy.get('.sw-product-image:nth-of-type(2) .sw-label--primary').should('be.visible');
+        cy.get('.sw-product-image:nth-of-type(3) .sw-label--primary').should('be.visible');
         cy.get('.sw-product-media-form__cover-image img')
             .first()
             .should('have.attr', 'src')
-            .and('match', /sw-test-image/);
+            .and('match', /plugin-manager--login/);
 
         // Save product
         cy.get(page.elements.productSaveAction).click();
@@ -122,13 +134,13 @@ describe('Product: Edit product media', () => {
         cy.visit('/');
         cy.get('.product-image-wrapper img')
             .should('have.attr', 'src')
-            .and('match', /sw-test-image/);
+            .and('match', /plugin-manager--login/);
         cy.get('.product-name').click();
         cy.get('.gallery-slider-item').should('be.visible');
-        cy.get('#tns2-item1.tns-nav-active').should('be.visible');
-        cy.get('#tns1-item1 img')
+        cy.get('.tns-nav-active').should('be.visible');
+        cy.get('#tns1-item2 img')
             .should('have.attr', 'src')
-            .and('match', /sw-test-image/);
+            .and('match', /plugin-manager--login/);
     });
 
     it('@catalogue: remove a product\'s image', () => {

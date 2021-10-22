@@ -558,6 +558,11 @@ Component.register('sw-product-detail', {
                 if (!product.purchasePrices?.length > 0) {
                     product.purchasePrices = this.getDefaultPurchasePrices();
                 }
+                if (product.media) {
+                    product.media.forEach((medium, index) => {
+                        medium.position = index;
+                    });
+                }
 
                 Shopware.State.commit('swProductDetail/setProduct', product);
 
@@ -811,6 +816,12 @@ Component.register('sw-product-detail', {
 
         saveProduct() {
             Shopware.State.commit('swProductDetail/setLoading', ['product', true]);
+
+            if (this.product.media) {
+                this.product.media.forEach((medium, index) => {
+                    medium.position = index;
+                });
+            }
 
             return new Promise((resolve) => {
                 // check if product exists

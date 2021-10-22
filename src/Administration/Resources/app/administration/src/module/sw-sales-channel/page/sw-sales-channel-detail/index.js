@@ -294,11 +294,7 @@ Component.register('sw-sales-channel-detail', {
                 this.salesChannel.productExports.add(this.productExport);
             }
 
-            const analyticsId = this.salesChannel.analyticsId;
-            if (analyticsId && !this.salesChannel?.analytics?.trackingId) {
-                this.salesChannel.analyticsId = null;
-                delete this.salesChannel.analytics;
-            }
+            const analyticsId = this.updateAnalytics();
 
             try {
                 await this.salesChannelRepository.save(this.salesChannel, Context.api);
@@ -321,6 +317,16 @@ Component.register('sw-sales-channel-detail', {
                     }),
                 });
             }
+        },
+
+        updateAnalytics() {
+            const analyticsId = this.salesChannel.analyticsId;
+            if (analyticsId && !this.salesChannel?.analytics?.trackingId) {
+                this.salesChannel.analyticsId = null;
+                delete this.salesChannel.analytics;
+            }
+
+            return analyticsId;
         },
 
         abortOnLanguageChange() {

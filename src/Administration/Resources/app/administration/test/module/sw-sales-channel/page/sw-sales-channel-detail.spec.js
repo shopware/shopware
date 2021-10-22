@@ -1,4 +1,4 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { createLocalVue, shallowMount } from '@vue/test-utils';
 import 'src/module/sw-sales-channel/page/sw-sales-channel-detail';
 
 function createWrapper(privileges = []) {
@@ -35,11 +35,19 @@ function createWrapper(privileges = []) {
                 create: () => ({
                     create: () => ({}),
                     get: () => Promise.resolve({
+                        id: '1a2b3c4d',
+                        analyticsId: '1a2b3c',
+                        analytics: {
+                            id: '1a2b3c',
+                            trackingId: 'tracking-id'
+                        },
                         productExports: {
                             first: () => ({})
                         }
                     }),
-                    search: () => Promise.resolve([])
+                    search: () => Promise.resolve([]),
+                    delete: () => Promise.resolve(),
+                    save: () => Promise.resolve()
                 })
             },
             exportTemplateService: {
@@ -88,6 +96,44 @@ describe('src/module/sw-sales-channel/page/sw-sales-channel-detail', () => {
         const saveButton = wrapper.find('.sw-sales-channel-detail__save-action');
 
         expect(saveButton.attributes().disabled).toBeFalsy();
+        wrapper.destroy();
+    });
+
+    it('should remove analytics association on save when analyticsId is empty', async () => {
+        const wrapper = createWrapper([
+            'sales_channel.editor'
+        ]);
+
+        await wrapper.setData({
+            isLoading: false
+        });
+
+        wrapper.vm.salesChannel.analytics.trackingId = null;
+
+        const analyticsId = wrapper.vm.updateAnalytics();
+
+        expect(typeof analyticsId).toBe('string');
+        expect(wrapper.vm.salesChannel.analyticsId).toBeNull();
+        expect(wrapper.vm.salesChannel.analytics).toBeUndefined();
+
+        wrapper.destroy();
+    });
+
+    it('should not remove analytics association on save when analyticsId is not empty', async () => {
+        const wrapper = createWrapper([
+            'sales_channel.editor'
+        ]);
+
+        await wrapper.setData({
+            isLoading: false
+        });
+
+        const analyticsId = wrapper.vm.updateAnalytics();
+
+        expect(typeof analyticsId).toBe('string');
+        expect(wrapper.vm.salesChannel.analyticsId).toEqual('1a2b3c');
+        expect(wrapper.vm.salesChannel.analytics.id).toEqual(wrapper.vm.salesChannel.analyticsId);
+
         wrapper.destroy();
     });
 });

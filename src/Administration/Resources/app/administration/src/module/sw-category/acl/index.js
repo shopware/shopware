@@ -7,6 +7,7 @@ Shopware.Service('privileges')
             viewer: {
                 privileges: [
                     'category:read',
+                    'category_translation:read',
                     Shopware.Service('privileges').getPrivileges('media.viewer'),
                     'seo_url:read',
                     'tag:read',

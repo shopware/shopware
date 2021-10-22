@@ -417,7 +417,10 @@ Component.register('sw-chart', {
             /**
              * @deprecated tag:v6.5.0 - fillEmptyDates will be replaced by fillEmptyValues
              */
-            if (!((this.fillEmptyValues || this.fillEmptyDates) && this.options.xaxis && this.options.xaxis.type === 'datetime')) {
+            if (!(
+                (this.fillEmptyValues || this.fillEmptyDates) &&
+                this.options.xaxis && this.options.xaxis.type === 'datetime'
+            )) {
                 return [];
             }
 

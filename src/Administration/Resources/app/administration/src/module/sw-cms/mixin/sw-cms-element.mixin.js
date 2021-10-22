@@ -39,18 +39,31 @@ Mixin.register('cms-element', {
         cmsElements() {
             return this.cmsService.getCmsElementRegistry();
         },
+
+        category() {
+            return Shopware.State.get('swCategoryDetail')?.category;
+        },
     },
 
     methods: {
         initElementConfig(elementName) {
             let defaultConfig = this.defaultConfig;
-
             if (!defaultConfig || defaultConfig === null) {
                 const elementConfig = this.cmsElements[elementName];
                 defaultConfig = elementConfig.defaultConfig || {};
             }
 
-            this.element.config = merge(cloneDeep(defaultConfig), this.element.config || {});
+            let fallbackCategoryConfig = {};
+            if (this.category?.translations) {
+                fallbackCategoryConfig = this.getDefaultTranslations(this.category)?.slotConfig?.[this.element.id];
+            }
+
+            this.element.config = merge(
+                cloneDeep(defaultConfig),
+                this.element?.translated?.config || {},
+                fallbackCategoryConfig || {},
+                this.element?.config || {},
+            );
         },
 
         initElementData(elementName) {
@@ -74,6 +87,12 @@ Mixin.register('cms-element', {
                 this.cmsPageState.currentDemoEntity,
                 mappingPath,
             );
+        },
+
+        getDefaultTranslations(entity) {
+            return entity.translations.find((translation) => {
+                return translation.languageId === Shopware.Context.api.systemLanguageId;
+            });
         },
     },
 });

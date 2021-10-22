@@ -26,7 +26,8 @@ ESLint (Administration):
     script:
         - cd src/Administration/Resources/app/administration
         - npm clean-install
-        - npm run --silent lint -- --format junit --output-file $CI_PROJECT_DIR/eslint.junit.xml
+        - npm run lint -- --format junit --output-file $CI_PROJECT_DIR/eslint.junit.xml
+        - npm run lint:types
     after_script:
         - grep 'failure message' eslint.junit.xml
     artifacts:

@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type Bottle from 'bottlejs';
-import { Decorator } from 'bottlejs';
-import { ShopwareClass } from './shopware';
+/* eslint-disable import/no-named-default */
+import type { default as Bottle, Decorator } from 'bottlejs';
+import type { default as Vue, ComponentOptions, AsyncComponent } from 'vue';
+import type { ShopwareClass } from './shopware';
+import type { ModuleTypes } from './factory/module.factory';
 
 // trick to make it an "external module" to support global type extension
 export {};
@@ -93,6 +95,11 @@ declare global {
      */
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface VuexRootState {}
+
+    /**
+     * define global Component
+     */
+    type VueComponent = ComponentOptions<Vue> | typeof Vue | AsyncComponent;
 }
 
 /**
@@ -105,5 +112,18 @@ declare module 'bottlejs' { // Use the same module name as the import string
         factory: FactoryContainer,
         service: ServiceContainer,
         init: InitContainer,
+    }
+}
+
+/**
+ * Extend the vue-router route information
+ */
+declare module 'vue-router' {
+    interface RouteConfig {
+        coreRoute: boolean,
+        type: ModuleTypes,
+        flag: string,
+        isChildren: boolean,
+        routeKey: string,
     }
 }

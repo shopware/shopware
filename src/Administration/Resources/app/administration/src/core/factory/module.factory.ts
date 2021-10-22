@@ -5,6 +5,7 @@ import { warn } from 'src/core/service/utils/debug.utils';
 import { hasOwnProperty, merge } from 'src/core/service/utils/object.utils';
 import types from 'src/core/service/utils/types.utils';
 import MiddlewareHelper from 'src/core/helper/middleware.helper';
+import type { Route, RouteConfig } from 'vue-router';
 
 export default {
     getModuleRoutes,
@@ -14,20 +15,73 @@ export default {
     getModuleSnippets,
 };
 
+export type ModuleTypes = 'plugin' | 'core';
+type ModuleRoutes = Map<string, RouteConfig>
+
+interface Navigation {
+    moduleType: ModuleTypes,
+    parent?: string,
+    id: string,
+    path?: string,
+    link?: string,
+    label?: string,
+    position?: number,
+}
+
+interface SettingsItem {
+    group: 'shop' | 'system' | 'plugin',
+    to: string,
+    icon?: string,
+    iconComponent: unknown,
+    privilege?: string,
+    id?: string,
+    name?: string,
+    label?: string,
+}
+
+interface ModuleManifest {
+    flag: string,
+    type: ModuleTypes,
+    routeMiddleware: (next: () => void, currentRoute: Route) => void,
+    routes: {
+        [key: string]: RouteConfig
+    },
+    routePrefixName: string,
+    routePrefixPath: string,
+    coreRoute?: boolean,
+    navigation?: Navigation[],
+    settingsItem?: SettingsItem[] | SettingsItem,
+    extensionEntryRoute?: {
+        extensionName: string,
+        route: string,
+    },
+    entity?: string,
+    snippets?: {
+        [lang: string]: unknown
+    },
+    name: string,
+    title: string
+}
+
+interface ModuleDefinition {
+    manifest: ModuleManifest,
+    navigation?: Navigation[],
+    routes: ModuleRoutes,
+    type: ModuleTypes
+}
+
 /**
  * Registry for modules
  * @type {Map<String, Object>}
  */
-const modules = new Map();
+const modules: Map<string, ModuleDefinition> = new Map();
 
 const middlewareHelper = new MiddlewareHelper();
 
 /**
  * Returns the registry of all modules mounted in the application.
- *
- * @returns {Map<any, any>} modules - Registry of all modules
  */
-function getModuleRegistry() {
+function getModuleRegistry(): Map<string, ModuleDefinition> {
     modules.forEach((value, key) => {
         if (hasOwnProperty(value.manifest, 'flag')
             && !Shopware.Feature.isActive(value.manifest.flag)
@@ -42,14 +96,10 @@ function getModuleRegistry() {
 /**
  * Registers a module in the application. The module will be mounted using
  * the defined routes of the module using the router.
- *
- * @param {String} moduleId - The machine readable name which is used as an identifier for the module
- * @param {Object} module - Module definition - see manifest.js file
- * @returns {Boolean|Object} moduleDefinition - registered module definition
  */
-function registerModule(moduleId, module) {
+function registerModule(moduleId: string, module: ModuleManifest): false | ModuleDefinition {
     const type = module.type || 'plugin';
-    let moduleRoutes = new Map();
+    let moduleRoutes: ModuleRoutes = new Map();
 
     // A module should always have an unique identifier cause overloading modules can cause unexpected side effects
     if (!moduleId) {
@@ -128,22 +178,27 @@ function registerModule(moduleId, module) {
             }
 
             // Support for children routes
-            if (hasOwnProperty(route, 'children') && Object.keys(route.children).length) {
+            const childrenRoutes = route.children ?? {};
+            if (hasOwnProperty(route, 'children') && Object.keys(childrenRoutes).length) {
                 route = iterateChildRoutes(route);
 
                 moduleRoutes = registerChildRoutes(route, moduleRoutes);
             }
 
             // Alias support
-            if (route.alias && route.alias.length > 0
-                && (!route.coreRoute)) {
+            if (
+                route.alias
+                && typeof route.alias === 'string'
+                && route.alias.length > 0
+                && (!route.coreRoute)
+            ) {
                 route.alias = `/${splitModuleId.join('/')}/${route.alias}`;
             }
 
             route.isChildren = false;
             route.routeKey = routeKey;
 
-            moduleRoutes.set(route.name, route);
+            moduleRoutes.set(route.name ?? '', route);
         });
     }
 
@@ -160,7 +215,7 @@ function registerModule(moduleId, module) {
         return false;
     }
 
-    const moduleDefinition = {
+    const moduleDefinition: ModuleDefinition = {
         routes: moduleRoutes,
         manifest: module,
         type,
@@ -235,19 +290,13 @@ function registerModule(moduleId, module) {
 
 /**
  * Registers the route children in the module routes map recursively.
- *
- * @param {Object} routeDefinition
- * @param {Map<String, Object>} moduleRoutes
- * @returns {Map}
  */
-function registerChildRoutes(routeDefinition, moduleRoutes) {
-    Object.keys(routeDefinition.children).map((key) => {
-        const child = routeDefinition.children[key];
-
-        if (hasOwnProperty(child, 'children') && Object.keys(child.children).length) {
+function registerChildRoutes(routeDefinition: RouteConfig, moduleRoutes: ModuleRoutes): ModuleRoutes {
+    Object.values(routeDefinition.children ?? {}).map((child) => {
+        if (hasOwnProperty(child, 'children') && Object.keys(child.children ?? {}).length) {
             moduleRoutes = registerChildRoutes(child, moduleRoutes);
         }
-        moduleRoutes.set(child.name, child);
+        moduleRoutes.set(child.name ?? '', child);
         return child;
     });
 
@@ -256,24 +305,25 @@ function registerChildRoutes(routeDefinition, moduleRoutes) {
 
 /**
  * Recursively iterates over the route children definitions and converts the format to the vue-router route definition.
- *
- * @param {Object} routeDefinition
- * @returns {Object}
  */
-function iterateChildRoutes(routeDefinition) {
-    routeDefinition.children = Object.keys(routeDefinition.children).map((key) => {
-        let child = routeDefinition.children[key];
+function iterateChildRoutes(routeDefinition: RouteConfig): RouteConfig {
+    const routeDefinitionChildren = routeDefinition.children;
 
+    if (!routeDefinitionChildren || routeDefinitionChildren === undefined) {
+        return routeDefinition;
+    }
+
+    routeDefinition.children = Object.entries(routeDefinitionChildren).map(([key, child]) => {
         if (child.path && child.path.length === 0) {
             child.path = '';
         } else {
             child.path = `${routeDefinition.path}/${child.path}`;
         }
 
-        child.name = `${routeDefinition.name}.${key}`;
+        child.name = `${routeDefinition.name ?? ''}.${key}`;
         child.isChildren = true;
 
-        if (hasOwnProperty(child, 'children') && Object.keys(child.children).length) {
+        if (hasOwnProperty(child, 'children') && Object.keys(child.children ?? {}).length) {
             child = iterateChildRoutes(child);
         }
 
@@ -286,13 +336,8 @@ function iterateChildRoutes(routeDefinition) {
 /**
  * Generates the route component list e.g. adds supports for multiple components per route as well as validating
  * the developer input.
- *
- * @param {Object} route
- * @param {String} moduleId
- * @param {Object} module
- * @returns {void|Object}
  */
-function createRouteComponentList(route, moduleId, module) {
+function createRouteComponentList(route: RouteConfig, moduleId: string, module: ModuleManifest): RouteConfig {
     if (hasOwnProperty(module, 'flag')) {
         route.flag = module.flag;
     }
@@ -305,9 +350,10 @@ function createRouteComponentList(route, moduleId, module) {
         delete route.component;
     }
 
-    const componentList = {};
-    Object.keys(route.components).forEach((componentKey) => {
-        const component = route.components[componentKey];
+    const componentList: { [componentKey: string]: VueComponent } = {};
+    const routeComponents = route.components ?? {};
+    Object.keys(routeComponents).forEach((componentKey) => {
+        const component = routeComponents[componentKey];
 
         // Don't register a component without a name
         if (!component) {
@@ -330,11 +376,9 @@ function createRouteComponentList(route, moduleId, module) {
 /**
  * Returns the defined module routes which will be registered in the router and therefore will be accessible in the
  * application.
- *
- * @returns {Array} route definitions - see {@link https://router.vuejs.org/en/essentials/named-routes.html}
  */
-function getModuleRoutes() {
-    const moduleRoutes = [];
+function getModuleRoutes(): RouteConfig[] {
+    const moduleRoutes: RouteConfig[] = [];
 
     modules.forEach((module) => {
         module.routes.forEach((route) => {
@@ -355,11 +399,8 @@ function getModuleRoutes() {
 
 /**
  * Returns the first found module with the given entity name
- *
- * @param {String} entityName
- * @returns {undefined|Object}
  */
-function getModuleByEntityName(entityName) {
+function getModuleByEntityName(entityName: string): ModuleDefinition | undefined {
     return Array.from(modules.values()).find((value) => {
         return entityName === value.manifest.entity;
     });
@@ -367,18 +408,16 @@ function getModuleByEntityName(entityName) {
 
 /**
  * Returns a list of all module specific snippets
- *
- * @returns {Object}
  */
-function getModuleSnippets() {
-    return Array.from(modules.values()).reduce((accumulator, module) => {
+function getModuleSnippets(): { [lang:string]: unknown } {
+    return Array.from(modules.values()).reduce<{ [lang:string] : unknown }>((accumulator, module) => {
         const manifest = module.manifest;
 
         if (!hasOwnProperty(manifest, 'snippets')) {
             return accumulator;
         }
 
-        const localeKey = Object.keys(manifest.snippets);
+        const localeKey = Object.keys(manifest.snippets ?? {});
         if (!localeKey.length) {
             return accumulator;
         }
@@ -387,8 +426,10 @@ function getModuleSnippets() {
             if (!hasOwnProperty(accumulator, key)) {
                 accumulator[key] = {};
             }
-            const snippets = manifest.snippets[key];
-            accumulator[key] = merge(accumulator[key], snippets);
+            if (manifest.snippets) {
+                const snippets = manifest.snippets[key];
+                accumulator[key] = merge(accumulator[key], snippets);
+            }
         });
 
         return accumulator;
@@ -397,13 +438,13 @@ function getModuleSnippets() {
 
 /**
  * Adds a module to the settingsItems Store
- *
- * @param {String} moduleId
- * @param {Object} module
- * @returns void
  */
-function addSettingsItemsToStore(moduleId, module) {
+function addSettingsItemsToStore(moduleId: string, module: ModuleManifest): void {
     if (hasOwnProperty(module, 'flag') && !Shopware.Feature.isActive(module.flag)) {
+        return;
+    }
+
+    if (!module.settingsItem) {
         return;
     }
 
@@ -440,7 +481,7 @@ function addSettingsItemsToStore(moduleId, module) {
     });
 }
 
-function addEntryRouteToExtensionRouteStore(config) {
+function addEntryRouteToExtensionRouteStore(config: { extensionName: string, route: string }):void {
     if (config.extensionName === 'string') {
         warn(
             'ModuleFactory',

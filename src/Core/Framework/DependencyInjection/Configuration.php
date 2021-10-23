@@ -236,6 +236,10 @@ class Configuration implements ConfigurationInterface
                     ->min(1)
                     ->defaultValue(100)
                 ->end()
+                ->integerNode('max_urls')
+                    ->min(1)
+                    ->defaultValue(null)
+                ->end()
             ->end();
 
         return $rootNode;

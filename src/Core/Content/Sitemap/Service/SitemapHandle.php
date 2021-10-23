@@ -29,8 +29,14 @@ class SitemapHandle implements SitemapHandleInterface
 
     private ?string $domainName = null;
 
-    public function __construct(FilesystemInterface $filesystem, SalesChannelContext $context, ?string $domain = null)
-    {
+    private ?int $maxUrls;
+
+    public function __construct(
+        FilesystemInterface $filesystem,
+        SalesChannelContext $context,
+        ?string $domain = null,
+        ?int $maxUrls = null
+    ) {
         $this->setDomainName($domain);
 
         $this->filesystem = $filesystem;
@@ -44,6 +50,7 @@ class SitemapHandle implements SitemapHandleInterface
 
         $this->tmpFiles[] = $filePath;
         $this->context = $context;
+        $this->maxUrls = $maxUrls;
     }
 
     /**
@@ -55,7 +62,7 @@ class SitemapHandle implements SitemapHandleInterface
             gzwrite($this->handle, (string) $url);
             ++$this->urlCount;
 
-            if ($this->urlCount % self::MAX_URLS === 0) {
+            if ($this->urlCount % ($this->maxUrls ?? self::MAX_URLS) === 0) {
                 $this->printFooter();
                 gzclose($this->handle);
                 ++$this->index;

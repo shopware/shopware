@@ -36,6 +36,7 @@
                 {% sw_thumbnails 'cms-block-background' with {
                     media: block.backgroundMedia,
                     attributes: {
+                        alt: ( block.backgroundMedia.translated.alt ?: ''),
                         class: "cms-block-background media-mode--" ~ block.backgroundMediaMode
                     }
                     } %}

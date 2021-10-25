@@ -4,6 +4,7 @@ import type { default as Bottle, Decorator } from 'bottlejs';
 import type { default as Vue, ComponentOptions, AsyncComponent } from 'vue';
 import type { ShopwareClass } from './shopware';
 import type { ModuleTypes } from './factory/module.factory';
+import type RepositoryFactory from './data/repository-factory.data';
 
 // trick to make it an "external module" to support global type extension
 export {};
@@ -63,6 +64,9 @@ declare global {
         searchRankingService: $TSFixMe,
         searchPreferencesService: $TSFixMe,
         storeService: $TSFixMe,
+        repositoryFactory: RepositoryFactory,
+        snippetService: $TSFixMe,
+        extensionStoreActionService: $TSFixMe,
     }
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface InitContainer extends SubContainer<'init'>{

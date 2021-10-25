@@ -1,7 +1,7 @@
 /**
  * @module app/adapter/view/vue
  */
-import ViewAdapter from 'src/core/adapter/view.adapter.ts';
+import ViewAdapter from 'src/core/adapter/view.adapter';
 
 import Vue from 'vue';
 import VueRouter from 'vue-router';

@@ -385,7 +385,13 @@ const baseConfig = ({ pluginPath, pluginFilepath }) => ({
     },
 
     plugins: [
-        new ForkTsCheckerWebpackPlugin(),
+        new ForkTsCheckerWebpackPlugin({
+            logger: {
+                infrastructure: 'console',
+                issues: 'console',
+                devServer: false,
+            }
+        }),
 
         new webpack.DefinePlugin({
             'process.env': {

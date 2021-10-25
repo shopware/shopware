@@ -48,7 +48,6 @@ const container = new Bottle();
 
 const application = new ApplicationBootstrapper(container);
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call
 application
     .addFactory('component', () => {
         return ComponentFactory;
@@ -123,12 +122,6 @@ class ShopwareClass {
         extend: TemplateFactory.extendComponentTemplate,
         override: TemplateFactory.registerTemplateOverride,
         getRenderedTemplate: TemplateFactory.getRenderedTemplate,
-        // @ts-expect-error
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        find: TemplateFactory.findCustomTemplate,
-        // @ts-expect-error
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        findOverride: TemplateFactory.findCustomTemplate,
     };
 
     public Entity = {
@@ -229,21 +222,18 @@ class ShopwareClass {
 
     public Data = data;
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    public Classes = ClassesFactory({
-        ShopwareError: ShopwareError,
-        ApiService: ApiService,
-    },
-    {
+    public Classes = {
+        ShopwareError,
+        ApiService,
         _private: {
-            HttpFactory: HttpFactory,
-            RepositoryFactory: RepositoryFactory,
-            ApiContextFactory: ApiContextFactory,
-            AppContextFactory: AppContextFactory,
-            RouterFactory: RouterFactory,
+            HttpFactory,
+            RepositoryFactory,
+            ApiContextFactory,
+            AppContextFactory,
+            RouterFactory,
             FilterFactory: ModuleFilterFactory,
         },
-    });
+    }
 
     public Helper = {
         FlatTreeHelper: FlatTreeHelper,

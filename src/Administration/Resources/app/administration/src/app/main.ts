@@ -1,9 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-argument */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-
 /** Initializer */
 import initializers from 'src/app/init';
 import preInitializer from 'src/app/init-pre/';
@@ -69,8 +63,10 @@ const allInitializers = { ...preInitializer, ...initializers, ...postInitializer
 // Add initializers to application
 Object.keys(allInitializers).forEach((key) => {
     // @ts-expect-error
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const initializer = allInitializers[key];
     // @ts-expect-error
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
     Application.addInitializer(key, initializer);
 });
 
@@ -120,7 +116,9 @@ Application
     })
     .addServiceProvider('extensionHelperService', () => {
         return new ExtensionHelperService({
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             storeService: Shopware.Service('storeService'),
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             extensionStoreActionService: Shopware.Service('extensionStoreActionService'),
         });
     })
@@ -140,6 +138,7 @@ Application
         return EntityMappingService;
     })
     .addServiceProvider('shortcutService', () => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         return new ShortcutService(factoryContainer.shortcut);
     })
     .addServiceProvider('licenseViolationService', () => {
@@ -149,7 +148,9 @@ Application
         return new LocaleHelperService({
             Shopware: Shopware,
             localeRepository: Shopware.Service('repositoryFactory').create('locale'),
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             snippetService: Shopware.Service('snippetService'),
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             localeFactory: Application.getContainer('factory').locale,
         });
     })
@@ -163,11 +164,13 @@ Application
     })
     .addServiceProvider('appAclService', () => {
         return new AppAclService({
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             privileges: Shopware.Service('privileges'),
             appRepository: Shopware.Service('repositoryFactory').create('app'),
         });
     })
     .addServiceProvider('appCmsService', (container: $TSFixMe) => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
         const appCmsBlocksService = container.appCmsBlocks;
         return new AppCmsService(appCmsBlocksService, adapter);
     })

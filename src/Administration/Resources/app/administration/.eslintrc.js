@@ -9,6 +9,7 @@ const baseRules = {
     // don't require .vue and .js extensions
     'import/extensions': ['error', 'always', {
         js: 'never',
+        ts: 'never',
         vue: 'never',
     }],
     'no-console': ['error', { allow: ['warn', 'error'] }],

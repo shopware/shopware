@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import type { Store, Commit, Dispatch, Getter } from 'vuex';
-import { WatchOptions } from 'vue';
+import type { Store } from 'vuex';
 
 class State {
     public _registerProperty(name: string, property: $TSFixMe): this {

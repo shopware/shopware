@@ -28,6 +28,7 @@ The twig environment will provide additional functions like `dal_search` globall
 Each script has its twig environments to improve execution stability. In failure cases, we will throw our exception. 
 The twig environment is reduced to the only set of functionality that is needed; features like block and many template features are disabled.
 Script loading can happen in multiple implementations, the default implementation will use the object cache to load the scripts and if missing loading it from the database.
+The compiled scripts will be cached on the filesystem in a separate folder per app and per appVersion. 
 For development purposes, the scripts can be loaded from the filesystem to allow easier development. The default Twig cache will be used for faster code execution.
 
 ### Example pseudo-code of the ScriptEventRegistry
@@ -48,21 +49,29 @@ class ScriptEventRegistry
         }
     }
     
-    private function executeScript(string $script, array $context) 
+    private function executeScript(array $script, array $context) 
     {
         $twig = $this->initEnv($script);
 
         try {
-            $twig->render('script.twig', $context);
+            $twig->render($script['name'], $context);
         } catch (\Throwable $e) {
             throw new ScriptExecutionFailed('Script execution failed', $e);
             $this->logger->error('Execution of script failed', ['context' => $context, 'error' => $e]));
         }
     }
     
-    private function initEnv(string $script) 
+    private function initEnv(array $script) 
     {
-        $twig = new Environment(new ArrayLoader(['script.twig' => $script]));
+        $cache = new ConfigurableFilesystemCache($this->cachePath . '/twig/scripts');
+        $cache->setConfigHash($script['appName'] . $script['appVersion']);
+        
+        $twig = new Environment(
+            new ScriptLoader([$script['name'] => $script['source']]),
+            [
+                'cache' => $cache,
+            ]
+        );
         
         // Setup some custom twig functions
         
@@ -95,4 +104,6 @@ class ScriptEventRegistry
 
 - Added script events with the passed arguments need to be supported for a long time
 - We will create a new domain-specific way to interact with shopware core domain logic. This means we have to think of and develop a higher-level description of our core domain logic and represent it through new
-functions that perform domain-specific tasks. For example, the block cart function in the example above.
+functions that perform domain-specific tasks. For example, the block cart function in the example above. Those domain objects represent the API of the AppScripts, therefore breaking changes need to be considered carefully and should definitely follow our general breaking change policy. 
+Additionally, the domain specific layer may allow us to not break the public interface, when the implementation in the underlying services may break, so we can try to ensure even longer compatibility in the domain layer.
+However, to make evolvability possible add at all we need to inject the shopware version into the context of the app scripts, so that in the app scripts the version can be detected and new features used accordingly.

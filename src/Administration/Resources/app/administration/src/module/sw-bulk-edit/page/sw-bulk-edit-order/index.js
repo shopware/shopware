@@ -350,6 +350,7 @@ Component.register('sw-bulk-edit-order', {
 
                     if (dataPush.includes(key)) {
                         payload.sendMail = this.bulkEditData?.statusMails?.isChanged;
+                        payload.value = this.order?.[key];
                         data.statusData.push(payload);
                     } else {
                         data.syncData.push(payload);

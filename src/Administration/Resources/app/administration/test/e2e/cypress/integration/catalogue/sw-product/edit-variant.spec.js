@@ -146,49 +146,6 @@ describe('Product: Test variants', () => {
             .should('be.visible');
     });
 
-    it('@catalogue: check fields in inheritance', () => {
-        const page = new ProductPageObject();
-
-        // Request we want to wait for later
-        cy.intercept({
-            url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'POST'
-        }).as('saveData');
-
-        // Navigate to variant generator listing and start
-        cy.clickContextMenuItem(
-            '.sw-entity-listing__context-menu-edit-action',
-            page.elements.contextMenuButton,
-            `${page.elements.dataGridRow}--0`
-        );
-
-        cy.get('.sw-product-detail__tab-variants').click();
-        cy.get(page.elements.loader).should('not.exist');
-        cy.get('.sw-product-variants__generate-action').should('be.visible');
-
-        // Check field inheritance in variant
-        cy.get('.sw-product-variants-overview__single-variation').contains('Red').click();
-        cy.get('.sw-product-variant-info__product-name').contains('Variant product name');
-
-        cy.get('.sw-product-basic-form__inheritance-wrapper-description')
-            .find('.sw-inheritance-switch--is-inherited')
-            .scrollIntoView()
-            .should('be.visible');
-
-        // remove inheritance
-        cy.get('.sw-product-basic-form__inheritance-wrapper-description')
-            .find('.sw-inheritance-switch--is-inherited')
-            .scrollIntoView()
-            .click();
-
-
-        // check if inheritance is removed
-        cy.get('.sw-product-basic-form__inheritance-wrapper-description')
-            .find('.sw-inheritance-switch--is-not-inherited')
-            .scrollIntoView()
-            .should('be.visible');
-    });
-
     it('@base @catalogue: test multidimensional variant with diversification', () => {
         const page = new ProductPageObject();
 

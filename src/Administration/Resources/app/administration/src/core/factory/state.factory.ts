@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import type { Store, Commit, Dispatch } from 'vuex';
+import type { Store, Commit, Dispatch, Getter } from 'vuex';
+import { WatchOptions } from 'vue';
 
 class State {
     public _registerProperty(name: string, property: $TSFixMe): this {
@@ -37,18 +38,18 @@ class State {
 }
 
 interface FullState extends State {
-    /* eslint-disable @typescript-eslint/no-explicit-any */
     _store: Store<VuexRootState>,
-    list: any,
-    get: any,
-    getters: any,
-    commit: Commit,
-    dispatch: Dispatch,
-    watch: any,
-    subscribe: any,
-    subscribeAction: any,
-    registerModule: any,
-    unregisterModule: any,
+    list: () => (keyof VuexRootState)[],
+    get: <NAME extends keyof VuexRootState>(name: NAME) => VuexRootState[NAME],
+    getters: Store<VuexRootState>['getters'],
+    commit: Store<VuexRootState>['commit'],
+    dispatch: Store<VuexRootState>['dispatch'],
+    // eslint-disable-next-line max-len
+    watch: Store<VuexRootState>['watch'],
+    subscribe: Store<VuexRootState>['subscribe'],
+    subscribeAction: Store<VuexRootState>['subscribeAction'],
+    registerModule: Store<VuexRootState>['registerModule'],
+    unregisterModule: Store<VuexRootState>['unregisterModule'],
 }
 
 export default function stateFactory(): FullState {

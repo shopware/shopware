@@ -253,8 +253,7 @@ class ShopwareClass {
         DeviceHelper: DeviceHelper,
     };
 
-    public get Context(): $TSFixMe {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-call
+    public get Context(): VuexRootState['context'] {
         return this.State.get('context');
     }
 

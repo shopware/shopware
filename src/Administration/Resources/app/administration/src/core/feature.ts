@@ -6,19 +6,19 @@
  * A static registry containing a list of all registered flags and the associated activation state
  */
 export default class Feature {
-    static flags = {};
+    static flags: { [featureName: string]: boolean } = {};
 
-    static init(flagConfig) {
+    static init(flagConfig: { [featureName: string]: boolean }): void {
         Object.entries(flagConfig).forEach(([flagName, isActive]) => {
             this.flags[flagName] = isActive;
         });
     }
 
-    static getAll() {
+    static getAll(): { [featureName: string]: boolean } {
         return this.flags;
     }
 
-    static isActive(flagName) {
+    static isActive(flagName:string):boolean {
         if (!this.flags.hasOwnProperty(flagName)) {
             // if not set, its false
             return false;

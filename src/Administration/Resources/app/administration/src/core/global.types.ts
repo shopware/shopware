@@ -2,6 +2,7 @@
 /* eslint-disable import/no-named-default */
 import type { default as Bottle, Decorator } from 'bottlejs';
 import type { default as Vue, ComponentOptions, AsyncComponent } from 'vue';
+import type FeatureService from 'src/app/service/feature.service';
 import type { ShopwareClass } from './shopware';
 import type { ModuleTypes } from './factory/module.factory';
 import type RepositoryFactory from './data/repository-factory.data';
@@ -37,7 +38,7 @@ declare global {
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface ServiceContainer extends SubContainer<'service'>{
         loginService: $TSFixMe,
-        feature: $TSFixMe,
+        feature: FeatureService,
         menuService: $TSFixMe,
         privileges: $TSFixMe,
         acl: $TSFixMe,

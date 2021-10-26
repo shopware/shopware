@@ -231,9 +231,16 @@ class ApplicationBootstrapper {
      * Initializes the feature flags from context settings
      */
     initializeFeatureFlags(): this {
-        // TODO: implement Context typings
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        Shopware.Feature.init(Shopware.Context.app.features);
+        const features = Shopware.Context.app.features;
+
+        if (!features) {
+            throw new Error(`
+                Feature initialization does not work
+                because the context does not contain any features.
+            `);
+        }
+
+        Shopware.Feature.init(features);
 
         return this;
     }

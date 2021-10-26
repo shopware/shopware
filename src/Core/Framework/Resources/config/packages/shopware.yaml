@@ -359,6 +359,11 @@ shopware:
               major: true
               description: "Change ExceptionHandlerInterface by removing Command $command argument"
               # issue: NEXT-16640
+            - name: FEATURE_NEXT_16800
+              default: false
+              major: true
+              description: "Rule Builder List Items need to provide more informations"
+              # issue: NEXT-16800
             - name: FEATURE_NEXT_17261
               default: false
               major: false

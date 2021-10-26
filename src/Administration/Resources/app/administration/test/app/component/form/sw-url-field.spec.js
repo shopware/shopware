@@ -165,4 +165,34 @@ describe('components/form/sw-url-field', () => {
 
         expect(wrapper.find('label').text()).toEqual('Label from slot');
     });
+
+    it('properly detects SSL', () => {
+        const SSL_URL = 'https://shopware.com';
+        const NON_SSL_URL = 'http://shopware.com';
+        const URL_WITHOUT_PROTOCOL = 'shopware.com';
+
+        wrapper = createWrapper();
+
+        expect(wrapper.vm.getSSLMode(SSL_URL)).toBeTruthy();
+        expect(wrapper.vm.getSSLMode(NON_SSL_URL)).toBeFalsy();
+        expect(wrapper.vm.getSSLMode(URL_WITHOUT_PROTOCOL)).toBeFalsy();
+    });
+
+    it('removes any protocol', () => {
+        const HTTP_URL = 'http://shopware.com';
+        const HTTPS_URL = 'https://shopware.com';
+        const FILE_URL = 'file://shopware.com';
+        const EXPECTED_URL = 'shopware.com';
+
+        wrapper = createWrapper();
+
+        wrapper.vm.checkInput(HTTP_URL);
+        expect(wrapper.vm.currentValue).toEqual(EXPECTED_URL);
+
+        wrapper.vm.checkInput(HTTPS_URL);
+        expect(wrapper.vm.currentValue).toEqual(EXPECTED_URL);
+
+        wrapper.vm.checkInput(FILE_URL);
+        expect(wrapper.vm.currentValue).toEqual(EXPECTED_URL);
+    });
 });

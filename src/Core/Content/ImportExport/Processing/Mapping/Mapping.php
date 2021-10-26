@@ -41,11 +41,21 @@ class Mapping extends Struct
      */
     protected $defaultValue;
 
+    protected int $position;
+
     /**
      * @param mixed|null $defaultValue
      */
-    public function __construct(string $key, ?string $mappedKey = null, $default = null, $mappedDefault = null, bool $requiredByUser = false, bool $useDefaultValue = false, $defaultValue = null)
-    {
+    public function __construct(
+        string $key,
+        ?string $mappedKey = null,
+        int $position = 0,
+        $default = null,
+        $mappedDefault = null,
+        bool $requiredByUser = false,
+        bool $useDefaultValue = false,
+        $defaultValue = null
+    ) {
         $this->key = $key;
         $this->mappedKey = $mappedKey ?? $key;
         $this->default = $default;
@@ -53,6 +63,7 @@ class Mapping extends Struct
         $this->requiredByUser = $requiredByUser;
         $this->useDefaultValue = $useDefaultValue;
         $this->defaultValue = $defaultValue;
+        $this->position = $position;
     }
 
     public function getKey(): string
@@ -105,6 +116,16 @@ class Mapping extends Struct
     public function getDefaultValue()
     {
         return $this->defaultValue;
+    }
+
+    public function getPosition(): int
+    {
+        return $this->position;
+    }
+
+    public function setPosition(int $position): void
+    {
+        $this->position = $position;
     }
 
     public static function fromArray(array $data): self

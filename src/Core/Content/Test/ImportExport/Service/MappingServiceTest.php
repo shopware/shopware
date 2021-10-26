@@ -25,6 +25,27 @@ class MappingServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    private MappingService $mappingService;
+
+    private EntityRepositoryInterface $profileRepository;
+
+    private EntityRepositoryInterface $fileRepository;
+
+    private FilesystemInterface $fileSystem;
+
+    protected function setUp(): void
+    {
+        $this->profileRepository = $this->getContainer()->get('import_export_profile.repository');
+        $this->fileRepository = $this->getContainer()->get('import_export_file.repository');
+        $this->fileSystem = $this->getContainer()->get('shopware.filesystem.private');
+
+        $this->mappingService = new MappingService(
+            $this->getContainer()->get(FileService::class),
+            $this->profileRepository,
+            $this->getContainer()->get(DefinitionInstanceRegistry::class)
+        );
+    }
+
     /**
      * @dataProvider templateProfileProvider
      */
@@ -32,32 +53,19 @@ class MappingServiceTest extends TestCase
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_15998', $this);
 
-        /** @var EntityRepositoryInterface $profileRepository */
-        $profileRepository = $this->getContainer()->get('import_export_profile.repository');
-        /** @var EntityRepositoryInterface $fileRepository */
-        $fileRepository = $this->getContainer()->get('import_export_file.repository');
-        /** @var FilesystemInterface $filesystem */
-        $filesystem = $this->getContainer()->get('shopware.filesystem.private');
-
-        $mappingService = new MappingService(
-            $this->getContainer()->get(FileService::class),
-            $profileRepository,
-            $this->getContainer()->get(DefinitionInstanceRegistry::class)
-        );
-
         if ($profile === null) {
             $profileId = Uuid::randomHex();
             self::expectExceptionObject(new EntityNotFoundException('import_export_profile', $profileId));
-            $mappingService->createTemplate(Context::createDefaultContext(), $profileId);
+            $this->mappingService->createTemplate(Context::createDefaultContext(), $profileId);
         }
 
-        $profileRepository->create([$profile], Context::createDefaultContext());
+        $this->profileRepository->create([$profile], Context::createDefaultContext());
 
         if (empty($profile['mapping'])) {
             static::expectException(\RuntimeException::class);
         }
 
-        $fileId = $mappingService->createTemplate(Context::createDefaultContext(), $profile['id']);
+        $fileId = $this->mappingService->createTemplate(Context::createDefaultContext(), $profile['id']);
 
         if (empty($profile['mapping'])) {
             return;
@@ -65,10 +73,10 @@ class MappingServiceTest extends TestCase
 
         static::assertNotEmpty($fileId);
         /** @var ImportExportFileEntity $file */
-        $file = $fileRepository->search(new Criteria([$fileId]), Context::createDefaultContext())->first();
+        $file = $this->fileRepository->search(new Criteria([$fileId]), Context::createDefaultContext())->first();
         static::assertNotEmpty($file);
 
-        $csv = $filesystem->read($file->getPath());
+        $csv = $this->fileSystem->read($file->getPath());
 
         foreach ($profile['mapping'] as $mapping) {
             static::assertStringContainsString(
@@ -86,14 +94,6 @@ class MappingServiceTest extends TestCase
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_15998', $this);
 
-        /** @var EntityRepositoryInterface $profileRepository */
-        $profileRepository = $this->getContainer()->get('import_export_profile.repository');
-        $mappingService = new MappingService(
-            $this->getContainer()->get(FileService::class),
-            $profileRepository,
-            $this->getContainer()->get(DefinitionInstanceRegistry::class)
-        );
-
         // prepare profile for lookup
         $lookupMapping = [];
         foreach ($data['existingMappings'] ?? [] as $mappedKey => $key) {
@@ -103,7 +103,7 @@ class MappingServiceTest extends TestCase
             ];
         }
 
-        $profileRepository->create([
+        $this->profileRepository->create([
             [
                 'name' => 'testProfileWithMapping',
                 'fileType' => $data['fileType'] ?? 'text/csv',
@@ -124,7 +124,7 @@ class MappingServiceTest extends TestCase
         $uploadedFile = new UploadedFile($filePath, 'test', $data['fileType'] ?? 'text/csv');
 
         try {
-            $guessedMapping = $mappingService->getMappingFromTemplate(
+            $guessedMapping = $this->mappingService->getMappingFromTemplate(
                 Context::createDefaultContext(),
                 $uploadedFile,
                 $data['sourceEntity']
@@ -151,6 +151,39 @@ class MappingServiceTest extends TestCase
 
         if (file_exists($filePath)) {
             unlink($filePath);
+        }
+    }
+
+    public function testSortingWorksAsExpected(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_15998', $this);
+        Feature::skipTestIfInActive('FEATURE_NEXT_8097', $this);
+
+        /** @var string $filePath */
+        $filePath = tempnam(sys_get_temp_dir(), '');
+
+        $csvHeaders = 'id;something;nothing;width;unit_id;unit_name';
+
+        // creating a file
+        /** @var resource $file */
+        $file = fopen($filePath, 'wb');
+        fwrite($file, $csvHeaders);
+        fclose($file);
+
+        // upload file
+        $uploadedFile = new UploadedFile($filePath, 'test', 'text/csv');
+
+        $guessedMapping = $this->mappingService->getMappingFromTemplate(
+            Context::createDefaultContext(),
+            $uploadedFile,
+            'product'
+        );
+
+        $index = 0;
+        foreach ($guessedMapping as $mapping) {
+            static::assertSame($index, $mapping->getPosition());
+
+            ++$index;
         }
     }
 

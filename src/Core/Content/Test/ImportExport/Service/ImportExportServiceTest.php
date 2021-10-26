@@ -24,6 +24,22 @@ class ImportExportServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    private EntityRepositoryInterface $profileRepository;
+
+    private ImportExportService $importExportService;
+
+    protected function setUp(): void
+    {
+        $this->profileRepository = $this->getContainer()->get('import_export_profile.repository');
+
+        $this->importExportService = new ImportExportService(
+            $this->getContainer()->get('import_export_log.repository'),
+            $this->getContainer()->get('user.repository'),
+            $this->profileRepository,
+            $this->getContainer()->get(FileService::class)
+        );
+    }
+
     public function mimeTypeProvider(): array
     {
         return [
@@ -102,15 +118,6 @@ class ImportExportServiceTest extends TestCase
      */
     public function testMimeTypeValidation(string $clientMimeType, string $fileExtension, $expectedMimeType): void
     {
-        /** @var EntityRepositoryInterface $profileRepository */
-        $profileRepository = $this->getContainer()->get('import_export_profile.repository');
-        $importExportService = new ImportExportService(
-            $this->getContainer()->get('import_export_log.repository'),
-            $this->getContainer()->get('user.repository'),
-            $profileRepository,
-            $this->getContainer()->get(FileService::class)
-        );
-
         $criteria = new Criteria();
         if (!Feature::isActive('FEATURE_NEXT_16119') || !Feature::isActive('FEATURE_NEXT_8097')) {
             $criteria->addFilter(new NotFilter('AND', [
@@ -124,7 +131,7 @@ class ImportExportServiceTest extends TestCase
             ]));
         }
 
-        $profileId = $profileRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
+        $profileId = $this->profileRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
 
         static::assertNotnUll($profileId);
 
@@ -147,23 +154,13 @@ class ImportExportServiceTest extends TestCase
             $this->expectException(UnexpectedFileTypeException::class);
         }
 
-        $importExportService->prepareImport(Context::createDefaultContext(), $profileId, new \DateTimeImmutable(), $uploadedFile);
+        $this->importExportService->prepareImport(Context::createDefaultContext(), $profileId, new \DateTimeImmutable(), $uploadedFile);
 
         @unlink($path);
     }
 
     public function testConfig(): void
     {
-        /** @var EntityRepositoryInterface $profileRepository */
-        $profileRepository = $this->getContainer()->get('import_export_profile.repository');
-
-        $importExportService = new ImportExportService(
-            $this->getContainer()->get('import_export_log.repository'),
-            $this->getContainer()->get('user.repository'),
-            $profileRepository,
-            $this->getContainer()->get(FileService::class)
-        );
-
         $baseConfig = [
             'includeVariants' => false,
         ];
@@ -181,13 +178,13 @@ class ImportExportServiceTest extends TestCase
                 ['key' => 'foo', 'mappedKey' => 'bar'],
             ],
         ];
-        $profileRepository->create([$profile], Context::createDefaultContext());
+        $this->profileRepository->create([$profile], Context::createDefaultContext());
 
         $path = tempnam(sys_get_temp_dir(), '');
         copy(__DIR__ . '/../fixtures/categories.csv', $path);
 
         $uploadedFile = new UploadedFile($path, 'test', 'text/csv');
-        $log = $importExportService->prepareImport(Context::createDefaultContext(), $profile['id'], new \DateTimeImmutable(), $uploadedFile);
+        $log = $this->importExportService->prepareImport(Context::createDefaultContext(), $profile['id'], new \DateTimeImmutable(), $uploadedFile);
 
         $actualConfig = Config::fromLog($log);
 
@@ -212,7 +209,7 @@ class ImportExportServiceTest extends TestCase
             ],
         ];
 
-        $log = $importExportService->prepareImport(Context::createDefaultContext(), $profile['id'], new \DateTimeImmutable(), $uploadedFile, $overrides);
+        $log = $this->importExportService->prepareImport(Context::createDefaultContext(), $profile['id'], new \DateTimeImmutable(), $uploadedFile, $overrides);
         $actualConfig = Config::fromLog($log);
 
         static::assertTrue($actualConfig->get('includeVariants'));
@@ -235,17 +232,7 @@ class ImportExportServiceTest extends TestCase
             static::markTestSkipped('NEXT-8097');
         }
 
-        /** @var EntityRepositoryInterface $profileRepository */
-        $profileRepository = $this->getContainer()->get('import_export_profile.repository');
-
-        $importExportService = new ImportExportService(
-            $this->getContainer()->get('import_export_log.repository'),
-            $this->getContainer()->get('user.repository'),
-            $profileRepository,
-            $this->getContainer()->get(FileService::class)
-        );
-
-        $profileRepository->create([$profile], Context::createDefaultContext());
+        $this->profileRepository->create([$profile], Context::createDefaultContext());
         $path = tempnam(sys_get_temp_dir(), '');
         $uploadedFile = new UploadedFile($path, 'test', 'text/csv');
 
@@ -254,9 +241,9 @@ class ImportExportServiceTest extends TestCase
         }
 
         if ($task === 'import') {
-            $importExportService->prepareImport(Context::createDefaultContext(), $profile['id'], new \DateTimeImmutable(), $uploadedFile);
+            $this->importExportService->prepareImport(Context::createDefaultContext(), $profile['id'], new \DateTimeImmutable(), $uploadedFile);
         } else {
-            $importExportService->prepareExport(Context::createDefaultContext(), $profile['id'], new \DateTimeImmutable());
+            $this->importExportService->prepareExport(Context::createDefaultContext(), $profile['id'], new \DateTimeImmutable());
         }
     }
 

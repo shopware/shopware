@@ -49,10 +49,17 @@ export default class SettingsPageObject {
                 mailHeaderFooterColumnDescription: '.sw-data-grid__cell--description',
                 mailHeaderFooterColumnSalesChannel: '.sw-data-grid__cell--salesChannels-name',
 
+                importExportProfileListing: '.sw-import-export-view-profiles__listing',
                 importExportCreateNewProfileButton: '.sw-import-export-view-profiles__create-action',
 
+                importExportProfileWizard: '.sw-import-export-new-profile-wizard',
+                importExportWizardGeneralPage: '.sw-import-export-edit-profile-general',
+                importExportWizardCsvPage: '.sw-import-export-new-profile-wizard-csv-page',
+                importExportWizardMappingPage: '.sw-import-export-new-profile-wizard-mapping-page',
+
                 importExportProfileNameField: '#sw-field--profile-label',
-                importExportObjectTypeSelect: '.sw-import-export-edit-profile-general__object-type-field',
+                importExportTypeSelect: '.sw-import-export-edit-profile-general__type-select',
+                importExportObjectTypeSelect: '.sw-import-export-edit-profile-general__object-type-select',
                 importExportMappingGrid: '.sw-import-export-edit-profile-modal-mapping__grid',
                 importExportAddMappingButton: '.sw-import-export-edit-profile-modal-mapping__add-action',
                 importExportEntityPathSelect: '.sw-import-export-entity-path-select'

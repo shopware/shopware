@@ -321,7 +321,7 @@ class ImportExport
 
             $entities = $result->getEntities();
             if (\count($entities) === 0) {
-                // this can happen if entities are delete while we export
+                // this can happen if entities are deleted while we export
                 $progress->setTotal($progress->getOffset());
 
                 break;

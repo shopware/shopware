@@ -378,8 +378,15 @@ abstract class ImportExportTestCase extends TestCase
         return new \DateTimeImmutable((new \DateTimeImmutable($str))->format(\DateTime::ATOM));
     }
 
-    protected function import(Context $context, string $entityName, string $path, string $originalName, ?string $profileId = null, bool $dryrun = false, bool $absolutePath = false): Progress
-    {
+    protected function import(
+        Context $context,
+        string $entityName,
+        string $path,
+        string $originalName,
+        ?string $profileId = null,
+        bool $dryrun = false,
+        bool $absolutePath = false
+    ): Progress {
         $factory = $this->getContainer()->get(ImportExportFactory::class);
 
         $importExportService = $this->getContainer()->get(ImportExportService::class);
@@ -408,13 +415,13 @@ abstract class ImportExportTestCase extends TestCase
         return $progress;
     }
 
-    protected function export(Context $context, string $entityName, ?Criteria $criteria = null, ?int $groupSize = null): Progress
+    protected function export(Context $context, string $entityName, ?Criteria $criteria = null, ?int $groupSize = null, ?string $profileId = null): Progress
     {
         $factory = $this->getContainer()->get(ImportExportFactory::class);
 
         $importExportService = $this->getContainer()->get(ImportExportService::class);
 
-        $profileId = $this->getDefaultProfileId($entityName);
+        $profileId = $profileId ?? $this->getDefaultProfileId($entityName);
 
         $expireDate = new \DateTimeImmutable('2099-01-01');
         $logEntity = $importExportService->prepareExport($context, $profileId, $expireDate);

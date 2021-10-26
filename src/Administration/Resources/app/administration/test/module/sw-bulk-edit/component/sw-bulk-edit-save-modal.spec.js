@@ -265,4 +265,38 @@ describe('src/module/sw-bulk-edit/modal/sw-bulk-edit-save-modal', () => {
 
         expect(wrapper.emitted()['bulk-save']).toBeTruthy();
     });
+
+    it('should add event listeners after component created', () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_17261'];
+
+        wrapper.vm.addEventListeners = jest.fn();
+        wrapper.vm.createdComponent();
+
+        expect(wrapper.vm.addEventListeners).toHaveBeenCalledTimes(1);
+        wrapper.vm.addEventListeners.mockRestore();
+    });
+
+    it('should remove event listeners before component destroyed', () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_17261'];
+
+        wrapper.vm.removeEventListeners = jest.fn();
+        wrapper.vm.beforeDestroyComponent();
+
+        expect(wrapper.vm.removeEventListeners).toHaveBeenCalledTimes(1);
+        wrapper.vm.removeEventListeners.mockRestore();
+    });
+
+    it('should be able to listen to beforeunload event', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_17261'];
+
+        await wrapper.setProps({ isLoading: false });
+        expect(
+            wrapper.vm.beforeUnloadListener({ preventDefault: () => {}, returnValue: '' })
+        ).toEqual('');
+
+        await wrapper.setProps({ isLoading: true });
+        expect(
+            wrapper.vm.beforeUnloadListener({ preventDefault: () => {}, returnValue: '' })
+        ).toEqual('sw-bulk-edit.modal.messageBeforeTabLeave');
+    });
 });

@@ -73,7 +73,10 @@
             </sw-button>
         </slot>
 
-        <slot name="bulk-modal-delete-items" v-bind="{ isBulkLoading, deleteItems }">
+        <slot
+            name="bulk-modal-delete-items"
+            v-bind="{ isBulkLoading, deleteItems }"
+        >
             <sw-button
                 variant="danger"
                 size="small"

@@ -41,16 +41,19 @@
                 should-focus
                 :mark-inactive="true"
                 @check-item="checkItem"
-            >
-                <template #actions>
-                    <span></span></template>
-            </sw-settings-rule-tree-item>
+            />
             {% endblock %}
         </template>
-        <template #headline>
+        <template
+            v-if="hideHeadline"
+            #headline
+        >
             <span></span>
         </template>
-        <template #search>
+        <template
+            v-if="hideSearch"
+            #search
+        >
             <span></span>
         </template>
         {% endblock %}

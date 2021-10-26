@@ -22,6 +22,14 @@ Component.register('sw-settings-rule-category-tree', {
             type: Array,
             required: true,
         },
+        hideHeadline: {
+            type: Boolean,
+            default: true,
+        },
+        hideSearch: {
+            type: Boolean,
+            default: true,
+        },
     },
 
     data() {

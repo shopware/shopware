@@ -10,6 +10,10 @@ Component.extend('sw-settings-rule-tree-item', 'sw-tree-item', {
             type: String,
             required: true,
         },
+        hideActions: {
+            type: Boolean,
+            default: true,
+        },
     },
 
     methods: {

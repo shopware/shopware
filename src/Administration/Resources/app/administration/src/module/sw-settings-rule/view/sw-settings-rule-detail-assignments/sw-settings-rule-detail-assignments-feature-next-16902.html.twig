@@ -6,7 +6,7 @@
         v-for="entity in associationEntities"
         :key="entity.id"
         class="sw-settings-rule-detail-assignments__card"
-        :class="'sw-settings-rule-detail-assignments__card-' + entity.entityName"
+        :class="`sw-settings-rule-detail-assignments__card-${entity.id}`"
         :title="entity.label"
     >
         <template #toolbar>
@@ -38,7 +38,7 @@
             <sw-settings-rule-assignment-listing
                 v-if="entity.loadedData && entity.loadedData.length > 0"
                 class="sw-settings-rule-detail-assignments__entity-listing"
-                :class="'sw-settings-rule-detail-assignments__entity-listing-' + entity.entityName"
+                :class="`sw-settings-rule-detail-assignments__entity-listing-${entity.id}`"
                 :is-loading="isLoading"
                 :detail-route="entity.detailRoute"
                 :items="entity.loadedData"
@@ -56,8 +56,14 @@
                 @delete-items="deleteItems(entity, ...arguments)"
             >
                 <template #link-column="{ item, column, renderColumn }">
-                    <router-link v-if="column.routerLink" :to="getRouterLink(entity, item)">
-                        <sw-product-variant-info v-if="item.variation" :variations="item.variation">
+                    <router-link
+                        v-if="column.routerLink"
+                        :to="getRouterLink(entity, item)"
+                    >
+                        <sw-product-variant-info
+                            v-if="item.variation"
+                            :variations="item.variation"
+                        >
                             {{ renderColumn(item, column) }}
                         </sw-product-variant-info>
                         <span v-if="!item.variation">
@@ -65,7 +71,10 @@
                         </span>
                     </router-link>
                     <span v-else>
-                        <sw-product-variant-info v-if="item.variation" :variations="item.variation">
+                        <sw-product-variant-info
+                            v-if="item.variation"
+                            :variations="item.variation"
+                        >
                             {{ renderColumn(item, column) }}
                         </sw-product-variant-info>
                         <span v-else>
@@ -111,6 +120,8 @@
             {% block sw_settings_rule_detail_assignments_empty_state %}
             <sw-empty-state
                 v-else
+                class="sw-settings-rule-detail-assignments__entity-empty-state"
+                :class="`sw-settings-rule-detail-assignments__entity-empty-state-${entity.id}`"
                 :title="$tc('sw-settings-rule.detail.hasNoAssociations')"
                 :absolute="false"
                 :show-description="false"

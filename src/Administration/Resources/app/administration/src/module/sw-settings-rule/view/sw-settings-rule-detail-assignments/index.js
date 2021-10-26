@@ -10,6 +10,7 @@ Component.register('sw-settings-rule-detail-assignments', {
 
     inject: [
         'repositoryFactory',
+        'feature',
     ],
 
     mixins: [
@@ -62,7 +63,7 @@ Component.register('sw-settings-rule-detail-assignments', {
          */
         /* eslint-enable max-len */
         associationEntitiesConfig() {
-            if (Feature.isActive('FEATURE_NEXT_16902')) {
+            if (this.feature.isActive('FEATURE_NEXT_16902')) {
                 return [
                     {
                         id: 'product',
@@ -935,7 +936,7 @@ Component.register('sw-settings-rule-detail-assignments', {
                     return item.repository.search(item.criteria(), api).then(async (result) => {
                         item.loadedData = result;
 
-                        if (Feature.isActive('FEATURE_NEXT_16902')) {
+                        if (this.feature.isActive('FEATURE_NEXT_16902')) {
                             item.notAssignedDataTotal = await this.loadNotAssignedDataTotals(item, api);
                         }
                     });

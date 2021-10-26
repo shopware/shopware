@@ -1,3 +1,8 @@
+{% block sw_tree_item_element_actions %}
+<span v-if="hideActions"></span>
+<span v-else>{% parent %}</span>
+{% endblock %}
+
 {% block sw_tree_item_element_selection %}
 <div class="sw-tree-item__selection">
     <sw-checkbox-field
@@ -31,7 +36,11 @@
     :get-is-highlighted="getIsHighlighted"
     @check-item="emitCheckedItem"
 >
-    <template #actions>
-        <span></span></template>
+    <template
+        v-if="hideActions"
+        #actions
+    >
+        <span></span>
+    </template>
 </sw-settings-rule-tree-item>
 {% endblock %}

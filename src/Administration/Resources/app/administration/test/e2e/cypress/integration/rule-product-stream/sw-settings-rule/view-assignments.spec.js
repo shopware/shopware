@@ -4,6 +4,8 @@ import RulePageObject from '../../../support/pages/module/sw-rule.page-object';
 
 describe('Rule builder: Test viewing rule assignments in other entities', () => {
     beforeEach(() => {
+        cy.skipOnFeature('FEATURE_NEXT_16902');
+
         cy.setToInitialState()
             .then(() => {
                 cy.loginViaApi();

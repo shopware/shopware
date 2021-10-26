@@ -55,7 +55,8 @@
       "advancedPrices": {
         "cardTitle": "Advanced pricing",
         "changeLabel": "Change: Advanced pricing",
-        "openModalButton": "Open advancing pricing"
+        "selectRule": "Select pricing rule ...",
+        "newAdvancedPrices": "Create new Advanced Prices ({count})"
       },
       "property": {
         "cardTitle": "Properties",

@@ -771,7 +771,6 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                         }
                     ]
                 }
-
             ]
         ];
 

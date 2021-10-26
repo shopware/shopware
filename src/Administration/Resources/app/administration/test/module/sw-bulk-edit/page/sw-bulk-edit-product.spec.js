@@ -128,6 +128,14 @@ function createWrapper(productEntityOverride) {
         taxRate: 27
     }];
 
+    const rules = [{
+        id: '1',
+        name: 'Cart >= 0'
+    }, {
+        id: '2',
+        name: 'Customer from USA'
+    }];
+
     // delete global $router and $routes mocks
     delete config.mocks.$router;
     delete config.mocks.$route;
@@ -243,6 +251,10 @@ function createWrapper(productEntityOverride) {
                                 isNew: () => true
                             })
                         };
+                    }
+
+                    if (entity === 'rule') {
+                        return { search: () => Promise.resolve(rules) };
                     }
 
                     return { search: () => Promise.resolve([{ id: 'Id' }]) };
@@ -671,5 +683,36 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         const changeField = wrapper.vm.bulkEditSelected[0];
         expect(changeField.field).toBe('customSearchKeywords');
+    });
+
+    it('should be correct data when select prices', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_17261'];
+
+        const productEntity = {
+            prices: [
+                {
+                    productId: 'productId',
+                    ruleId: 'ruleId',
+                    ruleName: 'Cart >= 0'
+                }
+            ]
+        };
+
+        wrapper = await createWrapper(productEntity);
+        await flushPromises();
+
+        const advancedPricesFieldForm = wrapper.find('.sw-bulk-edit-product-base__advanced-prices');
+        await advancedPricesFieldForm.find('.sw-bulk-edit-change-field__change input').trigger('click');
+
+        await wrapper.vm.$nextTick();
+
+        wrapper.vm.onProcessData();
+
+        const changeField = wrapper.vm.bulkEditSelected[0];
+
+        expect(changeField.field).toBe('prices');
+        expect(changeField.type).toBe('overwrite');
+        expect(changeField.value[0].productId).toBe('productId');
+        expect(changeField.value[0].ruleId).toBe('ruleId');
     });
 });

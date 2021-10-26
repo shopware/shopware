@@ -5,7 +5,7 @@ import swProductDetailState from '../../../sw-product/page/sw-product-detail/sta
 const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 const { chunk } = Shopware.Utils.array;
-const { mapState } = Component.getComponentHelper();
+const { mapState, mapGetters } = Component.getComponentHelper();
 
 Component.register('sw-bulk-edit-product', {
     template,
@@ -29,6 +29,7 @@ Component.register('sw-bulk-edit-product', {
             currency: {},
             customFieldSets: [],
             processStatus: '',
+            rules: [],
         };
     },
 
@@ -42,6 +43,11 @@ Component.register('sw-bulk-edit-product', {
         ...mapState('swProductDetail', [
             'product',
             'taxes',
+        ]),
+
+        ...mapGetters('swProductDetail', [
+            'defaultCurrency',
+            'defaultPrice',
         ]),
 
         selectedIds() {
@@ -507,6 +513,62 @@ Component.register('sw-bulk-edit-product', {
                 },
             }];
         },
+
+        ruleRepository() {
+            return this.repositoryFactory.create('rule');
+        },
+
+        priceRepository() {
+            if (!this.product?.prices) {
+                return null;
+            }
+
+            return this.repositoryFactory.create(
+                this.product.prices.entity,
+                this.product.prices.source,
+            );
+        },
+
+        ruleCriteria() {
+            const criteria = new Criteria(1, 500);
+            criteria.addFilter(
+                Criteria.multi('OR', [
+                    Criteria.contains('rule.moduleTypes.types', 'price'),
+                    Criteria.equals('rule.moduleTypes', null),
+                ]),
+            );
+
+            return criteria;
+        },
+
+        priceRuleGroups() {
+            if (!this.product.prices) {
+                return {};
+            }
+
+            return this.product.prices.reduce((r, a) => {
+                r[a.ruleId] = [...r[a.ruleId] || [], a];
+                return r;
+            }, {});
+        },
+    },
+
+    watch: {
+        'bulkEditProduct.prices': {
+            handler(value) {
+                if (
+                    !this.feature.isActive('FEATURE_NEXT_17261') ||
+                    !this.product?.prices?.length ||
+                    value?.type !== 'remove'
+                ) {
+                    return;
+                }
+
+                const ids = this.product.prices?.getIds();
+                ids.forEach(id => this.product.prices.remove(id));
+            },
+            deep: true,
+        },
     },
 
     beforeCreate() {
@@ -530,6 +592,7 @@ Component.register('sw-bulk-edit-product', {
                 this.loadTaxes(),
                 this.loadCustomFieldSets(),
                 this.loadDefaultCurrency(),
+                this.loadRules(),
             ];
 
             Promise.all(promises).then(() => {
@@ -692,6 +755,8 @@ Component.register('sw-bulk-edit-product', {
                     change.mappingReferenceField = 'salesChannelId';
                 } else if (key === 'media') {
                     change.mappingReferenceField = 'mediaId';
+                } else if (key === 'prices') {
+                    change.mappingReferenceField = 'ruleId';
                 }
 
                 this.bulkEditSelected.push(change);
@@ -746,6 +811,64 @@ Component.register('sw-bulk-edit-product', {
 
         onChangeLanguage(languageId) {
             Shopware.State.commit('context/setApiLanguageId', languageId);
+        },
+
+        loadRules() {
+            if (!this.feature.isActive('FEATURE_NEXT_17261')) {
+                return Promise.resolve();
+            }
+
+            return this.ruleRepository.search(this.ruleCriteria).then((res) => {
+                this.rules = res;
+            });
+        },
+
+        onRuleChange(rules) {
+            if (rules.length > this.product.prices.length) {
+                const newPriceRule = this.priceRepository.create();
+
+                newPriceRule.productId = this.product.id;
+                newPriceRule.quantityStart = 1;
+                newPriceRule.quantityEnd = null;
+                newPriceRule.currencyId = this.defaultCurrency.id;
+                newPriceRule.price = [{
+                    currencyId: this.defaultCurrency.id,
+                    gross: 0,
+                    linked: this.defaultPrice.linked,
+                    net: 0,
+                    listPrice: null,
+                }];
+
+                if (this.defaultPrice.listPrice) {
+                    newPriceRule.price[0].listPrice = {
+                        currencyId: this.defaultCurrency.id,
+                        gross: this.defaultPrice.listPrice.gross,
+                        linked: this.defaultPrice.listPrice.linked,
+                        net: this.defaultPrice.listPrice.net,
+                    };
+                }
+
+                rules.forEach(rule => {
+                    if (this.product.prices.some(item => item.ruleId === rule.ruleId)) {
+                        return;
+                    }
+
+                    newPriceRule.ruleId = rule.id;
+                    newPriceRule.ruleName = rule.name;
+
+                    this.product.prices.add(newPriceRule);
+                });
+
+                return;
+            }
+
+            this.product.prices.forEach(price => {
+                if (rules.some(rule => price.ruleId === rule.ruleId)) {
+                    return;
+                }
+
+                this.product.prices.remove(price.id);
+            });
         },
     },
 });

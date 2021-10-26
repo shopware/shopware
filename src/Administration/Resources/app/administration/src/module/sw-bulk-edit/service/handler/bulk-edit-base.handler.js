@@ -6,6 +6,8 @@ const bulkSyncTypes = Object.freeze({
     ADD: 'add',
     REMOVE: 'remove',
 });
+const { types } = Shopware.Utils;
+const { getObjectDiff } = Shopware.Utils.object;
 
 /**
  * @class
@@ -143,7 +145,7 @@ class BulkEditBaseHandler {
                     payload: [],
                 };
 
-                syncPayload[payloadKey].payload.push(...items);
+                syncPayload[payloadKey].payload.push(...items.flat());
             });
         });
 
@@ -233,6 +235,7 @@ class BulkEditBaseHandler {
             localKey,
             mappingReferenceField,
             value: changeItems,
+            type,
         } = change;
         const editableProperties = this._getEditableProperties(referenceEntity);
 
@@ -252,17 +255,30 @@ class BulkEditBaseHandler {
                 const identifyKey = mappingReferenceField ?? localKey;
                 const key = `${original[identifyKey]}.${entityId}`;
 
-                // Remove existing OneToMany association record from delete payload
-                delete this.groupedPayload.delete[referenceEntity][key];
+                const associations = existAssociations[key] ?? [];
 
-                const association = existAssociations[key];
+                if (mappingReferenceField && type === bulkSyncTypes.ADD && associations.length > 0) {
+                    return;
+                }
+
+                let association = null;
+
+                // Only update existing association if there's only one association record
+                if (associations.length === 1) {
+                    association = Object.assign({}, associations[0]);
+                    existAssociations[key].shift();
+                    // Remove existing OneToMany association record from delete payload
+                    delete this.groupedPayload.delete[referenceEntity][key];
+                }
+
                 const actualChange = this._getOneToManyChange(record, localKey, mappingReferenceField, association);
 
                 if (actualChange === null || Object.keys(actualChange).length === 0) {
                     return;
                 }
 
-                this.groupedPayload.upsert[referenceEntity][key] = actualChange;
+                this.groupedPayload.upsert[referenceEntity][key] ??= [];
+                this.groupedPayload.upsert[referenceEntity][key].push(actualChange);
             });
         });
     }
@@ -290,7 +306,7 @@ class BulkEditBaseHandler {
         Object.keys(updatePayload).forEach(field => {
             if (
                 !existedRecord
-                || (updatePayload[field] !== undefined && updatePayload[field] !== existedRecord[field])
+                || (updatePayload[field] !== undefined && this._isFieldValueChanged(updatePayload[field], existedRecord[field]))
             ) {
                 actualChange[field] = updatePayload[field];
             }
@@ -338,10 +354,10 @@ class BulkEditBaseHandler {
                     return;
                 }
 
-                this.groupedPayload.upsert[referenceEntity][key] = {
+                this.groupedPayload.upsert[referenceEntity][key] = [{
                     [referenceKey]: referenceValue,
                     [localKey]: entityId,
-                };
+                }];
             });
         });
     }
@@ -404,7 +420,11 @@ class BulkEditBaseHandler {
                 key = `${foreignId}.${referenceId}`;
             }
 
-            mappedExistAssociations[key] = association;
+            if (mappedExistAssociations.hasOwnProperty(key)) {
+                mappedExistAssociations[key].push(association);
+            } else {
+                mappedExistAssociations[key] = [association];
+            }
         });
 
         if (existAssociations.total > existAssociations.length) {
@@ -453,11 +473,11 @@ class BulkEditBaseHandler {
             const key = `${referenceId}.${localId}`;
 
             // ManyToMany have 2 primary keys, e.g product_category
-            mappedExistAssociations[key] = association;
+            mappedExistAssociations[key] = [association];
         });
 
         if (mappingIds.total > existAssociations.length) {
-            return this._fetchOneToManyAssociated(fieldDefinition, change, page + 1, mappedExistAssociations);
+            return this._fetchManyToManyAssociated(fieldDefinition, change, page + 1, mappedExistAssociations);
         }
 
         return mappedExistAssociations;
@@ -477,25 +497,37 @@ class BulkEditBaseHandler {
         const transformedPayload = {};
 
         Object.keys(deletePayload).forEach(key => {
-            const deleteItem = deletePayload[key];
+            const deleteItems = deletePayload[key] ?? [];
 
-            const {
-                id,
-                [localKey]: localId,
-                [referenceKey]: referenceId,
-            } = deleteItem;
-
-            if (id) {
-                transformedPayload[key] = { id };
-            } else {
-                transformedPayload[key] = {
+            deleteItems.forEach(deleteItem => {
+                const {
+                    id,
                     [localKey]: localId,
                     [referenceKey]: referenceId,
-                };
-            }
+                } = deleteItem;
+
+                transformedPayload[key] ??= [];
+
+                if (id) {
+                    transformedPayload[key].push({ id });
+                } else {
+                    transformedPayload[key].push({
+                        [localKey]: localId,
+                        [referenceKey]: referenceId,
+                    });
+                }
+            });
         });
 
         return transformedPayload;
+    }
+
+    _isFieldValueChanged(newValue, origin) {
+        if (types.isObject(newValue) && types.isObject(origin)) {
+            return Object.keys(getObjectDiff(newValue, origin)).length > 0;
+        }
+
+        return !types.isEqual(newValue, origin);
     }
 }
 

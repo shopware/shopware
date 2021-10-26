@@ -21,7 +21,7 @@ class BulkEditProductHandler extends BulkEditBaseHandler {
         const syncPayload = await this.buildBulkSyncPayload(payload);
 
         if (types.isEmpty(syncPayload)) {
-            return Promise.resolve({ success: true });
+            return Promise.resolve({ data: [] });
         }
 
         return this.syncService.sync(syncPayload, {}, {

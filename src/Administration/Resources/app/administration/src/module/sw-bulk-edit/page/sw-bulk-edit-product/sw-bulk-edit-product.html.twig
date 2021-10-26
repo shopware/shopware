@@ -88,13 +88,49 @@
                     :bulk-edit-data="bulkEditProduct"
                     :entity="product"
                 >
-                    <template #valueFieldWithBoxType>
-                        <sw-button
-                            variant="primary"
+                    <template #valueFieldWithBoxType="{ formField, entity, index }">
+                        <!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+                        <a
+                            v-if="['add', 'overwrite'].includes(bulkEditProduct[formField.name].type)"
+                            class="sw-card__quick-link"
                             @click="displayAdvancePricesModal = true"
                         >
-                            {{ $tc('sw-bulk-edit.product.advancedPrices.openModalButton') }}
-                        </sw-button>
+                            {{ $tc('sw-bulk-edit.product.advancedPrices.newAdvancedPrices', 0, { count: entity[formField.name] ? Object.keys(priceRuleGroups).length : 0 }) }}
+                            <sw-icon
+                                name="default-arrow-simple-right"
+                                small
+                            />
+                        </a>
+
+                        {% block sw_bulk_edit_product_content_advanced_prices_rule_selection %}
+                        <sw-entity-multi-select
+                            v-else-if="bulkEditProduct[formField.name].type === 'remove'"
+                            class="sw-bulk-edit-product-base__advanced-prices-selection"
+                            :placeholder="$tc('sw-bulk-edit.product.advancedPrices.selectRule')"
+                            :criteria="ruleCriteria"
+                            entity-name="rule"
+                            :entity-collection="entity[formField.name]"
+                            @change="onRuleChange"
+                        >
+                            <template #selection-label-property="{ item }">
+                                {{ item.ruleName }}
+                            </template>
+
+                            <template #result-item="{ item, index, labelProperty, isSelected, addItem, getKey }">
+                                <li
+                                    is="sw-select-result"
+                                    :selected="isSelected(item)"
+                                    :disabled="!!priceRuleGroups[item.id]"
+                                    v-bind="{ item, index }"
+                                    @item-select="addItem"
+                                >
+                                    <template>
+                                        {{ getKey(item,labelProperty) || getKey(item, `translated.${labelProperty}`) }}
+                                    </template>
+                                </li>
+                            </template>
+                        </sw-entity-multi-select>
+                        {% endblock %}
                     </template>
                 </sw-bulk-edit-change-type-field-renderer>
                 {% endblock %}

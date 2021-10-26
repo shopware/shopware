@@ -2,7 +2,7 @@ import type { Module } from 'vuex';
 
 type ApiAuthToken = {
     access: string,
-    expiry: string,
+    expiry: number,
     refresh: string
 }
 
@@ -36,6 +36,8 @@ interface ContextState {
         apiResourcePath: null | string,
         assetsPath: null | string,
         authToken: null | ApiAuthToken,
+        basePath: null | string,
+        pathInfo: null | string,
         inheritance: null | boolean,
         installationPath: null | string,
         languageId: null | string,
@@ -69,6 +71,8 @@ const ContextStore: Module<ContextState, VuexRootState> = {
             apiResourcePath: null,
             assetsPath: null,
             authToken: null,
+            basePath: null,
+            pathInfo: null,
             inheritance: null,
             installationPath: null,
             languageId: null,
@@ -207,9 +211,4 @@ const ContextStore: Module<ContextState, VuexRootState> = {
 };
 
 export default ContextStore;
-
-declare global {
-    interface VuexRootState {
-        context: ContextState
-    }
-}
+export type { ContextState };

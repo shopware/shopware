@@ -3,6 +3,9 @@
 import type { default as Bottle, Decorator } from 'bottlejs';
 import type { default as Vue, ComponentOptions, AsyncComponent } from 'vue';
 import type FeatureService from 'src/app/service/feature.service';
+import type LoginService from 'src/core/service/login.service';
+import type { ContextState } from 'src/app/state/context.store';
+import type { AxiosInstance } from 'axios';
 import type { ShopwareClass } from './shopware';
 import type { ModuleTypes } from './factory/module.factory';
 import type RepositoryFactory from './data/repository-factory.data';
@@ -37,7 +40,7 @@ declare global {
      */
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface ServiceContainer extends SubContainer<'service'>{
-        loginService: $TSFixMe,
+        loginService: LoginService,
         feature: FeatureService,
         menuService: $TSFixMe,
         privileges: $TSFixMe,
@@ -73,7 +76,7 @@ declare global {
     interface InitContainer extends SubContainer<'init'>{
         state: $TSFixMe,
         router: $TSFixMe,
-        httpClient: $TSFixMe,
+        httpClient: AxiosInstance,
     }
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
     interface FactoryContainer extends SubContainer<'factory'>{
@@ -99,7 +102,10 @@ declare global {
      * Define global state for the Vuex store
      */
     // eslint-disable-next-line @typescript-eslint/no-empty-interface
-    interface VuexRootState {}
+    interface VuexRootState {
+        context: ContextState,
+        session: any,
+    }
 
     /**
      * define global Component

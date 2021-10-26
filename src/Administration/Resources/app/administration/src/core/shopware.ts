@@ -258,5 +258,3 @@ window.Shopware = ShopwareInstance;
 
 export default ShopwareInstance;
 export { ShopwareClass };
-
-Shopware.Service('feature').isActive('foo');

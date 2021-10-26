@@ -24,7 +24,7 @@
             {% block sw_order_detail_base_general_info_summary_sub_description %}
             <div class="sw-order-detail-base__general-info__summary-sub-description">
                 {{ $tc('sw-order.generalTab.info.summary.at') }}
-                {{ order.orderDate | date({
+                {{ order.orderDateTime | date({
                     hour: '2-digit',
                     minute: '2-digit',
                     day: '2-digit',
@@ -45,7 +45,7 @@
                     class="sw-order-detail-base__general-info__summary-sub-last-changed-time"
                 >
                     {{ $tc('sw-order.generalTab.info.summary.lastChanged') }}:
-                    {{ lastChangedDateTime| date({
+                    {{ lastChangedDateTime | date({
                         hour: '2-digit',
                         minute: '2-digit',
                         day: '2-digit',

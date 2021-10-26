@@ -252,11 +252,11 @@ Component.register('sw-settings-shipping-price-matrix', {
             }
             newShippingPrice.calculation = refPrice.calculation;
 
-            // If the calculation type is "quantity" always increase by one, otherwise add decimal places
+            // If the calculation type is "quantity" always increase by one, otherwise use end as start
             if (this.priceGroup.calculation === 1) {
                 newShippingPrice.quantityStart = refPrice.quantityEnd + 1 > 1 ? refPrice.quantityEnd + 1 : 2;
             } else {
-                newShippingPrice.quantityStart = this.increaseWithDecimalPlaces(refPrice.quantityEnd);
+                newShippingPrice.quantityStart = refPrice.quantityEnd;
             }
 
             newShippingPrice.quantityEnd = null;
@@ -264,12 +264,18 @@ Component.register('sw-settings-shipping-price-matrix', {
             this.shippingMethod.prices.push(newShippingPrice);
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - will be removed without replacement
+         */
         countDecimalPlaces(value) {
             const split = value.toString().split('.');
 
             return split[1] ? split[1].length : 0;
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - will be removed without replacement
+         */
         increaseWithDecimalPlaces(value) {
             let decimalPlaces = this.countDecimalPlaces(value);
             decimalPlaces = decimalPlaces === 0 ? 1 : decimalPlaces;

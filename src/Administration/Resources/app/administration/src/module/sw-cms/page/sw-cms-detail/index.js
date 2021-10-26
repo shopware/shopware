@@ -526,6 +526,8 @@ Component.register('sw-cms-detail', {
 
             this.page.sections.splice(index, 0, section);
             this.updateSectionAndBlockPositions();
+
+            this.onSave();
         },
 
         onCloseBlockConfig() {

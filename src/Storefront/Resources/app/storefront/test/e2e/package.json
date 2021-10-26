@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@babel/core": "^7.7.7",
-    "@shopware-ag/e2e-testsuite-platform": "^3.0.1",
+    "@shopware-ag/e2e-testsuite-platform": "^3.0.6",
     "cypress": "8.4.1",
     "cypress-multi-reporters": "^1.5.0",
     "mocha": "^7.2.0",

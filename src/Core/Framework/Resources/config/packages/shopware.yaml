@@ -379,6 +379,11 @@ shopware:
               major: false
               description: "Allow interactions with different entities as actions in Flow Builder"
               # issue: NEXT-17973
+            - name: FEATURE_NEXT_18592
+              default: false
+              major: true
+              description: "Major feature flag for CombinationLoader"
+              # issue: NEXT-18592
 
     logger:
         file_rotation_count: 14

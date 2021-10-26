@@ -1,0 +1,13 @@
+{
+  "name": "Test example channel",
+  "accessKey": "SWSCWLRRZJR2ZE04VMYYVGT2WG",
+  "customerGroupId": "cfbd5018d38d41d8adca10d94fc8bdd6",
+  "typeId": "8a243080f92e4c719546314b577cf82b",
+  "languageId": "2fbb5fe2e29a4d70aa5854ce7ce3e20b",
+  "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
+  "languages": [
+    {
+      "id": "2fbb5fe2e29a4d70aa5854ce7ce3e20b"
+    }
+  ]
+}

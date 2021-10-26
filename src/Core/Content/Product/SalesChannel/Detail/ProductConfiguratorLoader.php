@@ -46,7 +46,8 @@ class ProductConfiguratorLoader
 
         $combinations = $this->combinationLoader->load(
             $product->getParentId(),
-            $context->getContext()
+            $context->getContext(),
+            $context->getSalesChannelId()
         );
 
         $current = $this->buildCurrentOptions($product, $groups);

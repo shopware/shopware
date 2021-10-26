@@ -43,6 +43,16 @@
     },
     {
       "option": {
+        "id": "a1b9420508bc4972a17a8dd5d9946883",
+        "name": "Blue",
+        "group": {
+          "id": "a162eb40ca50495dab817f68c23db01e",
+          "name": "Color"
+        }
+      }
+    },
+    {
+      "option": {
         "id": "c34e8b6b03b449599d066cb6078bfb94",
         "name": "XL",
         "group": {
@@ -60,12 +70,6 @@
           "name": "size"
         }
       }
-    }
-  ],
-  "visibilities": [
-    {
-      "salesChannelId": "98432def39fc4624b33213a56b8c944d",
-      "visibility": 30
     }
   ],
   "children": [
@@ -130,8 +134,38 @@
           "id": "f9fbb5cbcdc14e95b8a838caed5d0d05"
         }
       ]
+    },
+    {
+      "id": "62c6e486855045c49c9066337f2e8b93",
+      "productNumber": "a.5",
+      "stock": 10,
+      "active": true,
+      "isCloseout": true,
+      "parentId": "9a72bf84e4e0460ab6140329d0fb22d9",
+      "options": [
+        {
+          "id": "a1b9420508bc4972a17a8dd5d9946883"
+        },
+        {
+          "id": "c34e8b6b03b449599d066cb6078bfb94"
+        }
+      ]
+    },
+    {
+      "id": "f5fc42c12a554ceda832dd8965e3004d",
+      "productNumber": "a.6",
+      "stock": 10,
+      "active": true,
+      "isCloseout": false,
+      "parentId": "9a72bf84e4e0460ab6140329d0fb22d9",
+      "options": [
+        {
+          "id": "a1b9420508bc4972a17a8dd5d9946883"
+        },
+        {
+          "id": "f9fbb5cbcdc14e95b8a838caed5d0d05"
+        }
+      ]
     }
   ]
 }
-
-

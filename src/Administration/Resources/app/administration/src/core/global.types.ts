@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable import/no-named-default */
 import type { default as Bottle, Decorator } from 'bottlejs';
-import type { default as Vue, ComponentOptions, AsyncComponent } from 'vue';
+import type { default as VueImport, ComponentOptions, AsyncComponent } from 'vue';
+import type VueRouter from 'vue-router';
 import type FeatureService from 'src/app/service/feature.service';
 import type LoginService from 'src/core/service/login.service';
 import type { ContextState } from 'src/app/state/context.store';
@@ -110,7 +111,7 @@ declare global {
     /**
      * define global Component
      */
-    type VueComponent = ComponentOptions<Vue> | typeof Vue | AsyncComponent;
+    type VueComponent = ComponentOptions<Vue> | typeof VueImport | AsyncComponent;
 }
 
 /**
@@ -136,5 +137,11 @@ declare module 'vue-router' {
         flag: string,
         isChildren: boolean,
         routeKey: string,
+    }
+}
+
+declare module 'vue/types/vue' {
+    interface Vue extends ServiceContainer {
+        $router: VueRouter
     }
 }

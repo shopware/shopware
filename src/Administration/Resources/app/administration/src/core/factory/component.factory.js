@@ -486,7 +486,7 @@ function resolveSuperCallChain(config, methodName, methodsOrComputed = 'methods'
     let parentsParentName = extension.extends ? `${overridePrefix}${extension.extends.name}` : null;
 
     if (parentName === parentsParentName) {
-        if (overridePrefix.length > 0) {
+        if (overridePrefix.length > 0 || extension._isOverride) {
             overridePrefix = `#${overridePrefix}`;
         }
 

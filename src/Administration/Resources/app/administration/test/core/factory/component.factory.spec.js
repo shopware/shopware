@@ -590,6 +590,106 @@ describe('core/factory/component.factory.js', () => {
             .toBe('This is an overridden override. This is an override. This is a test method.');
     });
 
+    it('should build the final component structure with an extension, an override and super-calls', async () => {
+        ComponentFactory.register('test-component', {
+            methods: {
+                testMethod() {
+                    return 'This is the original method.';
+                }
+            },
+            template: '<div>test-component</div>'
+        });
+
+        ComponentFactory.override('test-component', {
+            methods: {
+                testMethod() {
+                    const prev = this.$super('testMethod');
+
+                    return `This is an override. ${prev}`;
+                }
+            }
+        });
+
+        ComponentFactory.extend('extended-test-component', 'test-component', {
+            methods: {
+                testMethod() {
+                    const prev = this.$super('testMethod');
+
+                    return `This is an extension. ${prev}`;
+                }
+            },
+            template: '<div>extended-component</div>'
+        });
+
+        const component = shallowMount(ComponentFactory.build('extended-test-component'));
+
+        expect(component.vm).toBeTruthy();
+        expect(component.vm.testMethod())
+            .toBe('This is an extension. This is an override. This is the original method.');
+    });
+
+    it('should build the final component structure with an extended extension, an overriden override and super-calls', async () => {
+        ComponentFactory.register('test-component', {
+            methods: {
+                testMethod() {
+                    return 'This is the original method.';
+                }
+            },
+            template: '<div>test-component</div>'
+        });
+
+        ComponentFactory.override('test-component', {
+            methods: {
+                testMethod() {
+                    const prev = this.$super('testMethod');
+
+                    return `This is an override 1. ${prev}`;
+                }
+            }
+        });
+
+        ComponentFactory.override('test-component', {
+            methods: {
+                testMethod() {
+                    const prev = this.$super('testMethod');
+
+                    return `This is an override 2. ${prev}`;
+                }
+            }
+        });
+
+        ComponentFactory.extend('extended-test-component', 'test-component', {
+            methods: {
+                testMethod() {
+                    const prev = this.$super('testMethod');
+
+                    return `This is an extension 1. ${prev}`;
+                }
+            },
+            template: '<div>extended-component</div>'
+        });
+
+        ComponentFactory.extend('extended-extended-test-component', 'extended-test-component', {
+            methods: {
+                testMethod() {
+                    const prev = this.$super('testMethod');
+
+                    return `This is an extension 2. ${prev}`;
+                }
+            },
+            template: '<div>extended-component</div>'
+        });
+
+        const extensionComponent = shallowMount(ComponentFactory.build('extended-extended-test-component'));
+
+        expect(extensionComponent.vm).toBeTruthy();
+        expect(extensionComponent.vm.testMethod())
+            .toBe(
+                'This is an extension 2. This is an extension 1. This is an override 2. This is an override 1. '
+                + 'This is the original method.'
+            );
+    });
+
     it('should build the final component structure with multiple inheritance and super-call', async () => {
         ComponentFactory.register('test-component', {
             methods: {

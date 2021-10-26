@@ -7,21 +7,16 @@ import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/select/base/sw-select-result-list';
 import 'src/app/component/form/sw-text-field';
 import 'src/app/component/form/field-base/sw-contextual-field';
+import 'src/app/component/form/sw-code-editor';
 
-const generalTabFieldsClasses = [
+const fieldsClasses = [
     '.sw-flow-create-mail-template-modal__type',
     '.sw-flow-create-mail-template-modal__subject',
     '.sw-flow-create-mail-template-modal__sender-name',
-    '.sw-flow-create-mail-template-modal__description'
-];
-
-const mailTextTabFieldsClasses = [
+    '.sw-flow-create-mail-template-modal__description',
     '.sw-flow-create-mail-template-modal__content-plain',
     '.sw-flow-create-mail-template-modal__content-html'
 ];
-
-const generalTabClass = '.sw-flow-create-mail-template-modal__tab-general';
-const mailTextTabClass = '.sw-flow-create-mail-template-modal__tab-mail-text';
 
 const buttonSaveClass = '.sw-flow-create-mail-template-modal__save-button';
 
@@ -29,15 +24,63 @@ let mailTemplate = {
     mailTemplateTypeId: 'abc'
 };
 
+const mockMailTemplateData = [
+    {
+        id: 'c8576912ec4f4cb7881dc8f7f2c7c4c4',
+        name: 'Cancellation invoice',
+        technicalName: 'cancellation_mail',
+        translated: {
+            name: 'Double opt-in on guest orders'
+        }
+    },
+
+    {
+        id: 'c8576912ec4f4cb7881dc8f7f2c7c412',
+        name: 'Customer registration',
+        translated: {
+            name: 'Customer registration'
+        }
+    }
+];
+
 function createWrapper(privileges = []) {
     return shallowMount(Shopware.Component.build('sw-flow-create-mail-template-modal'), {
         provide: { repositoryFactory: {
-            create: () => {
+            create: (entity) => {
+                if (entity === 'mail_template_type') {
+                    return {
+                        create: () => {
+                            return Promise.resolve();
+                        },
+                        get: () => Promise.resolve({
+                            id: 'c8576912ec4f4cb7881dc8f7f2c7c412',
+                            customFields: null,
+                            name: 'Cancellation invoice',
+                            technicalName: 'cancellation_mail',
+                            translated: {
+                                name: 'Customer registration'
+                            }
+                        }),
+                        search: () => {
+                            return Promise.resolve(mockMailTemplateData);
+                        }
+                    };
+                }
+
                 return {
                     create: () => {
                         return Promise.resolve();
                     },
-                    search: () => Promise.resolve([]),
+                    search: () => {
+                        return Promise.resolve([]);
+                    },
+                    get: () => Promise.resolve({
+                        id: 'c8576912ec4f4cb7881dc8f7f2c7c412',
+                        name: 'Customer registration',
+                        translated: {
+                            name: 'Customer registration'
+                        }
+                    }),
                     save: () => {
                         if (mailTemplate.mailTemplateTypeId) {
                             return Promise.resolve();
@@ -61,9 +104,12 @@ function createWrapper(privileges = []) {
                 };
             }
         },
+        userInputSanitizeService: {},
         mailService: {},
         validationService: {},
-        entityMappingService: {},
+        entityMappingService: {
+            getEntityMapping: () => []
+        },
         acl: { can: (identifier) => {
             if (!identifier) {
                 return true;
@@ -85,7 +131,6 @@ function createWrapper(privileges = []) {
             'sw-text-field': Shopware.Component.build('sw-text-field'),
             'sw-select-result-list': Shopware.Component.build('sw-select-result-list'),
             'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
-            'sw-tabs-item': true,
             'sw-modal': {
                 template: `
                     <div class="sw-modal">
@@ -98,10 +143,7 @@ function createWrapper(privileges = []) {
             'sw-button': {
                 template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>'
             },
-            'sw-tabs': {
-                template: '<div class="sw-tabs"><slot></slot><slot name="content" active="content"></slot></div>'
-            },
-            'sw-code-editor': true,
+            'sw-code-editor': Shopware.Component.build('sw-code-editor'),
             'sw-textarea-field': true,
             'sw-container': true,
             'sw-icon': true,
@@ -134,15 +176,36 @@ describe('module/sw-flow/component/sw-flow-create-mail-template-modal', () => {
         const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
 
-        generalTabFieldsClasses.forEach(elementClass => {
+        fieldsClasses.forEach(elementClass => {
             expect(wrapper.find(elementClass).exists()).toBe(true);
         });
+    });
 
-        await wrapper.find(mailTextTabClass).trigger('click');
+    it('should able to create a mail template', async () => {
+        const wrapper = createWrapper();
+        await wrapper.vm.$nextTick();
 
-        mailTextTabFieldsClasses.forEach(elementClass => {
-            expect(wrapper.find(elementClass).exists()).toBe(true);
-        });
+        await wrapper.find(`${fieldsClasses[0]} .sw-entity-single-select__selection`).trigger('click');
+        await wrapper.vm.$nextTick();
+
+        const typeElement = wrapper.findAll('.sw-select-result');
+        await typeElement.at(0).trigger('click');
+
+        await wrapper.find(`${fieldsClasses[1]} input`).setValue('Subject');
+        await wrapper.find(`${fieldsClasses[1]} input`).trigger('input');
+
+        await wrapper.find(`${fieldsClasses[4]} textarea`).setValue('Code');
+        await wrapper.find(`${fieldsClasses[4]} textarea`).trigger('input');
+
+        await wrapper.find(`${fieldsClasses[5]} textarea`).setValue('Code');
+        await wrapper.find(`${fieldsClasses[5]} textarea`).trigger('input');
+
+        wrapper.vm.createNotificationError = jest.fn();
+
+        await wrapper.find(buttonSaveClass).trigger('click');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.createNotificationError).toBeCalledTimes(0);
     });
 
     it('should show error validation message', async () => {
@@ -154,9 +217,6 @@ describe('module/sw-flow/component/sw-flow-create-mail-template-modal', () => {
         await wrapper.vm.$nextTick();
 
         wrapper.vm.createNotificationError = jest.fn();
-
-        await wrapper.find(generalTabClass).trigger('click');
-        await wrapper.vm.$nextTick();
 
         await wrapper.find(buttonSaveClass).trigger('click');
         await wrapper.vm.$nextTick();

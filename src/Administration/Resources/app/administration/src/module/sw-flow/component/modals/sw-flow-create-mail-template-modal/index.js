@@ -1,4 +1,5 @@
 import template from './sw-flow-create-mail-template-modal.html.twig';
+import './sw-flow-create-mail-template-modal.scss';
 
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;

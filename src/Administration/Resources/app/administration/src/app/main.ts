@@ -88,7 +88,7 @@ Application
         const serviceContainer = Application.getContainer('service');
         const initContainer = Application.getContainer('init');
 
-        const loginService = new LoginService(initContainer.httpClient, Shopware.Context.api);
+        const loginService = LoginService(initContainer.httpClient, Shopware.Context.api);
 
         addPluginUpdatesListener(loginService, serviceContainer);
         addShopwareUpdatesListener(loginService, serviceContainer);

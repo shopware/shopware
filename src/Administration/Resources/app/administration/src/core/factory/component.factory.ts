@@ -6,6 +6,11 @@ import { cloneDeep } from 'src/core/service/utils/object.utils';
 import TemplateFactory from 'src/core/factory/template.factory';
 // eslint-disable-next-line import/no-named-default
 import type { default as Vue, ComponentOptions } from 'vue';
+import {
+    ThisTypedComponentOptionsWithRecordProps,
+    ThisTypedComponentOptionsWithArrayProps,
+// eslint-disable-next-line import/no-unresolved
+} from 'vue/types/options';
 
 export default {
     register,
@@ -21,43 +26,11 @@ export default {
     markComponentTemplatesAsNotResolved,
 };
 
-interface ComponentConfig {
-    template?: string,
-    name: string,
+// @ts-expect-error
+export interface ComponentConfig<V extends Vue = Vue> extends ComponentOptions<V> {
     functional?: boolean,
-    extends?: string | ComponentConfig,
+    extends?: ComponentConfig<V> | string,
     _isOverride?: boolean,
-    render?: ComponentOptions<Vue>['render'],
-    data?: ComponentOptions<Vue>['data'],
-    props?: ComponentOptions<Vue>['props'],
-    propsData?: ComponentOptions<Vue>['propsData'],
-    computed?: ComponentOptions<Vue>['computed'],
-    watch?: ComponentOptions<Vue>['watch'],
-    methods?: ComponentOptions<Vue>['methods'],
-    beforeCreate?: ComponentOptions<Vue>['beforeCreate'],
-    created?: ComponentOptions<Vue>['created'],
-    beforeDestroy?: ComponentOptions<Vue>['beforeDestroy'],
-    destroyed?: ComponentOptions<Vue>['destroyed'],
-    beforeMount?: ComponentOptions<Vue>['beforeMount'],
-    mounted?: ComponentOptions<Vue>['mounted'],
-    beforeUpdate?: ComponentOptions<Vue>['beforeUpdate'],
-    updated?: ComponentOptions<Vue>['updated'],
-    activated?: ComponentOptions<Vue>['activated'],
-    deactivated?: ComponentOptions<Vue>['deactivated'],
-    errorCaptured?: ComponentOptions<Vue>['errorCaptured'],
-    serverPrefetch?: ComponentOptions<Vue>['serverPrefetch'],
-    directives?: ComponentOptions<Vue>['directives'],
-    components?: ComponentOptions<Vue>['components'],
-    transitions?: ComponentOptions<Vue>['transitions'],
-    filters?: ComponentOptions<Vue>['filters'],
-    provide?: ComponentOptions<Vue>['provide'],
-    inject?: ComponentOptions<Vue>['inject'],
-    model?: ComponentOptions<Vue>['model'],
-    parent?: ComponentOptions<Vue>['parent'],
-    mixins?: ComponentOptions<Vue>['mixins'],
-    delimiters?: ComponentOptions<Vue>['delimiters'],
-    comments?: ComponentOptions<Vue>['comments'],
-    inheritAttrs?: ComponentOptions<Vue>['inheritAttrs'],
 }
 
 /**
@@ -123,7 +96,12 @@ function registerComponentHelper(name: string, helperFunction: unknown): boolean
 /**
  * Register a new component.
  */
-function register(componentName: string, componentConfiguration: ComponentConfig = { name: '' }): boolean | ComponentConfig {
+/* eslint-disable max-len */
+// @ts-expect-error
+function register<V extends Vue, Data, Methods, Computed, PropNames extends string>(componentName: string, componentConfiguration: ThisTypedComponentOptionsWithArrayProps<V, Data, Methods, Computed, PropNames>): boolean | ComponentConfig;
+function register<V extends Vue, Data, Methods, Computed, Props>(componentName: string, componentConfiguration: ThisTypedComponentOptionsWithRecordProps<V, Data, Methods, Computed, Props>): boolean | ComponentConfig;
+function register(componentName: string, componentConfiguration: ComponentConfig<Vue>): boolean | ComponentConfig {
+/* eslint-enable max-len */
     const config = componentConfiguration;
 
     if (!componentName || !componentName.length) {
@@ -562,9 +540,9 @@ function resolveSuperCallChain(
         return {};
     }
 
-    const parentName = `${overridePrefix}${extension.name}`;
+    const parentName = `${overridePrefix}${extension.name ?? ''}`;
     let parentsParentName = typeof extension.extends === 'object' && extension.extends
-        ? `${overridePrefix}${extension.extends.name}`
+        ? `${overridePrefix}${extension.extends.name ?? ''}`
         : null;
 
     if (parentName === parentsParentName) {

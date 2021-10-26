@@ -17,7 +17,7 @@ interface TokenResponse {
 /**
  * @module core/service/login
  */
-export default class LoginService {
+export class LoginService {
     private httpClient;
 
     private context;
@@ -37,7 +37,7 @@ export default class LoginService {
     constructor(
         httpClient: InitContainer['httpClient'],
         context: VuexRootState['context']['api'],
-        bearerAuth = null,
+        bearerAuth: AuthObject | null = null,
     ) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         this.httpClient = httpClient;
@@ -318,4 +318,12 @@ export default class LoginService {
             },
         );
     }
+}
+
+export default function createLoginService(
+    httpClient: InitContainer['httpClient'],
+    context: VuexRootState['context']['api'],
+    bearerAuth: AuthObject | null = null,
+): LoginService {
+    return new LoginService(httpClient, context, bearerAuth);
 }

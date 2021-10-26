@@ -1,15 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable import/no-named-default */
 import type { default as Bottle, Decorator } from 'bottlejs';
-import type { default as VueImport, ComponentOptions, AsyncComponent } from 'vue';
 import type VueRouter from 'vue-router';
 import type FeatureService from 'src/app/service/feature.service';
-import type LoginService from 'src/core/service/login.service';
+import type { LoginService } from 'src/core/service/login.service';
 import type { ContextState } from 'src/app/state/context.store';
 import type { AxiosInstance } from 'axios';
-import type { ShopwareClass } from './shopware';
-import type { ModuleTypes } from './factory/module.factory';
-import type RepositoryFactory from './data/repository-factory.data';
+import type { ShopwareClass } from 'src/core/shopware';
+import type { ModuleTypes } from 'src/core/factory/module.factory';
+import type RepositoryFactory from 'src/core/data/repository-factory.data';
+import type { default as VueType } from 'vue';
+import { ComponentConfig } from './core/factory/component.factory';
 
 // trick to make it an "external module" to support global type extension
 export {};
@@ -111,7 +112,7 @@ declare global {
     /**
      * define global Component
      */
-    type VueComponent = ComponentOptions<Vue> | typeof VueImport | AsyncComponent;
+    type VueComponent = ComponentConfig;
 }
 
 /**
@@ -140,8 +141,23 @@ declare module 'vue-router' {
     }
 }
 
+/**
+ * Extend this context of vue components with service container types (from inject)
+ * and plugins
+ */
 declare module 'vue/types/vue' {
     interface Vue extends ServiceContainer {
         $router: VueRouter
+    }
+}
+
+declare module 'vue/types/options' {
+    interface ComponentOptions<V extends VueType> {
+        shortcuts?: {
+            [key: string]: string | {
+                active: boolean | ((this: V) => boolean),
+                method: string
+            }
+        }
     }
 }

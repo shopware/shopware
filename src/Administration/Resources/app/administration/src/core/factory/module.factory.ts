@@ -6,6 +6,7 @@ import { hasOwnProperty, merge } from 'src/core/service/utils/object.utils';
 import types from 'src/core/service/utils/types.utils';
 import MiddlewareHelper from 'src/core/helper/middleware.helper';
 import type { Route, RouteConfig } from 'vue-router';
+import { ComponentConfig } from './component.factory';
 
 export default {
     getModuleRoutes,
@@ -350,7 +351,7 @@ function createRouteComponentList(route: RouteConfig, moduleId: string, module: 
         delete route.component;
     }
 
-    const componentList: { [componentKey: string]: VueComponent } = {};
+    const componentList: { [componentKey: string]: ComponentConfig } = {};
     const routeComponents = route.components ?? {};
     Object.keys(routeComponents).forEach((componentKey) => {
         const component = routeComponents[componentKey];
@@ -365,9 +366,11 @@ function createRouteComponentList(route: RouteConfig, moduleId: string, module: 
             return;
         }
 
+        // @ts-expect-error
         componentList[componentKey] = component;
     });
 
+    // @ts-expect-error
     route.components = componentList;
 
     return route;

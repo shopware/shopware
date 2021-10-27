@@ -32,7 +32,6 @@ class FileNameValidatorTest extends TestCase
                 '#',
                 '{',
                 '}',
-                '@',
             ]
         );
     }

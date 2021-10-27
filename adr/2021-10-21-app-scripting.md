@@ -19,7 +19,7 @@ Scripting events are placed in many sections in Shopware to be able to adjust th
 
 ### Scripting Events
 
-The data passed to the scripts always has to object so that the manipulation from Twig can affect the given value. 
+The data passed to the scripts always has to be an object so that the manipulation from Twig can affect the given value. 
 Given objects must be wrapped into custom objects for app scripting to provide easier access to certain functionality and limit the scripting scope. 
 The twig environment will provide additional functions like `dal_search` globally to all events to fetch other data in a consequent way
 
@@ -106,4 +106,4 @@ class ScriptEventRegistry
 - We will create a new domain-specific way to interact with shopware core domain logic. This means we have to think of and develop a higher-level description of our core domain logic and represent it through new
 functions that perform domain-specific tasks. For example, the block cart function in the example above. Those domain objects represent the API of the AppScripts, therefore breaking changes need to be considered carefully and should definitely follow our general breaking change policy. 
 Additionally, the domain specific layer may allow us to not break the public interface, when the implementation in the underlying services may break, so we can try to ensure even longer compatibility in the domain layer.
-However, to make evolvability possible add at all we need to inject the shopware version into the context of the app scripts, so that in the app scripts the version can be detected and new features used accordingly.
+However, to make evolvability possible at all we need to inject the shopware version into the context of the app scripts, so that in the app scripts the version can be detected and new features used accordingly.

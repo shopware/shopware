@@ -66,6 +66,19 @@
             <argument type="service" id="app_action_button.repository"/>
         </service>
 
+        <service id="Shopware\Core\Framework\App\Script\ScriptLoader">
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister">
+            <argument type="service" id="Shopware\Core\Framework\App\Script\ScriptLoader"/>
+            <argument type="service" id="app_script.repository"/>
+            <argument type="service" id="app.repository"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Script\ScriptStateService">
+            <argument type="service" id="app_script.repository"/>
+        </service>
+
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\TemplatePersister">
             <argument type="service" id="Shopware\Core\Framework\App\Template\TemplateLoader"/>
             <argument type="service" id="app_template.repository"/>
@@ -100,6 +113,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader"/>
             <argument type="service" id="Shopware\Core\Framework\App\Template\TemplateStateService"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Script\ScriptStateService"/>
             <argument type="service" id="Shopware\Core\Framework\App\Payment\PaymentMethodStateService"/>
         </service>
 
@@ -162,6 +176,7 @@
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\CustomFieldPersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\ActionButtonPersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\TemplatePersister"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\CmsBlockPersister"/>
@@ -392,6 +407,10 @@
         </service>
 
         <service id="Shopware\Core\Framework\App\Template\TemplateDefinition">
+            <tag name="shopware.entity.definition"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Script\AppScriptDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
 

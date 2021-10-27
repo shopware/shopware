@@ -17,6 +17,7 @@ use Shopware\Core\Framework\App\Lifecycle\Persister\CmsBlockPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\CustomFieldPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PaymentMethodPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
+use Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\TemplatePersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\WebhookPersister;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
@@ -58,6 +59,8 @@ class AppLifecycle extends AbstractAppLifecycle
 
     private TemplatePersister $templatePersister;
 
+    private ScriptPersister $scriptPersister;
+
     private WebhookPersister $webhookPersister;
 
     private PaymentMethodPersister $paymentMethodPersister;
@@ -82,6 +85,7 @@ class AppLifecycle extends AbstractAppLifecycle
         CustomFieldPersister $customFieldPersister,
         ActionButtonPersister $actionButtonPersister,
         TemplatePersister $templatePersister,
+        ScriptPersister $scriptPersister,
         WebhookPersister $webhookPersister,
         PaymentMethodPersister $paymentMethodPersister,
         CmsBlockPersister $cmsBlockPersister,
@@ -109,6 +113,7 @@ class AppLifecycle extends AbstractAppLifecycle
         $this->appStateService = $appStateService;
         $this->actionButtonPersister = $actionButtonPersister;
         $this->templatePersister = $templatePersister;
+        $this->scriptPersister = $scriptPersister;
         $this->languageRepository = $languageRepository;
         $this->systemConfigService = $systemConfigService;
         $this->configValidator = $configValidator;
@@ -219,6 +224,7 @@ class AppLifecycle extends AbstractAppLifecycle
         }
 
         $this->templatePersister->updateTemplates($manifest, $id, $context);
+        $this->scriptPersister->updateScripts($manifest, $id, $context);
         $this->customFieldPersister->updateCustomFields($manifest, $id, $context);
 
         $cmsExtensions = $this->appLoader->getCmsExtensions($app);

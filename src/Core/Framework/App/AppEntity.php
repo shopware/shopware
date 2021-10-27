@@ -7,6 +7,7 @@ use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonCollection;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodCollection;
 use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationCollection;
 use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockCollection;
+use Shopware\Core\Framework\App\Script\AppScriptCollection;
 use Shopware\Core\Framework\App\Template\TemplateCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
@@ -147,6 +148,8 @@ class AppEntity extends Entity
      * @var TemplateCollection|null
      */
     protected $templates;
+
+    protected ?AppScriptCollection $scripts;
 
     /**
      * @var CustomFieldSetCollection|null
@@ -446,6 +449,16 @@ class AppEntity extends Entity
     public function setTemplates(TemplateCollection $templates): void
     {
         $this->templates = $templates;
+    }
+
+    public function getScripts(): ?AppScriptCollection
+    {
+        return $this->scripts;
+    }
+
+    public function setScripts(AppScriptCollection $scripts): void
+    {
+        $this->scripts = $scripts;
     }
 
     public function getPrivacyPolicyExtensions(): ?string

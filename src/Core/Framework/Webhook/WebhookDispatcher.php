@@ -269,6 +269,9 @@ class WebhookDispatcher implements EventDispatcherInterface
                 continue;
             }
 
+            $timestamp = time();
+            $webhookData['timestamp'] = $timestamp;
+
             /** @var string $jsonPayload */
             $jsonPayload = json_encode($webhookData);
 

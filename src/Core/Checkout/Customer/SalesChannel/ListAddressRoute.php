@@ -66,7 +66,9 @@ class ListAddressRoute extends AbstractListAddressRoute
     public function load(Criteria $criteria, SalesChannelContext $context, CustomerEntity $customer): ListAddressRouteResponse
     {
         $criteria
+            ->addAssociation('salutation')
             ->addAssociation('country')
+            ->addAssociation('countryState')
             ->addFilter(new EqualsFilter('customer_address.customerId', $customer->getId()));
 
         if (\class_exists(StorefrontAddressListingCriteriaEvent::class)) {

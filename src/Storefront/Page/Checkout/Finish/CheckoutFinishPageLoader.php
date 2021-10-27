@@ -106,8 +106,12 @@ class CheckoutFinishPageLoader
             ->addAssociation('lineItems.cover')
             ->addAssociation('transactions.paymentMethod')
             ->addAssociation('deliveries.shippingMethod')
+            ->addAssociation('billingAddress.salutation')
             ->addAssociation('billingAddress.country')
-            ->addAssociation('deliveries.shippingOrderAddress.country');
+            ->addAssociation('billingAddress.countryState')
+            ->addAssociation('deliveries.shippingOrderAddress.salutation')
+            ->addAssociation('deliveries.shippingOrderAddress.country')
+            ->addAssociation('deliveries.shippingOrderAddress.countryState');
 
         $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
 

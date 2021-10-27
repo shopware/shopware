@@ -190,7 +190,6 @@ class AccountOrderController extends StorefrontController
     public function editOrder(string $orderId, Request $request, SalesChannelContext $context): Response
     {
         $criteria = new Criteria([$orderId]);
-        $criteria->addAssociation('deliveries');
         $deliveriesCriteria = $criteria->getAssociation('deliveries');
         $deliveriesCriteria->addSorting(new FieldSorting('createdAt', FieldSorting::ASCENDING));
 

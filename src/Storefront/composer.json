@@ -60,6 +60,7 @@
         "twig/twig": "3.3.3"
     },
     "require-dev": {
+        "symfony/css-selector": "^5.3",
         "phpunit/phpunit": "9.5.2"
     }
 }

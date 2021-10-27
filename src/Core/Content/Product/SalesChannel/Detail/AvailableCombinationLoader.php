@@ -9,10 +9,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 class AvailableCombinationLoader
 {
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
     public function __construct(Connection $connection)
     {
@@ -39,23 +36,27 @@ class AvailableCombinationLoader
             'product.option_ids as options',
             'product.product_number as productNumber',
             'product.available',
+            'product.available_stock',
+            'IFNULL(product.is_closeout, parent.is_closeout) as isCloseout',
         ]);
 
         $combinations = $query->execute()->fetchAll();
         $combinations = FetchModeHelper::groupUnique($combinations);
 
-        $available = [];
-
-        foreach ($combinations as $combination) {
-            $combination['options'] = json_decode($combination['options'], true);
-
-            $available[] = $combination;
-        }
-
         $result = new AvailableCombinationResult();
 
-        foreach ($available as $combination) {
-            $result->addCombination($combination['options']);
+        foreach ($combinations as $combination) {
+            $isCloseout = (bool) $combination['isCloseout'];
+            $stock = (int) $combination['available_stock'];
+
+            $options = json_decode($combination['options'], true);
+            if ($options === false) {
+                continue;
+            }
+
+            $available = !$isCloseout || $stock > 0;
+
+            $result->addCombination($options, $available);
         }
 
         return $result;

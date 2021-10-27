@@ -1,29 +1,45 @@
 <?php declare(strict_types=1);
 
-namespace Test\Controller;
+namespace Shopware\Storefront\Test\Controller;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Storefront\Controller\ProductController;
+use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder;
 use Shopware\Storefront\Page\Product\Review\ReviewLoaderResult;
-use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class ProductControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use StorefrontControllerTestBehaviour;
+
+    private TestDataCollection $ids;
+
+    public function setUp(): void
+    {
+        $this->ids = new TestDataCollection();
+    }
 
     public function testForwardFromSaveReviewToLoadReviews(): void
     {
@@ -43,7 +59,7 @@ class ProductControllerTest extends TestCase
         );
 
         static::assertInstanceOf(StorefrontResponse::class, $response);
-        static::assertSame(200, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertInstanceOf(ReviewLoaderResult::class, $response->getData()['reviews']);
     }
 
@@ -67,7 +83,7 @@ class ProductControllerTest extends TestCase
         $responseContent = $response->getContent();
         $content = (array) json_decode($responseContent);
 
-        static::assertSame(200, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         static::assertInstanceOf(JsonResponse::class, $response);
         static::assertEquals($productId, $content['productId']);
         static::assertStringContainsString($productId, $content['url']);
@@ -86,7 +102,129 @@ class ProductControllerTest extends TestCase
             ])
         );
 
-        static::assertSame(200, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+    }
+
+    /**
+     * @dataProvider variantProvider
+     */
+    public function testVariantGrayedOut(
+        string $requestVariant,
+        bool $green,
+        bool $red,
+        bool $l,
+        bool $xl
+    ): void {
+        $products = (new ProductBuilder($this->ids, 'a.0'))
+            ->manufacturer('m1')
+            ->name('test')
+            ->price(10)
+            ->visibility(TestDefaults::SALES_CHANNEL, ProductVisibilityDefinition::VISIBILITY_ALL)
+            ->configuratorSetting('red', 'color')
+            ->configuratorSetting('green', 'color')
+            ->configuratorSetting('l', 'size')
+            ->configuratorSetting('xl', 'size')
+            ->stock(10)
+            ->closeout(true)
+            ->variant(
+                (new ProductBuilder($this->ids, 'a.1'))
+                    ->option('red')
+                    ->option('xl')
+                    ->stock(0)
+                    ->closeout(false)
+                    ->build()
+            )
+            ->variant(
+                (new ProductBuilder($this->ids, 'a.2'))
+                    ->option('green')
+                    ->option('xl')
+                    ->stock(0)
+                    ->closeout(null) // inherited
+                    ->build()
+            )
+            ->variant(
+                (new ProductBuilder($this->ids, 'a.3'))
+                    ->option('red')
+                    ->option('l')
+                    ->stock(10)
+                    ->closeout(null) // inherited
+                    ->build()
+            )
+            ->variant(
+                (new ProductBuilder($this->ids, 'a.4'))
+                    ->option('green')
+                    ->option('l')
+                    ->stock(10)
+                    ->closeout(false)
+                    ->build()
+            )
+            ->build();
+
+        $this->getContainer()->get('product.repository')->create([$products], $this->ids->context);
+
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
+        $controller = $this->getContainer()->get(ProductController::class);
+
+        $response = $controller->index($context, $this->createDetailRequest($context, $this->ids->get($requestVariant)));
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $crawler = new Crawler();
+        $crawler->addHtmlContent($response->getContent());
+
+        $greenFound = false;
+        $redFound = false;
+        $xlFound = false;
+        $lFound = false;
+
+        $crawler->filter('.product-detail-configurator .product-detail-configurator-option-label')
+            ->each(static function (Crawler $option) use ($green, $red, $xl, $l, &$greenFound, &$redFound, &$xlFound, &$lFound): void {
+                if ($option->text() === 'green') {
+                    static::assertEquals($green, $option->matches('.is-combinable'));
+                    $greenFound = true;
+                }
+
+                if ($option->text() === 'red') {
+                    static::assertEquals($red, $option->matches('.is-combinable'));
+                    $redFound = true;
+                }
+
+                if ($option->text() === 'xl') {
+                    static::assertEquals($xl, $option->matches('.is-combinable'));
+                    $xlFound = true;
+                }
+
+                if ($option->text() === 'l') {
+                    static::assertEquals($l, $option->matches('.is-combinable'));
+                    $lFound = true;
+                }
+            });
+
+        static::assertTrue($greenFound, 'Option green was not found.');
+        static::assertTrue($redFound, 'Option red was not found.');
+        static::assertTrue($xlFound, 'Option xl was not found.');
+        static::assertTrue($lFound, 'Option l was not found.');
+    }
+
+    public function variantProvider(): iterable
+    {
+        yield 'test color: red - size: xl' => ['a.1', false, true, true, true]; // a.1 all options should be normal
+        yield 'test color: green - size: xl' => ['a.2', false, true, true, false]; // a.2 green and xl should be gray
+        yield 'test color: red - size: l' => ['a.3', true, true, true, true]; // a.3 all options should be normal
+        yield 'test color: green - size: l' => ['a.4', true, true, true, false]; // a.4 xl should be gray
+    }
+
+    private function createDetailRequest(SalesChannelContext $context, string $productId): Request
+    {
+        $request = new Request();
+        $request->attributes->set(RequestTransformer::STOREFRONT_URL, $_SERVER['APP_URL']);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT, $context);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID, $context->getSalesChannelId());
+        $request->attributes->set('productId', $productId);
+
+        $this->getContainer()->get('request_stack')->push($request);
+
+        return $request;
     }
 
     private function createProduct(array $config = []): string
@@ -171,7 +309,7 @@ class ProductControllerTest extends TestCase
             ])
         );
         $response = $browser->getResponse();
-        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
 
         $browser->request('GET', '/');
         /** @var StorefrontResponse $response */

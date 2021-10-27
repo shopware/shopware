@@ -192,7 +192,7 @@ class ProductConfiguratorLoader
         $current[] = $option->getId();
 
         // available with all other current selected options
-        if ($combinations->hasCombination($current)) {
+        if ($combinations->hasCombination($current) && $combinations->isAvailable($current)) {
             return true;
         }
 

@@ -158,6 +158,7 @@
         "phpunit/phpunit": "9.5.6",
         "smalot/pdfparser": "0.14.0",
         "symfony/browser-kit": "~5.3.0",
+        "symfony/css-selector": "^5.3",
         "symfony/dom-crawler": "~5.3.0",
         "symfony/expression-language": "~5.3.0",
         "symfony/phpunit-bridge": "~5.3.0",

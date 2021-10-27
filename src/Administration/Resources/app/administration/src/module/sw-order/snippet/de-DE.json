@@ -77,7 +77,8 @@
         "labelShippingAddress": "Lieferadresse",
         "placeholder": "Kunden auswählen oder anlegen ...",
         "textIdentical": "Rechnungs- und Lieferadresse sind identisch",
-        "buttonAddNewAddress": "Neue Adresse hinzufügen"
+        "buttonAddNewAddress": "Neue Adresse hinzufügen",
+        "placeholderAddress": "Adresse auswählen..."
       },
       "detailsFooter": {
         "labelSalesChannel": "Verkaufskanäle",

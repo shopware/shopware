@@ -181,6 +181,12 @@ Component.register('sw-order-detail-details', {
         currency() {
             return this.order.currency;
         },
+
+        billingAddress() {
+            return this.order.addresses.find((address) => {
+                return address.id === this.order.billingAddressId;
+            });
+        },
     },
 
     created() {
@@ -251,6 +257,10 @@ Component.register('sw-order-detail-details', {
 
         updateLoading(loadingValue) {
             State.commit('swOrderDetail/setLoading', ['order', loadingValue]);
+        },
+
+        onChangeOrderAddress(value) {
+            State.commit('swOrderDetail/setOrderAddressIds', value);
         },
     },
 });

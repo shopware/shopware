@@ -15,7 +15,12 @@
     >
 
         {% block sw_order_detail_details_payment_billing_address %}
-        <div>{{ $tc('sw-order.createBase.detailsBody.labelBillingAddress') }}<!-- NEXT-16676 - Put address selection here --></div>
+        <sw-order-address-selection
+            :address="billingAddress"
+            :address-id="billingAddress.id"
+            :label="$tc('sw-order.createBase.detailsBody.labelBillingAddress')"
+            @change-address="onChangeOrderAddress"
+        />
         {% endblock %}
 
         {% block sw_order_detail_details_payment_method_select %}
@@ -49,7 +54,12 @@
     >
 
         {% block sw_order_detail_details_shipping_address %}
-        <div>{{ $tc('sw-order.createBase.detailsBody.labelShippingAddress') }}<!-- NEXT-16676 - Put address selection here --></div>
+        <sw-order-address-selection
+            :address="delivery.shippingOrderAddress"
+            :address-id="delivery.shippingOrderAddress.id"
+            :label="$tc('sw-order.createBase.detailsBody.labelShippingAddress')"
+            @change-address="onChangeOrderAddress"
+        />
         {% endblock %}
 
         {% block sw_order_detail_details_shipping_method_select %}

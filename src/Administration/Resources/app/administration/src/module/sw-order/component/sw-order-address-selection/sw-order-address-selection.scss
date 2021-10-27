@@ -1,0 +1,47 @@
+@import "~scss/variables";
+
+.sw-order-address-selection {
+    &__information {
+        flex: 1;
+
+        p {
+            text-transform: capitalize;
+        }
+
+        p:not(:first-child) {
+            color: $color-gray-500;
+        }
+    }
+
+    &__edit-action {
+        min-width: 55px;
+        text-align: right;
+
+        .sw-context-menu-item {
+            padding: 0;
+        }
+
+        .sw-context-menu-item__text {
+            color: $color-shopware-brand-500;
+        }
+
+        .sw-context-menu-item__text:hover {
+            border-bottom: 1px solid $color-shopware-brand-500;
+        }
+    }
+
+    &__popover {
+        .sw-order-address-selection__order-address p:first-child {
+            color: $color-shopware-brand-500;
+        }
+
+        .sw-select-result .sw-select-result__result-item-text {
+            width: 100%;
+            flex-direction: unset;
+        }
+
+        .sw-select-result .sw-icon {
+            display: none;
+        }
+    }
+}

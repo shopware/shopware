@@ -77,7 +77,8 @@
         "labelShippingAddress": "Shipping address",
         "placeholder": "Select or add customer first...",
         "textIdentical": "Billing and shipping address are identical",
-        "buttonAddNewAddress": "Add new address"
+        "buttonAddNewAddress": "Add new address",
+        "placeholderAddress": "Select address..."
       },
       "detailsFooter": {
         "labelSalesChannel": "Sales channel",

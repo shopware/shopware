@@ -20,6 +20,7 @@ import './component/sw-order-customer-comment';
 import './component/sw-order-product-select';
 import './component/sw-order-saveable-field';
 import './component/sw-order-address-modal';
+import './component/sw-order-address-selection';
 import './component/sw-order-leave-page-modal';
 import './component/sw-order-state-change-modal/sw-order-state-change-modal-attach-documents';
 import './component/sw-order-state-history-card';
@@ -45,6 +46,7 @@ import './component/sw-order-general-info';
 import './component/sw-order-send-document-modal';
 import '../sw-customer/component/sw-customer-address-form';
 import '../sw-customer/component/sw-customer-address-form-options';
+
 import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module } = Shopware;

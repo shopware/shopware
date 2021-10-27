@@ -312,22 +312,26 @@ Component.register('sw-order-document-card', {
             });
         },
 
-        onCreateDocument(params, additionalAction, referencedDocumentId = null, file = null) {
+        async onCreateDocument(params, additionalAction, referencedDocumentId = null, file = null) {
             this.isLoadingDocument = true;
 
-            this.$nextTick().then(() => {
-                return this.createDocument(
+            await this.$nextTick();
+
+            try {
+                const response = await this.createDocument(
                     this.order.id,
                     this.currentDocumentType.technicalName,
                     params,
                     referencedDocumentId,
                     file,
                 );
-            }).then((response) => {
+
                 if (response && additionalAction === 'download') {
                     this.downloadDocument(response.data.documentId, response.data.documentDeepLink);
                 }
-            });
+            } finally {
+                this.isLoadingDocument = false;
+            }
         },
 
         onPreview(params) {

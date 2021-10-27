@@ -61,19 +61,28 @@ Component.register('sw-order-document-settings-modal', {
     },
 
     methods: {
-        createdComponent() {
-            this.numberRangeService.reserve(
-                `document_${this.currentDocumentType.technicalName}`,
-                this.order.salesChannelId,
-                true,
-            ).then((response) => {
-                this.documentConfig.documentNumber = response.number;
-                this.documentNumberPreview = this.documentConfig.documentNumber;
-                this.documentConfig.documentDate = (new Date()).toISOString();
-            });
+        async createdComponent() {
+            this.documentConfig.documentNumber = await this.reserveDocumentNumber(true);
+            this.documentNumberPreview = this.documentConfig.documentNumber;
+            this.documentConfig.documentDate = (new Date()).toISOString();
         },
 
-        onCreateDocument(additionalAction = false) {
+        async onCreateDocument(additionalAction = false) {
+            this.$emit('loading-document');
+
+            if (this.documentNumberPreview === this.documentConfig.documentNumber) {
+                const documentNumber = await this.reserveDocumentNumber(false);
+
+                if (documentNumber !== this.documentConfig.documentNumber) {
+                    this.createNotificationInfo({
+                        message: this.$tc('sw-order.documentCard.info.DOCUMENT__NUMBER_WAS_CHANGED'),
+                    });
+                }
+
+                this.documentConfig.documentNumber = documentNumber;
+            }
+
+            await this.addAdditionalInformationToDocument();
             this.callDocumentCreate(additionalAction);
         },
 
@@ -87,6 +96,20 @@ Component.register('sw-order-document-settings-modal', {
             );
         },
 
+        async reserveDocumentNumber(isPreview) {
+            const { number } = await this.numberRangeService.reserve(
+                `document_${this.currentDocumentType.technicalName}`,
+                this.order.salesChannelId,
+                isPreview,
+            );
+
+            return number;
+        },
+
+        addAdditionalInformationToDocument() {
+            // override in specific document-settings-modals to add additional data to your document
+        },
+
         onPreview() {
             this.$emit('preview-show', this.documentConfig);
         },
@@ -98,6 +121,5 @@ Component.register('sw-order-document-settings-modal', {
         onCancel() {
             this.$emit('page-leave');
         },
-
     },
 });

@@ -60,11 +60,45 @@ class GenerateDocumentAction extends FlowAction
     public function handle(FlowEvent $event): void
     {
         $baseEvent = $event->getEvent();
+
+        $eventConfig = $event->getConfig();
+
         if (!$baseEvent instanceof OrderAware || !$baseEvent instanceof SalesChannelAware) {
             return;
         }
 
-        $eventConfig = $event->getConfig();
+        if (\array_key_exists('documentType', $eventConfig)) {
+            $this->generateDocument($eventConfig, $baseEvent);
+
+            return;
+        }
+
+        $documentsConfig = $eventConfig['documentTypes'];
+
+        if (!$documentsConfig) {
+            return;
+        }
+
+        // Invoice document should be created first
+        foreach ($documentsConfig as $index => $config) {
+            if ($config['documentType'] === InvoiceGenerator::INVOICE) {
+                $this->generateDocument($config, $baseEvent);
+                unset($documentsConfig[$index]);
+
+                break;
+            }
+        }
+
+        foreach ($documentsConfig as $config) {
+            $this->generateDocument($config, $baseEvent);
+        }
+    }
+
+    /**
+     * @param OrderAware&SalesChannelAware $baseEvent
+     */
+    private function generateDocument(array $eventConfig, $baseEvent): void
+    {
         $documentType = $eventConfig['documentType'];
         $documentRangerType = $eventConfig['documentRangerType'];
 
@@ -73,7 +107,7 @@ class GenerateDocumentAction extends FlowAction
         }
 
         $documentNumber = $this->valueGenerator->getValue(
-            $eventConfig['documentRangerType'],
+            $documentRangerType,
             $baseEvent->getContext(),
             $baseEvent->getSalesChannelId()
         );

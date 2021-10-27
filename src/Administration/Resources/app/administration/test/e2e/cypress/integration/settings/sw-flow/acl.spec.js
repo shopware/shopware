@@ -84,8 +84,15 @@ describe('Flow builder: Test acl privilege', () => {
 
         cy.get('.sw-flow-generate-document-modal').should('be.visible');
 
-        cy.get('.sw-flow-generate-document-modal__type-select')
-            .typeSingleSelect('Invoice', '.sw-flow-generate-document-modal__type-select');
+        cy.skipOnFeature('FEATURE_NEXT_18083', () => {
+            cy.get('.sw-flow-generate-document-modal__type-select')
+                .typeSingleSelect('Invoice', '.sw-flow-generate-document-modal__type-select');
+        });
+
+        cy.onlyOnFeature('FEATURE_NEXT_18083', () => {
+            cy.get('.sw-flow-generate-document-modal__type-multi-select')
+                .typeMultiSelectAndCheck('Invoice');
+        });
 
         cy.get('.sw-flow-generate-document-modal__save-button').click();
         cy.get('.sw-flow-generate-document-modal').should('not.exist');

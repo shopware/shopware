@@ -1,7 +1,6 @@
 ---
-title: Add api flow action list.
-issue: NEXT-15558.
-flag: FEATURE_NEXT_8552.
+title: Add api flow action list
+issue: NEXT-15558
 ---
 # Core
 * Added new API `GET: /api/_info/actions.json` at `Shopware\Core\Framework\Api\Controller\InfoController` which used to return lists flow action.

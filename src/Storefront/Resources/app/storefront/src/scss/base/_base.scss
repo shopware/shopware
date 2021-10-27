@@ -34,11 +34,27 @@ html {
         }
     }
 
-    /* stylelint-disable-next-line selector-class-pattern -- allow BEM here as it is a generated class name from the administration
+    /* stylelint-disable selector-class-pattern -- allow BEM here as it is a generated class name from the administration
      * sw-text-editor component adds a column selector to configure the width of table columns
      * this must no be shown in the storefront as it breaks table layouts
      */
-    .sw-text-editor-table__col-selector {
-        display: none;
+
+    .sw-text-editor-table {
+        .sw-text-editor-table__col {
+            border: 1px solid $black;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .sw-text-editor-table__col-selector {
+            display: none;
+        }
     }
+
+    .sw-text-editor-table__head {
+        td {
+            background: $gray-200;
+        }
+    }
+    /* stylelint-enable selector-class-pattern */
 }

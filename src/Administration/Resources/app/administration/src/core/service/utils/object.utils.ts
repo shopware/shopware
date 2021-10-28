@@ -39,35 +39,26 @@ export const pick = objectPick;
 
 /**
  * Shorthand method for `Object.prototype.hasOwnProperty`
- *
- * @param {Object} scope
- * @param {String} prop
- * @returns {Boolean}
  */
-export function hasOwnProperty(scope, prop) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function hasOwnProperty(scope: any, prop: string): boolean {
     return Object.prototype.hasOwnProperty.call(scope, prop);
 }
 
 /**
  * Deep copy an object
- *
- * @param {Object} copyObject
- * @returns {Object}
  */
-export function deepCopyObject(copyObject = {}) {
-    return JSON.parse(JSON.stringify(copyObject));
+export function deepCopyObject<O extends object>(copyObject: O): O {
+    return JSON.parse(JSON.stringify(copyObject)) as O;
 }
 
 /**
  * Deep merge two objects
- *
- * @param {Object} firstObject
- * @param {Object} secondObject
- * @returns {Object}
  */
-export function deepMergeObject(firstObject = {}, secondObject = {}) {
+export function deepMergeObject<FO extends object, SO extends object>(firstObject: FO, secondObject: SO): FO & SO {
     return mergeWith(firstObject, secondObject, (objValue, srcValue) => {
         if (Array.isArray(objValue)) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return objValue.concat(srcValue);
         }
         return undefined;
@@ -82,7 +73,8 @@ export function deepMergeObject(firstObject = {}, secondObject = {}) {
  * @param {Object} b
  * @return {*}
  */
-export function getObjectDiff(a, b) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function getObjectDiff(a: any, b: any): any {
     if (a === b) {
         return {};
     }
@@ -101,30 +93,45 @@ export function getObjectDiff(a, b) {
 
     return Object.keys(b).reduce((acc, key) => {
         if (!hasOwnProperty(a, key)) {
+            // @ts-expect-error
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             return { ...acc, [key]: b[key] };
         }
 
+        // @ts-expect-error
         if (type.isArray(b[key])) {
+            // @ts-expect-error
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-argument
             const changes = getArrayChanges(a[key], b[key]);
 
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             if (Object.keys(changes).length > 0) {
+                // @ts-expect-error
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 return { ...acc, [key]: b[key] };
             }
 
             return acc;
         }
 
+        // @ts-expect-error
         if (type.isObject(b[key])) {
+            // @ts-expect-error
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             const changes = getObjectDiff(a[key], b[key]);
 
             if (!type.isObject(changes) || Object.keys(changes).length > 0) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 return { ...acc, [key]: changes };
             }
 
             return acc;
         }
 
+        // @ts-expect-error
         if (a[key] !== b[key]) {
+            // @ts-expect-error
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             return { ...acc, [key]: b[key] };
         }
 
@@ -137,17 +144,15 @@ export function getObjectDiff(a, b) {
  * Works a little bit different like the object diff because it does not return a real changeset.
  * In case of a change we will always use the complete compare array,
  * because it always holds the newest state regarding deletions, additions and the order.
- *
- * @param {Array} a
- * @param {Array} b
- * @return {*}
  */
-export function getArrayChanges(a, b) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function getArrayChanges(a: any[], b: any[]): any[] {
     if (a === b) {
         return [];
     }
 
     if (!type.isArray(a) || !type.isArray(b)) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return b;
     }
 
@@ -163,11 +168,14 @@ export function getArrayChanges(a, b) {
         return b.filter(item => !a.includes(item));
     }
 
-    const changes = [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const changes: any[] = [];
 
     b.forEach((item, index) => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const objDiff = getObjectDiff(a[index], b[index]);
 
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         if (Object.keys(objDiff).length > 0) {
             changes.push(b[index]);
         }

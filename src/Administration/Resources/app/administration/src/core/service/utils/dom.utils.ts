@@ -6,11 +6,8 @@ import { warn } from './debug.utils';
 
 /**
  * Returns the scrollbar height of an HTML element.
- *
- * @param {Object} element
- * @returns {number} Scrollbar height
  */
-function getScrollbarHeight(element) {
+function getScrollbarHeight(element: HTMLElement): number {
     if (!(element instanceof HTMLElement)) {
         warn('DOM Utilities', 'The provided element needs to be an instance of "HTMLElement".', element);
         return 0;
@@ -20,11 +17,8 @@ function getScrollbarHeight(element) {
 
 /**
  * Returns the scrollbar width of an HTML element.
- *
- * @param {Object} element
- * @returns {number} Scrollbar width
  */
-function getScrollbarWidth(element) {
+function getScrollbarWidth(element: HTMLElement): number {
     if (!(element instanceof HTMLElement)) {
         warn('DOM Utilities', 'The provided element needs to be an instance of "HTMLElement".', element);
         return 0;
@@ -34,10 +28,8 @@ function getScrollbarWidth(element) {
 
 /**
  * uses the browser's copy function to copy a string
- *
- * @param {string} stringToCopy
  */
-function copyToClipboard(stringToCopy) {
+function copyToClipboard(stringToCopy: string): void {
     const tempTextArea = document.createElement('textarea');
     tempTextArea.value = stringToCopy;
     document.body.appendChild(tempTextArea);

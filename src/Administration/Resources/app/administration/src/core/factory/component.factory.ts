@@ -388,15 +388,13 @@ interface SuperRegistry {
     [name: string]: {
         [sName: string]: {
             parent: string,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            func: (args: any[]) => any
+            func: (args: $TSFixMe[]) => $TSFixMe
         }
     }
 }
 
 interface SuperBehavior {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    $super(name: string, ...args: any[]): any,
+    $super(name: string, ...args: $TSFixMe[]): $TSFixMe,
     _initVirtualCallStack(name: string): void,
     _findInSuperRegister(name: string): SuperRegistry,
     _superRegistry(): SuperRegistry,
@@ -532,8 +530,7 @@ function resolveSuperCallChain(
     methodName: string,
     methodsOrComputed: 'methods'|'computed' = 'methods',
     overridePrefix = '',
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-): any {
+): $TSFixMe {
     const extension = config.extends;
 
     if (!extension || typeof extension === 'string') {
@@ -582,8 +579,7 @@ function resolveSuperCallChain(
 /**
  * Returns a method in the extension chain object.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function findMethodInChain(extension: ComponentConfig, methodName: string, methodsOrComputed: 'methods'|'computed'): any {
+function findMethodInChain(extension: ComponentConfig, methodName: string, methodsOrComputed: 'methods'|'computed'): $TSFixMe {
     const splitPath = methodName.split('.');
 
     if (splitPath.length > 1) {
@@ -607,8 +603,7 @@ function findMethodInChain(extension: ComponentConfig, methodName: string, metho
 /**
  * Returns a method in the extension chain object with a method path like `getterSetterMethod.get`.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function resolveGetterSetterChain(extension: ComponentConfig, path: string[], methodsOrComputed: 'methods'|'computed'):any {
+function resolveGetterSetterChain(extension: ComponentConfig, path: string[], methodsOrComputed: 'methods'|'computed'):$TSFixMe {
     const [methodName, cmd] = path;
 
     if (!extension[methodsOrComputed]) {
@@ -641,8 +636,7 @@ function isAnOverride(config: ComponentConfig): boolean {
 /**
  * Tests an object, whether it is empty or not.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function isNotEmptyObject(obj: any): boolean {
+function isNotEmptyObject(obj: $TSFixMe): boolean {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access
     return (Object.keys(obj).length !== 0 && obj.constructor === Object);
 }

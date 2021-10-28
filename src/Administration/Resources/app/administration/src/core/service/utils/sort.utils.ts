@@ -6,6 +6,14 @@ export default {
     afterSort,
 };
 
+
+interface SortElements {
+    id: string,
+    data: {
+        [key: string]: unknown
+    }
+}
+
 /**
  * Sorts the elements by their after id property chain
  *
@@ -13,7 +21,7 @@ export default {
  * @param {string} property
  * @returns {array}
  */
-function afterSort(elements, property = 'afterId') {
+function afterSort(elements: SortElements[], property = 'afterId'): SortElements[] {
     if (elements.length === 0) {
         return elements;
     }
@@ -39,7 +47,7 @@ function afterSort(elements, property = 'afterId') {
     const firstItem = elements.shift();
     const sortedElements = [firstItem];
 
-    let lastId = firstItem.id;
+    let lastId = firstItem && firstItem.id;
 
     while (elements.length > 0) {
         let loop = true;
@@ -68,9 +76,9 @@ function afterSort(elements, property = 'afterId') {
                 break;
             }
 
-            lastId = nextItem.data[property];
+            lastId = nextItem && nextItem.data[property] as string;
         }
     }
 
-    return sortedElements;
+    return sortedElements as SortElements[];
 }

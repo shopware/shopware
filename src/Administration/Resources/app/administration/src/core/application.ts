@@ -1,5 +1,6 @@
 import type Bottle from 'bottlejs';
 import type ViewAdapter from './adapter/view.adapter';
+import { ContextState } from '../app/state/context.store';
 /**
  * @module core/application
  */
@@ -68,7 +69,7 @@ class ApplicationBootstrapper {
     addFactory<T extends keyof FactoryContainer>(
         name: T,
         factory: (container: Bottle.IContainer) => FactoryContainer[T],
-    ): this {
+    ): ApplicationBootstrapper {
         this.$container.factory(`factory.${name}`, factory.bind(this));
 
         return this;
@@ -92,7 +93,7 @@ class ApplicationBootstrapper {
     addFactoryMiddleware<SERVICE extends keyof Bottle.IContainer['factory']>(
         nameOrMiddleware: SERVICE|Bottle.Middleware,
         middleware? : Bottle.Middleware,
-    ): this {
+    ): ApplicationBootstrapper {
         return this._addMiddleware('factory', nameOrMiddleware, middleware);
     }
 
@@ -114,7 +115,7 @@ class ApplicationBootstrapper {
     addFactoryDecorator(
         nameOrDecorator: keyof FactoryContainer|Bottle.Decorator,
         decorator? : Bottle.Decorator,
-    ): this {
+    ): ApplicationBootstrapper {
         return this._addDecorator('factory', nameOrDecorator, decorator);
     }
 
@@ -129,7 +130,7 @@ class ApplicationBootstrapper {
      *    return HttpFactory(container.apiContext);
      * });
      */
-    addInitializer<I extends keyof InitContainer>(name: I, initializer: () => InitContainer[I]): this {
+    addInitializer<I extends keyof InitContainer>(name: I, initializer: () => InitContainer[I]): ApplicationBootstrapper {
         this.$container.factory(`init.${name}`, initializer.bind(this));
         return this;
     }
@@ -148,16 +149,19 @@ class ApplicationBootstrapper {
     addServiceProvider<S extends keyof ServiceContainer>(
         name: S,
         provider: (serviceContainer: ServiceContainer) => ServiceContainer[S],
-    ): this {
+    ): ApplicationBootstrapper {
         // @ts-expect-error
         this.$container.factory(`service.${name}`, provider.bind(this));
         return this;
     }
 
-    // TODO: implement Context typings
-    registerConfig(config: { apiContext?: $TSFixMe, appContext?: $TSFixMe }): this {
-        this.registerApiContext(config.apiContext);
-        this.registerAppContext(config.appContext);
+    registerConfig(config: { apiContext?: ContextState['api'], appContext?: ContextState['app'] }): ApplicationBootstrapper {
+        if (config.apiContext) {
+            this.registerApiContext(config.apiContext);
+        }
+        if (config.appContext) {
+            this.registerAppContext(config.appContext);
+        }
 
         return this;
     }
@@ -165,10 +169,7 @@ class ApplicationBootstrapper {
     /**
      * Registers the api context (api path, path to resources etc.)
      */
-    registerApiContext(context: $TSFixMe): this {
-        // TODO: implement Context typings
-        // eslint-disable-next-line max-len
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-argument
+    registerApiContext(context: ContextState['api']): ApplicationBootstrapper {
         Shopware.Context.api = Shopware.Classes._private.ApiContextFactory(context);
 
         return this;
@@ -177,10 +178,7 @@ class ApplicationBootstrapper {
     /**
      * Registers the app context (firstRunWizard, etc.)
      */
-    registerAppContext(context: $TSFixMe): this {
-        // TODO: implement Context typings
-        // eslint-disable-next-line max-len
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-argument
+    registerAppContext(context: ContextState['app']): ApplicationBootstrapper {
         Shopware.Context.app = Shopware.Classes._private.AppContextFactory(context);
 
         return this;
@@ -204,7 +202,7 @@ class ApplicationBootstrapper {
     addServiceProviderMiddleware<SERVICE extends keyof ServiceContainer>(
         nameOrMiddleware: SERVICE|Bottle.Middleware,
         middleware? : Bottle.Middleware,
-    ): this {
+    ): ApplicationBootstrapper {
         return this._addMiddleware('service', nameOrMiddleware, middleware);
     }
 
@@ -215,7 +213,7 @@ class ApplicationBootstrapper {
         containerName: CONTAINER,
         nameOrMiddleware: keyof Bottle.IContainer[CONTAINER]|Bottle.Middleware,
         middleware? : Bottle.Middleware,
-    ): this {
+    ): ApplicationBootstrapper {
         if (typeof nameOrMiddleware === 'string' && !!middleware) {
             this.$container.middleware(`${containerName}.${nameOrMiddleware}`, middleware);
         }
@@ -230,7 +228,7 @@ class ApplicationBootstrapper {
     /**
      * Initializes the feature flags from context settings
      */
-    initializeFeatureFlags(): this {
+    initializeFeatureFlags(): ApplicationBootstrapper {
         const features = Shopware.Context.app.features;
 
         if (!features) {
@@ -263,7 +261,7 @@ class ApplicationBootstrapper {
     addServiceProviderDecorator(
         nameOrDecorator: keyof ServiceContainer|Bottle.Decorator,
         decorator? : Bottle.Decorator,
-    ): this {
+    ): ApplicationBootstrapper {
         return this._addDecorator('service', nameOrDecorator, decorator);
     }
 
@@ -274,7 +272,7 @@ class ApplicationBootstrapper {
         containerName: CONTAINER,
         nameOrDecorator: keyof Bottle.IContainer[CONTAINER]|Bottle.Decorator,
         decorator? : Bottle.Decorator,
-    ): this {
+    ): ApplicationBootstrapper {
         if (typeof nameOrDecorator === 'string' && !!decorator) {
             this.$container.decorator(`${containerName}.${nameOrDecorator}`, decorator);
         }
@@ -289,7 +287,7 @@ class ApplicationBootstrapper {
     /**
      * Starts the bootstrapping process of the application.
      */
-    start(config = {}): Promise<$TSFixMe> {
+    start(config = {}): Promise<void|ApplicationBootstrapper> {
         return this.initState()
             .registerConfig(config)
             .initializeFeatureFlags()
@@ -299,7 +297,7 @@ class ApplicationBootstrapper {
     /**
      * Get the global state
      */
-    initState(): this {
+    initState(): ApplicationBootstrapper {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const initaliziation = this.getContainer('init').state;
 
@@ -328,7 +326,7 @@ class ApplicationBootstrapper {
     /**
      * Boot the application depending on login status
      */
-    startBootProcess(): Promise<$TSFixMe> {
+    startBootProcess(): Promise<void|ApplicationBootstrapper> {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const loginService = this.getContainer('service').loginService;
         // eslint-disable-next-line max-len
@@ -348,7 +346,7 @@ class ApplicationBootstrapper {
     /**
      * Boot the login.
      */
-    bootLogin(): Promise<$TSFixMe> {
+    bootLogin(): Promise<void|ApplicationBootstrapper> {
         // set force reload after successful login
         sessionStorage.setItem('sw-login-should-reload', 'true');
 
@@ -375,7 +373,7 @@ class ApplicationBootstrapper {
     /**
      * Boot the whole application.
      */
-    bootFullApplication(): Promise<$TSFixMe> {
+    bootFullApplication(): Promise<void | ApplicationBootstrapper> {
         const initContainer = this.getContainer('init');
 
         /**
@@ -404,7 +402,7 @@ class ApplicationBootstrapper {
      * Creates the application root and injects the provider container into the
      * view instance to keep the dependency injection of Vue.js in place.
      */
-    createApplicationRoot(): Promise<this> {
+    createApplicationRoot(): Promise<ApplicationBootstrapper> {
         const initContainer = this.getContainer('init');
         // eslint-disable-next-line max-len
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access

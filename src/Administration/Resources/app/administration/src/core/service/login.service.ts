@@ -14,44 +14,58 @@ interface TokenResponse {
     /* eslint-enable camelcase */
 }
 
-/**
- * @module core/service/login
- */
-export class LoginService {
-    private httpClient;
+export interface LoginService {
+    loginByUsername: (user: string, pass: string) => Promise<AuthObject>,
+    verifyUserByUsername: (user: string, pass: string) => Promise<AuthObject>,
+    refreshToken: () => Promise<AuthObject['access']>,
+    getToken: () => string,
+    getBearerAuthentication: <K extends keyof AuthObject>(section: K) => AuthObject[K],
+    setBearerAuthentication: ({ access, refresh, expiry }: AuthObject) => AuthObject,
+    logout: () => boolean,
+    isLoggedIn: () => boolean,
+    addOnTokenChangedListener: (listener: () => void) => void,
+    addOnLogoutListener: (listener: () => void) => void,
+    addOnLoginListener: (listener: () => void) => void,
+    getStorageKey: () => string,
+    notifyOnLoginListener: () => (void[] | null),
+    verifyUserToken: (password: string) => Promise<string>
+}
 
-    private context;
+export default function createLoginService(
+    httpClient: InitContainer['httpClient'],
+    context: VuexRootState['context']['api'],
+    bearerAuth: AuthObject | null = null,
+): LoginService {
+    /** @var {String} storageKey token */
+    const storageKey = 'bearerAuth';
+    const onTokenChangedListener: ((auth: AuthObject) => void)[] = [];
+    const onLogoutListener: (() => void)[] = [];
+    const onLoginListener: (() => void)[] = [];
+    const cookieStorage = cookieStorageFactory();
 
-    private bearerAuth: AuthObject | null;
-
-    private storageKey = 'bearerAuth';
-
-    private onTokenChangedListener: ((auth: AuthObject) => void)[] = [];
-
-    private onLogoutListener: (() => void)[] = [];
-
-    private onLoginListener: (() => void)[] = [];
-
-    private cookieStorage;
-
-    constructor(
-        httpClient: InitContainer['httpClient'],
-        context: VuexRootState['context']['api'],
-        bearerAuth: AuthObject | null = null,
-    ) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        this.httpClient = httpClient;
-        this.context = context;
-        this.bearerAuth = bearerAuth;
-        this.cookieStorage = this.cookieStorageFactory();
-    }
+    return {
+        loginByUsername,
+        verifyUserByUsername,
+        refreshToken,
+        getToken,
+        getBearerAuthentication,
+        setBearerAuthentication,
+        logout,
+        isLoggedIn,
+        addOnTokenChangedListener,
+        addOnLogoutListener,
+        addOnLoginListener,
+        getStorageKey,
+        notifyOnLoginListener,
+        verifyUserToken,
+    };
 
     /**
      * Helper function to receive a logged in user token
      */
-    verifyUserToken(password: string): Promise<string> {
+    function verifyUserToken(password: string): Promise<string> {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        return this.verifyUserByUsername(Shopware.State.get('session').currentUser.username as string, password)
+        return verifyUserByUsername(Shopware.State.get('session').currentUser.username as string, password)
             .then(({ access }) => {
                 if (Shopware.Utils.types.isString(access)) {
                     return access;
@@ -66,8 +80,8 @@ export class LoginService {
      * Sends an AJAX request to the authentication end point and tries to log in the user with the provided
      * password.
      */
-    loginByUsername(user: string, pass: string): Promise<AuthObject> {
-        return this.httpClient.post<TokenResponse>('/oauth/token', {
+    function loginByUsername(user: string, pass: string): Promise<AuthObject> {
+        return httpClient.post<TokenResponse>('/oauth/token', {
             grant_type: 'password',
             client_id: 'administration',
             scopes: 'write',
@@ -75,9 +89,9 @@ export class LoginService {
             password: pass,
         }, {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            baseURL: this.context.apiPath!,
+            baseURL: context.apiPath!,
         }).then((response) => {
-            const auth = this.setBearerAuthentication({
+            const auth = setBearerAuthentication({
                 access: response.data.access_token,
                 refresh: response.data.refresh_token,
                 expiry: response.data.expires_in,
@@ -92,23 +106,23 @@ export class LoginService {
     /**
      * Sends an AJAX request to the authentication end point and retries to refresh the token.
      */
-    refreshToken(): Promise<AuthObject['access']> {
-        const token = this.getRefreshToken();
+    function refreshToken(): Promise<AuthObject['access']> {
+        const token = getRefreshToken();
 
         if (!token || !token.length) {
             return Promise.reject(new Error('No refresh token found.'));
         }
 
-        return this.httpClient.post<TokenResponse>('/oauth/token', {
+        return httpClient.post<TokenResponse>('/oauth/token', {
             grant_type: 'refresh_token',
             client_id: 'administration',
             scopes: 'write',
             refresh_token: token,
         }, {
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            baseURL: this.context.apiPath!,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            baseURL: context.apiPath!,
         }).then((response) => {
-            this.setBearerAuthentication({
+            setBearerAuthentication({
                 access: response.data.access_token,
                 expiry: response.data.expires_in,
                 refresh: response.data.refresh_token,
@@ -118,8 +132,8 @@ export class LoginService {
         });
     }
 
-    verifyUserByUsername(user: string, pass: string): Promise<AuthObject> {
-        return this.httpClient.post<TokenResponse>('/oauth/token', {
+    function verifyUserByUsername(user: string, pass: string): Promise<AuthObject> {
+        return httpClient.post<TokenResponse>('/oauth/token', {
             grant_type: 'password',
             client_id: 'administration',
             scope: 'user-verified',
@@ -127,7 +141,7 @@ export class LoginService {
             password: pass,
         }, {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            baseURL: this.context.apiPath!,
+            baseURL: context.apiPath!,
         }).then((response) => {
             return {
                 access: response.data.access_token,
@@ -140,29 +154,29 @@ export class LoginService {
     /**
      * Adds an Listener for the onTokenChangedEvent
      */
-    addOnTokenChangedListener(listener: () => void): void {
-        this.onTokenChangedListener.push(listener);
+    function addOnTokenChangedListener(listener: () => void): void {
+        onTokenChangedListener.push(listener);
     }
 
     /**
      * Adds an Listener for the onLogoutEvent
      */
-    addOnLogoutListener(listener: () => void): void {
-        this.onLogoutListener.push(listener);
+    function addOnLogoutListener(listener: () => void): void {
+        onLogoutListener.push(listener);
     }
 
     /**
      * Adds an Listener for the onLoginEvent
      */
-    addOnLoginListener(listener: () => void): void {
-        this.onLoginListener.push(listener);
+    function addOnLoginListener(listener: () => void): void {
+        onLoginListener.push(listener);
     }
 
     /**
      * notifies the listener for the onTokenChangedEvent
      */
-    notifyOnTokenChangedListener(auth: AuthObject): void {
-        this.onTokenChangedListener.forEach((callback) => {
+    function notifyOnTokenChangedListener(auth: AuthObject): void {
+        onTokenChangedListener.forEach((callback) => {
             callback.call(null, auth);
         });
     }
@@ -170,8 +184,8 @@ export class LoginService {
     /**
      * notifies the listener for the onLogoutEvent
      */
-    notifyOnLogoutListener():void {
-        this.onLogoutListener.forEach((callback) => {
+    function notifyOnLogoutListener():void {
+        onLogoutListener.forEach((callback) => {
             callback.call(null);
         });
     }
@@ -180,14 +194,14 @@ export class LoginService {
     /**
      * notifies the listener for the onLoginEvent
      */
-    notifyOnLoginListener(): void[] | null {
+    function notifyOnLoginListener(): void[] | null {
         if (!window.localStorage.getItem('redirectFromLogin')) {
             return null;
         }
 
         window.localStorage.removeItem('redirectFromLogin');
 
-        return this.onLoginListener.map((callback) => {
+        return onLoginListener.map((callback) => {
             return callback.call(null);
         });
     }
@@ -196,17 +210,17 @@ export class LoginService {
      * Saves the bearer authentication object in the cookies using the {@link storageKey} as the
      * object identifier.
      */
-    setBearerAuthentication({ access, refresh, expiry }: AuthObject): AuthObject {
+    function setBearerAuthentication({ access, refresh, expiry }: AuthObject): AuthObject {
         expiry = Math.round(+new Date() / 1000) + expiry;
         const authObject = { access, refresh, expiry };
         if (typeof document !== 'undefined' && typeof document.cookie !== 'undefined') {
-            this.cookieStorage.setItem(this.storageKey, JSON.stringify(authObject));
+            cookieStorage.setItem(storageKey, JSON.stringify(authObject));
         } else {
-            this.bearerAuth = authObject;
+            bearerAuth = authObject;
         }
-        this.notifyOnTokenChangedListener(authObject);
+        notifyOnTokenChangedListener(authObject);
 
-        this.context.authToken = authObject;
+        context.authToken = authObject;
 
         return authObject;
     }
@@ -215,46 +229,47 @@ export class LoginService {
      * Returns saved bearer authentication object. Either you're getting the full object or when you're specifying
      * the `section` argument and getting either the token or the expiry date.
      */
-    getBearerAuthentication<K extends keyof AuthObject>(section: K): AuthObject[K]
+    function getBearerAuthentication<K extends keyof AuthObject>(section: K): AuthObject[K]
 
-    getBearerAuthentication<K extends keyof AuthObject>(section: K | null = null): false | AuthObject | AuthObject[K] {
+    // eslint-disable-next-line max-len
+    function getBearerAuthentication<K extends keyof AuthObject>(section: K | null = null): false | AuthObject | AuthObject[K] {
         if (typeof document !== 'undefined' && typeof document.cookie !== 'undefined') {
             try {
-                this.bearerAuth = JSON.parse(this.cookieStorage.getItem(this.storageKey) as string) as AuthObject;
+                bearerAuth = JSON.parse(cookieStorage.getItem(storageKey) as string) as AuthObject;
             } catch {
-                this.bearerAuth = null;
+                bearerAuth = null;
             }
         }
 
-        this.context.authToken = this.bearerAuth;
+        context.authToken = bearerAuth;
 
-        if (!this.bearerAuth) {
+        if (!bearerAuth) {
             return false;
         }
 
         if (!section) {
-            return this.bearerAuth;
+            return bearerAuth;
         }
 
-        return (this.bearerAuth[section] ? this.bearerAuth[section] : false);
+        return (bearerAuth[section] ? bearerAuth[section] : false);
     }
 
     /**
      * Clears the cookie stored bearer authentication object.
      */
-    logout(): boolean {
+    function logout(): boolean {
         if (typeof document !== 'undefined' && typeof document.cookie !== 'undefined') {
-            this.cookieStorage.removeItem(this.storageKey);
+            cookieStorage.removeItem(storageKey);
 
             // @deprecated tag:v6.5.0 - Was needed for old cookies set without domain
             // eslint-disable-next-line max-len,@typescript-eslint/no-non-null-assertion
-            document.cookie = `bearerAuth=deleted; expires=Thu, 18 Dec 2013 12:00:00 UTC;path=${this.context.basePath! + this.context.pathInfo!}`;
+            document.cookie = `bearerAuth=deleted; expires=Thu, 18 Dec 2013 12:00:00 UTC;path=${context.basePath! + context.pathInfo!}`;
         }
 
-        this.context.authToken = null;
-        this.bearerAuth = null;
+        context.authToken = null;
+        bearerAuth = null;
 
-        this.notifyOnLogoutListener();
+        notifyOnLogoutListener();
 
         return true;
     }
@@ -262,15 +277,15 @@ export class LoginService {
     /**
      * Returns the bearer token
      */
-    getToken(): string {
-        return this.getBearerAuthentication('access');
+    function getToken(): string {
+        return getBearerAuthentication('access');
     }
 
     /**
      * Returns the refresh token
      */
-    getRefreshToken(): string {
-        return this.getBearerAuthentication('refresh');
+    function getRefreshToken(): string {
+        return getBearerAuthentication('refresh');
     }
 
     /**
@@ -280,21 +295,21 @@ export class LoginService {
      * A check for expiration is not possible because the refresh token is longer
      * valid then the normal token.
      */
-    isLoggedIn(): boolean {
-        return !!this.getToken();
+    function isLoggedIn(): boolean {
+        return !!getToken();
     }
 
     /**
      * Returns the storage key.
      */
-    getStorageKey(): string {
-        return this.storageKey;
+    function getStorageKey(): string {
+        return storageKey;
     }
 
     /**
      * Returns a CookieStorage instance with the right domain and path from the context.
      */
-    cookieStorageFactory(): CookieStorage {
+    function cookieStorageFactory(): CookieStorage {
         let domain;
 
         if (typeof window === 'object') {
@@ -306,7 +321,7 @@ export class LoginService {
         }
 
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        const path = this.context.basePath! + this.context.pathInfo!;
+        const path = context.basePath! + context.pathInfo!;
 
         // Set default cookie values
         return new CookieStorage(
@@ -318,12 +333,4 @@ export class LoginService {
             },
         );
     }
-}
-
-export default function createLoginService(
-    httpClient: InitContainer['httpClient'],
-    context: VuexRootState['context']['api'],
-    bearerAuth: AuthObject | null = null,
-): LoginService {
-    return new LoginService(httpClient, context, bearerAuth);
 }

@@ -2,18 +2,23 @@
  * @module core/service/utils/file-reader
  */
 
-function registerPromiseOnFileReader(fileReader, resolve, reject) {
-    fileReader.onerror = () => {
+function registerPromiseOnFileReader(
+    fileReader: FileReader,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolve: (value?: any) => void,
+    reject: (reason?: unknown) => void,
+):void {
+    fileReader.onerror = ():void => {
         fileReader.abort();
         reject(new DOMException('Problem parsing file.'));
     };
 
-    fileReader.onload = () => {
+    fileReader.onload = ():void => {
         resolve(fileReader.result);
     };
 }
 
-function splitFileNameAndExtension(completeFileName) {
+function splitFileNameAndExtension(completeFileName: string): {extension: string | undefined, fileName: string} {
     const fileParts = completeFileName.split('.');
 
     // no dot in filename
@@ -38,7 +43,7 @@ function splitFileNameAndExtension(completeFileName) {
     };
 }
 
-function readFileAsArrayBuffer(inputFile) {
+function readFileAsArrayBuffer<FILE = unknown>(inputFile: Blob): Promise<FILE> {
     const fReader = new FileReader();
 
     return new Promise((resolve, reject) => {
@@ -48,7 +53,7 @@ function readFileAsArrayBuffer(inputFile) {
     });
 }
 
-function readFileAsDataURL(inputFile) {
+function readFileAsDataURL<FILE = unknown>(inputFile: Blob): Promise<FILE> {
     const fReader = new FileReader();
 
     return new Promise((resolve, reject) => {
@@ -58,7 +63,7 @@ function readFileAsDataURL(inputFile) {
     });
 }
 
-function readFileAsText(inputFile) {
+function readFileAsText<FILE = unknown>(inputFile: Blob): Promise<FILE> {
     const fReader = new FileReader();
 
     return new Promise((resolve, reject) => {
@@ -68,22 +73,16 @@ function readFileAsText(inputFile) {
     });
 }
 
-/**
- * @function getNameAndExtensionFromFile
- * @param { File } fileHandle
- * @returns {*} = { extension, fileName }
- */
-function getNameAndExtensionFromFile(fileHandle) {
+function getNameAndExtensionFromFile(fileHandle: File): {extension: string | undefined, fileName: string} {
     return splitFileNameAndExtension(fileHandle.name);
 }
 
-/**
-* @function getNameAndExtensionFromUrl
-* @param { URL } urlObject
-* @returns {*} = { extension, fileName }
-*/
-function getNameAndExtensionFromUrl(urlObject) {
+function getNameAndExtensionFromUrl(urlObject: URL): {extension: string | undefined, fileName: string} {
     let ref = urlObject.href.split('/').pop();
+
+    if (!ref) {
+        throw new Error('Invalid URL');
+    }
 
     const indexOfQueryIndicator = ref.indexOf('?');
     if (indexOfQueryIndicator > 0) {

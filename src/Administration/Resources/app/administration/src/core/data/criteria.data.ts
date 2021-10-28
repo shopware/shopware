@@ -1,7 +1,184 @@
+/* eslint-disable no-use-before-define */
 import { types, object } from 'src/core/service/util.service';
 
+export const enum TotalCountMode {
+    /* no total count will be selected. Should be used if no pagination required (fastest) */
+    'NO_TOTAL_COUNT' = 0,
+    /* exact total count will be selected. Should be used if an exact pagination is required (slow) */
+    'EXACT_TOTAL_COUNT' = 1,
+    /* fetches limit * 5 + 1. Should be used if pagination can work with "next page exists" (fast) */
+    'PAGINATION_TOTAL_COUNT' = 2,
+}
+
+// eslint-disable-next-line @typescript-eslint/no-namespace
+interface Filters {
+    contains: {
+        type: 'contains',
+        field: string,
+        value: string
+    }
+    prefix: {
+        type: 'prefix',
+        field: string,
+        value: string,
+    }
+    suffix: {
+        type: 'suffix',
+        field: string,
+        value: string,
+    }
+    equalsAny: {
+        type: 'equalsAny',
+        field: string,
+        value: string,
+    }
+    equals: {
+        type: 'equals',
+        field: string,
+        value: string|number|boolean|null,
+    }
+    range: {
+        type: 'range',
+        field: string,
+        parameters: {
+            lte?: string,
+            lt?: string,
+            gte?: string,
+            gt?: string,
+        }
+    }
+    not: {
+        type: 'not',
+        operator: 'and'|'or',
+        queries: Query[]
+    }
+    multi: {
+        type: 'multi',
+        operator: 'and'|'or',
+        queries: Query[]
+    }
+}
+
+interface Aggregations {
+    histogram: {
+        type: 'histogram',
+        name: string,
+        field: string,
+        interval: string|null,
+        format: string|null,
+        aggregation: Aggregation|null,
+        timeZone: string|null,
+    }
+    terms: {
+        type: 'terms',
+        name: string,
+        field: string,
+        limit: number|null,
+        sort: Sorting|null,
+        aggregation: Aggregation|null,
+    }
+    sum: {
+        type: 'sum',
+        name: string,
+        field: string,
+    }
+    stats: {
+        type: 'stats',
+        name: string,
+        field: string,
+    }
+    min: {
+        type: 'min',
+        name: string,
+        field: string,
+    }
+    max: {
+        type: 'max',
+        name: string,
+        field: string,
+    }
+    count: {
+        type: 'count',
+        name: string,
+        field: string,
+    }
+    avg: {
+        type: 'avg',
+        name: string,
+        field: string,
+    }
+}
+
+type ValueOf<T> = T[keyof T]
+type SingleFilter = ValueOf<Filters>;
+type Aggregation = ValueOf<Aggregations>;
+interface Filter {
+    type: 'filter',
+    name: string,
+    filter: SingleFilter[],
+    aggregation: Aggregation[],
+}
+interface Association {
+    association: string,
+    criteria: Criteria,
+}
+interface Query {
+    score: number,
+    query: Filter,
+    [scoreField: string]: unknown
+}
+interface Sorting {
+    field: string,
+    order: 'ASC'|'DESC',
+    naturalSorting: boolean
+}
+type GroupField = string;
+interface RequestParams {
+    ids?: string,
+    page?: number,
+    limit?: number,
+    term?: string,
+    query?: Query[],
+    filter?: Filter[],
+    'post-filter'?: Filter[],
+    sort?: Sorting[],
+    aggregations?: Aggregation[],
+    groupFields?: GroupField[],
+    grouping?: string[],
+    associations?: {
+        [association: string]: RequestParams
+    },
+    'total-count-mode'?: TotalCountMode
+}
+
 export default class Criteria {
-    constructor(page = 1, limit = 25) {
+    private page: number | null;
+
+    private limit: number | null;
+
+    private term: string | null;
+
+    private filters: Filter[];
+
+    private ids: string[];
+
+    private queries: Query[];
+
+    private associations: Association[];
+
+    private postFilter: Filter[];
+
+    private sortings: Sorting[];
+
+    private aggregations: Aggregation[];
+
+    private grouping: string[]
+
+    private groupFields: GroupField[];
+
+    private totalCountMode: TotalCountMode | null;
+
+    constructor(page: number|null = 1, limit: number|null = 25) {
         this.page = page;
         this.limit = limit;
         this.term = null;
@@ -14,20 +191,18 @@ export default class Criteria {
         this.aggregations = [];
         this.grouping = [];
         this.groupFields = [];
-        this.totalCountMode = 1;
+        this.totalCountMode = TotalCountMode.EXACT_TOTAL_COUNT;
     }
 
-    static fromCriteria(criteria) {
+    static fromCriteria(criteria: Criteria): Criteria {
         return object.cloneDeep(criteria);
     }
 
     /**
      * Parses the current criteria and generates an object which can be provided to the api
-     *
-     * @return {Object}
      */
-    parse() {
-        const params = {};
+    parse(): RequestParams {
+        const params: RequestParams = {};
 
         if (this.ids.length > 0) {
             params.ids = this.ids.join('|');
@@ -66,6 +241,7 @@ export default class Criteria {
             params.associations = {};
 
             this.associations.forEach((item) => {
+                if (!params.associations) return;
                 params.associations[item.association] = item.criteria.parse();
             });
         }
@@ -79,9 +255,8 @@ export default class Criteria {
 
     /**
      * Allows to provide a list of ids which are used as a filter
-     * @param {Array} ids
      */
-    setIds(ids) {
+    setIds(ids: string[]): this {
         this.ids = ids;
         return this;
     }
@@ -91,10 +266,8 @@ export default class Criteria {
      * 0 - no total count will be selected. Should be used if no pagination required (fastest)
      * 1 - exact total count will be selected. Should be used if an exact pagination is required (slow)
      * 2 - fetches limit * 5 + 1. Should be used if pagination can work with "next page exists" (fast)
-     *
-     * @param {int} mode
      */
-    setTotalCountMode(mode) {
+    setTotalCountMode(mode: TotalCountMode): this {
         if (!types.isNumber(mode)) {
             this.totalCountMode = null;
         }
@@ -103,38 +276,22 @@ export default class Criteria {
         return this;
     }
 
-    /**
-     * @param {int} page
-     * @returns {Criteria}
-     */
-    setPage(page) {
+    setPage(page: number): this {
         this.page = page;
         return this;
     }
 
-    /**
-     * @param {int} limit
-     * @returns {Criteria}
-     */
-    setLimit(limit) {
+    setLimit(limit: number): this {
         this.limit = limit;
         return this;
     }
 
-    /**
-     * @param {String} term
-     * @returns {Criteria}
-     */
-    setTerm(term) {
+    setTerm(term: string): this {
         this.term = term;
         return this;
     }
 
-    /**
-     * @param {Object} filter
-     * @returns {Criteria}
-     */
-    addFilter(filter) {
+    addFilter(filter: Filter): this {
         this.filters.push(filter);
 
         return this;
@@ -143,21 +300,16 @@ export default class Criteria {
     /**
      * Adds the provided filter as post filter.
      * Post filter will be considered for the documents query but not for the aggregations.
-     *
-     * @param {Object} filter
-     * @returns {Criteria}
      */
-    addPostFilter(filter) {
+    addPostFilter(filter: Filter): this {
         this.postFilter.push(filter);
         return this;
     }
 
     /**
      * Allows to add different sortings for the criteria, to sort the entity result.
-     * @param {Object} sorting
-     * @returns {Criteria}
      */
-    addSorting(sorting) {
+    addSorting(sorting: Sorting): this {
         this.sortings.push(sorting);
         return this;
     }
@@ -165,15 +317,9 @@ export default class Criteria {
     /**
      * @see \Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery.
      * These queries are used to search for documents and score them with a ranking
-     *
-     * @param {Object} filter - a filter object like equals, contains, ...
-     * @param {int} score - defines a score if the filter field match
-     * @param {string} scoreField - Allows to define a storage field for the scoring which is used instead of the score
-     *
-     * @returns {Criteria}
      */
-    addQuery(filter, score, scoreField = null) {
-        const query = { score: score, query: filter };
+    addQuery(filter: Filter, score: number, scoreField: string|null = null): this {
+        const query: Query = { score: score, query: filter };
 
         if (scoreField) {
             query[scoreField] = scoreField;
@@ -187,17 +333,15 @@ export default class Criteria {
     /**
      * @param {Object} groupField
      */
-    addGroupField(groupField) {
+    addGroupField(groupField: GroupField): this {
         this.groupFields.push(groupField);
         return this;
     }
 
     /**
      * Allows grouping the result by an specific field
-     * @param {String} field
-     * @returns {Criteria} - self
      */
-    addGrouping(field) {
+    addGrouping(field: string): this {
         this.grouping.push(field);
 
         return this;
@@ -206,7 +350,7 @@ export default class Criteria {
     /**
      * @param {Object} aggregation
      */
-    addAggregation(aggregation) {
+    addAggregation(aggregation: Aggregation): this {
         this.aggregations.push(aggregation);
         return this;
     }
@@ -215,14 +359,14 @@ export default class Criteria {
      * Ensures that a criterion is created for each segment of the passed path.
      * Existing Criteria objects are not overwritten.
      * Returns the own instance
-     * @param {String} path
-     * @returns {Criteria} - self
      */
-    addAssociation(path) {
+    addAssociation(path: string): this {
         const parts = path.split('.');
 
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
         let criteria = this;
         parts.forEach((part) => {
+            // @ts-expect-error
             criteria = criteria.getAssociation(part);
         });
 
@@ -232,13 +376,11 @@ export default class Criteria {
     /**
      * Ensures that a criterion is created for each segment of the passed path.
      * Returns the criteria instance of the last path segment
-     *
-     * @param {String} path
-     * @returns {Criteria}
      */
-    getAssociation(path) {
+    getAssociation(path: string): Criteria {
         const parts = path.split('.');
 
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
         let criteria = this;
         parts.forEach((part) => {
             if (!criteria.hasAssociation(part)) {
@@ -248,17 +390,14 @@ export default class Criteria {
                 });
             }
 
+            // @ts-expect-error
             criteria = criteria.getAssociationCriteria(part);
         });
 
         return criteria;
     }
 
-    /**
-     * @internal
-     * @param {String} part
-     */
-    getAssociationCriteria(part) {
+    getAssociationCriteria(part: string): Criteria|null {
         let criteria = null;
 
         this.associations.forEach((association) => {
@@ -270,169 +409,117 @@ export default class Criteria {
         return criteria;
     }
 
-    /**
-     * @param {String} property
-     * @returns {boolean}
-     */
-    hasAssociation(property) {
-        let exists = false;
-
-        this.associations.forEach((association) => {
-            if (association.association === property) {
-                exists = true;
-            }
+    hasAssociation(property: string): boolean {
+        return this.associations.some((assocation) => {
+            return assocation.association === property;
         });
-
-        return exists;
     }
 
     /**
      * Resets the sorting parameter
      */
-    resetSorting() {
+    resetSorting(): void {
         this.sortings = [];
     }
 
     /**
      * @see \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\AvgAggregation
      * Allows to calculate the avg value for the provided field
-     *
-     * @param {String} name
-     * @param {String} field
-     * @returns {{field: *, name: *, type: string}}
      */
-    static avg(name, field) {
+    static avg(name: string, field: string): Aggregations['avg'] {
         return { type: 'avg', name, field };
     }
 
     /**
      * @see \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\CountAggregation
      * Allows to calculate the count value for the provided field
-     *
-     * @param {String} name
-     * @param {String} field
-     * @returns {{field: *, name: *, type: string}}
      */
-    static count(name, field) {
+    static count(name: string, field: string): Aggregations['count'] {
         return { type: 'count', name, field };
     }
 
     /**
      * @see \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MaxAggregation
      * Allows to calculate the max value for the provided field
-     *
-     * @param {String} name
-     * @param {String} field
-     * @returns {{field: *, name: *, type: string}}
      */
-    static max(name, field) {
+    static max(name: string, field: string): Aggregations['max'] {
         return { type: 'max', name, field };
     }
 
     /**
      * @see \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MinAggregation
      * Allows to calculate the min value for the provided field
-     *
-     * @param {String} name
-     * @param {String} field
-     * @returns {{field: *, name: *, type: string}}
      */
-    static min(name, field) {
+    static min(name: string, field: string): Aggregations['min'] {
         return { type: 'min', name, field };
     }
 
     /**
      * @see \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\StatsAggregation
      * Allows to calculate the sum, max, min, avg, count values for the provided field
-     *
-     * @param {String} name
-     * @param {String} field
-     * @returns {{field: *, name: *, type: string}}
      */
-    static stats(name, field) {
+    static stats(name: string, field: string): Aggregations['stats'] {
         return { type: 'stats', name, field };
     }
 
     /**
      * @see \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\SumAggregation
      * Allows to calculate the sum value for the provided field
-     *
-     * @param {String} name
-     * @param {String} field
-     * @returns {{field: *, name: *, type: string}}
      */
-    static sum(name, field) {
+    static sum(name: string, field: string): Aggregations['sum'] {
         return { type: 'sum', name, field };
     }
 
     /**
      * @see \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation
      * Allows to fetch term buckets for the provided field
-     *
-     * @param {String} name
-     * @param {String} field
-     * @param {Integer|null} limit
-     * @param {Object|null} sort
-     * @param {Object|null} aggregation
-     * @returns {Object}
      */
-    static terms(name, field, limit = null, sort = null, aggregation = null) {
+    static terms(
+        name: string,
+        field: string,
+        limit: number|null = null,
+        sort: Sorting|null = null,
+        aggregation: Aggregation|null = null,
+    ): Aggregations['terms'] {
         return { type: 'terms', name, field, limit, sort, aggregation };
     }
 
     /**
      * @see \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation
      * Allows to filter an aggregation result
-     *
-     * @param {String} name
-     * @param {Array} filter
-     * @param {Object} aggregation
-     * @returns {Object}
      */
-    static filter(name, filter, aggregation) {
+    static filter(name: string, filter: SingleFilter[], aggregation: Aggregation[]): Filter {
         return { type: 'filter', name, filter, aggregation };
     }
 
     /**
      * @see \Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\DateHistogramAggregation
      * Allows to fetch date buckets for the provided date interval
-     *
-     * @param {String} name
-     * @param {String} field
-     * @param {String|null} interval
-     * @param {String|null} format
-     * @param {Object|null} aggregation
-     * @param {String|null} timeZone
-     * @returns {Object}
      */
-    static histogram(name, field, interval, format, aggregation, timeZone) {
+    static histogram(
+        name: string,
+        field: string,
+        interval: string | null,
+        format: string | null,
+        aggregation: Aggregation | null,
+        timeZone: string | null,
+    ): Aggregations['histogram'] {
         return { type: 'histogram', name, field, interval, format, aggregation, timeZone };
     }
 
     /**
      * @see \Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting.
      * Allows to sort the documents by the provided field
-     *
-     * @param {string} field
-     * @param {string} order - ASC/DESC
-     * @param {boolean} naturalSorting
-     *
-     * @returns {Object}
      */
-    static sort(field, order = 'ASC', naturalSorting = false) {
+    static sort(field: string, order:Sorting['order'] = 'ASC', naturalSorting = false): Sorting {
         return { field, order, naturalSorting };
     }
 
     /**
      * @see \Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting.
      * Allows to sort the documents by the provided field naturally
-     *
-     * @param {string} field
-     * @param {string} order - ASC/DESC
-     *
-     * @returns {Object}
      */
-    static naturalSorting(field, order = 'ASC') {
+    static naturalSorting(field: string, order:Sorting['order'] = 'ASC'): Sorting {
         return { field, order, naturalSorting: true };
     }
 
@@ -441,13 +528,8 @@ export default class Criteria {
      * This allows to filter documents where the value are contained in the provided field.
      *
      * Sql representation: `{field} LIKE %{value}%`
-     *
-     * @param {string} field
-     * @param {string} value
-     *
-     * @returns {Object}
      */
-    static contains(field, value) {
+    static contains(field: string, value: string): Filters['contains'] {
         return { type: 'contains', field, value };
     }
 
@@ -456,13 +538,8 @@ export default class Criteria {
      * This allows to filter documents where the value marks the beginning of the provided field.
      *
      * Sql representation: `{field} LIKE {value}%`
-     *
-     * @param {string} field
-     * @param {string} value
-     *
-     * @returns {Object}
      */
-    static prefix(field, value) {
+    static prefix(field: string, value: string): Filters['prefix'] {
         return { type: 'prefix', field, value };
     }
 
@@ -471,13 +548,8 @@ export default class Criteria {
      * This allows to filter documents where the value marks the end of the provided field.
      *
      * Sql representation: `{field} LIKE %{value}`
-     *
-     * @param {string} field
-     * @param {string} value
-     *
-     * @returns {Object}
      */
-    static suffix(field, value) {
+    static suffix(field: string, value: string): Filters['suffix'] {
         return { type: 'suffix', field, value };
     }
 
@@ -486,12 +558,8 @@ export default class Criteria {
      * This allows to filter documents where the field matches one of the provided values
      *
      * Sql representation: `{field} IN ({value}, {value})`
-     *
-     * @param {string} field
-     * @param {array} value
-     * @returns {Object}}
      */
-    static equalsAny(field, value) {
+    static equalsAny(field: string, value: (string|number|boolean|null)[]): Filters['equalsAny'] {
         return { type: 'equalsAny', field, value: value.join('|') };
     }
 
@@ -500,13 +568,8 @@ export default class Criteria {
      * This allows to filter documents where the field matches a defined range
      *
      * Sql representation: `{field} >= {value}`, `{field} <= {value}`, ...
-     *
-     * @param {string} field
-     * @param {object} range
-     *
-     * @returns {Object}}
      */
-    static range(field, range) {
+    static range(field: string, range: Filters['range']['parameters']): Filters['range'] {
         return { type: 'range', field, parameters: range };
     }
 
@@ -515,13 +578,8 @@ export default class Criteria {
      * This allows to filter documents where the field matches a defined range
      *
      * Sql representation: `{field} = {value}`
-     *
-     * @param {string} field
-     * @param {string|number|boolean|null} value
-     *
-     * @returns {Object}}
      */
-    static equals(field, value) {
+    static equals(field: string, value: string|number|boolean|null): Filters['equals'] {
         return { type: 'equals', field, value };
     }
 
@@ -537,7 +595,7 @@ export default class Criteria {
      *
      * @returns {Object}}
      */
-    static not(operator, queries = []) {
+    static not(operator: Filters['not']['operator'], queries = []): Filters['not'] {
         return { type: 'not', operator: operator, queries: queries };
     }
 
@@ -553,7 +611,7 @@ export default class Criteria {
      *
      * @returns {Object}}
      */
-    static multi(operator, queries = []) {
+    static multi(operator: Filters['multi']['operator'], queries = []): Filters['multi'] {
         return { type: 'multi', operator, queries };
     }
 }

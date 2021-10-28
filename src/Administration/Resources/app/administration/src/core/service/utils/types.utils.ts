@@ -32,11 +32,8 @@ export default {
 
 /**
  * Checks if a value is undefined
- *
- * @param {*} value
- * @returns {Boolean}
  */
-export function isUndefined(value) {
+export function isUndefined(value: unknown): boolean {
     return typeof value === 'undefined';
 }
 

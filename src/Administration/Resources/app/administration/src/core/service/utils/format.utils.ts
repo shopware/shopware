@@ -1,3 +1,4 @@
+// @ts-expect-error
 import MD5 from 'md5-es';
 
 /**
@@ -11,6 +12,10 @@ export default {
     toISODate,
 };
 
+interface CurrencyOptions extends Intl.NumberFormatOptions {
+    language?: string
+}
+
 /**
  * Converts a Number to a formatted currency. Especially helpful for template filters.
  * Defaults to the currencyISOCode of the standard currency and locale of the user.
@@ -21,7 +26,7 @@ export default {
  * @param {Object} additionalOptions
  * @returns {string} Formatted string
  */
-export function currency(val, sign, decimalPlaces, additionalOptions = {}) {
+export function currency(val: number, sign: string, decimalPlaces: number, additionalOptions: CurrencyOptions = {}): string {
     const decimalOpts = decimalPlaces !== undefined ? {
         minimumFractionDigits: decimalPlaces,
         maximumFractionDigits: decimalPlaces,
@@ -32,11 +37,12 @@ export function currency(val, sign, decimalPlaces, additionalOptions = {}) {
 
     const opts = {
         style: 'currency',
-        currency: sign || Shopware.Context.app.systemCurrencyISOCode,
+        currency: sign || Shopware.Context.app.systemCurrencyISOCode as string,
         ...decimalOpts,
         ...additionalOptions,
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-argument
     return val.toLocaleString((additionalOptions.language ?? Shopware.State.get('session').currentLocale) ?? 'en-US', opts);
 }
 
@@ -47,7 +53,7 @@ export function currency(val, sign, decimalPlaces, additionalOptions = {}) {
  * @param {Object} options
  * @returns {string}
  */
-export function date(val, options = {}) {
+export function date(val: string, options = {}): string {
     // should return an empty string when no date is given
     if (!val) {
         return '';
@@ -56,13 +62,16 @@ export function date(val, options = {}) {
     const givenDate = new Date(val);
 
     // check if given date value is valid
+    // @ts-expect-error
     // eslint-disable-next-line
     if (isNaN(givenDate)) {
         return '';
     }
 
-    const lastKnownLang = Shopware.Application.getContainer('factory').locale.getLastKnownLocale();
-    const userTimeZone = Shopware?.State?.get('session')?.currentUser?.timeZone ?? 'UTC';
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+    const lastKnownLang = Shopware.Application.getContainer('factory').locale.getLastKnownLocale() as string;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const userTimeZone = Shopware?.State?.get('session')?.currentUser?.timeZone as string ?? 'UTC';
 
     const dateTimeFormatter = new Intl.DateTimeFormat(lastKnownLang, {
         timeZone: userTimeZone,
@@ -83,21 +92,19 @@ export function date(val, options = {}) {
  * @param {String} value
  * @return {String}
  */
-export function md5(value) {
-    return MD5.hash(value);
+export function md5(value: string): string {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+    return MD5.hash(value) as string;
 }
 
 /**
  * Formats a number of bytes to a string with a unit
- *
- * @param {int} bytes
- * @returns {string}
  */
-export function fileSize(bytes, locale = 'de-DE') {
+export function fileSize(bytes: number, locale = 'de-DE'): string {
     const denominator = 1024;
     const units = ['B', 'KB', 'MB', 'GB'];
 
-    let result = Number.parseInt(bytes, 10);
+    let result = Number.parseInt(String(bytes), 10);
     let i = 0;
 
     for (; i < units.length; i += 1) {
@@ -110,15 +117,13 @@ export function fileSize(bytes, locale = 'de-DE') {
         result = currentResult;
     }
 
+    // @ts-expect-error
     return `${result.toFixed(2).toLocaleString(locale)}${units[i]}`;
 }
 
-/**
- * @param {Date} dateObj
- * @param {bool} useTime
- */
-export function toISODate(dateObj, useTime = true) {
+export function toISODate(dateObj: Date, useTime = true): string {
     const isoDate = dateObj.toISOString();
 
     return useTime ? isoDate : isoDate.split('T')[0];
 }
+

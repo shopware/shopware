@@ -191,6 +191,8 @@ module.exports = {
                 '@typescript-eslint/explicit-module-boundary-types': 0,
                 '@typescript-eslint/explicit-function-return-type': 'error',
                 '@typescript-eslint/prefer-ts-expect-error': 'error',
+                'no-shadow': 'off',
+                '@typescript-eslint/no-shadow': ['error'],
                 'import/extensions': [
                     'error',
                     'ignorePackages',

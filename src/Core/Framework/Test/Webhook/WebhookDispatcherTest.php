@@ -107,6 +107,11 @@ class WebhookDispatcherTest extends TestCase
         static::assertEquals('POST', $request->getMethod());
         $body = $request->getBody()->getContents();
         static::assertJson($body);
+
+        $payload = json_decode($body, true);
+        static::assertArrayHasKey('timestamp', $payload);
+        unset($payload['timestamp']);
+
         static::assertEquals([
             'data' => [
                 'payload' => [
@@ -117,7 +122,7 @@ class WebhookDispatcherTest extends TestCase
             'source' => [
                 'url' => $this->shopUrl,
             ],
-        ], json_decode($body, true));
+        ], $payload);
 
         static::assertFalse($request->hasHeader('shopware-shop-signature'));
     }
@@ -168,6 +173,10 @@ class WebhookDispatcherTest extends TestCase
             /** @var Request $request */
             $request = $historyEntry['request'];
 
+            $payload = json_decode($request->getBody()->getContents(), true);
+            static::assertArrayHasKey('timestamp', $payload);
+            unset($payload['timestamp']);
+
             static::assertEquals(
                 [
                     'data' => [
@@ -180,7 +189,7 @@ class WebhookDispatcherTest extends TestCase
                         'url' => $this->shopUrl,
                     ],
                 ],
-                \json_decode($request->getBody()->getContents(), true)
+                $payload
             );
         }
     }
@@ -264,6 +273,8 @@ class WebhookDispatcherTest extends TestCase
         $payload = json_decode($body, true);
         $actualUpdatedFields = $payload['data']['payload'][0]['updatedFields'];
         unset($payload['data']['payload'][0]['updatedFields']);
+        static::assertArrayHasKey('timestamp', $payload);
+        unset($payload['timestamp']);
 
         static::assertEquals([
             'data' => [
@@ -470,6 +481,10 @@ class WebhookDispatcherTest extends TestCase
         $body = $request->getBody()->getContents();
         static::assertJson($body);
 
+        $data = json_decode($body, true);
+        static::assertArrayHasKey('timestamp', $data);
+        unset($data['timestamp']);
+
         static::assertEquals([
             'data' => [
                 'payload' => [
@@ -482,7 +497,7 @@ class WebhookDispatcherTest extends TestCase
                 'appVersion' => '0.0.1',
                 'shopId' => $this->shopIdProvider->getShopId(),
             ],
-        ], json_decode($body, true));
+        ], $data);
 
         static::assertEquals(
             hash_hmac('sha256', $body, 's3cr3t'),
@@ -685,7 +700,8 @@ class WebhookDispatcherTest extends TestCase
         $data = json_decode($body, true);
         static::assertEquals('first', $data['data']['payload']['customer']['firstName']);
         static::assertEquals('last', $data['data']['payload']['customer']['lastName']);
-        unset($data['data']['payload']['customer']);
+        static::assertArrayHasKey('timestamp', $data);
+        unset($data['timestamp'], $data['data']['payload']['customer']);
         static::assertEquals([
             'data' => [
                 'payload' => [
@@ -901,6 +917,8 @@ class WebhookDispatcherTest extends TestCase
         static::assertJson($body);
 
         $data = json_decode($body, true);
+        static::assertArrayHasKey('timestamp', $data);
+        unset($data['timestamp']);
 
         static::assertEquals([
             'data' => [
@@ -1042,6 +1060,8 @@ class WebhookDispatcherTest extends TestCase
         static::assertJson($body);
 
         $data = json_decode($body, true);
+        static::assertArrayHasKey('timestamp', $data);
+        unset($data['timestamp']);
 
         static::assertEquals([
             'data' => [
@@ -1125,6 +1145,8 @@ class WebhookDispatcherTest extends TestCase
         static::assertJson($body);
 
         $data = json_decode($body, true);
+        static::assertArrayHasKey('timestamp', $data);
+        unset($data['timestamp']);
 
         static::assertEquals([
             'data' => [

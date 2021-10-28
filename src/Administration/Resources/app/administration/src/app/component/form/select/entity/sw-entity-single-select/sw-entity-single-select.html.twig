@@ -119,6 +119,14 @@
                             </template>
                         </slot>
                         {% endblock %}
+                        {% block sw_entity_multi_select_base_results_list_result_description %}
+                        <template #description>
+                            <slot
+                                name="result-description-property"
+                                v-bind="{ item, searchTerm, highlightSearchTerm }"
+                            ></slot>
+                        </template>
+                        {% endblock %}
                     </li>
                 </slot>
             </template>

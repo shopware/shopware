@@ -66,9 +66,10 @@ $sw-select-result-disabled-color-text: darken($color-gray-300, 15%);
 
         .sw-select-result__result-item-description {
             width: 100%;
-            font-size: 12px;
             color: $color-gray-600;
             grid-column-start: 1;
+            line-height: 14px;
+            padding-top: 8px;
         }
     }
 

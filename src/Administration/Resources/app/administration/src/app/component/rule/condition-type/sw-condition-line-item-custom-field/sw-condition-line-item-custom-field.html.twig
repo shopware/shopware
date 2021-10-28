@@ -1,8 +1,15 @@
 {% block sw_condition_value_content %}
-<div class="sw-condition-line-item-custom-field sw-condition__condition-value">
-
+{# @feature-deprecated (FEATURE_NEXT_16800) tag:v6.5.0 - remove has--2-col class and change scss #}
+<div
+    class="sw-condition-line-item-custom-field sw-condition__condition-value"
+    :class="{ 'has--2-col': feature.isActive('FEATURE_NEXT_16800') }"
+>
+    {# @feature-deprecated (FEATURE_NEXT_16800) tag:v6.5.0 - block will be removed #}
     {% block sw_condition_line_item_custom_field_fieldset %}
-    <sw-arrow-field :disabled="disabled">
+    <sw-arrow-field
+        v-if="!feature.isActive('FEATURE_NEXT_16800')"
+        :disabled="disabled"
+    >
         <sw-entity-single-select
             ref="selectedFieldSet"
             v-model="selectedFieldSet"
@@ -25,7 +32,7 @@
     {% endblock %}
     {% block sw_condition_line_item_custom_field_field %}
     <sw-arrow-field
-        v-if="selectedFieldSet"
+        v-if="selectedFieldSet || feature.isActive('FEATURE_NEXT_16800')"
         :disabled="disabled"
     >
         <sw-entity-single-select
@@ -44,6 +51,14 @@
             </template>
             <template #result-label-property="slotProps">
                 {{ getInlineSnippet(slotProps.item.config.label) || slotProps.item.name }}
+            </template>
+            <template
+                v-if="feature.isActive('FEATURE_NEXT_16800')"
+                #result-description-property="slotProps"
+            >
+                {% block sw_condition_line_item_custom_field_field_description %}
+                {{ getInlineSnippet(slotProps.item.customFieldSet.config.label) || slotProps.item.customFieldSet.name }}
+                {% endblock %}
             </template>
         </sw-entity-single-select>
     </sw-arrow-field>

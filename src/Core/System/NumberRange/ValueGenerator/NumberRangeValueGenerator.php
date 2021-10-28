@@ -119,31 +119,33 @@ class NumberRangeValueGenerator implements NumberRangeValueGeneratorInterface
 
         if ($configurationCollection->count() === 1) {
             $this->configuration = $configurationCollection->first();
+
+            return;
+        }
+
+        //get Fallback Configuration
+        $criteria = new Criteria();
+        $criteria->addFilter(
+            new MultiFilter(
+                MultiFilter::CONNECTION_AND,
+                [
+                    new EqualsFilter('number_range.global', 1),
+                    new EqualsFilter('number_range.type.technicalName', $definition),
+                ]
+            )
+        );
+        $criteria->setLimit(1);
+
+        $configurationCollection = $this->entityReader->read(
+            $this->numberRangeDefinition,
+            $criteria,
+            $context
+        );
+
+        if ($configurationCollection->count() === 1) {
+            $this->configuration = $configurationCollection->first();
         } else {
-            //get Fallback Configuration
-            $criteria = new Criteria();
-            $criteria->addFilter(
-                new MultiFilter(
-                    MultiFilter::CONNECTION_AND,
-                    [
-                        new EqualsFilter('number_range.global', 1),
-                        new EqualsFilter('number_range.type.technicalName', $definition),
-                    ]
-                )
-            );
-            $criteria->setLimit(1);
-
-            $configurationCollection = $this->entityReader->read(
-                $this->numberRangeDefinition,
-                $criteria,
-                $context
-            );
-
-            if ($configurationCollection->count() === 1) {
-                $this->configuration = $configurationCollection->first();
-            } else {
-                throw new NoConfigurationException($definition, $salesChannelId);
-            }
+            throw new NoConfigurationException($definition, $salesChannelId);
         }
     }
 

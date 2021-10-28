@@ -88,6 +88,9 @@ Component.register('sw-sales-channel-detail-base', {
             isFileNameChecking: false,
             disableGenerateByCronjob: false,
             knownIps: [],
+            mainCategoriesCollection: null,
+            footerCategoriesCollection: null,
+            serviceCategoriesCollection: null,
         };
     },
 
@@ -349,11 +352,51 @@ Component.register('sw-sales-channel-detail-base', {
                 'salesChannelDomainId',
                 'currencyId',
             ]),
+
+        categoryRepository() {
+            return this.repositoryFactory.create('category');
+        },
+
+        mainCategoryCriteria() {
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.equals('id', this.salesChannel.navigationCategoryId || null));
+
+            return criteria;
+        },
+
+        footerCategoryCriteria() {
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.equals('id', this.salesChannel.footerCategoryId || null));
+
+            return criteria;
+        },
+
+        serviceCategoryCriteria() {
+            const criteria = new Criteria();
+            criteria.addFilter(Criteria.equals('id', this.salesChannel.serviceCategoryId || null));
+
+            return criteria;
+        },
+
+        mainCategories() {
+            return this.mainCategoriesCollection ? this.mainCategoriesCollection : [];
+        },
+
+        footerCategories() {
+            return this.footerCategoriesCollection ? this.footerCategoriesCollection : [];
+        },
+
+        serviceCategories() {
+            return this.serviceCategoriesCollection ? this.serviceCategoriesCollection : [];
+        },
     },
 
     watch: {
         'productExport.fileName'() {
             this.onChangeFileName();
+        },
+        salesChannel() {
+            this.createCategoryCollections();
         },
     },
 
@@ -361,6 +404,8 @@ Component.register('sw-sales-channel-detail-base', {
         this.knownIpsService.getKnownIps().then(ips => {
             this.knownIps = ips;
         });
+
+        this.createCategoryCollections();
     },
 
     methods: {
@@ -516,6 +561,44 @@ Component.register('sw-sales-channel-detail-base', {
             if (this.disableGenerateByCronjob) {
                 this.productExport.generateByCronjob = false;
             }
+        },
+
+        createCategoryCollections() {
+            if (!this.salesChannel) {
+                return;
+            }
+
+            this.createCategoriesCollection(this.mainCategoryCriteria, 'mainCategoriesCollection');
+            this.createCategoriesCollection(this.footerCategoryCriteria, 'footerCategoriesCollection');
+            this.createCategoriesCollection(this.serviceCategoryCriteria, 'serviceCategoriesCollection');
+        },
+
+        async createCategoriesCollection(criteria, collectionName) {
+            this[collectionName] = await this.categoryRepository.search(criteria, Shopware.Context.api);
+        },
+
+        onMainSelectionAdd(item) {
+            this.salesChannel.navigationCategoryId = item.id;
+        },
+
+        onMainSelectionRemove() {
+            this.salesChannel.navigationCategoryId = null;
+        },
+
+        onFooterSelectionAdd(item) {
+            this.salesChannel.footerCategoryId = item.id;
+        },
+
+        onFooterSelectionRemove() {
+            this.salesChannel.footerCategoryId = null;
+        },
+
+        onServiceSelectionAdd(item) {
+            this.salesChannel.serviceCategoryId = item.id;
+        },
+
+        onServiceSelectionRemove() {
+            this.salesChannel.serviceCategoryId = null;
         },
 
         buildDisabledAlert(snippet, collection, property = 'name') {

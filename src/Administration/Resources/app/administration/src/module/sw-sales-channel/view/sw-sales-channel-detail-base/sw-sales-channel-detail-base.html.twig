@@ -78,19 +78,20 @@
         >
 
             {% block sw_sales_channel_detail_base_general_input_navigation_category %}
-            <sw-entity-single-select
-                v-if="!isProductComparison"
+            <sw-category-tree-field
                 id="navigationCategoryId"
-                v-model="salesChannel.navigationCategoryId"
                 required
-                show-clearable-button
-                class="sw-sales-channel-detail__select-navigation-category-id"
+                v-if="!isProductComparison"
+                :categories-collection="mainCategories"
+                :placeholder="$tc('sw-category.base.link.categoryPlaceholder')"
+                :single-select="true"
                 :label="$tc('sw-sales-channel.detail.navigationCategoryId')"
-                :criteria="mainNavigationCriteria"
-                :help-text="$tc('sw-sales-channel.detail.navigationCategoryHelpText')"
                 :disabled="!acl.can('sales_channel.editor')"
+                :help-text="$tc('sw-sales-channel.detail.navigationCategoryHelpText')"
                 :error="salesChannelNavigationCategoryIdError"
-                entity="category"
+                class="sw-sales-channel-detail__select-navigation-category-id"
+                @selection-add="onMainSelectionAdd"
+                @selection-remove="onMainSelectionRemove"
             />
             {% endblock %}
 
@@ -108,28 +109,30 @@
         {% endblock %}
 
         {% block sw_sales_channel_detail_base_general_input_footer_category %}
-        <sw-entity-single-select
+        <sw-category-tree-field
             v-if="!isProductComparison"
-            id="footerCategoryId"
-            v-model="salesChannel.footerCategoryId"
-            class="sw-sales-channel-detail__select-footer-category-id"
+            :categories-collection="footerCategories"
+            :placeholder="$tc('sw-category.base.link.categoryPlaceholder')"
+            :single-select="true"
             :label="$tc('sw-sales-channel.detail.footerCategory')"
             :disabled="!acl.can('sales_channel.editor')"
-            entity="category"
-            show-clearable-button
+            class="sw-sales-channel-detail__select-footer-category-id"
+            @selection-add="onFooterSelectionAdd"
+            @selection-remove="onFooterSelectionRemove"
         />
         {% endblock %}
 
         {% block sw_sales_channel_detail_base_general_input_service_category %}
-        <sw-entity-single-select
+        <sw-category-tree-field
             v-if="!isProductComparison"
-            id="serviceCategoryId"
-            v-model="salesChannel.serviceCategoryId"
-            class="sw-sales-channel-detail__select-service-category-id"
+            :categories-collection="serviceCategories"
+            :placeholder="$tc('sw-category.base.link.categoryPlaceholder')"
+            :single-select="true"
             :label="$tc('sw-sales-channel.detail.serviceCategory')"
             :disabled="!acl.can('sales_channel.editor')"
-            entity="category"
-            show-clearable-button
+            class="sw-sales-channel-detail__select-service-category-id"
+            @selection-add="onServiceSelectionAdd"
+            @selection-remove="onServiceSelectionRemove"
         />
         {% endblock %}
 

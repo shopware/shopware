@@ -26,7 +26,7 @@ export default class CookieStorageHelper {
         date.setTime(date.getTime() + (expirationDays * 24 * 60 * 60 * 1000));
 
         let secure = '';
-        if (location.protocol === "https:") {
+        if (location.protocol === 'https:') {
             secure = 'secure';
         }
 

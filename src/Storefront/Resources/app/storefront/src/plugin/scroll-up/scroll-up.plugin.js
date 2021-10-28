@@ -1,6 +1,5 @@
 import Plugin from 'src/plugin-system/plugin.class';
 import Debouncer from 'src/helper/debouncer.helper';
-import DeviceDetection from 'src/helper/device-detection.helper';
 
 export default class ScrollUpPlugin extends Plugin {
 
@@ -39,12 +38,10 @@ export default class ScrollUpPlugin extends Plugin {
      * @private
      */
     _registerEvents() {
-        const submitEvent = (DeviceDetection.isTouchDevice()) ? 'touchstart' : 'click';
-
         if (this._button) {
             this._toggleVisibility();
 
-            this._button.addEventListener(submitEvent, () => {
+            this._button.addEventListener('click', () => {
                 this._scrollToTop();
 
                 this.$emitter.publish('onClickButton');

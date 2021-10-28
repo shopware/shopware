@@ -16,6 +16,7 @@ export default {
         stateMachineState: [],
         documentTypes: [],
         mailTemplates: [],
+        customerGroups: [],
     },
 
     mutations: {
@@ -83,6 +84,10 @@ export default {
 
         setDocumentTypes(state, documentTypes) {
             state.documentTypes = documentTypes;
+        },
+
+        setCustomerGroups(state, customerGroups) {
+            state.customerGroups = customerGroups;
         },
 
         setMailTemplates(state, mailTemplates) {

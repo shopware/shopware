@@ -10,7 +10,7 @@ const { mapState, mapGetters } = Component.getComponentHelper();
 Component.register('sw-flow-sequence-action', {
     template,
 
-    inject: ['repositoryFactory', 'flowBuilderService'],
+    inject: ['repositoryFactory', 'flowBuilderService', 'feature'],
 
     props: {
         sequence: {
@@ -80,15 +80,30 @@ Component.register('sw-flow-sequence-action', {
         },
 
         actionDescription() {
-            return {
+            const actionDescription = {
                 [ACTION.STOP_FLOW]: () => this.$tc('sw-flow.actions.textStopFlowDescription'),
                 [ACTION.SET_ORDER_STATE]: (config) => this.getSetOrderStateDescription(config),
                 [ACTION.GENERATE_DOCUMENT]: (config) => this.getGenerateDocumentDescription(config),
                 [ACTION.MAIL_SEND]: (config) => this.getMailSendDescription(config),
             };
+
+            if (this.feature.isActive('FEATURE_NEXT_17973')) {
+                actionDescription[ACTION.CHANGE_CUSTOMER_GROUP] = (config) => this.getCustomerGroupDescription(config);
+            }
+
+            return actionDescription;
         },
 
-        ...mapState('swFlowState', ['invalidSequences', 'stateMachineState', 'documentTypes', 'mailTemplates']),
+        ...mapState(
+            'swFlowState',
+            [
+                'invalidSequences',
+                'stateMachineState',
+                'documentTypes',
+                'mailTemplates',
+                'customerGroups',
+            ],
+        ),
         ...mapGetters('swFlowState', ['availableActions']),
     },
 
@@ -325,6 +340,13 @@ Component.register('sw-flow-sequence-action', {
             return this.$tc('sw-flow.modals.document.documentDescription', 0, {
                 documentType: documentType?.translated?.name,
             });
+        },
+
+        getCustomerGroupDescription(config) {
+            const customerGroup = this.customerGroups.find(item => item.id === config.customerGroupId);
+            return `${this.$tc('sw-flow.modals.customerGroup.customerGroupDescription', 0, {
+                customerGroup: customerGroup?.translated?.name,
+            })}`;
         },
 
         getMailSendDescription(config) {

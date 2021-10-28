@@ -75,6 +75,7 @@
       "mailSend": "Send email",
       "setOrderState": "Set status",
       "stopFlow": "Stop flow",
+      "changeCustomerGroup": "Change customer group",
       "textStopFlowDescription": "Subsequent actions/ sequences will not be executed.",
       "labelDescription": "Description: {description}",
       "contextButton": {
@@ -137,6 +138,12 @@
         "labelDocumentType": "Document type",
         "placeholderDocumentType": "Select document type ...",
         "documentDescription": "Document type: {documentType}"
+      },
+      "customerGroup": {
+        "titleChangeCustomerGroup": "Change customer group",
+        "labelCustomerGroup": "Customer group",
+        "placeholderCustomerGroup": "Select customer group ...",
+        "customerGroupDescription": "Customer group: {customerGroup}"
       },
       "mail": {
         "columnRecipientName": "Name",

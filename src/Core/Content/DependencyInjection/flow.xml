@@ -50,6 +50,13 @@
             <tag name="flow.action" priority="700" />
         </service>
 
+        <service id="Shopware\Core\Content\Flow\Dispatching\Action\ChangeCustomerGroupAction">
+            <argument type="service" id="customer.repository" />
+            <tag name="kernel.event_subscriber" />
+            <tag name="flow.action" priority="690" />
+            <tag name="shopware.feature" flag="FEATURE_NEXT_17973"/>
+        </service>
+
         <service id="Shopware\Core\Content\Flow\Dispatching\Action\SendMailAction">
             <argument type="service" id="Shopware\Core\Content\Mail\Service\MailService"/>
             <argument type="service" id="mail_template.repository"/>

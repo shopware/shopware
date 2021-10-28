@@ -12,6 +12,7 @@ export default function flowBuilderService() {
         mailSend: 'default-communication-envelope',
         setOrderState: 'default-shopping-plastic-bag',
         generateDocument: 'default-documentation-file',
+        changeCustomerGroup: 'default-avatar-multiple',
         stopFlow: 'default-basic-x-circle',
     };
 
@@ -21,6 +22,7 @@ export default function flowBuilderService() {
         mailSend: 'sw-flow.actions.mailSend',
         setOrderState: 'sw-flow.actions.setOrderState',
         generateDocument: 'sw-flow.actions.generateDocument',
+        changeCustomerGroup: 'sw-flow.actions.changeCustomerGroup',
         stopFlow: 'sw-flow.actions.stopFlow',
     };
 

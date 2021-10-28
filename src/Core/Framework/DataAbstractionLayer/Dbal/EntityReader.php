@@ -403,7 +403,7 @@ class EntityReader implements EntityReaderInterface
 
         $ids = array_values($collection->getIds());
 
-        $isInheritanceAware = $definition->isInheritanceAware();
+        $isInheritanceAware = $definition->isInheritanceAware() && $context->considerInheritance();
 
         if ($isInheritanceAware) {
             $parentIds = $collection->map(function (Entity $entity) {
@@ -487,8 +487,19 @@ class EntityReader implements EntityReaderInterface
         $fieldCriteria->resetSorting();
         $fieldCriteria->addSorting(...$sorting);
 
-        //add terms query to filter reference table to loaded root entities: `customer_address.customerId IN (:loadedIds)`
-        $fieldCriteria->addFilter(new EqualsAnyFilter($propertyAccessor, array_values($collection->getIds())));
+        $ids = array_values($collection->getIds());
+
+        $isInheritanceAware = $definition->isInheritanceAware() && $context->considerInheritance();
+
+        if ($isInheritanceAware) {
+            $parentIds = array_values(array_filter($collection->map(function (Entity $entity) {
+                return $entity->get('parentId');
+            })));
+
+            $ids = array_unique(array_merge($ids, $parentIds));
+        }
+
+        $fieldCriteria->addFilter(new EqualsAnyFilter($propertyAccessor, $ids));
 
         $mapping = $this->fetchPaginatedOneToManyMapping($definition, $association, $context, $collection, $fieldCriteria);
 
@@ -823,6 +834,15 @@ class EntityReader implements EntityReaderInterface
                 return Uuid::fromHexToBytes($entity->getUniqueIdentifier());
             }
         );
+
+        if ($definition->isInheritanceAware() && $context->considerInheritance()) {
+            /** @var Entity $entity */
+            foreach ($collection->getElements() as $entity) {
+                if ($entity->get('parentId')) {
+                    $bytes[$entity->get('parentId')] = Uuid::fromHexToBytes($entity->get('parentId'));
+                }
+            }
+        }
 
         $wrapper->setParameter('rootIds', $bytes, Connection::PARAM_STR_ARRAY);
 

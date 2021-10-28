@@ -99,7 +99,9 @@ You may use this link to edit your order, change the payment method or make addi
 <p>
     <br>
     <br>
-    Shipping costs: {{ order.deliveries.first.shippingCosts.totalPrice|currency(currencyIsoCode) }}<br>
+    {% for shippingCost in order.deliveries %}
+        Shipping costs: {{ shippingCost.shippingCosts.totalPrice|currency(currencyIsoCode) }}<br>
+    {% endfor %}
 
     Net total: {{ order.amountNet|currency(currencyIsoCode) }}<br>
     {% for calculatedTax in order.price.calculatedTaxes %}

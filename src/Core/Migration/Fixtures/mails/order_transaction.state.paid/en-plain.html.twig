@@ -24,7 +24,9 @@ Pos.   Prod. No.			Description			Quantities			Price			Total
     {% set decimals = order.itemRounding.decimals %}
 {% endif %}
 
-Shipping costs: {{ order.deliveries.first.shippingCosts.totalPrice|currency(currencyIsoCode) }}
+{% for shippingCost in order.deliveries %}
+    Shipping costs: {{ shippingCost.shippingCosts.totalPrice|currency(currencyIsoCode) }}<br>
+{% endfor %}
 Net total: {{ order.amountNet|currency(currencyIsoCode) }}
 {% for calculatedTax in order.price.calculatedTaxes %}
 {% if order.taxStatus is same as('net') %}plus{% else %}including{% endif %} {{ calculatedTax.taxRate }}% VAT. {{ calculatedTax.tax|currency(currencyIsoCode) }}

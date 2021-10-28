@@ -90,7 +90,7 @@ Component.register('sw-order-detail-base', {
 
         transaction() {
             for (let i = 0; i < this.order.transactions.length; i += 1) {
-                if (this.order.transactions[i].stateMachineState.technicalName !== 'cancelled') {
+                if (!['cancelled', 'failed'].includes(this.order.transactions[i].stateMachineState.technicalName)) {
                     return this.order.transactions[i];
                 }
             }

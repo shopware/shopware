@@ -62,6 +62,12 @@ Component.register('sw-sales-channel-defaults-select', {
             required: false,
             default: undefined,
         },
+
+        disabledTooltipMessage: {
+            type: String,
+            required: false,
+            default: '',
+        },
     },
 
     computed: {
@@ -191,6 +197,10 @@ Component.register('sw-sales-channel-defaults-select', {
             if (!!defaultId && !this.propertyCollection.has(defaultId)) {
                 this.propertyCollection.add(defaultEntity);
             }
+        },
+
+        isDisabledItem(item) {
+            return item.active === false;
         },
     },
 });

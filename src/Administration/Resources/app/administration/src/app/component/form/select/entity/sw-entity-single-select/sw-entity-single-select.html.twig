@@ -88,7 +88,9 @@
                 >
                     <li
                         is="sw-select-result"
+                        v-tooltip="getDisabledSelectionTooltip(item)"
                         :selected="isSelected(item)"
+                        :disabled="isSelectionDisabled(item)"
                         v-bind="{ item, index }"
                         @item-select="setValue"
                     >

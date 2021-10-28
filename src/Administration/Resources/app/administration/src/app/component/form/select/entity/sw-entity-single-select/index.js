@@ -73,11 +73,22 @@ Component.register('sw-entity-single-select', {
                 return Shopware.Context.api;
             },
         },
-
+        selectionDisablingMethod: {
+            type: Function,
+            required: false,
+            default: () => false,
+        },
         disableAutoClose: {
             type: Boolean,
             required: false,
             default: false,
+        },
+        disabledSelectionTooltip: {
+            type: Object,
+            required: false,
+            default: () => {
+                return { message: '' };
+            },
         },
     },
 
@@ -360,6 +371,21 @@ Component.register('sw-entity-single-select', {
 
         getKey(object, keyPath, defaultValue) {
             return get(object, keyPath, defaultValue);
+        },
+
+        isSelectionDisabled(selection) {
+            if (this.disabled) {
+                return true;
+            }
+
+            return this.selectionDisablingMethod(selection);
+        },
+
+        getDisabledSelectionTooltip(selection) {
+            return {
+                ...this.disabledSelectionTooltip,
+                disabled: this.disabledSelectionTooltip.disabled || !this.selectionDisablingMethod(selection),
+            };
         },
     },
 });

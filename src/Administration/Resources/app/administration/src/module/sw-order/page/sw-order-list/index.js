@@ -480,7 +480,7 @@ Component.register('sw-order-list', {
             let technicalName = order.transactions.last().stateMachineState.technicalName;
             // set the payment status to the first transaction that is not cancelled
             for (let i = 0; i < order.transactions.length; i += 1) {
-                if (order.transactions[i].stateMachineState.technicalName !== 'cancelled') {
+                if (!['cancelled', 'failed'].includes(order.transactions[i].stateMachineState.technicalName)) {
                     technicalName = order.transactions[i].stateMachineState.technicalName;
                 }
             }

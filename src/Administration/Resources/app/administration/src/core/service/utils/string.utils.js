@@ -21,7 +21,7 @@ export default {
  * This does also remove any whitespaces that might
  * exist in the text.
  *
- * @param {string} string
+ * @param {string} value
  * @returns {boolean}
  */
 function isEmptyOrSpaces(value) {

@@ -20,6 +20,7 @@ use Shopware\Core\Content\ImportExport\ImportExport;
 use Shopware\Core\Content\ImportExport\Processing\Pipe\AbstractPipe;
 use Shopware\Core\Content\ImportExport\Processing\Reader\AbstractReader;
 use Shopware\Core\Content\ImportExport\Processing\Writer\AbstractWriter;
+use Shopware\Core\Content\ImportExport\Service\FileService;
 use Shopware\Core\Content\ImportExport\Service\ImportExportService;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
@@ -729,7 +730,8 @@ class ImportExportTest extends ImportExportTestCase
             $this->createMock(EntityRepositoryInterface::class),
             $pipe,
             $reader,
-            $writer
+            $writer,
+            $this->getContainer()->get(FileService::class),
         );
 
         $importExportService->method('getProgress')

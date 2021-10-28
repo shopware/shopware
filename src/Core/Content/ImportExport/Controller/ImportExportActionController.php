@@ -7,6 +7,7 @@ use Shopware\Core\Content\ImportExport\Exception\ProfileNotFoundException;
 use Shopware\Core\Content\ImportExport\ImportExportFactory;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
 use Shopware\Core\Content\ImportExport\Message\ImportExportMessage;
+use Shopware\Core\Content\ImportExport\Service\AbstractMappingService;
 use Shopware\Core\Content\ImportExport\Service\DownloadService;
 use Shopware\Core\Content\ImportExport\Service\ImportExportService;
 use Shopware\Core\Content\ImportExport\Service\SupportedFeaturesService;
@@ -61,6 +62,8 @@ class ImportExportActionController extends AbstractController
 
     private MessageBusInterface $messageBus;
 
+    private AbstractMappingService $mappingService;
+
     public function __construct(
         SupportedFeaturesService $supportedFeaturesService,
         ImportExportService $initiationService,
@@ -71,7 +74,8 @@ class ImportExportActionController extends AbstractController
         ApiVersionConverter $apiVersionConverter,
         ImportExportFactory $importExportFactory,
         DefinitionInstanceRegistry $definitionInstanceRegistry,
-        MessageBusInterface $messageBus
+        MessageBusInterface $messageBus,
+        AbstractMappingService $mappingService
     ) {
         $this->supportedFeaturesService = $supportedFeaturesService;
         $this->importExportService = $initiationService;
@@ -83,6 +87,7 @@ class ImportExportActionController extends AbstractController
         $this->importExportFactory = $importExportFactory;
         $this->definitionInstanceRegistry = $definitionInstanceRegistry;
         $this->messageBus = $messageBus;
+        $this->mappingService = $mappingService;
     }
 
     /**
@@ -210,13 +215,38 @@ class ImportExportActionController extends AbstractController
         }
         $profileId = strtolower($profileId);
 
-        $fileId = $this->importExportService->createTemplate($context, $profileId);
+        $fileId = $this->mappingService->createTemplate($context, $profileId);
         $token = $this->downloadService->regenerateToken($context, $fileId);
 
         return new JsonResponse([
             'fileId' => $fileId,
             'accessToken' => $token,
         ]);
+    }
+
+    /**
+     * @internal (flag:FEATURE_NEXT_15998)
+     * @Route("/api/_action/import-export/mapping-from-template", name="api.action.import_export.template_file.mapping", methods={"POST"})
+     */
+    public function mappingFromTemplate(Request $request, Context $context): JsonResponse
+    {
+        /** @var UploadedFile|null $file */
+        $file = $request->files->get('file');
+        $sourceEntity = $request->request->get('sourceEntity');
+        $delimiter = (string) $request->request->get('delimiter', ';');
+        $enclosure = (string) $request->request->get('enclosure', '"');
+
+        if ($file === null || !$file->isValid()) {
+            throw new InvalidRequestParameterException('file');
+        }
+
+        if (!\is_string($sourceEntity)) {
+            throw new InvalidRequestParameterException('sourceEntity');
+        }
+
+        $mapping = $this->mappingService->getMappingFromTemplate($context, $file, $sourceEntity, $delimiter, $enclosure);
+
+        return new JsonResponse($mapping);
     }
 
     /**

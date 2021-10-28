@@ -68,6 +68,35 @@ export default class ImportExportService extends ApiService {
     }
 
     /**
+     * Get the mapping from the first line of the CSV file.
+     * The mapping contains guessed keys based on the source entity and the given data.
+     *
+     * @internal (flag:FEATURE_NEXT_15998)
+     * @param file {File} The csv file
+     * @param sourceEntity {string} the source entity for the mapping
+     * @param delimiter {string}
+     * @param enclosure {string}
+     * @returns {Promise<Object>}
+     */
+    getMappingFromTemplate(file, sourceEntity, delimiter = ';', enclosure = '"') {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('sourceEntity', sourceEntity);
+        formData.append('delimiter', delimiter);
+        formData.append('enclosure', enclosure);
+
+        return this.httpClient.post('/_action/import-export/mapping-from-template', formData, {
+            headers: this.getBasicHeaders(),
+        }).then((response) => {
+            if (!response.data) {
+                return Promise.reject(new Error('Empty response data'));
+            }
+
+            return Promise.resolve(response.data);
+        });
+    }
+
+    /**
      * Imports data from the csv file with the given profile. The callback function gets called with progress information
      * and final result data.
      *

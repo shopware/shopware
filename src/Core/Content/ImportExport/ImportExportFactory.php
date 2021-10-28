@@ -12,6 +12,7 @@ use Shopware\Core\Content\ImportExport\Processing\Reader\AbstractReader;
 use Shopware\Core\Content\ImportExport\Processing\Reader\AbstractReaderFactory;
 use Shopware\Core\Content\ImportExport\Processing\Writer\AbstractWriter;
 use Shopware\Core\Content\ImportExport\Processing\Writer\AbstractWriterFactory;
+use Shopware\Core\Content\ImportExport\Service\AbstractFileService;
 use Shopware\Core\Content\ImportExport\Service\ImportExportService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -48,6 +49,8 @@ class ImportExportFactory
      */
     private \IteratorAggregate $pipeFactories;
 
+    private AbstractFileService $fileService;
+
     public function __construct(
         ImportExportService $importExportService,
         DefinitionInstanceRegistry $definitionInstanceRegistry,
@@ -55,6 +58,7 @@ class ImportExportFactory
         EventDispatcherInterface $eventDispatcher,
         EntityRepositoryInterface $logRepository,
         Connection $connection,
+        AbstractFileService $fileService,
         \IteratorAggregate $readerFactories,
         \IteratorAggregate $writerFactories,
         \IteratorAggregate $pipeFactories
@@ -65,6 +69,7 @@ class ImportExportFactory
         $this->eventDispatcher = $eventDispatcher;
         $this->logRepository = $logRepository;
         $this->connection = $connection;
+        $this->fileService = $fileService;
         $this->readerFactories = $readerFactories;
         $this->writerFactories = $writerFactories;
         $this->pipeFactories = $pipeFactories;
@@ -85,6 +90,7 @@ class ImportExportFactory
             $this->getPipe($logEntity),
             $this->getReader($logEntity),
             $this->getWriter($logEntity),
+            $this->fileService,
             $importBatchSize,
             $exportBatchSize
         );

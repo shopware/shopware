@@ -121,7 +121,7 @@ describe('Import/Export:  Visual tests', () => {
             cy.clickContextMenuItem(
                 '.sw-import-export-activity__log-info-action',
                 '.sw-context-button__button',
-                '.sw-data-grid__row--0'
+                `${page.elements.dataGridRow}--0`
             );
 
             cy.get('.sw-import-export-activity-log-info-modal').should('be.visible');
@@ -195,7 +195,7 @@ describe('Import/Export:  Visual tests', () => {
             cy.clickContextMenuItem(
                 '.sw-import-export-activity__results-action',
                 '.sw-context-button__button',
-                '.sw-data-grid__row--0'
+                `${page.elements.dataGridRow}--0`
             );
 
             cy.get('.sw-import-export-activity-result-modal').should('be.visible');
@@ -203,5 +203,100 @@ describe('Import/Export:  Visual tests', () => {
             // Take snapshot for visual testing
             cy.takeSnapshot('[Import export] summary modal after import', '.sw-import-export-activity-result-modal');
         });
+    });
+
+    it('should check appearance of import/export wizard', () => {
+        cy.onlyOnFeature('FEATURE_NEXT_15998');
+
+        cy.visit(`${Cypress.env('admin')}#/sw/import-export/index/profiles`);
+
+        cy.get(page.elements.importExportCreateNewProfileButton)
+            .should('be.visible')
+            .and('not.be.disabled')
+            .contains('Add new profile')
+            .click();
+
+        cy.get('.sw-modal__dialog')
+            .should('be.visible');
+
+        cy.get(page.elements.importExportProfileNameField)
+            .clearTypeAndCheck('Custom profile for products');
+
+        cy.get(page.elements.importExportObjectTypeSelect)
+            .typeSingleSelectAndCheck('Product', page.elements.importExportObjectTypeSelect);
+
+        // make sure that button is not disabled, to prevent a possible flaky test
+        cy.get(`${page.elements.modalFooter} ${page.elements.primaryButton}`)
+            .should('be.visible')
+            .and('not.be.disabled');
+
+        cy.takeSnapshot('[Import export] Wizard modal, general step', '.sw-modal__dialog');
+
+        cy.get(`${page.elements.modalFooter} ${page.elements.primaryButton}`)
+            .click();
+
+        cy.get('.sw-file-input__dropzone').should('be.visible');
+
+        cy.takeSnapshot('[Import export], Wizard modal, upload csv file step', '.sw-modal__dialog');
+
+        cy.get(`${page.elements.modalFooter}`)
+            .contains('Skip CSV upload')
+            .should('be.visible')
+            .click();
+
+        cy.get(page.elements.importExportAddMappingButton)
+            .should('be.visible')
+            .click();
+
+        cy.get(`${page.elements.importExportMappingGrid} ${page.elements.dataGridRow}--0 #mappedKey-0`).typeAndCheck('id');
+
+        cy.get(`${page.elements.importExportMappingGrid} ${page.elements.dataGridRow}--0 ${page.elements.importExportEntityPathSelect}`)
+            .typeSingleSelectAndCheck('id', `${page.elements.dataGridRow}--0 ${page.elements.importExportEntityPathSelect}`);
+
+        cy.get(page.elements.importExportAddMappingButton)
+            .click();
+
+        cy.get(`${page.elements.importExportMappingGrid} ${page.elements.dataGridRow}--0 #mappedKey-0`).typeAndCheck('taxId');
+
+        cy.get(`${page.elements.importExportMappingGrid} ${page.elements.dataGridRow}--0 ${page.elements.importExportEntityPathSelect}`)
+            .typeSingleSelectAndCheck('taxId', `${page.elements.dataGridRow}--0 ${page.elements.importExportEntityPathSelect}`);
+
+        cy.get(page.elements.importExportAddMappingButton)
+            .click();
+
+        cy.get(`${page.elements.importExportMappingGrid} ${page.elements.dataGridRow}--0 #mappedKey-0`).typeAndCheck('productNumber');
+
+        cy.get(`${page.elements.importExportMappingGrid} ${page.elements.dataGridRow}--0 ${page.elements.importExportEntityPathSelect}`)
+            .typeSingleSelectAndCheck('productNumber', `${page.elements.dataGridRow}--0 ${page.elements.importExportEntityPathSelect}`);
+
+       cy.get(page.elements.importExportAddMappingButton)
+            .click();
+
+        cy.get(`${page.elements.importExportMappingGrid} ${page.elements.dataGridRow}--0 #mappedKey-0`).typeAndCheck('stock');
+
+        cy.get(`${page.elements.importExportMappingGrid} ${page.elements.dataGridRow}--0 ${page.elements.importExportEntityPathSelect}`)
+            .click()
+
+        cy.get('.sw-select-result-list__content')
+            .should('be.visible')
+            .contains(/^stock$/)
+            .click();
+
+        cy.get(page.elements.importExportAddMappingButton)
+            .click();
+
+        cy.get(`${page.elements.importExportMappingGrid} ${page.elements.dataGridRow}--0 #mappedKey-0`).typeAndCheck('name');
+
+        cy.get(`${page.elements.importExportMappingGrid} ${page.elements.dataGridRow}--0 ${page.elements.importExportEntityPathSelect}`)
+            .typeSingleSelectAndCheck(
+                'translations.DEFAULT.name',
+                `${page.elements.dataGridRow}--0 ${page.elements.importExportEntityPathSelect}`
+            );
+
+        // make sure the result list of the select element is closed
+        cy.get('.sw-select-result-list__content')
+            .should('not.exist');
+
+        cy.takeSnapshot('[Import export] Wizard modal, mappings step')
     });
 });

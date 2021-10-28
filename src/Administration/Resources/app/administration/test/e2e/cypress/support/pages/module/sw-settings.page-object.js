@@ -48,6 +48,14 @@ export default class SettingsPageObject {
                 mailHeaderFooterColumnName: '.sw-data-grid__cell--name',
                 mailHeaderFooterColumnDescription: '.sw-data-grid__cell--description',
                 mailHeaderFooterColumnSalesChannel: '.sw-data-grid__cell--salesChannels-name',
+
+                importExportCreateNewProfileButton: '.sw-import-export-view-profiles__create-action',
+
+                importExportProfileNameField: '#sw-field--profile-label',
+                importExportObjectTypeSelect: '.sw-import-export-edit-profile-general__object-type-field',
+                importExportMappingGrid: '.sw-import-export-edit-profile-modal-mapping__grid',
+                importExportAddMappingButton: '.sw-import-export-edit-profile-modal-mapping__add-action',
+                importExportEntityPathSelect: '.sw-import-export-entity-path-select'
             },
         };
     }

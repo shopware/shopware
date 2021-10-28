@@ -2,18 +2,13 @@
 
 namespace Shopware\Core\Content\ImportExport\Service;
 
-use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
-use Shopware\Core\Content\ImportExport\Exception\FileNotReadableException;
 use Shopware\Core\Content\ImportExport\Exception\ProcessingException;
 use Shopware\Core\Content\ImportExport\Exception\ProfileNotFoundException;
 use Shopware\Core\Content\ImportExport\Exception\ProfileWrongTypeException;
 use Shopware\Core\Content\ImportExport\Exception\UnexpectedFileTypeException;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
-use Shopware\Core\Content\ImportExport\Processing\Writer\AbstractWriter;
-use Shopware\Core\Content\ImportExport\Processing\Writer\CsvFileWriter;
-use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
@@ -30,16 +25,6 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 class ImportExportService
 {
     /**
-     * @var FilesystemInterface
-     */
-    private $filesystem;
-
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $fileRepository;
-
-    /**
      * @var EntityRepositoryInterface
      */
     private $logRepository;
@@ -54,21 +39,18 @@ class ImportExportService
      */
     private $profileRepository;
 
-    private AbstractWriter $writer;
+    private AbstractFileService $fileService;
 
     public function __construct(
-        FilesystemInterface $filesystem,
-        EntityRepositoryInterface $fileRepository,
         EntityRepositoryInterface $logRepository,
         EntityRepositoryInterface $userRepository,
-        EntityRepositoryInterface $profileRepository
+        EntityRepositoryInterface $profileRepository,
+        AbstractFileService $fileService
     ) {
-        $this->filesystem = $filesystem;
-        $this->fileRepository = $fileRepository;
         $this->logRepository = $logRepository;
         $this->userRepository = $userRepository;
         $this->profileRepository = $profileRepository;
-        $this->writer = new CsvFileWriter($filesystem);
+        $this->fileService = $fileService;
     }
 
     public function prepareExport(
@@ -87,9 +69,9 @@ class ImportExportService
         }
 
         if ($originalFileName === null) {
-            $originalFileName = $this->generateFilename($profileEntity);
+            $originalFileName = $this->fileService->generateFilename($profileEntity);
         }
-        $fileEntity = $this->storeFile($context, $expireDate, null, $originalFileName, $activity, $destinationPath);
+        $fileEntity = $this->fileService->storeFile($context, $expireDate, null, $originalFileName, $activity, $destinationPath);
         $logEntity = $this->createLog($context, $activity, $fileEntity, $profileEntity, $config);
 
         return $logEntity;
@@ -109,12 +91,12 @@ class ImportExportService
             throw new ProfileWrongTypeException($profileEntity->getId(), $profileEntity->getType());
         }
 
-        $type = $this->detectType($file);
+        $type = $this->fileService->detectType($file);
         if ($type !== $profileEntity->getFileType()) {
             throw new UnexpectedFileTypeException($file->getClientMimeType(), $profileEntity->getFileType());
         }
 
-        $fileEntity = $this->storeFile($context, $expireDate, $file->getPathname(), $file->getClientOriginalName(), ImportExportLogEntity::ACTIVITY_IMPORT);
+        $fileEntity = $this->fileService->storeFile($context, $expireDate, $file->getPathname(), $file->getClientOriginalName(), ImportExportLogEntity::ACTIVITY_IMPORT);
         $activity = $dryRun ? ImportExportLogEntity::ACTIVITY_DRYRUN : ImportExportLogEntity::ACTIVITY_IMPORT;
         $logEntity = $this->createLog($context, $activity, $fileEntity, $profileEntity, $config);
 
@@ -174,63 +156,12 @@ class ImportExportService
         });
     }
 
+    /**
+     * @feature-deprecated (FEATURE_NEXT_15998) Will be removed. Use Shopware\Core\Content\ImportExport\Service\FileService->updateFile(...) instead.
+     */
     public function updateFile(Context $context, string $fileId, array $data): void
     {
-        $data['id'] = $fileId;
-        $this->fileRepository->update([$data], $context);
-    }
-
-    /**
-     * @internal (flag:FEATURE_NEXT_15998)
-     */
-    public function createTemplate(Context $context, string $profileId): string
-    {
-        /** @var ImportExportProfileEntity|null $profile */
-        $profile = $this->profileRepository->search(new Criteria([$profileId]), $context)->first();
-        if ($profile === null) {
-            throw new \RuntimeException('ImportExportProfile "' . $profileId . '" not found');
-        }
-        $mappings = $profile->getMapping();
-        if (empty($mappings)) {
-            throw new \RuntimeException('ImportExportProfile "' . $profileId . '" has no mappings');
-        }
-
-        $config = new Config($mappings, []);
-        $headers = [];
-
-        foreach ($mappings as $mapping) {
-            $headers[$mapping['mappedKey']] = '';
-        }
-
-        // create the file
-        $expireDate = new \DateTimeImmutable();
-        $expireDate = $expireDate->modify('+1 hour');
-        $fileEntity = $this->storeFile(
-            $context,
-            $expireDate,
-            null,
-            $profile->getSourceEntity() . ':' . $profile->getName() . '.csv',
-            ImportExportLogEntity::ACTIVITY_TEMPLATE
-        );
-
-        // write to the file
-        $targetFile = $fileEntity->getPath();
-        $this->writer->append($config, $headers, 0);
-        $this->writer->flush($config, $targetFile);
-        $this->writer->finish($config, $targetFile);
-
-        return $fileEntity->getId();
-    }
-
-    private function detectType(UploadedFile $file): string
-    {
-        // TODO: we should do a mime type detection on the file content
-        $guessedExtension = $file->guessClientExtension();
-        if ($guessedExtension === 'csv' || $file->getClientOriginalExtension() === 'csv') {
-            return 'text/csv';
-        }
-
-        return $file->getClientMimeType();
+        $this->fileService->updateFile($context, $fileId, $data);
     }
 
     private function findLog(Context $context, string $logId): ?ImportExportLogEntity
@@ -254,44 +185,6 @@ class ImportExportService
         }
 
         throw new ProfileNotFoundException($profileId);
-    }
-
-    /**
-     * @throws FileNotReadableException
-     * @throws \League\Flysystem\FileNotFoundException
-     */
-    private function storeFile(Context $context, \DateTimeInterface $expireDate, ?string $sourcePath, ?string $originalFileName, string $activity, ?string $path = null): ImportExportFileEntity
-    {
-        $id = Uuid::randomHex();
-        $path = $path ?? $activity . '/' . ImportExportFileEntity::buildPath($id);
-        if (!empty($sourcePath)) {
-            if (!is_readable($sourcePath)) {
-                throw new FileNotReadableException($sourcePath);
-            }
-            $sourceStream = fopen($sourcePath, 'rb');
-            if (!\is_resource($sourceStream)) {
-                throw new FileNotReadableException($sourcePath);
-            }
-            $this->filesystem->putStream($path, $sourceStream);
-        } else {
-            $this->filesystem->put($path, '');
-        }
-
-        $fileData = [
-            'id' => $id,
-            'originalName' => $originalFileName,
-            'path' => $path,
-            'size' => $this->filesystem->getSize($path),
-            'expireDate' => $expireDate,
-            'accessToken' => null,
-        ];
-
-        $this->fileRepository->create([$fileData], $context);
-
-        $fileEntity = new ImportExportFileEntity();
-        $fileEntity->assign($fileData);
-
-        return $fileEntity;
     }
 
     private function createLog(
@@ -329,14 +222,6 @@ class ImportExportService
         $logEntity->setFile($file);
 
         return $logEntity;
-    }
-
-    private function generateFilename(ImportExportProfileEntity $profile): string
-    {
-        $extension = $profile->getFileType() === 'text/xml' ? 'xml' : 'csv';
-        $timestamp = date('Ymd-His');
-
-        return sprintf('%s_%s.%s', $profile->getTranslation('label'), $timestamp, $extension);
     }
 
     private function findUser(Context $context, string $userId): UserEntity

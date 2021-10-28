@@ -33,6 +33,13 @@ Component.register('sw-import-export-edit-profile-modal', {
                 return {};
             },
         },
+        show: {
+            type: Boolean,
+            required: false,
+            default() {
+                return true;
+            },
+        },
     },
 
     data() {

@@ -1,7 +1,7 @@
 {% block sw_import_export_edit_profile_modal %}
 <div class="sw-import-export-edit-profile-modal">
     <sw-modal
-        v-if="profile"
+        v-if="show && profile"
         class="sw-import-export-edit-profile-modal"
         :title="modalTitle"
         variant="full"

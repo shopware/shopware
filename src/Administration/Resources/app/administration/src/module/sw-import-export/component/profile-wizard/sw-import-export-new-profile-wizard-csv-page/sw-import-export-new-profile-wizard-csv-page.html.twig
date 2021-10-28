@@ -1,0 +1,22 @@
+{% block sw_import_export_new_profile_wizard_csv_page %}
+<div class="sw-import-export-new-profile-wizard-csv-page">
+    {% block sw_import_export_new_profile_wizard_csv_page_text %}
+    <p class="sw-import-export-new-profile-wizard-csv-page__text">
+        {{ $tc('sw-import-export.profile.csvUploadText') }}
+    </p>
+    {% endblock %}
+
+    {% block sw_import_export_new_profile_wizard_csv_page_csv_upload %}
+    <sw-file-input
+        v-model="csvFile"
+        :allowed-mime-types="['text/csv']"
+        class="sw-import-export-new-profile-wizard-csv-page__file-upload"
+        @change="onFileChange"
+    >
+        <template #caption-label>
+            {{ $tc('sw-import-export.importer.labelUploadCaption') }}
+        </template>
+    </sw-file-input>
+    {% endblock %}
+</div>
+{% endblock %}

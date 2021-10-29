@@ -9,6 +9,7 @@
     <div class="sw-list-price-field__price">
         {% block sw_list_price_field_price %}
         <sw-price-field
+            class="sw-list-price-field__price-field"
             :price="price"
             required
             :compact="compact"
@@ -61,7 +62,7 @@
             :label="label"
             :enable-inheritance="enableInheritance"
             :inherited="isInherited"
-            class="sw-list-price-field__list-price"
+            class="sw-list-price-field__list-price-field"
             :error="error"
             :currency="currency"
             @change="listPriceChanged"

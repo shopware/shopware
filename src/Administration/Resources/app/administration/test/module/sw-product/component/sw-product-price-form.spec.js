@@ -19,7 +19,13 @@ const parentProductData = {
         currencyId: '1',
         linked: true,
         gross: 100,
-        net: 84.034
+        net: 84.034,
+        listPrice: {
+            currencyId: '1',
+            linked: true,
+            gross: 200,
+            net: 168.07,
+        },
     }]
 };
 
@@ -190,7 +196,7 @@ describe('module/sw-product/component/sw-product-price-form', () => {
     });
 
     // eslint-disable-next-line max-len
-    it('should enable all price fields and toggle inheritance switch off when user click on remove inheritance button', async () => {
+    it('should enable all price fields and toggle inheritance switch off when user clicks on remove inheritance button', async () => {
         wrapper = createWrapper();
         const priceInheritance = wrapper.find('.sw-product-price-form__price-list');
         const priceSwitchInheritance = priceInheritance.find('.sw-inheritance-switch');
@@ -209,10 +215,11 @@ describe('module/sw-product/component/sw-product-price-form', () => {
             price: parentProductData.price,
             purchasePrices: parentProductData.purchasePrices
         });
+        expect(wrapper.vm.prices.price[0].listPrice.gross).toEqual(200);
     });
 
     // eslint-disable-next-line max-len
-    it('should enable all price fields and toggle inheritance switch off when user click on remove inheritance button (using empty purchasePrices)', async () => {
+    it('should enable all price fields and toggle inheritance switch off when user clicks on remove inheritance button (using empty purchasePrices)', async () => {
         wrapper = createWrapper();
 
         // remove purchasePrices of parent
@@ -239,7 +246,7 @@ describe('module/sw-product/component/sw-product-price-form', () => {
     });
 
     // eslint-disable-next-line max-len
-    it('should disable all price fields and toggle inheritance switch on when user click on restore inheritance button', async () => {
+    it('should disable all price fields and toggle inheritance switch on when user clicks on restore inheritance button', async () => {
         wrapper = createWrapper({
             price: [{
                 currencyId: '1',

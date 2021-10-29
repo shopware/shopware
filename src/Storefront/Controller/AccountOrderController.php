@@ -31,6 +31,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Event\RouteRequest\CancelOrderRouteRequestEvent;
 use Shopware\Storefront\Event\RouteRequest\HandlePaymentMethodRouteRequestEvent;
 use Shopware\Storefront\Event\RouteRequest\SetPaymentOrderRouteRequestEvent;
+use Shopware\Storefront\Framework\Routing\Annotation\NoStore;
 use Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoader;
 use Shopware\Storefront\Page\Account\Order\AccountOrderDetailPageLoader;
 use Shopware\Storefront\Page\Account\Order\AccountOrderPageLoader;
@@ -100,6 +101,7 @@ class AccountOrderController extends StorefrontController
      * @Since("6.0.0.0")
      * @LoginRequired()
      * @Route("/account/order", name="frontend.account.order.page", options={"seo"="false"}, methods={"GET", "POST"}, defaults={"XmlHttpRequest"=true})
+     * @NoStore
      *
      * @throws CustomerNotLoggedInException
      */
@@ -140,6 +142,7 @@ class AccountOrderController extends StorefrontController
     /**
      * @Since("6.2.0.0")
      * @Route("/account/order/{deepLinkCode}", name="frontend.account.order.single.page", options={"seo"="false"}, methods={"GET", "POST"})
+     * @NoStore
      *
      * @throws CustomerNotLoggedInException
      */
@@ -186,6 +189,7 @@ class AccountOrderController extends StorefrontController
      * @Since("6.2.0.0")
      * @LoginRequired(allowGuest=true)
      * @Route("/account/order/edit/{orderId}", name="frontend.account.edit-order.page", methods={"GET"})
+     * @NoStore
      */
     public function editOrder(string $orderId, Request $request, SalesChannelContext $context): Response
     {

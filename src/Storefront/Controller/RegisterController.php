@@ -25,6 +25,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener;
 use Shopware\Storefront\Framework\Captcha\Annotation\Captcha;
+use Shopware\Storefront\Framework\Routing\Annotation\NoStore;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Page\Account\CustomerGroupRegistration\AbstractCustomerGroupRegistrationPageLoader;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
@@ -84,6 +85,7 @@ class RegisterController extends StorefrontController
     /**
      * @Since("6.0.0.0")
      * @Route("/account/register", name="frontend.account.register.page", methods={"GET"})
+     * @NoStore
      */
     public function accountRegisterPage(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
@@ -110,6 +112,7 @@ class RegisterController extends StorefrontController
     /**
      * @Since("6.3.1.0")
      * @Route("/customer-group-registration/{customerGroupId}", name="frontend.account.customer-group-registration.page", methods={"GET"})
+     * @NoStore
      */
     public function customerGroupRegistration(string $customerGroupId, Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
@@ -141,6 +144,7 @@ class RegisterController extends StorefrontController
     /**
      * @Since("6.0.0.0")
      * @Route("/checkout/register", name="frontend.checkout.register.page", options={"seo"="false"}, methods={"GET"})
+     * @NoStore
      */
     public function checkoutRegisterPage(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {

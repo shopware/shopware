@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Framework\Routing\Annotation\NoStore;
 use Shopware\Storefront\Page\Account\Overview\AccountOverviewPageLoader;
 use Shopware\Storefront\Page\Account\Profile\AccountProfilePageLoader;
 use Symfony\Component\HttpFoundation\Request;
@@ -28,35 +29,17 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class AccountProfileController extends StorefrontController
 {
-    /**
-     * @var AccountOverviewPageLoader
-     */
-    private $overviewPageLoader;
+    private AccountOverviewPageLoader $overviewPageLoader;
 
-    /**
-     * @var AccountProfilePageLoader
-     */
-    private $profilePageLoader;
+    private AccountProfilePageLoader $profilePageLoader;
 
-    /**
-     * @var AbstractChangeCustomerProfileRoute
-     */
-    private $changeCustomerProfileRoute;
+    private AbstractChangeCustomerProfileRoute $changeCustomerProfileRoute;
 
-    /**
-     * @var AbstractChangePasswordRoute
-     */
-    private $changePasswordRoute;
+    private AbstractChangePasswordRoute $changePasswordRoute;
 
-    /**
-     * @var AbstractChangeEmailRoute
-     */
-    private $changeEmailRoute;
+    private AbstractChangeEmailRoute $changeEmailRoute;
 
-    /**
-     * @var AbstractDeleteCustomerRoute
-     */
-    private $deleteCustomerRoute;
+    private AbstractDeleteCustomerRoute $deleteCustomerRoute;
 
     public function __construct(
         AccountOverviewPageLoader $overviewPageLoader,
@@ -78,6 +61,7 @@ class AccountProfileController extends StorefrontController
      * @Since("6.0.0.0")
      * @LoginRequired()
      * @Route("/account", name="frontend.account.home.page", methods={"GET"})
+     * @NoStore
      *
      * @throws CustomerNotLoggedInException
      * @throws CategoryNotFoundException
@@ -95,6 +79,7 @@ class AccountProfileController extends StorefrontController
      * @Since("6.0.0.0")
      * @LoginRequired()
      * @Route("/account/profile", name="frontend.account.profile.page", methods={"GET"})
+     * @NoStore
      *
      * @throws CustomerNotLoggedInException
      * @throws CategoryNotFoundException

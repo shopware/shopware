@@ -108,7 +108,7 @@ Component.register('sw-cms-el-image-gallery', {
             this.initElementData('image-gallery');
 
             if (!this.isProductPage
-                || this.element?.translated?.config
+                || this.element?.translated?.config?.sliderItems
                 || this.element?.data?.sliderItems) {
                 return;
             }

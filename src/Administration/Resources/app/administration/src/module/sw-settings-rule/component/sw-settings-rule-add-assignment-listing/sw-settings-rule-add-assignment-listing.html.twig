@@ -34,10 +34,7 @@
             {% endblock %}
         </template>
 
-        <template
-            slot="column-name"
-            slot-scope="{ item }"
-        >
+        <template #column-name="{ item }">
             {% block sw_settings_rule_add_assignment_listing_name %}
             <sw-product-variant-info
                 v-if="item.variation"
@@ -51,10 +48,7 @@
             {% endblock %}
         </template>
 
-        <template
-            slot="column-active"
-            slot-scope="{ item }"
-        >
+        <template #column-active="{ item }">
             {% block sw_settings_rule_add_assignment_listing_active_flag %}
             <sw-icon
                 v-if="item.active"

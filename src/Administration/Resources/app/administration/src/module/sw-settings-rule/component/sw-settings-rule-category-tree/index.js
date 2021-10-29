@@ -24,10 +24,12 @@ Component.register('sw-settings-rule-category-tree', {
         },
         hideHeadline: {
             type: Boolean,
+            required: false,
             default: true,
         },
         hideSearch: {
             type: Boolean,
+            required: false,
             default: true,
         },
     },
@@ -41,6 +43,13 @@ Component.register('sw-settings-rule-category-tree', {
     computed: {
         categoryRepository() {
             return this.repositoryFactory.create('category');
+        },
+
+        treeCriteria() {
+            const categoryCriteria = new Criteria(1, 500);
+            categoryCriteria.getAssociation(this.association).addFilter(Criteria.equals('id', this.rule.id));
+
+            return categoryCriteria;
         },
     },
 
@@ -69,24 +78,14 @@ Component.register('sw-settings-rule-category-tree', {
         },
 
         hasItemAssociation(item) {
-            if (
-                (item[this.association] && item[this.association].length > 0)
-                || (item.extensions[this.association] && item.extensions[this.association].length > 0)
-            ) {
-                return true;
-            }
-
-            return false;
+            return item[this.association]?.length > 0 || item.extensions[this.association]?.length > 0;
         },
 
         getTreeItems(parentId = null, term = null) {
             this.isFetching = true;
 
-            // create criteria
-            const categoryCriteria = new Criteria(1, 500);
-            categoryCriteria.getAssociation(this.association).addFilter(Criteria.equals('id', this.rule.id));
-
-            if (term !== null && term !== '') {
+            const categoryCriteria = this.treeCriteria;
+            if (term) {
                 categoryCriteria.addFilter(Criteria.contains('name', term));
             } else {
                 categoryCriteria.addFilter(Criteria.equals('parentId', parentId));

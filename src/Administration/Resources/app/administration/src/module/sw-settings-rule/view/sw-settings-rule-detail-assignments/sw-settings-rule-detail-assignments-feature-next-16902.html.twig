@@ -7,7 +7,7 @@
         :key="entity.id"
         class="sw-settings-rule-detail-assignments__card"
         :class="`sw-settings-rule-detail-assignments__card-${entity.id}`"
-        :title="entity.label"
+        :title="$tc(entity.label)"
     >
         <template #toolbar>
             {% block sw_settings_rule_detail_assignments_toolbar %}
@@ -53,7 +53,7 @@
                 :steps="associationSteps"
                 :columns="entity.gridColumns"
                 :full-page="false"
-                @delete-items="deleteItems(entity, ...arguments)"
+                @delete-items="onDeleteItems(entity, ...arguments)"
             >
                 <template #link-column="{ item, column, renderColumn }">
                     <router-link

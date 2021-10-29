@@ -29,7 +29,7 @@ The whole structure should look like this:
     notAssignedDataTotal: 0, // Total of not assigned data, this value will be automatically updated
     allowAdd: true, // Then you have to fill in the addContext
     entityName: 'yourEntityName',
-    label: ...,
+    label: 'myNamespace.myLabel',
     criteria: () => { // The criteria to load the displayed data in the rule assignment
         const criteria = new Criteria();
         .....
@@ -53,12 +53,12 @@ The whole structure should look like this:
         ...
     ],
     deleteContext: { // Configuration of the deletion
-        type: 'delete', // Types are delete or update. Delete for n:m associations and update for n:1 assocations.
+        type: 'many-to-many', // Types are many-to-many or one-to-many.
         entity: 'entityToDelete', // Entity which should be deleted / updated
         column: 'yourColumn', // Column in the entity to delete / update
     },
     addContext: { // Configuration of the addition
-        type: 'insert', // Types are insert or update. Insert for n:m assocations and update for n:1 assocations.
+        type: 'many-to-many', // Types are many-to-many or one-to-many
         entity: 'entityToAdd', // Entity which should be added / updated
         column: 'yourColumn', // Column in the entity to add / update
         searchColumn: 'yourColumn', // Column which should be searchable
@@ -78,5 +78,67 @@ The whole structure should look like this:
             ...
         ],
     },
+},
+```
+
+## Extending the configuration
+
+If you want to add a configuration or modify an existing one, you have to override the `sw-settings-rule-detail-assignments` component like this:
+
+```
+Component.override('sw-settings-rule-detail-assignments', {
+    computed: {
+        associationEntitiesConfig() {
+            const associationEntitiesConfig = this.$super('associationEntitiesConfig');
+            associationEntitiesConfig.push(...);
+            return associationEntitiesConfig;
+        },
+    },
+});
+```
+
+## Example for delete context
+### One-to-many
+```
+deleteContext: {
+    type: 'one-to-many',
+    entity: 'payment_method',
+    column: 'availabilityRuleId',
+},
+```
+
+### Many-to-many
+Important you have to add the association column to the criteria first:
+
+```
+criteria: () => {
+    const criteria = new Criteria();
+    criteria.setLimit(associationLimit);
+    criteria.addFilter(Criteria.equals('orderRules.id', ruleId));
+    criteria.addAssociation('orderRules');
+
+    return criteria;
+},
+```
+
+Then you have to use
+
+```
+deleteContext: {
+    type: 'many-to-many',
+    entity: 'promotion',
+    column: 'orderRules',
+},
+```
+
+### Deletion of extension values
+
+If you want to delete an extension assignment, you have to include the extension path in the column value:
+
+```
+deleteContext: {
+    type: 'many-to-many',
+    entity: 'product',
+    column: 'extensions.swagDynamicAccessRules',
 },
 ```

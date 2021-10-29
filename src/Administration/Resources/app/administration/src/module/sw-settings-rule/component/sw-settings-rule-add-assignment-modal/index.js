@@ -69,7 +69,7 @@ Component.register('sw-settings-rule-add-assignment-modal', {
         },
 
         onAdd() {
-            if (this.entityContext.addContext.type === 'update') {
+            if (this.entityContext.addContext.type === 'one-to-many') {
                 this.updateEntities();
                 return;
             }
@@ -85,7 +85,7 @@ Component.register('sw-settings-rule-add-assignment-modal', {
                 item[this.entityContext.addContext.column] = this.rule.id;
             });
 
-            repository.sync(Object.values(this.selection), api).then(() => this.$emit('entities-saved'));
+            return repository.sync(Object.values(this.selection), api).then(() => this.$emit('entities-saved'));
         },
 
         insertEntities() {
@@ -100,7 +100,7 @@ Component.register('sw-settings-rule-add-assignment-modal', {
                 inserts.push(entity);
             });
 
-            repository.sync(inserts, api).then(() => this.$emit('entities-saved'));
+            return repository.sync(inserts, api).then(() => this.$emit('entities-saved'));
         },
 
         onSelect(selection) {

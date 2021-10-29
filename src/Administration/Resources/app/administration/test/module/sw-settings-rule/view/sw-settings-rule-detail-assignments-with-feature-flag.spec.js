@@ -167,11 +167,11 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         expect(wrapper.find('.sw-settings-rule-detail-assignments__card-shipping_method_availability_rule .router-link').exists()).toBeTruthy();
         expect(wrapper.find('.sw-settings-rule-detail-assignments__card-shipping_method_prices .router-link').exists()).toBeTruthy();
         expect(wrapper.find('.sw-settings-rule-detail-assignments__card-payment_method .router-link').exists()).toBeTruthy();
-        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-promotion-order-rule .router-link').exists()).toBeTruthy();
-        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-promotion-customer-rule .router-link').exists()).toBeTruthy();
-        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-promotion-cart-rule .router-link').exists()).toBeTruthy();
-        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-promotion-discount-rule .router-link').exists()).toBeTruthy();
-        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-promotion-group-rule .router-link').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-promotion_order_rule .router-link').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-promotion_customer_rule .router-link').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-promotion_cart_rule .router-link').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-promotion_discount_rule .router-link').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-promotion_group_rule .router-link').exists()).toBeTruthy();
         expect(wrapper.find('.sw-settings-rule-detail-assignments__card-event_action .router-link').exists()).toBeTruthy();
 
         // Empty states should not be present
@@ -179,11 +179,11 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-shipping_method_availability_rule').exists()).toBeFalsy();
         expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-shipping_method_prices').exists()).toBeFalsy();
         expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-payment_method').exists()).toBeFalsy();
-        expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-promotion-order-rule').exists()).toBeFalsy();
-        expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-promotion-customer-rule').exists()).toBeFalsy();
-        expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-promotion-cart-rule').exists()).toBeFalsy();
-        expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-promotion-discount-rule').exists()).toBeFalsy();
-        expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-promotion-group-rule').exists()).toBeFalsy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-promotion_order_rule').exists()).toBeFalsy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-promotion_customer_rule').exists()).toBeFalsy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-promotion_cart_rule').exists()).toBeFalsy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-promotion_discount_rule').exists()).toBeFalsy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-promotion_group_rule').exists()).toBeFalsy();
         expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-event_action').exists()).toBeFalsy();
 
         // Loader should not be present
@@ -199,11 +199,11 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         expect(wrapper.find('.sw-settings-rule-detail-assignments__card-shipping_method_availability_rule .router-link').exists()).toBeFalsy();
         expect(wrapper.find('.sw-settings-rule-detail-assignments__card-shipping_method_prices .router-link').exists()).toBeFalsy();
         expect(wrapper.find('.sw-settings-rule-detail-assignments__card-payment_method .router-link').exists()).toBeFalsy();
-        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-promotion-order-rule .router-link').exists()).toBeFalsy();
-        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-promotion-customer-rule .router-link').exists()).toBeFalsy();
-        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-promotion-cart-rule .router-link').exists()).toBeFalsy();
-        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-promotion-discount-rule .router-link').exists()).toBeFalsy();
-        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-promotion-group-rule .router-link').exists()).toBeFalsy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-promotion_order_rule .router-link').exists()).toBeFalsy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-promotion_customer_rule .router-link').exists()).toBeFalsy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-promotion_cart_rule .router-link').exists()).toBeFalsy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-promotion_discount_rule .router-link').exists()).toBeFalsy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__card-promotion_group_rule .router-link').exists()).toBeFalsy();
         expect(wrapper.find('.sw-settings-rule-detail-assignments__card-event_action .router-link').exists()).toBeFalsy();
 
         // Expect empty states to be present
@@ -211,11 +211,11 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-shipping_method_availability_rule').exists()).toBeTruthy();
         expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-shipping_method_prices').exists()).toBeTruthy();
         expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-payment_method').exists()).toBeTruthy();
-        expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-promotion-order-rule').exists()).toBeTruthy();
-        expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-promotion-customer-rule').exists()).toBeTruthy();
-        expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-promotion-cart-rule').exists()).toBeTruthy();
-        expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-promotion-discount-rule').exists()).toBeTruthy();
-        expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-promotion-group-rule').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-promotion_order_rule').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-promotion_customer_rule').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-promotion_cart_rule').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-promotion_discount_rule').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-promotion_group_rule').exists()).toBeTruthy();
         expect(wrapper.find('.sw-settings-rule-detail-assignments__entity-empty-state-event_action').exists()).toBeTruthy();
 
         // Loader should not be present
@@ -256,7 +256,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-assignments',
         ]);
         await flushPromises();
 
-        const promotionListing = wrapper.find('.sw-settings-rule-detail-assignments__entity-listing-promotion-order-rule .sw-data-grid__cell--name  .router-link');
+        const promotionListing = wrapper.find('.sw-settings-rule-detail-assignments__entity-listing-promotion_order_rule .sw-data-grid__cell--name  .router-link');
 
         // expect promotion entity listing to exist
         expect(promotionListing.exists()).toBe(true);

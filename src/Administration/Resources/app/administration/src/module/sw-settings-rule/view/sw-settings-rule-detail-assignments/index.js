@@ -1,11 +1,14 @@
+import RuleAssignmentConfigurationService from 'src/module/sw-settings-rule/service/rule-assignment-configuration.service';
+/** @feature-deprecated (flag:FEATURE_NEXT_16902) Replaced with "templateFeatureNext16902"  */
 import template from './sw-settings-rule-detail-assignments.html.twig';
 import templateFeatureNext16902 from './sw-settings-rule-detail-assignments-feature-next-16902.html.twig';
 import './sw-settings-rule-detail-assignments.scss';
 
-const { Component, Mixin, Context, Feature } = Shopware;
+const { Component, Mixin, Context, Feature, Utils } = Shopware;
 const { Criteria } = Shopware.Data;
 
 Component.register('sw-settings-rule-detail-assignments', {
+    /** @feature-deprecated (flag:FEATURE_NEXT_16902) Rename "templateFeatureNext16902" to "template" and delete old template  */
     template: Feature.isActive('FEATURE_NEXT_16902') ? templateFeatureNext16902 : template,
 
     inject: [
@@ -45,7 +48,11 @@ Component.register('sw-settings-rule-detail-assignments', {
     },
 
     computed: {
-        /** @deprecated tag:v6.5.0 Unused method will be removed */
+        getRuleAssignmentConfiguration() {
+            return RuleAssignmentConfigurationService(this.rule.id, this.associationLimit).getConfiguration();
+        },
+
+        /** @feature-deprecated (flag:FEATURE_NEXT_16902) tag:v6.5.0 Unused method will be removed */
         hasNoAssociations() {
             return this.associationEntities.every((entity) => {
                 return entity.loadedData && entity.loadedData.total === 0;
@@ -63,19 +70,15 @@ Component.register('sw-settings-rule-detail-assignments', {
          */
         /* eslint-enable max-len */
         associationEntitiesConfig() {
-            if (this.feature.isActive('FEATURE_NEXT_16902')) {
+            if (!this.feature.isActive('FEATURE_NEXT_16902')) {
                 return [
                     {
-                        id: 'product',
-                        notAssignedDataTotal: 0,
-                        allowAdd: false,
                         entityName: 'product',
-                        label: this.$tc('sw-settings-rule.detail.associations.products'),
+                        label: 'sw-settings-rule.detail.associations.products',
                         criteria: () => {
                             const criteria = new Criteria();
                             criteria.setLimit(this.associationLimit);
                             criteria.addFilter(Criteria.equals('prices.rule.id', this.rule.id));
-                            criteria.addAssociation('options.group');
 
                             return criteria;
                         },
@@ -91,88 +94,15 @@ Component.register('sw-settings-rule-detail-assignments', {
                                 property: 'name',
                                 label: 'Name',
                                 rawData: true,
-                                sortable: true,
+                                sortable: false,
                                 routerLink: 'sw.product.detail.prices',
                                 allowEdit: false,
                             },
                         ],
                     },
                     {
-                        id: 'shipping_method_availability_rule',
-                        notAssignedDataTotal: 0,
-                        allowAdd: true,
                         entityName: 'shipping_method',
-                        label: this.$tc('sw-settings-rule.detail.associations.shippingMethodAvailabilityRule'),
-                        criteria: () => {
-                            const criteria = new Criteria();
-                            criteria.setLimit(this.associationLimit);
-                            criteria.addFilter(Criteria.equals('availabilityRuleId', this.rule.id));
-
-                            return criteria;
-                        },
-                        detailRoute: 'sw.settings.shipping.detail',
-                        gridColumns: [
-                            {
-                                property: 'name',
-                                label: 'Name',
-                                rawData: true,
-                                sortable: true,
-                                routerLink: 'sw.settings.shipping.detail',
-                                allowEdit: false,
-                            },
-                        ],
-                        addContext: {
-                            type: 'update',
-                            entity: 'shipping_method',
-                            column: 'availabilityRuleId',
-                            searchColumn: 'name',
-                            criteria: () => {
-                                const criteria = new Criteria();
-                                criteria.addFilter(Criteria.not(
-                                    'AND',
-                                    [Criteria.equals('availabilityRuleId', this.rule.id)],
-                                ));
-
-                                return criteria;
-                            },
-                            gridColumns: [
-                                {
-                                    property: 'name',
-                                    label: 'Name',
-                                    rawData: true,
-                                    sortable: true,
-                                    allowEdit: false,
-                                },
-                                {
-                                    property: 'description',
-                                    label: 'Description',
-                                    rawData: true,
-                                    sortable: true,
-                                    allowEdit: false,
-                                },
-                                {
-                                    property: 'taxType',
-                                    label: 'Tax calculation',
-                                    rawData: true,
-                                    sortable: true,
-                                    allowEdit: false,
-                                },
-                                {
-                                    property: 'active',
-                                    label: 'Active',
-                                    rawData: true,
-                                    sortable: true,
-                                    allowEdit: false,
-                                },
-                            ],
-                        },
-                    },
-                    {
-                        id: 'shipping_method_prices',
-                        notAssignedDataTotal: 0,
-                        allowAdd: false,
-                        entityName: 'shipping_method',
-                        label: this.$tc('sw-settings-rule.detail.associations.shippingMethodPrices'),
+                        label: 'sw-settings-rule.detail.associations.shippingMethods',
                         criteria: () => {
                             const criteria = new Criteria();
                             criteria.setLimit(this.associationLimit);
@@ -182,6 +112,7 @@ Component.register('sw-settings-rule-detail-assignments', {
                                     [
                                         Criteria.equals('prices.ruleId', this.rule.id),
                                         Criteria.equals('prices.calculationRuleId', this.rule.id),
+                                        Criteria.equals('availabilityRuleId', this.rule.id),
                                     ],
                                 ),
                             );
@@ -194,18 +125,15 @@ Component.register('sw-settings-rule-detail-assignments', {
                                 property: 'name',
                                 label: 'Name',
                                 rawData: true,
-                                sortable: true,
+                                sortable: false,
                                 routerLink: 'sw.settings.shipping.detail',
                                 allowEdit: false,
                             },
                         ],
                     },
                     {
-                        id: 'payment_method',
-                        notAssignedDataTotal: 0,
-                        allowAdd: true,
                         entityName: 'payment_method',
-                        label: this.$tc('sw-settings-rule.detail.associations.paymentMethods'),
+                        label: 'sw-settings-rule.detail.associations.paymentMethods',
                         criteria: () => {
                             const criteria = new Criteria();
                             criteria.setLimit(this.associationLimit);
@@ -219,72 +147,30 @@ Component.register('sw-settings-rule-detail-assignments', {
                                 property: 'name',
                                 label: 'Name',
                                 rawData: true,
-                                sortable: true,
+                                sortable: false,
                                 routerLink: 'sw.settings.payment.detail',
                                 allowEdit: false,
                             },
                         ],
-                        deleteContext: {
-                            type: 'update',
-                            entity: 'payment_method',
-                            column: 'availabilityRuleId',
-                        },
-                        addContext: {
-                            type: 'update',
-                            entity: 'payment_method',
-                            column: 'availabilityRuleId',
-                            searchColumn: 'name',
-                            criteria: () => {
-                                const criteria = new Criteria();
-                                criteria.addFilter(Criteria.not(
-                                    'AND',
-                                    [Criteria.equals('availabilityRuleId', this.rule.id)],
-                                ));
-
-                                return criteria;
-                            },
-                            gridColumns: [
-                                {
-                                    property: 'name',
-                                    label: 'Name',
-                                    rawData: true,
-                                    sortable: true,
-                                    allowEdit: false,
-                                },
-                                {
-                                    property: 'extension',
-                                    label: 'Extension',
-                                    rawData: true,
-                                    sortable: true,
-                                    allowEdit: false,
-                                },
-                                {
-                                    property: 'active',
-                                    label: 'Active',
-                                    rawData: true,
-                                    sortable: true,
-                                    allowEdit: false,
-                                },
-                                {
-                                    property: 'position',
-                                    label: 'Position',
-                                    rawData: true,
-                                    sortable: true,
-                                    allowEdit: false,
-                                },
-                            ],
-                        },
                     },
                     {
-                        id: 'promotion-order-rule',
-                        notAssignedDataTotal: 0,
-                        allowAdd: true,
                         entityName: 'promotion',
-                        label: this.$tc('sw-settings-rule.detail.associations.promotionOrderRules'),
+                        label: 'sw-settings-rule.detail.associations.promotions',
                         criteria: () => {
                             const criteria = new Criteria();
                             criteria.setLimit(this.associationLimit);
-                            criteria.addFilter(Criteria.equals('orderRules.id', this.rule.id));
+                            criteria.addFilter(
+                                Criteria.multi(
+                                    'OR',
+                                    [
+                                        Criteria.equals('personaRules.id', this.rule.id),
+                                        Criteria.equals('orderRules.id', this.rule.id),
+                                        Criteria.equals('cartRules.id', this.rule.id),
+                                        Criteria.equals('discounts.discountRules.id', this.rule.id),
+                                        Criteria.equals('setgroups.setGroupRules.id', this.rule.id),
+                                    ],
+                                ),
+                            );
 
                             return criteria;
                         },
@@ -294,257 +180,14 @@ Component.register('sw-settings-rule-detail-assignments', {
                                 property: 'name',
                                 label: 'Name',
                                 rawData: true,
-                                sortable: true,
-                                routerLink: 'sw.promotion.v2.detail.conditions',
-                            },
-                        ],
-                        deleteContext: {
-                            type: 'delete',
-                            entity: 'promotion_order_rule',
-                            column: 'promotionId',
-                        },
-                        addContext: {
-                            type: 'insert',
-                            entity: 'promotion_order_rule',
-                            column: 'promotionId',
-                            searchColumn: 'name',
-                            association: 'orderRules',
-                            criteria: () => {
-                                const criteria = new Criteria();
-                                criteria.addFilter(Criteria.not('AND', [Criteria.equals('orderRules.id', this.rule.id)]));
-
-                                return criteria;
-                            },
-                            gridColumns: [
-                                {
-                                    property: 'name',
-                                    label: 'Name',
-                                    rawData: true,
-                                    sortable: true,
-                                    allowEdit: false,
-                                },
-                                {
-                                    property: 'active',
-                                    label: 'Active',
-                                    rawData: true,
-                                    sortable: true,
-                                    allowEdit: false,
-                                },
-                                {
-                                    property: 'validFrom',
-                                    label: 'Valid from',
-                                    rawData: true,
-                                    sortable: true,
-                                    allowEdit: false,
-                                },
-                                {
-                                    property: 'validTo',
-                                    label: 'Valid to',
-                                    rawData: true,
-                                    sortable: true,
-                                    allowEdit: false,
-                                },
-                            ],
-                        },
-                    },
-                    {
-                        id: 'promotion-customer-rule',
-                        notAssignedDataTotal: 0,
-                        allowAdd: true,
-                        entityName: 'promotion',
-                        label: this.$tc('sw-settings-rule.detail.associations.promotionCustomerRules'),
-                        criteria: () => {
-                            const criteria = new Criteria();
-                            criteria.setLimit(this.associationLimit);
-                            criteria.addFilter(Criteria.equals('personaRules.id', this.rule.id));
-
-                            return criteria;
-                        },
-                        detailRoute: 'sw.promotion.v2.detail.conditions',
-                        gridColumns: [
-                            {
-                                property: 'name',
-                                label: 'Name',
-                                rawData: true,
-                                sortable: true,
-                                routerLink: 'sw.promotion.v2.detail.conditions',
-                            },
-                        ],
-                        deleteContext: {
-                            type: 'delete',
-                            entity: 'promotion_persona_rule',
-                            column: 'promotionId',
-                        },
-                        addContext: {
-                            type: 'insert',
-                            entity: 'promotion_persona_rule',
-                            column: 'promotionId',
-                            searchColumn: 'name',
-                            association: 'personaRules',
-                            criteria: () => {
-                                const criteria = new Criteria();
-                                criteria.addFilter(Criteria.not('AND', [Criteria.equals('personaRules.id', this.rule.id)]));
-
-                                return criteria;
-                            },
-                            gridColumns: [
-                                {
-                                    property: 'name',
-                                    label: 'Name',
-                                    rawData: true,
-                                    sortable: true,
-                                    allowEdit: false,
-                                },
-                                {
-                                    property: 'active',
-                                    label: 'Active',
-                                    rawData: true,
-                                    sortable: true,
-                                    allowEdit: false,
-                                },
-                                {
-                                    property: 'validFrom',
-                                    label: 'Valid from',
-                                    rawData: true,
-                                    sortable: true,
-                                    allowEdit: false,
-                                },
-                                {
-                                    property: 'validTo',
-                                    label: 'Valid to',
-                                    rawData: true,
-                                    sortable: true,
-                                    allowEdit: false,
-                                },
-                            ],
-                        },
-                    },
-                    {
-                        id: 'promotion-cart-rule',
-                        notAssignedDataTotal: 0,
-                        allowAdd: true,
-                        entityName: 'promotion',
-                        label: this.$tc('sw-settings-rule.detail.associations.promotionCartRules'),
-                        criteria: () => {
-                            const criteria = new Criteria();
-                            criteria.setLimit(this.associationLimit);
-                            criteria.addFilter(Criteria.equals('cartRules.id', this.rule.id));
-
-                            return criteria;
-                        },
-                        detailRoute: 'sw.promotion.v2.detail.conditions',
-                        gridColumns: [
-                            {
-                                property: 'name',
-                                label: 'Name',
-                                rawData: true,
-                                sortable: true,
-                                routerLink: 'sw.promotion.v2.detail.conditions',
-                            },
-                        ],
-                        deleteContext: {
-                            type: 'delete',
-                            entity: 'promotion_cart_rule',
-                            column: 'promotionId',
-                        },
-                        addContext: {
-                            type: 'insert',
-                            entity: 'promotion_cart_rule',
-                            column: 'promotionId',
-                            searchColumn: 'name',
-                            association: 'cartRules',
-                            criteria: () => {
-                                const criteria = new Criteria();
-                                criteria.addFilter(Criteria.not('AND', [Criteria.equals('cartRules.id', this.rule.id)]));
-
-                                return criteria;
-                            },
-                            gridColumns: [
-                                {
-                                    property: 'name',
-                                    label: 'Name',
-                                    rawData: true,
-                                    sortable: true,
-                                    allowEdit: false,
-                                },
-                                {
-                                    property: 'active',
-                                    label: 'Active',
-                                    rawData: true,
-                                    sortable: true,
-                                    allowEdit: false,
-                                },
-                                {
-                                    property: 'validFrom',
-                                    label: 'Valid from',
-                                    rawData: true,
-                                    sortable: true,
-                                    allowEdit: false,
-                                },
-                                {
-                                    property: 'validTo',
-                                    label: 'Valid to',
-                                    rawData: true,
-                                    sortable: true,
-                                    allowEdit: false,
-                                },
-                            ],
-                        },
-                    },
-                    {
-                        id: 'promotion-discount-rule',
-                        notAssignedDataTotal: 0,
-                        allowAdd: false,
-                        entityName: 'promotion',
-                        label: this.$tc('sw-settings-rule.detail.associations.promotionDiscountRules'),
-                        criteria: () => {
-                            const criteria = new Criteria();
-                            criteria.setLimit(this.associationLimit);
-                            criteria.addFilter(Criteria.equals('discounts.discountRules.id', this.rule.id));
-
-                            return criteria;
-                        },
-                        detailRoute: 'sw.promotion.v2.detail.conditions',
-                        gridColumns: [
-                            {
-                                property: 'name',
-                                label: 'Name',
-                                rawData: true,
-                                sortable: true,
+                                sortable: false,
                                 routerLink: 'sw.promotion.v2.detail.conditions',
                             },
                         ],
                     },
                     {
-                        id: 'promotion-group-rule',
-                        notAssignedDataTotal: 0,
-                        allowAdd: false,
-                        entityName: 'promotion',
-                        label: this.$tc('sw-settings-rule.detail.associations.promotionGroupRules'),
-                        criteria: () => {
-                            const criteria = new Criteria();
-                            criteria.setLimit(this.associationLimit);
-                            criteria.addFilter(Criteria.equals('setgroups.setGroupRules.id', this.rule.id));
-
-                            return criteria;
-                        },
-                        detailRoute: 'sw.promotion.v2.detail.conditions',
-                        gridColumns: [
-                            {
-                                property: 'name',
-                                label: 'Name',
-                                rawData: true,
-                                sortable: true,
-                                routerLink: 'sw.promotion.v2.detail.conditions',
-                            },
-                        ],
-                    },
-                    {
-                        id: 'event_action',
-                        notAssignedDataTotal: 0,
-                        allowAdd: true,
                         entityName: 'event_action',
-                        label: this.$tc('sw-settings-rule.detail.associations.eventActions'),
+                        label: 'sw-settings-rule.detail.associations.eventActions',
                         criteria: () => {
                             const criteria = new Criteria();
                             criteria.setLimit(this.associationLimit);
@@ -558,214 +201,27 @@ Component.register('sw-settings-rule-detail-assignments', {
                                 property: 'eventName',
                                 label: 'Business Event',
                                 rawData: true,
-                                sortable: true,
+                                sortable: false,
                                 width: '50%',
                                 routerLink: 'sw.event.action.detail',
                             },
                             {
                                 property: 'title',
-                                label: 'Business Event title',
+                                label: 'Business Event Title',
                                 rawData: true,
-                                sortable: true,
+                                sortable: false,
                                 width: '50%',
                                 routerLink: 'sw.event.action.detail',
                             },
                         ],
-                        deleteContext: {
-                            type: 'delete',
-                            entity: 'event_action_rule',
-                            column: 'eventActionId',
-                        },
-                        addContext: {
-                            type: 'insert',
-                            entity: 'event_action_rule',
-                            column: 'eventActionId',
-                            searchColumn: 'eventName',
-                            association: 'rules',
-                            criteria: () => {
-                                const criteria = new Criteria();
-                                criteria.addFilter(Criteria.not('AND', [Criteria.equals('rules.id', this.rule.id)]));
-                                criteria.addFilter(Criteria.equals('actionName', 'action.mail.send'));
-                                criteria.addFilter(Criteria.not('AND', [Criteria.equals('config.mail_template_id', null)]));
-
-                                return criteria;
-                            },
-                            gridColumns: [
-                                {
-                                    property: 'eventName',
-                                    label: 'Event',
-                                    rawData: true,
-                                    sortable: true,
-                                    allowEdit: false,
-                                },
-                                {
-                                    property: 'title',
-                                    label: 'Title',
-                                    rawData: true,
-                                    sortable: true,
-                                    allowEdit: false,
-                                },
-                                {
-                                    property: 'active',
-                                    label: 'Active',
-                                    rawData: true,
-                                    sortable: true,
-                                    allowEdit: false,
-                                },
-                            ],
-                        },
                     },
                 ];
             }
 
-            return [
-                {
-                    entityName: 'product',
-                    label: this.$tc('sw-settings-rule.detail.associations.products'),
-                    criteria: () => {
-                        const criteria = new Criteria();
-                        criteria.setLimit(this.associationLimit);
-                        criteria.addFilter(Criteria.equals('prices.rule.id', this.rule.id));
-
-                        return criteria;
-                    },
-                    api: () => {
-                        const api = Object.assign({}, Context.api);
-                        api.inheritance = true;
-
-                        return api;
-                    },
-                    detailRoute: 'sw.product.detail.prices',
-                    gridColumns: [
-                        {
-                            property: 'name',
-                            label: 'Name',
-                            rawData: true,
-                            sortable: false,
-                            routerLink: 'sw.product.detail.prices',
-                            allowEdit: false,
-                        },
-                    ],
-                },
-                {
-                    entityName: 'shipping_method',
-                    label: this.$tc('sw-settings-rule.detail.associations.shippingMethods'),
-                    criteria: () => {
-                        const criteria = new Criteria();
-                        criteria.setLimit(this.associationLimit);
-                        criteria.addFilter(
-                            Criteria.multi(
-                                'OR',
-                                [
-                                    Criteria.equals('prices.ruleId', this.rule.id),
-                                    Criteria.equals('prices.calculationRuleId', this.rule.id),
-                                    Criteria.equals('availabilityRuleId', this.rule.id),
-                                ],
-                            ),
-                        );
-
-                        return criteria;
-                    },
-                    detailRoute: 'sw.settings.shipping.detail',
-                    gridColumns: [
-                        {
-                            property: 'name',
-                            label: 'Name',
-                            rawData: true,
-                            sortable: false,
-                            routerLink: 'sw.settings.shipping.detail',
-                            allowEdit: false,
-                        },
-                    ],
-                },
-                {
-                    entityName: 'payment_method',
-                    label: this.$tc('sw-settings-rule.detail.associations.paymentMethods'),
-                    criteria: () => {
-                        const criteria = new Criteria();
-                        criteria.setLimit(this.associationLimit);
-                        criteria.addFilter(Criteria.equals('availabilityRuleId', this.rule.id));
-
-                        return criteria;
-                    },
-                    detailRoute: 'sw.settings.payment.detail',
-                    gridColumns: [
-                        {
-                            property: 'name',
-                            label: 'Name',
-                            rawData: true,
-                            sortable: false,
-                            routerLink: 'sw.settings.payment.detail',
-                            allowEdit: false,
-                        },
-                    ],
-                },
-                {
-                    entityName: 'promotion',
-                    label: this.$tc('sw-settings-rule.detail.associations.promotions'),
-                    criteria: () => {
-                        const criteria = new Criteria();
-                        criteria.setLimit(this.associationLimit);
-                        criteria.addFilter(
-                            Criteria.multi(
-                                'OR',
-                                [
-                                    Criteria.equals('personaRules.id', this.rule.id),
-                                    Criteria.equals('orderRules.id', this.rule.id),
-                                    Criteria.equals('cartRules.id', this.rule.id),
-                                    Criteria.equals('discounts.discountRules.id', this.rule.id),
-                                    Criteria.equals('setgroups.setGroupRules.id', this.rule.id),
-                                ],
-                            ),
-                        );
-
-                        return criteria;
-                    },
-                    detailRoute: 'sw.promotion.v2.detail.conditions',
-                    gridColumns: [
-                        {
-                            property: 'name',
-                            label: 'Name',
-                            rawData: true,
-                            sortable: false,
-                            routerLink: 'sw.promotion.v2.detail.conditions',
-                        },
-                    ],
-                },
-                {
-                    entityName: 'event_action',
-                    label: this.$tc('sw-settings-rule.detail.associations.eventActions'),
-                    criteria: () => {
-                        const criteria = new Criteria();
-                        criteria.setLimit(this.associationLimit);
-                        criteria.addFilter(Criteria.equals('rules.id', this.rule.id));
-
-                        return criteria;
-                    },
-                    detailRoute: 'sw.event.action.detail',
-                    gridColumns: [
-                        {
-                            property: 'eventName',
-                            label: 'Business Event',
-                            rawData: true,
-                            sortable: false,
-                            width: '50%',
-                            routerLink: 'sw.event.action.detail',
-                        },
-                        {
-                            property: 'title',
-                            label: 'Business Event Title',
-                            rawData: true,
-                            sortable: false,
-                            width: '50%',
-                            routerLink: 'sw.event.action.detail',
-                        },
-                    ],
-                },
-            ];
+            return Object.values(this.getRuleAssignmentConfiguration);
         },
 
-        /** @deprecated tag:v6.5.0 Unused method will be removed */
+        /** @feature-deprecated (flag:FEATURE_NEXT_16902) tag:v6.5.0 Unused method will be removed */
         loadedAssociationEntities() {
             return this.associationEntities.filter((item) => {
                 return item.loadedData && item.loadedData.total > 0;
@@ -826,74 +282,54 @@ Component.register('sw-settings-rule-detail-assignments', {
         onEntitiesSaved() {
             this.addModal = false;
 
-            const api = this.addEntityContext.api ? this.addEntityContext.api() : Context.api;
-            return this.addEntityContext.repository.search(this.addEntityContext.criteria(), api).then(async (result) => {
-                const total = await this.loadNotAssignedDataTotals(this.addEntityContext, api);
-                this.associationEntities.forEach((entity) => {
-                    if (entity.id === this.addEntityContext.id) {
-                        entity.loadedData = result;
-                        entity.notAssignedDataTotal = total;
-                    }
-                });
-            });
+            return this.refreshAssignmentData(this.addEntityContext);
         },
 
-        deleteItems(entity, selection) {
-            Object.values(selection).forEach((item) => {
+        async onDeleteItems(entity, selection) {
+            await Promise.all(Object.values(selection).map(async (item) => {
                 this.deleteEntity = entity;
                 this.deleteItem = item;
 
-                this.onDelete();
+                await this.doDeleteItem();
+            }));
+
+            return this.refreshAssignmentData(entity).then(() => {
+                this.onCloseDeleteModal();
             });
         },
 
         onDelete() {
-            if (this.deleteEntity.deleteContext.type === 'update') {
-                const api = this.deleteEntity.api ? this.deleteEntity.api() : Context.api;
-                const repository = this.repositoryFactory.create(this.deleteItem.getEntityName());
-
-                this.deleteItem[this.deleteEntity.deleteContext.column] = null;
-
-
-                repository.save(this.deleteItem, api).then(() => {
-                    return this.deleteEntity.repository.search(this.deleteEntity.criteria(), api).then(async (result) => {
-                        const total = await this.loadNotAssignedDataTotals(this.deleteEntity, api);
-                        this.associationEntities.forEach((entity) => {
-                            if (this.deleteEntity.id === entity.id) {
-                                entity.loadedData = result;
-                                entity.notAssignedDataTotal = total;
-                            }
-                        });
-                    });
+            return this.doDeleteItem().then(() => {
+                return this.refreshAssignmentData(this.deleteEntity).then(() => {
+                    this.onCloseDeleteModal();
                 });
+            });
+        },
+
+        doDeleteItem() {
+            const api = this.deleteEntity.api ? this.deleteEntity.api() : Context.api;
+            const repository = this.repositoryFactory.create(this.deleteItem.getEntityName());
+
+            if (this.deleteEntity.deleteContext.type === 'one-to-many') {
+                Utils.object.set(this.deleteItem, this.deleteEntity.deleteContext.column, null);
             } else {
-                const api = this.deleteEntity.api ? this.deleteEntity.api() : Context.api;
-                const repository = this.repositoryFactory.create(this.deleteEntity.deleteContext.entity);
-
-                repository.sendDeletions([
-                    {
-                        route: repository.route,
-                        key: this.deleteItem.id,
-                        entity: this.deleteEntity.deleteContext.entity,
-                        primary: {
-                            [this.deleteEntity.deleteContext.column]: this.deleteItem.id,
-                            ruleId: this.rule.id,
-                        },
-                    },
-                ], api).then(() => {
-                    return this.deleteEntity.repository.search(this.deleteEntity.criteria(), api).then(async (result) => {
-                        const total = await this.loadNotAssignedDataTotals(this.deleteEntity, api);
-                        this.associationEntities.forEach((entity) => {
-                            if (this.deleteEntity.id === entity.id) {
-                                entity.loadedData = result;
-                                entity.notAssignedDataTotal = total;
-                            }
-                        });
-                    });
-                });
+                Utils.object.get(this.deleteItem, this.deleteEntity.deleteContext.column).remove(this.rule.id);
             }
 
-            this.onCloseDeleteModal();
+            return repository.save(this.deleteItem, api);
+        },
+
+        async refreshAssignmentData(entity) {
+            const api = entity.api ? entity.api() : Context.api;
+            const result = await entity.repository.search(entity.criteria(), api);
+            const total = await this.loadNotAssignedDataTotals(entity, api);
+
+            this.associationEntities.forEach((currentEntity) => {
+                if (entity.id === currentEntity.id) {
+                    currentEntity.loadedData = result;
+                    currentEntity.notAssignedDataTotal = total;
+                }
+            });
         },
 
         onFilterEntity(item, term) {

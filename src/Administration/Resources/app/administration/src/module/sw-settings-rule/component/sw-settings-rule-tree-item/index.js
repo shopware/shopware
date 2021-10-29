@@ -12,20 +12,14 @@ Component.extend('sw-settings-rule-tree-item', 'sw-tree-item', {
         },
         hideActions: {
             type: Boolean,
+            required: false,
             default: true,
         },
     },
 
     methods: {
         hasItemAssociation(item) {
-            if (
-                (item.data[this.association] && item.data[this.association].length > 0)
-                || (item.data.extensions[this.association] && item.data.extensions[this.association].length > 0)
-            ) {
-                return true;
-            }
-
-            return false;
+            return item.data[this.association]?.length > 0 || item.data.extensions[this.association]?.length > 0;
         },
     },
 });

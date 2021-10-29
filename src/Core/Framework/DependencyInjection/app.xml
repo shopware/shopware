@@ -79,6 +79,37 @@
             <argument type="service" id="app_script.repository"/>
         </service>
 
+        <service id="Shopware\Core\Framework\App\Script\Registry\ExecutableDatabaseScriptLoader">
+            <argument type="service" id="app_script.repository"/>
+            <argument>%kernel.cache_dir%</argument>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Script\Registry\ExecutableFileScriptLoader">
+            <argument type="service" id="Shopware\Core\Framework\App\ActiveAppsLoader"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Script\ScriptLoader"/>
+            <argument>%kernel.project_dir%</argument>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Script\Registry\ExecutableScriptLoaderFactory">
+            <argument type="service" id="Shopware\Core\Framework\App\Script\Registry\ExecutableDatabaseScriptLoader"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Script\Registry\ExecutableFileScriptLoader"/>
+            <argument>%kernel.environment%</argument>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Script\Registry\ExecutableScriptLoaderInterface">
+            <factory service="Shopware\Core\Framework\App\Script\Registry\ExecutableScriptLoaderFactory"
+                method="getScriptLoader"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Script\Registry\ScriptRegistry">
+            <argument type="service" id="Shopware\Core\Framework\App\Script\Registry\ExecutableScriptLoaderInterface"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\Script\Executor\ScriptExecutor" public="true">
+            <argument type="service" id="Shopware\Core\Framework\App\Script\Registry\ScriptRegistry"/>
+            <argument type="service" id="logger"/>
+        </service>
+
         <service id="Shopware\Core\Framework\App\Lifecycle\Persister\TemplatePersister">
             <argument type="service" id="Shopware\Core\Framework\App\Template\TemplateLoader"/>
             <argument type="service" id="app_template.repository"/>

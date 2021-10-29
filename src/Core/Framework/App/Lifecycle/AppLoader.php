@@ -53,7 +53,7 @@ class AppLoader extends AbstractAppLoader
             try {
                 $manifest = Manifest::createFromXmlFile($xml->getPathname());
 
-                $manifests[$manifest->getMetadata()->getName()] = Manifest::createFromXmlFile($xml->getPathname());
+                $manifests[$manifest->getMetadata()->getName()] = $manifest;
             } catch (XmlParsingException $e) {
                 //nth, if app is already registered it will be deleted
             }

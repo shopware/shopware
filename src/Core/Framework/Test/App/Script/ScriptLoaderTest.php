@@ -5,14 +5,14 @@ namespace Shopware\Core\Framework\Test\App\Script;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Script\ScriptLoader;
-use Shopware\Core\Framework\App\Template\AbstractTemplateLoader;
+use Shopware\Core\Framework\App\Script\ScriptLoaderInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 class ScriptLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private AbstractTemplateLoader $scriptLoader;
+    private ScriptLoaderInterface $scriptLoader;
 
     public function setUp(): void
     {
@@ -23,7 +23,7 @@ class ScriptLoaderTest extends TestCase
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
 
-        $scripts = $this->scriptLoader->getTemplatePathsForApp($manifest);
+        $scripts = $this->scriptLoader->getScriptPathsForAppPath($manifest->getPath());
 
         static::assertEquals(
             ['product-page-loaded/product-page-script.twig'],
@@ -37,7 +37,7 @@ class ScriptLoaderTest extends TestCase
 
         static::assertEquals(
             [],
-            $this->scriptLoader->getTemplatePathsForApp($manifest)
+            $this->scriptLoader->getScriptPathsForAppPath($manifest->getPath())
         );
     }
 
@@ -47,7 +47,7 @@ class ScriptLoaderTest extends TestCase
 
         static::assertStringEqualsFile(
             __DIR__ . '/../Manifest/_fixtures/test/Resources/scripts/product-page-loaded/product-page-script.twig',
-            $this->scriptLoader->getTemplateContent('product-page-loaded/product-page-script.twig', $manifest)
+            $this->scriptLoader->getScriptContent('product-page-loaded/product-page-script.twig', $manifest->getPath())
         );
     }
 
@@ -56,6 +56,26 @@ class ScriptLoaderTest extends TestCase
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
 
         static::expectException(\RuntimeException::class);
-        $this->scriptLoader->getTemplateContent('does/not/exist', $manifest);
+        $this->scriptLoader->getScriptContent('does/not/exist', $manifest->getPath());
+    }
+
+    public function testGetLastModifiedDate(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
+
+        static::assertEquals(
+            (new \DateTimeImmutable())->setTimestamp(
+                filemtime(__DIR__ . '/../Manifest/_fixtures/test/Resources/scripts/product-page-loaded/product-page-script.twig')
+            ),
+            $this->scriptLoader->getLastModifiedDate('product-page-loaded/product-page-script.twig', $manifest->getPath())
+        );
+    }
+
+    public function testGetLastModifiedDateThrowsOnNotFoundFile(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
+
+        static::expectException(\RuntimeException::class);
+        $this->scriptLoader->getLastModifiedDate('does/not/exist', $manifest->getPath());
     }
 }

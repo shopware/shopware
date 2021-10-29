@@ -6,7 +6,7 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Script\AppScriptCollection;
 use Shopware\Core\Framework\App\Script\AppScriptEntity;
-use Shopware\Core\Framework\App\Template\AbstractTemplateLoader;
+use Shopware\Core\Framework\App\Script\ScriptLoaderInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -16,14 +16,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
  */
 class ScriptPersister
 {
-    private AbstractTemplateLoader $scriptLoader;
+    private ScriptLoaderInterface $scriptLoader;
 
     private EntityRepositoryInterface $scriptRepository;
 
     private EntityRepositoryInterface $appRepository;
 
     public function __construct(
-        AbstractTemplateLoader $scriptLoader,
+        ScriptLoaderInterface $scriptLoader,
         EntityRepositoryInterface $scriptRepository,
         EntityRepositoryInterface $appRepository
     ) {
@@ -37,12 +37,12 @@ class ScriptPersister
         $app = $this->getAppWithExistingScripts($appId, $context);
         /** @var AppScriptCollection $existingScripts */
         $existingScripts = $app->getScripts();
-        $scriptPaths = $this->scriptLoader->getTemplatePathsForApp($manifest);
+        $scriptPaths = $this->scriptLoader->getScriptPathsForAppPath($manifest->getPath());
 
         $upserts = [];
         foreach ($scriptPaths as $scriptPath) {
             $payload = [
-                'script' => $this->scriptLoader->getTemplateContent($scriptPath, $manifest),
+                'script' => $this->scriptLoader->getScriptContent($scriptPath, $manifest->getPath()),
             ];
 
             /** @var AppScriptEntity|null $existing */

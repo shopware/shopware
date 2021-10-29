@@ -3,7 +3,6 @@
 namespace Shopware\Core\Framework\App;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\FetchMode;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLoader;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 
@@ -41,11 +40,11 @@ class ActiveAppsLoader
     private function loadApps(): array
     {
         try {
-            return $this->connection->executeQuery('
+            return $this->connection->fetchAllAssociative('
                 SELECT `name`, `path`, `author`
                 FROM `app`
                 WHERE `active` = 1
-            ')->fetchAll(FetchMode::ASSOCIATIVE);
+            ');
         } catch (\Throwable $e) {
             if (\defined('\STDERR')) {
                 fwrite(\STDERR, 'Warning: Failed to load apps. Loading apps from local. Message: ' . $e->getMessage() . \PHP_EOL);

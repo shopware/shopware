@@ -4,6 +4,7 @@ export default {
     modal: '.sw-modal',
     modalTitle: '.sw-modal__title',
     modalFooter: '.sw-modal__footer',
+    modalClose: '.sw-modal__close',
     selectSelectedItem: '.sw-select__selection',
     selectInput: '.sw-select__input',
 

@@ -102,13 +102,13 @@ describe('Order: Visual tests', () => {
             page.elements.contextMenuButton,
             `${page.elements.dataGridRow}--0`
         );
-        cy.get('.sw-data-grid__row--0').scrollIntoView();
+        cy.get(`${page.elements.dataGridRow}--0`).scrollIntoView();
 
         // Take snapshot for visual testing
         cy.get('.sw-data-grid__skeleton').should('not.exist');
         cy.takeSnapshot('Order listing with nested line items', '.sw-order-line-items-grid__data-grid');
 
-        cy.get('.sw-data-grid__row--0 .sw-order-line-items-grid__item-nested-indicator').click();
+        cy.get(`${page.elements.dataGridRow}--0 .sw-order-line-items-grid__item-nested-indicator`).click();
         cy.takeSnapshot('Nested line items modal', '.sw-order-line-items-grid__data-grid');
     });
 });

@@ -29,9 +29,6 @@ describe('Order: Test order state', () => {
     });
 
     it('@base @order: add document to order', () => {
-        // skip for feature FEATURE_NEXT_7530, this test is reactivated again with NEXT-16682
-        cy.skipOnFeature('FEATURE_NEXT_7530');
-
         const page = new OrderPageObject();
 
         // Request we want to wait for later
@@ -57,12 +54,19 @@ describe('Order: Test order state', () => {
             `${page.elements.dataGridRow}--0`
         );
 
-        cy.get(`${page.elements.userMetadata}-user-name`)
-            .contains('Max Mustermann');
+        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get(`${page.elements.userMetadata}-user-name`).contains('Max Mustermann');
+        });
+
+        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
+            page.changeActiveTab('documents');
+        });
 
         // Find documents
-        cy.get('.sw-order-detail-base__document-grid').scrollIntoView();
-        cy.get('.sw-order-detail-base__document-grid').should('be.visible');
+        cy.get(page.elements.tabs.documents.documentGrid)
+            .scrollIntoView()
+            .should('be.visible');
+
         cy.get(page.elements.loader).should('not.exist');
 
         cy.skipOnFeature('FEATURE_NEXT_7530', () => {
@@ -75,27 +79,25 @@ describe('Order: Test order state', () => {
         });
 
         cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
-            cy.get('.sw-order-document-grid-button').should('be.visible').click();
-            cy.get('.sw-order-select-document-type-modal').should('be.visible');
+            cy.get(page.elements.tabs.documents.addDocumentButton).should('be.visible').click();
+            cy.get(page.elements.tabs.documents.documentTypeModal).should('be.visible');
 
-            cy.get('.sw-field__radio-group').contains('Invoice').click();
+            cy.get(page.elements.tabs.documents.documentTypeModalRadios).contains('Invoice').click();
 
-            cy.get('.sw-modal__footer .sw-button--primary').click();
+            cy.get('.sw-modal__footer .sw-button--primary')
+                .should('not.be.disabled')
+                .click();
         });
 
         // Generate invoice
-        cy.get('.sw-order-document-settings-modal__settings-modal').should('be.visible');
+        cy.get(page.elements.tabs.documents.documentSettingsModal).should('be.visible');
         cy.get('#sw-field--documentConfig-documentComment').type('Always get a bill');
-        cy.get('.sw-order-document-settings-modal__settings-modal .sw-button--primary')
-            .click();
+        cy.get(`${page.elements.tabs.documents.documentSettingsModal} .sw-button--primary`).click();
 
         // Verify invoice
-        cy.wait('@createDocumentCall')
-            .its('response.statusCode').should('equal', 200);
+        cy.wait('@createDocumentCall').its('response.statusCode').should('equal', 200);
         cy.wait('@findDocumentCall').its('response.statusCode').should('equal', 200);
-
         cy.wait('@findOrder').its('response.statusCode').should('equal', 200);
-
         cy.wait('@findDocumentCall').its('response.statusCode').should('equal', 200);
 
         cy.get(page.elements.smartBarBack).click();
@@ -106,20 +108,22 @@ describe('Order: Test order state', () => {
             `${page.elements.dataGridRow}--0`
         );
 
-        cy.get('.sw-order-detail-base__document-grid').scrollIntoView();
-        cy.get('.sw-order-detail-base__document-grid .sw-data-grid__row--0').should('be.visible');
-        cy.get('.sw-order-detail-base__document-grid .sw-data-grid__row--0')
+        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
+            page.changeActiveTab('documents');
+        });
+
+        cy.get(page.elements.tabs.documents.documentGrid).scrollIntoView();
+        cy.get(`${page.elements.tabs.documents.documentGrid} ${page.elements.dataGridRow}--0`)
+            .should('be.visible')
             .contains('Invoice');
 
-        cy.get('.sw-order-detail-base__document-grid .sw-data-grid__row--0 .sw-data-grid__cell--actions .sw-context-button')
+        cy.get(`${page.elements.tabs.documents.documentGrid} ${page.elements.dataGridRow}--0 .sw-data-grid__cell--actions .sw-context-button`)
             .click();
+
         cy.get('.sw-context-menu-item').contains('Download');
     });
 
     it('@base @order: add document to order with existing invoice number', () => {
-        // skip for feature FEATURE_NEXT_7530, this test is reactivated again with NEXT-16682
-        cy.skipOnFeature('FEATURE_NEXT_7530');
-
         const page = new OrderPageObject();
 
         // Request we want to wait for later
@@ -147,12 +151,19 @@ describe('Order: Test order state', () => {
             `${page.elements.dataGridRow}--0`
         );
 
-        cy.get(`${page.elements.userMetadata}-user-name`)
-            .contains('Max Mustermann');
+        cy.skipOnFeature('FEATURE_NEXT_7530', () => {
+            cy.get(`${page.elements.userMetadata}-user-name`).contains('Max Mustermann');
+        });
+
+        cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
+            page.changeActiveTab('documents');
+        });
 
         // Find documents
-        cy.get('.sw-order-detail-base__document-grid').scrollIntoView();
-        cy.get('.sw-order-detail-base__document-grid').should('be.visible');
+        cy.get(page.elements.tabs.documents.documentGrid)
+            .scrollIntoView()
+            .should('be.visible');
+
         cy.get(page.elements.loader).should('not.exist');
 
         cy.skipOnFeature('FEATURE_NEXT_7530', () => {
@@ -165,42 +176,37 @@ describe('Order: Test order state', () => {
         });
 
         cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
-            cy.get('.sw-order-document-grid-button').should('be.visible').click();
-            cy.get('.sw-order-select-document-type-modal').should('be.visible');
+            cy.get(page.elements.tabs.documents.addDocumentButton).should('be.visible').click();
+            cy.get(page.elements.tabs.documents.documentTypeModal).should('be.visible');
 
-            cy.get('.sw-field__radio-group').contains('Invoice').click();
+            cy.get(page.elements.tabs.documents.documentTypeModalRadios).contains('Invoice').click();
 
-            cy.get('.sw-modal__footer .sw-button--primary').click();
+            cy.get('.sw-modal__footer .sw-button--primary')
+                .should('not.be.disabled')
+                .click();
         });
 
-        cy.wait('@reserveDocumentNumberRange')
-            .its('response.statusCode').should('equal', 200);
+        cy.wait('@reserveDocumentNumberRange').its('response.statusCode').should('equal', 200);
 
         // Generate first invoice
-        cy.get('.sw-order-document-settings-modal__settings-modal').should('be.visible');
+        cy.get(page.elements.tabs.documents.documentSettingsModal).should('be.visible');
 
         cy.get('#sw-field--documentConfig-documentNumber').invoke('val')
             .then((invoiceNumber) => {
-                cy.get('.sw-order-document-settings-modal__settings-modal .sw-button--primary')
+                cy.get(`${page.elements.tabs.documents.documentSettingsModal} .sw-button--primary`)
+                    .should('not.be.disabled')
                     .click();
 
                 // Verify first invoice
-                cy.wait('@createDocumentCall')
-                    .its('response.statusCode').should('equal', 200);
-
-                cy.wait('@findDocumentCall')
-                    .its('response.statusCode').should('equal', 200);
-
-                cy.wait('@findOrder')
-                    .its('response.statusCode').should('equal', 200);
-
-                cy.wait('@findDocumentCall')
-                    .its('response.statusCode').should('equal', 200);
+                cy.wait('@createDocumentCall').its('response.statusCode').should('equal', 200);
+                cy.wait('@findDocumentCall').its('response.statusCode').should('equal', 200);
+                cy.wait('@findOrder').its('response.statusCode').should('equal', 200);
+                cy.wait('@findDocumentCall').its('response.statusCode').should('equal', 200);
 
                 // Start to create a second invoice
-                cy.get('.sw-order-detail-base__document-grid').scrollIntoView();
-                cy.get('.sw-order-detail-base__document-grid').should('be.visible');
-
+                cy.get(page.elements.tabs.documents.documentGrid)
+                    .scrollIntoView()
+                    .should('be.visible');
 
                 cy.skipOnFeature('FEATURE_NEXT_7530', () => {
                     cy.clickContextMenuItem(
@@ -212,19 +218,20 @@ describe('Order: Test order state', () => {
                 });
 
                 cy.onlyOnFeature('FEATURE_NEXT_7530', () => {
-                    cy.get('.sw-order-document-grid-button').should('be.visible').click();
-                    cy.get('.sw-order-select-document-type-modal').should('be.visible');
+                    cy.get(page.elements.tabs.documents.addDocumentButton).should('be.visible').click();
+                    cy.get(page.elements.tabs.documents.documentTypeModal).should('be.visible');
 
-                    cy.get('.sw-field__radio-group').contains('Invoice').click();
+                    cy.get(page.elements.tabs.documents.documentTypeModalRadios).contains('Invoice').click();
 
-                    cy.get('.sw-modal__footer .sw-button--primary').click();
+                    cy.get('.sw-modal__footer .sw-button--primary')
+                        .should('not.be.disabled')
+                        .click();
                 });
 
-                cy.wait('@reserveDocumentNumberRange')
-                    .its('response.statusCode').should('equal', 200);
+                cy.wait('@reserveDocumentNumberRange').its('response.statusCode').should('equal', 200);
 
                 // Generate second invoice with same invoice number with first invoice
-                cy.get('.sw-order-document-settings-modal__settings-modal').should('be.visible');
+                cy.get(page.elements.tabs.documents.documentSettingsModal).should('be.visible');
                 cy.get('#sw-field--documentConfig-documentNumber').clear().type(invoiceNumber);
                 cy.get('#sw-field--documentConfig-documentNumber').invoke('val')
                     .then((invoiceNumberCheck) => {
@@ -232,12 +239,14 @@ describe('Order: Test order state', () => {
                             cy.get('#sw-field--documentConfig-documentNumber').clear().type(invoiceNumber);
                         }
                     });
-                cy.get('.sw-order-document-settings-modal__settings-modal .sw-button--primary')
+
+                cy.get(`${page.elements.tabs.documents.documentSettingsModal} .sw-button--primary`)
+                    .should('not.be.disabled')
                     .click();
 
                 // Verify second invoice and check error notification
-                cy.wait('@createDocumentCall')
-                    .its('response.statusCode').should('equal', 400);
+                cy.wait('@createDocumentCall').its('response.statusCode').should('equal', 400);
+
                 cy.awaitAndCheckNotification(`Document number ${invoiceNumber} has already been allocated.`);
             });
     });

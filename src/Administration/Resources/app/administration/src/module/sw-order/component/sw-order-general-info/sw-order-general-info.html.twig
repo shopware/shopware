@@ -91,6 +91,7 @@
                     disabled: acl.can('order.editor'),
                     showOnDisabledElements: true
                 }"
+                class="sw-order-detail-base__general-info__order-state-payment"
                 :transition-options="paymentStateOptions"
                 state-type="order_transaction"
                 :rounded-style="true"
@@ -110,6 +111,7 @@
                     disabled: acl.can('order.editor'),
                     showOnDisabledElements: true
                 }"
+                class="sw-order-detail-base__general-info__order-state-delivery"
                 :transition-options="deliveryStateOptions"
                 state-type="order_delivery"
                 :rounded-style="true"
@@ -129,6 +131,7 @@
                     disabled: acl.can('order.editor'),
                     showOnDisabledElements: true
                 }"
+                class="sw-order-detail-base__general-info__order-state-order"
                 :transition-options="orderStateOptions"
                 :rounded-style="true"
                 state-type="order"

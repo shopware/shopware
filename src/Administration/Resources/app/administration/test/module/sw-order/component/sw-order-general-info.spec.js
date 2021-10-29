@@ -123,6 +123,9 @@ describe('src/module/sw-order/component/sw-order-general-info', () => {
                 isLoading: false,
                 isSavedSuccessful: false,
                 versionContext: {}
+            },
+            mutations: {
+                setLoading() {}
             }
         });
     });

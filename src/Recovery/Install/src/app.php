@@ -155,7 +155,7 @@ function getApplication(KernelInterface $kernel): App
         $container->offsetSet('install.language', $selectedLanguage);
 
         $cookie = new SetCookie('installed-locale', $localeForLanguage($selectedLanguage), time() + 7200, '/');
-        $cookie->addToResponse($response);
+        $response = $cookie->addToResponse($response);
 
         $viewAttributes = [];
 

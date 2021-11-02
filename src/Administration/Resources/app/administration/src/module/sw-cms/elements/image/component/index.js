@@ -24,6 +24,11 @@ Component.register('sw-cms-el-image', {
                 'min-height': this.element.config.displayMode.value === 'cover' &&
                               this.element.config.minHeight.value &&
                               this.element.config.minHeight.value !== 0 ? this.element.config.minHeight.value : '340px',
+            };
+        },
+
+        imgStyles() {
+            return {
                 'align-self': this.element.config.verticalAlign.value || null,
             };
         },

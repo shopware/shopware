@@ -40,10 +40,6 @@ Component.extend('sw-condition-base-line-item', 'sw-condition-base', {
         },
 
         allowMatchesAll() {
-            if (!this.feature.isActive('FEATURE_NEXT_17016')) {
-                return false;
-            }
-
             if (this.conditionScopes) {
                 return this.conditionScopes.includes('cart');
             }

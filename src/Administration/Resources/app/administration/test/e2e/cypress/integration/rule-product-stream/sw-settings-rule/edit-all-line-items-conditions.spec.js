@@ -3,10 +3,6 @@
 import RulePageObject from '../../../support/pages/module/sw-rule.page-object';
 
 describe('Rule builder: Test all line items container crud operations', () => {
-    before(() => {
-        cy.onlyOnFeature('FEATURE_NEXT_17016');
-    });
-
     beforeEach(() => {
         cy.setToInitialState()
             .then(() => {

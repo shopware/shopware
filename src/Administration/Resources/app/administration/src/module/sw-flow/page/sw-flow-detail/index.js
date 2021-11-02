@@ -360,7 +360,7 @@ Component.register('sw-flow-detail', {
                 }
 
                 const hasSetCustomFieldAction = this.sequences.some(sequence => [ACTION.SET_ORDER_CUSTOM_FIELD,
-                    ACTION.SET_CUSTOMER_CUSTOM_FIELD].includes(sequence.actionName));
+                    ACTION.SET_CUSTOMER_CUSTOM_FIELD, ACTION.SET_CUSTOMER_GROUP_CUSTOM_FIELD].includes(sequence.actionName));
 
                 if (hasSetCustomFieldAction) {
                     promises.push(this.customFieldSetRepository.search(this.customFieldSetCriteria).then((data) => {

@@ -3,34 +3,34 @@
 namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Event\CustomerGroupAware;
 use Shopware\Core\Framework\Event\FlowEvent;
-use Shopware\Core\Framework\Event\OrderAware;
 
 /**
  * @internal (flag:FEATURE_NEXT_17973)
  */
-class SetOrderCustomFieldAction extends FlowAction
+class SetCustomerGroupCustomFieldAction extends FlowAction
 {
     use CustomFieldActionTrait;
 
     private Connection $connection;
 
-    private EntityRepositoryInterface $orderRepository;
+    private EntityRepositoryInterface $customerGroupRepository;
 
     public function __construct(
         Connection $connection,
-        EntityRepositoryInterface $orderRepository
+        EntityRepositoryInterface $customerGroupRepository
     ) {
         $this->connection = $connection;
-        $this->orderRepository = $orderRepository;
+        $this->customerGroupRepository = $customerGroupRepository;
     }
 
     public static function getName(): string
     {
-        return 'action.set.order.custom.field';
+        return 'action.set.customer.group.custom.field';
     }
 
     public static function getSubscribedEvents(): array
@@ -42,23 +42,23 @@ class SetOrderCustomFieldAction extends FlowAction
 
     public function requirements(): array
     {
-        return [OrderAware::class];
+        return [CustomerGroupAware::class];
     }
 
     public function handle(FlowEvent $event): void
     {
         $baseEvent = $event->getEvent();
-        if (!$baseEvent instanceof OrderAware) {
+        if (!$baseEvent instanceof CustomerGroupAware) {
             return;
         }
 
         $config = $event->getConfig();
-        $orderId = $baseEvent->getOrderId();
+        $customerGroupId = $baseEvent->getCustomerGroupId();
 
-        /** @var OrderEntity $order */
-        $order = $this->orderRepository->search(new Criteria([$orderId]), $baseEvent->getContext())->first();
+        /** @var CustomerGroupEntity $customerGroup */
+        $customerGroup = $this->customerGroupRepository->search(new Criteria([$customerGroupId]), $baseEvent->getContext())->first();
 
-        $customFields = $this->getCustomFieldForUpdating($order->getCustomfields(), $config);
+        $customFields = $this->getCustomFieldForUpdating($customerGroup->getCustomfields(), $config);
 
         if ($customFields === null) {
             return;
@@ -66,9 +66,9 @@ class SetOrderCustomFieldAction extends FlowAction
 
         $customFields = empty($customFields) ? null : $customFields;
 
-        $this->orderRepository->update([
+        $this->customerGroupRepository->update([
             [
-                'id' => $orderId,
+                'id' => $customerGroupId,
                 'customFields' => $customFields,
             ],
         ], $baseEvent->getContext());

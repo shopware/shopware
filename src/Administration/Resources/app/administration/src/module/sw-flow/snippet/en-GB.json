@@ -76,9 +76,9 @@
       "mailSend": "Send email",
       "setOrderState": "Set status",
       "stopFlow": "Stop flow",
-      "setCustomField": "Set custom field",
       "changeCustomerGroup": "Change customer group",
       "changeCustomerStatus": "Change customer status",
+      "changeCustomFieldContent": "Change custom field content",
       "textStopFlowDescription": "Subsequent actions/ sequences will not be executed.",
       "labelDescription": "Description: {description}",
       "contextButton": {
@@ -92,7 +92,7 @@
       "labelCustomFieldSet": "Custom field set: {customFieldSet}",
       "labelCustomField": "Custom field: {customField}",
       "labelCustomFieldOption": "Custom field option: {customFieldOption}",
-      "placeholderSelectAction": "Select action ..."
+      "placeholderSelectAction": "Select action..."
     },
     "rule": {
       "addRule": "Add rule",
@@ -191,17 +191,20 @@
         "labelRecipient": "Recipient",
         "placeholderRecipient": "Select email recipient ...",
         "labelLatestDocuments": "Add (latest) documents",
-        "placeholderLatestDocuments": "Add documents ...",
+        "placeholderLatestDocuments": "Add documents...",
         "documentDescription": "If the selected document doesn't exist you'll have to generate it first. Otherwise no documents will be sent."
       },
       "setEntityCustomField": {
+        "labelToField": "Entity",
+        "placeholderToField": "Select entity ...",
         "title": "Change custom field",
-        "customFieldSet": "Custom field category",
-        "customFieldSetPlaceHolder": "Select custom field category ...",
+        "customFieldSet": "Custom field set",
+        "customFieldSetPlaceHolder": "Select custom field set...",
         "customField": "Custom field",
-        "customFieldPlaceHolder": "Select custom field ...",
+        "customFieldPlaceHolder": "Select custom field...",
         "requiredMessageError": "\"{item}\" should not be empty!",
         "customFieldOption": "Field options",
+        "prefixFieldName": "Change: ",
         "options": {
           "overwrite": "Overwrite",
           "notOverwrite": "Do not overwrite",

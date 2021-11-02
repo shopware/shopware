@@ -70,7 +70,7 @@ Component.register('sw-form-field-renderer', {
     template,
     inheritAttrs: false,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'feature'],
 
     mixins: [
         Mixin.getByName('sw-inline-snippet'),

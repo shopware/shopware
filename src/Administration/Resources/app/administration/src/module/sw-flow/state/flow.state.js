@@ -169,14 +169,16 @@ export default {
         customFieldSetIds(state) {
             return state.flow.sequences
                 .filter(item => item.actionName === ACTION.SET_CUSTOMER_CUSTOM_FIELD
-                    || item.actionName === ACTION.SET_ORDER_CUSTOM_FIELD)
+                    || item.actionName === ACTION.SET_ORDER_CUSTOM_FIELD
+                    || item.actionName === ACTION.SET_CUSTOMER_GROUP_CUSTOM_FIELD)
                 .map(item => item.config?.customFieldSetId);
         },
 
         customFieldIds(state) {
             return state.flow.sequences
                 .filter(item => item.actionName === ACTION.SET_CUSTOMER_CUSTOM_FIELD
-                    || item.actionName === ACTION.SET_ORDER_CUSTOM_FIELD)
+                    || item.actionName === ACTION.SET_ORDER_CUSTOM_FIELD
+                    || item.actionName === ACTION.SET_CUSTOMER_GROUP_CUSTOM_FIELD)
                 .map(item => item.config?.customFieldId);
         },
     },

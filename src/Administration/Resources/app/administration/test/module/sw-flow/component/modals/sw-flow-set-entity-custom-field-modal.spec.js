@@ -86,12 +86,12 @@ function createWrapper(customField = customNormalField) {
 
         data() {
             return {
-                optionOverwrite: {
-                    id: 'overwrite',
-                    name: 'Overwrite'
+                optionUpsert: {
+                    id: 'upsert',
+                    name: 'Upsert'
                 },
-                optionSkipOnExisted: {
-                    id: 'skipOnExisted',
+                optionCreate: {
+                    id: 'create',
                     name: '3'
                 },
                 optionClear: {
@@ -106,11 +106,11 @@ function createWrapper(customField = customNormalField) {
                     id: 'remove',
                     name: '5'
                 },
-                fieldOptionSelected: 'overwrite',
+                fieldOptionSelected: 'upsert',
                 fieldOptions: [
                     {
-                        id: 'overwrite',
-                        name: 'Overwrite'
+                        id: 'upsert',
+                        name: 'Upsert'
                     }
                 ]
             };
@@ -147,7 +147,8 @@ function createWrapper(customField = customNormalField) {
             'sw-icon': true,
             'sw-highlight-text': true,
             'sw-field': true,
-            'sw-multi-select': true
+            'sw-multi-select': true,
+            'sw-single-select': true
         }
     });
 }
@@ -197,6 +198,15 @@ describe('module/sw-flow/component/sw-flow-set-entity-custom-field-modal', () =>
             .toContain('has--error');
     });
 
+    it('should show error if custom field select entity empty', async () => {
+        const wrapper = createWrapper();
+        wrapper.vm.entity = null;
+        const buttonSave = wrapper.find('.sw-flow-set-entity-custom-field-modal__save-button');
+        await buttonSave.trigger('click');
+        expect(wrapper.find('.sw-flow-set-entity-custom-field-modal__entity-field').attributes('error'))
+            .toBeTruthy();
+    });
+
     it('should show error if custom field empty', async () => {
         const wrapper = createWrapper();
 
@@ -237,7 +247,7 @@ describe('module/sw-flow/component/sw-flow-set-entity-custom-field-modal', () =>
 
         expect(wrapper.vm.fieldOptions).toHaveLength(3);
         wrapper.vm.fieldOptions.forEach((option) => {
-            expect(['overwrite', 'skipOnExisted', 'clear']).toContain(option.id);
+            expect(['upsert', 'create', 'clear']).toContain(option.id);
         });
 
         expect(wrapper.find('.sw-flow-set-entity-custom-field-modal__custom-field-value')
@@ -268,7 +278,7 @@ describe('module/sw-flow/component/sw-flow-set-entity-custom-field-modal', () =>
         expect(wrapper.vm.fieldOptions).toHaveLength(5);
 
         wrapper.vm.fieldOptions.forEach((option) => {
-            expect(['overwrite', 'skipOnExisted', 'clear', 'add', 'remove']).toContain(option.id);
+            expect(['upsert', 'create', 'clear', 'add', 'remove']).toContain(option.id);
         });
 
         expect(wrapper.find('.sw-flow-set-entity-custom-field-modal__custom-field-value')
@@ -304,7 +314,8 @@ describe('module/sw-flow/component/sw-flow-set-entity-custom-field-modal', () =>
                 customFieldId: 'field1',
                 customFieldSetId: 'set1',
                 customFieldValue: null,
-                option: 'overwrite',
+                entity: 'order',
+                option: 'upsert',
                 optionLabel: '[\"sw-flow.modals.setEntityCustomField.options.overwrite\"]'
             }
         }]);

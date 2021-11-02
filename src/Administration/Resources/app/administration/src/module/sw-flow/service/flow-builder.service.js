@@ -27,7 +27,7 @@ export default function flowBuilderService() {
         changeCustomerGroup: 'sw-flow.actions.changeCustomerGroup',
         changeCustomerStatus: 'sw-flow.actions.changeCustomerStatus',
         stopFlow: 'sw-flow.actions.stopFlow',
-        setCustomField: 'sw-flow.actions.setCustomField',
+        setCustomField: 'sw-flow.actions.changeCustomFieldContent',
     };
 
     return {

@@ -6,12 +6,27 @@
 >
     {% block sw_flow_set_entity_custom_field_modal_content %}
     <div class="sw-flow-set-entity-custom-field-modal__content">
+        {% block sw_flow_tag_modal_to_field %}
+        <sw-single-select
+            v-model="entity"
+            class="sw-flow-set-entity-custom-field-modal__entity-field"
+            required
+            show-clearable-button
+            :label="$tc('sw-flow.modals.setEntityCustomField.labelToField')"
+            :placeholder="$tc('sw-flow.modals.setEntityCustomField.placeholderToField')"
+            :error="entityError"
+            :options="entityOptions"
+            @change="onEntityChange()"
+        />
+        {% endblock %}
+
         {% block sw_flow_set_entity_custom_field_modal_category %}
         <sw-entity-single-select
             v-model="customFieldSetId"
             class="sw-flow-set-entity-custom-field-modal__custom-field-set"
             entity="custom_field_set"
             required
+            :disabled="!entity"
             :criteria="customFieldSetCriteria"
             :label="$tc('sw-flow.modals.setEntityCustomField.customFieldSet')"
             :placeholder="$tc('sw-flow.modals.setEntityCustomField.customFieldSetPlaceHolder')"
@@ -51,6 +66,21 @@
         </sw-entity-single-select>
         {% endblock %}
 
+        {% block sw_flow_set_entity_custom_field_modal_field_value %}
+        <sw-form-field-renderer
+            v-if="showFieldValue"
+            v-model="customFieldValue"
+            class="sw-flow-set-entity-custom-field-modal__custom-field-value"
+            :config="renderedFieldConfig"
+            bordered
+        >
+            <template #label>
+                {{ $tc('sw-flow.modals.setEntityCustomField.prefixFieldName') }}
+                {{ getInlineSnippet(customField.config.label) || customField.name }}
+            </template>
+        </sw-form-field-renderer>
+        {% endblock %}
+
         {% block sw_flow_set_entity_custom_field_modal_field_value_options %}
         <sw-select-field
             v-if="customFieldId"
@@ -58,15 +88,6 @@
             class="sw-flow-set-entity-custom-field-modal__custom-field-value-options"
             :options="fieldOptions"
             :label="$tc('sw-flow.modals.setEntityCustomField.customFieldOption')"
-        />
-        {% endblock %}
-
-        {% block sw_flow_set_entity_custom_field_modal_field_value %}
-        <sw-form-field-renderer
-            v-if="showFieldValue"
-            v-model="customFieldValue"
-            class="sw-flow-set-entity-custom-field-modal__custom-field-value"
-            :config="renderedFieldConfig"
         />
         {% endblock %}
     </div>

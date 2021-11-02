@@ -14,7 +14,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-media-field', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'feature'],
 
     model: {
         prop: 'mediaId',
@@ -175,6 +175,13 @@ Component.register('sw-media-field', {
             this.$emit('media-id-change', targetId);
             this.showUploadField = false;
             this.showPicker = false;
+        },
+
+        /**
+         * @internal (flag:FEATURE_NEXT_17973)
+         */
+        showLabel() {
+            return !!this.label || !!this.$slots.label || !!this.$scopedSlots?.label?.();
         },
     },
 });

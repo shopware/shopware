@@ -5,6 +5,7 @@ const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapState } = Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
+const { capitalizeString } = Shopware.Utils.string;
 
 Component.register('sw-flow-set-entity-custom-field-modal', {
     flag: 'FEATURE_NEXT_17973',
@@ -34,7 +35,15 @@ Component.register('sw-flow-set-entity-custom-field-modal', {
             config: {},
             renderedFieldConfig: {},
             fieldOptions: [],
-            fieldOptionSelected: 'overwrite',
+            fieldOptionSelected: 'upsert',
+            customField: {
+                config: {
+                    label: '',
+                },
+            },
+            entity: null,
+            entityError: null,
+            entityOptions: [],
         };
     },
 
@@ -43,19 +52,23 @@ Component.register('sw-flow-set-entity-custom-field-modal', {
             return this.repositoryFactory.create('custom_field');
         },
 
-        customFieldSetCriteria() {
+        customFieldCriteria() {
             const criteria = new Criteria();
             criteria.addFilter(
-                Criteria.equalsAny('relations.entityName', Object.keys(this.triggerEvent.data)),
+                Criteria.equals('customFieldSetId', this.customFieldSetId),
             );
 
             return criteria;
         },
 
-        customFieldCriteria() {
+        customFieldSetCriteria() {
+            if (!this.entity) {
+                return null;
+            }
+
             const criteria = new Criteria();
             criteria.addFilter(
-                Criteria.equals('customFieldSetId', this.customFieldSetId),
+                Criteria.equals('relations.entityName', this.convertToEntityTechnicalName(this.entity)),
             );
 
             return criteria;
@@ -68,11 +81,11 @@ Component.register('sw-flow-set-entity-custom-field-modal', {
         defaultFieldOptions() {
             return [
                 {
-                    id: 'overwrite',
+                    id: 'upsert',
                     name: `${this.$tc('sw-flow.modals.setEntityCustomField.options.overwrite')}`,
                 },
                 {
-                    id: 'skipOnExisted',
+                    id: 'create',
                     name: `${this.$tc('sw-flow.modals.setEntityCustomField.options.notOverwrite')}`,
                 },
                 {
@@ -117,10 +130,12 @@ Component.register('sw-flow-set-entity-custom-field-modal', {
 
     methods: {
         createdComponent() {
+            this.getEntityOptions();
             if (!this.sequence.config) {
                 return;
             }
 
+            this.entity = this.sequence.config.entity;
             this.customFieldSetId = this.sequence.config.customFieldSetId;
             this.customFieldSetLabel = this.sequence.config.customFieldSetLabel;
             this.customFieldId = this.sequence.config.customFieldId;
@@ -132,6 +147,7 @@ Component.register('sw-flow-set-entity-custom-field-modal', {
 
         getCustomFieldRendered() {
             this.customFieldRepository.get(this.customFieldId).then((customField) => {
+                this.customField = customField;
                 this.renderedFieldConfig = this.validateOptionSelectFieldLabel(customField.config);
             }).catch(() => {
                 this.createNotificationError({
@@ -140,6 +156,10 @@ Component.register('sw-flow-set-entity-custom-field-modal', {
             }).finally(() => {
                 this.fieldOptionSelected = this.sequence.config.option;
             });
+        },
+
+        onEntityChange() {
+            this.customFieldSetId = null;
         },
 
         onCustomFieldSetChange(id, customFieldSet) {
@@ -156,6 +176,7 @@ Component.register('sw-flow-set-entity-custom-field-modal', {
             if (!customField) {
                 return;
             }
+            this.customField = customField;
 
             Shopware.State.commit('swFlowState/setCustomFields', [...this.customFields, customField]);
             this.customFieldValue = null;
@@ -184,15 +205,17 @@ Component.register('sw-flow-set-entity-custom-field-modal', {
         },
 
         onAddAction() {
-            this.customFieldSetError = this.fieldError(this.customFieldSetId);
+            this.entityError = this.fieldError(this.entity);
+            this.customFieldSetError = this.entity ? this.fieldError(this.customFieldSetId) : null;
             this.customFieldError = this.customFieldSetId ? this.fieldError(this.customFieldId) : null;
-            if (this.customFieldSetError || this.customFieldError) {
+            if (this.customFieldSetError || this.customFieldError || this.entityError) {
                 return;
             }
 
             const sequence = {
                 ...this.sequence,
                 config: {
+                    entity: this.entity,
                     customFieldSetId: this.customFieldSetId,
                     customFieldId: this.customFieldId,
                     customFieldValue: this.customFieldValue,
@@ -224,6 +247,42 @@ Component.register('sw-flow-set-entity-custom-field-modal', {
                 default:
                     return this.defaultFieldOptions;
             }
+        },
+
+        getEntityOptions() {
+            const options = [];
+            if (!this.triggerEvent) {
+                this.entityOptions = [];
+                return;
+            }
+
+            Object.entries(this.triggerEvent.data).forEach(([key, value]) => {
+                if (value.type !== 'entity') {
+                    return;
+                }
+
+                options.push({
+                    label: this.convertEntityName(key),
+                    value: key,
+                });
+            });
+
+            if (options.length) {
+                this.entity = options[0].value;
+            }
+
+            this.entityOptions = options;
+        },
+
+        convertEntityName(camelCaseText) {
+            if (!camelCaseText) return '';
+
+            const normalText = camelCaseText.replace(/([A-Z])/g, ' $1');
+            return capitalizeString(normalText);
+        },
+
+        convertToEntityTechnicalName(camelCaseText) {
+            return camelCaseText.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
         },
     },
 });

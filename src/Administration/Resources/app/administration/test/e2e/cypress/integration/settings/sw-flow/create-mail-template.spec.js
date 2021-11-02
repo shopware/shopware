@@ -66,7 +66,6 @@ describe('Flow builder: Create mail template for send mail action testing', () =
         cy.get('.sw-flow-create-mail-template-modal__sender-name').type('Demoshop');
         cy.get('.sw-flow-create-mail-template-modal__description').type('Successful feedback description');
 
-        cy.get('.sw-flow-create-mail-template-modal__tab-mail-text').click();
         cy.get('div[name="content_plain"]').type('Successful');
         cy.get('div[name="content_html"]').type('Successful');
 

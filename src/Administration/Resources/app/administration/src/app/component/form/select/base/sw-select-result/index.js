@@ -12,7 +12,7 @@ const { Component } = Shopware;
 Component.register('sw-select-result', {
     template,
 
-    inject: ['setActiveItemIndex'],
+    inject: ['setActiveItemIndex', 'feature'],
 
     props: {
         index: {
@@ -47,9 +47,18 @@ Component.register('sw-select-result', {
                 {
                     'is--active': this.active,
                     'is--disabled': this.disabled,
+                    'has--description': this.hasDescriptionSlot,
                 },
                 `sw-select-option--${this.index}`,
             ];
+        },
+
+        hasDescriptionSlot() {
+            if (!this.feature.isActive('FEATURE_NEXT_16800')) {
+                return false;
+            }
+
+            return !!this.$slots.description || !!this.$scopedSlots.description;
         },
     },
 

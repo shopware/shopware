@@ -54,6 +54,24 @@ $sw-select-result-disabled-color-text: darken($color-gray-300, 15%);
         }
     }
 
+    &.has--description {
+        display: grid;
+        grid-template-columns: 1fr auto;
+
+        &.is--active {
+            .sw-select-result__result-item-text {
+                color: $sw-select-result-active-color-text;
+            }
+        }
+
+        .sw-select-result__result-item-description {
+            width: 100%;
+            font-size: 12px;
+            color: $color-gray-600;
+            grid-column-start: 1;
+        }
+    }
+
     &:last-child {
         border-bottom: 0 none;
     }

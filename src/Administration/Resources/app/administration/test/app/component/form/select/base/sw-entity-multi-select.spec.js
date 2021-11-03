@@ -1,5 +1,6 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
+import flushPromises from 'flush-promises';
 import utils from 'src/core/service/util.service';
 import 'src/app/component/form/select/entity/sw-entity-multi-select';
 import 'src/app/component/form/select/base/sw-select-base';
@@ -178,5 +179,46 @@ describe('components/sw-entity-multi-select', () => {
 
         expect(productVariantInfo.find('.sw-product-variant-info__specification').text())
             .toContain(fixture[0].variation[0].option);
+    });
+
+    it('should show description line in results list (with FEATURE_NEXT_16800)', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_16800'];
+
+        const swEntityMultiSelect = await createEntityMultiSelect({
+            scopedSlots: {
+                'result-label-property': `<template>
+                        {{ props.item.name }}
+                    </template>`,
+                'result-description-property': `<template>
+                        {{ props.item.group.name }}
+                    </template>`
+            },
+            propsData: {
+                entity: 'property_group_option',
+                entityCollection: getPropertyCollection()
+            },
+            provide: {
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            search: () => Promise.resolve(getPropertyCollection())
+                        };
+                    }
+                }
+            }
+        });
+
+        swEntityMultiSelect.vm.loadData();
+        await flushPromises();
+
+        await swEntityMultiSelect.find('.sw-select__selection').trigger('click');
+        await swEntityMultiSelect.find('input').trigger('change');
+        await flushPromises();
+
+        const firstListEntry = swEntityMultiSelect.findAll('.sw-select-result-list__item-list li').at(0);
+
+        expect(firstListEntry.find('.sw-select-result').classes()).toContain('has--description');
+        expect(firstListEntry.find('.sw-select-result__result-item-text').text()).toBe('first entry');
+        expect(firstListEntry.find('.sw-select-result__result-item-description').text()).toBe('example');
     });
 });

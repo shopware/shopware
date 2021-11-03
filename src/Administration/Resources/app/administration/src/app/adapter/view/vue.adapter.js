@@ -18,6 +18,14 @@ export default class VueAdapter extends ViewAdapter {
     constructor(Application) {
         super(Application);
 
+        this.Application = Application;
+        this.applicationFactory = Application.getContainer('factory');
+
+        this.componentFactory = this.applicationFactory.component;
+        this.stateFactory = this.applicationFactory.state;
+        this.localeFactory = this.applicationFactory.locale;
+        this.root = null;
+
         this.vueComponents = {};
     }
 
@@ -72,8 +80,6 @@ export default class VueAdapter extends ViewAdapter {
     /**
      * Initialize of all dependencies.
      *
-     * @memberOf module:app/adapter/view/vue
-     * @returns {Object}
      */
     initDependencies() {
         const initContainer = this.Application.getContainer('init');
@@ -133,7 +139,7 @@ export default class VueAdapter extends ViewAdapter {
      *
      * @param componentName
      * @memberOf module:app/adapter/view/vue
-     * @returns {Function}
+     * @returns {Vue}
      */
     createComponent(componentName) {
         const componentConfig = Component.build(componentName);
@@ -172,7 +178,7 @@ export default class VueAdapter extends ViewAdapter {
      *
      * @param componentName
      * @memberOf module:app/adapter/view/vue
-     * @returns {null|Component}
+     * @returns {null|Vue}
      */
     getComponent(componentName) {
         if (!this.vueComponents[componentName]) {
@@ -186,7 +192,6 @@ export default class VueAdapter extends ViewAdapter {
      * Returns the complete set of available Vue components.
      *
      * @memberOf module:app/adapter/view/vue
-     * @returns {Object}
      */
     getComponents() {
         return this.vueComponents;
@@ -216,7 +221,6 @@ export default class VueAdapter extends ViewAdapter {
      * Returns the Vue.set function
      *
      * @memberOf module:app/adapter/view/vue
-     * @returns {function}
      */
     setReactive(target, propertyName, value) {
         return Vue.set(target, propertyName, value);
@@ -226,7 +230,7 @@ export default class VueAdapter extends ViewAdapter {
      * Returns the Vue.delete function
      *
      * @memberOf module:app/adapter/view/vue
-     * @returns {function}
+     * @returns {() => void}
      */
     deleteReactive(target, propertyName) {
         return Vue.delete(target, propertyName);

@@ -36,8 +36,6 @@ describe('core/common.js', () => {
         expect(Template).toHaveProperty('extend');
         expect(Template).toHaveProperty('override');
         expect(Template).toHaveProperty('getRenderedTemplate');
-        expect(Template).toHaveProperty('find');
-        expect(Template).toHaveProperty('findOverride');
     });
 
     it('should contain the necessary methods for the entity factory', async () => {

@@ -17,7 +17,7 @@ function onMessage({ data: { context, bearerAuth, host, transports } }) {
         timeout: 1000 * 60 * 5,
     });
 
-    const loginService = LoginService(client, context, bearerAuth);
+    const loginService = new LoginService(client, context, bearerAuth);
     const scheduledTaskService = new ScheduledTaskService(client, loginService);
     const messageQueueService = new MessageQueueService(client, loginService);
 

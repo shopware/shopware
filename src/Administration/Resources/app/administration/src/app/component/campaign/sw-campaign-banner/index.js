@@ -261,7 +261,7 @@ Shopware.Component.register('sw-campaign-banner', {
                 return () => this.executionAction(action.execution);
             }
 
-            return () => console.log('No matching action found');
+            return () => Shopware.Utils.debug.warn('No matching action found');
         },
 
         routeAction(routeName) {

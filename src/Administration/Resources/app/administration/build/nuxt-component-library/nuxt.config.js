@@ -11,6 +11,7 @@ function getPathFromRoot(directory) {
 
 const configFileName = 'component-library.conf.js';
 module.exports = {
+    buildModules: ['@nuxt/typescript-build'],
     env: {
         NODE_ENV: 'development'
     },

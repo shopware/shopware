@@ -121,8 +121,8 @@ const normalizedTemplateRegistry = new Map();
 /**
  * Registers the main template for the defined component.
  *
- * @param componentName
- * @param componentTemplate
+ * @param {string} componentName
+ * @param {string} componentTemplate
  * @returns {boolean}
  */
 function registerComponentTemplate(componentName, componentTemplate = null) {
@@ -177,7 +177,7 @@ function extendComponentTemplate(
  *
  * @param {String} componentName
  * @param {String|null} [templateOverride=null]
- * @param {Number} [overrideIndex=0]
+ * @param {Number|null} [overrideIndex=0]
  */
 function registerTemplateOverride(
     componentName,

@@ -247,6 +247,9 @@ Component.register('sw-media-modal-delete', {
                 'documentBaseConfigs',
                 'paymentMethods',
                 'shippingMethods',
+                'cmsBlocks',
+                'cmsSections',
+                'cmsPages',
             ];
 
             return mediaAssociations.some((association) => {

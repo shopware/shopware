@@ -239,6 +239,9 @@ Component.register('sw-media-library', {
                     .addAssociation('avatarUser')
                     .addAssociation('paymentMethods')
                     .addAssociation('shippingMethods')
+                    .addAssociation('cmsBlocks.section.page')
+                    .addAssociation('cmsSections.page')
+                    .addAssociation('cmsPages')
                     .addSorting(Criteria.sort(this.sorting.sortBy, this.sorting.sortDirection))
                     .setTerm(this.term);
 

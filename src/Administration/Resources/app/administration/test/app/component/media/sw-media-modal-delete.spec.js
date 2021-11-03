@@ -15,6 +15,9 @@ describe('components/media/sw-media-modal-delete', () => {
             documentBaseConfigs: [],
             paymentMethods: [],
             shippingMethods: [],
+            cmsBlocks: [],
+            cmsSections: [],
+            cmsPages: [],
             ...options
         };
     };
@@ -78,6 +81,9 @@ describe('components/media/sw-media-modal-delete', () => {
         const paymentMethod = { id: '02j2j0f02h2f0283nhf834h239f2' };
         const shippingMethod = { id: '02jhf92jf784jflsnhffi9989' };
         const productMedia = { id: 'f83hf3dn2k5nv83020283jf9320' };
+        const cmsBlock = { section: { pageId: 'cmsBlockId', page: { translated: { name: 'cms block test' } } } };
+        const cmsSection = { pageId: 'cmsSectionId', page: { translated: { name: 'cms section test' } } };
+        const cmsPage = { id: 'cmsPageId', translated: { name: 'cms page test' } };
 
         const wrapper = CreateWrapper([
             itemDeleteMock({
@@ -89,7 +95,10 @@ describe('components/media/sw-media-modal-delete', () => {
                 mailTemplateMedia: [mailTemplateMedia],
                 documentBaseConfigs: [documentBaseConfig],
                 paymentMethods: [paymentMethod],
-                shippingMethods: [shippingMethod]
+                shippingMethods: [shippingMethod],
+                cmsBlocks: [cmsBlock],
+                cmsSections: [cmsSection],
+                cmsPages: [cmsPage]
             })
         ]);
 
@@ -103,6 +112,9 @@ describe('components/media/sw-media-modal-delete', () => {
         expect(wrapper.vm.mediaQuickInfo.documentBaseConfigs).toEqual([documentBaseConfig]);
         expect(wrapper.vm.mediaQuickInfo.paymentMethods).toEqual([paymentMethod]);
         expect(wrapper.vm.mediaQuickInfo.shippingMethods).toEqual([shippingMethod]);
+        expect(wrapper.vm.mediaQuickInfo.cmsBlocks).toEqual([cmsBlock]);
+        expect(wrapper.vm.mediaQuickInfo.cmsSections).toEqual([cmsSection]);
+        expect(wrapper.vm.mediaQuickInfo.cmsPages).toEqual([cmsPage]);
         expect(wrapper.find('.sw-media-quickinfo-usage').exists()).toBeTruthy();
         expect(wrapper.find('.sw-media-media-item').exists()).toBeFalsy();
     });

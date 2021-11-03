@@ -1,0 +1,7 @@
+{% apply spaceless %}
+    {% macro foo() %}
+        {% return 1 %}
+    {% endmacro %}
+
+    {{ _self.foo() }}
+{% endapply  %}

@@ -334,7 +334,7 @@ base-uri 'self';
             <tag name="shopware.twig.hierarchy_builder" priority="1000"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Adapter\Twig\InheritanceExtension">
+        <service id="Shopware\Core\Framework\Adapter\Twig\NodeExtension">
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\TemplateFinder"/>
             <tag name="twig.extension"/>
         </service>

@@ -4,9 +4,10 @@ namespace Shopware\Core\Framework\Adapter\Twig;
 
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\ExtendsTokenParser;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\IncludeTokenParser;
+use Shopware\Core\Framework\Adapter\Twig\TokenParser\ReturnNodeTokenParser;
 use Twig\Extension\AbstractExtension;
 
-class InheritanceExtension extends AbstractExtension
+class NodeExtension extends AbstractExtension
 {
     /**
      * @var TemplateFinder
@@ -23,6 +24,7 @@ class InheritanceExtension extends AbstractExtension
         return [
             new ExtendsTokenParser($this->finder),
             new IncludeTokenParser($this->finder),
+            new ReturnNodeTokenParser()
         ];
     }
 

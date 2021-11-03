@@ -10,14 +10,14 @@ use Symfony\Component\Finder\Finder;
  */
 class TemplateLoader extends AbstractTemplateLoader
 {
-    protected const TEMPLATE_DIR = '/Resources/views';
+    private const TEMPLATE_DIR = '/Resources/views';
 
-    protected const ALLOWED_TEMPLATE_DIRS = [
+    private const ALLOWED_TEMPLATE_DIRS = [
         'storefront',
         'documents',
     ];
 
-    protected const ALLOWED_FILE_EXTENSIONS = '*.html.twig';
+    private const ALLOWED_FILE_EXTENSIONS = '*.html.twig';
 
     /**
      * {@inheritdoc}

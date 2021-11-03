@@ -3,53 +3,62 @@
 namespace Shopware\Core\Framework\App\Lifecycle\Persister;
 
 use Shopware\Core\Framework\App\AppEntity;
-use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\App\Script\AppScriptCollection;
-use Shopware\Core\Framework\App\Script\AppScriptEntity;
-use Shopware\Core\Framework\App\Script\ScriptLoaderInterface;
+use Shopware\Core\Framework\App\Lifecycle\ScriptFileReaderInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Script\ScriptCollection;
+use Shopware\Core\Framework\Script\ScriptEntity;
 
 /**
  * @internal only for use by the app-system
  */
 class ScriptPersister
 {
-    private ScriptLoaderInterface $scriptLoader;
+    private ScriptFileReaderInterface $scriptReader;
 
     private EntityRepositoryInterface $scriptRepository;
 
     private EntityRepositoryInterface $appRepository;
 
+    private string $projectDir;
+
     public function __construct(
-        ScriptLoaderInterface $scriptLoader,
+        ScriptFileReaderInterface $scriptReader,
         EntityRepositoryInterface $scriptRepository,
-        EntityRepositoryInterface $appRepository
+        EntityRepositoryInterface $appRepository,
+        string $projectDir
     ) {
-        $this->scriptLoader = $scriptLoader;
+        $this->scriptReader = $scriptReader;
         $this->scriptRepository = $scriptRepository;
         $this->appRepository = $appRepository;
+        $this->projectDir = $projectDir;
     }
 
-    public function updateScripts(Manifest $manifest, string $appId, Context $context): void
+    public function updateScripts(string $appPath, string $appId, Context $context): void
     {
         $app = $this->getAppWithExistingScripts($appId, $context);
-        /** @var AppScriptCollection $existingScripts */
+        /** @var ScriptCollection $existingScripts */
         $existingScripts = $app->getScripts();
-        $scriptPaths = $this->scriptLoader->getScriptPathsForAppPath($manifest->getPath());
+        $scriptPaths = $this->scriptReader->getScriptPathsForApp($appPath);
 
         $upserts = [];
         foreach ($scriptPaths as $scriptPath) {
             $payload = [
-                'script' => $this->scriptLoader->getScriptContent($scriptPath, $manifest->getPath()),
+                'script' => $this->scriptReader->getScriptContent($scriptPath, $appPath),
             ];
 
-            /** @var AppScriptEntity|null $existing */
+            /** @var ScriptEntity|null $existing */
             $existing = $existingScripts->filterByProperty('name', $scriptPath)->first();
             if ($existing) {
-                $payload['id'] = $existing->getId();
                 $existingScripts->remove($existing->getId());
+
+                if ($existing->getScript() === $payload['script']) {
+                    // Don't update DB when content is identical
+                    continue;
+                }
+                $payload['id'] = $existing->getId();
             } else {
                 $payload['appId'] = $appId;
                 $payload['active'] = $app->isActive();
@@ -67,7 +76,50 @@ class ScriptPersister
         $this->deleteOldScripts($existingScripts, $context);
     }
 
-    private function deleteOldScripts(AppScriptCollection $toBeRemoved, Context $context): void
+    public function activateAppScripts(string $appId, Context $context): void
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('appId', $appId));
+        $criteria->addFilter(new EqualsFilter('active', false));
+
+        $scripts = $this->scriptRepository->searchIds($criteria, $context);
+
+        $updateSet = array_map(function (string $id) {
+            return ['id' => $id, 'active' => true];
+        }, $scripts->getIds());
+
+        $this->scriptRepository->update($updateSet, $context);
+    }
+
+    public function deactivateAppScripts(string $appId, Context $context): void
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('appId', $appId));
+        $criteria->addFilter(new EqualsFilter('active', true));
+
+        $scripts = $this->scriptRepository->searchIds($criteria, $context);
+
+        $updateSet = array_map(function (string $id) {
+            return ['id' => $id, 'active' => false];
+        }, $scripts->getIds());
+
+        $this->scriptRepository->update($updateSet, $context);
+    }
+
+    public function refresh(): void
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('active', true));
+
+        $apps = $this->appRepository->search($criteria, Context::createDefaultContext())->getEntities();
+
+        /** @var AppEntity $app */
+        foreach ($apps as $app) {
+            $this->updateScripts($this->projectDir . $app->getPath(), $app->getId(), Context::createDefaultContext());
+        }
+    }
+
+    private function deleteOldScripts(ScriptCollection $toBeRemoved, Context $context): void
     {
         /** @var string[] $ids */
         $ids = $toBeRemoved->getIds();

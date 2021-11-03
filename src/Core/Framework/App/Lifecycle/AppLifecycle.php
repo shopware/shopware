@@ -129,7 +129,6 @@ class AppLifecycle extends AbstractAppLifecycle
     public function install(Manifest $manifest, bool $activate, Context $context): void
     {
         $app = $this->loadAppByName($manifest->getMetadata()->getName(), $context);
-
         if ($app) {
             throw new AppAlreadyInstalledException($manifest->getMetadata()->getName());
         }
@@ -224,7 +223,7 @@ class AppLifecycle extends AbstractAppLifecycle
         }
 
         $this->templatePersister->updateTemplates($manifest, $id, $context);
-        $this->scriptPersister->updateScripts($manifest, $id, $context);
+        $this->scriptPersister->updateScripts($manifest->getPath(), $id, $context);
         $this->customFieldPersister->updateCustomFields($manifest, $id, $context);
 
         $cmsExtensions = $this->appLoader->getCmsExtensions($app);

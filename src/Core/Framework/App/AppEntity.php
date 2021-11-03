@@ -7,11 +7,11 @@ use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonCollection;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodCollection;
 use Shopware\Core\Framework\App\Aggregate\AppTranslation\AppTranslationCollection;
 use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockCollection;
-use Shopware\Core\Framework\App\Script\AppScriptCollection;
 use Shopware\Core\Framework\App\Template\TemplateCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Script\ScriptCollection;
 use Shopware\Core\Framework\Webhook\WebhookCollection;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 use Shopware\Core\System\Integration\IntegrationEntity;
@@ -149,7 +149,7 @@ class AppEntity extends Entity
      */
     protected $templates;
 
-    protected ?AppScriptCollection $scripts;
+    protected ?ScriptCollection $scripts;
 
     /**
      * @var CustomFieldSetCollection|null
@@ -451,12 +451,12 @@ class AppEntity extends Entity
         $this->templates = $templates;
     }
 
-    public function getScripts(): ?AppScriptCollection
+    public function getScripts(): ?ScriptCollection
     {
         return $this->scripts;
     }
 
-    public function setScripts(AppScriptCollection $scripts): void
+    public function setScripts(ScriptCollection $scripts): void
     {
         $this->scripts = $scripts;
     }

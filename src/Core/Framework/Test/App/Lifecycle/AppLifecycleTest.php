@@ -23,7 +23,6 @@ use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Permissions;
-use Shopware\Core\Framework\App\Script\AppScriptEntity;
 use Shopware\Core\Framework\App\Template\TemplateEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -31,6 +30,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Script\ScriptEntity;
 use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SystemConfigTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -1170,7 +1170,7 @@ class AppLifecycleTest extends TestCase
     private function assertDefaultScript(string $appId, bool $active = true): void
     {
         /** @var EntityRepositoryInterface $scriptRepository */
-        $scriptRepository = $this->getContainer()->get('app_script.repository');
+        $scriptRepository = $this->getContainer()->get('script.repository');
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('appId', $appId));
@@ -1178,7 +1178,7 @@ class AppLifecycleTest extends TestCase
 
         static::assertCount(1, $scripts);
 
-        /** @var AppScriptEntity $script */
+        /** @var ScriptEntity $script */
         $script = $scripts->first();
         static::assertEquals('product-page-loaded/product-page-script.twig', $script->getName());
         static::assertEquals('product-page-loaded', $script->getHook());

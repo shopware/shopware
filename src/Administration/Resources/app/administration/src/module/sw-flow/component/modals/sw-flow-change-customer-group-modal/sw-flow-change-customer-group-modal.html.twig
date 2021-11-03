@@ -1,0 +1,49 @@
+{% block sw_flow_change_customer_group_modal %}
+<sw-modal
+    class="sw-flow-change-customer-group-modal"
+    :title="$tc('sw-flow.modals.customerGroup.titleChangeCustomerGroup')"
+    @modal-close="onClose"
+>
+    {% block sw_flow_change_customer_group_modal_select %}
+    <sw-entity-single-select
+        v-model="customerGroupId"
+        required
+        class="sw-flow-change-customer-group-modal__type-select"
+        entity="customer_group"
+        label-property="translated.name"
+        value-property="id"
+        :criteria="customerGroupCriteria"
+        :label="$tc('sw-flow.modals.customerGroup.labelCustomerGroup')"
+        :placeholder="$tc('sw-flow.modals.customerGroup.placeholderCustomerGroup')"
+        :error="fieldError"
+    />
+    {% endblock %}
+
+    {% block sw_flow_change_customer_group_modal_footer %}
+    <template #modal-footer>
+        {% block sw_flow_change_customer_group_modal_footer_cancel_button %}
+        <sw-button
+            class="sw-flow-change-customer-group-modal__cancel-button"
+            size="small"
+            @click="onClose"
+        >
+            {{ $tc('global.default.cancel') }}
+        </sw-button>
+        {% endblock %}
+
+        {% block sw_flow_change_customer_group_modal_footer_save_button %}
+        <sw-button
+            class="sw-flow-change-customer-group-modal__save-button"
+            variant="primary"
+            size="small"
+            @click="onAddAction"
+        >
+            {{ sequence.id
+                ? $tc('sw-flow.modals.buttonSaveAction')
+                : $tc('sw-flow.modals.buttonAddAction') }}
+        </sw-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
+</sw-modal>
+{% endblock %}

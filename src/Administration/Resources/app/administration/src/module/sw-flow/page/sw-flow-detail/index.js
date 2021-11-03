@@ -13,6 +13,7 @@ Component.register('sw-flow-detail', {
     inject: [
         'acl',
         'repositoryFactory',
+        'feature',
     ],
 
     mixins: [
@@ -85,6 +86,16 @@ Component.register('sw-flow-detail', {
             const criteria = new Criteria();
             criteria.addAssociation('mailTemplateType');
             criteria.addFilter(Criteria.equalsAny('id', this.mailTemplateIds));
+            return criteria;
+        },
+
+        customerGroupRepository() {
+            return this.repositoryFactory.create('customer_group');
+        },
+
+        customerGroupCriteria() {
+            const criteria = new Criteria(1, 100);
+            criteria.addSorting(Criteria.sort('name', 'ASC'));
             return criteria;
         },
 
@@ -314,6 +325,17 @@ Component.register('sw-flow-detail', {
                 promises.push(this.mailTemplateRepository.search(this.mailTemplateIdsCriteria).then((data) => {
                     Shopware.State.commit('swFlowState/setMailTemplates', data);
                 }));
+            }
+
+            if (this.feature.isActive('FEATURE_NEXT_17973')) {
+                const hasChangeCustomerGroup = this.sequences.some(sequence => sequence.actionName === ACTION.CHANGE_CUSTOMER_GROUP);
+
+                if (hasChangeCustomerGroup) {
+                    // get support information for change customer group action.
+                    promises.push(this.customerGroupRepository.search(this.customerGroupCriteria).then((data) => {
+                        Shopware.State.commit('swFlowState/setCustomerGroups', data);
+                    }));
+                }
             }
 
             return Promise.all(promises);

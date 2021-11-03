@@ -310,16 +310,24 @@ class DocumentService
         Context $context,
         string $deepLinkCode = ''
     ): OrderEntity {
-        $criteria = $this->getOrderBaseCriteria($orderId);
+        $criteria = (new Criteria([$orderId]))
+            ->addAssociation('lineItems')
+            ->addAssociation('transactions.paymentMethod')
+            ->addAssociation('currency')
+            ->addAssociation('language.locale')
+            ->addAssociation('addresses.country')
+            ->addAssociation('deliveries.positions')
+            ->addAssociation('deliveries.shippingMethod')
+            ->addAssociation('deliveries.shippingOrderAddress.country')
+            ->addAssociation('orderCustomer.customer');
+
+        $criteria->getAssociation('lineItems')->addSorting(new FieldSorting('position'));
+        $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
+        $criteria->getAssociation('deliveries')->addSorting(new FieldSorting('createdAt'));
 
         if ($deepLinkCode !== '') {
             $criteria->addFilter(new EqualsFilter('deepLinkCode', $deepLinkCode));
         }
-
-        $criteria->addAssociation('deliveries.shippingOrderAddress.country');
-        $criteria->addAssociation('orderCustomer.customer');
-        $criteria->getAssociation('lineItems')
-            ->addSorting(new FieldSorting('position'));
 
         $versionContext = $context->createWithVersionId($versionId);
 
@@ -502,18 +510,6 @@ class DocumentService
         $generatedDocument->setFileBlob($fileBlob);
 
         $this->saveDocumentFile($document, $context, $fileBlob, $fileGenerator, $documentGenerator, $config);
-    }
-
-    private function getOrderBaseCriteria(string $orderId): Criteria
-    {
-        return (new Criteria([$orderId]))
-            ->addAssociation('lineItems')
-            ->addAssociation('transactions.paymentMethod')
-            ->addAssociation('currency')
-            ->addAssociation('language.locale')
-            ->addAssociation('addresses.country')
-            ->addAssociation('deliveries.positions')
-            ->addAssociation('deliveries.shippingMethod');
     }
 
     private function checkDocumentNumberAlreadyExits(string $documentTypeName, ?string $documentNumber, Context $context): void

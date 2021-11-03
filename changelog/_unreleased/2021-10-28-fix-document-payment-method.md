@@ -4,5 +4,5 @@ issue: NEXT-17342
 author: Max Stegmeyer
 author_email: m.stegmeyer@shopware.com 
 ---
-# Administration
+# Core
 * Changed documents to display latest payment method, not first

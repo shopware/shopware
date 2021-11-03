@@ -341,6 +341,10 @@
         margin: 0 5px;
         padding: 5px 16px;
         color: $color-darkgray-200;
+
+        &.has--description {
+            padding: 8px 16px;
+        }
     }
 
     .sw-select-result-list__content {

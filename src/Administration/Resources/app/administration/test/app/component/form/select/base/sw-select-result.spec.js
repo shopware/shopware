@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils';
 import 'src/app/component/form/select/base/sw-select-result/';
 
 
-function createWrapper() {
+function createWrapper(innerTemplate = '') {
     const swSelectResult = Shopware.Component.build('sw-select-result');
     const Parent = {
         components: {
@@ -33,7 +33,7 @@ function createWrapper() {
                         shippingMethods: [],
                         newsletterRecipients: []
                     }"
-            ></sw-select-result>
+            >${innerTemplate}</sw-select-result>
             </div>`
     };
 
@@ -112,5 +112,26 @@ describe('src/app/component/form/select/base/sw-select-result/', () => {
 
         expect(onSpy).toHaveBeenCalledTimes(2);
         expect(offSpy).toHaveBeenCalledTimes(2);
+    });
+
+    it('should show description depending on slot (with FEATURE_NEXT_16800)', async () => {
+        /**
+         * Test without feature flag and re-create wrapper with active feature flag.
+         * Remove the next 3 lines with FEATURE_NEXT_16800
+         */
+        expect(wrapper.find('.sw-select-result__result-item-description').exists()).toBeFalsy();
+        global.activeFeatureFlags = ['FEATURE_NEXT_16800'];
+        wrapper = createWrapper();
+
+        expect(wrapper.find('.sw-select-result__result-item-description').exists()).toBeFalsy();
+
+        wrapper = await createWrapper(`
+            <template #description>
+                foobar
+            </template>
+        `);
+
+        expect(wrapper.find('.sw-select-result__result-item-description').exists()).toBeTruthy();
+        expect(wrapper.find('.sw-select-result__result-item-description').text()).toContain('foobar');
     });
 });

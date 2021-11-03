@@ -8,7 +8,7 @@ Component.extend('sw-condition-line-item-in-category', 'sw-condition-base-line-i
     template,
     inheritAttrs: false,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'feature'],
 
     data() {
         return {
@@ -73,6 +73,14 @@ Component.extend('sw-condition-line-item-in-category', 'sw-condition-base-line-i
         setCategoryIds(categories) {
             this.categoryIds = categories.getIds();
             this.categories = categories;
+        },
+
+        getCategoryBreadcrumb(category) {
+            if (!category.breadcrumb || Object.keys(category.breadcrumb).length === 0) {
+                return category.name;
+            }
+
+            return Object.values(category.breadcrumb).join(' / ');
         },
     },
 });

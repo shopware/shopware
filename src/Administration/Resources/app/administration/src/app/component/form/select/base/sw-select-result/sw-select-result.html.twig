@@ -25,5 +25,16 @@
         {% endblock %}
     </transition>
     {% endblock %}
+
+    {% block sw_select_result_item_description_holder %}
+    <span
+        v-if="hasDescriptionSlot"
+        class="sw-select-result__result-item-description"
+    >
+        {% block sw_select_result_item_description %}
+        <slot name="description"></slot>
+        {% endblock %}
+    </span>
+    {% endblock %}
 </li>
 {% endblock %}

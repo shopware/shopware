@@ -3,7 +3,7 @@ import Vuex from 'vuex';
 import VueI18n from 'vue-i18n';
 import enGBMessages from 'src/app/snippet/en-GB.json';
 
-const Shopware = require('src/core/shopware');
+const Shopware = require('src/core/shopware').default;
 
 // Expose shopware object globally
 global.Shopware = Shopware;

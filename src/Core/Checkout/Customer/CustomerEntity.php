@@ -158,6 +158,13 @@ class CustomerEntity extends Entity
     protected $lastLogin;
 
     /**
+     * @var array|null
+     *
+     * @internal
+     */
+    protected $newsletterSalesChannelIds;
+
+    /**
      * @var bool
      *
      * @deprecated tag:v6.5.0 (flag:FEATURE_NEXT_16106) $newsletter will be removed use the newsletterRecipents instead
@@ -564,6 +571,22 @@ class CustomerEntity extends Entity
     public function setLastLogin(?\DateTimeInterface $lastLogin): void
     {
         $this->lastLogin = $lastLogin;
+    }
+
+    /**
+     * @internal
+     */
+    public function getNewsletterSalesChannelIds(): ?array
+    {
+        return $this->newsletterSalesChannelIds;
+    }
+
+    /**
+     * @internal
+     */
+    public function setNewsletterSalesChannelIds(?array $newsletterSalesChannelIds): void
+    {
+        $this->newsletterSalesChannelIds = $newsletterSalesChannelIds;
     }
 
     /**

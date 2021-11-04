@@ -102,7 +102,8 @@ function createWrapper(layoutType = 'product_list', privileges = []) {
             'sw-entity-multi-select': true,
             'sw-loader': true,
             'sw-icon': true,
-            'sw-cms-product-assignment': true
+            'sw-cms-product-assignment': true,
+            transition: false,
         },
         mocks: {
             cloneDeep: cloneDeep

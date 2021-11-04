@@ -165,6 +165,7 @@ describe('Category: Edit categories', () => {
         page.changeTranslation('Deutsch', 0);
         cy.get('.sw-modal__dialog').should('be.visible');
         cy.get('#sw-language-switch-save-changes-button').click();
+        cy.get('.sw-modal__dialog').should('not.exist');
 
         // Wait for category request with correct data to be successful
         cy.wait('@saveData')

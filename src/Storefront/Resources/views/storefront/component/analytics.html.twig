@@ -1,5 +1,7 @@
 {% block component_head_analytics %}
-    {% if context.salesChannel.analytics and context.salesChannel.analytics.isActive() %}
+    {% set googleAnalyticsIsAllowed = (app.request.cookies.get('google-analytics-enabled') is same as ('1')) %}
+
+    {% if context.salesChannel.analytics and context.salesChannel.analytics.isActive() and googleAnalyticsIsAllowed %}
         {% set trackingId = context.salesChannel.analytics.getTrackingId() %}
         <script async src="https://www.googletagmanager.com/gtag/js?id={{ trackingId }}"></script>
         <script>

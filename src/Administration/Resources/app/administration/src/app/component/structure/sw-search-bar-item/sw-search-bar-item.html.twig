@@ -81,7 +81,7 @@
             {% block sw_search_bar_item_product_label_name %}
             <sw-highlight-text
                 :search-term="searchTerm"
-                :text="item.name"
+                :text="productDisplayName"
             />
             {% endblock %}
 
@@ -247,7 +247,7 @@
 
             {% block sw_search_bar_item_module_label_action %}
             <sw-highlight-text
-                :text="$tc(`global.sw-search-bar-item.${item?.action ? 'typeLabelAction': 'typeLabelModule' }`)"
+                :text="$tc(`global.sw-search-bar-item.${item && item.action ? 'typeLabelAction' : 'typeLabelModule' }`)"
             />
             {% endblock %}
         </span>

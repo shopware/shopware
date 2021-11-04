@@ -147,6 +147,12 @@ Component.register('sw-search-bar', {
 
             return modules;
         },
+
+        criteriaCollection() {
+            return {
+                product: new Criteria().addAssociation('options.group'),
+            };
+        },
     },
 
     watch: {
@@ -410,8 +416,9 @@ Component.register('sw-search-bar', {
                     return;
                 }
 
-                const queries = this.searchRankingService.buildGlobalSearchQueries(userSearchPreference, searchTerm);
-                const response = await this.searchService.searchQuery(queries);
+                const queries = this.searchRankingService
+                    .buildGlobalSearchQueries(userSearchPreference, searchTerm, this.criteriaCollection);
+                const response = await this.searchService.searchQuery(queries, { 'sw-inheritance': true });
                 const data = response.data;
 
                 if (!data) {

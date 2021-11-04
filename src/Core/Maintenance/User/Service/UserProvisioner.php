@@ -33,7 +33,7 @@ class UserProvisioner
             'password' => password_hash($password, \PASSWORD_BCRYPT),
             'locale_id' => $additionalData['localeId'] ?? $this->getLocaleOfSystemLanguage(),
             'active' => true,
-            'admin' => $additionalData['admin'] ?? true,
+            'admin' => $additionalData['admin'] ?? false,
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ];
 

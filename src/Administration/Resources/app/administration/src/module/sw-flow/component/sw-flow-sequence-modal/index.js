@@ -15,6 +15,12 @@ Component.register('sw-flow-sequence-modal', {
             type: String,
             required: true,
         },
+
+        action: {
+            type: String,
+            required: false,
+            default: null,
+        },
     },
 
     methods: {

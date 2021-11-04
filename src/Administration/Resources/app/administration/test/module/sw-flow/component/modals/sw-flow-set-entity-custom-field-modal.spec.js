@@ -57,6 +57,9 @@ function createWrapper(customField = customNormalField) {
     return shallowMount(Shopware.Component.build('sw-flow-set-entity-custom-field-modal'), {
         localVue,
         provide: {
+            flowBuilderService: {
+                getActionModalName: () => {}
+            },
             repositoryFactory: {
                 create: (entity) => {
                     if (entity === 'custom_field_set') {
@@ -161,7 +164,20 @@ describe('module/sw-flow/component/sw-flow-set-entity-custom-field-modal', () =>
 
         Shopware.Service().register('flowBuilderService', () => {
             return {
-                convertEntityName: () => {}
+                mapActionType: () => {},
+
+                getAvailableEntities: () => {
+                    return [
+                        {
+                            label: 'Order',
+                            value: 'order'
+                        },
+                        {
+                            label: 'Customer',
+                            value: 'customer'
+                        }
+                    ];
+                }
             };
         });
     });
@@ -352,5 +368,14 @@ describe('module/sw-flow/component/sw-flow-set-entity-custom-field-modal', () =>
         await wrapper.find('.sw-select-option--0').trigger('click');
 
         expect(wrapper.find(fieldClasses[1]).classes()).not.toContain('has--error');
+    });
+
+    it('should show correctly the entity options', async () => {
+        const wrapper = createWrapper();
+
+        expect(wrapper.vm.entityOptions).toHaveLength(2);
+        wrapper.vm.entityOptions.forEach((option) => {
+            expect(['Order', 'Customer']).toContain(option.label);
+        });
     });
 });

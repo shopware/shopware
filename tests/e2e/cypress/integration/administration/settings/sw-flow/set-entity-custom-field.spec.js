@@ -45,6 +45,9 @@ describe('Flow builder: set entity custom field testing', () => {
                     relations: [
                         {
                             entityName: 'order'
+                        },
+                        {
+                            entityName: 'customer'
                         }
                     ]
                 });

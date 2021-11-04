@@ -4,8 +4,10 @@ namespace Shopware\Core\Checkout\Order\Event;
 
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Flow\Exception\CustomerDeletedException;
 use Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Event\CustomerAware;
 use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
@@ -15,7 +17,7 @@ use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class OrderStateMachineStateChangeEvent extends Event implements MailActionInterface, SalesChannelAware, OrderAware, MailAware
+class OrderStateMachineStateChangeEvent extends Event implements MailActionInterface, SalesChannelAware, OrderAware, MailAware, CustomerAware
 {
     /**
      * @var OrderEntity
@@ -88,5 +90,16 @@ class OrderStateMachineStateChangeEvent extends Event implements MailActionInter
     public function getOrderId(): string
     {
         return $this->getOrder()->getId();
+    }
+
+    public function getCustomerId(): string
+    {
+        $customer = $this->getOrder()->getOrderCustomer();
+
+        if ($customer === null || $customer->getCustomerId() === null) {
+            throw new CustomerDeletedException($this->getOrderId());
+        }
+
+        return $customer->getCustomerId();
     }
 }

@@ -105,9 +105,10 @@ Shopware.Component.register('sw-import-export-activity', {
                     label: 'sw-import-export.activity.columns.date',
                     allowResize: true,
                     primary: true,
-                }, {
+                },
+                {
                     property: 'profileName',
-                    dataIndex: 'profileName',
+                    dataIndex: 'profile.label',
                     label: 'sw-import-export.activity.columns.profile',
                     allowResize: true,
                     primary: false,

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Script\Executor;
 
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Exception\ScriptExecutionFailedException;
 use Shopware\Core\Framework\Script\ExecutableScript;
 use Shopware\Core\Framework\Script\Registry\ScriptRegistry;
@@ -23,6 +24,10 @@ class ScriptExecutor
 
     public function execute(string $hook, array $scriptContext): void
     {
+        if (!Feature::isActive('FEATURE_NEXT_17441')) {
+            return;
+        }
+
         $scripts = $this->scriptRegistry->get($hook);
 
         foreach ($scripts as $script) {

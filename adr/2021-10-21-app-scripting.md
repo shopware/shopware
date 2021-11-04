@@ -1,4 +1,4 @@
-# 2021-10-21 - App Scripting
+# 2021-10-21 - (App-) Scripting
 
 ## Context
 
@@ -12,10 +12,12 @@ To improve the abilities of Apps, they should be able to execute code synchronou
 
 The app system requires that this code is in some way sandboxed, with no direct access to the database or filesystem and the code is not saved on the server.
 
+Additionally, such Scripting feature generally improves the capabilities of the AppSystem, this feature is not bound to the AppSystem exclusively, it should be possible to add standalone scripts.
+
 ## Decision
 
 We use Twig as it brings a secure PHP sandbox and allows interacting directly with objects. The scripts will be saved in the database and mapped to a specific scripting event. 
-Scripting events are placed in many sections in Shopware to be able to adjust them. Apps can subscribe to the scripting events in the `manifest.xml`
+Scripting events are placed in many sections in Shopware to be able to adjust them. Apps can subscribe to the scripting events by placing their scripts into the correspondingly named folders.
 
 ### Scripting Events
 

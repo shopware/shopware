@@ -200,6 +200,11 @@ shopware:
               major: true
               description: "Remove CheapestPriceField from product entity, to speed up entity hydration"
               # issue: NEXT-16151
+            - name: FEATURE_NEXT_17441
+              default: false
+              major: false
+              description: "Add Scripting Feature"
+              # issue: NEXT-17441
             - name: FEATURE_NEXT_16155
               default: false
               major: true

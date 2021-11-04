@@ -517,5 +517,16 @@ Component.register('sw-sales-channel-detail-base', {
                 this.productExport.generateByCronjob = false;
             }
         },
+
+        buildDisabledAlert(snippet, collection, property = 'name') {
+            const data = {
+                name: collection.first()[property].replaceAll('|', '&vert;'),
+                addition: collection.length > 2
+                    ? this.$tc('sw-sales-channel.detail.warningDisabledAddition', 1, { amount: collection.length - 1 })
+                    : collection.last()[property].replaceAll('|', '&vert;'),
+            };
+
+            return this.$tc(snippet, collection.length, data);
+        },
     },
 });

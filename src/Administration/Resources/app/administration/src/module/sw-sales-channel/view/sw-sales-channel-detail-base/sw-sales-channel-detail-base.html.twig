@@ -153,14 +153,7 @@
             variant="warning"
             :title="$tc('global.default.warning')"
         >
-            <span
-                v-html="$tc('sw-sales-channel.detail.warningDisabledCountries', disabledCountries.length, {
-                    name: disabledCountries.first().name,
-                    addition: disabledCountries.length > 2
-                        ? $tc('sw-sales-channel.detail.warningDisabledAddition', 1, { amount: disabledCountries.length - 1 })
-                        : disabledCountries.last().name
-                })"
-            ></span>
+            <span v-html="buildDisabledAlert('sw-sales-channel.detail.warningDisabledCountries', disabledCountries)"></span>
         </sw-alert>
         {% endblock %}
 
@@ -206,14 +199,7 @@
             variant="warning"
             :title="$tc('global.default.warning')"
         >
-            <span
-                v-html="$tc('sw-sales-channel.detail.warningDisabledPaymentMethod', disabledPaymentMethods.length, {
-                    name: disabledPaymentMethods.first().distinguishableName,
-                    addition: disabledPaymentMethods.length > 2
-                        ? $tc('sw-sales-channel.detail.warningDisabledAddition', 1, { amount: disabledPaymentMethods.length - 1 })
-                        : disabledPaymentMethods.last().distinguishableName
-                })"
-            ></span>
+            <span v-html="buildDisabledAlert('sw-sales-channel.detail.warningDisabledPaymentMethod', disabledPaymentMethods, 'distinguishableName')"></span>
         </sw-alert>
         {% endblock %}
 
@@ -237,14 +223,7 @@
             variant="warning"
             :title="$tc('global.default.warning')"
         >
-            <span
-                v-html="$tc('sw-sales-channel.detail.warningDisabledShippingMethod', disabledShippingMethods.length, {
-                    name: disabledShippingMethods.first().name,
-                    addition: disabledShippingMethods.length > 2
-                        ? $tc('sw-sales-channel.detail.warningDisabledAddition', 1, { amount: disabledShippingMethods.length - 1 })
-                        : disabledShippingMethods.last().name
-                })"
-            ></span>
+            <span v-html="buildDisabledAlert('sw-sales-channel.detail.warningDisabledShippingMethod', disabledShippingMethods)"></span>
         </sw-alert>
         {% endblock %}
 

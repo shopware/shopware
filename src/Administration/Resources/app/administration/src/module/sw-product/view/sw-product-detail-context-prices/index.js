@@ -153,7 +153,7 @@ Component.register('sw-product-detail-context-prices', {
                     allowResize: true,
                     primary: true,
                     rawData: false,
-                    width: '95px',
+                    width: '120px',
                 }, {
                     property: 'quantityEnd',
                     label: 'sw-product.advancedPrices.columnTo',
@@ -161,7 +161,7 @@ Component.register('sw-product-detail-context-prices', {
                     allowResize: true,
                     primary: true,
                     rawData: false,
-                    width: '95px',
+                    width: '120px',
                 },
                 {
                     property: 'type',

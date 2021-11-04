@@ -40,7 +40,9 @@ describe('Flow builder: Visual testing', () => {
 
         cy.sortAndCheckListingAscViaColumn('Name', 'Contact form sent');
         cy.get('.sw-data-grid-skeleton').should('not.exist');
-        cy.takeSnapshot('[Flow builder] Listing', '.sw-flow-list__grid');
+
+        // ToDo: Reintroduce snapshot in NEXT-18572
+        //  cy.takeSnapshot('[Flow builder] Listing', '.sw-flow-list__grid');
 
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Order placed');
         cy.get('.sw-data-grid-skeleton').should('not.exist');

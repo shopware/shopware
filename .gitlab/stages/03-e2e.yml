@@ -98,7 +98,12 @@ E2E install NL:
         - composer run init:e2e:recovery
         - composer run e2e:recovery:cypress -- run
             --browser chrome
-            --spec "cypress/integration/installer/install_nl.spec.js,cypress/integration/scenarios/**/*.spec.js"
+            --spec "cypress/integration/installer/install_nl.spec.js"
+            --headless
+        - composer run e2e:prepare
+        - composer run e2e:recovery:cypress -- run
+            --browser chrome
+            --spec "cypress/integration/scenarios/**/*.spec.js"
             --headless
     after_script:
         - mkdir -p $CI_PROJECT_DIR/var/log/e2e $CI_PROJECT_DIR/src/Recovery/Test/e2e/cypress/mochareports || true

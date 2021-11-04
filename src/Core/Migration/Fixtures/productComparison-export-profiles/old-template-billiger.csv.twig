@@ -7,9 +7,9 @@
 ",{#- -#}
 "{{ product.categories.first.getBreadCrumb|slice(1)|join(' > ')|raw }}",{#- -#}
 {% set price = product.calculatedPrice %}
-{%- if product.calculatedPrices.count > 0 -%}
+{% if product.calculatedPrices.count > 0 %}
     {% set price = product.calculatedPrices.last %}
-{%- endif -%}
+{% endif %}
 "{{ price.unitPrice }}",{#- -#}
 "{%- if price.referencePrice is not null -%}
     {{ price.referencePrice.price|currency }} / {{ price.referencePrice.referenceUnit }} {{ price.referencePrice.unitName }}{#- -#}

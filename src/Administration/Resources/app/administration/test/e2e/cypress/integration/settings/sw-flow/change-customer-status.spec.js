@@ -1,7 +1,7 @@
 // / <reference types="Cypress" />
 import CustomerPageObject from '../../../support/pages/module/sw-customer.page-object';
 
-describe('Flow builder: change customer group testing', () => {
+describe('Flow builder: change customer status testing', () => {
     // eslint-disable-next-line no-undef
     before(() => {
         // Clean previous state and prepare Administration
@@ -10,15 +10,10 @@ describe('Flow builder: change customer group testing', () => {
                 cy.loginViaApi();
             }).then(() => {
                 return cy.createCustomerFixture();
-            }).then(() => {
-                return cy.setCustomerGroup('RS-1232123', {
-                    name: 'Net customergroup',
-                    displayGross: false
-                });
             });
     });
 
-    it('@settings: change customer group flow', () => {
+    it('@settings: change customer status flow', () => {
         cy.onlyOnFeature('FEATURE_NEXT_17973');
         cy.openInitialPage(`${Cypress.env('admin')}#/sw/flow/index`);
 
@@ -34,7 +29,7 @@ describe('Flow builder: change customer group testing', () => {
         cy.get('.smart-bar__header h2').contains('New flow');
 
         // Fill all fields
-        cy.get('#sw-field--flow-name').type('Checkout customer login');
+        cy.get('#sw-field--flow-name').type('Change customer status');
         cy.get('#sw-field--flow-priority').type('10');
         cy.get('.sw-flow-detail-general__general-active .sw-field--switch__input').click();
 
@@ -47,14 +42,14 @@ describe('Flow builder: change customer group testing', () => {
         cy.get('.sw-flow-sequence-selector__add-action').click();
 
         cy.get('.sw-flow-sequence-action__selection-action')
-            .typeSingleSelect('Change customer group', '.sw-flow-sequence-action__selection-action');
-        cy.get('.sw-flow-change-customer-group-modal').should('be.visible');
+            .typeSingleSelect('Change customer status', '.sw-flow-sequence-action__selection-action');
+        cy.get('.sw-flow-change-customer-status-modal').should('be.visible');
 
-        cy.get('.sw-flow-change-customer-group-modal__type-select')
-            .typeSingleSelect('Net customergroup', '.sw-flow-change-customer-group-modal__type-select');
+        cy.get('.sw-flow-change-customer-status-modal__type-select')
+            .typeSingleSelect('Inactive', '.sw-flow-change-customer-status-modal__type-select');
 
-        cy.get('.sw-flow-change-customer-group-modal__save-button').click();
-        cy.get('.sw-flow-change-customer-group-modal').should('not.exist');
+        cy.get('.sw-flow-change-customer-status-modal__save-button').click();
+        cy.get('.sw-flow-change-customer-status-modal').should('not.exist');
 
         // Save
         cy.get('.sw-flow-detail__save').click();
@@ -87,6 +82,6 @@ describe('Flow builder: change customer group testing', () => {
 
         cy.get('.sw-loader').should('not.exist');
 
-        cy.get('.sw-description-list dd').should('be.visible').eq(0).contains('Net customergroup');
+        cy.get('.sw-description-list dd').should('be.visible').eq(2).contains('Inactive');
     });
 });

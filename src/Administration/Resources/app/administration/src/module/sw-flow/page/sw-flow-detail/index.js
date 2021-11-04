@@ -328,7 +328,9 @@ Component.register('sw-flow-detail', {
             }
 
             if (this.feature.isActive('FEATURE_NEXT_17973')) {
-                const hasChangeCustomerGroup = this.sequences.some(sequence => sequence.actionName === ACTION.CHANGE_CUSTOMER_GROUP);
+                const hasChangeCustomerGroup = this.sequences.some(
+                    sequence => sequence.actionName === ACTION.CHANGE_CUSTOMER_GROUP,
+                );
 
                 if (hasChangeCustomerGroup) {
                     // get support information for change customer group action.

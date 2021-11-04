@@ -16,6 +16,7 @@ import './component/modals/sw-flow-mail-send-modal';
 import './component/modals/sw-flow-create-mail-template-modal';
 import './component/modals/sw-flow-event-change-confirm-modal';
 import './component/modals/sw-flow-change-customer-group-modal';
+import './component/modals/sw-flow-change-customer-status-modal';
 
 import './service/flow-builder.service';
 import './acl';

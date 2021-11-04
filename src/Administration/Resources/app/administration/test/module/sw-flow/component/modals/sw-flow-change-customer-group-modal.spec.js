@@ -98,7 +98,6 @@ describe('module/sw-flow/component/sw-flow-change-customer-group-modal', () => {
     });
 
     it('should emit process-finish when customer group is selected', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_17973'];
         const wrapper = createWrapper();
 
         const customerGroupInput = wrapper.find('.sw-entity-single-select__selection-input');

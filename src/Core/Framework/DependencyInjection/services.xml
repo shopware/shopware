@@ -334,12 +334,16 @@ base-uri 'self';
             <tag name="shopware.twig.hierarchy_builder" priority="1000"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Adapter\Twig\NodeExtension">
+        <service id="Shopware\Core\Framework\Adapter\Twig\Extension\NodeExtension">
             <argument type="service" id="Shopware\Core\Framework\Adapter\Twig\TemplateFinder"/>
             <tag name="twig.extension"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Adapter\Twig\FeatureFlagExtension">
+        <service id="Shopware\Core\Framework\Adapter\Twig\Extension\PhpSyntaxExtension">
+            <tag name="twig.extension" />
+        </service>
+
+        <service id="Shopware\Core\Framework\Adapter\Twig\Extension\FeatureFlagExtension">
             <tag name="twig.extension"/>
         </service>
 
@@ -351,7 +355,7 @@ base-uri 'self';
             <tag name="twig.extension"/>
         </service>
 
-        <service id="Shopware\Core\Framework\Adapter\Twig\InstanceOfExtension">
+        <service id="Shopware\Core\Framework\Adapter\Twig\Extension\InstanceOfExtension">
             <tag name="twig.extension"/>
         </service>
 

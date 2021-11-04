@@ -1,7 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Adapter\Twig;
+namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 
+use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\ExtendsTokenParser;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\IncludeTokenParser;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\ReturnNodeTokenParser;
@@ -24,7 +25,7 @@ class NodeExtension extends AbstractExtension
         return [
             new ExtendsTokenParser($this->finder),
             new IncludeTokenParser($this->finder),
-            new ReturnNodeTokenParser()
+            new ReturnNodeTokenParser(),
         ];
     }
 

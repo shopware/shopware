@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig\Node;
 
-use Shopware\Core\Framework\Adapter\Twig\NodeExtensions;
+use Shopware\Core\Framework\Adapter\Twig\Extension\NodeExtension;
 use Twig\Compiler;
 use Twig\Node\IncludeNode;
 
@@ -13,7 +13,7 @@ class SwInclude extends IncludeNode
         $compiler
             ->write("((function () use (\$context, \$blocks) {\n")
             ->indent()
-                ->write('$finder = $this->env->getExtension(\'' . NodeExtensions::class . '\')->getFinder();')->raw("\n\n")
+                ->write('$finder = $this->env->getExtension(\'' . NodeExtension::class . '\')->getFinder();')->raw("\n\n")
                 ->write('$includeTemplate = $finder->find(')
                     ->raw('$finder->getTemplateName(')
                         ->subcompile($this->getNode('expr'))

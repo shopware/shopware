@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Shopware\Core\Framework\Test\Adapter\Twig;
 
@@ -6,7 +6,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Twig\Environment;
 
 class ReturnNodeTest extends TestCase
 {
@@ -15,7 +14,7 @@ class ReturnNodeTest extends TestCase
     /**
      * @dataProvider nodeProvider
      */
-    public function testNode(string $template, $expected, array $data = [])
+    public function testNode(string $template, $expected, array $data = []): void
     {
         $file = __DIR__ . '/fixtures/return-node/' . $template;
 

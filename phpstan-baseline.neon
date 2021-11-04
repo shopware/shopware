@@ -1416,14 +1416,14 @@ parameters:
 			path: src/Core/Framework/Adapter/Twig/Filter/CurrencyFilter.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\InstanceOfExtension\\:\\:isInstanceOf\\(\\) has parameter \\$class with no typehint specified\\.$#"
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\Extension\\\\InstanceOfExtension\\:\\:isInstanceOf\\(\\) has parameter \\$class with no typehint specified\\.$#"
 			count: 1
-			path: src/Core/Framework/Adapter/Twig/InstanceOfExtension.php
+			path: src/Core/Framework/Adapter/Twig/Extension/InstanceOfExtension.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\InstanceOfExtension\\:\\:isInstanceOf\\(\\) has parameter \\$var with no typehint specified\\.$#"
+			message: "#^Method Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\Extension\\\\InstanceOfExtension\\:\\:isInstanceOf\\(\\) has parameter \\$var with no typehint specified\\.$#"
 			count: 1
-			path: src/Core/Framework/Adapter/Twig/InstanceOfExtension.php
+			path: src/Core/Framework/Adapter/Twig/Extension/InstanceOfExtension.php
 
 		-
 			message: "#^Property Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\NamespaceHierarchy\\\\NamespaceHierarchyBuilder\\:\\:\\$namespaceHierarchyBuilders \\(array\\<Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Twig\\\\NamespaceHierarchy\\\\TemplateNamespaceHierarchyBuilderInterface\\>\\) does not accept iterable\\.$#"

@@ -12,7 +12,7 @@ use Shopware\Core\Checkout\Cart\Error\Error;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Framework\Adapter\Twig\NodeExtensions;
+use Shopware\Core\Framework\Adapter\Twig\Extension\NodeExtension;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
@@ -75,7 +75,7 @@ class StorefrontControllerTest extends TestCase
         $controller = new TestController();
         $controller->setTwig($twig);
         $controller->setContainer($this->getContainer());
-        $controller->setTemplateFinder($twig->getExtension(NodeExtensions::class)->getFinder());
+        $controller->setTemplateFinder($twig->getExtension(NodeExtension::class)->getFinder());
 
         $rendered = $controller->testRenderViewInheritance('@Storefront/storefront/base.html.twig');
 
@@ -92,7 +92,7 @@ class StorefrontControllerTest extends TestCase
         $controller = new TestController();
         $controller->setTwig($twig);
         $controller->setContainer($this->getContainer());
-        $controller->setTemplateFinder($twig->getExtension(NodeExtensions::class)->getFinder());
+        $controller->setTemplateFinder($twig->getExtension(NodeExtension::class)->getFinder());
 
         $rendered = $controller->testRenderViewInheritance('@Storefront/storefront/page/plugin/index.html.twig');
 
@@ -193,8 +193,8 @@ class StorefrontControllerTest extends TestCase
             ])
         );
 
-        $twig->addExtension(new NodeExtensions($templateFinder));
-        $twig->getExtension(NodeExtensions::class)->getFinder();
+        $twig->addExtension(new NodeExtension($templateFinder));
+        $twig->getExtension(NodeExtension::class)->getFinder();
 
         return $twig;
     }

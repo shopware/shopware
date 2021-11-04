@@ -645,7 +645,6 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(1);
         expect(emptyState.exists()).toBeTruthy();
         expect(emptyState.attributes().title).toBe('sw-empty-state.messageNoResultTitle');
-        expect(emptyState.attributes().subline).toBe('sw-empty-state.messageNoResultSubline');
         expect(wrapper.vm.entitySearchable).toEqual(false);
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();

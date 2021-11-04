@@ -1202,6 +1202,9 @@
   },
   "sw-empty-state": {
     "messageNoResultTitle": "Nothing found",
-    "messageNoResultSubline": "Edit your filters or your search terms to find results. Please also check the configuration of your search."
+    "messageNoResultSubline": "Edit your filters or your search terms to find results. Please also check the configuration of your search.",
+    "messageNoResultSublineBefore": "Edit your filters or your search terms to find results. Please also check",
+    "messageNoResultSublineLink": "the configuration",
+    "messageNoResultSublineAfter": "of your search."
   }
 }

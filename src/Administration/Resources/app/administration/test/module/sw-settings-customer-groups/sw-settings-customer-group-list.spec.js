@@ -306,7 +306,6 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
         expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(1);
         expect(emptyState.exists()).toBeTruthy();
         expect(emptyState.attributes().title).toBe('sw-empty-state.messageNoResultTitle');
-        expect(emptyState.attributes().subline).toBe('sw-empty-state.messageNoResultSubline');
         expect(wrapper.find('sw-entity-listing-stub').exists()).toBeFalsy();
         expect(wrapper.vm.entitySearchable).toEqual(false);
 

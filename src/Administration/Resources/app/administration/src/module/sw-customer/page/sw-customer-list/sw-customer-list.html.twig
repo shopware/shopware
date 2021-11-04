@@ -262,9 +262,6 @@
                     :title="feature.isActive('FEATURE_NEXT_6040')
                         ? $tc('sw-empty-state.messageNoResultTitle')
                         : $tc('sw-customer.filter.messageEmptyTitle')"
-                    :subline="feature.isActive('FEATURE_NEXT_6040')
-                        ? $tc('sw-empty-state.messageNoResultSubline')
-                        : $tc('sw-customer.filter.messageEmptySubline')"
                 >
                     <template #icon>
                         <img
@@ -273,6 +270,23 @@
                                 ? $tc('sw-empty-state.messageNoResultTitle')
                                 : $tc('sw-customer.filter.messageEmptyTitle')"
                         >
+                    </template>
+
+                    <template #default>
+                        <template v-if="feature.isActive('FEATURE_NEXT_6040')">
+                            {{ $tc('sw-empty-state.messageNoResultSublineBefore') }}
+                            <router-link
+                                class="sw-empty-state__description-link"
+                                :to="{ name: 'sw.profile.index.searchPreferences' }"
+                            >
+                                {{ $tc('sw-empty-state.messageNoResultSublineLink') }}
+                            </router-link>
+                            {{ $tc('sw-empty-state.messageNoResultSublineAfter') }}
+                        </template>
+
+                        <template v-else>
+                            {{ $tc('sw-customer.filter.messageEmptySubline') }}
+                        </template>
                     </template>
                 </sw-empty-state>
                 <sw-empty-state

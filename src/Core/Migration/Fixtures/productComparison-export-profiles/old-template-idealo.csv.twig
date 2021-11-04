@@ -2,9 +2,9 @@
 "{{ product.manufacturer.translated.name }}",{#- -#}
 "{{ product.translated.name }}",{#- -#}
 {% set price = product.calculatedPrice %}
-{%- if product.calculatedPrices.count > 0 -%}
+{% if product.calculatedPrices.count > 0 %}
     {% set price = product.calculatedPrices.last %}
-{%- endif -%}
+{% endif %}
 "{{ price.unitPrice|currency }}",{#- -#}
 "{%- if price.referencePrice is not null -%}
     {{ price.referencePrice.price|currency }} / {{ price.referencePrice.referenceUnit }} {{ price.referencePrice.unitName }}{#- -#}

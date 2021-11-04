@@ -199,7 +199,9 @@
         "placeholderMetaTitle": "Enter meta title...",
         "placeholderMetaDescription": "Enter a meta description...",
         "placeholderKeywords": "Enter one or more keywords...",
-        "placeholderUrl": "Enter URL..."
+        "placeholderUrl": "Enter URL...",
+        "helpTextMetaTitle": "Meta titles should not be longer than {limit} characters. Excess text will be truncated by Google and the title will not be fully displayed in the SERP snippet.",
+        "helpTextMetaDescription": "Meta descriptions should not be longer than {limit} characters. Excess text will be truncated by Google and the description will not be fully displayed in the SERP snippet."
       },
       "cms": {
         "title": "Layout assignment",

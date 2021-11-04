@@ -198,7 +198,9 @@
         "placeholderMetaTitle": "Gib einen Meta-Titel ein ...",
         "placeholderMetaDescription": "Gib eine Meta-Beschreibung ein ...",
         "placeholderKeywords": "Gib ein oder mehrere Schlüsselwörter ein ...",
-        "placeholderUrl": "Gib eine URL an ..."
+        "placeholderUrl": "Gib eine URL an ...",
+        "helpTextMetaTitle": "Meta-Titel sollten nicht länger als {limit} Zeichen sein. Überschüssiger Text wird von Google abgeschnitten und der Titel wird nicht vollständig im SERP-Snippet angezeigt.",
+        "helpTextMetaDescription": "Meta-Beschreibungen sollte nicht länger als {limit} Zeichen sein. Überschüssiger Text wird von Google abgeschnitten und die Beschreibung wird nicht vollständig im SERP-Snippet angezeigt."
       },
       "cms": {
         "title": "Layout-Zuweisung",

@@ -74,6 +74,8 @@
             {% block sw_landing_page_detail_base_seo_form_meta_title %}
             <sw-text-field
                 v-model="landingPage.metaTitle"
+                maxlength="255"
+                :help-text="$tc('sw-landing-page.base.seo.helpTextMetaTitle', 0, { limit: 255 })"
                 :disabled="!acl.can('landing_page.editor')"
                 :label="$tc('sw-landing-page.base.seo.labelMetaTitle')"
                 :placeholder="placeholder(landingPage, 'metaTitle', $tc('sw-landing-page.base.seo.placeholderMetaTitle'))"
@@ -83,6 +85,8 @@
             {% block sw_landing_page_detail_base_seo_form_meta_description %}
             <sw-textarea-field
                 v-model="landingPage.metaDescription"
+                maxlength="255"
+                :help-text="$tc('sw-landing-page.base.seo.helpTextMetaDescription', 0, { limit: 255 })"
                 :disabled="!acl.can('landing_page.editor')"
                 :label="$tc('sw-landing-page.base.seo.labelMetaDescription')"
                 :placeholder="placeholder(landingPage, 'metaDescription', $tc('sw-landing-page.base.seo.placeholderMetaDescription'))"

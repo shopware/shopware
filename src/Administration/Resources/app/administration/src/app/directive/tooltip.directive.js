@@ -39,6 +39,7 @@ class Tooltip {
         disabled = false,
         appearance = 'dark',
         showOnDisabledElements = false,
+        zIndex = null,
     }) {
         this._id = id;
         this._placement = Tooltip.validatePlacement(placement);
@@ -50,6 +51,7 @@ class Tooltip {
         this._disabled = disabled;
         this._appearance = appearance;
         this._showOnDisabledElements = showOnDisabledElements;
+        this._zIndex = zIndex;
 
         // initialize tooltip variables
         this._isShown = false;
@@ -101,7 +103,8 @@ class Tooltip {
         hideDelay,
         disabled,
         appearance,
-        showOnDisabledElements }) {
+        showOnDisabledElements,
+        zIndex }) {
         if (message && this._message !== message) {
             this._message = Tooltip.validateMessage(message);
             this._DOMElement.innerHTML = this._message;
@@ -148,6 +151,10 @@ class Tooltip {
         if (showOnDisabledElements !== undefined && this._showOnDisabledElements !== showOnDisabledElements) {
             this._showOnDisabledElements = showOnDisabledElements;
         }
+
+        if (zIndex !== this._zIndex) {
+            this._zIndex = zIndex;
+        }
     }
 
     /**
@@ -176,6 +183,7 @@ class Tooltip {
         element.setAttribute('aria-hidden', 'false');
         element.classList.add('sw-tooltip');
         element.classList.add(`sw-tooltip--${this._appearance}`);
+        element.style.zIndex = this._zIndex;
 
         this._vue = new Vue({
             el: element,
@@ -418,6 +426,7 @@ function createOrUpdateTooltip(el, { value, modifiers }) {
     const appearance = value.appearance;
     const width = value.width;
     const showOnDisabledElements = value.showOnDisabledElements;
+    const zIndex = value.zIndex;
 
     const configuration = {
         element: el,
@@ -429,6 +438,7 @@ function createOrUpdateTooltip(el, { value, modifiers }) {
         disabled: disabled,
         appearance: appearance,
         showOnDisabledElements: showOnDisabledElements,
+        zIndex: zIndex,
     };
 
     if (el.hasAttribute('tooltip-id')) {

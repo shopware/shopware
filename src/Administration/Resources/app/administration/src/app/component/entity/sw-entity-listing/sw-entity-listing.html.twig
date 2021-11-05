@@ -90,6 +90,12 @@
 >
     <sw-context-menu-item
         v-if="detailRoute"
+        v-tooltip="{
+            message: $tc('sw-privileges.tooltip.warning'),
+            disabled: allowEdit || allowView,
+            showOnDisabledElements: true,
+            zIndex: 9050,
+        }"
         class="sw-entity-listing__context-menu-edit-action"
         :disabled="!allowEdit && !allowView"
         :router-link="{ name: detailRoute, params: { id: item.id } }"
@@ -108,6 +114,12 @@
     v-bind="{ item, showDelete, allowDelete }"
 >
     <sw-context-menu-item
+        v-tooltip.bottom="{
+            message: $tc('sw-privileges.tooltip.warning'),
+            disabled: allowDelete,
+            showOnDisabledElements: true,
+            zIndex: 9050,
+        }"
         :disabled="!allowDelete"
         class="sw-entity-listing__context-menu-edit-delete"
         variant="danger"

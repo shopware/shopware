@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Order\SalesChannel;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
+use Shopware\Core\Checkout\Order\Event\OrderCartValidationEvent;
 use Shopware\Core\Checkout\Order\Exception\PaymentMethodNotAvailableException;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
@@ -77,7 +78,7 @@ class OrderService
 
         $cart = $this->cartService->getCart($context->getToken(), $context);
 
-        $this->validateCart($cart, $context->getContext());
+        $this->validateCart($cart, $context);
 
         return $this->cartService->order($cart, $context, $data->toRequestDataBag());
     }
@@ -193,7 +194,7 @@ class OrderService
         return false;
     }
 
-    private function validateCart(Cart $cart, Context $context): void
+    private function validateCart(Cart $cart, SalesChannelContext $context): void
     {
         $idsOfPaymentMethods = [];
 
@@ -206,7 +207,7 @@ class OrderService
             new EqualsFilter('active', true)
         );
 
-        $paymentMethods = $this->paymentMethodRepository->searchIds($criteria, $context);
+        $paymentMethods = $this->paymentMethodRepository->searchIds($criteria, $context->getContext());
 
         if ($paymentMethods->getTotal() !== \count(array_unique($idsOfPaymentMethods))) {
             foreach ($cart->getTransactions() as $paymentMethod) {
@@ -215,6 +216,10 @@ class OrderService
                 }
             }
         }
+
+        $this->eventDispatcher->dispatch(
+            new OrderCartValidationEvent($cart, $context)
+        );
     }
 
     /**

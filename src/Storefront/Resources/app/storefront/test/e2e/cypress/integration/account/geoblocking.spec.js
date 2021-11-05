@@ -97,25 +97,25 @@ describe('Account: indicate non shippable country on register page', () => {
 
         cy.get('.row > :nth-child(2) > .btn').click();
 
-        cy.get('#address-create-new #addresspersonalSalutation').select('Mr.');
+        cy.get('#shipping-address-create-new #shipping-addresspersonalSalutation').select('Mr.');
 
-        cy.get('#address-create-new #addresspersonalFirstName').typeAndCheck('John');
+        cy.get('#shipping-address-create-new #shipping-addresspersonalFirstName').typeAndCheck('John');
 
-        cy.get('#address-create-new #addresspersonalLastName').typeAndCheck('Doe');
+        cy.get('#shipping-address-create-new #shipping-addresspersonalLastName').typeAndCheck('Doe');
 
-        cy.get('#address-create-new #addressAddressStreet').typeAndCheck('Test street 123.');
+        cy.get('#shipping-address-create-new #shipping-addressAddressStreet').typeAndCheck('Test street 123.');
 
-        cy.get('#address-create-new #addressAddressZipcode').typeAndCheck('000010');
+        cy.get('#shipping-address-create-new #shipping-addressAddressZipcode').typeAndCheck('000010');
 
-        cy.get('#address-create-new #addressAddressCity').typeAndCheck('Test city');
+        cy.get('#shipping-address-create-new #shipping-addressAddressCity').typeAndCheck('Test city');
 
-        cy.get('#address-create-new #addressAddressCountry').select('Germany (Delivery not possible)');
+        cy.get('#shipping-address-create-new #shipping-addressAddressCountry').select('Germany (Delivery not possible)');
 
         cy.wait('@countryStateRequest').its('response.statusCode').should('equal', 200);
 
-        cy.get('#address-create-new #addressAddressCountryState').select('Hamburg');
+        cy.get('#shipping-address-create-new #shipping-addressAddressCountryState').select('Hamburg');
 
-        cy.get('#address-create-new button[type="submit"]').click();
+        cy.get('#shipping-address-create-new button[type="submit"]').click();
 
         cy.get('.address-editor-modal').should('not.exist');
 
@@ -134,7 +134,7 @@ describe('Account: indicate non shippable country on register page', () => {
             .contains('A delivery to this country is not possible.')
             .should('be.visible');
 
-        cy.get('#address-list form[action="/widgets/account/address-book"] button')
+        cy.get('#shipping-address-list form[action="/widgets/account/address-book"] button')
             .contains('Set as default shipping address')
             .should('be.disabled');
 

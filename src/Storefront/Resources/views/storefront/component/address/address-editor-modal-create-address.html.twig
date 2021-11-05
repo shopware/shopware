@@ -1,7 +1,7 @@
 {% block component_address_address_editor_modal_create_address %}
-    <div id="{% if address %}address-create-edit{% else %}address-create-new{% endif %}"
+    <div id="{{ typePrefix }}{% if address %}address-create-edit{% else %}address-create-new{% endif %}"
          class="collapse"
-         data-parent="#addressEditorAccordion">
+         data-parent="#{{ typePrefix }}addressEditorAccordion">
         {% block component_address_address_editor_modal_create_address_wrapper %}
             <div class="card address-editor-create-address-wrapper">
                 {% block component_address_address_editor_modal_create_address_title %}
@@ -47,6 +47,7 @@
                                     {% sw_include '@Storefront/storefront/component/address/address-personal.html.twig' with {
                                         'data': address,
                                         'prefix': 'address',
+                                        'idPrefix': typePrefix,
                                         'scope': 'parent',
                                         'parentSelector': 'form'
                                     } %}
@@ -54,6 +55,7 @@
                                     {% sw_include '@Storefront/storefront/component/address/address-form.html.twig' with {
                                         'data': address,
                                         'prefix': 'address',
+                                        'idPrefix': typePrefix,
                                         'scope': 'parent',
                                         'parentSelector': 'form',
                                         'showFormCompany': true,

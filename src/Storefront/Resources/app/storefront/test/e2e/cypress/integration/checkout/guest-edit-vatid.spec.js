@@ -1,9 +1,8 @@
-import CheckoutPageObject from "../../support/pages/checkout.page-object";
-import AccountPageObject from "../../support/pages/account.page-object";
+import CheckoutPageObject from '../../support/pages/checkout.page-object';
+import AccountPageObject from '../../support/pages/account.page-object';
 let product = {};
 
-// NEXT-17407 - test fails because it has never run in the pipeline
-describe.skip(`Checkout as Guest`, () => {
+describe('Checkout as Guest', () => {
     // eslint-disable-next-line no-undef
     before(() => {
         cy.onlyOnFeature('FEATURE_NEXT_15957');
@@ -24,15 +23,15 @@ describe.skip(`Checkout as Guest`, () => {
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {
-                    Authorization: `Bearer ${result.access}`
+                    Authorization: `Bearer ${result.access}`,
                 },
                 method: 'POST',
-                url: `api/_action/system-config/batch`,
+                url: 'api/_action/system-config/batch',
                 body: {
                     null: {
-                        'core.loginRegistration.showAccountTypeSelection': true
-                    }
-                }
+                        'core.loginRegistration.showAccountTypeSelection': true,
+                    },
+                },
             };
 
             return cy.request(requestConfig);
@@ -40,7 +39,7 @@ describe.skip(`Checkout as Guest`, () => {
 
         cy.visit('/account/login');
 
-        cy.window().then((win) => {
+        cy.window().then(() => {
             const page = new CheckoutPageObject();
             const accountPage = new AccountPageObject();
 
@@ -79,8 +78,12 @@ describe.skip(`Checkout as Guest`, () => {
             cy.get(vatIdsSelector).type('55555');
 
             cy.get(`${accountPage.elements.registerForm} input[name="email"]`).type('john-doe-for-testing@example.com');
-            cy.get('.register-guest-control.custom-checkbox label').scrollIntoView();
-            cy.get('.register-guest-control.custom-checkbox label').click(1, 1);
+            cy.window().then(win => {
+                if (!win.features['FEATURE_NEXT_16236']) {
+                    cy.get('.register-guest-control.custom-checkbox label').scrollIntoView();
+                    cy.get('.register-guest-control.custom-checkbox label').click(1, 1);
+                }
+            });
 
             cy.get('input[name="billingAddress[street]"]').type('123 Main St');
             cy.get('input[name="billingAddress[zipcode]"]').type('9876');
@@ -99,9 +102,9 @@ describe.skip(`Checkout as Guest`, () => {
             cy.get('.confirm-address').contains('John Doe');
             cy.get('.confirm-address .confirm-billing-address .card-actions .btn').click();
             cy.get('.address-editor-modal .address-editor-edit').click();
-            cy.get('#address-create-edit input#vatIds').should('be.visible');
-            cy.get('#address-create-edit input#vatIds').clear().type('22222');
-            cy.get('#address-create-edit .address-form-submit').click();
+            cy.get('#billing-address-create-edit input#vatIds').should('be.visible');
+            cy.get('#billing-address-create-edit input#vatIds').clear().type('22222');
+            cy.get('#billing-address-create-edit .address-form-submit').click();
         });
     });
 });

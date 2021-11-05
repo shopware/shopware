@@ -20,6 +20,7 @@ ecs.php                               @product/engineering/platform-group/core
 phpstan.neon                          @product/engineering/platform-group/core
 psalm.xml                             @product/engineering/platform-group/core
 phpunit.xml.dist                      @product/engineering/platform-group/core
+/adr/                                 @product/engineering/platform-group/core
 
 [Admin]
 /src/Administration/Resources/*                                                         @product/engineering/platform-group/admin
@@ -37,9 +38,11 @@ phpunit.xml.dist                      @product/engineering/platform-group/core
 /src/Administration/Resources/app/administration/twigViewPlugin/                        @product/engineering/platform-group/admin
 /src/Administration/Resources/views/                                                    @product/engineering/platform-group/admin
 /src/Administration/Resources/config/                                                   @product/engineering/platform-group/admin
+/adr/                                                                                   @product/engineering/platform-group/admin
 
 [Storefront]
 /src/Storefront/        @product/engineering/platform-group/storefront
+/adr/                   @product/engineering/platform-group/storefront
 
 [Operations]
 /.github/               @product/engineering/operations @product/engineering/platform-group/core @product/engineering/platform-group/admin @product/engineering/platform-group/storefront
@@ -48,5 +51,4 @@ phpunit.xml.dist                      @product/engineering/platform-group/core
 .gitlab-ci.yml          @product/engineering/operations @product/engineering/platform-group/core @product/engineering/platform-group/admin @product/engineering/platform-group/storefront
 
 [Main]
-/adr/                   @product/engineering/platform-group/core @product/engineering/platform-group/admin @product/engineering/platform-group/storefront
 /.gitlab/CODEOWNERS     @product/engineering/platform-group/core @product/engineering/platform-group/admin @product/engineering/platform-group/storefront

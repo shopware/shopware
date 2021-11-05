@@ -32,7 +32,7 @@
     "dbUser": "root",
     "dbPassword": "root",
     "dbHost": "mysql",
-    "dbName": "sw6_e2e_test",
+    "dbName": "shopware_e2e",
     "acceptLanguage": "en-GB,en;q=0.5",
     "expectedVersion": "6.2.",
     "minAuthTokenLifetime": 60

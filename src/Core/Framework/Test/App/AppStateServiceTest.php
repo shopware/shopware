@@ -12,6 +12,7 @@ use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -33,12 +34,15 @@ class AppStateServiceTest extends TestCase
 
     private Context $context;
 
+    private EntityRepositoryInterface $scriptRepo;
+
     public function setUp(): void
     {
         $this->appRepository = $this->getContainer()->get('app.repository');
         $this->appStateService = $this->getContainer()->get(AppStateService::class);
         $this->eventDispatcher = $this->getContainer()->get('event_dispatcher');
         $this->appLifecycle = $this->getContainer()->get(AppLifecycle::class);
+        $this->scriptRepo = $this->getContainer()->get('script.repository');
         $this->context = Context::createDefaultContext();
     }
 
@@ -99,6 +103,7 @@ class AppStateServiceTest extends TestCase
         $criteria = new Criteria([$appId]);
         $criteria->addAssociation('templates');
         $criteria->addAssociation('paymentMethods.paymentMethod');
+        $criteria->addAssociation('scripts');
 
         /** @var AppEntity|null $app */
         $app = $this->appRepository->search($criteria, $this->context)->first();
@@ -106,6 +111,7 @@ class AppStateServiceTest extends TestCase
         static::assertSame($active, $app->isActive());
         $this->assertDefaultTemplate($app);
         $this->assertDefaultPaymentMethods($app);
+        $this->assertDefaultScripts($app);
     }
 
     private function assertDefaultTemplate(AppEntity $app): void
@@ -123,5 +129,12 @@ class AppStateServiceTest extends TestCase
             static::assertNotNull($paymentMethod);
             static::assertSame($app->isActive(), $paymentMethod->getActive());
         }
+    }
+
+    private function assertDefaultScripts(AppEntity $app): void
+    {
+        $script = $app->getScripts()->first();
+        static::assertNotNull($script);
+        static::assertSame($app->isActive(), $script->isActive());
     }
 }

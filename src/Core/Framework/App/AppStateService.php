@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\App;
 use Shopware\Core\Framework\App\Event\AppActivatedEvent;
 use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
+use Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister;
 use Shopware\Core\Framework\App\Payment\PaymentMethodStateService;
 use Shopware\Core\Framework\App\Template\TemplateStateService;
 use Shopware\Core\Framework\Context;
@@ -17,36 +18,24 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class AppStateService
 {
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $appRepo;
+    private EntityRepositoryInterface $appRepo;
 
-    /**
-     * @var EventDispatcherInterface
-     */
-    private $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var ActiveAppsLoader
-     */
-    private $activeAppsLoader;
+    private ActiveAppsLoader $activeAppsLoader;
 
-    /**
-     * @var TemplateStateService
-     */
-    private $templateStateService;
+    private TemplateStateService $templateStateService;
 
-    /**
-     * @var PaymentMethodStateService
-     */
-    private $paymentMethodStateService;
+    private ScriptPersister $scriptPersister;
+
+    private PaymentMethodStateService $paymentMethodStateService;
 
     public function __construct(
         EntityRepositoryInterface $appRepo,
         EventDispatcherInterface $eventDispatcher,
         ActiveAppsLoader $activeAppsLoader,
         TemplateStateService $templateStateService,
+        ScriptPersister $scriptPersister,
         PaymentMethodStateService $paymentMethodStateService
     ) {
         $this->appRepo = $appRepo;
@@ -54,6 +43,7 @@ class AppStateService
         $this->activeAppsLoader = $activeAppsLoader;
         $this->templateStateService = $templateStateService;
         $this->paymentMethodStateService = $paymentMethodStateService;
+        $this->scriptPersister = $scriptPersister;
     }
 
     public function activateApp(string $appId, Context $context): void
@@ -70,6 +60,7 @@ class AppStateService
 
         $this->appRepo->update([['id' => $appId, 'active' => true]], $context);
         $this->templateStateService->activateAppTemplates($appId, $context);
+        $this->scriptPersister->activateAppScripts($appId, $context);
         $this->paymentMethodStateService->activatePaymentMethods($appId, $context);
         $this->activeAppsLoader->resetActiveApps();
         // manually set active flag to true, so we don't need to re-fetch the app from DB
@@ -96,6 +87,7 @@ class AppStateService
 
         $this->appRepo->update([['id' => $appId, 'active' => false]], $context);
         $this->templateStateService->deactivateAppTemplates($appId, $context);
+        $this->scriptPersister->deactivateAppScripts($appId, $context);
         $this->paymentMethodStateService->deactivatePaymentMethods($appId, $context);
     }
 }

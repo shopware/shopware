@@ -11,6 +11,7 @@ use Shopware\Core\Framework\App\Template\TemplateCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Script\ScriptCollection;
 use Shopware\Core\Framework\Webhook\WebhookCollection;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetCollection;
 use Shopware\Core\System\Integration\IntegrationEntity;
@@ -147,6 +148,8 @@ class AppEntity extends Entity
      * @var TemplateCollection|null
      */
     protected $templates;
+
+    protected ?ScriptCollection $scripts;
 
     /**
      * @var CustomFieldSetCollection|null
@@ -446,6 +449,16 @@ class AppEntity extends Entity
     public function setTemplates(TemplateCollection $templates): void
     {
         $this->templates = $templates;
+    }
+
+    public function getScripts(): ?ScriptCollection
+    {
+        return $this->scripts;
+    }
+
+    public function setScripts(ScriptCollection $scripts): void
+    {
+        $this->scripts = $scripts;
     }
 
     public function getPrivacyPolicyExtensions(): ?string

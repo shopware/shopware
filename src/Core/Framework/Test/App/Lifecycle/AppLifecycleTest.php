@@ -30,6 +30,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Script\ScriptEntity;
 use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SystemConfigTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -113,6 +114,7 @@ class AppLifecycleTest extends TestCase
         $this->assertDefaultCustomFields($apps->first()->getId());
         $this->assertDefaultWebhooks($apps->first()->getId());
         $this->assertDefaultTemplate($apps->first()->getId());
+        $this->assertDefaultScript($apps->first()->getId());
         $this->assertDefaultPaymentMethods($apps->first()->getId());
         $this->assertDefaultCmsBlocks($apps->first()->getId());
     }
@@ -376,6 +378,7 @@ class AppLifecycleTest extends TestCase
         $this->assertDefaultCustomFields($id);
         $this->assertDefaultWebhooks($apps->first()->getId());
         $this->assertDefaultTemplate($apps->first()->getId(), false);
+        $this->assertDefaultScript($apps->first()->getId(), false);
         $this->assertDefaultPaymentMethods($apps->first()->getId());
     }
 
@@ -525,6 +528,7 @@ class AppLifecycleTest extends TestCase
         $this->assertDefaultCustomFields($id);
         $this->assertDefaultWebhooks($apps->first()->getId());
         $this->assertDefaultTemplate($apps->first()->getId());
+        $this->assertDefaultScript($apps->first()->getId());
         $this->assertDefaultPaymentMethods($apps->first()->getId());
     }
 
@@ -603,6 +607,7 @@ class AppLifecycleTest extends TestCase
         $this->assertDefaultCustomFields($id);
         $this->assertDefaultWebhooks($apps->first()->getId());
         $this->assertDefaultTemplate($apps->first()->getId());
+        $this->assertDefaultScript($apps->first()->getId());
         $this->assertDefaultPaymentMethods($apps->first()->getId());
     }
 
@@ -1160,6 +1165,28 @@ class AppLifecycleTest extends TestCase
             $template->getTemplate()
         );
         static::assertEquals($active, $template->isActive());
+    }
+
+    private function assertDefaultScript(string $appId, bool $active = true): void
+    {
+        /** @var EntityRepositoryInterface $scriptRepository */
+        $scriptRepository = $this->getContainer()->get('script.repository');
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('appId', $appId));
+        $scripts = $scriptRepository->search($criteria, $this->context)->getEntities();
+
+        static::assertCount(1, $scripts);
+
+        /** @var ScriptEntity $script */
+        $script = $scripts->first();
+        static::assertEquals('product-page-loaded/product-page-script.twig', $script->getName());
+        static::assertEquals('product-page-loaded', $script->getHook());
+        static::assertStringEqualsFile(
+            __DIR__ . '/../Manifest/_fixtures/test/Resources/scripts/product-page-loaded/product-page-script.twig',
+            $script->getScript()
+        );
+        static::assertEquals($active, $script->isActive());
     }
 
     private function assertDefaultPaymentMethods(string $appId): void

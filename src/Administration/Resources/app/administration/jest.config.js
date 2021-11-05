@@ -2,7 +2,7 @@
 // https://jestjs.io/docs/en/configuration.html
 const { join, resolve } = require('path');
 
-process.env.PROJECT_ROOT = process.env.PROJECT_ROOT || process.env.INIT_CWD;
+process.env.PROJECT_ROOT = process.env.PROJECT_ROOT || process.env.INIT_CWD || '.';
 process.env.ADMIN_PATH = process.env.ADMIN_PATH || __dirname;
 process.env.TZ = process.env.TZ || 'UTC';
 

@@ -1,9 +1,9 @@
 {
   "sw-flow": {
     "general": {
-      "mainMenuItemGeneral": "Flow builder",
-      "descriptionTextModule": "Flow builder",
-      "placeholderSearchBar": "Search flow builder ..."
+      "mainMenuItemGeneral": "Flow Builder",
+      "descriptionTextModule": "Flow Builder",
+      "placeholderSearchBar": "Search Flow Builder..."
     },
     "list": {
       "textHeadline": "Flow Builder",
@@ -187,7 +187,7 @@
   "sw-privileges": {
     "permissions": {
       "flow": {
-        "label": "Flow builder"
+        "label": "Flow Builder"
       }
     }
   }

@@ -200,7 +200,7 @@ Component.register('sw-profile-index', {
             languageCriteria.addFilter(Criteria.equalsAny('locale.code', registeredLocales));
             languageCriteria.limit = 500;
 
-            return this.languageRepository.search(languageCriteria).then((result) => {
+            return this.languageRepository.iterate(languageCriteria).then((result) => {
                 this.languages = [];
                 const localeIds = [];
                 let fallbackId = '';

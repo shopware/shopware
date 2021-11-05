@@ -1,9 +1,8 @@
 import template from './sw-property-search.html.twig';
 import './sw-property-search.scss';
 
-const { Component } = Shopware;
-const { Criteria } = Shopware.Data;
-const utils = Shopware.Utils;
+const { Component, Data, Utils } = Shopware;
+const { Criteria } = Data;
 
 Component.register('sw-property-search', {
     template,
@@ -182,7 +181,7 @@ Component.register('sw-property-search', {
             this.showTree();
         },
 
-        onSearchOptions: utils.debounce(function debouncedSearch(input) {
+        onSearchOptions: Utils.debounce(function debouncedSearch(input) {
             const validInput = input || '';
 
             this.optionPage = 1;
@@ -218,7 +217,7 @@ Component.register('sw-property-search', {
             this.displaySearch = true;
             this.displayTree = false;
 
-            this.propertyGroupOptionRepository.search(this.propertyGroupOptionCriteria, Shopware.Context.api)
+            this.propertyGroupOptionRepository.iterate(Criteria.fromCriteria(this.propertyGroupOptionCriteria))
                 .then((groupOptions) => {
                     this.groupOptions = groupOptions;
                     this.optionTotal = groupOptions.total;
@@ -238,7 +237,7 @@ Component.register('sw-property-search', {
         },
 
         loadGroups() {
-            this.propertyGroupRepository.search(this.propertyGroupCriteria, Shopware.Context.api).then((groups) => {
+            this.propertyGroupRepository.iterate(Criteria.fromCriteria(this.propertyGroupCriteria)).then((groups) => {
                 this.groups = groups;
                 this.groupTotal = groups.total;
                 this.addOptionCount();
@@ -251,7 +250,7 @@ Component.register('sw-property-search', {
             criteria.setTotalCountMode(1);
             criteria.addAssociation('group');
 
-            this.propertyGroupOptionRepository.search(criteria, Shopware.Context.api)
+            this.propertyGroupOptionRepository.iterate(criteria)
                 .then((groupOptions) => {
                     this.groupOptions = this.sortOptions(groupOptions);
                     this.optionTotal = groupOptions.total;

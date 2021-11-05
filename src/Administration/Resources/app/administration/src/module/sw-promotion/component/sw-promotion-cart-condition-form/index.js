@@ -114,7 +114,7 @@ Component.register('sw-promotion-cart-condition-form', {
                 Criteria.equals('promotionId', this.promotion.id),
             );
 
-            this.repositoryGroups.search(criteria).then((groups) => {
+            this.repositoryGroups.iterate(criteria).then((groups) => {
                 this.promotion.setgroups = groups;
             });
         },

@@ -145,12 +145,12 @@ Shopware.Component.register('sw-import-export-edit-profile-modal-mapping', {
         createdComponent() {
             this.toggleAddMappingActionState(this.profile.sourceEntity);
 
-            this.languageRepository.search(this.languageCriteria).then(languages => {
+            this.languageRepository.iterate(Criteria.fromCriteria(this.languageCriteria)).then(languages => {
                 this.languages = languages;
                 this.languages.push({ locale: { code: 'DEFAULT' } });
             });
 
-            this.currencyRepository.search(this.currencyCriteria).then(currencies => {
+            this.currencyRepository.iterate(Criteria.fromCriteria(this.currencyCriteria)).then(currencies => {
                 this.currencies = currencies;
                 this.currencies.push({ isoCode: 'DEFAULT' });
             });

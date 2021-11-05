@@ -63,7 +63,7 @@ Component.register('sw-promotion-basic-form', {
             const promotionRepository = this.repositoryFactory.create('promotion');
             const criteria = (new Criteria()).addFilter(Criteria.equalsAny('id', this.promotion.exclusionIds));
 
-            promotionRepository.search(criteria).then((excluded) => {
+            promotionRepository.iterate(criteria).then((excluded) => {
                 this.excludedPromotions = excluded;
             });
         },

@@ -146,7 +146,7 @@ Component.register('sw-seo-url', {
             salesChannelCriteria.setIds([]);
             salesChannelCriteria.addAssociation('type');
 
-            this.salesChannelRepository.search(salesChannelCriteria).then((salesChannelCollection) => {
+            this.salesChannelRepository.iterate(salesChannelCriteria).then((salesChannelCollection) => {
                 Shopware.State.commit('swSeoUrl/setSalesChannelCollection', salesChannelCollection);
             });
         },

@@ -254,7 +254,7 @@ Component.register('sw-sales-channel-detail', {
                 .addSorting(Criteria.sort('config.customFieldPosition', 'ASC', true));
 
             this.customFieldRepository
-                .search(criteria, Context.api)
+                .iterate(criteria)
                 .then((searchResult) => {
                     this.customFieldSets = searchResult;
                 });

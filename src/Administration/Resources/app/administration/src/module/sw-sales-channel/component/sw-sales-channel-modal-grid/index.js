@@ -50,7 +50,7 @@ Component.register('sw-sales-channel-modal-grid', {
         createdComponent() {
             this.isLoading = true;
             const context = { ...Shopware.Context.api, languageId: Shopware.State.get('session').languageId };
-            this.salesChannelTypeRepository.search(new Criteria(1, 500), context).then((response) => {
+            this.salesChannelTypeRepository.iterate(new Criteria(1, 500), context).then((response) => {
                 this.total = response.total;
                 this.salesChannelTypes = response;
                 this.isLoading = false;

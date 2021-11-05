@@ -146,7 +146,7 @@ Component.register('sw-settings-rule-detail', {
             const context = { ...Context.api, inheritance: true };
 
             if (conditions === null) {
-                return this.conditionRepository.search(new Criteria(), context).then((searchResult) => {
+                return this.conditionRepository.iterate(new Criteria(), context).then((searchResult) => {
                     return this.loadConditions(searchResult);
                 });
             }
@@ -165,7 +165,7 @@ Component.register('sw-settings-rule-detail', {
                 criteria.addAssociation('options.group');
             }
 
-            return this.conditionRepository.search(criteria, conditions.context).then((searchResult) => {
+            return this.conditionRepository.iterate(criteria, conditions.context).then((searchResult) => {
                 conditions.push(...searchResult);
                 conditions.criteria = searchResult.criteria;
                 conditions.total = searchResult.total;

@@ -184,7 +184,7 @@ Component.register('sw-product-stream-detail', {
                 const filterCriteria = new Criteria();
                 filterCriteria.addFilter(Criteria.equals('productStreamId', this.productStreamId));
 
-                return this.productStreamFiltersRepository.search(filterCriteria, Context.api).then((productFilter) => {
+                this.productStreamFiltersRepository.iterate(filterCriteria).then((productFilter) => {
                     return this.loadFilters(productFilter);
                 });
             }
@@ -301,7 +301,7 @@ Component.register('sw-product-stream-detail', {
                 .addAssociation('customFields')
                 .addAssociation('relations');
 
-            return this.customFieldSetRepository.search(customFieldsCriteria, Context.api).then((customFieldSets) => {
+            this.customFieldSetRepository.iterate(customFieldsCriteria).then((customFieldSets) => {
                 customFieldSets.forEach((customFieldSet) => {
                     const customFields = customFieldSet.customFields
                         .reduce((acc, customField) => {

@@ -206,7 +206,7 @@ Component.register('sw-product-detail-context-prices', {
             );
 
             Shopware.State.commit('swProductDetail/setLoading', ['rules', true]);
-            this.ruleRepository.search(ruleCriteria).then((res) => {
+            this.ruleRepository.iterate(ruleCriteria).then((res) => {
                 this.rules = res;
                 this.totalRules = res.total;
 

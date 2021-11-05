@@ -192,7 +192,7 @@ Component.register('sw-settings-shipping-detail', {
 
         loadCurrencies() {
             this.currenciesLoading = true;
-            this.currencyRepository.search(new Criteria(1, 500), Context.api).then((currencyResponse) => {
+            this.currencyRepository.iterate(new Criteria(1, 500)).then((currencyResponse) => {
                 Shopware.State.commit('swShippingDetail/setCurrencies', this.sortCurrencies(currencyResponse));
                 this.currenciesLoading = false;
             });

@@ -409,7 +409,7 @@ Component.register('sw-settings-document-detail', {
         },
 
         async loadAvailableSalesChannel() {
-            this.salesChannels = await this.salesChannelRepository.search(new Criteria(1, 500));
+            this.salesChannels = await this.salesChannelRepository.iterateAsync();
         },
 
         showOption(item) {

@@ -75,7 +75,7 @@ Component.register('sw-sales-channel-config', {
     methods: {
         createdComponent() {
             if (!this.salesChannel.length) {
-                this.salesChannelRepository.search(this.criteria, Shopware.Context.api).then(res => {
+                this.salesChannelRepository.iterate(Criteria.fromCriteria(this.criteria)).then(res => {
                     res.add({
                         id: null,
                         translated: {

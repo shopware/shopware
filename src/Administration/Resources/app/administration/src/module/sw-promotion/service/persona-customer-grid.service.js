@@ -1,5 +1,3 @@
-const { Criteria } = Shopware.Data;
-
 /**
  * @deprecated tag:v6.5.0 - will be removed, use `sw-promotion-v2` instead
  */
@@ -32,11 +30,9 @@ export default class PersonaCustomerGridService {
     }
 
     async reloadCustomers() {
-        const criteria = new Criteria();
-
         // search all customer persona entries and load them
         // into our customer list which will be shown using our vue grid.
-        await this.repoPromotionCustomers.search(criteria, this.context).then((customers) => {
+        await this.repoPromotionCustomers.iterateAsync(null, this.context).then((customers) => {
             this.dataSource = customers;
         });
     }

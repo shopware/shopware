@@ -92,11 +92,7 @@ Component.register('sw-product-clone-modal', {
                 Criteria.equals('parentId', this.product.id),
             );
 
-            return this.repository
-                .searchIds(criteria)
-                .then((response) => {
-                    return response.data;
-                });
+            return this.repository.iterateIds(criteria);
         },
 
         duplicateVariant(duplicate, ids, callback) {

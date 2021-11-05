@@ -124,8 +124,8 @@ Component.register('sw-property-assignment', {
             );
 
             // Fetch groups with options
-            this.groupRepository.search(groupSearchCriteria, Shopware.Context.api).then((res) => {
-                this.groups = res;
+            this.groupRepository.iterate(groupSearchCriteria).then((groups) => {
+                this.groups = groups;
             });
 
             return true;

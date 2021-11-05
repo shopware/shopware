@@ -74,7 +74,7 @@ Component.register('sw-product-detail-cross-selling', {
                 .addSorting(Criteria.sort('position', 'ASC'))
                 .addAssociation('product');
 
-            repository.search(
+            repository.iterate(
                 criteria,
                 { ...Shopware.Context.api, inheritance: true },
             ).then((assignedProducts) => {

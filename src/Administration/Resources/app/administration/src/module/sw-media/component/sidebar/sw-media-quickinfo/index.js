@@ -79,7 +79,7 @@ Component.register('sw-media-quickinfo', {
                 .addSorting(Criteria.sort('config.customFieldPosition', 'ASC', true))
                 .setLimit(100);
 
-            const searchResult = await this.customFieldSetRepository.search(criteria);
+            const searchResult = await this.customFieldSetRepository.iterateAsync(criteria);
             this.customFieldSets = searchResult.filter(set => set.customFields.length > 0);
         },
 

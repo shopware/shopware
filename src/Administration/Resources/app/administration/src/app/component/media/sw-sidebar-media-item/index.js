@@ -129,7 +129,7 @@ Component.register('sw-sidebar-media-item', {
             const criteria = new Criteria(1, 50);
             criteria.addFilter(Criteria.equals('parentId', this.mediaFolderId));
 
-            const folder = await this.mediaFolderRepository.search(criteria, Context.api);
+            const folder = await this.mediaFolderRepository.iterate(criteria);
             this.subFolders = folder;
             return folder;
         },

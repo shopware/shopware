@@ -27,7 +27,7 @@ export default function addCustomerGroupRegistrationListener(loginService) {
         criteria.addAssociation('requestedGroup');
         criteria.addFilter(Criteria.not('AND', [Criteria.equals('requestedGroupId', null)]));
 
-        const customers = await customerRepository.search(criteria, Shopware.Context.api);
+        const customers = await customerRepository.iterateAsync(criteria);
 
         customers.forEach(createNotification);
     }

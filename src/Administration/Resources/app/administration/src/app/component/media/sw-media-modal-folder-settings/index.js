@@ -1,8 +1,8 @@
 import template from './sw-media-modal-folder-settings.html.twig';
 import './sw-media-modal-folder-settings.scss';
 
-const { Component, Mixin, Context } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Component, Data, Mixin, Context } = Shopware;
+const { Criteria } = Data;
 
 /**
  * @private
@@ -90,9 +90,7 @@ Component.register('sw-media-modal-folder-settings', {
                 this.configuration.mediaThumbnailSizes.entity,
                 this.configuration.mediaThumbnailSizes.source,
             );
-
-            this.configuration.mediaThumbnailSizes = await this.mediaFolderConfigurationThumbnailSizeRepository
-                .search(new Criteria(), Context.api);
+            this.configuration.mediaThumbnailSizes = await this.mediaFolderConfigurationThumbnailSizeRepository.iterateAsync();
 
             if (this.folder.parentId !== null) {
                 this.parent = await this.mediaFolderRepository.get(this.folder.parentId, Context.api);

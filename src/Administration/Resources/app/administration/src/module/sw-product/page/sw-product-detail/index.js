@@ -599,7 +599,7 @@ Component.register('sw-product-detail', {
         loadCurrencies() {
             Shopware.State.commit('swProductDetail/setLoading', ['currencies', true]);
 
-            return this.currencyRepository.search(new Criteria(1, 500)).then((res) => {
+            return this.currencyRepository.iterate(new Criteria(1, 500)).then((res) => {
                 Shopware.State.commit('swProductDetail/setCurrencies', res);
             }).then(() => {
                 Shopware.State.commit('swProductDetail/setLoading', ['currencies', false]);
@@ -609,7 +609,7 @@ Component.register('sw-product-detail', {
         loadTaxes() {
             Shopware.State.commit('swProductDetail/setLoading', ['taxes', true]);
 
-            return this.taxRepository.search(this.taxCriteria).then((res) => {
+            return this.taxRepository.iterate(Criteria.fromCriteria(this.taxCriteria)).then((res) => {
                 Shopware.State.commit('swProductDetail/setTaxes', res);
             }).then(() => {
                 Shopware.State.commit('swProductDetail/setLoading', ['taxes', false]);

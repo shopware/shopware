@@ -120,11 +120,11 @@ Component.register('sw-customer-detail-addresses', {
             customFieldSetCriteria.addFilter(Criteria.equals('relations.entityName', 'customer_address'))
                 .addAssociation('customFields');
 
-            this.customFieldSetRepository.search(customFieldSetCriteria).then((customFieldSets) => {
+            this.customFieldSetRepository.iterate(customFieldSetCriteria).then((customFieldSets) => {
                 this.customerAddressCustomFieldSets = customFieldSets;
+            }).finally(() => {
+                this.isLoading = false;
             });
-
-            this.isLoading = false;
         },
 
         getAddressColumns() {

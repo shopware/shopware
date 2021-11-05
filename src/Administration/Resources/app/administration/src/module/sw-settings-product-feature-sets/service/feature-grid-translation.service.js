@@ -57,7 +57,7 @@ export default class FeatureGridTranslationService {
             identifier,
         ));
 
-        return repo.search(criteria, Shopware.Context.api).then((items) => {
+        return repo.iterate(criteria).then((items) => {
             this.entities[type] = items;
         });
     }

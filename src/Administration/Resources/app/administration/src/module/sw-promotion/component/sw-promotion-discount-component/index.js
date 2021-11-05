@@ -312,7 +312,7 @@ Component.register('sw-promotion-discount-component', {
             this.syncService = Shopware.Service('syncService');
             this.httpClient = this.syncService.httpClient;
 
-            this.currencyRepository.search(new Criteria()).then((response) => {
+            this.currencyRepository.iterate().then((response) => {
                 this.currencies = response;
                 this.defaultCurrency = this.currencies.find(currency => currency.isSystemDefault);
                 this.currencySymbol = this.defaultCurrency.symbol;

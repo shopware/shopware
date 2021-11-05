@@ -299,7 +299,7 @@ Component.register('sw-cms-detail', {
                     Criteria.equals('typeId', defaultStorefrontId),
                 );
 
-                this.salesChannelRepository.search(criteria).then((response) => {
+                this.salesChannelRepository.iterate(criteria).then((response) => {
                     this.salesChannels = response;
 
                     if (this.salesChannels.length > 0) {
@@ -467,7 +467,7 @@ Component.register('sw-cms-detail', {
         onChangeLanguage() {
             this.isLoading = true;
 
-            return this.salesChannelRepository.search(new Criteria()).then((response) => {
+            return this.salesChannelRepository.iterate().then((response) => {
                 this.salesChannels = response;
                 const isSystemDefaultLanguage = Shopware.State.getters['context/isSystemDefaultLanguage'];
                 this.$store.commit('cmsPageState/setIsSystemDefaultLanguage', isSystemDefaultLanguage);

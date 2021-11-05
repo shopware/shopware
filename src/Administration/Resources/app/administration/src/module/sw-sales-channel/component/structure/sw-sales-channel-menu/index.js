@@ -101,7 +101,7 @@ Component.register('sw-sales-channel-menu', {
         },
 
         loadEntityData() {
-            this.salesChannelRepository.search(this.salesChannelCriteria).then((response) => {
+            this.salesChannelRepository.iterate(Criteria.fromCriteria(this.salesChannelCriteria)).then((response) => {
                 this.salesChannels = response;
             });
         },

@@ -509,7 +509,7 @@ Component.register('sw-category-detail', {
         loadCustomFieldSet() {
             this.isCustomFieldLoading = true;
 
-            return this.customFieldSetRepository.search(this.customFieldSetCriteria)
+            return this.customFieldSetRepository.iterate(Criteria.fromCriteria(this.customFieldSetCriteria))
                 .then((customFieldSet) => {
                     return this.$store.commit('swCategoryDetail/setCustomFieldSets', customFieldSet);
                 }).finally(() => {

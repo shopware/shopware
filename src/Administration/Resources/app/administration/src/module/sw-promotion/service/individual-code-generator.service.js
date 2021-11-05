@@ -1,6 +1,7 @@
 import EventEmitter from 'events';
 import CodeGenerator from './code-generator.service';
-import { Criteria, TotalCountMode } from '../../../core/data/criteria.data';
+
+const { Criteria, TotalCountMode } = Shopware.Data;
 
 /**
  * @deprecated tag:v6.5.0 - will be removed, use `sw-promotion-v2` instead

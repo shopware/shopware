@@ -97,11 +97,9 @@ Component.register('sw-product-variants-configurator-prices', {
         },
 
         loadCurrencies() {
-            this.currencyRepository
-                .search(new Criteria())
-                .then((searchResult) => {
-                    this.currencies = searchResult;
-                });
+            this.currencyRepository.iterate().then((searchResult) => {
+                this.currencies = searchResult;
+            });
         },
 
         getOptionsForGroup() {

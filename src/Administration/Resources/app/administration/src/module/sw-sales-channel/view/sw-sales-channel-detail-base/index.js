@@ -466,7 +466,7 @@ Component.register('sw-sales-channel-detail-base', {
 
             criteria.addFilter(Criteria.equals('salesChannelId', storefrontSalesChannelId));
 
-            this.globalDomainRepository.search(criteria)
+            this.globalDomainRepository.iterate(criteria)
                 .then((searchResult) => {
                     this.storefrontDomains = searchResult;
                 });

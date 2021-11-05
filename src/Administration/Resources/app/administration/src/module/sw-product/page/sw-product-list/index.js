@@ -230,7 +230,7 @@ Component.register('sw-product-list', {
             try {
                 const result = await Promise.all([
                     this.productRepository.search(criteria),
-                    this.currencyRepository.search(this.currencyCriteria),
+                    this.currencyRepository.iterate(Criteria.fromCriteria(this.currencyCriteria)),
                 ]);
 
                 const products = result[0];

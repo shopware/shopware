@@ -200,7 +200,7 @@ Component.register('sw-product-cross-selling-form', {
             if (this.productStreamFilterRepository === null) {
                 return [];
             }
-            return this.productStreamFilterRepository.search(this.productStreamFilterCriteria)
+            return this.productStreamFilterRepository.iterate(Criteria.fromCriteria(this.productStreamFilterCriteria))
                 .then((productStreamFilter) => {
                     this.productStreamFilter = productStreamFilter;
                 });

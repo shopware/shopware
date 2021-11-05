@@ -440,8 +440,9 @@ Component.register('sw-category-tree', {
         loadRootCategories() {
             const criteria = Criteria.fromCriteria(this.criteria)
                 .addFilter(Criteria.equals('parentId', null));
+            criteria.limit = 500;
 
-            return this.categoryRepository.search(criteria).then((result) => {
+            return this.categoryRepository.iterate(criteria).then((result) => {
                 this.addCategories(result);
             });
         },

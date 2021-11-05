@@ -1,10 +1,10 @@
-import { Criteria, TotalCountMode } from 'src/core/data/criteria.data';
 import template from './sw-product-detail-base.html.twig';
 import './sw-product-detail-base.scss';
 
-const { Component, Context, Utils, Mixin } = Shopware;
+const { Component, Context, Data, Utils, Mixin } = Shopware;
 const { mapState, mapGetters } = Component.getComponentHelper();
 const { isEmpty } = Utils.types;
+const { Criteria, TotalCountMode } = Data;
 
 Component.register('sw-product-detail-base', {
     template,

@@ -177,7 +177,7 @@ Component.register('sw-settings-customer-group-detail', {
             criteria.addGroupField('seoPathInfo');
             criteria.addGroupField('salesChannelId');
 
-            this.seoUrls = await this.seoUrlRepository.search(criteria);
+            this.seoUrls = await this.seoUrlRepository.iterateAsync(criteria);
         },
 
         loadCustomFieldSets() {

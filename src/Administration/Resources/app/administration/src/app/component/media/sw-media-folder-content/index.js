@@ -1,8 +1,8 @@
 import template from './sw-media-folder-content.html.twig';
 import './sw-media-folder-content.scss';
 
-const { Component, Context } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Component, Context, Data } = Shopware;
+const { Criteria } = Data;
 
 Component.register('sw-media-folder-content', {
     template,
@@ -62,7 +62,7 @@ Component.register('sw-media-folder-content', {
                 .addAssociation('children')
                 .addSorting(Criteria.sort('name', 'asc'));
 
-            const searchResult = await this.mediaFolderRepository.search(criteria, Context.api);
+            const searchResult = await this.mediaFolderRepository.iterate(criteria);
             this.subFolders = searchResult.filter(this.filterItems);
         },
 

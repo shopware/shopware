@@ -184,7 +184,7 @@ class CheapestPriceUpdater
         $query->leftJoin('product', 'product', 'parent', 'product.parent_id = parent.id');
         $query->andWhere('product.id IN (:ids) OR product.parent_id IN (:ids)');
         $query->andWhere('product.version_id = :version');
-        $query->andWhere('IFNULL(product.active, parent.active) = 1');
+        $query->andWhere('IFNULL(product.active, parent.active) = 1 OR product.child_count > 0'); // always load parent products
 
         $query->setParameter('ids', $ids, Connection::PARAM_STR_ARRAY);
         $query->setParameter('version', Uuid::fromHexToBytes($context->getVersionId()));

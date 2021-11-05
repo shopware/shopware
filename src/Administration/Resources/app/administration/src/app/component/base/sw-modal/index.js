@@ -100,6 +100,10 @@ Component.register('sw-modal', {
         this.mountedComponent();
     },
 
+    beforeDestroy() {
+        this.beforeDestroyComponent();
+    },
+
     destroyed() {
         this.destroyedComponent();
     },
@@ -114,6 +118,13 @@ Component.register('sw-modal', {
             targetEl.appendChild(this.$el);
 
             this.setFocusToModal();
+        },
+
+        beforeDestroyComponent() {
+            if (this.$parent?.$el !== this.$el) {
+                // move DOM element back to vDOM parent so that Vue can remove the DOM entry on changes
+                this.$parent.$el.appendChild(this.$el);
+            }
         },
 
         destroyedComponent() {

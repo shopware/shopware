@@ -385,6 +385,8 @@ $sw-admin-menu-active-text: $color-white;
     }
 
     .sw-admin-menu__user-actions-label {
+        @include truncate();
+
         font-weight: 600;
         font-size: 14px;
         padding: 0 30px;

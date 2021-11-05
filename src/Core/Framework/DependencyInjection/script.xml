@@ -5,19 +5,15 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service id="Shopware\Core\Framework\Script\Registry\ExecutableScriptLoader">
+        <service id="Shopware\Core\Framework\Script\Execution\ScriptLoader">
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister"/>
             <argument>%kernel.cache_dir%</argument>
             <argument>%kernel.environment%</argument>
         </service>
 
-        <service id="Shopware\Core\Framework\Script\Registry\ScriptRegistry">
-            <argument type="service" id="Shopware\Core\Framework\Script\Registry\ExecutableScriptLoader"/>
-        </service>
-
-        <service id="Shopware\Core\Framework\Script\Executor\ScriptExecutor" public="true">
-            <argument type="service" id="Shopware\Core\Framework\Script\Registry\ScriptRegistry"/>
+        <service id="Shopware\Core\Framework\Script\Execution\ScriptExecutor" public="true">
+            <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptLoader"/>
             <argument type="service" id="logger"/>
         </service>
 

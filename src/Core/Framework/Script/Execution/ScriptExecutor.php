@@ -1,25 +1,25 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Script\Executor;
+namespace Shopware\Core\Framework\Script\Execution;
 
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Exception\ScriptExecutionFailedException;
-use Shopware\Core\Framework\Script\ExecutableScript;
+use Shopware\Core\Framework\Script\Execution\Script;
+use Shopware\Core\Framework\Script\Execution\ScriptLoader;
 use Shopware\Core\Framework\Script\Registry\ScriptRegistry;
 use Twig\Environment;
 use Twig\Extension\DebugExtension;
 
 class ScriptExecutor
 {
-    private ScriptRegistry $scriptRegistry;
-
     private LoggerInterface $logger;
+    private ScriptLoader $loader;
 
-    public function __construct(ScriptRegistry $scriptRegistry, LoggerInterface $logger)
+    public function __construct(ScriptLoader $loader, LoggerInterface $logger)
     {
-        $this->scriptRegistry = $scriptRegistry;
         $this->logger = $logger;
+        $this->loader = $loader;
     }
 
     public function execute(string $hook, array $scriptContext): void
@@ -28,7 +28,7 @@ class ScriptExecutor
             return;
         }
 
-        $scripts = $this->scriptRegistry->get($hook);
+        $scripts = $this->loader->get($hook);
 
         foreach ($scripts as $script) {
             $twig = $this->initEnv($script);
@@ -51,7 +51,7 @@ class ScriptExecutor
         }
     }
 
-    private function initEnv(ExecutableScript $script): Environment
+    private function initEnv(Script $script): Environment
     {
         $twig = new Environment(
             new ScriptTwigLoader($script),

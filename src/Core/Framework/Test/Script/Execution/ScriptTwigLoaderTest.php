@@ -1,23 +1,23 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\Script\Executor;
+namespace Shopware\Core\Framework\Test\Script\Execution;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Script\ExecutableScript;
-use Shopware\Core\Framework\Script\Executor\ScriptTwigLoader;
+use Shopware\Core\Framework\Script\Execution\Script;
+use Shopware\Core\Framework\Script\Execution\ScriptTwigLoader;
 use Twig\Error\LoaderError;
 
 class ScriptTwigLoaderTest extends TestCase
 {
-    private ExecutableScript $script;
+    private Script $script;
 
     private ScriptTwigLoader $scriptLoader;
 
     public function setUp(): void
     {
-        $this->script = new ExecutableScript(
-            'product-page-loaded.product-page-script.twig',
-            file_get_contents(__DIR__ . '/../Registry/_fixtures/apps/test/Resources/scripts/product-page-loaded/product-page-script.twig'),
+        $this->script = new Script(
+            'simple-function-case.twig',
+            file_get_contents(__DIR__ . '/_fixtures/simple-function-case/Resources/scripts/simple-function-case/simple-function-case.twig'),
             new \DateTimeImmutable(),
             []
         );

@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Script;
+namespace Shopware\Core\Framework\Script\Execution;
 
 use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @internal only for use by the app-system
  */
-class ExecutableScript extends Struct
+class Script extends Struct
 {
     protected string $name;
 
@@ -15,14 +15,17 @@ class ExecutableScript extends Struct
 
     protected array $twigOptions;
 
+    protected array $includes = [];
+
     protected \DateTimeInterface $lastModified;
 
-    public function __construct(string $name, string $script, \DateTimeInterface $lastModified, array $twigOptions)
+    public function __construct(string $name, string $script, \DateTimeInterface $lastModified, array $twigOptions = [], array $includes = [])
     {
         $this->name = $name;
         $this->script = $script;
         $this->twigOptions = $twigOptions;
         $this->lastModified = $lastModified;
+        $this->includes = $includes;
     }
 
     public function getName(): string
@@ -43,5 +46,13 @@ class ExecutableScript extends Struct
     public function getLastModified(): \DateTimeInterface
     {
         return $this->lastModified;
+    }
+
+    /**
+     * @return Script[]
+     */
+    public function getIncludes(): array
+    {
+        return $this->includes;
     }
 }

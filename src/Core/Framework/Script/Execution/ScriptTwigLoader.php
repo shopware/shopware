@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Framework\Script\Execution;
 
-use Shopware\Core\Framework\Script\Execution\Script;
-use Twig\Error\Error;
 use Twig\Error\LoaderError;
 use Twig\Loader\LoaderInterface;
 use Twig\Source;

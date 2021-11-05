@@ -6,7 +6,6 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ScriptPersister;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
-use Shopware\Core\Framework\Script\Execution\Script;
 use Twig\Cache\FilesystemCache;
 
 /**
@@ -61,6 +60,7 @@ class ScriptLoader
             FROM `script`
             LEFT JOIN `app` ON `script`.`app_id` = `app`.`id`
             WHERE `script`.`hook` != 'include'
+            ORDER BY `app`.`created_at`, `app`.`id`, `script`.`name`
         ");
 
         $includes = $this->connection->fetchAllAssociative("
@@ -71,6 +71,7 @@ class ScriptLoader
             FROM `script`
             LEFT JOIN `app` ON `script`.`app_id` = `app`.`id`
             WHERE `script`.`hook` = 'include'
+            ORDER BY `app`.`created_at`, `app`.`id`, `script`.`name`
         ");
 
         $allIncludes = FetchModeHelper::group($includes);
@@ -78,7 +79,6 @@ class ScriptLoader
         $executableScripts = [];
         /** @var array $script */
         foreach ($scripts as $script) {
-
             $appId = $script['app_id'];
 
             $includes = $allIncludes[$appId] ?? [];
@@ -91,7 +91,7 @@ class ScriptLoader
             /** @var string $cachePrefix */
             $cachePrefix = $script['appName'] ? md5($script['appName'] . $script['appVersion']) : EnvironmentHelper::getVariable('INSTANCE_ID', '');
 
-            $includes = array_map(function(array $script) {
+            $includes = array_map(function (array $script) {
                 return new Script(
                     $script['name'],
                     $script['script'],

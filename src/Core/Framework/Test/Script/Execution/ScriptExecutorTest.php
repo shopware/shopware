@@ -48,15 +48,15 @@ class ScriptExecutorTest extends TestCase
     {
         yield 'Test simple function call' => [
             ['simple-function-case'],
-            ['foo' => 'bar']
+            ['foo' => 'bar'],
         ];
         yield 'Test multiple scripts called' => [
             ['simple-function-case', 'multi-script-case'],
-            ['foo' => 'bar', 'bar' => 'foo', 'baz' => 'foo']
+            ['foo' => 'bar', 'bar' => 'foo', 'baz' => 'foo'],
         ];
         yield 'Test include with function call' => [
             ['include-case'],
-            ['called' => 1]
+            ['called' => 1],
         ];
     }
 }

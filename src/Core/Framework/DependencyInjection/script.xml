@@ -15,10 +15,16 @@
         <service id="Shopware\Core\Framework\Script\Execution\ScriptExecutor" public="true">
             <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptLoader"/>
             <argument type="service" id="logger"/>
+            <argument type="service" id="Shopware\Core\Framework\Script\Debugging\ScriptTraces"/>
         </service>
 
         <service id="Shopware\Core\Framework\Script\ScriptDefinition">
             <tag name="shopware.entity.definition"/>
         </service>
+
+        <service id="Shopware\Core\Framework\Script\Debugging\ScriptTraces">
+            <tag name="data_collector"/>
+        </service>
     </services>
 </container>
+

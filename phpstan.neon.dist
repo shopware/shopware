@@ -190,6 +190,10 @@ parameters:
         -
             message: '#Parameter \#1 \$min \(int\<0, max\>\) of function random_int expects lower number than parameter \#2 \$max \(int\<0, max\>\)\.#'
             path: src/Core/Framework/Demodata/Generator/ProductGenerator.php
+        -
+            message: '#Method Shopware\\Core\\Framework\\Script\\Debugging\\Debug::dump\(\) has parameter \$value with no typehint specified\.#'
+            path: src/Core/Framework/Script/Debugging/Debug.php
+
 services:
     -
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Decoratable\DecoratableImplementsInterfaceRule

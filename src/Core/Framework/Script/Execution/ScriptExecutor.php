@@ -4,25 +4,28 @@ namespace Shopware\Core\Framework\Script\Execution;
 
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Script\Debugging\Debug;
+use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Script\Exception\ScriptExecutionFailedException;
-use Shopware\Core\Framework\Script\Execution\Script;
-use Shopware\Core\Framework\Script\Execution\ScriptLoader;
-use Shopware\Core\Framework\Script\Registry\ScriptRegistry;
 use Twig\Environment;
 use Twig\Extension\DebugExtension;
 
 class ScriptExecutor
 {
     private LoggerInterface $logger;
+
     private ScriptLoader $loader;
 
-    public function __construct(ScriptLoader $loader, LoggerInterface $logger)
+    private ScriptTraces $traces;
+
+    public function __construct(ScriptLoader $loader, LoggerInterface $logger, ScriptTraces $traces)
     {
         $this->logger = $logger;
         $this->loader = $loader;
+        $this->traces = $traces;
     }
 
-    public function execute(string $hook, array $scriptContext): void
+    public function execute(string $hook, array $context): void
     {
         if (!Feature::isActive('FEATURE_NEXT_17441')) {
             return;
@@ -30,25 +33,35 @@ class ScriptExecutor
 
         $scripts = $this->loader->get($hook);
 
-        foreach ($scripts as $script) {
-            $twig = $this->initEnv($script);
+        $this->traces->init($hook);
 
+        foreach ($scripts as $script) {
             try {
-                $twig->render($script->getName(), $scriptContext);
+                $this->render($hook, $script, $context);
             } catch (\Throwable $e) {
-                $scriptException = new ScriptExecutionFailedException(
-                    $hook,
-                    $script->getName(),
-                    $e
-                );
-                $this->logger->error($scriptException->getMessage(), [
-                    'context' => $scriptContext,
-                    'exception' => $e,
-                ]);
+                $scriptException = new ScriptExecutionFailedException($hook, $script->getName(), $e);
+
+                $this->logger->error($scriptException->getMessage(), ['context' => $context, 'exception' => $e]);
 
                 throw $scriptException;
             }
         }
+    }
+
+    private function render(string $hook, Script $script, array $context): void
+    {
+        $twig = $this->initEnv($script);
+
+        $twig->addGlobal('debug', $debug = new Debug());
+
+        $time = microtime(true);
+        $twig->render($script->getName(), $context);
+        $took = round(microtime(true) - $time, 3);
+
+        $name = explode('/', $script->getName());
+        $name = array_pop($name);
+
+        $this->traces->add($hook, $name, $took, $debug);
     }
 
     private function initEnv(Script $script): Environment

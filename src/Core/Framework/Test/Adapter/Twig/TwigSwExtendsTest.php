@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Test\Adapter\Twig;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Adapter\Twig\InheritanceExtension;
+use Shopware\Core\Framework\Adapter\Twig\Extension\NodeExtension;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
@@ -212,8 +212,8 @@ class TwigSwExtendsTest extends TestCase
             ])
         );
 
-        $twig->addExtension(new InheritanceExtension($templateFinder));
-        $twig->getExtension(InheritanceExtension::class)->getFinder();
+        $twig->addExtension(new NodeExtension($templateFinder));
+        $twig->getExtension(NodeExtension::class)->getFinder();
 
         return [$twig, $templateFinder];
     }

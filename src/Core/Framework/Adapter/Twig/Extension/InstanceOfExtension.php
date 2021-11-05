@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Adapter\Twig;
+namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 
 use Twig\Extension\AbstractExtension;
 use Twig\TwigTest;

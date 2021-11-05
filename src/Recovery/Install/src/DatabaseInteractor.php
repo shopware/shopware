@@ -98,7 +98,7 @@ class DatabaseInteractor
         return (string) $this->askQuestion($question);
     }
 
-    protected function askForDatabaseUsername(string $defaultUsername): string
+    protected function askForDatabaseUsername(?string $defaultUsername): string
     {
         if (empty($defaultUsername)) {
             $question = new Question('Please enter database user: ');
@@ -119,7 +119,7 @@ class DatabaseInteractor
         return (string) $this->askQuestion($question);
     }
 
-    protected function askForDatabasePassword(string $defaultPassword): string
+    protected function askForDatabasePassword(?string $defaultPassword): string
     {
         if (empty($defaultPassword)) {
             $question = new Question('Please enter database password: ');
@@ -130,7 +130,7 @@ class DatabaseInteractor
         return (string) $this->askQuestion($question);
     }
 
-    private function askForDatabasePort(string $defaultPort): string
+    private function askForDatabasePort(int $defaultPort): string
     {
         $question = new Question(sprintf('Please enter database port (%s): ', $defaultPort), $defaultPort);
         $question->setValidator(

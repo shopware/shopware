@@ -16,8 +16,6 @@ class Application extends BaseApplication
 
     public function __construct(string $env, KernelInterface $kernel)
     {
-        $this->registerErrorHandler();
-
         parent::__construct('Shopware Installer', '1.0.0');
 
         $kernel->boot();
@@ -78,17 +76,5 @@ class Application extends BaseApplication
         $defaultCommands[] = new InstallCommand();
 
         return $defaultCommands;
-    }
-
-    private function registerErrorHandler(): void
-    {
-        set_error_handler(function ($errno, $errstr, $errfile, $errline, array $errcontext) {
-            // error was suppressed with the @-operator
-            if (error_reporting() === 0) {
-                return false;
-            }
-
-            throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
-        });
     }
 }

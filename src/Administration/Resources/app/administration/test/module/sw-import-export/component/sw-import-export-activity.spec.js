@@ -318,4 +318,13 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
 
         expect(wrapper.vm.getStateLabel('waiting')).toEqual('waiting');
     });
+
+    it('should have the status field as the third position in grid', () => {
+        const { wrapper } = createWrapper({ logData: getLogData() });
+
+        const gridHeaders = wrapper.findAll('.sw-data-grid__cell--header');
+        const stateHeader = gridHeaders.at(2);
+
+        expect(stateHeader.text()).toBe('sw-import-export.activity.columns.state');
+    });
 });

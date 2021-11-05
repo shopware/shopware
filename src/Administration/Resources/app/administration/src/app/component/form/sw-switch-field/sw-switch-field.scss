@@ -178,4 +178,11 @@ $sw-field--switch-color-error: $color-crimson-500;
             }
         }
     }
+
+    &:focus-within {
+        .sw-field__switch-state {
+            border-color: $color-shopware-brand-500;
+            box-shadow: 0 0 4px $color-shopware-brand-500;
+        }
+    }
 }

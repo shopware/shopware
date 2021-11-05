@@ -1,6 +1,6 @@
 import EventEmitter from 'events';
 import CodeGenerator from './code-generator.service';
-import Criteria from '../../../core/data/criteria.data';
+import { Criteria, TotalCountMode } from '../../../core/data/criteria.data';
 
 /**
  * @deprecated tag:v6.5.0 - will be removed, use `sw-promotion-v2` instead
@@ -191,7 +191,7 @@ export default class IndividualCodeGenerator extends EventEmitter {
         const criteria = new Criteria();
         criteria.setLimit(1);
         criteria.addFilter(Criteria.equals('promotionId', this.promotionId));
-        criteria.setTotalCountMode(1);
+        criteria.setTotalCountMode(TotalCountMode.EXACT_TOTAL_COUNT);
 
         let count = 0;
 

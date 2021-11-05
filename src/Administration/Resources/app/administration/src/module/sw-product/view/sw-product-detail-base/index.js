@@ -1,4 +1,4 @@
-import Criteria from 'src/core/data/criteria.data';
+import { Criteria, TotalCountMode } from 'src/core/data/criteria.data';
 import template from './sw-product-detail-base.html.twig';
 import './sw-product-detail-base.scss';
 
@@ -357,7 +357,7 @@ Component.register('sw-product-detail-base', {
             criteria.addFilter(Criteria.equals('productId', this.product.id));
             criteria.setPage(this.page);
             criteria.setLimit(this.limit);
-            criteria.setTotalCountMode(1);
+            criteria.setTotalCountMode(TotalCountMode.EXACT_TOTAL_COUNT);
 
             // load all our individual codes of our promotion
             // into our local promotion object.

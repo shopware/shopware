@@ -5,9 +5,9 @@ import template from './sw-promotion-individualcodes.html.twig';
 import './sw-promotion-individualcodes.scss';
 
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
-const { Component, Mixin } = Shopware;
+const { Component, Data, Mixin } = Shopware;
 const { string } = Shopware.Utils;
-const Criteria = Shopware.Data.Criteria;
+const { Criteria, TotalCountMode } = Data;
 
 /**
  * @deprecated tag:v6.5.0 - will be removed, use `sw-promotion-v2` instead
@@ -330,7 +330,7 @@ Component.register('sw-promotion-individualcodes', {
             criteria.addFilter(Criteria.equals('promotionId', this.promotion.id));
             criteria.setPage(this.gridCurrentPageNr);
             criteria.setLimit(this.gridPageLimit);
-            criteria.setTotalCountMode(1);
+            criteria.setTotalCountMode(TotalCountMode.EXACT_TOTAL_COUNT);
 
             // load all our individual codes of our promotion
             // into our local promotion object.

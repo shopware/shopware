@@ -1,5 +1,8 @@
 import ChangesetGenerator from './changeset-generator.data';
+// eslint-disable-next-line import/no-duplicates
 import Criteria from './criteria.data';
+// eslint-disable-next-line import/no-duplicates
+import TotalCountMode from './criteria.data';
 import Entity from './entity.data';
 import EntityCollection from './entity-collection.data';
 import EntityDefinition from './entity-definition.data';
@@ -22,4 +25,5 @@ export default {
     ErrorResolver,
     ErrorStore,
     FilterFactory,
+    TotalCountMode,
 };

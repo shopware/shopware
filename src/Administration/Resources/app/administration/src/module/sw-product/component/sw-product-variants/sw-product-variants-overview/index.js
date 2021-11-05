@@ -1,8 +1,8 @@
 import template from './sw-product-variants-overview.html.twig';
 import './sw-products-variants-overview.scss';
 
-const { Component, Mixin, Context } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Component, Data, Mixin, Context } = Shopware;
+const { Criteria, TotalCountMode } = Data;
 const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 
 Component.register('sw-product-variants-overview', {
@@ -146,7 +146,7 @@ Component.register('sw-product-variants-overview', {
                 const searchCriteria = new Criteria();
 
                 // Criteria for Search
-                searchCriteria.setTotalCountMode(1);
+                searchCriteria.setTotalCountMode(TotalCountMode.EXACT_TOTAL_COUNT);
                 searchCriteria
                     .setPage(this.page)
                     .setLimit(this.limit)

@@ -3,10 +3,34 @@
 .sw-cms-layout-modal {
     .sw-cms-layout-modal__header {
         display: grid;
-        grid-template-columns: 1fr 250px;
-        align-items: center;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
         padding: 24px 30px;
         border-bottom: 1px solid $color-gray-300;
+
+        .sw-cms-layout-modal__actions-sorting {
+            display: grid;
+            grid-template-columns: auto 36px;
+            grid-column-gap: 20px;
+            align-items: center;
+            align-content: center;
+        }
+
+        .sw-cms-layout-modal__actions-mode {
+            height: 36px;
+            line-height: 33px;
+            text-align: center;
+            color: $color-darkgray-200;
+            border: 1px solid $color-gray-300;
+            border-radius: 4px;
+            background: $color-white;
+            cursor: pointer;
+
+            &:hover {
+                color: $color-shopware-brand-500;
+                border-color: $color-shopware-brand-500;
+            }
+        }
 
         .sw-cms-layout-modal__header-title {
             font-size: 18px;
@@ -44,6 +68,10 @@
         }
     }
 
+    .sw-cms-layout-modal__content-pagination {
+        margin-top: 20px;
+    }
+
     &.sw-media-modal-v2.sw-media-modal-v2--default {
         .sw-media-modal-v2__dialog {
             max-width: 960px;
@@ -57,4 +85,8 @@
             height: 520px;
         }
     }
+}
+
+.sw-cms-layout-modal.sw-modal .sw-modal__body {
+    padding: 0;
 }

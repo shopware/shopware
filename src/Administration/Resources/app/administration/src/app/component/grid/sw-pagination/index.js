@@ -114,7 +114,7 @@ Component.register('sw-pagination', {
 
         possibleSteps() {
             const total = this.total;
-            const stepsSorted = [...this.steps].sort((a, b) => a - b);
+            const stepsSorted = [...this.steps].sort();
 
             let lastStep;
             const possibleSteps = stepsSorted.filter(x => {
@@ -122,6 +122,12 @@ Component.register('sw-pagination', {
                 lastStep = x;
                 return true;
             });
+
+            // always provide current limit as an option
+            if (typeof this.limit === 'number' && !possibleSteps.some(step => step === this.limit)) {
+                possibleSteps.push(this.limit);
+                possibleSteps.sort();
+            }
 
             return possibleSteps;
         },

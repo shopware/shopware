@@ -25,6 +25,7 @@
             v-if="showLayoutSelectionModal"
             :cms-page-types="pageTypes"
             :headline="headline"
+            :pre-selection="cmsPage"
             @modal-layout-select="onLayoutSelect"
             @modal-close="closeLayoutModal"
         />

@@ -20,6 +20,7 @@
         <sw-cms-layout-modal
             v-if="showLayoutModal"
             :headline="$tc('sw-product.layoutAssignment.subtitle')"
+            :pre-selection="currentPage"
             :cms-page-types="['product_detail']"
             @modal-layout-select="onSelectLayout"
             @modal-close="onCloseLayoutModal"

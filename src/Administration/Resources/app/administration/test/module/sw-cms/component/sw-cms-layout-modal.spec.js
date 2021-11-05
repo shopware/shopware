@@ -14,11 +14,14 @@ function createWrapper() {
             searchRankingService: {}
         },
         stubs: {
+            'sw-icon': true,
             'sw-modal': true,
             'sw-simple-search-field': true,
             'sw-loader': true,
             'sw-container': true,
-            'sw-button': true
+            'sw-button': true,
+            'sw-sorting-select': true,
+            'sw-pagination': true
         }
     });
 }

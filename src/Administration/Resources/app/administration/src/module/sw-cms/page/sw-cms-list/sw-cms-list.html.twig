@@ -77,7 +77,19 @@
 
                     {% block sw_cms_list_listing_actions_sorting %}
                     <div class="sw-cms-list__actions-sorting">
+
+                        {% block sw_cms_list_listing_actions_sorting_select %}
+                        <sw-sorting-select
+                            v-if="feature.isActive('FEATURE_NEXT_6758')"
+                            :value="sortingConCat"
+                            @sorting-changed="onSort"
+                        />
+                        {% endblock %}
+
+                        <!-- @deprecated tag:v6.5.0 use twig block above -->
+                        {% block sw_cms_list_listing_actions_sorting_legacy_select %}
                         <sw-select-field
+                            v-else
                             name="sortType"
                             :label="$tc('sw-cms.sorting.labelSort')"
                             :value="sortingConCat"
@@ -95,6 +107,8 @@
                             </option>
                             {% endblock %}
                         </sw-select-field>
+                        {% endblock %}
+
                     </div>
                     {% endblock %}
 

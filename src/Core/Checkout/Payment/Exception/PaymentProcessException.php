@@ -7,10 +7,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 abstract class PaymentProcessException extends ShopwareHttpException
 {
-    /**
-     * @var string
-     */
-    private $orderTransactionId;
+    private string $orderTransactionId;
 
     public function __construct(string $orderTransactionId, string $message, array $parameters = [])
     {

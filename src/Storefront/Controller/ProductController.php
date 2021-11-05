@@ -89,6 +89,8 @@ class ProductController extends StorefrontController
     {
         $page = $this->productPageLoader->load($request, $context);
 
+        $this->hook('product-page-loaded', ['page' => $page]);
+
         $ratingSuccess = $request->get('success');
 
         // Fallback layout for non-assigned product layout

@@ -42,7 +42,7 @@
 
     {% if collector.hookCount > 0 %}
         <div class="sf-tabs" data-proccessed="true">
-            {% for hook, scripts in collector.traces %}
+            {% for hook, scripts in collector.data %}
                 <div class="tab">
                     <h3 class="tab-title">{{ hook }} <span class="badge">{{ scripts|length }}</span></h3>
 

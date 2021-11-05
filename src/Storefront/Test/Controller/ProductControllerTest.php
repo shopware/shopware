@@ -2,14 +2,16 @@
 
 namespace Shopware\Storefront\Test\Controller;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -22,7 +24,6 @@ use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Controller\ProductController;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
-use Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder;
 use Shopware\Storefront\Page\Product\Review\ReviewLoaderResult;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\DomCrawler\Crawler;
@@ -80,11 +81,6 @@ class ProductControllerTest extends TestCase
     public function testSwitchOptionsToLoadOptionDefault(): void
     {
         $productId = $this->createProduct();
-
-        $productRepository = $this->createMock(ProductCombinationFinder::class);
-        $productRepository->method('find')->willThrowException(
-            new ProductNotFoundException($productId)
-        );
 
         $response = $this->request(
             'GET',
@@ -300,6 +296,25 @@ class ProductControllerTest extends TestCase
         yield 'test color: blue - size: m' => ['a.9', false, false, false, false, false, true]; // a.9 m should throw exception
     }
 
+    public function testProductPageLoadedScriptsAreExecuted(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
+        $productId = $this->createProduct();
+
+        $response = $this->request(
+            'GET',
+            '/detail/' . $productId,
+            []
+        );
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+
+        static::assertArrayHasKey('product-page-loaded', $traces);
+    }
+
     private function createDetailRequest(SalesChannelContext $context, string $productId): Request
     {
         $request = new Request();
@@ -317,6 +332,9 @@ class ProductControllerTest extends TestCase
     {
         $id = Uuid::randomHex();
 
+        $ids = $this->getContainer()->get(Connection::class)
+            ->fetchFirstColumn('SELECT LOWER(HEX(id)) FROM sales_channel');
+
         $product = [
             'id' => $id,
             'productNumber' => $id,
@@ -326,12 +344,9 @@ class ProductControllerTest extends TestCase
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
             'tax' => ['id' => Uuid::randomHex(), 'name' => 'test', 'taxRate' => 19],
             'manufacturer' => ['name' => 'test'],
-            'visibilities' => [
-                [
-                    'salesChannelId' => TestDefaults::SALES_CHANNEL,
-                    'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
-                ],
-            ],
+            'visibilities' => array_map(static function ($id) {
+                return ['salesChannelId' => $id, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL];
+            }, $ids),
         ];
 
         $product = array_replace_recursive($product, $config);

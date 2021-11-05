@@ -34,8 +34,13 @@ class Storefront extends Bundle implements ThemeInterface
         $loader->load('seo.xml');
         $loader->load('controller.xml');
         $loader->load('theme.xml');
+        $loader->load('hooks.xml');
 
         $environment = $container->getParameter('kernel.environment');
+        if ($environment === 'test') {
+            $loader->load('services_test.xml');
+        }
+
         $this->buildConfig($container, $environment);
 
         $container->setParameter('storefrontRoot', $this->getPath());

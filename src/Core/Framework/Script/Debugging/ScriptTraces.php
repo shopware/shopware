@@ -92,7 +92,7 @@ class ScriptTraces extends AbstractDataCollector
     /**
      * @return array|Data
      */
-    public function getTraces()
+    public function getData()
     {
         return $this->data;
     }
@@ -104,5 +104,10 @@ class ScriptTraces extends AbstractDataCollector
             'took' => $took,
             'output' => $output->all(),
         ];
+    }
+
+    public function getTraces(): array
+    {
+        return $this->traces;
     }
 }

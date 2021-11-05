@@ -1,0 +1,17 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <services>
+        <service id="product-page-loaded" class="Shopware\Core\Framework\Script\Hook\Hook" parent="generic-page-hook">
+            <tag name="shopware.script.hook"/>
+        </service>
+
+        <service id="generic-page-hook" class="Shopware\Core\Framework\Script\Hook\Hook" abstract="true">
+            <argument type="collection">
+            </argument>
+        </service>
+    </services>
+</container>

@@ -86,7 +86,7 @@
         <service id="core_mailer" alias="mailer" />
 
         <service id="mailer.transport_factory" class="Shopware\Core\Content\Mail\Service\MailerTransportFactory">
-            <argument type="tagged_iterator" tag="mailer.transport_factory" />
+            <argument type="tagged_iterator" tag="mailer.transport_factory"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
         </service>
 

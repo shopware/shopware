@@ -50,7 +50,6 @@ class ScriptExecutor
                 $this->render($hook, $script);
             } catch (\Throwable $e) {
                 $scriptException = new ScriptExecutionFailedException($hook->getName(), $script->getName(), $e);
-
                 $this->logger->error($scriptException->getMessage(), ['exception' => $e]);
 
                 throw $scriptException;

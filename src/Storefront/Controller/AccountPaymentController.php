@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Framework\Routing\Annotation\NoStore;
 use Shopware\Storefront\Page\Account\PaymentMethod\AccountPaymentMethodPageLoader;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,15 +24,9 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class AccountPaymentController extends StorefrontController
 {
-    /**
-     * @var AccountPaymentMethodPageLoader
-     */
-    private $paymentMethodPageLoader;
+    private AccountPaymentMethodPageLoader $paymentMethodPageLoader;
 
-    /**
-     * @var AbstractChangePaymentMethodRoute
-     */
-    private $changePaymentMethodRoute;
+    private AbstractChangePaymentMethodRoute $changePaymentMethodRoute;
 
     public function __construct(
         AccountPaymentMethodPageLoader $paymentMethodPageLoader,
@@ -45,6 +40,7 @@ class AccountPaymentController extends StorefrontController
      * @Since("6.0.0.0")
      * @LoginRequired()
      * @Route("/account/payment", name="frontend.account.payment.page", options={"seo"="false"}, methods={"GET"})
+     * @NoStore
      *
      * @throws CustomerNotLoggedInException
      */

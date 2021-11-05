@@ -26,6 +26,7 @@ use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Framework\Routing\Annotation\NoStore;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
 use Symfony\Component\HttpFoundation\Request;
@@ -73,6 +74,7 @@ class AuthController extends StorefrontController
     /**
      * @Since("6.0.0.0")
      * @Route("/account/login", name="frontend.account.login.page", methods={"GET"})
+     * @NoStore
      */
     public function loginPage(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
@@ -103,6 +105,7 @@ class AuthController extends StorefrontController
     /**
      * @Since("6.3.4.1")
      * @Route("/account/guest/login", name="frontend.account.guest.login.page", methods={"GET"})
+     * @NoStore
      */
     public function guestLoginPage(Request $request, SalesChannelContext $context): Response
     {

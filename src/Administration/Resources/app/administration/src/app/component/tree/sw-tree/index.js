@@ -270,6 +270,8 @@ Component.register('sw-tree', {
                     active: false,
                     activeElementId: this.routeParamsActiveElementId,
                     checked: alreadyLoadedTreeItem?.checked ?? !!this.checkItemsInitial,
+                    disabled: item.disabled,
+                    disabledToolTipText: item.disabledToolTipText,
                     [this.afterIdProperty]: item[this.afterIdProperty],
                 });
             });

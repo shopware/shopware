@@ -31,7 +31,8 @@
         "placeholder": "Wähle einen Trigger aus ...",
         "title": "Trigger auswählen",
         "helpText": "Trigger werden benutzt, um einen Flow zu beginnen. Innerhalb des Flows kannst Du entweder Bedingungen hinzufügen, um den Trigger zu verfeinern oder Aktionen hinzufügen, die durch den Trigger ausgelöst werden.",
-        "textNoEvent": "Keine Ereignisse gefunden"
+        "textNoEvent": "Keine Ereignisse gefunden",
+        "textHint": "Dieser Trigger kann im Moment nicht benutzt werden, da hierfür keine Aktionen zur Verfügung stehen."
       },
       "sequence": {
         "selectorTitle": "Bedingung oder Aktion hinzufügen",

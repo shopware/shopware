@@ -5,6 +5,7 @@ const { Component, State } = Shopware;
 const { mapPropertyErrors, mapState, mapGetters } = Component.getComponentHelper();
 const utils = Shopware.Utils;
 const { capitalizeString } = Shopware.Utils.string;
+const { isEmpty } = utils.types;
 
 Component.register('sw-flow-trigger', {
     template,
@@ -151,6 +152,10 @@ Component.register('sw-flow-trigger', {
 
         handleClickEvent(event) {
             const target = event.target;
+
+            if (target.closest('.sw-tree-item .is--no-children.is--disabled')) {
+                return;
+            }
 
             if (target.closest('.sw-tree-item .is--no-children .sw-tree-item__content')
             || target.closest('.sw-flow-trigger__search-result')) {
@@ -498,7 +503,7 @@ Component.register('sw-flow-trigger', {
         },
 
         changeTrigger(item) {
-            if (item?.childCount > 0) {
+            if (item?.disabled || item?.childCount > 0) {
                 return;
             }
 
@@ -545,6 +550,11 @@ Component.register('sw-flow-trigger', {
 
         getDataByEvent(event) {
             return this.events.find(item => item.name === event);
+        },
+
+        hasOnlyStopFlow(event) {
+            const eventAware = this.events.find(item => item.name === event).aware || [];
+            return eventAware.length === 0;
         },
 
         // Generate tree data which is compatible with sw-tree from business events
@@ -601,6 +611,9 @@ Component.register('sw-flow-trigger', {
                         name: this.getLastEventName(node),
                         childCount: children.length,
                         parentId: node.parentId,
+                        disabled: isEmpty(node.children) && this.hasOnlyStopFlow(node.id),
+                        disabledToolTipText: (isEmpty(node.children) && this.hasOnlyStopFlow(node.id))
+                            ? this.$tc('sw-flow.detail.trigger.textHint') : null,
                     });
 
                     if (children.length > 0) {

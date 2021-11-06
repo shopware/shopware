@@ -124,6 +124,22 @@ $sw-tree-item-color-text: $color-darkgray-200;
         }
     }
 
+    &.is--disabled {
+        & > .sw-tree-item__element {
+            &:hover {
+                cursor: not-allowed;
+            }
+
+            .sw-tree-item__label {
+                color: $color-gray-500;
+            }
+
+            .sw-tree-item__icon {
+                color: $color-gray-500;
+            }
+        }
+    }
+
     .sw-tree-item__toggle {
         width: 15px;
         height: 24px;

@@ -197,6 +197,7 @@ Component.register('sw-tree-item', {
                 'is--focus': this.shouldFocus && this.activeFocusId === this.item.id,
                 'is--no-checkbox': !this.displayCheckbox,
                 'is--highlighted': this.isHighlighted,
+                'is--disabled': this.item.disabled,
             };
         },
 

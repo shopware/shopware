@@ -38,6 +38,7 @@ Shopware.Component.register('sw-import-export-importer', {
     computed: {
         profileCriteria() {
             const criteria = new Criteria();
+            criteria.addSorting(Criteria.sort('label'));
 
             if (this.sourceEntity.length > 0) {
                 criteria.addFilter(

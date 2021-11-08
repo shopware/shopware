@@ -6,6 +6,8 @@
     {% set address = context.customer.defaultShippingAddress %}
 {% endif %}
 
+{% set typePrefix = changeShipping ? 'shipping-' : 'billing-' %}
+
 {% set AvailableAddressCount = 0 %}
 {% for address in page.addresses %}
     {% if (address.id != defaultShippingAddressId and changeShipping) or (address.id != defaultBillingAddressId and changeBilling) %}
@@ -95,7 +97,7 @@
                             <div class="col-12 col-md-4">
                                 <div class="btn btn-outline-primary btn-block address-editor-edit create collapsed"
                                      data-toggle="collapse"
-                                     data-target="#address-create-edit">
+                                     data-target="#{{ typePrefix }}address-create-edit">
                                     {{ "account.addressEditBtn"|trans|sw_sanitize }}
                                 </div>
                             </div>
@@ -106,7 +108,7 @@
                                 <div class="col-12 col-md-4">
                                     <div class="btn btn-outline-primary btn-block address-editor-select"
                                          data-toggle="collapse"
-                                         data-target="#address-list">
+                                         data-target="#{{ typePrefix }}address-list">
                                         {{ "account.selectAddress"|trans|sw_sanitize }}
                                     </div>
                                 </div>
@@ -117,7 +119,7 @@
                             <div class="col-12 col-md-4">
                                 <div class="btn btn-outline-primary btn-block address-editor-create collapsed"
                                      data-toggle="collapse"
-                                     data-target="#address-create-new">
+                                     data-target="#{{ typePrefix }}address-create-new">
                                     {{ "account.addressCreateBtn"|trans|sw_sanitize }}
                                 </div>
                             </div>
@@ -128,7 +130,7 @@
             {% endblock %}
 
             {% block component_address_address_editor_modal_accordion %}
-                <div id="addressEditorAccordion">
+                <div id="{{ typePrefix }}addressEditorAccordion">
                     {% block component_address_address_editor_modal_accordion_inner %}
 
                         {% block component_address_address_editor_modal_accordion_list_include %}
@@ -139,7 +141,8 @@
                                     'defaultBillingAddress': defaultBillingAddressId,
                                     'defaultShippingAddress': defaultShippingAddressId,
                                     'changeShipping': changeShipping,
-                                    'changeBilling': changeBilling
+                                    'changeBilling': changeBilling,
+                                    'typePrefix': typePrefix
                                 } %}
                             {% endif %}
                         {% endblock %}
@@ -147,14 +150,16 @@
                         {% block component_address_address_editor_modal_accordion_edit_include %}
                             {% sw_include '@Storefront/storefront/component/address/address-editor-modal-create-address.html.twig' with {
                                 'address': address,
-                                'addresses': page.addresses
+                                'addresses': page.addresses,
+                                'typePrefix': typePrefix
                             } %}
                         {% endblock %}
 
                         {% block component_address_address_editor_modal_accordion_create_include %}
                             {% sw_include '@Storefront/storefront/component/address/address-editor-modal-create-address.html.twig' with {
                                 'address': page.address,
-                                'addresses': page.addresses
+                                'addresses': page.addresses,
+                                'typePrefix': typePrefix
                             } %}
                         {% endblock %}
 

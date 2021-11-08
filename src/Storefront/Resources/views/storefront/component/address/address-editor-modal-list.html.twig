@@ -1,7 +1,7 @@
 {% block component_address_address_editor_modal_list %}
-    <div id="address-list"
+    <div id="{{ typePrefix }}address-list"
          class="collapse {% if not address %} show{% endif %}"
-         data-parent="#addressEditorAccordion">
+         data-parent="#{{ typePrefix }}addressEditorAccordion">
         {% block component_address_address_editor_modal_list_wrapper %}
             <div class="address-editor-list-wrapper">
                 {# @var addresses \Shopware\Core\Framework\DataAbstractionLayer\EntityCollection #}

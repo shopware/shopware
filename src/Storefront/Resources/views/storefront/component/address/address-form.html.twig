@@ -32,7 +32,7 @@
 
                                     {% block component_address_form_company_name_label %}
                                         <label class="form-label"
-                                               for="{{ prefix }}company">
+                                               for="{{ idPrefix ~ prefix }}company">
                                             {{ "address.companyNameLabel"|trans|sw_sanitize }}{% if prefix != "shippingAddress" and accountTypeRequired %}{{ "general.required"|trans|sw_sanitize }}{% endif %}
                                         </label>
                                     {% endblock %}
@@ -40,7 +40,7 @@
                                     {% block component_address_form_company_name_input %}
                                         <input type="text"
                                                class="form-control{% if violationPath %} is-invalid{% endif %}"
-                                               id="{{ prefix }}company"
+                                               id="{{ idPrefix ~ prefix }}company"
                                                placeholder="{{ "address.companyNamePlaceholder"|trans|striptags }}"
                                                name="{{ prefix }}[company]"
                                                value="{{ data.get('company') }}"
@@ -65,7 +65,7 @@
 
                                     {% block component_address_form_company_department_label %}
                                         <label class="form-label"
-                                               for="{{ prefix }}department">
+                                               for="{{ idPrefix ~ prefix }}department">
                                             {{ "address.companyDepartmentLabel"|trans|sw_sanitize }}
                                         </label>
                                     {% endblock %}
@@ -73,7 +73,7 @@
                                     {% block component_address_form_company_department_input %}
                                         <input type="text"
                                                class="form-control{% if violationPath %} is-invalid{% endif %}"
-                                               id="{{ prefix }}department"
+                                               id="{{ idPrefix ~ prefix }}department"
                                                placeholder="{{ "address.companyDepartmentPlaceholder"|trans|striptags }}"
                                                name="{{ prefix }}[department]"
                                                value="{{ data.get('department') }}">
@@ -99,7 +99,7 @@
                                         {# @deprecated tag:v6.5.0 - will be removed, look into `@Storefront/storefront/component/address/address-personal-vat-id.html.twig` instead #}
                                         {% block component_address_form_company_vatId_label %}
                                             <label class="form-label"
-                                                   for="{{ prefix }}vatId">
+                                                   for="{{ idPrefix ~ prefix }}vatId">
                                                 {{ "address.companyVatLabel"|trans|sw_sanitize }}
                                             </label>
                                         {% endblock %}
@@ -108,7 +108,7 @@
                                         {% block component_address_form_company_vatId_input %}
                                             <input type="text"
                                                    class="form-control{% if violationPath %} is-invalid{% endif %}"
-                                                   id="{{ prefix }}vatId"
+                                                   id="{{ idPrefix ~ prefix }}vatId"
                                                    placeholder="{{ "address.companyVatPlaceholder"|trans|striptags }}"
                                                    name="{{ prefix }}[vatId]"
                                                    value="{{ data.get('vatId') }}">
@@ -149,7 +149,7 @@
 
                     {% block component_address_form_street_label %}
                         <label class="form-label"
-                               for="{{ prefix }}AddressStreet">
+                               for="{{ idPrefix ~ prefix }}AddressStreet">
                             {{ "address.streetLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
                         </label>
                     {% endblock %}
@@ -157,7 +157,7 @@
                     {% block component_address_form_street_input %}
                         <input type="text"
                                class="form-control{% if violationPath %} is-invalid{% endif %}"
-                               id="{{ prefix }}AddressStreet"
+                               id="{{ idPrefix ~ prefix }}AddressStreet"
                                placeholder="{{ "address.streetPlaceholder"|trans|striptags }}"
                                name="{{ prefix }}[street]"
                                value="{{ data.get('street') }}"
@@ -182,7 +182,7 @@
 
                     {% block component_address_form_zipcode_label %}
                         <label class="form-label"
-                               for="{{ prefix }}AddressZipcode">
+                               for="{{ idPrefix ~ prefix }}AddressZipcode">
                             {{ "address.zipcodeLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
                         </label>
                     {% endblock %}
@@ -190,7 +190,7 @@
                     {% block component_address_form_zipcode_input %}
                         <input type="text"
                                class="form-control{% if violationPath %} is-invalid{% endif %}"
-                               id="{{ prefix }}AddressZipcode"
+                               id="{{ idPrefix ~ prefix }}AddressZipcode"
                                placeholder="{{ "address.zipcodePlaceholder"|trans|striptags }}"
                                name="{{ prefix }}[zipcode]"
                                value="{{ data.get('zipcode') }}"
@@ -215,7 +215,7 @@
 
                     {% block component_address_form_city_label %}
                         <label class="form-label"
-                               for="{{ prefix }}AddressCity">
+                               for="{{ idPrefix ~ prefix }}AddressCity">
                             {{ "address.cityLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
                         </label>
                     {% endblock %}
@@ -223,7 +223,7 @@
                     {% block component_address_form_city_input %}
                         <input type="text"
                                class="form-control{% if violationPath %} is-invalid{% endif %}"
-                               id="{{ prefix }}AddressCity"
+                               id="{{ idPrefix ~ prefix }}AddressCity"
                                placeholder="{{ "address.cityPlaceholder"|trans|striptags }}"
                                name="{{ prefix }}[city]"
                                value="{{ data.get('city') }}"
@@ -267,7 +267,7 @@
                     <div class="form-group col-md-6">
                         {% block component_address_form_additional_field1_label %}
                             <label class="form-label"
-                                   for="{{ prefix }}AdditionalField1">
+                                   for="{{ idPrefix ~ prefix }}AdditionalField1">
                                 {{ "address.additionalField1Label"|trans|sw_sanitize }}{{ config('core.loginRegistration.additionalAddressField1Required') ? "general.required"|trans|sw_sanitize }}
                             </label>
                         {% endblock %}
@@ -275,7 +275,7 @@
                         {% block component_address_form_additional_field1_input %}
                             <input type="text"
                                    class="form-control {% if violationPath %} is-invalid{% endif %}"
-                                   id="{{ prefix }}AdditionalField1"
+                                   id="{{ idPrefix ~ prefix }}AdditionalField1"
                                    placeholder="{{ "address.additionalField1Placeholder"|trans|striptags }}"
                                    name="{{ prefix }}[additionalAddressLine1]"
                                    value="{{ data.get('additionalAddressLine1') }}"
@@ -301,7 +301,7 @@
                     <div class="form-group col-md-6">
                         {% block component_address_form_additional_field2_label %}
                             <label class="form-label"
-                                   for="{{ prefix }}AdditionalField2">
+                                   for="{{ idPrefix ~ prefix }}AdditionalField2">
                                 {{ "address.additionalField2Label"|trans|sw_sanitize }}{{ config('core.loginRegistration.additionalAddressField2Required') ? "general.required"|trans|sw_sanitize }}
                             </label>
                         {% endblock %}
@@ -309,7 +309,7 @@
                         {% block component_address_form_additional_field2_input %}
                             <input type="text"
                                    class="form-control {% if violationPath %} is-invalid{% endif %}"
-                                   id="{{ prefix }}AdditionalField2"
+                                   id="{{ idPrefix ~ prefix }}AdditionalField2"
                                    placeholder="{{ "address.additionalField2Placeholder"|trans|striptags }}"
                                    name="{{ prefix }}[additionalAddressLine2]"
                                    value="{{ data.get('additionalAddressLine2') }}"
@@ -345,14 +345,14 @@
 
                     {% block component_address_form_country_label %}
                         <label class="form-label"
-                               for="{{ prefix }}AddressCountry">
+                               for="{{ idPrefix ~ prefix }}AddressCountry">
                             {{ "address.countryLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
                         </label>
                     {% endblock %}
 
                     {% block component_address_form_country_select %}
                         <select class="country-select custom-select{% if violationPath %} is-invalid{% endif %}"
-                                id="{{ prefix }}AddressCountry"
+                                id="{{ idPrefix ~ prefix }}AddressCountry"
                                 name="{{ prefix }}[countryId]"
                                 required="required"
                                 data-initial-country-id="{{ initialCountryId }}">
@@ -388,14 +388,14 @@
 
                     {% block component_address_form_country_state_label %}
                         <label class="form-label"
-                               for="{{ prefix }}AddressCountry">
+                               for="{{ idPrefix ~ prefix }}AddressCountry">
                             {{ "address.countryStateLabel"|trans|sw_sanitize }}{{ "general.required"|trans|sw_sanitize }}
                         </label>
                     {% endblock %}
 
                     {% block component_address_form_country_state_select %}
                         <select class="country-state-select custom-select{% if violationPath %} is-invalid{% endif %}"
-                                id="{{ prefix }}AddressCountryState"
+                                id="{{ idPrefix ~ prefix }}AddressCountryState"
                                 name="{{ prefix }}[countryStateId]"
                                 data-initial-country-state-id="{{ data.get('countryStateId') }}">
                             <option value=""
@@ -427,7 +427,7 @@
 
                         {% block component_address_form_phone_number_label %}
                             <label class="form-label"
-                                   for="{{ prefix }}AddressPhoneNumber">
+                                   for="{{ idPrefix ~ prefix }}AddressPhoneNumber">
                                 {{ "address.phoneNumberLabel"|trans|sw_sanitize }}{{ config('core.loginRegistration.phoneNumberFieldRequired') ? "general.required"|trans|sw_sanitize }}
                             </label>
                         {% endblock %}
@@ -435,7 +435,7 @@
                         {% block component_address_form_phone_number_input %}
                             <input type="text"
                                    class="form-control"
-                                   id="{{ prefix }}AddressPhoneNumber"
+                                   id="{{ idPrefix ~ prefix }}AddressPhoneNumber"
                                    placeholder="{{ "address.phoneNumberPlaceholder"|trans|striptags }}"
                                    name="{{ prefix }}[phoneNumber]"
                                    value="{{ data.get('phoneNumber') }}"

@@ -15,7 +15,7 @@
 
                             {% block component_address_form_company_name_label %}
                                 <label class="form-label"
-                                       for="{{ prefix }}company">
+                                       for="{{ idPrefix ~ prefix }}company">
                                     {{ "address.companyNameLabel"|trans|sw_sanitize }}{% if accountTypeRequired %}{{ "general.required"|trans|sw_sanitize }}{% endif %}
                                 </label>
                             {% endblock %}
@@ -23,7 +23,7 @@
                             {% block component_address_form_company_name_input %}
                                 <input type="text"
                                        class="form-control{% if violationPath %} is-invalid{% endif %}"
-                                       id="{{ prefix }}company"
+                                       id="{{ idPrefix ~ prefix }}company"
                                        placeholder="{{ "address.companyNamePlaceholder"|trans|striptags }}"
                                        name="{{ prefix }}[company]"
                                        value="{{ address.get('company') }}"
@@ -49,7 +49,7 @@
 
                             {% block component_address_form_company_department_label %}
                                 <label class="form-label"
-                                       for="{{ prefix }}department">
+                                       for="{{ idPrefix ~ prefix }}department">
                                     {{ "address.companyDepartmentLabel"|trans|sw_sanitize }}
                                 </label>
                             {% endblock %}
@@ -57,7 +57,7 @@
                             {% block component_address_form_company_department_input %}
                                 <input type="text"
                                        class="form-control{% if violationPath %} is-invalid{% endif %}"
-                                       id="{{ prefix }}department"
+                                       id="{{ idPrefix ~ prefix }}department"
                                        placeholder="{{ "address.companyDepartmentPlaceholder"|trans|striptags }}"
                                        name="{{ prefix }}[department]"
                                        value="{{ address.get('department') }}">

@@ -7,7 +7,7 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-product-add-properties-modal', {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['repositoryFactory', 'feature'],
 
     props: {
         newProperties: {
@@ -68,6 +68,13 @@ Component.register('sw-product-add-properties-modal', {
             criteria.addSorting(Criteria.sort('name', 'ASC', true));
 
             return criteria;
+        },
+
+        showSaveButton() {
+            if (this.feature.isActive('FEATURE_NEXT_17546')) {
+                return this.properties.length > 0;
+            }
+            return true;
         },
     },
 
@@ -193,6 +200,14 @@ Component.register('sw-product-add-properties-modal', {
 
         onSave() {
             this.$emit('modal-save', this.newProperties);
+        },
+
+        onOpenProperties() {
+            this.$emit('modal-cancel');
+
+            this.$nextTick(() => {
+                this.$router.push({ name: 'sw.property.index' });
+            });
         },
     },
 });

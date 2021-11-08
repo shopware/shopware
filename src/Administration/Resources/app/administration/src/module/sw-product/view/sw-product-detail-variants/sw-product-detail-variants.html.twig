@@ -24,13 +24,95 @@
 
         {% block sw_product_detail_variants_sw_card_empty_state %}
         <template v-if="!variantListHasContent && !isLoading">
-            <div class="sw-product-detail-variants__generated-variants__empty-state">
+            <div
+                v-if="feature.isActive('FEATURE_NEXT_17546')"
+                class="sw-product-detail-variants__generated-variants-empty-state"
+            >
+
+                {% block sw_product_detail_variants_sw_card_empty_state_variant %}
+                <sw-empty-state
+                    v-if="propertiesAvailable && product.properties"
+                    class="sw-product-detail-variants__generated-variants-empty-state"
+                    :absolute="false"
+                    :title="$tc('sw-product.variations.emptyStateTitle')"
+                    :subline="$tc('sw-product.variations.emptyStateDescription')"
+                >
+
+                    <template #icon>
+                        {% block sw_product_properties_empty_state_image %}
+                        <img
+                            :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                            :alt="$tc('sw-product.properties.titleEmptyState')"
+                        >
+                        {% endblock %}
+                    </template>
+
+                    <template #actions>
+                        {% block sw_product_properties_empty_state_button %}
+                        <sw-button
+                            v-tooltip="{
+                                message: $tc('sw-privileges.tooltip.warning'),
+                                disabled: acl.can('product.creator'),
+                                showOnDisabledElements: true
+                            }"
+                            variant="ghost"
+                            :disabled="!acl.can('product.creator')"
+                            @click="openModal('variantGeneration')"
+                        >
+                            {{ $tc('sw-product.variations.emptyStateButton') }}
+                        </sw-button>
+                        {% endblock %}
+                    </template>
+                </sw-empty-state>
+                {% endblock %}
+
+                {% block sw_product_detail_variants_sw_card_empty_state_property %}
+                <sw-empty-state
+                    v-else
+                    class="sw-product-detail-variants__generated-variants-empty-state"
+                    :absolute="false"
+                    :title="$tc('sw-product.variations.emptyStatePropertyTitle')"
+                    :subline="$tc('sw-product.variations.emptyStatePropertyDescription')"
+                >
+
+                    <template #icon>
+                        {% block sw_product_properties_empty_state_image %}
+                        <img
+                            :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
+                            :alt="$tc('sw-product.properties.titleEmptyState')"
+                        >
+                        {% endblock %}
+                    </template>
+
+                    <template #actions>
+                        {% block sw_product_properties_empty_state_button_property %}
+                        <sw-button
+                            v-tooltip="{
+                                message: $tc('sw-privileges.tooltip.warning'),
+                                disabled: acl.can('product.editor'),
+                                showOnDisabledElements: true
+                            }"
+                            variant="ghost"
+                            :disabled="!acl.can('product.editor')"
+                            @click="openAddPropertiesModal"
+                        >
+                            {{ $tc('sw-product.properties.buttonAddProperties') }}
+                        </sw-button>
+                        {% endblock %}
+                    </template>
+                </sw-empty-state>
+                {% endblock %}
+            </div>
+            <div
+                v-else
+                class="sw-product-detail-variants__generated-variants-empty-state"
+            >
                 <img
                     :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
                     alt=""
                 >
 
-                <div class="sw-product-detail-variants__generated-variants__empty-state--label">
+                <div class="sw-product-detail-variants__generated-variants-empty-state">
                     <p>{{ $tc('sw-product.variations.emptyStateDescription') }}</p>
                 </div>
 
@@ -75,6 +157,17 @@
         :selected-groups="selectedGroups"
         @configuration-close="onConfigurationClosed"
         @modal-close="activeModal = ''"
+    />
+    {% endblock %}
+
+    {% block sw_product_properties_add_properties_modal %}
+    <sw-product-add-properties-modal
+        v-if="showAddPropertiesModal && feature.isActive('FEATURE_NEXT_17546')"
+        :new-properties="newProperties"
+        @update-new-properties-item="updateNewPropertiesItem"
+        @add-new-properties-item="addNewPropertiesItem"
+        @modal-cancel="onCancelAddPropertiesModal"
+        @modal-save="onSaveAddPropertiesModal"
     />
     {% endblock %}
 </div>

@@ -186,7 +186,8 @@
         "buttonDelete": "Delete"
       },
       "messageEmptyTitle": "Product not reviewed yet",
-      "messageEmptySubline": "Search other <a href=\"#/sw/review/index\">reviews</a>"
+      "messageEmptySubline": "You can search the reviews of other products.",
+      "emptyStateButton": "Open other reviews"
     },
     "prices": {
       "cardTitlePriceRule": "New pricing rule",
@@ -310,15 +311,20 @@
       "placeholderSearchProperties": "Search properties...",
       "addPropertiesModal": {
         "title": "Add properties",
-        "titleEmptyState": "Create properties and property values first, then return here to assign them.",
+        "titleEmptyState": "No properties have been created yet.",
+        "descriptionEmptyState": "Create properties and property values first, then return here to assign them.",
         "selectedProperties": "{count} value selected | {count} values selected",
         "titleEmptyPropertyValues": "No property values available.",
         "titleNoPropertySelected": "No property selected."
       }
     },
     "variations": {
-      "emptyStateDescription": "This product has no variants yet.",
+      "emptyStateTitle": "This product has no variants yet.",
+      "emptyStateDescription": "Manage product variants here.",
+      "emptyStatePropertyTitle": "No properties have been created yet",
+      "emptyStatePropertyDescription": "Please create properties first to be able to use them for variant generation.",
       "emptyStateButton": "Start variant generator",
+      "emptyStatePropertyButton": "Create properties",
       "generateVariationsButton": "Generate variants",
       "deleteVariationsButton": "Delete all product variants",
       "cancelVariationsButton": "Cancel",

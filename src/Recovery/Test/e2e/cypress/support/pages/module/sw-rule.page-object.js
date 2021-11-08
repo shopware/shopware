@@ -8,7 +8,8 @@ export default class RuleBuilderPageObject {
             ...{
                 columnName: '.sw-settings-rule-list__column-name',
                 ruleSaveAction: '.sw-settings-rule-detail__save-action',
-                ruleDeleteAction: '.sw-condition-or-container__actions--delete'
+                ruleDeleteAction: '.sw-condition-or-container__actions--delete',
+                searchCondition: '.sw-single-select__selection-text'
             }
         };
     }

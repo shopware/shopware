@@ -187,7 +187,7 @@
           "skipCsvUpload": "Skip CSV upload"
         },
         "exporter": {
-            "messageExportStarted": "The export was started successfully.",
+            "messageExportStarted": "The export was started.",
             "messageExportSuccess": "The export \"{profile}\" was completed successfully.",
             "startExportLabel": "Start export",
             "showLogLabel": "Show log file",
@@ -201,7 +201,7 @@
             "exportVariants": "Export product variants"
         },
         "importer": {
-            "messageImportStarted": "The import was started successfully.",
+            "messageImportStarted": "The import was started.",
             "messageImportSuccess": "The import \"{profile}\" was completed successfully.",
             "messageImportError": "There were errors during the import of \"{profile}\"",
             "messageImportWarning": "No records imported. Please make sure your delimiters match the current profile.",

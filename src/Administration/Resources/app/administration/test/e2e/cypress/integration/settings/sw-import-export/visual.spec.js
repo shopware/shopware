@@ -112,7 +112,7 @@ describe('Import/Export:  Visual tests', () => {
         cy.get('.sw-data-grid__skeleton').should('not.exist');
 
         // Take snapshot for visual testing
-        cy.awaitAndCheckNotification('The export was started successfully');
+        cy.awaitAndCheckNotification('The export was started');
         cy.awaitAndCheckNotification('The export "Default product" was completed successfully.');
         cy.takeSnapshot('[Import export] Detail, Overview after export', '.sw-import-export-activity');
 
@@ -186,7 +186,7 @@ describe('Import/Export:  Visual tests', () => {
         cy.changeElementStyling('.sw-data-grid__cell--createdAt', 'color : #fff');
 
         // Take snapshot for visual testing
-        cy.awaitAndCheckNotification('The import was started successfully');
+        cy.awaitAndCheckNotification('The import was started');
         cy.awaitAndCheckNotification('The import "Default product" was completed successfully');
         cy.takeSnapshot('[Import export] Detail, Overview after import', '.sw-import-export-activity');
 

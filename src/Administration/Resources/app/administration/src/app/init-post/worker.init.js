@@ -241,6 +241,16 @@ function registerThumbnailMiddleware(factory) {
         },
     });
 
+    factory.register('ImportExportMessage', {
+        name: 'Shopware\\Core\\Content\\ImportExport\\Message\\ImportExportMessage',
+        fn: function middleware(next, { entry, $root, notification }) {
+            messageQueueNotification('importExport', ids, next, entry, $root, notification, {
+                title: 'global.notification-center.worker-listener.importExport.title',
+                message: 'global.notification-center.worker-listener.importExport.message',
+                success: 'global.notification-center.worker-listener.importExport.messageSuccess',
+            });
+        },
+    });
 
     return true;
 }

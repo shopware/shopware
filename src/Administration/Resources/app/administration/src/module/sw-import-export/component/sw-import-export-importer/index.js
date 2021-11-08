@@ -111,8 +111,8 @@ Shopware.Component.register('sw-import-export-importer', {
         },
 
         handleProgress(log) {
-            this.createNotificationSuccess({
-                message: this.$tc('sw-import-export.importer.messageImportStarted', 0),
+            this.createNotificationInfo({
+                message: this.$tc('sw-import-export.importer.messageImportStarted'),
             });
 
             this.isLoading = false;

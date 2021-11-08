@@ -187,7 +187,7 @@
           "skipCsvUpload": "Überspringe Upload"
         },
         "exporter": {
-            "messageExportStarted": "Der Export wurde erfolgreich gestartet.",
+            "messageExportStarted": "Der Export wurde gestartet.",
             "messageExportSuccess": "Der Export \"{profile}\" wurde erfolgreich abgeschlossen.",
             "startExportLabel": "Export starten",
             "showLogLabel": "Log anzeigen",
@@ -201,7 +201,7 @@
             "exportVariants": "Produktvarianten exportieren"
         },
         "importer": {
-            "messageImportStarted": "Der Import wurde erfolgreich gestartet.",
+            "messageImportStarted": "Der Import wurde gestartet.",
             "messageImportSuccess": "Der Import \"{profile}\" wurde erfolgreich abgeschlossen.",
             "messageImportError": "Während des Imports \"{profile}\" traten Fehler auf.",
             "messageImportWarning": "Keine Einträge importiert. Stelle bitte sicher, dass das Separator-Zeichen den Einstellungen im verwendeten Profil entspricht.",

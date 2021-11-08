@@ -106,6 +106,11 @@
           "title": "Indexierung der Rabattaktionen",
           "message": "Rabattaktion indexiert. | Noch eine Rabattaktion verbleibend ... | Circa {n} Rabattaktionen verbleibend ...",
           "messageSuccess": "Rabattaktionen indexiert."
+        },
+        "importExport": {
+          "title": "Import/Export",
+          "message": "Daten werden importiert/exportiert.",
+          "messageSuccess": "Alle Importe/Exporte abgeschlossen."
         }
       },
       "plugin-updates-listener": {

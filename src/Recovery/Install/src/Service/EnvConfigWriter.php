@@ -18,7 +18,7 @@ class EnvConfigWriter
 
     private KernelInterface $kernel;
 
-    public function __construct(string $configPath, string $instanceId, array $defaultEnvVars = [], KernelInterface $kernel)
+    public function __construct(string $configPath, string $instanceId, array $defaultEnvVars, KernelInterface $kernel)
     {
         $this->configPath = $configPath;
         $this->instanceId = $instanceId;

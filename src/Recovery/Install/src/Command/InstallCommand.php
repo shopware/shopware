@@ -88,6 +88,8 @@ class InstallCommand extends Command
         $databaseInitializer = new DatabaseInitializer($conn);
         $databaseInitializer->createDatabase($connectionInfo->getDatabaseName());
 
+        $conn->executeStatement('USE `' . $connectionInfo->getDatabaseName() . '`');
+
         /** @var BlueGreenDeploymentService $blueGreenDeploymentService */
         $blueGreenDeploymentService = $container->offsetGet('blue.green.deployment.service');
         $blueGreenDeploymentService->setEnvironmentVariable();
@@ -370,7 +372,7 @@ class InstallCommand extends Command
         $IOHelper->writeln('<info>=== Database configuration ===</info>');
         $databaseInteractor = new DatabaseInteractor($IOHelper);
 
-        $databaseConnectionInformation = $databaseInteractor->askDatabaseConnectionInformation(
+        $connectionInfo = $databaseInteractor->askDatabaseConnectionInformation(
             $connectionInfo
         );
 
@@ -384,8 +386,8 @@ class InstallCommand extends Command
                 $IOHelper->writeln(sprintf('Got database error: %s', $e->getMessage()));
                 $IOHelper->writeln('');
 
-                $databaseConnectionInformation = $databaseInteractor->askDatabaseConnectionInformation(
-                    $databaseConnectionInformation
+                $connectionInfo = $databaseInteractor->askDatabaseConnectionInformation(
+                    $connectionInfo
                 );
             }
         } while (!$connection);
@@ -418,9 +420,9 @@ class InstallCommand extends Command
             exit;
         }
 
-        $databaseConnectionInformation->setDatabaseName($databaseName);
+        $connectionInfo->setDatabaseName($databaseName);
 
-        return $databaseConnectionInformation;
+        return $connectionInfo;
     }
 
     private function addDbOptions(): void

@@ -248,3 +248,8 @@ shopware:
         major: false
         description: "Easy Products Creation"
         # issue: NEXT-17546
+      - name: FEATURE_NEXT_17421
+        default: false
+        major: false
+        description: "Enables merchants to organize their sales channels by sorting and marking them as favourites"
+        # issue: NEXT-17421

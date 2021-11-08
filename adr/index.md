@@ -34,3 +34,4 @@
 * [2021-10-01 - Payment Flow](2021-10-01-payment-flow.md)
 * [2021-10-13 - Refund handling](2021-10-13-refund-handling.md)
 * [2021-10-21 - App Scripting](2021-10-21-app-scripting.md)
+* [2021-11-02 - Preparing data for rule evaluation](2021-11-02-preparing-data-for-rule-evaluation.md)

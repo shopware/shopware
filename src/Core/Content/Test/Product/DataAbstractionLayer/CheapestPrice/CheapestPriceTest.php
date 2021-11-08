@@ -115,6 +115,7 @@ class CheapestPriceTest extends TestCase
 
                 // no rule = 79€
                 (new ProductBuilder($ids, 'p.2'))
+                    ->active(false)
                     ->price(80)
                     ->visibility(TestDefaults::SALES_CHANNEL)
                     ->variant(
@@ -681,7 +682,6 @@ class CheapestPriceTest extends TestCase
             'currencyId' => Defaults::CURRENCY,
             'assertions' => [
                 'p.1' => ['cheapest' => 70,  'price' => 70, 'prices' => []],
-                'p.2' => ['cheapest' => 79,  'price' => 80, 'prices' => []],
                 'v.2.1' => ['cheapest' => 79,  'price' => 80, 'prices' => []],
                 'v.2.2' => ['cheapest' => 79,  'price' => 79, 'prices' => []],
                 'p.3' => ['cheapest' => 90,  'price' => 90, 'prices' => []],
@@ -725,7 +725,6 @@ class CheapestPriceTest extends TestCase
             'currencyId' => Defaults::CURRENCY,
             'assertions' => [
                 'p.1' => ['cheapest' => 70,  'price' => 70, 'prices' => []],
-                'p.2' => ['cheapest' => 79,  'price' => 80, 'prices' => []],
                 'v.2.1' => ['cheapest' => 79,  'price' => 80, 'prices' => []],
                 'v.2.2' => ['cheapest' => 79,  'price' => 79, 'prices' => []],
                 'p.3' => ['cheapest' => 90,  'price' => 90, 'prices' => []],
@@ -769,7 +768,6 @@ class CheapestPriceTest extends TestCase
             'currencyId' => Defaults::CURRENCY,
             'assertions' => [
                 'p.1' => ['cheapest' => 70,  'price' => 70, 'prices' => []],
-                'p.2' => ['cheapest' => 79,  'price' => 80, 'prices' => []],
                 'v.2.1' => ['cheapest' => 79,  'price' => 80, 'prices' => []],
                 'v.2.2' => ['cheapest' => 79,  'price' => 79, 'prices' => []],
                 'p.3' => ['cheapest' => 90,  'price' => 90, 'prices' => []],
@@ -813,7 +811,6 @@ class CheapestPriceTest extends TestCase
             'currencyId' => Defaults::CURRENCY,
             'assertions' => [
                 'p.1' => ['cheapest' => 70,  'price' => 70, 'prices' => []],
-                'p.2' => ['cheapest' => 79,  'price' => 80, 'prices' => []],
                 'v.2.1' => ['cheapest' => 79,  'price' => 80, 'prices' => []],
                 'v.2.2' => ['cheapest' => 79,  'price' => 79, 'prices' => []],
                 'p.3' => ['cheapest' => 90,  'price' => 90, 'prices' => []],
@@ -857,7 +854,6 @@ class CheapestPriceTest extends TestCase
             'currencyId' => Defaults::CURRENCY,
             'assertions' => [
                 'p.1' => ['cheapest' => 70,  'price' => 70, 'prices' => []],
-                'p.2' => ['cheapest' => 79,  'price' => 80, 'prices' => []],
                 'v.2.1' => ['cheapest' => 79,  'price' => 80, 'prices' => []],
                 'v.2.2' => ['cheapest' => 79,  'price' => 79, 'prices' => []],
                 'p.3' => ['cheapest' => 90,  'price' => 90, 'prices' => []],
@@ -901,7 +897,6 @@ class CheapestPriceTest extends TestCase
             'currencyId' => Defaults::CURRENCY,
             'assertions' => [
                 'p.1' => ['cheapest' => 70,  'price' => 70, 'prices' => []],
-                'p.2' => ['cheapest' => 79,  'price' => 80, 'prices' => []],
                 'v.2.1' => ['cheapest' => 79,  'price' => 80, 'prices' => []],
                 'v.2.2' => ['cheapest' => 79,  'price' => 79, 'prices' => []],
                 'p.3' => ['cheapest' => 90,  'price' => 90, 'prices' => []],
@@ -947,7 +942,6 @@ class CheapestPriceTest extends TestCase
             'currencyId' => $ids->get('currency'),
             'assertions' => [
                 'p.1' => ['cheapest' => 99, 'price' => 99, 'prices' => []],
-                'p.2' => ['cheapest' => 88, 'price' => 160, 'prices' => []],
                 'v.2.1' => ['cheapest' => 88, 'price' => 160, 'prices' => []],
                 'v.2.2' => ['cheapest' => 88, 'price' => 88, 'prices' => []],
                 'p.3' => ['cheapest' => 180, 'price' => 180, 'prices' => []],
@@ -991,7 +985,6 @@ class CheapestPriceTest extends TestCase
             'currencyId' => $ids->get('currency'),
             'assertions' => [
                 'p.1' => ['cheapest' => 99, 'price' => 99,   'prices' => []],
-                'p.2' => ['cheapest' => 88, 'price' => 160,  'prices' => []],
                 'v.2.1' => ['cheapest' => 88, 'price' => 160,  'prices' => []],
                 'v.2.2' => ['cheapest' => 88, 'price' => 88,   'prices' => []],
                 'p.3' => ['cheapest' => 180, 'price' => 180, 'prices' => []],
@@ -1035,7 +1028,6 @@ class CheapestPriceTest extends TestCase
             'currencyId' => $ids->get('currency'),
             'assertions' => [
                 'p.1' => ['cheapest' => 99, 'price' => 99, 'prices' => []],
-                'p.2' => ['cheapest' => 88, 'price' => 160, 'prices' => []],
                 'v.2.1' => ['cheapest' => 88, 'price' => 160, 'prices' => []],
                 'v.2.2' => ['cheapest' => 88, 'price' => 88, 'prices' => []],
                 'p.3' => ['cheapest' => 180, 'price' => 180, 'prices' => []],
@@ -1080,7 +1072,6 @@ class CheapestPriceTest extends TestCase
             'currencyId' => $ids->get('currency'),
             'assertions' => [
                 'p.1' => ['cheapest' => 99, 'price' => 99,   'prices' => []],
-                'p.2' => ['cheapest' => 88, 'price' => 160,  'prices' => []],
                 'v.2.1' => ['cheapest' => 88, 'price' => 160,  'prices' => []],
                 'v.2.2' => ['cheapest' => 88, 'price' => 88,   'prices' => []],
                 'p.3' => ['cheapest' => 180, 'price' => 180, 'prices' => []],
@@ -1125,7 +1116,6 @@ class CheapestPriceTest extends TestCase
             'currencyId' => $ids->get('currency'),
             'assertions' => [
                 'p.1' => ['cheapest' => 99, 'price' => 99,   'prices' => []],
-                'p.2' => ['cheapest' => 88, 'price' => 160,  'prices' => []],
                 'v.2.1' => ['cheapest' => 88, 'price' => 160,  'prices' => []],
                 'v.2.2' => ['cheapest' => 88, 'price' => 88,   'prices' => []],
                 'p.3' => ['cheapest' => 180, 'price' => 180, 'prices' => []],
@@ -1170,7 +1160,6 @@ class CheapestPriceTest extends TestCase
             'currencyId' => $ids->get('currency'),
             'assertions' => [
                 'p.1' => ['cheapest' => 99, 'price' => 99, 'prices' => []],
-                'p.2' => ['cheapest' => 88, 'price' => 160, 'prices' => []],
                 'v.2.1' => ['cheapest' => 88, 'price' => 160, 'prices' => []],
                 'v.2.2' => ['cheapest' => 88, 'price' => 88, 'prices' => []],
                 'p.3' => ['cheapest' => 180, 'price' => 180, 'prices' => []],

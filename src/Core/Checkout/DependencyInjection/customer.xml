@@ -301,5 +301,14 @@
             <argument type="service" id="sales_channel.newsletter_recipient.repository" />
         </service>
 
+        <service id="Shopware\Core\Checkout\Customer\DeleteUnusedGuestCustomerService">
+            <argument type="service" id="customer.repository" />
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
+        </service>
+
+        <service id="Shopware\Core\Checkout\Customer\Command\DeleteUnusedGuestCustomersCommand">
+            <argument type="service" id="Shopware\Core\Checkout\Customer\DeleteUnusedGuestCustomerService" />
+            <tag name="console.command" />
+        </service>
     </services>
 </container>

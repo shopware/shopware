@@ -140,6 +140,14 @@
             <label lang="de-DE">Löschen von Kunden zulassen</label>
         </input-field>
 
+        <input-field type="int">
+            <name>unusedGuestCustomerLifetime</name>
+            <label>Expiry time of guest customer accounts</label>
+            <label lang="de-DE">Zeit, nach der Gastkundenaccounts ablaufen</label>
+            <helpText>Time in seconds. Zero disables automatic deletion.</helpText>
+            <helpText lang="de-DE">Zeit in Sekunden. Null verhindert das automatische Löschen.</helpText>
+        </input-field>
+
         <input-field type="bool">
             <name>requireDataProtectionCheckbox</name>
             <label>Data protection information must be accepted via a checkbox</label>

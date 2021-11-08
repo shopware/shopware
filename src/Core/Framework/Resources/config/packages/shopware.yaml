@@ -394,6 +394,11 @@ shopware:
               major: false
               description: "Flow Builder UI/UX Improvements"
               # issue: NEXT-18083
+            - name: FEATURE_NEXT_17546
+              default: false
+              major: false
+              description: "Easy Products Creation"
+              # issue: NEXT-17546
 
     logger:
         file_rotation_count: 14

@@ -14,7 +14,7 @@
             :disabled="!allowEdit"
             :label="$tc('sw-product.settingsForm.labelStock')"
             :placeholder="$tc('sw-product.settingsForm.placeholderStock')"
-            required
+            :required="!feature.isActive('FEATURE_NEXT_17546')"
             :error="productStockError"
         />
         {% endblock %}

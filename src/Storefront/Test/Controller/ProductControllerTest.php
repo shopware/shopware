@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
@@ -33,12 +34,25 @@ class ProductControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use StorefrontControllerTestBehaviour;
+    use SalesChannelApiTestBehaviour;
 
     private TestDataCollection $ids;
 
     public function setUp(): void
     {
         $this->ids = new TestDataCollection();
+
+        $this->createSalesChannel([
+            'id' => $this->ids->create('sales-channel'),
+            'domains' => [
+                [
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'currencyId' => Defaults::CURRENCY,
+                    'snippetSetId' => $this->getSnippetSetIdForLocale('en-GB'),
+                    'url' => 'http://test.to',
+                ],
+            ],
+        ]);
     }
 
     public function testForwardFromSaveReviewToLoadReviews(): void
@@ -110,20 +124,24 @@ class ProductControllerTest extends TestCase
      */
     public function testVariantGrayedOut(
         string $requestVariant,
+        bool $blue,
         bool $green,
         bool $red,
         bool $l,
-        bool $xl
+        bool $xl,
+        bool $shouldThrowException = false
     ): void {
         $products = (new ProductBuilder($this->ids, 'a.0'))
             ->manufacturer('m1')
             ->name('test')
             ->price(10)
-            ->visibility(TestDefaults::SALES_CHANNEL, ProductVisibilityDefinition::VISIBILITY_ALL)
+            ->visibility(TestDefaults::SALES_CHANNEL)
             ->configuratorSetting('red', 'color')
             ->configuratorSetting('green', 'color')
+            ->configuratorSetting('blue', 'color')
             ->configuratorSetting('l', 'size')
             ->configuratorSetting('xl', 'size')
+            ->configuratorSetting('m', 'size')
             ->stock(10)
             ->closeout(true)
             ->variant(
@@ -158,12 +176,62 @@ class ProductControllerTest extends TestCase
                     ->closeout(false)
                     ->build()
             )
+            ->variant(
+                (new ProductBuilder($this->ids, 'a.5'))
+                    ->option('blue')
+                    ->option('xl')
+                    ->visibility(TestDefaults::SALES_CHANNEL)
+                    ->visibility($this->ids->get('sales-channel'))
+                    ->stock(10)
+                    ->closeout(null) // inherited
+                    ->build()
+            )
+            ->variant(
+                (new ProductBuilder($this->ids, 'a.6'))
+                    ->option('blue')
+                    ->option('l')
+                    ->visibility($this->ids->get('sales-channel'))
+                    ->stock(10)
+                    ->closeout(null) // inherited
+                    ->build()
+            )
+            ->variant(
+                (new ProductBuilder($this->ids, 'a.7'))
+                    ->option('red')
+                    ->option('m')
+                    ->visibility($this->ids->get('sales-channel'))
+                    ->stock(10)
+                    ->closeout(null) // inherited
+                    ->build()
+            )
+            ->variant(
+                (new ProductBuilder($this->ids, 'a.8'))
+                    ->option('green')
+                    ->option('m')
+                    ->visibility($this->ids->get('sales-channel'))
+                    ->stock(0)
+                    ->closeout(null) // inherited
+                    ->build()
+            )
+            ->variant(
+                (new ProductBuilder($this->ids, 'a.9'))
+                    ->option('blue')
+                    ->option('m')
+                    ->visibility($this->ids->get('sales-channel'))
+                    ->stock(0)
+                    ->closeout(false)
+                    ->build()
+            )
             ->build();
 
         $this->getContainer()->get('product.repository')->create([$products], $this->ids->context);
 
         $context = $this->getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
         $controller = $this->getContainer()->get(ProductController::class);
+
+        if ($shouldThrowException) {
+            static::expectException(ProductNotFoundException::class);
+        }
 
         $response = $controller->index($context, $this->createDetailRequest($context, $this->ids->get($requestVariant)));
 
@@ -172,13 +240,20 @@ class ProductControllerTest extends TestCase
         $crawler = new Crawler();
         $crawler->addHtmlContent($response->getContent());
 
+        $blueFound = false;
         $greenFound = false;
         $redFound = false;
         $xlFound = false;
         $lFound = false;
+        $mFound = false;
 
         $crawler->filter('.product-detail-configurator .product-detail-configurator-option-label')
-            ->each(static function (Crawler $option) use ($green, $red, $xl, $l, &$greenFound, &$redFound, &$xlFound, &$lFound): void {
+            ->each(static function (Crawler $option) use ($blue, $green, $red, $xl, $l, &$blueFound, &$greenFound, &$redFound, &$xlFound, &$lFound, &$mFound): void {
+                if ($option->text() === 'blue') {
+                    static::assertEquals($blue, $option->matches('.is-combinable'));
+                    $blueFound = true;
+                }
+
                 if ($option->text() === 'green') {
                     static::assertEquals($green, $option->matches('.is-combinable'));
                     $greenFound = true;
@@ -198,20 +273,31 @@ class ProductControllerTest extends TestCase
                     static::assertEquals($l, $option->matches('.is-combinable'));
                     $lFound = true;
                 }
+
+                if ($option->text() === 'm') {
+                    $mFound = true;
+                }
             });
 
+        static::assertTrue($blueFound, 'Option blue was not found.');
         static::assertTrue($greenFound, 'Option green was not found.');
         static::assertTrue($redFound, 'Option red was not found.');
         static::assertTrue($xlFound, 'Option xl was not found.');
         static::assertTrue($lFound, 'Option l was not found.');
+        static::assertFalse($mFound, 'Option m was found.');
     }
 
     public function variantProvider(): iterable
     {
-        yield 'test color: red - size: xl' => ['a.1', false, true, true, true]; // a.1 all options should be normal
-        yield 'test color: green - size: xl' => ['a.2', false, true, true, false]; // a.2 green and xl should be gray
-        yield 'test color: red - size: l' => ['a.3', true, true, true, true]; // a.3 all options should be normal
-        yield 'test color: green - size: l' => ['a.4', true, true, true, false]; // a.4 xl should be gray
+        yield 'test color: red - size: xl' => ['a.1', true, false, true, true, true]; // a.1 all options should be normal
+        yield 'test color: green - size: xl' => ['a.2', true, false, true, true, false]; // a.2 green and xl should be gray
+        yield 'test color: red - size: l' => ['a.3', false, true, true, true, true]; // a.3 all options should be normal except blue
+        yield 'test color: green - size: l' => ['a.4', false, true, true, true, false]; // a.4 xl and blue should be gray
+        yield 'test color: blue - size: xl' => ['a.5', true, false, true, false, true]; // a.5 l, green should be gray
+        yield 'test color: blue - size: l' => ['a.6', false, false, false, false, false, true]; // a.6 xl should throw exception
+        yield 'test color: red - size: m' => ['a.7', false, false, false, false, false, true]; // a.7 m should throw exception
+        yield 'test color: green - size: m' => ['a.8', false, false, false, false, false, true]; // a.8 m should throw exception
+        yield 'test color: blue - size: m' => ['a.9', false, false, false, false, false, true]; // a.9 m should throw exception
     }
 
     private function createDetailRequest(SalesChannelContext $context, string $productId): Request

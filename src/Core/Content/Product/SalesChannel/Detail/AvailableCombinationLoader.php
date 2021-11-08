@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Product\SalesChannel\Detail;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 class AvailableCombinationLoader
@@ -16,8 +17,25 @@ class AvailableCombinationLoader
         $this->connection = $connection;
     }
 
-    public function load(string $productId, Context $context): AvailableCombinationResult
+    /**
+     * @deprecated tag:v6.5.0
+     * Parameter $salesChannelId will be mandatory in future implementation
+     */
+    public function load(string $productId, Context $context/*, string $salesChannelId*/): AvailableCombinationResult
     {
+        $salesChannelId = null;
+        if (\func_num_args() === 3) {
+            $salesChannelId = func_get_arg(2);
+
+            if (\gettype($salesChannelId) !== 'string') {
+                throw new \InvalidArgumentException('Argument 3 $salesChannelId must be of type string.');
+            }
+        }
+
+        if ($salesChannelId === null) {
+            Feature::throwException('FEATURE_NEXT_18592', 'Sales channel id in combination loader is required in next major');
+        }
+
         $query = $this->connection->createQueryBuilder();
         $query->from('product');
         $query->leftJoin('product', 'product', 'parent', 'product.parent_id = parent.id');
@@ -31,13 +49,17 @@ class AvailableCombinationLoader
         $query->setParameter('versionId', Uuid::fromHexToBytes($context->getVersionId()));
         $query->setParameter('active', true);
 
+        if ($salesChannelId !== null) {
+            $query->innerJoin('product', 'product_visibility', 'visibilities', 'product.visibilities = visibilities.product_id');
+            $query->andWhere('visibilities.sales_channel_id = :salesChannelId');
+            $query->setParameter('salesChannelId', Uuid::fromHexToBytes($salesChannelId));
+        }
+
         $query->select([
             'LOWER(HEX(product.id))',
             'product.option_ids as options',
             'product.product_number as productNumber',
             'product.available',
-            'product.available_stock',
-            'IFNULL(product.is_closeout, parent.is_closeout) as isCloseout',
         ]);
 
         $combinations = $query->execute()->fetchAll();
@@ -46,15 +68,12 @@ class AvailableCombinationLoader
         $result = new AvailableCombinationResult();
 
         foreach ($combinations as $combination) {
-            $isCloseout = (bool) $combination['isCloseout'];
-            $stock = (int) $combination['available_stock'];
+            $available = (bool) $combination['available'];
 
             $options = json_decode($combination['options'], true);
             if ($options === false) {
                 continue;
             }
-
-            $available = !$isCloseout || $stock > 0;
 
             $result->addCombination($options, $available);
         }

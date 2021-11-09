@@ -25,6 +25,9 @@ class EntityIndexingMessage
      */
     private $forceQueue;
 
+    /**
+     * @var string[]
+     */
     private array $skip = [];
 
     public function __construct($data, $offset = null, ?Context $context = null, bool $forceQueue = false)
@@ -71,14 +74,25 @@ class EntityIndexingMessage
         return $this->forceQueue;
     }
 
+    /**
+     * @return string[]
+     */
     public function getSkip(): array
     {
         return $this->skip;
     }
 
+    /**
+     * @param string[] $skip
+     */
     public function setSkip(array $skip): void
     {
-        $this->skip = $skip;
+        $this->skip = \array_unique(\array_values($skip));
+    }
+
+    public function addSkip(string ...$skip): void
+    {
+        $this->skip = \array_unique(\array_merge($this->skip, \array_values($skip)));
     }
 
     public function allow(string $name): bool

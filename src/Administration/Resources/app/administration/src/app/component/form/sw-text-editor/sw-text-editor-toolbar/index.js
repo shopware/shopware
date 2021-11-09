@@ -93,6 +93,10 @@ Component.register('sw-text-editor-toolbar', {
         this.mountedComponent();
     },
 
+    beforeDestroy() {
+        this.beforeDestroyComponent();
+    },
+
     destroyed() {
         this.destroyedComponent();
     },
@@ -140,6 +144,14 @@ Component.register('sw-text-editor-toolbar', {
                 left -= (leftSidebarWidth + arrowWidth);
                 this.arrowPosition['--left'] = `${left}px`;
                 this.arrowPosition['--right'] = 'unset';
+            }
+        },
+
+        beforeDestroyComponent() {
+            const body = document.querySelector('body');
+
+            if (body.contains(this.$el)) {
+                body.removeChild(this.$el);
             }
         },
 

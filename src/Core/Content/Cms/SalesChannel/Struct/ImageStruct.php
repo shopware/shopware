@@ -25,7 +25,7 @@ class ImageStruct extends Struct
     /**
      * @var MediaEntity|null
      */
-    private $media;
+    protected $media;
 
     public function getMedia(): ?MediaEntity
     {

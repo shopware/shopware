@@ -21,12 +21,12 @@ class BuyBoxStruct extends Struct
     /**
      * @var SalesChannelProductEntity|null
      */
-    private $product;
+    protected $product;
 
     /**
      * @var PropertyGroupCollection|null
      */
-    private $configuratorSettings;
+    protected $configuratorSettings;
 
     public function getProduct(): ?SalesChannelProductEntity
     {

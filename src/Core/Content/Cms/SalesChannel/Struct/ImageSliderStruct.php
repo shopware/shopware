@@ -14,7 +14,7 @@ class ImageSliderStruct extends Struct
     /**
      * @var ImageSliderItemStruct[]|null
      */
-    private $sliderItems = [];
+    protected $sliderItems = [];
 
     /**
      * @return ImageSliderItemStruct[]|null

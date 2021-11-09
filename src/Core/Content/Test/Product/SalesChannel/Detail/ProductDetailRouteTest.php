@@ -3,17 +3,12 @@
 namespace Shopware\Core\Content\Test\Product\SalesChannel\Detail;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Cms\CmsPageEntity;
-use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
-use Shopware\Core\Defaults;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestDataCollection;
-use Shopware\Core\Framework\Uuid\Uuid;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @group store-api
@@ -37,18 +32,16 @@ class ProductDetailRouteTest extends TestCase
     {
         $this->ids = new TestDataCollection(Context::createDefaultContext());
 
-        $this->createData();
-
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
         ]);
 
-        $this->setVisibilities();
+        $this->createData();
     }
 
     public function testLoadProduct(): void
     {
-        $this->browser->request('POST', $this->getUrl());
+        $this->browser->request('POST', $this->getUrl($this->ids->get('product')));
 
         $response = json_decode($this->browser->getResponse()->getContent(), true);
 
@@ -56,42 +49,11 @@ class ProductDetailRouteTest extends TestCase
         static::assertArrayHasKey('product', $response);
     }
 
-    public function testLoadProductWithCmsPage(): void
-    {
-        $expectedCmsPageId = Uuid::randomHex();
-
-        $context = $this->createSalesChannelContext();
-
-        $product = $this->createData([
-            'id' => Uuid::randomHex(),
-            'productNumber' => Uuid::randomHex(),
-            'visibilities' => [[
-                'salesChannelId' => $context->getSalesChannelId(),
-                'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
-            ]],
-            'tax' => ['id' => $context->getTaxRules()->first()->getId(), 'name' => 'test', 'taxRate' => 15],
-            'cmsPage' => [
-                'id' => $expectedCmsPageId,
-                'type' => 'product_detail',
-                'sections' => [],
-            ],
-        ]);
-
-        $productDetailRoute = $this->getContainer()->get(ProductDetailRoute::class);
-
-        $result = $productDetailRoute->load($product['id'], new Request(), $context, new Criteria());
-
-        static::assertNotEmpty($product = $result->getProduct());
-        static::assertInstanceOf(CmsPageEntity::class, $cmsPage = $product->getCmsPage());
-        static::assertEquals($expectedCmsPageId, $cmsPage->getId());
-        static::assertEquals('product_detail', $cmsPage->getType());
-    }
-
     public function testIncludes(): void
     {
         $this->browser->request(
             'POST',
-            $this->getUrl(),
+            $this->getUrl($this->ids->get('product')),
             [
                 'includes' => [
                     'product' => ['id', 'name'],
@@ -118,7 +80,7 @@ class ProductDetailRouteTest extends TestCase
     {
         $this->browser->request(
             'POST',
-            $this->getUrl(),
+            $this->getUrl($this->ids->get('product')),
             [
                 'includes' => [
                     'product' => ['id', 'name', 'manufacturer'],
@@ -137,45 +99,82 @@ class ProductDetailRouteTest extends TestCase
         static::assertNotEmpty($response['product']['manufacturer']);
     }
 
-    private function createData(array $config = []): array
+    public function testRecursionEncodingWithLayout(): void
     {
-        $product = [
-            'id' => $this->ids->create('product'),
-            'manufacturer' => ['id' => $this->ids->create('manufacturer-'), 'name' => 'test-'],
-            'productNumber' => $this->ids->get('product'),
-            'name' => 'test',
-            'stock' => 10,
-            'price' => [
-                ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
-            ],
-            'tax' => ['name' => 'test', 'taxRate' => 15],
-            'active' => true,
-        ];
-
-        $product = array_replace_recursive($product, $config);
-
-        $this->getContainer()->get('product.repository')
-            ->create([$product], Context::createDefaultContext());
-
-        return $product;
-    }
-
-    private function setVisibilities(): void
-    {
-        $update = [
+        $this->browser->request(
+            'POST',
+            $this->getUrl($this->ids->get('with-layout')),
             [
-                'id' => $this->ids->get('product'),
-                'visibilities' => [
-                    ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                'associations' => [
+                    'media' => [
+                        'sort' => [['field' => 'position']],
+                    ],
+                    'manufacturer' => [],
+                    'crossSellings' => [],
+                    'productReviews' => [],
                 ],
-            ],
-        ];
-        $this->getContainer()->get('product.repository')
-            ->update($update, $this->ids->context);
+            ]
+        );
+
+        $response = json_decode($this->browser->getResponse()->getContent(), true);
+
+        static::assertEquals(Response::HTTP_OK, $this->browser->getResponse()->getStatusCode(), print_r($response, true));
+
+        $expected = file_get_contents(__DIR__ . '/_fixtures/recursion_encoding_with_layout_result.json');
+
+        $expected = json_decode($expected, true);
+
+        $this->assertArray($expected, $response);
     }
 
-    private function getUrl()
+    private function assertArray(array $expected, array $actual, string $pointer = ''): void
     {
-        return '/store-api/product/' . $this->ids->get('product');
+        foreach ($expected as $key => $value) {
+            $current = empty($pointer) ? $pointer . '.' . $key : (string) $key;
+
+            static::assertArrayHasKey($key, $actual, sprintf('Missing key %s', $current));
+
+            if (\is_array($value)) {
+                static::assertIsArray($actual[$key], sprintf('Field %s is not an array', $current));
+
+                $this->assertArray($value, $actual[$key], $current);
+
+                continue;
+            }
+
+            static::assertEquals($value, $actual[$key], sprintf('Value for key %s not matching', $current));
+        }
+    }
+
+    private function createData(): void
+    {
+        $products = [
+            (new ProductBuilder($this->ids, 'product'))
+                ->price(15)
+                ->manufacturer('m1')
+                ->visibility($this->ids->get('sales-channel'))
+                ->build(),
+
+            // regression test for: NEXT-17603
+            (new ProductBuilder($this->ids, 'with-layout'))
+                ->price(100)
+                ->media('m1', 1)
+                ->media('m2', 2)
+                ->media('m3', 3)
+                ->review('Test', 'test')
+                ->manufacturer('m1')
+                ->crossSelling('selling', 'stream-1')
+                ->visibility($this->ids->get('sales-channel'))
+                ->layout('l1')
+                ->build(),
+        ];
+
+        $this->getContainer()->get('product.repository')
+            ->create($products, Context::createDefaultContext());
+    }
+
+    private function getUrl(string $id)
+    {
+        return '/store-api/product/' . $id;
     }
 }

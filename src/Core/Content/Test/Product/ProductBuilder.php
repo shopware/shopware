@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Test\Product;
 
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Test\Cms\LayoutBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -70,6 +71,10 @@ class ProductBuilder
     protected array $options = [];
 
     protected array $media = [];
+
+    protected ?array $cmsPage = null;
+
+    protected array $crossSellings = [];
 
     public function __construct(IdsCollection $ids, string $number, int $stock = 1, string $taxKey = 't1')
     {
@@ -370,6 +375,56 @@ class ProductBuilder
             'position' => $position,
             'media' => ['fileName' => $key],
         ];
+
+        return $this;
+    }
+
+    public function layout(string $key): self
+    {
+        if ($this->ids->has($key)) {
+            $this->cmsPage = ['id' => $this->ids->get($key)];
+
+            return $this;
+        }
+
+        $this->cmsPage = (new LayoutBuilder($this->ids, $key, 'detailpage'))
+            ->productHeading()
+            ->galleryBuybox()
+            ->descriptionReviews()
+            ->crossSelling()
+            ->build();
+
+        return $this;
+    }
+
+    public function crossSelling(string $key, string $stream, string $sort = '+name'): self
+    {
+        $crossSelling = [
+            'id' => $this->ids->get($key),
+            'name' => $key,
+            'sortBy' => substr($sort, 1),
+            'sortDirection' => $sort[0] === '+' ? 'ASC' : 'DESC',
+            'active' => true,
+            'type' => 'productStream',
+        ];
+
+        if ($this->ids->has($stream)) {
+            $crossSelling['productStreamId'] = $this->ids->get($stream);
+        } else {
+            $crossSelling['productStream'] = [
+                'id' => $this->ids->get($stream),
+                'name' => $stream,
+                'filters' => [
+                    ['type' => 'multi', 'operator' => 'OR', 'position' => 0, 'queries' => [
+                        ['type' => 'multi', 'operator' => 'AND', 'position' => 0, 'queries' => [
+                            ['type' => 'equals', 'field' => 'active', 'value' => '1', 'position' => 0],
+                        ]],
+                    ]],
+                ],
+            ];
+        }
+
+        $this->crossSellings[] = $crossSelling;
 
         return $this;
     }

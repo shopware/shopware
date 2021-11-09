@@ -38,6 +38,8 @@ class NavigationController extends StorefrontController
     {
         $page = $this->navigationPageLoader->load($request, $context);
 
+        $this->hook('home-page-loaded', ['page' => $page]);
+
         return $this->renderStorefront('@Storefront/storefront/page/content/index.html.twig', ['page' => $page]);
     }
 
@@ -50,6 +52,8 @@ class NavigationController extends StorefrontController
     {
         $page = $this->navigationPageLoader->load($request, $context);
 
+        $this->hook('navigation-page-loaded', ['page' => $page]);
+
         return $this->renderStorefront('@Storefront/storefront/page/content/index.html.twig', ['page' => $page]);
     }
 
@@ -61,6 +65,8 @@ class NavigationController extends StorefrontController
     public function offcanvas(Request $request, SalesChannelContext $context): Response
     {
         $page = $this->offcanvasLoader->load($request, $context);
+
+        $this->hook('offcanvas-menu-loaded', ['page' => $page]);
 
         $response = $this->renderStorefront(
             '@Storefront/storefront/layout/navigation/offcanvas/navigation-pagelet.html.twig',

@@ -115,6 +115,8 @@ class CheckoutController extends StorefrontController
     {
         $page = $this->cartPageLoader->load($request, $context);
 
+        $this->hook('checkout-cart-page-loaded', ['page' => $page]);
+
         $this->addCartErrors($page->getCart());
 
         return $this->renderStorefront('@Storefront/storefront/page/checkout/cart/index.html.twig', ['page' => $page]);
@@ -137,6 +139,8 @@ class CheckoutController extends StorefrontController
 
         $page = $this->confirmPageLoader->load($request, $context);
 
+        $this->hook('checkout-confirm-page-loaded', ['page' => $page]);
+
         $this->addCartErrors($page->getCart());
 
         return $this->renderStorefront('@Storefront/storefront/page/checkout/confirm/index.html.twig', ['page' => $page]);
@@ -158,6 +162,8 @@ class CheckoutController extends StorefrontController
         }
 
         $page = $this->finishPageLoader->load($request, $context);
+
+        $this->hook('checkout-finish-page-loaded', ['page' => $page]);
 
         if ($page->isPaymentFailed() === true) {
             return $this->redirectToRoute(
@@ -222,6 +228,8 @@ class CheckoutController extends StorefrontController
     {
         $page = $this->offcanvasCartPageLoader->load($request, $context);
 
+        $this->hook('checkout-info-widget-loaded', ['page' => $page]);
+
         $response = $this->renderStorefront('@Storefront/storefront/layout/header/actions/cart-widget.html.twig', ['page' => $page]);
         $response->headers->set('x-robots-tag', 'noindex');
 
@@ -237,6 +245,9 @@ class CheckoutController extends StorefrontController
     public function offcanvas(Request $request, SalesChannelContext $context): Response
     {
         $page = $this->offcanvasCartPageLoader->load($request, $context);
+
+        $this->hook('checkout-offcanvas-loaded', ['page' => $page]);
+
         $cart = $page->getCart();
         $this->addCartErrors($cart);
         $cart->getErrors()->clear();

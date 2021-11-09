@@ -9,6 +9,14 @@
             <tag name="shopware.script.hook"/>
         </service>
 
+        <service id="home-page-loaded" class="Shopware\Core\Framework\Script\Hook\Hook" parent="generic-page-hook">
+            <tag name="shopware.script.hook"/>
+        </service>
+
+        <service id="navigation-page-loaded" class="Shopware\Core\Framework\Script\Hook\Hook" parent="generic-page-hook">
+            <tag name="shopware.script.hook"/>
+        </service>
+
         <service id="generic-page-hook" class="Shopware\Core\Framework\Script\Hook\Hook" abstract="true">
             <argument type="collection">
             </argument>

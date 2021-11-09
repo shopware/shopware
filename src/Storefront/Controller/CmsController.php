@@ -98,9 +98,11 @@ class CmsController extends StorefrontController
             throw new MissingRequestParameterException('Parameter id missing');
         }
 
-        $cmsPage = $this->cmsRoute->load($id, $request, $salesChannelContext)->getCmsPage();
+        $page = $this->cmsRoute->load($id, $request, $salesChannelContext)->getCmsPage();
 
-        $response = $this->renderStorefront('@Storefront/storefront/page/content/detail.html.twig', ['cmsPage' => $cmsPage]);
+        $this->hook('cms-page-loaded', ['page' => $page]);
+
+        $response = $this->renderStorefront('@Storefront/storefront/page/content/detail.html.twig', ['cmsPage' => $page]);
         $response->headers->set('x-robots-tag', 'noindex');
 
         return $response;

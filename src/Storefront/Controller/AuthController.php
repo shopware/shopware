@@ -91,6 +91,8 @@ class AuthController extends StorefrontController
 
         $page = $this->loginPageLoader->load($request, $context);
 
+        $this->hook('account-login-page-loaded', ['page' => $page]);
+
         return $this->renderStorefront('@Storefront/storefront/page/account/register/index.html.twig', [
             'redirectTo' => $redirect,
             'redirectParameters' => $request->get('redirectParameters', json_encode([])),
@@ -130,6 +132,8 @@ class AuthController extends StorefrontController
         }
 
         $page = $this->loginPageLoader->load($request, $context);
+
+        $this->hook('account-guest-login-page-loaded', ['page' => $page]);
 
         return $this->renderStorefront('@Storefront/storefront/page/account/guest-auth.html.twig', [
             'redirectTo' => $redirect,

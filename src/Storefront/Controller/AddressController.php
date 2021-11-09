@@ -87,6 +87,8 @@ class AddressController extends StorefrontController
     {
         $page = $this->addressListingPageLoader->load($request, $context, $customer);
 
+        $this->hook('account-address-page-loaded', ['page' => $page]);
+
         return $this->renderStorefront('@Storefront/storefront/page/account/addressbook/index.html.twig', ['page' => $page]);
     }
 
@@ -101,6 +103,8 @@ class AddressController extends StorefrontController
     public function accountCreateAddress(Request $request, RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): Response
     {
         $page = $this->addressDetailPageLoader->load($request, $context, $customer);
+
+        $this->hook('account-create-address-page-loaded', ['page' => $page]);
 
         return $this->renderStorefront('@Storefront/storefront/page/account/addressbook/create.html.twig', [
             'page' => $page,
@@ -119,6 +123,8 @@ class AddressController extends StorefrontController
     public function accountEditAddress(Request $request, SalesChannelContext $context, CustomerEntity $customer): Response
     {
         $page = $this->addressDetailPageLoader->load($request, $context, $customer);
+
+        $this->hook('account-edit-address-page-loaded', ['page' => $page]);
 
         return $this->renderStorefront('@Storefront/storefront/page/account/addressbook/edit.html.twig', ['page' => $page]);
     }
@@ -228,7 +234,11 @@ class AddressController extends StorefrontController
         $this->handleAddressCreation($viewData, $dataBag, $context, $customer);
         $this->handleAddressSelection($viewData, $dataBag, $context, $customer);
 
-        $viewData->setPage($this->addressListingPageLoader->load($request, $context, $customer));
+        $page = $this->addressListingPageLoader->load($request, $context, $customer);
+
+        $this->hook('account-address-book-loaded', ['page' => $page]);
+
+        $viewData->setPage($page);
         if (Feature::isActive('FEATURE_NEXT_15957')) {
             $this->handleCustomerVatIds($dataBag, $context, $customer);
         }

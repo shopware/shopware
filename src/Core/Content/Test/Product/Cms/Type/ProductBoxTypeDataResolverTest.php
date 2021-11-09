@@ -142,7 +142,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
         $result->add('product_id', new EntitySearchResult(
             'product',
             1,
-            new ProductCollection([$product]),
+            new ProductCollection([clone $product]),
             null,
             new Criteria(),
             $resolverContext->getSalesChannelContext()->getContext()
@@ -162,7 +162,7 @@ class ProductBoxTypeDataResolverTest extends TestCase
             static::assertNull($productBoxStruct->getProductId());
         } else {
             static::assertSame($productBoxStruct->getProductId(), $product->getId());
-            static::assertSame($product, $productBoxStruct->getProduct());
+            static::assertNotSame($product, $productBoxStruct->getProduct());
 
             $serializedProduct = json_encode($product);
             static::assertNotEquals(\JSON_ERROR_RECURSION, json_last_error());

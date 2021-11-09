@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Cms\SalesChannel;
 
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionEntity;
+use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\DataResolver\CmsSlotsDataResolver;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
@@ -45,14 +46,9 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
         $config = $config ?? [];
 
         // ensure sections, blocks and slots are loaded, slots and blocks can be restricted by caller
-        $criteria
-            ->getAssociation('sections')
-            ->addAssociation('backgroundMedia');
-
-        $criteria
-            ->getAssociation('sections.blocks')
-            ->addAssociation('backgroundMedia')
-            ->addAssociation('slots');
+        $criteria->addAssociation('sections.backgroundMedia');
+        $criteria->addAssociation('sections.blocks.backgroundMedia');
+        $criteria->addAssociation('sections.blocks.slots');
 
         // step 1, load cms pages with blocks and slots
         $pages = $this->cmsPageRepository->search($criteria, $context->getContext());
@@ -75,6 +71,12 @@ class SalesChannelCmsPageLoader implements SalesChannelCmsPageLoaderInterface
                 $section->getBlocks()->sort(function (CmsBlockEntity $a, CmsBlockEntity $b) {
                     return $a->getPosition() <=> $b->getPosition();
                 });
+
+                foreach ($section->getBlocks() as $block) {
+                    $block->getSlots()->sort(function (CmsSlotEntity $a, CmsSlotEntity $b) {
+                        return $a->getSlot() <=> $b->getSlot();
+                    });
+                }
             }
 
             // step 3, find config overwrite

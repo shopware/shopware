@@ -10,7 +10,7 @@ class CrossSellingStruct extends Struct
     /**
      * @var CrossSellingElementCollection|null
      */
-    private $crossSellings;
+    protected $crossSellings;
 
     public function getCrossSellings(): ?CrossSellingElementCollection
     {

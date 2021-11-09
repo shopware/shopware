@@ -26,7 +26,7 @@ class ProductDescriptionReviewsStruct extends Struct
     /**
      * @var SalesChannelProductEntity|null
      */
-    private $product;
+    protected $product;
 
     public function getProduct(): ?SalesChannelProductEntity
     {

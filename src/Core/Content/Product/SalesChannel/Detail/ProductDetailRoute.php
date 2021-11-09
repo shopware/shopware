@@ -133,7 +133,8 @@ class ProductDetailRoute extends AbstractProductDetailRoute
         $pageId = $product->getCmsPageId();
 
         if ($pageId) {
-            $resolverContext = new EntityResolverContext($context, $request, $this->productDefinition, $product);
+            // clone product to prevent recursion encoding (see NEXT-17603)
+            $resolverContext = new EntityResolverContext($context, $request, $this->productDefinition, clone $product);
 
             $pages = $this->cmsPageLoader->load(
                 $request,

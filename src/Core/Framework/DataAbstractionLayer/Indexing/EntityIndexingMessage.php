@@ -90,9 +90,6 @@ class EntityIndexingMessage
         $this->skip = \array_unique(\array_values($skip));
     }
 
-    /**
-     * @param string[] ...$skip
-     */
     public function addSkip(string ...$skip): void
     {
         $this->skip = \array_unique(\array_merge($this->skip, \array_values($skip)));

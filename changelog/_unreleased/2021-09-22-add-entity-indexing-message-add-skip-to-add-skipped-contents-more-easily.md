@@ -1,5 +1,6 @@
 ---
 title: Add EntityIndexingMessage::addSkip to add skipped contents more easily
+issue: NEXT-18662
 author: Joshua Behrens
 author_email: code@joshua-behrens.de
 author_github: @JoshuaBehrens

@@ -96,28 +96,42 @@ Component.extend('sw-url-field', 'sw-text-field', {
         },
 
         onBlur(event) {
-            this.handleInput(event);
+            this.checkInput(event.target.value);
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - Use onBlur() instead
+         */
         onInput(event) {
+            /**
+             * @deprecated tag:v6.5.0 - Use "input" event instead
+             */
             this.$emit('beforeDebounce', this.url);
             this.onDebounceInput(event);
         },
 
-        /*
-         * input handling is debounced to give the user a little time to enter a valid url
-         * by direct-input-validation it is impossible to enter a url with port by typing
+        /**
+         * @deprecated tag:v6.5.0 - Use checkInput() instead
          */
         onDebounceInput: Utils.debounce(function debouncedHandleInput(event) {
             this.handleInput(event);
         }, 2000),
 
-        handleInput(event) {
-            this.checkInput(event.target.value);
+        /**
+         * @deprecated tag:v6.5.0 - Use checkInput() instead
+         */
+        handleInput() {
+
         },
 
         checkInput(inputValue) {
             this.errorUrl = null;
+
+            if (!inputValue.length) {
+                this.handleEmptyUrl();
+
+                return;
+            }
 
             if (inputValue.match(URL_REGEX.PROTOCOL_HTTP)) {
                 this.sslActive = this.getSSLMode(inputValue);
@@ -132,6 +146,12 @@ Component.extend('sw-url-field', 'sw-text-field', {
 
                 this.$emit('input', this.url);
             }
+        },
+
+        handleEmptyUrl() {
+            this.currentValue = '';
+
+            this.$emit('input', '');
         },
 
         validateCurrentValue(value) {

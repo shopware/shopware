@@ -22,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -69,8 +70,13 @@ class MappingService extends AbstractMappingService
         $config = new Config($mappings, []);
         $headers = [];
 
+        if (Feature::isActive('FEATURE_NEXT_15998')) {
+            $mappings = MappingCollection::fromIterable($mappings)->sortByPosition();
+        }
+
+        /** @var Mapping $mapping */
         foreach ($mappings as $mapping) {
-            $headers[$mapping['mappedKey']] = '';
+            $headers[$mapping->getMappedKey()] = '';
         }
 
         // create the file
@@ -129,10 +135,11 @@ class MappingService extends AbstractMappingService
         $keyLookupTable = $this->getKeyLookupTable($context, $sourceEntity);
 
         $mappings = new MappingCollection();
-        foreach ($record as $column) {
+        foreach ($record as $index => $column) {
             $mappings->add(new Mapping(
                 $this->guessKeyFromMappedKey($keyLookupTable, $column, $definition),
-                $column
+                $column,
+                $index
             ));
         }
 

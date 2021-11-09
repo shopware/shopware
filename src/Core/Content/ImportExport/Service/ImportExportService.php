@@ -9,6 +9,7 @@ use Shopware\Core\Content\ImportExport\Exception\ProfileNotFoundException;
 use Shopware\Core\Content\ImportExport\Exception\ProfileWrongTypeException;
 use Shopware\Core\Content\ImportExport\Exception\UnexpectedFileTypeException;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
+use Shopware\Core\Content\ImportExport\Processing\Mapping\MappingCollection;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
@@ -71,6 +72,12 @@ class ImportExportService
         if ($originalFileName === null) {
             $originalFileName = $this->fileService->generateFilename($profileEntity);
         }
+
+        if (Feature::isActive('FEATURE_NEXT_15998') && $profileEntity->getMapping() !== null) {
+            $mappings = MappingCollection::fromIterable($profileEntity->getMapping());
+            $profileEntity->setMapping($mappings->sortByPosition());
+        }
+
         $fileEntity = $this->fileService->storeFile($context, $expireDate, null, $originalFileName, $activity, $destinationPath);
         $logEntity = $this->createLog($context, $activity, $fileEntity, $profileEntity, $config);
 

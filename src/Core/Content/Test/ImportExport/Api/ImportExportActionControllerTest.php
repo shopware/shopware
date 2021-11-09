@@ -279,26 +279,32 @@ class ImportExportActionControllerTest extends TestCase
                     [
                         'key' => 'id',
                         'mappedKey' => 'id',
+                        'position' => 0,
                     ],
                     [
                         'key' => 'translations.DEFAULT.name',
                         'mappedKey' => 'name',
+                        'position' => 1,
                     ],
                     [
                         'key' => 'price.DEFAULT.net',
                         'mappedKey' => 'price_net',
+                        'position' => 2,
                     ],
                     [
                         'key' => 'tax.id',
                         'mappedKey' => 'tax_id',
+                        'position' => 3,
                     ],
                     [
                         'key' => 'categories',
                         'mappedKey' => 'categories',
+                        'position' => 4,
                     ],
                     [
                         'key' => 'cover.media.translations.DEFAULT.title',
                         'mappedKey' => 'cover_media_title',
+                        'position' => 5,
                     ],
                 ],
             ];

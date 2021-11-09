@@ -17,6 +17,7 @@ use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeExportRecordEvent
 use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeImportRecordEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportExceptionImportRecordEvent;
 use Shopware\Core\Content\ImportExport\ImportExport;
+use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
 use Shopware\Core\Content\ImportExport\Processing\Pipe\AbstractPipe;
 use Shopware\Core\Content\ImportExport\Processing\Reader\AbstractReader;
 use Shopware\Core\Content\ImportExport\Processing\Writer\AbstractWriter;
@@ -176,6 +177,53 @@ class ImportExportTest extends ImportExportTestCase
         static::assertTrue($ids->has($rootId));
         static::assertTrue($ids->has($betweenId));
         static::assertTrue($ids->has($childId));
+    }
+
+    public function testSortingShouldWorkAsExpected(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_8097', $this);
+
+        /** @var EntityRepositoryInterface $profileRepository */
+        $profileRepository = $this->getContainer()->get('import_export_profile.repository');
+
+        $profile = $this->createCategoryProfileMock();
+        $profileRepository->create([$profile], Context::createDefaultContext());
+
+        $filesystem = $this->getContainer()->get('shopware.filesystem.private');
+
+        $criteria = new Criteria();
+        $progress = $this->export(
+            Context::createDefaultContext(),
+            CategoryDefinition::ENTITY_NAME,
+            $criteria,
+            null,
+            $profile['id']
+        );
+        static::assertTrue($progress->isFinished());
+        static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
+
+        /** @var ImportExportFileEntity $exportFile */
+        $exportFile = $this->getLogEntity($progress->getLogId())->getFile();
+        /** @var string $fileContents */
+        $fileContents = $filesystem->read($exportFile->getPath());
+
+        /** @var array $regexResult */
+        $regexResult = preg_split('#\r?\n#', $fileContents);
+        $firstLine = $regexResult[0];
+        $csvColumns = explode(';', $firstLine);
+
+        $sortedMappings = $profile['mapping'];
+        usort($sortedMappings, function ($firstMapping, $secondMapping) {
+            return $firstMapping['position'] - $secondMapping['position'];
+        });
+
+        foreach ($sortedMappings as $index => $mapping) {
+            static::assertSame(
+                $mapping['mappedKey'],
+                trim($csvColumns[$index]),
+                'Keys should have the same name. It may be that the sorting is broken.'
+            );
+        }
     }
 
     public function testNewsletterRecipient(): void
@@ -1129,5 +1177,26 @@ class ImportExportTest extends ImportExportTestCase
 
         static::assertTrue($progress->isFinished());
         static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
+    }
+
+    private function createCategoryProfileMock(): array
+    {
+        return [
+            'id' => Uuid::randomHex(),
+            'name' => 'Test Profile',
+            'label' => 'Test Profile',
+            'sourceEntity' => 'category',
+            'type' => ImportExportProfileEntity::TYPE_IMPORT_EXPORT,
+            'fileType' => 'text/csv',
+            'delimiter' => ';',
+            'enclosure' => '"',
+            'config' => [],
+            'mapping' => [
+                ['key' => 'id', 'mappedKey' => 'id', 'position' => 1],
+                ['key' => 'active', 'mappedKey' => 'active', 'position' => 2],
+                ['key' => 'translations.DEFAULT.name', 'mappedKey' => 'name', 'position' => 3],
+                ['key' => 'type', 'mappedKey' => 'type', 'position' => 0],
+            ],
+        ];
     }
 }

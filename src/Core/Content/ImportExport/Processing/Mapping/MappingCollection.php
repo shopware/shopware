@@ -90,4 +90,15 @@ class MappingCollection extends Collection
 
         return $mappingCollection;
     }
+
+    public function sortByPosition(): array
+    {
+        $mappings = $this->getElements();
+
+        usort($mappings, function (Mapping $firstMapping, Mapping $secondMapping) {
+            return $firstMapping->getPosition() - $secondMapping->getPosition();
+        });
+
+        return $mappings;
+    }
 }

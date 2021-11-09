@@ -113,6 +113,13 @@ Shopware.Component.register('sw-import-export-activity', {
                     primary: false,
                 },
                 {
+                    property: 'state',
+                    dataIndex: 'state',
+                    label: 'sw-import-export.activity.columns.state',
+                    allowResize: true,
+                    primary: false,
+                },
+                {
                     property: 'records',
                     dataIndex: 'records',
                     label: 'sw-import-export.activity.columns.records',
@@ -137,13 +144,6 @@ Shopware.Component.register('sw-import-export-activity', {
                     property: 'user.lastName',
                     dataIndex: 'user.lastName',
                     label: 'sw-import-export.activity.columns.user',
-                    allowResize: true,
-                    primary: false,
-                },
-                {
-                    property: 'state',
-                    dataIndex: 'state',
-                    label: 'sw-import-export.activity.columns.state',
                     allowResize: true,
                     primary: false,
                 }];

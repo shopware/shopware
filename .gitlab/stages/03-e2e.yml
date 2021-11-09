@@ -86,6 +86,16 @@ E2E install NL:
         CYPRESS_dbHost: database
         CYPRESS_dbPassword: $MYSQL_ROOT_PASSWORD
     script:
+        - apt-get update && apt-get -y install jq
+        - export PLATFORM_VERSION="$(jq -r .version < composer.json)"
+        # fake version by using the latest tag if not set
+        - >
+          if [[ "$PLATFORM_VERSION" = "null" ]]; then
+            LATEST_TAG="$(git -c 'versionsort.suffix=-' ls-remote --exit-code --refs --sort='version:refname' --tags | tail --lines=1 | cut --delimiter='/' --fields=3)"
+            PLATFORM_VERSION="${LATEST_TAG#"v"}"
+            composer config version "$PLATFORM_VERSION"
+            composer update
+          fi
         - rm .env install.lock || true
         - mkdir -p config/packages || true
         - >
@@ -100,6 +110,7 @@ E2E install NL:
             --browser chrome
             --spec "cypress/integration/installer/install_nl.spec.js"
             --headless
+        - .gitlab/bin/install_store_plugin.bash SwagLanguagePack SwagPayPal
         - composer run e2e:prepare
         - composer run e2e:recovery:cypress -- run
             --browser chrome

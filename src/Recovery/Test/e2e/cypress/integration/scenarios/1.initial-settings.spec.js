@@ -8,9 +8,9 @@ describe('Sales Channel: set initial settings', () => {
     });
 
     it('@package: login & logout',()=>{
-        cy.get('.sw-admin-menu__user-actions-toggle').click();
+        cy.get('.sw-admin-menu__user-actions-toggle').should('be.visible').click();
         cy.get('.sw-admin-menu__logout-action').should('be.visible').click();
-        cy.contains('.sw-login__content-headline', 'Log in to your Shopware store')
+        cy.contains('.sw-login__content-headline', 'Shopware')
     });
 
     it('@package: set default settings for sales channels',()=>{
@@ -30,5 +30,4 @@ describe('Sales Channel: set initial settings', () => {
         cy.selectPayment('Headless', 'Invoice');
         cy.selectShipping('Headless', 'Express');
     });
-
 });

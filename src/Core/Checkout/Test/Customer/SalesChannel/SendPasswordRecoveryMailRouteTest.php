@@ -103,11 +103,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
                 ]
             );
 
-        static::assertSame(400, $this->browser->getResponse()->getStatusCode());
-
-        $response = json_decode($this->browser->getResponse()->getContent(), true);
-
-        static::assertSame('VIOLATION::NO_SUCH_CHOICE_ERROR', $response['errors'][0]['code']);
+        static::assertEquals(200, $this->browser->getResponse()->getStatusCode());
     }
 
     public function testResetWithDisabledAccount(): void

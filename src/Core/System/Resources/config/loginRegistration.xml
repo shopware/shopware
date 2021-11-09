@@ -160,7 +160,7 @@
             <label lang="de-DE">Passwort-Wiederherstellungs-URL</label>
             <placeholder><![CDATA[/account/recover/password?hash=%%RECOVERHASH%%]]></placeholder>
             <helpText><![CDATA[Available placeholders: <br/>%%RECOVERHASH%%]]></helpText>
-            <helpText><![CDATA[Verfügbare Platzhalter: <br/>%%RECOVERHASH%%]]></helpText>
+            <helpText lang="de-DE"><![CDATA[Verfügbare Platzhalter: <br/>%%RECOVERHASH%%]]></helpText>
         </input-field>
 
         <input-field type="text">

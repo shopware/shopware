@@ -36,6 +36,8 @@ class LandingPageController extends StorefrontController
     {
         $page = $this->landingPageLoader->load($request, $context);
 
+        $this->hook('landing-page-loaded', ['page' => $page]);
+
         return $this->renderStorefront('@Storefront/storefront/page/content/index.html.twig', ['page' => $page]);
     }
 }

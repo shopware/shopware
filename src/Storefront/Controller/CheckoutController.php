@@ -228,7 +228,7 @@ class CheckoutController extends StorefrontController
     {
         $page = $this->offcanvasCartPageLoader->load($request, $context);
 
-        $this->hook('checkout-info-widget-loaded', ['page' => $page]);
+        $this->hook('offcanvas-cart-page-loaded', ['page' => $page]);
 
         $response = $this->renderStorefront('@Storefront/storefront/layout/header/actions/cart-widget.html.twig', ['page' => $page]);
         $response->headers->set('x-robots-tag', 'noindex');
@@ -246,7 +246,7 @@ class CheckoutController extends StorefrontController
     {
         $page = $this->offcanvasCartPageLoader->load($request, $context);
 
-        $this->hook('checkout-offcanvas-loaded', ['page' => $page]);
+        $this->hook('offcanvas-cart-page-loaded', ['page' => $page]);
 
         $cart = $page->getCart();
         $this->addCartErrors($cart);

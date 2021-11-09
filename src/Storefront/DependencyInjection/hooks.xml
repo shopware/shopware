@@ -9,11 +9,115 @@
             <tag name="shopware.script.hook"/>
         </service>
 
-        <service id="home-page-loaded" class="Shopware\Core\Framework\Script\Hook\Hook" parent="generic-page-hook">
+        <service id="navigation-page-loaded" class="Shopware\Core\Framework\Script\Hook\Hook" parent="generic-page-hook">
             <tag name="shopware.script.hook"/>
         </service>
 
-        <service id="navigation-page-loaded" class="Shopware\Core\Framework\Script\Hook\Hook" parent="generic-page-hook">
+        <service id="account-order-page-loaded" class="Shopware\Core\Framework\Script\Hook\Hook" parent="generic-page-hook">
+            <tag name="shopware.script.hook"/>
+        </service>
+
+        <service id="account-order-detail-page-loaded" class="Shopware\Core\Framework\Script\Hook\Hook" parent="generic-page-hook">
+            <tag name="shopware.script.hook"/>
+        </service>
+
+        <service id="account-edit-order-page-loaded" class="Shopware\Core\Framework\Script\Hook\Hook" parent="generic-page-hook">
+            <tag name="shopware.script.hook"/>
+        </service>
+
+        <service id="account-payment-method-page-loaded" class="Shopware\Core\Framework\Script\Hook\Hook" parent="generic-page-hook">
+            <tag name="shopware.script.hook"/>
+        </service>
+
+        <service id="account-overview-page-loaded" class="Shopware\Core\Framework\Script\Hook\Hook" parent="generic-page-hook">
+            <tag name="shopware.script.hook"/>
+        </service>
+
+        <service id="account-profile-page-loaded" class="Shopware\Core\Framework\Script\Hook\Hook" parent="generic-page-hook">
+            <tag name="shopware.script.hook"/>
+        </service>
+
+        <service id="address-listing-page-loaded" class="Shopware\Core\Framework\Script\Hook\Hook" parent="generic-page-hook">
+            <tag name="shopware.script.hook"/>
+        </service>
+
+        <service id="address-detail-page-loaded" class="Shopware\Core\Framework\Script\Hook\Hook" parent="generic-page-hook">
+            <tag name="shopware.script.hook"/>
+        </service>
+
+        <service id="account-login-page-loaded" class="Shopware\Core\Framework\Script\Hook\Hook" parent="generic-page-hook">
+            <tag name="shopware.script.hook"/>
+        </service>
+
+        <service id="checkout-cart-page-loaded" class="Shopware\Core\Framework\Script\Hook\Hook" parent="generic-page-hook">
+            <tag name="shopware.script.hook"/>
+        </service>
+
+        <service id="checkout-confirm-page-loaded" class="Shopware\Core\Framework\Script\Hook\Hook" parent="generic-page-hook">
+            <tag name="shopware.script.hook"/>
+        </service>
+
+        <service id="checkout-finish-page-loaded" class="Shopware\Core\Framework\Script\Hook\Hook" parent="generic-page-hook">
+            <tag name="shopware.script.hook"/>
+        </service>
+
+        <service id="offcanvas-cart-page-loaded" class="Shopware\Core\Framework\Script\Hook\Hook" parent="generic-page-hook">
+            <tag name="shopware.script.hook"/>
+        </service>
+
+        <service id="cms-page-loaded" class="Shopware\Core\Framework\Script\Hook\Hook" parent="generic-page-hook">
+            <tag name="shopware.script.hook"/>
+        </service>
+
+        <service id="offcanvas-menu-loaded" class="Shopware\Core\Framework\Script\Hook\Hook" parent="generic-page-hook">
+            <tag name="shopware.script.hook"/>
+        </service>
+
+        <service id="landing-page-loaded" class="Shopware\Core\Framework\Script\Hook\Hook" parent="generic-page-hook">
+            <tag name="shopware.script.hook"/>
+        </service>
+
+        <service id="maintenance-page-loaded" class="Shopware\Core\Framework\Script\Hook\Hook" parent="generic-page-hook">
+            <tag name="shopware.script.hook"/>
+        </service>
+
+        <service id="minimal-quick-view-page-loaded" class="Shopware\Core\Framework\Script\Hook\Hook" parent="generic-page-hook">
+            <tag name="shopware.script.hook"/>
+        </service>
+
+        <service id="product-reviews-loaded" class="Shopware\Core\Framework\Script\Hook\Hook" parent="generic-page-hook">
+            <tag name="shopware.script.hook"/>
+        </service>
+
+        <service id="customer-group-registration-page-loaded" class="Shopware\Core\Framework\Script\Hook\Hook" parent="generic-page-hook">
+            <tag name="shopware.script.hook"/>
+        </service>
+
+        <service id="checkout-register-page-loaded" class="Shopware\Core\Framework\Script\Hook\Hook" parent="generic-page-hook">
+            <tag name="shopware.script.hook"/>
+        </service>
+
+        <service id="search-page-loaded" class="Shopware\Core\Framework\Script\Hook\Hook" parent="generic-page-hook">
+            <tag name="shopware.script.hook"/>
+        </service>
+
+        <service id="suggest-page-loaded" class="Shopware\Core\Framework\Script\Hook\Hook" parent="generic-page-hook">
+            <tag name="shopware.script.hook"/>
+        </service>
+
+        <service id="sitemap-page-loaded" class="Shopware\Core\Framework\Script\Hook\Hook" parent="generic-page-hook">
+            <tag name="shopware.script.hook"/>
+        </service>
+
+        <service id="wishlist-page-loaded" class="Shopware\Core\Framework\Script\Hook\Hook" parent="generic-page-hook">
+            <tag name="shopware.script.hook"/>
+        </service>
+
+        <service id="guest-wishlist-page-loaded" class="Shopware\Core\Framework\Script\Hook\Hook" parent="generic-page-hook">
+            <tag name="shopware.script.hook"/>
+        </service>
+
+        <service id="guest-wishlist-pagelet-loaded" class="Shopware\Core\Framework\Script\Hook\Hook" parent="generic-page-hook">
             <tag name="shopware.script.hook"/>
         </service>
 

@@ -128,11 +128,14 @@ class CmsController extends StorefrontController
 
         $category = $this->categoryRoute->load($navigationId, $request, $salesChannelContext)->getCategory();
 
-        if (!$category->getCmsPage()) {
+        $page = $category->getCmsPage();
+        if (!$page) {
             throw new PageNotFoundException('');
         }
 
-        $response = $this->renderStorefront('@Storefront/storefront/page/content/detail.html.twig', ['cmsPage' => $category->getCmsPage()]);
+        $this->hook('cms-page-loaded', ['page' => $page]);
+
+        $response = $this->renderStorefront('@Storefront/storefront/page/content/detail.html.twig', ['cmsPage' => $page]);
         $response->headers->set('x-robots-tag', 'noindex');
 
         return $response;

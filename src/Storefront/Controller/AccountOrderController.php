@@ -153,7 +153,7 @@ class AccountOrderController extends StorefrontController
         try {
             $page = $this->orderPageLoader->load($request, $context);
 
-            $this->hook('account-order-detail-page-loaded', ['page' => $page]);
+            $this->hook('account-order-page-loaded', ['page' => $page]);
         } catch (GuestNotAuthenticatedException | WrongGuestCredentialsException | CustomerAuthThrottledException $exception) {
             return $this->redirectToRoute(
                 'frontend.account.guest.login.page',
@@ -178,7 +178,7 @@ class AccountOrderController extends StorefrontController
     {
         $page = $this->orderDetailPageLoader->load($request, $context);
 
-        $this->hook('account-order-ajax-page-loaded', ['page' => $page]);
+        $this->hook('account-order-detail-page-loaded', ['page' => $page]);
 
         $response = $this->renderStorefront('@Storefront/storefront/page/account/order-history/order-detail-list.html.twig', [
             'orderDetails' => $page->getLineItems(),
@@ -232,7 +232,7 @@ class AccountOrderController extends StorefrontController
 
         $page = $this->accountEditOrderPageLoader->load($request, $context);
 
-        $this->hook('account-order-edit-page-loaded', ['page' => $page]);
+        $this->hook('account-edit-order-page-loaded', ['page' => $page]);
 
         if ($page->isPaymentChangeable() === false) {
             $refundsEnabled = $this->systemConfigService->get('core.cart.enableOrderRefunds');

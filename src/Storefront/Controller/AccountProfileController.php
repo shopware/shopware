@@ -72,7 +72,7 @@ class AccountProfileController extends StorefrontController
     {
         $page = $this->overviewPageLoader->load($request, $context, $customer);
 
-        $this->hook('account-home-page-loaded', ['page' => $page]);
+        $this->hook('account-overview-page-loaded', ['page' => $page]);
 
         return $this->renderStorefront('@Storefront/storefront/page/account/index.html.twig', ['page' => $page]);
     }

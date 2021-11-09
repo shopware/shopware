@@ -13,6 +13,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -22,6 +24,7 @@ use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\HttpFoundation\Response;
 
 class AccountOrderControllerTest extends TestCase
 {
@@ -225,6 +228,144 @@ class AccountOrderControllerTest extends TestCase
         $response = $browser->getResponse();
         static::assertSame($orderShippingMethodId, $response->getContext()->getShippingMethod()->getId());
     }
+
+    public function testAccountOrderPageLoadedScriptsAreExecuted(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
+        $context = Context::createDefaultContext();
+        $customer = $this->createCustomer($context);
+        $browser = $this->login($customer->getEmail());
+
+        $browser->request(
+            'GET',
+            '/account/order',
+            []
+        );
+        $response = $browser->getResponse();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+
+        static::assertArrayHasKey('account-order-page-loaded', $traces);
+    }
+
+    public function testAccountOrderPageLoadedScriptsAreExecutedForDeeplinkedPage(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
+        $context = Context::createDefaultContext();
+        $customer = $this->createCustomer($context);
+
+        $orderId = Uuid::randomHex();
+        $orderData = $this->getOrderData($orderId, $context);
+        $orderData[0]['orderCustomer']['customer']['id'] = $customer->getId();
+        $orderData[0]['orderCustomer']['customer']['guest'] = false;
+
+        $orderRepo = $this->getContainer()->get('order.repository');
+        $orderRepo->create($orderData, $context);
+
+        $browser = $this->login($customer->getEmail());
+
+        $browser->request(
+            'GET',
+            '/account/order/' . $orderData[0]['deepLinkCode'],
+            []
+        );
+        $response = $browser->getResponse();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+
+        static::assertArrayHasKey('account-order-page-loaded', $traces);
+    }
+
+    public function testAccountOrderDetailPageLoadedScriptsAreExecuted(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
+        $context = Context::createDefaultContext();
+        $customer = $this->createCustomer($context);
+
+        $orderId = Uuid::randomHex();
+        $orderData = $this->getOrderData($orderId, $context);
+        $orderData[0]['orderCustomer']['customer']['id'] = $customer->getId();
+        $orderData[0]['orderCustomer']['customer']['guest'] = false;
+
+        $criteria = new Criteria();
+        $criteria
+            ->addFilter(new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT))
+            ->addFilter(new EqualsFilter('active', true));
+
+        /** @var EntityRepositoryInterface $salesChannelRepository */
+        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+
+        /** @var SalesChannelEntity $salesChannel */
+        $salesChannel = $salesChannelRepository->search($criteria, $context)->first();
+        $orderData[0]['salesChannelId'] = $salesChannel->getId();
+
+        $orderRepo = $this->getContainer()->get('order.repository');
+        $orderRepo->create($orderData, $context);
+
+        $browser = $this->login($customer->getEmail());
+        $browser->request(
+            'GET',
+            '/widgets/account/order/detail/' . $orderData[0]['id'],
+            []
+        );
+        $response = $browser->getResponse();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+
+        static::assertArrayHasKey('account-order-detail-page-loaded', $traces);
+    }
+
+    public function testAccountOrderEditPageLoadedScriptsAreExecuted(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
+        $context = Context::createDefaultContext();
+        $customer = $this->createCustomer($context);
+
+        $orderId = Uuid::randomHex();
+        $orderData = $this->getOrderData($orderId, $context);
+        $orderData[0]['orderCustomer']['customer']['id'] = $customer->getId();
+        $orderData[0]['orderCustomer']['customer']['guest'] = false;
+
+        $criteria = new Criteria();
+        $criteria
+            ->addFilter(new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT))
+            ->addFilter(new EqualsFilter('active', true));
+
+        /** @var EntityRepositoryInterface $salesChannelRepository */
+        $salesChannelRepository = $this->getContainer()->get('sales_channel.repository');
+
+        /** @var SalesChannelEntity $salesChannel */
+        $salesChannel = $salesChannelRepository->search($criteria, $context)->first();
+        $orderData[0]['salesChannelId'] = $salesChannel->getId();
+
+        $orderRepo = $this->getContainer()->get('order.repository');
+        $orderRepo->create($orderData, $context);
+
+        $browser = $this->login($customer->getEmail());
+        $browser->request(
+            'GET',
+            '/account/order/edit/' . $orderData[0]['id'],
+            []
+        );
+        $response = $browser->getResponse();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+
+        static::assertArrayHasKey('account-order-detail-page-loaded', $traces);
+    }
+
 
     private function login(string $email): KernelBrowser
     {

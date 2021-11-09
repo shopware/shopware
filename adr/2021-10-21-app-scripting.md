@@ -25,6 +25,13 @@ The data passed to the scripts always has to be an object so that the manipulati
 Given objects must be wrapped into custom objects for app scripting to provide easier access to certain functionality and limit the scripting scope. 
 The twig environment will provide additional functions like `dal_search` globally to all events to fetch other data in a consequent way
 
+#### Which objects can be injected into the hooks and which have to be wrapped
+
+In general, it ok to inject `Struct` classes directly into the hooks, as long as those are rather "dumb" data containers (e.g. our DAL entity classes or the storefront page classes).
+A notable Exception to this rule are `Struct` classes that provide business logic, besides simple getters and setters (e.g. the Cart struct).
+Those `Structs` and all other `Services` that provide business logic or function that can lead to side effects (DB access, etc.) need to be wrapped into a facade.
+This will allow us to closely control the interface we want to provide inside the app scripts, to firstly improve developer experience by tailoring the API to the needs of app developers and secondly to ensure that we don't introduce any security issues with the app scripts.
+
 ### Scripting execution
 
 Each script has its twig environments to improve execution stability. In failure cases, we will throw our exception. 
@@ -101,6 +108,19 @@ class ScriptEventRegistry
     {% do cart.block('you have to pay at least 500€ for this cart') %}
 {% endif %}
 ```
+
+### Data Loading
+
+To allow apps to fetch additional for the storefront, we will introduce PageLoaded-Hooks.
+Those hooks will orient themself on the Page and PageLoadedEvents already present in the storefront. So for each PageType and PageLoadedEvent we will create a seperate Hook class.
+We will create separate HookClasses and not just one generic class, so we are able to type hint all the dynamic data that is available for that hook. That will improve the developer experience as it allows for autocompletion in the scripts and allows us to generate documentation for the hooks.
+The hooks will be instantiated and passed to the HookExecutor from the Controllers where the pages are loaded, so we are able to pass additional data if it is needed or makes sense.
+Additionally, we explicitly decided to not provide CriteriaEvent-Hooks, as that idea is contrary to the direction we may want to go with a separate and specialized data view for the storefront.
+
+### Documentation
+
+To ensure app developers can use the full potential of the app scripts we need to ensure that we document the features of app scripts extensively and make sure that the documentation is always up-to-date.
+For this reason we decided to generate as much of the documentation as possible, so it never gets outdated and it's easier to generate full reference (e.g. all hook points that exist with the associated data and available services).
 
 ## Consequences
 

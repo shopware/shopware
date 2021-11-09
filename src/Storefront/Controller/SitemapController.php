@@ -33,6 +33,8 @@ class SitemapController extends StorefrontController
     {
         $page = $this->sitemapPageLoader->load($request, $context);
 
+        $this->hook('sitemap-page-loaded', ['page' => $page]);
+
         $response = $this->renderStorefront('@Storefront/storefront/page/sitemap/sitemap.xml.twig', ['page' => $page]);
         $response->headers->set('content-type', 'text/xml; charset=utf-8');
 

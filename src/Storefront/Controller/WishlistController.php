@@ -80,8 +80,10 @@ class WishlistController extends StorefrontController
 
         if ($customer !== null && $customer->getGuest() === false) {
             $page = $this->wishlistPageLoader->load($request, $context, $customer);
+            $this->hook('wishlist-page-loaded', ['page' => $page]);
         } else {
             $page = $this->guestPageLoader->load($request, $context);
+            $this->hook('guest-wishlist-page-loaded', ['page' => $page]);
         }
 
         return $this->renderStorefront('@Storefront/storefront/page/wishlist/index.html.twig', ['page' => $page]);
@@ -100,6 +102,7 @@ class WishlistController extends StorefrontController
         }
 
         $pagelet = $this->guestPageletLoader->load($request, $context);
+        $this->hook('guest-wishlist-pagelet-loaded', ['page' => $pagelet]);
 
         return $this->renderStorefront(
             '@Storefront/storefront/page/wishlist/wishlist-pagelet.html.twig',
@@ -117,6 +120,7 @@ class WishlistController extends StorefrontController
         $request->request->set('no-aggregations', true);
 
         $page = $this->wishlistPageLoader->load($request, $context, $customer);
+        $this->hook('wishlist-page-loaded', ['page' => $page]);
 
         $response = $this->renderStorefront('@Storefront/storefront/page/wishlist/index.html.twig', ['page' => $page]);
         $response->headers->set('x-robots-tag', 'noindex');
@@ -253,6 +257,7 @@ class WishlistController extends StorefrontController
         $request->request->set('no-aggregations', true);
 
         $page = $this->wishlistPageLoader->load($request, $context, $customer);
+        $this->hook('wishlist-page-loaded', ['page' => $page]);
 
         return $this->renderStorefront('@Storefront/storefront/page/wishlist/wishlist-pagelet.html.twig', ['page' => $page]);
     }

@@ -155,6 +155,8 @@ class ProductController extends StorefrontController
     {
         $page = $this->minimalQuickViewPageLoader->load($request, $context);
 
+        $this->hook('minimal-quick-view-page-loaded', ['page' => $page]);
+
         return $this->renderStorefront('@Storefront/storefront/component/product/quickview/minimal.html.twig', ['page' => $page]);
     }
 
@@ -201,6 +203,8 @@ class ProductController extends StorefrontController
         $this->checkReviewsActive($context);
 
         $reviews = $this->productReviewLoader->load($request, $context);
+
+        $this->hook('product-reviews-loaded', ['reviews' => $reviews]);
 
         return $this->renderStorefront('storefront/page/product-detail/review/review.html.twig', [
             'reviews' => $reviews,

@@ -48,7 +48,7 @@ class AccountPaymentController extends StorefrontController
     {
         $page = $this->paymentMethodPageLoader->load($request, $context);
 
-        $this->hook('account-payment-page-loaded', ['page' => $page]);
+        $this->hook('account-payment-method-page-loaded', ['page' => $page]);
 
         return $this->renderStorefront('@Storefront/storefront/page/account/payment/index.html.twig', ['page' => $page]);
     }

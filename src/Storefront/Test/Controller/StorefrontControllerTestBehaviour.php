@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Test\Controller;
 
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,7 +18,7 @@ trait StorefrontControllerTestBehaviour
     public function request(string $method, string $path, array $data): Response
     {
         $browser = KernelLifecycleManager::createBrowser($this->getKernel());
-        $browser->request($method, getenv('APP_URL') . '/' . $path, $data);
+        $browser->request($method, EnvironmentHelper::getVariable('APP_URL') . '/' . $path, $data);
 
         return $browser->getResponse();
     }

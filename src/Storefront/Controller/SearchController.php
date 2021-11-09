@@ -67,6 +67,8 @@ class SearchController extends StorefrontController
             return $this->forwardToRoute('frontend.home.page');
         }
 
+        $this->hook('search-page-loaded', ['page' => $page]);
+
         return $this->renderStorefront('@Storefront/storefront/page/search/index.html.twig', ['page' => $page]);
     }
 
@@ -78,6 +80,8 @@ class SearchController extends StorefrontController
     public function suggest(SalesChannelContext $context, Request $request): Response
     {
         $page = $this->suggestPageLoader->load($request, $context);
+
+        $this->hook('suggest-page-loaded', ['page' => $page]);
 
         return $this->renderStorefront('@Storefront/storefront/layout/header/search-suggest.html.twig', ['page' => $page]);
     }
@@ -98,6 +102,8 @@ class SearchController extends StorefrontController
         $request->request->set('no-aggregations', true);
 
         $page = $this->searchPageLoader->load($request, $context);
+
+        $this->hook('search-page-loaded', ['page' => $page]);
 
         $response = $this->renderStorefront('@Storefront/storefront/page/search/search-pagelet.html.twig', ['page' => $page]);
         $response->headers->set('x-robots-tag', 'noindex');

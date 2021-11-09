@@ -9,7 +9,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
@@ -18,21 +20,26 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Controller\AddressController;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
+use Shopware\Storefront\Framework\Routing\StorefrontResponse;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class AddressControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
+    use StorefrontControllerTestBehaviour;
 
-    /**
-     * @var EntityRepositoryInterface
-     */
-    private $customerRepository;
+    private EntityRepositoryInterface $customerRepository;
+
+    private string $addressId;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->customerRepository = $this->getContainer()->get('customer.repository');
+
+        $this->addressId = Uuid::randomHex();
     }
 
     public function testDeleteAddressOfOtherCustomer(): void
@@ -207,6 +214,115 @@ class AddressControllerTest extends TestCase
 
         static::assertInstanceOf(CustomerEntity::class, $customer);
         static::assertSame($vatIds, $customer->getVatIds());
+    }
+
+    public function testAddressListingPageLoadedScriptsAreExecuted(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
+        $browser = $this->login();
+
+        $browser->request('GET', '/account/address');
+        $response = $browser->getResponse();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+
+        static::assertArrayHasKey('address-listing-page-loaded', $traces);
+    }
+
+    public function testAddressDetailPageLoadedScriptsAreExecutedOnAddressCreate(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
+        $browser = $this->login();
+
+        $browser->request('GET', '/account/address/create');
+        $response = $browser->getResponse();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+
+        static::assertArrayHasKey('address-detail-page-loaded', $traces);
+    }
+
+    public function testAddressDetailPageLoadedScriptsAreExecutedOnAddressEdit(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
+        $browser = $this->login();
+
+        $browser->request('GET', '/account/address/' . $this->addressId);
+        $response = $browser->getResponse();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+
+        static::assertArrayHasKey('address-detail-page-loaded', $traces);
+    }
+
+    private function login(): KernelBrowser
+    {
+        $customer = $this->createCustomer();
+
+        $browser = KernelLifecycleManager::createBrowser($this->getKernel());
+        $browser->request(
+            'POST',
+            $_SERVER['APP_URL'] . '/account/login',
+            $this->tokenize('frontend.account.login', [
+                'username' => $customer->getEmail(),
+                'password' => 'test',
+            ])
+        );
+        $response = $browser->getResponse();
+        static::assertSame(200, $response->getStatusCode(), $response->getContent());
+
+        $browser->request('GET', '/');
+        /** @var StorefrontResponse $response */
+        $response = $browser->getResponse();
+        static::assertNotNull($response->getContext()->getCustomer());
+
+        return $browser;
+    }
+
+    private function createCustomer(): CustomerEntity
+    {
+        $customerId = Uuid::randomHex();
+
+        $data = [
+            [
+                'id' => $customerId,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                'defaultShippingAddress' => [
+                    'id' => $this->addressId,
+                    'firstName' => 'Max',
+                    'lastName' => 'Mustermann',
+                    'street' => 'Musterstraße 1',
+                    'city' => 'Schöppingen',
+                    'zipcode' => '12345',
+                    'salutationId' => $this->getValidSalutationId(),
+                    'countryId' => $this->getValidCountryId(),
+                ],
+                'defaultBillingAddressId' => $this->addressId,
+                'defaultPaymentMethodId' => $this->getValidPaymentMethodId(),
+                'groupId' => TestDefaults::FALLBACK_CUSTOMER_GROUP,
+                'email' => 'test@example.com',
+                'password' => 'test',
+                'firstName' => 'Max',
+                'lastName' => 'Mustermann',
+                'salutationId' => $this->getValidSalutationId(),
+                'customerNumber' => '12345',
+            ],
+        ];
+
+        $repo = $this->getContainer()->get('customer.repository');
+
+        $repo->create($data, Context::createDefaultContext());
+
+        return $repo->search(new Criteria([$customerId]), Context::createDefaultContext())->first();
     }
 
     private function createCustomers(): array

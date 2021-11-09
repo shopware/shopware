@@ -101,6 +101,8 @@ class RegisterController extends StorefrontController
 
         $page = $this->loginPageLoader->load($request, $context);
 
+        $this->hook('account-login-page-loaded', ['page' => $page]);
+
         return $this->renderStorefront('@Storefront/storefront/page/account/register/index.html.twig', [
             'redirectTo' => $redirect,
             'redirectParameters' => $request->get('redirectParameters', json_encode([])),
@@ -132,6 +134,8 @@ class RegisterController extends StorefrontController
             $data->set('accountType', CustomerEntity::ACCOUNT_TYPE_BUSINESS);
         }
 
+        $this->hook('customer-group-registration-page-loaded', ['page' => $page]);
+
         return $this->renderStorefront('@Storefront/storefront/page/account/customer-group-register/index.html.twig', [
             'redirectTo' => $redirect,
             'redirectParameters' => $request->get('redirectParameters', json_encode([])),
@@ -160,6 +164,8 @@ class RegisterController extends StorefrontController
         }
 
         $page = $this->registerPageLoader->load($request, $context);
+
+        $this->hook('checkout-register-page-loaded', ['page' => $page]);
 
         return $this->renderStorefront(
             '@Storefront/storefront/page/checkout/address/index.html.twig',

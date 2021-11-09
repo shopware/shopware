@@ -74,6 +74,8 @@ class MaintenanceController extends StorefrontController
 
         $maintenancePage = $this->maintenancePageLoader->load($maintenanceLayoutId, $request, $context);
 
+        $this->hook('maintenance-page-loaded', ['page' => $maintenancePage]);
+
         $response = $this->renderStorefront(
             '@Storefront/storefront/page/error/error-maintenance.html.twig',
             ['page' => $maintenancePage]
@@ -102,6 +104,8 @@ class MaintenanceController extends StorefrontController
         }
 
         $cmsPage = $this->maintenancePageLoader->load($id, $request, $salesChannelContext);
+
+        $this->hook('maintenance-page-loaded', ['page' => $cmsPage]);
 
         return $this->renderStorefront(
             '@Storefront/storefront/page/content/single-cms-page.html.twig',

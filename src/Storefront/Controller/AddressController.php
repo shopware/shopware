@@ -87,7 +87,7 @@ class AddressController extends StorefrontController
     {
         $page = $this->addressListingPageLoader->load($request, $context, $customer);
 
-        $this->hook('account-address-page-loaded', ['page' => $page]);
+        $this->hook('address-listing-page-loaded', ['page' => $page]);
 
         return $this->renderStorefront('@Storefront/storefront/page/account/addressbook/index.html.twig', ['page' => $page]);
     }
@@ -104,7 +104,7 @@ class AddressController extends StorefrontController
     {
         $page = $this->addressDetailPageLoader->load($request, $context, $customer);
 
-        $this->hook('account-create-address-page-loaded', ['page' => $page]);
+        $this->hook('address-detail-page-loaded', ['page' => $page]);
 
         return $this->renderStorefront('@Storefront/storefront/page/account/addressbook/create.html.twig', [
             'page' => $page,
@@ -124,7 +124,7 @@ class AddressController extends StorefrontController
     {
         $page = $this->addressDetailPageLoader->load($request, $context, $customer);
 
-        $this->hook('account-edit-address-page-loaded', ['page' => $page]);
+        $this->hook('address-detail-page-loaded', ['page' => $page]);
 
         return $this->renderStorefront('@Storefront/storefront/page/account/addressbook/edit.html.twig', ['page' => $page]);
     }
@@ -236,7 +236,7 @@ class AddressController extends StorefrontController
 
         $page = $this->addressListingPageLoader->load($request, $context, $customer);
 
-        $this->hook('account-address-book-loaded', ['page' => $page]);
+        $this->hook('address-listing-page-loaded', ['page' => $page]);
 
         $viewData->setPage($page);
         if (Feature::isActive('FEATURE_NEXT_15957')) {

@@ -315,6 +315,44 @@ class ProductControllerTest extends TestCase
         static::assertArrayHasKey('product-page-loaded', $traces);
     }
 
+    public function testMinimalQuickviewPageLoadedScriptsAreExecuted(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
+        $productId = $this->createProduct();
+
+        $response = $this->request(
+            'GET',
+            '/quickview/' . $productId,
+            []
+        );
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+
+        static::assertArrayHasKey('minimal-quick-view-page-loaded', $traces);
+    }
+
+    public function testProductReviewsLoadedScriptsAreExecuted(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
+        $productId = $this->createProduct();
+
+        $response = $this->request(
+            'GET',
+            '/product/' . $productId . '/reviews',
+            []
+        );
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+
+        static::assertArrayHasKey('product-reviews-loaded', $traces);
+    }
+
     private function createDetailRequest(SalesChannelContext $context, string $productId): Request
     {
         $request = new Request();

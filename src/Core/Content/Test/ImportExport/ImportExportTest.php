@@ -813,7 +813,25 @@ class ImportExportTest extends ImportExportTestCase
         $connection->rollBack();
         $connection->executeUpdate('DELETE FROM `product`');
 
-        $progress = $this->import(Context::createDefaultContext(), ProductDefinition::ENTITY_NAME, '/fixtures/products_with_invalid_dryrun.csv', 'products.csv', null, true);
+        $clonedProductProfile = $this->cloneDefaultProfile(ProductDefinition::ENTITY_NAME);
+        $mappings = $clonedProductProfile->getMapping();
+        foreach (array_keys($mappings) as $key) {
+            if ($mappings[$key]['mappedKey'] === 'description') {
+                $mappings[$key]['requiredByUser'] = true;
+
+                break;
+            }
+        }
+        $this->updateProfileMapping($clonedProductProfile->getId(), $mappings);
+
+        $progress = $this->import(
+            Context::createDefaultContext(),
+            ProductDefinition::ENTITY_NAME,
+            '/fixtures/products_with_invalid_dryrun.csv',
+            'products.csv',
+            $clonedProductProfile->getId(),
+            true
+        );
         static::assertImportExportFailed($progress);
 
         $ids = $this->productRepository->searchIds(new Criteria(), Context::createDefaultContext());
@@ -822,9 +840,14 @@ class ImportExportTest extends ImportExportTestCase
         $result = $this->getLogEntity($progress->getLogId())->getResult();
         static::assertEquals(2, $result['product_category']['insertError']);
         static::assertEquals(8, $result['product']['insert']);
+        static::assertEquals(1, $result['product']['otherError']);
 
         $connection->executeUpdate('DELETE FROM `import_export_log`');
         $connection->executeUpdate('DELETE FROM `import_export_file`');
+        $connection->executeUpdate(
+            'DELETE FROM `import_export_profile` WHERE `id` = :id',
+            ['id' => Uuid::fromHexToBytes($clonedProductProfile->getId())]
+        );
         $connection->beginTransaction();
     }
 

@@ -50,6 +50,12 @@
                     <dd>{{ mainEntityResult.updateSkip }}</dd>
                 </div>
                 {% endblock %}
+                {% block sw_import_export_activity_result_modal_info_mainEntity_list_other_error %}
+                <div class="sw-import-export-activity-result-modal__list-item sw-import-export-activity-result-modal__main-activity-other-error">
+                    <dt>{{ $tc('sw-import-export.activity.result.mainEntity.otherError') }}</dt>
+                    <dd>{{ mainEntityResult.otherError }}</dd>
+                </div>
+                {% endblock %}
             </dl>
             {% endblock %}
         </sw-card>

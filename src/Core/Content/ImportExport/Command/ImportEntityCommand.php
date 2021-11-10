@@ -244,6 +244,7 @@ class ImportEntityCommand extends Command
 
         $rows = [];
         foreach ($results as $entity => $values) {
+            ksort($values);
             $rows[] = array_merge(['entity' => $entity], $values);
         }
         $headers = array_keys(reset($rows));

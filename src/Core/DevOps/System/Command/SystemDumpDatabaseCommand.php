@@ -5,6 +5,7 @@ namespace Shopware\Core\DevOps\System\Command;
 use Doctrine\DBAL\Connection;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class SystemDumpDatabaseCommand extends Command
@@ -33,13 +34,12 @@ class SystemDumpDatabaseCommand extends Command
 
         file_put_contents($path, 'SET unique_checks=0;SET foreign_key_checks=0;');
         $cmd = sprintf(
-            'mysqldump -u %s -p%s -h %s --port=%s -q --opt --no-autocommit --ignore-table %s --ignore-table %s %s >> %s',
+            'mysqldump -u %s -p%s -h %s --port=%s -q --opt --hex-blob --no-autocommit %s %s >> %s',
             escapeshellarg($params['user']),
             escapeshellarg($params['password']),
             escapeshellarg($params['host']),
             escapeshellarg((string) $params['port']),
-            escapeshellarg($dbName . '.enqueue'),
-            escapeshellarg($dbName . '.message_queue_stats'),
+            $this->getIgnoreTableStmt($input, $dbName),
             escapeshellarg($dbName),
             escapeshellarg($path)
         );
@@ -48,5 +48,26 @@ class SystemDumpDatabaseCommand extends Command
         system($cmd, $returnCode);
 
         return $returnCode;
+    }
+
+    protected function configure(): void
+    {
+        $this->addOption('ignore-table', 'i', InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'Tables to ignore on export', ['enqueue', 'message_queue_stats', 'dead_message']);
+    }
+
+    protected function getIgnoreTableStmt(InputInterface $input, string $dbName): string
+    {
+        $option = $input->getOption('ignore-table');
+
+        if (!$option) {
+            return '';
+        }
+
+        $ignorableTables = \array_filter($option);
+
+        return \implode(' ', \array_map(
+            static fn (string $table): string => '--ignore-table ' . \escapeshellarg($dbName . '.' . $table),
+            $ignorableTables
+        ));
     }
 }

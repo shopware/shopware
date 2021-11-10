@@ -93,6 +93,10 @@ Component.register('sw-product-stream-value', {
                     this.onChangeType('range', this.getParameters(type));
                     return;
                 }
+                if (this.conditionDataProviderService.isRelativeTimeType(type)) {
+                    this.onChangeType(type, this.getParameters(type));
+                    return;
+                }
 
                 this.onChangeType(type, null);
             },
@@ -124,6 +128,19 @@ Component.register('sw-product-stream-value', {
                         value: operator.identifier,
                     };
                 });
+        },
+
+        relativeTimeOperators() {
+            const secondLevelOperators = this.conditionDataProviderService.getOperator(this.filterType).operators;
+
+            return secondLevelOperators.map((operator) => {
+                const secondLevelOperator = this.conditionDataProviderService.getOperator(operator);
+
+                return {
+                    label: this.$tc(secondLevelOperator.label),
+                    value: secondLevelOperator.identifier,
+                };
+            });
         },
 
         fieldType() {
@@ -213,6 +230,15 @@ Component.register('sw-product-stream-value', {
             set(value) { this.actualCondition.parameters.lte = value; },
         },
 
+        operator: {
+            get() {
+                return this.actualCondition.parameters ?
+                    this.getParameterType(this.actualCondition.parameters.operator) :
+                    null;
+            },
+            set(value) { this.actualCondition.parameters.operator = this.getParameterName(value); },
+        },
+
         isEmptyValue() {
             return this.filterType === 'equals';
         },
@@ -225,9 +251,16 @@ Component.register('sw-product-stream-value', {
                 if (typeof this.actualCondition.value !== 'string') {
                     return null;
                 }
+                if (this.conditionDataProviderService.isRelativeTimeType(this.filterType) && this.actualCondition.value) {
+                    return this.actualCondition.value.match(/\d+/)[0];
+                }
                 return this.actualCondition.value;
             },
             set(value) {
+                if (this.conditionDataProviderService.isRelativeTimeType(this.filterType)) {
+                    this.actualCondition.value = `P${value}D`;
+                    return;
+                }
                 this.actualCondition.value = value.toString();
             },
         },
@@ -347,6 +380,10 @@ Component.register('sw-product-stream-value', {
                 return { lte: null, gte: null };
             }
 
+            if (type === 'since' || type === 'until') {
+                return { operator: null };
+            }
+
             const param = this.getParameterName(type);
             return param ? { [param]: null } : null;
         },
@@ -361,6 +398,29 @@ Component.register('sw-product-stream-value', {
                     return 'lt';
                 case 'greaterThan':
                     return 'gt';
+                case 'equals':
+                    return 'eq';
+                case 'notEquals':
+                    return 'neq';
+                default:
+                    return null;
+            }
+        },
+
+        getParameterType(name) {
+            switch (name) {
+                case 'gte':
+                    return 'greaterThanEquals';
+                case 'lte':
+                    return 'lessThanEquals';
+                case 'lt':
+                    return 'lessThan';
+                case 'gt':
+                    return 'greaterThan';
+                case 'eq':
+                    return 'equals';
+                case 'neq':
+                    return 'notEquals';
                 default:
                     return null;
             }

@@ -306,31 +306,61 @@
                     size="medium"
                     :disabled="disabled"
                 />
-                {% endblock%}
-                    </template>
                 {% endblock %}
             </template>
+            {% endblock %}
+        </template>
 
-            <!-- eslint-disable vue/valid-v-else-if -->
-            <template v-else-if="actualCondition.type === 'equalsAny'">
-                {% block sw_product_stream_value_multi_value %}
-                <sw-tagged-field
-                    v-model="multiValue"
-                    size="medium"
-                />
-                {% endblock %}
-            </template>
+        <!-- eslint-disable vue/valid-v-else-if -->
+        <template v-else-if="actualCondition.type === 'equalsAny'">
+            {% block sw_product_stream_value_multi_value %}
+            <sw-tagged-field
+                v-model="multiValue"
+                size="medium"
+            />
+            {% endblock %}
+        </template>
 
-            <template v-else>
-                {% block sw_product_stream_value_single_value %}
-                <component
-                    :is="inputComponent"
-                    v-model="stringValue"
+        <template v-else-if="filterType === 'since' || filterType === 'until'">
+            {% block sw_product_stream_value_relative_time_operator %}
+            <sw-arrow-field :disabled="disabled">
+                <sw-single-select
+                    v-model="operator"
                     size="medium"
+                    :options="relativeTimeOperators"
+                    :placeholder="$tc('sw-product-stream.filter.placeholderOperatorSelect')"
                     :disabled="disabled"
                 />
-                {% endblock %}
-            </template>
+            </sw-arrow-field>
+            {% endblock %}
+
+            {% block sw_product_stream_value_relative_time_value %}
+            <sw-number-field
+                v-model="stringValue"
+                class="sw-product-stream-value__time-input"
+                size="medium"
+                number-type="int"
+                :min="0"
+                :step="1"
+                :disabled="disabled"
+            >
+                <template #suffix>
+                    <span>{{ $tc('sw-product-stream.filter.timeUnits.days') }}</span>
+                </template>
+            </sw-number-field>
+            {% endblock %}
         </template>
-    </template></div>
+
+        <template v-else>
+            {% block sw_product_stream_value_single_value %}
+            <component
+                :is="inputComponent"
+                v-model="stringValue"
+                size="medium"
+                :disabled="disabled"
+            />
+            {% endblock %}
+        </template>
+    </template>
+</div>
 {% endblock %}

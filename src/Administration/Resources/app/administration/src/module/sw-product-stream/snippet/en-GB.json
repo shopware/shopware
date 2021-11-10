@@ -38,7 +38,12 @@
         "notEquals": "Is not equal to",
         "notEqualsAny": "Is not equal to any of",
         "notContains": "Does not contain",
-        "range": "Range"
+        "range": "Range",
+        "since": "Time since date",
+        "until": "Time until date"
+      },
+      "timeUnits": {
+        "days": "Days"
       },
       "values": {
         "active": "Active",

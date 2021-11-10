@@ -130,6 +130,18 @@ export default function conditionService() {
             label: 'sw-product-stream.filter.type.range',
         },
 
+        until: {
+            identifier: 'until',
+            label: 'sw-product-stream.filter.type.until',
+            operators: ['equals', 'notEquals', 'lessThan', 'greaterThan', 'lessThanEquals', 'greaterThanEquals'],
+        },
+
+        since: {
+            identifier: 'since',
+            label: 'sw-product-stream.filter.type.since',
+            operators: ['equals', 'notEquals', 'lessThan', 'greaterThan', 'lessThanEquals', 'greaterThanEquals'],
+        },
+
         not: {
             identifier: 'not',
             label: 'sw-product-stream.filter.type.not',
@@ -162,6 +174,8 @@ export default function conditionService() {
             productFilterTypes.lessThanEquals,
             productFilterTypes.notEquals,
             productFilterTypes.range,
+            productFilterTypes.since,
+            productFilterTypes.until,
         ],
 
         uuid: [
@@ -227,6 +241,7 @@ export default function conditionService() {
         getOperator,
         isNegatedType,
         isRangeType,
+        isRelativeTimeType,
         allowedJsonAccessors,
     };
 
@@ -374,6 +389,13 @@ export default function conditionService() {
             productFilterTypes.greaterThan.identifier,
             productFilterTypes.greaterThanEquals.identifier,
             productFilterTypes.range.identifier,
+        ].includes(type);
+    }
+
+    function isRelativeTimeType(type) {
+        return [
+            productFilterTypes.since.identifier,
+            productFilterTypes.until.identifier,
         ].includes(type);
     }
 }

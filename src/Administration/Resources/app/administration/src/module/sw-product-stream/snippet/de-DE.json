@@ -38,7 +38,12 @@
         "notEquals": "Ungleich",
         "notEqualsAny": "Keins von",
         "notContains": "Enthält nicht",
-        "range": "Spanne"
+        "range": "Spanne",
+        "since": "Zeit seit Datum",
+        "until": "Zeit bis Datum"
+      },
+      "timeUnits": {
+        "days": "Tage"
       },
       "values": {
         "active": "Aktiv",

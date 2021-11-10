@@ -483,7 +483,7 @@ class ImportExport
                 'key' => '_error',
                 'mappedKey' => '_error',
             ];
-            $config = new Config($config['mapping'], $config['parameters'] ?? []);
+            $config = new Config($config['mapping'], $config['parameters'] ?? [], $config['updateBy'] ?? []);
 
             $failedImportLogEntity = $this->importExportService->prepareExport(
                 $context,

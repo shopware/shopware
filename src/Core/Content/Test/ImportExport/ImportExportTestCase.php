@@ -204,6 +204,19 @@ abstract class ImportExportTestCase extends TestCase
         ], Context::createDefaultContext());
     }
 
+    protected function updateProfileUpdateBy(string $profileId, array $updateBy): void
+    {
+        /** @var EntityRepositoryInterface $profileRepository */
+        $profileRepository = $this->getContainer()->get('import_export_profile.repository');
+
+        $profileRepository->update([
+            [
+                'id' => $profileId,
+                'updateBy' => $updateBy,
+            ],
+        ], Context::createDefaultContext());
+    }
+
     protected function updateProfileConfig(string $profileId, array $config): void
     {
         /** @var EntityRepositoryInterface $profileRepository */

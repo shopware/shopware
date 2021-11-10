@@ -75,7 +75,7 @@ class MediaSerializerTest extends TestCase
                 $this->assertSame($mediaId, $id);
             });
 
-        $result = $mediaSerializer->deserialize(new Config([], []), $mediaDefinition, $record);
+        $result = $mediaSerializer->deserialize(new Config([], [], []), $mediaDefinition, $record);
 
         $writtenResult = new EntityWriteResult($mediaId, $result, 'media', 'insert');
         $writtenEvent = new EntityWrittenEvent('media', [$writtenResult], $context);
@@ -126,7 +126,7 @@ class MediaSerializerTest extends TestCase
         $searchResult = new EntitySearchResult('media', 1, new MediaCollection([$mediaEntity]), null, new Criteria(), $context);
         $mediaRepository->method('search')->willReturn($searchResult);
 
-        $result = $mediaSerializer->deserialize(new Config([], []), $mediaDefinition, $record);
+        $result = $mediaSerializer->deserialize(new Config([], [], []), $mediaDefinition, $record);
 
         static::assertArrayNotHasKey('url', $result);
 
@@ -180,13 +180,34 @@ class MediaSerializerTest extends TestCase
                 $this->assertSame($expectedMediaFile, $m);
                 $this->assertSame($expectedDestination, $dest);
             });
-        $config = new Config([], []);
+        $config = new Config([], [], []);
 
         $result = $mediaSerializer->deserialize($config, $mediaDefinition, $record);
 
         $writtenResult = new EntityWriteResult($result['id'], $result, 'media', 'insert');
         $writtenEvent = new EntityWrittenEvent('media', [$writtenResult], $context);
         $eventDispatcher->dispatch($writtenEvent, 'media.written');
+    }
+
+    public function testInvalidUrl(): void
+    {
+        $serializerRegistry = $this->getContainer()->get(SerializerRegistry::class);
+        $mediaDefinition = $this->getContainer()->get(MediaDefinition::class);
+
+        $mediaService = $this->createMock(MediaService::class);
+        $fileSaver = $this->createMock(FileSaver::class);
+
+        $mediaFolderRepository = $this->getContainer()->get('media_folder.repository');
+        $mediaRepository = $this->createMock(EntityRepositoryInterface::class);
+
+        $mediaSerializer = new MediaSerializer($mediaService, $fileSaver, $mediaFolderRepository, $mediaRepository);
+        $mediaSerializer->setRegistry($serializerRegistry);
+        $config = new Config([], [], []);
+
+        $actual = $mediaSerializer->deserialize($config, $mediaDefinition, ['url' => 'invalid']);
+        // only the error should be in the result
+        static::assertCount(1, $actual);
+        static::assertInstanceOf(InvalidMediaUrlException::class, $actual['_error']);
     }
 
     public function testEmpty(): void
@@ -202,12 +223,11 @@ class MediaSerializerTest extends TestCase
 
         $mediaSerializer = new MediaSerializer($mediaService, $fileSaver, $mediaFolderRepository, $mediaRepository);
         $mediaSerializer->setRegistry($serializerRegistry);
-        $config = new Config([], []);
+        $config = new Config([], [], []);
 
         $actual = $mediaSerializer->deserialize($config, $mediaDefinition, []);
-        // only the error should be in the result
-        static::assertCount(1, $actual);
-        static::assertInstanceOf(InvalidMediaUrlException::class, $actual['_error']);
+        // should not contain url
+        static::assertEmpty($actual);
     }
 
     public function testFailedDownload(): void
@@ -223,7 +243,7 @@ class MediaSerializerTest extends TestCase
 
         $mediaSerializer = new MediaSerializer($mediaService, $fileSaver, $mediaFolderRepository, $mediaRepository);
         $mediaSerializer->setRegistry($serializerRegistry);
-        $config = new Config([], []);
+        $config = new Config([], [], []);
 
         $record = [
             'url' => 'http://localhost/some/path/to/non/existing/image.png',

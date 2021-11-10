@@ -61,6 +61,10 @@ class EntitySerializer extends AbstractEntitySerializer
         $fields = $definition->getFields();
 
         foreach ($entity as $key => $value) {
+            if ($key === '_error' && $value instanceof \Throwable) {
+                yield '_error' => $value;
+            }
+
             $field = $fields->get($key);
             if ($field === null) {
                 continue;
@@ -75,6 +79,11 @@ class EntitySerializer extends AbstractEntitySerializer
 
             if (is_iterable($value) && !\is_array($value)) {
                 $value = iterator_to_array($value);
+            }
+
+            // ToOneSerializer may return records with errors
+            if (\is_array($value) && isset($value['_error']) && $value['_error'] instanceof \Throwable) {
+                yield '_error' => $value['_error'];
             }
 
             yield $key => $value;

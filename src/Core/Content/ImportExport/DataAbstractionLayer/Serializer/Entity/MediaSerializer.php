@@ -69,7 +69,12 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
         $deserialized = \is_array($deserialized) ? $deserialized : iterator_to_array($deserialized);
 
         $url = $entity['url'] ?? null;
-        if ($url === null || !filter_var($url, \FILTER_VALIDATE_URL)) {
+
+        if (empty($url)) {
+            return $deserialized;
+        }
+
+        if (!filter_var($url, \FILTER_VALIDATE_URL)) {
             $deserialized['_error'] = new InvalidMediaUrlException($url);
 
             return $deserialized;

@@ -20,7 +20,7 @@ class CsvReaderTest extends TestCase
 
         $reader = new CsvReader();
         $resource = fopen('data://text/plain,' . $content, 'rb');
-        $result = $this->getAll($reader->read(new Config([], []), $resource, 0));
+        $result = $this->getAll($reader->read(new Config([], [], []), $resource, 0));
 
         static::assertCount(2, $result);
         static::assertSame(['foo' => '1', 'bar' => '2'], $result[0]);
@@ -35,20 +35,20 @@ class CsvReaderTest extends TestCase
 
         $reader = new CsvReader();
         $resource = fopen('data://text/plain,' . $content, 'rb');
-        $record = $this->getFirst($reader->read(new Config([], []), $resource, 0));
+        $record = $this->getFirst($reader->read(new Config([], [], []), $resource, 0));
         static::assertSame(['foo' => '1', 'bar' => '2'], $record);
 
         $offset = $reader->getOffset();
 
         $reader = new CsvReader();
         $resource = fopen('data://text/plain,' . $content, 'rb');
-        $record = $this->getFirst($reader->read(new Config([], []), $resource, $offset));
+        $record = $this->getFirst($reader->read(new Config([], [], []), $resource, $offset));
         static::assertSame(['foo' => 'asdf', 'bar' => 'zxcv'], $record);
 
         $offset = $reader->getOffset();
         $reader = new CsvReader();
         $resource = fopen('data://text/plain,' . $content, 'rb');
-        $record = $this->getFirst($reader->read(new Config([], []), $resource, $offset));
+        $record = $this->getFirst($reader->read(new Config([], [], []), $resource, $offset));
         static::assertNull($record);
     }
 
@@ -70,7 +70,7 @@ class CsvReaderTest extends TestCase
         $reader = new CsvReader();
         $resource = fopen('data://text/plain,' . $content, 'rb');
 
-        $result = $this->getAll($reader->read(new Config([], []), $resource, 0));
+        $result = $this->getAll($reader->read(new Config([], [], []), $resource, 0));
 
         static::assertCount(6, $result);
 
@@ -103,7 +103,7 @@ class CsvReaderTest extends TestCase
 
         $reader = new CsvReader();
         $resource = fopen('data://text/plain,' . $content, 'rb');
-        $result = $this->getAll($reader->read(new Config([], []), $resource, 0));
+        $result = $this->getAll($reader->read(new Config([], [], []), $resource, 0));
 
         static::assertCount(2, $result);
         static::assertSame(['foo' => '1', 'bar' => '2'], $result[0]);
@@ -120,7 +120,7 @@ class CsvReaderTest extends TestCase
 
         $reader = new CsvReader();
         $resource = fopen('data://text/plain,' . $bomContent, 'rb');
-        $result = $this->getAll($reader->read(new Config([], []), $resource, 0));
+        $result = $this->getAll($reader->read(new Config([], [], []), $resource, 0));
 
         static::assertCount(2, $result);
         static::assertSame(['foo' => '1', 'bar' => '2'], $result[0]);
@@ -135,7 +135,7 @@ class CsvReaderTest extends TestCase
 
         $reader = new CsvReader();
         $resource = fopen('data://text/plain,' . $content, 'rb');
-        $result = $this->getAll($reader->read(new Config([], []), $resource, 0));
+        $result = $this->getAll($reader->read(new Config([], [], []), $resource, 0));
 
         static::assertCount(2, $result);
         static::assertSame(['foo' => '1', 'bar' => '2'], $result[0]);

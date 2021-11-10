@@ -49,6 +49,7 @@ class ImportExportProfileDefinition extends EntityDefinition
             (new StringField('delimiter', 'delimiter'))->addFlags(new Required()),
             (new StringField('enclosure', 'enclosure'))->addFlags(new Required()),
             (new JsonField('mapping', 'mapping', [], [])),
+            (new JsonField('update_by', 'updateBy', [], [])),
             (new JsonField('config', 'config', [], [])),
             (new OneToManyAssociationField('importExportLogs', ImportExportLogDefinition::class, 'profile_id'))->addFlags(new SetNullOnDelete()),
             (new TranslationsAssociationField(ImportExportProfileTranslationDefinition::class, 'import_export_profile_id'))->addFlags(new Required()),

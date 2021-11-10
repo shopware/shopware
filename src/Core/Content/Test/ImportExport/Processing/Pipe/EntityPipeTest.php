@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Test\ImportExport\Processing\Pipe;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\PrimaryKeyResolver;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\SerializerRegistry;
 use Shopware\Core\Content\ImportExport\Processing\Pipe\EntityPipe;
 use Shopware\Core\Content\ImportExport\Struct\Config;
@@ -23,11 +24,14 @@ class EntityPipeTest extends TestCase
     {
         $entityPipe = new EntityPipe(
             $this->getContainer()->get(DefinitionInstanceRegistry::class),
-            $this->getContainer()->get(SerializerRegistry::class)
+            $this->getContainer()->get(SerializerRegistry::class),
+            null,
+            null,
+            $this->getContainer()->get(PrimaryKeyResolver::class)
         );
 
         $sourceEntity = ProductDefinition::ENTITY_NAME;
-        $config = new Config([], ['sourceEntity' => $sourceEntity]);
+        $config = new Config([], ['sourceEntity' => $sourceEntity], []);
         $id = Uuid::randomHex();
 
         $product = (new ProductEntity())->assign([

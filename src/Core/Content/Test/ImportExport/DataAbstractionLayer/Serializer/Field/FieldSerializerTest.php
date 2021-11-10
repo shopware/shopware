@@ -20,7 +20,7 @@ class FieldSerializerTest extends TestCase
         $intField = new IntField('foo', 'foo');
 
         $fieldSerializer = new FieldSerializer();
-        $config = new Config([], []);
+        $config = new Config([], [], []);
 
         static::assertNull($this->first($fieldSerializer->serialize($config, $intField, null)));
         static::assertSame('0', $this->first($fieldSerializer->serialize($config, $intField, 0)));
@@ -36,7 +36,7 @@ class FieldSerializerTest extends TestCase
         $priceField = new PriceField('price', 'price');
 
         $fieldSerializer = new PriceSerializer($this->getContainer()->get('currency.repository'));
-        $config = new Config([], []);
+        $config = new Config([], [], []);
 
         static::assertNull($this->first($fieldSerializer->serialize($config, $priceField, [])));
 

@@ -267,7 +267,7 @@ class ProductCategoryPathsSubscriberTest extends TestCase
 
         $this->categoryRepository->upsert($categoriesToWrite, $context);
 
-        $event = new ImportExportBeforeImportRecordEvent($record, $row, new Config([], ['sourceEntity' => ProductDefinition::ENTITY_NAME]), $context);
+        $event = new ImportExportBeforeImportRecordEvent($record, $row, new Config([], ['sourceEntity' => ProductDefinition::ENTITY_NAME], []), $context);
 
         $subscriber = new ProductCategoryPathsSubscriber($this->categoryRepository, $this->getContainer()->get(SyncService::class));
 

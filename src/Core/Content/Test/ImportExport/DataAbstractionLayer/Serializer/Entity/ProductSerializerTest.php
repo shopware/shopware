@@ -76,7 +76,7 @@ class ProductSerializerTest extends TestCase
         );
         $serializer->setRegistry($this->getContainer()->get(SerializerRegistry::class));
 
-        $serialized = iterator_to_array($serializer->serialize(new Config([], []), $productDefinition, $product));
+        $serialized = iterator_to_array($serializer->serialize(new Config([], [], []), $productDefinition, $product));
 
         static::assertNotEmpty($serialized);
 
@@ -86,7 +86,7 @@ class ProductSerializerTest extends TestCase
         static::assertSame($product->getProductNumber(), $serialized['productNumber']);
         static::assertSame('1', $serialized['active']);
 
-        $deserialized = iterator_to_array($serializer->deserialize(new Config([], []), $productDefinition, $serialized));
+        $deserialized = iterator_to_array($serializer->deserialize(new Config([], [], []), $productDefinition, $serialized));
 
         static::assertSame($product->getId(), $deserialized['id']);
         static::assertSame($product->getTranslations()->first()->getName(), $deserialized['translations'][Defaults::LANGUAGE_SYSTEM]['name']);

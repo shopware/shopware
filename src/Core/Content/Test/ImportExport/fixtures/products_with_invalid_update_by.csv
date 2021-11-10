@@ -1,0 +1,2 @@
+name;price_net;price_gross;stock;product_number;tax_name;tax_rate;manufacturer_name
+foo;100;122;1000;SW123456;taxname;23;manufacturername

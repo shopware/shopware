@@ -16,6 +16,7 @@ use Shopware\Core\Content\ImportExport\Event\ImportExportAfterImportRecordEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeExportRecordEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportBeforeImportRecordEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportExceptionImportRecordEvent;
+use Shopware\Core\Content\ImportExport\Exception\UpdatedByValueNotFoundException;
 use Shopware\Core\Content\ImportExport\ImportExport;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
 use Shopware\Core\Content\ImportExport\Processing\Pipe\AbstractPipe;
@@ -27,6 +28,7 @@ use Shopware\Core\Content\ImportExport\Struct\Progress;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
@@ -40,6 +42,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Tax\TaxDefinition;
+use Shopware\Core\System\Unit\UnitDefinition;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -1200,6 +1204,122 @@ class ImportExportTest extends ImportExportTestCase
 
         static::assertTrue($progress->isFinished());
         static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
+    }
+
+    public function testImportProductsWithUpdateByMapping(): void
+    {
+        $this->importCategoryCsv();
+        $this->importPropertyCsv();
+
+        $context = Context::createDefaultContext();
+        $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
+
+        // setup profile
+        $clonedPropertyProfile = $this->cloneDefaultProfile(ProductDefinition::ENTITY_NAME);
+        $mappings = $clonedPropertyProfile->getMapping();
+        $mappings[] = [
+            'key' => 'unit.translations.DEFAULT.name',
+            'mappedKey' => 'unit_name_en',
+        ];
+        $mappings[] = [
+            'key' => 'unit.translations.DEFAULT.shortCode',
+            'mappedKey' => 'unit_short_code_en',
+        ];
+        $mappings[] = [
+            'key' => 'unit.translations.de-DE.name',
+            'mappedKey' => 'unit_name_de',
+        ];
+        $mappings[] = [
+            'key' => 'unit.translations.de-DE.shortCode',
+            'mappedKey' => 'unit_short_code_de',
+        ];
+        $this->updateProfileMapping($clonedPropertyProfile->getId(), $mappings);
+        $updateBy = [
+            ['entityName' => ProductDefinition::ENTITY_NAME, 'mappedKey' => 'productNumber'],
+            ['entityName' => TaxDefinition::ENTITY_NAME, 'mappedKey' => 'taxRate'],
+            ['entityName' => ProductManufacturerDefinition::ENTITY_NAME, 'mappedKey' => 'translations.DEFAULT.name'],
+            ['entityName' => UnitDefinition::ENTITY_NAME, 'mappedKey' => 'translations.de-DE.name'],
+            ['entityName' => CategoryDefinition::ENTITY_NAME, 'mappedKey' => 'translations.en-GB.name'],
+            ['entityName' => PropertyGroupOptionDefinition::ENTITY_NAME, 'mappedKey' => 'translations.DEFAULT.name'],
+        ];
+        $this->updateProfileUpdateBy($clonedPropertyProfile->getId(), $updateBy);
+
+        $progress = $this->import(
+            $context,
+            ProductDefinition::ENTITY_NAME,
+            '/fixtures/products_with_update_by.csv',
+            'products_with_update_by.csv',
+            $clonedPropertyProfile->getId()
+        );
+
+        static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
+
+        $products = $this->productRepository->search((new Criteria())->addAssociations(['categories', 'properties']), $context);
+
+        static::assertEquals(1, $products->count());
+        static::assertEquals(3, $products->first()->getCategories()->count());
+        static::assertEquals(3, $products->first()->getProperties()->count());
+
+        $taxes = $this->getContainer()->get('tax.repository')->search(
+            (new Criteria())->addFilter(new EqualsFilter('taxRate', 23)),
+            $context
+        );
+
+        static::assertEquals(1, $taxes->count());
+        static::assertEquals('changed', $taxes->first()->getName());
+
+        $manufacturerCount = $this->getContainer()->get('product_manufacturer.repository')->search(
+            (new Criteria())->addFilter(new EqualsFilter('name', 'onlyone')),
+            $context
+        )->count();
+
+        static::assertEquals(1, $manufacturerCount);
+
+        $unit = $this->getContainer()->get('unit.repository')->search(
+            new Criteria(),
+            $context
+        );
+
+        static::assertEquals(1, $unit->count());
+        static::assertEquals('foo', $unit->first()->getName());
+    }
+
+    public function testImportProductsWithInvalidUpdateByMapping(): void
+    {
+        $context = Context::createDefaultContext();
+        $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
+
+        // setup profile
+        $clonedPropertyProfile = $this->cloneDefaultProfile(ProductDefinition::ENTITY_NAME);
+        $mappings = $clonedPropertyProfile->getMapping();
+        $mappings[] = [
+            'key' => 'manufacturer.link',
+            'mappedKey' => 'manufacturer_link',
+        ];
+        $this->updateProfileMapping($clonedPropertyProfile->getId(), $mappings);
+        $updateBy = [
+            ['entityName' => ProductManufacturerDefinition::ENTITY_NAME, 'mappedKey' => 'link'],
+        ];
+        $this->updateProfileUpdateBy($clonedPropertyProfile->getId(), $updateBy);
+
+        $progress = $this->import(
+            $context,
+            ProductDefinition::ENTITY_NAME,
+            '/fixtures/products_with_invalid_update_by.csv',
+            'products_with_invalid_update_by.csv',
+            $clonedPropertyProfile->getId()
+        );
+
+        static::assertImportExportFailed($progress);
+
+        $invalid = $this->getInvalidLogContent($progress->getInvalidRecordsLogId());
+
+        static::assertGreaterThanOrEqual(1, \count($invalid));
+        $first = $invalid[0];
+        static::assertStringContainsString(
+            (new UpdatedByValueNotFoundException(ProductManufacturerDefinition::ENTITY_NAME, 'link'))->getMessage(),
+            $first['_error']
+        );
     }
 
     private function createCategoryProfileMock(): array

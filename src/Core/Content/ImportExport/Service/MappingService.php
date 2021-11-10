@@ -67,7 +67,7 @@ class MappingService extends AbstractMappingService
             throw new \RuntimeException('ImportExportProfile "' . $profileId . '" has no mappings');
         }
 
-        $config = new Config($mappings, []);
+        $config = new Config($mappings, [], []);
         $headers = [];
 
         if (Feature::isActive('FEATURE_NEXT_15998')) {

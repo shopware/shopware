@@ -248,6 +248,7 @@ class ImportExportService
 
         return [
             'mapping' => $config['mapping'] ?? $profileEntity->getMapping(),
+            'updateBy' => $config['updateBy'] ?? $profileEntity->getUpdateBy(),
             'parameters' => array_merge($parameters, $config['parameters'] ?? []),
         ];
     }

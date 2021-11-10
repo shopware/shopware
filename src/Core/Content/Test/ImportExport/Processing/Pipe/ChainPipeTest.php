@@ -19,7 +19,7 @@ class ChainPipeTest extends TestCase
         $data = [
             'foo' => 'bar',
         ];
-        $config = new Config([], []);
+        $config = new Config([], [], []);
 
         $innerInCalled = false;
 

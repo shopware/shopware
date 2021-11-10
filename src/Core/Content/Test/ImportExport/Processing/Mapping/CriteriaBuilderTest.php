@@ -22,6 +22,7 @@ class CriteriaBuilderTest extends TestCase
             [
                 'name',
             ],
+            [],
             []
         );
         $criteriaBuild->enrichCriteria($config, $criteria);
@@ -41,6 +42,7 @@ class CriteriaBuilderTest extends TestCase
                 'visibilities.search',
                 'manufacturer.media.translations.title',
             ],
+            [],
             []
         );
         $criteriaBuild->enrichCriteria($config, $criteria);

@@ -28,7 +28,7 @@ class PriceSerializerTest extends TestCase
         $priceField = new PriceField('price', 'price');
 
         $priceSerializer = new PriceSerializer($this->currencyRepository);
-        $config = new Config([], []);
+        $config = new Config([], [], []);
 
         $price = new Price(Defaults::CURRENCY, 10.0, 10.0, false);
 
@@ -77,7 +77,7 @@ class PriceSerializerTest extends TestCase
         $priceField = new PriceField('price', 'price');
 
         $priceSerializer = new PriceSerializer($this->currencyRepository);
-        $config = new Config([], []);
+        $config = new Config([], [], []);
 
         $listPrice = new Price(Defaults::CURRENCY, 11.0, 11.0, false);
         $price = new Price(Defaults::CURRENCY, 10.0, 10.0, false, $listPrice);

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\ImportExport\Processing\Pipe;
 
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity\AbstractEntitySerializer;
+use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\PrimaryKeyResolver;
 use Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\SerializerRegistry;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -11,36 +12,28 @@ use Shopware\Core\Framework\Struct\Struct;
 
 class EntityPipe extends AbstractPipe
 {
-    /**
-     * @var SerializerRegistry
-     */
-    private $serializerRegistry;
+    private SerializerRegistry $serializerRegistry;
 
-    /**
-     * @var DefinitionInstanceRegistry
-     */
-    private $definitionInstanceRegistry;
+    private DefinitionInstanceRegistry $definitionInstanceRegistry;
 
-    /**
-     * @var EntityDefinition|null
-     */
-    private $definition;
+    private ?EntityDefinition $definition;
 
-    /**
-     * @var AbstractEntitySerializer|null
-     */
-    private $entitySerializer;
+    private ?AbstractEntitySerializer $entitySerializer;
+
+    private ?PrimaryKeyResolver $primaryKeyResolver;
 
     public function __construct(
         DefinitionInstanceRegistry $definitionInstanceRegistry,
         SerializerRegistry $serializerRegistry,
         ?EntityDefinition $definition = null,
-        ?AbstractEntitySerializer $entitySerializer = null
+        ?AbstractEntitySerializer $entitySerializer = null,
+        ?PrimaryKeyResolver $primaryKeyResolver = null
     ) {
         $this->serializerRegistry = $serializerRegistry;
         $this->definitionInstanceRegistry = $definitionInstanceRegistry;
         $this->definition = $definition;
         $this->entitySerializer = $entitySerializer;
+        $this->primaryKeyResolver = $primaryKeyResolver;
     }
 
     /**
@@ -56,6 +49,10 @@ class EntityPipe extends AbstractPipe
     public function out(Config $config, iterable $record): iterable
     {
         $this->loadConfig($config);
+
+        if ($this->primaryKeyResolver) {
+            $record = $this->primaryKeyResolver->resolvePrimaryKeyFromUpdatedBy($config, $this->definition, $record);
+        }
 
         return $this->entitySerializer->deserialize($config, $this->definition, $record);
     }

@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
+use Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedCriteriaEvent;
 use Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedEvent;
 use Shopware\Core\Checkout\Order\Exception\PaymentMethodNotChangeableException;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -288,6 +289,8 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
             )
         );
         $criteria->addAssociations(['lineItems', 'deliveries']);
+
+        $this->eventDispatcher->dispatch(new OrderPaymentMethodChangedCriteriaEvent($orderId, $criteria, $context));
 
         /** @var OrderEntity|null $order */
         $order = $this->orderRepository->search($criteria, $context->getContext())->first();

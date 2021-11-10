@@ -12,10 +12,11 @@ use Shopware\Core\Framework\Event\EventData\EntityType;
 use Shopware\Core\Framework\Event\EventData\EventDataCollection;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\MailActionInterface;
+use Shopware\Core\Framework\Event\OrderAware;
 use Shopware\Core\Framework\Event\SalesChannelAware;
 use Symfony\Contracts\EventDispatcher\Event;
 
-class OrderPaymentMethodChangedEvent extends Event implements MailActionInterface, SalesChannelAware
+class OrderPaymentMethodChangedEvent extends Event implements MailActionInterface, SalesChannelAware, OrderAware
 {
     public const EVENT_NAME = 'checkout.order.payment_method.changed';
 
@@ -77,6 +78,11 @@ class OrderPaymentMethodChangedEvent extends Event implements MailActionInterfac
     public function getSalesChannelId(): string
     {
         return $this->salesChannelId;
+    }
+
+    public function getOrderId(): string
+    {
+        return $this->order->getId();
     }
 
     public static function getAvailableData(): EventDataCollection

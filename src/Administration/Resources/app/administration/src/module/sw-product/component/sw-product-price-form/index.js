@@ -107,6 +107,7 @@ Component.register('sw-product-price-form', {
                     gross: defaultRefPrice.gross,
                     net: defaultRefPrice.net,
                     linked: defaultRefPrice.linked,
+                    listPrice: defaultRefPrice.listPrice ? defaultRefPrice.listPrice : null,
                 });
             }
 

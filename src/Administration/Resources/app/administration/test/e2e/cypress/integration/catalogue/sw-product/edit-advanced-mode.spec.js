@@ -39,7 +39,7 @@ describe('Product: Mode advanced settings at product detail', () => {
 
         const priceFieldsClassName = [
             '.sw-purchase-price-field',
-            '.sw-price-field.sw-list-price-field__list-price'
+            '.sw-price-field.sw-list-price-field__list-price-field'
         ];
 
         cy.get('.sw-product-detail-base__prices').scrollIntoView().then(() => {

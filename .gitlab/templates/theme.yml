@@ -263,6 +263,11 @@ percy:
                 - src/Resources/app/storefront/test/e2e/.percy*
             when: manual
             allow_failure: true
+    variables:
+        GIT_STRATEGY: none
+        E2E_PROJECT_PATH: Resources/app/storefront/test/e2e/
+        APP_ENV: e2e
+        CYPRESS_usePercy: 1
     script:
         - ./node_modules/.bin/percy exec -- ./node_modules/.bin/cypress run
             --browser $BROWSER

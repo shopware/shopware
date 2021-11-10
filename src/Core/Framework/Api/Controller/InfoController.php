@@ -139,6 +139,18 @@ class InfoController extends AbstractController
 
     /**
      * @Since("6.3.2.0")
+     * @OA\Get(
+     *     path="/_info/events.json",
+     *     summary="Get Business events",
+     *     description="Get a list of about the business events.",
+     *     operationId="business-events",
+     *     tags={"Admin API", "System Info & Healthcheck"},
+     *     @OA\Response(
+     *         response="200",
+     *         description="Returns a list of about the business events.",
+     *         @OA\JsonContent(ref="#/components/schemas/businessEventsResponse")
+     *     )
+     * )
      * @Route("/api/_info/events.json", name="api.info.business-events", methods={"GET"})
      */
     public function businessEvents(Context $context): JsonResponse
@@ -240,6 +252,18 @@ class InfoController extends AbstractController
 
     /**
      * @Since("6.4.5.0")
+     * @OA\Get(
+     *     path="/_info/flow-actions.json",
+     *     summary="Get actions for flow builder",
+     *     description="Get a list of action for flow builder.",
+     *     operationId="flow-actions",
+     *     tags={"Admin API", "System Info & Healthcheck"},
+     *     @OA\Response(
+     *         response="200",
+     *         description="Returns a list of action for flow builder.",
+     *         @OA\JsonContent(ref="#/components/schemas/flowBulderActionsResponse")
+     *     )
+     * )
      * @Route("/api/_info/flow-actions.json", name="api.info.actions", methods={"GET"})
      */
     public function flowActions(Context $context): JsonResponse

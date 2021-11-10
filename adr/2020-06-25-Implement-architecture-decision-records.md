@@ -37,10 +37,11 @@ If you want a more detailed explanation, we recommend the article "[When should 
 The ADRs are markdown files inside the platform repository, located in the "adr" directory in the root of the repository. So new ADRs can simply be created via merge requests. The merge request is also the approval process for the ADR. Along with the ADR, all necessary code changes have to be added to the merge request, which are needed to implement the new decision. Add the "ADR" label to your merge request, so everyone can identify merge requests containing an ADR.  
 
 **How many people have to approve an ADR?**  
-*  Two additional developers have to review the ADR
+* Two additional developers have to review the ADR
    *  One developer must be a member of the core development team
    *  One developer must be a member of a team, other than the team of the creator
-*  One product owner or higher role has to approve an ADR
+* One product owner or higher role has to approve an ADR
+** This part of the decision is superseded by [2021-11-05 - Adjust ADR approval rules for the new org structure](2021-11-05-adjust-ADR-approval-rules.md), but the rest of this ADR is untouched.**
 
 **Should counter decisions also be documented?**   
 Not specific, but if there is more than one possible solution, all options should be outlined.

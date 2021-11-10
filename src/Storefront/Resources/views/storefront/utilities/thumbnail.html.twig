@@ -15,6 +15,18 @@
     {% set autoColumnSizes = true %}
 {% endif %}
 
+{% if attributes is not defined %}
+    {% set attributes = {} %}
+{% endif %}
+
+{% if attributes.alt is not defined and media.translated.alt is defined %}
+    {% set attributes = attributes|merge({'alt': media.translated.alt}) %}
+{% endif %}
+
+{% if attributes.title is not defined and media.translated.title is defined %}
+    {% set attributes = attributes|merge({'title': media.translated.title}) %}
+{% endif %}
+
 {# uses cms block column count and all available thumbnails to determine the correct image size for the current viewport #}
 {% if media.thumbnails|length > 0 %}
     {% if autoColumnSizes and columns and sizes is not defined %}

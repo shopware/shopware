@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\Script\Execution;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Struct\ArrayStruct;
@@ -32,8 +33,9 @@ class ScriptExecutorTest extends TestCase
 
         $object = new ArrayStruct();
 
+        $context = Context::createDefaultContext();
         foreach ($hooks as $hook) {
-            $this->executor->execute($hook, ['object' => $object]);
+            $this->executor->execute(new TestHook($hook, $context, ['object' => $object]));
         }
 
         static::assertNotEmpty($expected);

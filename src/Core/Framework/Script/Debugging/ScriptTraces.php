@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\Script\Debugging;
 
+use Shopware\Core\Framework\Script\Execution\Hook;
+use Shopware\Core\Framework\Script\Execution\Script;
 use Symfony\Bundle\FrameworkBundle\DataCollector\AbstractDataCollector;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,13 +23,20 @@ class ScriptTraces extends AbstractDataCollector
         $this->traces[$hook] = [];
     }
 
-    public function add(string $hook, string $name, float $took, Debug $output): void
+    public function trace(Hook $hook, Script $script, \Closure $execute): void
     {
-        $this->traces[$hook][] = [
-            'name' => $name,
-            'took' => $took,
-            'output' => $output->all(),
-        ];
+        $time = microtime(true);
+
+        $debug = new Debug();
+
+        $execute($debug);
+
+        $took = round(microtime(true) - $time, 3);
+
+        $name = explode('/', $script->getName());
+        $name = array_pop($name);
+
+        $this->add($hook, $name, $took, $debug);
     }
 
     public function getHookCount(): int
@@ -86,5 +95,14 @@ class ScriptTraces extends AbstractDataCollector
     public function getTraces()
     {
         return $this->data;
+    }
+
+    private function add(Hook $hook, string $name, float $took, Debug $output): void
+    {
+        $this->traces[$hook->getName()][] = [
+            'name' => $name,
+            'took' => $took,
+            'output' => $output->all(),
+        ];
     }
 }

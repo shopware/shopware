@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Debugging\Debug;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Script\Exception\ScriptExecutionFailedException;
+use Shopware\Core\Framework\Script\Execution\Awareness\HookAwareService;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Twig\Environment;
 use Twig\Extension\DebugExtension;
 
@@ -18,50 +20,53 @@ class ScriptExecutor
 
     private ScriptTraces $traces;
 
-    public function __construct(ScriptLoader $loader, LoggerInterface $logger, ScriptTraces $traces)
+    private ContainerInterface $container;
+
+    /**
+     * @psalm-suppress ContainerDependency
+     */
+    public function __construct(ScriptLoader $loader, LoggerInterface $logger, ScriptTraces $traces, ContainerInterface $container)
     {
         $this->logger = $logger;
         $this->loader = $loader;
         $this->traces = $traces;
+        $this->container = $container;
     }
 
-    public function execute(string $hook, array $context): void
+    public function execute(Hook $hook): void
     {
         if (!Feature::isActive('FEATURE_NEXT_17441')) {
             return;
         }
 
-        $scripts = $this->loader->get($hook);
+        $scripts = $this->loader->get($hook->getName());
 
-        $this->traces->init($hook);
+        $this->traces->init($hook->getName());
 
         foreach ($scripts as $script) {
             try {
-                $this->render($hook, $script, $context);
+                $this->render($hook, $script);
             } catch (\Throwable $e) {
-                $scriptException = new ScriptExecutionFailedException($hook, $script->getName(), $e);
+                $scriptException = new ScriptExecutionFailedException($hook->getName(), $script->getName(), $e);
 
-                $this->logger->error($scriptException->getMessage(), ['context' => $context, 'exception' => $e]);
+                $this->logger->error($scriptException->getMessage(), ['exception' => $e]);
 
                 throw $scriptException;
             }
         }
     }
 
-    private function render(string $hook, Script $script, array $context): void
+    private function render(Hook $hook, Script $script): void
     {
         $twig = $this->initEnv($script);
 
-        $twig->addGlobal('debug', $debug = new Debug());
+        $twig->addGlobal('services', $this->initServices($hook));
 
-        $time = microtime(true);
-        $twig->render($script->getName(), $context);
-        $took = round(microtime(true) - $time, 3);
+        $this->traces->trace($hook, $script, function (Debug $debug) use ($twig, $script, $hook): void {
+            $twig->addGlobal('debug', $debug);
 
-        $name = explode('/', $script->getName());
-        $name = array_pop($name);
-
-        $this->traces->add($hook, $name, $took, $debug);
+            $twig->render($script->getName(), ['hook' => $hook]);
+        });
     }
 
     private function initEnv(Script $script): Environment
@@ -76,5 +81,26 @@ class ScriptExecutor
         }
 
         return $twig;
+    }
+
+    private function initServices(Hook $hook): array
+    {
+        $services = [];
+        foreach ($hook->getServiceIds() as $serviceId) {
+            if (!$this->container->has($serviceId)) {
+                throw new \RuntimeException(sprintf('Service with id %s, for hook %s, is not available via di-container, please make sure the service is public.', $serviceId, $hook->getName()));
+            }
+
+            $service = $this->container->get($serviceId);
+            if (!$service instanceof HookAwareService) {
+                throw new \RuntimeException(sprintf('Service %s is not to be intended to use in scripts', $serviceId));
+            }
+
+            $service->inject($hook);
+
+            $services[$service->getName()] = $service;
+        }
+
+        return $services;
     }
 }

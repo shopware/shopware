@@ -16,6 +16,7 @@
             <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptLoader"/>
             <argument type="service" id="logger"/>
             <argument type="service" id="Shopware\Core\Framework\Script\Debugging\ScriptTraces"/>
+            <argument type="service" id="service_container"/>
         </service>
 
         <service id="Shopware\Core\Framework\Script\ScriptDefinition">

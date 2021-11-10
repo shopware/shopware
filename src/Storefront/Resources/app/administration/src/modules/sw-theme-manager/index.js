@@ -26,13 +26,6 @@ Module.register('sw-theme-manager', {
                 privilege: 'theme.viewer'
             }
         },
-        create: {
-            component: 'sw-theme-manager-create',
-            path: 'create',
-            meta: {
-                parentPath: 'sw.theme.manager.index'
-            }
-        },
         detail: {
             component: 'sw-theme-manager-detail',
             path: 'detail/:id',

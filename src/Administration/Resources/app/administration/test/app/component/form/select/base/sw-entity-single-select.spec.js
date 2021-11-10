@@ -1,5 +1,6 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
+import flushPromises from 'flush-promises';
 import utils from 'src/core/service/util.service';
 import 'src/app/component/form/select/entity/sw-entity-single-select';
 import 'src/app/component/form/select/base/sw-select-base';
@@ -553,5 +554,46 @@ describe('components/sw-entity-single-select', () => {
         // expect empty selection
         selectionText = wrapper.find('.sw-entity-single-select__selection-text');
         expect(selectionText.text()).toEqual('');
+    });
+
+    it('should show description line in results list (with FEATURE_NEXT_16800)', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_16800'];
+
+        const swEntitySingleSelect = await createEntitySingleSelect({
+            scopedSlots: {
+                'result-label-property': `<template>
+                        {{ props.item.name }}
+                    </template>`,
+                'result-description-property': `<template>
+                        {{ props.item.group.name }}
+                    </template>`
+            },
+            propsData: {
+                value: null,
+                entity: 'property_group_option'
+            },
+            provide: {
+                repositoryFactory: {
+                    create: () => {
+                        return {
+                            search: () => Promise.resolve(getPropertyCollection())
+                        };
+                    }
+                }
+            }
+        });
+
+        swEntitySingleSelect.vm.loadData();
+        await flushPromises();
+
+        await swEntitySingleSelect.find('.sw-select__selection').trigger('click');
+        await swEntitySingleSelect.find('input').trigger('change');
+        await flushPromises();
+
+        const firstListEntry = swEntitySingleSelect.findAll('.sw-select-result-list__item-list li').at(0);
+
+        expect(firstListEntry.find('.sw-select-result').classes()).toContain('has--description');
+        expect(firstListEntry.find('.sw-select-result__result-item-text').text()).toBe('first entry');
+        expect(firstListEntry.find('.sw-select-result__result-item-description').text()).toBe('example');
     });
 });

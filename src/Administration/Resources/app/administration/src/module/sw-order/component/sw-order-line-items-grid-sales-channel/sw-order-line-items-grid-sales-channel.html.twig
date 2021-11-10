@@ -91,6 +91,7 @@
     {% block sw_order_line_items_grid_sales_channel_grid_item_table %}
     <sw-data-grid
         v-else
+        ref="dataGrid"
         :data-source="cartLineItems"
         :columns="getLineItemColumns"
         :full-page="false"

@@ -131,6 +131,8 @@ Component.register('sw-sales-channel-detail-products', {
             return this.productVisibilityRepository.delete(deleteId, Context.api)
                 .then(() => {
                     this.getProducts();
+
+                    this.$refs.entityListing.resetSelection();
                 })
                 .catch((error) => {
                     if (error?.response?.data?.errors) {
@@ -155,6 +157,8 @@ Component.register('sw-sales-channel-detail-products', {
                 .then(() => {
                     this.isLoading = false;
                     this.getProducts();
+
+                    this.$refs.entityListing.resetSelection();
                 })
                 .catch((error) => {
                     this.isLoading = false;

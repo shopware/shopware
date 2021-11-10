@@ -227,6 +227,8 @@ Component.register('sw-order-line-items-grid-sales-channel', {
             });
 
             if (selectedIds.length > 0) {
+                this.$refs.dataGrid.resetSelection();
+
                 this.$emit('on-remove-items', selectedIds);
             }
         },

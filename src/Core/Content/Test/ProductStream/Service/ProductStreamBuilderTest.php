@@ -148,6 +148,56 @@ class ProductStreamBuilderTest extends TestCase
         $this->getProducts('137b079935714281ba80b40f83f8d7eb');
     }
 
+    /**
+     * @dataProvider relativeTimeFiltersDataProvider
+     */
+    public function testRelativeTimeFilters(string $type, string $operator, string $field, string $value, array $releaseDates, int $expected): void
+    {
+        $ids = new IdsCollection();
+
+        $stream = [
+            'id' => $ids->get('stream2'),
+            'name' => 'test3',
+            'filters' => [
+                [
+                    'type' => $type,
+                    'field' => $field,
+                    'value' => $value,
+                    'parameters' => [
+                        'operator' => $operator,
+                    ],
+                ],
+            ],
+        ];
+
+        $this->getContainer()->get('product_stream.repository')
+            ->create([$stream], Context::createDefaultContext());
+
+        $this->createProducts($releaseDates);
+
+        $products = $this->getProducts($ids->get('stream2'));
+
+        static::assertCount($expected, $products);
+    }
+
+    public function relativeTimeFiltersDataProvider(): array
+    {
+        return [
+            'days until - gt' => ['until', 'gt', 'releaseDate', 'P5D', $this->getReleaseDates('+'), 3],
+            'days until - lt' => ['until', 'lt', 'releaseDate', 'P5D', $this->getReleaseDates('+'), 5],
+            'days until - gte' => ['until', 'gte', 'releaseDate', 'P5D', $this->getReleaseDates('+'), 5],
+            'days until - lte' => ['until', 'lte', 'releaseDate', 'P5D', $this->getReleaseDates('+'), 7],
+            'days until - eq' => ['until', 'eq', 'releaseDate', 'P5D', $this->getReleaseDates('+'), 2],
+            'days until - neq' => ['until', 'neq', 'releaseDate', 'P5D', $this->getReleaseDates('+'), 8],
+            'days since - gt' => ['since', 'gt', 'releaseDate', 'P5D', $this->getReleaseDates('-'), 3],
+            'days since - lt' => ['since', 'lt', 'releaseDate', 'P5D', $this->getReleaseDates('-'), 5],
+            'days since - gte' => ['since', 'gte', 'releaseDate', 'P5D', $this->getReleaseDates('-'), 5],
+            'days since - lte' => ['since', 'lte', 'releaseDate', 'P5D', $this->getReleaseDates('-'), 7],
+            'days since - eq' => ['since', 'eq', 'releaseDate', 'P5D', $this->getReleaseDates('-'), 2],
+            'days since - neq' => ['since', 'neq', 'releaseDate', 'P5D', $this->getReleaseDates('-'), 8],
+        ];
+    }
+
     private function getProducts(string $productStreamId): EntitySearchResult
     {
         $filters = $this->service->buildFilters($productStreamId, $this->context);
@@ -202,7 +252,7 @@ class ProductStreamBuilderTest extends TestCase
         );
     }
 
-    private function createProducts(): array
+    private function createProducts(?array $releaseDates = null): array
     {
         $productRepository = $this->getContainer()->get('product.repository');
         $manufacturerId = Uuid::randomHex();
@@ -222,6 +272,7 @@ class ProductStreamBuilderTest extends TestCase
                 'visibilities' => [
                     ['salesChannelId' => $salesChannelId, 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
                 ],
+                'releaseDate' => $releaseDates ? $releaseDates[$i] : null,
             ];
         }
 
@@ -229,5 +280,21 @@ class ProductStreamBuilderTest extends TestCase
         $this->addTaxDataToSalesChannel($this->salesChannelContext, end($products)['tax']);
 
         return $products;
+    }
+
+    private function getReleaseDates(string $operator): array
+    {
+        return [
+            (new \DateTimeImmutable())->modify($operator . '8 days')->format('Y-m-d'),
+            (new \DateTimeImmutable())->modify($operator . '5 days')->format('Y-m-d'),
+            (new \DateTimeImmutable())->modify($operator . '9 days')->format('Y-m-d'),
+            (new \DateTimeImmutable())->modify($operator . '12 days')->format('Y-m-d'),
+            (new \DateTimeImmutable())->modify($operator . '4 days')->format('Y-m-d'),
+            (new \DateTimeImmutable())->modify($operator . '3 days')->format('Y-m-d'),
+            (new \DateTimeImmutable())->modify($operator . '5 days')->format('Y-m-d'),
+            (new \DateTimeImmutable())->modify($operator . '1 days')->format('Y-m-d'),
+            (new \DateTimeImmutable())->modify($operator . '2 days')->format('Y-m-d'),
+            (new \DateTimeImmutable())->modify($operator . '3 days')->format('Y-m-d'),
+        ];
     }
 }

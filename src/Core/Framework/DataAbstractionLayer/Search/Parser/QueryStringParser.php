@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Search\Parser;
 
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
@@ -92,6 +93,9 @@ class QueryStringParser
                 );
             case 'range':
                 return new RangeFilter(self::buildFieldName($definition, $query['field']), $query['parameters']);
+            case 'until':
+            case 'since':
+                return self::getFilterByRelativeTime(self::buildFieldName($definition, $query['field']), $query, $path);
             case 'equalsAny':
                 if (empty($query['field'])) {
                     throw new InvalidFilterQueryException('Parameter "field" for equalsAny filter is missing.', $path . '/field');
@@ -180,6 +184,91 @@ class QueryStringParser
         }
     }
 
+    private static function getFilterByRelativeTime(string $fieldName, array $query, string $path): MultiFilter
+    {
+        if (empty($query['field'])) {
+            throw new InvalidFilterQueryException(
+                sprintf('Parameter "field" for %s filter is missing.', $query['type']),
+                $path . '/field'
+            );
+        }
+
+        if (empty($query['value'])) {
+            throw new InvalidFilterQueryException(
+                sprintf('Parameter "value" for %s filter is missing.', $query['type']),
+                $path . '/value'
+            );
+        }
+
+        if (empty($query['parameters']['operator'])) {
+            throw new InvalidFilterQueryException(
+                sprintf('Parameter "parameter.operator" for %s filter is missing.', $query['type']),
+                $path . '/parameter'
+            );
+        }
+
+        $now = new \DateTimeImmutable();
+        $dateInterval = new \DateInterval($query['value']);
+        if ($query['type'] === 'since') {
+            $dateInterval->invert = 1;
+        }
+        $thresholdDate = $now->add($dateInterval);
+        $operator = $query['parameters']['operator'];
+
+        // if we're matching for time until, date must be in the future
+        // if we're matching for time since, date must be in the past
+        if ($query['type'] === 'until') {
+            $secondaryFilter = new RangeFilter(
+                $fieldName,
+                [RangeFilter::GT => $now->format(Defaults::STORAGE_DATE_TIME_FORMAT)]
+            );
+        } else {
+            $secondaryFilter = new RangeFilter(
+                $fieldName,
+                [RangeFilter::LT => $now->format(Defaults::STORAGE_DATE_TIME_FORMAT)]
+            );
+            // for time since we may need to negate the primary filter operator
+            $operator = self::negateOperator($operator);
+        }
+
+        switch ($operator) {
+            case 'eq':
+                $primaryFilter = new RangeFilter($fieldName, self::getDayRangeParameters($thresholdDate));
+
+                break;
+            case 'neq':
+                $primaryFilter = new NotFilter(
+                    NotFilter::CONNECTION_AND,
+                    [new RangeFilter($fieldName, self::getDayRangeParameters($thresholdDate))]
+                );
+
+                break;
+            default:
+                $primaryFilter = new RangeFilter(
+                    $fieldName,
+                    [$operator => $thresholdDate->format(Defaults::STORAGE_DATE_FORMAT)]
+                );
+        }
+
+        return new MultiFilter(MultiFilter::CONNECTION_AND, [$primaryFilter, $secondaryFilter]);
+    }
+
+    private static function negateOperator(string $operator): string
+    {
+        switch ($operator) {
+            case RangeFilter::LT:
+                return RangeFilter::GT;
+            case RangeFilter::GT:
+                return RangeFilter::LT;
+            case RangeFilter::LTE:
+                return RangeFilter::GTE;
+            case RangeFilter::GTE:
+                return RangeFilter::LTE;
+            default:
+                return $operator;
+        }
+    }
+
     private static function buildFieldName(EntityDefinition $definition, string $fieldName): string
     {
         $prefix = $definition->getEntityName() . '.';
@@ -189,5 +278,13 @@ class QueryStringParser
         }
 
         return $fieldName;
+    }
+
+    private static function getDayRangeParameters(\DateTimeImmutable $thresholdDate): array
+    {
+        return [
+            RangeFilter::GTE => $thresholdDate->setTime(0, 0, 0)->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            RangeFilter::LTE => $thresholdDate->setTime(23, 59, 59)->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ];
     }
 }

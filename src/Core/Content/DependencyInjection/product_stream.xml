@@ -28,5 +28,15 @@
             <tag name="shopware.entity_indexer"/>
             <argument type="service" id="event_dispatcher"/>
         </service>
+
+        <service id="Shopware\Core\Content\ProductStream\ScheduledTask\UpdateProductStreamMappingTask">
+            <tag name="shopware.scheduled.task"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ProductStream\ScheduledTask\UpdateProductStreamMappingTaskHandler">
+            <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="product_stream.repository"/>
+            <tag name="messenger.message_handler"/>
+        </service>
     </services>
 </container>

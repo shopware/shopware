@@ -35,7 +35,7 @@
         box-shadow: none;
     }
 
-    .sw-contextual-field .sw-field__addition {
+    .sw-contextual-field:not(.sw-product-stream-value__time-input) .sw-field__addition {
         display: none;
     }
 

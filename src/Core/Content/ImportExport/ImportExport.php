@@ -580,13 +580,14 @@ class ImportExport
             sprintf('%sSkip', EntityWriteResult::OPERATION_UPDATE) => 0,
             sprintf('%sError', EntityWriteResult::OPERATION_INSERT) => 0,
             sprintf('%sError', EntityWriteResult::OPERATION_UPDATE) => 0,
+            'otherError' => 0,
             EntityWriteResult::OPERATION_INSERT => 0,
             EntityWriteResult::OPERATION_UPDATE => 0,
         ];
 
         if (!$result && !$this->failedWriteCommands) {
             $entityResult = $overallResults->get($entityName) ?? $defaultTemplate;
-            ++$entityResult[sprintf('%sError', EntityWriteResult::OPERATION_INSERT)];
+            ++$entityResult['otherError'];
             $overallResults->set($entityName, $entityResult);
 
             return;

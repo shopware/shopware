@@ -252,7 +252,8 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
                     insertError: 3,
                     updateError: 4,
                     insertSkip: 5,
-                    updateSkip: 6
+                    updateSkip: 6,
+                    otherError: 1
                 },
                 tax: {
                     insert: 7,
@@ -260,7 +261,8 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
                     insertError: 9,
                     updateError: 10,
                     insertSkip: 11,
-                    updateSkip: 12
+                    updateSkip: 12,
+                    otherError: 0
                 }
             }
         };
@@ -276,7 +278,8 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
             insertError: 3,
             updateError: 4,
             insertSkip: 5,
-            updateSkip: 6
+            updateSkip: 6,
+            otherError: 1
         });
         expect(resultModal.vm.result).toEqual([{
             entityName: 'tax',
@@ -285,7 +288,8 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
             insertError: 9,
             updateError: 10,
             insertSkip: 11,
-            updateSkip: 12
+            updateSkip: 12,
+            otherError: 0
         }]);
 
         const mainActivityPrefix = '.sw-import-export-activity-result-modal__main-activity';
@@ -295,6 +299,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
         expect(resultModal.find(`${mainActivityPrefix}-update-error dd`).text()).toBe('4');
         expect(resultModal.find(`${mainActivityPrefix}-insert-skip dd`).text()).toBe('5');
         expect(resultModal.find(`${mainActivityPrefix}-update-skip dd`).text()).toBe('6');
+        expect(resultModal.find(`${mainActivityPrefix}-other-error dd`).text()).toBe('1');
 
         const columnClassPrefix = '.sw-import-export-activity-result-modal__column-tax';
         expect(resultModal.find(`${columnClassPrefix}-label`).text()).toBe('tax');

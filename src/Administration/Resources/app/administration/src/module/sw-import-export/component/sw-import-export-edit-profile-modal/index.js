@@ -234,6 +234,7 @@ Component.register('sw-import-export-edit-profile-modal', {
         getParentProfileSelected() {
             const criteria = new Criteria();
             criteria.addFilter(Criteria.equals('sourceEntity', this.profile.sourceEntity));
+            criteria.addFilter(Criteria.equals('systemDefault', true));
 
             return this.profileRepository.search(criteria).then((results) => {
                 if (results.total > 0) {
@@ -254,10 +255,12 @@ Component.register('sw-import-export-edit-profile-modal', {
                 return;
             }
             const parentMapping = parentProfile ? parentProfile.mapping : [];
+            const isOnlyUpdateProfile = this.profile.config.createEntities === false && this.profile.config.updateEntities === true;
             const validationErrors = this.importExportProfileMapping.validate(
                 this.profile.sourceEntity,
                 this.profile.mapping,
                 parentMapping,
+                isOnlyUpdateProfile,
             );
 
             if (validationErrors.missingRequiredFields.length > 0) {

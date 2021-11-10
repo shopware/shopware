@@ -19,6 +19,84 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         page = null;
     });
 
+    it('@settings: Create and read update only profile', () => {
+        cy.onlyOnFeature('FEATURE_NEXT_15998');
+
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/import-export-profile`,
+            method: 'POST'
+        }).as('saveData');
+
+        // Perform create new profile action
+        cy.get('.sw-import-export-view-profiles__listing').should('be.visible');
+        cy.get('.sw-import-export-view-profiles__create-action').click();
+        cy.get('.sw-modal__dialog').should('be.visible');
+        cy.get('#sw-field--profile-label').typeAndCheck('Basic');
+        cy.get('.sw-import-export-edit-profile-general__object-type-select')
+            .typeSingleSelectAndCheck(
+                'Product',
+                '.sw-import-export-edit-profile-general__object-type-select'
+            );
+        cy.get('.sw-import-export-edit-profile-general__type-select')
+            .typeSingleSelectAndCheck(
+                'Import and export',
+                '.sw-import-export-edit-profile-general__type-select'
+            );
+
+        // Go to mapping page and add description mapping
+        cy.get('.sw-import-export-new-profile-wizard__footer-right-button-group button').click();
+        cy.get('.sw-import-export-new-profile-wizard__footer-right-button-group button').contains('Skip CSV upload').click();
+        cy.get('.sw-import-export-edit-profile-modal-mapping__add-action').should('be.enabled').click();
+        cy.get('#mappedKey-0').type('description');
+        cy.get('.sw-import-export-entity-path-select__selection')
+            .first().typeSingleSelectAndCheck(
+            'description',
+            '.sw-data-grid__row--0 .sw-import-export-entity-path-select:nth-of-type(1)'
+        );
+
+        // Try to save
+        cy.get('.sw-import-export-new-profile-wizard__footer-right-button-group button').click();
+
+        // Expect violation modal
+        cy.get('.sw-import-export-new-profile-wizard__violation-modal').should('be.visible');
+        cy.get('.sw-import-export-new-profile-wizard__violation-modal li').should('have.length', 5);
+        cy.get('.sw-import-export-new-profile-wizard__violation-modal footer button').click();
+
+        // Set to only update
+        cy.get('.sw-modal footer button').contains('Back').click();
+        cy.get('.sw-modal footer button').contains('Back').click();
+        cy.get('.sw-import-export-edit-profile-import-settings__create-switch input').click();
+
+        // Go to mapping page and try to save
+        cy.get('.sw-import-export-new-profile-wizard__footer-right-button-group button').click();
+        cy.get('.sw-import-export-new-profile-wizard__footer-right-button-group button').contains('Skip CSV upload').click();
+        cy.get('.sw-import-export-new-profile-wizard__footer-right-button-group button').click();
+
+        // Expect violation modal
+        cy.get('.sw-import-export-new-profile-wizard__violation-modal').should('be.visible');
+        cy.get('.sw-import-export-new-profile-wizard__violation-modal li').should('have.length', 1);
+        cy.get('.sw-import-export-new-profile-wizard__violation-modal footer button').click();
+
+        // Add required id to mapping
+        cy.get('.sw-import-export-edit-profile-modal-mapping__add-action').click();
+        cy.get('#mappedKey-1').should('exist');
+        cy.get('#mappedKey-0').type('id');
+        cy.get('.sw-import-export-entity-path-select__selection').first()
+            .typeSingleSelectAndCheck(
+                'id',
+                '.sw-data-grid__row--0 .sw-import-export-entity-path-select:nth-of-type(1)'
+            );
+
+        // Save the profile
+        cy.get('.sw-import-export-new-profile-wizard__footer-right-button-group button').click();
+
+        // Save request should be successful
+        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
+
+        cy.get('.sw-import-export-edit-profile-modal').should('not.be.visible');
+        cy.get(page.elements.dataGridRow).should('contain', 'Basic');
+    });
+
     it('@settings @base: Create and read profile with wizard', () => {
         cy.onlyOnFeature('FEATURE_NEXT_15998');
 

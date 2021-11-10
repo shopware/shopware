@@ -3,13 +3,13 @@ export default class ImportExportProfileMappingService {
         this.EntityDefinition = EntityDefinition;
     }
 
-    validate(entityName, mapping, parentMapping = []) {
+    validate(entityName, mapping, parentMapping = [], isOnlyUpdateProfile = false) {
         const mappingKeys = this.convertMappingKeys(mapping);
 
         const parentMappingKeys = this.convertMappingKeys(parentMapping);
 
         const requiredFields = this.EntityDefinition.getRequiredFields(entityName);
-        const missingRequiredFields = [];
+        let missingRequiredFields = [];
 
         // check if mapping contains all required fields
         Object.keys(requiredFields).forEach((fieldName) => {
@@ -33,6 +33,15 @@ export default class ImportExportProfileMappingService {
                 missingRequiredFields.push(fieldName);
             }
         });
+
+        if (isOnlyUpdateProfile) {
+            const entityDefinition = this.EntityDefinition.get(entityName);
+            const primaryKeyFields = entityDefinition.getPrimaryKeyFields();
+
+            missingRequiredFields = missingRequiredFields.filter(
+                field => primaryKeyFields[field] !== undefined,
+            );
+        }
 
         return { missingRequiredFields };
     }

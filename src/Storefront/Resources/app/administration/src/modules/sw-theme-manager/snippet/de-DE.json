@@ -2,7 +2,7 @@
   "sw-theme-manager": {
     "general": {
       "mainMenuItemGeneral": "Themes",
-      "placeholderSearchBar": "Themes durchsuchen",
+      "placeholderSearchBar": "Themes durchsuchen ...",
       "descriptionTextModule": "Verwaltung von Themes",
       "mainMenuHeader": "Deine Themes",
       "captionMediaUpload": "Lade ein Bild hoch",

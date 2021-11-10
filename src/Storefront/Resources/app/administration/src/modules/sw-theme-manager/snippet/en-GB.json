@@ -2,9 +2,9 @@
   "sw-theme-manager": {
     "general": {
       "mainMenuItemGeneral": "Themes",
-      "placeholderSearchBar": "Search Themes",
+      "placeholderSearchBar": "Search themes...",
       "descriptionTextModule": "Manage themes here.",
-      "mainMenuHeader": "Your Themes",
+      "mainMenuHeader": "Your themes",
       "captionMediaUpload": "Upload an image",
       "lockedToolTip": "Themes installed via plugin are locked and can not be deleted",
       "titleError": "Error",

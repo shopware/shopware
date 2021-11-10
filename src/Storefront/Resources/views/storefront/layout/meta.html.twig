@@ -98,11 +98,11 @@
         {% endblock %}
 
         {% block layout_head_title %}
-            <title itemprop="name">
-                {% block layout_head_title_inner %}{% apply spaceless %}
+            <title itemprop="name">{% apply spaceless %}
+                {% block layout_head_title_inner %}
                     {{ metaTitle }}
-                {% endapply %}{% endblock %}
-            </title>
+                {% endblock %}
+            {% endapply %}</title>
         {% endblock %}
 
         {% block layout_head_stylesheet %}

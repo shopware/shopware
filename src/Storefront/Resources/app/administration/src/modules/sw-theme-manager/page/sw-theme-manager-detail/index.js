@@ -259,6 +259,7 @@ Component.register('sw-theme-manager-detail', {
             } else {
                 removeInheritance(null);
             }
+            this.currentThemeConfigInitial[field].value = false;
         },
 
         restoreMediaInheritance(currentValue, value) {
@@ -309,6 +310,18 @@ Component.register('sw-theme-manager-detail', {
             return this.onSaveTheme();
         },
 
+        onSaveClean() {
+            this.findChangedSalesChannels();
+
+            if (this.theme.salesChannels.length > 0 || this.removedSalesChannels.length > 0) {
+                this.showSaveModal = true;
+
+                return;
+            }
+
+            return this.onSaveTheme(true);
+        },
+
         onCloseSaveModal() {
             this.showSaveModal = false;
         },
@@ -318,7 +331,7 @@ Component.register('sw-theme-manager-detail', {
             this.showSaveModal = false;
         },
 
-        onSaveTheme() {
+        onSaveTheme(clean = false) {
             if (!this.acl.can('theme.editor')) {
                 return;
             }
@@ -326,7 +339,7 @@ Component.register('sw-theme-manager-detail', {
             this.isSaveSuccessful = false;
             this.isLoading = true;
 
-            return Promise.all([this.saveSalesChannels(), this.saveThemeConfig()]).then(() => {
+            return Promise.all([this.saveSalesChannels(), this.saveThemeConfig(clean)]).then(() => {
                 this.getTheme();
             }).catch((error) => {
                 this.isLoading = false;
@@ -410,12 +423,29 @@ Component.register('sw-theme-manager-detail', {
             });
         },
 
-        getCurrentChangeset() {
+        getCurrentChangeset(clean = false) {
             // Get actual changes since load, then merge the changes into the full config set
             const newValues = getObjectDiff(this.currentThemeConfigInitial, this.currentThemeConfig);
             const allValues = this.theme.configValues ?? {};
             Object.assign(allValues, newValues);
-            return allValues;
+            if (!clean) {
+                return allValues;
+            }
+
+            // Remove unused fields from changeset (defined by not set at all in the themeConfig or the type is not set)
+            const filtered = {};
+            for (const [key, value] of Object.entries(allValues)) {
+                if (
+                    this.themeConfig[key] === undefined
+                    || this.themeConfig[key].type === undefined
+                    || this.themeConfig[key].type === null
+                ) {
+                    continue;
+                }
+                filtered[key] = value;
+            }
+
+            return filtered;
         },
 
         removeInheritedFromChangeset(allValues) {
@@ -444,8 +474,8 @@ Component.register('sw-theme-manager-detail', {
             && this.$refs[`wrapper-${key}`][0] !== undefined;
         },
 
-        saveThemeConfig() {
-            const allValues = this.getCurrentChangeset();
+        saveThemeConfig(clean = false) {
+            const allValues = this.getCurrentChangeset(clean);
 
             this.removeInheritedFromChangeset(allValues);
 

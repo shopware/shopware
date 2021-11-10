@@ -31,22 +31,69 @@
 
         {% block sw_theme_manager_detail_smart_bar_actions %}
             <template slot="smart-bar-actions">
-                {% block sw_theme_manager_detail_smart_bar_actions_save %}
-                    <sw-button-process
-                        :isLoading="isLoading"
-                        :processSuccess="isSaveSuccessful"
-                        :disabled="isLoading || !acl.can('theme.editor')"
-                        variant="primary"
-                        @process-finish="saveFinish"
-                        @click="onSave"
-                        v-tooltip="{
-                            message: $tc('sw-privileges.tooltip.warning'),
-                            disabled: acl.can('theme.editor'),
-                            showOnDisabledElements: true
-                        }">
-                        {{ $tc('sw-theme-manager.actions.save') }}
-                    </sw-button-process>
-                {% endblock %}
+                <sw-button-group
+                    v-tooltip.bottom="{
+                        message: $tc('sw-privileges.tooltip.warning'),
+                        disabled: acl.can('theme.editor'),
+                        showOnDisabledElements: true
+                    }"
+                    class="sw-theme-manager-detail__save-button-group"
+                    :split-button="true"
+                >
+                    {% block sw_theme_manager_detail_smart_bar_actions_save %}
+                        <sw-button-process
+                            v-tooltip.bottom="{
+                                message: $tc('sw-privileges.tooltip.warning'),
+                                disabled: acl.can('theme.editor'),
+                                showOnDisabledElements: true
+                            }"
+                            class="sw_theme_manager_detail__save-action"
+                            :is-loading="isLoading"
+                            :process-success="isSaveSuccessful"
+                            variant="primary"
+                            :disabled="isLoading || !acl.can('theme.editor')"
+                            @process-finish="saveFinish"
+                            @click.prevent="onSave"
+                        >
+                            {{ $tc('sw-theme-manager.actions.save') }}
+                        </sw-button-process>
+                    {% endblock %}
+
+                    {% block sw_theme_manager_detail_smart_bar_actions_save_context_menu %}
+                        <sw-context-button>
+                            <template slot="button">
+                                <sw-button
+                                    class="sw_theme_manager_detail__button-context-menu"
+                                    square
+                                    variant="primary"
+                                    :disabled="isLoading || !acl.can('theme.editor')"
+                                >
+                                    <sw-icon
+                                            name="small-arrow-medium-down"
+                                            size="16"
+                                    />
+                                </sw-button>
+                            </template>
+
+                            {% block sw_theme_manager_detail_smart_bar_actions_save_context_menu_actions %}
+                                {% block sw_theme_manager_detail_smart_bar_actions_save_clean %}
+                                    <sw-context-menu-item
+                                        class="sw_theme_manager_detail__save-clean-action"
+                                        :disabled="!acl.can('theme.editor')"
+                                        @click="onSaveClean"
+                                        v-tooltip.top="{
+                                            message: $tc('sw-theme-manager.actions.saveCleanToolTip'),
+                                            disabled: !acl.can('theme.editor'),
+                                            showOnDisabledElements: true
+                                        }"
+                                    >
+                                        {{ $tc('sw-theme-manager.actions.saveClean') }}
+                                    </sw-context-menu-item>
+                                {% endblock %}
+                            {% endblock %}
+                        </sw-context-button>
+                    {% endblock %}
+                </sw-button-group>
             </template>
         {% endblock %}
 
@@ -193,7 +240,7 @@
                                                                  :key="fieldName"
                                                                  class="sw-theme-manager-detail__content--section_field"
                                                                  :class="{'sw-theme-manager-detail__content--section_field-full-width': field.fullWidth}">
-                                                                <template v-if="themeConfig[fieldName]">
+                                                                <template v-if="themeConfig[fieldName] && baseThemeConfig[fieldName]">
                                                                     <template v-if="mapSwFieldTypes(field.type) === 'select'">
                                                                         <sw-inherit-wrapper
                                                                                 v-model="currentThemeConfig[fieldName].value"

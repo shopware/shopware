@@ -22,7 +22,7 @@ Shopware.Component.register('sw-import-export-view-profiles', {
             selectedProfile: null,
             profiles: null,
             searchTerm: null,
-            sortBy: 'name',
+            sortBy: 'label',
             sortDirection: 'ASC',
             showProfileEditModal: false,
             showNewProfileWizard: false,

@@ -1,7 +1,7 @@
 @import "~scss/variables";
 
 .sw-cms-el-image {
-    display: grid;
+    display: flex;
     max-width: 100%;
 
     img {

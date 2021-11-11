@@ -37,7 +37,7 @@
             :gross-label="$tc('sw-product.priceForm.labelPurchasePriceGross')"
             :net-label="$tc('sw-product.priceForm.labelPurchasePriceNet')"
             :tax-rate="taxRate"
-            :error="error"
+            :error="displayError"
             :disabled="disabled"
             :currency="currency"
         />
@@ -63,7 +63,7 @@
             :enable-inheritance="enableInheritance"
             :inherited="isInherited"
             class="sw-list-price-field__list-price-field"
-            :error="error"
+            :error="displayError"
             :currency="currency"
             @change="listPriceChanged"
         />

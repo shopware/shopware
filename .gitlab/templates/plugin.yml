@@ -355,6 +355,11 @@ percy admin:
                 - src/Resources/app/storefront/test/e2e/.percy*
             when: manual
             allow_failure: true
+    variables:
+        E2E_PROJECT_PATH: Resources/app/administration/test/e2e/
+        CYPRESS_SPEC: $ADMIN_CYPRESS_SPEC
+        APP_ENV: e2e
+        CYPRESS_usePercy: 1
     script:
         - *e2e-prepare
         - >
@@ -381,6 +386,11 @@ percy storefront:
                 - src/Resources/app/storefront/test/e2e/.percy*
             when: manual
             allow_failure: true
+    variables:
+        E2E_PROJECT_PATH: Resources/app/storefront/test/e2e/
+        CYPRESS_SPEC: $STOREFRONT_CYPRESS_SPEC
+        APP_ENV: e2e
+        CYPRESS_usePercy: 1
     script:
         - *e2e-prepare
         - >

@@ -180,6 +180,8 @@
                 <template slot="grid">
                     <sw-entity-listing
                         v-if="todayOrderDataLoaded"
+                        :sort-by="todayOrderDataSortBy"
+                        :sort-direction="todayOrderDataSortDirection"
                         :repository="orderRepository"
                         :items="todayOrderData"
                         :columns="orderGridColumns()"

@@ -14,6 +14,8 @@ Component.register('sw-dashboard-index', {
             historyOrderData: null,
             todayOrderData: [],
             todayOrderDataLoaded: false,
+            todayOrderDataSortBy: 'orderDateTime',
+            todayOrderDataSortDirection: 'DESC',
             cachedHeadlineGreetingKey: null,
             statisticDateRanges: {
                 value: '30Days',
@@ -326,9 +328,9 @@ Component.register('sw-dashboard-index', {
             const criteria = new Criteria(1, 10);
 
             criteria.addAssociation('currency');
-            // add filter for last 30 days
+            // add filter for today
             criteria.addFilter(Criteria.range('orderDate', { gte: this.formatDate(this.today) }));
-            criteria.addSorting(Criteria.sort('orderDateTime', 'ASC'));
+            criteria.addSorting(Criteria.sort(this.todayOrderDataSortBy, this.todayOrderDataSortDirection));
 
             return this.orderRepository.search(criteria);
         },

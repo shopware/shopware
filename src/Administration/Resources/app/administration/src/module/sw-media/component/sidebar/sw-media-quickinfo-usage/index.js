@@ -34,6 +34,7 @@ Component.register('sw-media-quickinfo-usage', {
             avatarUser: {},
             paymentMethods: [],
             shippingMethods: [],
+            layouts: [],
             isLoading: false,
         };
     },
@@ -76,6 +77,10 @@ Component.register('sw-media-quickinfo-usage', {
                 usages.push(this.getShippingMethodUsage(shippingMethod));
             });
 
+            this.layouts.forEach((layout) => {
+                usages.push(this.getLayoutUsage(layout));
+            });
+
             if (!types.isEmpty(this.avatarUser)) {
                 usages.push(this.getAvatarUserUsage(this.avatarUser));
             }
@@ -108,6 +113,7 @@ Component.register('sw-media-quickinfo-usage', {
             this.loadAvatarUserAssociations();
             this.loadPaymentMethodAssociations();
             this.loadShippingMethodAssociations();
+            this.loadLayoutAssociations();
         },
 
         loadProductAssociations() {
@@ -140,6 +146,42 @@ Component.register('sw-media-quickinfo-usage', {
 
         loadShippingMethodAssociations() {
             this.shippingMethods = this.item.shippingMethods;
+        },
+
+        loadLayoutAssociations() {
+            this.layouts = [];
+            this.item.cmsBlocks.forEach((layout) => {
+                if (!this.isExistedCmsMedia(layout.section.pageId)) {
+                    this.layouts.push({
+                        id: layout.section.pageId,
+                        name: layout.section.page.translated.name,
+                    });
+                }
+            });
+
+            this.item.cmsSections.forEach((layout) => {
+                if (!this.isExistedCmsMedia(layout.pageId)) {
+                    this.layouts.push({
+                        id: layout.pageId,
+                        name: layout.page.translated.name,
+                    });
+                }
+            });
+
+            this.item.cmsPages.forEach((layout) => {
+                if (!this.isExistedCmsMedia(layout.id)) {
+                    this.layouts.push({
+                        id: layout.id,
+                        name: layout.translated.name,
+                    });
+                }
+            });
+        },
+
+        isExistedCmsMedia(id) {
+            return this.layouts.some(layout => {
+                return layout.id === id;
+            });
         },
 
         getProductUsage(product) {
@@ -235,6 +277,18 @@ Component.register('sw-media-quickinfo-usage', {
                     id: shippingMethod.id,
                 },
                 icon: this.getIconForModule('sw-settings-shipping'),
+            };
+        },
+
+        getLayoutUsage(layout) {
+            return {
+                name: layout.name,
+                tooltip: this.$tc('sw-media.sidebar.usage.tooltipFoundLayout'),
+                link: {
+                    name: 'sw.cms.detail',
+                    id: layout.id,
+                },
+                icon: this.getIconForModule('sw-cms'),
             };
         },
 

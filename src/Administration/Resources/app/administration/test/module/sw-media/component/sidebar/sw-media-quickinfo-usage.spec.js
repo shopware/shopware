@@ -19,6 +19,9 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
             documentBaseConfigs: [],
             paymentMethods: [],
             shippingMethods: [],
+            cmsBlocks: [],
+            cmsSections: [],
+            cmsPages: [],
             ...options
         };
     };
@@ -109,6 +112,11 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
         register('sw-settings-shipping', moduleMock);
         const shippingMock = { translated: { name: 'shipping test' } };
 
+        register('sw-cms', moduleMock);
+        const cmsBlockMock = { section: { pageId: 'cmsBlockId', page: { translated: { name: 'cms block test' } } } };
+        const cmsSectionMock = { pageId: 'cmsSectionId', page: { translated: { name: 'cms section test' } } };
+        const cmsPageMock = { id: 'cmsPageId', translated: { name: 'cms page test' } };
+
         await wrapper.setProps({
             item: itemDeleteMock({
                 avatarUser: avatarUserMock,
@@ -118,7 +126,10 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
                 mailTemplateMedia: [mailTemplateMediaMock],
                 documentBaseConfigs: [documentBaseConfigMock],
                 paymentMethods: [paymentMock],
-                shippingMethods: [shippingMock]
+                shippingMethods: [shippingMock],
+                cmsBlocks: [cmsBlockMock],
+                cmsSections: [cmsSectionMock],
+                cmsPages: [cmsPageMock]
             })
         });
 
@@ -132,5 +143,8 @@ describe('module/sw-media/components/sw-media-quickinfo-usage', () => {
         ).toBeTruthy();
         expect(usages.some((usage) => usage.name === paymentMock.translated.distinguishableName)).toBeTruthy();
         expect(usages.some((usage) => usage.name === shippingMock.translated.name)).toBeTruthy();
+        expect(usages.some((usage) => usage.name === cmsBlockMock.section.page.translated.name)).toBeTruthy();
+        expect(usages.some((usage) => usage.name === cmsSectionMock.page.translated.name)).toBeTruthy();
+        expect(usages.some((usage) => usage.name === cmsPageMock.translated.name)).toBeTruthy();
     });
 });

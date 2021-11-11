@@ -54,6 +54,7 @@
         "tooltipFoundInUser": "Found in User",
         "tooltipFoundInPayment": "Found in Payment",
         "tooltipFoundShipping": "Found in Shipping",
+        "tooltipFoundLayout": "Found in Shopping Experiences",
         "titleMediaNotUsed": "Unused medium",
         "labelMediaNotUsed": "This media item is currently not in use."
       }

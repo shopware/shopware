@@ -7,10 +7,13 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartFacade;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Script\Exception\HookInjectionException;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\Script\Execution\SalesChannelTestHook;
+use Shopware\Core\Framework\Test\Script\Execution\TestHook;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -25,6 +28,8 @@ class CartFacadeTest extends TestCase
 
     protected function setUp(): void
     {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
         parent::setUp();
 
         $this->init();
@@ -68,10 +73,12 @@ class CartFacadeTest extends TestCase
         static::assertEquals($this->ids->get('p1'), $item->getReferencedId());
         static::assertEquals(LineItem::PRODUCT_LINE_ITEM_TYPE, $item->getType());
 
-        $service->remove($item->getId());
+        static::assertTrue($service->remove($item->getId()));
 
-        $item = $service->get($this->ids->get('p1'));
+        $item = $service->cart()->get($this->ids->get('p1'));
         static::assertNull($item);
+
+        static::assertFalse($service->remove('not-existing'));
     }
 
     /**
@@ -116,8 +123,16 @@ class CartFacadeTest extends TestCase
 
         $this->getContainer()->get(ScriptExecutor::class)->execute($hook);
 
-        $item = $service->get($this->ids->get('p1'));
+        $item = $service->cart()->get($this->ids->get('p1'));
         static::assertNull($item);
+    }
+
+    public function testDependency(): void
+    {
+        $this->expectException(HookInjectionException::class);
+
+        $service = $this->getContainer()->get(CartFacade::class);
+        $service->inject(new TestHook('test', Context::createDefaultContext()));
     }
 
     public function addProductProvider(): \Generator

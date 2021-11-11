@@ -11,9 +11,9 @@ class TestHook extends Hook
 
     private array $serviceIds;
 
-    public function __construct(string $name, Context $salesChannelContext, array $data, array $serviceIds = [])
+    public function __construct(string $name, Context $context, array $data = [], array $serviceIds = [])
     {
-        parent::__construct($salesChannelContext);
+        parent::__construct($context);
         $this->name = $name;
         $this->serviceIds = $serviceIds;
 

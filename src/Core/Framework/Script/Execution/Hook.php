@@ -13,7 +13,15 @@ abstract class Hook
         $this->context = $context;
     }
 
+    /**
+     * The services returned here must all implement the HookAwareService interface.
+     * These are then available in the script under the variable `services`.
+     */
     abstract public function getServiceIds(): array;
 
+    /**
+     * The name returned here serves as an accessor in the script for the service.
+     * If e.g. `cart` is returned, the service is available under `services.cart`.
+     */
     abstract public function getName(): string;
 }

@@ -2,7 +2,7 @@
     "name": "shopware/storefront",
     "description": "Storefront for Shopware",
     "type": "library",
-    "version": "6.4.6.0",
+    "version": "6.4.6.1",
     "license": "MIT",
     "autoload": {
         "psr-4": {

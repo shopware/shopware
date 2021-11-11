@@ -21,8 +21,18 @@ Cypress.Commands.add('login', (userType) => {
     cy.get('#sw-field--password')
         .type(user.pass)
         .should('have.value', user.pass);
+
+    cy.intercept({
+        url: '/api/_admin/snippets?locale=nl-NL',
+        method: 'get'
+    }).as('snippets');
+
     cy.get('.sw-login-login').submit();
     cy.contains('Dashboard');
+
+    // the snippets are replaced after this has finished.
+    // If we don't wait for this, it'll happen at a random point in time and might trigger a detached dom error.
+    cy.wait('@snippets');
 });
 
 /**

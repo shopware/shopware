@@ -1,7 +1,7 @@
 {% block sw_bulk_edit_order %}
 <sw-page class="sw-bulk-edit-order">
     {% block sw_bulk_edit_order_search_bar %}
-    <template slot="search-bar">
+    <template #search-bar>
 
         <sw-search-bar />
 
@@ -9,7 +9,7 @@
     {% endblock %}
 
     {% block sw_bulk_edit_order_smart_bar_header %}
-    <template slot="smart-bar-header">
+    <template #smart-bar-header>
 
         <h2>{{ $tc('sw-bulk-edit.order.textTitle', 0, { orderTotal: selectedIds.length }) }}</h2>
 
@@ -17,7 +17,7 @@
     {% endblock %}
 
     {% block sw_bulk_edit_order_content_smart_bar_actions %}
-    <template slot="smart-bar-actions">
+    <template #smart-bar-actions>
 
         {% block sw_bulk_edit_order_actions_save %}
         <sw-button-process
@@ -40,7 +40,7 @@
     {% endblock %}
 
     {% block sw_bulk_edit_order_content %}
-    <template slot="content">
+    <template #content>
 
         <sw-card-view
             v-if="selectedIds.length > 0 && isLoadedData"
@@ -55,6 +55,24 @@
                 {% block sw_bulk_edit_order_content_order_status_section %}
                 <sw-bulk-edit-change-type-field-renderer
                     :form-fields="statusFormFields"
+                    :bulk-edit-data="bulkEditData"
+                    :entity="order"
+                />
+                {% endblock %}
+            </sw-card>
+            {% endblock %}
+
+            {% block sw_bulk_edit_order_content_documents %}
+            <sw-card
+                v-if="feature.isActive('FEATURE_NEXT_17261')"
+                class="sw-bulk-edit-order-base__documents"
+                position-identifier="sw-bulk-edit-order-documents"
+                :title="$tc('sw-bulk-edit.order.documents.cardTitle')"
+                :is-loading="isLoading"
+            >
+                {% block sw_bulk_edit_order_content_documents_content %}
+                <sw-bulk-edit-change-type-field-renderer
+                    :form-fields="documentsFormFields"
                     :bulk-edit-data="bulkEditData"
                     :entity="order"
                 />

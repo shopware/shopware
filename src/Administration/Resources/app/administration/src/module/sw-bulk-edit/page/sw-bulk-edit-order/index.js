@@ -13,6 +13,7 @@ Component.register('sw-bulk-edit-order', {
         'bulkEditApiFactory',
         'repositoryFactory',
         'feature',
+        'orderDocumentApiService',
     ],
 
     mixins: [
@@ -69,6 +70,10 @@ Component.register('sw-bulk-edit-order', {
             return criteria;
         },
 
+        orderDocuments() {
+            return Shopware.State.get('swBulkEdit').orderDocuments;
+        },
+
         statusFormFields() {
             return [
                 {
@@ -118,6 +123,45 @@ Component.register('sw-bulk-edit-order', {
                 //         changeLabel: this.$tc('sw-bulk-edit.order.status.documents.label'),
                 //     },
                 // },
+            ];
+        },
+
+        documentsFormFields() {
+            return [
+                {
+                    name: 'generateInvoice',
+                    labelHelpText: this.$tc('sw-bulk-edit.order.documents.generateInvoice.helpText'),
+                    config: {
+                        componentName: 'sw-bulk-edit-order-documents-generate-invoice',
+                        changeLabel: this.$tc('sw-bulk-edit.order.documents.generateInvoice.label'),
+                    },
+                },
+                {
+                    name: 'generateCancellationInvoice',
+                    labelHelpText: this.$tc('sw-bulk-edit.order.documents.generateCancellationInvoice.helpText'),
+                    config: {
+                        componentName: 'sw-bulk-edit-order-documents-generate-cancellation-invoice',
+                        changeLabel: this.$tc('sw-bulk-edit.order.documents.generateCancellationInvoice.label'),
+                        changeSubLabel: this.$tc('sw-bulk-edit.order.documents.generateCancellationInvoice.changeSubLabel'),
+                    },
+                },
+                {
+                    name: 'generateDeliveryNote',
+                    labelHelpText: this.$tc('sw-bulk-edit.order.documents.generateDeliveryNote.helpText'),
+                    config: {
+                        componentName: 'sw-bulk-edit-order-documents-generate-delivery-note',
+                        changeLabel: this.$tc('sw-bulk-edit.order.documents.generateDeliveryNote.label'),
+                    },
+                },
+                {
+                    name: 'generateCreditNote',
+                    labelHelpText: this.$tc('sw-bulk-edit.order.documents.generateCreditNote.helpText'),
+                    config: {
+                        componentName: 'sw-bulk-edit-order-documents-generate-credit-note',
+                        changeLabel: this.$tc('sw-bulk-edit.order.documents.generateCreditNote.label'),
+                        changeSubLabel: this.$tc('sw-bulk-edit.order.documents.generateCreditNote.changeSubLabel'),
+                    },
+                },
             ];
         },
 
@@ -206,6 +250,7 @@ Component.register('sw-bulk-edit-order', {
         loadBulkEditData() {
             const bulkEditFormGroups = [
                 this.statusFormFields,
+                this.documentsFormFields,
                 this.tagsFormFields,
             ];
 
@@ -377,6 +422,7 @@ Component.register('sw-bulk-edit-order', {
             const payloadChunks = chunk(this.selectedIds, this.itemsPerRequest);
             const requests = [];
 
+            requests.push(this.createDocument());
             payloadChunks.forEach(payload => {
                 if (statusData.length) {
                     requests.push(bulkEditOrderHandler.bulkEditStatus(payload, statusData));
@@ -396,6 +442,18 @@ Component.register('sw-bulk-edit-order', {
                 }).finally(() => {
                     this.isLoading = false;
                 });
+        },
+
+        createDocument() {
+            if (!this.feature.isActive('FEATURE_NEXT_17261')) {
+                return Promise.resolve();
+            }
+
+            return this.orderDocumentApiService.create({
+                fileType: 'pdf',
+                orderIds: this.selectedIds,
+                documentTypeConfigs: this.orderDocuments,
+            });
         },
 
         loadCustomFieldSets() {

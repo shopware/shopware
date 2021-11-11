@@ -555,7 +555,7 @@ Component.register('sw-product-detail', {
                 Shopware.Context.api,
                 this.productCriteria,
             ).then((product) => {
-                if (!product.purchasePrices?.length > 0) {
+                if (!product.purchasePrices?.length > 0 && !product.parentId) {
                     product.purchasePrices = this.getDefaultPurchasePrices();
                 }
                 if (product.media) {

@@ -124,6 +124,12 @@ class PaymentMethodEntity extends Entity
      */
     protected $appPaymentMethod;
 
+    protected bool $synchronous = false;
+
+    protected bool $asynchronous = false;
+
+    protected bool $prepared = false;
+
     public function getPluginId(): ?string
     {
         return $this->pluginId;
@@ -332,5 +338,35 @@ class PaymentMethodEntity extends Entity
     public function setAppPaymentMethod(?AppPaymentMethodEntity $appPaymentMethod): void
     {
         $this->appPaymentMethod = $appPaymentMethod;
+    }
+
+    public function isSynchronous(): bool
+    {
+        return $this->synchronous;
+    }
+
+    public function setSynchronous(bool $synchronous): void
+    {
+        $this->synchronous = $synchronous;
+    }
+
+    public function isAsynchronous(): bool
+    {
+        return $this->asynchronous;
+    }
+
+    public function setAsynchronous(bool $asynchronous): void
+    {
+        $this->asynchronous = $asynchronous;
+    }
+
+    public function isPrepared(): bool
+    {
+        return $this->prepared;
+    }
+
+    public function setPrepared(bool $prepared): void
+    {
+        $this->prepared = $prepared;
     }
 }

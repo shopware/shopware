@@ -8,7 +8,7 @@ const { mapState, mapGetters } = Shopware.Component.getComponentHelper();
 Component.register('sw-product-detail-variants', {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: ['repositoryFactory', 'acl', 'feature'],
 
     data() {
         return {
@@ -21,6 +21,8 @@ Component.register('sw-product-detail-variants', {
             configuratorSettingsRepository: {},
             groups: [],
             productEntityLoaded: false,
+            propertiesAvailable: true,
+            showAddPropertiesModal: false,
         };
     },
 
@@ -43,6 +45,16 @@ Component.register('sw-product-detail-variants', {
 
         groupRepository() {
             return this.repositoryFactory.create('property_group');
+        },
+
+        propertyRepository() {
+            return this.repositoryFactory.create('property_group_option');
+        },
+
+        productProperties() {
+            return this.isChild && this.product?.properties?.length <= 0
+                ? this.parentProduct.properties
+                : this.product.properties;
         },
 
         selectedGroups() {
@@ -77,11 +89,19 @@ Component.register('sw-product-detail-variants', {
         },
     },
 
+    created() {
+        this.createdComponent();
+    },
+
     mounted() {
         this.mountedComponent();
     },
 
     methods: {
+        createdComponent() {
+            this.checkIfPropertiesExists();
+        },
+
         mountedComponent() {
             this.loadData();
         },
@@ -159,5 +179,64 @@ Component.register('sw-product-detail-variants', {
             this.loadData();
             this.activeModal = '';
         },
+
+        checkIfPropertiesExists() {
+            this.propertyRepository.search(new Criteria(1, 1)).then((res) => {
+                this.propertiesAvailable = res.total > 0;
+            });
+        },
+
+        openAddPropertiesModal() {
+            this.updateNewProperties();
+            this.showAddPropertiesModal = true;
+        },
+
+        closeAddPropertiesModal() {
+            this.showAddPropertiesModal = false;
+            this.updateNewProperties();
+        },
+
+        updateNewProperties() {
+            this.newProperties = this.productProperties.map((productProperty) => {
+                return {
+                    property: productProperty,
+                    selected: true,
+                };
+            });
+        },
+
+        updateNewPropertiesItem({ index, selected }) {
+            this.newProperties[index].selected = selected;
+        },
+
+        addNewPropertiesItem({ property, selected }) {
+            this.newProperties.push({ property, selected });
+        },
+
+        onCancelAddPropertiesModal() {
+            this.closeAddPropertiesModal();
+        },
+
+        onSaveAddPropertiesModal(newProperties) {
+            this.closeAddPropertiesModal();
+
+            if (newProperties.length <= 0) {
+                return;
+            }
+
+            newProperties.forEach(({ property, selected }) => {
+                if (selected === true) {
+                    if (this.productProperties.has(property.id)) {
+                        return;
+                    }
+
+                    this.productProperties.add(property);
+                    return;
+                }
+
+                this.productProperties.remove(property.id);
+            });
+        },
+
     },
 });

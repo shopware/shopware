@@ -55,7 +55,7 @@ describe('Product: Test ACL privileges', () => {
         cy.get('.sw-product-detail__tab-variants')
             .scrollIntoView()
             .click();
-        cy.get('.sw-product-detail-variants__generated-variants__empty-state')
+        cy.get('.sw-product-detail-variants__generated-variants-empty-state')
             .should('be.visible');
 
         cy.get('.sw-product-detail__tab-cross-selling')

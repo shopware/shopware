@@ -186,7 +186,8 @@
         "buttonDelete": "Löschen"
       },
       "messageEmptyTitle": "Produkt noch nicht bewertet",
-      "messageEmptySubline": "Durchsuche andere <a href=\"#/sw/review/index\">Bewertungen</a>"
+      "messageEmptySubline": "Du kannst Bewertungen anderer Produkte durchsuchen.",
+      "emptyStateButton": "Andere Bewertungen öffnen"
     },
     "prices": {
       "cardTitlePriceRule": "Neue Preisregel",
@@ -310,14 +311,19 @@
       "placeholderSearchProperties": "Eigenschaften durchsuchen ...",
       "addPropertiesModal": {
         "title": "Eigenschaften hinzufügen",
-        "titleEmptyState": "Du musst zuerst Eigenschaften und deren Ausprägungen erstellen, um diese hier zuordnen zu können.",
+        "titleEmptyState": "Es wurden noch keine Eigenschaften angelegt.",
+        "descriptionEmptyState": "Du musst zuerst Eigenschaften und deren Ausprägungen erstellen, um diese hier zuordnen zu können.",
         "selectedProperties": "{count} Ausprägung gewählt | {count} Ausprägungen gewählt",
         "titleEmptyPropertyValues": "Keine Eigenschaftsausprägungen verfügbar.",
         "titleNoPropertySelected": "Keine Eigenschaft ausgewählt."
       }
     },
     "variations": {
-      "emptyStateDescription": "Dieses Produkt hat noch keine Varianten.",
+      "emptyStateTitle": "Dieses Produkt hat noch keine Varianten",
+      "emptyStateDescription": "Verwaltung der Varianten von Produkten.",
+      "emptyStatePropertyTitle": "Es wurden noch keine Eigenschaften angelegt",
+      "emptyStatePropertyButton": "Eigenschaften erstellen",
+      "emptyStatePropertyDescription": "Bitte erstelle zunächst Eigenschaften, um diese für die Variantengenerierung verwenden zu können.",
       "emptyStateButton": "Varianten-Generator starten",
       "generateVariationsButton": "Varianten generieren",
       "deleteVariationsButton": "Alle Produktvarianten löschen",

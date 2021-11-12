@@ -25,7 +25,7 @@ describe('Product: Test variants', () => {
 
                 cy.get('.sw-product-detail__tab-variants').click();
 
-                cy.get('.sw-product-detail-variants__generated-variants__empty-state .sw-button')
+                cy.get('.sw-product-detail-variants__generated-variants-empty-state .sw-button')
                     .click();
 
                 cy.get('.sw-grid__row--0 .group_grid__column-name')

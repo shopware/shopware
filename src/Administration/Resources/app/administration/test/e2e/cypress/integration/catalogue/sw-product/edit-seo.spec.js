@@ -49,7 +49,7 @@ describe('Product: Edit in various ways', () => {
         cy.get('.sw-product-detail__tab-variants').click();
 
         // open variant generation modal
-        cy.get('.sw-product-detail-variants__generated-variants__empty-state .sw-button').click();
+        cy.get('.sw-product-detail-variants__generated-variants-empty-state .sw-button').click();
 
         // generate variants
         page.generateVariants('Color', [0, 1], 2);
@@ -138,7 +138,7 @@ describe('Product: Edit in various ways', () => {
 
         cy.get('.sw-product-detail__tab-variants').click();
         cy.get(page.elements.loader).should('not.exist');
-        cy.get(`.sw-product-detail-variants__generated-variants__empty-state ${page.elements.ghostButton}`)
+        cy.get(`.sw-product-detail-variants__generated-variants-empty-state ${page.elements.ghostButton}`)
             .should('be.visible')
             .click();
         cy.get('.sw-product-modal-variant-generation').should('be.visible');
@@ -221,7 +221,7 @@ describe('Product: Edit in various ways', () => {
 
         cy.get('.sw-product-detail__tab-variants').click();
         cy.get(page.elements.loader).should('not.exist');
-        cy.get(`.sw-product-detail-variants__generated-variants__empty-state ${page.elements.ghostButton}`)
+        cy.get(`.sw-product-detail-variants__generated-variants-empty-state ${page.elements.ghostButton}`)
             .should('be.visible')
             .click();
         cy.get('.sw-product-modal-variant-generation').should('be.visible');
@@ -322,7 +322,7 @@ describe('Product: Edit in various ways', () => {
 
         cy.get('.sw-product-detail__tab-variants').click();
         cy.get(page.elements.loader).should('not.exist');
-        cy.get(`.sw-product-detail-variants__generated-variants__empty-state ${page.elements.ghostButton}`)
+        cy.get(`.sw-product-detail-variants__generated-variants-empty-state ${page.elements.ghostButton}`)
             .should('be.visible')
             .click();
         cy.get('.sw-product-modal-variant-generation').should('be.visible');

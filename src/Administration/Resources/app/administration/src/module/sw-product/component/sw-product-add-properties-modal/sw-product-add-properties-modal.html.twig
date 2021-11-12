@@ -198,8 +198,8 @@
     <sw-empty-state
         v-if="properties.length <= 0 && !searchTerm"
         :absolute="false"
-        :show-description="false"
         :title="$tc('sw-product.properties.addPropertiesModal.titleEmptyState')"
+        :subline="$tc('sw-product.properties.addPropertiesModal.descriptionEmptyState')"
     >
         <template #icon>
             {% block sw_product_add_properties_modal_empty_state_image %}
@@ -207,6 +207,20 @@
                 :src="'/administration/static/img/empty-states/products-empty-state.svg' | asset"
                 :alt="$tc('sw-product.properties.addPropertiesModal.titleEmptyState')"
             >
+            {% endblock %}
+        </template>
+
+        <template
+            v-if="feature.isActive('FEATURE_NEXT_17546')"
+            #actions
+        >
+            {% block sw_product_properties_empty_state_button_property %}
+            <sw-button
+                variant="ghost"
+                @click="onOpenProperties"
+            >
+                {{ $tc('sw-product.properties.buttonAddProperties') }}
+            </sw-button>
             {% endblock %}
         </template>
     </sw-empty-state>
@@ -224,6 +238,7 @@
 
         {% block sw_product_add_properties_modal_button_save %}
         <sw-button
+            v-if="showSaveButton"
             class="sw-product-add-properties-modal__button-save"
             variant="primary"
             size="small"

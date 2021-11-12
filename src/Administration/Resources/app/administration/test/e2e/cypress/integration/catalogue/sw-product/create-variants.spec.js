@@ -46,7 +46,7 @@ describe('Product: Test variants', () => {
 
         cy.get('.sw-product-detail__tab-variants').click();
         cy.get(page.elements.loader).should('not.exist');
-        cy.get(`.sw-product-detail-variants__generated-variants__empty-state ${page.elements.ghostButton}`)
+        cy.get(`.sw-product-detail-variants__generated-variants-empty-state ${page.elements.ghostButton}`)
             .should('be.visible')
             .click();
         cy.get('.sw-product-modal-variant-generation').should('be.visible');
@@ -150,7 +150,7 @@ describe('Product: Test variants', () => {
         cy.get('.sw-product-detail__tab-variants').click();
 
         cy.get(productPage.elements.loader).should('not.exist');
-        cy.get(`.sw-product-detail-variants__generated-variants__empty-state ${productPage.elements.ghostButton}`)
+        cy.get(`.sw-product-detail-variants__generated-variants-empty-state ${productPage.elements.ghostButton}`)
             .should('be.visible')
             .click();
         cy.get('.sw-product-modal-variant-generation').should('be.visible');

@@ -1,7 +1,7 @@
 import template from './sw-import-export-edit-profile-modal-mapping.html.twig';
 import './sw-import-export-edit-profile-modal-mapping.scss';
 
-const { debounce, createId } = Shopware.Utils;
+const { debounce, createId, object: { cloneDeep } } = Shopware.Utils;
 const Criteria = Shopware.Data.Criteria;
 
 /**
@@ -125,7 +125,7 @@ Shopware.Component.register('sw-import-export-edit-profile-modal-mapping', {
         },
 
         sortedMappings() {
-            const mappings = this.mappings;
+            const mappings = this.profile.mapping;
 
             return mappings.sort((firstMapping, secondMapping) => {
                 if (firstMapping.position > secondMapping.position) {
@@ -246,24 +246,28 @@ Shopware.Component.register('sw-import-export-edit-profile-modal-mapping', {
             return this.systemRequiredFields[item.key] !== undefined;
         },
 
+        // @deprecated tag:v6.5.0 - parameter 'mapping' will be removed there is no replacement
         updateSorting(mapping, index, direction) {
-            if (direction === 'up') {
-                // return if mapping is the most upper one
-                if (index === 0) return;
+            const clonedMappings = cloneDeep(this.sortedMappings);
+            const clonedMapping = clonedMappings[index];
 
-                const previousMapping = this.sortedMappings[index - 1];
-                this.swapItems(previousMapping, mapping);
+            // directions must be up and mapping should not be the most upper one
+            if (direction === 'up' && index > 0) {
+                const previousMapping = clonedMappings[index - 1];
+                this.swapItems(previousMapping, clonedMapping);
+
+                this.$emit('update-mapping', clonedMappings);
 
                 return;
             }
 
-            const totalLengthOfMappings = this.sortedMappings.length;
-            if (direction === 'down') {
-                // return if mapping is the lowest
-                if (index === totalLengthOfMappings - 1) return;
+            const totalLengthOfMappings = clonedMappings.length;
+            // direction must be down and mapping should not be the last one
+            if (direction === 'down' && totalLengthOfMappings - 1) {
+                const nextMapping = clonedMappings[index + 1];
+                this.swapItems(clonedMapping, nextMapping);
 
-                const nextMapping = this.sortedMappings[index + 1];
-                this.swapItems(mapping, nextMapping);
+                this.$emit('update-mapping', clonedMappings);
             }
         },
 

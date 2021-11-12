@@ -148,6 +148,7 @@
             "csvDescriptionBlock": "Trennzeichen und Einschließungszeichen werden verwendet, um einzelne Felder in der CSV-Datei zu kennzeichnen. Trennzeichen werden verwendet, um einzelne Felder aufzuteilen, Anführungszeichen werden verwendet, um mehrere Felder zu gruppieren.",
             "cancelLabel": "Abbrechen",
             "addMappingLabel": "Neues Mapping hinzufügen",
+            "deleteMappingLabel": "Mapping entfernen",
             "downloadTemplateLabel": "Template herunterladen",
             "deleteLabel": "Profil löschen",
             "systemDefaultInfoText": "Dies ist ein Systemstandardprofil, das nicht geändert werden kann. Du kannst entweder ein neues Profil erstellen oder ein Systemstandardprofil duplizieren.",

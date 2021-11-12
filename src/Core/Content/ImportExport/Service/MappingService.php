@@ -90,8 +90,14 @@ class MappingService extends AbstractMappingService
         return $fileEntity->getId();
     }
 
-    public function getMappingFromTemplate(Context $context, UploadedFile $file, string $sourceEntity, string $delimiter = ';', string $enclosure = '"', string $escape = '\\'): MappingCollection
-    {
+    public function getMappingFromTemplate(
+        Context $context,
+        UploadedFile $file,
+        string $sourceEntity,
+        string $delimiter = ';',
+        string $enclosure = '"',
+        string $escape = '\\'
+    ): MappingCollection {
         if ($this->fileService->detectType($file) !== 'text/csv') {
             throw new UnexpectedFileTypeException($file->getClientMimeType(), 'text/csv');
         }

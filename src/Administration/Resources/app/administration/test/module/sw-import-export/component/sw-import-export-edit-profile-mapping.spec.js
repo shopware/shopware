@@ -1,4 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
+
 import 'src/module/sw-import-export/component/sw-import-export-edit-profile-modal-mapping';
 import 'src/app/component/base/sw-simple-search-field';
 import 'src/app/component/base/sw-button';
@@ -159,28 +160,31 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
 
         await downwardsButton.trigger('click');
 
-        const reorderedMappings = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
         const customMappingOrder = [
             {
-                position: 0,
-                key: 'parentId'
+                position: 1,
+                key: 'id',
+                mappedKey: 'id',
+                id: '0363d01e226846748f318eda91ab3450'
             },
             {
-                position: 1,
-                key: 'id'
+                position: 0,
+                key: 'parentId',
+                mappedKey: 'parent_id',
+                id: 'a6388d0f7f7245ecaba4a4db6e683972'
             },
             {
                 position: 2,
-                key: 'productNumber'
+                mappedKey: 'product_number',
+                key: 'productNumber',
+                id: 'a4209aad611b4a51a32f69b9a2c693ff'
             }
         ];
 
-        reorderedMappings.wrappers.forEach((currentWrapper, index) => {
-            const key = currentWrapper.find('sw-import-export-entity-path-select-stub').attributes('value');
 
-            expect(key).toBe(customMappingOrder[index].key);
-            expect(customMappingOrder[index].position).toBe(index);
-        });
+        const emittedMappings = wrapper.emitted('update-mapping')[0][0];
+
+        expect(emittedMappings).toEqual(customMappingOrder);
     });
 
     it('should swap items upwards', async () => {
@@ -201,28 +205,30 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
 
         await downwardsButton.trigger('click');
 
-        const reorderedMappings = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
         const customMappingOrder = [
             {
+                id: '0363d01e226846748f318eda91ab3450',
                 position: 0,
-                key: 'id'
+                key: 'id',
+                mappedKey: 'id'
+            },
+            {
+                id: 'a6388d0f7f7245ecaba4a4db6e683972',
+                position: 2,
+                key: 'parentId',
+                mappedKey: 'parent_id'
             },
             {
                 position: 1,
-                key: 'productNumber'
-            },
-            {
-                position: 2,
-                key: 'parentId'
+                id: 'a4209aad611b4a51a32f69b9a2c693ff',
+                key: 'productNumber',
+                mappedKey: 'product_number'
             }
         ];
 
-        reorderedMappings.wrappers.forEach((currentWrapper, index) => {
-            const key = currentWrapper.find('sw-import-export-entity-path-select-stub').attributes('value');
+        const emittedMappings = wrapper.emitted('update-mapping')[0][0];
 
-            expect(key).toBe(customMappingOrder[index].key);
-            expect(customMappingOrder[index].position).toBe(index);
-        });
+        expect(emittedMappings).toEqual(customMappingOrder);
     });
 
     it.each([
@@ -267,61 +273,85 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         expect(secondMapping.attributes('disabled')).toBeUndefined();
     });
 
-    it('should have disabled sorting buttons while using the search', async () => {
+    it('should have disabled buttons when searching', async () => {
         wrapper = await createWrapper(getProfileMock());
 
-        await wrapper.setData({
-            searchTerm: 'productNumber'
+        const enabledPositionButtons = wrapper.findAll('.sw-data-grid__cell--position .sw-button:not([disabled])');
+
+        expect(enabledPositionButtons.wrappers.length).toBe(4);
+        enabledPositionButtons.wrappers.forEach(button => {
+            expect(button.attributes('disabled')).toBeUndefined();
         });
 
-        wrapper.vm.loadMappings();
+        await wrapper.setData({
+            searchTerm: 'search term'
+        });
 
-        await wrapper.vm.$nextTick();
+        const disabledPositionButtons = wrapper.findAll('.sw-data-grid__cell--position .sw-button');
 
-        const amountWhileUsingSearch = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row').wrappers.length;
-        expect(amountWhileUsingSearch).toBe(1);
+        expect(disabledPositionButtons.wrappers.length).toBe(6);
+        disabledPositionButtons.wrappers.forEach(button => {
+            expect(button.attributes('disabled')).toBe('disabled');
+        });
     });
 
-    it('should always use the direct neighbour when swapping positions', async () => {
-        const profileMock = getProfileMock();
-        profileMock.mapping.pop();
-        profileMock.systemDefault = false;
-
-        wrapper = await createWrapper(profileMock);
-
-        const firstRowDownwardsButton = wrapper.find('.sw-data-grid__row--0 .sw-button-group .sw-button:last-of-type');
-        await firstRowDownwardsButton.trigger('click');
+    it('should always use the direct neighbour when swapping items', async () => {
+        wrapper = await createWrapper(getProfileMock());
 
         const addButton = wrapper.find('.sw-import-export-edit-profile-modal-mapping__add-action');
         await addButton.trigger('click');
 
-        const newItemInputField = wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--csvName input');
-        await newItemInputField.setValue('custom_value');
+        const newItemCsvInput = wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--csvName input');
+        await newItemCsvInput.setValue('custom_value');
 
-        const newItemDownwardsButton = wrapper.find('.sw-data-grid__row--0 .sw-button-group .sw-button:last-of-type');
-        await newItemDownwardsButton.trigger('click');
+        // assert structure
+        const orderedItems = wrapper.findAll('.sw-data-grid__row .sw-data-grid__cell--csvName input');
 
-        const reorderedMappings = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
-        const customMappingOrder = [
+        const expectedOrder = ['custom_value', 'id', 'parent_id', 'product_number'];
+        const actualOrder = orderedItems.wrappers.map(input => {
+            return input.element.value;
+        });
+
+        expect(actualOrder).toEqual(expectedOrder);
+
+        const downwardsButton = wrapper
+            .find('.sw-data-grid__row--0 .sw-data-grid__cell--position button:not([disabled])');
+
+        await downwardsButton.trigger('click');
+
+        // assert event
+        const reorderedEvent = wrapper.emitted('update-mapping')[0][0];
+
+        // removing unnecessary data
+        const actualEventData = reorderedEvent.map(mapping => {
+            delete mapping.id;
+
+            return mapping;
+        });
+
+        const expectedEventData = [
             {
+                key: '',
+                mappedKey: 'custom_value',
+                position: 1
+            },
+            {
+                key: 'id',
+                mappedKey: 'id',
                 position: 0,
-                mappedKey: 'parent_id'
             },
             {
-                position: 1,
-                mappedKey: 'custom_value'
-            },
-            {
+                key: 'parentId',
+                mappedKey: 'parent_id',
                 position: 2,
-                mappedKey: 'id'
+            },
+            {
+                key: 'productNumber',
+                mappedKey: 'product_number',
+                position: 3,
             }
         ];
 
-        reorderedMappings.wrappers.forEach((currentWrapper, index) => {
-            const key = currentWrapper.find('input[type="text"]').element.value;
-
-            expect(key).toBe(customMappingOrder[index].mappedKey);
-            expect(customMappingOrder[index].position).toBe(index);
-        });
+        expect(actualEventData).toEqual(expectedEventData);
     });
 });

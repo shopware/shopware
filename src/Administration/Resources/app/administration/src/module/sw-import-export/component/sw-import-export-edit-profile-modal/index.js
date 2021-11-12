@@ -241,6 +241,10 @@ Component.register('sw-import-export-edit-profile-modal', {
             });
         },
 
+        updateMapping(newProfile) {
+            this.profile.mapping = newProfile;
+        },
+
         getParentProfileSelected() {
             const criteria = new Criteria();
             criteria.addFilter(Criteria.equals('sourceEntity', this.profile.sourceEntity));
@@ -266,7 +270,9 @@ Component.register('sw-import-export-edit-profile-modal', {
             }
 
             const parentMapping = parentProfile ? parentProfile.mapping : [];
-            const isOnlyUpdateProfile = this.profile.config.createEntities === false && this.profile.config.updateEntities === true;
+            const isOnlyUpdateProfile =
+                this.profile.config.createEntities === false &&
+                this.profile.config.updateEntities === true;
             const validationErrors = this.importExportProfileMapping.validate(
                 this.profile.sourceEntity,
                 this.profile.mapping,

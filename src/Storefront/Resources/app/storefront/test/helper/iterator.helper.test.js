@@ -73,6 +73,25 @@ describe('iterator.helper.js', () => {
 
     });
 
+    test('it iterates HTML collections', () => {
+        document.body.innerHTML = '<ul><li>first</li><li>second</li><li>third</li></ul>';
+        const nodeList = document.getElementsByTagName('li');
+        expect(nodeList.length).toBe(3);
+
+        const callback = jest.fn();
+        Iterator.iterate(nodeList, callback);
+
+        expect(callback).toBeCalledTimes(3);
+
+        const arrayNodeList = Array.from(nodeList);
+        expect(nodeList.length).toBe(arrayNodeList.length);
+
+        expect(callback).nthCalledWith(1, arrayNodeList[0], 0, arrayNodeList);
+        expect(callback).nthCalledWith(2, arrayNodeList[1], 1, arrayNodeList);
+        expect(callback).nthCalledWith(3, arrayNodeList[2], 2, arrayNodeList);
+
+    });
+
     test('it throws for primitives', () => {
         expect(() => { return Iterator.iterate('iterate over string') }).toThrowError();
         expect(() => { return Iterator.iterate(new String('iterate over string')) }).toThrowError();

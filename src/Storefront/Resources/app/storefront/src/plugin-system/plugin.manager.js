@@ -266,7 +266,7 @@ class PluginManagerSingleton {
         }
 
         if (typeof selector === 'string') {
-            selector = document.querySelectorAll(selector);
+            selector = PluginManagerSingleton._queryElements(selector);
         }
 
         return Iterator.iterate(selector, el => {
@@ -275,9 +275,51 @@ class PluginManagerSingleton {
     }
 
     /**
+     * Determs the way to query the elements.
+     *
+     * [data-*] => querySelectorAll
+     * #fooBar => getElementById
+     * #foo_bar => getElementById
+     * #foo-bar => getElementById
+     * #foo .bar => querySelectorAll
+     * .fooBar => getElementsByClassName
+     * .FOO => getElementsByClassName
+     * .foo_bar => getElementsByClassName
+     * .foo-bar => getElementsByClassName
+     * .foo .bar => querySelectorAll
+     *
+     * FOO => getElementsByTagName
+     * FOO .bar => querySelectorAll
+     *
+     * For performance reason used regex based on common characters `a-zA-Z1-9_-`
+     * instead of the entire compatible characters
+     *
+     * @param {string} selector
+     *
+     * @return {NodeList|HTMLCollection|Array}
+     */
+    static _queryElements(selector) {
+        if (selector.startsWith('.')) {
+            const regexEl = /^\.([\w-]+)$/.exec(selector);
+            if (regexEl) {
+                return document.getElementsByClassName(regexEl[1]);
+            }
+        } else if (selector.startsWith('#')) {
+            const regexEl = /^#([\w-]+)$/.exec(selector);
+            if (regexEl) {
+                return [document.getElementById(regexEl[1])];
+            }
+        } else if (/^([\w-]+)$/.exec(selector)) {
+            return document.getElementsByTagName(selector);
+        }
+
+        return document.querySelectorAll(selector);
+    }
+
+    /**
      * Executes a vanilla plugin class on the passed element.
      *
-     * @param {String|NodeList|HTMLElement} el
+     * @param {Node|HTMLElement} el
      * @param {Plugin} pluginClass
      * @param {Object} options
      * @param {string} pluginName

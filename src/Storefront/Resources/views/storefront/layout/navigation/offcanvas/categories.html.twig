@@ -1,5 +1,5 @@
 {# @var navigation \Shopware\Core\Content\Category\Tree\Tree #}
-{% set activeId = navigation.active.id %}
+{% set activeId = navigation.active.id ?? context.salesChannel.navigationCategoryId %}
 {% set isRoot = activeId == context.salesChannel.navigationCategoryId %}
 {% set children = navigation.children(activeId) %}
 {% set active = navigation.active %}

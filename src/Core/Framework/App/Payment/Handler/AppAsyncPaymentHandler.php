@@ -34,7 +34,10 @@ class AppAsyncPaymentHandler extends AbstractAppPaymentHandler implements Asynch
             $this->transactionStateHandler->process($transaction->getOrderTransaction()->getId(), $salesChannelContext->getContext());
         }
 
-        $payload = $this->buildPayPayload($transaction);
+        $requestData = $dataBag->all();
+        unset($requestData['_csrf_token']);
+
+        $payload = $this->buildPayPayload($transaction, $requestData);
         $app = $this->getAppPaymentMethod($transaction->getOrderTransaction())->getApp();
         if ($app === null) {
             throw new AsyncPaymentProcessException($transaction->getOrderTransaction()->getId(), 'App not defined');
@@ -77,7 +80,10 @@ class AppAsyncPaymentHandler extends AbstractAppPaymentHandler implements Asynch
 
     public function finalize(AsyncPaymentTransactionStruct $transaction, Request $request, SalesChannelContext $salesChannelContext): void
     {
-        $payload = $this->buildFinalizePayload($transaction);
+        $queryParameters = $request->query->all();
+        unset($queryParameters['_sw_payment_token']);
+
+        $payload = $this->buildFinalizePayload($transaction, $queryParameters);
         $app = $this->getAppPaymentMethod($transaction->getOrderTransaction())->getApp();
         if ($app === null) {
             throw new AsyncPaymentFinalizeException($transaction->getOrderTransaction()->getId(), 'App not defined');
@@ -117,19 +123,21 @@ class AppAsyncPaymentHandler extends AbstractAppPaymentHandler implements Asynch
         );
     }
 
-    private function buildPayPayload(AsyncPaymentTransactionStruct $transaction): AsyncPayPayload
+    private function buildPayPayload(AsyncPaymentTransactionStruct $transaction, array $requestData): AsyncPayPayload
     {
         return new AsyncPayPayload(
             $transaction->getOrderTransaction(),
             $transaction->getOrder(),
-            $transaction->getReturnUrl()
+            $transaction->getReturnUrl(),
+            $requestData
         );
     }
 
-    private function buildFinalizePayload(AsyncPaymentTransactionStruct $transaction): AsyncFinalizePayload
+    private function buildFinalizePayload(AsyncPaymentTransactionStruct $transaction, array $queryParameters): AsyncFinalizePayload
     {
         return new AsyncFinalizePayload(
-            $transaction->getOrderTransaction()
+            $transaction->getOrderTransaction(),
+            $queryParameters
         );
     }
 }

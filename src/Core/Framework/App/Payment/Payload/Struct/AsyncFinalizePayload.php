@@ -19,9 +19,12 @@ class AsyncFinalizePayload implements PaymentPayloadInterface
 
     protected OrderTransactionEntity $orderTransaction;
 
-    public function __construct(OrderTransactionEntity $orderTransaction)
+    protected array $queryParameters;
+
+    public function __construct(OrderTransactionEntity $orderTransaction, array $queryParameters)
     {
         $this->orderTransaction = $this->removeApp($orderTransaction);
+        $this->queryParameters = $queryParameters;
     }
 
     public function setSource(Source $source): void
@@ -37,5 +40,10 @@ class AsyncFinalizePayload implements PaymentPayloadInterface
     public function getOrderTransaction(): OrderTransactionEntity
     {
         return $this->orderTransaction;
+    }
+
+    public function getQueryParameters(): array
+    {
+        return $this->queryParameters;
     }
 }

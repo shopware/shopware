@@ -23,6 +23,9 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
+use Shopware\Storefront\Page\Account\Order\AccountEditOrderPageLoadedHook;
+use Shopware\Storefront\Page\Account\Order\AccountOrderDetailPageLoadedHook;
+use Shopware\Storefront\Page\Account\Order\AccountOrderPageLoadedHook;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -248,7 +251,7 @@ class AccountOrderControllerTest extends TestCase
 
         $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
 
-        static::assertArrayHasKey('account-order-page-loaded', $traces);
+        static::assertArrayHasKey(AccountOrderPageLoadedHook::HOOK_NAME, $traces);
     }
 
     public function testAccountOrderPageLoadedScriptsAreExecutedForDeeplinkedPage(): void
@@ -279,7 +282,7 @@ class AccountOrderControllerTest extends TestCase
 
         $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
 
-        static::assertArrayHasKey('account-order-page-loaded', $traces);
+        static::assertArrayHasKey(AccountOrderPageLoadedHook::HOOK_NAME, $traces);
     }
 
     public function testAccountOrderDetailPageLoadedScriptsAreExecuted(): void
@@ -321,7 +324,7 @@ class AccountOrderControllerTest extends TestCase
 
         $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
 
-        static::assertArrayHasKey('account-order-detail-page-loaded', $traces);
+        static::assertArrayHasKey(AccountOrderDetailPageLoadedHook::HOOK_NAME, $traces);
     }
 
     public function testAccountOrderEditPageLoadedScriptsAreExecuted(): void
@@ -363,9 +366,8 @@ class AccountOrderControllerTest extends TestCase
 
         $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
 
-        static::assertArrayHasKey('account-order-detail-page-loaded', $traces);
+        static::assertArrayHasKey(AccountEditOrderPageLoadedHook::HOOK_NAME, $traces);
     }
-
 
     private function login(string $email): KernelBrowser
     {

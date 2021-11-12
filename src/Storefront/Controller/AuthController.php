@@ -28,6 +28,7 @@ use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Routing\Annotation\NoStore;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
+use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoadedHook;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -91,7 +92,7 @@ class AuthController extends StorefrontController
 
         $page = $this->loginPageLoader->load($request, $context);
 
-        $this->hook('account-login-page-loaded', ['page' => $page]);
+        $this->hook(new AccountLoginPageLoadedHook($page, $context));
 
         return $this->renderStorefront('@Storefront/storefront/page/account/register/index.html.twig', [
             'redirectTo' => $redirect,
@@ -133,7 +134,7 @@ class AuthController extends StorefrontController
 
         $page = $this->loginPageLoader->load($request, $context);
 
-        $this->hook('account-login-page-loaded', ['page' => $page]);
+        $this->hook(new AccountLoginPageLoadedHook($page, $context));
 
         return $this->renderStorefront('@Storefront/storefront/page/account/guest-auth.html.twig', [
             'redirectTo' => $redirect,

@@ -13,6 +13,8 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -24,6 +26,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Controller\AuthController;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
+use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoadedHook;
 use Shopware\Storefront\Page\Account\Overview\AccountOverviewPage;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -282,6 +285,28 @@ class AuthControllerTest extends TestCase
 
         static::assertNotEmpty($infoFlash = $flashBag->get('warning'));
         static::assertEquals($this->getContainer()->get('translator')->trans('checkout.product-not-found', ['%s%' => 'Test product']), $infoFlash[0]);
+    }
+
+    public function testAccountLoginPageLoadedHookScriptsAreExecuted(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
+        $this->request('GET', '/account/login', []);
+
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+
+        static::assertArrayHasKey(AccountLoginPageLoadedHook::HOOK_NAME, $traces);
+    }
+
+    public function testAccountLoginPageLoadedHookScriptsAreExecutedOnGuestLogin(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
+        $this->request('GET', '/account/guest/login', []);
+
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+
+        static::assertArrayHasKey(AccountLoginPageLoadedHook::HOOK_NAME, $traces);
     }
 
     private function createProductOnDatabase(string $productId, string $productNumber, $context): void

@@ -24,9 +24,13 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\AffiliateTracking\AffiliateTrackingListener;
 use Shopware\Storefront\Framework\Routing\Annotation\NoStore;
+use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoadedHook;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoader;
+use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoadedHook;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoader;
+use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoadedHook;
 use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoader;
+use Shopware\Storefront\Page\Checkout\Offcanvas\OffcanvasCartPageLoadedHook;
 use Shopware\Storefront\Page\Checkout\Offcanvas\OffcanvasCartPageLoader;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -115,7 +119,7 @@ class CheckoutController extends StorefrontController
     {
         $page = $this->cartPageLoader->load($request, $context);
 
-        $this->hook('checkout-cart-page-loaded', ['page' => $page]);
+        $this->hook(new CheckoutCartPageLoadedHook($page, $context));
 
         $this->addCartErrors($page->getCart());
 
@@ -139,7 +143,7 @@ class CheckoutController extends StorefrontController
 
         $page = $this->confirmPageLoader->load($request, $context);
 
-        $this->hook('checkout-confirm-page-loaded', ['page' => $page]);
+        $this->hook(new CheckoutConfirmPageLoadedHook($page, $context));
 
         $this->addCartErrors($page->getCart());
 
@@ -163,7 +167,7 @@ class CheckoutController extends StorefrontController
 
         $page = $this->finishPageLoader->load($request, $context);
 
-        $this->hook('checkout-finish-page-loaded', ['page' => $page]);
+        $this->hook(new CheckoutFinishPageLoadedHook($page, $context));
 
         if ($page->isPaymentFailed() === true) {
             return $this->redirectToRoute(
@@ -228,7 +232,7 @@ class CheckoutController extends StorefrontController
     {
         $page = $this->offcanvasCartPageLoader->load($request, $context);
 
-        $this->hook('offcanvas-cart-page-loaded', ['page' => $page]);
+        $this->hook(new OffcanvasCartPageLoadedHook($page, $context));
 
         $response = $this->renderStorefront('@Storefront/storefront/layout/header/actions/cart-widget.html.twig', ['page' => $page]);
         $response->headers->set('x-robots-tag', 'noindex');
@@ -246,7 +250,7 @@ class CheckoutController extends StorefrontController
     {
         $page = $this->offcanvasCartPageLoader->load($request, $context);
 
-        $this->hook('offcanvas-cart-page-loaded', ['page' => $page]);
+        $this->hook(new OffcanvasCartPageLoadedHook($page, $context));
 
         $cart = $page->getCart();
         $this->addCartErrors($cart);

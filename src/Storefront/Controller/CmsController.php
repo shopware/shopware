@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Event\SwitchBuyBoxVariantEvent;
 use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
+use Shopware\Storefront\Page\Cms\CmsPageLoadedHook;
 use Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder;
 use Shopware\Storefront\Page\Product\Review\ProductReviewLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -100,7 +101,7 @@ class CmsController extends StorefrontController
 
         $page = $this->cmsRoute->load($id, $request, $salesChannelContext)->getCmsPage();
 
-        $this->hook('cms-page-loaded', ['page' => $page]);
+        $this->hook(new CmsPageLoadedHook($page, $salesChannelContext));
 
         $response = $this->renderStorefront('@Storefront/storefront/page/content/detail.html.twig', ['cmsPage' => $page]);
         $response->headers->set('x-robots-tag', 'noindex');
@@ -133,7 +134,7 @@ class CmsController extends StorefrontController
             throw new PageNotFoundException('');
         }
 
-        $this->hook('cms-page-loaded', ['page' => $page]);
+        $this->hook(new CmsPageLoadedHook($page, $salesChannelContext));
 
         $response = $this->renderStorefront('@Storefront/storefront/page/content/detail.html.twig', ['cmsPage' => $page]);
         $response->headers->set('x-robots-tag', 'noindex');

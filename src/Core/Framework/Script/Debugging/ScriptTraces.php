@@ -97,6 +97,11 @@ class ScriptTraces extends AbstractDataCollector
         return $this->data;
     }
 
+    public function getTraces(): array
+    {
+        return $this->traces;
+    }
+
     private function add(Hook $hook, string $name, float $took, Debug $output): void
     {
         $this->traces[$hook->getName()][] = [
@@ -104,10 +109,5 @@ class ScriptTraces extends AbstractDataCollector
             'took' => $took,
             'output' => $output->all(),
         ];
-    }
-
-    public function getTraces(): array
-    {
-        return $this->traces;
     }
 }

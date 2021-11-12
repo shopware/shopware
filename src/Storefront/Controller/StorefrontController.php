@@ -9,6 +9,7 @@ use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Adapter\Twig\TemplateFinder;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
+use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\PlatformRequest;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
@@ -230,8 +231,8 @@ abstract class StorefrontController extends AbstractController
         return $this->get(TemplateFinder::class);
     }
 
-    protected function hook(string $hook, array $context): void
+    protected function hook(Hook $hook): void
     {
-        $this->get(ScriptExecutor::class)->execute($hook, $context);
+        $this->get(ScriptExecutor::class)->execute($hook);
     }
 }

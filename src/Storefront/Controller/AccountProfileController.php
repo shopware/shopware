@@ -18,7 +18,9 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Routing\Annotation\NoStore;
+use Shopware\Storefront\Page\Account\Overview\AccountOverviewPageLoadedHook;
 use Shopware\Storefront\Page\Account\Overview\AccountOverviewPageLoader;
+use Shopware\Storefront\Page\Account\Profile\AccountProfilePageLoadedHook;
 use Shopware\Storefront\Page\Account\Profile\AccountProfilePageLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -72,7 +74,7 @@ class AccountProfileController extends StorefrontController
     {
         $page = $this->overviewPageLoader->load($request, $context, $customer);
 
-        $this->hook('account-overview-page-loaded', ['page' => $page]);
+        $this->hook(new AccountOverviewPageLoadedHook($page, $context));
 
         return $this->renderStorefront('@Storefront/storefront/page/account/index.html.twig', ['page' => $page]);
     }
@@ -92,7 +94,7 @@ class AccountProfileController extends StorefrontController
     {
         $page = $this->profilePageLoader->load($request, $context);
 
-        $this->hook('account-profile-page-loaded', ['page' => $page]);
+        $this->hook(new AccountProfilePageLoadedHook($page, $context));
 
         return $this->renderStorefront('@Storefront/storefront/page/account/profile/index.html.twig', [
             'page' => $page,

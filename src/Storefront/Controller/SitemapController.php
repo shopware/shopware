@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Controller;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Storefront\Page\Sitemap\SitemapPageLoadedHook;
 use Shopware\Storefront\Page\Sitemap\SitemapPageLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -33,7 +34,7 @@ class SitemapController extends StorefrontController
     {
         $page = $this->sitemapPageLoader->load($request, $context);
 
-        $this->hook('sitemap-page-loaded', ['page' => $page]);
+        $this->hook(new SitemapPageLoadedHook($page, $context));
 
         $response = $this->renderStorefront('@Storefront/storefront/page/sitemap/sitemap.xml.twig', ['page' => $page]);
         $response->headers->set('content-type', 'text/xml; charset=utf-8');

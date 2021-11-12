@@ -10,6 +10,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
 use Shopware\Storefront\Framework\Routing\MaintenanceModeResolver;
+use Shopware\Storefront\Page\Maintenance\MaintenancePageLoadedHook;
 use Shopware\Storefront\Page\Maintenance\MaintenancePageLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -74,7 +75,7 @@ class MaintenanceController extends StorefrontController
 
         $maintenancePage = $this->maintenancePageLoader->load($maintenanceLayoutId, $request, $context);
 
-        $this->hook('maintenance-page-loaded', ['page' => $maintenancePage]);
+        $this->hook(new MaintenancePageLoadedHook($maintenancePage, $context));
 
         $response = $this->renderStorefront(
             '@Storefront/storefront/page/error/error-maintenance.html.twig',
@@ -105,7 +106,7 @@ class MaintenanceController extends StorefrontController
 
         $cmsPage = $this->maintenancePageLoader->load($id, $request, $salesChannelContext);
 
-        $this->hook('maintenance-page-loaded', ['page' => $cmsPage]);
+        $this->hook(new MaintenancePageLoadedHook($cmsPage, $salesChannelContext));
 
         return $this->renderStorefront(
             '@Storefront/storefront/page/content/single-cms-page.html.twig',

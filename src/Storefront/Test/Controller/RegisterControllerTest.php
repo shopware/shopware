@@ -10,24 +10,34 @@ use Shopware\Core\Checkout\Customer\Event\CustomerDoubleOptInRegistrationEvent;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\RegisterRoute;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
+use Shopware\Core\Framework\Test\TestDataCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Controller\RegisterController;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
+use Shopware\Storefront\Page\Account\CustomerGroupRegistration\CustomerGroupRegistrationPageLoadedHook;
 use Shopware\Storefront\Page\Account\CustomerGroupRegistration\CustomerGroupRegistrationPageLoader;
+use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoadedHook;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
+use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoadedHook;
 use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -37,6 +47,7 @@ class RegisterControllerTest extends TestCase
 {
     use MailTemplateTestBehaviour;
     use IntegrationTestBehaviour;
+    use StorefrontControllerTestBehaviour;
 
     /**
      * @var AccountService
@@ -284,6 +295,51 @@ class RegisterControllerTest extends TestCase
         static::assertEquals('/checkout/confirm', $response->getTargetUrl());
     }
 
+    public function testAccountLoginPageLoadedHookScriptsAreExecutedOnRegisterPage(): void
+    {
+        $response = $this->request('GET', '/account/register', []);
+        static::assertEquals(200, $response->getStatusCode());
+
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+
+        static::assertArrayHasKey(AccountLoginPageLoadedHook::HOOK_NAME, $traces);
+    }
+
+    public function testCustomerGroupRegistrationPageLoadedHookScriptsAreExecuted(): void
+    {
+        $ids = new TestDataCollection();
+        $this->createCustomerGroup($ids);
+
+        $response = $this->request('GET', '/customer-group-registration/' . $ids->get('group'), []);
+        static::assertEquals(200, $response->getStatusCode());
+
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+
+        static::assertArrayHasKey(CustomerGroupRegistrationPageLoadedHook::HOOK_NAME, $traces);
+    }
+
+    public function testCheckoutRegisterPageLoadedHookScriptsAreExecuted(): void
+    {
+        $productNumber = ' p1';
+
+        $this->createProduct(Uuid::randomHex(), $productNumber);
+
+        $this->request(
+            'POST',
+            '/checkout/product/add-by-number',
+            $this->tokenize('frontend.checkout.product.add-by-number', [
+                'number' => $productNumber,
+            ])
+        );
+
+        $response = $this->request('GET', '/checkout/register', []);
+        static::assertEquals(200, $response->getStatusCode());
+
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+
+        static::assertArrayHasKey(CheckoutRegisterPageLoadedHook::HOOK_NAME, $traces);
+    }
+
     private function getMailRecipientStruct(array $customerData): MailRecipientStruct
     {
         return new MailRecipientStruct([
@@ -339,5 +395,61 @@ class RegisterControllerTest extends TestCase
         }
 
         return new RequestDataBag($data);
+    }
+
+    private function createCustomerGroup(TestDataCollection $ids): void
+    {
+        /** @var SalesChannelEntity $salesChannel */
+        $salesChannel = $this->getContainer()->get('sales_channel.repository')->search(
+            (new Criteria())->addFilter(new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT)),
+            Context::createDefaultContext()
+        )->first();
+
+        $this->getContainer()->get('customer_group.repository')->create([
+            [
+                'id' => $ids->create('group'),
+                'registrationActive' => true,
+                'name' => 'test',
+                'registrationSalesChannels' => [
+                    [
+                        'id' => $salesChannel->getId(),
+                    ],
+                ],
+            ],
+        ], Context::createDefaultContext());
+    }
+
+    private function createProduct(string $productId, string $productNumber): void
+    {
+        $taxId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+
+        /** @var SalesChannelEntity $salesChannel */
+        $salesChannel = $this->getContainer()->get('sales_channel.repository')->search(
+            (new Criteria())->addFilter(new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT)),
+            Context::createDefaultContext()
+        )->first();
+
+        $product = [
+            'id' => $productId,
+            'name' => 'Test product',
+            'productNumber' => $productNumber,
+            'stock' => 1,
+            'price' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 15.99, 'net' => 10, 'linked' => false],
+            ],
+            'tax' => ['id' => $taxId, 'name' => 'testTaxRate', 'taxRate' => 15],
+            'categories' => [
+                ['id' => $productId, 'name' => 'Test category'],
+            ],
+            'visibilities' => [
+                [
+                    'id' => $productId,
+                    'salesChannelId' => $salesChannel->getId(),
+                    'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL,
+                ],
+            ],
+        ];
+        $this->getContainer()->get('product.repository')->create([$product], $context);
     }
 }

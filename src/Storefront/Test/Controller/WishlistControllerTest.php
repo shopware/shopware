@@ -9,6 +9,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -18,7 +19,10 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
 use Shopware\Storefront\Page\Wishlist\GuestWishlistPage;
+use Shopware\Storefront\Page\Wishlist\GuestWishlistPageLoadedHook;
 use Shopware\Storefront\Page\Wishlist\WishlistPage;
+use Shopware\Storefront\Page\Wishlist\WishlistPageLoadedHook;
+use Shopware\Storefront\Pagelet\Wishlist\GuestWishlistPageletLoadedHook;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -227,6 +231,71 @@ class WishlistControllerTest extends TestCase
 
         static::assertNotEmpty($warningFlash = $flashBag->get('warning'));
         static::assertEquals('Product has already been added to your wishlist.', $warningFlash[0]);
+    }
+
+    public function testWishlistPageLoadedHookScriptsAreExecuted(): void
+    {
+        $browser = $this->login();
+
+        $browser->request('GET', '/wishlist', []);
+        $response = $browser->getResponse();
+        static::assertEquals(200, $response->getStatusCode());
+
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+
+        static::assertArrayHasKey(WishlistPageLoadedHook::HOOK_NAME, $traces);
+    }
+
+    public function testGuestWishlistPageLoadedHookScriptsAreExecuted(): void
+    {
+        $response = $this->request('GET', '/wishlist', []);
+        static::assertEquals(200, $response->getStatusCode());
+
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+
+        static::assertArrayHasKey(GuestWishlistPageLoadedHook::HOOK_NAME, $traces);
+    }
+
+    public function testGuestWishlistPageletLoadedHookScriptsAreExecuted(): void
+    {
+        $browser = KernelLifecycleManager::createBrowser($this->getKernel());
+        $browser->xmlHttpRequest(
+            'POST',
+            $_SERVER['APP_URL'] . '/wishlist/guest-pagelet'
+        );
+        $response = $browser->getResponse();
+
+        static::assertEquals(200, $response->getStatusCode());
+
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+
+        static::assertArrayHasKey(GuestWishlistPageletLoadedHook::HOOK_NAME, $traces);
+    }
+
+    public function testWishlistPageLoadedHookScriptsAreExecutedForWidget(): void
+    {
+        $browser = $this->login();
+
+        $browser->request('GET', '/widgets/wishlist', []);
+        $response = $browser->getResponse();
+        static::assertEquals(200, $response->getStatusCode());
+
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+
+        static::assertArrayHasKey(WishlistPageLoadedHook::HOOK_NAME, $traces);
+    }
+
+    public function testWishlistPageLoadedHookScriptsAreExecutedForMergeWidget(): void
+    {
+        $browser = $this->login();
+
+        $browser->request('GET', '/wishlist/merge/pagelet', []);
+        $response = $browser->getResponse();
+        static::assertEquals(200, $response->getStatusCode());
+
+        $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
+
+        static::assertArrayHasKey(WishlistPageLoadedHook::HOOK_NAME, $traces);
     }
 
     private function createCustomer(): CustomerEntity

@@ -9,7 +9,9 @@ use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
+use Shopware\Storefront\Page\Search\SearchPageLoadedHook;
 use Shopware\Storefront\Page\Search\SearchPageLoader;
+use Shopware\Storefront\Page\Suggest\SuggestPageLoadedHook;
 use Shopware\Storefront\Page\Suggest\SuggestPageLoader;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -67,7 +69,7 @@ class SearchController extends StorefrontController
             return $this->forwardToRoute('frontend.home.page');
         }
 
-        $this->hook('search-page-loaded', ['page' => $page]);
+        $this->hook(new SearchPageLoadedHook($page, $context));
 
         return $this->renderStorefront('@Storefront/storefront/page/search/index.html.twig', ['page' => $page]);
     }
@@ -81,7 +83,7 @@ class SearchController extends StorefrontController
     {
         $page = $this->suggestPageLoader->load($request, $context);
 
-        $this->hook('suggest-page-loaded', ['page' => $page]);
+        $this->hook(new SuggestPageLoadedHook($page, $context));
 
         return $this->renderStorefront('@Storefront/storefront/layout/header/search-suggest.html.twig', ['page' => $page]);
     }
@@ -103,7 +105,7 @@ class SearchController extends StorefrontController
 
         $page = $this->searchPageLoader->load($request, $context);
 
-        $this->hook('search-page-loaded', ['page' => $page]);
+        $this->hook(new SearchPageLoadedHook($page, $context));
 
         $response = $this->renderStorefront('@Storefront/storefront/page/search/search-pagelet.html.twig', ['page' => $page]);
         $response->headers->set('x-robots-tag', 'noindex');

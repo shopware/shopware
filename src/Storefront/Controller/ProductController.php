@@ -16,9 +16,12 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder;
+use Shopware\Storefront\Page\Product\ProductPageLoadedHook;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
+use Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoadedHook;
 use Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoader;
 use Shopware\Storefront\Page\Product\Review\ProductReviewLoader;
+use Shopware\Storefront\Page\Product\Review\ProductReviewsLoadedHook;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -89,7 +92,7 @@ class ProductController extends StorefrontController
     {
         $page = $this->productPageLoader->load($request, $context);
 
-        $this->hook('product-page-loaded', ['page' => $page]);
+        $this->hook(new ProductPageLoadedHook($page, $context));
 
         $ratingSuccess = $request->get('success');
 
@@ -155,7 +158,7 @@ class ProductController extends StorefrontController
     {
         $page = $this->minimalQuickViewPageLoader->load($request, $context);
 
-        $this->hook('minimal-quick-view-page-loaded', ['page' => $page]);
+        $this->hook(new MinimalQuickViewPageLoadedHook($page, $context));
 
         return $this->renderStorefront('@Storefront/storefront/component/product/quickview/minimal.html.twig', ['page' => $page]);
     }
@@ -204,7 +207,7 @@ class ProductController extends StorefrontController
 
         $reviews = $this->productReviewLoader->load($request, $context);
 
-        $this->hook('product-reviews-loaded', ['reviews' => $reviews]);
+        $this->hook(new ProductReviewsLoadedHook($reviews, $context));
 
         return $this->renderStorefront('storefront/page/product-detail/review/review.html.twig', [
             'reviews' => $reviews,

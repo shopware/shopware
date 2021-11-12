@@ -61,7 +61,7 @@
             <label lang="de-DE">Bestätigungs-URL für Double-Opt-In-Registrierung</label>
             <placeholder><![CDATA[/registration/confirm?em=%%HASHEDEMAIL%%&hash=%%SUBSCRIBEHASH%%]]></placeholder>
             <helpText><![CDATA[Double opt-in URL for guest orders.<br/>Available placeholders: <br/>%%HASHEDEMAIL%%<br/>%%SUBSCRIBEHASH%%]]></helpText>
-            <helpText><![CDATA[Double-Opt-In-URL für Gast-Bestellungen.<br/>Verfügbare Platzhalter: <br/>%%HASHEDEMAIL%%<br/>%%SUBSCRIBEHASH%%]]></helpText>
+            <helpText lang="de-DE"><![CDATA[Double-Opt-In-URL für Gast-Bestellungen.<br/>Verfügbare Platzhalter: <br/>%%HASHEDEMAIL%%<br/>%%SUBSCRIBEHASH%%]]></helpText>
         </input-field>
 
         <input-field type="bool">

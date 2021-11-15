@@ -1,3 +1,9 @@
+import './component/sw-settings-rule-add-assignment-modal';
+import './component/sw-settings-rule-add-assignment-listing';
+import './component/sw-settings-rule-assignment-listing';
+import './component/sw-settings-rule-category-tree';
+import './component/sw-settings-rule-tree-item';
+import './component/sw-settings-rule-tree';
 import './page/sw-settings-rule-list';
 import './page/sw-settings-rule-detail';
 import './view/sw-settings-rule-detail-base';

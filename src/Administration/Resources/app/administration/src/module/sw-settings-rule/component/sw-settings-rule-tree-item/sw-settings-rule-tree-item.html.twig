@@ -1,0 +1,46 @@
+{% block sw_tree_item_element_actions %}
+<span v-if="hideActions"></span>
+<span v-else>{% parent %}</span>
+{% endblock %}
+
+{% block sw_tree_item_element_selection %}
+<div class="sw-tree-item__selection">
+    <sw-checkbox-field
+        :disabled="hasItemAssociation(item)"
+        :ghost-value="checkedGhost"
+        :value="checked || hasItemAssociation(item)"
+        @change="toggleItemCheck($event, item)"
+    />
+</div>
+{% endblock %}
+
+{% block sw_tree_item_children_items %}
+<sw-settings-rule-tree-item
+    v-for="child in item.children"
+    :key="child.id"
+    :association="association"
+    :item="child"
+    :dragged-item="draggedItem"
+    :parent-scope="parentScope"
+    :new-element-id="newElementId"
+    :translation-context="translationContext"
+    :on-change-route="onChangeRoute"
+    :active-parent-ids="activeParentIds"
+    :active-item-ids="activeItemIds"
+    :mark-inactive="markInactive"
+    :sortable="sortable"
+    :should-focus="shouldFocus"
+    :active-focus-id="activeFocusId"
+    :display-checkbox="displayCheckbox"
+    :disable-context-menu="disableContextMenu"
+    :get-is-highlighted="getIsHighlighted"
+    @check-item="emitCheckedItem"
+>
+    <template
+        v-if="hideActions"
+        #actions
+    >
+        <span></span>
+    </template>
+</sw-settings-rule-tree-item>
+{% endblock %}

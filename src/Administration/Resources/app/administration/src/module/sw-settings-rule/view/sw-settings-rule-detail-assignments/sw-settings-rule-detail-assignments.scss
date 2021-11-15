@@ -1,5 +1,9 @@
 @import '~scss/variables';
 
+.sw-settings-rule-detail-assignments__card .sw-card__toolbar {
+    border-radius: 4px 4px 0 0;
+}
+
 .sw-settings-rule-detail-assignments__card-loader {
     .sw-card__content {
         min-height: 250px;

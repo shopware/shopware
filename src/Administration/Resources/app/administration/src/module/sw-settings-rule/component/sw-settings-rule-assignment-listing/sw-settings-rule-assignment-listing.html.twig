@@ -1,0 +1,22 @@
+{% block sw_data_grid_columns_render_router_link %}
+<slot
+    name="link-column"
+    :item="item"
+    :column="column"
+    :renderColumn="renderColumn"
+>
+</slot>
+{% endblock %}
+
+{% block sw_data_grid_columns_render_value %}{% endblock %}
+
+{% block sw_data_grid_bulk_delete_content %}
+<!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -->
+<a
+    v-if="allowDelete"
+    class="link link-danger"
+    @click="showBulkDeleteModal = true"
+>
+    {{ $tc('global.default.remove') }}
+</a>
+{% endblock %}

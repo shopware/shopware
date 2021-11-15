@@ -1,0 +1,87 @@
+{% block sw_settings_rule_add_assignment_listing %}
+<sw-card class="sw-settings-rule-add-assignment-listing__card">
+    <template #toolbar>
+        {% block sw_settings_rule_add_assignment_listing_toolbar %}
+        <sw-card-filter @sw-card-filter-term-change="doSearch" />
+        {% endblock %}
+    </template>
+
+    {% block sw_settings_rule_add_assignment_listing_grid %}
+    <sw-data-grid
+        :data-source="items"
+        :columns="entityContext.addContext.gridColumns"
+        :is-record-selectable="isNotAssigned"
+        :show-actions="false"
+        @select-item="onSelectItem"
+    >
+        <template
+            #selection-content="{
+                item,
+                isSelected,
+                isRecordSelectable,
+                selectItem,
+                itemIdentifierProperty,
+            }"
+        >
+            {% block sw_settings_rule_add_assignment_listing_checkbox %}
+            <div class="sw-data-grid__cell-content">
+                <sw-checkbox-field
+                    :disabled="!isRecordSelectable(item)"
+                    :value="isSelected(item[itemIdentifierProperty]) || !isNotAssigned(item)"
+                    @change="selectItem($event, item)"
+                />
+            </div>
+            {% endblock %}
+        </template>
+
+        <template #column-name="{ item }">
+            {% block sw_settings_rule_add_assignment_listing_name %}
+            <sw-product-variant-info
+                v-if="item.variation"
+                :variations="item.variation"
+            >
+                {{ item.translated.name }}
+            </sw-product-variant-info>
+            <span v-else>
+                {{ item.translated.name }}
+            </span>
+            {% endblock %}
+        </template>
+
+        <template #column-active="{ item }">
+            {% block sw_settings_rule_add_assignment_listing_active_flag %}
+            <sw-icon
+                v-if="item.active"
+                name="small-default-checkmark-line-medium"
+                small
+                class="is--active"
+            />
+            <sw-icon
+                v-else
+                name="small-default-x-line-medium"
+                small
+                class="is--inactive"
+            />
+            {% endblock %}
+        </template>
+
+        <template #column-taxType="{ item }">
+            {% block sw_settings_rule_add_assignment_listing_tax_type %}
+            {{ shippingTaxTypeLabel(item.taxType) }}
+            {% endblock %}
+        </template>
+
+        <template #pagination>
+            {% block sw_settings_rule_add_assignment_listing_pagination %}
+            <sw-pagination
+                :limit="limit"
+                :page="page"
+                :total="total"
+                @page-change="paginate"
+            />
+            {% endblock %}
+        </template>
+    </sw-data-grid>
+    {% endblock %}
+</sw-card>
+{% endblock %}

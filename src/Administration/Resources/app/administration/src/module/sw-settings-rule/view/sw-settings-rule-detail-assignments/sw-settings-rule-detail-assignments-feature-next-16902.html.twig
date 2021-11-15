@@ -1,0 +1,203 @@
+{% block sw_settings_rule_detail_assignments %}
+<div class="sw-settings-rule-detail-assignments">
+
+    {% block sw_settings_rule_detail_assignments_entity_cards %}
+    <sw-card
+        v-for="entity in associationEntities"
+        :key="entity.id"
+        class="sw-settings-rule-detail-assignments__card"
+        :class="`sw-settings-rule-detail-assignments__card-${entity.id}`"
+        :title="$tc(entity.label)"
+    >
+        <template #toolbar>
+            {% block sw_settings_rule_detail_assignments_toolbar %}
+            <sw-card-filter
+                placeholder=""
+                @sw-card-filter-term-change="onFilterEntity(entity, ...arguments)"
+            >
+                <template #filter>
+                    {% block sw_settings_rule_detail_assignments_add_button %}
+                    <sw-button
+                        v-if="entity.allowAdd"
+                        :disabled="disableAdd(entity)"
+                        variant="ghost"
+                        size="small"
+                        class="sw-settings-rule-detail-assignments__add-button"
+                        @click="onOpenAddModal(entity)"
+                    >
+                        {{ $tc('sw-settings-rule.detail.buttonAddAssignment') }}
+                    </sw-button>
+                    {% endblock %}
+                </template>
+            </sw-card-filter>
+            {% endblock %}
+        </template>
+
+        <template #grid>
+            {% block sw_settings_rule_detail_assignments_entity_listing %}
+            <sw-settings-rule-assignment-listing
+                v-if="entity.loadedData && entity.loadedData.length > 0"
+                class="sw-settings-rule-detail-assignments__entity-listing"
+                :class="`sw-settings-rule-detail-assignments__entity-listing-${entity.id}`"
+                :is-loading="isLoading"
+                :detail-route="entity.detailRoute"
+                :items="entity.loadedData"
+                :repository="entity.repository"
+                :local-mode="false"
+                :criteria-limit="5"
+                :allow-delete="allowDeletion(entity)"
+                :allow-inline-edit="false"
+                :show-settings="false"
+                :show-selection="allowDeletion(entity)"
+                :allow-column-edit="false"
+                :steps="associationSteps"
+                :columns="entity.gridColumns"
+                :full-page="false"
+                @delete-items="onDeleteItems(entity, ...arguments)"
+            >
+                <template #link-column="{ item, column, renderColumn }">
+                    <router-link
+                        v-if="column.routerLink"
+                        :to="getRouterLink(entity, item)"
+                    >
+                        <sw-product-variant-info
+                            v-if="item.variation"
+                            :variations="item.variation"
+                        >
+                            {{ renderColumn(item, column) }}
+                        </sw-product-variant-info>
+                        <span v-if="!item.variation">
+                            {{ renderColumn(item, column) }}
+                        </span>
+                    </router-link>
+                    <span v-else>
+                        <sw-product-variant-info
+                            v-if="item.variation"
+                            :variations="item.variation"
+                        >
+                            {{ renderColumn(item, column) }}
+                        </sw-product-variant-info>
+                        <span v-else>
+                            {{ renderColumn(item, column) }}
+                        </span>
+                    </span>
+                </template>
+                <template #actions="{ item }">
+                    {% block sw_settings_rule_detail_assignments_entity_listing_actions %}
+                    {% block sw_settings_rule_detail_assignments_entity_listing_view_action %}
+                    <sw-context-menu-item :router-link="getRouterLink(entity, item)">
+                        {{ $tc('global.default.view') }}
+                    </sw-context-menu-item>
+                    {% endblock %}
+                    {% block sw_settings_rule_detail_assignments_entity_listing_delete_action %}
+                    <sw-context-menu-item
+                        v-if="entity.deleteContext"
+                        variant="danger"
+                        @click="onOpenDeleteModal(entity, item)"
+                    >
+                        {{ $tc('global.default.remove') }}
+                    </sw-context-menu-item>
+                    {% endblock %}
+                    {% endblock %}
+                </template>
+
+                <template #bulk-modal-delete-confirm-text="{ selectionCount }">
+                    {{ $tc('sw-settings-rule.detail.textModalBulkDelete', selectionCount, { count: selectionCount }) }}
+                </template>
+
+                <template #bulk-modal-delete-items="{ isBulkLoading, deleteItems }">
+                    <sw-button
+                        variant="danger"
+                        size="small"
+                        :is-loading="isBulkLoading"
+                        @click="deleteItems"
+                    >
+                        {{ $tc('global.default.remove') }}
+                    </sw-button>
+                </template>
+            </sw-settings-rule-assignment-listing>
+
+            {% block sw_settings_rule_detail_assignments_empty_state %}
+            <sw-empty-state
+                v-else
+                class="sw-settings-rule-detail-assignments__entity-empty-state"
+                :class="`sw-settings-rule-detail-assignments__entity-empty-state-${entity.id}`"
+                :title="$tc('sw-settings-rule.detail.hasNoAssociations')"
+                :absolute="false"
+                :show-description="false"
+            >
+                <template #icon>
+                    <img
+                        :src="'administration/static/img/empty-states/settings-empty-state.svg' | asset"
+                        :alt="$tc('sw-settings-rule.detail.hasNoAssociations')"
+                    >
+                </template>
+            </sw-empty-state>
+            {% endblock %}
+            {% endblock %}
+        </template>
+    </sw-card>
+    {% endblock %}
+
+    {% block sw_settings_rule_detail_assignments_loader %}
+    <sw-card
+        v-if="isLoading"
+        class="sw-settings-rule-detail-assignments__card-loader"
+    >
+        <sw-loader />
+    </sw-card>
+    {% endblock %}
+
+    {% block sw_settings_rule_detail_assignments_delete_modal %}
+    <sw-modal
+        v-if="deleteModal"
+        :title="$tc('sw-settings-rule.detail.titleModalDelete')"
+        variant="small"
+        @modal-close="onCloseDeleteModal"
+    >
+
+        {% block sw_settings_rule_detail_assignments_delete_modal_text %}
+        <p class="sw-settings-rule-detail-assignments__delete-text">
+            {{ $tc('sw-settings-rule.detail.textModalDelete') }}
+        </p>
+        {% endblock %}
+
+        {% block sw_settings_rule_detail_assignments_delete_modal_footer %}
+        <template #modal-footer>
+
+            {% block sw_settings_rule_detail_assignments_delete_modal_cancel %}
+            <sw-button
+                size="small"
+                @click="onCloseDeleteModal"
+            >
+                {{ $tc('global.default.cancel') }}
+            </sw-button>
+            {% endblock %}
+
+            {% block sw_settings_rule_detail_assignments_delete_modal_confirm %}
+            {% block sw_settings_rule_detail_assignments_delete_modal_confirm_single %}
+            <sw-button
+                size="small"
+                variant="danger"
+                @click="onDelete"
+            >
+                {{ $tc('global.default.remove') }}
+            </sw-button>
+            {% endblock %}
+            {% endblock %}
+        </template>
+        {% endblock %}
+    </sw-modal>
+    {% endblock %}
+
+    {% block sw_settings_rule_detail_assignments_add_modal %}
+    <sw-settings-rule-add-assignment-modal
+        v-if="addModal"
+        :rule="rule"
+        :entity-context="addEntityContext"
+        @entities-saved="onEntitiesSaved"
+        @close-add-modal="onCloseAddModal"
+    />
+    {% endblock %}
+</div>
+{% endblock %}

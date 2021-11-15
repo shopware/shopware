@@ -1,0 +1,63 @@
+{% block sw_settings_rule_category_tree %}
+<sw-card class="sw-settings-rule-category-tree">
+    <template #toolbar>
+        {% block sw_settings_rule_category_tree_toolbar %}
+        <sw-card-filter @sw-card-filter-term-change="searchTreeItems" />
+        {% endblock %}
+    </template>
+
+    {% block sw_settings_rule_category_tree_component %}
+    <sw-settings-rule-tree
+        ref="swTree"
+        :allow-create-categories="false"
+        :allow-delete-categories="false"
+        :items="categories"
+        after-id-property="afterCategoryId"
+        :sortable="false"
+        @get-tree-items="getTreeItems"
+        @search-tree-items="searchTreeItems"
+        @check-item="onCheckItem"
+    >
+        {% block sw_settings_rule_category_tree_items %}
+        <template
+            #items="{
+                treeItems,
+                sortable,
+                draggedItem,
+                newElementId,
+                checkItem,
+                translationContext,
+                onChangeRoute,
+                disableContextMenu,
+            }"
+        >
+            {% block sw_settings_rule_category_tree_item %}
+            <sw-settings-rule-tree-item
+                v-for="item in treeItems"
+                :key="item.id"
+                :association="association"
+                :item="item"
+                :sortable="false"
+                should-focus
+                :mark-inactive="true"
+                @check-item="checkItem"
+            />
+            {% endblock %}
+        </template>
+        <template
+            v-if="hideHeadline"
+            #headline
+        >
+            <span></span>
+        </template>
+        <template
+            v-if="hideSearch"
+            #search
+        >
+            <span></span>
+        </template>
+        {% endblock %}
+    </sw-settings-rule-tree>
+    {% endblock %}
+</sw-card>
+{% endblock %}

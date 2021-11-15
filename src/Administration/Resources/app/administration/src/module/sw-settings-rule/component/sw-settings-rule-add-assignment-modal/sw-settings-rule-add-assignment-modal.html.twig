@@ -1,0 +1,54 @@
+{% block sw_settings_rule_add_assignment_modal %}
+<sw-modal
+    class="sw-settings-rule-add-assignment-modal"
+    :title="entityContext.label"
+    :variant="modalSize"
+    @modal-close="onCloseAddModal"
+>
+
+    {% block sw_settings_rule_add_assignment_modal_listing %}
+    <sw-settings-rule-add-assignment-listing
+        v-if="entityContext.entityName !== 'category'"
+        class="sw-settings-rule-detail-assignments__entity-listing"
+        :entity-context="entityContext"
+        :rule-id="rule.id"
+        @select-item="onSelect"
+    />
+    {% endblock %}
+
+    {% block sw_settings_rule_add_assignment_modal_category_tree %}
+    <sw-settings-rule-category-tree
+        v-else
+        :rule="rule"
+        :association="entityContext.addContext.association"
+        :categories-collection="entities"
+        placeholder="Add categories"
+        @on-selection="onSelect"
+    />
+    {% endblock %}
+
+    {% block sw_settings_rule_add_assignment_modal_footer %}
+    <template #modal-footer>
+
+        {% block sw_settings_rule_add_assignment_modal_cancel %}
+        <sw-button
+            size="small"
+            @click="onCloseAddModal"
+        >
+            {{ $tc('global.default.cancel') }}
+        </sw-button>
+        {% endblock %}
+
+        {% block sw_settings_rule_add_assignment_modal_confirm %}
+        <sw-button
+            size="small"
+            variant="primary"
+            @click="onAdd"
+        >
+            {{ $tc('global.default.add') }}
+        </sw-button>
+        {% endblock %}
+    </template>
+    {% endblock %}
+</sw-modal>
+{% endblock %}

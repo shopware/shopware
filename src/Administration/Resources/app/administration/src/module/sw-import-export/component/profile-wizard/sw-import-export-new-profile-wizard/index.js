@@ -50,6 +50,7 @@ Shopware.Component.register('sw-import-export-new-profile-wizard', {
         parentProfileCriteria() {
             const criteria = new Criteria();
             criteria.addFilter(Criteria.equals('sourceEntity', this.profile.sourceEntity));
+            criteria.addFilter(Criteria.equals('systemDefault', true));
 
             return criteria;
         },
@@ -119,11 +120,14 @@ Shopware.Component.register('sw-import-export-new-profile-wizard', {
             if (this.feature.isActive('FEATURE_NEXT_8097') && this.profile.type === 'export') {
                 return;
             }
+
             const parentMapping = parentProfile ? parentProfile.mapping : [];
+            const isOnlyUpdateProfile = this.profile.config.createEntities === false && this.profile.config.updateEntities === true;
             const validationErrors = this.importExportProfileMapping.validate(
                 this.profile.sourceEntity,
                 this.profile.mapping,
                 parentMapping,
+                isOnlyUpdateProfile,
             );
 
             if (validationErrors.missingRequiredFields.length > 0) {

@@ -7,7 +7,10 @@ namespace Shopware\Core\Framework\App\ActionButton\Response;
  */
 class ReloadDataResponse extends ActionButtonResponse
 {
-    public function validate(string $actionId): void
+    private const ACTION_TYPE = 'reload';
+
+    public function __construct()
     {
+        parent::__construct(self::ACTION_TYPE);
     }
 }

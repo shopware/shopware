@@ -3,12 +3,18 @@
 namespace Shopware\Core\Framework\Test\App\ActionButton\Response;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\ActionButton\Response\ActionButtonResponse;
+use Shopware\Core\Framework\App\ActionButton\AppAction;
 use Shopware\Core\Framework\App\ActionButton\Response\ActionButtonResponseFactory;
 use Shopware\Core\Framework\App\ActionButton\Response\NotificationResponse;
+use Shopware\Core\Framework\App\ActionButton\Response\NotificationResponseFactory;
+use Shopware\Core\Framework\App\ActionButton\Response\OpenModalResponse;
+use Shopware\Core\Framework\App\ActionButton\Response\OpenModalResponseFactory;
 use Shopware\Core\Framework\App\ActionButton\Response\OpenNewTabResponse;
+use Shopware\Core\Framework\App\ActionButton\Response\OpenNewTabResponseFactory;
 use Shopware\Core\Framework\App\ActionButton\Response\ReloadDataResponse;
+use Shopware\Core\Framework\App\ActionButton\Response\ReloadDataResponseFactory;
 use Shopware\Core\Framework\App\Exception\ActionProcessException;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -16,58 +22,76 @@ class ActionButtonResponseFactoryTest extends TestCase
 {
     use GuzzleTestClientBehaviour;
 
-    /**
-     * @var ActionButtonResponseFactory
-     */
-    private $actionButtonResponseFactory;
+    private ActionButtonResponseFactory $actionButtonResponseFactory;
+
+    private AppAction $action;
 
     public function setUp(): void
     {
         $this->actionButtonResponseFactory = $this->getContainer()->get(ActionButtonResponseFactory::class);
+        $this->action = new AppAction(
+            'http://target.url',
+            'http://shop.url',
+            '1.0.0',
+            'customer',
+            'action-name',
+            [Uuid::randomHex(), Uuid::randomHex()],
+            'app-secret',
+            'shop-id',
+            'action-it'
+        );
     }
 
-    public function testFactoryReturnNotificationResponse(): void
+    /**
+     * @dataProvider provideActionTypes
+     */
+    public function testFactoryCreatesCorrespondingResponse(string $actionType, array $payload, string $response): void
     {
         $notificationResponse = $this->actionButtonResponseFactory->createFromResponse(
-            Uuid::randomHex(),
-            ActionButtonResponse::ACTION_SHOW_NOTITFICATION,
-            [
-                'status' => 'success',
-                'message' => 'This is success',
-            ]
+            $this->action,
+            $actionType,
+            $payload,
+            Context::createDefaultContext()
         );
-        static::assertInstanceOf(NotificationResponse::class, $notificationResponse);
-    }
-
-    public function testFactoryReturnReloadDataResponse(): void
-    {
-        $reloadDataResponse = $this->actionButtonResponseFactory->createFromResponse(
-            Uuid::randomHex(),
-            ActionButtonResponse::ACTION_RELOAD_DATA,
-            []
-        );
-        static::assertInstanceOf(ReloadDataResponse::class, $reloadDataResponse);
-    }
-
-    public function testFactoryReturnOpenNewTabResponse(): void
-    {
-        $openNewTabResponse = $this->actionButtonResponseFactory->createFromResponse(
-            Uuid::randomHex(),
-            ActionButtonResponse::ACTION_OPEN_NEW_TAB,
-            [
-                'redirectUrl' => 'https://www.google.com/',
-            ]
-        );
-        static::assertInstanceOf(OpenNewTabResponse::class, $openNewTabResponse);
+        static::assertInstanceOf($response, $notificationResponse);
     }
 
     public function testFactoryThrowException(): void
     {
-        $this->expectException(ActionProcessException::class);
+        static::expectException(ActionProcessException::class);
+        static::expectExceptionMessage('No factory found for action type "test"');
+
         $this->actionButtonResponseFactory->createFromResponse(
-            Uuid::randomHex(),
+            $this->action,
             'test',
-            []
+            [],
+            Context::createDefaultContext()
         );
+    }
+
+    public function provideActionTypes(): array
+    {
+        return [
+            [
+                NotificationResponseFactory::ACTION_TYPE,
+                ['status' => 'success', 'message' => 'This is success'],
+                NotificationResponse::class,
+            ],
+            [
+                ReloadDataResponseFactory::ACTION_TYPE,
+                [],
+                ReloadDataResponse::class,
+            ],
+            [
+                OpenNewTabResponseFactory::ACTION_TYPE,
+                ['redirectUrl' => 'https://www.google.com/'],
+                OpenNewTabResponse::class,
+            ],
+            [
+                OpenModalResponseFactory::ACTION_TYPE,
+                ['iframeUrl' => 'http://iframe.url', 'size' => 'medium', 'expand' => false],
+                OpenModalResponse::class,
+            ],
+        ];
     }
 }

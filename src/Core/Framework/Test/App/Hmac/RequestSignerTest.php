@@ -4,6 +4,7 @@ namespace App\Hmac;
 
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Psr7\Uri;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Hmac\RequestSigner;
 
@@ -92,5 +93,22 @@ class RequestSignerTest extends TestCase
         $response = new Response(200, $responseHeaders);
 
         static::assertFalse($post->isResponseAuthentic($response, $this->authSecret));
+    }
+
+    public function testSignUriSignsQueryParams(): void
+    {
+        $signer = new RequestSigner();
+
+        $uri = new Uri('https://shopware.com/random/route?shop-id=foo&sw-version=bar');
+
+        $signedUri = $signer->signUri($uri, $this->authSecret);
+        parse_str($signedUri->getQuery(), $parsed);
+
+        static::assertStringContainsString('shopware-shop-signature', $signedUri->getQuery());
+        static::assertArrayHasKey('shopware-shop-signature', $parsed);
+        static::assertTrue(hash_equals(
+            $parsed['shopware-shop-signature'],
+            hash_hmac('sha256', $uri->getQuery(), $this->authSecret)
+        ));
     }
 }

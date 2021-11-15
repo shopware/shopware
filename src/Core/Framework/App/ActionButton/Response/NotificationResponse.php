@@ -2,29 +2,27 @@
 
 namespace Shopware\Core\Framework\App\ActionButton\Response;
 
-use Shopware\Core\Framework\App\Exception\ActionProcessException;
-
 /**
  * @internal only for use by the app-system
  */
 class NotificationResponse extends ActionButtonResponse
 {
+    private const ACTION_TYPE = 'notification';
+
     /**
      * One of the possible action statuses of notification.
      * Usually, this is one of: success, error, info, warning
      * According to these statuses, we could determine the type of notification
      */
-    public string $status;
+    protected string $status;
 
     /**
      * This message is the content of the notification.
      */
-    public string $message;
+    protected string $message;
 
-    public function validate(string $actionId): void
+    public function __construct()
     {
-        if (empty($this->status) || empty($this->message)) {
-            throw new ActionProcessException($actionId, 'Invalid status or message provided by App');
-        }
+        parent::__construct(self::ACTION_TYPE);
     }
 }

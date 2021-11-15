@@ -252,6 +252,34 @@
         </service>
 
         <service id="Shopware\Core\Framework\App\ActionButton\Response\ActionButtonResponseFactory">
+            <argument type="tagged_iterator" tag="shopware.action_button.response_factory"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\ActionButton\Response\NotificationResponseFactory">
+            <tag name="shopware.action_button.response_factory"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\ActionButton\Response\OpenModalResponseFactory">
+            <argument type="service" id="Shopware\Core\Framework\App\ActionButton\Response\ActionButtonResponseSigner"/>
+
+            <tag name="shopware.action_button.response_factory"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\ActionButton\Response\OpenNewTabResponseFactory">
+            <argument type="service" id="Shopware\Core\Framework\App\ActionButton\Response\ActionButtonResponseSigner"/>
+
+            <tag name="shopware.action_button.response_factory"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\ActionButton\Response\ReloadDataResponseFactory">
+            <tag name="shopware.action_button.response_factory"/>
+        </service>
+
+        <service id="Shopware\Core\Framework\App\ActionButton\Response\ActionButtonResponseSigner">
+            <argument type="string">%env(APP_URL)%</argument>
+            <argument>%kernel.shopware_version%</argument>
+            <argument type="service" id="Shopware\Core\Framework\Store\Authentication\LocaleProvider"/>
+            <argument type="service" id="Shopware\Core\Framework\App\ShopId\ShopIdProvider"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\ActionButton\Executor">

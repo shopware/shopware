@@ -87,9 +87,10 @@ class Executor
         }
 
         $actionResponse = $this->actionButtonResponseFactory->createFromResponse(
-            $action->getActionId(),
+            $action,
             $content['actionType'],
-            $content['payload']
+            $content['payload'],
+            $context
         );
 
         return new JsonResponse($actionResponse);

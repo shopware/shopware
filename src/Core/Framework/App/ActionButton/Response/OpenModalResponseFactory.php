@@ -1,0 +1,57 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Framework\App\ActionButton\Response;
+
+use Shopware\Core\Framework\App\ActionButton\AppAction;
+use Shopware\Core\Framework\App\Exception\ActionProcessException;
+use Shopware\Core\Framework\Context;
+
+/**
+ * @internal only for use by the app-system
+ */
+class OpenModalResponseFactory implements ActionButtonResponseFactoryInterface
+{
+    public const ACTION_TYPE = 'openModal';
+
+    private const VALID_MODAL_SIZES = [
+        'small',
+        'medium',
+        'large',
+        'fullscreen',
+    ];
+
+    private ActionButtonResponseSigner $signer;
+
+    public function __construct(ActionButtonResponseSigner $signer)
+    {
+        $this->signer = $signer;
+    }
+
+    public function supports(string $actionType): bool
+    {
+        return $actionType === OpenModalResponse::ACTION_TYPE;
+    }
+
+    public function create(AppAction $action, array $payload, Context $context): ActionButtonResponse
+    {
+        $this->validate($payload, $action->getActionId());
+
+        $payload['iframeUrl'] = (string) $this->signer->signUri($payload['iframeUrl'], $action->getAppSecret(), $context);
+
+        $response = new OpenModalResponse();
+        $response->assign($payload);
+
+        return $response;
+    }
+
+    private function validate(array $payload, string $actionId): void
+    {
+        if (!isset($payload['iframeUrl']) || empty($payload['iframeUrl'])) {
+            throw new ActionProcessException($actionId, 'The app provided an invalid iframeUrl');
+        }
+
+        if (!isset($payload['size']) || !\in_array($payload['size'], self::VALID_MODAL_SIZES, true)) {
+            throw new ActionProcessException($actionId, 'The app provided an invalid size');
+        }
+    }
+}

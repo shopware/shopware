@@ -5,7 +5,7 @@ const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 const actionTypeConstants = Object.freeze({
-    ACTION_SHOW_NOTITFICATION: 'notification',
+    ACTION_SHOW_NOTIFICATION: 'notification',
     ACTION_RELOAD_DATA: 'reload',
     ACTION_OPEN_NEW_TAB: 'openNewTab',
     ACTION_OPEN_MODAL: 'openModal',
@@ -106,7 +106,7 @@ Component.register('sw-app-actions', {
                 case actionTypeConstants.ACTION_OPEN_NEW_TAB:
                     window.open(redirectUrl, '_blank');
                     break;
-                case actionTypeConstants.ACTION_SHOW_NOTITFICATION:
+                case actionTypeConstants.ACTION_SHOW_NOTIFICATION:
                     this.createNotification({
                         variant: status,
                         message: message,

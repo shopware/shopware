@@ -2,22 +2,20 @@
 
 namespace Shopware\Core\Framework\App\ActionButton\Response;
 
-use Shopware\Core\Framework\App\Exception\ActionProcessException;
-
 /**
  * @internal only for use by the app-system
  */
 class OpenNewTabResponse extends ActionButtonResponse
 {
+    public const ACTION_TYPE = 'openNewTab';
+
     /**
      * This is the URL the user is redirected to after the action has been taken.
      */
-    public string $redirectUrl = '';
+    protected string $redirectUrl = '';
 
-    public function validate(string $actionId): void
+    public function __construct()
     {
-        if (empty($this->redirectUrl)) {
-            throw new ActionProcessException($actionId, 'Invalid redirect url provided by App');
-        }
+        parent::__construct(self::ACTION_TYPE);
     }
 }

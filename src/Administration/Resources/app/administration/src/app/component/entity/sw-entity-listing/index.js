@@ -6,6 +6,8 @@ const { Criteria } = Shopware.Data;
 Component.extend('sw-entity-listing', 'sw-data-grid', {
     template,
 
+    inject: ['feature'],
+
     props: {
         detailRoute: {
             type: String,
@@ -253,7 +255,11 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
             this.currentSortDirection = direction;
             this.currentNaturalSorting = this.lastSortedColumn.naturalSorting;
 
-            this.$emit('column-sort', this.lastSortedColumn);
+            if (this.feature.isActive('FEATURE_NEXT_17421')) {
+                this.$emit('column-sort', this.lastSortedColumn, this.currentSortDirection);
+            } else {
+                this.$emit('column-sort', this.lastSortedColumn);
+            }
 
             if (this.lastSortedColumn.useCustomSort) {
                 return false;

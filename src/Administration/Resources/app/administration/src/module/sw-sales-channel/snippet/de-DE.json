@@ -17,7 +17,9 @@
       "placeholderSearchBar": "Durchsuche alle Verkaufskanäle...",
       "buttonAddSalesChannel": "Verkaufskanal anlegen",
       "columnName": "Verkaufskanal",
+      "columnType": "Typ",
       "columnStatus": "Status",
+      "columnCreatedAt": "Erstellt am",
       "status": {
         "maintenance": "Wartung",
         "online": "Online",
@@ -25,7 +27,7 @@
       },
       "contextMenuEdit": "Bearbeiten",
       "productsLabel": "Produkte",
-      "productsCount": "Produkte"
+      "productsCount": "Produkte | Produkt | Produkte"
     },
     "modal": {
       "title": "Verkaufskanal anlegen",

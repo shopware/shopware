@@ -25,6 +25,20 @@ return (new Config())
             return $context->platform instanceof Gitlab;
         },
         [
+            function (Context $context) {
+                $labels = array_map('strtolower', $context->platform->pullRequest->labels);
+
+                if ($context->platform->raw['squash'] === true && in_array('github', $labels, true)) {
+                    $context->failure('GitHub PRs are not allowed to be squashed');
+                }
+             }
+        ]
+    ))
+    ->useRule(new Condition(
+        function(Context $context) {
+            return $context->platform instanceof Gitlab;
+        },
+        [
             function(Context $context) {
                 $files = $context->platform->pullRequest->getFiles();
 

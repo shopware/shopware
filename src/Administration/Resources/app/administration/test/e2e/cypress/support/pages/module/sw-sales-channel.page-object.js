@@ -19,8 +19,14 @@ export default class SalesChannelPageObject {
     fillInBasicSalesChannelData(salesChannelName) {
         cy.get(this.elements.salesChannelNameInput).typeAndCheck(salesChannelName);
 
-        cy.get('.sw-sales-channel-detail__select-navigation-category-id')
-            .typeSingleSelectAndCheck('Home', '.sw-sales-channel-detail__select-navigation-category-id');
+        cy.get('.sw-sales-channel-detail__select-navigation-category-id .sw-block-field__block .sw-category-tree__input-field').click();
+        cy.get('.sw-category-tree-field__results .sw-tree__content')
+            .contains('.sw-tree-item__element', 'Home')
+            .find('.sw-field__checkbox input')
+            .click({force: true});
+
+        // Closes the category overlay again
+        cy.get(this.elements.salesChannelNameInput).click();
 
         cy.get('.sw-sales-channel-detail__select-customer-group')
             .typeSingleSelectAndCheck('Standard customer group', '.sw-sales-channel-detail__select-customer-group');

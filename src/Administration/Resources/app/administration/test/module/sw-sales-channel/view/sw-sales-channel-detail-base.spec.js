@@ -21,7 +21,8 @@ function createWrapper(privileges = []) {
             'sw-select-field': true,
             'sw-help-text': true,
             'sw-sales-channel-detail-hreflang': true,
-            'sw-sales-channel-detail-domains': true
+            'sw-sales-channel-detail-domains': true,
+            'sw-category-tree-field': true
         },
         provide: {
             salesChannelService: {},
@@ -29,7 +30,19 @@ function createWrapper(privileges = []) {
             knownIpsService: {
                 getKnownIps: () => Promise.resolve()
             },
-            repositoryFactory: {},
+            repositoryFactory: {
+                create: () => ({
+                    search: () => {
+                        return Promise.resolve([]);
+                    },
+                    get: () => {
+                        return Promise.resolve();
+                    },
+                    delete: () => {
+                        return Promise.resolve();
+                    }
+                })
+            },
             acl: {
                 can: (identifier) => {
                     if (!identifier) { return true; }

@@ -135,8 +135,6 @@ Component.register('sw-category-link-settings', {
         },
 
         createCategoryCollection() {
-            this.categoryRepository.create('category');
-
             this.categoryRepository
                 .search(this.internalLinkCriteria, Shopware.Context.api)
                 .then(result => {

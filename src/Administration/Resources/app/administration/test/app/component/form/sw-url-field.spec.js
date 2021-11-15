@@ -195,4 +195,24 @@ describe('components/form/sw-url-field', () => {
         wrapper.vm.checkInput(FILE_URL);
         expect(wrapper.vm.currentValue).toEqual(EXPECTED_URL);
     });
+
+    it('allows empty values', async () => {
+        const INITIAL_URL = 'https://shopware.com';
+        const URL_WITHOUT_PROTOCOL = 'shopware.com';
+        const EXPECTED_URL = '';
+
+        wrapper = createWrapper();
+
+        await wrapper.find('.sw-url-input-field__input').setValue(INITIAL_URL);
+        await wrapper.find('.sw-url-input-field__input').trigger('blur');
+
+        expect(wrapper.vm.currentValue).toBe(URL_WITHOUT_PROTOCOL);
+        expect(wrapper.vm.errorUrl).toBeNull();
+
+        await wrapper.find('.sw-url-input-field__input').setValue('');
+        await wrapper.find('.sw-url-input-field__input').trigger('blur');
+
+        expect(wrapper.vm.currentValue).toBe(EXPECTED_URL);
+        expect(wrapper.vm.errorUrl).toBeNull();
+    });
 });

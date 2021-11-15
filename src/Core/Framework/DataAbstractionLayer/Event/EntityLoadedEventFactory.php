@@ -75,10 +75,10 @@ class EntityLoadedEventFactory
             }
 
             if ($entity instanceof EntityCollection) {
-                return $this->recursion($entity->getElements(), $mapping);
+                $mapping = $this->recursion($entity->getElements(), $mapping);
+            } else {
+                $mapping = $this->map($entity, $mapping);
             }
-
-            $mapping = $this->map($entity, $mapping);
         }
 
         return $mapping;

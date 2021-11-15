@@ -119,7 +119,8 @@ Component.register('sw-profile-index-search-preferences', {
         },
 
         onReset() {
-            const searchPreferences = this.searchPreferencesService.processSearchPreferences(this.defaultSearchPreferences);
+            const defaultSearchPreferences = this.searchPreferencesService.getDefaultSearchPreferences();
+            const searchPreferences = this.searchPreferencesService.processSearchPreferences(defaultSearchPreferences);
             const toReset = searchPreferences.filter((searchPreference) => {
                 return this.acl.can(`${searchPreference.entityName}.editor`);
             });

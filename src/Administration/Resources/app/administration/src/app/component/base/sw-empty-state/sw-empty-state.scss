@@ -38,6 +38,12 @@
         font-size: 14px;
     }
 
+    &__description-link {
+        cursor: pointer;
+        color: rgb(24, 158, 255);
+        text-decoration: underline;
+    }
+
     &__icon {
         margin-bottom: 24px;
     }

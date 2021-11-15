@@ -1202,6 +1202,9 @@
   },
   "sw-empty-state": {
     "messageNoResultTitle": "Nichts gefunden",
-    "messageNoResultSubline": "Bearbeite Deine Filter, oder Suchbegriffe um Ergebnisse zu finden. Bitte überprüfe auch die Konfiguration Deiner Suche."
+    "messageNoResultSubline": "Bearbeite Deine Filter, oder Suchbegriffe um Ergebnisse zu finden. Bitte überprüfe auch die Konfiguration Deiner Suche.",
+    "messageNoResultSublineBefore": "Bearbeite Deine Filter, oder Suchbegriffe um Ergebnisse zu finden. Bitte überprüfe auch",
+    "messageNoResultSublineLink": "die Konfiguration",
+    "messageNoResultSublineAfter": "Deiner Suche."
   }
 }

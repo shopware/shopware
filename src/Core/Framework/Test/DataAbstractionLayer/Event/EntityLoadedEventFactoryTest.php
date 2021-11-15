@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Event;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\Test\IdsCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
+use Shopware\Core\System\Tax\TaxEntity;
 
 class EntityLoadedEventFactoryTest extends TestCase
 {
@@ -66,6 +68,22 @@ class EntityLoadedEventFactoryTest extends TestCase
             'product.loaded',
             'product_manufacturer.loaded',
             'product_price.loaded',
+            'tax.loaded',
+        ], $createdEvents);
+    }
+
+    public function testCollectionWithEntitiesMixed(): void
+    {
+        $tax = (new TaxEntity())->assign(['_entityName' => 'tax']);
+
+        $events = $this->entityLoadedEventFactory->create([new ProductCollection(), $tax], $this->ids->getContext());
+
+        $createdEvents = $events->getEvents()->map(function (EntityLoadedEvent $event): string {
+            return $event->getName();
+        });
+        sort($createdEvents);
+
+        static::assertEquals([
             'tax.loaded',
         ], $createdEvents);
     }

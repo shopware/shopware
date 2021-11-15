@@ -368,9 +368,9 @@
         "selectOptions": "Value selection",
         "selectOptionsExplanation": "Select property values to generate variants from.",
         "selectRestrictionsExplanation": "Select property values to exclude from variant generation.",
-        "selectPricesExplanation": "Add surcharges to values or currencies.",
-        "priceSurcharges": "Price surcharges",
-        "resetSurcharges": "Delete surcharge",
+        "selectPricesExplanation": "Add surcharges / discounts to values or currencies.",
+        "priceSurcharges": "Price surcharges / discounts",
+        "resetSurcharges": "Delete surcharge / discount",
         "defineRestrictions": "Value exclusion",
         "priceOptions": "Value",
         "restrictedCombinations": "Excluded property values",
@@ -385,7 +385,7 @@
         "save": "Save",
         "searchPlaceholder": "Search values...",
         "singleRestrictionAddTitle": "Exclude values",
-        "surchargeNotice": "Changes to the surcharges won't have an effect on already generated variants. Please go to the variant's detail page and change prices of already generated variants there."
+        "surchargeNotice": "Changes to the surcharges / discounts won't have an effect on already generated variants. Please go to the variant's detail page and change prices of already generated variants there."
       },
       "deliveryModal": {
         "modalHeadline": "Storefront presentation",

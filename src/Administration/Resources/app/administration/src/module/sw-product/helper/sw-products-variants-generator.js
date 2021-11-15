@@ -163,14 +163,6 @@ export default class VariantsGenerator extends EventEmitter {
 
                         // iterate through each currency
                         option.price.forEach((price) => {
-                            // check for price surcharges
-                            if (price.gross <= 0) {
-                                return;
-                            }
-                            if (price.net <= 0) {
-                                return;
-                            }
-
                             const currencyId = price.currencyId;
 
                             let refCurrencyPrice;
@@ -214,9 +206,9 @@ export default class VariantsGenerator extends EventEmitter {
                             // push new currency price with surcharges to variation price
                             variationPrice[currencyId] = {
                                 currencyId: price.currencyId,
-                                gross: grossPrice > 0 ? grossPrice : 0,
+                                gross: grossPrice,
                                 linked: price.linked,
-                                net: netPrice > 0 ? netPrice : 0,
+                                net: netPrice,
                             };
                         });
                     });

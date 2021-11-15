@@ -294,4 +294,56 @@ describe('Product: Test variants', () => {
         cy.get('.sw-label:nth-of-type(2)').contains('M');
         cy.get('.sw-product-variant-generation__generate-action').click();
     });
+
+    it('@base @catalogue: test surcharges / discounts in variant', () => {
+        const page = new ProductPageObject();
+
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/_action/sync`,
+            method: 'POST'
+        }).as('saveData');
+        cy.intercept({
+            method: 'GET',
+            url: `${Cypress.config('baseUrl')}/detail/**/switch?options=*`
+        }).as('changeVariant');
+
+        // Navigate to variant generator listing and start
+        cy.clickContextMenuItem(
+            '.sw-entity-listing__context-menu-edit-action',
+            page.elements.contextMenuButton,
+            `${page.elements.dataGridRow}--0`,
+        );
+
+        cy.get('.sw-product-detail__tab-variants').click();
+        cy.get(page.elements.loader).should('not.exist');
+        cy.contains('.sw-button--ghost', 'Generate variants').click();
+        cy.get('.sw-product-modal-variant-generation').should('be.visible');
+
+        page.generateVariants(
+            'Size',
+            [0, 1, 2],
+            6,
+            [[0, 3, 'gross', '10'], [2, 3, 'gross', '-10']]
+        );
+
+        // Verify in storefront
+        cy.visit('/');
+        cy.get('input[name=search]').type('Variant product name');
+        cy.get('.search-suggest-container').should('be.visible');
+        cy.get('.search-suggest-product-name')
+            .contains('Variant product name')
+            .click();
+
+        cy.get('.product-detail-configurator-option-label[title="L"]').should('be.visible').click();
+        cy.wait('@changeVariant').its('response.statusCode').should('equal', 200);
+        cy.get('.product-detail-price').contains( '74');
+
+        cy.get('.product-detail-configurator-option-label[title="M"]').should('be.visible').click();
+        cy.wait('@changeVariant').its('response.statusCode').should('equal', 200);
+        cy.get('.product-detail-price').contains( '64');
+
+        cy.get('.product-detail-configurator-option-label[title="S"]').should('be.visible').click();
+        cy.wait('@changeVariant').its('response.statusCode').should('equal', 200);
+        cy.get('.product-detail-price').contains( '54');
+    });
 });

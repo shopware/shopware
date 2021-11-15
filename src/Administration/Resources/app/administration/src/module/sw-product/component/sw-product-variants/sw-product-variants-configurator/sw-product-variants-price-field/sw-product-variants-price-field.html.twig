@@ -13,7 +13,7 @@
             :disabled="readonly"
             :digits="currency.decimalPrecision"
             v-bind="$attrs"
-            @input-change="onPriceGrossChange"
+            @change="onPriceGrossChange"
         />
     </div>
     {% endblock %}
@@ -47,7 +47,7 @@
             :disabled="readonly"
             :digits="currency.decimalPrecision"
             v-bind="$attrs"
-            @input-change="onPriceNetChange"
+            @change="onPriceNetChange"
         />
     </div>
     {% endblock %}

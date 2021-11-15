@@ -209,11 +209,11 @@ Component.extend('sw-number-field', 'sw-text-field', {
             if (this.numberType === 'int') {
                 return parseInt(splits.join(''), 10);
             }
-
-            const { decimals, transfer } = this.applyDigits(splits[splits.length - 1]);
-            const integer = parseInt(splits.slice(0, splits.length - 1).join(''), 10) + transfer;
-
-            return parseFloat(`${integer}.${decimals}`);
+            const decimals = splits[splits.length - 1].length;
+            const float = parseFloat(splits.join('.')).toFixed(decimals);
+            return decimals > this.digits
+                ? Math.round(float * (10 ** this.digits)) / (10 ** this.digits)
+                : Number(float);
         },
 
         checkForInteger(value) {
@@ -230,6 +230,7 @@ Component.extend('sw-number-field', 'sw-text-field', {
             return floor;
         },
 
+        // @deprecated tag:v6.5.0 - Will be removed
         applyDigits(decimals) {
             if (decimals.length <= this.digits) {
                 return {

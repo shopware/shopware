@@ -31,7 +31,7 @@ export default class ProductPageObject {
     }
 
 
-    generateVariants(propertyName, optionPosition, totalCount) {
+    generateVariants(propertyName, optionPosition, totalCount, prices = undefined) {
         const optionsIndicator = '.sw-property-search__tree-selection__column-items-selected.sw-grid-column--right span';
         const optionString = totalCount === 1 ? 'value' : 'values';
 
@@ -53,6 +53,18 @@ export default class ProductPageObject {
                 cy.get(
                     `.sw-property-search__tree-selection__option_grid .sw-grid__row--${entry} .sw-field__checkbox input`,
                 ).click();
+            }
+        }
+
+        if (prices !== undefined) {
+            cy.get('.sw-tabs-item.sw-variant-modal__surcharge-configuration').click();
+            cy.get('.sw-product-variants-configurator-prices').should('be.visible');
+            cy.get('.sw-product-variants-configurator-prices__groups').contains(propertyName).click();
+
+            for (const entry of prices) {
+                const [row, currency, field, value] = entry;
+                cy.get(`.sw-data-grid__row--${row} #sw-field--price-${field}`)
+                    .eq(Number(currency)).scrollIntoView().clear().type(value).blur();
             }
         }
 

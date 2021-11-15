@@ -152,4 +152,72 @@ describe('app/component/form/sw-number-field', () => {
 
         expect(wrapper.find('label').text()).toEqual('Label from slot');
     });
+
+    it('should work with positive numbers', async () => {
+        const wrapper = createWrapper();
+        const input = wrapper.find('input');
+
+        await input.setValue('1');
+        await input.trigger('change');
+        expect(input.element.value).toBe('1');
+
+        await input.setValue('12345');
+        await input.trigger('change');
+        expect(input.element.value).toBe('12345');
+
+        await input.setValue('12345.6');
+        await input.trigger('change');
+        expect(input.element.value).toBe('12345.6');
+
+        await input.setValue('12345.12345');
+        await input.trigger('change');
+        expect(input.element.value).toBe('12345.12');
+    });
+
+    it('should work with negative numbers', async () => {
+        const wrapper = createWrapper();
+        const input = wrapper.find('input');
+
+        await input.setValue('-1');
+        await input.trigger('change');
+        expect(input.element.value).toBe('-1');
+
+        await input.setValue('-12345');
+        await input.trigger('change');
+        expect(input.element.value).toBe('-12345');
+
+        await input.setValue('-0.5');
+        await input.trigger('change');
+        expect(input.element.value).toBe('-0.5');
+
+        await input.setValue('-12345.12345');
+        await input.trigger('change');
+        expect(input.element.value).toBe('-12345.12');
+    });
+
+    it('should work with point and comma as decimal separator', async () => {
+        const wrapper = createWrapper();
+        const input = wrapper.find('input');
+
+        await input.setValue('11.22');
+        await input.trigger('change');
+        expect(input.element.value).toBe('11.22');
+
+        await input.setValue('22,33');
+        await input.trigger('change');
+        expect(input.element.value).toBe('22.33');
+    });
+
+    it('should round decimal places', async () => {
+        const wrapper = createWrapper();
+        const input = wrapper.find('input');
+
+        await input.setValue('1.234');
+        await input.trigger('change');
+        expect(input.element.value).toBe('1.23');
+
+        await input.setValue('1.235');
+        await input.trigger('change');
+        expect(input.element.value).toBe('1.24');
+    });
 });

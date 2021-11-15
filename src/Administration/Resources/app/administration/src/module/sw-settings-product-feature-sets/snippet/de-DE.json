@@ -62,7 +62,7 @@
         "releaseDate": "Erscheinungsdatum",
         "description": "Beschreibung",
         "manufacturerNumber": "Herstellernummer",
-        "ean": "EAN",
+        "ean": "GTIN/EAN",
         "referencePrice": "Grundpreis"
       }
     }

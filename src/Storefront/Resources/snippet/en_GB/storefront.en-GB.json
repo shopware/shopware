@@ -605,7 +605,7 @@
       "feature": {
         "label": {
           "manufacturerNumber": "Manufacturer number:",
-          "ean": "EAN:",
+          "ean": "GTIN/EAN:",
           "weight": "Weight:",
           "width":  "Width:",
           "height": "Height:",

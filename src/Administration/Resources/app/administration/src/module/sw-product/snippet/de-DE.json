@@ -109,7 +109,7 @@
       "labelWeight": "Gewicht",
       "labelMinPurchase": "Mindestabnahme",
       "labelMaxPurchase": "Maximalabnahme",
-      "labelEan": "EAN",
+      "labelEan": "GTIN/EAN",
       "labelManufacturerNumber": "Herstellernummer",
       "labelStock": "Lagerbestand",
       "labelActive": "Aktiv",
@@ -131,7 +131,7 @@
       "placeholderMaxPurchase": "Maximalabnahme ...",
       "placeholderPurchaseSteps": "Verkaufsintervall (Stückzahl) ...",
       "placeholderRestockTime": "Wiederauffüllintervall ...",
-      "placeholderEan": "Gib die EAN-Nummer ein ...",
+      "placeholderEan": "Gib die GTIN/EAN ein ...",
       "placeholderManufacturerNumber": "Gib die Herstellernummer ein ...",
       "labelAvailableStock": "Verfügbarer Bestand",
       "labelPurchaseSteps": "Staffelung"

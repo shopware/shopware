@@ -171,6 +171,7 @@ class CancelOrderRouteTest extends TestCase
                 'currencyFactor' => 1.0,
                 'salesChannelId' => TestDefaults::SALES_CHANNEL,
                 'billingAddressId' => $billingAddressId = Uuid::randomHex(),
+                'orderNumber' => Uuid::randomHex(),
                 'addresses' => [
                     [
                         'id' => $billingAddressId,

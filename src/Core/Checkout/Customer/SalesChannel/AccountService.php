@@ -20,7 +20,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
+use Shopware\Core\System\SalesChannel\Context\CartRestorer;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
@@ -47,23 +47,20 @@ class AccountService
      */
     private $switchDefaultAddressRoute;
 
-    /**
-     * @var SalesChannelContextRestorer
-     */
-    private $contextRestorer;
+    private CartRestorer $restorer;
 
     public function __construct(
         EntityRepositoryInterface $customerRepository,
         EventDispatcherInterface $eventDispatcher,
         LegacyPasswordVerifier $legacyPasswordVerifier,
         AbstractSwitchDefaultAddressRoute $switchDefaultAddressRoute,
-        SalesChannelContextRestorer $contextRestorer
+        CartRestorer $restorer
     ) {
         $this->customerRepository = $customerRepository;
         $this->eventDispatcher = $eventDispatcher;
         $this->legacyPasswordVerifier = $legacyPasswordVerifier;
         $this->switchDefaultAddressRoute = $switchDefaultAddressRoute;
-        $this->contextRestorer = $contextRestorer;
+        $this->restorer = $restorer;
     }
 
     /**
@@ -168,7 +165,7 @@ class AccountService
             ],
         ], $context->getContext());
 
-        $context = $this->contextRestorer->restore($customer->getId(), $context);
+        $context = $this->restorer->restore($customer->getId(), $context);
         $newToken = $context->getToken();
 
         $event = new CustomerLoginEvent($context, $customer, $newToken);

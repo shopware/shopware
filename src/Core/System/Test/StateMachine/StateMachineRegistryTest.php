@@ -239,6 +239,7 @@ EOF;
                 'firstName' => 'Max',
                 'lastName' => 'Mustermann',
             ],
+            'orderNumber' => Uuid::randomHex(),
             'stateId' => Uuid::fromBytesToHex($stateMachineId),
             'paymentMethodId' => $this->fetchFirstIdFromTable('payment_method'),
             'currencyId' => Defaults::CURRENCY,

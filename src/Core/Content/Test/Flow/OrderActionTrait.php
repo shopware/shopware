@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Content\Test\Flow;
 
-use Doctrine\DBAL\Driver\Connection;
+use Doctrine\DBAL\Connection;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -169,6 +171,7 @@ trait OrderActionTrait
                     'firstName' => 'Max',
                     'lastName' => 'Mustermann',
                 ],
+                'orderNumber' => Uuid::randomHex(),
                 'stateId' => $this->getStateMachineState(),
                 'paymentMethodId' => $this->getValidPaymentMethodId(),
                 'currencyId' => Defaults::CURRENCY,
@@ -187,12 +190,56 @@ trait OrderActionTrait
                         'countryId' => $this->getValidCountryId(),
                     ],
                 ],
-                'lineItems' => [],
-                'deliveries' => [],
+                'lineItems' => [
+                    [
+                        'id' => $this->ids->create('line-item'),
+                        'identifier' => $this->ids->create('line-item'),
+                        'quantity' => 1,
+                        'label' => 'label',
+                        'type' => LineItem::CUSTOM_LINE_ITEM_TYPE,
+                        'price' => new CalculatedPrice(200, 200, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                        'priceDefinition' => new QuantityPriceDefinition(200, new TaxRuleCollection(), 2),
+                    ],
+                ],
+                'deliveries' => [
+                    [
+                        'id' => $this->ids->create('delivery'),
+                        'shippingOrderAddressId' => $this->ids->create('shipping-address'),
+                        'shippingMethodId' => $this->getAvailableShippingMethod()->getId(),
+                        'stateId' => $this->getStateId('open', 'order_delivery.state'),
+                        'trackingCodes' => [],
+                        'shippingDateEarliest' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                        'shippingDateLatest' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                        'shippingCosts' => new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                        'positions' => [
+                            [
+                                'id' => $this->ids->create('position'),
+                                'orderLineItemId' => $this->ids->create('line-item'),
+                                'price' => new CalculatedPrice(200, 200, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                            ],
+                        ],
+                    ],
+                ],
                 'context' => '{}',
                 'payload' => '{}',
             ], $additionalData),
         ], $this->ids->context);
+    }
+
+    private function getStateId(string $state, string $machine)
+    {
+        return $this->getContainer()->get(Connection::class)
+            ->fetchColumn('
+                SELECT LOWER(HEX(state_machine_state.id))
+                FROM state_machine_state
+                    INNER JOIN  state_machine
+                    ON state_machine.id = state_machine_state.state_machine_id
+                    AND state_machine.technical_name = :machine
+                WHERE state_machine_state.technical_name = :state
+            ', [
+                'state' => $state,
+                'machine' => $machine,
+            ]);
     }
 
     private function createCustomField(string $name, string $entity, string $type = CustomFieldTypes::SELECT): string

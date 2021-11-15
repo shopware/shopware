@@ -39,7 +39,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Password\LegacyPasswordVerifier"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\SalesChannel\SwitchDefaultAddressRoute"/>
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\CartRestorer"/>
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Validation\AddressValidationFactory">
@@ -124,9 +124,8 @@
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Subscriber\CustomerFlowEventsSubscriber">
-            <argument type="service" id="Doctrine\DBAL\Connection" />
             <argument type="service" id="Symfony\Component\EventDispatcher\EventDispatcherInterface" />
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService" />
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer" />
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -134,7 +133,7 @@
             <argument type="service" id="event_dispatcher"/>
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="Shopware\Core\Checkout\Customer\Password\LegacyPasswordVerifier"/>
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer"/>
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\CartRestorer"/>
             <argument type="service" id="Symfony\Component\HttpFoundation\RequestStack"/>
             <argument type="service" id="Shopware\Core\Framework\RateLimiter\RateLimiter"/>
         </service>
@@ -259,7 +258,7 @@
         <service id="Shopware\Core\Checkout\Customer\Api\CustomerGroupRegistrationActionController" public="true">
             <argument type="service" id="customer.repository"/>
             <argument type="service" id="event_dispatcher"/>
-            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextService" />
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer" />
         </service>
 
         <service id="Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistDefinition">

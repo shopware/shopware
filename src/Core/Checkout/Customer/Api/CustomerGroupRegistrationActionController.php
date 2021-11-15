@@ -11,9 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
-use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
-use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -28,16 +26,16 @@ class CustomerGroupRegistrationActionController
 
     private EventDispatcherInterface $eventDispatcher;
 
-    private SalesChannelContextServiceInterface $salesChannelContextService;
+    private SalesChannelContextRestorer $restorer;
 
     public function __construct(
         EntityRepositoryInterface $customerRepository,
         EventDispatcherInterface $eventDispatcher,
-        SalesChannelContextServiceInterface $salesChannelContextService
+        SalesChannelContextRestorer $restorer
     ) {
         $this->customerRepository = $customerRepository;
         $this->eventDispatcher = $eventDispatcher;
-        $this->salesChannelContextService = $salesChannelContextService;
+        $this->restorer = $restorer;
     }
 
     /**
@@ -72,17 +70,7 @@ class CustomerGroupRegistrationActionController
 
         /** @var CustomerEntity $customer */
         foreach ($customers as $customer) {
-            $salesChannelContext = $this->salesChannelContextService->get(
-                new SalesChannelContextServiceParameters(
-                    $customer->getSalesChannelId(),
-                    Uuid::randomHex(),
-                    $customer->getLanguageId(),
-                    null,
-                    null,
-                    $context,
-                    $customer->getId(),
-                )
-            );
+            $salesChannelContext = $this->restorer->restoreByCustomer($customer->getId(), $context);
 
             /** @var CustomerGroupEntity $customerRequestedGroup */
             $customerRequestedGroup = $customer->getRequestedGroup();
@@ -127,17 +115,7 @@ class CustomerGroupRegistrationActionController
 
         /** @var CustomerEntity $customer */
         foreach ($customers as $customer) {
-            $salesChannelContext = $this->salesChannelContextService->get(
-                new SalesChannelContextServiceParameters(
-                    $customer->getSalesChannelId(),
-                    Uuid::randomHex(),
-                    $customer->getLanguageId(),
-                    null,
-                    null,
-                    $context,
-                    $customer->getId(),
-                )
-            );
+            $salesChannelContext = $this->restorer->restoreByCustomer($customer->getId(), $context);
 
             /** @var CustomerGroupEntity $customerRequestedGroup */
             $customerRequestedGroup = $customer->getRequestedGroup();

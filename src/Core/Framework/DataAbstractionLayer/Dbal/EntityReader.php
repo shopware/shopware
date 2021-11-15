@@ -39,30 +39,15 @@ class EntityReader implements EntityReaderInterface
     public const FOREIGN_KEYS = 'foreignKeys';
     public const MANY_TO_MANY_LIMIT_QUERY = 'many_to_many_limit_query';
 
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private Connection $connection;
 
-    /**
-     * @var EntityHydrator
-     */
-    private $hydrator;
+    private EntityHydrator $hydrator;
 
-    /**
-     * @var EntityDefinitionQueryHelper
-     */
-    private $queryHelper;
+    private EntityDefinitionQueryHelper $queryHelper;
 
-    /**
-     * @var SqlQueryParser
-     */
-    private $parser;
+    private SqlQueryParser $parser;
 
-    /**
-     * @var CriteriaQueryBuilder
-     */
-    private $criteriaQueryBuilder;
+    private CriteriaQueryBuilder $criteriaQueryBuilder;
 
     public function __construct(
         Connection $connection,
@@ -90,7 +75,8 @@ class EntityReader implements EntityReaderInterface
             $definition,
             $context,
             new $collectionClass(),
-            $definition->getFields()->getBasicFields()
+            $definition->getFields()->getBasicFields(),
+            true
         );
     }
 
@@ -104,8 +90,16 @@ class EntityReader implements EntityReaderInterface
         EntityDefinition $definition,
         Context $context,
         EntityCollection $collection,
-        FieldCollection $fields
+        FieldCollection $fields,
+        bool $performEmptySearch = false
     ): EntityCollection {
+        $hasFilters = !empty($criteria->getFilters()) || !empty($criteria->getPostFilters());
+        $hasIds = !empty($criteria->getIds());
+
+        if (!$performEmptySearch && !$hasFilters && !$hasIds) {
+            return $collection;
+        }
+
         $fields = $this->addAssociationFieldsToCriteria($criteria, $definition, $fields);
 
         if ($definition->isInheritanceAware() && $criteria->hasAssociation('parent')) {
@@ -557,6 +551,7 @@ class EntityReader implements EntityReaderInterface
     ): void {
         //collect all ids of many to many association which already stored inside the struct instances
         $ids = $this->collectManyToManyIds($collection, $association);
+
         $criteria->setIds($ids);
 
         $referenceClass = $association->getToManyReferenceDefinition();

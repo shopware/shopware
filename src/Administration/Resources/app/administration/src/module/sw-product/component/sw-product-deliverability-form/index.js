@@ -6,6 +6,8 @@ const { mapState, mapPropertyErrors, mapGetters } = Shopware.Component.getCompon
 Component.register('sw-product-deliverability-form', {
     template,
 
+    inject: ['feature'],
+
     mixins: [
         Mixin.getByName('placeholder'),
     ],
@@ -39,5 +41,17 @@ Component.register('sw-product-deliverability-form', {
             'shippingFree',
             'restockTime',
         ]),
+    },
+
+    created() {
+        this.createdComponent();
+    },
+
+    methods: {
+        createdComponent() {
+            if (this.feature.isActive('FEATURE_NEXT_17546') && typeof this.product.stock === 'undefined') {
+                this.product.stock = 0;
+            }
+        },
     },
 });

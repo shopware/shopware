@@ -72,7 +72,9 @@ describe('module/sw-product/component/sw-product-deliverability-form', () => {
                     template: '<div><slot></slot></div>'
                 },
                 'sw-inherit-wrapper': Shopware.Component.build('sw-inherit-wrapper'),
-                'sw-field': true,
+                'sw-field': {
+                    template: '<input class="sw-field">',
+                },
                 'sw-entity-single-select': true,
                 'sw-inheritance-switch': true
             }
@@ -124,5 +126,13 @@ describe('module/sw-product/component/sw-product-deliverability-form', () => {
         deliveryFieldsClassName.forEach(item => {
             expect(wrapper.find(item).exists()).toBeFalsy();
         });
+    });
+
+    it('should pre-fill stock value', async () => {
+        global.activeFeatureFlags = ['FEATURE_NEXT_17546'];
+
+        wrapper = createWrapper();
+
+        expect(wrapper.find('.sw-field[name="sw-field--product-stock"]').element.value).toBe('0');
     });
 });

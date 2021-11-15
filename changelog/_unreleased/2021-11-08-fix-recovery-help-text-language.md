@@ -6,4 +6,5 @@ author_email: j.kruse@shopware.com
 author_github: jakob-kruse
 ---
 # Core
-*  Added the language attribute to the recovery e-mail help text in `src/Core/System/Resources/config/loginRegistration.xml`
+* Added the language attribute to the recovery e-mail help text in `src/Core/System/Resources/config/loginRegistration.xml`
+* Added the language attribute to the double-opt-in url help text in `src/Core/System/Resources/config/loginRegistration.xml`

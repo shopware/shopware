@@ -11,7 +11,10 @@ function createWrapper(privileges = [], orderSumToday = null) {
 
     const responseMock = [{}, {}];
     responseMock.aggregations = {
-        order_count_month: {
+        order_count_bucket: {
+            buckets: []
+        },
+        order_sum_bucket: {
             buckets: []
         }
     };

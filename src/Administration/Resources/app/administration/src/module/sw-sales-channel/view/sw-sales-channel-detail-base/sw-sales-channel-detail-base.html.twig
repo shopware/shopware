@@ -83,7 +83,7 @@
                 required
                 v-if="!isProductComparison"
                 :categories-collection="mainCategories"
-                :placeholder="$tc('sw-category.base.link.categoryPlaceholder')"
+                :placeholder="navigationCategoryPlaceholder"
                 :single-select="true"
                 :label="$tc('sw-sales-channel.detail.navigationCategoryId')"
                 :disabled="!acl.can('sales_channel.editor')"
@@ -112,7 +112,7 @@
         <sw-category-tree-field
             v-if="!isProductComparison"
             :categories-collection="footerCategories"
-            :placeholder="$tc('sw-category.base.link.categoryPlaceholder')"
+            :placeholder="footerCategoryPlaceholder"
             :single-select="true"
             :label="$tc('sw-sales-channel.detail.footerCategory')"
             :disabled="!acl.can('sales_channel.editor')"
@@ -126,7 +126,7 @@
         <sw-category-tree-field
             v-if="!isProductComparison"
             :categories-collection="serviceCategories"
-            :placeholder="$tc('sw-category.base.link.categoryPlaceholder')"
+            :placeholder="serviceCategoryPlaceholder"
             :single-select="true"
             :label="$tc('sw-sales-channel.detail.serviceCategory')"
             :disabled="!acl.can('sales_channel.editor')"

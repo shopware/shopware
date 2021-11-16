@@ -389,6 +389,18 @@ Component.register('sw-sales-channel-detail-base', {
         serviceCategories() {
             return this.serviceCategoriesCollection ? this.serviceCategoriesCollection : [];
         },
+
+        navigationCategoryPlaceholder() {
+            return this.salesChannel.navigationCategoryId ? '' : this.$tc('sw-category.base.link.categoryPlaceholder');
+        },
+
+        footerCategoryPlaceholder() {
+            return this.salesChannel.footerCategoryId ? '' : this.$tc('sw-category.base.link.categoryPlaceholder');
+        },
+
+        serviceCategoryPlaceholder() {
+            return this.salesChannel.serviceCategoryId ? '' : this.$tc('sw-category.base.link.categoryPlaceholder');
+        },
     },
 
     watch: {

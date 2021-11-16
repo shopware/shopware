@@ -111,6 +111,10 @@ Component.register('sw-category-link-settings', {
         categoryRepository() {
             return this.repositoryFactory.create('category');
         },
+
+        categoryLinkPlaceholder() {
+            return this.category.internalLink ? '' : this.$tc('sw-category.base.link.categoryPlaceholder');
+        },
     },
 
     created() {

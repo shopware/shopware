@@ -40,7 +40,7 @@
     <template v-if="category.linkType === 'category'">
         <sw-category-tree-field
             :categories-collection="categoriesCollection"
-            :placeholder="$tc('sw-category.base.link.categoryPlaceholder')"
+            :placeholder="categoryLinkPlaceholder"
             :category-criteria="categoryCriteria"
             :single-select="true"
             :label="$tc('global.entities.category')"

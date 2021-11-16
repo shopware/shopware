@@ -8,7 +8,7 @@ import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
 import 'src/app/component/base/sw-empty-state';
 
-function createWrapper(privileges = []) {
+function createWrapper() {
     return shallowMount(Shopware.Component.build('sw-cms-list'), {
         stubs: {
             'sw-page': {
@@ -59,15 +59,9 @@ function createWrapper(privileges = []) {
             $route: { query: '' }
         },
         provide: {
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) { return true; }
-
-                    return privileges.includes(identifier);
-                }
-            },
             repositoryFactory: {
-                create: () => ({ search: () => Promise.resolve() })
+                create: () => ({ search: () => Promise.resolve(), clone: jest.fn(() => Promise.resolve()) }),
+
             },
             searchRankingService: {
                 getSearchFieldsByEntity: () => {
@@ -91,9 +85,11 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should open the media modal when user clicks on edit preview image', async () => {
-        const wrapper = createWrapper([
+        global.activeAclRoles = [
             'cms.editor'
-        ]);
+        ];
+
+        const wrapper = createWrapper();
 
         await wrapper.setData({
             pages: [
@@ -123,6 +119,8 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should show a disabled create new button', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = createWrapper();
 
         await wrapper.setData({
@@ -143,9 +141,11 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should show an enabled create new button', async () => {
-        const wrapper = createWrapper([
+        global.activeAclRoles = [
             'cms.creator'
-        ]);
+        ];
+
+        const wrapper = createWrapper();
 
         await wrapper.setData({
             pages: [
@@ -165,6 +165,8 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should show disabled context fields in data grid view', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = createWrapper();
 
         await wrapper.find('.sw-cms-list__actions-mode')
@@ -200,9 +202,11 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should show enabled edit context fields in data grid view', async () => {
-        const wrapper = createWrapper([
+        global.activeAclRoles = [
             'cms.editor'
-        ]);
+        ];
+
+        const wrapper = createWrapper();
 
         await wrapper.find('.sw-cms-list__actions-mode')
             .trigger('click');
@@ -237,9 +241,11 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should show enabled duplicate context fields in data grid view', async () => {
-        const wrapper = createWrapper([
+        global.activeAclRoles = [
             'cms.creator'
-        ]);
+        ];
+
+        const wrapper = createWrapper();
 
         await wrapper.find('.sw-cms-list__actions-mode')
             .trigger('click');
@@ -274,9 +280,11 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should show enabled delete context fields in data grid view', async () => {
-        const wrapper = createWrapper([
+        global.activeAclRoles = [
             'cms.deleter'
-        ]);
+        ];
+
+        const wrapper = createWrapper();
 
         await wrapper.find('.sw-cms-list__actions-mode')
             .trigger('click');
@@ -311,6 +319,8 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should show disabled context fields in normal view', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = createWrapper();
 
         await wrapper.setData({
@@ -341,9 +351,11 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should show enabled preview context field in normal view', async () => {
-        const wrapper = createWrapper([
+        global.activeAclRoles = [
             'cms.editor'
-        ]);
+        ];
+
+        const wrapper = createWrapper();
 
         await wrapper.setData({
             isLoading: false,
@@ -373,9 +385,11 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should show enabled duplicate context field in normal view', async () => {
-        const wrapper = createWrapper([
+        global.activeAclRoles = [
             'cms.creator'
-        ]);
+        ];
+
+        const wrapper = createWrapper();
 
         await wrapper.setData({
             isLoading: false,
@@ -405,9 +419,11 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should show enabled delete context field in normal view', async () => {
-        const wrapper = createWrapper([
+        global.activeAclRoles = [
             'cms.deleter'
-        ]);
+        ];
+
+        const wrapper = createWrapper();
 
         await wrapper.setData({
             isLoading: false,
@@ -437,9 +453,11 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should disable the delete menu item when the layout got assigned to at least one product', async () => {
-        const wrapper = createWrapper(
+        global.activeAclRoles = [
             'cms.deleter'
-        );
+        ];
+
+        const wrapper = createWrapper();
 
         await wrapper.setData({
             isLoading: false,
@@ -464,9 +482,11 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should enable the delete menu item when the layout do not belong to any product', async () => {
-        const wrapper = createWrapper(
+        global.activeAclRoles = [
             'cms.deleter'
-        );
+        ];
+
+        const wrapper = createWrapper();
 
         await wrapper.setData({
             isLoading: false,
@@ -491,6 +511,8 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should apply the necessary criteria when aggregating layouts already linked to pages', () => {
+        global.activeAclRoles = [];
+
         const wrapper = createWrapper();
 
         expect(wrapper.vm.isLinkedCriteria).toBeDefined();
@@ -508,6 +530,8 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should indicate layouts already assigned to pages', async () => {
+        global.activeAclRoles = [];
+
         const wrapper = createWrapper();
         const testData = {
             isLoading: false,
@@ -559,11 +583,15 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should add query score to the criteria', async () => {
+        global.activeAclRoles = [];
         global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
+
         const wrapper = createWrapper();
+
         await wrapper.setData({
             term: 'foo'
         });
+
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria();
@@ -583,8 +611,11 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should not get search ranking fields when term is null', async () => {
+        global.activeAclRoles = [];
         global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
+
         const wrapper = createWrapper();
+
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
             return new Criteria();
@@ -604,8 +635,11 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should not build query score when search ranking field is null ', async () => {
+        global.activeAclRoles = [];
         global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
+
         const wrapper = createWrapper();
+
         await wrapper.setData({
             term: 'foo'
         });
@@ -629,12 +663,16 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should show empty state when there is not item after filling search term', async () => {
+        global.activeAclRoles = [];
         global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
+
         const wrapper = createWrapper();
+
         await wrapper.setData({
             term: 'foo'
         });
         await wrapper.vm.$nextTick();
+
         wrapper.vm.searchRankingService.getSearchFieldsByEntity = jest.fn(() => {
             return {};
         });
@@ -648,5 +686,51 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         expect(wrapper.vm.entitySearchable).toEqual(false);
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
+    });
+
+    it('should duplicate and change the name of the duplicated layout', async () => {
+        global.activeAclRoles = [
+            'cms.creator'
+        ];
+
+        const wrapper = createWrapper();
+
+        await wrapper.find('.sw-cms-list__actions-mode')
+            .trigger('click');
+
+        await wrapper.vm.$nextTick();
+
+        await wrapper.setData({
+            isLoading: false,
+            pages: [
+                {
+                    id: '1a',
+                    sections: [],
+                    categories: [],
+                    products: [],
+                    name: 'CMS Page 1',
+                    translated: {
+                        name: 'CMS Page 1'
+                    }
+                }
+            ]
+        });
+
+        await wrapper.find('.sw-data-grid__actions-menu')
+            .trigger('click');
+
+        wrapper.find('.sw-cms-list__context-menu-item-duplicate').trigger('click');
+
+        expect(wrapper.vm.pageRepository.clone).toHaveBeenCalledTimes(1);
+
+        const cloneMock = wrapper.vm.pageRepository.clone.mock.calls[0];
+
+        expect(cloneMock[0]).toBe('1a');
+        expect(cloneMock[1]).toStrictEqual(Shopware.Context.api);
+        expect(cloneMock[2]).toStrictEqual({
+            overwrites: {
+                name: 'CMS Page 1 - global.default.copy'
+            }
+        });
     });
 });

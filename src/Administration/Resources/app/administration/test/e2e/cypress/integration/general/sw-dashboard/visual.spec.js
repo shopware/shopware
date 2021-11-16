@@ -34,7 +34,6 @@ describe('Dashboard:  Visual tests', () => {
 
     it('@visual: check appearance of basic dashboard workflow', () => {
         // Change color of the element to ensure consistent snapshots
-        cy.changeElementStyling('.sw-data-grid__cell--orderDateTime', 'color : #fff');
         cy.get('.sw-dashboard-index__welcome-title')
             .invoke('prop', 'innerText', 'Oh, hello Cypress.');
         cy.get('.sw-dashboard-index__welcome-message')

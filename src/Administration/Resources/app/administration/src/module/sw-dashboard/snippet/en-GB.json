@@ -74,11 +74,11 @@
     "monthStats": {
       "headline": "Statistics",
       "dateRanges": {
-        "30Days": "last 30 Days",
-        "14Days": "last 14 Days",
-        "7Days": "last 7 Days",
-        "yesterday": "since yesterday",
-        "24Hours": "last 24h"
+        "30Days": "Last 30 days",
+        "14Days": "Last 14 days",
+        "7Days": "Last 7 days",
+        "24Hours": "Last 24 hours",
+        "yesterday": "Since yesterday"
       },
       "orderNumber": "Orders",
       "turnover": "Turnover",

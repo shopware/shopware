@@ -11,7 +11,8 @@ Component.register('sw-dashboard-index', {
 
     data() {
         return {
-            historyOrderData: null,
+            historyOrderDataCount: null,
+            historyOrderDataSum: null,
             todayOrderData: [],
             todayOrderDataLoaded: false,
             todayOrderDataSortBy: 'orderDateTime',
@@ -23,8 +24,8 @@ Component.register('sw-dashboard-index', {
                     '30Days': 30,
                     '14Days': 14,
                     '7Days': 7,
-                    yesterday: 1,
                     '24Hours': 24,
+                    yesterday: 1,
                 },
             },
         };
@@ -136,12 +137,12 @@ Component.register('sw-dashboard-index', {
         },
 
         orderCountSeries() {
-            if (!this.historyOrderData) {
+            if (!this.historyOrderDataCount) {
                 return [];
             }
 
             // format data for chart
-            const seriesData = this.historyOrderData.buckets.map((data) => {
+            const seriesData = this.historyOrderDataCount.buckets.map((data) => {
                 return { x: this.parseDate(data.key), y: data.count };
             });
 
@@ -168,12 +169,12 @@ Component.register('sw-dashboard-index', {
         },
 
         orderSumSeries() {
-            if (!this.historyOrderData) {
+            if (!this.historyOrderDataSum) {
                 return [];
             }
 
             // format data for chart
-            const seriesData = this.historyOrderData.buckets.map((data) => {
+            const seriesData = this.historyOrderDataSum.buckets.map((data) => {
                 return { x: this.parseDate(data.key), y: data.totalAmount.sum };
             });
 
@@ -197,7 +198,7 @@ Component.register('sw-dashboard-index', {
         },
 
         hasOrderInMonth() {
-            return !!this.historyOrderData;
+            return !!this.historyOrderDataCount && !!this.historyOrderDataSum;
         },
 
         dateAgo() {
@@ -225,18 +226,17 @@ Component.register('sw-dashboard-index', {
         },
 
         todayBucket() {
-            if (!this.historyOrderData) {
+            if (!(this.historyOrderDataCount && this.historyOrderDataSum)) {
                 return null;
             }
 
+            const todayStart = new Date().setHours(0, 0, 0, 0);
+            const todayEnd = new Date().setHours(23, 59, 59, 999);
             // search for stats with same timestamp as today
-            const findDateStats = this.historyOrderData.buckets.find((dateCount) => {
+            const findDateStatsCount = this.historyOrderDataCount.buckets.find((dateCount) => {
                 // when date exists
                 if (dateCount.key) {
                     const timeConverted = this.parseDate(dateCount.key);
-
-                    const todayStart = new Date().setHours(0, 0, 0, 0);
-                    const todayEnd = new Date().setHours(24, 59, 59, 59);
 
                     // if time is today
                     return timeConverted >= todayStart && timeConverted <= todayEnd;
@@ -245,8 +245,8 @@ Component.register('sw-dashboard-index', {
                 return false;
             });
 
-            if (findDateStats) {
-                return findDateStats;
+            if (findDateStatsCount) {
+                return findDateStatsCount;
             }
             return null;
         },
@@ -296,29 +296,57 @@ Component.register('sw-dashboard-index', {
         },
 
         getHistoryOrderData() {
-            this.fetchHistoryOrderData().then((response) => {
-                if (response.aggregations) {
-                    this.historyOrderData = response.aggregations.order_count_month;
-                }
-            });
+            this.fetchHistoryOrderDataCount()
+                .then((response) => {
+                    if (response.aggregations) {
+                        this.historyOrderDataCount = response.aggregations.order_count_bucket;
+                    }
+                });
+
+            this.fetchHistoryOrderDataSum()
+                .then((response) => {
+                    if (response.aggregations) {
+                        this.historyOrderDataSum = response.aggregations.order_sum_bucket;
+                    }
+                });
         },
 
-        fetchHistoryOrderData() {
-            const criteria = new Criteria(1, 10);
-            criteria.setLimit(1);
+        fetchHistoryOrderDataCount() {
+            const criteria = new Criteria(1, 1);
 
             criteria.addAggregation(
                 Criteria.histogram(
-                    'order_count_month',
+                    'order_count_bucket',
                     'orderDateTime',
                     this.getTimeUnitInterval,
                     null,
                     Criteria.sum('totalAmount', 'amountTotal'),
-                    Shopware?.State?.get('session')?.currentUser?.timeZone ?? 'UTC',
+                    Shopware.State.get('session').currentUser?.timeZone ?? 'UTC',
                 ),
             );
 
-            // add filter for last 30 days
+            criteria.addFilter(Criteria.range('orderDate', { gte: this.formatDate(this.dateAgo) }));
+
+            return this.orderRepository.search(criteria);
+        },
+
+        fetchHistoryOrderDataSum() {
+            const criteria = new Criteria(1, 1);
+
+            criteria.addAggregation(
+                Criteria.histogram(
+                    'order_sum_bucket',
+                    'orderDateTime',
+                    this.getTimeUnitInterval,
+                    null,
+                    Criteria.sum('totalAmount', 'amountTotal'),
+                    Shopware.State.get('session').currentUser?.timeZone ?? 'UTC',
+                ),
+            );
+
+            criteria.addAssociation('stateMachineState');
+
+            criteria.addFilter(Criteria.equals('transactions.stateMachineState.name', 'paid'));
             criteria.addFilter(Criteria.range('orderDate', { gte: this.formatDate(this.dateAgo) }));
 
             return this.orderRepository.search(criteria);
@@ -328,8 +356,8 @@ Component.register('sw-dashboard-index', {
             const criteria = new Criteria(1, 10);
 
             criteria.addAssociation('currency');
-            // add filter for today
-            criteria.addFilter(Criteria.range('orderDate', { gte: this.formatDate(this.today) }));
+
+            criteria.addFilter(Criteria.equals('orderDate', this.formatDate(new Date())));
             criteria.addSorting(Criteria.sort(this.todayOrderDataSortBy, this.todayOrderDataSortDirection));
 
             return this.orderRepository.search(criteria);

@@ -21,9 +21,11 @@ use Shopware\Core\Content\ImportExport\ImportExport;
 use Shopware\Core\Content\ImportExport\ImportExportProfileEntity;
 use Shopware\Core\Content\ImportExport\Processing\Pipe\AbstractPipe;
 use Shopware\Core\Content\ImportExport\Processing\Reader\AbstractReader;
+use Shopware\Core\Content\ImportExport\Processing\Reader\CsvReader;
 use Shopware\Core\Content\ImportExport\Processing\Writer\AbstractWriter;
 use Shopware\Core\Content\ImportExport\Service\FileService;
 use Shopware\Core\Content\ImportExport\Service\ImportExportService;
+use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
@@ -933,6 +935,105 @@ class ImportExportTest extends ImportExportTestCase
         static::assertSame(20.0, $products['bf44b430d7cd47fcac93310edf4fe4e2']->getPrice()->first()->getListPrice()->getNet());
         static::assertSame(50.0, $products['bf44b430d7cd47fcac93310edf4fe4e2']->getPrice()->first()->getListPrice()->getGross());
         static::assertTrue($products['bf44b430d7cd47fcac93310edf4fe4e2']->getPrice()->first()->getListPrice()->getLinked());
+    }
+
+    public function testProductImportExportWithCustomField(): void
+    {
+        $context = Context::createDefaultContext();
+        $profile = $this->cloneDefaultProfile(ProductDefinition::ENTITY_NAME);
+
+        $mapping = $profile->getMapping();
+        $mapping[] = [
+            'key' => 'translations.DEFAULT.customFields.custom_field_1',
+            'mappedKey' => 'custom_field_1',
+        ];
+        $mapping[] = [
+            'key' => 'translations.DEFAULT.customFields.custom_field_2',
+            'mappedKey' => 'custom_field_2',
+        ];
+        $mapping[] = [
+            'key' => 'translations.DEFAULT.customFields.custom_field_3',
+            'mappedKey' => 'custom_field_3',
+        ];
+        $mapping[] = [
+            'key' => 'translations.DEFAULT.customFields.custom_field_4',
+            'mappedKey' => 'custom_field_4',
+        ];
+        $mapping[] = [
+            'key' => 'translations.DEFAULT.customFields.custom_field_5',
+            'mappedKey' => 'custom_field_5',
+        ];
+        $mapping[] = [
+            'key' => 'translations.DEFAULT.customFields',
+            'mappedKey' => 'custom_fields',
+        ];
+        $this->updateProfileMapping($profile->getId(), $mapping);
+
+        $this->createCustomField([
+            [
+                'name' => 'custom_field_1',
+                'type' => 'string',
+            ],
+            [
+                'name' => 'custom_field_2',
+                'type' => 'int',
+            ],
+            [
+                'name' => 'custom_field_3',
+                'type' => 'bool',
+            ],
+            [
+                'name' => 'custom_field_4',
+                'type' => 'datetime',
+            ],
+            [
+                'name' => 'custom_field_5',
+                'type' => 'select',
+            ],
+            [
+                'name' => 'custom_field_6',
+                'type' => 'string',
+            ],
+        ], ProductDefinition::ENTITY_NAME);
+
+        $progress = $this->import($context, ProductDefinition::ENTITY_NAME, '/fixtures/products_with_custom_fields.csv', 'products_with_custom_fields.csv', $profile->getId());
+
+        static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
+
+        /** @var ProductEntity $product */
+        $product = $this->productRepository->search(new Criteria(['e5c8b8f701034e8dbea72ac0fc32521e']), Context::createDefaultContext())->first();
+
+        static::assertSame('foo', $product->getCustomFields()['custom_field_1']);
+        static::assertSame(23, $product->getCustomFields()['custom_field_2']);
+        static::assertTrue($product->getCustomFields()['custom_field_3']);
+        static::assertSame('2021-12-12T12:00:00+00:00', $product->getCustomFields()['custom_field_4']);
+        static::assertSame(['abc8b8f701034e8dbea72ac0fc32521e', 'c5c8b8f701034e8dbea72ac0fc32521e'], $product->getCustomFields()['custom_field_5']);
+
+        $progress = $this->export($context, ProductDefinition::ENTITY_NAME, null, null, $profile->getId());
+
+        static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
+
+        $filesystem = $this->getContainer()->get('shopware.filesystem.private');
+        $csv = $filesystem->read($this->getLogEntity($progress->getLogId())->getFile()->getPath());
+        $resource = fopen('data://text/plain;base64,' . base64_encode($csv), 'rb');
+        $reader = new CsvReader();
+        $record = null;
+        foreach ($reader->read(new Config([], [], []), $resource, 0) as $row) {
+            $record = $row;
+
+            break;
+        }
+
+        static::assertNotNull($record);
+        static::assertEquals('foo', $record['custom_field_1']);
+        static::assertEquals('23', $record['custom_field_2']);
+        static::assertEquals('1', $record['custom_field_3']);
+        static::assertEquals('2021-12-12T12:00:00+00:00', $record['custom_field_4']);
+        static::assertEquals('["abc8b8f701034e8dbea72ac0fc32521e","c5c8b8f701034e8dbea72ac0fc32521e"]', $record['custom_field_5']);
+        static::assertEquals(
+            '{"custom_field_1":"foo","custom_field_2":23,"custom_field_3":true,"custom_field_4":"2021-12-12T12:00:00+00:00","custom_field_5":["abc8b8f701034e8dbea72ac0fc32521e","c5c8b8f701034e8dbea72ac0fc32521e"],"custom_field_6":"bar"}',
+            $record['custom_fields']
+        );
     }
 
     /**

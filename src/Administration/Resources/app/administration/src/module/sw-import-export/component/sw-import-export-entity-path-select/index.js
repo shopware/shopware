@@ -81,6 +81,14 @@ Component.register('sw-import-export-entity-path-select', {
                 return [{ locale: 'DEFAULT' }];
             },
         },
+
+        customFieldSets: {
+            type: Array,
+            required: false,
+            default() {
+                return [];
+            },
+        },
     },
 
     data() {
@@ -195,6 +203,10 @@ Component.register('sw-import-export-entity-path-select', {
             // remove last element of path which is the user search input
             pathParts.splice(-1, 1);
 
+            if (pathParts[pathParts.length - 1] === 'customFields') {
+                return pathParts;
+            }
+
             // Remove special cases for prices and translations
             return pathParts.filter(part => {
                 // Remove if path is a iso code
@@ -269,6 +281,11 @@ Component.register('sw-import-export-entity-path-select', {
                     return;
                 }
 
+                // Return if property is custom fields
+                if (propertyName === 'customFields' && property.type === 'json_object') {
+                    return;
+                }
+
                 const entity = actualDefinition.properties[propertyName].entity;
                 entityFound = Shopware.EntityDefinition.has(entity);
 
@@ -298,11 +315,18 @@ Component.register('sw-import-export-entity-path-select', {
         },
 
         options() {
-            if (this.currentEntity === null) {
+            const isCustomField = this.actualPathParts[this.actualPathParts.length - 1] === 'customFields';
+
+            if (this.currentEntity === null && !isCustomField) {
                 return [];
             }
 
-            const definition = Shopware.EntityDefinition.get(this.currentEntity);
+            let definition;
+            if (isCustomField) {
+                definition = { properties: this.getCustomFields(this.currentEntity || this.entityType) };
+            } else {
+                definition = Shopware.EntityDefinition.get(this.currentEntity);
+            }
             const unprocessedValues = {
                 definition: definition,
                 options: [],
@@ -467,6 +491,13 @@ Component.register('sw-import-export-entity-path-select', {
             this.availableLocales.forEach((locale) => {
                 properties.forEach(propertyName => {
                     const name = `${path}${locale}.${propertyName}`;
+
+                    if (propertyName === 'customFields') {
+                        options.push({ label: name, value: name, relation: true });
+
+                        return;
+                    }
+
                     options.push({ label: name, value: name });
                 });
             });
@@ -691,6 +722,29 @@ Component.register('sw-import-export-entity-path-select', {
                 return -1;
             }
             return 0;
+        },
+
+        getCustomFields(entityName) {
+            const customFields = {};
+
+            this.customFieldSets.forEach((customFieldSet) => {
+                const hasRelation = customFieldSet.relations.filter((relation) => {
+                    return relation.entityName === entityName;
+                }).length > 0;
+
+                if (!hasRelation) {
+                    return;
+                }
+
+                customFieldSet.customFields.forEach((customField) => {
+                    customFields[customField.name] = {
+                        label: customField.name,
+                        value: customField.name,
+                    };
+                });
+            });
+
+            return customFields;
         },
     },
 });

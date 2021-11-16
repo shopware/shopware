@@ -105,6 +105,15 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
                 data: []
             }
         });
+
+        responses.addResponse({
+            method: 'Post',
+            url: '/search/custom-field-set',
+            status: 200,
+            response: {
+                data: []
+            }
+        });
     });
 
     afterEach(() => {

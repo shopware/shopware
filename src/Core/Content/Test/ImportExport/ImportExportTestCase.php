@@ -504,4 +504,22 @@ abstract class ImportExportTestCase extends TestCase
 
         return $invalid;
     }
+
+    protected function createCustomField(array $customFields, string $entityName): void
+    {
+        $repo = $this->getContainer()->get('custom_field_set.repository');
+
+        $attributeSet = [
+            'name' => 'test set',
+            'config' => ['description' => 'test'],
+            'customFields' => $customFields,
+            'relations' => [
+                [
+                    'entityName' => $entityName,
+                ],
+            ],
+        ];
+
+        $repo->create([$attributeSet], Context::createDefaultContext());
+    }
 }

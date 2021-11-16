@@ -40,6 +40,7 @@ Shopware.Component.register('sw-import-export-edit-profile-modal-mapping', {
             mappings: [],
             currencies: [],
             languages: [],
+            customFieldSets: [],
             addMappingEnabled: false,
         };
     },
@@ -53,6 +54,10 @@ Shopware.Component.register('sw-import-export-edit-profile-modal-mapping', {
             return this.repositoryFactory.create('currency');
         },
 
+        customFieldSetRepository() {
+            return this.repositoryFactory.create('custom_field_set');
+        },
+
         languageCriteria() {
             const criteria = new Criteria(1, 500);
             criteria.addAssociation('locale');
@@ -62,6 +67,14 @@ Shopware.Component.register('sw-import-export-edit-profile-modal-mapping', {
 
         currencyCriteria() {
             return new Criteria(1, 500);
+        },
+
+        customFieldSetCriteria() {
+            const criteria = new Criteria(1, 500);
+            criteria.addAssociation('relations');
+            criteria.addAssociation('customFields');
+
+            return criteria;
         },
 
         mappingColumns() {
@@ -153,6 +166,10 @@ Shopware.Component.register('sw-import-export-edit-profile-modal-mapping', {
             this.currencyRepository.search(this.currencyCriteria).then(currencies => {
                 this.currencies = currencies;
                 this.currencies.push({ isoCode: 'DEFAULT' });
+            });
+
+            this.customFieldSetRepository.search(this.customFieldSetCriteria).then((customFieldSets) => {
+                this.customFieldSets = customFieldSets;
             });
 
             this.loadMappings();

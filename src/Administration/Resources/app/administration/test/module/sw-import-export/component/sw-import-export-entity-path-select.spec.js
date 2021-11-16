@@ -61,6 +61,9 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
                 properties: {
                     name: {
                         type: 'string'
+                    },
+                    customFields: {
+                        type: 'json_object'
                     }
                 }
             },
@@ -82,6 +85,22 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
                         type: 'association',
                         relation: 'one_to_many',
                         entity: 'product'
+                    },
+                    translations: {
+                        type: 'association',
+                        relation: 'one_to_many',
+                        entity: 'product_manufacturer_translation'
+                    }
+                }
+            },
+            product_manufacturer_translation: {
+                entity: 'product_manufacturer_translation',
+                properties: {
+                    name: {
+                        type: 'string'
+                    },
+                    customFields: {
+                        type: 'json_object'
                     }
                 }
             },
@@ -142,7 +161,17 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             },
             propsData: {
                 value: null,
-                entityType: 'product'
+                entityType: 'product',
+                customFieldSets: [
+                    {
+                        relations: [{ entityName: 'product' }],
+                        customFields: [{ name: 'custom_field_product_1' }, { name: 'custom_field_product_2' }]
+                    },
+                    {
+                        relations: [{ entityName: 'product_manufacturer' }],
+                        customFields: [{ name: 'custom_field_manufacturer_1' }, { name: 'custom_field_manufacturer_2' }]
+                    }
+                ]
             }
         });
     });
@@ -486,16 +515,17 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         data = wrapper.vm.processTranslations(data);
 
         expect(data.properties).toEqual(['id', 'price', 'parent', 'cover', 'manufacturer', 'visibilities']);
-        expect(data.options).toEqual([{
-            label: 'translations.DEFAULT.name',
-            value: 'translations.DEFAULT.name'
-        }]);
+        expect(data.options).toEqual([
+            { label: 'translations.DEFAULT.name', value: 'translations.DEFAULT.name' },
+            { label: 'translations.DEFAULT.customFields', value: 'translations.DEFAULT.customFields', relation: true }
+        ]);
 
         data = wrapper.vm.processVisibilities(data);
 
         expect(data.properties).toEqual(['id', 'price', 'parent', 'cover', 'manufacturer']);
         expect(data.options).toEqual([
             { label: 'translations.DEFAULT.name', value: 'translations.DEFAULT.name' },
+            { label: 'translations.DEFAULT.customFields', value: 'translations.DEFAULT.customFields', relation: true },
             { label: 'visibilities.all', value: 'visibilities.all' },
             { label: 'visibilities.link', value: 'visibilities.link' },
             { label: 'visibilities.search', value: 'visibilities.search' }
@@ -506,6 +536,7 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
         expect(data.properties).toEqual(['id', 'parent', 'cover', 'manufacturer']);
         expect(data.options).toEqual([
             { label: 'translations.DEFAULT.name', value: 'translations.DEFAULT.name' },
+            { label: 'translations.DEFAULT.customFields', value: 'translations.DEFAULT.customFields', relation: true },
             { label: 'visibilities.all', value: 'visibilities.all' },
             { label: 'visibilities.link', value: 'visibilities.link' },
             { label: 'visibilities.search', value: 'visibilities.search' },
@@ -572,5 +603,78 @@ describe('module/sw-import-export/components/sw-import-export-entity-path-select
             { label: 'media', value: 'media' },
             { label: 'name', value: 'name' }
         ]);
+    });
+
+    it('should return custom field options by entity name', async () => {
+        let actual = wrapper.vm.getCustomFields('product');
+        let expected = {
+            custom_field_product_1: { label: 'custom_field_product_1', value: 'custom_field_product_1' },
+            custom_field_product_2: { label: 'custom_field_product_2', value: 'custom_field_product_2' }
+        };
+
+        expect(actual).toEqual(expected);
+
+        actual = wrapper.vm.getCustomFields('product_manufacturer');
+        expected = {
+            custom_field_manufacturer_1: { label: 'custom_field_manufacturer_1', value: 'custom_field_manufacturer_1' },
+            custom_field_manufacturer_2: { label: 'custom_field_manufacturer_2', value: 'custom_field_manufacturer_2' }
+        };
+
+        expect(actual).toEqual(expected);
+    });
+
+    it('should show custom field options if selected value is custom field', async () => {
+        await wrapper.setProps({
+            value: '',
+            languages: [
+                { locale: { code: 'DEFAULT' } }
+            ]
+        });
+
+        wrapper.vm.onSelectExpanded();
+
+        wrapper.vm.setValue({
+            label: 'translations.DEFAULT.customFields',
+            value: 'translations.DEFAULT.customFields',
+            relation: true
+        });
+
+        let actual = wrapper.vm.visibleResults;
+        let expected = [
+            {
+                label: 'translations.DEFAULT.customFields.custom_field_product_1',
+                value: 'translations.DEFAULT.customFields.custom_field_product_1',
+                relation: undefined
+            },
+            {
+                label: 'translations.DEFAULT.customFields.custom_field_product_2',
+                value: 'translations.DEFAULT.customFields.custom_field_product_2',
+                relation: undefined
+            }
+        ];
+
+        expect(actual).toEqual(expected);
+
+        wrapper.vm.setValue({
+            label: 'manufacturer.translations.DEFAULT.customFields',
+            value: 'manufacturer.translations.DEFAULT.customFields',
+            relation: true
+        });
+
+        actual = wrapper.vm.visibleResults;
+        expected = [
+            {
+                label: 'manufacturer.translations.DEFAULT.customFields.custom_field_manufacturer_1',
+                value: 'manufacturer.translations.DEFAULT.customFields.custom_field_manufacturer_1',
+                relation: undefined
+            },
+            {
+                label: 'manufacturer.translations.DEFAULT.customFields.custom_field_manufacturer_2',
+                value: 'manufacturer.translations.DEFAULT.customFields.custom_field_manufacturer_2',
+                relation: undefined
+            }
+        ];
+
+        expect(actual).toEqual(expected);
     });
 });

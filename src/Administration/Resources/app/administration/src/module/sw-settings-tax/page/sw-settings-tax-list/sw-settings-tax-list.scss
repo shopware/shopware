@@ -1,0 +1,9 @@
+@import "~scss/variables";
+
+$sw-settings-tax-list-color-success: $color-emerald-500;
+
+.sw-settings-tax-list {
+    .is--active {
+        color: $sw-settings-tax-list-color-success;
+    }
+}

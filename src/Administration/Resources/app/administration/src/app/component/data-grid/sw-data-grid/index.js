@@ -701,7 +701,6 @@ Component.register('sw-data-grid', {
         },
 
         onClickCancelInlineEdit(item) {
-            this.$emit('inline-edit-cancel', item);
             this.revert(item);
 
             this.disableInlineEdit();

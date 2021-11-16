@@ -1,4 +1,5 @@
 import template from './sw-settings-tax-detail.html.twig';
+import './sw-settings-tax-detail.scss';
 
 const { Component, Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
@@ -6,7 +7,7 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 Component.register('sw-settings-tax-detail', {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
+    inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService', 'systemConfigApiService'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -36,6 +37,8 @@ Component.register('sw-settings-tax-detail', {
             isLoading: false,
             isSaveSuccessful: false,
             customFieldSets: null,
+            defaultTaxRateId: null,
+            changeDefaultTaxRate: false,
         };
     },
 
@@ -96,6 +99,10 @@ Component.register('sw-settings-tax-detail', {
         showCustomFields() {
             return this.customFieldSets && this.customFieldSets.length > 0;
         },
+
+        isDefaultTaxRate() {
+            return this.taxId === this.defaultTaxRateId;
+        },
     },
 
     watch: {
@@ -120,6 +127,7 @@ Component.register('sw-settings-tax-detail', {
                     this.isLoading = false;
                 });
                 this.loadCustomFieldSets();
+                this.reloadDefaultTaxRate();
                 return;
             }
 
@@ -133,6 +141,9 @@ Component.register('sw-settings-tax-detail', {
             });
         },
 
+        /**
+         * @deprecated tag:v6.5.0 - Will be removed
+         */
         saveAndReload() {
             this.$emit('loading-change', true);
             return this.taxRepository.save(this.tax, this.apiContext).then(() => {
@@ -155,6 +166,8 @@ Component.register('sw-settings-tax-detail', {
                     this.$router.push({ name: 'sw.settings.tax.detail', params: { id: this.tax.id } });
                 }
 
+                this.reloadDefaultTaxRate();
+
                 this.taxRepository.get(this.tax.id).then((updatedTax) => {
                     this.tax = updatedTax;
                     this.isLoading = false;
@@ -173,6 +186,22 @@ Component.register('sw-settings-tax-detail', {
 
         changeName(name) {
             this.tax.name = name;
+        },
+
+        reloadDefaultTaxRate() {
+            this.systemConfigApiService
+                .getValues('core.tax')
+                .then(response => {
+                    this.defaultTaxRateId = response['core.tax.defaultTaxRate'] ?? null;
+                })
+                .catch(() => {
+                    this.defaultTaxRateId = null;
+                });
+        },
+
+        onChangeDefaultTaxRate() {
+            console.log('LEL');
+            this.changeDefaultTaxRate = true;
         },
     },
 });

@@ -1,4 +1,5 @@
 import template from './sw-settings-tax-list.html.twig';
+import './sw-settings-tax-list.scss';
 
 const { Component, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
@@ -6,10 +7,11 @@ const { Criteria } = Shopware.Data;
 Component.register('sw-settings-tax-list', {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: ['repositoryFactory', 'acl', 'systemConfigApiService'],
 
     mixins: [
         Mixin.getByName('listing'),
+        Mixin.getByName('notification'),
     ],
 
     data() {
@@ -20,6 +22,8 @@ Component.register('sw-settings-tax-list', {
             sortDirection: 'ASC',
             naturalSorting: false,
             showDeleteModal: false,
+            defaultTaxRateId: null,
+            selectedDefaultTaxRateId: null,
         };
     },
 
@@ -36,7 +40,7 @@ Component.register('sw-settings-tax-list', {
     },
 
     methods: {
-        getList() {
+        async getList() {
             const criteria = new Criteria(this.page, this.limit);
             this.isLoading = true;
             this.naturalSorting = this.sortBy === 'name';
@@ -47,6 +51,11 @@ Component.register('sw-settings-tax-list', {
                 // Add second sorting, to make sorting deterministic
                 criteria.addSorting(Criteria.sort('name', 'ASC', true));
             }
+
+            const defaultRate = await this.getDefaultTaxRate();
+
+            this.defaultTaxRateId = defaultRate;
+            this.selectedDefaultRate = defaultRate;
 
             this.taxRepository.search(criteria).then((items) => {
                 this.total = items.total;
@@ -59,17 +68,43 @@ Component.register('sw-settings-tax-list', {
             });
         },
 
-        onInlineEditSave(promise, tax) {
+        async onInlineEditSave(promise, tax) {
             promise.then(() => {
-                this.createNotificationSuccess({
-                    message: this.$tc('sw-settings-tax.detail.messageSaveSuccess', 0, { name: tax.name }),
-                });
+                if (this.selectedDefaultTaxRateId === this.defaultTaxRateId) {
+                    this.createNotificationSuccess({
+                        message: this.$tc('sw-settings-tax.detail.messageSaveSuccess', 0, { name: tax.name }),
+                    });
+
+                    return;
+                }
+
+                this.systemConfigApiService.saveValues({ 'core.tax.defaultTaxRate': this.selectedDefaultTaxRateId })
+                    .then(() => {
+                        this.defaultTaxRateId = this.selectedDefaultTaxRateId;
+
+                        this.createNotificationSuccess({
+                            message: this.$tc('sw-settings-tax.detail.messageSaveSuccess', 0, { name: tax.name }),
+                        });
+                    })
+                    .catch(() => {
+                        this.getList();
+
+                        this.createNotificationError({
+                            message: this.$tc('sw-settings-tax.detail.messageSaveError'),
+                        });
+                    });
             }).catch(() => {
-                this.getList();
                 this.createNotificationError({
                     message: this.$tc('sw-settings-tax.detail.messageSaveError'),
                 });
             });
+        },
+
+        async onInlineEditCancel(promise) {
+            await promise;
+
+            this.selectedDefaultTaxRateId = null;
+            this.defaultTaxRateId = await this.getDefaultTaxRate();
         },
 
         onDelete(id) {
@@ -101,6 +136,10 @@ Component.register('sw-settings-tax-list', {
                 property: 'taxRate',
                 inlineEdit: 'number',
                 label: 'sw-settings-tax.list.columnDefaultTaxRate',
+            }, {
+                property: 'default',
+                inlineEdit: 'boolean',
+                label: 'sw-settings-tax.list.columnDefault',
             }];
         },
 
@@ -110,6 +149,21 @@ Component.register('sw-settings-tax-list', {
 
         getLabel(tax) {
             return this.isShopwareDefaultTax(tax) ? this.$tc(`global.tax-rates.${tax.name}`) : tax.name;
+        },
+
+        isSelectedDefaultRate(tax) {
+            return this.defaultTaxRateId === tax.id;
+        },
+
+        setSelectedDefaultRate(checkBoxValue, id) {
+            this.selectedDefaultTaxRateId = checkBoxValue ? id : null;
+        },
+
+        async getDefaultTaxRate() {
+            return this.systemConfigApiService
+                .getValues('core.tax')
+                .then(response => response['core.tax.defaultTaxRate'] ?? null)
+                .catch(() => null);
         },
     },
 });

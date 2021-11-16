@@ -9,7 +9,8 @@
       "textHeadline": "Steuern",
       "textDeleteConfirm": "Bist Du sicher, dass Du die Steuer \"{name}\" löschen möchtest?",
       "columnName": "Name",
-      "columnDefaultTaxRate": "Standard-Steuersatz",
+      "columnDefaultTaxRate": "Steuersatz",
+      "columnDefault": "Standard",
       "buttonAddTax": "Steuer anlegen",
       "contextMenuEdit": "Bearbeiten",
       "contextMenuDelete": "Löschen",
@@ -21,13 +22,16 @@
       "textHeadline": "Neuer Steuersatz",
       "titleCard": "Einstellungen",
       "labelName": "Name",
-      "labelDefaultTaxRate": "Standard-Steuersatz",
+      "labelDefaultTaxRate": "Steuersatz",
       "placeholderName": "Namen eingeben ...",
       "placeholderDefaultTaxRate": "Standard-Steuersatz eingeben ...",
       "buttonCancel": "Abbrechen",
       "buttonSave": "Speichern",
       "messageSaveError": "Fehler beim Speichern des Steuersatzes.",
-      "messageSaveSuccess": "Steuersatz gespeichert."
+      "messageSaveSuccess": "Steuersatz gespeichert.",
+      "labelDefault": "Als Standard verwenden",
+      "defaultHelpText": "Dieser Steuersatz wird beim Anlegen neuer Produkte vorausgewählt.",
+      "titleModalDefault": "Standard ändern"
     },
     "taxRuleCard": {
       "tooltipCountries": "Falls nicht alle verfügbaren Länder angezeigt werden, gib einen konkreten Namen ein, um dieses Land auswählen zu können. Länder können über Einstellungen/Länder bearbeitet und neu angelegt werden.",

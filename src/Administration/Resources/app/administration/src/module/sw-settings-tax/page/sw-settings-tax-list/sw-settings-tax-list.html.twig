@@ -85,6 +85,7 @@
                     @column-sort="onSortColumn"
                     @page-change="onPageChange"
                     @inline-edit-save="onInlineEditSave"
+                    @inline-edit-cancel="onInlineEditCancel"
                 >
                     {% block sw_settings_tax_list_grid_column_default_name %}
                     <template #column-name="{ item, column, isInlineEdit, compact }">
@@ -115,6 +116,30 @@
                         </template>
                         <template v-else>
                             {{ item.taxRate }}%
+                        </template>
+                    </template>
+                    {% endblock %}
+
+                    {% block sw_settings_tax_list_grid_column_default %}
+                    <template #column-default="{ item, isInlineEdit }">
+                        <template v-if="isInlineEdit">
+                            {% block sw_settings_tax_list_grid_column_default_editor %}
+                            <sw-checkbox-field
+                                :value="isSelectedDefaultRate(item)"
+                                @change="value => setSelectedDefaultRate(value, item.id)"
+                            />
+                            {% endblock %}
+                        </template>
+                        <template v-else>
+                            {% block sw_settings_tax_list_grid_column_default_label %}
+                            <sw-icon
+                                v-if="isSelectedDefaultRate(item)"
+                                name="small-default-checkmark-line-medium"
+                                small
+                                class="is--active"
+                            />
+                            <div v-else></div>
+                            {% endblock %}
                         </template>
                     </template>
                     {% endblock %}

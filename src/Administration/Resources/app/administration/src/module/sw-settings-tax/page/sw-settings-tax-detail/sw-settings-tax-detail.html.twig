@@ -78,6 +78,17 @@
                     </template>
                 </sw-number-field>
                 {% endblock %}
+
+                <div class="sw-settings-tax-detail__switches">
+                    {% block sw_settings_tax_detail_content_field_default_tax_rate %}
+                    <sw-switch-field
+                        :label="$tc('sw-settings-tax.detail.labelDefault')"
+                        :help-text="$tc('sw-settings-tax.detail.defaultHelpText')"
+                        :value="isDefaultTaxRate"
+                        @change="onChangeDefaultTaxRate"
+                    />
+                {% endblock %}
+                </div>
             </sw-container>
         </sw-card>
         {% endblock %}
@@ -89,7 +100,6 @@
             class="sw-settings-tax-detail__tax-rule-grid"
             :tax="tax"
             :is-loading="isLoading"
-            @tax-rule-save="saveAndReload"
         />
         {% endblock %}
 
@@ -107,6 +117,34 @@
         </sw-card>
         {% endblock %}
     </sw-card-view>
+    {% endblock %}
+
+    {% block sw_ssettings_tax_detail_change_default_modal %}
+        <sw-modal
+            v-if="changeDefaultTaxRate"
+            class="sw-settings-tax-detail__change-default-modal"
+            :title="$tc('sw-settings-tax.detail.titleModalDefault')"
+        >
+            {% block sw_settings_tax_detail_change_default_modal_footer %}
+                <template #modal-footer>
+
+                    {% block sw_settings_tax_detail_change_default_modal_cancel %}
+                        <sw-button size="small">
+                            {{ $tc('global.default.cancel') }}
+                        </sw-button>
+                    {% endblock %}
+
+                    {% block sw_settings_tax_detail_change_default_modal_confirm %}
+                        <sw-button variant="primary"
+                                   size="small">
+                            {{ $tc('global.default.add') }}
+                        </sw-button>
+                    {% endblock %}
+                </template>
+            {% endblock %}
+
+            <div>LALALALALA</div>
+        </sw-modal>
     {% endblock %}
 </sw-page>
 {% endblock %}

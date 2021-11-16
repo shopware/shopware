@@ -169,10 +169,21 @@ class SendMailAction extends FlowAction
         $this->eventDispatcher->dispatch(new FlowSendMailActionEvent($data, $mailTemplate, $event));
 
         if ($data->has('templateId')) {
-            $this->mailTemplateTypeRepository->update([[
-                'id' => $mailTemplate->getMailTemplateTypeId(),
-                'templateData' => $this->getTemplateData($mailEvent),
-            ]], $mailEvent->getContext());
+            try {
+                $this->mailTemplateTypeRepository->update([[
+                    'id' => $mailTemplate->getMailTemplateTypeId(),
+                    'templateData' => $this->getTemplateData($mailEvent),
+                ]], $mailEvent->getContext());
+            } catch (\Throwable $e) {
+                // Dont throw errors if this fails // Fix with NEXT-15475
+                $this->logger->error(
+                    "Could not update mail template type:\n"
+                    . $e->getMessage() . "\n"
+                    . 'Error Code: ' . $e->getCode() . "\n"
+                    . 'Flow id: ' . $event->getFlowState()->flowId . "\n"
+                    . 'Sequence id: ' . $event->getFlowState()->sequenceId
+                );
+            }
         }
 
         try {

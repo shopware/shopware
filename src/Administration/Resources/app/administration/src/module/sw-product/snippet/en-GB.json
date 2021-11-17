@@ -109,7 +109,7 @@
       "labelWeight": "Weight",
       "labelMinPurchase": "Min. order quantity",
       "labelMaxPurchase": "Max. order quantity",
-      "labelEan": "EAN",
+      "labelEan": "GTIN/EAN",
       "labelManufacturerNumber": "Manufacturer product number",
       "labelStock": "Stock",
       "labelActive": "Active for all selected Sales Channels",
@@ -131,7 +131,7 @@
       "placeholderMaxPurchase": "Max. amount purchaseable...",
       "placeholderPurchaseSteps": "Enter purchase steps...",
       "placeholderRestockTime": "Enter restock time in days...",
-      "placeholderEan": "Enter EAN number...",
+      "placeholderEan": "Enter GTIN/EAN...",
       "placeholderManufacturerNumber": "Enter product number...",
       "labelAvailableStock": "Available stock",
       "labelPurchaseSteps": "Purchase steps"

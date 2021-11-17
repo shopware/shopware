@@ -84,7 +84,7 @@
           "additionalAddressLine2": "Adresszusatz 2"
         },
         "product": {
-          "ean": "EAN",
+          "ean": "GTIN/EAN",
           "name": "Name",
           "tagsName": "Tags",
           "productNumber": "Produktnummer",

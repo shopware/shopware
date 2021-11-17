@@ -62,7 +62,7 @@
         "releaseDate": "Release date",
         "description": "Description",
         "manufacturerNumber": "Manufacturer product number",
-        "ean": "EAN",
+        "ean": "GTIN/EAN",
         "referencePrice": "Unit price"
       }
     }

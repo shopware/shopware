@@ -67,7 +67,7 @@
         "description": "Product description",
         "productNumber": "Product number",
         "manufacturerNumber": "Manufacturer number",
-        "ean": "Product EAN",
+        "ean": "GTIN/EAN",
         "customSearchKeywords": "Custom search terms",
         "manufacturerName": "Manufacturer name",
         "manufacturerCustomFields": "Manufacturer custom fields",

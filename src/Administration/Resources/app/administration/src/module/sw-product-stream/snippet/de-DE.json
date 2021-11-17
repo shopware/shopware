@@ -61,7 +61,7 @@
         "createdAt": "Erstelldatum",
         "description": "Beschreibung",
         "descriptionLong": "Langbeschreibung",
-        "ean": "EAN",
+        "ean": "GTIN/EAN",
         "gross": "Brutto",
         "group": "Gruppe",
         "height": "Höhe",

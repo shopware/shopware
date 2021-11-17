@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 
+use Shopware\Core\Framework\Adapter\Twig\TokenParser\ReturnNodeTokenParser;
 use Squirrel\TwigPhpSyntax\Operator\NotSameAsBinary;
 use Squirrel\TwigPhpSyntax\Operator\SameAsBinary;
 use Squirrel\TwigPhpSyntax\Test\ArrayTest;
@@ -32,6 +33,7 @@ class PhpSyntaxExtension extends AbstractExtension
             new ForeachTokenParser(),
             new BreakTokenParser(),
             new ContinueTokenParser(),
+            new ReturnNodeTokenParser(),
         ];
     }
 

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Script\Execution;
 
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\Adapter\Twig\Extension\PhpSyntaxExtension;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Debugging\Debug;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
@@ -80,6 +81,8 @@ class ScriptExecutor
             new ScriptTwigLoader($script),
             $script->getTwigOptions()
         );
+
+        $twig->addExtension(new PhpSyntaxExtension());
 
         if ($script->getTwigOptions()['debug'] ?? false) {
             $twig->addExtension(new DebugExtension());

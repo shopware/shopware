@@ -18,6 +18,8 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\BuildValidationEvent;
+use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
@@ -209,7 +211,7 @@ The subscription is only successful, if the /newsletter/confirm route is called 
             }
         }
 
-        $validator = $this->getOptInValidator($context, $validateStorefrontUrl);
+        $validator = $this->getOptInValidator($dataBag, $context, $validateStorefrontUrl);
         $this->validator->validate($dataBag->all(), $validator);
 
         $data = $dataBag->only(
@@ -263,7 +265,7 @@ The subscription is only successful, if the /newsletter/confirm route is called 
         return new NoContentResponse();
     }
 
-    private function getOptInValidator(SalesChannelContext $context, bool $validateStorefrontUrl): DataValidationDefinition
+    private function getOptInValidator(DataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl): DataValidationDefinition
     {
         $definition = new DataValidationDefinition('newsletter_recipient.create');
         $definition->add('email', new NotBlank(), new Email())
@@ -273,6 +275,9 @@ The subscription is only successful, if the /newsletter/confirm route is called 
             $definition
                 ->add('storefrontUrl', new NotBlank(), new Choice(array_values($this->getDomainUrls($context))));
         }
+
+        $validationEvent = new BuildValidationEvent($definition, $dataBag, $context->getContext());
+        $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
 
         return $definition;
     }

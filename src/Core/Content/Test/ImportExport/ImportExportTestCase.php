@@ -134,6 +134,26 @@ abstract class ImportExportTestCase extends TestCase
         return $mockRepository;
     }
 
+    protected function createProduct(?string $productId = null): string
+    {
+        $productId = $productId ?? Uuid::randomHex();
+
+        $data = [
+            'id' => $productId,
+            'name' => 'test',
+            'productNumber' => Uuid::randomHex(),
+            'stock' => 10,
+            'price' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
+            ],
+            'active' => true,
+            'tax' => ['name' => 'test', 'taxRate' => 15],
+        ];
+        $this->getContainer()->get('product.repository')->create([$data], Context::createDefaultContext());
+
+        return $productId;
+    }
+
     protected function createPromotion(array $promotionOverride = []): array
     {
         /** @var EntityRepositoryInterface $promotionRepository */
@@ -165,6 +185,17 @@ abstract class ImportExportTestCase extends TestCase
         $promotionCodeRepository->upsert([$promotionCode], Context::createDefaultContext());
 
         return $promotionCode;
+    }
+
+    protected function createRule(?string $ruleId = null): string
+    {
+        $ruleId = $ruleId ?? Uuid::randomHex();
+        $this->getContainer()->get('rule.repository')->create(
+            [['id' => $ruleId, 'name' => 'Demo rule', 'priority' => 1]],
+            Context::createDefaultContext()
+        );
+
+        return $ruleId;
     }
 
     protected function getDefaultProfileId(string $entity): string

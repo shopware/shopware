@@ -170,6 +170,7 @@
             "configuratorSettingLabel": "Varianten-Konfiguration",
             "productCrossSellingLabel": "Cross-Selling",
             "promotionIndividualCodesLabel": "Aktionscodes",
+            "productPriceLabel": "Erweiterte Preise",
             "closeViolation": "Schließen",
             "violationMessage": "Dein Profil ist noch nicht gültig. Du musst Zuordnungen zu den unten angezeigten Pflichtfeldern hinzufügen, um das Profil zu speichern:",
             "importSettingsHeadline": "Import-Einstellungen",

@@ -43,7 +43,8 @@ use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoadedHook;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoadedHook;
 use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoadedHook;
-use Shopware\Storefront\Page\Checkout\Offcanvas\OffcanvasCartPageLoadedHook;
+use Shopware\Storefront\Page\Checkout\Offcanvas\CheckoutInfoWidgetLoadedHook;
+use Shopware\Storefront\Page\Checkout\Offcanvas\CheckoutOffcanvasWidgetLoadedHook;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -287,7 +288,7 @@ class CheckoutControllerTest extends TestCase
         static::assertArrayHasKey(CheckoutFinishPageLoadedHook::HOOK_NAME, $traces);
     }
 
-    public function testOffcanvasCartPageLoadedHookScriptsAreExecutedOnInfo(): void
+    public function testCheckoutInfoWidgetLoadedHookScriptsAreExecuted(): void
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
 
@@ -301,10 +302,10 @@ class CheckoutControllerTest extends TestCase
         $this->getContainer()->get(CheckoutController::class)->info($request, $salesChannelContext);
 
         $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
-        static::assertArrayHasKey(OffcanvasCartPageLoadedHook::HOOK_NAME, $traces);
+        static::assertArrayHasKey(CheckoutInfoWidgetLoadedHook::HOOK_NAME, $traces);
     }
 
-    public function testOffcanvasCartPageLoadedHookScriptsAreExecuted(): void
+    public function testCheckoutOffcanvasWidgetLoadedHookScriptsAreExecuted(): void
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
 
@@ -318,7 +319,7 @@ class CheckoutControllerTest extends TestCase
         $this->getContainer()->get(CheckoutController::class)->offcanvas($request, $salesChannelContext);
 
         $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
-        static::assertArrayHasKey(OffcanvasCartPageLoadedHook::HOOK_NAME, $traces);
+        static::assertArrayHasKey(CheckoutOffcanvasWidgetLoadedHook::HOOK_NAME, $traces);
     }
 
     private function updateSalesChannel(string $salesChannelId): void

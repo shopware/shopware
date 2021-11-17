@@ -22,6 +22,7 @@ use Shopware\Storefront\Page\Wishlist\GuestWishlistPage;
 use Shopware\Storefront\Page\Wishlist\GuestWishlistPageLoadedHook;
 use Shopware\Storefront\Page\Wishlist\WishlistPage;
 use Shopware\Storefront\Page\Wishlist\WishlistPageLoadedHook;
+use Shopware\Storefront\Page\Wishlist\WishlistWidgetLoadedHook;
 use Shopware\Storefront\Pagelet\Wishlist\GuestWishlistPageletLoadedHook;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -285,7 +286,7 @@ class WishlistControllerTest extends TestCase
         static::assertArrayHasKey(WishlistPageLoadedHook::HOOK_NAME, $traces);
     }
 
-    public function testWishlistPageLoadedHookScriptsAreExecutedForMergeWidget(): void
+    public function testWishlistWidgetLoadedHookScriptsAreExecuted(): void
     {
         $browser = $this->login();
 
@@ -295,7 +296,7 @@ class WishlistControllerTest extends TestCase
 
         $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
 
-        static::assertArrayHasKey(WishlistPageLoadedHook::HOOK_NAME, $traces);
+        static::assertArrayHasKey(WishlistWidgetLoadedHook::HOOK_NAME, $traces);
     }
 
     private function createCustomer(): CustomerEntity

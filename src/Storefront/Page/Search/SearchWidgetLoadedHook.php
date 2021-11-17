@@ -1,24 +1,24 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Page\Product\Review;
+namespace Shopware\Storefront\Page\Search;
 
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAwareTrait;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedHook;
 
-class ProductReviewsLoadedHook extends PageLoadedHook
+class SearchWidgetLoadedHook extends PageLoadedHook
 {
     use SalesChannelContextAwareTrait;
 
-    public const HOOK_NAME = 'product-reviews-loaded';
+    public const HOOK_NAME = 'search-widget-loaded';
 
-    private ReviewLoaderResult $reviews;
+    private SearchPage $page;
 
-    public function __construct(ReviewLoaderResult $reviews, SalesChannelContext $context)
+    public function __construct(SearchPage $page, SalesChannelContext $context)
     {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
-        $this->reviews = $reviews;
+        $this->page = $page;
     }
 
     public function getName(): string
@@ -26,8 +26,8 @@ class ProductReviewsLoadedHook extends PageLoadedHook
         return self::HOOK_NAME;
     }
 
-    public function getReviews(): ReviewLoaderResult
+    public function getPage(): SearchPage
     {
-        return $this->reviews;
+        return $this->page;
     }
 }

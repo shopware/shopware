@@ -11,6 +11,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Cache\Annotation\HttpCache;
 use Shopware\Storefront\Page\Search\SearchPageLoadedHook;
 use Shopware\Storefront\Page\Search\SearchPageLoader;
+use Shopware\Storefront\Page\Search\SearchWidgetLoadedHook;
 use Shopware\Storefront\Page\Suggest\SuggestPageLoadedHook;
 use Shopware\Storefront\Page\Suggest\SuggestPageLoader;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -105,7 +106,7 @@ class SearchController extends StorefrontController
 
         $page = $this->searchPageLoader->load($request, $context);
 
-        $this->hook(new SearchPageLoadedHook($page, $context));
+        $this->hook(new SearchWidgetLoadedHook($page, $context));
 
         $response = $this->renderStorefront('@Storefront/storefront/page/search/search-pagelet.html.twig', ['page' => $page]);
         $response->headers->set('x-robots-tag', 'noindex');

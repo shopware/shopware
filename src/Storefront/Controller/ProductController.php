@@ -18,10 +18,10 @@ use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Page\Product\Configurator\ProductCombinationFinder;
 use Shopware\Storefront\Page\Product\ProductPageLoadedHook;
 use Shopware\Storefront\Page\Product\ProductPageLoader;
-use Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoadedHook;
 use Shopware\Storefront\Page\Product\QuickView\MinimalQuickViewPageLoader;
+use Shopware\Storefront\Page\Product\QuickView\ProductQuickViewWidgetLoadedHook;
 use Shopware\Storefront\Page\Product\Review\ProductReviewLoader;
-use Shopware\Storefront\Page\Product\Review\ProductReviewsLoadedHook;
+use Shopware\Storefront\Page\Product\Review\ProductReviewsWidgetLoadedHook;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -158,7 +158,7 @@ class ProductController extends StorefrontController
     {
         $page = $this->minimalQuickViewPageLoader->load($request, $context);
 
-        $this->hook(new MinimalQuickViewPageLoadedHook($page, $context));
+        $this->hook(new ProductQuickViewWidgetLoadedHook($page, $context));
 
         return $this->renderStorefront('@Storefront/storefront/component/product/quickview/minimal.html.twig', ['page' => $page]);
     }
@@ -207,7 +207,7 @@ class ProductController extends StorefrontController
 
         $reviews = $this->productReviewLoader->load($request, $context);
 
-        $this->hook(new ProductReviewsLoadedHook($reviews, $context));
+        $this->hook(new ProductReviewsWidgetLoadedHook($reviews, $context));
 
         return $this->renderStorefront('storefront/page/product-detail/review/review.html.twig', [
             'reviews' => $reviews,

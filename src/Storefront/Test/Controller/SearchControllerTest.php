@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Storefront\Page\Search\SearchPageLoadedHook;
+use Shopware\Storefront\Page\Search\SearchWidgetLoadedHook;
 use Shopware\Storefront\Page\Suggest\SuggestPageLoadedHook;
 
 class SearchControllerTest extends TestCase
@@ -62,13 +63,13 @@ class SearchControllerTest extends TestCase
         static::assertArrayHasKey(SuggestPageLoadedHook::HOOK_NAME, $traces);
     }
 
-    public function testSearchPageLoadedHookScriptsAreExecutedOnAjaxSearch(): void
+    public function testSearchWidgetLoadedHookScriptsAreExecuted(): void
     {
         $response = $this->request('GET', '/widgets/search', ['search' => 'test']);
         static::assertEquals(200, $response->getStatusCode());
 
         $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
 
-        static::assertArrayHasKey(SearchPageLoadedHook::HOOK_NAME, $traces);
+        static::assertArrayHasKey(SearchWidgetLoadedHook::HOOK_NAME, $traces);
     }
 }

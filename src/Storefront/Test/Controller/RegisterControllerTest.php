@@ -35,8 +35,8 @@ use Shopware\Storefront\Controller\RegisterController;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Page\Account\CustomerGroupRegistration\CustomerGroupRegistrationPageLoadedHook;
 use Shopware\Storefront\Page\Account\CustomerGroupRegistration\CustomerGroupRegistrationPageLoader;
-use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoadedHook;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
+use Shopware\Storefront\Page\Account\Register\AccountRegisterPageLoadedHook;
 use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoadedHook;
 use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -295,14 +295,14 @@ class RegisterControllerTest extends TestCase
         static::assertEquals('/checkout/confirm', $response->getTargetUrl());
     }
 
-    public function testAccountLoginPageLoadedHookScriptsAreExecutedOnRegisterPage(): void
+    public function testAccountRegisterPageLoadedHookScriptsAreExecuted(): void
     {
         $response = $this->request('GET', '/account/register', []);
         static::assertEquals(200, $response->getStatusCode());
 
         $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
 
-        static::assertArrayHasKey(AccountLoginPageLoadedHook::HOOK_NAME, $traces);
+        static::assertArrayHasKey(AccountRegisterPageLoadedHook::HOOK_NAME, $traces);
     }
 
     public function testCustomerGroupRegistrationPageLoadedHookScriptsAreExecuted(): void

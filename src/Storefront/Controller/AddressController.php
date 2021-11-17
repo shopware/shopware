@@ -30,6 +30,7 @@ use Shopware\Storefront\Framework\Routing\Annotation\NoStore;
 use Shopware\Storefront\Page\Address\AddressEditorModalStruct;
 use Shopware\Storefront\Page\Address\Detail\AddressDetailPageLoadedHook;
 use Shopware\Storefront\Page\Address\Detail\AddressDetailPageLoader;
+use Shopware\Storefront\Page\Address\Listing\AddressBookWidgetLoadedHook;
 use Shopware\Storefront\Page\Address\Listing\AddressListingPageLoadedHook;
 use Shopware\Storefront\Page\Address\Listing\AddressListingPageLoader;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -238,7 +239,7 @@ class AddressController extends StorefrontController
 
         $page = $this->addressListingPageLoader->load($request, $context, $customer);
 
-        $this->hook(new AddressListingPageLoadedHook($page, $context));
+        $this->hook(new AddressBookWidgetLoadedHook($page, $context));
 
         $viewData->setPage($page);
         if (Feature::isActive('FEATURE_NEXT_15957')) {

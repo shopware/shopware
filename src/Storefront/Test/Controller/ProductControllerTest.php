@@ -24,6 +24,7 @@ use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Controller\ProductController;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
+use Shopware\Storefront\Page\Product\QuickView\ProductQuickViewWidgetLoadedHook;
 use Shopware\Storefront\Page\Product\Review\ReviewLoaderResult;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\DomCrawler\Crawler;
@@ -315,7 +316,7 @@ class ProductControllerTest extends TestCase
         static::assertArrayHasKey('product-page-loaded', $traces);
     }
 
-    public function testMinimalQuickviewPageLoadedScriptsAreExecuted(): void
+    public function testMProductQuickViewWidgetLoadedHookScriptsAreExecuted(): void
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
 
@@ -331,7 +332,7 @@ class ProductControllerTest extends TestCase
 
         $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
 
-        static::assertArrayHasKey('minimal-quick-view-page-loaded', $traces);
+        static::assertArrayHasKey(ProductQuickViewWidgetLoadedHook::HOOK_NAME, $traces);
     }
 
     public function testProductReviewsLoadedScriptsAreExecuted(): void

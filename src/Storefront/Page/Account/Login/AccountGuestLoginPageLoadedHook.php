@@ -1,20 +1,20 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Page\Product\QuickView;
+namespace Shopware\Storefront\Page\Account\Login;
 
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAwareTrait;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedHook;
 
-class MinimalQuickViewPageLoadedHook extends PageLoadedHook
+class AccountGuestLoginPageLoadedHook extends PageLoadedHook
 {
     use SalesChannelContextAwareTrait;
 
-    public const HOOK_NAME = 'minimal-quick-view-page-loaded';
+    public const HOOK_NAME = 'account-guest-login-page-loaded';
 
-    private MinimalQuickViewPage $page;
+    private AccountLoginPage $page;
 
-    public function __construct(MinimalQuickViewPage $page, SalesChannelContext $context)
+    public function __construct(AccountLoginPage $page, SalesChannelContext $context)
     {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
@@ -26,7 +26,7 @@ class MinimalQuickViewPageLoadedHook extends PageLoadedHook
         return self::HOOK_NAME;
     }
 
-    public function getPage(): MinimalQuickViewPage
+    public function getPage(): AccountLoginPage
     {
         return $this->page;
     }

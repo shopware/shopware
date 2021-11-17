@@ -26,6 +26,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Controller\AuthController;
 use Shopware\Storefront\Framework\Routing\StorefrontResponse;
+use Shopware\Storefront\Page\Account\Login\AccountGuestLoginPageLoadedHook;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoadedHook;
 use Shopware\Storefront\Page\Account\Overview\AccountOverviewPage;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -298,7 +299,7 @@ class AuthControllerTest extends TestCase
         static::assertArrayHasKey(AccountLoginPageLoadedHook::HOOK_NAME, $traces);
     }
 
-    public function testAccountLoginPageLoadedHookScriptsAreExecutedOnGuestLogin(): void
+    public function testAccountGuestLoginPageLoadedHookScriptsAreExecuted(): void
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
 
@@ -306,7 +307,7 @@ class AuthControllerTest extends TestCase
 
         $traces = $this->getContainer()->get(ScriptTraces::class)->getTraces();
 
-        static::assertArrayHasKey(AccountLoginPageLoadedHook::HOOK_NAME, $traces);
+        static::assertArrayHasKey(AccountGuestLoginPageLoadedHook::HOOK_NAME, $traces);
     }
 
     private function createProductOnDatabase(string $productId, string $productNumber, $context): void

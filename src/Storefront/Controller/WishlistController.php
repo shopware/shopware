@@ -22,6 +22,7 @@ use Shopware\Storefront\Page\Wishlist\GuestWishlistPageLoader;
 use Shopware\Storefront\Page\Wishlist\WishlistPageLoadedHook;
 use Shopware\Storefront\Page\Wishlist\WishlistPageLoader;
 use Shopware\Storefront\Page\Wishlist\WishListPageProductCriteriaEvent;
+use Shopware\Storefront\Page\Wishlist\WishlistWidgetLoadedHook;
 use Shopware\Storefront\Pagelet\Wishlist\GuestWishlistPageletLoadedHook;
 use Shopware\Storefront\Pagelet\Wishlist\GuestWishlistPageletLoader;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -260,7 +261,7 @@ class WishlistController extends StorefrontController
         $request->request->set('no-aggregations', true);
 
         $page = $this->wishlistPageLoader->load($request, $context, $customer);
-        $this->hook(new WishlistPageLoadedHook($page, $context));
+        $this->hook(new WishlistWidgetLoadedHook($page, $context));
 
         return $this->renderStorefront('@Storefront/storefront/page/wishlist/wishlist-pagelet.html.twig', [
             'page' => $page,

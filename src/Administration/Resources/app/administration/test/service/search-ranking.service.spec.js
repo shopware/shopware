@@ -290,10 +290,11 @@ describe('app/service/search-ranking.service.js', () => {
             product: {
                 'product.name': searchRankingPoint.HIGH_SEARCH_RANKING
             },
-            property: {
+            property_group: {
                 'property_group.name': searchRankingPoint.HIGH_SEARCH_RANKING
             },
-            order: {}
+            order: {},
+            cms_page: {},
         };
 
         expect(actual).toEqual(expected);
@@ -349,7 +350,7 @@ describe('app/service/search-ranking.service.js', () => {
                 ],
                 'total-count-mode': 1
             },
-            property: {
+            property_group: {
                 page: 1,
                 limit: 25,
                 query: [
@@ -492,7 +493,7 @@ describe('app/service/search-ranking.service.js', () => {
                 order: { ...commonSearchConfigurations }
             },
             {
-                property: { ...commonSearchConfigurations }
+                property_group: { ...commonSearchConfigurations }
             }
         ]);
 
@@ -502,7 +503,7 @@ describe('app/service/search-ranking.service.js', () => {
         expect(actual).toEqual({
             product: { 'product.name': searchRankingPoint.HIGH_SEARCH_RANKING },
             order: { 'order.name': searchRankingPoint.HIGH_SEARCH_RANKING },
-            property: { 'property_group.name': searchRankingPoint.HIGH_SEARCH_RANKING }
+            property_group: { 'property_group.name': searchRankingPoint.HIGH_SEARCH_RANKING }
         });
     });
 
@@ -522,7 +523,7 @@ describe('app/service/search-ranking.service.js', () => {
                 order: { ...commonSearchConfigurations }
             },
             {
-                property: { ...commonSearchConfigurations }
+                property_group: { ...commonSearchConfigurations }
             },
             {
                 product: { ...commonSearchConfigurations }

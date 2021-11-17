@@ -102,7 +102,7 @@ export default function createSearchRankingService() {
         }
         const result = {};
         Object.keys(defaultUserSearchPreference).forEach((entityName) => {
-            if (!userConfigSearchFields[entityName]) {
+            if (!userConfigSearchFields[entityName] && Object.keys(defaultUserSearchPreference[entityName]).length > 0) {
                 result[entityName] = defaultUserSearchPreference[entityName];
                 return;
             }
@@ -110,8 +110,8 @@ export default function createSearchRankingService() {
             if (!_isEntitySearchable(userConfigSearchFields[entityName])) {
                 return;
             }
-            const currentModule = _getModule(entityName);
-            result[entityName] = _scoring(userConfigSearchFields[entityName], currentModule.searchEntity ?? entityName);
+
+            result[entityName] = _scoring(userConfigSearchFields[entityName], entityName);
         });
 
         return result;
@@ -135,7 +135,7 @@ export default function createSearchRankingService() {
 
         return _scoring(
             userConfigSearchFieldsByEntity,
-            currentModule.searchEntity ?? entityName,
+            entityName,
         );
     }
 
@@ -148,7 +148,7 @@ export default function createSearchRankingService() {
      * @param {Object}
      * @returns {Object}
      */
-    function _getDefaultSearchFieldsByEntity({ defaultSearchConfiguration, entity, searchEntity = undefined }) {
+    function _getDefaultSearchFieldsByEntity({ defaultSearchConfiguration, entity }) {
         if (!_isEntitySearchable(defaultSearchConfiguration)) {
             return {};
         }
@@ -159,7 +159,7 @@ export default function createSearchRankingService() {
 
         cacheDefaultSearchScore[entity] = _scoring(
             defaultSearchConfiguration,
-            searchEntity ?? entity,
+            entity,
         );
 
         return cacheDefaultSearchScore[entity];
@@ -175,10 +175,6 @@ export default function createSearchRankingService() {
         }
         cacheDefaultUserSearchPreference = {};
         Module.getModuleRegistry().forEach(({ manifest }) => {
-            if (!_isEntitySearchable(manifest.defaultSearchConfiguration)) {
-                return;
-            }
-
             cacheDefaultUserSearchPreference[manifest.entity] = _getDefaultSearchFieldsByEntity(manifest);
         });
 

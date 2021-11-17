@@ -121,6 +121,9 @@
         "property": {
           "name": "Name"
         },
+        "property_group": {
+          "name": "Name"
+        },
         "promotion": {
           "name": "Name"
         },

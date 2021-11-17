@@ -258,6 +258,14 @@ Component.register('sw-search-bar', {
 
         onFocusInput() {
             this.isActive = true;
+
+            if (this.feature.isActive('FEATURE_NEXT_6040')) {
+                if (this.searchTerm === '#') {
+                    this.showTypeContainer();
+                }
+                return;
+            }
+
             if (!this.searchTerm) {
                 this.showTypeContainer();
             } else if (

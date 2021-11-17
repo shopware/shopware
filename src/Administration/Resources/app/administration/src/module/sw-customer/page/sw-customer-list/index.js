@@ -52,6 +52,7 @@ Component.register('sw-customer-list', {
             storeKey: 'grid.filter.customer',
             activeFilterNumber: 0,
             searchConfigEntity: 'customer',
+            showBulkEditModal: false,
         };
     },
 
@@ -362,6 +363,19 @@ Component.register('sw-customer-list', {
         updateCriteria(criteria) {
             this.page = 1;
             this.filterCriteria = criteria;
+        },
+
+        async onBulkEditItems() {
+            await this.$nextTick();
+            this.$router.push({ name: 'sw.bulk.edit.customer' });
+        },
+
+        onBulkEditModalOpen() {
+            this.showBulkEditModal = true;
+        },
+
+        onBulkEditModalClose() {
+            this.showBulkEditModal = false;
         },
     },
 });

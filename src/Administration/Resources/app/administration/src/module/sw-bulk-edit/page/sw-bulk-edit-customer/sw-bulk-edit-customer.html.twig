@@ -1,0 +1,110 @@
+{% block sw_bulk_edit_customer %}
+<sw-page class="sw-bulk-edit-customer">
+    {% block sw_bulk_edit_customer_search_bar %}
+    <template #search-bar>
+        <sw-search-bar />
+    </template>
+    {% endblock %}
+
+    {% block sw_bulk_edit_customer_smart_bar_header %}
+    <template #smart-bar-header>
+        <h2>{{ $tc('sw-bulk-edit.customer.textTitle', 0, { customerTotal: selectedIds.length }) }}</h2>
+    </template>
+    {% endblock %}
+
+    {% block sw_bulk_edit_customer_content_language_switch %}
+    <template #language-switch>
+        <sw-language-switch @on-change="onChangeLanguage" />
+    </template>
+    {% endblock %}
+
+    {% block sw_bulk_edit_customer_content_smart_bar_actions %}
+    <template #smart-bar-actions>
+        {% block sw_bulk_edit_customer_actions_save %}
+        <sw-button-process
+            class="sw-bulk-edit-customer__save-action"
+            variant="primary"
+            :is-loading="isLoading"
+            :process-success="false"
+            :disabled="isLoading"
+            @click="openModal"
+        >
+            {{ $tc('sw-bulk-edit.applyChanges') }}
+        </sw-button-process>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_bulk_edit_customer_content %}
+    <template #content>
+        <sw-card-view
+            v-if="selectedIds.length > 0 && isLoadedData"
+        >
+            {% block sw_bulk_edit_customer_content_account_card %}
+            <sw-card
+                class="sw-bulk-edit-customer-base__account"
+                :title="$tc('sw-bulk-edit.customer.account.cardTitle')"
+                :is-loading="isLoading"
+            >
+                {% block sw_bulk_edit_customer_content_account_section %}
+                <sw-bulk-edit-change-type-field-renderer
+                    :form-fields="accountFormFields"
+                    :bulk-edit-data="bulkEditData"
+                    :entity="customer"
+                />
+                {% endblock %}
+            </sw-card>
+            {% endblock %}
+
+            {% block sw_bulk_edit_customer_tags_card %}
+            <sw-card
+                class="sw-bulk-edit-customer-base__tags"
+                :title="$tc('sw-bulk-edit.customer.tags.cardTitle')"
+                :is-loading="isLoading"
+            >
+                {% block sw_bulk_edit_customer_tags %}
+                <sw-bulk-edit-change-type-field-renderer
+                    :form-fields="tagsFormFields"
+                    :bulk-edit-data="bulkEditData"
+                    :entity="customer"
+                />
+                {% endblock %}
+            </sw-card>
+            {% endblock %}
+
+            {% block sw_bulk_edit_customer_custom_field_card %}
+            <sw-card
+                class="sw-bulk-edit-customer-base__custom_fields"
+                :title="$tc('sw-bulk-edit.customer.customFields.cardTitle')"
+                :is-loading="isLoading"
+            >
+                <sw-bulk-edit-custom-fields
+                    class="sw-bulk-edit__custom-fields"
+                    :sets="customFieldSets"
+                    @change="onCustomFieldsChange"
+                />
+            </sw-card>
+            {% endblock %}
+        </sw-card-view>
+
+        {% block sw_bulk_edit_customer_empty_state %}
+        <sw-empty-state
+            v-if="selectedIds.length <= 0 && !isLoading"
+            :title="$tc('sw-bulk-edit.customer.messageEmptyTitle')"
+            :subline="$tc('sw-bulk-edit.customer.messageEmptySubline')"
+        />
+        {% endblock %}
+
+        {% block sw_bulk_edit_customer_save_modal %}
+        <router-view
+            :item-total="selectedIds.length"
+            :is-loading="isLoading"
+            :process-status="processStatus"
+            @modal-close="closeModal"
+            @bulk-save="onSave"
+        />
+        {% endblock %}
+    </template>
+    {% endblock %}
+</sw-page>
+{% endblock %}

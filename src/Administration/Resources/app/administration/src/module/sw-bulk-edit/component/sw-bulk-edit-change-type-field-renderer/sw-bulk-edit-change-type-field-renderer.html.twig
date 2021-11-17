@@ -15,7 +15,7 @@
                 class="sw-bulk-edit-change-field__change"
                 type="checkbox"
                 :label="!formField.config.changeLabel ? $tc('sw-bulk-edit.general.defaultChangeLabel') : formField.config.changeLabel"
-                :help-text="formField.helpText"
+                :help-text="formField.labelHelpText"
                 :disabled="!!bulkEditData[formField.name].disabled"
                 @change="onChangeValue($event, formField.name)"
             />

@@ -11,14 +11,14 @@ class CustomerGroupRegistrationApiService extends ApiService {
         this.name = 'customerGroupRegistrationService';
     }
 
-    accept(customerId, additionalParams = {}, additionalHeaders = {}) {
+    accept(customerId, additionalParams = {}, additionalHeaders = {}, additionalRequest = {}) {
         if (Shopware.Feature.isActive('FEATURE_NEXT_17261')) {
             const route = `/_action/${this.getApiBasePath()}/accept`;
-
             return this.httpClient.post(
                 route,
                 {
-                    customerIds: [customerId],
+                    customerIds: Array.isArray(customerId) ? customerId : [customerId],
+                    ...additionalRequest,
                 },
                 {
                     params: additionalParams,
@@ -43,14 +43,14 @@ class CustomerGroupRegistrationApiService extends ApiService {
         });
     }
 
-    decline(customerId, additionalParams = {}, additionalHeaders = {}) {
+    decline(customerId, additionalParams = {}, additionalHeaders = {}, additionalRequest = {}) {
         if (Shopware.Feature.isActive('FEATURE_NEXT_17261')) {
             const route = `/_action/${this.getApiBasePath()}/decline`;
-
             return this.httpClient.post(
                 route,
                 {
-                    customerIds: [customerId],
+                    customerIds: Array.isArray(customerId) ? customerId : [customerId],
+                    ...additionalRequest,
                 },
                 {
                     params: additionalParams,

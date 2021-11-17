@@ -337,10 +337,9 @@ Component.register('sw-bulk-edit-order', {
                 syncData: [],
             };
 
-            Object.keys(this.bulkEditData).forEach(key => {
-                const item = this.bulkEditData[key];
-                const dataPush = ['orderTransactions', 'orderDeliveries', 'orders'];
+            const dataPush = ['orderTransactions', 'orderDeliveries', 'orders'];
 
+            Object.entries(this.bulkEditData).forEach(([key, item]) => {
                 if (item.isChanged || (key === 'customFields' && item.value)) {
                     const payload = {
                         field: key,

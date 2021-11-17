@@ -286,6 +286,47 @@
         "placeholder": "Enter tags..."
       }
     },
+    "customer": {
+      "textTitle": "Bulk edit: {customerTotal} customers",
+      "messageEmptyTitle": "No customers selected",
+      "messageEmptySubline": "Go back and select customers.",
+      "account": {
+        "cardTitle": "Account",
+        "customerGroup": {
+          "label": "Change: Customer group",
+          "placeholder": "Select customer group..."
+        },
+        "defaultPaymentMethod": {
+          "label": "Change: Default payment method",
+          "placeholder": "Select default payment method..."
+        },
+        "status": {
+          "label": "Change: Account status"
+        },
+        "language": {
+          "label": "Change: Language",
+          "placeholder": "Select language..."
+        },
+        "customerGroupRequest": {
+          "label": "Reply to: Customer group request",
+          "helpText": "Please note that e-mails will only be sent to the specifically selected customers. Customers without requests will be skipped.",
+          "placeholder": "Select customer group request reply...",
+          "options": {
+            "accept": "Accept",
+            "decline": "Decline"
+          }
+        }
+      },
+      "customFields": {
+        "cardTitle": "Custom fields",
+        "changeLabel": "Change: {name}"
+      },
+      "tags": {
+        "cardTitle": "Tags",
+        "changeLabel": "Change: Tags",
+        "placeholder": "Add tags..."
+      }
+    },
     "applyChanges": "Apply changes"
   }
 }

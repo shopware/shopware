@@ -1,5 +1,6 @@
 import BulkEditProductHandler from './handler/bulk-edit-product.handler';
 import BulkEditOrderHandler from './handler/bulk-edit-order.handler';
+import BulkEditCustomerHandler from './handler/bulk-edit-customer.handler';
 
 /**
  * @class
@@ -9,7 +10,7 @@ class BulkEditApiFactory {
         this.handlers = {
             product: () => new BulkEditProductHandler(),
             order: () => new BulkEditOrderHandler(),
-            // TODO: add handlers for customer
+            customer: () => new BulkEditCustomerHandler(),
         };
     }
 

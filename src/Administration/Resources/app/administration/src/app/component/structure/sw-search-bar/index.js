@@ -72,6 +72,7 @@ Component.register('sw-search-bar', {
             salesChannels: [],
             salesChannelTypes: [],
             showSearchPreferencesModal: false,
+            searchLimit: 10,
         };
     },
 
@@ -150,7 +151,7 @@ Component.register('sw-search-bar', {
 
         criteriaCollection() {
             return {
-                product: new Criteria().addAssociation('options.group'),
+                product: new Criteria().setLimit(this.searchLimit).addAssociation('options.group'),
             };
         },
     },
@@ -418,7 +419,7 @@ Component.register('sw-search-bar', {
                 }
 
                 const queries = this.searchRankingService
-                    .buildGlobalSearchQueries(userSearchPreference, searchTerm, this.criteriaCollection);
+                    .buildGlobalSearchQueries(userSearchPreference, searchTerm, this.criteriaCollection, this.searchLimit);
                 const response = await this.searchService.searchQuery(queries, { 'sw-inheritance': true });
                 const data = response.data;
 

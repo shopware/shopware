@@ -102,6 +102,26 @@
                                     {{ $tc('sw-flow.actions.contextButton.deleteAction') }}
                                 </sw-context-menu-item>
                                 {% endblock %}
+
+                                {% block sw_flow_sequence_action_actions_item_button_move_up %}
+                                <sw-context-menu-item
+                                    v-if="showMoveOption(item, 'up')"
+                                    class="sw-flow-sequence-action__move-up"
+                                    @click="moveAction(item, 'up')"
+                                >
+                                    {{ $tc('sw-flow.actions.contextButton.moveUpAction') }}
+                                </sw-context-menu-item>
+                                {% endblock %}
+
+                                {% block sw_flow_sequence_action_actions_item_button_move_down %}
+                                <sw-context-menu-item
+                                    v-if="showMoveOption(item, 'down')"
+                                    class="sw-flow-sequence-action__move-down"
+                                    @click="moveAction(item, 'down')"
+                                >
+                                    {{ $tc('sw-flow.actions.contextButton.moveDownAction') }}
+                                </sw-context-menu-item>
+                                {% endblock %}
                             </sw-context-button>
                             {% endblock %}
                         </div>

@@ -372,6 +372,8 @@ Component.register('sw-product-variant-modal', {
                             ),
                         });
 
+                        this.$refs.variantGrid.resetSelection();
+
                         this.fetchProductVariants();
                     })
                     .catch(() => {

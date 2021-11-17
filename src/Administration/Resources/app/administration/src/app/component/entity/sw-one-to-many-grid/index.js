@@ -126,6 +126,8 @@ Component.extend('sw-one-to-many-grid', 'sw-data-grid', {
             }
 
             return this.repository.delete(id, this.result.context).then(() => {
+                this.resetSelection();
+
                 return this.load();
             }).catch((errorResponse) => {
                 this.$emit('delete-item-failed', { id, errorResponse });

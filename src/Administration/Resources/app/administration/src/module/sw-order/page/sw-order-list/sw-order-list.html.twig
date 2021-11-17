@@ -71,6 +71,7 @@
             {% block sw_order_list_grid %}
             <sw-data-grid
                 v-if="entitySearchable"
+                ref="orderGrid"
                 :data-source="orders"
                 :columns="orderColumns"
                 :full-page="true"

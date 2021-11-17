@@ -144,6 +144,8 @@ Component.register('sw-product-properties', {
                     .forEach(({ id }) => {
                         this.productProperties.remove(id);
                     });
+
+                this.$refs.entityListing.resetSelection();
             });
         },
 
@@ -158,6 +160,8 @@ Component.register('sw-product-properties', {
                         this.productProperties.remove(value.id);
                     });
                 });
+
+                this.$refs.entityListing.resetSelection();
             });
         },
 

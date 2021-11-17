@@ -114,8 +114,11 @@ function createWrapper(privileges = []) {
             },
             'sw-entity-listing': {
                 props: ['items'],
+                methods: {
+                    resetSelection: () => {}
+                },
                 template: `
-                    <div class="sw-entity-listing">
+                    <div class="sw-entity-listing" ref="entityListing">
                         <template v-for="item in items">
                             <slot name="actions" v-bind="{ item }"></slot>
                         </template>

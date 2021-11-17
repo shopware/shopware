@@ -546,6 +546,7 @@ Component.register('sw-order-list', {
             this.showDeleteModal = false;
 
             return this.orderRepository.delete(id).then(() => {
+                this.$refs.orderGrid.resetSelection();
                 this.getList();
             });
         },

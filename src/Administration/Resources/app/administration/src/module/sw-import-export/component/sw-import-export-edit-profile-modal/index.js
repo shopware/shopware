@@ -104,6 +104,11 @@ Component.register('sw-import-export-edit-profile-modal', {
                     label: this.$tc('sw-import-export.profile.promotionIndividualCodesLabel'),
                     type: profileTypes.IMPORT_EXPORT,
                 },
+                {
+                    value: 'product_price',
+                    label: this.$tc('sw-import-export.profile.productPriceLabel'),
+                    type: profileTypes.IMPORT_EXPORT,
+                },
             ],
 
             /**

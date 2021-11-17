@@ -29,6 +29,7 @@ use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRec
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
+use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
@@ -346,6 +347,47 @@ class ImportExportTest extends ImportExportTestCase
             $actual = $optionRepository->searchIds(new Criteria($ids), Context::createDefaultContext());
             static::assertCount(\count($ids), $actual->getIds());
         }
+    }
+
+    public function testImportExportAdvancedPrices(): void
+    {
+        $context = Context::createDefaultContext();
+        $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
+
+        $productId = 'e12a77e8ed6642698b987250d8ec705d';
+        $ruleId = 'cb34dc6f20b6479aa975e1290f442e65';
+        $this->createProduct($productId);
+        $this->createRule($ruleId);
+
+        $progress = $this->import($context, ProductPriceDefinition::ENTITY_NAME, '/fixtures/advanced_prices.csv', 'advanced_prices.csv');
+
+        static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
+
+        /** @var ProductEntity $product */
+        $product = $this->productRepository->search((new Criteria([$productId]))->addAssociation('prices'), $context)->first();
+
+        static::assertEquals(2, $product->getPrices()->count());
+        $firstPrice = $product->getPrices()->first();
+        static::assertEquals($ruleId, $firstPrice->getRuleId());
+        static::assertEquals(7.89, $firstPrice->getPrice()->first()->getNet());
+        static::assertEquals(9.39, $firstPrice->getPrice()->first()->getGross());
+        static::assertEquals(1, $firstPrice->getQuantityStart());
+        static::assertEquals(10, $firstPrice->getQuantityEnd());
+        $lastPrice = $product->getPrices()->last();
+        static::assertEquals($ruleId, $lastPrice->getRuleId());
+        static::assertEquals(5.67, $lastPrice->getPrice()->first()->getNet());
+        static::assertEquals(6.75, $lastPrice->getPrice()->first()->getGross());
+        static::assertEquals(11, $lastPrice->getQuantityStart());
+        static::assertNull($lastPrice->getQuantityEnd());
+
+        $progress = $this->export($context, ProductPriceDefinition::ENTITY_NAME);
+
+        static::assertImportExportSucceeded($progress);
+
+        $filesystem = $this->getContainer()->get('shopware.filesystem.private');
+        $csv = $filesystem->read($this->getLogEntity($progress->getLogId())->getFile()->getPath());
+
+        static::assertEquals(file_get_contents(__DIR__ . '/fixtures/advanced_prices.csv'), $csv);
     }
 
     public function importCategoryCsv(): void

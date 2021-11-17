@@ -357,6 +357,10 @@ Component.register('sw-import-export-entity-path-select', {
         },
 
         onSelectCollapsed() {
+            if (this.$attrs.disabled) {
+                return;
+            }
+
             // Empty the selection if the search term is empty
             if (this.searchInput === '' && !this.itemRecentlySelected) {
                 this.$emit('before-selection-clear', this.singleSelection, this.value);

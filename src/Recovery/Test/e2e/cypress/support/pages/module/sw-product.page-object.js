@@ -34,17 +34,17 @@ export default class ProductPageObject {
 
     generateVariants(propertyName, optionPosition, totalCount) {
         const optionsIndicator = '.sw-property-search__tree-selection__column-items-selected.sw-grid-column--right span';
-        const optionString = totalCount === 1 ? 'option' : 'options';
+        const optionString = totalCount === 1 ? 'waarde' : 'waarden';
 
         // Request we want to wait for later
-        cy.server();
-        cy.route({
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/_action/sync`,
-            method: 'post'
+            method: 'post',
         }).as('productCall');
-        cy.route({
+
+        cy.intercept({
             url: `${Cypress.env('apiPath')}/search/product`,
-            method: 'post'
+            method: 'post',
         }).as('searchCall');
 
         cy.contains(propertyName).click();
@@ -52,34 +52,29 @@ export default class ProductPageObject {
         for (const entry in Object.values(optionPosition)) { // eslint-disable-line
             if (optionPosition.hasOwnProperty(entry)) {
                 cy.get(
-                    `.sw-property-search__tree-selection__option_grid .sw-grid__row--${entry} .sw-field__checkbox input`
+                    `.sw-property-search__tree-selection__option_grid .sw-grid__row--${entry} .sw-field__checkbox input`,
                 ).click();
             }
         }
 
         cy.get(`.sw-grid ${optionsIndicator}`)
-            .contains(`${optionPosition.length} ${optionString} selected`);
+            .contains(`${optionPosition.length} geselecteerde ${optionString}`);
         cy.get('.sw-product-variant-generation__generate-action').click();
         cy.get('.sw-product-modal-variant-generation__notification-modal').should('be.visible');
 
         if (totalCount !== 1) {
             cy.get('.sw-product-modal-variant-generation__notification-modal .sw-modal__body')
-                .contains(`${totalCount} variants will be added`);
+                .contains(`${totalCount} varianten worden toegevoegd`);
         }
 
         cy.get('.sw-product-modal-variant-generation__notification-modal .sw-button--primary')
             .click();
 
-        cy.wait('@productCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 204);
-        });
+        cy.wait('@productCall').its('response.statusCode').should('equal', 200);
 
         cy.get('.sw-product-modal-variant-generation__notification-modal').should('not.exist');
-        cy.get('.generate-variant-progress-bar__description').contains(`0 of ${totalCount} variations generated`);
 
-        cy.wait('@searchCall').then((xhr) => {
-            expect(xhr).to.have.property('status', 200);
-        });
+        cy.wait('@searchCall').its('response.statusCode').should('equal', 200);
         cy.get('.sw-product-modal-variant-generation').should('not.exist');
     }
 }

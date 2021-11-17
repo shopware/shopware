@@ -101,6 +101,21 @@ Component.register('sw-search-bar-item', {
                 action ? 2 : 1,
             );
         },
+
+        productDisplayName() {
+            const name = this.item.translated?.name ?? this.item.name;
+            const options = [];
+
+            if (this.item?.variation?.length > 0) {
+                this.item.variation.forEach((variation) => {
+                    options.push(`${variation.group}: ${variation.option}`);
+                });
+
+                return `${name} (${options.join(' | ')})`;
+            }
+
+            return name;
+        },
     },
 
     created() {

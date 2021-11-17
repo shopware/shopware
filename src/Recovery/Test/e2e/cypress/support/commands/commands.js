@@ -261,16 +261,26 @@ Cypress.Commands.add('setPaymentMethod', (paymentMethod) => {
     cy.get('.sw-payment-detail__save-action').should('be.visible').click();
     cy.wait('@set-payment').its('response.statusCode').should('equal', 200);
 });
+/**
+ * Navigates to sales channel detail page
+ * @memberOf Cypress.Chainable#
+ * @name goToSalesChannelDetail
+ * @function
+ * @param {String} salesChannel - Title of the sales channel
+ */
+Cypress.Commands.add('goToSalesChannelDetail', (salesChannel) => {
+    cy.contains(salesChannel).should('be.visible').click();
+    cy.contains('h2', salesChannel);
+});
 
 /**
  * Returns country (selects and assign as default) for sales channel
  * @memberOf Cypress.Chainable#
- * @name selectCountry
+ * @name selectCountryForSalesChannel
  * @function
- * @param {String} salesChannel - Title of the sales channel
  * @param {String} country - Title of the country
  */
-Cypress.Commands.add('selectCountry', (salesChannel, country) => {
+Cypress.Commands.add('selectCountryForSalesChannel', (country) => {
     cy.intercept({
         url: `**/${Cypress.env('apiPath')}/search/sales-channel`,
         method: 'post'
@@ -280,7 +290,6 @@ Cypress.Commands.add('selectCountry', (salesChannel, country) => {
         method: 'post'
     }).as('country');
 
-    cy.contains(salesChannel).should('be.visible').click();
     cy.get('.sw-sales-channel-detail__select-countries').then(($body) => {
         if (!$body.text().includes(country)) {
             cy.get('.sw-sales-channel-detail__select-countries .sw-select-selection-list__input').should('be.visible').type(country);
@@ -293,8 +302,7 @@ Cypress.Commands.add('selectCountry', (salesChannel, country) => {
         if (!$body.text().includes(country)) {
             cy.get('.sw-sales-channel-detail__assign-countries').should('be.visible').type(country);
             cy.wait('@country').its('response.statusCode').should('equal', 200);
-            cy.contains('.sw-select-option--0.sw-select-result',country).should('be.visible').click();
-            cy.wait('@country').its('response.statusCode').should('equal', 200);
+            cy.contains('.sw-select-result', country).should('be.visible').click();
         }
     });
     cy.get('.sw-sales-channel-detail__save-action').should('be.visible').click();
@@ -307,12 +315,11 @@ Cypress.Commands.add('selectCountry', (salesChannel, country) => {
 /**
  * Returns payment method (selects and assign as default) for sales channel
  * @memberOf Cypress.Chainable#
- * @name selectPayment
+ * @name selectPaymentMethodForSalesChannel
  * @function
- * @param {String} salesChannel - Title of the sales channel
  * @param {String} paymentMethod - Title of the payment method
  */
-Cypress.Commands.add('selectPayment', (salesChannel, paymentMethod) => {
+Cypress.Commands.add('selectPaymentMethodForSalesChannel', (paymentMethod) => {
     cy.intercept({
         url: `**/${Cypress.env('apiPath')}/search/sales-channel`,
         method: 'post'
@@ -322,7 +329,6 @@ Cypress.Commands.add('selectPayment', (salesChannel, paymentMethod) => {
         method: 'post'
     }).as('payment-method');
 
-    cy.contains(salesChannel).should('be.visible').click();
     cy.get('.sw-sales-channel-detail__select-payment-methods').scrollIntoView();
     cy.get('.sw-sales-channel-detail__select-payment-methods').then(($body) => {
         if (!$body.text().includes(paymentMethod)) {
@@ -335,7 +341,7 @@ Cypress.Commands.add('selectPayment', (salesChannel, paymentMethod) => {
     });
     cy.get('.sw-sales-channel-detail__assign-payment-methods').type(paymentMethod).should('be.visible');
     cy.wait('@payment-method').its('response.statusCode').should('equal', 200);
-    cy.contains('.sw-select-option--0.sw-select-result',paymentMethod).should('be.visible').click();
+    cy.contains('.sw-select-result', paymentMethod).should('be.visible').click();
     cy.get('.sw-sales-channel-detail__save-action').should('be.visible').click();
     cy.wait('@sales-channel').its('response.statusCode').should('equal', 200);
     cy.get('.sw-loader').should('not.exist');
@@ -347,12 +353,11 @@ Cypress.Commands.add('selectPayment', (salesChannel, paymentMethod) => {
 /**
  * Returns shipping method (selects and assign as default) for sales channel
  * @memberOf Cypress.Chainable#
- * @name selectShipping
+ * @name selectShippingMethodForSalesChannel
  * @function
- * @param {String} salesChannel - Title of the sales channel
  * @param {String} shippingMethod - Title of the shipping method
  */
-Cypress.Commands.add('selectShipping', (salesChannel, shippingMethod) => {
+Cypress.Commands.add('selectShippingMethodForSalesChannel', (shippingMethod) => {
     cy.intercept({
         url: `**/${Cypress.env('apiPath')}/search/sales-channel`,
         method: 'post'
@@ -362,7 +367,6 @@ Cypress.Commands.add('selectShipping', (salesChannel, shippingMethod) => {
         method: 'post'
     }).as('shipping-method');
 
-    cy.contains(salesChannel).should('be.visible').click();
     cy.get('.sw-sales-channel-detail__select-shipping-methods').scrollIntoView();
     cy.get('.sw-sales-channel-detail__select-shipping-methods').then(($body) => {
         if (!$body.text().includes(shippingMethod)) {
@@ -377,7 +381,7 @@ Cypress.Commands.add('selectShipping', (salesChannel, shippingMethod) => {
         if (!$body.text().includes(shippingMethod)) {
             cy.get('.sw-sales-channel-detail__assign-shipping-methods').type(shippingMethod).should('be.visible');
             cy.wait('@shipping-method').its('response.statusCode').should('equal', 200);
-            cy.contains('.sw-select-option--0.sw-select-result', shippingMethod).should('be.visible').click();
+            cy.contains('.sw-select-result', shippingMethod).should('be.visible').click();
         }
     });
     cy.get('.sw-sales-channel-detail__save-action').should('be.visible').click();
@@ -391,12 +395,11 @@ Cypress.Commands.add('selectShipping', (salesChannel, shippingMethod) => {
 /**
  * Returns currency (selects and assign as default) for sales channel
  * @memberOf Cypress.Chainable#
- * @name selectCurrency
+ * @name selectCurrencyForSalesChannel
  * @function
- * @param {String} salesChannel - Title of the sales channel
  * @param {String} currency - Title of the currency
  */
-Cypress.Commands.add('selectCurrency', (salesChannel, currency) => {
+Cypress.Commands.add('selectCurrencyForSalesChannel', (currency) => {
     cy.intercept({
         url: `**/${Cypress.env('apiPath')}/search/sales-channel`,
         method: 'post'
@@ -406,7 +409,6 @@ Cypress.Commands.add('selectCurrency', (salesChannel, currency) => {
         method: 'post'
     }).as('currency');
 
-    cy.contains(salesChannel).should('be.visible').click();
     cy.get('.sw-sales-channel-detail__select-currencies').scrollIntoView();
     cy.get('.sw-sales-channel-detail__select-currencies').then(($body) => {
         if (!$body.text().includes(currency)) {
@@ -420,7 +422,7 @@ Cypress.Commands.add('selectCurrency', (salesChannel, currency) => {
         if (!$body.text().includes(currency)) {
             cy.get('.sw-sales-channel-detail__assign-currencies').type(currency).should('be.visible');
             cy.wait('@currency').its('response.statusCode').should('equal', 200);
-            cy.contains('.sw-select-option--0.sw-select-result', currency).should('be.visible').click();
+            cy.contains('.sw-select-result', currency).should('be.visible').click();
             cy.wait('@currency').its('response.statusCode').should('equal', 200);
         }
     });
@@ -435,12 +437,11 @@ Cypress.Commands.add('selectCurrency', (salesChannel, currency) => {
 /**
  * Returns language (selects and assign as default) for sales channel
  * @memberOf Cypress.Chainable#
- * @name selectLanguage
+ * @name selectLanguageForSalesChannel
  * @function
- * @param {String} salesChannel - Title of the sales channel
  * @param {String} language - Title of the language
  */
-Cypress.Commands.add('selectLanguage', (salesChannel, language) => {
+Cypress.Commands.add('selectLanguageForSalesChannel', (language) => {
     cy.intercept({
         url: `**/${Cypress.env('apiPath')}/search/sales-channel`,
         method: 'post'
@@ -450,7 +451,6 @@ Cypress.Commands.add('selectLanguage', (salesChannel, language) => {
         method: 'post'
     }).as('language');
 
-    cy.contains(salesChannel).should('be.visible').click();
     cy.get('.sw-sales-channel-detail__select-languages').scrollIntoView();
     cy.get('.sw-sales-channel-detail__select-languages').then(($body) => {
         if (!$body.text().includes(language)) {
@@ -464,7 +464,7 @@ Cypress.Commands.add('selectLanguage', (salesChannel, language) => {
         if (!$body.text().includes(language)) {
             cy.get('.sw-sales-channel-detail__assign-languages').type(language).should('be.visible');
             cy.wait('@language').its('response.statusCode').should('equal', 200);
-            cy.contains('.sw-select-option--0.sw-select-result', language).should('be.visible').click();
+            cy.contains('.sw-select-result', language).should('be.visible').click();
         }
     });
     cy.get('.sw-sales-channel-detail__save-action').should('be.visible').click();

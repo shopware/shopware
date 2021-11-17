@@ -24,4 +24,9 @@ abstract class Hook
      * If e.g. `cart` is returned, the service is available under `services.cart`.
      */
     abstract public function getName(): string;
+
+    public function getContext(): Context
+    {
+        return $this->context;
+    }
 }

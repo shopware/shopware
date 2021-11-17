@@ -25,20 +25,11 @@ use Symfony\Component\HttpFoundation\Request;
 
 class RequestCriteriaBuilder
 {
-    /**
-     * @var int|null
-     */
-    private $maxLimit;
+    private ?int $maxLimit;
 
-    /**
-     * @var AggregationParser
-     */
-    private $aggregationParser;
+    private AggregationParser $aggregationParser;
 
-    /**
-     * @var ApiCriteriaValidator
-     */
-    private $validator;
+    private ApiCriteriaValidator $validator;
 
     public function __construct(
         AggregationParser $aggregationParser,
@@ -53,9 +44,9 @@ class RequestCriteriaBuilder
     public function handleRequest(Request $request, Criteria $criteria, EntityDefinition $definition, Context $context): Criteria
     {
         if ($request->getMethod() === Request::METHOD_GET) {
-            $criteria = $this->fromArray($request->query->all(), $criteria, $definition, $context, $request->attributes->getInt('version'));
+            $criteria = $this->fromArray($request->query->all(), $criteria, $definition, $context);
         } else {
-            $criteria = $this->fromArray($request->request->all(), $criteria, $definition, $context, $request->attributes->getInt('version'));
+            $criteria = $this->fromArray($request->request->all(), $criteria, $definition, $context);
         }
 
         $this->validator->validate($definition->getEntityName(), $criteria, $context);
@@ -150,7 +141,7 @@ class RequestCriteriaBuilder
         return $array;
     }
 
-    private function fromArray(array $payload, Criteria $criteria, EntityDefinition $definition, Context $context, int $apiVersion): Criteria
+    public function fromArray(array $payload, Criteria $criteria, EntityDefinition $definition, Context $context): Criteria
     {
         $searchException = new SearchRequestException();
 
@@ -237,7 +228,7 @@ class RequestCriteriaBuilder
 
                 $nested = $criteria->getAssociation($propertyName);
 
-                $this->fromArray($association, $nested, $ref, $context, $apiVersion);
+                $this->fromArray($association, $nested, $ref, $context);
             }
         }
 

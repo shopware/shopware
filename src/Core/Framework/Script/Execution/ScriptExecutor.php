@@ -61,7 +61,7 @@ class ScriptExecutor
     {
         $twig = $this->initEnv($script);
 
-        $twig->addGlobal('services', $this->initServices($hook));
+        $twig->addGlobal('services', $this->initServices($hook, $script));
 
         $this->traces->trace($hook, $script, function (Debug $debug) use ($twig, $script, $hook): void {
             $twig->addGlobal('debug', $debug);
@@ -84,7 +84,7 @@ class ScriptExecutor
         return $twig;
     }
 
-    private function initServices(Hook $hook): array
+    private function initServices(Hook $hook, Script $script): array
     {
         $services = [];
         foreach ($hook->getServiceIds() as $serviceId) {
@@ -97,7 +97,7 @@ class ScriptExecutor
                 throw new HookAwareServiceException($serviceId);
             }
 
-            $service->inject($hook);
+            $service->inject($hook, $script);
 
             $services[$service->getName()] = $service;
         }

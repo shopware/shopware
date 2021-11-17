@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Page;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Script\RepositoryFacade;
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAware;
 use Shopware\Core\Framework\Script\Execution\Hook;
 
@@ -10,7 +11,7 @@ abstract class PageLoadedHook extends Hook implements SalesChannelContextAware
     public function getServiceIds(): array
     {
         return [
-            // ToDo add common services here
+            RepositoryFacade::class,
         ];
     }
 }

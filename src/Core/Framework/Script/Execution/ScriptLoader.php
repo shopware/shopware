@@ -91,11 +91,12 @@ class ScriptLoader
             /** @var string $cachePrefix */
             $cachePrefix = $script['appName'] ? md5($script['appName'] . $script['appVersion']) : EnvironmentHelper::getVariable('INSTANCE_ID', '');
 
-            $includes = array_map(function (array $script) {
+            $includes = array_map(function (array $script) use ($appId) {
                 return new Script(
                     $script['name'],
                     $script['script'],
-                    new \DateTimeImmutable($script['lastModified'])
+                    new \DateTimeImmutable($script['lastModified']),
+                    $appId
                 );
             }, $includes);
 
@@ -110,6 +111,7 @@ class ScriptLoader
                 $script['scriptName'],
                 $script['script'],
                 $lastModified,
+                $appId,
                 $options,
                 $includes
             );

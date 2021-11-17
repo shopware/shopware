@@ -9,6 +9,7 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Exception\HookInjectionException;
+use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
 use Shopware\Core\Framework\Test\IdsCollection;
@@ -26,6 +27,8 @@ class CartFacadeTest extends TestCase
 
     private IdsCollection $ids;
 
+    private Script $script;
+
     protected function setUp(): void
     {
         Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
@@ -33,6 +36,7 @@ class CartFacadeTest extends TestCase
         parent::setUp();
 
         $this->init();
+        $this->script = new Script('test', '', new \DateTimeImmutable(), null);
     }
 
     /**
@@ -44,7 +48,7 @@ class CartFacadeTest extends TestCase
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, []);
 
         $service = $this->getContainer()->get(CartFacade::class);
-        $service->inject(new SalesChannelTestHook('test', $context));
+        $service->inject(new SalesChannelTestHook('test', $context), $this->script);
 
         $item = $service->addProduct($this->ids->get($input));
 
@@ -65,7 +69,7 @@ class CartFacadeTest extends TestCase
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, []);
 
         $service = $this->getContainer()->get(CartFacade::class);
-        $service->inject(new SalesChannelTestHook('test', $context));
+        $service->inject(new SalesChannelTestHook('test', $context), $this->script);
 
         $item = $service->addProduct($this->ids->get('p1'));
 
@@ -113,7 +117,7 @@ class CartFacadeTest extends TestCase
         $hook = new SalesChannelTestHook('remove-case', $context, ['productId' => $this->ids->get('p1')], [CartFacade::class]);
 
         $service = $this->getContainer()->get(CartFacade::class);
-        $service->inject($hook);
+        $service->inject($hook, $this->script);
 
         $item = $service->addProduct($this->ids->get('p1'));
 
@@ -132,7 +136,7 @@ class CartFacadeTest extends TestCase
         $this->expectException(HookInjectionException::class);
 
         $service = $this->getContainer()->get(CartFacade::class);
-        $service->inject(new TestHook('test', Context::createDefaultContext()));
+        $service->inject(new TestHook('test', Context::createDefaultContext()), $this->script);
     }
 
     public function addProductProvider(): \Generator

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Script\Exception\HookInjectionException;
 use Shopware\Core\Framework\Script\Execution\Awareness\HookAwareService;
 use Shopware\Core\Framework\Script\Execution\Awareness\SalesChannelContextAware;
 use Shopware\Core\Framework\Script\Execution\Hook;
+use Shopware\Core\Framework\Script\Execution\Script;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class CartFacade extends HookAwareService
@@ -25,7 +26,7 @@ class CartFacade extends HookAwareService
         $this->factory = $factory;
     }
 
-    public function inject(Hook $hook): void
+    public function inject(Hook $hook, Script $script): void
     {
         if (!$hook instanceof SalesChannelContextAware) {
             throw new HookInjectionException($hook, self::class, SalesChannelContextAware::class);

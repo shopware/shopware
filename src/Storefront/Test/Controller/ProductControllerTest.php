@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -175,8 +176,8 @@ class ProductControllerTest extends TestCase
             )
             ->variant(
                 (new ProductBuilder($this->ids, 'a.5'))
-                    ->option('blue')
-                    ->option('xl')
+                    ->option('blue', 'color')
+                    ->option('xl', 'size')
                     ->visibility(TestDefaults::SALES_CHANNEL)
                     ->visibility($this->ids->get('sales-channel'))
                     ->stock(10)
@@ -185,8 +186,8 @@ class ProductControllerTest extends TestCase
             )
             ->variant(
                 (new ProductBuilder($this->ids, 'a.6'))
-                    ->option('blue')
-                    ->option('l')
+                    ->option('blue', 'color')
+                    ->option('l', 'size')
                     ->visibility($this->ids->get('sales-channel'))
                     ->stock(10)
                     ->closeout(null) // inherited
@@ -194,8 +195,8 @@ class ProductControllerTest extends TestCase
             )
             ->variant(
                 (new ProductBuilder($this->ids, 'a.7'))
-                    ->option('red')
-                    ->option('m')
+                    ->option('red', 'color')
+                    ->option('m', 'size')
                     ->visibility($this->ids->get('sales-channel'))
                     ->stock(10)
                     ->closeout(null) // inherited
@@ -203,8 +204,8 @@ class ProductControllerTest extends TestCase
             )
             ->variant(
                 (new ProductBuilder($this->ids, 'a.8'))
-                    ->option('green')
-                    ->option('m')
+                    ->option('green', 'color')
+                    ->option('m', 'size')
                     ->visibility($this->ids->get('sales-channel'))
                     ->stock(0)
                     ->closeout(null) // inherited
@@ -212,8 +213,8 @@ class ProductControllerTest extends TestCase
             )
             ->variant(
                 (new ProductBuilder($this->ids, 'a.9'))
-                    ->option('blue')
-                    ->option('m')
+                    ->option('blue', 'color')
+                    ->option('m', 'size')
                     ->visibility($this->ids->get('sales-channel'))
                     ->stock(0)
                     ->closeout(false)

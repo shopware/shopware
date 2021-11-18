@@ -66,6 +66,8 @@ describe('Product: Test variants', () => {
 
         // Set surcharge
         cy.get('.is--inline-edit .sw-inheritance-switch').should('be.visible');
+        cy.get('.sw-data-grid__row--0 .sw-inheritance-switch .icon--custom-inherited').first().click();
+        cy.get('.sw-data-grid__row--0 .sw-price-field__lock').first().click();
         cy.get('.sw-data-grid__row--0 #sw-price-field-gross').first().should('be.visible');
         cy.get('.sw-data-grid__row--0 #sw-price-field-gross').first().should('be.enabled');
         cy.get('.sw-data-grid__row--0 #sw-price-field-gross').first().should('have.value', '64');

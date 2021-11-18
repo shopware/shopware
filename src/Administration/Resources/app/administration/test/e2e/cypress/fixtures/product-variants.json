@@ -11,28 +11,27 @@
       "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
       "net": 42,
       "linked": false,
-      "gross": 64
+      "gross": 64,
+      "listPrice": {
+        "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
+        "net": 84.033613445378,
+        "linked": false,
+        "gross": 100
+      }
     }
   ],
   "purchasePrices": [
     {
       "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
-      "net": 42,
+      "net": 6.4,
       "linked": false,
-      "gross": 64
+      "gross": 10
     }
   ],
   "children": [
     {
       "parentId": "c26e748eb7b311eb85290242ac130003",
-      "price": [
-        {
-          "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
-          "gross": 64,
-          "net": 42,
-          "linked": true
-        }
-      ],
+      "prices": [],
       "name": "Variant product name",
       "productNumber": "5010.17002",
       "active": true,
@@ -45,14 +44,7 @@
       ]
     }, {
       "parentId": "c26e748eb7b311eb85290242ac130003",
-      "price": [
-        {
-          "currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca",
-          "gross": 64,
-          "net": 42,
-          "linked": true
-        }
-      ],
+      "prices": [],
       "name": "Variant product name",
       "productNumber": "5010.17004",
       "active": true,

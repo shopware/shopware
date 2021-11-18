@@ -23,7 +23,7 @@ Cypress.Commands.add('login', (userType) => {
         .should('have.value', user.pass);
 
     cy.intercept({
-        url: '/api/_admin/snippets?locale=nl-NL',
+        url: `/api/_admin/snippets?locale=${Cypress.env('locale')}`,
         method: 'get'
     }).as('snippets');
 

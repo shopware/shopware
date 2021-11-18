@@ -76,6 +76,7 @@
       "setOrderState": "Status setzen",
       "stopFlow": "Flow anhalten",
       "changeCustomerGroup": "Kundengruppe ändern",
+      "changeCustomerStatus": "Kundenstatus ändern",
       "textStopFlowDescription": "Nachfolgende Aktionen/Sequenzen werden nicht ausgeführt.",
       "labelDescription": "Beschreibung: {description}",
       "contextButton": {
@@ -144,6 +145,15 @@
         "labelCustomerGroup": "Kundengruppe",
         "placeholderCustomerGroup": "Kundengruppe auswählen ...",
         "customerGroupDescription": "Kundengruppe: {customerGroup}"
+      },
+      "customerStatus": {
+        "titleChangeCustomerStatus": "Kundenstatus ändern",
+        "labelCustomerStatus": "Kundenstatus",
+        "placeholderCustomerStatus": "Kundenstatus auswählen ...",
+        "customerStatusDescriptionActive": "Aktiver Kunde",
+        "customerStatusDescriptionInactive": "Inaktiver Kunde",
+        "active": "Aktiv",
+        "inactive": "Inaktiv"
       },
       "mail": {
         "columnRecipientName": "Name",

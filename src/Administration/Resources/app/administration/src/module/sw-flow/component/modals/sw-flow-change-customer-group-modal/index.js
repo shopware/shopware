@@ -6,7 +6,6 @@ const { mapState } = Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
 
 Component.register('sw-flow-change-customer-group-modal', {
-    flag: 'FEATURE_NEXT_17973',
     template,
 
     inject: ['repositoryFactory'],

@@ -89,6 +89,7 @@ Component.register('sw-flow-sequence-action', {
 
             if (this.feature.isActive('FEATURE_NEXT_17973')) {
                 actionDescription[ACTION.CHANGE_CUSTOMER_GROUP] = (config) => this.getCustomerGroupDescription(config);
+                actionDescription[ACTION.CHANGE_CUSTOMER_STATUS] = (config) => this.getCustomerStatusDescription(config);
             }
 
             return actionDescription;
@@ -347,6 +348,12 @@ Component.register('sw-flow-sequence-action', {
             return `${this.$tc('sw-flow.modals.customerGroup.customerGroupDescription', 0, {
                 customerGroup: customerGroup?.translated?.name,
             })}`;
+        },
+
+        getCustomerStatusDescription(config) {
+            return config.active
+                ? this.$tc('sw-flow.modals.customerStatus.customerStatusDescriptionActive')
+                : this.$tc('sw-flow.modals.customerStatus.customerStatusDescriptionInactive');
         },
 
         getMailSendDescription(config) {

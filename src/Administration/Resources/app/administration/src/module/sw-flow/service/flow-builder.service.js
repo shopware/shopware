@@ -13,6 +13,7 @@ export default function flowBuilderService() {
         setOrderState: 'default-shopping-plastic-bag',
         generateDocument: 'default-documentation-file',
         changeCustomerGroup: 'default-avatar-multiple',
+        changeCustomerStatus: 'default-avatar-single',
         stopFlow: 'default-basic-x-circle',
     };
 
@@ -23,6 +24,7 @@ export default function flowBuilderService() {
         setOrderState: 'sw-flow.actions.setOrderState',
         generateDocument: 'sw-flow.actions.generateDocument',
         changeCustomerGroup: 'sw-flow.actions.changeCustomerGroup',
+        changeCustomerStatus: 'sw-flow.actions.changeCustomerStatus',
         stopFlow: 'sw-flow.actions.stopFlow',
     };
 

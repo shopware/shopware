@@ -354,6 +354,27 @@ class ElasticsearchProductTest extends TestCase
     /**
      * @depends testIndexing
      */
+    public function testEqualsFilterWithNumericEncodedBoolFields(IdsCollection $data): void
+    {
+        try {
+            $searcher = $this->createEntitySearcher();
+            // check simple equals filter
+            $criteria = new Criteria($data->prefixed('p'));
+            $criteria->addFilter(new EqualsFilter('active', 1));
+
+            $products = $searcher->search($this->productDefinition, $criteria, $data->getContext());
+            static::assertCount(9, $products->getIds());
+            static::assertSame(9, $products->getTotal());
+        } catch (\Exception $e) {
+            static::tearDown();
+
+            throw $e;
+        }
+    }
+
+    /**
+     * @depends testIndexing
+     */
     public function testRangeFilter(IdsCollection $data): void
     {
         try {

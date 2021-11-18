@@ -24,6 +24,8 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Aggregation;
@@ -497,7 +499,11 @@ class CriteriaParser
             $query = new BoolQuery();
             $query->add(new ExistsQuery($fieldName), BoolQuery::MUST_NOT);
         } else {
-            $query = new TermQuery($fieldName, $filter->getValue());
+            if ($this->getField($definition, $filter->getField()) instanceof BoolField) {
+                $query = new TermQuery($fieldName, (bool) $filter->getValue());
+            } else {
+                $query = new TermQuery($fieldName, $filter->getValue());
+            }
         }
 
         return $this->createNestedQuery($query, $definition, $filter->getField());
@@ -703,6 +709,18 @@ class CriteriaParser
         }
 
         return $query;
+    }
+
+    private function getField(EntityDefinition $definition, string $fieldName): ?Field
+    {
+        $root = $definition->getEntityName();
+
+        $parts = explode('.', $fieldName);
+        if ($root === $parts[0]) {
+            array_shift($parts);
+        }
+
+        return $this->helper->getField($fieldName, $definition, $root, false);
     }
 
     private function getNestedPath(EntityDefinition $definition, string $accessor): ?string

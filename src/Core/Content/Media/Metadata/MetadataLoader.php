@@ -29,7 +29,13 @@ class MetadataLoader
     {
         foreach ($this->metadataLoader as $loader) {
             if ($loader->supports($mediaType)) {
-                return $loader->extractMetadata($mediaFile->getFileName());
+                $metaData = $loader->extractMetadata($mediaFile->getFileName());
+
+                if ($mediaFile->getHash()) {
+                    $metaData['hash'] = $mediaFile->getHash();
+                }
+
+                return $metaData;
             }
         }
 

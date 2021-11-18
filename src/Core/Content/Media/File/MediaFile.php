@@ -4,36 +4,28 @@ namespace Shopware\Core\Content\Media\File;
 
 class MediaFile
 {
-    /**
-     * @var string
-     */
-    private $fileName;
+    private string $fileName;
 
-    /**
-     * @var string
-     */
-    private $mimeType;
+    private string $mimeType;
 
-    /**
-     * @var string
-     */
-    private $fileExtension;
+    private string $fileExtension;
 
-    /**
-     * @var int
-     */
-    private $fileSize;
+    private int $fileSize;
+
+    private ?string $hash;
 
     public function __construct(
         string $fileName,
         string $mimeType,
         string $fileExtension,
-        int $fileSize
+        int $fileSize,
+        ?string $hash = null
     ) {
         $this->fileName = $fileName;
         $this->mimeType = $mimeType;
         $this->fileExtension = $fileExtension;
         $this->fileSize = $fileSize;
+        $this->hash = $hash;
     }
 
     public function getFileName(): string
@@ -54,5 +46,10 @@ class MediaFile
     public function getFileSize(): int
     {
         return $this->fileSize;
+    }
+
+    public function getHash(): ?string
+    {
+        return $this->hash;
     }
 }

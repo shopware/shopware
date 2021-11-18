@@ -1,0 +1,91 @@
+{% block sw_flow_affiliate_and_campaign_code_modal %}
+<sw-modal
+    class="sw-flow-affiliate-and-campaign-code-modal"
+    :title="$tc('sw-flow.modals.affiliateAndCampaignCode.title')"
+    @modal-close="onClose"
+>
+    {% block sw_flow_affiliate_and_campaign_code_modal_content %}
+    <div class="sw-flow-affiliate-and-campaign-code-modal__content">
+        {% block sw_flow_affiliate_and_campaign_code_modal_entity %}
+        <sw-single-select
+            v-model="entity"
+            class="sw-flow-affiliate-and-campaign-code-modal__entity"
+            required
+            show-clearable-button
+            :label="$tc('sw-flow.modals.affiliateAndCampaignCode.labelEntity')"
+            :placeholder="$tc('sw-flow.modals.affiliateAndCampaignCode.placeholderEntity')"
+            :error="entityError"
+            :options="entityOptions"
+        />
+        {% endblock %}
+
+        <sw-container
+            columns="4fr 1fr"
+            gap="30px"
+        >
+            {% block sw_flow_affiliate_and_campaign_code_modal_affiliate_code %}
+            <sw-text-field
+                v-model="affiliateCode.value"
+                class="sw-flow-affiliate-and-campaign-code-modal__affiliate-code"
+                :label="$tc('sw-flow.modals.affiliateAndCampaignCode.labelAffiliateCode')"
+                :placeholder="$tc('sw-flow.modals.affiliateAndCampaignCode.placeholderAffiliateCode')"
+            />
+            {% endblock %}
+
+            {% block sw_flow_affiliate_and_campaign_code_modal_affiliate_code_overwrite %}
+            <sw-switch-field
+                v-model="affiliateCode.upsert"
+                class="sw-flow-affiliate-and-campaign-code-modal__affiliate-code-overwrite"
+                :label="$tc('sw-flow.modals.affiliateAndCampaignCode.overwrite')"
+            />
+            {% endblock %}
+        </sw-container>
+
+        <sw-container
+            columns="4fr 1fr"
+            gap="30px"
+        >
+            {% block sw_flow_affiliate_and_campaign_code_modal_campaign_code %}
+            <sw-text-field
+                v-model="campaignCode.value"
+                class="sw-flow-affiliate-and-campaign-code-modal__campaign-code"
+                :label="$tc('sw-flow.modals.affiliateAndCampaignCode.labelCampaignCode')"
+                :placeholder="$tc('sw-flow.modals.affiliateAndCampaignCode.placeholderCampaignCode')"
+            />
+            {% endblock %}
+
+            {% block sw_flow_affiliate_and_campaign_code_modal_campaign_code_overwrite %}
+            <sw-switch-field
+                v-model="campaignCode.upsert"
+                class="sw-flow-affiliate-and-campaign-code-modal__campaign-code-overwrite"
+                :label="$tc('sw-flow.modals.affiliateAndCampaignCode.overwrite')"
+            />
+            {% endblock %}
+        </sw-container>
+    </div>
+    {% endblock %}
+
+    <template #modal-footer>
+        {% block sw_flow_affiliate_and_campaign_code_modal_footer_cancel_button %}
+        <sw-button
+            class="sw-flow-affiliate-and-campaign-code-modal__cancel-button"
+            size="small"
+            @click="onClose"
+        >
+            {{ $tc('global.default.cancel') }}
+        </sw-button>
+        {% endblock %}
+
+        {% block sw_flow_affiliate_and_campaign_code_modal_footer_save_button %}
+        <sw-button
+            class="sw-flow-affiliate-and-campaign-code-modal__save-button"
+            variant="primary"
+            size="small"
+            @click="onSave"
+        >
+            {{ sequence.id ? $tc('sw-flow.modals.buttonSaveAction') : $tc('sw-flow.modals.buttonAddAction') }}
+        </sw-button>
+        {% endblock %}
+    </template>
+</sw-modal>
+{% endblock %}

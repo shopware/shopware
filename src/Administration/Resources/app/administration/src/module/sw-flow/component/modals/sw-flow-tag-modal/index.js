@@ -134,7 +134,7 @@ Component.register('sw-flow-tag-modal', {
                 }
 
                 options.push({
-                    label: this.convertEntityName(key),
+                    label: this.flowBuilderService.convertEntityName(key),
                     value: key,
                 });
             });
@@ -192,6 +192,9 @@ Component.register('sw-flow-tag-modal', {
             this.$emit('modal-close');
         },
 
+        /**
+         * @major-deprecated tag:v6.5.0 - will be removed, use convertEntityName method of flowBuilderService instead
+         */
         convertEntityName(camelCaseText) {
             if (!camelCaseText) return '';
 

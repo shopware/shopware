@@ -7,7 +7,7 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Script\RepositoryFacade;
+use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryFacadeHookFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\SumResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -28,11 +28,11 @@ class RepositoryFacadeTest extends TestCase
 
     private IdsCollection $ids;
 
-    private RepositoryFacade $repositoryFacade;
+    private RepositoryFacadeHookFactory $factory;
 
     public function setUp(): void
     {
-        $this->repositoryFacade = $this->getContainer()->get(RepositoryFacade::class);
+        $this->factory = $this->getContainer()->get(RepositoryFacadeHookFactory::class);
     }
 
     /**
@@ -43,12 +43,12 @@ class RepositoryFacadeTest extends TestCase
         $this->ids = $ids;
         $this->createProducts();
 
-        $this->repositoryFacade->inject(
+        $facade = $this->factory->factory(
             new TestHook('test', Context::createDefaultContext()),
             new Script('test', '', new \DateTimeImmutable(), null)
         );
 
-        $result = $this->repositoryFacade->$method('product', $criteria);
+        $result = $facade->$method('product', $criteria);
 
         $expectation($result);
     }
@@ -175,18 +175,18 @@ class RepositoryFacadeTest extends TestCase
 
         $appId = $this->installApp(__DIR__ . '/_fixtures/apps/withProductPermission');
 
-        $this->repositoryFacade->inject(
+        $facade = $this->factory->factory(
             new TestHook('test', Context::createDefaultContext()),
             new Script('test', '', new \DateTimeImmutable(), $appId)
         );
 
-        $result = $this->repositoryFacade->search('product', []);
+        $result = $facade->search('product', []);
         static::assertCount(4, $result);
 
-        $result = $this->repositoryFacade->ids('product', []);
+        $result = $facade->ids('product', []);
         static::assertCount(4, $result->getIds());
 
-        $result = $this->repositoryFacade->aggregate('product', [
+        $result = $facade->aggregate('product', [
             'aggregations' => [
                 ['name' => 'sum', 'type' => 'sum', 'field' => 'price.gross'],
             ],
@@ -206,13 +206,13 @@ class RepositoryFacadeTest extends TestCase
 
         $appId = $this->installApp(__DIR__ . '/_fixtures/apps/withoutProductPermission');
 
-        $this->repositoryFacade->inject(
+        $facade = $this->factory->factory(
             new TestHook('test', Context::createDefaultContext()),
             new Script('test', '', new \DateTimeImmutable(), $appId)
         );
 
         static::expectException(MissingPrivilegeException::class);
-        $this->repositoryFacade->$method('product', []);
+        $facade->$method('product', []);
     }
 
     public function withoutPermissionProvider(): array
@@ -240,7 +240,7 @@ class RepositoryFacadeTest extends TestCase
                 'page' => $page,
             ],
             [
-                RepositoryFacade::class,
+                RepositoryFacadeHookFactory::class,
             ]
         );
 

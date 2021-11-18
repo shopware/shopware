@@ -91,7 +91,7 @@
             <argument type="tagged" tag="shopware.entity.extension"/>
         </service>
 
-        <service id="Shopware\Core\Framework\DataAbstractionLayer\Script\RepositoryFacade" public="true">
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryFacadeHookFactory" public="true">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>

@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Script\Debugging\Debug;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Script\Exception\HookAwareServiceException;
 use Shopware\Core\Framework\Script\Exception\ScriptExecutionFailedException;
-use Shopware\Core\Framework\Script\Execution\Awareness\HookAwareService;
+use Shopware\Core\Framework\Script\Execution\Awareness\HookServiceFactory;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Twig\Environment;
@@ -61,13 +61,17 @@ class ScriptExecutor
     {
         $twig = $this->initEnv($script);
 
-        $twig->addGlobal('services', $this->initServices($hook, $script));
+        $services = $this->initServices($hook, $script);
+
+        $twig->addGlobal('services', $services);
 
         $this->traces->trace($hook, $script, function (Debug $debug) use ($twig, $script, $hook): void {
             $twig->addGlobal('debug', $debug);
 
             $twig->render($script->getName(), ['hook' => $hook]);
         });
+
+        $this->callAfter($services, $hook, $script);
     }
 
     private function initEnv(Script $script): Environment
@@ -93,15 +97,31 @@ class ScriptExecutor
             }
 
             $service = $this->container->get($serviceId);
-            if (!$service instanceof HookAwareService) {
+            if (!$service instanceof HookServiceFactory) {
                 throw new HookAwareServiceException($serviceId);
             }
 
-            $service->inject($hook, $script);
-
-            $services[$service->getName()] = $service;
+            $services[$service->getName()] = $service->factory($hook, $script);
         }
 
         return $services;
+    }
+
+    private function callAfter(array $services, Hook $hook, Script $script): void
+    {
+        foreach ($hook->getServiceIds() as $serviceId) {
+            if (!$this->container->has($serviceId)) {
+                throw new ServiceNotFoundException($serviceId, 'Hook: ' . $hook->getName());
+            }
+
+            $factory = $this->container->get($serviceId);
+            if (!$factory instanceof HookServiceFactory) {
+                throw new HookAwareServiceException($serviceId);
+            }
+
+            $service = $services[$factory->getName()];
+
+            $factory->after($service, $hook, $script);
+        }
     }
 }

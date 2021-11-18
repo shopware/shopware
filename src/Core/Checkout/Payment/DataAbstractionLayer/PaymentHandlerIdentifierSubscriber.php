@@ -2,9 +2,13 @@
 
 namespace Shopware\Core\Checkout\Payment\DataAbstractionLayer;
 
+use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface;
+use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PreparedPaymentHandlerInterface;
+use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\SynchronousPaymentHandlerInterface;
 use Shopware\Core\Checkout\Payment\PaymentEvents;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
+use Shopware\Core\Framework\Feature;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
@@ -21,6 +25,10 @@ class PaymentHandlerIdentifierSubscriber implements EventSubscriberInterface
     {
         /** @var PaymentMethodEntity $entity */
         foreach ($event->getEntities() as $entity) {
+            if (Feature::isActive('FEATURE_NEXT_16769')) {
+                $this->setPaymentMethodHandlerRuntimeFields($entity);
+            }
+
             $explodedHandlerIdentifier = explode('\\', $entity->getHandlerIdentifier());
 
             $last = $explodedHandlerIdentifier[\count($explodedHandlerIdentifier) - 1];
@@ -45,6 +53,23 @@ class PaymentHandlerIdentifierSubscriber implements EventSubscriberInterface
                 . mb_strtolower($lastHandlerIdentifier);
 
             $entity->setFormattedHandlerIdentifier($formattedHandlerIdentifier);
+        }
+    }
+
+    private function setPaymentMethodHandlerRuntimeFields(PaymentMethodEntity $entity): void
+    {
+        $handlerIdentifier = $entity->getHandlerIdentifier();
+
+        if (\is_a($handlerIdentifier, SynchronousPaymentHandlerInterface::class, true)) {
+            $entity->setSynchronous(true);
+        }
+
+        if (\is_a($handlerIdentifier, AsynchronousPaymentHandlerInterface::class, true)) {
+            $entity->setAsynchronous(true);
+        }
+
+        if (\is_a($handlerIdentifier, PreparedPaymentHandlerInterface::class, true)) {
+            $entity->setPrepared(true);
         }
     }
 }

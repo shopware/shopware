@@ -211,7 +211,7 @@ The subscription is only successful, if the /newsletter/confirm route is called 
             }
         }
 
-        $validator = $this->getOptInValidator($context, $validateStorefrontUrl);
+        $validator = $this->getOptInValidator($dataBag, $context, $validateStorefrontUrl);
         $this->validator->validate($dataBag->all(), $validator);
 
         $data = $dataBag->only(
@@ -265,7 +265,7 @@ The subscription is only successful, if the /newsletter/confirm route is called 
         return new NoContentResponse();
     }
 
-    private function getOptInValidator(SalesChannelContext $context, bool $validateStorefrontUrl): DataValidationDefinition
+    private function getOptInValidator(DataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl): DataValidationDefinition
     {
         $definition = new DataValidationDefinition('newsletter_recipient.create');
         $definition->add('email', new NotBlank(), new Email())
@@ -276,7 +276,7 @@ The subscription is only successful, if the /newsletter/confirm route is called 
                 ->add('storefrontUrl', new NotBlank(), new Choice(array_values($this->getDomainUrls($context))));
         }
 
-        $validationEvent = new BuildValidationEvent($definition, new DataBag(), $context->getContext());
+        $validationEvent = new BuildValidationEvent($definition, $dataBag, $context->getContext());
         $this->eventDispatcher->dispatch($validationEvent, $validationEvent->getName());
 
         return $definition;

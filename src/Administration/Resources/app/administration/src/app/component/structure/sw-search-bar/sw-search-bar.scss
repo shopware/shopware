@@ -359,7 +359,11 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
     }
 
     &__types_module-filters-container {
-        max-width: 180px;
+        max-width: 240px;
+
+        .sw-search-bar__shortcut-tip span {
+            text-transform: lowercase;
+        }
     }
 
     &__type-item-name {

@@ -516,7 +516,7 @@
       "placeholderShortcutInfo": "Hint: Press the \"f\" key to get to the search bar faster.",
       "placeholderSearchShortcutInfo": "Press <span>f</span> to search.",
       "moduleFiltersHeadline": "Module filters",
-      "placeholderFilterShortcutInfo": "Type <span>#</span> in the search to quickly set a module filter.",
+      "placeholderFilterShortcutInfo": "Type <span>#products</span> in the search to set the module filter.",
       "searchTypeAll": "All",
       "moduleFilter": "Module filter",
       "messageNoResultsV2": "We didn't find any exact matches for \"{term}\".",

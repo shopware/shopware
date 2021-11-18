@@ -516,7 +516,7 @@
       "placeholderShortcutInfo": "Tipp: Über die \"f\"-Taste, kannst Du die Suche schneller öffnen.",
       "placeholderSearchShortcutInfo": "Drücke <span>f</span>, um die Suche zu öffnen.",
       "moduleFiltersHeadline": "Modulfilter",
-      "placeholderFilterShortcutInfo": "Gib <span>#</span> in die Suche ein, um Modulfilter festzulegen.",
+      "placeholderFilterShortcutInfo": "Tippe <span>#produkte</span> in die Suche ein, um den Modulfilter zu setzen.",
       "searchTypeAll": "Alle",
       "moduleFilter": "Modulfilter",
       "messageNoResultsV2": "Wir haben keine genauen Übereinstimmungen für \"{term}\" gefunden.",

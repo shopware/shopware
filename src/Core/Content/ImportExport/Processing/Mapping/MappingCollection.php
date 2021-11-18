@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Content\ImportExport\Processing\Mapping;
 
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -36,20 +35,15 @@ class MappingCollection extends Collection
     public function set($key, $mapping): void
     {
         $this->validateType($mapping);
-        if (Feature::isActive('FEATURE_NEXT_15998')) {
-            $key = $mapping->getKey();
-            if (empty($key)) {
-                // prevent collision with multiple not mapped mappings (key = '').
-                // there is no direct lookup needed for these, but they should be stored and not overridden!
-                $key = Uuid::randomHex();
-            }
-
-            parent::set($key, $mapping);
-            $this->reverseIndex[$mapping->getMappedKey()] = $key;
-        } else {
-            parent::set($mapping->getKey(), $mapping);
-            $this->reverseIndex[$mapping->getMappedKey()] = $mapping->getKey();
+        $key = $mapping->getKey();
+        if (empty($key)) {
+            // prevent collision with multiple not mapped mappings (key = '').
+            // there is no direct lookup needed for these, but they should be stored and not overridden!
+            $key = Uuid::randomHex();
         }
+
+        parent::set($key, $mapping);
+        $this->reverseIndex[$mapping->getMappedKey()] = $key;
     }
 
     public function getMapped(string $readKey): ?Mapping

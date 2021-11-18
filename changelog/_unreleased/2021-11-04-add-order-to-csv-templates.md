@@ -1,7 +1,6 @@
 ---
 title: Add order to csv templates
 issue: NEXT-18251
-flag: FEATURE_NEXT_8097
 ---
 # Core
 * Added property `position` to `Shopware\Core\Content\ImportExport\Processing\Mapping\Mapping`

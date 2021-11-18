@@ -8,7 +8,6 @@ use Shopware\Core\Content\ImportExport\Service\FileService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -21,8 +20,6 @@ class FileServiceTest extends TestCase
      */
     public function testDetectType($fileData): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_15998', $this);
-
         $fileService = new FileService(
             $this->getContainer()->get('shopware.filesystem.private'),
             $this->getContainer()->get('import_export_file.repository')
@@ -43,8 +40,6 @@ class FileServiceTest extends TestCase
 
     public function testStoreFile(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_15998', $this);
-
         /** @var EntityRepositoryInterface $fileRepository */
         $fileRepository = $this->getContainer()->get('import_export_file.repository');
         $fileService = new FileService(

@@ -117,7 +117,7 @@ Shopware.Component.register('sw-import-export-new-profile-wizard', {
 
         checkValidation(parentProfile) {
             // Skip validation for only export profiles
-            if (this.feature.isActive('FEATURE_NEXT_8097') && this.profile.type === 'export') {
+            if (this.profile.type === 'export') {
                 return;
             }
 

@@ -46,15 +46,7 @@ Shopware.Component.register('sw-import-export-exporter', {
                     Criteria.equals('sourceEntity', this.sourceEntity),
                 );
             }
-            if (this.feature.isActive('FEATURE_NEXT_8097')) {
-                criteria.addFilter(Criteria.not('AND', [Criteria.equals('type', 'import')]));
-            }
-            if (!this.feature.isActive('FEATURE_NEXT_16119')) {
-                criteria.addFilter(Criteria.not('AND', [
-                    Criteria.equals('name', 'Default orders'),
-                    Criteria.equals('systemDefault', 1),
-                ]));
-            }
+            criteria.addFilter(Criteria.not('AND', [Criteria.equals('type', 'import')]));
 
             return criteria;
         },

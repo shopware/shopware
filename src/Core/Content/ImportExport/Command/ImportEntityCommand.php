@@ -17,7 +17,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
-use Shopware\Core\Framework\Feature;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -64,14 +63,10 @@ class ImportEntityCommand extends Command
                 'profile',
                 InputArgument::OPTIONAL,
                 'Wrap profile names with whitespaces into quotation marks, like \'Default Category\''
-            );
-
-        if (Feature::isActive('FEATURE_NEXT_8097')) {
-            $this
-                ->addOption('rollbackOnError', 'r', InputOption::VALUE_NONE, 'Rollback database transaction on error')
-                ->addOption('printErrors', 'p', InputOption::VALUE_NONE, 'Print errors occured during import')
-                ->addOption('dryRun', 'd', InputOption::VALUE_NONE, 'Do a dry run of import without persisting data');
-        }
+            )
+            ->addOption('rollbackOnError', 'r', InputOption::VALUE_NONE, 'Rollback database transaction on error')
+            ->addOption('printErrors', 'p', InputOption::VALUE_NONE, 'Print errors occured during import')
+            ->addOption('dryRun', 'd', InputOption::VALUE_NONE, 'Do a dry run of import without persisting data');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -84,9 +79,9 @@ class ImportEntityCommand extends Command
             ? $this->chooseProfile($context, $io)
             : $this->profileByName($profileName, $context);
         $filePath = $input->getArgument('file');
-        $rollbackOnError = Feature::isActive('FEATURE_NEXT_8097') && $input->getOption('rollbackOnError');
-        $dryRun = Feature::isActive('FEATURE_NEXT_8097') && $input->getOption('dryRun');
-        $printErrors = Feature::isActive('FEATURE_NEXT_8097') && $input->getOption('printErrors');
+        $rollbackOnError = $input->getOption('rollbackOnError');
+        $dryRun = $input->getOption('dryRun');
+        $printErrors = $input->getOption('printErrors');
 
         $expireDateString = $input->getArgument('expireDate');
 
@@ -143,9 +138,7 @@ class ImportEntityCommand extends Command
             $this->printErrors($importExport, $log, $io, $doRollback && $progress->getState() === Progress::STATE_FAILED);
         }
 
-        if (Feature::isActive('FEATURE_NEXT_8097')) {
-            $this->printResults($log, $io);
-        }
+        $this->printResults($log, $io);
 
         if ($dryRun) {
             $io->info(sprintf('Dry run completed in %d seconds', $elapsed));
@@ -172,11 +165,9 @@ class ImportEntityCommand extends Command
     private function chooseProfile(Context $context, SymfonyStyle $io): ImportExportProfileEntity
     {
         $criteria = new Criteria();
-        if (Feature::isActive('FEATURE_NEXT_8097')) {
-            $criteria->addFilter(
-                new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('type', ImportExportProfileEntity::TYPE_EXPORT)])
-            );
-        }
+        $criteria->addFilter(
+            new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('type', ImportExportProfileEntity::TYPE_EXPORT)])
+        );
         $result = $this->profileRepository->search($criteria, $context);
 
         $byName = [];

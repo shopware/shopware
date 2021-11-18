@@ -1,7 +1,6 @@
 ---
 title: Merchants can define profiles import behaviour
 issue: NEXT-16186
-flag: FEATURE_NEXT_8097
 author: Malte Janz
 author_email: m.janz@shopware.com 
 author_github: Malte Janz

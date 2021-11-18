@@ -141,17 +141,6 @@ parameters:
             message: '#Method Shopware\\Core\\Content\\Flow\\Dispatching\\FlowDispatcher\:\:dispatch\(\) should return TEvent of object but returns \(Shopware\\Core\\Framework\\Event\\BusinessEvent\&TEvent of object\)\|\(Shopware\\Core\\Framework\\Event\\FlowEvent&Shopware\\Core\\Framework\\Event\\FlowEventAware\&TEvent of object\)\.#'
             path: src/Core/Content/Flow/Dispatching/FlowDispatcher.php
         # can be removed with feature flag FEATURE_NEXT_12455
-        -
-            message: '#Command \"import:entity\" does not define option \"rollbackOnError\".#'
-            path: src/Core/Content/ImportExport/Command/ImportEntityCommand.php
-        # can be removed with feature flag FEATURE_NEXT_12455
-        -
-            message: '#Command \"import:entity\" does not define option \"dryRun\".#'
-            path: src/Core/Content/ImportExport/Command/ImportEntityCommand.php
-        # can be removed with feature flag FEATURE_NEXT_12455
-        -
-            message: '#Command \"import:entity\" does not define option \"printErrors\".#'
-            path: src/Core/Content/ImportExport/Command/ImportEntityCommand.php
         # Ignore these error because the payload property in FlowEntity have 3 specific types
         -
             message: '#Method Shopware\\Core\\Content\\Flow\\FlowEntity::getPayload\(\) has no return typehint specified\.#'

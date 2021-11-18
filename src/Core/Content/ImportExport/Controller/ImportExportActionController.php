@@ -21,7 +21,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\InvalidRequestParameterException;
@@ -124,7 +123,7 @@ class ImportExportActionController extends AbstractController
                 $expireDate,
                 $file,
                 $request->request->all('config'),
-                Feature::isActive('FEATURE_NEXT_8097') && $request->request->has('dryRun')
+                $request->request->has('dryRun')
             );
 
             unlink($file->getPathname());
@@ -204,7 +203,6 @@ class ImportExportActionController extends AbstractController
     }
 
     /**
-     * @internal (flag:FEATURE_NEXT_15998)
      * @Route("/api/_action/import-export/prepare-template-file-download", name="api.action.import_export.template_file.prepare_download", methods={"POST"})
      */
     public function prepareTemplateFileDownload(Request $request, Context $context): Response
@@ -225,7 +223,6 @@ class ImportExportActionController extends AbstractController
     }
 
     /**
-     * @internal (flag:FEATURE_NEXT_15998)
      * @Route("/api/_action/import-export/mapping-from-template", name="api.action.import_export.template_file.mapping", methods={"POST"})
      */
     public function mappingFromTemplate(Request $request, Context $context): JsonResponse

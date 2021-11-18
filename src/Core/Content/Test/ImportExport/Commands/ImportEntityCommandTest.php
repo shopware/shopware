@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Demodata\DemodataService;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -147,10 +146,6 @@ class ImportEntityCommandTest extends TestCase
 
     public function testImportWithInvalidAndRollback(): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_8097')) {
-            static::markTestSkipped('FEATURE_NEXT_8097');
-        }
-
         $num = 8;
 
         $this->stopTransactionAfter();

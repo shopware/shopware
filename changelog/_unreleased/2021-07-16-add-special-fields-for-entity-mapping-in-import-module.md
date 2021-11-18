@@ -1,7 +1,6 @@
 ---
 title: add-special-fields-for-entity-mapping-in-import-module
 issue: next-16043
-flag: FEATURE_NEXT_8097
 author: Malte Janz
 author_email: m.janz@shopware.com 
 author_github: Malte Janz

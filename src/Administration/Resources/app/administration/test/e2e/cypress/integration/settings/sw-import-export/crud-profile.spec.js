@@ -20,8 +20,6 @@ describe('Import/Export - Profiles: Test crud operations', () => {
     });
 
     it('@settings: Create and read update only profile', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_15998');
-
         cy.intercept({
             url: `${Cypress.env('apiPath')}/import-export-profile`,
             method: 'POST'
@@ -98,8 +96,6 @@ describe('Import/Export - Profiles: Test crud operations', () => {
     });
 
     it('@settings @base: Create and read profile with wizard', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_15998');
-
         cy.server();
         cy.route({
             url: `${Cypress.env('apiPath')}/import-export-profile`,
@@ -121,13 +117,11 @@ describe('Import/Export - Profiles: Test crud operations', () => {
                 page.elements.importExportObjectTypeSelect
             );
 
-        cy.onlyOnFeature('FEATURE_NEXT_8097', () => {
-            cy.get(page.elements.importExportTypeSelect)
-                .typeSingleSelectAndCheck(
-                    'Import and export',
-                    page.elements.importExportTypeSelect
-                );
-        });
+        cy.get(page.elements.importExportTypeSelect)
+            .typeSingleSelectAndCheck(
+                'Import and export',
+                page.elements.importExportTypeSelect
+            );
 
         // navigate to next wizard page (CSV upload)
         cy.get(`${page.elements.importExportProfileWizard}__footer-right-button-group .sw-button--primary`).click();
@@ -148,11 +142,9 @@ describe('Import/Export - Profiles: Test crud operations', () => {
                 '.sw-data-grid__row--0 .sw-import-export-entity-path-select:nth-of-type(1)'
             );
 
-        cy.onlyOnFeature('FEATURE_NEXT_8097', () => {
-            // check that the required id field is system required and the requirement can't be unchecked
-            cy.get('.sw-data-grid__row--0 .sw-import-export-edit-profile-modal-mapping__required-by-user-switch:not([style*="display: none"]) input')
-                .should('be.disabled');
-        });
+        // check that the required id field is system required and the requirement can't be unchecked
+        cy.get('.sw-data-grid__row--0 .sw-import-export-edit-profile-modal-mapping__required-by-user-switch:not([style*="display: none"]) input')
+            .should('be.disabled');
 
         cy.get(page.elements.importExportAddMappingButton).click();
         cy.get('#mappedKey-1').should('exist');
@@ -163,18 +155,17 @@ describe('Import/Export - Profiles: Test crud operations', () => {
                 '.sw-data-grid__row--0 .sw-import-export-entity-path-select:nth-of-type(1)'
             );
 
-        cy.onlyOnFeature('FEATURE_NEXT_8097', () => {
-            // check that the createdAt field is can be required by the user
-            cy.get('.sw-data-grid__row--0 .sw-import-export-edit-profile-modal-mapping__required-by-user-switch:not([style*="display: none"]) input')
-                .should('be.enabled')
-                .click();
-            // add a default value for this mapping
-            cy.get('.sw-data-grid__row--0 input[name="useDefaultValue-0"]').click();
-            cy.get('.sw-data-grid__row--0 input[name="defaultValue-0"]')
-                .should('be.enabled')
-                .type('default')
-                .should('have.value', 'default');
-        });
+        // check that the createdAt field is can be required by the user
+        cy.get('.sw-data-grid__row--0 .sw-import-export-edit-profile-modal-mapping__required-by-user-switch:not([style*="display: none"]) input')
+            .should('be.enabled')
+            .click();
+
+        // add a default value for this mapping
+        cy.get('.sw-data-grid__row--0 input[name="useDefaultValue-0"]').click();
+        cy.get('.sw-data-grid__row--0 input[name="defaultValue-0"]')
+            .should('be.enabled')
+            .type('default')
+            .should('have.value', 'default');
 
         // Perform add new mapping
         cy.get(page.elements.importExportAddMappingButton).click();
@@ -195,8 +186,6 @@ describe('Import/Export - Profiles: Test crud operations', () => {
     });
 
     it('@settings @base: Create profile with wizard and import mapping via CSV file', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_15998');
-
         cy.server();
         cy.route({
             url: `${Cypress.env('apiPath')}/import-export-profile`,
@@ -222,13 +211,11 @@ describe('Import/Export - Profiles: Test crud operations', () => {
                 page.elements.importExportObjectTypeSelect
             );
 
-        cy.onlyOnFeature('FEATURE_NEXT_8097', () => {
-            cy.get(page.elements.importExportTypeSelect)
-                .typeSingleSelectAndCheck(
-                    'Import and export',
-                    page.elements.importExportTypeSelect
-                );
-        });
+        cy.get(page.elements.importExportTypeSelect)
+            .typeSingleSelectAndCheck(
+                'Import and export',
+                page.elements.importExportTypeSelect
+            );
 
         // navigate to next wizard page (CSV upload)
         cy.get(`${page.elements.importExportProfileWizard}__footer-right-button-group .sw-button--primary`).click();
@@ -290,159 +277,6 @@ describe('Import/Export - Profiles: Test crud operations', () => {
 
         cy.get(page.elements.importExportProfileWizard).should('not.be.visible');
         cy.get(`${page.elements.dataGridRow}`).should('contain', 'UploadWizard');
-    });
-
-    it('@settings @base: Create and read profile', () => {
-        cy.skipOnFeature('FEATURE_NEXT_15998');
-
-        cy.intercept({
-            url: `${Cypress.env('apiPath')}/import-export-profile`,
-            method: 'POST'
-        }).as('saveData');
-
-        // Perform create new profile action
-        cy.get('.sw-import-export-view-profiles__listing').should('be.visible');
-        cy.get('.sw-import-export-view-profiles__create-action').click();
-
-        cy.get('.sw-modal__dialog').should('be.visible');
-
-        cy.get('#sw-field--profile-label').typeAndCheck('Basic');
-
-        cy.onlyOnFeature('FEATURE_NEXT_15998', () => {
-            cy.get('.sw-import-export-edit-profile-general__text').should('be.visible');
-        });
-
-        cy.skipOnFeature('FEATURE_NEXT_15998', () => {
-            // Expect modal to be open with content
-            cy.get('.sw-import-export-edit-profile-modal__text').should('be.visible');
-        });
-
-        cy.onlyOnFeature('FEATURE_NEXT_8097', () => {
-            // switch to mapping tab
-            cy.contains('.sw-import-export-edit-profile-modal .sw-tabs-item', 'Mappings').click();
-        });
-
-        // Expect modal to be displayed and add mapping button to be disabled first
-        cy.get(page.elements.importExportAddMappingButton).should('be.disabled');
-
-        cy.onlyOnFeature('FEATURE_NEXT_8097', () => {
-            // switch back to general tab
-            cy.contains('.sw-import-export-edit-profile-modal .sw-tabs-item', 'General').click();
-            // expect to see the general tab content
-
-            cy.onlyOnFeature('FEATURE_NEXT_15998', () => {
-                cy.get('.sw-import-export-edit-profile-general__text').should('be.visible');
-            });
-
-            cy.skipOnFeature('FEATURE_NEXT_15998', () => {
-                cy.get('.sw-import-export-edit-profile-modal__text').should('be.visible');
-            });
-        });
-
-        cy.onlyOnFeature('FEATURE_NEXT_8097', () => {
-            cy.onlyOnFeature('FEATURE_NEXT_15998', () => {
-                cy.get(page.elements.importExportObjectTypeSelect)
-                    .typeSingleSelectAndCheck(
-                        'Media',
-                        page.elements.importExportObjectTypeSelect
-                    );
-            });
-
-            cy.skipOnFeature('FEATURE_NEXT_15998', () => {
-                cy.get('.sw-import-export-edit-profile-modal__object-type-select')
-                    .typeSingleSelectAndCheck(
-                        'Media',
-                        '.sw-import-export-edit-profile-modal__object-type-select'
-                    );
-            });
-        });
-
-
-        cy.skipOnFeature('FEATURE_NEXT_15998', () => {
-            cy.get('.sw-import-export-edit-profile-modal__object-type-select')
-                .typeSingleSelectAndCheck(
-                    'Media',
-                    '.sw-import-export-edit-profile-modal__object-type-select'
-                );
-        });
-
-        cy.onlyOnFeature('FEATURE_NEXT_8097', () => {
-            cy.onlyOnFeature('FEATURE_NEXT_15998', () => {
-                cy.get(page.elements.importExportTypeSelect)
-                    .typeSingleSelectAndCheck(
-                        'Import and export',
-                        page.elements.importExportTypeSelect
-                    );
-                // switch to mapping tab
-                cy.contains('.sw-import-export-edit-profile-modal .sw-tabs-item', 'Mappings').click();
-            });
-        });
-
-        cy.skipOnFeature('FEATURE_NEXT_15998', () => {
-            cy.onlyOnFeature('FEATURE_NEXT_8097', () => {
-                cy.get('.sw-import-export-edit-profile-modal__type-select')
-                    .typeSingleSelectAndCheck(
-                        'Import and export',
-                        '.sw-import-export-edit-profile-modal__type-select'
-                    );
-                // switch to mapping tab
-                cy.contains('.sw-import-export-edit-profile-modal .sw-tabs-item', 'Mappings').click();
-            });
-        });
-
-        // Fill in all required mappings (add mapping button should be enabled now)
-        cy.get(page.elements.importExportAddMappingButton).should('be.enabled');
-
-        cy.get(page.elements.importExportAddMappingButton).click();
-        cy.get('#mappedKey-0').type('id');
-        cy.get('.sw-import-export-entity-path-select__selection')
-            .first().typeSingleSelectAndCheck(
-                'id',
-                '.sw-data-grid__row--0 .sw-import-export-entity-path-select:nth-of-type(1)'
-            );
-
-        cy.onlyOnFeature('FEATURE_NEXT_8097', () => {
-            // check that the required id field is system required and the requirement can't be unchecked
-            cy.get('.sw-data-grid__row--0 .sw-import-export-edit-profile-modal-mapping__required-by-user-switch:not([style*="display: none"]) input')
-                .should('be.disabled');
-        });
-
-        cy.get(page.elements.importExportAddMappingButton).click();
-        cy.get('#mappedKey-1').should('exist');
-        cy.get('#mappedKey-0').type('createdAt');
-        cy.get('.sw-import-export-entity-path-select__selection').first()
-            .typeSingleSelectAndCheck(
-                'createdAt',
-                '.sw-data-grid__row--0 .sw-import-export-entity-path-select:nth-of-type(1)'
-            );
-
-        cy.onlyOnFeature('FEATURE_NEXT_8097', () => {
-            // check that the createdAt field is can be required by the user
-            cy.get('.sw-data-grid__row--0 .sw-import-export-edit-profile-modal-mapping__required-by-user-switch:not([style*="display: none"]) input')
-                .should('be.enabled')
-                .click();
-            // add a default value for this mapping
-            cy.get('.sw-data-grid__row--0 input[name="useDefaultValue-0"]').click();
-            cy.get('.sw-data-grid__row--0 input[name="defaultValue-0"]')
-                .should('be.enabled')
-                .type('default')
-                .should('have.value', 'default');
-        });
-
-        // Perform add new mapping
-        cy.get(page.elements.importExportAddMappingButton).click();
-
-        // Expect a new grid row to be visible
-        cy.get(`${page.elements.dataGridRow}--0`).should('be.visible');
-
-        // Save the profile
-        cy.get('.sw-import-export-edit-profile-modal__save-action').click();
-
-        // Save request should be successful
-        cy.wait('@saveData').its('response.statusCode').should('equal', 204);
-
-        cy.get('.sw-import-export-edit-profile-modal').should('not.be.visible');
-        cy.get(`${page.elements.dataGridRow}`).should('contain', 'Basic');
     });
 
     it('@settings @base: Duplicate profile', () => {
@@ -666,9 +500,6 @@ describe('Import/Export - Profiles: Test crud operations', () => {
     });
 
     it('@settings @base: Create an export profile with wizard', () => {
-        cy.onlyOnFeature('FEATURE_NEXT_8097');
-        cy.onlyOnFeature('FEATURE_NEXT_15998');
-
         cy.server();
         cy.route({
             url: `${Cypress.env('apiPath')}/import-export-profile`,
@@ -690,13 +521,11 @@ describe('Import/Export - Profiles: Test crud operations', () => {
                 page.elements.importExportObjectTypeSelect
             );
 
-        cy.onlyOnFeature('FEATURE_NEXT_8097', () => {
-            cy.get(page.elements.importExportTypeSelect)
-                .typeSingleSelectAndCheck(
-                    'Export',
-                    page.elements.importExportTypeSelect
-                );
-        });
+        cy.get(page.elements.importExportTypeSelect)
+            .typeSingleSelectAndCheck(
+                'Export',
+                page.elements.importExportTypeSelect
+            );
 
         // navigate to next wizard page (CSV upload)
         cy.get(`${page.elements.importExportProfileWizard}__footer-right-button-group .sw-button--primary`).click();
@@ -733,91 +562,6 @@ describe('Import/Export - Profiles: Test crud operations', () => {
         cy.visit(`${Cypress.env('admin')}#/sw/import-export/index/import`);
         cy.get('.sw-import-export-importer__profile-select').click();
         cy.get('.sw-import-export-importer__profile-select input').type('BasicExportWizard');
-        cy.get('.sw-select-result-list__empty').should('be.visible');
-    });
-
-    it('@settings @base: Create an export profile', () => {
-        cy.skipOnFeature('FEATURE_NEXT_15998');
-        cy.onlyOnFeature('FEATURE_NEXT_8097');
-
-        cy.intercept({
-            url: `${Cypress.env('apiPath')}/import-export-profile`,
-            method: 'POST'
-        }).as('saveData');
-
-        // Perform create new profile action
-        cy.get('.sw-import-export-view-profiles__listing').should('be.visible');
-        cy.get('.sw-import-export-view-profiles__create-action').click();
-
-        cy.get('.sw-modal__dialog').should('be.visible');
-
-        cy.onlyOnFeature('FEATURE_NEXT_15998', () => {
-            cy.get('.sw-import-export-edit-profile-general__text').should('be.visible');
-        });
-
-        cy.skipOnFeature('FEATURE_NEXT_15998', () => {
-            // Expect modal to be open with content
-            cy.get('.sw-import-export-edit-profile-modal__text').should('be.visible');
-        });
-
-        // Fill in name and object type
-        cy.get('#sw-field--profile-label').typeAndCheck('Basic');
-
-        cy.onlyOnFeature('FEATURE_NEXT_15998', () => {
-            cy.get(page.elements.importExportTypeSelect)
-                .typeSingleSelectAndCheck(
-                    'Export',
-                    page.elements.importExportTypeSelect
-                );
-            cy.get(page.elements.importExportObjectTypeSelect)
-                .typeSingleSelectAndCheck(
-                    'Media',
-                    page.elements.importExportObjectTypeSelect
-                );
-        });
-
-        cy.skipOnFeature('FEATURE_NEXT_15998', () => {
-            cy.get('.sw-import-export-edit-profile-modal__type-select')
-                .typeSingleSelectAndCheck(
-                    'Export',
-                    '.sw-import-export-edit-profile-modal__type-select'
-                );
-            cy.get('.sw-import-export-edit-profile-modal__object-type-select')
-                .typeSingleSelectAndCheck(
-                    'Media',
-                    '.sw-import-export-edit-profile-modal__object-type-select'
-                );
-        });
-
-        // switch to mapping tab
-        cy.contains('.sw-import-export-edit-profile-modal .sw-tabs-item', 'Mappings').click();
-
-        // add mapping button should be enabled now
-        cy.get(page.elements.importExportAddMappingButton).should('be.enabled');
-
-        // Only add name mapping
-        cy.get(page.elements.importExportAddMappingButton).click();
-        cy.get('#mappedKey-0').type('name');
-        cy.get('.sw-import-export-entity-path-select__selection')
-            .first().typeSingleSelectAndCheck(
-                'fileName',
-                '.sw-data-grid__row--0 .sw-import-export-entity-path-select:nth-of-type(1)'
-            );
-
-        // Save the profile
-        cy.get('.sw-import-export-edit-profile-modal__save-action').click();
-
-        // Save request should be successful
-        cy.wait('@saveData')
-            .its('response.statusCode').should('equal', 204);
-
-        cy.get('.sw-import-export-edit-profile-modal').should('not.be.visible');
-        cy.get(`${page.elements.dataGridRow}`).should('contain', 'Basic');
-
-        // Verify the export profile cant be used for importing
-        cy.visit(`${Cypress.env('admin')}#/sw/import-export/index/import`);
-        cy.get('.sw-import-export-importer__profile-select').click();
-        cy.get('.sw-import-export-importer__profile-select input').type('Basic');
         cy.get('.sw-select-result-list__empty').should('be.visible');
     });
 });

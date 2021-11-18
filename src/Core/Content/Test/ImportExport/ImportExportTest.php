@@ -42,7 +42,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Tax\TaxDefinition;
@@ -188,8 +187,6 @@ class ImportExportTest extends ImportExportTestCase
 
     public function testSortingShouldWorkAsExpected(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_8097', $this);
-
         /** @var EntityRepositoryInterface $profileRepository */
         $profileRepository = $this->getContainer()->get('import_export_profile.repository');
 
@@ -520,10 +517,8 @@ class ImportExportTest extends ImportExportTestCase
         $this->importPropertyCsv();
         $this->importPropertyCsvWithoutIds();
 
-        if (Feature::isActive('FEATURE_NEXT_8097')) {
-            $this->importPropertyWithDefaultsCsv();
-            $this->importPropertyWithUserRequiredCsv();
-        }
+        $this->importPropertyWithDefaultsCsv();
+        $this->importPropertyWithUserRequiredCsv();
 
         $progress = $this->import($context, ProductDefinition::ENTITY_NAME, '/fixtures/products.csv', 'products.csv');
 
@@ -571,8 +566,6 @@ class ImportExportTest extends ImportExportTestCase
      */
     public function testProductsWithVariantsCsv(): void
     {
-        Feature::skipTestIfInActive('FEATURE_NEXT_8097', $this);
-
         $connection = $this->getContainer()->get(Connection::class);
         $connection->executeUpdate('DELETE FROM `product`');
 
@@ -609,10 +602,6 @@ class ImportExportTest extends ImportExportTestCase
      */
     public function testProductsWithInvalidVariantsCsv(): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_8097')) {
-            static::markTestSkipped();
-        }
-
         $connection = $this->getContainer()->get(Connection::class);
         $connection->executeUpdate('DELETE FROM `product`');
 
@@ -635,10 +624,6 @@ class ImportExportTest extends ImportExportTestCase
 
     public function testProductsWithOwnIdentifier(): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_8097')) {
-            static::markTestSkipped('NEXT-8097');
-        }
-
         $context = Context::createDefaultContext();
         $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
 
@@ -706,10 +691,6 @@ class ImportExportTest extends ImportExportTestCase
 
     public function testProductsWithCategoryPaths(): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_8097')) {
-            static::markTestSkipped('NEXT-8097');
-        }
-
         $context = Context::createDefaultContext();
         $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
 
@@ -852,10 +833,6 @@ class ImportExportTest extends ImportExportTestCase
 
     public function testDryRunImport(): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_8097')) {
-            static::markTestSkipped('NEXT-8097');
-        }
-
         $connection = $this->getContainer()->get(Connection::class);
 
         $connection->rollBack();
@@ -1131,23 +1108,13 @@ class ImportExportTest extends ImportExportTestCase
         $context = Context::createDefaultContext();
         $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
 
-        if (Feature::isActive('FEATURE_NEXT_8097')) {
-            $csvPath = '/fixtures/cross_selling_products_with_own_identifier.csv';
-        } else {
-            $csvPath = '/fixtures/cross_selling_products.csv';
-        }
-
+        $csvPath = '/fixtures/cross_selling_products_with_own_identifier.csv';
         $progress = $this->import($context, ProductDefinition::ENTITY_NAME, $csvPath, 'products.csv');
 
         static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
 
-        if (Feature::isActive('FEATURE_NEXT_8097')) {
-            $csvPath = '/fixtures/cross_selling_with_own_identifier.csv';
-        } else {
-            $csvPath = '/fixtures/cross_selling.csv';
-        }
-
-        $progress = $this->import($context, ProductCrossSellingDefinition::ENTITY_NAME, $csvPath, 'cross_selling.csv');
+        $csvPath = '/fixtures/cross_selling_with_own_identifier.csv';
+        $progress = $this->import($context, ProductCrossSellingDefinition::ENTITY_NAME, $csvPath, 'cross_selling_with_own_identifier.csv');
 
         static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
 
@@ -1235,10 +1202,6 @@ class ImportExportTest extends ImportExportTestCase
 
     public function testImportWithCreateAndUpdateConfig(): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_8097')) {
-            static::markTestSkipped('FEATURE_NEXT_8097');
-        }
-
         // expect default upsert
         $mockRepo = $this->runCustomerImportWithConfigAndMockedRepository([
             'createEntities' => true,

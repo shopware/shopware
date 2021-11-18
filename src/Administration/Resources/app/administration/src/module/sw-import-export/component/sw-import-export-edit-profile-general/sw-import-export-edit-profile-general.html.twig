@@ -84,7 +84,6 @@
 
         {% block sw_import_export_edit_profile_general_container_type %}
         <sw-single-select
-            v-if="feature.isActive('FEATURE_NEXT_8097')"
             v-model="profile.type"
             class="sw-import-export-edit-profile-general__type-select"
             :label="$tc('sw-import-export.profile.typeFieldLabel')"

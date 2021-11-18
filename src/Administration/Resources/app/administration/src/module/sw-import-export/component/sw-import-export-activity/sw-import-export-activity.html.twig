@@ -42,7 +42,7 @@
         {% block sw_import_export_activity_listing_createdAt %}
         <template #column-createdAt="{ item }">
             <sw-label
-                v-if="item.activity === 'dryrun' && feature.isActive('FEATURE_NEXT_8097')"
+                v-if="item.activity === 'dryrun'"
                 size="small"
                 appearance="pill"
             >
@@ -81,25 +81,18 @@
         <template #actions="{ item }">
             {% block sw_import_export_activity_listing_actions_show_results %}
             <sw-context-menu-item
-                v-if="item.result && Object.keys(item.result).length && feature.isActive('FEATURE_NEXT_8097')"
+                v-if="item.result && Object.keys(item.result).length"
                 class="sw-import-export-activity__results-action"
                 @click="onShowResult(item)"
             >
                 {{ $tc('sw-import-export.activity.contextMenu.showResults') }}
             </sw-context-menu-item>
             {% endblock %}
-            {% block sw_import_export_activity_listing_actions_show_log %}
-            <sw-context-menu-item
-                v-if="!feature.isActive('FEATURE_NEXT_8097')"
-                class="sw-import-export-activity__details-action"
-                @click="onShowLog(item)"
-            >
-                {{ $tc('sw-import-export.activity.contextMenu.showLog') }}
-            </sw-context-menu-item>
-            {% endblock %}
+            {# @deprecated tag:v6.5.0 - will be removed, use "sw_import_export_activity_listing_actions_show_log_info" instead #}
+            {% block sw_import_export_activity_listing_actions_show_log %}{% endblock %}
             {% block sw_import_export_activity_listing_actions_show_log_info %}
             <sw-context-menu-item
-                v-if="feature.isActive('FEATURE_NEXT_8097') && type === 'export'"
+                v-if="type === 'export'"
                 class="sw-import-export-activity__log-info-action"
                 @click="onShowLog(item)"
             >
@@ -112,16 +105,9 @@
                 class="sw-import-export-activity__download-action"
                 @click="openProcessFileDownload(item)"
             >
-                <template v-if="feature.isActive('FEATURE_NEXT_8097')">
-                    <sw-context-menu-item :disabled="type === 'export' && item.state !== 'succeeded'">
-                        {{ downloadFileText }}
-                    </sw-context-menu-item>
-                </template>
-                <template v-else>
-                    <sw-context-menu-item :disabled="type === 'export' && item.state !== 'succeeded'">
-                        {{ $tc('sw-import-export.activity.contextMenu.downloadFile') }}
-                    </sw-context-menu-item>
-                </template>
+                <sw-context-menu-item :disabled="type === 'export' && item.state !== 'succeeded'">
+                    {{ downloadFileText }}
+                </sw-context-menu-item>
             </a>
             {% endblock %}
             {% block sw_import_export_activity_listing_actions_open_profile %}
@@ -147,17 +133,12 @@
     </sw-entity-listing>
     {% endblock %}
 
-    {% block sw_import_export_activity_detail_modal %}
-    <sw-import-export-activity-detail-modal
-        v-if="showDetailModal && !feature.isActive('FEATURE_NEXT_8097')"
-        :log-entity="selectedLog"
-        @log-close="closeSelectedLog"
-    />
-    {% endblock %}
+    {# @deprecated tag:v6.5.0 - block will removed #}
+    {% block sw_import_export_activity_detail_modal %}{% endblock %}
 
     {% block sw_import_export_activity_log_info_modal %}
     <sw-import-export-activity-log-info-modal
-        v-if="showDetailModal && feature.isActive('FEATURE_NEXT_8097')"
+        v-if="showDetailModal"
         :log-entity="selectedLog"
         @log-close="closeSelectedLog"
     />
@@ -165,7 +146,7 @@
 
     {% block sw_import_export_activity_result_modal %}
     <sw-import-export-activity-result-modal
-        v-if="feature.isActive('FEATURE_NEXT_8097') && showResultModal"
+        v-if="showResultModal"
         :log-entity="selectedLog"
         :result="selectedResult"
         @result-close="closeSelectedResult"

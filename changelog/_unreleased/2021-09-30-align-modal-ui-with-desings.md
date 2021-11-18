@@ -1,7 +1,6 @@
 ---
 title: Align modal ui with desings
 issue: NEXT-17125
-flag: FEATURE_NEXT_15998
 ---
 # Administration
 * Added component `sw-import-export-edit-profile-field-indicators` in `src/Administration/Resources/app/administration/src/module/sw-import-export/component/sw-import-export-edit-profile-field-indicators`

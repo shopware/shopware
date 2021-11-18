@@ -1,7 +1,6 @@
 ---
 title: Assign and create categories by path in product import
 issue: NEXT-16041
-flag: FEATURE_NEXT_8097
 author: d.neustadt
 author_email: d.neustadt@shopware.com 
 author_github: dneustadt

@@ -10,7 +10,6 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Api\Sync\SyncService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -259,10 +258,6 @@ class ProductCategoryPathsSubscriberTest extends TestCase
      */
     public function testCategoryPathToAssignment(array $categoriesToWrite, array $record, array $row, array $assertion): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_8097')) {
-            static::markTestSkipped('NEXT-8097');
-        }
-
         $context = Context::createDefaultContext();
 
         $this->categoryRepository->upsert($categoriesToWrite, $context);

@@ -48,13 +48,6 @@ Shopware.Component.register('sw-import-export-view-profiles', {
             criteria.addAssociation('importExportLogs');
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
 
-            if (!this.feature.isActive('FEATURE_NEXT_16119')) {
-                criteria.addFilter(Criteria.not('AND', [
-                    Criteria.equals('name', 'Default orders'),
-                    Criteria.equals('systemDefault', 1),
-                ]));
-            }
-
             return criteria;
         },
 
@@ -119,24 +112,16 @@ Shopware.Component.register('sw-import-export-view-profiles', {
             profile.fileType = 'text/csv';
             profile.mapping = [];
             profile.config = {};
-            if (this.feature.isActive('FEATURE_NEXT_8097')) {
-                profile.config.createEntities = true;
-                profile.config.updateEntities = true;
-            }
-            if (this.feature.isActive('FEATURE_NEXT_15998')) {
-                profile.type = 'import-export';
-            }
+            profile.config.createEntities = true;
+            profile.config.updateEntities = true;
+            profile.type = 'import-export';
             profile.translated = {};
             profile.delimiter = ';';
             profile.enclosure = '"';
 
             this.selectedProfile = null;
             this.selectedProfile = profile;
-            if (this.feature.isActive('FEATURE_NEXT_15998')) {
-                this.showNewProfileWizard = true;
-            } else {
-                this.showProfileEditModal = true;
-            }
+            this.showNewProfileWizard = true;
         },
 
         async onEditProfile(id) {
@@ -146,13 +131,11 @@ Shopware.Component.register('sw-import-export-view-profiles', {
                 this.$set(profile, 'config', {});
             }
 
-            if (this.feature.isActive('FEATURE_NEXT_8097')) {
-                if (profile.config?.createEntities === undefined) {
-                    profile.config.createEntities = true;
-                }
-                if (profile.config?.updateEntities === undefined) {
-                    profile.config.updateEntities = true;
-                }
+            if (profile.config?.createEntities === undefined) {
+                profile.config.createEntities = true;
+            }
+            if (profile.config?.updateEntities === undefined) {
+                profile.config.updateEntities = true;
             }
 
             this.selectedProfile = profile;
@@ -174,13 +157,11 @@ Shopware.Component.register('sw-import-export-view-profiles', {
                 return this.profileRepository.search(criteria);
             }).then((profiles) => {
                 const profile = profiles[0];
-                if (this.feature.isActive('FEATURE_NEXT_8097')) {
-                    if (profile.config?.createEntities === undefined) {
-                        profile.config.createEntities = true;
-                    }
-                    if (profile.config?.updateEntities === undefined) {
-                        profile.config.updateEntities = true;
-                    }
+                if (profile.config?.createEntities === undefined) {
+                    profile.config.createEntities = true;
+                }
+                if (profile.config?.updateEntities === undefined) {
+                    profile.config.updateEntities = true;
                 }
 
                 this.selectedProfile = profile;
@@ -194,9 +175,6 @@ Shopware.Component.register('sw-import-export-view-profiles', {
             });
         },
 
-        /**
-         * @internal (flag:FEATURE_NEXT_15998)
-         */
         async onDownloadTemplate(profile) {
             return window.open(await this.importExport.getTemplateFileDownloadUrl(profile.id), '_blank');
         },

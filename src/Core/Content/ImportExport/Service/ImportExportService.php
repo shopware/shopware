@@ -15,7 +15,6 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\User\UserEntity;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -65,7 +64,7 @@ class ImportExportService
     ): ImportExportLogEntity {
         $profileEntity = $this->findProfile($context, $profileId);
 
-        if (Feature::isActive('FEATURE_NEXT_8097') && !\in_array($profileEntity->getType(), [ImportExportProfileEntity::TYPE_EXPORT, ImportExportProfileEntity::TYPE_IMPORT_EXPORT], true)) {
+        if (!\in_array($profileEntity->getType(), [ImportExportProfileEntity::TYPE_EXPORT, ImportExportProfileEntity::TYPE_IMPORT_EXPORT], true)) {
             throw new ProfileWrongTypeException($profileEntity->getId(), $profileEntity->getType());
         }
 
@@ -73,7 +72,7 @@ class ImportExportService
             $originalFileName = $this->fileService->generateFilename($profileEntity);
         }
 
-        if (Feature::isActive('FEATURE_NEXT_15998') && $profileEntity->getMapping() !== null) {
+        if ($profileEntity->getMapping() !== null) {
             $mappings = MappingCollection::fromIterable($profileEntity->getMapping());
             $profileEntity->setMapping($mappings->sortByPosition());
         }
@@ -94,7 +93,7 @@ class ImportExportService
     ): ImportExportLogEntity {
         $profileEntity = $this->findProfile($context, $profileId);
 
-        if (Feature::isActive('FEATURE_NEXT_8097') && !\in_array($profileEntity->getType(), [ImportExportProfileEntity::TYPE_IMPORT, ImportExportProfileEntity::TYPE_IMPORT_EXPORT], true)) {
+        if (!\in_array($profileEntity->getType(), [ImportExportProfileEntity::TYPE_IMPORT, ImportExportProfileEntity::TYPE_IMPORT_EXPORT], true)) {
             throw new ProfileWrongTypeException($profileEntity->getId(), $profileEntity->getType());
         }
 
@@ -164,7 +163,7 @@ class ImportExportService
     }
 
     /**
-     * @feature-deprecated (FEATURE_NEXT_15998) Will be removed. Use Shopware\Core\Content\ImportExport\Service\FileService->updateFile(...) instead.
+     * @deprecated tag:v6.5.0 Will be removed. Use Shopware\Core\Content\ImportExport\Service\FileService->updateFile(...) instead.
      */
     public function updateFile(Context $context, string $fileId, array $data): void
     {

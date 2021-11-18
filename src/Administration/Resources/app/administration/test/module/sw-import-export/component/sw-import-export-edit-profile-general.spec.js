@@ -15,8 +15,6 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-gener
     /** @type Wrapper */
     let wrapper;
 
-    global.activeFeatureFlags = ['FEATURE_NEXT_8097'];
-
     function getProfileMock() {
         return {
             type: 'import-export',

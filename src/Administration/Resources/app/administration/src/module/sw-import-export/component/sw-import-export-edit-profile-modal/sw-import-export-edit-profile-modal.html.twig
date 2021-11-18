@@ -37,7 +37,6 @@
 
                 {% block sw_import_export_edit_profile_modal_tabs_field_mappings %}
                 <sw-tabs-item
-                    v-if="feature.isActive('FEATURE_NEXT_8097')"
                     :title="$tc('sw-import-export.profile.mappingsTab')"
                     :active-tab="active"
                     name="mappings"
@@ -46,204 +45,49 @@
                 </sw-tabs-item>
                 {% endblock %}
 
-                {% block sw_import_export_edit_profile_modal_tabs_field_indicators %}
-                <sw-tabs-item
-                    v-if="!feature.isActive('FEATURE_NEXT_15998')"
-                    :title="$tc('sw-import-export.profile.fieldIndicatorsTab')"
-                    :active-tab="active"
-                    name="fieldIndicators"
-                >
-                    {{ $tc('sw-import-export.profile.fieldIndicatorsTab') }}
-                </sw-tabs-item>
-                {% endblock %}
+                {# @deprecated tag:v6.5.0 - block will removed #}
+                {% block sw_import_export_edit_profile_modal_tabs_field_indicators %}{% endblock %}
             </template>
 
             <template #content="{ active }">
                 <template v-if="active === 'general'">
-                    <template v-if="feature.isActive('FEATURE_NEXT_15998')">
-                        <sw-import-export-edit-profile-general
-                            :profile="profile"
-                        />
+                    <sw-import-export-edit-profile-general :profile="profile" />
 
-                        <sw-import-export-edit-profile-field-indicators :profile="profile" />
-                    </template>
+                    <sw-import-export-edit-profile-field-indicators :profile="profile" />
 
-                    <template v-else>
-                        <p class="sw-import-export-edit-profile-modal__text">
-                            {{ $tc('sw-import-export.profile.descriptionBlock') }}
-                        </p>
+                    {# @deprecated tag:v6.5.0 - block will be removed, use `sw_import_export_edit_profile_general_container_name` in `@Administration/administration/src/module/sw-import-export/component/sw-import-export-edit-profile-general/sw-import-export-edit-profile-general.html.twig` #}
+                    {% block sw_import_export_edit_profile_modal_tabs_name_field %}{% endblock %}
 
-                        <sw-container
-                            columns="1fr 1fr"
-                            gap="16px"
-                        >
-                            {% block sw_import_export_edit_profile_modal_tabs_name_field %}
-                            <sw-field
-                                v-model="profile.label"
-                                type="text"
-                                :label="$tc('sw-import-export.profile.profileNameFieldLabel')"
-                                required
-                                :disabled="profile.systemDefault"
-                                :error="profileNameError"
-                                :placeholder="profile.translated.label"
-                            />
-                            {% endblock %}
+                    {# @deprecated tag:v6.5.0 - block will be removed, use `sw_import_export_edit_profile_general_container_type` in `@Administration/administration/src/module/sw-import-export/component/sw-import-export-edit-profile-general/sw-import-export-edit-profile-general.html.twig` #}
+                    {% block sw_import_export_edit_profile_modal_tabs_type_field %}{% endblock %}
 
-                            {% block sw_import_export_edit_profile_modal_tabs_type_field %}
-                            <sw-single-select
-                                v-if="feature.isActive('FEATURE_NEXT_8097')"
-                                v-model="profile.type"
-                                class="sw-import-export-edit-profile-modal__type-select"
-                                :label="$tc('sw-import-export.profile.typeFieldLabel')"
-                                required
-                                :options="supportedProfileTypes"
-                                :disabled="profile.systemDefault"
-                                :error="profileTypeError"
-                                :show-clearable-button="!profile.systemDefault"
-                            >
-                                {% block sw_import_export_edit_profile_modal_tabs_type_field_inner %}
-                                <template
-                                    #result-item="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }"
-                                >
-                                    <li
-                                        is="sw-select-result"
-                                        v-tooltip="{
-                                            showDelay: 300,
-                                            message: $tc('sw-import-export.profile.profileTypeDisabledText'),
-                                            disabled: !shouldDisableProfileType(item)
-                                        }"
-                                        :disabled="item.disabled || shouldDisableProfileType(item)"
-                                        :class="'sw-select-option--' + item.value"
-                                        :selected="isSelected(item)"
-                                        v-bind="{ item, index }"
-                                        @item-select="setValue"
-                                    >
-                                        <sw-highlight-text
-                                            v-if="highlightSearchTerm && !isSelected(item)"
-                                            :text="getKey(item, labelProperty)"
-                                            :search-term="searchTerm"
-                                        />
-                                        <template v-else>
-                                            {{ getKey(item, labelProperty) }}
-                                        </template>
-                                    </li>
-                                </template>
-                                {% endblock %}
-                            </sw-single-select>
-                            {% endblock %}
+                    {# @deprecated tag:v6.5.0 - block will be removed, use `sw_import_export_edit_profile_general_container_type_result` in `@Administration/administration/src/module/sw-import-export/component/sw-import-export-edit-profile-general/sw-import-export-edit-profile-general.html.twig` #}
+                    {% block sw_import_export_edit_profile_modal_tabs_type_field_inner %}{% endblock %}
 
-                            {% block sw_import_export_edit_profile_modal_tabs_object_type_field %}
-                            <span
-                                v-tooltip="{
-                                    message: $tc('sw-import-export.profile.objectTypeFieldTooltipText'),
-                                    disabled: mappingLength <= 0,
-                                    showOnDisabledElements: false
-                                }"
-                                class="sw-import-export-edit-profile-modal__object-type-field"
-                            >
-                                <sw-single-select
-                                    ref="objectTypeSelect"
-                                    v-model="profile.sourceEntity"
-                                    class="sw-import-export-edit-profile-modal__object-type-select"
-                                    :label="$tc('sw-import-export.profile.objectTypeFieldLabel')"
-                                    required
-                                    :options="supportedEntities"
-                                    :disabled="profile.systemDefault || mappingLength > 0"
-                                    :error="profileSourceEntityError"
-                                    :show-clearable-button="!(profile.systemDefault || mappingLength > 0)"
-                                >
-                                    {% block sw_import_export_edit_profile_modal_tabs_object_type_field_inner %}
-                                    <template
-                                        #result-item="{ item, index, labelProperty, searchTerm, highlightSearchTerm, isSelected, setValue, getKey }"
-                                    >
-                                        <li
-                                            is="sw-select-result"
-                                            v-tooltip="{
-                                                showDelay: 300,
-                                                message: $tc('sw-import-export.profile.objectTypeDisabledText'),
-                                                disabled: !shouldDisableObjectType(item)
-                                            }"
-                                            :disabled="item.disabled || shouldDisableObjectType(item)"
-                                            :class="'sw-select-option--' + item.value"
-                                            :selected="isSelected(item)"
-                                            v-bind="{ item, index }"
-                                            @item-select="setValue"
-                                        >
-                                            <sw-highlight-text
-                                                v-if="highlightSearchTerm && !isSelected(item)"
-                                                :text="getKey(item, labelProperty)"
-                                                :search-term="searchTerm"
-                                            />
-                                            <template v-else>
-                                                {{ getKey(item, labelProperty) }}
-                                            </template>
-                                        </li>
-                                    </template>
-                                    {% endblock %}
-                                </sw-single-select>
-                            </span>
-                            {% endblock %}
-                        </sw-container>
+                    {# @deprecated tag:v6.5.0 - block will be removed, use `sw_import_export_edit_profile_general_container_object_type_select` in `@Administration/administration/src/module/sw-import-export/component/sw-import-export-edit-profile-general/sw-import-export-edit-profile-general.html.twig` #}
+                    {% block sw_import_export_edit_profile_modal_tabs_object_type_field %}{% endblock %}
 
-                        <p class="sw-import-export-edit-profile-modal__text">
-                            {{ $tc('sw-import-export.profile.mappingDescriptionBlock') }}
-                        </p>
-                    </template>
+                    {# @deprecated tag:v6.5.0 - block will be removed, use `sw_import_export_edit_profile_general_container_object_type_select_result` in `@Administration/administration/src/module/sw-import-export/component/sw-import-export-edit-profile-general/sw-import-export-edit-profile-general.html.twig` #}
+                    {% block sw_import_export_edit_profile_modal_tabs_object_type_field_inner %}{% endblock %}
 
-                    {# @feature-deprecated (flag:FEATURE_NEXT_15998) tag:v6.5.0 - block will removed use "sw_import_export_edit_profile_modal_tabs_mappings" instead #}
-                    {% block sw_import_export_edit_profile_modal_tabs_mapping %}
-                    <sw-import-export-edit-profile-modal-mapping
-                        v-if="!feature.isActive('FEATURE_NEXT_8097')"
-                        :profile="profile"
-                        :system-required-fields="systemRequiredFields"
-                    />
-                    {% endblock %}
+                    {# @deprecated tag:v6.5.0 - block will removed use "sw_import_export_edit_profile_modal_tabs_mappings" instead #}
+                    {% block sw_import_export_edit_profile_modal_tabs_mapping %}{% endblock %}
 
                     {% block sw_import_export_edit_profile_modal_tabs_general_import_settings %}
-                    <template v-if="feature.isActive('FEATURE_NEXT_8097')">
-                        <sw-import-export-edit-profile-import-settings
-                            v-if="feature.isActive('FEATURE_NEXT_15998')"
-                            :profile="profile"
-                        />
+                    <sw-import-export-edit-profile-import-settings :profile="profile" />
 
-                        <div
-                            v-else
-                            class="sw-import-export-edit-profile-modal__general-import-settings"
-                        >
-                            {# @feature-deprecated (flag:FEATURE_NEXT_15998) tag:v6.5.0 - block will moved into "sw-import-export-edit-profile-import-settings" #}
-                            {% block sw_import_export_edit_profile_modal_tabs_general_import_settings_headline %}
-                            <h3 class="sw-import-export-edit-profile-modal__general-import-settings-headline">
-                                {{ $tc('sw-import-export.profile.importSettingsHeadline') }}
-                            </h3>
-                            {% endblock %}
+                    {# @deprecated tag:v6.5.0 - block will moved into "sw-import-export-edit-profile-import-settings" #}
+                    {% block sw_import_export_edit_profile_modal_tabs_general_import_settings_headline %}{% endblock %}
 
-                            {# @feature-deprecated (flag:FEATURE_NEXT_15998) tag:v6.5.0 - block will moved into "sw-import-export-edit-profile-import-settings" #}
-                            {% block sw_import_export_edit_profile_modal_tabs_general_import_settings_create_switch %}
-                            <sw-switch-field
-                                v-model="profile.config.createEntities"
-                                class="sw-import-export-edit-profile-modal__general-import-settings-create-switch"
-                                :label="$tc('sw-import-export.profile.createEntitiesLabel')"
-                                :disabled="profile.systemDefault"
-                                @change="onCreateEntitiesChanged"
-                            />
-                            {% endblock %}
+                    {# @deprecated tag:v6.5.0 - block will moved into "sw-import-export-edit-profile-import-settings" #}
+                    {% block sw_import_export_edit_profile_modal_tabs_general_import_settings_create_switch %}{% endblock %}
 
-                            {# @feature-deprecated (flag:FEATURE_NEXT_15998) tag:v6.5.0 - block will moved into "sw-import-export-edit-profile-import-settings" #}
-                            {% block sw_import_export_edit_profile_modal_tabs_general_import_settings_update_switch %}
-                            <sw-switch-field
-                                v-model="profile.config.updateEntities"
-                                class="sw-import-export-edit-profile-modal__general-import-settings-update-switch"
-                                :label="$tc('sw-import-export.profile.updateEntitiesLabel')"
-                                :disabled="profile.systemDefault"
-                                @change="onUpdateEntitiesChanged"
-                            />
-                            {% endblock %}
-                        </div>
-                    </template>
+                    {# @deprecated tag:v6.5.0 - block will moved into "sw-import-export-edit-profile-import-settings" #}
+                    {% block sw_import_export_edit_profile_modal_tabs_general_import_settings_update_switch %}{% endblock %}
                     {% endblock %}
                 </template>
 
-                <template v-if="active === 'mappings' && feature.isActive('FEATURE_NEXT_8097')">
+                <template v-if="active === 'mappings'">
                     {% block sw_import_export_edit_profile_modal_tabs_mappings %}
 
                     {% block sw_import_export_edit_profile_modal_tabs_mappings_text %}
@@ -261,7 +105,7 @@
                     {% endblock %}
                 </template>
 
-                <template v-if="active === 'fieldIndicators' && !feature.isActive('FEATURE_NEXT_15998')">
+                <template v-if="active === 'fieldIndicators'">
                     <p class="sw-import-export-edit-profile-modal__text">
                         {{ $tc('sw-import-export.profile.csvDescriptionBlock') }}
                     </p>
@@ -320,7 +164,7 @@
                     size="small"
                     :disabled="!profile.sourceEntity
                         || profile.sourceEntity.length <= 0
-                        || (feature.isActive('FEATURE_NEXT_8097') && !profile.type)"
+                        || !profile.type"
                     variant="primary"
                     @click="saveProfile"
                 >

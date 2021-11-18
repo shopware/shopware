@@ -67,19 +67,17 @@
             {% block sw_import_export_entity_path_select_base_results_list_before %}
             <template #before-item-list>
                 <slot name="before-item-list">
-                    <template v-if="feature.isActive('FEATURE_NEXT_15998')">
-                        <li
-                            is="sw-select-result"
-                            :selected="isSelected(notMappedItem)"
-                            v-bind="{ item: notMappedItem, index: -1 }"
-                            @item-select="setValue"
-                        >
-                            {% block sw_import_export_entity_path_select_base_results_list_not_mapped_label %}
-                            {{ notMappedItem.label }}
-                            {% endblock %}
-                        </li>
-                        <hr class="sw-import-export-entity-path-select__listing-seperator">
-                    </template>
+                    <li
+                        is="sw-select-result"
+                        :selected="isSelected(notMappedItem)"
+                        v-bind="{ item: notMappedItem, index: -1 }"
+                        @item-select="setValue"
+                    >
+                        {% block sw_import_export_entity_path_select_base_results_list_not_mapped_label %}
+                        {{ notMappedItem.label }}
+                        {% endblock %}
+                    </li>
+                    <hr class="sw-import-export-entity-path-select__listing-seperator">
                 </slot>
             </template>
             {% endblock %}

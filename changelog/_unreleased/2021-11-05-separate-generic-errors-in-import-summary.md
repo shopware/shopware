@@ -1,7 +1,6 @@
 ---
 title: Separate generic errors in import summary
 issue: NEXT-18234
-flag: FEATURE_NEXT_8097
 author: d.neustadt
 author_email: d.neustadt@shopware.com 
 author_github: dneustadt

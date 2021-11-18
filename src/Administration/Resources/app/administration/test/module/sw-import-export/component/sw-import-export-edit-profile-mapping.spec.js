@@ -71,6 +71,7 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
                 'sw-context-menu-item': true,
                 'sw-context-button': true,
                 'sw-field': Shopware.Component.build('sw-field'),
+                'sw-switch-field': true,
                 'sw-text-field': Shopware.Component.build('sw-text-field'),
                 'sw-contextual-field': Shopware.Component.build('sw-contextual-field'),
                 'sw-block-field': Shopware.Component.build('sw-block-field'),
@@ -86,7 +87,6 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
 
     beforeEach(() => {
         const responses = global.repositoryFactoryMock.responses;
-        global.activeFeatureFlags = ['FEATURE_NEXT_15998'];
 
         responses.addResponse({
             method: 'Post',

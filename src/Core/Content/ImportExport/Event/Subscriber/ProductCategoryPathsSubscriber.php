@@ -40,10 +40,6 @@ class ProductCategoryPathsSubscriber implements EventSubscriberInterface
 
     public function categoryPathsToAssignment(ImportExportBeforeImportRecordEvent $event): void
     {
-        if (!Feature::isActive('FEATURE_NEXT_8097')) {
-            return;
-        }
-
         $row = $event->getRow();
         $entityName = $event->getConfig()->get('sourceEntity');
 

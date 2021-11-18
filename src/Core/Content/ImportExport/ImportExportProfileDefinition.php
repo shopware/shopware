@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
-use Shopware\Core\Framework\Feature;
 
 class ImportExportProfileDefinition extends EntityDefinition
 {
@@ -43,6 +42,7 @@ class ImportExportProfileDefinition extends EntityDefinition
 
             (new StringField('name', 'name')),
             (new TranslatedField('label'))->addFlags(new Required()),
+            (new StringField('type', 'type')),
             new BoolField('system_default', 'systemDefault'),
             (new StringField('source_entity', 'sourceEntity'))->addFlags(new Required()),
             (new StringField('file_type', 'fileType'))->addFlags(new Required()),
@@ -54,10 +54,6 @@ class ImportExportProfileDefinition extends EntityDefinition
             (new OneToManyAssociationField('importExportLogs', ImportExportLogDefinition::class, 'profile_id'))->addFlags(new SetNullOnDelete()),
             (new TranslationsAssociationField(ImportExportProfileTranslationDefinition::class, 'import_export_profile_id'))->addFlags(new Required()),
         ]);
-
-        if (Feature::isActive('FEATURE_NEXT_8097')) {
-            $fields->add(new StringField('type', 'type'));
-        }
 
         return $fields;
     }

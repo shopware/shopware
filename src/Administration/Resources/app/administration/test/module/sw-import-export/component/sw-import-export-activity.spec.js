@@ -15,6 +15,7 @@ import 'src/app/component/base/sw-card';
 import 'src/module/sw-import-export/component/sw-import-export-activity';
 import 'src/module/sw-import-export/component/sw-import-export-activity-detail-modal';
 import 'src/module/sw-import-export/component/sw-import-export-activity-result-modal';
+import 'src/module/sw-import-export/component/sw-import-export-activity-log-info-modal';
 
 describe('module/sw-import-export/components/sw-import-export-activity', () => {
     function getLogData() {
@@ -86,6 +87,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
                 'sw-import-export-edit-profile-modal': {
                     template: '<div></div>'
                 },
+                'sw-import-export-activity-log-info-modal': Shopware.Component.build('sw-import-export-activity-log-info-modal'),
                 'sw-modal': Shopware.Component.build('sw-modal'),
                 'sw-grid': Shopware.Component.build('sw-grid'),
                 'sw-grid-row': Shopware.Component.build('sw-grid-row'),
@@ -183,6 +185,9 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
                 accessToken: 'accessToken',
                 size: 100
             },
+            profile: {
+                label: 'My profile',
+            },
             type: 'import',
             username: 'username',
             records: 1,
@@ -192,7 +197,7 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
 
         await wrapper.setData({ selectedLog: logEntity, showDetailModal: true });
 
-        const detailModal = wrapper.find('.sw-import-export-activity-detail-modal');
+        const detailModal = wrapper.find('.sw-import-export-activity-log-info-modal');
 
         expect(wrapper.vm).toBeTruthy();
         expect(detailModal.vm).toBeTruthy();
@@ -225,8 +230,6 @@ describe('module/sw-import-export/components/sw-import-export-activity', () => {
     });
 
     it('should open the activity result modal', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_8097'];
-
         const { wrapper } = createWrapper({ logData: getLogData() });
 
         const logEntity = {

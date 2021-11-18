@@ -4,6 +4,7 @@ import './sw-search-bar.scss';
 const { Component, Application } = Shopware;
 const { Criteria } = Shopware.Data;
 const utils = Shopware.Utils;
+const { cloneDeep } = utils.object;
 
 /**
  * @public
@@ -101,13 +102,6 @@ Component.register('sw-search-bar', {
             return placeholder;
         },
 
-        searchBarTypesContainerClasses() {
-            return {
-                'sw-search-bar__types_container--v2': this.feature.isActive('FEATURE_NEXT_6040'),
-                'sw-search-bar__types_container': !this.feature.isActive('FEATURE_NEXT_6040'),
-            };
-        },
-
         salesChannelRepository() {
             return this.repositoryFactory.create('sales_channel');
         },
@@ -124,7 +118,7 @@ Component.register('sw-search-bar', {
         },
 
         /**
-         * @feature-deprecated (flag:FEATURE_NEXT_6040) tag:v6.5.0 - will be deprecated
+         * @deprecated tag:v6.5.0 - Will be removed
          */
         canViewSalesChannels() {
             return this.acl.can('sales_channel.viewer');
@@ -185,7 +179,7 @@ Component.register('sw-search-bar', {
 
         '$route.name': {
             handler(to, from) {
-                if (!this.feature.isActive('FEATURE_NEXT_6040') || from === undefined || to === from) {
+                if (from === undefined || to === from) {
                     return;
                 }
 
@@ -225,12 +219,10 @@ Component.register('sw-search-bar', {
 
             this.registerListener();
 
-            if (this.feature.isActive('FEATURE_NEXT_6040')) {
-                this.userSearchPreference = await this.searchRankingService.getUserSearchPreference();
+            this.userSearchPreference = await this.searchRankingService.getUserSearchPreference();
 
-                if (this.canCreateSalesChannels) {
-                    await this.loadSalesChannelType();
-                }
+            if (this.canCreateSalesChannels) {
+                await this.loadSalesChannelType();
             }
         },
 
@@ -244,7 +236,7 @@ Component.register('sw-search-bar', {
         },
 
         getLabelSearchType(type) {
-            if (!type && !this.currentSearchType && this.feature.isActive('FEATURE_NEXT_6040')) {
+            if (!type && !this.currentSearchType) {
                 type = 'all';
             }
 
@@ -282,33 +274,20 @@ Component.register('sw-search-bar', {
         onFocusInput() {
             this.isActive = true;
 
-            if (this.feature.isActive('FEATURE_NEXT_6040')) {
-                if (this.searchTerm === '#') {
-                    this.showTypeContainer();
-                }
+            if (this.searchTerm === '#') {
+                this.showTypeContainer();
+            }
 
-                if (this.resultsSearchTrends?.length) {
-                    this.showResultsSearchTrends = true;
-                    return;
-                }
-
-                this.loadSearchTrends().then(response => {
-                    this.resultsSearchTrends = response;
-
-                    this.showResultsSearchTrends = true;
-                });
-
+            if (this.resultsSearchTrends?.length) {
+                this.showResultsSearchTrends = true;
                 return;
             }
 
-            if (!this.searchTerm) {
-                this.showTypeContainer();
-            } else if (
-                this.currentSearchType !== this.initialSearchType ||
-                this.currentSearchType.length <= 0
-            ) {
-                this.showResultsContainer = true;
-            }
+            this.loadSearchTrends().then(response => {
+                this.resultsSearchTrends = response;
+
+                this.showResultsSearchTrends = true;
+            });
         },
 
         onBlur() {
@@ -442,55 +421,16 @@ Component.register('sw-search-bar', {
             this.isLoading = true;
             this.results = [];
 
-            if (this.feature.isActive('FEATURE_NEXT_6040')) {
-                const entities = this.getModuleEntities(searchTerm);
+            const entities = this.getModuleEntities(searchTerm);
 
-                // eslint-disable-next-line no-unused-expressions
-                entities?.length && this.results.unshift({
-                    entity: 'module',
-                    total: entities.length,
-                    entities,
-                });
+            // eslint-disable-next-line no-unused-expressions
+            entities?.length && this.results.unshift({
+                entity: 'module',
+                total: entities.length,
+                entities,
+            });
 
-                if (!this.userSearchPreference || Object.keys(this.userSearchPreference).length < 1) {
-                    this.activeResultColumn = 0;
-                    this.activeResultIndex = 0;
-                    this.isLoading = false;
-
-                    if (!this.showTypeSelectContainer) {
-                        this.showResultsContainer = true;
-                    }
-
-                    return;
-                }
-
-                const queries = this.searchRankingService.buildGlobalSearchQueries(
-                    this.userSearchPreference,
-                    searchTerm,
-                    this.criteriaCollection,
-                    this.searchLimit,
-                );
-                const response = await this.searchService.searchQuery(queries, { 'sw-inheritance': true });
-                const data = response.data;
-
-                if (!data) {
-                    return;
-                }
-
-                Object.keys(data).forEach(entity => {
-                    if (data[entity].total > 0) {
-                        const item = data[entity];
-
-                        item.entities = Object.values(item.data);
-                        item.entity = entity;
-
-                        this.results = [
-                            ...this.results,
-                            item,
-                        ];
-                    }
-                });
-
+            if (!this.userSearchPreference || Object.keys(this.userSearchPreference).length < 1) {
                 this.activeResultColumn = 0;
                 this.activeResultIndex = 0;
                 this.isLoading = false;
@@ -502,14 +442,32 @@ Component.register('sw-search-bar', {
                 return;
             }
 
-            const response = await this.searchService.search({ term: searchTerm });
-            response.data.forEach((item) => {
-                item.entities = Object.values(item.entities);
-            });
-
-            this.results = response.data.filter(
-                item => this.searchTypes.hasOwnProperty(item.entity) && item.total > 0,
+            const queries = this.searchRankingService.buildGlobalSearchQueries(
+                this.userSearchPreference,
+                searchTerm,
+                this.criteriaCollection,
+                this.searchLimit,
             );
+            const response = await this.searchService.searchQuery(queries, { 'sw-inheritance': true });
+            const data = response.data;
+
+            if (!data) {
+                return;
+            }
+
+            Object.keys(data).forEach(entity => {
+                if (data[entity].total > 0) {
+                    const item = data[entity];
+
+                    item.entities = Object.values(item.data);
+                    item.entity = entity;
+
+                    this.results = [
+                        ...this.results,
+                        item,
+                    ];
+                }
+            });
 
             this.activeResultColumn = 0;
             this.activeResultIndex = 0;
@@ -536,35 +494,31 @@ Component.register('sw-search-bar', {
 
             let criteria = new Criteria();
 
-            if (this.feature.isActive('FEATURE_NEXT_6040')) {
-                criteria = this.criteriaCollection.hasOwnProperty(entityName)
-                    ? this.criteriaCollection[entityName]
-                    : new Criteria();
-            }
+            criteria = this.criteriaCollection.hasOwnProperty(entityName)
+                ? this.criteriaCollection[entityName]
+                : new Criteria();
 
             criteria.setTerm(searchTerm);
-            if (this.feature.isActive('FEATURE_NEXT_6040')) {
-                criteria.setLimit(10);
-                const searchRankingFields = await this.searchRankingService.getSearchFieldsByEntity(entityName);
-                if (!searchRankingFields || Object.keys(searchRankingFields).length < 1) {
-                    entityResults.total = 0;
-                    entityResults.entity = this.currentSearchType;
+            criteria.setLimit(10);
+            const searchRankingFields = await this.searchRankingService.getSearchFieldsByEntity(entityName);
+            if (!searchRankingFields || Object.keys(searchRankingFields).length < 1) {
+                entityResults.total = 0;
+                entityResults.entity = this.currentSearchType;
 
-                    this.results.push(entityResults);
-                    this.isLoading = false;
-                    if (!this.showTypeSelectContainer) {
-                        this.showResultsContainer = true;
-                    }
-
-                    return;
+                this.results.push(entityResults);
+                this.isLoading = false;
+                if (!this.showTypeSelectContainer) {
+                    this.showResultsContainer = true;
                 }
 
-                criteria = this.searchRankingService.buildSearchQueriesForEntity(
-                    searchRankingFields,
-                    searchTerm,
-                    criteria,
-                );
+                return;
             }
+
+            criteria = this.searchRankingService.buildSearchQueriesForEntity(
+                searchRankingFields,
+                searchTerm,
+                criteria,
+            );
 
             repository.search(criteria, { ...Shopware.Context.api, inheritance: true }).then((response) => {
                 entityResults.total = response.total;
@@ -621,12 +575,8 @@ Component.register('sw-search-bar', {
             });
         },
 
-        /* @feature-deprecated (FEATURE_NEXT_6040) tag:v6.5.0 - Will be removed */
-        navigateLeftResults(event) {
-            if (!this.feature.isActive('FEATURE_NEXT_6040')) {
-                event.preventDefault();
-            }
-
+        /* @deprecated tag:v6.5.0 - Will be removed */
+        navigateLeftResults() {
             if (this.showTypeSelectContainer) {
                 if (this.activeTypeListIndex !== 0) {
                     this.activeTypeListIndex -= 1;
@@ -649,12 +599,8 @@ Component.register('sw-search-bar', {
             this.checkScrollPosition();
         },
 
-        /* @feature-deprecated (FEATURE_NEXT_6040) tag:v6.5.0 - Will be removed */
-        navigateRightResults(event) {
-            if (!this.feature.isActive('FEATURE_NEXT_6040')) {
-                event.preventDefault();
-            }
-
+        /* @deprecated tag:v6.5.0 - Will be removed */
+        navigateRightResults() {
             if (this.showTypeSelectContainer) {
                 if (this.activeTypeListIndex !== this.typeSelectResults.length - 1) {
                     this.activeTypeListIndex += 1;
@@ -814,7 +760,7 @@ Component.register('sw-search-bar', {
         },
 
         /**
-         * @feature-deprecated (flag:FEATURE_NEXT_6040) tag:v6.5.0 - will be deprecated
+         * @deprecated tag:v6.5.0 - Will be removed
          */
         loadSalesChannel() {
             return new Promise(resolve => {
@@ -979,7 +925,7 @@ Component.register('sw-search-bar', {
 
                     if (!queries.hasOwnProperty(item.entity)) {
                         queries[item.entity] = this.criteriaCollection.hasOwnProperty(item.entity)
-                            ? this.criteriaCollection[item.entity]
+                            ? cloneDeep(this.criteriaCollection[item.entity])
                             : new Criteria();
                     }
 
@@ -1002,9 +948,9 @@ Component.register('sw-search-bar', {
                 const mapResult = [];
 
                 items.forEach(item => {
-                    const entities = searchResult.data[item.entity] ? searchResult.data[item.entity].data : [];
+                    const entities = searchResult.data[item.entity] ? searchResult.data[item.entity].data : {};
 
-                    const foundEntity = entities.find(entity => entity.id === item.id);
+                    const foundEntity = entities[item.id];
 
                     if (foundEntity) {
                         mapResult.push({

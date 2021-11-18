@@ -133,7 +133,7 @@
             {% block sw_promotion_v2_list_empty_state %}
             <template v-if="!isLoading && !total">
                 <sw-promotion-v2-empty-state-hero
-                    v-if="feature.isActive('FEATURE_NEXT_6040') && isValidTerm(term)"
+                    v-if="isValidTerm(term)"
                     :title="$tc('sw-empty-state.messageNoResultTitle')"
                     :description="$tc('sw-empty-state.messageNoResultSubline')"
                 />

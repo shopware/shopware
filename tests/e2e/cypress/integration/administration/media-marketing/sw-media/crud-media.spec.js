@@ -24,9 +24,7 @@ describe('Media: Test crud operations', () => {
             method: 'POST'
         }).as('saveDataUrlUpload');
 
-        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
-            cy.setEntitySearchable('media', ['fileName', 'title']);
-        });
+        cy.setEntitySearchable('media', ['fileName', 'title']);
         page.uploadImageUsingFileUpload('img/sw-login-background.png');
 
         cy.wait('@saveDataFileUpload')
@@ -49,9 +47,8 @@ describe('Media: Test crud operations', () => {
             url: `**/${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw_logo_white`,
             method: 'POST'
         }).as('saveDataUrlUpload');
-        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
-            cy.setEntitySearchable('media', ['fileName', 'title']);
-        });
+
+        cy.setEntitySearchable('media', ['fileName', 'title']);
 
         // Upload medium
         cy.clickContextMenuItem(
@@ -85,9 +82,7 @@ describe('Media: Test crud operations', () => {
             '.sw-media-upload-v2__button-url-upload',
             '.sw-media-upload-v2__button-context-menu'
         );
-        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
-            cy.setEntitySearchable('media', ['fileName', 'title']);
-        });
+        cy.setEntitySearchable('media', ['fileName', 'title']);
 
         page.uploadImageUsingUrl('http://assets.shopware.com/sw_logo_white.png');
         cy.get('.sw-media-base-item__name[title="sw_logo_white.png"]')
@@ -129,9 +124,8 @@ describe('Media: Test crud operations', () => {
             url: `**/${Cypress.env('apiPath')}/_action/media/**/upload?extension=png&fileName=sw_logo_white`,
             method: 'POST'
         }).as('saveDataUrlUpload');
-        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
-            cy.setEntitySearchable('media', ['fileName', 'title']);
-        });
+
+        cy.setEntitySearchable('media', ['fileName', 'title']);
 
         // Upload medium
         cy.clickContextMenuItem(

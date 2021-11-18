@@ -1,7 +1,6 @@
 ---
 title: Change searching empty state
 issue: NEXT-16713
-flag: FEATURE_NEXT_6040
 ---
 # Administration
 * Added blocks into `app/administration/src/app/component/structure/sw-search-bar/sw-search-bar.html.twig`

@@ -11,12 +11,13 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CompositeEntitySearcher;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
- * @major-deprecated (flag:FEATURE_NEXT_6040) - will be removed
+ * @deprecated tag:v6.5.0 - Will be removed
  */
 class CompositeEntitySearcherTest extends TestCase
 {
@@ -44,6 +45,7 @@ class CompositeEntitySearcherTest extends TestCase
 
     protected function setUp(): void
     {
+        Feature::skipTestIfActive('FEATURE_NEXT_18762', $this);
         $this->productRepository = $this->getContainer()->get('product.repository');
         $this->search = $this->getContainer()->get(CompositeEntitySearcher::class);
 

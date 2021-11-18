@@ -108,7 +108,6 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
     });
 
     it('should add query score to the criteria', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
         const wrapper = createWrapper();
         await wrapper.setData({
             term: 'foo'
@@ -132,7 +131,6 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
     });
 
     it('should not get search ranking fields when term is null', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
         const wrapper = createWrapper();
         await wrapper.vm.$nextTick();
         wrapper.vm.searchRankingService.buildSearchQueriesForEntity = jest.fn(() => {
@@ -153,7 +151,6 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
     });
 
     it('should not build query score when search ranking field is null ', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
         const wrapper = createWrapper();
         await wrapper.setData({
             term: 'foo'
@@ -178,7 +175,6 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
     });
 
     it('should show empty state when there is not item after filling search term', async () => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
         const wrapper = createWrapper();
         await wrapper.setData({
             term: 'foo'

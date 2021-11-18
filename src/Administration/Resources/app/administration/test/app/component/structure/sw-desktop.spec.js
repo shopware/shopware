@@ -104,10 +104,6 @@ function createWrapper() {
 }
 
 describe('src/app/component/structure/sw-desktop', () => {
-    beforeAll(() => {
-        global.activeFeatureFlags = ['FEATURE_NEXT_6040'];
-    });
-
     beforeEach(() => {
         Shopware.State.get('session').currentUser = {
             id: 'id'

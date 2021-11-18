@@ -147,11 +147,7 @@
             {% endblock %}
 
             {% block sw_product_stream_list_empty_state %}
-            <sw-empty-state
-                v-else-if="!feature.isActive('FEATURE_NEXT_6040') && !isLoading && !total"
-                :title="$tc('sw-product-stream.list.messageEmpty')"
-            />
-            <template v-else-if="feature.isActive('FEATURE_NEXT_6040') && !isLoading && !total">
+            <template v-else-if="!isLoading && !total">
                 <sw-empty-state
                     v-if="isValidTerm(term)"
                     :title="$tc('sw-empty-state.messageNoResultTitle')"

@@ -24,9 +24,7 @@ describe('Payment: Test crud operations', () => {
             method: 'PATCH'
         }).as('saveData');
 
-        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
-            cy.setEntitySearchable('payment_method', 'name');
-        });
+        cy.setEntitySearchable('payment_method', 'name');
 
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('CredStick');
         cy.clickContextMenuItem(

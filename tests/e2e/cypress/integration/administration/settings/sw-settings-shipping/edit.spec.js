@@ -22,9 +22,7 @@ describe('Shipping: Edit in various ways', () => {
             method: 'PATCH'
         }).as('saveData');
 
-        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
-            cy.setEntitySearchable('shipping_method', 'name');
-        });
+        cy.setEntitySearchable('shipping_method', 'name');
 
         // Edit base data
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Luftpost');

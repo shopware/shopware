@@ -38,22 +38,18 @@
     >
         {% block sw_media_library_empty_state %}
         <sw-empty-state
-            v-if="!isLoading && (selectableItems.length === 0 || (feature.isActive('FEATURE_NEXT_6040') && isValidTerm(term) && items.length === 0))"
-            :title="feature.isActive('FEATURE_NEXT_6040')
-                ? $tc('sw-empty-state.messageNoResultTitle')
-                : $tc('sw-media.mediaLibrary.titleEmptyState')"
+            v-if="!isLoading && (selectableItems.length === 0 || (isValidTerm(term) && items.length === 0))"
+            :title="$tc('sw-empty-state.messageNoResultTitle')"
         >
             <template slot="icon">
                 <img
                     :src="'/administration/static/img/empty-states/media-empty-state.svg' | asset"
-                    :alt="feature.isActive('FEATURE_NEXT_6040')
-                        ? $tc('sw-empty-state.messageNoResultSubline')
-                        : $tc('sw-media.mediaLibrary.descriptionEmptyState')"
+                    :alt="$tc('sw-empty-state.messageNoResultSubline')"
                 >
             </template>
 
             <template #default>
-                <template v-if="feature.isActive('FEATURE_NEXT_6040')">
+                <template>
                     {{ $tc('sw-empty-state.messageNoResultSublineBefore') }}
                     <router-link
                         class="sw-empty-state__description-link"
@@ -62,10 +58,6 @@
                         {{ $tc('sw-empty-state.messageNoResultSublineLink') }}
                     </router-link>
                     {{ $tc('sw-empty-state.messageNoResultSublineAfter') }}
-                </template>
-
-                <template v-else>
-                    {{ $tc('sw-media.mediaLibrary.descriptionEmptyState') }}
                 </template>
             </template>
         </sw-empty-state>

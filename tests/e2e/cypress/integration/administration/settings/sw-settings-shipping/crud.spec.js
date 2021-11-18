@@ -22,9 +22,7 @@ describe('Shipping: Test crud operations', () => {
             method: 'POST'
         }).as('saveData');
 
-        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
-            cy.setEntitySearchable('shipping_method', 'name');
-        });
+        cy.setEntitySearchable('shipping_method', 'name');
 
         // Create shipping method
         cy.get('a[href="#/sw/settings/shipping/create"]').click();
@@ -48,9 +46,7 @@ describe('Shipping: Test crud operations', () => {
             method: 'PATCH'
         }).as('saveData');
 
-        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
-            cy.setEntitySearchable('shipping_method', 'name');
-        });
+        cy.setEntitySearchable('shipping_method', 'name');
 
         // Edit base data
         cy.get('.sw-data-grid__cell-value').contains('Luftpost').click();
@@ -77,9 +73,7 @@ describe('Shipping: Test crud operations', () => {
             method: 'delete'
         }).as('deleteData');
 
-        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
-            cy.setEntitySearchable('shipping_method', 'name');
-        });
+        cy.setEntitySearchable('shipping_method', 'name');
 
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Luftpost');
         cy.get('.sw-data-grid-skeleton').should('not.exist');

@@ -18,7 +18,6 @@ Component.register('sw-search-more-results', {
 
     inject: [
         'searchTypeService',
-        'feature',
     ],
 
     props: {
@@ -70,10 +69,6 @@ Component.register('sw-search-more-results', {
 
         searchContent() {
             const { total, entity } = this.result;
-
-            if (!this.feature.isActive('FEATURE_NEXT_6040')) {
-                return this.$tc('global.sw-search-more-results.labelShowResultsInModule', 0, { count: total });
-            }
 
             return this.$tc(
                 'global.sw-search-more-results.labelShowResultsInModuleV2',

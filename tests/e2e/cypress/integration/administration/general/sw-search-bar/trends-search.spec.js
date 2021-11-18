@@ -2,7 +2,6 @@
 
 describe('Search bar: Check search by frequently used and recently searched',() => {
     beforeEach(() => {
-        cy.onlyOnFeature('FEATURE_NEXT_6040');
         cy.loginViaApi();
     });
 

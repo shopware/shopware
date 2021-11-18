@@ -8,62 +8,44 @@ const { Criteria } = Shopware.Data;
  * @extends ApiService
  */
 class SearchApiService extends ApiService {
-    constructor(httpClient, loginService, apiEndpoint = '_search') {
-        let endpoint = apiEndpoint;
-
-        if (Shopware.Feature.isActive('FEATURE_NEXT_6040')) {
-            endpoint = '_admin/search';
-        }
-
-        super(httpClient, loginService, endpoint);
+    constructor(httpClient, loginService, apiEndpoint = '_admin/search') {
+        super(httpClient, loginService, apiEndpoint);
         this.name = 'searchService';
     }
 
-    /** @major-deprecated (flag:FEATURE_NEXT_6040) - will deprecated, using searchQuery instead */
+    /* eslint-disable no-unused-vars */
+    /** @deprecated tag:v6.5.0 - Will removed, using searchQuery instead */
     search({ term, page = 1, limit = 5, additionalParams = {}, additionalHeaders = {} }) {
         const headers = this.getBasicHeaders(additionalHeaders);
 
-        if (Shopware.Feature.isActive('FEATURE_NEXT_6040')) {
-            const criteria = new Criteria();
-            criteria.setTerm(term);
-            criteria.setLimit(limit);
-            criteria.setPage(page);
+        const criteria = new Criteria();
+        criteria.setTerm(term);
+        criteria.setLimit(limit);
+        criteria.setPage(page);
 
-            const entities = [
-                'landing_page',
-                'order',
-                'customer',
-                'product',
-                'category',
-                'media',
-                'product_manufacturer',
-                'tag',
-                'cms_page',
-            ];
+        const entities = [
+            'landing_page',
+            'order',
+            'customer',
+            'product',
+            'category',
+            'media',
+            'product_manufacturer',
+            'tag',
+            'cms_page',
+        ];
 
-            const queries = {};
+        const queries = {};
 
-            entities.forEach(entity => {
-                queries[entity] = criteria;
-            });
+        entities.forEach(entity => {
+            queries[entity] = criteria;
+        });
 
-            return this.searchQuery(queries, additionalHeaders);
-        }
-
-        const params = Object.assign({ page, limit, term }, additionalParams);
-
-        return this.httpClient
-            .get(this.getApiBasePath(), {
-                params,
-                headers,
-            })
-            .then((response) => {
-                return ApiService.handleResponse(response);
-            });
+        return this.searchQuery(queries, additionalHeaders);
     }
+    /* eslint-enable no-unused-vars */
 
     /**
-     * @internal (flag:FEATURE_NEXT_6040)
      *
      * @param {object} queries
      * @param {object} additionalHeaders

@@ -36,12 +36,12 @@
             <argument type="service" id="Shopware\Administration\Service\AdminSearcher"/>
             <argument type="service" id="serializer"/>
             <argument type="service" id="Shopware\Core\Framework\Api\Acl\AclCriteriaValidator"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder"/>
 
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>
-
-            <tag name="shopware.feature" flag="FEATURE_NEXT_6040"/>
         </service>
 
         <service id="Shopware\Administration\Controller\UserConfigController" public="true">
@@ -80,8 +80,6 @@
 
         <service id="Shopware\Administration\Service\AdminSearcher">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
-
-            <tag name="shopware.feature" flag="FEATURE_NEXT_6040"/>
         </service>
 
         <service id="Shopware\Administration\Framework\Routing\AdministrationRouteScope">

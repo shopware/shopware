@@ -45,7 +45,7 @@ Mixin.register('listing', {
         },
 
         searchRankingFields() {
-            if (!this.feature.isActive('FEATURE_NEXT_6040') || !this.searchConfigEntity) {
+            if (!this.searchConfigEntity) {
                 return {};
             }
 
@@ -53,10 +53,6 @@ Mixin.register('listing', {
         },
 
         currentSortBy() {
-            if (!this.feature.isActive('FEATURE_NEXT_6040')) {
-                return this.sortBy;
-            }
-
             return this.freshSearchTerm ? null : this.sortBy;
         },
     },
@@ -118,28 +114,16 @@ Mixin.register('listing', {
         },
 
         term(newValue) {
-            if (!this.feature.isActive('FEATURE_NEXT_6040')) {
-                return;
-            }
-
             if (newValue && newValue.length) {
                 this.freshSearchTerm = true;
             }
         },
 
         sortBy() {
-            if (!this.feature.isActive('FEATURE_NEXT_6040')) {
-                return;
-            }
-
             this.freshSearchTerm = false;
         },
 
         sortDirection() {
-            if (!this.feature.isActive('FEATURE_NEXT_6040')) {
-                return;
-            }
-
             this.freshSearchTerm = false;
         },
     },
@@ -319,7 +303,7 @@ Mixin.register('listing', {
 
         async addQueryScores(term, originalCriteria) {
             this.entitySearchable = true;
-            if (!this.feature.isActive('FEATURE_NEXT_6040') || !this.searchConfigEntity || !this.isValidTerm(term)) {
+            if (!this.searchConfigEntity || !this.isValidTerm(term)) {
                 return originalCriteria;
             }
             const searchRankingFields = await this.searchRankingService.getSearchFieldsByEntity(this.searchConfigEntity);

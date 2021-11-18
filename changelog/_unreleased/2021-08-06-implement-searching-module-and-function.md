@@ -1,7 +1,6 @@
 ---
 title: Implement searching for module and function
 issue: NEXT-16485
-flag: FEATURE_NEXT_6040
 ---
 # Administration
 * Changed method `loadResults` in `src/app/component/structure/sw-search-bar/index.js`.

@@ -27,9 +27,7 @@ describe('Media: Dissolve folder', () => {
 
         // Upload image in folder
         cy.get(page.elements.smartBarHeader).contains('A thing to fold about');
-        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
-            cy.setEntitySearchable('media', ['fileName', 'title']);
-        });
+        cy.setEntitySearchable('media', ['fileName', 'title']);
         // Upload medium
         cy.clickContextMenuItem(
             '.sw-media-upload-v2__button-url-upload',

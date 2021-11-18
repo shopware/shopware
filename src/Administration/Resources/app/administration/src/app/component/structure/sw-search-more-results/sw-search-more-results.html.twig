@@ -2,8 +2,7 @@
 <router-link
     v-if="searchTypeRoute"
     :to="{ name: searchTypeRoute, query: { term: term }}"
-    class="sw-search-more-results__link"
-    :class="{'sw-search-more-results__link--v2': feature.isActive('FEATURE_NEXT_6040')}"
+    class="sw-search-more-results__link sw-search-more-results__link--v2"
 >
     {% block sw_search_more_results_content %}
     <slot name="content">

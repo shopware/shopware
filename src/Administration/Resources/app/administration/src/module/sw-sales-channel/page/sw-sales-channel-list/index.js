@@ -13,7 +13,7 @@ const STATUS_NUMBER = {
 Component.register('sw-sales-channel-list', {
     template,
 
-    inject: ['repositoryFactory', 'acl', 'feature'],
+    inject: ['repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -113,7 +113,7 @@ Component.register('sw-sales-channel-list', {
             this.isLoading = true;
 
             const criteria = await this.addQueryScores(this.term, this.salesChannelCriteria);
-            if (this.feature.isActive('FEATURE_NEXT_6040') && !this.entitySearchable) {
+            if (!this.entitySearchable) {
                 this.isLoading = false;
                 this.total = 0;
 

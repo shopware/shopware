@@ -43,6 +43,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException;
@@ -130,6 +131,7 @@ class ApiController extends AbstractController
      *      summary="Search for multiple entites by a given term",
      *      operationId="compositeSearch",
      *      tags={"Admin Api"},
+     *      deprecated=true,
      *      @OA\Parameter(
      *          name="limit",
      *          in="query",
@@ -179,10 +181,13 @@ class ApiController extends AbstractController
      *      )
      * )
      * @Route("/api/_search", name="api.composite.search", methods={"GET","POST"}, requirements={"version"="\d+"})
-     * @major-deprecated (flag:FEATURE_NEXT_6040) - will be removed
+     *
+     * @deprecated tag:v6.5.0 - Will be removed in the next major
      */
     public function compositeSearch(Request $request, Context $context): JsonResponse
     {
+        Feature::throwException('FEATURE_NEXT_18762', 'Will be removed in v6.5.0, use Shopware\Administration\Controller\AdminSearchController::search instead.');
+
         $term = (string) $request->query->get('term');
         if ($term === '') {
             throw new MissingRequestParameterException('term');

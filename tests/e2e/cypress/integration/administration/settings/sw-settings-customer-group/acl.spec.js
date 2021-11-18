@@ -60,9 +60,7 @@ describe('Customer groups: Test acl privileges', () => {
             method: 'PATCH'
         }).as('updateCustomerGroup');
 
-        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
-            cy.setEntitySearchable('customer_group', 'name');
-        });
+        cy.setEntitySearchable('customer_group', 'name');
 
         // click on first element in grid
         cy.get(`${page.elements.dataGridRow}--0`)
@@ -127,9 +125,7 @@ describe('Customer groups: Test acl privileges', () => {
             method: 'POST'
         }).as('createCustomerGroup');
 
-        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
-            cy.setEntitySearchable('customer_group', 'name');
-        });
+        cy.setEntitySearchable('customer_group', 'name');
 
         // Create customer group
         cy.get('a[href="#/sw/settings/customer/group/create"]').click();
@@ -180,9 +176,7 @@ describe('Customer groups: Test acl privileges', () => {
             method: 'delete'
         }).as('deleteCustomerGroup');
 
-        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
-            cy.setEntitySearchable('customer_group', 'name');
-        });
+        cy.setEntitySearchable('customer_group', 'name');
 
         // filter customer group via search bar
         cy.get('input.sw-search-bar__input').typeAndCheckSearchField('Chuck-Testers');

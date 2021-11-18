@@ -44,18 +44,15 @@ export default function createSearchTypeService() {
     };
 
     let $typeStore = {};
-    if (Shopware.Feature.isActive('FEATURE_NEXT_6040')) {
-        $typeStore = {
-            all: {
-                entityName: '',
-                placeholderSnippet: '',
-                listingRoute: '',
-            },
-            ...typeStore,
-        };
-    } else {
-        $typeStore = typeStore;
-    }
+
+    $typeStore = {
+        all: {
+            entityName: '',
+            placeholderSnippet: '',
+            listingRoute: '',
+        },
+        ...typeStore,
+    };
 
     return {
         getTypeByName,

@@ -147,7 +147,7 @@
             {% endblock %}
 
             {% block sw_sales_channel_list_empty_state %}
-            <template v-if="!isLoading && !total && feature.isActive('FEATURE_NEXT_6040')">
+            <template v-if="!isLoading && !total">
                 <sw-empty-state
                     v-if="isValidTerm(term)"
                     :style="{ minHeight: '200px' }"

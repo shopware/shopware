@@ -15,7 +15,7 @@ describe(`Checkout as Guest`, () => {
             });
     });
 
-    it('@base @checkout: Run checkout', () => {
+    it('@base @checkout @package: Run checkout', () => {
         const page = new CheckoutPageObject();
         const accountPage = new AccountPageObject();
 
@@ -73,9 +73,14 @@ describe(`Checkout as Guest`, () => {
         cy.get('.finish-header').contains('Thank you for your order with Demostore!');
         cy.get('.checkout-aside-summary-total').contains(product.price[0].gross);
         cy.get('.col-5.checkout-aside-summary-value').contains('10.00');
+
+        // Logout
+        cy.get('[title="Back to shop"]').click();
+        cy.get('button#accountWidget').click();
+        cy.contains('[aria-labelledby="accountWidget"]', 'Close guest session').should('be.visible');
     });
 
-    it('@base @checkout: Run checkout with account type', () => {
+    it('@base @checkout @package: Run checkout with account type', () => {
         cy.authenticate().then((result) => {
             const requestConfig = {
                 headers: {
@@ -85,7 +90,8 @@ describe(`Checkout as Guest`, () => {
                 url: `api/_action/system-config/batch`,
                 body: {
                     null: {
-                        'core.loginRegistration.showAccountTypeSelection': true
+                        'core.loginRegistration.showAccountTypeSelection': true,
+                        'core.cart.logoutGuestAfterCheckout' : true
                     }
                 }
             };
@@ -199,6 +205,11 @@ describe(`Checkout as Guest`, () => {
             cy.get('.finish-header').contains('Thank you for your order with Demostore!');
             cy.get('.checkout-aside-summary-total').contains(product.price[0].gross);
             cy.get('.col-5.checkout-aside-summary-value').contains('10.00');
+
+            // Logout
+            cy.get('[title="Back to shop"]').click();
+            cy.get('button#accountWidget').click();
+            cy.contains('[aria-labelledby="accountWidget"]', 'My account').should('be.visible');
         });
     });
 });

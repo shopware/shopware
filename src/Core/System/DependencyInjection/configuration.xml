@@ -50,6 +50,11 @@
             <argument type="service" id="logger"/>
         </service>
 
+        <service id="Shopware\Core\System\SystemConfig\Facade\SystemConfigFacadeHookFactory" public="true">
+            <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
         <service id="Shopware\Core\System\SystemConfig\Command\ConfigGet">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
 

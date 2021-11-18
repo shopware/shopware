@@ -21,6 +21,15 @@ trait ExtendableTrait
     }
 
     /**
+     * Adds a new array struct as extension into the class storage.
+     * The passed name is used as unique identifier and has to be stored too.
+     */
+    public function addArrayExtension(string $name, array $extension): void
+    {
+        $this->extensions[$name] = new ArrayStruct($extension);
+    }
+
+    /**
      * @param Struct[] $extensions
      */
     public function addExtensions(array $extensions): void

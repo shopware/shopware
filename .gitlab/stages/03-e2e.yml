@@ -85,6 +85,7 @@ E2E install NL:
         E2E_PROJECT: recovery
         CYPRESS_dbHost: database
         CYPRESS_dbPassword: $MYSQL_ROOT_PASSWORD
+        CYPRESS_locale: nl-NL
     script:
         - apt-get update && apt-get -y install jq
         - export PLATFORM_VERSION="$(jq -r .version < composer.json)"

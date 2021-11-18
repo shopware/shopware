@@ -96,14 +96,19 @@
                 </template>
                 {% endblock %}
 
+                {% block sw_product_list_grid_columns_name %}
                 <template #column-name="{ item, isInlineEdit }">
+                    {% block sw_product_list_grid_columns_name_inline_edit %}
                     <sw-text-field
                         v-if="isInlineEdit"
                         v-model="item.name"
                         size="small"
                     />
+                    {% endblock %}
 
+                    {% block sw_product_list_grid_columns_name_content %}
                     <div v-else>
+                        {% block sw_product_list_grid_columns_name_content_variant_button %}
                         <sw-button
                             v-if="productHasVariants(item)"
                             v-tooltip="{ message: $tc('sw-product.list.variantIndicatorTooltip') }"
@@ -116,12 +121,17 @@
                                 size="14px"
                             />
                         </sw-button>
+                        {% endblock %}
 
+                        {% block sw_product_list_grid_columns_name_content_link %}
                         <router-link :to="{ name: 'sw.product.detail', params: { id: item.id } }">
                             {{ item.translated ? item.translated.name : item.name }}
                         </router-link>
+                        {% endblock %}
                     </div>
+                    {% endblock %}
                 </template>
+                {% endblock %}
 
                 {% block sw_product_list_grid_columns_active %}
                 <template #column-active="{ item, isInlineEdit }">

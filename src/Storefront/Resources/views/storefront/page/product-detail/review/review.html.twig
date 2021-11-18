@@ -3,10 +3,10 @@
 {% block utilities_offcanvas_content %}
 	{% block page_product_detail_review_container %}
 
-		{#TODO: (NEXT-16993) replace items per list config value#}
+		{# TODO NEXT-16993 - replace items per list config value #}
 		{% set reviewsPerListPage = 10 %}
 
-		{#TODO: (NEXT-16994) replace current list page value#}
+		{# TODO NEXT-16994 - replace current list page value #}
 		{% set currentListPage = 1 %}
 
 		{% set productReviewCount = reviews|length %}
@@ -15,7 +15,7 @@
             {% set productAvgRating = reviews.matrix.averageRating|round(2, 'common')  %}
 		{% endif %}
 
-		{# TODO: (NEXT-16994) replace language flag #}
+		{# TODO NEXT-16994 - replace language flag #}
 		{% set foreignReviewsCount = 150 %}
 
 		<div class="product-detail-review tab-pane-container">
@@ -51,7 +51,7 @@
 							{% endblock %}
 
 							{% block page_product_detail_review_form_container %}
-								<div class="collapse multi-collapse {% if ratingSuccess == -1 %}show{% endif %}"
+								<div class="collapse multi-collapse{% if ratingSuccess == -1 %} show{% endif %}"
 									 id="review-form">
 									{% if context.customer and not context.customer.guest %}
 										<div class="product-detail-review-form">
@@ -67,7 +67,7 @@
 
 							{% block page_product_detail_review_list_container %}
 								<div id="review-list"
-									 class="collapse multi-collapse product-detail-review-list {% if ratingSuccess != -1 %}show{% endif %}">
+									 class="collapse multi-collapse product-detail-review-list{% if ratingSuccess != -1 %} show{% endif %}">
 
                                     {% block page_product_detail_review_list %}
                                         {% block page_product_detail_review_list_actions %}
@@ -99,7 +99,7 @@
                                                                 {% endif %}
 
                                                                 <div class="custom-control custom-switch">
-                                                                    {#TODO: (NEXT-16994) set checked and disabled state#}
+                                                                    {# TODO NEXT-16994 - set checked and disabled state #}
                                                                     <input type="checkbox"
                                                                            class="custom-control-input"
                                                                            id="showForeignReviews"
@@ -181,9 +181,9 @@
 
                                             <hr/>
 
-                                            {# TODO: (NEXT-16994) calculate reviews in current language in list #}
+                                            {# TODO NEXT-16994 - calculate reviews in current language in list #}
                                             {% set listReviewsCount = productReviewCount - foreignReviewsCount %}
-                                            {# TODO: (NEXT-16994) fix if reviews in foreign language are more than in customer language#}
+                                            {# TODO NEXT-16994 - fix if reviews in foreign language are more than in customer language #}
                                             {% if listReviewsCount < 0 %}
                                                 {% set listReviewsCount = 0 %}
                                             {% endif %}

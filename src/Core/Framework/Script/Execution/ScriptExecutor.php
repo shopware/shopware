@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Adapter\Twig\Extension\PhpSyntaxExtension;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Debugging\Debug;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
-use Shopware\Core\Framework\Script\Exception\HookAwareServiceException;
+use Shopware\Core\Framework\Script\Exception\NoHookServiceFactoryException;
 use Shopware\Core\Framework\Script\Exception\ScriptExecutionFailedException;
 use Shopware\Core\Framework\Script\Execution\Awareness\HookServiceFactory;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -101,7 +101,7 @@ class ScriptExecutor
 
             $service = $this->container->get($serviceId);
             if (!$service instanceof HookServiceFactory) {
-                throw new HookAwareServiceException($serviceId);
+                throw new NoHookServiceFactoryException($serviceId);
             }
 
             $services[$service->getName()] = $service->factory($hook, $script);
@@ -119,7 +119,7 @@ class ScriptExecutor
 
             $factory = $this->container->get($serviceId);
             if (!$factory instanceof HookServiceFactory) {
-                throw new HookAwareServiceException($serviceId);
+                throw new NoHookServiceFactoryException($serviceId);
             }
 
             $service = $services[$factory->getName()];

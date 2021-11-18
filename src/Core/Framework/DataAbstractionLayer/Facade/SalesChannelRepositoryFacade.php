@@ -2,35 +2,29 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Facade;
 
-use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
-use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
-use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-class RepositoryFacade
+class SalesChannelRepositoryFacade
 {
-    private DefinitionInstanceRegistry $registry;
+    private SalesChannelDefinitionInstanceRegistry $registry;
 
     private RequestCriteriaBuilder $criteriaBuilder;
 
-    private AclCriteriaValidator $criteriaValidator;
-
-    private Context $context;
+    private SalesChannelContext $context;
 
     public function __construct(
-        DefinitionInstanceRegistry $registry,
+        SalesChannelDefinitionInstanceRegistry $registry,
         RequestCriteriaBuilder $criteriaBuilder,
-        AclCriteriaValidator $criteriaValidator,
-        Context $context
+        SalesChannelContext $context
     ) {
         $this->registry = $registry;
         $this->criteriaBuilder = $criteriaBuilder;
-        $this->criteriaValidator = $criteriaValidator;
         $this->context = $context;
     }
 
@@ -38,7 +32,7 @@ class RepositoryFacade
     {
         $criteriaObject = $this->prepareCriteria($entityName, $criteria);
 
-        $repository = $this->registry->getRepository($entityName);
+        $repository = $this->registry->getSalesChannelRepository($entityName);
 
         return $repository->search($criteriaObject, $this->context);
     }
@@ -47,7 +41,7 @@ class RepositoryFacade
     {
         $criteriaObject = $this->prepareCriteria($entityName, $criteria);
 
-        $repository = $this->registry->getRepository($entityName);
+        $repository = $this->registry->getSalesChannelRepository($entityName);
 
         return $repository->searchIds($criteriaObject, $this->context);
     }
@@ -56,7 +50,7 @@ class RepositoryFacade
     {
         $criteriaObject = $this->prepareCriteria($entityName, $criteria);
 
-        $repository = $this->registry->getRepository($entityName);
+        $repository = $this->registry->getSalesChannelRepository($entityName);
 
         return $repository->aggregate($criteriaObject, $this->context);
     }
@@ -66,13 +60,7 @@ class RepositoryFacade
         $definition = $this->registry->getByEntityName($entityName);
         $criteriaObject = new Criteria();
 
-        $this->criteriaBuilder->fromArray($criteria, $criteriaObject, $definition, $this->context);
-
-        $missingPermissions = $this->criteriaValidator->validate($entityName, $criteriaObject, $this->context);
-
-        if (!empty($missingPermissions)) {
-            throw new MissingPrivilegeException($missingPermissions);
-        }
+        $this->criteriaBuilder->fromArray($criteria, $criteriaObject, $definition, $this->context->getContext());
 
         return $criteriaObject;
     }

@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\Script\Execution;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Script\Exception\NoHookServiceFactoryException;
 use Shopware\Core\Framework\Script\Exception\ScriptExecutionFailedException;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Struct\ArrayStruct;
@@ -62,7 +63,9 @@ class ScriptExecutorTest extends TestCase
         $this->loadAppsFromDir(__DIR__ . '/_fixtures');
 
         $this->expectException(ScriptExecutionFailedException::class);
-        $this->expectExceptionMessage('Service product.repository must implement the interface HookAwareService so that this service may also be used in scripts.');
+        $innerException = new NoHookServiceFactoryException('product.repository');
+
+        $this->expectExceptionMessage($innerException->getMessage());
 
         $this->executor->execute(new TestHook('simple-function-case', Context::createDefaultContext(), [], ['product.repository']));
     }

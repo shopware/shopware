@@ -40,7 +40,7 @@ class RepositoryFacadeHookFactory extends HookServiceFactory
         $this->criteriaValidator = $criteriaValidator;
     }
 
-    public function factory(Hook $hook, Script $script): object
+    public function factory(Hook $hook, Script $script): RepositoryFacade
     {
         return new RepositoryFacade(
             $this->registry,

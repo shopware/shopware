@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Script;
+namespace Shopware\Core\Framework\Test\DataAbstractionLayer\Facade;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -246,7 +246,7 @@ class RepositoryFacadeTest extends TestCase
 
         $this->getContainer()->get(ScriptExecutor::class)->execute($hook);
 
-        static::asserttrue($page->hasExtension('myProduct'));
+        static::assertTrue($page->hasExtension('myProduct'));
         $product = $page->getExtension('myProduct');
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertEquals($this->ids->get('p1'), $product->getId());

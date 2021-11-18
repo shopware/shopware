@@ -98,6 +98,11 @@
             <argument type="service" id="Shopware\Core\Framework\Api\Acl\AclCriteriaValidator"/>
         </service>
 
+        <service id="Shopware\Core\Framework\DataAbstractionLayer\Facade\SalesChannelRepositoryFacadeHookFactory" public="true">
+            <argument type="service" id="Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder"/>
+        </service>
+
         <!-- EntityDefinition[] -->
         <service class="Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityReader" id="Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface">
             <argument type="service" id="Doctrine\DBAL\Connection"/>

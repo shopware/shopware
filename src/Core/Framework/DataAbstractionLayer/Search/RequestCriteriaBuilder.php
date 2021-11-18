@@ -49,8 +49,6 @@ class RequestCriteriaBuilder
             $criteria = $this->fromArray($request->request->all(), $criteria, $definition, $context);
         }
 
-        $this->validator->validate($definition->getEntityName(), $criteria, $context);
-
         return $criteria;
     }
 
@@ -233,6 +231,8 @@ class RequestCriteriaBuilder
         }
 
         $searchException->tryToThrow();
+
+        $this->validator->validate($definition->getEntityName(), $criteria, $context);
 
         return $criteria;
     }

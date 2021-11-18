@@ -31,7 +31,8 @@
         "placeholder": "Select a trigger ...",
         "title": "Select a trigger",
         "helpText": "Triggers are used to begin a flow. After selecting a trigger you will be given the chance to add conditions to refine the trigger or add actions to be executed with the trigger.",
-        "textNoEvent": "No events found"
+        "textNoEvent": "No events found",
+        "textHint": "At the moment this trigger can’t be used because there are no actions for it."
       },
       "sequence": {
         "selectorTitle": "Add condition or action",

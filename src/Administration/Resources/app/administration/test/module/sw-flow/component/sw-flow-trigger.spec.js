@@ -48,15 +48,18 @@ const sequencesFixture = [
 const mockBusinessEvents = [
     {
         name: 'checkout.customer.before.login',
-        mailAware: true
+        mailAware: true,
+        aware: ['Shopware\\Core\\Framework\\Event\\SalesChannelAware']
     },
     {
         name: 'checkout.customer.changed-payment-method',
-        mailAware: false
+        mailAware: false,
+        aware: ['Shopware\\Core\\Framework\\Event\\SalesChannelAware']
     },
     {
         name: 'checkout.customer.deleted',
-        mailAware: true
+        mailAware: true,
+        aware: ['Shopware\\Core\\Framework\\Event\\SalesChannelAware']
     }
 ];
 
@@ -143,37 +146,49 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
                 childCount: 1,
                 id: 'checkout',
                 name: 'checkout',
-                parentId: null
+                parentId: null,
+                disabled: false,
+                disabledToolTipText: null,
             },
             {
                 childCount: 3,
                 id: 'checkout.customer',
                 name: 'customer',
-                parentId: 'checkout'
+                parentId: 'checkout',
+                disabled: false,
+                disabledToolTipText: null,
             },
             {
                 childCount: 1,
                 id: 'checkout.customer.before',
                 name: 'before',
-                parentId: 'checkout.customer'
+                parentId: 'checkout.customer',
+                disabled: false,
+                disabledToolTipText: null,
             },
             {
                 childCount: 0,
                 id: 'checkout.customer.before.login',
                 name: 'login',
-                parentId: 'checkout.customer.before'
+                parentId: 'checkout.customer.before',
+                disabled: false,
+                disabledToolTipText: null,
             },
             {
                 childCount: 0,
                 id: 'checkout.customer.changed-payment-method',
                 name: 'changed payment method',
-                parentId: 'checkout.customer'
+                parentId: 'checkout.customer',
+                disabled: false,
+                disabledToolTipText: null,
             },
             {
                 childCount: 0,
                 id: 'checkout.customer.deleted',
                 name: 'deleted',
-                parentId: 'checkout.customer'
+                parentId: 'checkout.customer',
+                disabled: false,
+                disabledToolTipText: null,
             }
         ]);
     });
@@ -526,5 +541,35 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
 
         expect(isSequenceEmpty).toEqual(false);
         expect(wrapper.find('.sw-flow-event-change-confirm-modal').exists()).toBeTruthy();
+    });
+
+    it('should show tool tip when trigger has only stop flow action', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.vm.$nextTick();
+        await wrapper.setData({
+            events: [
+                {
+                    name: 'mail.sent',
+                    mailAware: true,
+                    aware: []
+                },
+                ...wrapper.vm._data.events,
+            ]
+        });
+
+        const searchField = wrapper.find('.sw-flow-trigger__input-field');
+        await searchField.trigger('focus');
+
+        const treeItem = wrapper.find('.tree-items .sw-tree-item:first-child .sw-tree-item__toggle');
+        await treeItem.trigger('click');
+
+        const treeItemLink = await wrapper.find('.sw-tree-item__content .tree-link');
+        treeItemLink.trigger('click');
+
+        const treeItemContent = await wrapper.find('.sw-tree-item__content');
+        expect(treeItemContent.attributes()['tooltip-id']).toBeTruthy();
+
+        const emittedEvent = wrapper.emitted()['option-select'];
+        expect(emittedEvent).toBeFalsy();
     });
 });

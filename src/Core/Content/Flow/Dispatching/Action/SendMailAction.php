@@ -23,6 +23,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\FlowEvent;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\OrderAware;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Symfony\Contracts\EventDispatcher\Event;
@@ -169,21 +170,7 @@ class SendMailAction extends FlowAction
         $this->eventDispatcher->dispatch(new FlowSendMailActionEvent($data, $mailTemplate, $event));
 
         if ($data->has('templateId')) {
-            try {
-                $this->mailTemplateTypeRepository->update([[
-                    'id' => $mailTemplate->getMailTemplateTypeId(),
-                    'templateData' => $this->getTemplateData($mailEvent),
-                ]], $mailEvent->getContext());
-            } catch (\Throwable $e) {
-                // Dont throw errors if this fails // Fix with NEXT-15475
-                $this->logger->error(
-                    "Could not update mail template type:\n"
-                    . $e->getMessage() . "\n"
-                    . 'Error Code: ' . $e->getCode() . "\n"
-                    . 'Flow id: ' . $event->getFlowState()->flowId . "\n"
-                    . 'Sequence id: ' . $event->getFlowState()->sequenceId
-                );
-            }
+            $this->updateMailTemplateType($event, $mailEvent, $mailTemplate);
         }
 
         try {
@@ -213,6 +200,32 @@ class SendMailAction extends FlowAction
         if ($injectedTranslator) {
             $this->translator->resetInjection();
         }
+    }
+
+    private function updateMailTemplateType(FlowEvent $event, MailAware $mailAware, MailTemplateEntity $mailTemplate): void
+    {
+        $mailTemplateTypeTranslation = $this->connection->fetchOne(
+            'SELECT 1 FROM mail_template_type_translation WHERE language_id = :languageId',
+            [
+                'languageId' => Uuid::fromHexToBytes($event->getContext()->getLanguageId()),
+            ]
+        );
+
+        if (!$mailTemplateTypeTranslation) {
+            // Don't throw errors if this fails // Fix with NEXT-15475
+            $this->logger->error(
+                "Could not update mail template type, because translation for this language does not exits:\n"
+                . 'Flow id: ' . $event->getFlowState()->flowId . "\n"
+                . 'Sequence id: ' . $event->getFlowState()->sequenceId
+            );
+
+            return;
+        }
+
+        $this->mailTemplateTypeRepository->update([[
+            'id' => $mailTemplate->getMailTemplateTypeId(),
+            'templateData' => $this->getTemplateData($mailAware),
+        ]], $mailAware->getContext());
     }
 
     private function getMailTemplate(string $id, Context $context): ?MailTemplateEntity

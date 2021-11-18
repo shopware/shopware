@@ -3,7 +3,7 @@
 {% block utilities_offcanvas_content %}
 	{% block component_review_container %}
 
-        {#TODO: (NEXT-16993) replace items per list config value#}
+        {# TODO NEXT-16993 - replace items per list config value #}
 		{% set reviewsPerListPage = 10 %}
 
 		{% set currentListPage = reviews.page + 1 %}
@@ -14,7 +14,7 @@
             {% set productAvgRating = reviews.matrix.averageRating|round(2, 'common')  %}
 		{% endif %}
 
-		{# TODO: (NEXT-16994) replace language flag #}
+		{# TODO NEXT-16994 - replace language flag #}
 		{% set foreignReviewsCount = 150 %}
 
 		{% set ratingSuccess = element.data.ratingSuccess %}
@@ -38,12 +38,12 @@
 										type: "success",
 										content: "detail.reviewFormSuccessAlert"|trans|sw_sanitize
 									} %}
-                                {% elseif ratingSuccess == 2  %}
+                                {% elseif ratingSuccess == 2 %}
                                     {% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
                                         type: "success",
                                         content: "detail.reviewFormSuccessUpdateAlert"|trans|sw_sanitize
                                     } %}
-								{% elseif ratingSuccess == -1  %}
+								{% elseif ratingSuccess == -1 %}
 									{% sw_include '@Storefront/storefront/utilities/alert.html.twig' with {
 										type: "danger",
 										content: "detail.reviewFormErrorAlert"|trans|sw_sanitize
@@ -52,9 +52,10 @@
 							{% endblock %}
 
 							{% block component_review_form_container %}
-								<div class="collapse multi-collapse {% if ratingSuccess == -1 %}show{% endif %}"
+								<div class="collapse multi-collapse{% if ratingSuccess == -1 %} show{% endif %}"
 									 id="review-form">
-									{% if context.customer %}
+
+                                    {% if context.customer and not context.customer.guest %}
 										<div class="product-detail-review-form">
 											{% sw_include '@Storefront/storefront/component/review/review-form.html.twig' %}
 										</div>
@@ -68,7 +69,7 @@
 
 							{% block component_review_list_container %}
 								<div id="review-list"
-									 class="collapse multi-collapse product-detail-review-list {% if ratingSuccess != -1 %}show{% endif %}">
+									 class="collapse multi-collapse product-detail-review-list{% if ratingSuccess != -1 %} show{% endif %}">
 
                                     {% block component_review_list %}
                                         {% block component_review_list_actions %}
@@ -100,7 +101,7 @@
                                                                 {% endif %}
 
                                                                 <div class="custom-control custom-switch">
-                                                                    {# TODO: (NEXT-16994) set checked and disabled state #}
+                                                                    {# TODO NEXT-16994 - set checked and disabled state #}
                                                                     <input type="checkbox"
                                                                            class="custom-control-input"
                                                                            id="showForeignReviews"
@@ -182,9 +183,9 @@
 
                                             <hr/>
 
-                                            {# TODO: (NEXT-16994) calculate reviews in current language in list #}
+                                            {# TODO NEXT-16994 - calculate reviews in current language in list #}
                                             {% set listReviewsCount = productReviewCount - foreignReviewsCount %}
-                                            {# TODO: (NEXT-16994) fix if reviews in foreign language are more than in customer language#}
+                                            {# TODO NEXT-16994 - fix if reviews in foreign language are more than in customer language #}
                                             {% if listReviewsCount < 0 %}
                                                 {% set listReviewsCount = 0 %}
                                             {% endif %}
@@ -192,7 +193,7 @@
                                             <p class="text-right product-detail-review-counter">
                                                 {% if (listReviewsCount > 1 and listReviewsCount > reviewsPerListPage) %}
                                                     <small><strong>{{ currentListPage }}</strong> - <strong>{{ reviewsPerListPage }}</strong> {{ "detail.reviewCountBefore"|trans|sw_sanitize }} <strong>{{ listReviewsCount }}</strong> {{ "detail.reviewCountAfter"|trans({'%count%': listReviewsCount })|sw_sanitize }}</small>
-                                                {% elseif listReviewsCount > 0 %} {# TODO (NEXT-16994) fix detail.reviewCountAfter snippet for listReviewsCount = 0#}
+                                                {% elseif listReviewsCount > 0 %} {# TODO NEXT-16994 - fix detail.reviewCountAfter snippet for listReviewsCount = 0 #}
                                                     <small><strong>{{ listReviewsCount }}</strong> {{ "detail.reviewCountAfter"|trans({'%count%': listReviewsCount })|sw_sanitize }}</small>
                                                 {% endif %}
                                             </p>

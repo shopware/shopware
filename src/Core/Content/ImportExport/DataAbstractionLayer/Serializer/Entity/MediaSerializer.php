@@ -85,7 +85,9 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
             $media = $this->mediaRepository->search(new Criteria([$deserialized['id']]), Context::createDefaultContext())->first();
         }
 
-        if ($media === null || $media->getUrl() !== $url) {
+        $isNew = $media === null;
+
+        if ($isNew || $media->getUrl() !== $url) {
             $entityName = $config->get('sourceEntity') ?? $definition->getEntityName();
             $deserialized['mediaFolderId'] = $deserialized['mediaFolderId']
                 ?? $this->getMediaFolderId($deserialized['id'] ?? null, $entityName);
@@ -101,6 +103,10 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
                 $deserialized['_error'] = new MediaDownloadException($url);
 
                 return $deserialized;
+            }
+
+            if ($isNew && $media->getHash()) {
+                $deserialized = $this->fetchExistingMediaByHash($deserialized, $media->getHash());
             }
 
             $this->cacheMediaFiles[$deserialized['id']] = [
@@ -204,5 +210,19 @@ class MediaSerializer extends EntitySerializer implements EventSubscriberInterfa
         }
 
         return null;
+    }
+
+    private function fetchExistingMediaByHash(array $deserialized, string $hash): array
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('metaData.hash', $hash));
+
+        $media = $this->mediaRepository->search($criteria, Context::createDefaultContext())->first();
+
+        if ($media) {
+            $deserialized['id'] = $media->getId();
+        }
+
+        return $deserialized;
     }
 }

@@ -3,12 +3,16 @@
 namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity;
 
 use Shopware\Core\Content\ImportExport\Struct\Config;
+use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityEntity;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
@@ -55,6 +59,10 @@ class ProductSerializer extends EntitySerializer
         }
 
         yield from parent::serialize($config, $definition, $entity);
+
+        if (isset($entity['media'])) {
+            yield 'media' => implode('|', $this->getMediaUrls($entity));
+        }
 
         if (!isset($entity['visibilities'])) {
             return;
@@ -130,6 +138,12 @@ class ProductSerializer extends EntitySerializer
 
         if ($visibilities !== []) {
             yield 'visibilities' => $this->findVisibilityIds($visibilities);
+        }
+
+        try {
+            yield 'media' => $this->convertMediaStringToArray($config, $definition, $entity, $deserialized);
+        } catch (\Throwable $exception) {
+            yield '_error' => $exception;
         }
 
         if (isset($deserialized['id'], $deserialized['cover']['media']['id'])) {
@@ -247,5 +261,117 @@ class ProductSerializer extends EntitySerializer
         }
 
         return $configuratorSettings;
+    }
+
+    private function convertMediaStringToArray(
+        Config $config,
+        EntityDefinition $definition,
+        array $entity,
+        array $deserialized
+    ): array {
+        if (empty($entity['media'])) {
+            return [];
+        }
+
+        $productMedias = [];
+        $urls = explode('|', $entity['media']);
+
+        $productMediaField = $definition->getField('media');
+
+        if (!$productMediaField instanceof OneToManyAssociationField) {
+            return [];
+        }
+
+        $mediaField = $productMediaField->getReferenceDefinition()->getField('media');
+
+        if (!$mediaField instanceof ManyToOneAssociationField) {
+            return [];
+        }
+
+        $mediaDefinition = $mediaField->getReferenceDefinition();
+        $mediaSerializer = $this->serializerRegistry->getEntity($mediaDefinition->getEntityName());
+
+        foreach ($urls as $url) {
+            $deserializedMedia = $mediaSerializer->deserialize($config, $mediaDefinition, [
+                'url' => $url,
+            ]);
+            $deserializedMedia = \is_array($deserializedMedia) ? $deserializedMedia : iterator_to_array($deserializedMedia);
+
+            if (isset($deserializedMedia['_error']) && $deserializedMedia['_error'] instanceof \Throwable) {
+                throw $deserializedMedia['_error'];
+            }
+
+            $productMedia = [
+                'media' => $deserializedMedia,
+            ];
+
+            if (!isset($deserialized['id'])) {
+                $productMedias[] = $productMedia;
+
+                continue;
+            }
+
+            $criteria = new Criteria();
+            $criteria->addFilter(new EqualsFilter('productId', $deserialized['id']));
+            $criteria->addFilter(new EqualsFilter('media.id', $deserializedMedia['id']));
+
+            $productMediaId = $this->productMediaRepository->searchIds($criteria, Context::createDefaultContext())->firstId();
+
+            if ($productMediaId) {
+                $productMedia['id'] = $productMediaId;
+            }
+
+            $productMedias[] = $productMedia;
+        }
+
+        return $productMedias;
+    }
+
+    private function getMediaUrls(array $entity): array
+    {
+        if (!isset($entity['media'])) {
+            return [];
+        }
+
+        $productMedias = $entity['media'];
+        if ($productMedias instanceof Struct) {
+            $productMedias = $productMedias->jsonSerialize();
+        }
+
+        $urls = [];
+        $coverUrl = null;
+
+        if (!empty($productMedias) && !empty($entity['cover'])) {
+            $coverMedia = $entity['cover'] instanceof ProductMediaEntity
+                ? $entity['cover']->jsonSerialize()
+                : $entity['cover'];
+            $coverUrl = $coverMedia['media'] instanceof MediaEntity
+                ? $coverMedia['media']->jsonSerialize()['url']
+                : $coverMedia['media']['url'];
+        }
+
+        foreach ($productMedias as $productMedia) {
+            $productMedia = $productMedia instanceof ProductMediaEntity
+                ? $productMedia->jsonSerialize()
+                : $productMedia;
+
+            if (empty($productMedia['media'])) {
+                continue;
+            }
+
+            $media = $productMedia['media'] instanceof MediaEntity
+                ? $productMedia['media']->jsonSerialize()
+                : $productMedia['media'];
+
+            if ($media['url'] === $coverUrl) {
+                continue;
+            }
+
+            $urls[$productMedia['position']] = $media['url'];
+        }
+
+        ksort($urls);
+
+        return $urls;
     }
 }

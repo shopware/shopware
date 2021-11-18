@@ -57,7 +57,8 @@ class FileFetcher
             $fileName,
             mime_content_type($fileName),
             $extension,
-            $bytesWritten
+            $bytesWritten,
+            hash_file('md5', $fileName) ?: null
         );
     }
 
@@ -89,7 +90,8 @@ class FileFetcher
             $fileName,
             mime_content_type($fileName),
             $extension,
-            $writtenBytes
+            $writtenBytes,
+            hash_file('md5', $fileName) ?: null
         );
     }
 
@@ -98,12 +100,14 @@ class FileFetcher
         $tempFile = tempnam(sys_get_temp_dir(), '');
         $fh = @fopen($tempFile, 'wb');
         $blobSize = @fwrite($fh, $blob);
+        $fileHash = $tempFile ? hash_file('md5', $tempFile) : null;
 
         return new MediaFile(
             $tempFile,
             $contentType,
             $extension,
-            $blobSize
+            $blobSize,
+            $fileHash ?: null
         );
     }
 

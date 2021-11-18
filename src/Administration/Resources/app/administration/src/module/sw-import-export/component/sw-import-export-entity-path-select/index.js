@@ -249,6 +249,11 @@ Component.register('sw-import-export-entity-path-select', {
                     return;
                 }
 
+                // Return if property is a media association
+                if (propertyName === 'media' && property.relation === 'one_to_many') {
+                    return;
+                }
+
                 // Return if property is a assignedProducts association
                 if (propertyName === 'assignedProducts' && property.relation === 'one_to_many') {
                     return;
@@ -283,6 +288,7 @@ Component.register('sw-import-export-entity-path-select', {
             return [
                 this.processTranslations,
                 this.processVisibilities,
+                this.processMedia,
                 this.processAssignedProducts,
                 this.processPrice,
                 this.processLineItems,
@@ -615,6 +621,34 @@ Component.register('sw-import-export-entity-path-select', {
             });
 
             return options;
+        },
+
+        processMedia({ definition, options, properties, path }) {
+            const mediaProperty = definition.properties.media;
+
+            if (!mediaProperty || mediaProperty.relation !== 'one_to_many') {
+                return { properties, options, definition, path };
+            }
+
+            const newOptions = [...options, ...this.getMediaProperties(path)];
+
+            // Remove media property
+            const filteredProperties = properties.filter(propertyName => {
+                return propertyName !== 'media';
+            });
+
+            return {
+                properties: filteredProperties,
+                options: newOptions,
+                definition: definition,
+                path: path,
+            };
+        },
+
+        getMediaProperties(path) {
+            const name = `${path}media`;
+
+            return [{ label: name, value: name }];
         },
 
         processAssignedProducts({ definition, options, properties, path }) {

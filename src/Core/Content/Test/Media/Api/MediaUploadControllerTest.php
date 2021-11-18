@@ -272,7 +272,7 @@ class MediaUploadControllerTest extends TestCase
         $responseData = json_decode($this->getBrowser()->getResponse()->getContent(), true);
 
         static::assertCount(
-            3,
+            4,
             $responseData['data']['attributes']['metaData'],
             print_r($responseData['data']['attributes'], true)
         );

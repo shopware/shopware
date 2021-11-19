@@ -58,13 +58,7 @@
                     <li class="sw-profile-index-search-preferences-searchable-elements__entity-field">
                         <sw-checkbox-field
                             v-model="searchPreference._searchable"
-                            v-tooltip="{
-                                message: $tc('sw-profile.tabSearchPreferences.cardSearchableElements.tooltipMessage'),
-                                disabled: acl.can(`${searchPreference.entityName}.editor`),
-                                showOnDisabledElements: true
-                            }"
                             :label="getModuleTitle(searchPreference.entityName)"
-                            :disabled="!acl.can(`${searchPreference.entityName}.editor`)"
                         />
                         <ul class="sw-profile-index-search-preferences-searchable-elements__entity">
                             <li
@@ -75,7 +69,7 @@
                                 <sw-checkbox-field
                                     v-model="field._searchable"
                                     :label="$tc(`sw-profile.tabSearchPreferences.modules.${searchPreference.entityName}.${field.fieldName}`)"
-                                    :disabled="!acl.can(`${searchPreference.entityName}.editor`) || !searchPreference._searchable"
+                                    :disabled="!searchPreference._searchable"
                                 />
                             </li>
                         </ul>

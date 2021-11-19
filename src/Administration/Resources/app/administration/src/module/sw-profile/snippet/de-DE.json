@@ -48,8 +48,7 @@
         "description": "Lege die durchsuchbaren Inhalte für Module und Einträge fest.",
         "buttonSelect": "Alle auswählen",
         "buttonDeselect": "Alle abwählen",
-        "buttonReset": "Standard wiederherstellen",
-        "tooltipMessage": "Dein Benutzerkonto hat keine Berechtigung für dieses Modul. Bitte kontaktiere den Administrator."
+        "buttonReset": "Standard wiederherstellen"
       },
       "modules": {
         "order": {

@@ -6,7 +6,7 @@ const { Component, Module, State, Mixin } = Shopware;
 Component.register('sw-profile-index-search-preferences', {
     template,
 
-    inject: ['acl', 'searchPreferencesService'],
+    inject: ['searchPreferencesService'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -107,10 +107,6 @@ Component.register('sw-profile-index-search-preferences', {
 
         onSelect(event) {
             this.searchPreferences.forEach((searchPreference) => {
-                if (!this.acl.can(`${searchPreference.entityName}.editor`)) {
-                    return;
-                }
-
                 searchPreference._searchable = event;
                 searchPreference.fields.forEach((field) => {
                     field._searchable = event;
@@ -120,10 +116,7 @@ Component.register('sw-profile-index-search-preferences', {
 
         onReset() {
             const defaultSearchPreferences = this.searchPreferencesService.getDefaultSearchPreferences();
-            const searchPreferences = this.searchPreferencesService.processSearchPreferences(defaultSearchPreferences);
-            const toReset = searchPreferences.filter((searchPreference) => {
-                return this.acl.can(`${searchPreference.entityName}.editor`);
-            });
+            const toReset = this.searchPreferencesService.processSearchPreferences(defaultSearchPreferences);
 
             this.searchPreferences.forEach((searchPreference, index) => {
                 toReset.forEach((item) => {

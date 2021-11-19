@@ -16,9 +16,6 @@ function createWrapper() {
             'sw-icon': true
         },
         provide: {
-            acl: {
-                can: () => true
-            },
             searchPreferencesService: {
                 getDefaultSearchPreferences: () => {},
                 getUserSearchPreferences: () => {},

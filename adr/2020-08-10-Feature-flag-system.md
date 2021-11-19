@@ -6,7 +6,8 @@ Because of the high turnover on code for features in development, the system nee
 Also it is recommended that the system is safe to not breaking things when a flag is not completely provided.
 
 ## Decision
-* A feature flag will be added to the system by adding it to the file ```/Core/Framework/Resources/config/packages/shopware.yaml```
+* A feature flag will be added to the system by adding it to the file 
+  ```/Core/Framework/Resources/config/packages/feature.yaml```
 ```yaml
 shopware:
     ....

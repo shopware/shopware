@@ -73,8 +73,6 @@ class StockUpdater implements EventSubscriberInterface
             }
             if ($command->hasField('referenced_id') || $command->hasField('product_id') || $command->hasField('quantity')) {
                 $command->requestChangeSet();
-
-                continue;
             }
         }
     }

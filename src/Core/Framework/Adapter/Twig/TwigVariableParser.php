@@ -67,8 +67,6 @@ class TwigVariableParser
 
             if ($node instanceof Node) {
                 $variables += $this->getVariables($node);
-
-                continue;
             }
         }
 

@@ -52,7 +52,6 @@ class ProductSearchKeywordAnalyzer implements ProductSearchKeywordAnalyzerInterf
                     $keywords->add(new AnalyzedKeyword((string) $value, $ranking));
                 } catch (\Throwable $error) {
                     // Can occur if the resolved value is a nested array. This prevents the string cast from being executed (Array to string conversion). We ignore this error at this point to allow some error tolerance in the configuration
-                    continue;
                 }
             }
         }

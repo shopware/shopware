@@ -88,8 +88,6 @@ class SingleSelectField extends CustomFieldType
             }
 
             $values = self::mapTranslatedTag($child, $values);
-
-            continue;
         }
 
         return $values;

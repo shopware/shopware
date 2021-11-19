@@ -33,8 +33,10 @@ class AppLifecycleIterator
 
     /**
      * @psalm-return  list<array{manifest: Manifest, exception: \Exception}>
+     *
+     * @param string[] $installAppNames Apps that should be installed
      */
-    public function iterateOverApps(AbstractAppLifecycle $appLifecycle, bool $activate, Context $context): array
+    public function iterateOverApps(AbstractAppLifecycle $appLifecycle, bool $activate, Context $context, array $installAppNames = []): array
     {
         $appsFromFileSystem = $this->appLoader->load();
         $installedApps = $this->getRegisteredApps($context);
@@ -42,6 +44,10 @@ class AppLifecycleIterator
         $successfulUpdates = [];
         $fails = [];
         foreach ($appsFromFileSystem as $manifest) {
+            if (\count($installAppNames) && !\in_array($manifest->getMetadata()->getName(), $installAppNames, true)) {
+                continue;
+            }
+
             try {
                 if (!\array_key_exists($manifest->getMetadata()->getName(), $installedApps)) {
                     $appLifecycle->install($manifest, $activate, $context);
@@ -60,8 +66,6 @@ class AppLifecycleIterator
                     'manifest' => $manifest,
                     'exception' => $exception,
                 ];
-
-                continue;
             }
         }
 

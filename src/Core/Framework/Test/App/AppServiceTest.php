@@ -264,9 +264,9 @@ class AppServiceTest extends TestCase
         static::assertCount(1, $refreshableApps->getToBeUpdated());
         static::assertCount(1, $refreshableApps->getToBeDeleted());
 
-        static::assertInstanceOf(Manifest::class, $refreshableApps->getToBeInstalled()[0]);
-        static::assertInstanceOf(Manifest::class, $refreshableApps->getToBeUpdated()[0]);
-        static::assertEquals('deleteTest', $refreshableApps->getToBeDeleted()[0]);
+        static::assertInstanceOf(Manifest::class, array_values($refreshableApps->getToBeInstalled())[0]);
+        static::assertInstanceOf(Manifest::class, array_values($refreshableApps->getToBeUpdated())[0]);
+        static::assertEquals('deleteTest', array_values($refreshableApps->getToBeDeleted())[0]);
     }
 
     public function testInstallFailureDoesNotAffectAllApps(): void

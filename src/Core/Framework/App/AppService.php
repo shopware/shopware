@@ -24,9 +24,12 @@ class AppService
         $this->appLifecycle = $appLifecycle;
     }
 
-    public function doRefreshApps(bool $activateInstalled, Context $context): array
+    /**
+     * @param string[] $installAppNames - Apps that should be installed
+     */
+    public function doRefreshApps(bool $activateInstalled, Context $context, array $installAppNames = []): array
     {
-        return $this->appLifecycleIterator->iterateOverApps($this->appLifecycle, $activateInstalled, $context);
+        return $this->appLifecycleIterator->iterateOverApps($this->appLifecycle, $activateInstalled, $context, $installAppNames);
     }
 
     public function getRefreshableAppInfo(Context $context): RefreshableAppDryRun

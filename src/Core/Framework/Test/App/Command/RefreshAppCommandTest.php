@@ -6,10 +6,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppService;
 use Shopware\Core\Framework\App\Command\AppPrinter;
 use Shopware\Core\Framework\App\Command\RefreshAppCommand;
-use Shopware\Core\Framework\App\Command\ValidateAppCommand;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\AppLifecycleIterator;
 use Shopware\Core\Framework\App\Lifecycle\AppLoader;
+use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -257,6 +257,15 @@ class RefreshAppCommandTest extends TestCase
         static::assertMatchesRegularExpression('/.*validationFailures\s+Swag App Test\s+1.0.0\s+shopware AG\s+\n.*/', $commandTester->getDisplay());
     }
 
+    public function testRefreshWithLimitation(): void
+    {
+        $commandTester = new CommandTester($this->createCommand(__DIR__ . '/_fixtures'));
+        $commandTester->execute(['-f' => true, '--no-validate' => true, 'name' => ['validationFailure']]);
+
+        static::assertStringNotContainsString('withPermissions', $commandTester->getDisplay());
+        static::assertStringNotContainsString('withoutPermissions', $commandTester->getDisplay());
+    }
+
     private function createCommand(string $appFolder): RefreshAppCommand
     {
         return new RefreshAppCommand(
@@ -272,7 +281,7 @@ class RefreshAppCommandTest extends TestCase
                 $this->getContainer()->get(AppLifecycle::class)
             ),
             new AppPrinter($this->appRepository),
-            $this->getContainer()->get(ValidateAppCommand::class)
+            $this->getContainer()->get(ManifestValidator::class)
         );
     }
 }

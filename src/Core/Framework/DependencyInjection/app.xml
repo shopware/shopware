@@ -297,16 +297,16 @@
         <service id="Shopware\Core\Framework\App\Command\RefreshAppCommand">
             <argument type="service" id="Shopware\Core\Framework\App\AppService"/>
             <argument type="service" id="Shopware\Core\Framework\App\Command\AppPrinter"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Command\ValidateAppCommand"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Validation\ManifestValidator"/>
 
             <tag name="console.command"/>
         </service>
 
         <service id="Shopware\Core\Framework\App\Command\InstallAppCommand">
-            <argument>%shopware.app_dir%</argument>
+            <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLoader"/>
             <argument type="service" id="Shopware\Core\Framework\App\Lifecycle\AppLifecycle"/>
             <argument type="service" id="Shopware\Core\Framework\App\Command\AppPrinter"/>
-            <argument type="service" id="Shopware\Core\Framework\App\Command\ValidateAppCommand"/>
+            <argument type="service" id="Shopware\Core\Framework\App\Validation\ManifestValidator"/>
 
             <tag name="console.command"/>
         </service>

@@ -8,7 +8,6 @@ Component.register('sw-search-preferences-modal', {
     template,
 
     inject: [
-        'acl',
         'searchPreferencesService',
         'searchRankingService',
         'userConfigService',

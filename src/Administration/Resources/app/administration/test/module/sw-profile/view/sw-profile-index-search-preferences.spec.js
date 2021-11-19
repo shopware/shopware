@@ -23,7 +23,7 @@ const swProfileStateMock = {
     }
 };
 
-function createWrapper(privileges = []) {
+function createWrapper() {
     const localVue = createLocalVue();
     localVue.use(Vuex);
 
@@ -53,15 +53,6 @@ function createWrapper(privileges = []) {
                 },
                 search: () => {
                     return Promise.resolve();
-                }
-            },
-            acl: {
-                can: (identifier) => {
-                    if (!identifier) {
-                        return true;
-                    }
-
-                    return privileges.includes(identifier);
                 }
             },
             searchPreferencesService: {
@@ -131,7 +122,6 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
 
     it('should be able to select all', async () => {
         const wrapper = createWrapper();
-        wrapper.vm.acl.can = jest.fn(() => true);
 
         await Shopware.State.commit('swProfile/setSearchPreferences', [{
             entityName: 'product',
@@ -164,52 +154,10 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
                 })
             ])
         );
-
-        wrapper.vm.acl.can.mockRestore();
-    });
-
-    it('should not be able to select all', async () => {
-        const wrapper = createWrapper();
-        wrapper.vm.acl.can = jest.fn(() => false);
-
-        await Shopware.State.commit('swProfile/setSearchPreferences', [{
-            entityName: 'product',
-            _searchable: false,
-            fields: [
-                {
-                    fieldName: 'name',
-                    _searchable: false,
-                    _score: 250,
-                    group: []
-                }
-            ]
-        }]);
-
-        wrapper.find(
-            '.sw-profile-index-search-preferences-searchable-elements__button-select-all'
-        ).trigger('click');
-
-        expect(wrapper.vm.searchPreferences).toEqual(
-            expect.arrayContaining([
-                expect.objectContaining({
-                    entityName: 'product',
-                    _searchable: false,
-                    fields: expect.arrayContaining([
-                        expect.objectContaining({
-                            fieldName: 'name',
-                            _searchable: false
-                        })
-                    ])
-                })
-            ])
-        );
-
-        wrapper.vm.acl.can.mockRestore();
     });
 
     it('should be able to deselect all', async () => {
         const wrapper = createWrapper();
-        wrapper.vm.acl.can = jest.fn(() => true);
 
         await Shopware.State.commit('swProfile/setSearchPreferences', [{
             entityName: 'product',
@@ -242,46 +190,5 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
                 })
             ])
         );
-
-        wrapper.vm.acl.can.mockRestore();
-    });
-
-    it('should not be able to deselect all', async () => {
-        const wrapper = createWrapper();
-        wrapper.vm.acl.can = jest.fn(() => false);
-
-        await Shopware.State.commit('swProfile/setSearchPreferences', [{
-            entityName: 'product',
-            _searchable: true,
-            fields: [
-                {
-                    fieldName: 'name',
-                    _searchable: true,
-                    _score: 250,
-                    group: []
-                }
-            ]
-        }]);
-
-        wrapper.find(
-            '.sw-profile-index-search-preferences-searchable-elements__button-deselect-all'
-        ).trigger('click');
-
-        expect(wrapper.vm.searchPreferences).toEqual(
-            expect.arrayContaining([
-                expect.objectContaining({
-                    entityName: 'product',
-                    _searchable: true,
-                    fields: expect.arrayContaining([
-                        expect.objectContaining({
-                            fieldName: 'name',
-                            _searchable: true
-                        })
-                    ])
-                })
-            ])
-        );
-
-        wrapper.vm.acl.can.mockRestore();
     });
 });

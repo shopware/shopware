@@ -22,7 +22,11 @@ export default function SearchPreferencesService({ userConfigRepository: _userCo
         const defaultSearchPreferences = [];
 
         Shopware.Module.getModuleRegistry().forEach(({ manifest }) => {
-            if (manifest.entity && manifest.defaultSearchConfiguration) {
+            if (
+                manifest.entity &&
+                Shopware.Service('acl').can(`${manifest.entity}.editor`) &&
+                manifest.defaultSearchConfiguration
+            ) {
                 defaultSearchPreferences.push({
                     [manifest.entity]: manifest.defaultSearchConfiguration,
                 });

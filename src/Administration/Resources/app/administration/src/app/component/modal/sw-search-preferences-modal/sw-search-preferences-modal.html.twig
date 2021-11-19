@@ -24,15 +24,7 @@
     >
         <template #column-active="{ item }">
             {% block sw_search_preferences_modal_grid_column_active %}
-            <sw-checkbox-field
-                v-model="item._searchable"
-                v-tooltip="{
-                    message: $tc('global.sw-search-preferences-modal.tooltipMessage'),
-                    disabled: acl.can(`${item.entityName}.editor`),
-                    showOnDisabledElements: true
-                }"
-                :disabled="!acl.can(`${item.entityName}.editor`)"
-            />
+            <sw-checkbox-field v-model="item._searchable" />
             {% endblock %}
         </template>
 

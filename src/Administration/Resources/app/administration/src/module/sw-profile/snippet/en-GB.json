@@ -45,8 +45,7 @@
         "description": "Set the searchable content for each module and entry.",
         "buttonSelect": "Select all",
         "buttonDeselect": "Deselect all",
-        "buttonReset": "Reset to default",
-        "tooltipMessage": "Your account doesn't have access to this module."
+        "buttonReset": "Reset to default"
       },
       "modules": {
         "order": {

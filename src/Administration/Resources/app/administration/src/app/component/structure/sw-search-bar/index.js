@@ -346,6 +346,7 @@ Component.register('sw-search-bar', {
 
         onClickType(type) {
             this.setSearchType(type);
+            this.$refs.searchInput.focus();
         },
 
         setSearchType(type) {

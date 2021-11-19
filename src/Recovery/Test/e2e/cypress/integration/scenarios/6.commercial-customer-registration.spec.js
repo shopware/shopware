@@ -35,10 +35,15 @@ describe('Admin & Storefront: commercial customer registration by using product 
             url: `**/${Cypress.env('apiPath')}/_action/system-config/batch`,
             method: 'post'
         }).as('saveData');
+        cy.intercept({
+            url: `**/${Cypress.env('apiPath')}/search/product`,
+            method: 'POST'
+        }).as('searchProduct');
 
         // Add product to sales channel
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
         cy.get('.sw-search-bar__input').typeAndCheckSearchField('Product name');
+        cy.wait('@searchProduct').its('response.statusCode').should('equal', 200);
         cy.contains('.sw-data-grid__table a','Product name').click();
         cy.contains('h2','Product name');
         cy.get('.sw-product-detail__select-visibility') .scrollIntoView().typeMultiSelectAndCheck('E2E install test');;

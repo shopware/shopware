@@ -21,11 +21,12 @@ describe('sales channel: set and validate initial settings', () => {
         cy.setPaymentMethod('Cash on delivery');
         cy.visit(`${Cypress.env('admin')}#/sw/dashboard/index`);
         cy.url().should('include', 'dashboard/index');
-        cy.selectCountry('E2E install test','Netherlands');
-        cy.selectLanguage('E2E install test', 'Dutch');
-        cy.selectPayment('E2E install test', 'Cash on delivery');
-        cy.selectShipping('E2E install test', 'Standard');
-        cy.selectCurrency('E2E install test','Euro');
+        cy.goToSalesChannelDetail('E2E install test')
+            .selectCountryForSalesChannel('Netherlands')
+            .selectLanguageForSalesChannel('Dutch')
+            .selectPaymentMethodForSalesChannel('Cash on delivery')
+            .selectShippingMethodForSalesChannel('Standard')
+            .selectCurrencyForSalesChannel('Euro');
 
         // Logout
         cy.get('.sw-admin-menu__user-actions-toggle').should('be.visible').click();

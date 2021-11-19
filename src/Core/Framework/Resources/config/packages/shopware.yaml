@@ -225,6 +225,11 @@ shopware:
               major: true
               description: "Brexit Changes"
               # issue: NEXT-14114
+            - name: FEATURE_NEXT_18215
+              default: false
+              major: true
+              description: "Rules are aware of their assignment"
+              # issue: NEXT-18215
             - name: FEATURE_NEXT_12455
               default: false
               major: false

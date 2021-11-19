@@ -7,9 +7,12 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Store\Services\FirstRunWizardClient;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigEntity;
 
 trait StoreClientBehaviour
 {
@@ -57,6 +60,34 @@ trait StoreClientBehaviour
 
         return $this->getUserRepository()->search(new Criteria([$source->getUserId()]), $context)
             ->first()->getStoreToken();
+    }
+
+    protected function getFrwUserTokenFromContext(Context $context): ?string
+    {
+        /** @var AdminApiSource $source */
+        $source = $context->getSource();
+        $criteria = (new Criteria())->addFilter(
+            new EqualsFilter('userId', $source->getUserId()),
+            new EqualsFilter('key', FirstRunWizardClient::USER_CONFIG_KEY_FRW_USER_TOKEN),
+        );
+
+        /** @var UserConfigEntity|null $config */
+        $config = $this->getContainer()->get('user_config.repository')->search($criteria, $context)->first();
+
+        return $config ? $config->getValue()[FirstRunWizardClient::USER_CONFIG_VALUE_FRW_USER_TOKEN] : null;
+    }
+
+    protected function setFrwUserToken(Context $context, string $frwUserToken): void
+    {
+        $this->getContainer()->get('user_config.repository')->create([
+            [
+                'userId' => $context->getSource()->getUserId(),
+                'key' => FirstRunWizardClient::USER_CONFIG_KEY_FRW_USER_TOKEN,
+                'value' => [
+                    FirstRunWizardClient::USER_CONFIG_VALUE_FRW_USER_TOKEN => $frwUserToken,
+                ],
+            ],
+        ], Context::createDefaultContext());
     }
 
     protected function setLicenseDomain(?string $licenseDomain): void

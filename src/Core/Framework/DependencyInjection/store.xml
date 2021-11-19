@@ -62,6 +62,7 @@
             <argument type="service" id="shopware.store_client"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Authentication\FrwRequestOptionsProvider"/>
             <argument type="service" id="Shopware\Core\Framework\Store\Services\InstanceService"/>
+            <argument type="service" id="user_config.repository"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Services\StoreService" lazy="true">
@@ -111,6 +112,7 @@
 
         <service id="Shopware\Core\Framework\Store\Authentication\FrwRequestOptionsProvider">
             <argument type="service" id="Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider"/>
+            <argument type="service" id="user_config.repository"/>
         </service>
 
         <service id="Shopware\Core\Framework\Store\Authentication\AbstractAuthenticationProvider" class="Shopware\Core\Framework\Store\Authentication\AuthenticationProvider">

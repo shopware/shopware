@@ -8,6 +8,9 @@ use League\Flysystem\FilesystemInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceException;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Store\Authentication\AbstractStoreRequestOptionsProvider;
@@ -34,6 +37,9 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 final class FirstRunWizardClient
 {
+    public const USER_CONFIG_KEY_FRW_USER_TOKEN = 'core.frw.userToken';
+    public const USER_CONFIG_VALUE_FRW_USER_TOKEN = 'frwUserToken';
+
     private const TRACKING_EVENT_FRW_STARTED = 'First Run Wizard started';
     private const TRACKING_EVENT_FRW_FINISHED = 'First Run Wizard finished';
 
@@ -57,6 +63,8 @@ final class FirstRunWizardClient
 
     private InstanceService $instanceService;
 
+    private EntityRepositoryInterface $userConfigRepository;
+
     public function __construct(
         StoreService $storeService,
         SystemConfigService $configService,
@@ -65,19 +73,18 @@ final class FirstRunWizardClient
         EventDispatcherInterface $eventDispatcher,
         Client $client,
         AbstractStoreRequestOptionsProvider $optionsProvider,
-        InstanceService $instanceService
+        InstanceService $instanceService,
+        EntityRepositoryInterface $userConfigRepository
     ) {
         $this->storeService = $storeService;
         $this->client = $client;
         $this->optionsProvider = $optionsProvider;
         $this->instanceService = $instanceService;
-
         $this->configService = $configService;
         $this->filesystem = $filesystem;
-
         $this->frwAutoRun = $frwAutoRun;
-
         $this->eventDispatcher = $eventDispatcher;
+        $this->userConfigRepository = $userConfigRepository;
     }
 
     public function startFrw(Context $context): void
@@ -112,7 +119,7 @@ final class FirstRunWizardClient
 
         $data = \json_decode($response->getBody()->getContents(), true);
 
-        $this->storeService->updateStoreToken(
+        $this->updateFrwUserToken(
             $context,
             $this->createAccessTokenStruct($data, $data['firstRunWizardUserToken'])
         );
@@ -143,6 +150,8 @@ final class FirstRunWizardClient
             $context,
             $this->createAccessTokenStruct($data, $data['shopUserToken'])
         );
+
+        $this->removeFrwUserToken($context);
     }
 
     public function finishFrw(bool $failed, Context $context): void
@@ -431,5 +440,62 @@ final class FirstRunWizardClient
         }
 
         return FrwState::openState();
+    }
+
+    private function updateFrwUserToken(Context $context, AccessTokenStruct $accessToken): void
+    {
+        /** @var AdminApiSource $contextSource */
+        $contextSource = $context->getSource();
+        $userId = $contextSource->getUserId();
+
+        $frwUserToken = $accessToken->getShopUserToken()->getToken();
+        $id = $this->getFrwUserTokenConfigId($context);
+
+        $context->scope(Context::SYSTEM_SCOPE, function ($context) use ($userId, $frwUserToken, $id): void {
+            $this->userConfigRepository->upsert(
+                [
+                    [
+                        'id' => $id,
+                        'userId' => $userId,
+                        'key' => self::USER_CONFIG_KEY_FRW_USER_TOKEN,
+                        'value' => [self::USER_CONFIG_VALUE_FRW_USER_TOKEN => $frwUserToken,
+                        ],
+                    ],
+                ],
+                $context
+            );
+        });
+    }
+
+    private function removeFrwUserToken(Context $context): void
+    {
+        if (!$context->getSource() instanceof AdminApiSource) {
+            return;
+        }
+
+        $id = $this->getFrwUserTokenConfigId($context);
+
+        if ($id) {
+            $context->scope(Context::SYSTEM_SCOPE, function ($context) use ($id): void {
+                $this->userConfigRepository->delete([['id' => $id]], $context);
+            });
+        }
+    }
+
+    private function getFrwUserTokenConfigId(Context $context): ?string
+    {
+        if (!$context->getSource() instanceof AdminApiSource) {
+            return null;
+        }
+
+        /** @var AdminApiSource $contextSource */
+        $contextSource = $context->getSource();
+
+        $criteria = (new Criteria())->addFilter(
+            new EqualsFilter('userId', $contextSource->getUserId()),
+            new EqualsFilter('key', self::USER_CONFIG_KEY_FRW_USER_TOKEN)
+        );
+
+        return $this->userConfigRepository->searchIds($criteria, $context)->firstId();
     }
 }

@@ -54,7 +54,7 @@ class FirstRunWizardClientTest extends TestCase
                 return $event->getState()->isOpen();
             }));
 
-        $frwClient = $this->getFwrClientForStateTests($eventDispatcher);
+        $frwClient = $this->getFrwClientForStateTests($eventDispatcher);
 
         $frwClient->startFrw($this->storeContext);
 
@@ -86,7 +86,7 @@ class FirstRunWizardClientTest extends TestCase
                 return $event->getState()->isCompleted();
             }));
 
-        $frwClient = $this->getFwrClientForStateTests($eventDispatcher);
+        $frwClient = $this->getFrwClientForStateTests($eventDispatcher);
 
         $frwClient->startFrw($this->storeContext);
 
@@ -119,7 +119,7 @@ class FirstRunWizardClientTest extends TestCase
                 return $event->getState()->isFailed() && $event->getState()->getFailureCount() === 10;
             }));
 
-        $frwClient = $this->getFwrClientForStateTests($eventDispatcher);
+        $frwClient = $this->getFrwClientForStateTests($eventDispatcher);
 
         $frwClient->startFrw($this->storeContext);
 
@@ -152,7 +152,7 @@ class FirstRunWizardClientTest extends TestCase
 
         $this->getSystemFwrClient()->frwLogin('1', 'shopware', 'en_GB', $this->storeContext);
 
-        static::assertEquals('updatedToken', $this->getStoreTokenFromContext($this->storeContext));
+        static::assertEquals('updatedToken', $this->getFrwUserTokenFromContext($this->storeContext));
 
         $lastRequest = $this->getRequestHandler()->getLastRequest();
 
@@ -169,8 +169,6 @@ class FirstRunWizardClientTest extends TestCase
             'shopwareId' => '1',
             'password' => 'shopware',
         ], \json_decode($lastRequest->getBody()->getContents(), true));
-
-        static::assertEquals('updatedToken', $this->getStoreTokenFromContext($this->storeContext));
 
         static::assertEquals('1', $this->systemConfigService->get('core.store.shopwareId'));
     }
@@ -199,6 +197,7 @@ class FirstRunWizardClientTest extends TestCase
 
         static::assertEquals('this-shop-is-secret', $this->systemConfigService->get('core.store.shopSecret'));
         static::assertEquals('updatedToken', $this->getStoreTokenFromContext($this->storeContext));
+        static::assertNull($this->getFrwUserTokenFromContext($this->storeContext));
     }
 
     public function testFinishFrwUpdatesFrwStateIfCompleted(): void
@@ -216,7 +215,7 @@ class FirstRunWizardClientTest extends TestCase
                 }
             ));
 
-        $frwClient = $this->getFwrClientForStateTests($mockEventDispatcher);
+        $frwClient = $this->getFrwClientForStateTests($mockEventDispatcher);
         $frwClient->finishFrw(false, $this->storeContext);
 
         $lastRequest = $this->getRequestHandler()->getLastRequest();
@@ -249,20 +248,20 @@ class FirstRunWizardClientTest extends TestCase
                 }
             ));
 
-        $frwClient = $this->getFwrClientForStateTests($mockEventDispatcher);
+        $frwClient = $this->getFrwClientForStateTests($mockEventDispatcher);
 
         $frwClient->finishFrw(true, $this->storeContext);
     }
 
     public function testShouldRunIsAlwaysFalseIfFrwAutoRunIsFalse(): void
     {
-        $frwClient = $this->getFrWClientWithAutoRunSettings(false);
+        $frwClient = $this->getFrwClientWithAutoRunSettings(false);
         static::assertFalse($frwClient->frwShouldRun());
     }
 
     public function testShouldRunIsFalseIfFrwIsCompleted(): void
     {
-        $frwClient = $this->getFrWClientWithAutoRunSettings(true);
+        $frwClient = $this->getFrwClientWithAutoRunSettings(true);
 
         $this->systemConfigService->set(
             'core.frw.completedAt',
@@ -274,13 +273,13 @@ class FirstRunWizardClientTest extends TestCase
 
     public function testShouldRunIsTrueIfFrwDidNotStartYet(): void
     {
-        $frwClient = $this->getFrWClientWithAutoRunSettings(true);
+        $frwClient = $this->getFrwClientWithAutoRunSettings(true);
         static::assertTrue($frwClient->frwShouldRun());
     }
 
     public function testShouldRunIsTrueIfFrwHasFailed(): void
     {
-        $frwClient = $this->getFrWClientWithAutoRunSettings(true);
+        $frwClient = $this->getFrwClientWithAutoRunSettings(true);
 
         $this->systemConfigService->set(
             'core.frw.failedAt',
@@ -294,7 +293,7 @@ class FirstRunWizardClientTest extends TestCase
 
     public function testShouldRunIsFalseIfFrwHasFailedToOften(): void
     {
-        $frwClient = $this->getFrWClientWithAutoRunSettings(true);
+        $frwClient = $this->getFrwClientWithAutoRunSettings(true);
 
         $this->systemConfigService->set(
             'core.frw.failedAt',
@@ -417,13 +416,14 @@ class FirstRunWizardClientTest extends TestCase
     {
         $this->systemConfigService->set(StoreService::CONFIG_KEY_STORE_LICENSE_DOMAIN, 'http://test-shop');
 
-        $storeToken = $this->getStoreTokenFromContext($this->storeContext);
+        $this->setFrwUserToken($this->storeContext, 'frw-user-token');
+        $frwUserToken = $this->getFrwUserTokenFromContext($this->storeContext);
 
         $this->getRequestHandler()->append(
             new Response(200, [], \file_get_contents(__DIR__ . '/../_fixtures/FirstRunWizard/licenseDomainResponse.json'))
         );
 
-        $domains = $this->getSystemFwrClient()->getLicenseDomains('en_Gb', $this->storeContext);
+        $domains = $this->getSystemFwrClient()->getLicenseDomains('en_GB', $this->storeContext);
 
         static::assertEquals([
             [
@@ -445,7 +445,7 @@ class FirstRunWizardClientTest extends TestCase
         $lastRequest = $this->getRequestHandler()->getLastRequest();
 
         static::assertEquals('/swplatform/firstrunwizard/shops', $lastRequest->getUri()->getPath());
-        static::assertEquals($storeToken, $lastRequest->getHeader('X-Shopware-Token')[0]);
+        static::assertEquals($frwUserToken, $lastRequest->getHeader('X-Shopware-Token')[0]);
     }
 
     public function testVerifyLicenseDomain(): void
@@ -494,7 +494,7 @@ class FirstRunWizardClientTest extends TestCase
         $this->systemConfigService->set('core.frw.failureCount', null);
     }
 
-    private function getFrWClientWithAutoRunSettings(bool $frwAutoRun)
+    private function getFrwClientWithAutoRunSettings(bool $frwAutoRun): FirstRunWizardClient
     {
         return new FirstRunWizardClient(
             $this->getContainer()->get(StoreService::class),
@@ -504,11 +504,12 @@ class FirstRunWizardClientTest extends TestCase
             $this->getContainer()->get('event_dispatcher'),
             $this->getContainer()->get('shopware.store_client'),
             $this->getContainer()->get(FrwRequestOptionsProvider::class),
-            $this->getContainer()->get(InstanceService::class)
+            $this->getContainer()->get(InstanceService::class),
+            $this->getContainer()->get('user_config.repository')
         );
     }
 
-    private function getFwrClientForStateTests(EventDispatcherInterface $mockEventDispatcher): FirstRunWizardClient
+    private function getFrwClientForStateTests(EventDispatcherInterface $mockEventDispatcher): FirstRunWizardClient
     {
         return new FirstRunWizardClient(
             $this->getContainer()->get(StoreService::class),
@@ -518,7 +519,8 @@ class FirstRunWizardClientTest extends TestCase
             $mockEventDispatcher,
             $this->getContainer()->get('shopware.store_client'),
             $this->getContainer()->get(FrwRequestOptionsProvider::class),
-            $this->getContainer()->get(InstanceService::class)
+            $this->getContainer()->get(InstanceService::class),
+            $this->getContainer()->get('user_config.repository')
         );
     }
 

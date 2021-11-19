@@ -65,6 +65,7 @@ class StoreServiceTest extends TestCase
             $this->getContainer()->get('user.repository'),
             $instanceService,
             $this->getContainer()->get(StoreRequestOptionsProvider::class),
+            $this->getContainer()->get('user_config.repository')
         );
 
         $this->getRequestHandler()->reset();
@@ -163,7 +164,7 @@ class StoreServiceTest extends TestCase
             $accessTokenStruct
         );
 
-        $criteria = new Criteria([$adminStoreContext->getSource()->getuserId()]);
+        $criteria = new Criteria([$adminStoreContext->getSource()->getUserId()]);
 
         $updatedUser = $this->getUserRepository()->search($criteria, $adminStoreContext)->first();
 

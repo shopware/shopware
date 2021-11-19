@@ -245,17 +245,20 @@ Component.register('sw-media-library', {
                     .addSorting(Criteria.sort(this.sorting.sortBy, this.sorting.sortDirection))
                     .setTerm(this.term);
 
-                if (this.feature.isActive('FEATURE_NEXT_6040')) {
+                if (this.feature.isActive('FEATURE_NEXT_6040') && this.isValidTerm(this.term)) {
                     const searchRankingFields = await this.searchRankingService.getSearchFieldsByEntity('media');
+
+                    if (!searchRankingFields || Object.keys(searchRankingFields).length < 1) {
+                        this.isLoading = false;
+                        this.itemLoaderDone = true;
+                        return;
+                    }
+
                     criteria = this.searchRankingService.buildSearchQueriesForEntity(
                         searchRankingFields,
                         this.term,
                         criteria,
                     );
-                    if (!searchRankingFields || Object.keys(searchRankingFields).length < 1) {
-                        this.isLoading = false;
-                        return;
-                    }
                 }
 
                 const items = await this.mediaRepository.search(criteria, Context.api);

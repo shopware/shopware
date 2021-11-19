@@ -474,4 +474,3 @@ Cypress.Commands.add('selectLanguageForSalesChannel', (language) => {
     cy.contains('.sw-sales-channel-detail__select-languages', language).should('be.visible');
     cy.contains('.sw-sales-channel-detail__assign-languages', language).should('be.visible');
 });
-

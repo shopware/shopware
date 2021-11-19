@@ -10,11 +10,9 @@ use Shopware\Core\Framework\Context;
  */
 class NotificationResponseFactory implements ActionButtonResponseFactoryInterface
 {
-    public const ACTION_TYPE = 'notification';
-
     public function supports(string $actionType): bool
     {
-        return $actionType === self::ACTION_TYPE;
+        return $actionType === NotificationResponse::ACTION_TYPE;
     }
 
     public function create(AppAction $action, array $payload, Context $context): ActionButtonResponse

@@ -7,7 +7,7 @@ namespace Shopware\Core\Framework\App\ActionButton\Response;
  */
 class NotificationResponse extends ActionButtonResponse
 {
-    private const ACTION_TYPE = 'notification';
+    public const ACTION_TYPE = 'notification';
 
     /**
      * One of the possible action statuses of notification.

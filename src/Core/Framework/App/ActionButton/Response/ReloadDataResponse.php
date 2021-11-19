@@ -7,7 +7,7 @@ namespace Shopware\Core\Framework\App\ActionButton\Response;
  */
 class ReloadDataResponse extends ActionButtonResponse
 {
-    private const ACTION_TYPE = 'reload';
+    public const ACTION_TYPE = 'reload';
 
     public function __construct()
     {

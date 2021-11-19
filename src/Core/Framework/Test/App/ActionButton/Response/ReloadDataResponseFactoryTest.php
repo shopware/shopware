@@ -4,9 +4,9 @@ namespace Shopware\Core\Framework\Test\App\ActionButton\Response;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ActionButton\AppAction;
-use Shopware\Core\Framework\App\ActionButton\Response\NotificationResponseFactory;
-use Shopware\Core\Framework\App\ActionButton\Response\OpenModalResponseFactory;
-use Shopware\Core\Framework\App\ActionButton\Response\OpenNewTabResponseFactory;
+use Shopware\Core\Framework\App\ActionButton\Response\NotificationResponse;
+use Shopware\Core\Framework\App\ActionButton\Response\OpenModalResponse;
+use Shopware\Core\Framework\App\ActionButton\Response\OpenNewTabResponse;
 use Shopware\Core\Framework\App\ActionButton\Response\ReloadDataResponse;
 use Shopware\Core\Framework\App\ActionButton\Response\ReloadDataResponseFactory;
 use Shopware\Core\Framework\Context;
@@ -55,10 +55,10 @@ class ReloadDataResponseFactoryTest extends TestCase
     public function provideActionTypes(): array
     {
         return [
-            [OpenModalResponseFactory::ACTION_TYPE, false],
-            [OpenNewTabResponseFactory::ACTION_TYPE, false],
-            [ReloadDataResponseFactory::ACTION_TYPE, true],
-            [NotificationResponseFactory::ACTION_TYPE, false],
+            [NotificationResponse::ACTION_TYPE, false],
+            [OpenModalResponse::ACTION_TYPE, false],
+            [OpenNewTabResponse::ACTION_TYPE, false],
+            [ReloadDataResponse::ACTION_TYPE, true],
         ];
     }
 }

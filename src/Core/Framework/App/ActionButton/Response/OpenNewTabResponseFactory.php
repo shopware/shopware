@@ -11,8 +11,6 @@ use Shopware\Core\Framework\Context;
  */
 class OpenNewTabResponseFactory implements ActionButtonResponseFactoryInterface
 {
-    public const ACTION_TYPE = 'openNewTab';
-
     private ActionButtonResponseSigner $signer;
 
     public function __construct(ActionButtonResponseSigner $signer)
@@ -22,7 +20,7 @@ class OpenNewTabResponseFactory implements ActionButtonResponseFactoryInterface
 
     public function supports(string $actionType): bool
     {
-        return $actionType === self::ACTION_TYPE;
+        return $actionType === OpenNewTabResponse::ACTION_TYPE;
     }
 
     public function create(AppAction $action, array $payload, Context $context): ActionButtonResponse

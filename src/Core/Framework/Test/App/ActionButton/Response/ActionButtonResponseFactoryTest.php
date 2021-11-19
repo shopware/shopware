@@ -6,13 +6,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\ActionButton\AppAction;
 use Shopware\Core\Framework\App\ActionButton\Response\ActionButtonResponseFactory;
 use Shopware\Core\Framework\App\ActionButton\Response\NotificationResponse;
-use Shopware\Core\Framework\App\ActionButton\Response\NotificationResponseFactory;
 use Shopware\Core\Framework\App\ActionButton\Response\OpenModalResponse;
-use Shopware\Core\Framework\App\ActionButton\Response\OpenModalResponseFactory;
 use Shopware\Core\Framework\App\ActionButton\Response\OpenNewTabResponse;
-use Shopware\Core\Framework\App\ActionButton\Response\OpenNewTabResponseFactory;
 use Shopware\Core\Framework\App\ActionButton\Response\ReloadDataResponse;
-use Shopware\Core\Framework\App\ActionButton\Response\ReloadDataResponseFactory;
 use Shopware\Core\Framework\App\Exception\ActionProcessException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
@@ -73,22 +69,22 @@ class ActionButtonResponseFactoryTest extends TestCase
     {
         return [
             [
-                NotificationResponseFactory::ACTION_TYPE,
+                NotificationResponse::ACTION_TYPE,
                 ['status' => 'success', 'message' => 'This is success'],
                 NotificationResponse::class,
             ],
             [
-                ReloadDataResponseFactory::ACTION_TYPE,
+                ReloadDataResponse::ACTION_TYPE,
                 [],
                 ReloadDataResponse::class,
             ],
             [
-                OpenNewTabResponseFactory::ACTION_TYPE,
+                OpenNewTabResponse::ACTION_TYPE,
                 ['redirectUrl' => 'https://www.google.com/'],
                 OpenNewTabResponse::class,
             ],
             [
-                OpenModalResponseFactory::ACTION_TYPE,
+                OpenModalResponse::ACTION_TYPE,
                 ['iframeUrl' => 'http://iframe.url', 'size' => 'medium', 'expand' => false],
                 OpenModalResponse::class,
             ],

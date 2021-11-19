@@ -11,8 +11,6 @@ use Shopware\Core\Framework\Context;
  */
 class OpenModalResponseFactory implements ActionButtonResponseFactoryInterface
 {
-    public const ACTION_TYPE = 'openModal';
-
     private const VALID_MODAL_SIZES = [
         'small',
         'medium',

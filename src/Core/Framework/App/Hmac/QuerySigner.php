@@ -1,11 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\App\ActionButton\Response;
+namespace Shopware\Core\Framework\App\Hmac;
 
 use GuzzleHttp\Psr7\Uri;
 use Psr\Http\Message\UriInterface;
-use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
-use Shopware\Core\Framework\App\Hmac\RequestSigner;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Store\Authentication\LocaleProvider;
@@ -13,7 +11,7 @@ use Shopware\Core\Framework\Store\Authentication\LocaleProvider;
 /**
  * @internal only for use by the app-system
  */
-class ActionButtonResponseSigner
+class QuerySigner
 {
     private string $shopUrl;
 

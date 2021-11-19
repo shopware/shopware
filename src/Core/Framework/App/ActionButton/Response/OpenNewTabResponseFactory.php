@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\App\ActionButton\Response;
 
 use Shopware\Core\Framework\App\ActionButton\AppAction;
 use Shopware\Core\Framework\App\Exception\ActionProcessException;
+use Shopware\Core\Framework\App\Hmac\QuerySigner;
 use Shopware\Core\Framework\Context;
 
 /**
@@ -11,9 +12,9 @@ use Shopware\Core\Framework\Context;
  */
 class OpenNewTabResponseFactory implements ActionButtonResponseFactoryInterface
 {
-    private ActionButtonResponseSigner $signer;
+    private QuerySigner $signer;
 
-    public function __construct(ActionButtonResponseSigner $signer)
+    public function __construct(QuerySigner $signer)
     {
         $this->signer = $signer;
     }

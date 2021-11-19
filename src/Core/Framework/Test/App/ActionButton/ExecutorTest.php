@@ -12,13 +12,17 @@ use Shopware\Core\Framework\App\ActionButton\AppAction;
 use Shopware\Core\Framework\App\ActionButton\Executor;
 use Shopware\Core\Framework\App\Exception\ActionProcessException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
+use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Test\App\GuzzleTestClientBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\SystemConfigTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 class ExecutorTest extends TestCase
 {
+    use SystemConfigTestBehaviour;
     use GuzzleTestClientBehaviour;
 
     public const SCHEMA_LOCATION = __DIR__ . '/../../../App/ActionButton/appActionEndpointSchema.json';
@@ -89,7 +93,7 @@ class ExecutorTest extends TestCase
 
         $this->appendNewResponse(new Response(500));
 
-        $this->expectException(ActionProcessException::class);
+        static::expectException(ActionProcessException::class);
         $this->executor->execute($action, Context::createDefaultContext());
     }
 
@@ -246,7 +250,7 @@ class ExecutorTest extends TestCase
 
         $this->signResponse('123455');
 
-        $this->expectException(ActionProcessException::class);
+        static::expectException(ActionProcessException::class);
         $this->executor->execute($action, Context::createDefaultContext());
     }
 
@@ -272,7 +276,31 @@ class ExecutorTest extends TestCase
 
         $this->signResponse($appSecret, $responseData);
 
-        $this->expectException(ActionProcessException::class);
+        static::expectException(ActionProcessException::class);
+        $this->executor->execute($action, Context::createDefaultContext());
+    }
+
+    public function testThrowsExceptionIfAppUrlChangeIsDetected(): void
+    {
+        $systemConfigService = $this->getContainer()->get(SystemConfigService::class);
+        $systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY, ['app_url' => 'http://random-shop.url']);
+
+        $action = new AppAction(
+            'https://test.com/my-action',
+            getenv('APP_URL'),
+            '1.0.0',
+            'product',
+            'detail',
+            [Uuid::randomHex()],
+            's3cr3t',
+            Random::getAlphanumericString(12),
+            Uuid::randomHex()
+        );
+
+        $this->signResponse('123455');
+
+        static::expectException(ActionProcessException::class);
+        static::expectExceptionMessage('Detected APP_URL change');
         $this->executor->execute($action, Context::createDefaultContext());
     }
 

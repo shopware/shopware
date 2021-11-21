@@ -286,6 +286,9 @@ trait SalesChannelApiTestBehaviour
         $browser->request('GET', '/store-api/context');
         $response = $browser->getResponse();
         $content = json_decode($response->getContent(), true);
+        if (isset($content['errors'])) {
+            throw new \RuntimeException($content['errors'][0]['detail']);
+        }
         $browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $content['token']);
     }
 

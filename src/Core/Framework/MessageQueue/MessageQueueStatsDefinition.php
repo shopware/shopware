@@ -4,6 +4,8 @@ namespace Shopware\Core\Framework\MessageQueue;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\EntityProtectionCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\WriteProtection;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
@@ -12,6 +14,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 
+/**
+ * @deprecated tag:v6.5.0 - use `shopware.increment.message_queue.gateway` service instead
+ */
 class MessageQueueStatsDefinition extends EntityDefinition
 {
     public const ENTITY_NAME = 'message_queue_stats';
@@ -39,6 +44,11 @@ class MessageQueueStatsDefinition extends EntityDefinition
     public function since(): ?string
     {
         return '6.0.0.0';
+    }
+
+    protected function defineProtections(): EntityProtectionCollection
+    {
+        return new EntityProtectionCollection([new WriteProtection(Context::SYSTEM_SCOPE)]);
     }
 
     protected function defineFields(): FieldCollection

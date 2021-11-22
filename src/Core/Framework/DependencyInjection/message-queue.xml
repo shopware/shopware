@@ -19,10 +19,10 @@
         </service>
 
         <!--Message Bus-->
-        <service id="Shopware\Core\Framework\MessageQueue\MonitoringBusDecorator" decorates="messenger.bus.shopware">
-            <argument type="service" id="Shopware\Core\Framework\MessageQueue\MonitoringBusDecorator.inner"/>
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        <service id="Shopware\Core\Framework\MessageQueue\Monitoring\MonitoringBusDecorator" decorates="messenger.bus.shopware">
+            <argument type="service" id="Shopware\Core\Framework\MessageQueue\Monitoring\MonitoringBusDecorator.inner"/>
             <argument type="string">%messenger.default_transport_name%</argument>
+            <argument type="service" id="shopware.increment.gateway.registry"/>
         </service>
 
         <service id="encrypted.messenger.bus.shopware" class="Shopware\Core\Framework\MessageQueue\EncryptedBus">
@@ -75,7 +75,7 @@
         </service>
 
         <service id="Shopware\Core\Framework\MessageQueue\Subscriber\MessageFailedHandler">
-            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="shopware.increment.gateway.registry"/>
             <argument type="string">%messenger.default_transport_name%</argument>
 
             <tag name="kernel.event_subscriber"/>

@@ -2,7 +2,8 @@
 
 namespace Shopware\Core\Framework\MessageQueue\Subscriber;
 
-use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundException;
+use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
@@ -10,14 +11,14 @@ use Symfony\Component\Messenger\Stamp\ReceivedStamp;
 
 class MessageFailedHandler implements EventSubscriberInterface
 {
-    private Connection $connection;
-
     private string $defaultTransportName;
 
-    public function __construct(Connection $connection, string $defaultTransportName)
+    private IncrementGatewayRegistry $gatewayRegistry;
+
+    public function __construct(IncrementGatewayRegistry $gatewayRegistry, string $defaultTransportName)
     {
-        $this->connection = $connection;
         $this->defaultTransportName = $defaultTransportName;
+        $this->gatewayRegistry = $gatewayRegistry;
     }
 
     public static function getSubscribedEvents(): array
@@ -41,11 +42,14 @@ class MessageFailedHandler implements EventSubscriberInterface
         }
 
         $name = \get_class($message->getMessage());
-        $this->connection->executeUpdate('
-            UPDATE `message_queue_stats`
-            SET `size` = `size` - 1
-            WHERE `name` = :name AND `size` > 0;
-        ', ['name' => $name]);
+
+        try {
+            $gateway = $this->gatewayRegistry->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
+        } catch (IncrementGatewayNotFoundException $exception) {
+            return;
+        }
+
+        $gateway->decrement('message_queue_stats', $name);
     }
 
     private function wasReceivedByDefaultTransport(Envelope $message): bool

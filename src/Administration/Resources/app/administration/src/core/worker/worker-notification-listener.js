@@ -42,19 +42,29 @@ class WorkerNotificationListener {
         this._isIntervalWatcherSetup = true;
     }
 
+    /**
+     * @deprecated tag:v6.5.0 - the message_queue_stats entity will be deprecated
+     * @return {Repository}
+     */
     getMessageQueueStatsRepository() {
         return Shopware.Service().get('repositoryFactory').create('message_queue_stats');
     }
 
     _checkQueue() {
         this._isRequestRunning = true;
-        const repository = this.getMessageQueueStatsRepository();
-        repository.search(new Shopware.Data.Criteria(1, 25), this._context).then((res) => {
+        const client = Shopware.Application.getContainer('init').httpClient;
+        const headers = {
+            headers: {
+                Authorization: `Bearer ${Shopware.Service('loginService').getToken()}`,
+            },
+        };
+
+        client.get('/_info/queue.json', headers).then((res) => {
             this._isRequestRunning = false;
             this._timeoutId = null;
 
             // Notify the worker notification middleware
-            this.runNotificationMiddleware(res);
+            this.runNotificationMiddleware(res.data);
 
             if (this._isRunning) {
                 this._interval = this._getApplicationRootReference().$store.state.notification.workerProcessPollInterval;

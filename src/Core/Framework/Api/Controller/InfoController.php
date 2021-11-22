@@ -10,6 +10,8 @@ use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
+use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundException;
+use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Routing\Annotation\RouteScope;
 use Shopware\Core\Framework\Routing\Annotation\Since;
 use Shopware\Core\Kernel;
@@ -27,42 +29,23 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class InfoController extends AbstractController
 {
-    /**
-     * @var DefinitionService
-     */
-    private $definitionService;
+    private DefinitionService $definitionService;
 
-    /**
-     * @var ParameterBagInterface
-     */
-    private $params;
+    private ParameterBagInterface $params;
 
-    /**
-     * @var Packages
-     */
-    private $packages;
+    private Packages $packages;
 
-    /**
-     * @var Kernel
-     */
-    private $kernel;
+    private Kernel $kernel;
 
-    /**
-     * @var bool
-     */
-    private $enableUrlFeature;
+    private bool $enableUrlFeature;
 
-    /**
-     * @var array
-     */
-    private $cspTemplates;
+    private array $cspTemplates;
 
-    /**
-     * @var BusinessEventCollector
-     */
-    private $eventCollector;
+    private BusinessEventCollector $eventCollector;
 
     private ?FlowActionCollector $flowActionCollector;
+
+    private IncrementGatewayRegistry $incrementGatewayRegistry;
 
     public function __construct(
         DefinitionService $definitionService,
@@ -70,6 +53,7 @@ class InfoController extends AbstractController
         Kernel $kernel,
         Packages $packages,
         BusinessEventCollector $eventCollector,
+        IncrementGatewayRegistry $incrementGatewayRegistry,
         ?FlowActionCollector $flowActionCollector = null,
         bool $enableUrlFeature = true,
         array $cspTemplates = []
@@ -82,6 +66,7 @@ class InfoController extends AbstractController
         $this->flowActionCollector = $flowActionCollector;
         $this->cspTemplates = $cspTemplates;
         $this->eventCollector = $eventCollector;
+        $this->incrementGatewayRegistry = $incrementGatewayRegistry;
     }
 
     /**
@@ -113,6 +98,32 @@ class InfoController extends AbstractController
         $data = $this->definitionService->generate(OpenApi3Generator::FORMAT, DefinitionService::API, $apiType);
 
         return new JsonResponse($data);
+    }
+
+    /**
+     * @Since("6.4.6.0")
+     * @Route("/api/_info/queue.json", name="api.info.queue", methods={"GET"})
+     *
+     * @throws \Exception
+     */
+    public function queue(): JsonResponse
+    {
+        try {
+            $gateway = $this->incrementGatewayRegistry->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
+        } catch (IncrementGatewayNotFoundException $exception) {
+            // In case message_queue pool is disabled
+            return new JsonResponse([]);
+        }
+
+        // Fetch unlimited message_queue_stats
+        $entries = $gateway->list('message_queue_stats', -1);
+
+        return new JsonResponse(array_map(function (array $entry) {
+            return [
+                'name' => $entry['key'],
+                'size' => (int) $entry['count'],
+            ];
+        }, array_values($entries)));
     }
 
     /**

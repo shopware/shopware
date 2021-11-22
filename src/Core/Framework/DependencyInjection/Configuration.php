@@ -31,6 +31,7 @@ class Configuration implements ConfigurationInterface
                 ->append($this->createLoggerSection())
                 ->append($this->createCacheSection())
                 ->append($this->createHtmlSanitizerSection())
+                ->append($this->createIncrementSection())
             ->end();
 
         return $treeBuilder;
@@ -508,6 +509,21 @@ class Configuration implements ConfigurationInterface
                             ->end()
                         ->end()
                     ->end()
+                ->end()
+            ->end();
+
+        return $rootNode;
+    }
+
+    private function createIncrementSection(): ArrayNodeDefinition
+    {
+        $rootNode = (new TreeBuilder('increment'))->getRootNode();
+        $rootNode
+            ->useAttributeAsKey('name')
+            ->arrayPrototype()
+                ->children()
+                    ->scalarNode('type')->end()
+                    ->variableNode('config')->end()
                 ->end()
             ->end();
 

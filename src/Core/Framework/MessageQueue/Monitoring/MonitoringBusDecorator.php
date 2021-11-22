@@ -1,10 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\MessageQueue;
+namespace Shopware\Core\Framework\MessageQueue\Monitoring;
 
-use Doctrine\DBAL\Connection;
-use Shopware\Core\Defaults;
-use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Increment\Exception\IncrementGatewayNotFoundException;
+use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\ReceivedStamp;
@@ -12,26 +11,20 @@ use Symfony\Component\Messenger\Stamp\SentStamp;
 
 class MonitoringBusDecorator implements MessageBusInterface
 {
-    /**
-     * @var MessageBusInterface
-     */
-    private $innerBus;
-
-    /**
-     * @var Connection
-     */
-    private $connection;
+    private MessageBusInterface $innerBus;
 
     private string $defaultTransportName;
 
+    private IncrementGatewayRegistry $gatewayRegistry;
+
     public function __construct(
         MessageBusInterface $inner,
-        Connection $connection,
-        string $defaultTransportName
+        string $defaultTransportName,
+        IncrementGatewayRegistry $gatewayRegistry
     ) {
         $this->innerBus = $inner;
-        $this->connection = $connection;
         $this->defaultTransportName = $defaultTransportName;
+        $this->gatewayRegistry = $gatewayRegistry;
     }
 
     /**
@@ -42,6 +35,7 @@ class MonitoringBusDecorator implements MessageBusInterface
     public function dispatch($message, array $stamps = []): Envelope
     {
         $message = $this->innerBus->dispatch(Envelope::wrap($message, $stamps), $stamps);
+
         if ($this->wasSentToDefaultTransport($message)) {
             $this->incrementMessageQueueSize($message);
         }
@@ -55,26 +49,26 @@ class MonitoringBusDecorator implements MessageBusInterface
 
     private function incrementMessageQueueSize(Envelope $message): void
     {
-        $this->connection->executeUpdate('
-            INSERT INTO `message_queue_stats` (`id`, `name`, `size`, `created_at`)
-            VALUES (:id, :name, 1, :createdAt)
-            ON DUPLICATE KEY UPDATE `size` = `size` +1, `updated_at` = :createdAt
-        ', [
-            'id' => Uuid::randomBytes(),
-            'name' => \get_class($message->getMessage()),
-            'createdAt' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
+        try {
+            $gateway = $this->gatewayRegistry->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
+        } catch (IncrementGatewayNotFoundException $exception) {
+            // In case message_queue pool is disabled
+            return;
+        }
+
+        $gateway->increment('message_queue_stats', \get_class($message->getMessage()));
     }
 
     private function decrementMessageQueueSize(Envelope $message): void
     {
-        $this->connection->executeUpdate('
-            UPDATE `message_queue_stats`
-            SET `size` = `size` - 1
-            WHERE `name` = :name AND `size` > 0;
-        ', [
-            'name' => \get_class($message->getMessage()),
-        ]);
+        try {
+            $gateway = $this->gatewayRegistry->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
+        } catch (IncrementGatewayNotFoundException $exception) {
+            // In case message_queue pool is disabled
+            return;
+        }
+
+        $gateway->decrement('message_queue_stats', \get_class($message->getMessage()));
     }
 
     private function wasSentToDefaultTransport(Envelope $message): bool

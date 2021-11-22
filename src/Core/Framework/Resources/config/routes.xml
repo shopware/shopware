@@ -9,6 +9,7 @@
     <import resource="../../Store/**/*Controller.php" type="annotation" />
     <import resource="../../Update/**/*Controller.php" type="annotation" />
     <import resource="../../MessageQueue/**/*Controller.php" type="annotation" />
+    <import resource="../../Increment/Controller/*Controller.php" type="annotation" />
     <import resource="../../Migration/**/*Controller.php" type="annotation" />
     <import resource="../../App/**/*Controller.php" type="annotation" />
 </routes>

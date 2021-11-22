@@ -6,10 +6,8 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexingMessage;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\MessageQueue\MessageQueueStatsEntity;
+use Shopware\Core\Framework\Increment\AbstractIncrementer;
+use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\RequeueDeadMessagesTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
@@ -20,6 +18,24 @@ class ConsumeMessagesControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
     use QueueTestBehaviour;
+
+    /**
+     * @var AbstractIncrementer
+     */
+    private $gateway;
+
+    protected function setUp(): void
+    {
+        $this->gateway = $this->getContainer()->get('shopware.increment.gateway.registry')->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
+
+        $reflection = new \ReflectionClass($this->gateway);
+
+        if ($reflection->hasProperty('logs')) {
+            $property = $reflection->getProperty('logs');
+            $property->setAccessible(true);
+            $property->setValue($this->gateway, []);
+        }
+    }
 
     public function testConsumeMessages(): void
     {
@@ -62,24 +78,19 @@ class ConsumeMessagesControllerTest extends TestCase
         $message = new ProductIndexingMessage([Uuid::randomHex()]);
         $messageBus->dispatch($message);
 
-        /** @var EntityRepositoryInterface $queueRepo */
-        $queueRepo = $this->getContainer()->get('message_queue_stats.repository');
-        $context = Context::createDefaultContext();
-        $criteria = new Criteria();
-        $criteria->setLimit(1)->addFilter(new EqualsFilter('name', ProductIndexingMessage::class));
+        $gateway = $this->getContainer()->get('shopware.increment.gateway.registry');
+        $entries = $gateway->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL)->list('message_queue_stats');
 
-        /** @var MessageQueueStatsEntity $queueStatus */
-        $queueStatus = $queueRepo->search($criteria, $context)->first();
-
-        static::assertGreaterThan(0, $queueStatus->getSize());
+        static::assertArrayHasKey(ProductIndexingMessage::class, $entries);
+        static::assertGreaterThan(0, $entries[ProductIndexingMessage::class]['count']);
 
         $url = '/api/_action/message-queue/consume';
         $client = $this->getBrowser();
         $client->request('POST', $url, ['receiver' => 'default']);
 
-        /** @var MessageQueueStatsEntity $queueStatus */
-        $queueStatus = $queueRepo->search($criteria, $context)->first();
+        $entries = $this->gateway->list('message_queue_stats');
 
-        static::assertEquals(0, $queueStatus->getSize());
+        static::assertArrayHasKey(ProductIndexingMessage::class, $entries);
+        static::assertEquals(0, $entries[ProductIndexingMessage::class]['count']);
     }
 }

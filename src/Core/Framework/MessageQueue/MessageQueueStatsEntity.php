@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\MessageQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 
+/**
+ * @deprecated tag:v6.5.0 - use `shopware.increment.message_queue.gateway` service instead
+ */
 class MessageQueueStatsEntity extends Entity
 {
     use EntityIdTrait;

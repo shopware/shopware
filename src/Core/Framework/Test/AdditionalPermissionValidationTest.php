@@ -138,7 +138,6 @@ class AdditionalPermissionValidationTest extends TestCase
 
                     $additionalPermission = array_merge($additionalPermission, $results);
                 } catch (\Exception $exception) {
-                    continue;
                 }
             }
         }

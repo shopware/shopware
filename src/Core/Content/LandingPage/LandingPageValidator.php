@@ -71,8 +71,6 @@ class LandingPageValidator implements EventSubscriberInterface
                 if ($searchLandingPageId === $currentLandingPageId) {
                     $isValid = true;
                 }
-
-                continue;
             }
         }
 

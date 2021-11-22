@@ -91,8 +91,6 @@ class Module extends XmlElement
             // translated
             if (\in_array($child->tagName, self::TRANSLATABLE_FIELDS, true)) {
                 $values = self::mapTranslatedTag($child, $values);
-
-                continue;
             }
         }
 

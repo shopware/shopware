@@ -105,8 +105,6 @@ class EntityWriter implements EntityWriterInterface
                 }
 
                 $writes[] = $this->factory->resolveWrite($definition, $payload);
-
-                continue;
             }
         }
 

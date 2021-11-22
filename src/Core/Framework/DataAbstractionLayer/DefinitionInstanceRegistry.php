@@ -171,7 +171,6 @@ class DefinitionInstanceRegistry
 
                 $this->entityClassMapping[$class] = $definition;
             } catch (\Throwable $e) {
-                continue;
             }
         }
 

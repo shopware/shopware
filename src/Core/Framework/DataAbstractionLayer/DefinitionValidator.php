@@ -775,8 +775,6 @@ class DefinitionValidator
 
             if ($association instanceof AssociationField && $association->is(Inherited::class)) {
                 $mappedFieldNames[] = $association->getPropertyName();
-
-                continue;
             }
         }
 

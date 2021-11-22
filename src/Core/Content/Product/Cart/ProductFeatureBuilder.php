@@ -91,8 +91,6 @@ class ProductFeatureBuilder
 
             if ($feature['type'] === ProductFeatureSetDefinition::TYPE_PRODUCT_REFERENCE_PRICE) {
                 $features[] = $this->getReferencePrice($lineItem, $product);
-
-                continue;
             }
         }
 

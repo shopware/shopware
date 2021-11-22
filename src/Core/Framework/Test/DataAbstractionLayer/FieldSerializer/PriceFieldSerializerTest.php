@@ -237,6 +237,26 @@ class PriceFieldSerializerTest extends TestCase
         static::assertSame($json, $data);
     }
 
+    public function testSerializeWithNoListPriceUnsetsPercentage(): void
+    {
+        $data = $this->encode([
+            Defaults::CURRENCY => [
+                'net' => '5',
+                'gross' => '5',
+                'currencyId' => Defaults::CURRENCY,
+                'linked' => true,
+                'listPrice' => null,
+                'percentage' => [
+                    'net' => '50.0',
+                    'gross' => '50.0',
+                ],
+            ],
+        ]);
+
+        $json = '{"cb7d2554b0ce847cd82f3ac9bd1c0dfca":{"net":5.0,"gross":5.0,"currencyId":"b7d2554b0ce847cd82f3ac9bd1c0dfca","linked":true,"listPrice":null}}';
+        static::assertSame($json, $data);
+    }
+
     public function testDecodeIsBackwardCompatible(): void
     {
         $json = '{"cb7d2554b0ce847cd82f3ac9bd1c0dfca":{"net":5.0,"gross":5.0,"currencyId":"b7d2554b0ce847cd82f3ac9bd1c0dfca","linked":true,"listPrice":{"net":"10","gross":"10","currencyId":"b7d2554b0ce847cd82f3ac9bd1c0dfca","linked":true}}}';

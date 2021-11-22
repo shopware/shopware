@@ -75,6 +75,8 @@ class PriceFieldSerializer extends AbstractFieldSerializer
 
                 if (isset($price['listPrice'])) {
                     $price['percentage'] = null;
+                } elseif (\array_key_exists('percentage', $price)) {
+                    unset($price['percentage']);
                 }
 
                 if (($price['listPrice']['net'] ?? 0) > 0 || ($price['listPrice']['gross'] ?? 0) > 0) {

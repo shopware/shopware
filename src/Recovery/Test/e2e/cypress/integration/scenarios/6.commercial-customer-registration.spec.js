@@ -1,6 +1,8 @@
 /// <reference types="Cypress" />
 
-describe('Admin & Storefront: commercial customer registration by using product created via API', () => {
+import ProductPageObject from "../../support/pages/module/sw-product.page-object";
+
+describe('@package: Admin & Storefront - commercial customer registration by using product created via API', () => {
 
     before(() => {
         cy.setToInitialState().then(() => {
@@ -11,7 +13,7 @@ describe('Admin & Storefront: commercial customer registration by using product 
         cy.loginViaApi();
     });
 
-    it('@package: add initial settings', ()=>{
+    it('Add initial settings', ()=>{
         cy.visit(`${Cypress.env('admin')}#/sw/settings/shipping/index`);
         cy.url().should('include', 'settings/shipping/index');
         cy.setShippingMethod('Express', '10', '8');
@@ -26,7 +28,7 @@ describe('Admin & Storefront: commercial customer registration by using product 
             .selectShippingMethodForSalesChannel('Express');
     });
 
-    it('@package: add product via API', ()=>{
+    it('Add product via API', ()=>{
         cy.intercept({
             url: `**/${Cypress.env('apiPath')}/_action/sync`,
             method: 'post'
@@ -35,18 +37,17 @@ describe('Admin & Storefront: commercial customer registration by using product 
             url: `**/${Cypress.env('apiPath')}/_action/system-config/batch`,
             method: 'post'
         }).as('saveData');
-        cy.intercept({
-            url: `**/${Cypress.env('apiPath')}/search/product`,
-            method: 'POST'
-        }).as('searchProduct');
+
+        const page = new ProductPageObject();
 
         // Add product to sales channel
         cy.visit(`${Cypress.env('admin')}#/sw/product/index`);
-        cy.get('.sw-search-bar__input').typeAndCheckSearchField('Product name');
-        cy.wait('@searchProduct').its('response.statusCode').should('equal', 200);
-        cy.contains('.sw-data-grid__table a','Product name').click();
+        cy.clickContextMenuItem(
+            '.sw-entity-listing__context-menu-edit-action',
+            page.elements.contextMenuButton,
+            `${page.elements.dataGridRow}--0`);
         cy.contains('h2','Product name');
-        cy.get('.sw-product-detail__select-visibility') .scrollIntoView().typeMultiSelectAndCheck('E2E install test');;
+        cy.get('.sw-product-detail__select-visibility') .scrollIntoView().typeMultiSelectAndCheck('E2E install test');
         cy.get('.sw-button-process__content').click();
         cy.wait('@saveProduct').its('response.statusCode').should('equal', 200);
         cy.get('.sw-loader').should('not.exist');
@@ -73,7 +74,7 @@ describe('Admin & Storefront: commercial customer registration by using product 
         cy.get('.sw-loader').should('not.exist');
     });
 
-    it('@package: register as commercial customer and complete shopping', ()=>{
+    it('Register as commercial customer and complete shopping', ()=>{
         cy.intercept({
             url: `/account/register`,
             method: 'POST'
@@ -132,7 +133,7 @@ describe('Admin & Storefront: commercial customer registration by using product 
         cy.get('.finish-header').contains(`Thank you for your order with E2E install test!`).should('be.visible');
     });
 
-    it('@package: check order in admin', ()=>{
+    it('Check order in admin', ()=>{
         cy.visit(`${Cypress.env('admin')}#/sw/order/index`);
         cy.get('.sw-search-bar__input').should('be.visible').typeAndCheckSearchField('Test Tester');
         cy.get('.sw-data-grid__row--0 .sw-data-grid__cell--orderCustomer-firstName').contains('Tester, Test').should('be.visible');

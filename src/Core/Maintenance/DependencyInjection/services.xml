@@ -37,6 +37,11 @@
             <tag name="console.command"/>
         </service>
 
+        <service id="Shopware\Core\Maintenance\SalesChannel\Command\SalesChannelUpdateDomainCommand">
+            <argument type="service" id="sales_channel_domain.repository"/>
+            <tag name="console.command"/>
+        </service>
+
         <service id="Shopware\Core\Maintenance\System\Command\SystemConfigureShopCommand">
             <argument type="service" id="Shopware\Core\Maintenance\System\Service\ShopConfigurator"/>
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheClearer"/>

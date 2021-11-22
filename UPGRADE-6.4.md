@@ -1,6 +1,107 @@
 UPGRADE FROM 6.3.x.x to 6.4
 =======================
 
+# 6.4.7.0
+Added a new constructor argument `iterable $updateBy = []` in `Shopware\Core\Content\ImportExport\Struct\Config` which will become required starting from `v6.5.0`.
+
+The new parameter is used to pass a mapping from an entity to a single field of the corresponding definition. This mapping is then used to resolve the primary key of a data set. This provides an alternative to using IDs for updating existing data sets.
+
+### Before
+
+```php
+$config = new Config(
+    [['key' => 'productNumber', 'mappedKey' => 'product_number']], 
+    ['sourceEntity' => $sourceEntity]
+);
+```
+
+### After
+
+```php
+$config = new Config(
+    [['key' => 'productNumber', 'mappedKey' => 'product_number']], 
+    ['sourceEntity' => $sourceEntity],
+    [['entityName' => ProductDefinition::ENTITY_NAME, 'mappedKey' => 'productNumber']]
+);
+```
+## Position constants for CMS slots
+
+Before, the slots had no order in the form overviews of category detail or the page view of CMS templates. This was due to a lack of sort values of slots.
+But now every slot type (`cms_slot.slot`) has a specific positiong value, to be found in `administration/src/module/sw-cms/constant/sw-cms.constant.js`. 
+When adding own blocks with new slot templates, plugin developers should be aware of that and add their own slot position values and extend
+`administration/src/module/sw-cms/component/sw-cms-page-form/index.js::slotPositions()` to get their own values into the constants.
+
+```js
+slotPositions() {
+    const myPositions = {
+        'my-left-top-slot': 250,
+        'my-very-left-center-slot': 950
+    };
+    
+    return {
+        ...myPositions,
+        ...this.$super('slotPositions'),
+    };
+},
+```
+
+Please be careful and chose the numbers wisely. The lower the number, the earlier the slot will appear. **Do not override existing properties to avoid side effects!**
+Therefore, the "left namespace" is described by numbers intervals of 0 to 999, center 1000 to 1999, right 2000 to 2999 and everything else 3000 to 4999, with 5000 being the default value to be used when no own values are provided.
+## Implement a custom increment pool
+If you want to use the default `mysql` or `redis` or `array` adapter, you can ignore this tutorial and just use `type: 'mysql' // or redis, array` in the config file
+
+It is quite easy to implement a new pool or a new adapter for the `increment` gateway.
+Simply provide a service with the prefix `shopware.increment.<your_pool>.gateway.` and the `type` as suffix.
+This then gives the full service id, as with the `array` type: `shopware.increment.your_pool.gateway.array`.
+
+Enclosed is the implementation for the array adapter, which should clarify the concept. The content of the adapter has been removed for clarity:
+```ArrayIncrementer.php
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Framework\Increment;
+
+class ArrayIncrementer extends AbstractIncrementer
+{
+    public function getDecorated(): AbstractIncrementer { }
+
+    public function increment(string $cluster, string $key): void { }
+
+    public function decrement(string $cluster, string $key): void {}
+
+    public function reset(string $cluster, ?string $key): void { }
+
+    public function list(string $cluster, int $limit = 5, int $offset = 0): array { }
+    
+    public function getPool(): string
+    
+    public function getConfig(): array
+}
+```
+
+```services.xml
+<service id="shopware.increment.your_pool.gateway.array" 
+         class="Shopware\Core\Framework\Increment\ArrayIncrementer"/>
+```
+
+```shopware.yaml
+shopware:
+    increment:
+        your_pool:
+            type: 'array'
+```
+
+If the custom adapter requires additional configs, they can simply be added dynamically under `shopware.increment.your_pool.config`.
+```shopware.yaml
+shopware:
+    increment:
+        your_pool:
+            type: 's3'
+            config: 
+                secret: '..'
+                url: '...'
+```
+The Electronic Article Number (EAN) was renamed to Global Trade Item Number (GTIN) in 2005.
+
 # 6.4.6.0
 ## Rate Limiter
 

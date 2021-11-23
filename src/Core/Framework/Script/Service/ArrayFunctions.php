@@ -2,7 +2,22 @@
 
 namespace Shopware\Core\Framework\Script\Service;
 
-class ArrayFunctions
+/**
+ * Used for scripting:
+ *
+ * {% set array = array() %}
+ *
+ * {% do array.push('test') %}
+ *
+ * {% do array.foo = 'bar' }
+ *
+ * {% do array.has('foo') }
+ *
+ * {% if array.foo === 'bar' %}
+ *
+ * {% foreach array as key => value %}
+ */
+class ArrayFunctions implements \IteratorAggregate, \ArrayAccess, \Countable
 {
     private array $items;
 
@@ -11,31 +26,60 @@ class ArrayFunctions
         $this->items = &$items;
     }
 
-    /**
-     * @param string|bool|float|int|array|null $value
-     */
-    public function add($value): void
+    public function push($value): void
     {
         $this->items[] = $value;
     }
 
-    /**
-     * @param string|bool|float|int|array|null $value
-     */
-    public function remove($value): void
+    public function merge($array): void
     {
-        $index = array_search($value, $this->items, true);
+        if ($array instanceof ArrayFunctions) {
+            $array = $array->items;
+        }
+        $this->items = array_merge_recursive($this->items, $array);
+    }
 
-        if (\is_int($index)) {
-            unset($this->items[$index]);
+    public function replace($array): void
+    {
+        if ($array instanceof ArrayFunctions) {
+            $array = $array->items;
+        }
+        $this->items = array_replace_recursive($this->items, $array);
+    }
+
+    #[\ReturnTypeWillChange]
+    public function offsetExists($offset)/* :bool */
+    {
+        return array_key_exists($offset, $this->items);
+    }
+
+    #[\ReturnTypeWillChange]
+    public function offsetGet($offset)/* :mixed */
+    {
+        return $this->items[$offset];
+    }
+
+    public function offsetSet($offset, $value)
+    {
+        if ($offset === null) {
+            $this->items[] = $value;
+        } else {
+            $this->items[$offset] = $value;
         }
     }
 
-    /**
-     * @param string|bool|float|int|array|null $value
-     */
-    public function has($value): bool
+    public function offsetUnset($offset)
     {
-        return \in_array($value, $this->items, true);
+        unset($this->items[$offset]);
+    }
+
+    public function getIterator(): \Generator
+    {
+        yield from $this->items;
+    }
+
+    public function count()
+    {
+        return count($this->items);
     }
 }

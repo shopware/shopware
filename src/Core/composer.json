@@ -153,7 +153,8 @@
         "symfony/translation": "v5.3.8",
         "symfony/mailer": "v5.3.8",
         "symfony/notifier": "v5.3.8",
-        "symfony/messenger": "v5.3.8"
+        "symfony/messenger": "v5.3.8",
+        "symfony/process": "v5.3.11"
     },
     "config": {
         "platform": {

@@ -22,7 +22,13 @@ describe('Search bar: Check search functionality with tags', () => {
         cy.get('.sw-loader__element')
             .should('not.exist');
 
-        cy.get('input.sw-search-bar__input').click();
+        cy.skipOnFeature('FEATURE_NEXT_6040', () => {
+            cy.get('input.sw-search-bar__input').click();
+        });
+        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
+            cy.get('input.sw-search-bar__input').click().type('#');
+        });
+
         cy.skipOnFeature('FEATURE_NEXT_6040', () => {
             cy.get('.sw-search-bar__types_container').should('be.visible');
             cy.contains('.sw-search-bar__type', 'Products').click();
@@ -55,7 +61,13 @@ describe('Search bar: Check search functionality with tags', () => {
         cy.get('.sw-loader__element')
             .should('not.exist');
 
-        cy.get('input.sw-search-bar__input').click();
+        cy.skipOnFeature('FEATURE_NEXT_6040', () => {
+            cy.get('input.sw-search-bar__input').click();
+        });
+        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
+            cy.get('input.sw-search-bar__input').click().type('#');
+        });
+
         cy.skipOnFeature('FEATURE_NEXT_6040', () => {
             cy.get('.sw-search-bar__types_container').should('be.visible');
             cy.contains('.sw-search-bar__type', 'Categories').click();
@@ -91,7 +103,13 @@ describe('Search bar: Check search functionality with tags', () => {
         cy.get('.sw-loader__element')
             .should('not.exist');
 
-        cy.get('input.sw-search-bar__input').click();
+        cy.skipOnFeature('FEATURE_NEXT_6040', () => {
+            cy.get('input.sw-search-bar__input').click();
+        });
+        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
+            cy.get('input.sw-search-bar__input').click().type('#');
+        });
+
         cy.skipOnFeature('FEATURE_NEXT_6040', () => {
             cy.get('.sw-search-bar__types_container').should('be.visible');
             cy.contains('.sw-search-bar__type', 'Customers').click();
@@ -152,7 +170,13 @@ describe('Search bar: Check search functionality with tags', () => {
         cy.get('.sw-loader__element')
             .should('not.exist');
 
-        cy.get('input.sw-search-bar__input').click();
+        cy.skipOnFeature('FEATURE_NEXT_6040', () => {
+            cy.get('input.sw-search-bar__input').click();
+        });
+        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
+            cy.get('input.sw-search-bar__input').click().type('#');
+        });
+
         cy.skipOnFeature('FEATURE_NEXT_6040', () => {
             cy.get('.sw-search-bar__types_container').should('be.visible');
             cy.contains('.sw-search-bar__type', 'Orders').click();
@@ -221,7 +245,13 @@ describe('Search bar: Check search functionality with tags', () => {
         cy.get('.sw-loader__element')
             .should('not.exist');
 
-        cy.get('input.sw-search-bar__input').click();
+        cy.skipOnFeature('FEATURE_NEXT_6040', () => {
+            cy.get('input.sw-search-bar__input').click();
+        });
+        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
+            cy.get('input.sw-search-bar__input').click().type('#');
+        });
+
         cy.skipOnFeature('FEATURE_NEXT_6040', () => {
             cy.get('.sw-search-bar__types_container').should('be.visible');
             cy.contains('.sw-search-bar__type', 'Media').click();

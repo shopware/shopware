@@ -968,6 +968,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
 
         const searchInput = wrapper.find('.sw-search-bar__input');
         await searchInput.trigger('focus');
+        await searchInput.setValue('#');
 
         const moduleFilterFooter = wrapper.find('.sw-search-bar__types_container--v2 .sw-search-bar__footer');
         expect(moduleFilterFooter.exists()).toBeTruthy();

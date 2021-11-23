@@ -64,6 +64,7 @@ class PluginListCommand extends Command
 
         if ($input->getOption('json')) {
             $output->write(json_encode($plugins, \JSON_THROW_ON_ERROR));
+
             return self::SUCCESS;
         }
 

@@ -1,6 +1,7 @@
 [Core]
 /src/Core/DevOps/                     @product/engineering/platform-group/core
 /src/Core/Framework/                  @product/engineering/platform-group/core
+/src/Core/Framework/Resources/**/feature.yaml
 /src/Core/Migration/                  @product/engineering/platform-group/core
 /src/Core/System/SalesChannel/        @product/engineering/platform-group/core
 /src/Core/*.php                       @product/engineering/platform-group/core
@@ -41,8 +42,9 @@ phpunit.xml.dist                      @product/engineering/platform-group/core
 /adr/                                                                                   @product/engineering/platform-group/admin
 
 [Storefront]
-/src/Storefront/        @product/engineering/platform-group/storefront
-/adr/                   @product/engineering/platform-group/storefront
+/src/Storefront/                                   @product/engineering/platform-group/storefront
+/src/Storefront/**/test/
+/adr/                                              @product/engineering/platform-group/storefront
 
 [Operations]
 /.github/               @product/engineering/operations @product/engineering/platform-group/core @product/engineering/platform-group/admin @product/engineering/platform-group/storefront

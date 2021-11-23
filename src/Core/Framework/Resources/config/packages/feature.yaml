@@ -1,0 +1,250 @@
+shopware:
+  feature:
+    flags:
+      - name: FEATURE_NEXT_1797
+        default: false
+        major: true
+        description: "composer require for plugins"
+      - name: FEATURE_NEXT_11917
+        major: false
+        description: "dynamic plugin acl privileges"
+      - name: FEATURE_NEXT_12608
+        default: true
+        major: true
+        description: "App System Store"
+        # issue: NEXT-13469
+        # issue: NEXT-13759
+      - name: FEATURE_NEXT_16710
+        default: false
+        major: true
+        description: "Do not allow empty ids provided in criteria"
+        # issue: NEXT-16710
+      - name: FEATURE_NEXT_13810
+        default: false
+        major: true
+        description: "Deprecate old promotion module"
+        # issue: NEXT-13810
+      - name: FEATURE_NEXT_13250
+        default: false
+        major: true
+        description: "Reduce database queries if all required data for the line items is already assign"
+        # issue: NEXT-13250
+      - name: FEATURE_NEXT_17276
+        default: false
+        major: true
+        description: "Don't override languageId of SalesChannel in SalesChannelContext"
+        # issue: NEXT-17276
+      - name: FEATURE_NEXT_16151
+        default: false
+        major: true
+        description: "Remove CheapestPriceField from product entity, to speed up entity hydration"
+        # issue: NEXT-16151
+      - name: FEATURE_NEXT_17441
+        default: false
+        major: false
+        description: "Add Scripting Feature"
+        # issue: NEXT-17441
+      - name: FEATURE_NEXT_16155
+        default: false
+        major: true
+        description: "EntityLoadedEventFactory will be required in repositories"
+        # issue: NEXT-16155
+      - name: FEATURE_NEXT_14872
+        default: false
+        major: false
+        description: "Search of FkField PrimaryKey"
+        # issue: NEXT-14872
+      - name: FEATURE_NEXT_15053
+        default: false
+        major: false
+        description: "Replace wrong displayed characters in number format"
+        # issue: NEXT-15053
+      - name: FEATURE_NEXT_14114
+        default: false
+        major: true
+        description: "Brexit Changes"
+        # issue: NEXT-14114
+      - name: FEATURE_NEXT_18215
+        default: false
+        major: true
+        description: "Rules are aware of their assignment"
+        # issue: NEXT-18215
+      - name: FEATURE_NEXT_12455
+        default: false
+        major: false
+        description: "Captcha Integration"
+        # issue: NEXT-12455
+      - name: FEATURE_NEXT_15815
+        default: false
+        major: true
+        description: "Remove single record handling in sync service. Only single operation should be supported"
+      - name: FEATURE_NEXT_14699
+        default: false
+        major: true
+        description: "Refactoring of Storefront theme assets"
+      - name: FEATURE_NEXT_15998
+        default: false
+        major: false
+        # issue: NEXT-15998
+      - name: FEATURE_NEXT_15707
+        default: false
+        major: false
+        description: "Delivery notice for EU geoblocking regulation"
+        # issue: NEXT-15707
+      - name: FEATURE_NEXT_15475
+        default: false
+        major: false
+        description: "Refactor Preview Mail Dummy Data"
+        # issue: NEXT-15475
+      - name: FEATURE_NEXT_14360
+        default: false
+        major: true
+        description: "App System 4.0 - Build action button messaging system"
+        # issue: NEXT-14360
+      - name: FEATURE_NEXT_15172
+        default: false
+        major: true
+        description: "Sanitize html of fields with AllowHtml flag"
+        # issue: NEXT-15172
+      - name: FEATURE_NEXT_15687
+        default: false
+        major: true
+        description: "Storefront Controller needs Twig injected"
+        # issue: NEXT-15687
+      - name: FEATURE_NEXT_6040
+        default: false
+        major: false
+        description: "Admin search improvements"
+        # issue: NEXT-6040
+      - name: FEATURE_NEXT_14001
+        default: false
+        major: false
+        description: "Newsletter DOI for registered customers"
+        # issue: NEXT-14001
+      - name: FEATURE_NEXT_7739
+        default: false
+        major: true
+        description: "Optional salutation"
+      - name: FEATURE_NEXT_16200
+        default: false
+        major: false
+        description: "Register Doi Domain"
+      - name: FEATURE_NEXT_13410
+        default: false
+        major: true
+        description: "Make sales channels required in seo generator"
+        # issue: NEXT-16200
+      - name: FEATURE_NEXT_8097
+        default: false
+        major: false
+        description: "Groundwork for csv import"
+        # issue: NEXT-8097
+      - name: FEATURE_NEXT_16119
+        default: false
+        major: false
+        description: "Allow additional entities for import and export"
+      - name: FEATURE_NEXT_15917
+        default: false
+        major: true
+        description: "Move storefront script tags to head with defer"
+        # issue: NEXT-15917
+      - name: FEATURE_NEXT_15957
+        default: false
+        major: true
+        description: "VAT id field for guest"
+        # issue: NEXT-15957
+      - name: FEATURE_NEXT_16223
+        default: false
+        major: false
+        description: "Remove CORS header in storefront"
+        # issue: NEXT-16223
+      - name: FEATURE_NEXT_13601
+        default: false
+        major: true
+        description: "Default transaction state for async app payments"
+        # issue: NEXT-13601
+      - name: FEATURE_NEXT_16992
+        default: false
+        major: true
+        description: "Remove page_product_detail_not_available and buy_widget_not_available block"
+        # issue: NEXT-16992
+      - name: FEATURE_NEXT_7530
+        default: false
+        major: true
+        description: "Improve orders UX in Administration"
+        # issue: NEXT-7530
+      - name: FEATURE_NEXT_16824
+        default: false
+        major: true
+        description: "Cart merged event"
+        # issue: NEXT-16824
+      - name: FEATURE_NEXT_16271
+        default: false
+        major: true
+        description: "Refactor `sw-simple-search-field` component to a transparent wrapper component"
+        # issue: NEXT-16271
+      - name: FEATURE_NEXT_17275
+        default: false
+        major: true
+        description: "StorefrontRenderEvent only gets original view"
+        # issue: NEXT-17275
+      - name: FEATURE_NEXT_17016
+        default: false
+        major: true
+        description: "Add, update or improve the selection and specification of Rule Builder Condition Fields."
+        # issue: NEXT-17016
+      - name: FEATURE_NEXT_16236
+        default: false
+        major: true
+        description: "Change customer creation behaviour on checkout/register page to opt in customer account."
+        # issue: NEXT-16236
+      - name: FEATURE_NEXT_16769
+        default: false
+        major: true
+        description: "Prepared payment flow"
+        # issue: NEXT-16769
+      - name: FEATURE_NEXT_16640
+        default: false
+        major: true
+        description: "Change ExceptionHandlerInterface by removing Command $command argument"
+        # issue: NEXT-16640
+      - name: FEATURE_NEXT_16800
+        default: false
+        major: true
+        description: "Rule Builder List Items need to provide more informations"
+        # issue: NEXT-16800
+      - name: FEATURE_NEXT_17261
+        default: false
+        major: false
+        description: "Bulk Edit for Customers and Documents"
+        # issue: NEXT-17261
+      - name: FEATURE_NEXT_17858
+        default: false
+        major: true
+        description: "Major feature flag for Business Event"
+        # issue: NEXT-17858
+      - name: FEATURE_NEXT_17973
+        default: false
+        major: false
+        description: "Allow interactions with different entities as actions in Flow Builder"
+        # issue: NEXT-17973
+      - name: FEATURE_NEXT_18592
+        default: false
+        major: true
+        description: "Major feature flag for CombinationLoader"
+        # issue: NEXT-18592
+      - name: FEATURE_NEXT_18083
+        default: false
+        major: false
+        description: "Flow Builder UI/UX Improvements"
+        # issue: NEXT-18083
+      - name: FEATURE_NEXT_16902
+        default: false
+        major: false
+        description: "Rework rule assignment tab"
+        # issue: NEXT-16902
+      - name: FEATURE_NEXT_17546
+        default: false
+        major: false
+        description: "Easy Products Creation"
+        # issue: NEXT-17546

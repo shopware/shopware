@@ -25,7 +25,8 @@ After the feature is released in the master branch, you are not finished yet. As
 
 ## Creating the flag
 When you start developing a new feature, the first thing to do is to register a new feature flag.
-of the corresponding epic or story as its name, by adding it to *Core/Framework/Resources/config/packages/shopware.yaml* under the key *shopware.feature.flags*
+of the corresponding epic or story as its name, by adding it to *Core/Framework/Resources/config/packages/feature.yaml* 
+under the key *shopware.feature.flags*
 
 ```yaml
 ...
@@ -57,7 +58,8 @@ The following attributes can be configured for each feature:
 **This is a behaviour we may break at any time! Don't rely on feature flags for your functionality it's only for the development process**
 ___
 
-When you need to implement a feature flag for a plugin you can't edit the shopware.yaml or provide an override for it, so you have to register the new flag "on the fly".
+When you need to implement a feature flag for a plugin you can't edit the feature.yaml or provide an override for it,
+so you have to register the new flag "on the fly".
 ```php
 public function boot(): void
 {

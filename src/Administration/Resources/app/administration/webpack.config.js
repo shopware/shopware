@@ -81,9 +81,12 @@ const pluginEntries = (() => {
         .map(([name, definition]) => {
             console.log(chalk.green(`# Plugin "${name}": Injected successfully`));
 
+            const technicalName = definition.technicalName || name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+
             return {
                 name,
-                technicalName: definition.technicalName || name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase(),
+                technicalName: technicalName,
+                technicalFolderName: technicalName.replace(/(-)/g, '').toLowerCase(),
                 basePath: path.resolve(process.env.PROJECT_ROOT, definition.basePath),
                 path: path.resolve(process.env.PROJECT_ROOT, definition.basePath, definition.administration.path),
                 filePath: path.resolve(process.env.PROJECT_ROOT, definition.basePath, definition.administration.entryFilePath),
@@ -447,7 +450,7 @@ const coreConfig = {
                         '/administration/static',
                         '/bundles/administration/static',
                         // the dev server is allowed to access the plugin folders
-                        ...pluginEntries.map((plugin) => `/bundles/${plugin.technicalName.replace(/-/g, '')}/static`),
+                        ...pluginEntries.map((plugin) => `/bundles/${plugin.technicalFolderName.replace(/-/g, '')}/static`),
                     ],
                 },
                 node: {
@@ -568,24 +571,28 @@ const configsForPlugins = pluginEntries.map((plugin) => {
             config: createdBaseConfig,
             name: plugin.name,
             technicalName: plugin.technicalName,
+            technicalFolderName: plugin.technicalFolderName,
             plugin,
         });
     }
+
+    const htmlFilePath = path.resolve(plugin.path, '../index.html');
+    const hasHtmlFile = fs.existsSync(htmlFilePath);
 
     return webpackMerge([
         createdBaseConfig,
         {
             entry: {
-                [plugin.technicalName]: plugin.filePath,
+                [plugin.technicalFolderName]: plugin.filePath,
             },
 
             output: {
                 path: isDev
                     // put all files in virtual dist folder when using watcher
                     // to be able to access all files in multi-compiler-mode
-                    ? path.resolve(__dirname, `v_dist/bundles/${plugin.technicalName}/administration/`)
+                    ? path.resolve(__dirname, `v_dist/bundles/${plugin.technicalFolderName}/administration/`)
                     : path.resolve(plugin.path, '../../../public/'),
-                publicPath: isDev ? `/bundles/${plugin.technicalName}/administration/` : '/bundles/administration/',
+                publicPath: isDev ? `/bundles/${plugin.technicalFolderName}/administration/` : '/bundles/administration/',
                 // filenames aren´t in static folder when using watcher to match the build environment
                 filename: isDev ? 'js/[name].js' : 'static/js/[name].js',
                 chunkFilename: isDev ? 'js/[name].js' : 'static/js/[name].js',
@@ -599,8 +606,8 @@ const configsForPlugins = pluginEntries.map((plugin) => {
 
                 new WebpackCopyAfterBuildPlugin({
                     files: [{
-                        chunkName: plugin.technicalName,
-                        to: `${pluginPath}/${plugin.technicalName}.js`,
+                        chunkName: plugin.technicalFolderName,
+                        to: `${pluginPath}/${plugin.technicalFolderName}.js`,
                     }],
                     options: {
                         absolutePath: true,
@@ -654,6 +661,41 @@ const configsForPlugins = pluginEntries.map((plugin) => {
 
                     return [];
                 })(),
+
+                ...(() => {
+                    if (hasHtmlFile) {
+                        // generate HTML file for plugin
+                        return [
+                            // remove static from path
+                            new (class HtmlWebpackRenamePathPlugin {
+                                apply(compiler) {
+                                    compiler.hooks.compilation.tap('HtmlWebpackRenamePathPlugin', (compilation) => {
+                                        HtmlWebpackPlugin.getHooks(compilation).beforeEmit.tapAsync(
+                                            'HtmlWebpackRenamePathPlugin', // name for stacktrace
+                                            (data, cb) => {
+                                                // replace "/administration/static/" with "/administration/"
+                                                data.html = data.html.replace(
+                                                    /\/administration\/static\//,
+                                                    '/administration/',
+                                                )
+
+                                                // Tell webpack to move on
+                                                cb(null, data)
+                                            }
+                                        )
+                                    })
+                                }
+                            })(),
+                            new HtmlWebpackPlugin({
+                                filename: isDev ? '../administration/index.html' : 'administration/index.html',
+                                template: htmlFilePath,
+                                publicPath: isDev ? `/bundles/${plugin.technicalFolderName}/administration/` : `/bundles/${plugin.technicalFolderName}/administration/`,
+                            })
+                        ];
+                    }
+
+                    return [];
+                })()
             ],
         },
         customPluginConfig,

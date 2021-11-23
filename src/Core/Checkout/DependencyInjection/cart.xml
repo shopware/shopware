@@ -130,6 +130,11 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder"/>
         </service>
 
+        <service id="Shopware\Core\Checkout\Cart\Price\CurrencyPriceCalculator">
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder"/>
+        </service>
+
         <!-- Tax calculation -->
         <service id="Shopware\Core\Checkout\Cart\Tax\PercentageTaxRuleBuilder"/>
 
@@ -192,6 +197,7 @@
             <argument type="service" id="Shopware\Core\Checkout\Cart\Transaction\TransactionProcessor"/>
             <argument type="tagged" tag="shopware.cart.processor"/>
             <argument type="tagged" tag="shopware.cart.collector"/>
+            <argument type="service" id="Shopware\Core\Framework\Script\Execution\ScriptExecutor"/>
         </service>
 
         <service id="Shopware\Core\Content\Product\Cart\ProductCartProcessor">
@@ -343,6 +349,29 @@
 
         <service id="Shopware\Core\Checkout\Cart\LineItem\Group\RulesMatcher\AnyRuleMatcher">
             <argument type="service" id="Shopware\Core\Checkout\Cart\LineItem\Group\RulesMatcher\AbstractAnyRuleLineItemMatcher"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Facade\CartFacadeHookFactory" public="true">
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Facade\Services"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Facade\Services">
+            <argument type="service" id="Shopware\Core\Checkout\Cart\LineItemFactoryRegistry"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Processor"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Processor\ContainerCartProcessor">
+            <tag name="shopware.cart.processor" priority="3800"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\QuantityPriceCalculator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\CurrencyPriceCalculator"/>
+        </service>
+
+        <service id="Shopware\Core\Checkout\Cart\Processor\DiscountCartProcessor">
+            <tag name="shopware.cart.processor" priority="3700"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator"/>
+            <argument type="service" id="Shopware\Core\Checkout\Cart\Price\CurrencyPriceCalculator"/>
         </service>
     </services>
 </container>

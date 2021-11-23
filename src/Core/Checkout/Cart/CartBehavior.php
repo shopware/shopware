@@ -11,12 +11,15 @@ class CartBehavior extends Struct
      */
     private $permissions = [];
 
-    public function __construct(array $permissions = [])
+    private bool $hookAware;
+
+    public function __construct(array $permissions = [], bool $hookAware = true)
     {
         $this->permissions = $permissions;
+        $this->hookAware = $hookAware;
     }
 
-    public function hasPermission(string $permission)
+    public function hasPermission(string $permission): bool
     {
         return !empty($this->permissions[$permission]);
     }
@@ -24,5 +27,26 @@ class CartBehavior extends Struct
     public function getApiAlias(): string
     {
         return 'cart_behavior';
+    }
+
+    public function hookAware(): bool
+    {
+        return $this->hookAware;
+    }
+
+    /**
+     * @internal
+     */
+    public function disableHooks(\Closure $closure)
+    {
+        $before = $this->hookAware;
+
+        $this->hookAware = false;
+
+        $result = $closure();
+
+        $this->hookAware = $before;
+
+        return $result;
     }
 }

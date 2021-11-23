@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Checkout\Cart;
 
+use Shopware\Core\Checkout\Cart\Hook\CartHook;
 use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
 use Shopware\Core\Checkout\Cart\Transaction\TransactionProcessor;
+use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class Processor
@@ -33,18 +35,22 @@ class Processor
      */
     private $collectors;
 
+    private ScriptExecutor $executor;
+
     public function __construct(
         Validator $validator,
         AmountCalculator $amountCalculator,
         TransactionProcessor $transactionProcessor,
         iterable $processors,
-        iterable $collectors
+        iterable $collectors,
+        ScriptExecutor $executor
     ) {
         $this->validator = $validator;
         $this->amountCalculator = $amountCalculator;
         $this->transactionProcessor = $transactionProcessor;
         $this->processors = $processors;
         $this->collectors = $collectors;
+        $this->executor = $executor;
     }
 
     public function process(Cart $original, SalesChannelContext $context, CartBehavior $behavior): Cart
@@ -75,6 +81,10 @@ class Processor
             $this->calculateAmount($context, $cart);
         }
 
+        if ($behavior->hookAware()) {
+            $this->executor->execute(new CartHook($cart, $context));
+        }
+
         $this->calculateAmount($context, $cart);
 
         $cart->addErrors(
@@ -86,6 +96,7 @@ class Processor
         );
 
         $cart->setRuleIds($context->getRuleIds());
+        $cart->setBehavior($behavior);
 
         return $cart;
     }

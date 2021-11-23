@@ -87,6 +87,8 @@ class Cart extends Struct
      */
     private array $ruleIds = [];
 
+    private CartBehavior $behavior;
+
     public function __construct(string $name, string $token)
     {
         $this->name = $name;
@@ -95,6 +97,7 @@ class Cart extends Struct
         $this->transactions = new TransactionCollection();
         $this->errors = new ErrorCollection();
         $this->deliveries = new DeliveryCollection();
+        $this->behavior = new CartBehavior();
         $this->price = new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS);
     }
 
@@ -318,5 +321,29 @@ class Cart extends Struct
     public function getRuleIds(): array
     {
         return $this->ruleIds;
+    }
+
+    /**
+     * Short hand for scripts
+     */
+    public function getItems(): LineItemCollection
+    {
+        return $this->getLineItems();
+    }
+
+    /**
+     * @internal
+     */
+    public function getBehavior(): CartBehavior
+    {
+        return $this->behavior;
+    }
+
+    /**
+     * @internal
+     */
+    public function setBehavior(CartBehavior $behavior): void
+    {
+        $this->behavior = $behavior;
     }
 }

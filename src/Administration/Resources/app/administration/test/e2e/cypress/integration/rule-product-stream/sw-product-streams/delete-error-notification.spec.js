@@ -1,0 +1,47 @@
+// / <reference types="Cypress" />
+
+import ProductStreamObject from '../../../support/pages/module/sw-product-stream.page-object';
+
+describe('Dynamic product group: Test notification on failed delete', () => {
+    beforeEach(() => {
+        cy.setToInitialState()
+            .then(() => {
+                cy.loginViaApi();
+            })
+            .then(() => {
+                return cy.createDefaultFixture('product-stream', {
+                    categories: [{ name: 'first' }, { name: 'second' }]
+                });
+            })
+            .then(() => {
+                cy.openInitialPage(`${Cypress.env('admin')}#/sw/product/stream/index`);
+            });
+    });
+
+    it('@base @catalogue: delete dynamic product group', () => {
+        const page = new ProductStreamObject();
+
+        // Request we want to wait for later
+
+        cy.intercept({
+            url: `${Cypress.env('apiPath')}/product-stream/*`,
+            method: 'delete'
+        }).as('deleteData');
+
+        cy.get('input.sw-search-bar__input').typeAndCheckSearchField('1st Productstream');
+        cy.get(`${page.elements.dataGridRow}--0 .sw-data-grid__cell--name`).contains('1st Productstream');
+
+        // Delete dynamic product group
+        // Edit product stream
+        cy.clickContextMenuItem(
+            '.sw-context-menu-item--danger',
+            page.elements.contextMenuButton,
+            `${page.elements.dataGridRow}--0`
+        );
+        cy.get('button.sw-button').contains('Delete').click();
+
+        // Expect error response and notification being shown
+        cy.wait('@deleteData').its('response.statusCode').should('equal', 500);
+        cy.awaitAndCheckNotification('The dynamic product group "1st Productstream" is defined as product assignment of 2 categories and can therefore not be deleted.');
+    });
+});

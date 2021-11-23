@@ -3,7 +3,8 @@
     "general": {
       "mainMenuItemGeneral": "Dynamische Produktgruppen",
       "placeholderSearchBar": "Durchsuche alle dynamischen Produktgruppen ...",
-      "descriptionTextModule": "Verwalte hier Deine dynamischen Produktgruppen."
+      "descriptionTextModule": "Verwalte hier Deine dynamischen Produktgruppen.",
+      "errorCategory": "Die dynamische Produktgruppe \"{name}\" ist als Produkt-Zuweisung in einer Kategorie definiert und kann deshalb nicht gelöscht werden. | Die dynamische Produktgruppe \"{name}\" ist als Produkt-Zuweisung in {count} Kategorien definiert und kann deshalb nicht gelöscht werden."
     },
     "acl": {
       "conditionsAlertHeading": "Keine ausreichenden Rechte",

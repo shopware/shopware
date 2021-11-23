@@ -194,7 +194,8 @@ Component.extend('sw-entity-listing', 'sw-data-grid', {
 
             return this.repository.syncDeleted(selectedIds, this.items.context).then(() => {
                 return this.deleteItemsFinish();
-            }).catch(() => {
+            }).catch((errorResponse) => {
+                this.$emit('delete-items-failed', { selectedIds, errorResponse });
                 return this.deleteItemsFinish();
             });
         },

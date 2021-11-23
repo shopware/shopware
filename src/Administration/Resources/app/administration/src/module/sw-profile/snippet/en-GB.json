@@ -49,6 +49,7 @@
       },
       "modules": {
         "order": {
+          "countryName": "Country",
           "city": "City",
           "street": "Street",
           "company": "Company",
@@ -72,6 +73,7 @@
           "firstName": "First name",
           "lastName": "Last name",
           "customerNumber": "Customer number",
+          "countryName": "Country",
           "city": "City",
           "street": "Street",
           "zipcode": "Postal code",

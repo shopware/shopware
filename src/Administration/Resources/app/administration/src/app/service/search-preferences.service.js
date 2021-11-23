@@ -241,6 +241,10 @@ export default function SearchPreferencesService({ userConfigRepository: _userCo
             if (item.fieldName.includes('tags.name')) {
                 lastFieldName = 'tagsName';
             }
+            if (item.fieldName.includes('country.name')) {
+                lastFieldName = 'countryName';
+            }
+
             fieldsGroup[lastFieldName] ??= {
                 group: [],
                 fieldName: lastFieldName,

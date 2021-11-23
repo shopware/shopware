@@ -67,6 +67,12 @@ const defaultSearchConfiguration = {
                     _searchable: true,
                     _score: searchRankingPoint.MIDDLE_SEARCH_RANKING,
                 },
+                country: {
+                    name: {
+                        _searchable: true,
+                        _score: searchRankingPoint.MIDDLE_SEARCH_RANKING,
+                    },
+                },
                 city: {
                     _searchable: true,
                     _score: searchRankingPoint.MIDDLE_SEARCH_RANKING,
@@ -104,6 +110,12 @@ const defaultSearchConfiguration = {
                 lastName: {
                     _searchable: true,
                     _score: searchRankingPoint.MIDDLE_SEARCH_RANKING,
+                },
+                country: {
+                    name: {
+                        _searchable: true,
+                        _score: searchRankingPoint.MIDDLE_SEARCH_RANKING,
+                    },
                 },
                 city: {
                     _searchable: true,

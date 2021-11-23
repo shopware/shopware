@@ -5,6 +5,7 @@ This is the official changelog index of Shopware 6. Here you find a registry of 
 *  [NEXT-18273 - Add timestamp to synchronous webhook payload](/changelog/release-6-4-6-1/2021-10-27-add-timestamp-to-snychronous-webhook-payload.md)
 *  [NEXT-18709 - Remove unnecessary searches when loading associations](/changelog/release-6-4-6-1/2021-11-15-remove-unnecessary-searches-when-loading-associations.md)
 *  [NEXT-17527 - Add fix for web cache poisoning](/changelog/release-6-4-6-1/2021-11-23-add-fix-for-webcache.md)
+*  [NEXT-18944 - Conflict symfony process 5.3.11](/changelog/release-6-4-6-1/2021-11-23-conflict-symfony-process-5.3.11.md)
 
 ## 6.4.6.0
 *  [NEXT-15108 - Create the module flow builder](/changelog/release-6-4-6-0/2021-05-07-create-the-module-flow-builder.md)

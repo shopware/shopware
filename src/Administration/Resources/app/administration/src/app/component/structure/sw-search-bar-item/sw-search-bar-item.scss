@@ -1,4 +1,5 @@
 @import "~scss/variables";
+@import "~scss/mixins";
 
 $sw-search-bar-item-border-radius: $border-radius-default;
 $sw-search-bar-item-color-label: $color-darkgray-200;
@@ -85,6 +86,12 @@ $sw-search-bar-item-label-hover-color-text: $color-shopware-brand-500;
 
         &.is--active .sw-shortcut-overview-item {
             display: block;
+        }
+
+        .sw-highlight-text:first-child {
+            @include truncate;
+
+            width: 350px;
         }
 
         .sw-highlight-text:last-child {

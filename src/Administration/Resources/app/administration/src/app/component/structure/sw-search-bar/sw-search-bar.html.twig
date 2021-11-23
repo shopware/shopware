@@ -191,7 +191,7 @@
 
                             {% block sw_search_bar_results_list_bar_item %}
                             <li
-                                v-if="feature.isActive('FEATURE_NEXT_6040') && entity.entity !== 'module'"
+                                v-if="feature.isActive('FEATURE_NEXT_6040') && entity.entity !== 'module' && entity.total > searchLimit"
                                 class="sw-search-bar-item sw-search-bar-item--v2"
                             >
                                 {% block sw_search_bar_results_list_bar_item_icon %}

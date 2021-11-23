@@ -2,6 +2,8 @@
 
 import MediaPageObject from '../../../support/pages/module/sw-media.page-object';
 
+const uuid = require('uuid/v4');
+
 function setMediaEntitySearchable() {
     cy.window().then(($w) => {
         const search = $w.Shopware.Module.getModuleByEntityName('media')
@@ -21,8 +23,74 @@ describe('Search bar: Check main functionality', () => {
     });
 
     it('@base @searchBar @search: search for a product', () => {
-        cy.createProductFixture()
+        let taxId; let
+            currencyId;
+
+        cy.createDefaultFixture('tax')
             .then(() => {
+                cy.searchViaAdminApi({
+                    data: {
+                        field: 'name',
+                        value: 'Standard rate'
+                    },
+                    endpoint: 'tax'
+                });
+            }).then(tax => {
+                taxId = tax.id;
+
+                cy.searchViaAdminApi({
+                    data: {
+                        field: 'name',
+                        value: 'Euro'
+                    },
+                    endpoint: 'currency'
+                });
+            }).then(currency => {
+                currencyId = currency.id;
+
+                cy.authenticate();
+            })
+            .then(auth => {
+                const products = [];
+                for (let i = 1; i <= 11; i++) {
+                    products.push(
+                        {
+                            name: `product-${i}`,
+                            stock: i,
+                            productNumber: uuid().replace(/-/g, ''),
+                            taxId: taxId,
+                            price: [
+                                {
+                                    currencyId: currencyId,
+                                    net: 42,
+                                    linked: false,
+                                    gross: 64
+                                }
+                            ]
+                        }
+                    );
+                }
+                return cy.request({
+                    headers: {
+                        Accept: 'application/vnd.api+json',
+                        Authorization: `Bearer ${auth.access}`,
+                        'Content-Type': 'application/json'
+                    },
+                    method: 'POST',
+                    url: '/api/_action/sync',
+                    qs: {
+                        response: true
+                    },
+                    body: {
+                        'write-product': {
+                            entity: 'product',
+                            action: 'upsert',
+                            payload: products
+                        }
+
+                    }
+                });
+            }).then(() => {
                 cy.openInitialPage(`${Cypress.env('admin')}#/sw/dashboard/index`);
             });
 
@@ -32,19 +100,19 @@ describe('Search bar: Check main functionality', () => {
         cy.get('.sw-loader__element')
             .should('not.exist');
 
-        cy.get('input.sw-search-bar__input').type('Product');
+        cy.get('input.sw-search-bar__input').type('product-');
         cy.get('.sw-search-bar__results').should('be.visible');
         cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
-            cy.get('.sw-search-more-results__link').contains('Show all 1 matching results in products...');
+            cy.get('.sw-search-more-results__link').contains('Show all 11 matching results in products...');
         });
         cy.get('.sw-search-bar-item')
             .should('be.visible')
-            .contains('Product name')
+            .contains('product-')
             .click();
 
         cy.get('.smart-bar__header h2')
             .should('be.visible')
-            .contains('Product name');
+            .contains('product-');
     });
 
     it('@searchBar @search: search for a category', () => {
@@ -58,9 +126,6 @@ describe('Search bar: Check main functionality', () => {
 
         cy.get('input.sw-search-bar__input').type('Home');
         cy.get('.sw-search-bar__results').should('be.visible');
-        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
-            cy.get('.sw-search-more-results__link').contains('Show all 1 matching results in categories...');
-        });
         cy.get('.sw-search-bar-item')
             .should('be.visible')
             .contains('Home')
@@ -84,9 +149,6 @@ describe('Search bar: Check main functionality', () => {
 
         cy.get('input.sw-search-bar__input').type('Pep Eroni');
         cy.get('.sw-search-bar__results').should('be.visible');
-        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
-            cy.get('.sw-search-more-results__link').contains('Show all 1 matching results in customers...');
-        });
         cy.get('.sw-search-bar-item')
             .should('be.visible')
             .contains('Pep Eroni')
@@ -149,8 +211,6 @@ describe('Search bar: Check main functionality', () => {
         });
 
         cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
-            cy.get('.sw-search-more-results__link').contains('Show all 1 matching results in orders...');
-
             cy.get('.sw-search-bar-item')
                 .should('be.visible')
                 .contains('Max Mustermann 10000')
@@ -203,9 +263,6 @@ describe('Search bar: Check main functionality', () => {
 
         cy.get('input.sw-search-bar__input').type('sw-login-background');
         cy.get('.sw-search-bar__results').should('be.visible');
-        cy.onlyOnFeature('FEATURE_NEXT_6040', () => {
-            cy.get('.sw-search-more-results__link').contains('Show all 1 matching results in media...');
-        });
         cy.get('.sw-search-bar-item')
             .should('be.visible')
             .contains('sw-login-background')

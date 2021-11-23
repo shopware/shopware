@@ -3,12 +3,17 @@
 namespace Shopware\Core\Framework\Test\Compatibility;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Compatibility\RequestTransformerFixer;
 use Shopware\Core\Framework\Routing\RequestTransformer;
+use Shopware\Core\Framework\Routing\RequestTransformerInterface;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
 
 class RequestTransformerFixerTest extends TestCase
 {
+    use IntegrationTestBehaviour;
+
     /**
      * @dataProvider prefixedHeaderOptions
      */
@@ -66,5 +71,18 @@ class RequestTransformerFixerTest extends TestCase
             },
             true,
         ];
+    }
+
+    public function testServiceRemovesIt(): void
+    {
+        $transformer = $this->getContainer()->get(RequestTransformerInterface::class);
+
+        $r = Request::create(EnvironmentHelper::getVariable('APP_URL'));
+        $r->headers->set('x-forwarded-prefix', 'test');
+        $r->server->set('HTTP_X_FORWARDED_PREFIX', 'test');
+
+        $newRequest = $transformer->transform($r);
+
+        static::assertFalse($newRequest->headers->has('x-forwarded-prefix'));
     }
 }

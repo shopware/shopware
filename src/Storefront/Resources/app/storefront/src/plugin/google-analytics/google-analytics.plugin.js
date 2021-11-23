@@ -15,6 +15,7 @@ import ViewItemEvent from 'src/plugin/google-analytics/events/view-item.event';
 import ViewItemListEvent from 'src/plugin/google-analytics/events/view-item-list.event';
 import ViewSearchResultsEvent from 'src/plugin/google-analytics/events/view-search-results';
 import CookieStorageHelper from 'src/helper/storage/cookie-storage.helper';
+import DomAccess from 'src/helper/dom-access.helper';
 
 export default class GoogleAnalyticsPlugin extends Plugin
 {
@@ -31,6 +32,15 @@ export default class GoogleAnalyticsPlugin extends Plugin
     }
 
     startGoogleAnalytics() {
+        const gtmScript = document.createElement('script');
+        gtmScript.src = window.gtagURL;
+        document.head.append(gtmScript);
+
+        const gtmSetupScript = document.createElement('script');
+        const gtmScriptTemplate = DomAccess.querySelector(document.head, '#sw-google-tag-manager-init').text;
+        gtmSetupScript.text = gtmScriptTemplate;
+        document.head.append(gtmSetupScript);
+
         window.gtagCallback();
 
         this.controllerName = window.controllerName;

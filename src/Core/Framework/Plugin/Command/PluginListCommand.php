@@ -36,6 +36,7 @@ class PluginListCommand extends Command
     {
         $this
             ->setDescription('Show a list of available plugins.')
+            ->addOption('json', null, InputOption::VALUE_NONE, 'Return result as json of plugin entities')
             ->addOption('filter', 'f', InputOption::VALUE_REQUIRED, 'Filter the plugin list to a given term');
     }
 
@@ -60,6 +61,11 @@ class PluginListCommand extends Command
         }
         /** @var PluginCollection $plugins */
         $plugins = $this->pluginRepo->search($criteria, $context)->getEntities();
+
+        if ($input->getOption('json')) {
+            $output->write(json_encode($plugins, JSON_THROW_ON_ERROR));
+            return self::SUCCESS;
+        }
 
         $pluginTable = [];
         $active = $installed = $upgradeable = 0;

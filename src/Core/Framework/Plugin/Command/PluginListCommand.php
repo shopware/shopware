@@ -63,7 +63,7 @@ class PluginListCommand extends Command
         $plugins = $this->pluginRepo->search($criteria, $context)->getEntities();
 
         if ($input->getOption('json')) {
-            $output->write(json_encode($plugins, JSON_THROW_ON_ERROR));
+            $output->write(json_encode($plugins, \JSON_THROW_ON_ERROR));
             return self::SUCCESS;
         }
 

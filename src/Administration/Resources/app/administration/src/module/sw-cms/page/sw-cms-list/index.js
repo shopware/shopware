@@ -303,8 +303,14 @@ Component.register('sw-cms-list', {
         },
 
         onDuplicateCmsPage(page) {
+            const behavior = {
+                overwrites: {
+                    name: `${page.name} - ${this.$tc('global.default.copy')}`,
+                },
+            };
+
             this.isLoading = true;
-            this.pageRepository.clone(page.id).then(() => {
+            this.pageRepository.clone(page.id, Shopware.Context.api, behavior).then(() => {
                 this.resetList();
                 this.isLoading = false;
             }).catch(() => {

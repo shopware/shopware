@@ -636,5 +636,9 @@ base-uri 'self';
             <argument type="service" id="Shopware\Core\Framework\Log\Monolog\ExcludeExceptionHandler.inner"/>
             <argument>%shopware.logger.exclude_exception%</argument>
         </service>
+
+        <service id="Shopware\Core\Framework\Compatibility\RequestTransformerFixer" decorates="Shopware\Core\Framework\Routing\RequestTransformerInterface">
+            <argument type="service" id="Shopware\Core\Framework\Compatibility\RequestTransformerFixer.inner"/>
+        </service>
     </services>
 </container>

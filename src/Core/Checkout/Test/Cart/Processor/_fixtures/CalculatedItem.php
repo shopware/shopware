@@ -22,7 +22,7 @@ class CalculatedItem extends QuantityItem
             new NetPriceCalculator(new TaxCalculator(), new CashRounding())
         );
 
-        assert($this->getPriceDefinition() instanceof QuantityPriceDefinition);
+        \assert($this->getPriceDefinition() instanceof QuantityPriceDefinition);
         $this->price = $calculator->calculate($this->getPriceDefinition(), $context);
     }
 }

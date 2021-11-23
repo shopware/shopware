@@ -161,6 +161,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
                 foreach ($decoded['price'] as $price) {
                     $collection->add(new Price($price['currencyId'], (float) $price['net'], (float) $price['gross'], (bool) $price['linked']));
                 }
+
                 return new CurrencyPriceDefinition($collection, $rules);
             case PercentagePriceDefinition::TYPE:
                 $rules = \array_key_exists('filter', $decoded) && $decoded['filter'] !== null ? $this->decodeRule($decoded['filter']) : null;

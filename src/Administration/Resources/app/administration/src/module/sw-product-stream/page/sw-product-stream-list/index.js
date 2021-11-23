@@ -65,6 +65,17 @@ Component.register('sw-product-stream-list', {
             let criteria = new Criteria(this.page, this.limit);
 
             criteria.setTerm(this.term);
+            if (this.acl.can('category:read')) {
+                criteria.addAggregation(
+                    Criteria.terms(
+                        'product_stream',
+                        'id',
+                        null,
+                        null,
+                        Criteria.count('categories', 'product_stream.categories.id'),
+                    ),
+                );
+            }
             this.naturalSorting = this.sortBy === 'createdAt';
             criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
 
@@ -122,6 +133,42 @@ Component.register('sw-product-stream-list', {
                 showOnDisabledElements,
                 disabled: this.acl.can(role) || this.allowDelete,
             };
+        },
+
+        onDeleteItemFailed({ id, errorResponse }) {
+            const stream = this.productStreams?.get(id);
+            const message = errorResponse?.response?.data?.errors?.[0]?.detail || null;
+
+            if (!stream) {
+                return;
+            }
+
+            if (!this.productStreams.aggregations.product_stream) {
+                this.createNotificationError({ message });
+                return;
+            }
+
+            const aggregation = this.productStreams.aggregations.product_stream.buckets.filter((bucket) => {
+                return bucket.key === id;
+            }).at(0);
+
+            const count = aggregation.categories.count;
+            const name = stream.name;
+
+            if (count === 0) {
+                this.createNotificationError({ message });
+                return;
+            }
+
+            this.createNotificationError({
+                message: this.$tc('sw-product-stream.general.errorCategory', count, { name, count }),
+            });
+        },
+
+        onDeleteItemsFailed({ selectedIds, errorResponse }) {
+            selectedIds.forEach((id) => {
+                this.onDeleteItemFailed({ id, errorResponse });
+            });
         },
     },
 });

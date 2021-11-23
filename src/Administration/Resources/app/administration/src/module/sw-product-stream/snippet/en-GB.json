@@ -3,7 +3,8 @@
     "general": {
       "mainMenuItemGeneral": "Dynamic product groups",
       "placeholderSearchBar": "Search dynamic product groups...",
-      "descriptionTextModule": "Manage dynamic product groups here."
+      "descriptionTextModule": "Manage dynamic product groups here.",
+      "errorCategory": "The dynamic product group \"{name}\" is defined as product assignment of one category and can therefore not be deleted. | The dynamic product group \"{name}\" is defined as product assignment of {count} categories and can therefore not be deleted."
     },
     "acl": {
       "conditionsAlertHeading": "Not enough permissions",

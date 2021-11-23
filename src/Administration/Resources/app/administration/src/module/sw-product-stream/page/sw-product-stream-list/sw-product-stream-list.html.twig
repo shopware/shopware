@@ -82,6 +82,8 @@
                 @column-sort="onSortColumn"
                 @inline-edit-save="onInlineEditSave"
                 @items-delete-finish="getList"
+                @delete-item-failed="onDeleteItemFailed"
+                @delete-items-failed="onDeleteItemsFailed"
             >
 
                 {% block sw_product_stream_list_grid_bulk %}

@@ -45,14 +45,11 @@ class PluginListCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new ShopwareStyle($input, $output);
-        $io->title('Shopware Plugin Service');
         $context = Context::createDefaultContext();
 
         $criteria = new Criteria();
         $filter = $input->getOption('filter');
         if ($filter) {
-            $io->comment(sprintf('Filtering for: %s', $filter));
-
             $criteria->addFilter(new MultiFilter(
                 MultiFilter::CONNECTION_OR,
                 [
@@ -66,6 +63,12 @@ class PluginListCommand extends Command
 
         $pluginTable = [];
         $active = $installed = $upgradeable = 0;
+
+        $io->title('Shopware Plugin Service');
+
+        if ($filter) {
+            $io->comment(sprintf('Filtering for: %s', $filter));
+        }
 
         foreach ($plugins as $plugin) {
             $pluginActive = $plugin->getActive();

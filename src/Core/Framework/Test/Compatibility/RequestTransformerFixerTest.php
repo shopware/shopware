@@ -28,6 +28,9 @@ class RequestTransformerFixerTest extends TestCase
         $newRequest = (new RequestTransformerFixer($innerTransformer))->transform($request);
 
         static::assertSame($assert, $newRequest->headers->has('x-forwarded-prefix'));
+
+        // Reset to default
+        Request::setTrustedProxies([], -1);
     }
 
     public function prefixedHeaderOptions(): iterable
@@ -75,9 +78,13 @@ class RequestTransformerFixerTest extends TestCase
 
     public function testServiceRemovesIt(): void
     {
+        // Reset to default
+        Request::setTrustedProxies([], -1);
+
         $transformer = $this->getContainer()->get(RequestTransformerInterface::class);
 
         $r = Request::create(EnvironmentHelper::getVariable('APP_URL'));
+        $r->server->set('REMOTE_ADDR', '127.0.0.1');
         $r->headers->set('x-forwarded-prefix', 'test');
         $r->server->set('HTTP_X_FORWARDED_PREFIX', 'test');
 

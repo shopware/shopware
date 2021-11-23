@@ -514,7 +514,7 @@
       "placeholderSearchField": "Finde Produkte, Kunden, Bestellungen ...",
       "placeholderTypeSearchField": "Alle {entity} durchsuchen ...",
       "placeholderShortcutInfo": "Tipp: Über die \"f\"-Taste, kannst Du die Suche schneller öffnen.",
-      "placeholderSearchShortcutInfo": "Drücke <span>f</span>, um die Suche zu öffnen.",
+      "placeholderSearchShortcutInfo": "<strong>Tipp:</strong> Drücke <span>f</span> um die Suche von überall zu öffnen.",
       "moduleFiltersHeadline": "Modulfilter",
       "placeholderFilterShortcutInfo": "Gib <span>#</span> in die Suche ein, um Modulfilter festzulegen.",
       "searchTypeAll": "Alle",

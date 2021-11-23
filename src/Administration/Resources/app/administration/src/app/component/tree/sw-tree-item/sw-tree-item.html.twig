@@ -88,11 +88,11 @@
 
         {% block sw_tree_item_element_content %}
         <div
+            ref="item"
             v-tooltip="{
                 message: item.disabledToolTipText,
                 disabled: !item.disabledToolTipText,
             }"
-            ref="item"
             class="sw-tree-item__content"
         >
             <slot

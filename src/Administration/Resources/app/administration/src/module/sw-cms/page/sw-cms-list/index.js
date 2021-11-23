@@ -12,6 +12,7 @@ Component.register('sw-cms-list', {
     mixins: [
         Mixin.getByName('listing'),
         Mixin.getByName('notification'),
+        Mixin.getByName('user-settings'),
     ],
 
     data() {
@@ -19,9 +20,14 @@ Component.register('sw-cms-list', {
             pages: [],
             linkedLayouts: [],
             isLoading: false,
+            cardViewIdentifier: 'grid.cms.sw-cms-list-grid',
             sortBy: 'createdAt',
             sortDirection: 'DESC',
             limit: 9,
+            limitDefaults: {
+                gridView: 10,
+                cardView: 9,
+            },
             term: null,
             currentPageType: null,
             showMediaModal: false,
@@ -134,7 +140,34 @@ Component.register('sw-cms-list', {
         createdComponent() {
             Shopware.State.commit('adminMenu/collapseSidebar');
 
+            this.loadGridUserSettings();
             this.setPageContext();
+            this.resetList();
+        },
+
+        async loadGridUserSettings() {
+            const settings = await this.getUserSettings(this.cardViewIdentifier);
+            if (!settings) {
+                return;
+            }
+
+            this.listMode = settings.listMode;
+            this.sortBy = settings.sortBy;
+            this.sortDirection = settings.sortDirection;
+
+            this.updateLimit();
+        },
+
+        updateLimit() {
+            this.limit = (this.listMode === 'grid') ? this.limitDefaults.cardView : this.limitDefaults.gridView;
+        },
+
+        saveGridUserSettings() {
+            this.saveUserSettings(this.cardViewIdentifier, {
+                listMode: this.listMode,
+                sortBy: this.sortBy,
+                sortDirection: this.sortDirection,
+            });
         },
 
         setPageContext() {
@@ -231,6 +264,7 @@ Component.register('sw-cms-list', {
         onSortingChanged(value) {
             [this.sortBy, this.sortDirection] = value.split(':');
             this.resetList();
+            this.saveGridUserSettings();
         },
 
         onSearch(value = null) {
@@ -270,9 +304,10 @@ Component.register('sw-cms-list', {
 
         onListModeChange() {
             this.listMode = (this.listMode === 'grid') ? 'list' : 'grid';
-            this.limit = (this.listMode === 'grid') ? 9 : 10;
 
+            this.updateLimit();
             this.resetList();
+            this.saveGridUserSettings();
         },
 
         onPreviewChange(page) {
@@ -340,7 +375,6 @@ Component.register('sw-cms-list', {
         },
 
         deleteCmsPage(page) {
-            const titleDeleteError = this.$tc('global.default.error');
             const messageDeleteError = this.$tc('sw-cms.components.cmsListItem.notificationDeleteErrorMessage');
 
             this.isLoading = true;
@@ -349,7 +383,6 @@ Component.register('sw-cms-list', {
             }).catch(() => {
                 this.isLoading = false;
                 this.createNotificationError({
-                    title: titleDeleteError,
                     message: messageDeleteError,
                 });
             });
@@ -361,9 +394,11 @@ Component.register('sw-cms-list', {
                 label: this.$tc('sw-cms.list.gridHeaderName'),
                 inlineEdit: 'string',
                 primary: true,
+                sortable: false,
             }, {
                 property: 'type',
                 label: this.$tc('sw-cms.list.gridHeaderType'),
+                sortable: false,
             }, {
                 property: 'assignments',
                 label: this.$tc('sw-cms.list.gridHeaderAssignments'),
@@ -371,6 +406,12 @@ Component.register('sw-cms-list', {
             }, {
                 property: 'createdAt',
                 label: this.$tc('sw-cms.list.gridHeaderCreated'),
+                sortable: false,
+            }, {
+                property: 'updatedAt',
+                label: this.$tc('sw-cms.list.gridHeaderUpdated'),
+                sortable: false,
+                visible: false,
             }];
         },
 
@@ -388,6 +429,12 @@ Component.register('sw-cms-list', {
                 message: this.$tc('sw-cms.general.deleteDisabledToolTip'),
                 disabled: !this.layoutIsLinked(page.id),
             };
+        },
+
+        optionContextDeleteDisabled(page) {
+            return page.categories.length > 0 ||
+                (page.products && page.products.length > 0) ||
+                !this.acl.can('cms.deleter');
         },
     },
 });

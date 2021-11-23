@@ -1,0 +1,308 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Checkout\Test\Cart\Facade;
+
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\Facade\CartFacadeHookFactory;
+use Shopware\Core\Checkout\Cart\Facade\ItemFacade;
+use Shopware\Core\Checkout\Cart\Hook\CartHook;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Content\Test\Product\ProductBuilder;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Script\Exception\HookInjectionException;
+use Shopware\Core\Framework\Script\Execution\Script;
+use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
+use Shopware\Core\Framework\Test\App\AppSystemTestBehaviour;
+use Shopware\Core\Framework\Test\IdsCollection;
+use Shopware\Core\Framework\Test\Script\Execution\TestHook;
+use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\Test\TestDefaults;
+
+class CartFacadeTest extends TestCase
+{
+    use IntegrationTestBehaviour;
+    use AppSystemTestBehaviour;
+
+    private IdsCollection $ids;
+
+    private Script $script;
+
+    protected function setUp(): void
+    {
+        Feature::skipTestIfInActive('FEATURE_NEXT_17441', $this);
+
+        parent::setUp();
+
+        $this->init();
+        $this->script = new Script('test', '', new \DateTimeImmutable(), null);
+    }
+
+    /**
+     * @dataProvider addProductProvider
+     */
+    public function testAddProduct(string $input, ?string $expected): void
+    {
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, []);
+
+        $hook = new CartHook(new Cart('test', 'test'), $context);
+
+        $service = $this->getContainer()->get(CartFacadeHookFactory::class)
+            ->factory($hook, $this->script);
+
+        $service->products()->add($this->ids->get($input));
+        $service->calculate();
+
+        $item = $service->products()->get($this->ids->get($input));
+
+        if ($expected === null) {
+            static::assertNull($item);
+
+            return;
+        }
+
+        static::assertInstanceOf(ItemFacade::class, $item);
+        static::assertEquals($this->ids->get($expected), $item->getReferencedId());
+        static::assertEquals(LineItem::PRODUCT_LINE_ITEM_TYPE, $item->getType());
+    }
+
+    public function testRemove(): void
+    {
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, []);
+
+        $hook = new CartHook(new Cart('test', 'test'), $context);
+        $cart = $this->getContainer()->get(CartFacadeHookFactory::class)->factory($hook, $this->script);
+
+        $item = $cart->products()->add($this->ids->get('p1'));
+
+        static::assertInstanceOf(ItemFacade::class, $item);
+        static::assertEquals($this->ids->get('p1'), $item->getReferencedId());
+        static::assertEquals(LineItem::PRODUCT_LINE_ITEM_TYPE, $item->getType());
+
+        $cart->remove($item->getId());
+
+        static::assertNull($cart->get($this->ids->get('p1')));
+        $cart->remove('not-existing');
+    }
+
+    /**
+     * @dataProvider scriptProvider
+     */
+    public function testScripts(string $hook, array $expectations): void
+    {
+        $this->loadAppsFromDir(__DIR__ . '/_fixtures');
+
+        $hook = $this->createTestHook($hook, $this->ids);
+
+        $service = $this->getContainer()
+            ->get(CartFacadeHookFactory::class)
+            ->factory($hook, $this->script);
+
+        $this->getContainer()->get(ScriptExecutor::class)->execute($hook);
+
+        $this->assertItems($service, $expectations);
+    }
+
+    public function testDependency(): void
+    {
+        $this->expectException(HookInjectionException::class);
+
+        $service = $this->getContainer()->get(CartFacadeHookFactory::class);
+        $service->factory(new TestHook('test', Context::createDefaultContext()), $this->script);
+    }
+
+    public function addProductProvider(): \Generator
+    {
+        yield 'Test with simple product' => ['p1', 'p1'];
+        yield 'Test variant support' => ['v2.1', 'v2.1'];
+        yield 'Test parents will not be added' => ['p2', null];
+    }
+
+    public function scriptProvider(): \Generator
+    {
+        yield 'Test add product case' => [
+            'add-product-cases',
+            [
+                'p1' => new ExpectedPrice(100),
+                'v2.1' => new ExpectedPrice(100),
+                'p2' => null,
+            ],
+        ];
+
+        yield 'Test remove product' => [
+            'remove-product-cases',
+            [
+                'p1' => null,
+                'v2.1' => new ExpectedPrice(100),
+            ],
+        ];
+
+        yield 'Add simple discount' => [
+            'add-simple-discount',
+            [
+                'p1' => new ExpectedPrice(100),
+                'discount' => new ExpectedPrice(-10),
+            ],
+        ];
+
+        yield 'Add discount for stacked items' => [
+            'add-discount-for-stacked-items',
+            [
+                'p1' => new ExpectedPrice(100, 300),
+                'discount' => new ExpectedPrice(-30),
+            ],
+        ];
+
+        yield 'Add discount for multiple items' => [
+            'add-discount-for-multiple-items',
+            [
+                'p1' => new ExpectedPrice(100),
+                'v2.1' => new ExpectedPrice(100),
+                'discount' => new ExpectedPrice(-20),
+            ],
+        ];
+
+        yield 'Add absolute discount' => [
+            'add-absolute-discount',
+            [
+                'p1' => new ExpectedPrice(100),
+                'discount' => new ExpectedPrice(-19.99),
+            ],
+        ];
+
+        yield 'Test split product' => [
+            'split-product',
+            [
+                'p1' => new ExpectedPrice(100, 300),
+                'new-key' => new ExpectedPrice(100, 200),
+            ],
+        ];
+
+        yield 'Test add container' => [
+            'add-container',
+            [
+                'p1' => new ExpectedPrice(100, 300),
+                'my-container' => [
+                    'price' => new ExpectedPrice(180),
+                    'children' => [
+                        'first' => new ExpectedPrice(100),
+                        'second' => new ExpectedPrice(100),
+                        'discount' => new ExpectedPrice(-20),
+                    ],
+                ],
+            ],
+        ];
+
+        yield 'Test nested containers' => [
+            'add-nested-container',
+            [
+                'p1' => new ExpectedPrice(100),
+                'my-container' => [
+                    'price' => new ExpectedPrice(315),
+                    'children' => [
+                        'first' => new ExpectedPrice(100),
+                        'second' => new ExpectedPrice(100),
+                        'discount' => new ExpectedPrice(-35),
+                        'nested' => [
+                            'price' => new ExpectedPrice(150),
+                            'children' => [
+                                'third' => new ExpectedPrice(100),
+                                'fourth' => new ExpectedPrice(100),
+                                'absolute' => new ExpectedPrice(-50),
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    private function assertItems($scope, array $expectations): void
+    {
+        foreach ($expectations as $key => $expected) {
+            if ($expected === null) {
+                static::assertFalse($scope->has($key));
+
+                continue;
+            }
+
+            if ($this->ids->has($key)) {
+                $key = $this->ids->get($key);
+            }
+            static::assertTrue($scope->has($key), sprintf('Can not find item %s', $key));
+            $item = $scope->get($key);
+
+            if ($expected instanceof CalculatedPrice) {
+                static::assertInstanceOf(ItemFacade::class, $item);
+                static::assertEquals($expected->getUnitPrice(), $item->getPrice()->unit());
+                static::assertEquals($expected->getTotalPrice(), $item->getPrice()->total());
+
+                continue;
+            }
+
+            $price = $expected['price'];
+            static::assertInstanceOf(ItemFacade::class, $item);
+            static::assertEquals($price->getUnitPrice(), $item->getPrice()->unit(), print_r($item->getItem(), true));
+            static::assertEquals($price->getTotalPrice(), $item->getPrice()->total());
+
+            $this->assertItems($item->getChildren(), $expected['children']);
+        }
+    }
+
+    private function createTestHook(string $case, IdsCollection $ids, array $data = []): CartTestHook
+    {
+        $context = $this->getContainer()->get(SalesChannelContextFactory::class)
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL, []);
+
+        $cart = new Cart(Uuid::randomHex(), 'test');
+
+        $data['ids'] = $ids;
+
+        return new CartTestHook($case, $cart, $context, $data, [CartFacadeHookFactory::class]);
+    }
+
+    private function init(): IdsCollection
+    {
+        $this->ids = new IdsCollection();
+        $products = [
+            (new ProductBuilder($this->ids, 'p1'))
+                ->price(100)
+                ->visibility()
+                ->build(),
+            (new ProductBuilder($this->ids, 'p2'))
+                ->price(100)
+                ->variant(
+                    (new ProductBuilder($this->ids, 'v2.1'))
+                        ->option('red', 'color')
+                        ->build()
+                )
+                ->visibility()
+                ->build(),
+        ];
+
+        $this->getContainer()->get('product.repository')
+            ->create($products, Context::createDefaultContext());
+
+        return $this->ids;
+    }
+}
+
+class ExpectedPrice extends CalculatedPrice
+{
+    public function __construct(float $unitPrice, ?float $totalPrice = null, ?CalculatedTaxCollection $calculatedTaxes = null, ?TaxRuleCollection $taxRules = null, int $quantity = 1)
+    {
+        $totalPrice = $totalPrice ?? $unitPrice;
+        $calculatedTaxes = $calculatedTaxes ?? new CalculatedTaxCollection([]);
+        $taxRules = $taxRules ?? new TaxRuleCollection([]);
+
+        parent::__construct($unitPrice, $totalPrice, $calculatedTaxes, $taxRules, $quantity);
+    }
+}

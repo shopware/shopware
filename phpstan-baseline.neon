@@ -6,11 +6,6 @@ parameters:
 			path: src/Core/Checkout/Cart/Cart.php
 
 		-
-			message: "#^Method Shopware\\\\Core\\\\Checkout\\\\Cart\\\\CartBehavior\\:\\:hasPermission\\(\\) has no return typehint specified\\.$#"
-			count: 1
-			path: src/Core/Checkout/Cart/CartBehavior.php
-
-		-
 			message: "#^Cannot call method getDeliveryDate\\(\\) on Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Delivery\\\\Struct\\\\DeliveryPosition\\|null\\.$#"
 			count: 1
 			path: src/Core/Checkout/Cart/Delivery/DeliveryBuilder.php

@@ -139,6 +139,10 @@ parameters:
         -
             message: '#Parameter \#2 \$success of class Shopware\\Core\\Framework\\Api\\Sync\\SyncResult constructor expects bool, array given\.#'
             path: src/Core/Framework/Api/Sync/SyncService.php
+        # Closures with no specific return type
+        -
+            message: '#Method Shopware\\Core\\Checkout\\Cart\\CartBehavior::disableHooks\(\) has no return typehint specified\.#'
+            path: src/Core/Checkout/Cart/CartBehavior.php
         # EventDispatcherInterface::dispatch() should be return object
         -
             message: '#Method Shopware\\Core\\Content\\Flow\\Dispatching\\FlowDispatcher\:\:dispatch\(\) should return TEvent of object but returns \(Shopware\\Core\\Framework\\Event\\BusinessEvent\&TEvent of object\)\|\(Shopware\\Core\\Framework\\Event\\FlowEvent&Shopware\\Core\\Framework\\Event\\FlowEventAware\&TEvent of object\)\.#'

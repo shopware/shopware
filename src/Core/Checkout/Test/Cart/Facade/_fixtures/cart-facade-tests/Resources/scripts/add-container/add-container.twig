@@ -1,0 +1,18 @@
+{# @var services \Shopware\Core\Framework\Script\Services #}
+
+{% set p1 = hook.ids.get('p1') %}
+
+{% do services.cart.products.add(p1, 5) %}
+
+{% set product = services.cart.products.get(p1) %}
+
+{% set container = services.cart.container('my-container') %}
+
+{# @var container \Shopware\Core\Checkout\Cart\Facade\ContainerFacade #}
+{% do container.add(product.take(1, 'first')) %}
+
+{% do container.add(product.take(1, 'second')) %}
+
+{% do container.discount('discount', 'percentage', -10, 'Fanzy discount') %}
+
+{% do services.cart.items.add(container) %}

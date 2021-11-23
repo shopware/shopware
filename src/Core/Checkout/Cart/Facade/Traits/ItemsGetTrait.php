@@ -1,0 +1,42 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Core\Checkout\Cart\Facade\Traits;
+
+use Shopware\Core\Checkout\Cart\Facade\ContainerFacade;
+use Shopware\Core\Checkout\Cart\Facade\ItemFacade;
+use Shopware\Core\Checkout\Cart\Facade\Services;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+
+/**
+ * @internal
+ */
+trait ItemsGetTrait
+{
+    protected LineItemCollection $items;
+
+    protected Services $services;
+
+    public function get(string $id): ?ItemFacade
+    {
+        $item = $this->getItems()->get($id);
+
+        if (!$item instanceof LineItem) {
+            return null;
+        }
+
+        if ($item->getType() === 'container') {
+            return new ContainerFacade($item, $this->services);
+        }
+
+        return new ItemFacade($item, $this->services);
+    }
+
+    /**
+     * @internal
+     */
+    protected function getItems(): LineItemCollection
+    {
+        return $this->items;
+    }
+}

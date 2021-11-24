@@ -212,7 +212,7 @@ Component.register('sw-settings-snippet-detail', {
                 if (!snippet.author) {
                     snippet.author = this.currentAuthor;
                 }
-                snippet.value = Sanitizer.sanitize(snippet.value);
+                snippet.value = Sanitizer.sanitize(snippet.value, { ADD_ATTR: ['target'] });
 
                 if (!snippet.hasOwnProperty('value') || snippet.value === null) {
                     // If you clear the input-box, reset it to its origin value

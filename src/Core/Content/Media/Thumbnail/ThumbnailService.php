@@ -179,26 +179,30 @@ class ThumbnailService
 
         $strict = \func_get_args()[2] ?? false;
 
-        $tobBeCreatedSizes = new MediaThumbnailSizeCollection($config->getMediaThumbnailSizes()->getElements());
+        $toBeCreatedSizes = new MediaThumbnailSizeCollection($config->getMediaThumbnailSizes()->getElements());
         $toBeDeletedThumbnails = new MediaThumbnailCollection($media->getThumbnails()->getElements());
 
-        foreach ($tobBeCreatedSizes as $thumbnailSize) {
+        foreach ($toBeCreatedSizes as $thumbnailSize) {
             foreach ($toBeDeletedThumbnails as $thumbnail) {
-                if ($thumbnail->getWidth() === $thumbnailSize->getWidth()
-                    && $thumbnail->getHeight() === $thumbnailSize->getHeight()
-                    && ($strict === false || $this->getFileSystem($media)->has($this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail)))
-                ) {
-                    $toBeDeletedThumbnails->remove($thumbnail->getId());
-                    $tobBeCreatedSizes->remove($thumbnailSize->getId());
-
-                    continue 2;
+                if (!$this->isSameDimension($thumbnail, $thumbnailSize)) {
+                    continue;
                 }
+
+                if ($strict === true
+                    && !$this->getFileSystem($media)->has($this->urlGenerator->getRelativeThumbnailUrl($media, $thumbnail))) {
+                    continue;
+                }
+
+                $toBeDeletedThumbnails->remove($thumbnail->getId());
+                $toBeCreatedSizes->remove($thumbnailSize->getId());
+
+                continue 2;
             }
         }
 
         $this->thumbnailRepository->delete($toBeDeletedThumbnails->getIds(), $context);
 
-        $update = $this->createThumbnailsForSizes($media, $config, $tobBeCreatedSizes);
+        $update = $this->createThumbnailsForSizes($media, $config, $toBeCreatedSizes);
 
         if (empty($update)) {
             return 0;
@@ -508,5 +512,11 @@ class ThumbnailService
         }
 
         return $this->filesystemPublic;
+    }
+
+    private function isSameDimension(MediaThumbnailEntity $thumbnail, MediaThumbnailSizeEntity $thumbnailSize): bool
+    {
+        return $thumbnail->getWidth() === $thumbnailSize->getWidth()
+            && $thumbnail->getHeight() === $thumbnailSize->getHeight();
     }
 }

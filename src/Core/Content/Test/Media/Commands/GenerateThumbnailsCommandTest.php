@@ -13,6 +13,7 @@ use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepositoryInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Test\TestCaseBase\CommandTestBehaviour;
@@ -364,21 +365,24 @@ class GenerateThumbnailsCommandTest extends TestCase
         $this->getPublicFilesystem()->putStream($filePath, fopen(__DIR__ . '/../fixtures/shopware.jpg', 'rb'));
     }
 
-    private function getNewMediaEntities()
+    private function getNewMediaEntities(): EntitySearchResult
     {
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsAnyFilter('id', $this->initialMediaIds));
-        $result = $this->mediaRepository->searchIds($criteria, $this->context);
-        static::assertEquals(\count($this->initialMediaIds), $result->getTotal());
+        if (!empty($this->initialMediaIds)) {
+            $criteria = new Criteria($this->initialMediaIds);
+            $result = $this->mediaRepository->searchIds($criteria, $this->context);
+            static::assertEquals(\count($this->initialMediaIds), $result->getTotal());
+        }
 
         $criteria = new Criteria();
         $criteria->addAssociation('thumbnails');
-        $criteria->addFilter(new NotFilter(
-            NotFilter::CONNECTION_AND,
-            [
-                new EqualsAnyFilter('id', $this->initialMediaIds),
-            ]
-        ));
+        if (!empty($this->initialMediaIds)) {
+            $criteria->addFilter(new NotFilter(
+                NotFilter::CONNECTION_AND,
+                [
+                    new EqualsAnyFilter('id', $this->initialMediaIds),
+                ]
+            ));
+        }
 
         return $this->mediaRepository->search($criteria, $this->context);
     }

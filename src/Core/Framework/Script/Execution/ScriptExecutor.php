@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Script\Execution;
 
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Twig\Extension\PhpSyntaxExtension;
+use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Script\Debugging\Debug;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
@@ -77,7 +78,7 @@ class ScriptExecutor
 
     private function initEnv(Script $script): Environment
     {
-        $twig = new Environment(
+        $twig = new TwigEnvironment(
             new ScriptTwigLoader($script),
             $script->getTwigOptions()
         );

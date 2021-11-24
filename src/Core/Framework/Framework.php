@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DependencyInjection\CompilerPass\FeatureFlagCompiler
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\FilesystemConfigMigrationCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RateLimiterCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RouteScopeCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigEnvironmentCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigLoaderConfigCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\FrameworkExtension;
 use Shopware\Core\Framework\Increment\IncrementerGatewayCompilerPass;
@@ -92,6 +93,7 @@ class Framework extends Bundle
         $container->addCompilerPass(new DisableTwigCacheWarmerCompilerPass());
         $container->addCompilerPass(new DefaultTransportCompilerPass());
         $container->addCompilerPass(new TwigLoaderConfigCompilerPass());
+        $container->addCompilerPass(new TwigEnvironmentCompilerPass());
         $container->addCompilerPass(new RouteScopeCompilerPass());
         $container->addCompilerPass(new AssetRegistrationCompilerPass());
         $container->addCompilerPass(new FilesystemConfigMigrationCompilerPass());

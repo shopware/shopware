@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer;
 
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InternalFieldAccessNotAllowedException;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\Framework\Struct\Struct;
@@ -38,8 +39,12 @@ class Entity extends Struct
      */
     private $_entityName;
 
+    private ?FieldVisibility $_fieldVisibility = null;
+
     public function __get($name)
     {
+        $this->checkIfPropertyAccessIsAllowed($name);
+
         return $this->$name;
     }
 
@@ -50,6 +55,10 @@ class Entity extends Struct
 
     public function __isset($name)
     {
+        if (!$this->isPropertyVisible($name)) {
+            return false;
+        }
+
         return isset($this->$name);
     }
 
@@ -78,6 +87,8 @@ class Entity extends Struct
      */
     public function get(string $property)
     {
+        $this->checkIfPropertyAccessIsAllowed($property);
+
         if ($this->has($property)) {
             return $this->$property;
         }
@@ -99,6 +110,10 @@ class Entity extends Struct
 
     public function has(string $property): bool
     {
+        if (!$this->isPropertyVisible($property)) {
+            return false;
+        }
+
         return property_exists($this, $property);
     }
 
@@ -147,6 +162,9 @@ class Entity extends Struct
         $data = parent::jsonSerialize();
 
         unset($data['_entityName']);
+        unset($data['_fieldVisibility']);
+
+        $data = $this->filterInvisibleFields($data);
 
         if (!$this->hasExtension('foreignKeys')) {
             return $data;
@@ -166,6 +184,13 @@ class Entity extends Struct
         }
 
         return $data;
+    }
+
+    public function getVars(): array
+    {
+        $data = parent::getVars();
+
+        return $this->filterInvisibleFields($data);
     }
 
     public function getApiAlias(): string
@@ -188,15 +213,53 @@ class Entity extends Struct
     /**
      * @internal
      */
-    public function internalSetEntityName(string $entityName): self
+    public function internalSetEntityData(string $entityName, FieldVisibility $fieldVisibility): self
     {
         $this->_entityName = $entityName;
+        $this->_fieldVisibility = $fieldVisibility;
 
         return $this;
     }
 
+    /**
+     * @internal
+     */
     public function getInternalEntityName(): ?string
     {
         return $this->_entityName;
+    }
+
+    /**
+     * @internal
+     */
+    protected function filterInvisibleFields(array $data): array
+    {
+        if (!$this->_fieldVisibility) {
+            return $data;
+        }
+
+        return $this->_fieldVisibility->filterInvisible($data);
+    }
+
+    /**
+     * @internal
+     */
+    protected function checkIfPropertyAccessIsAllowed(string $property): void
+    {
+        if (!$this->isPropertyVisible($property)) {
+            throw new InternalFieldAccessNotAllowedException($property, $this);
+        }
+    }
+
+    /**
+     * @internal
+     */
+    protected function isPropertyVisible(string $property): bool
+    {
+        if (!$this->_fieldVisibility) {
+            return true;
+        }
+
+        return $this->_fieldVisibility->isVisible($property);
     }
 }

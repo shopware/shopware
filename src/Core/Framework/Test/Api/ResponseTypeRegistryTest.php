@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Api\Response\ResponseFactoryRegistry;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
@@ -151,7 +152,7 @@ class ResponseTypeRegistryTest extends TestCase
         $category = new CategoryEntity();
         $category->setId($id);
         $category->setName($id);
-        $category->internalSetEntityName('category');
+        $category->internalSetEntityData('category', new FieldVisibility([]));
 
         return $category;
     }

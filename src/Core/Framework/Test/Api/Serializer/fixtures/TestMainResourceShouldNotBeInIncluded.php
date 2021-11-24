@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Test\Api\Serializer\fixtures;
 
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\System\User\UserEntity;
 
 class TestMainResourceShouldNotBeInIncluded extends SerializationFixture
@@ -23,7 +24,7 @@ class TestMainResourceShouldNotBeInIncluded extends SerializationFixture
         $user->setAdmin(true);
         $user->setEmail('user1@shop.de');
         $user->setCreatedAt(new \DateTime('2018-01-15T08:01:16.000+00:00'));
-        $user->internalSetEntityName('user');
+        $user->internalSetEntityData('user', new FieldVisibility([]));
 
         $media = new MediaEntity();
         $media->setId('3e352be2d85846dd97529c0f6b544870');
@@ -35,7 +36,7 @@ class TestMainResourceShouldNotBeInIncluded extends SerializationFixture
         $media->setCreatedAt(new \DateTime('2012-08-15T00:00:00.000+00:00'));
         $media->setUpdatedAt(new \DateTime('2017-11-21T11:25:34.000+00:00'));
         $media->setTitle('Lagerkorn-5,0klein');
-        $media->internalSetEntityName('media');
+        $media->internalSetEntityData('media', new FieldVisibility([]));
 
         $mediaCollection->add($media);
         $user->setMedia($mediaCollection);

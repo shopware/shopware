@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test\Api\Serializer\fixtures;
 
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 
 class TestBasicStruct extends SerializationFixture
 {
@@ -16,7 +17,7 @@ class TestBasicStruct extends SerializationFixture
         $media->setFileSize(310818);
         $media->setAlt('A media object description');
         $media->setCreatedAt(new \DateTime('2018-01-15T08:01:16.432+00:00'));
-        $media->internalSetEntityName('media');
+        $media->internalSetEntityData('media', new FieldVisibility([]));
 
         return $media;
     }

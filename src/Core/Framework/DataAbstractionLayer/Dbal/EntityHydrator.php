@@ -441,7 +441,7 @@ class EntityHydrator
         $entity->addExtension(EntityReader::INTERNAL_MAPPING_STORAGE, new ArrayStruct());
 
         $entity->setUniqueIdentifier($identifier);
-        $entity->internalSetEntityName($definition->getEntityName());
+        $entity->internalSetEntityData($definition->getEntityName(), $definition->getFieldVisibility());
 
         $entity = $hydrator->assign($definition, $entity, $root, $row, $context);
 

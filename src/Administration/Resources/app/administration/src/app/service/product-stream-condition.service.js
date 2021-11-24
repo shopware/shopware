@@ -258,19 +258,22 @@ export default function conditionService() {
     }
 
     /**
-     * @param {string[]} properties
+     * @param {string|string[]} properties
      */
     function addToGeneralAllowList(properties) {
+        properties = Array.isArray(properties) ? properties : [properties];
         allowedProperties.push(...properties);
     }
 
     /**
      * @param {string} entity
-     * @param {string[]} properties
+     * @param {string|string[]} properties
      */
     function addToEntityAllowList(entity, properties) {
         if (entityAllowedProperties[entity]) {
+            properties = Array.isArray(properties) ? properties : [properties];
             entityAllowedProperties[entity].push(...properties);
+
             return;
         }
 
@@ -278,9 +281,10 @@ export default function conditionService() {
     }
 
     /**
-     * @param {string[]} properties
+     * @param {string|string[]} properties
      */
     function removeFromGeneralAllowList(properties) {
+        properties = Array.isArray(properties) ? properties : [properties];
         properties.forEach(entry => {
             allowedProperties.splice(allowedProperties.indexOf(entry), 1);
         });
@@ -288,13 +292,14 @@ export default function conditionService() {
 
     /**
      * @param {string} entity
-     * @param {string[]} properties
+     * @param {string|string[]} properties
      */
     function removeFromEntityAllowList(entity, properties) {
         if (!entityAllowedProperties[entity]) {
             return;
         }
 
+        properties = Array.isArray(properties) ? properties : [properties];
         properties.forEach(entry => {
             entityAllowedProperties[entity].splice(entityAllowedProperties[entity].indexOf(entry), 1);
         });

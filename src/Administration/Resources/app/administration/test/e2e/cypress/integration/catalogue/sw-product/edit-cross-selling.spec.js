@@ -37,7 +37,7 @@ describe('Product: Check cross selling integration', () => {
             });
     });
 
-    it('@catalogue: add cross selling stream to product', () => {
+    it('@catalogue @package: add cross selling stream to product', () => {
         const page = new ProductStreamObject();
 
         // Request we want to wait for later
@@ -116,7 +116,7 @@ describe('Product: Check cross selling integration', () => {
             .should('be.visible');
     });
 
-    it('@catalogue: add manual cross selling to product', () => {
+    it('@catalogue @package: add manual cross selling to product', () => {
         const page = new ProductStreamObject();
 
         // Request we want to wait for later
@@ -205,7 +205,7 @@ describe('Product: Check cross selling integration', () => {
         cy.get('#tns1-item0 .product-name').contains('Third product');
     });
 
-    it('@catalogue: should handle required fields', () => {
+    it('@catalogue @package: should handle required fields', () => {
         const page = new ProductStreamObject();
 
         // Request we want to wait for later

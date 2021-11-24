@@ -18,20 +18,20 @@ class QuerySignerTest extends TestCase
 
     private string $secret;
 
-    private QuerySigner $signer;
+    private QuerySigner $querySigner;
 
     private SystemConfigService $systemConfigService;
 
     protected function setUp(): void
     {
         $this->secret = 'lksf#$osck$FSFDSF#$#F43jjidjsfisj-333';
-        $this->signer = $this->getContainer()->get(QuerySigner::class);
+        $this->querySigner = $this->getContainer()->get(QuerySigner::class);
         $this->systemConfigService = $this->getContainer()->get(SystemConfigService::class);
     }
 
     public function testSignUri(): void
     {
-        $signedUri = $this->signer->signUri('http://app.url/?foo=bar', $this->secret, Context::createDefaultContext());
+        $signedUri = $this->querySigner->signUri('http://app.url/?foo=bar', $this->secret, Context::createDefaultContext());
         parse_str($signedUri->getQuery(), $signedQuery);
 
         static::assertArrayHasKey('shop-id', $signedQuery);

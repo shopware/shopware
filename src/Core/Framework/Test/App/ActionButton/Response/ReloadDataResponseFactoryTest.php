@@ -40,7 +40,7 @@ class ReloadDataResponseFactoryTest extends TestCase
     /**
      * @dataProvider provideActionTypes
      */
-    public function testSupportsOnlyOpenNewTabActionType(string $actionType, bool $isSupported): void
+    public function testSupportsOnlyReloadDataActionType(string $actionType, bool $isSupported): void
     {
         static::assertEquals($isSupported, $this->factory->supports($actionType));
     }

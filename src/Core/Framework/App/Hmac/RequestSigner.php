@@ -2,10 +2,8 @@
 
 namespace Shopware\Core\Framework\App\Hmac;
 
-use GuzzleHttp\Psr7\Uri;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\UriInterface;
 
 class RequestSigner
 {
@@ -47,14 +45,5 @@ class RequestSigner
     public function signPayload(string $payload, string $secretKey, string $algorithm = 'sha256'): string
     {
         return hash_hmac($algorithm, $payload, $secretKey);
-    }
-
-    public function signUri(UriInterface $uri, string $secret): UriInterface
-    {
-        $query = $uri->getQuery();
-
-        $signature = $this->signPayload($query, $secret);
-
-        return Uri::withQueryValue($uri, self::SHOPWARE_SHOP_SIGNATURE, $signature);
     }
 }

@@ -28,7 +28,7 @@ class OpenNewTabResponseFactory implements ActionButtonResponseFactoryInterface
     {
         $this->validate($payload, $action->getActionId());
 
-        $payload['redirectUrl'] = $this->signer->signUri($payload['redirectUrl'], $action->getAppSecret(), $context);
+        $payload['redirectUrl'] = (string) $this->signer->signUri($payload['redirectUrl'], $action->getAppSecret(), $context);
         $response = new OpenNewTabResponse();
         $response->assign($payload);
 

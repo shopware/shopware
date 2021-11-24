@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\App\Hmac;
 
 use GuzzleHttp\Psr7\Uri;
 use Psr\Http\Message\UriInterface;
+use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Store\Authentication\LocaleProvider;
@@ -40,10 +41,14 @@ class QuerySigner
             'shop-url' => $this->shopUrl,
             'timestamp' => (new \DateTime())->getTimestamp(),
             'sw-version' => $this->shopwareVersion,
-            'sw-context-language' => $context->getLanguageId(),
-            'sw-user-language' => $this->localeProvider->getLocaleFromContext($context),
+            AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE => $context->getLanguageId(),
+            AuthMiddleware::SHOPWARE_USER_LANGUAGE => $this->localeProvider->getLocaleFromContext($context),
         ]);
 
-        return (new RequestSigner())->signUri($uri, $secret);
+        return Uri::withQueryValue(
+            $uri,
+            'shopware-shop-signature',
+            (new RequestSigner())->signPayload($uri->getQuery(), $secret)
+        );
     }
 }

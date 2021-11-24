@@ -23,7 +23,7 @@ class ModuleLoader
 
     private ShopIdProvider $shopIdProvider;
 
-    private QuerySigner $signer;
+    private QuerySigner $querySigner;
 
     public function __construct(
         EntityRepositoryInterface $appRepository,
@@ -32,7 +32,7 @@ class ModuleLoader
     ) {
         $this->appRepository = $appRepository;
         $this->shopIdProvider = $shopIdProvider;
-        $this->signer = $signer;
+        $this->querySigner = $signer;
     }
 
     public function loadModules(Context $context): array
@@ -139,6 +139,6 @@ class ModuleLoader
 
     private function sign(string $source, string $secret, Context $context): string
     {
-        return (string) $this->signer->signUri($source, $secret, $context);
+        return (string) $this->querySigner->signUri($source, $secret, $context);
     }
 }

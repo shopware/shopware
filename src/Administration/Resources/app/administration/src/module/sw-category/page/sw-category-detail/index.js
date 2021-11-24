@@ -817,7 +817,7 @@ Component.register('sw-category-detail', {
                             if (configField.entity) {
                                 delete configField.entity;
                             }
-                            if (configField.required) {
+                            if (configField.hasOwnProperty('required')) {
                                 delete configField.required;
                             }
                             if (configField.type) {

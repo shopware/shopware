@@ -236,7 +236,7 @@ Component.register('sw-cms-sidebar', {
                     if (configField.entity) {
                         delete configField.entity;
                     }
-                    if (configField.required) {
+                    if (configField.hasOwnProperty('required')) {
                         delete configField.required;
                     }
                 });

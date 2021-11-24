@@ -84,11 +84,7 @@
         {% endblock %}
 
         {% block layout_head_android %}
-            <link rel="icon"
-                  sizes="192x192"
-                  href="{{ theme_config('sw-logo-share') }}">
-            <meta name="theme-color"
-                  content="{{ theme_config('sw-color-brand-primary') }}"/>
+            {# @deprecated tag:v6.5.0 - Use the block above, "layout_head_apple", instead #}
         {% endblock %}
 
         {% block layout_head_canonical %}
